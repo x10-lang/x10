@@ -56,10 +56,10 @@ public class X10TypeSystem_c
         assert_(fromType);
         assert_(toType);
         if (Report.should_report("debug", 5))
-	    Report.report(5, "[TypeSystem_c] isImplicitCastValid |" + fromType + "| to |" + toType + "|?");
+	    Report.report(5, "[X10TypeSystem_c] isImplicitCastValid |" + fromType + "| to |" + toType + "|?");
         boolean result = fromType.isImplicitCastValidImpl(toType);
         if (Report.should_report("debug", 5))
-	    Report.report(5, "[TypeSystem_c] ... " + result);
+	    Report.report(5, "[X10TypeSystem_c] ... " + result);
         return result;
     }
 
