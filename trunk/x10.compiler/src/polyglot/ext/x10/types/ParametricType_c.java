@@ -5,6 +5,7 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ext.x10.ast.DepParameterExpr;
@@ -38,7 +39,7 @@ public class ParametricType_c extends X10ReferenceType_c implements
 	public ParametricType_c(TypeSystem ts) {
 		super(ts);
 	}
-
+    
 	/**
 	 * @param ts
 	 * @param pos
@@ -49,11 +50,27 @@ public class ParametricType_c extends X10ReferenceType_c implements
 	        GenParameterExpr typeparameters,
 	        DepParameterExpr parameters) {
 		super(ts, pos);
+		assert base != null;
 		this.base = base;
 		this.typeparameters = typeparameters;
 		this.parameters=parameters;
 	}
 
+	public boolean isCanonical() {
+	    if (! base.isCanonical())
+	        return false;
+	    if (typeparameters != null) {
+	        Iterator it = typeparameters.args().iterator();
+	        while (it.hasNext()) {
+	            Type t = (Type) it.next();
+	            if (!t.isCanonical())
+	                return false;
+	        }
+	    }
+	    return true;
+	}
+
+    
 	/* (non-Javadoc)
 	 * @see polyglot.types.ReferenceType#methods()
 	 */
@@ -100,7 +117,9 @@ public class ParametricType_c extends X10ReferenceType_c implements
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return base.toString() + parameters.toString();
+		return base.toString() 
+		+ (typeparameters==null ? "" : typeparameters.toString()) 
+		+ (parameters == null ? "" : parameters.toString());
 	}
 
 	/* (non-Javadoc)
