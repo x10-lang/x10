@@ -123,7 +123,7 @@ with on termination (normal or abrupt).
 %%model reflects hierarchical quiescence detection, cf trees of short
 %%circuits.}
 %%
-\subsection{Marking clocks referenced in statements}\index{clock!clocked statements}
+\subsection{Registering new activities on clocks}\index{clock!clocked statements}
 The programmer may explicitly indicate the set of currently visible
 clocks that are to be used inside a statement using the
 {\tt clocked} statement:
@@ -136,7 +136,8 @@ clocks that are to be used inside a statement using the
        clocked ( ClockListopt ) 
          Statement
 490 ClockedStatementNoShortIf ::= 
-       clocked ( ClockListopt ) StatementNoShortIf
+       clocked ( ClockListopt ) 
+         StatementNoShortIf
 503 ClockList ::= Clock
 504 ClockList ::= ClockList , Clock
 ClockListopt ::= 
@@ -206,6 +207,27 @@ it is marked for progress by all the clocks it is registered with.
 
 \todo{Present a simple example of clock advance.}
 
+\subsection{Dropping clocks}\index{clock!drop}
+An activity may drop a clock by executing:
+\begin{x10}
+c.drop();
+\end{x10}
+
+\noindent{} 
+The method does nothing if the activity has already dropped {\cf c}. 
+The compiler must ensure conservatively that after dropping {\cf c} no
+activity can execute a statement on {\tt c}.
+
+\subsection{Checking for dropped clocks}\index{clock!dropped}
+An activity may check that a clock is dropped by executing:
+\begin{x10}
+c.dropped()
+\end{x10}
+\noindent This call returns a {\cf boolean} value: {\cf true} iff the
+activity has already executed {\cf c.drop()}.
+
+\todo{change this to c.registered().}
+
 \subsection{Posting statements on a clock}\index{clock!now}
 \Xten{} provides syntactic support for a common idiom. Often it may be
 necessary for an activity $A$ to require that a certain set of
@@ -247,26 +269,7 @@ tick. Furthermore, {\tt c} cannot progress until this activity has
 executed {\tt next}. The activity executes the statement {\tt S} to
 completion without allowing it to access any old clocks.
 
-\subsection{Dropping clocks}\index{clock!drop}
-An activity may drop a clock by executing:
-\begin{x10}
-c.drop();
-\end{x10}
 
-\noindent{} 
-This statement does nothing if the activity has already dropped {\cf c}. 
-The compiler must ensure conservatively that after dropping {\cf c} no
-activity can execute a statement on {\tt c}.
-
-\subsection{Checking for dropped clocks}\index{clock!dropped}
-An activity may check that a clock is dropped by executing:
-\begin{x10}
-c.dropped()
-\end{x10}
-\noindent This call returns a {\cf boolean} value: {\cf true} iff the
-activity has already executed {\cf c.drop()}.
-
-\todo{change this to c.registered().}
 \subsection{Program equivalences}
 
 From the discussion above it should be clear that the following

@@ -78,6 +78,13 @@ x10.lang.Object}.  This class has a field {\tt location} of type {\tt
 place} recording the place at which the value resides. See
 the documentation for {\tt x10.lang.Object}.)
 
+Note specifically that the expression {\tt a[i]} when used as a place
+expression will evaluate to {\tt a[i].location}, which may not be
+the same place as {\tt a.distribution[i]}. The programmer must be 
+careful to choose the right expression, appropriate for the statement.
+Accesses to {\tt a[i]} within {\tt Statement} should typically be guarded 
+by the place expression {\tt a.distribution[i]}.
+
 In many cases the compiler may infer the unique place at which the
 statement is to be executed by an analysis of the types of the
 variables occuring in the statement. (The place must be such that the
@@ -100,11 +107,17 @@ launched.  The activation path for $B$ is that of $A$, augmented with
 information about the line number at which $B$ was spawned.  $B$
 terminates normally when $S$ terminates normally.  It terminates
 abruptly if $S$ throws an (uncaught) exception. The exception is
-propagated to $A$ if $A$ is a root activity (see
-\S~\ref{finish}), otherwise through $A$ to $A$'s root
-activity. Note that while an activity is running, exceptions thrown by
-activities it has already generated may propagate through it up to its
-root activity.
+propagated to $A$ if $A$ is a root activity (see \S~\ref{finish}),
+otherwise through $A$ to $A$'s root activity. Note that while an
+activity is running, exceptions thrown by activities it has already
+generated may propagate through it up to its root activity.
+
+Multiple activities launched by a single activity at another place
+are not ordered in any way. They are added to the pool of activities
+at the target place and will be executed in sequence or in parallel
+based on the local scheduler's decisions. If the programmer wishes
+to sequence their execution s/he must use \Xten{} constructs,
+such as clocks and {\tt finish} to obtain the desired effect.
 
 \section{Finish}\index{finish}\label{finish}
 The statement {\tt finish S} converts global termination to local
@@ -191,7 +204,7 @@ type {\tt future<T@P>} is defined as if by:
 \begin{x10}
 public interface future<T@P> \{
   T@P force();
-  boolean latched();
+  boolean forced();
 \}
 \end{x10}
 
@@ -205,7 +218,7 @@ of a value {\tt f} of type {\tt future<T@P>}.  This value may be
 stored in objects, passed as arguments to methods, returned from
 method invocation etc. 
 
-At any point, the method {\tt latched} may be invoked on {\tt f}. This
+At any point, the method {\tt forced} may be invoked on {\tt f}. This
 method returns without blocking, with the value {\tt true} if the
 asynchronous evaluation of {\tt e} has terminated globally and with
 the value {\tt false} if it has not.
@@ -259,14 +272,20 @@ atomic section}:
 not include the construction of any {\tt async} activity.  It may not
 include any statement that may potentially block at runtime (e.g.{}
 {\tt when}, {\tt force} operations, {\tt next} operations on clocks,
-{\tt finish}).  Also for the sake of efficient implementation
-\XtenCurrVer{} requires that the atomic section be {\em analyzable},
-that is, the set of locations that are read and written by the {\cf
-BlockStatement} are bounded and determined statically. All these
-locations must statically be determined to be located in the current
-place. (The programmer may use a place cast in the statement to check
-dynamically that a variable is local to the current place; if this
-cast fails a {\tt BadPlaceException} will be thrown.)
+{\tt finish}).  
+
+Also for the sake of efficient implementation \XtenCurrVer{} requires
+that the atomic section be {\em analyzable}, that is, the set of
+locations that are read and written by the {\cf BlockStatement} are
+bounded and determined statically.
+%% How exactly is this to be checked. 
+
+All these locations must statically satisfy the {\em locality
+condition}: they must belong to the place of the current
+activity.\index{locality condition}\label{LocalityCondition}
+The compiler checks for this condition by checking whether
+the statement could be the body of a {\tt void} method annotated 
+with {\tt local} at that point in the code (\S~\ref{LocalAnnotation}).
 
 Such a statement is executed by an activity as if in a single step
 during which all other concurrent activities in the same place are
@@ -275,6 +294,13 @@ the programmer's responsibility to wrap the atomic section within a
 {\cf try/finally} clause and include undo code in the finally
 clause. Thus the {\tt atomic} statement only guarantees atomicity on
 successful execution, not on a faulty execution.
+
+A compiler is allowed to reorder two atomic sections that have no
+data-dependency between them, just as it may reorder any two
+statements which have no data-dependencies between them. For the
+purposes of data dependency analysis, an atomic section is deemed to
+have read and written all data at a single program point, the
+beginning of the atomic section.
 
 We allow methods of an object to be annotated with {\cf atomic}. Such
 a method is taken to stand for a method whose body is wrapped within an
@@ -290,12 +316,13 @@ Further, an atomic section will eventually terminate successfully or
 thrown an exception; it may not introduce a deadlock.
 
 Atomic sections are closely related to non-blocking synchronization
-constructs \cite{Herlihy-non-block}, and can be used to implement 
+constructs \cite{herlihy91waitfree}, and can be used to implement 
 non-blocking concurrent algorithms.
 
 \subsubsection{Example}
 
 The following class method implements a (generic) compare and swap (CAS) operation:
+
 \begin{x10}
 public atomic boolean CAS( Object target, 
                            Object old, 
@@ -396,10 +423,10 @@ class OneBuffer \{
   nullable Object datum = null;
   boolean filled = false;
   public 
-     void send(Object v) \{
-     when ( ! filled ) \{
-       this.datum = v;
-       this.filled = true;
+    void send(Object v) \{
+      when ( !filled ) \{
+        this.datum = v;
+        this.filled = true;
     \}
  \}
   public
@@ -417,23 +444,24 @@ class OneBuffer \{
 \paragraph{ Implementing a future with a latch.}\label{future-imp}
 The following class shows how to implement a {\em latch}. A latch is
 an object that is initially created in an {\em unlatched}
-state. During its lifetime it may transition once to a {\em latched}
-state. Once latched, it stays latched for its lifetime. The latch may
-be queried to determine if it is latched, and if so, an associated
-value may be retrieved. Below, we will consider a latch set when some
-activity invokes a {\tt setValue} method on it. This method provides
-two values, a normal value and an exceptional value. The method {\tt
-force} blocks until the latch is set. If an exceptional value was
-specified when the latch was set, that value is thrown on any attempt
-to read the latch. Otherwise the normal value is returned.
+state. During its lifetime it may transition once to a {\em forced}
+state. Once forced, it stays forced for its
+lifetime. The latch may be queried to determine if it is forced, and
+if so, an associated value may be retrieved. Below, we will consider a
+latch set when some activity invokes a {\tt setValue} method on
+it. This method provides two values, a normal value and an exceptional
+value. The method {\tt force} blocks until the latch is set. If an
+exceptional value was specified when the latch was set, that value is
+thrown on any attempt to read the latch. Otherwise the normal value is
+returned.
 
 \begin{x10}
 public interface future \{
-   boolean latched();
+   boolean forced();
    Object force();
 \}
 public class Latch implements future \{
-  boolean latched = false;
+  boolean forced = false;
   nullable boxed result = null;
   nullable exception z = null;
 
@@ -448,18 +476,18 @@ public class Latch implements future \{
     public atomic 
     boolean setValue( nullable Object val, 
                       nullable exception z ) \{
-        if ( latched ) return false;
+        if ( forced ) return false;
         // these assignment happens only once.
         this.result = val;
         this.z = z;
-        this.latched = true;
+        this.forced = true;
         return true;
     \}
-    public atomic boolean latched() \{
-        return latched;
+    public atomic boolean forced() \{
+        return forced;
     \}
     public Object force() \{
-        when ( latched ) \{
+        when ( forced ) \{
             if (z != null) throw z;
             return result;
         \}
@@ -467,22 +495,23 @@ public class Latch implements future \{
 \}
 \end{x10}
 
-Latches, {\tt aync} operations and {\tt finish} operations may be used to implement futures as follows. A {\tt future(P) \{e\} } can be translated to:
+Latches, {\tt aync} operations and {\tt finish} operations may be used
+to implement futures as follows. The expression {\tt future(P) \{e\} }
+can be translated to:
 \begin{x10}
   new RunnableLatch() \{
       public Latch run() \{
-         final Latch l = new Latch();
+         Latch L = new Latch();
          async ( P ) \{
-            Object x;
+            Object X;
             try \{
-                finish x = e;
-                final Object z = x;
-                async ( l ) \{
-                   l.setValue( z ); 
+                finish X = e;
+                async ( L ) \{
+                   L.setValue( X ); 
                 \}
-            \} catch (final Exception z) \{
-               async ( l ) \{
-                 l.setValue( z );
+            \} catch ( exception Z ) \{
+               async ( L ) \{
+                 L.setValue( Z );
                \}
             \}
          \}
@@ -492,11 +521,17 @@ Latches, {\tt aync} operations and {\tt finish} operations may be used to implem
 \end{x10}
 
 Here we assume that {\tt RunnableLatch} is an interface defined by:
-\begin{x10} would be translated to:
+\begin{x10} 
   public interface RunnableLatch \{
      Latch run();
   \}
 \end{x10}
+
+We use the standard \java{} idiom of wrapping the core translation
+inside an inner class definition/method invocation pair (i.e.{} {\tt
+new RunnableLatch() {....}.run()}) so as to keep the resulting
+expression completely self-contained, while executing statements
+inside the evaluation of an expression.
 
 Execution of a {\tt future(P) \{e\}} causes a new latch to be created,
 and an {\tt async} activity spawned at {\tt P}. The activity attempts
@@ -509,32 +544,33 @@ finish} statement and thrown after global termination of all
 activities spawned by {\tt x=e}. The exception will be caught by the 
 {\tt catch} clause and stored with the latch. 
 
+
 \todo{Conditional atomic sections should be powerful enough to implement clocks as well.}
 
 \paragraph{A future to execute a statement.}
-Consider an expression {\tt onFinish \{ S \}}. This should return
-a {\tt boolean} latch which should be latched when {\tt S}
-has terminated globally. Unlike {\tt finish S}, the evaluation
-of {\tt onFinish  \{S\}} should terminate locally immediately, returning
-a latch. The latch may be passed around in method invocations and stored 
-in objects. {\tt force}/{\tt latched} method invocations on the latch
-can be performed whenever an activity desires to determine 
-that {\tt S} has terminated. 
+Consider an expression {\tt onFinish \{S\}}. This should return a {\tt
+boolean} latch which should be forced when {\tt S} has terminated
+globally. Unlike {\tt finish S}, the evaluation of {\tt onFinish
+\{S\}} should locally terminate immediately, returning a latch. The
+latch may be passed around in method invocations and stored in
+objects. An activity may perform {\tt force}/{\tt forced} method
+invocations on the latch whenever it desires to determine whether {\tt S}
+has terminated.
 
 Such an expression can be written as:
 \begin{x10}
   new RunnableLatch() \{
       public Latch run() \{
-         final Latch l = new Latch();
+         Latch L = new Latch();
          async ( here ) \{
             try \{
                 finish S;
-                l.setValue( true );
-            \} catch (final Exception z) \{
-                 l.setValue( z );
+                L.setValue( true );
+            \} catch ( exception Z ) \{
+                 L.setValue( Z );
             \}
          \}
-         return l;
+         return L;
       \}
     \}.run()
 \end{x10}
@@ -557,7 +593,6 @@ Otherwise the expression is equivalent to
 \begin{x10}
  future (o)\{o.m(a1, ..., ak);\}.force()
 \end{x10}
-
 
 \section{Iteration}\index{foreach@{\tt foreach}}\label{ForLoop}
 \index{for@{\tt for}}\label{ForAllLoop}
@@ -589,7 +624,7 @@ We introduce  $k$-dimensional versions of iteration operations {\cf for} and
           StatementNoShortIf
 \end{x10}
 
-In both statements, the expression is intendd to be of type {\tt
+In both statements, the expression is intended to be of type {\tt
 region}.  Expressions {\tt e} of type {\tt distribution} and {\tt
 array} are also accepted, and treated as if they were {\tt
 e.region}. The compiler throws a type error in all other cases.
@@ -631,10 +666,11 @@ Expressions {\tt e} of type {\tt array} are also accepted, and treated
 as if they were {\tt e.distribution}. The compiler throws a type error
 in all other cases. This statement differs from {\tt foreach} only in
 that each activity is spawned at the place specified by the
-distribution for the point. That is, {\tt ateach( point p: A) S} may
+distribution for the point. That is, 
+{\tt ateach( point p[i1,...,ik]: A) S} may
 be thought of as standing for:
 \begin{x10}
-   foreach (ind1, ..., indk : A) 
-    async (A.distribution[ind1,...,indk]) \{S\}
+  foreach (point p[i1,...,tk] : A) 
+    async (A.distribution[p]) \{S\}
 \end{x10}
 
