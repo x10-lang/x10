@@ -18,7 +18,7 @@ import x10.lang.Runtime;
  * 
  * @author Christian Grothoff, Christoph von Praun
  */
-final class Clock_c implements Clock {
+final class Clock_c extends Clock {
 
     /**
      * The activity information provider that this clock can use.
