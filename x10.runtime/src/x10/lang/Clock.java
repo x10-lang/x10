@@ -24,9 +24,18 @@ package x10.lang;
 public interface Clock {
 
     /**
-     * Register the current activity with this clock.
+     * Register the current activity with this clock.  It is an error
+     * to register an activity with a clock that is already registered.
+     * Note that the activity that created the clock is automatically
+     * registered!
      */
     public void register();
+
+    /**
+     * Register another activity with this clock.  It is an error
+     * to register an activity with a clock that is already registered.
+     */
+    public void register(Activity a);
     
     /**
      * Execute the given activity.  The clock will not advance
@@ -58,6 +67,17 @@ public interface Clock {
      *   clock (or if it never was registered).
      */
     public boolean drop();
+    
+    /**
+     * Drop the given activity from the clock.  Afterwards the
+     * activity may no longer use continue or now on this clock.
+     * Other activities will no longer be blocked waiting for 
+     * the current activity to complete the phase.  
+     * 
+     * @return true if the activity has already dropped this
+     *   clock (or if it never was registered).
+     */
+    public boolean drop(Activity a);
     
     /**
      * Block until all clocks that this activity is registered with

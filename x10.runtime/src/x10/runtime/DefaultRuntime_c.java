@@ -1,6 +1,7 @@
 package x10.runtime;
 
 import java.util.HashMap;
+import java.util.Vector;
 import java.util.WeakHashMap;
 
 import x10.lang.Activity;
@@ -43,7 +44,7 @@ public class DefaultRuntime_c
      * What listeners are registered for termination/spawning events
      * for the given activity?
      */
-    private final HashMap activity2asl_ = new HashMap(); // <Activity,ActivitySpawnListener>
+    private final HashMap activity2asl_ = new HashMap(); // <Activity,Vector<ActivitySpawnListener>>
     
     /**
      * The places of this X10 Runtime (for now a constant set).
@@ -102,8 +103,12 @@ public class DefaultRuntime_c
      */
     public synchronized void registerActivitySpawnListener(Activity i,
                                                            ActivitySpawnListener asl) {
-        assert null == activity2asl_.get(asl);
-        activity2asl_.put(i, asl);
+        Vector v = (Vector) activity2asl_.get(i);
+        if (v == null) {
+            v = new Vector(2);
+            activity2asl_.put(i,v);
+        }
+        v.add(asl);
     }
 
     /**
@@ -112,11 +117,14 @@ public class DefaultRuntime_c
     public synchronized void registerActivityStop(Thread t,
                                                   Activity a) {
         thread2activity_.remove(t);
-        ActivitySpawnListener asl = (ActivitySpawnListener) activity2asl_.get(a);
-        if (asl != null) {
-            activity2asl_.remove(a);
+        Vector v = (Vector) activity2asl_.get(a);
+        if (v == null) 
+            return;
+        for (int i=0;i<v.size();i++) {
+            ActivitySpawnListener asl = (ActivitySpawnListener) v.elementAt(i);
             asl.notifyActivityTerminated(a);
         }
+        activity2asl_.remove(a);
     }
     
     /**
@@ -132,9 +140,13 @@ public class DefaultRuntime_c
         thread2activity_.put(t,a);
         if (i == null)
             return;
-        ActivitySpawnListener m = (ActivitySpawnListener) activity2asl_.get(i);
-        if (m != null)
-            m.notifyActivitySpawn(a, i);
+        Vector v = (Vector) activity2asl_.get(a);
+        if (v == null) 
+            return;
+        for (int j=0;j<v.size();j++) {
+            ActivitySpawnListener asl = (ActivitySpawnListener) v.elementAt(j);
+            asl.notifyActivitySpawn(a, i);
+        }
     }
 
     public synchronized Place currentPlace() {

@@ -4,7 +4,9 @@
 package x10.runtime;
 
 import junit.framework.TestCase;
+import x10.compilergenerated.ClockedFinalInt;
 import x10.lang.Activity;
+import x10.lang.Clock;
 import x10.lang.Future;
 import x10.lang.Runtime;
 import x10.lang.X10Object;
@@ -64,6 +66,7 @@ public class TestRuntime extends TestCase {
     // testcases
 
     private static volatile int x;
+    private static volatile int y;
     
     public void testPlaceRunAsync() {
         x = 0;
@@ -72,11 +75,7 @@ public class TestRuntime extends TestCase {
                 x = 1;
             }
         });
-        synchronized(this) {
-            try {
-                this.wait(100);
-            } catch (InterruptedException ie) {}
-        }
+        sleep(100);
         assertTrue(x == 1);
     }
 
@@ -95,19 +94,104 @@ public class TestRuntime extends TestCase {
     }
 
     public void testClockNext() {
-        assertTrue(false);
+        x = 0;
+        final Clock c = Runtime._.createClock();
+        Activity b = new Activity() {
+            public void run() {
+                c.doNext();
+                x = 1;
+                c.doNext();
+                c.doNext();
+                x = 2;
+                c.doNext();
+            }
+        };
+        c.register(b);
+        Runtime.here().runAsync(b);
+        sleep(100); // wait for activity to hit first 'doNext'
+        assertTrue(x == 0);
+        c.doNext();
+        c.doNext();
+        assertTrue(x == 1);
+        c.doNext();
+        c.doNext();
+        assertTrue(x == 2);
     }
     
+    
     public void testClockContinue() {
-        assertTrue(false);
+        x = 0;
+        final Clock c = Runtime._.createClock();
+        Activity b = new Activity() {
+            public void run() {
+                c.doNext();
+                x = 1;
+                c.doContinue();
+                sleep(100); // wait for activity to hit first 'doNext'
+                x = 2; // 'bad' coding style :-)
+            }
+        };
+        c.register(b);
+        Runtime.here().runAsync(b);
+        assertTrue(x == 0);
+        c.doNext();
+        c.doNext();
+        assertTrue(x == 1);
+        sleep(200); // sleep longer than 'b'
+        assertTrue(x == 2);
     }
     
     public void testClockDrop() {
-        assertTrue(false);
+        final Clock c = Runtime._.createClock();
+        Activity b = new Activity() {
+            public void run() {
+                c.drop();
+            }
+        };
+        c.register(b);
+        Runtime.here().runAsync(b);
+        c.doNext();
+        c.doNext();
+        c.doNext();
+        c.doNext();
+        c.doNext();
     }
     
     public void testClockedFinal() {
-        assertTrue(false);
+        final Clock c = Runtime._.createClock();
+        final ClockedFinalInt i = new ClockedFinalInt(c, 0);
+        Activity b = new Activity() {
+            public void run() {
+                i.next = 1;
+                c.doNext();
+                i.next = 2;
+                c.doNext();
+                i.next = 3;
+                c.doNext();
+            }
+        };
+        c.register(b);
+        Runtime.here().runAsync(b);
+        assertTrue(i.current == 0);
+        c.doNext();
+        assertTrue(i.current == 1);
+        c.doNext();
+        assertTrue(i.current == 2);
+        c.doNext();
+        assertTrue(i.current == 3);
+        c.doNext();
     }
-    
+
+    /**
+     * Helper method to delay execution (to ensure other threads
+     * run a bit).
+     * @param delay how long to wait
+     */
+    private synchronized void sleep(long delay) {
+        try {
+            this.wait(delay);
+        } catch (InterruptedException ie) {}
+    }
+
+
 } // end of TestRuntime
