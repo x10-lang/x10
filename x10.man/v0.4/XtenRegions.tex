@@ -16,20 +16,20 @@ region} and has rank {\cf 0}.
 
 For instance:
 \begin{x10}
-   region E = 1:100;
-   region R = [0:99, -1:MAX\_HEIGHT];   
-   region R = region.upperTriangular(N);
-   region R = region.banded(N, K);
-     // A square region.
-   region R = [E, E];           
-     // Same region as above.
-   region R = [100, 100];       
-     // Represents  the empty region
-   region Null = [];            
-     // Represents the intersection of two regions
-   region AandB = A \&\& B;       
-     // represents the union of two regions
-   region AOrB = A || B;        
+region E = 1:100;
+region R = [0:99, -1:MAX\_HEIGHT];   
+region R = region.factory.upperTriangular(N);
+region R = region.factory.banded(N, K);
+   // A square region.
+region R = [E, E];           
+   // Same region as above.
+region R = [100, 100];       
+   // Represents  the empty region
+region Null = [];            
+   // Represents the intersection of two regions
+region AandB = A \&\& B;       
+  // represents the union of two regions
+region AOrB = A || B;        
 \end{x10}
 
 A region may be constructed using a comma-separated list of regions
