@@ -1,6 +1,8 @@
 package x10.lang;
 
 import x10.base.TypeArgument;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Implementation of X10 Clocks.  There are some differences between
@@ -21,23 +23,32 @@ import x10.base.TypeArgument;
  * X10 source language are prefixed with a 'do' since some of them 
  * conflict with reserved words in Java.
  * 
- * @author Christian Grothoff
+ * @author Christian Grothoff, Christoph von Praun
  */
-public interface Clock extends TypeArgument {
+public abstract class Clock implements TypeArgument {
 
+    private static int nextId_ = 0;
+    private int id_;
+    
+    protected Clock() {
+        synchronized (getClass()) {
+            id_ = nextId_++;
+        }
+    }
+    	
     /**
      * Register the current activity with this clock.  It is an error
      * to register an activity with a clock that is already registered.
      * Note that the activity that created the clock is automatically
      * registered!
      */
-    public void register();
+    public abstract void register();
 
     /**
      * Register another activity with this clock.  It is an error
      * to register an activity with a clock that is already registered.
      */
-    public void register(Activity a);
+    public abstract void register(Activity a);
     
     /**
      * Execute the given activity.  The clock will not advance
@@ -48,7 +59,7 @@ public interface Clock extends TypeArgument {
      *  (Runtime.here()!) and the clock will not advance until
      *  the activity completes.
      */
-    public void doNow(Activity a);
+    public abstract void doNow(Activity a);
     
     /**
      * Notify the clock that this activity has completed its
@@ -57,13 +68,13 @@ public interface Clock extends TypeArgument {
      * it calls 'next'.
      *
      */
-    public void doContinue();
+    public abstract void doContinue();
     
     /**
      * @return true if the activity has already dropped this
      *   clock (or if it never was registered).
      */
-    public boolean dropped();
+    public abstract boolean dropped();
     
     /**
      * Drop this activity from the clock.  Afterwards the
@@ -74,7 +85,7 @@ public interface Clock extends TypeArgument {
      * @return true if the activity has already dropped this
      *   clock (or if it never was registered).
      */
-    public boolean drop();
+    public abstract boolean drop();
     
     /**
      * Drop the given activity from the clock.  Afterwards the
@@ -85,7 +96,7 @@ public interface Clock extends TypeArgument {
      * @return true if the activity has already dropped this
      *   clock (or if it never was registered).
      */
-    public boolean drop(Activity a);
+    public abstract boolean drop(Activity a);
     
     /**
      * Block until all clocks that this activity is registered with
@@ -97,15 +108,42 @@ public interface Clock extends TypeArgument {
      * does not specify the clocks but next applies to all clocks
      * that the activity is registered with.
      */
-    public void doNext();
+    public abstract void doNext();
 
+    public void doNext(Clock[] clocks) {
+        assert clocks != null;
+        if (clocks.length > 1) {
+            Arrays.sort(clocks, new Comparator() {
+                public int compare(java.lang.Object o1, java.lang.Object o2) {
+                    int ret = 0;
+                    assert (o1 instanceof Clock);
+                    assert (o2 instanceof Clock);
+                    Clock c1 = (Clock) o1;
+                    Clock c2 = (Clock) o2;
+                    if (c1.id_ < c2.id_)
+                        ret = -1;
+                    else if (c1.id_ > c2.id_)
+                        ret = 1;
+                    return ret;
+                }
+                public boolean equals(java.lang.Object o) {
+                    return (o == Clock.this);
+                }
+            });
+        }
+        
+        for (int i=0; i < clocks.length; ++ i) {
+            clocks[i].doNext();
+        }
+    }
+    
     /**
      * Register a callback that is to be called whenever the clock
      * advances into the next phase.
      * 
      * @param al the listener to notify
      */
-    public void registerAdvanceListener(AdvanceListener al);
+    public abstract void registerAdvanceListener(AdvanceListener al);
     
     /**
      * Callback method used by the Clock to notify all listeners
