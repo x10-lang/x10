@@ -25,6 +25,7 @@ public class ArbitraryRegion extends region {
     
     private ArbitraryRegion(int rank) {
         super(rank);
+        rankCache_ = new ArbitraryRegion[rank];
         points_ = new TreeSet();
     }
     
@@ -36,7 +37,7 @@ public class ArbitraryRegion extends region {
             assert dims[i].size() == sz;
             assert dims[i].rank == 1;;
         }
- 
+        rankCache_ = new ArbitraryRegion[dims.length];
         points_ = new TreeSet();
         permutations_(points_, new int[]{}, dims);
     }
@@ -71,7 +72,7 @@ public class ArbitraryRegion extends region {
             point p = (point) o;
             assert p.rank == rank;
         }
-        
+        rankCache_ = new ArbitraryRegion[rank];
         points_ = new TreeSet();
         points_.addAll(points);
     }
@@ -92,17 +93,31 @@ public class ArbitraryRegion extends region {
         return points_.size();
     }
 
-    /* returns a one-dimenasional region (formerly called range)
+    private final ArbitraryRegion[] rankCache_;
+    /**
+     * @returns a one-dimenasional region (formerly called range)
      */
     public region rank(int index) {
         assert index >= 0;
         assert index < rank;
+        ArbitraryRegion ret;
         
-        ArbitraryRegion ret = new ArbitraryRegion(1);
-        for (Iterator it = iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            point p_onedim = point.factory.point(ret, new int[] {p.get(index)});
-            ret.add_(p_onedim);
+        synchronized (this) {
+            ret = rankCache_[index];
+        }
+        if (ret == null) {
+            ret = new ArbitraryRegion(1);
+            for (Iterator it = iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                point p_onedim = point.factory.point(ret, new int[] {p.get(index)});
+                ret.add_(p_onedim);
+            }
+            // add it to rankCache_ only after it is initialized 
+            // race on rankCache possible_!
+            synchronized (this) {
+                rankCache_[index] = ret;
+            }
+            
         }
         return ret;
     }
