@@ -199,34 +199,6 @@ public final class Clock extends clock {
             }
         }
     }
-
-    public static void doNext(List clocks_l) {
-        assert clocks_l != null;
-        Object[] clocks = clocks_l.toArray();
-        if (clocks.length > 1) {
-            Arrays.sort(clocks, new Comparator() {
-                public int compare(java.lang.Object o1, java.lang.Object o2) {
-                    int ret = 0;
-                    assert (o1 instanceof Clock);
-                    assert (o2 instanceof Clock);
-                    Clock c1 = (Clock) o1;
-                    Clock c2 = (Clock) o2;
-                    if (c1.id_ < c2.id_)
-                        ret = -1;
-                    else if (c1.id_ > c2.id_)
-                        ret = 1;
-                    return ret;
-                }
-                public boolean equals(java.lang.Object o) {
-                    return (o == this);
-                }
-            });
-        }
-        
-        for (int i=0; i < clocks.length; ++ i) {
-            ((Clock) clocks[i]).doNext();
-        }
-    }
     
     /**
      * Register a callback that is to be called whenever the clock
