@@ -78,20 +78,22 @@ public class DefaultRuntime_c
     /**
      * The places of this X10 Runtime (for now a constant set).
      */
-    private Place[] places_;
+    private final Place[] places_;
     private Thread bootThread;
     
     public DefaultRuntime_c() {
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
      	this.places_ = new Place[pc];
-
     }
-    protected void initialize() {
-    	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
-    	x10.lang.place.MAX_PLACES = pc;
-    	
-    	for (int i=0;i<pc;i++)
-    		places_[i] = new LocalPlace_c(this, this);
+    protected synchronized void initialize() {
+        // do it only once
+        if (places_[0] == null) {
+            int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
+            x10.lang.place.MAX_PLACES = pc;
+    	    for (int i=0;i<pc;i++)
+    	        places_[i] = new LocalPlace_c(this, this);
+        }
+        LocalPlace_c.initAllPlaceTimes(getPlaces());
     }
 
     /**
@@ -169,13 +171,15 @@ public class DefaultRuntime_c
         f.force(); // use force to wait for termination!
         
         // and now the shutdown sequence!
+        // places_[] should have been initialized by now ... 
         for (int i=places_.length-1;i>=0;i--)
             places_[i].shutdown();
     }
     
-    public void registerThread(Thread t, Place p) {
-		if (p == null)
-			throw new NullPointerException();
+    public synchronized void registerThread(Thread t, Place p) {
+        // this method must be synchronized because thread2place_ is not thread-safe.
+        assert (t != null);
+        assert (p != null);
 		thread2place_.put(t, p);
 	}
     
@@ -243,6 +247,8 @@ public class DefaultRuntime_c
     }
 
     public synchronized Place currentPlace() {
+        if (places_[0] == null) 
+            initialize();
         if (places_.length == 1)
             return places_[0]; // fast path for simple test environments!
     	Place p = (Place) thread2place_.get(Thread.currentThread());
@@ -260,9 +266,16 @@ public class DefaultRuntime_c
      * @return All places available in this VM.
      */
     public Place[] getPlaces() {
-    	// return defensive copy
-    	// return (Place[]) places_.clone();
-	return places_;
+        if (places_[0] == null) 
+            initialize();
+        // return defensive copy
+        Place[] p = new Place[places_.length];
+        System.arraycopy(places_, 0, p, 0, places_.length);
+    	
+        // the following does not work on the IBM JDK 1.4.2
+        // return (Place[]) places_.clone();
+        
+        return places_;
     }
     
     public Factory getFactory() {
@@ -371,7 +384,7 @@ public class DefaultRuntime_c
         if (a == null) {
             if (Thread.currentThread() == bootThread)
                 return magic_boot; // magic 'boot' thread!
-            throw new Error("This Thread is not an X10 Thread running X10 code!");
+            throw new Error("This thread is not an X10 Thread running X10 code!");
         }
         return a;
     }
@@ -393,6 +406,7 @@ public class DefaultRuntime_c
      * @return null if the activity is not running anywhere
      */
     public synchronized Place getPlaceOfActivity(Activity a) {
+        // this method must be synchronized to protect the map activity2place_
         return (Place) this.activity2place_.get(a);
         /*
         Iterator it = thread2activity_.keySet().iterator();
