@@ -9,7 +9,9 @@ import x10.array.IntArray;
 import x10.array.Range;
 import x10.array.Region;
 import x10.array.ArrayFactory;
+import x10.array.Operator;
 import x10.base.Place;
+
 
 /**
  * Abstract Factory for Array related classes.
@@ -37,31 +39,14 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
         return Region_c.makeBanded(n, k);
     }
     
-    /**
-     * @return  New array with Distribution d.
-     */
-    public IntArray makeIntArray(Distribution d, boolean safe) {
-    	// if the distribution has dimension1, 2, 3, 
-    	// we can be much smarter here and return an 
-    	// instance of a specialized class. 
-    	return new IntArray_c((Distribution_c)d, safe);
-    }
-    
-    public IntArray makeIntArray(Distribution d, int c, boolean safe) {
+    public IntArray makeIntArray(Distribution d, Operator.Pointwise c, boolean safe) {
     	// if the distribution has dimension1, 2, 3, 
     	// we can be much smarter here and return an 
     	// instance of a specialized class. 
     	return new IntArray_c((Distribution_c)d, c, safe);
     }
     
-    /**
-     * @return  New array with Distribution d.
-     */
-    public DoubleArray makeDoubleArray(Distribution d, boolean safe) {
-        return new DoubleArray_c((Distribution_c)d, safe);
-    }
-    
-    public DoubleArray makeDoubleArray(Distribution d, double c, boolean safe) {
+    public DoubleArray makeDoubleArray(Distribution d, Operator.Pointwise c, boolean safe) {
         return new DoubleArray_c((Distribution_c)d, c, safe);
     }
         

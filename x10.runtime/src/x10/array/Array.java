@@ -89,4 +89,7 @@ public abstract class Array {
     /* "virtual" constructor */
     protected abstract Array newInstance(Distribution d);
     
+    /* "virtual" constructor with initializer */
+    protected abstract Array newInstance(Distribution d, Operator.Pointwise op);
+    
 } // end of Array

@@ -66,13 +66,13 @@ public abstract class ArrayFactory {
      */
     public static IntArray newIntArray(Distribution r) {
         assert (af_ == null);    
-        return af_.makeIntArray(r, true);
+        return af_.makeIntArray(r, null, true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static IntArray newIntArray(Distribution r, int c) {
+    public static IntArray newIntArray(Distribution r, Operator.Pointwise c) {
         assert (af_ == null);    
         return af_.makeIntArray(r, c, true);
     }
@@ -82,13 +82,13 @@ public abstract class ArrayFactory {
      */
     public static IntArray newIntArray(Distribution r, boolean safe) {
         assert (af_ == null);    
-        return af_.makeIntArray(r, safe);
+        return af_.makeIntArray(r, null, safe);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static IntArray newIntArray(Distribution r, int c, boolean safe) {
+    public static IntArray newIntArray(Distribution r, Operator.Pointwise c, boolean safe) {
         assert (af_ == null);    
         return af_.makeIntArray(r, c, safe);
     }
@@ -98,13 +98,13 @@ public abstract class ArrayFactory {
      */
     public static DoubleArray newDoubleArray(Distribution r) {
         assert (af_ == null);    
-        return af_.makeDoubleArray(r, true);
+        return af_.makeDoubleArray(r, null, true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static DoubleArray newDoubleArray(Distribution r, double c) {
+    public static DoubleArray newDoubleArray(Distribution r, Operator.Pointwise c) {
         assert (af_ == null);    
         return af_.makeDoubleArray(r, c, true);
     }
@@ -114,13 +114,13 @@ public abstract class ArrayFactory {
      */
     public static DoubleArray newDoubleArray(Distribution r, boolean safe) {
         assert (af_ == null);    
-        return af_.makeDoubleArray(r, safe);
+        return af_.makeDoubleArray(r, null, safe);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static DoubleArray newDoubleArray(Distribution r, double c, boolean safe) {
+    public static DoubleArray newDoubleArray(Distribution r, Operator.Pointwise c, boolean safe) {
         assert (af_ == null);    
         return af_.makeDoubleArray(r, c, safe);
     }
@@ -226,26 +226,16 @@ public abstract class ArrayFactory {
     public abstract Region makeBandedRegion(int n, int k);
     
     /**
-     * @return  New array with Distribution d.
-     */
-    public abstract IntArray makeIntArray(Distribution d, boolean safe);
-    
-    /**
      * @return  New array with Distribution d and initialize every element
      * with constant c.
      */
-    public abstract IntArray makeIntArray(Distribution d, int c, boolean safe);
-    
-    /**
-     * @return  New array with Distribution d.
-     */
-    public abstract DoubleArray makeDoubleArray(Distribution d, boolean safe); 
+    public abstract IntArray makeIntArray(Distribution d, Operator.Pointwise c, boolean safe);
     
     /**
      * @return  New array with Distribution d and initialize every element
      * with constant c. 
      */
-    public abstract DoubleArray makeDoubleArray(Distribution d, double c, boolean safe); 
+    public abstract DoubleArray makeDoubleArray(Distribution d, Operator.Pointwise c, boolean safe); 
     
     /**
      * Create a Distribution where the given Region is distributed

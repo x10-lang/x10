@@ -39,7 +39,7 @@ public abstract class IntArray extends Array {
      * @param c
      *            constant used to intialize all values of the array
      */
-    public IntArray(Distribution d, int c) {
+    protected IntArray(Distribution d, int c) {
         super(d);
         // initialize all array alements
         scan(this, new Assign(c));

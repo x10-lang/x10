@@ -25,18 +25,16 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    public DoubleArray_c(Distribution_c d, boolean safe) {
-        super(d);
-        int count = d.count();
-        this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
+    protected DoubleArray_c(Distribution_c d, boolean safe) {
+        this(d, null, safe);
     }
     
-    public DoubleArray_c(Distribution_c d, double c, boolean safe) {
+    protected DoubleArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
         super(d);
         int count = d.count();
         this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
-        for (int i = 0; i < count; ++i)
-        	arr_.setDouble(c, i);
+        if (c != null)
+            pointwise(this, c);
     }
     
     public void keepItLive() {}
@@ -70,6 +68,12 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
 		assert d instanceof Distribution_c;
 		
 		return new DoubleArray_c((Distribution_c) d, safe_);	
+	}
+	
+	protected Array newInstance(Distribution d, Operator.Pointwise c) {
+		assert d instanceof Distribution_c;
+		
+		return new DoubleArray_c((Distribution_c) d, c, safe_);	
 	}
 	
     /* (non-Javadoc)

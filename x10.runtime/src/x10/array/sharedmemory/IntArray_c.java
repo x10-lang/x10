@@ -32,18 +32,16 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    public IntArray_c(Distribution_c d, boolean safe) {
-        super(d);
-        int count = d.count();
-        this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
+    protected IntArray_c(Distribution_c d, boolean safe) {
+        this(d, null, safe);
     }
     
-    public IntArray_c(Distribution_c d, int c, boolean safe) {
+    protected IntArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
         super(d);
         int count = d.count();
         this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
-        for (int i = 0; i < count; ++i)
-        	arr_.setInt(c, i);
+        if (c != null)
+            pointwise(this, c);
     }
     
     /* Overrides the superclass method - this implementation is more efficient */
@@ -71,6 +69,12 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		assert d instanceof Distribution_c;
 		
 		return new IntArray_c((Distribution_c) d, safe_);	
+	}
+	
+	protected Array newInstance(Distribution d, Operator.Pointwise p) {
+		assert d instanceof Distribution_c;
+		
+		return new IntArray_c((Distribution_c) d, p, safe_);	
 	}
 	
     /* (non-Javadoc)

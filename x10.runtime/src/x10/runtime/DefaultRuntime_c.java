@@ -11,7 +11,9 @@ import x10.array.DoubleArray;
 import x10.array.IntArray;
 import x10.array.Range;
 import x10.array.Region;
+import x10.array.Operator;
 import x10.array.sharedmemory.SharedMemoryArrayFactory;
+
 import x10.lang.Activity;
 import x10.lang.Clock;
 import x10.lang.Object;
@@ -240,7 +242,7 @@ public class DefaultRuntime_c
         return SharedMemoryArrayFactory.newIntArray(d);
     }
     
-    public IntArray newIntArray(Distribution d, int c) {
+    public IntArray newIntArray(Distribution d, Operator.Pointwise c) {
         return SharedMemoryArrayFactory.newIntArray(d, c);
     }
 
@@ -251,7 +253,7 @@ public class DefaultRuntime_c
         return SharedMemoryArrayFactory.newDoubleArray(d);
     }
     
-    public DoubleArray newDoubleArray(Distribution d, double c) {
+    public DoubleArray newDoubleArray(Distribution d, Operator.Pointwise c) {
         return SharedMemoryArrayFactory.newDoubleArray(d, c);
     }
 				      
