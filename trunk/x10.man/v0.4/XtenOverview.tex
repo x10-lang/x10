@@ -5,7 +5,7 @@ multi-dimensional) {\em arrays} and {\em value} types. All these changes are
 motivated by the desire to use the new language for high-end,
 high-performance, high-productivity computing.
 
-\subsection{Places and activities}
+\section{Places and activities}
 The central new concept in \Xten{} is that of a {\em place}
 (\S~\ref{XtenPlaces}).  A place may be thought of conceptually as a
 ``virtual shared-memory multi-processor'': a computational unit with a
@@ -72,7 +72,7 @@ immediately returning with a future. The future may later be forced
 causing the activity to be blocked until the return value has been
 computed by the async activity.
 
-\subsection{Clocks}
+\section{Clocks}
 The MPI style of coordinating the activity of multiple processes with
 a single barrier is not suitable for the dynamic, asynchronous network
 of activities in an \Xten{} computation. Instead, it becomes necessary
@@ -103,7 +103,7 @@ deadlock. Clocks are also integrated into the \Xten{} type system,
 permitting variables to be declared so that they are {\tt final} in each
 phase of a clock.
 
-\subsection{Interfaces and Classes}
+\section{Interfaces and Classes}
 Programmers write \Xten{} code by writing {\em generic interfaces}
 (\S~\ref{XtenInterfaces}) and {\em generic classes}
 (\S~\ref{XtenClasses}). Generic interfaces and classes may be
@@ -112,7 +112,7 @@ created only from {\em concrete} classes; such a class has all its
 type parameters (if any) instantiated with concrete classes and
 concrete interfaces.
 
-\subsection{Scalar classes}
+\section{Scalar classes}
 An \Xten{} scalar class (\S~\ref{XtenClasses}) has fields, methods and
 inner types (interfaces, classes), subclasses another class, and
 implements one or more interfaces. Thus \Xten{} classes live in a
@@ -143,7 +143,7 @@ double}, {\cf complex} and {\cf String}. The user may defined
 additional arithmetic value classes using the facilities of the
 language.
 
-\subsection{Arrays, Regions and Distributions}
+\section{Arrays, Regions and Distributions}
 An \Xten{} array is a function from a {\em distribution}
 (\S~\ref{XtenDistributions}) to a base type (which may itself be an
 array type).
@@ -178,7 +178,7 @@ distribution and specify a value at each item in the underlying
 region. Such a constructor may spawn activities at multiple places.
 
 
-\subsection{Nullable type constructor}
+\section{Nullable type constructor}
 
 \Xten{} has a {\cf nullable} type constructor which can be applied uniformly to
 scalar (value or reference) and array types. This type constructor
@@ -186,7 +186,7 @@ returns a new type which adds a special value {\cf null} to the set of
 values of its argument type, unless the argument type already has this
 value.
 
-\subsection{Statements and expressions}
+\section{Statements and expressions}
 \Xten{} supports the standard set of primitive operations (assignment, classcasts) and sequential control constructs (conditionals, looping, method
 invocation, exception raising/catching) etc.
 
@@ -197,7 +197,7 @@ BadPlaceException} is thrown if the value is not of the given
 type. This is the only language construct that throws a {\cf
 BadPlaceException}.
 
-\subsection{Translating MPI programs to \Xten{}}
+\section{Translating MPI programs to \Xten{}}
 
 While \Xten{} permits considerably greater flexibility in writing
 distributed programs and data structures than MPI, it is instructive
@@ -218,14 +218,82 @@ computations modeling blood coagulation together with computations
 involving the flow of blood), (d)~not requiring an SPMD style of
 computation.
 
-%\note{Relaxed exception model}
-\subsection{Summary and future work}
 
+%\note{Relaxed exception model}
+\section{Summary and future work}
+\subsection{Design for scalability}
+\Xten{} is designed for scalability. An activity may atomically
+access only multiple locations in the current place. Unconditional
+atomic sections are statically guaranteed to be non-blocking, and may
+be implemented using non-blocking techniques that avoid mutual
+exclusion bottlenecks. Dataflow synchronization permits point-to-point
+coordination between reader/writer activities, obviating the need for
+barrier-based or lock-based synchronization in many cases.
+
+\subsection{Design for productivity}
+\Xten{} is designed for productivity. 
+
+\paragraph{Safety and correctness.} 
+Programs written in \Xten{} are guaranteed to be statically {\em type
+safe}, {\em memory safe} and {\em pointer safe}. Static type safety
+guarantees that at runtime a location contains only those values who's
+dynamic type satisfies the constraints imposed by the location's
+static type and every runtime operation performed on the value in a
+location is permitted by the static type of the location.
+
+Memory safety guarantees that an object may only access memory within
+its representation, and other objects it has a reference to. \Xten{}
+supports no pointer arithmetic, and bound-checks array accesses
+dynamically if necessary. \Xten{} uses dynamic garbage collection to
+collect objects no longer referenced by the computation. \Xten{}
+guarantees that no object can retain a reference to an object
+whose memory has been reclaimed.  Further, \Xten{} guarantees that
+every location is initialized at runtime before it is read, 
+and every value read from a location has previously been written into
+that location. 
+
+Pointer safety guarantees that a null pointer exception cannot be
+thrown by an operation on a value of a non-nullable type.
+
+Because places are reflected in the type system, static type safety
+also implies {\em place safety}: a location may contain references to only
+those objects whose location satisfies the restrictions of the static
+place type of the location.
+
+\Xten{} programs that use only clocks and unconditional atomic
+sections are guaranteed not to deadlock. Unconditional atomic sections
+are non-blocking, hence cannot introduce deadlocks (assuming the
+implementation is correct).
+
+Many concurrent programs can be shown to be determinate (hence
+race-free) statically.
+
+\paragraph{Integration.}
+A key issue for any new programming language is how well it can be
+integrated with existing (external) languages, system environments,
+libraries and tools.
+
+We believe that \Xten{}, like \java{}, will be able to support a large
+number of libraries and tools. An area where we expect future versions
+of \Xten{} to improve on \java{} like languages is {\em native
+integration} (\S~\ref{extern}). Specifically, \Xten{} will permit
+permit multi-dimensional local arrays to be operated on natively by
+native code.
+
+%% Portability measures the amount of effort required to move an
+%% application across multiple platforms, architectures and system
+%% generations. The performance portability of applications across widely
+%% different computer architectures (distributed cluster vs. vector
+%% processor) depends significantly on inherent properties of the
+%% underlying algorithms used in the application.
+%% 
+\subsection{Conclusion}
 {}\Xten{} is considerably higher-level than thread-based languages in
 that it supports dynamically spawning very lightweight activities, the
 use of atomic operations for mutual exclusion, and the use of clocks
-for repeated quiescence detection of a data-dependent set of
-activities. Yet it is much more concrete than languages like HPF in
+for repeated quiescence detection.
+
+Yet it is much more concrete than languages like HPF in
 that it forces the programmer to explicitly deal with distribution of
 data objects. In this the language reflects the designers belief that
 issues of locality and distribution cannot be hidden from the
