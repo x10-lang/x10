@@ -14,7 +14,7 @@ import java.util.Iterator;
  */
 public abstract class Region extends X10Object implements TypeArgument {
 	public final int rank;
-	
+
 	public Region(int r) {		
 		this.rank = r;
 	}

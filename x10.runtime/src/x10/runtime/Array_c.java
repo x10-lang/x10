@@ -18,9 +18,12 @@ import x10.lang.X10Object;
  */
 public class Array_c extends Array {
 
-	Array_c(Distribution d) {
-		super (d);
-	}
+    private final Distribution_c d;
+    
+    Array_c(Distribution_c d) {
+        super (d);
+        this.d = d;
+    }
 	
 	/* (non-Javadoc)
 	 * @see x10.lang.Array#getDistribution()
@@ -33,7 +36,8 @@ public class Array_c extends Array {
 	/* (non-Javadoc)
 	 * @see x10.lang.Array#set(java.lang.Object, int[])
 	 */
-	public void set(Object v, int[] pos) {
+	public void set(X10Object v, int[] pos) {
+	    d.setValueAt(this, pos, v);
 		// TODO Auto-generated method stub
 
 	}
@@ -42,9 +46,15 @@ public class Array_c extends Array {
 	 * @see x10.lang.Array#get(int[])
 	 */
 	public X10Object get(int[] pos) {
-		// TODO Auto-generated method stub
-		return null;
+	    return d.getValueAt(this,pos);
 	}
+    
+    X10Object getInternal(int[] pos) {
+        return null; // FIXME Christoph!
+    }
+    void setInternal(int[] pos, X10Object value) {
+        // FIXME Christoph!
+    }
 
 	/* (non-Javadoc)
 	 * @see x10.lang.Array#padd(x10.lang.Array)

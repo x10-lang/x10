@@ -1,7 +1,6 @@
 package x10.runtime;
 
 import java.util.HashMap;
-import java.util.Set;
 import java.util.Vector;
 import java.util.WeakHashMap;
 
@@ -52,6 +51,11 @@ public class DefaultRuntime_c
      */
     private final Place[] places_;
 
+    /**
+     * Distribution Factory singleton.
+     */
+    private final Distribution.Factory distFactory_ = new Distribution_c.Factory_c();
+    
     public DefaultRuntime_c() {
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
     	this.places_ 
@@ -192,35 +196,18 @@ public class DefaultRuntime_c
     }
     	
     /**
-     * @param p Set of places.
-     * @return Unique, one-dimensional Distribution that maps
-     *         one point to each place.
+     * Create a Distribution Factory.
+     * @return
      */
-    public Distribution newUniqueDist(Set p) {
-    	return Distribution_c.unique(p);
+    public Distribution.Factory getDistributionFactory() {
+        return distFactory_;
     }
-	
-	public Distribution newConstantDist(Place p) {
-		return Distribution_c.constant(p);
-    }
-	
-	public Distribution newBlockDist(Region r, Set p) {
-		return Distribution_c.block(r,p);
-    }
-
-	public Distribution newCyclicDist(Region r, Set p) {
-		return Distribution_c.cyclic(r, p);
-    }
-	
-	public Distribution newBlockCyclicDist(Region r, Set p, int bsize) {
-		return Distribution_c.blockcyclic(r, p, bsize);
-    }
-    
+   
     /**
      * @return New array.
      */
     public Array newArray(Distribution d) {
-    	return new Array_c(d);
+    	return new Array_c((Distribution_c)d);
     }
 				      
     /**

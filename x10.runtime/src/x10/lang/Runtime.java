@@ -1,7 +1,5 @@
 package x10.lang;
 
-import java.util.Set;
-
 import x10.runtime.DefaultRuntime_c;
 
 /**
@@ -82,22 +80,13 @@ public abstract class Runtime {
      * @return New Region.
      */
     public abstract Region newRegion(Range[] dims);
-    	
-    /**
-     * @param p Set of places.
-     * @return Unique, one-dimensional Distribution that maps
-     *         one point to each place.
-     */
-    public abstract Distribution newUniqueDist(Set p);
-	
-	public abstract Distribution newConstantDist(Place p);
-	
-	public abstract Distribution newBlockDist(Region r, Set p);
 
-	public abstract Distribution newCyclicDist(Region r, Set p); 
-	
-	public abstract Distribution newBlockCyclicDist(Region r, Set p, int bsize); 
-		
+    /**
+     * Create a Distribution Factory.
+     * @return
+     */
+    public abstract Distribution.Factory getDistributionFactory();
+    
     /**
      * @return  New array with Distribution d.
      */
