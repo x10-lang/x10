@@ -1,5 +1,9 @@
 package x10.lang;
 
+import java.util.Iterator;
+import java.util.List;
+
+import x10.runtime.Clock;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
@@ -119,6 +123,24 @@ public abstract class Runtime implements x10.base.Runtime {
         if (o == null)
             throw new NullPointerException("Cast of value 'null' to non-nullable type failed.");
         return o;
+    }
+    
+    public static ActivityInformation getCurrentActivityInformation() {
+        return (ActivityInformation)Thread.currentThread();
+    }
+    
+    public static void doNext() {
+        List clks = getCurrentActivityInformation().getRegisteredClocks();
+        Iterator it = clks.iterator();
+        while (it.hasNext()) {
+            Clock c = (Clock) it.next();
+            c.resume();
+        }
+        it = clks.iterator();
+        while (it.hasNext()) {
+            clock c = (clock) it.next();
+            c.doNext();
+        }
     }
     
     public static Place[] places() {

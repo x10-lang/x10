@@ -1,2 +1,2 @@
-// next (list of clocks)
-x10.runtime.Clock.doNext(clocked_clocks);
+// next;
+x10.lang.Runtime.doNext();

@@ -21,7 +21,7 @@ import polyglot.visit.PrettyPrinter;
 
 /** An immutable representation of the X10 statement: ateach (i : D) S
  * @author vj Dec 9, 2004
- * 
+ * @author Christian Grothoff
  */
 public class AtEach_c extends X10Loop_c implements AtEach, Clocked {
 

@@ -86,7 +86,7 @@ public class TestRuntime extends TestCase {
             public void run() {
                 x = 1;
             }
-        });
+        }, Runtime.getCurrentActivityInformation());
         sleep(100);
         assertTrue(x == 1);
     }
@@ -101,7 +101,7 @@ public class TestRuntime extends TestCase {
             public Object getResult() {
                 return val;
             }
-        });
+        }, Runtime.getCurrentActivityInformation());
         assertTrue(f.force().getClass() == x10.lang.Object.class);
     }
 
@@ -110,23 +110,22 @@ public class TestRuntime extends TestCase {
         final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         Activity b = new Activity() {
             public void run() {
-                c.doNext();
+                Runtime.doNext();
                 x = 1;
-                c.doNext();
-                c.doNext();
+                Runtime.doNext();
+                Runtime.doNext();
                 x = 2;
-                c.doNext();
+                Runtime.doNext();
             }
         };
-        c.register(b);
-        Runtime.here().runAsync(b);
+        Runtime.here().runAsync(b, Runtime.getCurrentActivityInformation());
         sleep(100); // wait for activity to hit first 'doNext'
         assertTrue(x == 0);
-        c.doNext();
-        c.doNext();
+        Runtime.doNext();
+        Runtime.doNext();
         assertTrue(x == 1);
-        c.doNext();
-        c.doNext();
+        Runtime.doNext();
+        Runtime.doNext();
         assertTrue(x == 2);
     }
     
@@ -136,18 +135,17 @@ public class TestRuntime extends TestCase {
         final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         Activity b = new Activity() {
             public void run() {
-                c.doNext();
+                Runtime.doNext();
                 x = 1;
                 c.resume();
                 sleep(100); // wait for activity to hit first 'doNext'
                 x = 2; // 'bad' coding style :-)
             }
         };
-        c.register(b);
-        Runtime.here().runAsync(b);
+        Runtime.here().runAsync(b, Runtime.getCurrentActivityInformation());
         assertTrue(x == 0);
-        c.doNext();
-        c.doNext();
+        Runtime.doNext();
+        Runtime.doNext();
         assertTrue(x == 1);
         sleep(200); // sleep longer than 'b'
         assertTrue(x == 2);
@@ -157,16 +155,15 @@ public class TestRuntime extends TestCase {
         final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         Activity b = new Activity() {
             public void run() {
-                c.doDrop();
+                c.drop();
             }
         };
-        c.register(b);
-        Runtime.here().runAsync(b);
-        c.doNext();
-        c.doNext();
-        c.doNext();
-        c.doNext();
-        c.doNext();
+        Runtime.here().runAsync(b, Runtime.getCurrentActivityInformation());
+        Runtime.doNext();
+        Runtime.doNext();
+        Runtime.doNext();
+        Runtime.doNext();
+        Runtime.doNext();
     }
     
     public void testClockedFinal() {
@@ -175,23 +172,22 @@ public class TestRuntime extends TestCase {
         Activity b = new Activity() {
             public void run() {
                 i.next = 1;
-                c.doNext();
+                Runtime.doNext();
                 i.next = 2;
-                c.doNext();
+                Runtime.doNext();
                 i.next = 3;
-                c.doNext();
+                Runtime.doNext();
             }
-        };
-        c.register(b);
-        Runtime.here().runAsync(b);
+        };       
+        Runtime.here().runAsync(b, Runtime.getCurrentActivityInformation());
         assertTrue(i.current == 0);
-        c.doNext();
+        Runtime.doNext();
         assertTrue(i.current == 1);
-        c.doNext();
+        Runtime.doNext();
         assertTrue(i.current == 2);
-        c.doNext();
+        Runtime.doNext();
         assertTrue(i.current == 3);
-        c.doNext();
+        Runtime.doNext();
     }
 
     public void testClockNow() {
@@ -206,16 +202,16 @@ public class TestRuntime extends TestCase {
                                 x = 1;
                             }
                         };                    
-                        Runtime.here().runAsync(d);
+                        Runtime.here().runAsync(d, Runtime.getCurrentActivityInformation());
                     }
                 };
-                Runtime.here().runAsync(c);
+                Runtime.here().runAsync(c, null);
             }
         };
         x = 0;
         final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         c.doNow(b);
-        c.doNext();
+        Runtime.doNext();
         assertTrue(x == 1);
     }
     

@@ -9,6 +9,7 @@ import polyglot.ast.Stmt;
 
 /**
  * The node constructed for [ateach,foreach,async] clocked (C) [stmt].
+ * @author Christian Grothoff
  */
 public interface Clocked extends CompoundStmt {
 
