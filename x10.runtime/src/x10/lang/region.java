@@ -61,7 +61,21 @@ public abstract /*value*/ class region extends Object  {
 			return result;
 		}
 		
-		public abstract region/*2*/ region( region a, region b);
+	    public  region/*2*/ region( region a, region b) {
+		return region(new region[] { a, b });
+	    }
+	    public  region/*1*/ region( region a) {
+		return region(new region[] { a });
+	    }
+	    public  region/*3*/ region( region a, region b, region c) {
+		return region(new region[] { a, b,c });
+	    }
+	    public  region/*4*/ region( region a, region b, region c, region d) {
+		return region(new region[] { a, b,c, d });
+	    }
+	    public  region/*4*/ region( region a, region b, region c, region d, region e) {
+		return region(new region[] { a, b,c, d,e });
+	    }
 		
 		/** Construct a region, using the list of region(1)'s passed as
 		 * arguments to the constructor.
