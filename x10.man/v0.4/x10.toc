@@ -37,11 +37,11 @@
 \contentsline {section}{\numberline {3.5}Place types}{8}
 \contentsline {paragraph}{The anywhere place type}{8}
 \contentsline {paragraph}{Place expression in place types.}{8}
-\contentsline {paragraph}{ Future work }{8}
+\contentsline {paragraph}{ Future work }{9}
 \contentsline {paragraph}{{\tt current}}{9}
 \contentsline {section}{\numberline {3.6}Variables}{9}
 \contentsline {subsection}{\numberline {3.6.1}Final variables}{9}
-\contentsline {subsection}{\numberline {3.6.2}Initial values of variables}{9}
+\contentsline {subsection}{\numberline {3.6.2}Initial values of variables}{10}
 \contentsline {section}{\numberline {3.7}Objects}{10}
 \contentsline {section}{\numberline {3.8}Built-in types}{11}
 \contentsline {section}{\numberline {3.9}Conversions and Promotions}{11}
@@ -49,53 +49,54 @@
 \contentsline {chapter}{\numberline {5}Places}{11}
 \contentsline {subsection}{\numberline {5.0.1}Place expressions}{11}
 \contentsline {subsection}{\numberline {5.0.2}{\tt here}}{11}
-\contentsline {paragraph}{Example.}{11}
+\contentsline {paragraph}{Example.}{12}
 \contentsline {chapter}{\numberline {6}Activities}{12}
-\contentsline {section}{\numberline {6.1}Spawning an activity}{12}
-\contentsline {section}{\numberline {6.2}Finish}{13}
+\contentsline {section}{\numberline {6.1}The {\sf X10}{} rooted exception model}{12}
+\contentsline {section}{\numberline {6.2}Spawning an activity}{12}
+\contentsline {section}{\numberline {6.3}Finish}{13}
 \contentsline {paragraph}{Future extensions.}{13}
-\contentsline {section}{\numberline {6.3}Initial activity}{13}
-\contentsline {section}{\numberline {6.4}Asynchronous Expression and Futures}{13}
-\contentsline {subsection}{\numberline {6.4.1}Implementation notes}{13}
-\contentsline {section}{\numberline {6.5}Atomic sections}{13}
-\contentsline {subsection}{\numberline {6.5.1}Unconditional atomic sections}{14}
+\contentsline {section}{\numberline {6.4}Initial activity}{13}
+\contentsline {section}{\numberline {6.5}Asynchronous Expression and Futures}{13}
+\contentsline {subsection}{\numberline {6.5.1}Implementation notes}{14}
+\contentsline {section}{\numberline {6.6}Atomic sections}{14}
+\contentsline {subsection}{\numberline {6.6.1}Unconditional atomic sections}{14}
 \contentsline {subsubsection}{Example}{14}
-\contentsline {subsection}{\numberline {6.5.2}Conditional atomic sections}{14}
-\contentsline {paragraph}{Conditions on {\tt when} clauses.}{14}
+\contentsline {subsection}{\numberline {6.6.2}Conditional atomic sections}{15}
+\contentsline {paragraph}{Conditions on {\tt when} clauses.}{15}
 \contentsline {paragraph}{Sample usage.}{15}
-\contentsline {subsection}{\numberline {6.5.3}Examples}{15}
+\contentsline {subsection}{\numberline {6.6.3}Examples}{15}
 \contentsline {paragraph}{Bounded buffer.}{15}
 \contentsline {paragraph}{ Implementing a future with a latch.}{15}
 \contentsline {paragraph}{A future to execute a statement.}{16}
-\contentsline {section}{\numberline {6.6}Remote Method Invocation}{16}
-\contentsline {section}{\numberline {6.7}Iteration}{16}
+\contentsline {section}{\numberline {6.7}Remote Method Invocation}{16}
+\contentsline {section}{\numberline {6.8}Iteration}{17}
 \contentsline {chapter}{\numberline {7}Clocks}{17}
-\contentsline {section}{\numberline {7.1}Clock operations}{17}
-\contentsline {subsection}{\numberline {7.1.1}Creating new clocks}{17}
-\contentsline {subsection}{\numberline {7.1.2}Registering new activities on clocks}{17}
+\contentsline {section}{\numberline {7.1}Clock operations}{18}
+\contentsline {subsection}{\numberline {7.1.1}Creating new clocks}{18}
+\contentsline {subsection}{\numberline {7.1.2}Registering new activities on clocks}{18}
 \contentsline {subsection}{\numberline {7.1.3}Continuing clocks}{18}
 \contentsline {subsection}{\numberline {7.1.4}Advancing clocks}{18}
 \contentsline {subsection}{\numberline {7.1.5}Dropping clocks}{18}
-\contentsline {subsection}{\numberline {7.1.6}Checking for dropped clocks}{18}
-\contentsline {subsection}{\numberline {7.1.7}Posting statements on a clock}{18}
-\contentsline {subsection}{\numberline {7.1.8}Program equivalences}{18}
-\contentsline {chapter}{\numberline {8}Interfaces}{18}
+\contentsline {subsection}{\numberline {7.1.6}Checking for dropped clocks}{19}
+\contentsline {subsection}{\numberline {7.1.7}Posting statements on a clock}{19}
+\contentsline {subsection}{\numberline {7.1.8}Program equivalences}{19}
+\contentsline {chapter}{\numberline {8}Interfaces}{19}
 \contentsline {chapter}{\numberline {9}Classes}{19}
 \contentsline {section}{\numberline {9.1}Reference classes}{19}
 \contentsline {section}{\numberline {9.2}Value classes}{19}
-\contentsline {subsection}{\numberline {9.2.1}Representation}{19}
-\contentsline {subsection}{\numberline {9.2.2}Example}{19}
+\contentsline {subsection}{\numberline {9.2.1}Representation}{20}
+\contentsline {subsection}{\numberline {9.2.2}Example}{20}
 \contentsline {section}{\numberline {9.3}Method annotations}{20}
 \contentsline {subsection}{\numberline {9.3.1}{\tt atomic} annotation}{20}
 \contentsline {subsection}{\numberline {9.3.2}{\tt local} annotation}{20}
-\contentsline {chapter}{\numberline {10}Arrays}{20}
-\contentsline {section}{\numberline {10.1}Regions}{20}
+\contentsline {chapter}{\numberline {10}Arrays}{21}
+\contentsline {section}{\numberline {10.1}Regions}{21}
 \contentsline {subsection}{\numberline {10.1.1}Operations on Regions}{21}
-\contentsline {section}{\numberline {10.2}Distributions}{21}
-\contentsline {subsection}{\numberline {10.2.1}Operations returning distributions}{21}
-\contentsline {paragraph}{Unique distribution}{21}
-\contentsline {paragraph}{Constant distributions.}{21}
-\contentsline {paragraph}{Block distributions.}{21}
+\contentsline {section}{\numberline {10.2}Distributions}{22}
+\contentsline {subsection}{\numberline {10.2.1}Operations returning distributions}{22}
+\contentsline {paragraph}{Unique distribution}{22}
+\contentsline {paragraph}{Constant distributions.}{22}
+\contentsline {paragraph}{Block distributions.}{22}
 \contentsline {paragraph}{Cyclic distributions.}{22}
 \contentsline {paragraph}{Block cyclic distributions.}{22}
 \contentsline {paragraph}{Arbitrary distributions.}{22}
@@ -105,34 +106,34 @@
 \contentsline {subsection}{\numberline {10.2.3}Operations on Distributions}{22}
 \contentsline {paragraph}{Intersection of distributions.}{22}
 \contentsline {paragraph}{Asymmetric union of distributions.}{22}
-\contentsline {paragraph}{Disjoint union of distributions.}{22}
-\contentsline {paragraph}{Difference of distributions.}{22}
-\contentsline {subsection}{\numberline {10.2.4}Example}{22}
-\contentsline {section}{\numberline {10.3}Array initializer}{22}
+\contentsline {paragraph}{Disjoint union of distributions.}{23}
+\contentsline {paragraph}{Difference of distributions.}{23}
+\contentsline {subsection}{\numberline {10.2.4}Example}{23}
+\contentsline {section}{\numberline {10.3}Array initializer}{23}
 \contentsline {section}{\numberline {10.4}Operations on arrays}{23}
 \contentsline {subsection}{\numberline {10.4.1}Element operations}{23}
 \contentsline {subsection}{\numberline {10.4.2}Constant promotion}{23}
-\contentsline {subsection}{\numberline {10.4.3}Restriction of an array}{23}
-\contentsline {subsection}{\numberline {10.4.4}Assembling an array}{23}
-\contentsline {paragraph}{Assembling arrays over disjoint regions}{23}
-\contentsline {paragraph}{Overlaying an array on another}{23}
-\contentsline {subsection}{\numberline {10.4.5}Global operations }{23}
-\contentsline {paragraph}{Pointwise operations}{23}
-\contentsline {paragraph}{Reductions}{23}
-\contentsline {paragraph}{Scans}{23}
+\contentsline {subsection}{\numberline {10.4.3}Restriction of an array}{24}
+\contentsline {subsection}{\numberline {10.4.4}Assembling an array}{24}
+\contentsline {paragraph}{Assembling arrays over disjoint regions}{24}
+\contentsline {paragraph}{Overlaying an array on another}{24}
+\contentsline {subsection}{\numberline {10.4.5}Global operations }{24}
+\contentsline {paragraph}{Pointwise operations}{24}
+\contentsline {paragraph}{Reductions}{24}
+\contentsline {paragraph}{Scans}{24}
 \contentsline {chapter}{\numberline {11}Statements and Expressions}{24}
 \contentsline {section}{\numberline {11.1}Assignment}{24}
 \contentsline {section}{\numberline {11.2}Point and region construction}{24}
 \contentsline {section}{\numberline {11.3}Exploded variable declarations}{24}
-\contentsline {paragraph}{Example.}{24}
-\contentsline {section}{\numberline {11.4}Expressions}{24}
+\contentsline {paragraph}{Example.}{25}
+\contentsline {section}{\numberline {11.4}Expressions}{25}
 \contentsline {paragraph}{The classcast operator}{25}
 \contentsline {paragraph}{{\tt instanceof} operator}{25}
 \contentsline {paragraph}{Stable equality.}{25}
 \contentsline {chapter}{Example}{25}
-\contentsline {chapter}{{\sf X10}{} syntax}{26}
-\contentsline {chapter}{Changes from v0.32}{35}
-\contentsline {subsection}{\numberline {11.4.1}Limitations}{35}
-\contentsline {subsection}{\numberline {11.4.2}Future work}{35}
-\contentsline {chapter}{References}{35}
-\contentsline {chapter}{Alphabetic index of definitions of concepts,\hfil \penalty 0 \hbox {\hspace *{2em} keywords, and procedures}}{36}
+\contentsline {chapter}{{\sf X10}{} syntax}{27}
+\contentsline {chapter}{Changes from v0.32}{36}
+\contentsline {subsection}{\numberline {11.4.1}Limitations}{36}
+\contentsline {subsection}{\numberline {11.4.2}Future work}{36}
+\contentsline {chapter}{References}{36}
+\contentsline {chapter}{Alphabetic index of definitions of concepts,\hfil \penalty 0 \hbox {\hspace *{2em} keywords, and procedures}}{37}

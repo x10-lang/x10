@@ -13,15 +13,18 @@ destructure points.
 
 \subsection{Limitations}
 
-Exception propagation from an activity to its invoking activity is not
+\begin{itemize}
+\item Exception propagation from an activity to its invoking activity is not
 yet implemented.
 
-All the type checking rules are not implemented. Thus if your program
+\item All the type checking rules are not implemented. Thus if your program
 is already correct, it will exeute correctly. If it is not correct, it
 may still execute and give a result.
 
-The predicate {\tt ==} for value types is not yet implemented.
+\item The predicate {\tt ==} for value types is not yet implemented.
 
+\item ``Jagged'' arrays are not yet implemented.
+\end{itemize}
 \todo{Update this list from Mantisa.}
 
 \subsection{Future work}

@@ -28,7 +28,9 @@ whose underlying region is of the form {\tt 0:N}, for some {\tt N}.
 
 The qualifier {\tt value} ({\tt reference}) specifies that the array
 is a {\tt value}({\tt reference}) array. The array elements of a {\tt
-value} array are all {\tt final}. If the qualifier is not specified,
+value} array are all {\tt final}.\footnote{Note that the base type of a {\tt value} array can be a value class or a reference class, just as the 
+type of a {\tt final} variable can be a value class or a reference class.
+}If the qualifier is not specified,
 the array is a {\tt reference} array.
 
 The array type {\cf Type reference [.]} is the type of all (reference)
