@@ -141,11 +141,6 @@ public abstract class Runtime implements x10.base.Runtime {
         List clks = getCurrentActivityInformation().getRegisteredClocks();
         Iterator it = clks.iterator();
         while (it.hasNext()) {
-            Clock c = (Clock) it.next();
-            c.resume();
-        }
-        it = clks.iterator();
-        while (it.hasNext()) {
             clock c = (clock) it.next();
             c.doNext();
         }
