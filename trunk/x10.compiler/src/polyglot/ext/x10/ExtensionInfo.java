@@ -8,10 +8,13 @@ import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.parse.Grm;
 import polyglot.ext.x10.parse.Lexer_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.visit.DeAsyncAndFutureifier;
 import polyglot.frontend.CupParser;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
+import polyglot.frontend.Pass;
+import polyglot.frontend.VisitorPass;
 import polyglot.lex.Lexer;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
@@ -47,9 +50,28 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         return new X10TypeSystem_c();
     }
 
+    public static final Pass.ID VALUE_FIELD_EN_FINALIFICATION =
+        new Pass.ID("value-field-en-finalification");
+    public static final Pass.ID DE_ASYNCANDFUTUREIFICATION =
+        new Pass.ID("de-asyncandfutureification");
+    public static final Pass.ID DE_ATOMICIFICATION =
+        new Pass.ID("de-atomicification");
+    public static final Pass.ID DE_VALUEIFICATION =
+        new Pass.ID("de-valueification");
+    public static final Pass.ID EXPLICIT_CASTIFICATION =
+        new Pass.ID("explicit-castification");
+    public static final Pass.ID EQUALS_SLOWIFICATION =
+        new Pass.ID("equals-slowification");
+    public static final Pass.ID DE_NULLABLE_AND_FUTUREIFICATION =
+        new Pass.ID("de-nullableandfutureification");
+    public static final Pass.ID DE_CHUCKIFICATION =
+        new Pass.ID("de-chuckification");
+
     public List passes(Job job) {
         List passes = super.passes(job);
-        // TODO: add passes as needed by your compiler
+        beforePass(passes, Pass.PRE_OUTPUT_ALL,
+                  new VisitorPass(DE_ASYNCANDFUTUREIFICATION,
+                                  job, new DeAsyncAndFutureifier(ts, nf)));
         return passes;
     }
 

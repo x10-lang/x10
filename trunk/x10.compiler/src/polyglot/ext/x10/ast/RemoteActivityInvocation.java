@@ -3,7 +3,6 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Block;
 import polyglot.ast.Expr;
 
 /**
@@ -16,11 +15,5 @@ public interface RemoteActivityInvocation {
     
     /** Set the RemoteActivity's place. */
     RemoteActivityInvocation place(Expr place);
-
-    /** Set the RemoteActivity's body */
-    RemoteActivityInvocation body(Block body);
-
-    /** Get the body of the RemoteActivity. */
-    Block body();
 
 }
