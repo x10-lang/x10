@@ -65,6 +65,30 @@ public class TestDistribution_c extends TestCase {
         assertTrue(assert1);
     }
     
+    public void testDistribution_subDistribution() {
+        region r1 =region.factory.region(0,4);
+        region r2 =region.factory.region(5,9);
+        region r3 =region.factory.region(0,9);
+        place p = Runtime.here();
+        distribution d1 = distribution.factory.constant(r1, p);
+        distribution d2 = distribution.factory.constant(r2, p);
+        distribution d3 = distribution.factory.constant(r3, p);
+        distribution d4 = new Distribution_c.Combined(r3, new Distribution_c[] {(Distribution_c) d1, (Distribution_c)d2});
+        
+        System.out.println("d1=" + d1);
+        System.out.println("d2=" + d2);
+        System.out.println("d3=" + d3);
+        System.out.println("d4=" + d4);
+        
+        assertTrue(d4.equals(d3));
+        // E_common=Distribution_c.Constant<region=|{[0],[1],[2],[3],[4]}|, place=|place(id=1)|>
+        // E_notCommon=Distribution_c.Constant<region=|{[5],[6],[7],[8],[9]}|, place=|place(id=1)|>
+        // E=Distribution_c.Constant<region=|0:9|, place=|place(id=1)|>
+        // union=CombinedDistribution_c<Distribution_c.Constant<region=|{[0],[1],[2],[3],[4]}|, place=|place(id=1)|>Distribution_c.Constant<region=|{[5],[6],[7],[8],[9]}|, place=|place(id=1)|
+        
+
+    }
+    
     public void testDistribution_block() {
         boolean assert1, assert2, assert3;
         region cont = new ContiguousRange(37);
