@@ -2,12 +2,11 @@ package x10.runtime;
 
 import x10.array.point_c;
 import x10.base.TypeArgument;
-import x10.lang.Activity;
 import x10.lang.Future;
 import x10.lang.Runtime;
 import x10.lang.place;
 
-import x10.lang.Activity.Expr;
+import x10.runtime.Activity.Expr;
 
 
 /**

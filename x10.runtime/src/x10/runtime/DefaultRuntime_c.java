@@ -20,7 +20,6 @@ import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.LongArray_c;
 import x10.array.sharedmemory.RegionFactory;
 import x10.compilergenerated.Parameter1;
-import x10.lang.Activity;
 import x10.lang.DoubleReferenceArray;
 import x10.lang.Future;
 import x10.lang.GenericReferenceArray;
@@ -60,31 +59,11 @@ public class DefaultRuntime_c
     private final Map thread2place_ = new WeakHashMap(); // <Thread,Place>
 
     /**
-     * At what place is the given thread running (needed to support
-     * running multiple Places within the same VM). Note that we're
-     * using a weak hash map here since the threadpool code may decide
-     * to reduce the number of threads by just letting one exit, and
-     * we would in that case not want to hold on to the memory.
-     */
-    private final Map activity2place_ = new WeakHashMap(); // <Activity,Place>
-
-    /**
      * Which activity is the current thread executing?  This one does
      * not have to be a weak hash map since threads are explicitly 
      * removed from the map once they complete a particular activity.
      */
     private final Map thread2activity_ = new HashMap(); // <Thread,Activity>
-    
-    /**
-     * List that maps each activity to its exception collector.
-     */
-    private final Map activity2finish_ = new HashMap(); // <Activity,Stack<Throwable>>
-    
-    /**
-     * What listeners are registered for termination/spawning events
-     * for the given activity?  
-     */
-    private final Map activity2asl_ = new HashMap(); // <Activity,Vector<ActivitySpawnListener>>
     
     /**
      * The places of this X10 Runtime (for now a constant set).
@@ -149,7 +128,7 @@ public class DefaultRuntime_c
                 // Activity.Expr since we want to use a Clock to 
                 // wait for the main app to exit, but we can't use
                 // a clock directly without being a proper activity).
-                Clock_c c = (Clock_c) factory.getClockFactory().clock();
+                Clock c = (Clock) factory.getClockFactory().clock();
                 c.doNow(appMain);
                 c.doNext();
 
@@ -199,15 +178,12 @@ public class DefaultRuntime_c
      */
     public synchronized void registerActivitySpawnListener(Activity i,
                                                            ActivitySpawnListener asl) {
-        ArrayList v = (ArrayList) activity2asl_.get(i);
-        if (v == null) {
-            v = new ArrayList(2);
-            activity2asl_.put(i,v);
-        } else {
+        if (i.asl_ == null) 
+            i.asl_ = new ArrayList(2);
+        else
             // each listener must only be registered once!
-            assert (!v.contains(asl));
-        }
-        v.add(asl);
+            assert (!i.asl_.contains(asl));
+        i.asl_.add(asl);
     }
     
     /**
@@ -219,7 +195,7 @@ public class DefaultRuntime_c
      */
     public void registerActivityException(Activity a,
                         Throwable t) {
-        Stack fini = (Stack) this.activity2finish_.get(a);
+        Stack fini = a.finish_;
         if (fini != null)
             fini.push(t);
     }
@@ -232,7 +208,7 @@ public class DefaultRuntime_c
      */
     public void startFinish(final Activity a) {
         final Stack fini = new Stack();
-        this.activity2finish_.put(a, fini);
+        a.finish_ = fini;
         registerActivitySpawnListener(a,
              new FinishASL(a, fini));
     }
@@ -242,13 +218,13 @@ public class DefaultRuntime_c
         FinishASL(Activity r, Stack f) { this.root = r; this.fini = f; }
         public void notifyActivitySpawn(Activity spawn,
                 Activity i) {
-            if ( (activity2finish_.get(root) != fini) ||
-                  (activity2finish_.get(spawn) != null) )
+            if ( (root.finish_ != fini) ||
+                  (spawn.finish_ != null) )
                 return; // YES, this line IS needed.  - CG
             
             registerActivitySpawnListener(spawn,
                     new FinishASL(i, fini));
-            activity2finish_.put(spawn, fini);
+            spawn.finish_ = fini;
         }
         public void notifyActivityTerminated(Activity a) {}
     }
@@ -262,14 +238,7 @@ public class DefaultRuntime_c
      *   otherwise the collection of exceptions
      */
     public synchronized Throwable getFinishExceptions(Activity a) {
-        Stack f = (Stack) activity2finish_.get(a);
-        // first, clean up activity2finish_ map (free memory)
-        Iterator it = activity2finish_.keySet().iterator();
-        while (it.hasNext()) {
-            java.lang.Object o = it.next();
-            if (activity2finish_.get(o) == f) 
-                it.remove();
-        }
+        Stack f = a.finish_;
         // now, compute resulting exception and return it
         if (f.isEmpty())
             return null;
@@ -287,7 +256,8 @@ public class DefaultRuntime_c
         assert (t == Thread.currentThread());
         ArrayList v;
         synchronized(this) {
-            v = (ArrayList) activity2asl_.get(a);
+            v = a.asl_;
+            a.asl_ = null;
         }
         
         // do not unnecessarily keep the lock for the following:
@@ -300,8 +270,6 @@ public class DefaultRuntime_c
         }
         
         synchronized(this) {
-            if (v != null) 
-                activity2asl_.remove(a);
             thread2activity_.remove(t);
         }
     }
@@ -314,19 +282,19 @@ public class DefaultRuntime_c
      * @param i the activity that started a (null for boot/main).
      */
     public void registerActivityStart(Thread t,
-                                                   Activity a,
-                                                   Activity i) {
+            Activity a,
+            Activity i) {
         // this is called by the started thread!
         assert (t == Thread.currentThread());
         assert a != i;
         ArrayList v;    
         synchronized(this) {
             assert thread2place_.get(t) != null;
-            activity2place_.put(a, thread2place_.get(t));
+            a.place_ = (Place) thread2place_.get(t);
             thread2activity_.put(t,a);
             if (i == null) 
                 return;        
-            v = (ArrayList) activity2asl_.get(i);
+            v = i.asl_;
         }
         if (v != null) {
             for (int j=0;j<v.size();j++) {
@@ -384,7 +352,7 @@ public class DefaultRuntime_c
     		public clock.factory getClockFactory() {
     			return new clock.factory() {
     				public clock clock() {
-    					return new Clock_c(DefaultRuntime_c.this);
+    					return new Clock(DefaultRuntime_c.this);
     				}
     			};
     		}
@@ -517,17 +485,7 @@ public class DefaultRuntime_c
      */
     public synchronized Place getPlaceOfActivity(Activity a) {
         // this method must be synchronized to protect the map activity2place_
-        return (Place) this.activity2place_.get(a);
-        /*
-        Iterator it = thread2activity_.keySet().iterator();
-        while (it.hasNext()) {
-            Thread t = (Thread) it.next();
-            Activity ta = (Activity) thread2activity_.get(t);
-            if (ta == a)
-                return (Place) thread2place_.get(t);
-        }
-        return null;
-        */
+        return a.place_;
     }    
 
     static class Signal { boolean value; }

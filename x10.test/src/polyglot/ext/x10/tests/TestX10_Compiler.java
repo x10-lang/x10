@@ -13,8 +13,8 @@ import java.net.URLClassLoader;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import x10.lang.Activity;
 import x10.lang.Runtime;
+import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;

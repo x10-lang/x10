@@ -3,7 +3,6 @@
  */
 package x10.runtime;
 
-import x10.lang.Activity;
 
 /**
  * Interface for the service that provides information about

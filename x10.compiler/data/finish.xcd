@@ -1,14 +1,14 @@
-(x10.lang.Runtime.here().runFuture(new x10.lang.Activity.Expr() {
+(x10.lang.Runtime.here().runFuture(new x10.runtime.Activity.Expr() {
   private boolean ret_;
   public void run() {
-     final x10.lang.Activity act = new x10.lang.Activity() {
+     final x10.runtime.Activity act = new x10.runtime.Activity() {
     	           public void run() {
         	         #0; 
             	   } 
 	            };
   	 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).startFinish(act);
   	 try {
-     	final x10.runtime.Clock c = x10.runtime.Clock.Clock();
+     	 final x10.runtime.Clock c = (x10.runtime.Clock) x10.lang.Runtime.factory.getClockFactory().clock();
 	     c.doNow(act);    
     	 c.doNext();
      } catch (java.lang.RuntimeException re) {

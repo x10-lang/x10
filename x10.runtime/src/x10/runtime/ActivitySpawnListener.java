@@ -3,7 +3,6 @@
  */
 package x10.runtime;
 
-import x10.lang.Activity;
 
 /**
  * Listener on events where a specified activity spawns other

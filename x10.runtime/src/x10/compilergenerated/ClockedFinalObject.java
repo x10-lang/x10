@@ -3,7 +3,7 @@
  */
 package x10.compilergenerated;
 
-import x10.runtime.Clock_c;
+import x10.runtime.Clock;
 
 /**
  * This code is hand-written for now.  In the future the plan is to either
@@ -19,7 +19,7 @@ public class ClockedFinalObject extends ClockedFinal {
     
     public Object next;
     
-    public ClockedFinalObject(Clock_c c, Object i) {
+    public ClockedFinalObject(Clock c, Object i) {
         super(c);
         current = next = i;
     }

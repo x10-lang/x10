@@ -1,5 +1,5 @@
 // async(0) 1
-((x10.runtime.Place) #0).runAsync(new x10.lang.Activity() {
+((x10.runtime.Place) #0).runAsync(new x10.runtime.Activity() {
   public void run() {
      #1; 
   } 
