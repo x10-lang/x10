@@ -4,9 +4,9 @@
 package x10.compilergenerated;
 
 
-import x10.lang.Clock;
 import x10.lang.Object;
-import x10.lang.Clock.AdvanceListener;
+import x10.runtime.Clock;
+import x10.runtime.Clock.AdvanceListener;
 
 /**
  * Abstract parent class of all subclasses that implement clocked

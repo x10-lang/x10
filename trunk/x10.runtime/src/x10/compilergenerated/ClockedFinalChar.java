@@ -3,7 +3,7 @@
  */
 package x10.compilergenerated;
 
-import x10.lang.Clock;
+import x10.runtime.Clock;
 
 /**
  * This code is hand-written for now.  In the future the plan is to either
