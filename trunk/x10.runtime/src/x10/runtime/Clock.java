@@ -116,7 +116,7 @@ public final class Clock extends clock {
         synchronized (this) {
             assert activities_.contains(a);
             pending_.remove(a);
-            tryAdvance();
+            tryAdvance_();
         }
     }
      
@@ -165,7 +165,7 @@ public final class Clock extends clock {
     synchronized boolean drop(Activity a) {
         boolean ret = activities_.remove(a);
         pending_.remove(a);
-        tryAdvance(); 
+        tryAdvance_(); 
         return ret;        
     }
     
@@ -183,7 +183,7 @@ public final class Clock extends clock {
         synchronized (this) {
             assert activities_.contains(a);
             pending_.remove(a); // this one is done! 
-            if (tryAdvance())
+            if (tryAdvance_())
                 return; // we advanced, continue immediately!
             // wait for next phase
             int start = phase_;
@@ -247,15 +247,18 @@ public final class Clock extends clock {
     /**
      * Some event happened that may trigger advancing the clock.
      * Check if this is the case and if so advance the clock.
+     * This method does not need to be synchronized because it is called in 
+     * synchronized contexts
      */
-    private boolean tryAdvance() {
+    private boolean tryAdvance_() {
+        boolean ret;
         if ( (nowSet_.size() == 0) && 
              (pending_.size() == 0)) {
             // no locking - the issue is double checked in method advance...
-            advance();
-            return true;
+            ret = advance_();
         } else
-            return false;
+            ret = false;
+        return ret;
     }
     
     /**
@@ -263,7 +266,8 @@ public final class Clock extends clock {
      * calls all advance listeners and then signals the activities
      * that are waiting to get them going again.
      */
-    private synchronized void advance() {
+    private synchronized boolean advance_() {
+        boolean ret;
         // double check ...
         if ( (nowSet_.size() == 0) && 
              (pending_.size() == 0)) {
@@ -287,7 +291,10 @@ public final class Clock extends clock {
                 pending_.add(a);
             }
             notifyAll();
-        }
+            ret = true;
+        } else 
+            ret = false;
+        return ret;
     }
 
     /**
@@ -330,8 +337,9 @@ public final class Clock extends clock {
            // assert nowSet_.contains(a);
            synchronized (Clock.this) {
                nowSet_.remove(a);                
+               tryAdvance_(); // must occur inside synchronized
            }
-           tryAdvance();
+           
        }
    };
    
