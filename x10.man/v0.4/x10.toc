@@ -55,37 +55,37 @@
 \contentsline {section}{\numberline {6.3}Initial activity}{15}
 \contentsline {section}{\numberline {6.4}Asynchronous Expression and Futures}{15}
 \contentsline {subsection}{\numberline {6.4.1}Implementation notes}{15}
-\contentsline {section}{\numberline {6.5}Atomic sections}{15}
+\contentsline {section}{\numberline {6.5}Atomic sections}{16}
 \contentsline {subsection}{\numberline {6.5.1}Unconditional atomic sections}{16}
 \contentsline {subsubsection}{Example}{16}
 \contentsline {subsection}{\numberline {6.5.2}Conditional atomic sections}{16}
 \contentsline {paragraph}{Conditions on {\tt when} clauses.}{16}
-\contentsline {paragraph}{Sample usage.}{16}
+\contentsline {paragraph}{Sample usage.}{17}
 \contentsline {subsection}{\numberline {6.5.3}Examples}{17}
 \contentsline {paragraph}{Bounded buffer.}{17}
 \contentsline {paragraph}{ Implementing a future with a latch.}{17}
 \contentsline {paragraph}{A future to execute a statement.}{18}
 \contentsline {section}{\numberline {6.6}Remote Method Invocation}{18}
 \contentsline {section}{\numberline {6.7}Iteration}{18}
-\contentsline {chapter}{\numberline {7}Clocks}{18}
+\contentsline {chapter}{\numberline {7}Clocks}{19}
 \contentsline {section}{\numberline {7.1}Clock operations}{19}
 \contentsline {subsection}{\numberline {7.1.1}Creating new clocks}{19}
 \contentsline {subsection}{\numberline {7.1.2}Marking clocks referenced in statements}{19}
-\contentsline {subsection}{\numberline {7.1.3}Continuing clocks}{19}
+\contentsline {subsection}{\numberline {7.1.3}Continuing clocks}{20}
 \contentsline {subsection}{\numberline {7.1.4}Advancing clocks}{20}
 \contentsline {subsection}{\numberline {7.1.5}Posting statements on a clock}{20}
 \contentsline {subsection}{\numberline {7.1.6}Dropping clocks}{20}
 \contentsline {subsection}{\numberline {7.1.7}Checking for dropped clocks}{20}
-\contentsline {subsection}{\numberline {7.1.8}Program equivalences}{20}
-\contentsline {chapter}{\numberline {8}Interfaces}{20}
-\contentsline {chapter}{\numberline {9}Classes}{20}
+\contentsline {subsection}{\numberline {7.1.8}Program equivalences}{21}
+\contentsline {chapter}{\numberline {8}Interfaces}{21}
+\contentsline {chapter}{\numberline {9}Classes}{21}
 \contentsline {section}{\numberline {9.1}Reference classes}{21}
 \contentsline {section}{\numberline {9.2}Value classes}{21}
 \contentsline {subsection}{\numberline {9.2.1}Representation}{21}
-\contentsline {subsection}{\numberline {9.2.2}Example}{21}
+\contentsline {subsection}{\numberline {9.2.2}Example}{22}
 \contentsline {chapter}{\numberline {10}Arrays}{22}
 \contentsline {section}{\numberline {10.1}Regions}{22}
-\contentsline {subsection}{\numberline {10.1.1}Operations on Regions}{22}
+\contentsline {subsection}{\numberline {10.1.1}Operations on Regions}{23}
 \contentsline {section}{\numberline {10.2}Distributions}{23}
 \contentsline {subsection}{\numberline {10.2.1}Operations returning distributions}{23}
 \contentsline {paragraph}{Unique distribution}{23}
@@ -95,20 +95,20 @@
 \contentsline {paragraph}{Block cyclic distributions.}{23}
 \contentsline {paragraph}{Arbitrary distributions.}{23}
 \contentsline {paragraph}{Domain Restriction.}{23}
-\contentsline {paragraph}{Range Restriction.}{23}
-\contentsline {subsection}{\numberline {10.2.2}User-defined distributions}{23}
-\contentsline {subsection}{\numberline {10.2.3}Operations on Distributions}{23}
-\contentsline {paragraph}{Intersection of distributions.}{23}
-\contentsline {paragraph}{Asymmetric union of distributions.}{23}
+\contentsline {paragraph}{Range Restriction.}{24}
+\contentsline {subsection}{\numberline {10.2.2}User-defined distributions}{24}
+\contentsline {subsection}{\numberline {10.2.3}Operations on Distributions}{24}
+\contentsline {paragraph}{Intersection of distributions.}{24}
+\contentsline {paragraph}{Asymmetric union of distributions.}{24}
 \contentsline {paragraph}{Disjoint union of distributions.}{24}
 \contentsline {paragraph}{Difference of distributions.}{24}
 \contentsline {subsection}{\numberline {10.2.4}Example}{24}
 \contentsline {section}{\numberline {10.3}Array initializer}{24}
-\contentsline {section}{\numberline {10.4}Operations on arrays}{24}
-\contentsline {subsection}{\numberline {10.4.1}Element operations}{24}
-\contentsline {subsection}{\numberline {10.4.2}Constant promotion}{24}
-\contentsline {subsection}{\numberline {10.4.3}Restriction of an array}{24}
-\contentsline {subsection}{\numberline {10.4.4}Assembling an array}{24}
+\contentsline {section}{\numberline {10.4}Operations on arrays}{25}
+\contentsline {subsection}{\numberline {10.4.1}Element operations}{25}
+\contentsline {subsection}{\numberline {10.4.2}Constant promotion}{25}
+\contentsline {subsection}{\numberline {10.4.3}Restriction of an array}{25}
+\contentsline {subsection}{\numberline {10.4.4}Assembling an array}{25}
 \contentsline {paragraph}{Assembling arrays over disjoint regions}{25}
 \contentsline {paragraph}{Overlaying an array on another}{25}
 \contentsline {subsection}{\numberline {10.4.5}Global operations }{25}
@@ -118,15 +118,16 @@
 \contentsline {chapter}{\numberline {11}Statements and Expressions}{25}
 \contentsline {section}{\numberline {11.1}Assignment}{25}
 \contentsline {section}{\numberline {11.2}Point and region construction}{25}
-\contentsline {section}{\numberline {11.3}Exploded variable declarations}{25}
-\contentsline {paragraph}{Example.}{25}
+\contentsline {section}{\numberline {11.3}Exploded variable declarations}{26}
+\contentsline {paragraph}{Example.}{26}
 \contentsline {section}{\numberline {11.4}Expressions}{26}
 \contentsline {paragraph}{The classcast operator}{26}
 \contentsline {paragraph}{{\tt instanceof} operator}{26}
-\contentsline {paragraph}{Stable equality.}{26}
-\contentsline {chapter}{Example}{26}
-\contentsline {chapter}{{\sf X10}{} syntax}{27}
+\contentsline {paragraph}{Stable equality.}{27}
+\contentsline {chapter}{Example}{27}
+\contentsline {chapter}{{\sf X10}{} syntax}{28}
 \contentsline {chapter}{Changes from v0.32}{36}
 \contentsline {subsection}{\numberline {11.4.1}Limitations}{36}
+\contentsline {subsection}{\numberline {11.4.2}Future work}{36}
 \contentsline {chapter}{References}{36}
 \contentsline {chapter}{Alphabetic index of definitions of concepts,\hfil \penalty 0 \hbox {\hspace *{2em} keywords, and procedures}}{37}

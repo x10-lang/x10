@@ -60,9 +60,12 @@ The special statements introduced for clock operations are listed below.
 \begin{x10}
 462 Statement ::= ClockedStatement
 472 StatementNoShortIf ::= ClockedStatementNoShortIf
-479   NowStatement ::= now ( Clock ) Statement
-480   ClockedStatement ::= clocked ( ClockList ) Statement
-501   NextStatement ::= next ;
+479 NowStatement ::= now ( Clock ) Statement
+480 ClockedStatement ::= 
+      clocked ( ClockList ) Statement
+490 ClockedStatementNoShortIf ::= 
+      clocked ( ClockList ) StatementNoShortIf
+501 NextStatement ::= next ;
 \end{x10}
 
 Note that {\tt x10.lang.clock} provides several useful methods on
@@ -125,8 +128,10 @@ clocks that are to be used inside a statement using the
 \begin{x10}
 462 Statement ::= ClockedStatement
 472 StatementNoShortIf ::= ClockedStatementNoShortIf
-480 ClockedStatement ::= clocked ( ClockListopt ) Statement
-490 ClockedStatementNoShortIf ::= clocked ( ClockListopt ) StatementNoShortIf
+480 ClockedStatement ::= 
+       clocked ( ClockListopt ) Statement
+490 ClockedStatementNoShortIf ::= 
+       clocked ( ClockListopt ) StatementNoShortIf
 503 ClockList ::= Clock
 504 ClockList ::= ClockList , Clock
 ClockListopt ::= 

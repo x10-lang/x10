@@ -19,11 +19,11 @@ The {\em rank} of a distribution is the rank of the underlying region.
 
 
 \begin{x10}
-    region R = [1:100]
-    distribution D = distribtion.factory.block(R);
-    distribution D = distribution.factory.cyclic(R);
-    distribution D = R -> here;
-    distribution D = distribution.factory.random(R);
+region R = [1:100]
+distribution D = distribtion.factory.block(R);
+distribution D = distribution.factory.cyclic(R);
+distribution D = R -> here;
+distribution D = distribution.factory.random(R);
 \end{x10}
 
 Let {\cf D} be a distribution. {\cf D.region} denotes the underlying
