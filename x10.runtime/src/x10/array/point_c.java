@@ -25,7 +25,7 @@ public class point_c extends point implements Comparable {
 	private point_c(region region , int[] val) {
 		super(region);
 		assert region.rank == val.length;
-		assert region.contains(val);
+        // assert region.contains(val); -- CVP omit, leads to a cyclic dependency and hence infinite recusions.
 		// make a copy of the array!
         this.val = new int[val.length];
         System.arraycopy(val, 0, this.val, 0, val.length);
