@@ -20,6 +20,13 @@ final class Future_c extends Future {
     private boolean haveResult_;
     
     private final Activity waitFor_;     
+
+    /**
+     * Set if the activity terminated with an exception.
+     * Can only be of type Error or RuntimeException
+     * (since X10 only has unchecked exceptions).
+     */
+    private Throwable exception_;
     
     private Object result_;
     
@@ -39,6 +46,25 @@ final class Future_c extends Future {
         this.notifyAll(); // wake up 'force' if waiting
     }
     
+    /**
+     * Set the result value returned by this async call.
+     * 
+     * @param result
+     */
+    public synchronized void setException(RuntimeException t) {
+        assert (! haveResult_); 
+        this.exception_ = t;
+        this.haveResult_ = true;
+        this.notifyAll(); // wake up 'force' if waiting
+    }
+
+    public synchronized void setException(Error t) {
+        assert (! haveResult_); 
+        this.exception_ = t;
+        this.haveResult_ = true;
+        this.notifyAll(); // wake up 'force' if waiting
+    }
+    
     /*
      * @see x10.runtime.Activity.Result#force()
      */
@@ -54,6 +80,13 @@ final class Future_c extends Future {
             }
         } finally {
             LoadMonitored.unblocked(Sampling.CAUSE_FORCE, 0, waitFor_);
+        }
+        if (exception_ != null) {
+            if (exception_ instanceof Error)
+                throw (Error) exception_;
+            if (exception_ instanceof RuntimeException)
+                throw (RuntimeException) exception_;
+            assert false;
         }
         return result_;
     }

@@ -2,9 +2,9 @@ package x10.runtime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
 
@@ -21,6 +21,7 @@ import x10.lang.DoubleReferenceArray;
 import x10.lang.Future;
 import x10.lang.IntReferenceArray;
 import x10.lang.LongReferenceArray;
+import x10.lang.MultipleExceptions;
 import x10.lang.Object;
 import x10.lang.Runtime;
 import x10.lang.clock;
@@ -68,6 +69,11 @@ public class DefaultRuntime_c
      * removed from the map once they complete a particular activity.
      */
     private final Map thread2activity_ = new HashMap(); // <Thread,Activity>
+    
+    /**
+     * List that maps each activity to its exception collector.
+     */
+    private final Map activity2finish_ = new HashMap(); // <Activity,Stack<Throwable>>
     
     /**
      * What listeners are registered for termination/spawning events
@@ -197,6 +203,59 @@ public class DefaultRuntime_c
         }
         v.add(asl);
     }
+    
+    /**
+     * Notifiation that an activity terminated with an
+     * exception.
+     * 
+     * @param a the activity that died
+     * @param i the Error or RuntimeException encountered
+     */
+    public void registerActivityException(Activity a,
+                        Throwable t) {
+        Stack fini = (Stack) this.activity2finish_.get(a);
+        if (fini != null)
+            fini.push(t);
+    }
+
+    /**
+     * X10 executes a 'finish'.  Collect all exceptions thrown
+     * by all sub-activities.
+     * 
+     * @param a the activity of the finish (already started)
+     */
+    public void startFinish(final Activity a) {
+        final Stack fini = new Stack();
+        this.activity2finish_.put(a, fini);
+        registerActivitySpawnListener(a, new ActivitySpawnListener() {
+            public void notifyActivitySpawn(Activity spawn,
+                    Activity i) {
+                if (activity2finish_.get(a) != fini)
+                    return; // YES, this line IS needed.  - CG 
+                registerActivitySpawnListener(spawn, this);
+                activity2finish_.put(spawn, fini);
+            }
+            public void notifyActivityTerminated(Activity a) {}
+        });
+    }
+    
+    /**
+     * An activity of a finish is done (clock has advanced).
+     * Gather the collected exceptions
+     * 
+     * @param a the activity (still running)
+     * @return null if no exceptios were thrown,
+     *   otherwise the collection of exceptions
+     */
+    public Throwable getFinishExceptions(Activity a) {
+        Stack f = (Stack) activity2finish_.get(a);
+        if (f.isEmpty())
+            return null;
+        if (f.size() == 1)
+            return (Throwable) f.pop();
+        return new MultipleExceptions(f);
+    }
+    
 
     /**
      * Notification that an activity completed.
