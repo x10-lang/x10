@@ -103,6 +103,15 @@ public abstract class Runtime implements x10.base.Runtime {
     	return runtime.currentPlace();
     }
     
+    /**
+     * Method used to do dynamic Nullcheck when nullable is casted away.
+     */
+    public static java.lang.Object nullCheck(java.lang.Object o) {
+        if (o == null)
+            throw new NullPointerException("Nullable cast away from null valued reference.");
+        return o;
+    }
+    
     public static Place[] places() {
         Place[] pl = runtime.getPlaces();
         Place[] ret = new Place[pl.length];
