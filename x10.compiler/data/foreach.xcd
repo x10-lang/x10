@@ -1,28 +1,4 @@
-// foreach($0:$1) $2
-// Note that $0 is just the variable (i) and not
-// the full variable declaration, i.e
-// "i" and not 'int i' or 'int[] i'.
-// 
-// If the client modifies 
-// the index, the iteration may skip elements; this
-// is akin to ordinary for-loops in C and Java.
-//
-// We also try hard with this construction to not
-// declare any new temporaries.
-
-if ($1.rank == 1) {
-  // Code for single-dimensional regions
-  for (int $0 = $1.range(0).coord(0); 
-     $1.coord($0) < $1.count;
-     $0 = $1.coord($1.ordinal($0))) {
-    $2;
+for (java.util.Iterator #1__ = #2.iterator() ; #1__.hasNext();) {
+    #0 #1 = (#0) #1__.next();
+    #3
   }
-} else {
-  // This code avoids re-allocating the array index
-  // each time
-  for (int[] $0 = $1.firstElement(); 
-     $1.hasNextElement($0);
-     $0 = $1.getNextElement($0)) {
-    $2;
-  }
-}

@@ -1,0 +1,4 @@
+for (java.util.Iterator #1__ = #2.iterator() ; #1__.hasNext();) {
+    #0 #1 = (#0) #1__.next();
+    #3
+  }
