@@ -47,6 +47,8 @@ public class point_c extends point implements Comparable {
          * @return true if these objects are value-equals
          */
         public boolean valueEquals(Indexable other) {
+            if (! (other instanceof point_c))
+                return false;
             point_c op = (point_c) other;
             if ( (op.hash_ == hash_) &&
                  (op.val.length == val.length) ) {
