@@ -9,7 +9,7 @@ import com.ibm.lpg.*;
 public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
 {
     private char[] inputChars;
-    private final int keywordKind[] = new int[78 + 1];
+    private final int keywordKind[] = new int[79 + 1];
 
     public int lexer(int curtok, int lasttok)
     {
@@ -491,57 +491,63 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
       
     
         //
-        // Rule 70:  KeyWord ::= n e x t
+        // Rule 70:  KeyWord ::= m u t a b l e
         //
-                keywordKind[70] = (TK_next);
+                keywordKind[70] = (TK_mutable);
       
     
         //
-        // Rule 71:  KeyWord ::= n o w
+        // Rule 71:  KeyWord ::= n e x t
         //
-                keywordKind[71] = (TK_now);
+                keywordKind[71] = (TK_next);
       
     
         //
-        // Rule 72:  KeyWord ::= n u l l a b l e
+        // Rule 72:  KeyWord ::= n o w
         //
-                keywordKind[72] = (TK_nullable);
+                keywordKind[72] = (TK_now);
       
     
         //
-        // Rule 73:  KeyWord ::= o r
+        // Rule 73:  KeyWord ::= n u l l a b l e
         //
-                keywordKind[73] = (TK_or);
+                keywordKind[73] = (TK_nullable);
       
     
         //
-        // Rule 74:  KeyWord ::= p l a c e l o c a l
+        // Rule 74:  KeyWord ::= o r
         //
-                keywordKind[74] = (TK_placelocal);
+                keywordKind[74] = (TK_or);
       
     
         //
-        // Rule 75:  KeyWord ::= r e f e r e n c e
+        // Rule 75:  KeyWord ::= p l a c e l o c a l
         //
-                keywordKind[75] = (TK_reference);
+                keywordKind[75] = (TK_placelocal);
       
     
         //
-        // Rule 76:  KeyWord ::= u n s a f e
+        // Rule 76:  KeyWord ::= r e f e r e n c e
         //
-                keywordKind[76] = (TK_unsafe);
+                keywordKind[76] = (TK_reference);
       
     
         //
-        // Rule 77:  KeyWord ::= v a l u e
+        // Rule 77:  KeyWord ::= u n s a f e
         //
-                keywordKind[77] = (TK_value);
+                keywordKind[77] = (TK_unsafe);
       
     
         //
-        // Rule 78:  KeyWord ::= w h e n
+        // Rule 78:  KeyWord ::= v a l u e
         //
-                keywordKind[78] = (TK_when);
+                keywordKind[78] = (TK_value);
+      
+    
+        //
+        // Rule 79:  KeyWord ::= w h e n
+        //
+                keywordKind[79] = (TK_when);
       
     
         for (int i = 0; i < keywordKind.length; i++)
