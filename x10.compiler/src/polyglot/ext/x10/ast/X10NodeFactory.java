@@ -18,16 +18,16 @@ import polyglot.ast.Block;
  */
 public interface X10NodeFactory extends NodeFactory {
     Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
-    Async Async(Position pos, Expr place, Block body);
-    Atomic Atomic(Position pos, Expr place, Block body);
+    Async Async(Position pos, Expr place, Stmt body);
+    Atomic Atomic(Position pos, Expr place, Stmt body);
     Future Future(Position pos, Expr place, Expr body);
     Here Here(Position pos);
  
     When When(Position pos, List exprs, List statements);
     Drop Drop(Position pos, List clocks);
-    Next Next(Position pos, List clocks);
-    Now Now(Position pos, Expr expr, Block body);
-    Clocked Clocked(Position pos, Expr expr, Block body);
+    Next Next(Position pos);
+    Now Now(Position pos, Expr expr, Stmt stmt);
+    Clocked Clocked(Position pos, Expr expr, Stmt body);
     
     NullableNode Nullable(Position pos, TypeNode type);
     FutureNode Future(Position pos, TypeNode type);
