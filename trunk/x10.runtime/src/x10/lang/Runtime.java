@@ -26,7 +26,7 @@ public abstract class Runtime {
      * This instance should be used only in the implementation of 
      * the x10.runtime. 
      */
-	public static final Runtime _;
+    public static final Runtime _;
 
     static {
         String rt = System.getProperty("x10.runtime");
