@@ -1,11 +1,16 @@
 // atomic 0
-synchronized (x10.lang.Runtime.here()) {
-	try {
-		#0
-		x10.lang.Runtime.here().notifyAll();
-	} catch (Throwable e) {
-  		e.printStackTrace();
-  		x10.lang.Runtime.getRuntime().java.log(java.util.logging.Level.SEVERE, "Unexpected exception during atomic.", e);
-  		throw new RuntimeException(e);
-  	}
+try {
+	x10.runtime.Sampling._.signalEntry(x10.runtime.Sampling.EE_ID_ATOMIC);
+	synchronized (x10.lang.Runtime.here()) {
+		try {        
+			#0
+			x10.lang.Runtime.here().notifyAll();
+		} catch (Throwable e) {
+  			e.printStackTrace();
+  			x10.lang.Runtime.getRuntime().java.log(java.util.logging.Level.SEVERE, "Unexpected exception during atomic.", e);
+	  		throw new RuntimeException(e);
+	  	}
+	}
+} finally {
+	x10.runtime.Sampling._.signalExit(x10.runtime.Sampling.EE_ID_ATOMIC);
 }

@@ -1,8 +1,8 @@
 package x10.runtime;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Vector;
 import java.util.WeakHashMap;
 
 import x10.array.ArrayFactory;
@@ -102,9 +102,8 @@ public class DefaultRuntime_c
         Activity.Expr boot = new Activity.Expr() {
             public void run() {
                 // initialize X10 runtime system
-                Statistics_c.boot();
                 if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
-                    Sampling_c.boot();
+                    Sampling.boot();
 
                 // now run the actual client app (wrapped in this
                 // Activity.Expr since we want to use a Clock to 
@@ -126,12 +125,9 @@ public class DefaultRuntime_c
         for (int i=places_.length-1;i>=0;i--)
             places_[i].shutdown();
         if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
-            Sampling_c.shutdown();
-        if (Configuration.DUMP_STATS_ON_EXIT) {
-            System.out.println(Statistics_c._.toString());
-            if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
-                System.out.println(Sampling_c._.toString());
-        }
+            Sampling.shutdown();
+        if (Configuration.DUMP_STATS_ON_EXIT) 
+            System.out.println(Sampling._.toString());
     }
     
     public void registerThread(Thread t, Place p) {
@@ -146,9 +142,9 @@ public class DefaultRuntime_c
      */
     public synchronized void registerActivitySpawnListener(Activity i,
                                                            ActivitySpawnListener asl) {
-        Vector v = (Vector) activity2asl_.get(i);
+        ArrayList v = (ArrayList) activity2asl_.get(i);
         if (v == null) {
-            v = new Vector(2);
+            v = new ArrayList(2);
             activity2asl_.put(i,v);
         }
         v.add(asl);
@@ -159,11 +155,11 @@ public class DefaultRuntime_c
      */
     public synchronized void registerActivityStop(Thread t,
                                                   Activity a) {
-        Vector v = (Vector) activity2asl_.get(a);
+        ArrayList v = (ArrayList) activity2asl_.get(a);
         if (v == null) 
             return;
         for (int i=0;i<v.size();i++) {
-            ActivitySpawnListener asl = (ActivitySpawnListener) v.elementAt(i);
+            ActivitySpawnListener asl = (ActivitySpawnListener) v.get(i);
             asl.notifyActivityTerminated(a);
         }
         activity2asl_.remove(a);
@@ -184,11 +180,11 @@ public class DefaultRuntime_c
         thread2activity_.put(t,a);
         if (i == null)
             return;
-        Vector v = (Vector) activity2asl_.get(i);
+        ArrayList v = (ArrayList) activity2asl_.get(i);
         if (v == null) 
             return;
         for (int j=0;j<v.size();j++) {
-            ActivitySpawnListener asl = (ActivitySpawnListener) v.elementAt(j);
+            ActivitySpawnListener asl = (ActivitySpawnListener) v.get(j);
             asl.notifyActivitySpawn(a, i);
         }
     }
