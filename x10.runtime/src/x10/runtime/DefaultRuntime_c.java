@@ -149,7 +149,7 @@ public class DefaultRuntime_c
                 // Activity.Expr since we want to use a Clock to 
                 // wait for the main app to exit, but we can't use
                 // a clock directly without being a proper activity).
-                Clock c = (Clock) factory.getClockFactory().clock();
+                Clock_c c = (Clock_c) factory.getClockFactory().clock();
                 c.doNow(appMain);
                 c.doNext();
 
