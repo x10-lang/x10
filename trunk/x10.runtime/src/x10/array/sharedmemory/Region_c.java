@@ -24,15 +24,20 @@ import x10.lang.Object;
 
 public class Region_c extends region  {
     private final region[] dims;
+    private final int[] base_; 
     final int card;
+    
     
     Region_c(final region[] dims) {
         super(dims.length);
         assert dims != null;
         int tmp_card = 1;
         this.dims = dims;
-        for (int i = 0; i < dims.length; ++i)
+        base_ = new int[dims.length];
+        for (int i = 0; i < dims.length; ++i) {
+            base_[i] = tmp_card;
             tmp_card *= ((Range) dims[i]).size;
+        }
         card = tmp_card;
     }   
     
@@ -125,10 +130,7 @@ public class Region_c extends region  {
     
     
     public /*nat*/int size() {
-        int ret = 1;
-        for (int i =  rank - 1; i >= 0; i--)
-            ret *= dims[i].size(); // TODO: check overflow?
-        return ret;
+       return card;
     }
     
     /**
@@ -176,7 +178,7 @@ public class Region_c extends region  {
     
     
     private class RegionIterator implements Iterator {
-        private int nextOrd_;
+        private int nextOrd_ = 0;
         
         public boolean hasNext() {
             return nextOrd_ < card;
@@ -188,20 +190,7 @@ public class Region_c extends region  {
         
         public java.lang.Object next() {
             assert hasNext();
-            
-            int[] ret = new int[(int) rank];
-            // express nextOrd_ as a base of the regions
-            int rest = nextOrd_;
-            int base = 0;
-            for (int i = 0; rest > 0 && i < rank; ++i) {
-                Range r = (Range) dims[i];
-                base = r.size;
-                int tmp = rest % base;
-                rest = (rest - tmp) / base;
-                ret[i] = r.coord(tmp).get(0);
-            }
-            nextOrd_++;
-            return point.factory.point(Region_c.this, ret);
+            return coord(nextOrd_++);
         }
     }
     
@@ -248,6 +237,18 @@ public class Region_c extends region  {
     }
     
     public point coord(/*nat*/ int ordinal) throws PointOutOfRegionError {
-        throw new Error("TODO");
+        assert ordinal < size();
+        
+        int[] ret = new int[rank];
+        // express nextOrd_ as a base of the regions
+        int rest = ordinal;
+        int base = 0;
+        for (int i = rank-1; i >=0 ; --i) {
+            Range r = (Range) dims[i];
+            int tmp = rest / base_[i];
+            rest = rest % base_[i];
+            ret[i] = r.coord(tmp).get(0);
+        }
+        return point.factory.point(Region_c.this, ret);
     }
 }
