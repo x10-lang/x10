@@ -4,12 +4,11 @@ import java.io.Reader;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
-import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.parse.Grm;
 import polyglot.ext.x10.parse.Lexer_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.ext.x10.visit.DeAsyncAndFutureifier;
+import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.frontend.CupParser;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;

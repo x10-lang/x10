@@ -62,6 +62,12 @@ import java.util.Properties;
  */
 public final class Configuration {
 
+    /**
+     * The directory where the compiler fragments for translating nodes
+     * can be found in.
+     */
+    public static String COMPILER_FRAGMENT_DATA_DIRECTORY = "data/";
+    
     public static int NUMBER_OF_LOCAL_PLACES = 2;
     
     public static int PLACE_MINIMAL_THREAD_POOL_SIZE = 2;
