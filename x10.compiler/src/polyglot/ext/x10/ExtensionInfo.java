@@ -11,6 +11,8 @@ import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Qualifier;
+import polyglot.ext.x10.visit.AsyncElimination;
+import polyglot.ext.x10.visit.AtomicElimination;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
@@ -66,15 +68,39 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 
     public static final Pass.ID CAST_REWRITE = new Pass.ID("cast-rewrite");
     public static final Pass.ID SPECIAL_QUALIFIER = new Pass.ID("this/super-qualifier");
- 
+    public static final Pass.ID ASYNC_ELIMINATION = new Pass.ID("async-elimination");
+    public static final Pass.ID ATOMIC_ELIMINATION = new Pass.ID("atomic-elimination");
+    
     public List passes(Job job) {
         List passes = super.passes(job);
+        
+        // This transformation is disabled, because it might cause programs with 
+        // await statements to hang when atomic blocks that modify variables checked 
+        // in await are removed (e.g., testcase AwaitTest).
+        //
+        // beforePass(passes, Pass.PRE_OUTPUT_ALL,
+        //     new VisitorPass(ATOMIC_ELIMINATION,
+        //          job, new AtomicElimination()));
+
+        // Schedule elimination of async / future after the atomic elimination 
+        // because atomic eliminiation might create additional opportunities.
+        //
+        // This transformation can render the results of the sampling mechanism
+        // incorrect because remote accesses may 'look like' local access in the 
+        // program.
+        //
+        // beforePass(passes, Pass.PRE_OUTPUT_ALL,
+        //      new VisitorPass(ASYNC_ELIMINATION,
+        //               job, new AsyncElimination()));
+        
         beforePass(passes, Pass.PRE_OUTPUT_ALL,
                 new VisitorPass(CAST_REWRITE,
                         job, new X10Boxer(job, ts, nf)));
+        
         beforePass(passes, Pass.PRE_OUTPUT_ALL,
                 new VisitorPass(SPECIAL_QUALIFIER,
                         job, new X10Qualifier(job, ts, nf)));
+        
         if (Report.should_report("debug", 6)) {
 			beforePass(passes, Pass.PRE_OUTPUT_ALL, new VisitorPass(Pass.DUMP, job,
 					new DumpAst(new CodeWriter(System.out, 1))));
