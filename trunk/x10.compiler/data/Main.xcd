@@ -2,7 +2,7 @@
 	
 public static class Main implements x10.lang.Activity {
 	private final String[] form;
-	public X10Main(String[] args) {
+	public Main(String[] args) {
 	   this.form = args;
 	}
 	public void run() {
