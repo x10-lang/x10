@@ -110,7 +110,7 @@ public class Region_c extends region  {
         assert p.rank == rank;
         boolean ret = true;
         for (int i = 0; ret && i < rank; ++i) {
-            ret = ((Range) dims[i]).contains(p.valueAt(i));
+            ret = ((Range) dims[i]).contains(p.get(i));
         }
         return ret;
     }
@@ -144,7 +144,7 @@ public class Region_c extends region  {
         int base = 1;
         for (int i = 0; i < p.rank; ++i) {
             Range r = (Range) dims[i];
-            ret += r.ordinal(p.valueAt(i)) * base;
+            ret += r.ordinal(p.get(i)) * base;
             base *= r.size;
         }
         return ret;
@@ -198,7 +198,7 @@ public class Region_c extends region  {
                 base = r.size;
                 int tmp = rest % base;
                 rest = (rest - tmp) / base;
-                ret[i] = r.coord(tmp).valueAt(0);
+                ret[i] = r.coord(tmp).get(0);
             }
             nextOrd_++;
             return point.factory.point(Region_c.this, ret);
