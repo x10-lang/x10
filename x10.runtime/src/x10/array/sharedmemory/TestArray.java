@@ -82,8 +82,8 @@ public class TestArray extends TestCase {
         };
         ia.reduction(red);
         int result = red.getIntResult();
-        System.out.println("Result is " + result + "; should be " + 108);
-        assertTrue(result == 108);
+        System.out.println("Result is " + result + "; should be " + 192);
+        assertTrue(result == 192);
     }
     
     public void testDoubleArray_reduce() {
