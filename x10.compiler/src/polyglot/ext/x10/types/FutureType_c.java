@@ -184,5 +184,10 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
  		
 	 	return false;
 	 }
+	 /** Returns true iff the type is canonical. */
+	    public boolean isCanonical() {
+		return base().isCanonical();
+	    }
+
 	 
 }
