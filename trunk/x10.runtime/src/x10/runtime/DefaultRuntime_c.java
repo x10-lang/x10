@@ -58,11 +58,15 @@ public class DefaultRuntime_c extends Runtime implements ThreadRegistry {
 	    .getDeclaredConstructor(new Class[] { String[].class })
 	    .newInstance(appArgs);
 	Place[] p = initializePlaces();
-	p[0].runAsync(boot);
+	Place p0 = p[0];
+	registerThread(Thread.currentThread(), p0);
+	p0.runAsync(boot);
     }
     
     public void registerThread(Thread t, 
 			       Place p) {
+        if (p == null)
+            throw new NullPointerException();
 	thread2place_.put(t, p);
     }
 

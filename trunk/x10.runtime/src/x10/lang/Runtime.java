@@ -7,11 +7,20 @@ import x10.runtime.JavaRuntime;
  * This is the central entrypoint to the X10 Runtime for the
  * compiler.   There is exactly one Runtime per JVM running X10.
  * 
+ * The Runtime is NOT an X10Object! In fact, it cannot be since
+ * X10Object's constructor requires already an existing and working
+ * Runtime.  Conceptually Runtime is an Interface (!) for the X10
+ * world (just like Clock/Region/Distribution/Array/Range/Activity).
+ * It is implemented as an abstract class since we need to put some
+ * code here, notably the static (!) "_" (or "getRuntime()") 
+ * implementation.  Sadly, Java does not allow statics code in
+ * interfaces, otherwise this would be an interface. 
+ * 
  * @author Christian Grothoff
  * @see Place
  * @see Activity
  */
-public abstract class Runtime extends X10Object {
+public abstract class Runtime {
 
     public static final Runtime _;
 
