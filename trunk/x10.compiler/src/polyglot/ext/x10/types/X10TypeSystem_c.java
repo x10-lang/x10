@@ -141,6 +141,17 @@ public class X10TypeSystem_c
         return new X10PrimitiveType_c(this, kind);
     }
 
+    /* predefined classes that need not be translated by polyglot */
+    protected ClassType X10Object_;
+    public ClassType X10Object()  {
+        ClassType ret;
+        if (X10Object_ != null) 
+            ret = X10Object_;
+        else
+        	ret = X10Object_ = load("x10.lang.X10Object");
+        return ret;
+    }
+    
     public MethodInstance primitiveEquals() {
         String name = WRAPPER_PACKAGE + ".BoxedNumber";
 
@@ -148,8 +159,8 @@ public class X10TypeSystem_c
             Type ct = (Type) systemResolver().find(name);
 
             List args = new LinkedList();
-            args.add(Object());
-            args.add(Object());
+            args.add(X10Object());
+            args.add(X10Object());
 
             for (Iterator i = ct.toClass().methods("equals", args).iterator();
                  i.hasNext(); ) {
