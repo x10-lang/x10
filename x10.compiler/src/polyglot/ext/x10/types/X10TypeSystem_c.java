@@ -23,7 +23,7 @@ import polyglot.util.Position;
 /**
  * A TypeSystem implementation for X10.
  * 
- * @author Christian Grothoff
+ * @author Christian Grothoff, Christoph von Praun
  *
  * TODO Various methods need to be updated for futures; in particular we will
  * probably need to make a 'force()' method be the only thing visible for objects
@@ -106,7 +106,7 @@ public class X10TypeSystem_c
     }
 
     public ParsedClassType getFutureActivityType() {
-        return (ParsedClassType) forcefulLookup("x10.lang.Activity.FutureActivity");
+        return (ParsedClassType) forcefulLookup("x10.lang.Activity.Expr");
     }
     
     public ParsedClassType getFutureType() {
@@ -114,7 +114,7 @@ public class X10TypeSystem_c
     }
     
     public ParsedClassType getX10ObjectType() {
-        return (ParsedClassType) forcefulLookup("x10.lang.Object");
+        return (ParsedClassType) forcefulLookup("x10.lang.X10Object");
     }
     
     public ParsedClassType getPlaceType() {
@@ -129,21 +129,20 @@ public class X10TypeSystem_c
                 throw new InternalCompilerError(name + " lookup resulted in null");            
             return t;
         } catch (SemanticException e) {
-            throw new InternalCompilerError("While looking up "+name,
-                                            e);
+            throw new InternalCompilerError("While looking up "+name, e);
         }
     }
     
     /******************** Primitive types as Objects ******************/
     
-    private static final String WRAPPER_PACKAGE = "polyglot.ext.pao.runtime";
+    private static final String WRAPPER_PACKAGE = "x10.compilergenerated";
     
     public PrimitiveType createPrimitive(PrimitiveType.Kind kind) {
         return new X10PrimitiveType_c(this, kind);
     }
 
     public MethodInstance primitiveEquals() {
-        String name = WRAPPER_PACKAGE + ".Number";
+        String name = WRAPPER_PACKAGE + ".BoxedNumber";
 
         try {
             Type ct = (Type) systemResolver().find(name);
@@ -186,7 +185,7 @@ public class X10TypeSystem_c
     }
 
     public ConstructorInstance wrapper(PrimitiveType t) {
-        String name = WRAPPER_PACKAGE + "." + wrapperTypeString(t).substring("java.lang.".length());
+        String name = WRAPPER_PACKAGE + ".Boxed" + wrapperTypeString(t).substring("java.lang.".length());
 
         try {
             ClassType ct = ((Type) systemResolver().find(name)).toClass();

@@ -1,7 +1,17 @@
+/*
+ * Created on Oct 1, 2004
+ */
+
 package polyglot.ext.x10.types;
 
 import polyglot.frontend.Source;
 import polyglot.types.*;
+
+/**
+ * Parts of this code are taken from the pao extension in the polyglot framework.
+ * 
+ * @author Christoph von Praun
+ */
 
 public interface X10TypeSystem extends TypeSystem {
 

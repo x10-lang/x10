@@ -14,7 +14,7 @@ import polyglot.types.TypeSystem;
  * Note that an equivalent type for X10 Arrays will have to be added
  * once we start with support for arrays.  
  * 
- * @author Christian Grothoff
+ * @author Christian Grothoff, Christoph von Praun
  */
 public class X10ParsedClassType_c 
     extends ParsedClassType_c 
