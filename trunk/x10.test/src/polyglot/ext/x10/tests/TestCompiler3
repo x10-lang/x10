@@ -3,6 +3,9 @@
     
     public static void main(String[] args) {
         junit.textui.TestRunner.run(TestCompiler.class);
+        Place[] pls = Place.places();
+        for (int i=pls.length-1;i>=0;i--)
+            pls[i].shutdown();
     }
 
     public static TestSuite suite() {
