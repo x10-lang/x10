@@ -74,7 +74,7 @@ public final class Configuration {
      */
     public static String PE_FILE = "x10.pem"; 
     
-    public static int NUMBER_OF_LOCAL_PLACES = 2;
+    public static int NUMBER_OF_LOCAL_PLACES = 4;
     
     /**
      * How often should the sampling instrumentations be run?
