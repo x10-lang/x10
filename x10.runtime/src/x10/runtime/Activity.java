@@ -19,11 +19,11 @@ public abstract class Activity
 
     public static abstract class Result {
        
-	/**
+	/**    
 	 * Wait for the completion of this activity and return the
-	 * return value.
-	 */
-	public Object force();
+	 * return value.   
+	 */    
+	public abstract Object force();    
 
     } // end of Activity.Future
 
