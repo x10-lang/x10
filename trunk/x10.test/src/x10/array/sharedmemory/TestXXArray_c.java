@@ -11,7 +11,7 @@ import x10.array.DoubleArray;
 import x10.array.IntArray;
 import x10.array.Operator;
 import x10.array.Range;
-import x10.array.Region_c;
+import x10.array.MultiDimRegion;
 import x10.lang.Activity;
 import x10.lang.Runtime;
 import x10.lang.distribution;
@@ -90,7 +90,7 @@ public class TestXXArray_c extends TestCase {
     public void testDoubleArray_reduce() {
         final int N = 100; 
 
-        Region_c r = new Region_c(new Range[] {
+        MultiDimRegion r = new MultiDimRegion(new Range[] {
                 new ContiguousRange(0, N - 1),
                 new ContiguousRange(0, N - 1) });
         distribution d = Runtime.factory.getDistributionFactory().block(r);
