@@ -94,7 +94,7 @@ import x10.lang.Clock.AdvanceListener;
  * </code>
  * 
  * 
- * @author Christian Grothoff
+ * @author Christian Grothoff, Christoph von Praun
  */
 abstract class ClockedFinal extends X10Object {
 
