@@ -1,0 +1,8 @@
+
+export X10="The top ~/x10 directory"
+makeTestCompiler
+
+will create the TestCompiler.java from the current list of
+tests in
+examples/testcases/feb2005/allTests/*.x10
+
