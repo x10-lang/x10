@@ -146,7 +146,7 @@ implements Indexable {
 	 */    
 	public  /*(distribution(:rank=this.rank) D)*/ 
 	doubleArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
-	 throw new Error("TODO");
+	 return restriction(D.region);
 	}
 	
 	/** Take as parameter a distribution D of the same rank as *
