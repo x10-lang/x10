@@ -28,10 +28,11 @@ public abstract class LoadMonitored extends Thread {
             Thread t = Thread.currentThread();
             if (t instanceof LoadMonitored)
                 ((LoadMonitored)t).changeRunningStatus(-1);
-            Sampling.SINGLETON.signalEvent(related,
-                    Sampling.EVENT_ID_ACTIVITY_BLOCK,
-                    reason,
-                    info);
+            if (Sampling.SINGLETON != null)
+                Sampling.SINGLETON.signalEvent(related,
+                        Sampling.EVENT_ID_ACTIVITY_BLOCK,
+                        reason,
+                        info);
         }
     }
     
@@ -46,10 +47,11 @@ public abstract class LoadMonitored extends Thread {
             Thread t = Thread.currentThread();
             if (t instanceof LoadMonitored)
                 ((LoadMonitored)t).changeRunningStatus(1);
-            Sampling.SINGLETON.signalEvent(related,
-                    Sampling.EVENT_ID_ACTIVITY_UNBLOCK,
-                    reason,
-                    info);
+            if (Sampling.SINGLETON != null)
+                Sampling.SINGLETON.signalEvent(related,
+                        Sampling.EVENT_ID_ACTIVITY_UNBLOCK,
+                        reason,
+                        info);
         }
     }
     

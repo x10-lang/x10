@@ -32,13 +32,15 @@ public final class Sampling extends Thread {
     /**
      * The Sampling thread.  There can only be one.
      */
-    public final static Sampling SINGLETON = new Sampling();
+    public static Sampling SINGLETON;
     
     /**
      * Activate sampling.  Called by the Runtime during the
      * initialization process.
      */
-    static synchronized void boot() { /* triggers static  initializer */ }
+    static synchronized void boot() { 
+        SINGLETON = new Sampling(); 
+        }
 
     /**
      * List of all places.
@@ -64,6 +66,7 @@ public final class Sampling extends Thread {
         } catch (InterruptedException ie) { 
             throw new Error(ie);
         }       
+        SINGLETON = null;
     }
     
     /**
@@ -268,21 +271,11 @@ public final class Sampling extends Thread {
                                                                  int causeInfo) {                                                                   
         Place srcPlace = (ia == null) ? null : dr.getPlaceOfActivity(ia);
         Place dstPlace = (a == null) ? null : dr.getPlaceOfActivity(a);
+        //System.out.println("SRCP " + srcPlace + " of act " + ia);
+        //System.out.println("DSTP " + dstPlace + " of act " + a);
         try {
-            int i=-1;
-            for (int k=places.length-1;k>=0;k--) {
-                if (dstPlace != places[k]) {
-                    i = k;
-                    break;
-                }
-            }
-            int j = -1;
-            for (int k=places.length-1;k>=0;k--) {
-                if (srcPlace == places[k]) {
-                    j=k;                        
-                    break;
-                }
-            }
+            int i = dstPlace == null ? -1 : dstPlace.id;
+            int j = srcPlace == null ? -1 : srcPlace.id;
             switch (event_id) {
                 case EVENT_ID_CLOCK_ADVANCE:
                     writeHeader(8, EVENT, event_id);
@@ -290,12 +283,14 @@ public final class Sampling extends Thread {
                     dos.writeInt(event_info); // == clockId
                     break;
                 case EVENT_ID_ACTIVITY_START:
-                    activityStart[i]++;
+                    if (i != -1)
+                        activityStart[i]++;
                     writeHeader(4+4+4+4+4+4, EVENT, event_id);                   
                     dos.writeInt(getActivityId(ia));
                     dos.writeInt(j); // src place
                     dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
+                    // System.out.println("AS from " + j + " to " + i);
                     if (dstPlace != null) {
                         //System.out.println("START LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
                         dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
@@ -304,7 +299,8 @@ public final class Sampling extends Thread {
                     dos.writeInt(event_info);
                     break;
                 case EVENT_ID_ACTIVITY_END:
-                    activityEnd[i]++;
+                    if (i != -1)
+                        activityEnd[i]++;
                     writeHeader(4+4+4+4, EVENT, event_id);
                     dos.writeInt(getActivityId(a)); 
                     dos.writeInt(i); // dst place
@@ -316,7 +312,8 @@ public final class Sampling extends Thread {
                     dos.writeInt(event_info);
                     break;
                 case EVENT_ID_ACTIVITY_BLOCK:
-                    blockEntry[i]++;
+                    if (i != -1)
+                        blockEntry[i]++;
                     writeHeader(4+4+4+4+4+4, EVENT, event_id);
                     dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
@@ -330,7 +327,8 @@ public final class Sampling extends Thread {
                     dos.writeInt(getActivityId(ia)); // causeInfoExtra
                     break;
                 case EVENT_ID_ACTIVITY_UNBLOCK:
-                    blockExit[i]++;
+                    if (i != -1)
+                        blockExit[i]++;
                     writeHeader(4+4+4+4+4+4, EVENT, event_id);
                     dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
@@ -515,22 +513,24 @@ public final class Sampling extends Thread {
                                              new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,
                                                 Activity i) {
-                    assert a != i;                    
-                    SINGLETON.signalEvent(i,
-                                        a,
-                                        Sampling.EVENT_ID_ACTIVITY_START,
-                                        0,
-                                        0,
-                                        0);
+                    assert a != i;
+                    if (SINGLETON != null)
+                        SINGLETON.signalEvent(i,
+                                a,
+                                Sampling.EVENT_ID_ACTIVITY_START,
+                                0,
+                                0,
+                                0);
                     dr.registerActivitySpawnListener(a, this);
                 }
                 public void notifyActivityTerminated(Activity a) {
-                    SINGLETON.signalEvent(null,
-                            a,
-                            Sampling.EVENT_ID_ACTIVITY_END,
-                            0,
-                            0,
-                            0);
+                    if (SINGLETON != null)
+                        SINGLETON.signalEvent(null,
+                                a,
+                                Sampling.EVENT_ID_ACTIVITY_END,
+                                0,
+                                0,
+                                0);
                 }                
             });
         }

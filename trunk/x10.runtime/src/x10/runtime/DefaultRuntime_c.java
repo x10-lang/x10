@@ -81,7 +81,7 @@ public class DefaultRuntime_c
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
     	x10.lang.place.MAX_PLACES = pc;
     	
-    	for (int i=pc-1;i>=0;i--)
+    	for (int i=0;i<pc;i++)
     		places_[i] = new LocalPlace_c(this, this);
     }
 
@@ -116,6 +116,9 @@ public class DefaultRuntime_c
         registerThread(bootThread, p0);
         final Signal signal = new Signal();
         Activity.Expr boot = new Activity.Expr() {
+            public String toString() {
+                return "DefaultRuntime_c boot activity";
+            }
             public void run() {
                 // initialize X10 runtime system
                 if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
@@ -131,6 +134,14 @@ public class DefaultRuntime_c
                 Clock c = (Clock) factory.getClockFactory().clock();
                 c.doNow(appMain);
                 c.doNext();
+                Sampling ss = null;
+                if (Configuration.DUMP_STATS_ON_EXIT)  
+                    ss = Sampling.SINGLETON;
+
+                if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
+                    Sampling.shutdown();
+                if (ss != null)
+                    System.out.println(ss.toString());
             }
             public Object getResult() {
                 return null;
@@ -153,10 +164,6 @@ public class DefaultRuntime_c
         // and now the shutdown sequence!
         for (int i=places_.length-1;i>=0;i--)
             places_[i].shutdown();
-        if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
-            Sampling.shutdown();
-        if (Configuration.DUMP_STATS_ON_EXIT) 
-            System.out.println(Sampling.SINGLETON.toString());
     }
     
     public void registerThread(Thread t, Place p) {
@@ -360,7 +367,10 @@ public class DefaultRuntime_c
         return a;
     }
     private static Activity magic_boot = new Activity() {
-           public void run() {};
+        public String toString() {
+            return "MagicBoot Activity";
+        }
+        public void run() {};
     };
 
     /**
