@@ -10,7 +10,7 @@ package x10.lang;
  * 
  * @author Christoph von Praun
  */
-public class Range implements TypeArgument {
+public abstract class Range implements TypeArgument {
 	/**
 	 * Cardinality of the range, i.e., the number of element 
 	 * in the integer space it covers.
@@ -19,50 +19,27 @@ public class Range implements TypeArgument {
 	public final int lo;
 	public final int hi;
 	
-	/********************* CONSTRUCTION *********************/
-	
-	/** 
-	 * Convenience constructor.
-	 */
-	public Range(int hi) {
-		this(0, hi);
-	}
-	
 	/** 
 	 * Range that starts at lo (including)
 	 * to hi (excluded).
 	 */
 	public Range(int lo, int hi) {
 		assert hi >= lo && lo >= 0;
+		
 		this.lo = lo;
 		this.hi = hi;
 		card = hi - lo;
 	}
 	
-	public int ordinal(int p) {
-		assert contains(p);
-		return p - lo;
-	}
+	public abstract boolean contains(int p);
 	
-	public boolean contains(int p) {
-		return lo <= p && p < hi;
-	}
+	public abstract boolean contains(Range r);
 	
-	public boolean contains(Range r) {
-		return r.lo >= lo && r.hi <= hi;
-	}
+	public abstract int ordinal(int p);
 	
-	public String toString() {
-		return "[" + lo + ".." + hi + "]";
-	}
+	public abstract String toString();
 	
-	public boolean equals(Object o) {
-		assert o instanceof Range;
-		Range rhs = (Range) o;
-		return rhs.lo == lo && rhs.hi == hi;
-	}
+	public abstract boolean equals(Object o);
 	
-	public int hashCode() {
-		return card;
-	}
+	public abstract int hashCode();
 }

@@ -41,12 +41,11 @@ public class TestRuntime extends TestCase {
      * with the Runtime.
      */
     public void setUp() {
-        Runtime r = Runtime._;
+        DefaultRuntime_c r = (DefaultRuntime_c) Runtime._;
         if (r instanceof ThreadRegistry) {
             Thread t = Thread.currentThread();
             ThreadRegistry tr = (ThreadRegistry) r;
-            tr.registerThread(t,
-                              r.initializePlaces()[0]);
+            tr.registerThread(t, r.getPlaces()[0]);
             tr.registerActivityStart(t, a, null);
         }
     }
@@ -94,7 +93,7 @@ public class TestRuntime extends TestCase {
 
     public void testClockNext() {
         x = 0;
-        final Clock c = Runtime._.createClock();
+        final Clock c = Runtime._.newClock();
         Activity b = new Activity() {
             public void run() {
                 c.doNext();
@@ -120,7 +119,7 @@ public class TestRuntime extends TestCase {
     
     public void testClockContinue() {
         x = 0;
-        final Clock c = Runtime._.createClock();
+        final Clock c = Runtime._.newClock();
         Activity b = new Activity() {
             public void run() {
                 c.doNext();
@@ -141,7 +140,7 @@ public class TestRuntime extends TestCase {
     }
     
     public void testClockDrop() {
-        final Clock c = Runtime._.createClock();
+        final Clock c = Runtime._.newClock();
         Activity b = new Activity() {
             public void run() {
                 c.drop();
@@ -157,7 +156,7 @@ public class TestRuntime extends TestCase {
     }
     
     public void testClockedFinal() {
-        final Clock c = Runtime._.createClock();
+        final Clock c = Runtime._.newClock();
         final ClockedFinalInt i = new ClockedFinalInt(c, 0);
         Activity b = new Activity() {
             public void run() {
@@ -200,7 +199,7 @@ public class TestRuntime extends TestCase {
             }
         };
         x = 0;
-        final Clock c = Runtime._.createClock();
+        final Clock c = Runtime._.newClock();
         c.doNow(b);
         c.doNext();
         assertTrue(x == 1);
