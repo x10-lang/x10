@@ -61,6 +61,7 @@ import x10.runtime.Place;
  */
 public class TestCompiler extends TestCase {
 
+
     public void test_Array1() {
         run("./Array1.x10","Array1");
     }
@@ -151,6 +152,10 @@ public class TestCompiler extends TestCase {
 
     public void test_FinishTest1() {
         run("./FinishTest1.x10","FinishTest1");
+    }
+
+    public void test_ForLoop() {
+        run("./ForLoop.x10","ForLoop");
     }
 
     public void test_Foreach() {
@@ -284,7 +289,6 @@ public class TestCompiler extends TestCase {
     public void test_queensList() {
         run("./queensList.x10","queensList");
     }
-
     // *************** you should never have to edit anything
     // below this line **************************************
     
