@@ -8,6 +8,7 @@ import x10.lang.Runtime;
 import x10.lang.distribution;
 import x10.lang.region;
 import x10.lang.point;
+import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
 import x10.runtime.ThreadRegistry;
@@ -19,6 +20,11 @@ import java.util.Iterator;
  * @author vj
  */
 public class TestMultiDimRegion extends TestCase {
+    
+    static {
+        Configuration.parseCommandLine(null);
+        Runtime.init();
+    }
     
     private final Activity a
     = new Activity() { public void run() {} }; // dummy

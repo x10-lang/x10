@@ -23,10 +23,15 @@ import x10.lang.Runtime;
  */
 public class TestRuntime extends TestCase {
 
+    static {
+        Configuration.parseCommandLine(null);
+        Runtime.init();
+    }
+    
     public static TestSuite suite() {
         return new TestSuite(TestRuntime.class);
     }
-
+    
     public static void main(String[] args) {
         junit.textui.TestRunner.run(TestRuntime.class);
         Place[] pls = Place.places();
