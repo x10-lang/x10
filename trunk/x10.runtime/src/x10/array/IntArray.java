@@ -6,6 +6,7 @@ package x10.array;
 
 import java.util.Iterator;
 
+
 /**
  * Integer arrays.
  * 
@@ -141,7 +142,7 @@ public abstract class IntArray extends Array {
     public abstract void set(int v, int d0, int d1, int d2, int d3);
 
     /**
-     * Generic flat access.
+     * Generic flat access. the leas significant dimension is pos[0].
      */
     public abstract int get(int[] pos);
 
@@ -155,11 +156,11 @@ public abstract class IntArray extends Array {
 
     public Object toJava() {
         Range[] dims = dist.dim();
-        final int[] dims_tmp = new int[dims.length];
+        final int[] dims_tmp = new int[dims.length];       
         for (int i = 0; i < dims_tmp.length; ++i) 
             dims_tmp[i] = dims[i].size();
         
-        final Object ret = java.lang.reflect.Array.newInstance(Integer.class, dims_tmp);
+        final Object ret = java.lang.reflect.Array.newInstance(Integer.TYPE, dims_tmp);
         pointwise(null, new Operator.Pointwise() {
             public int apply(int[] p, int arg) {
                 Object handle = ret;

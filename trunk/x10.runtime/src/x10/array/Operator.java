@@ -209,5 +209,9 @@ public abstract class Operator {
 		public double getDoubleResult() {
 			throw new RuntimeException(ERR_);
 		}
+		
+		public void reset() {
+			throw new RuntimeException(ERR_);
+		}
 	}
 }
