@@ -23,16 +23,16 @@ package x10.lang;
 import /*x10*/java.util.Set;
 
 public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ {
-    public final /*nat*/long id;
+    public final /*nat*/int id;
 
     /** The number of places in this run of the system. Set on
      * initialization, through the command line/init parameters file.
      * is initialized by a specific runtime, e.g. x10.runtime.DefaultRuntime_c
      */
-    /*config*/ public static /*final*/ /*nat*/ long MAX_PLACES = 10;
+    /*config*/ public static /*final*/ /*nat*/ int MAX_PLACES = 10;
    
 
-    protected place( /*nat*/ long id) {
+    protected place( /*nat*/ int id) {
      this.id = id;
     }
 
@@ -40,10 +40,10 @@ public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ {
 	/**  Return the place numbered i, using modulo MAX_PLACES
 	 *  arithmetic.
 	 */
-	abstract public place/*(i % MAX_PLACES)*/ place( final /*nat*/long i );
+	abstract public place/*(i % MAX_PLACES)*/ place( final /*nat*/int i );
 
 	/** Return the set of places from 0 to last. */
-	abstract public Set/*<place>*/ places( /*nat*/long last);
+	abstract public Set/*<place>*/ places( /*nat*/int last);
 
 	/** Return the place of the current activity.
 	 */

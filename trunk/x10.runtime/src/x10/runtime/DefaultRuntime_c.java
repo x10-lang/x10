@@ -223,7 +223,6 @@ public class DefaultRuntime_c
     }
     
     public Factory getFactory() {
-    	System.out.println("Factory initialized.");
     	Factory f = new Factory() {
     		public region.factory getRegionFactory() {
     			return new RegionFactory();
@@ -265,14 +264,12 @@ public class DefaultRuntime_c
     		}
     		public place.factory getPlaceFactory() {
     			return new place.factory() {
-    				public place place(long i ) {
-    					System.out.println("Retruning a place... places_=" + places_);
-
-    					int index =(int) i % (int) place.MAX_PLACES;
+    				public place place(int i ) {
+    					int index =( i %  place.MAX_PLACES);
     					if (places_[index] == null) initialize();
     					return places_[index];
     				}
-    				public Set/*<place>*/ places (long last) {
+    				public Set/*<place>*/ places (int last) {
     					Set result = new HashSet();
     					for (int i=0; i < last % (int) place.MAX_PLACES; i++)
     						result.add(places_[i]);
