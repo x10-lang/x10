@@ -23,8 +23,10 @@ public class X10Qualifier extends AscriptionVisitor
         if (e instanceof Special) {
             Position p = e.position();
             Special sc = (Special) e;
-            Special ret = sc.qualifier(nf.CanonicalTypeNode(p, sc.type()));
-            return ret;
+            if (sc.qualifier() == null) {
+                Special ret = sc.qualifier(nf.CanonicalTypeNode(p, sc.type()));
+                return ret;
+            }
         }
   
         return e;
