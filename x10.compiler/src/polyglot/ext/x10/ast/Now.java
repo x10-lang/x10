@@ -5,6 +5,7 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
+import polyglot.ast.Block;
 
 /**
  * 
@@ -17,7 +18,7 @@ public interface Now extends Stmt {
     Now clock(Expr clock);
 
     /** Get the expression. */
-    Stmt stmt();
+    Block body();
 
-    Now stmt(Stmt stmt);
+    Now body(Block body);
 }
