@@ -425,7 +425,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 1: {
      if (prsStream.getKind(btParser.getToken(1)) != X10Parsersym.TK_IDENTIFIER
          && (Report.should_report("parser", 2))) {
-         Report.report(2, "Parser turning keyword " +
+         Report.report(2,"Parser turning keyword " +
                        prsStream.getName(btParser.getToken(1)) +
                        " at " +
                        prsStream.getLine(btParser.getToken(1)) +
