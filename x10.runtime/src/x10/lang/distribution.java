@@ -25,6 +25,7 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 	 * this.valueAt(p)==P.
 	 */
 	abstract public Set/*<place>*/ places(); // consider making this a parameter?
+	
 	protected distribution(region R) {
 		this.region = R;
 		this.rank = R.rank;
@@ -120,7 +121,9 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 	/** Returns the place to which the point p in region is mapped.
 	 */
 	abstract public place valueAt(point/*(region)*/ p) throws MalformedError;
-	abstract public place valueAt(int[] p) throws MalformedError;
+	  public place valueAt(int[] p) {
+	        return valueAt(Runtime.factory.getPointFactory().point(region, p));
+	  }
 	
 	/** Returns the region mapped by this distribution to the place P.
 	 The value returned is a subset of this.region.
@@ -180,7 +183,7 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 	/** Returns true iff this and d map each point in their common
 	 * domain to the same place.
 	 */
-	public boolean equals( Object o) {
+	public boolean equals(Object o) {
 		if (! (o instanceof distribution)) return false;
 		distribution ot = (distribution) o;
 		if (! (ot.region.equals(this.region))) return false;

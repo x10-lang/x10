@@ -5,14 +5,19 @@ package x10.array.sharedmemory;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Iterator;
 
 import x10.array.Range;
 import x10.array.ContiguousRange;
+import x10.array.ArbitraryRegion;
 import x10.lang.region;
 import x10.lang.distribution;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.Runtime;
+import x10.lang.PointOutOfRegionError;
 
 
 /**
@@ -24,504 +29,502 @@ import x10.lang.Runtime;
  * @author vj
  */
 public abstract class Distribution_c extends /*Region_c*/distribution /*implements Distribution*/ {
-	protected Set/*<place>*/ places;
-	public Set/*<place>*/ places() {
-		return places;
-	}
-	protected Distribution_c( region r) {
-		this(r, new HashSet());
-	}
-	protected Distribution_c(region r, Set/*<place>*/ s) {
-		super( r);
-		this.places = s;
-	}
-	
-  
-	public distribution asymetricUnion( distribution d ) { 
-        throw new Error("TODO");
+    /* this field should actually be final - ?? */
+    protected final Set/*<place>*/ places;
+    
+    public Set/*<place>*/ places() {
+        return places;
     }
-	
+    
+    protected Distribution_c(region r) {
+        super( r);
+        this.places = new HashSet();
+    }
+    
+    public region restriction(place pl) {
+        return restriction(this, pl); 
+    }
+    
+    /** Returns the region mapped by this distribution to the place P.
+    The value returned is a subset of this.region.
+    */
+    protected static region/*(rank)*/ restriction(distribution th, place pl) {
+       Set points = new HashSet();
+       for (Iterator it = th.region.iterator(); it.hasNext(); ) {
+           point p = (point) it.next();
+           if (th.valueAt(p) == pl) 
+               points.add(p);
+       }
+       region ret = new ArbitraryRegion(th.region.rank, points);
+       return ret;
+   }
+   
+    public distribution restriction(Set Ps) {
+        return restriction(this, Ps); 
+    }
+    
+    /** Returns the distribution obtained by range-restricting this to Ps.
+    The region of the distribution returned is contained in this.region.
+    */
+   protected static distribution/*(:this.region.contains(region))*/
+   restriction(distribution th, Set/*<place>*/Ps ) {
+       HashMap hm = new HashMap();
+       Set points = new HashSet();
+       for (Iterator it = th.region.iterator(); it.hasNext(); ) {
+           point p = (point) it.next();
+           place pl = (place) th.valueAt(p);
+           if (Ps.contains(pl)) {
+               points.add(p);
+               hm.put(p, pl);
+           }
+       }
+       region reg = new ArbitraryRegion(th.rank, points);
+       distribution ret = new Arbitrary(reg, hm); 
+       return ret;
+   }
+   
+   
+   public distribution restriction(region r) {
+       return restriction(this, r);
+   }
+   /** Returns a new distribution obtained by restricting this to the
+    * domain region.intersection(R), where parameter R is a region
+    * with the same dimension.
+    */
+   protected static
+   /*(region(rank) R)*/ distribution/*(region.intersection(R))*/
+   restriction(distribution th, region/*(rank)*/ r) {
+       assert r.rank == th.rank;
+       
+       HashMap hm = new HashMap();
+       Set points = new HashSet();
+       for (Iterator it = th.region.iterator(); it.hasNext(); ) {
+           point p = (point) it.next();
+           if (r.contains(p)) {
+               points.add(p);
+               hm.put(p, th.valueAt(p));
+           }
+       }
+       region reg = new ArbitraryRegion(th.rank, points);
+       distribution ret = new Arbitrary(reg, hm); 
+       return ret;
+   }
+   
+   public distribution difference(region r) {
+       return difference(this, r);
+   }
+   
+   /** Returns the restriction of this to the domain region.difference(R),
+    where parameter R is a region with the same dimension.
+    */
+   protected static
+   /*(region(rank) R)*/ distribution/*(region.difference(R))*/
+   difference(distribution th, region/*(rank)*/ r) {
+       assert r.rank == th.rank;
+       region reg = th.region.difference(r);
+       HashMap hm = new HashMap();
+       for (Iterator it = reg.iterator(); it.hasNext(); ) {
+           point p = (point) it.next();
+           hm.put(p, th.valueAt(p));
+       }
+       distribution ret = new Arbitrary(reg, hm); 
+       return ret;
+   }
+   
+   
+   public distribution union(distribution d) {
+       return union(this, d);
+   }
+   
+   /** Takes as parameter a distribution D defined over a region
+    disjoint from this. Returns a distribution defined over a
+    region which is the union of this.region and D.region.
+    This distribution must assume the value of D over D.region
+    and this over this.region.
+    
+    @seealso distribution.asymmetricUnion.
+    */
+   protected static /*(distribution(:region.disjoint(this.region) &&
+   rank=this.rank) D)*/ 
+   distribution/*(region.union(D.region))*/
+   union(distribution th, distribution/*(:region.disjoint(this.region) &&
+   rank=this.rank)*/ d) {
+       assert d.rank == th.rank && d.region.disjoint(th.region); // assume
+       
+       region reg = d.region.union(th.region);
+       HashMap hm = new HashMap();
+       for (Iterator it = th.region.iterator(); it.hasNext(); ) {
+           point p = (point) it.next();
+           hm.put(p, th.valueAt(p));
+       }
+       for (Iterator it = d.region.iterator(); it.hasNext(); ) {
+           point p = (point) it.next();
+           hm.put(p, d.valueAt(p));
+       }
+       distribution ret = new Arbitrary(reg, hm); 
+       return ret;
+   }
+   
+   public distribution overlay(region r, distribution d) {
+       return overlay(this, r, d);
+   }
+   
+   /** Returns a distribution defined on region.union(R): it takes on 
+    this.valueAt(p) for all points p in region, and D.valueAt(p) for all
+    points in R.difference(region).
+    */
+   protected static /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
+   overlay(distribution th, region/*(rank)*/ r, distribution/*(R)*/ d) {
+       assert (d.region.rank == r.rank) &&  (r.rank == th.rank);
+       
+       region reg = r.union(th.region);
+       HashMap hm = new HashMap();
+       for (Iterator it = reg.iterator(); it.hasNext(); ) {
+           point p = (point) it.next();
+           place pl;
+           try {
+               pl = th.valueAt(p);
+           } catch (PointOutOfRegionError _) {
+           } finally {
+               pl = null; 
+           }
+           if (pl == null) {
+               pl = d.valueAt(p);
+           }
+           assert (pl != null);
+           hm.put(p, pl);
+       }
+       distribution ret = new Arbitrary(reg, hm); 
+       return ret;
+   }
+   
+   public boolean subDistribution(region r, distribution d) {
+       return subDistribution(this, r, d);
+   }
+   
+   /** Return true iff the given distribution D, which must be over a
+    * region of the same rank as this, is defined over a subset
+    * of this.region and agrees with it at each point.
+    */
+   protected /*(region(rank) r)*/ 
+   static boolean subDistribution(distribution th, region/*(rank)*/ r, distribution/*(R)*/ d) {
+       assert d.region.rank == th.rank;
+       boolean ret = false;
+       if (th.region.contains(d.region)) {
+           ret = true;
+           for (Iterator it = d.region.iterator(); it.hasNext(); ) {
+               point p = (point) it.next();
+               place p1 = th.valueAt(p);
+               place p2 = d.valueAt(p);
+               if (!p1.equals(p2)) {
+                   ret = false;
+                   break;
+               }
+           }
+       }
+       return ret;
+   }
+
     static final class Empty extends Distribution_c {
         
-    	Empty() {
-    		this(1);
-    	}
-    	/** The empty region of rank k
-    	 * @param k
-    	 */
+        Empty() {
+            this(1);
+        }
+        /** The empty region of rank k
+         * @param k
+         */
         Empty(/*nat*/int k) {
-        	// get an empty region of rank 0
+            // get an empty region of rank 0
             super( Runtime.factory.getRegionFactory().emptyRegion(k));
         }
         
         /** Returns the place to which the point p in region is mapped.
          */
-        public place valueAt(point/*(region)*/ p) throws MalformedError {
-        	throw new MalformedError();
+        public place valueAt(point/*(region)*/ p) {
+            throw new PointOutOfRegionError();
         }
-        public place valueAt(int[] p) throws MalformedError {
-        	throw new MalformedError();
-        }
-    	
+        
         /** Returns the region mapped by this distribution to the place P.
-    	The value returned is a subset of this.region.
-        */
-        public region/*(rank)*/ restriction( place P ) {
-        	return this.region;
+         The value returned is a subset of this.region.
+         */
+        public region/*(rank)*/ restriction(place P ) {
+            return this.region;
         }
-    	
+        
         /** Returns the distribution obtained by range-restricting this to Ps.
-            The region of the distribution returned is contained in this.region.
-        */
+         The region of the distribution returned is contained in this.region.
+         */
         public distribution/*(:this.region.contains(region))*/
-            restriction( Set/*<place>*/Ps ) {
-        	return this;
+        restriction( Set/*<place>*/Ps ) {
+            return this;
         }
-
+        
         /** Returns a new distribution obtained by restricting this to the
          * domain region.intersection(R), where parameter R is a region
          * with the same dimension.
          */
         public 
-    	/*(region(rank) R)*/ distribution/*(region.intersection(R))*/
-    	restriction( region/*(rank)*/ R) {
-        	assert this.region.rank == R.rank;
-        	return this;
+        /*(region(rank) R)*/ distribution/*(region.intersection(R))*/
+        restriction( region/*(rank)*/ R) {
+            assert this.region.rank == R.rank;
+            return this;
         }
-
+        
         /** Returns the restriction of this to the domain region.difference(R),
-            where parameter R is a region with the same dimension.
+         where parameter R is a region with the same dimension.
          */
         public 
-    	/*(region(rank) R)*/ distribution/*(region.difference(R))*/
-            difference( region/*(rank)*/ R) {
-        	assert this.region.rank == R.rank;
-        	return this;
+        /*(region(rank) R)*/ distribution/*(region.difference(R))*/
+        difference( region/*(rank)*/ R) {
+            assert this.region.rank == R.rank;
+            return this;
         }
-
+        
         /** Takes as parameter a distribution D defined over a region
-            disjoint from this. Returns a distribution defined over a
-            region which is the union of this.region and D.region.
-            This distribution must assume the value of D over D.region
-            and this over this.region.
-
-            @seealso distribution.asymmetricUnion.
+         disjoint from this. Returns a distribution defined over a
+         region which is the union of this.region and D.region.
+         This distribution must assume the value of D over D.region
+         and this over this.region.
+         
+         @seealso distribution.asymmetricUnion.
          */
         public /*(distribution(:region.disjoint(this.region) &&
-    		      rank=this.rank) D)*/ 
-            distribution/*(region.union(D.region))*/
-    	union(distribution D) {
-        	assert this.region.rank == D.region.rank;
-        	return D;
+        rank=this.rank) D)*/ 
+        distribution/*(region.union(D.region))*/
+        union(distribution D) {
+            assert this.region.rank == D.region.rank;
+            return D;
         }
-
+        
         /** Returns a distribution defined on region.union(R): it takes on 
-            this.valueAt(p) for all points p in region, and D.valueAt(p) for all
-            points in R.difference(region).
+         this.valueAt(p) for all points p in region, and D.valueAt(p) for all
+         points in R.difference(region).
          */
         public /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-            overlay( region/*(rank)*/ R, distribution/*(R)*/ D) {
-        	assert D.region.rank == this.region.rank;
-        	return D;
+        overlay( region/*(rank)*/ R, distribution/*(R)*/ D) {
+            assert D.region.rank == this.region.rank;
+            return D;
         }
-
+        
         /** Return true iff the given distribution D, which must be over a
          * region of the same rank as this, is defined over a subset
          * of this.region and agrees with it at each point.
          */
         public /*(region(rank) r)*/ 
-            boolean subDistribution( region/*(rank)*/ R, distribution/*(R)*/ D) {
-        	assert D.region.rank == this.region.rank;
-        	return (D instanceof Empty);
-        }   
+        boolean subDistribution( region/*(rank)*/ R, distribution/*(R)*/ D) {
+            assert D.region.rank == this.region.rank;
+            return (D instanceof Empty || D.region.size() == 0);
+        }
+        
         public String toString() {
-        	StringBuffer s = new StringBuffer("Distribution_c.Empty<");
-        	s.append(region.toString());
-        	s.append("|>");
-        	return s.toString();
+            StringBuffer s = new StringBuffer("Distribution_c.Empty<");
+            s.append(region.toString());
+            s.append("|>");
+            return s.toString();
         }
         
     } // end of Distribution_c.Empty
     
     static final class Constant extends Distribution_c {
-    	place place_;
-
+        place place_;
+        
         Constant(region r, place p) {
-        	super(r);
-        	this.places.add(p);
-        	place_ = p;
-           
+            super(r);
+            this.places.add(p);
+            place_ = p;
+            
         }
         /** Returns the place to which the point p in region is mapped.
          */
         public place valueAt(point/*(region)*/ p) {
-        	return place_;
-        }
-        public place valueAt(int[] p) {
-        	return place_;
-        }
-        /** Returns the region mapped by this distribution to the place P.
-    	The value returned is a subset of this.region.
-        */
-        public region/*(rank)*/ restriction( place P ) {
-        	if (P.equals(place_)) 
-        		return this.region;
-        	return Runtime.factory.getRegionFactory().emptyRegion(this.rank);
-        }
-    	
-        /** Returns the distribution obtained by range-restricting this to Ps.
-            The region of the distribution returned is contained in this.region.
-        */
-        public distribution/*(:this.region.contains(region))*/
-            restriction( Set/*<place>*/Ps ) {
-        	if (Ps.contains(place_))
-        		return this;
-        	return new Empty(this.rank);
+            if (!region.contains(p))
+                throw new PointOutOfRegionError();
+            else
+                return place_;
         }
 
+        /** Returns the region mapped by this distribution to the place P.
+         The value returned is a subset of this.region.
+         */
+        public region/*(rank)*/ restriction( place P ) {
+            if (P.equals(place_)) 
+                return this.region;
+            return Runtime.factory.getRegionFactory().emptyRegion(this.rank);
+        }
+        
+        /** Returns the distribution obtained by range-restricting this to Ps.
+         The region of the distribution returned is contained in this.region.
+         */
+        public distribution/*(:this.region.contains(region))*/
+        restriction( Set/*<place>*/Ps ) {
+            if (Ps.contains(place_))
+                return this;
+            return new Empty(this.rank);
+        }
+        
         /** Returns a new distribution obtained by restricting this to the
          * domain region.intersection(R), where parameter R is a region
          * with the same dimension.
          */
         public 
-    	/*(region(rank) R)*/ distribution/*(region.intersection(R))*/
-    	restriction( region/*(rank)*/ R) {
-        	assert R.rank == this.rank; //assume
-        	region r = this.region.intersection( R );
-        	final distribution result = new Constant( r, place_);
-        	// assert result.region == R.intersection( this.region);
-        	return result;
+        /*(region(rank) R)*/ distribution/*(region.intersection(R))*/
+        restriction( region/*(rank)*/ R) {
+            assert R.rank == this.rank; //assume
+            region r = this.region.intersection( R );
+            final distribution result = new Constant( r, place_);
+            // assert result.region == R.intersection( this.region);
+            return result;
         }
-
+        
         /** Returns the restriction of this to the domain region.difference(R),
-            where parameter R is a region with the same dimension.
+         where parameter R is a region with the same dimension.
          */
         public 
-    	/*(region(rank) R)*/ distribution/*(region.difference(R))*/
-            difference( region/*(rank)*/ R) {
-          	assert R.rank == this.rank; //assume
-          	region r = this.region.difference( R );
-        	final distribution result = new Constant( r, place_);
-        	// assert result.region == R.intersection( this.region);
-        	return result;
-          	
+        /*(region(rank) R)*/ distribution/*(region.difference(R))*/
+        difference( region/*(rank)*/ R) {
+            assert R.rank == this.rank; //assume
+            region r = this.region.difference( R );
+            final distribution result = new Constant( r, place_);
+            // assert result.region == R.intersection( this.region);
+            return result;            
         }
-
-        /** Takes as parameter a distribution D defined over a region
-            disjoint from this. Returns a distribution defined over a
-            region which is the union of this.region and D.region.
-            This distribution must assume the value of D over D.region
-            and this over this.region.
-
-            @seealso distribution.asymmetricUnion.
-         */
-        public /*(distribution(:region.disjoint(this.region) &&
-    		      rank=this.rank) D)*/ 
-            distribution/*(region.union(D.region))*/
-    	union(distribution/*(:region.disjoint(this.region) &&
-    			    rank=this.rank)*/ D) {
-        	assert D.rank == this.rank && D.region.disjoint(this.region); // assume
-        	throw new Error("TODO");
-        	
-        }
-
-        /** Returns a distribution defined on region.union(R): it takes on 
-            this.valueAt(p) for all points p in region, and D.valueAt(p) for all
-            points in R.difference(region).
-         */
-        public /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-            overlay( region/*(rank)*/ R, distribution/*(R)*/ D) {
-        	assert D.region.equals(R) && this.region.equals(R); // assume
-        	throw new Error("TODO");
-        }
-
-
-        /** Return true iff the given distribution D, which must be over a
-         * region of the same rank as this, is defined over a subset
-         * of this.region and agrees with it at each point.
-         */
-        public /*(region(rank) r)*/ 
-            boolean subDistribution( region/*(rank)*/ R, distribution/*(R)*/ D) {
-           	assert D.region.equals(R) && this.region.equals(R); // assume
-           	return (this.region.contains(D.region) && (D instanceof Constant) && ((Constant) D).place_.equals(place_));
-        }
+        
         public String toString() {
-        	StringBuffer s = new StringBuffer("Distribution_c.Constant<region=|");
-        	s.append(region.toString());
-        	s.append("|, place=|");
-        	s.append(place_);
-        	s.append("|>");
-        	return s.toString();
+            StringBuffer s = new StringBuffer("Distribution_c.Constant<region=|");
+            s.append(region.toString());
+            s.append("|, place=|");
+            s.append(place_);
+            s.append("|>");
+            return s.toString();
         }
         
     } // end of Distribution_c.Constant
     
     static class Unique extends Distribution_c {
-    	place[] placeseq;
+        place[] placeseq;
         Unique(place[] ps) {
             super(new Region_c(new Range[] { new ContiguousRange(1, ps.length) }));
             this.placeseq = ps;
             Set s = new HashSet();
             for (int i=0;i<placeseq.length;i++) 
-            	s.add(ps[i]);
-            this.places=s;
+                places.add(ps[i]);
         }
         
-
+        
         /** Returns the place to which the point p in region is mapped.
          */
         public place valueAt(point/*(region)*/ p) {
-        	assert this.region.contains(p.region);
-        	return placeseq[(p.valueAt(0)) % placeseq.length];
+            if (!region.contains(p)) {
+                throw new PointOutOfRegionError();
+            } else
+                return placeseq[(p.valueAt(0)) % placeseq.length];
         }
-        public place valueAt(int[] val) {
-        	assert val.length == 1;
-        	return placeseq[val[0] % placeseq.length];
-        }
-    	
+
+        
         /** Returns the region mapped by this distribution to the place P.
-    	The value returned is a subset of this.region.
-        */
+         The value returned is a subset of this.region.
+         */
         public region/*(rank)*/ restriction( place P ) {
-        	 int index = -1;
-             for (int i = 0; i < placeseq.length; ++ i) {
-             	if (placeseq[i] == P) {
-             		index = i;
-             		break;
-             	}
-             }
-             region.factory RF = Runtime.factory.getRegionFactory();
-             if (index < 0)
-             	return RF.emptyRegion(1);
-             return RF.region(index, index);
+            int index = -1;
+            for (int i = 0; i < placeseq.length; ++ i) {
+                if (placeseq[i] == P) {
+                    index = i;
+                    break;
+                }
+            }
+            region.factory RF = Runtime.factory.getRegionFactory();
+            if (index < 0)
+                return RF.emptyRegion(1);
+            return RF.region(index, index);
         }
-    	
-        /** Returns the distribution obtained by range-restricting this to Ps.
-            The region of the distribution returned is contained in this.region.
-        */
-        public distribution/*(:this.region.contains(region))*/
-            restriction( Set/*<place>*/Ps ) {
-        	throw new Error("TODO");
-        }
-
-        /** Returns a new distribution obtained by restricting this to the
-         * domain region.intersection(R), where parameter R is a region
-         * with the same dimension.
-         * vj: Note that the resulting distribution may not have a contiguous region.
-         */
-        public 
-    	/*(region(rank) R)*/ distribution/*(region.intersection(R))*/
-    	restriction( region/*(rank)*/ R) {
-        	throw new Error("TODO");
-        }
-
-        /** Returns the restriction of this to the domain region.difference(R),
-            where parameter R is a region with the same dimension.
-            vj: Note that the resulting distribution may not have a contiguous region.
-         */
-        public 
-    	/*(region(rank) R)*/ distribution/*(region.difference(R))*/
-            difference( region/*(rank)*/ R) {
-        	throw new Error("TODO");
-        }
-
-        /** Takes as parameter a distribution D defined over a region
-            disjoint from this. Returns a distribution defined over a
-            region which is the union of this.region and D.region.
-            This distribution must assume the value of D over D.region
-            and this over this.region.
-            vj: Note that the resulting distribution may not be unique.
-            @seealso distribution.asymmetricUnion.
-         */
-        public /*(distribution(:region.disjoint(this.region) &&
-    		      rank=this.rank) D)*/ 
-            distribution/*(region.union(D.region))*/
-    	union(distribution/*(:region.disjoint(this.region) &&
-    			    rank=this.rank)*/ D) {
-        	throw new Error("TODO");
-        }
-
-        /** Returns a distribution defined on region.union(R): it takes on 
-            this.valueAt(p) for all points p in region, and D.valueAt(p) for all
-            points in R.difference(region).
-         */
-        public /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-            overlay( region/*(rank)*/ R, distribution/*(R)*/ D) {
-        	throw new Error("TODO");
-        }
-
-
-        /** Return true iff the given distribution D, which must be over a
-         * region of the same rank as this, is defined over a subset
-         * of this.region and agrees with it at each point.
-         */
-        public /*(region(rank) r)*/ 
-            boolean subDistribution( region/*(rank)*/ R, distribution/*(R)*/ D) {
-        	throw new Error("TODO");
-        }
-    	
-        public boolean equals(Object o) {
-        	boolean ret = super.equals(o);
-        	if (ret) {
-        		Unique u = (Unique) o;
-        		ret = placeseq.length == u.placeseq.length;
-        		if (ret) 
-        			for (int i = 0; ret && i < placeseq.length; ++ i) 
-        				ret = (placeseq[i] == u.placeseq[i]);
-        	}
-        	return ret;
-        }
+        
         public String toString() {
-        	StringBuffer s = new StringBuffer("Distribution_c.Unique<");
-        	for (int i=1; i < placeseq.length;i++)
-        		s.append(placeseq[i].toString());
-        	return s.append(">").toString();
+            StringBuffer s = new StringBuffer("Distribution_c.Unique<");
+            for (int i=1; i < placeseq.length;i++)
+                s.append(placeseq[i].toString());
+            return s.append(">").toString();
         }
         
     } // end of Distribution_c.Unique
-
-  static class Combined extends Distribution_c {
+    
+    static class Combined extends Distribution_c {
         private final Distribution_c[] members_;
-
-	/**
-	 * @param r
-	 */
+        
+        /**
+         * @param r
+         */
         Combined(Region_c r, Distribution_c[] members_) {
-        	super(r);
-        	assert members_ != null;
-        	// defensive copy
-        	this.members_ = (Distribution_c[]) members_.clone();
-        	Set myplaces = new HashSet();
-        	for (int i=0; i < members_.length; i++) {
-        		myplaces.addAll( members_[i].places());
-        	}
-        	this.places = myplaces;
+            super(r);
+            assert members_ != null;
+            // defensive copy
+            this.members_ = (Distribution_c[]) members_.clone();
+            for (int i=0; i < members_.length; i++) {
+                places.addAll( members_[i].places());
+            }
         }
-
-
-	/* (non-Javadoc)
-	 * @see x10.lang.distribution#valueAt(x10.lang.point)
-	 */
-	public place valueAt(point p) throws MalformedError {
+        
+        
+        /* (non-Javadoc)
+         * @see x10.lang.distribution#valueAt(x10.lang.point)
+         */
+        public place valueAt(point p) {
             place ret = null;
             for (int i=0; ret == null && i < members_.length; ++i) {
                 if (members_[i].region.contains(p)) 
                     ret = members_[i].valueAt(p);
             }
-            assert ret != null;
+            if (ret == null)
+                throw new PointOutOfRegionError();
             return ret;
-	}
-	public place valueAt(int[] p) throws MalformedError {
-        place ret = null;
-        for (int i=0; ret == null && i < members_.length; ++i) {
-        	
-            if (members_[i].region.contains(p)) 
-                ret = members_[i].valueAt(p);
- 
         }
-        assert ret != null;
-        return ret;
-}
-	/* Currently only implemented for combined distributions where
-         * each part is a Distribution.Constant
-	 * @see x10.lang.distribution#restriction(x10.lang.place)
-	 */
-	public region restriction(place P) {
-            // make sure that conditions are met under which this 
-            // implementation works properly
-            for (int i = 0; i < members_.length; ++i) {
-                assert(members_[i] instanceof Constant);
-            }
-            distribution ret;
-            HashSet dists = new HashSet();
-            for (int i = 0; i < members_.length; ++ i) {
-                Distribution_c.Constant c = (Distribution_c.Constant) members_[i];
-                if (c.place_ == P)
-                    dists.add(c);
-            }
-            int size = dists.size();
+        
+        public String toString() {
+            StringBuffer s = new StringBuffer("CombinedDistribution_c<");
+            for (int i=0; i < members_.length;i++) 
+                s.append(members_[i]);
+            return s.append(">").toString();
             
-            if (size == 0)
-                ret = new Distribution_c.Empty();
-            else if (size == 1) 
-                ret = (distribution) dists.iterator().next();
-            else {
-                // create array of distributions
-                Distribution_c[] arr = new  Distribution_c[size];
-                dists.toArray(arr);
-                // create union of all regions
-                region u_region = arr[0].region;
-                for (int i = 1; i < size; ++ i) 
-                    u_region = u_region.union(arr[i].region);
-                ret = new Combined((Region_c) u_region, arr);
+        }
+    } // end of Distribution_c.Combined
+    
+    static final class Arbitrary extends Distribution_c {
+        
+        private final Map map_;
+        
+        private Arbitrary(region r) {
+            super(r);
+            map_ = new HashMap();
+        }
+        
+        private Arbitrary(region r, Map m) {
+            super(r);
+            map_ = m;
+        }
+        
+        /** Returns the place to which the point p in region is mapped.
+         */
+        public place valueAt(point/*(region)*/ p) {
+            assert p != null;
+            place ret = (place) map_.get(p);
+            if (ret == null)
+                throw new PointOutOfRegionError();
+            return ret;
+        }
+        
+        public String toString() {
+            StringBuffer s = new StringBuffer("Distribution_c.Arbitrary<\n");
+            for (Iterator it = map_.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry me = (Map.Entry) it.next();
+                point p = (point) me.getKey();
+                place pl = (place) me.getValue();
+                s.append("[" + p + ", " + pl + "]");
+                if (it.hasNext()) 
+                    s.append(",\n");
+                
             }
-            return ret.region;
-
-	}
-
-	/* (non-Javadoc)
-	 * @see x10.lang.distribution#restriction(java.util.Set)
-	 */
-	public distribution restriction(Set Ps) {
-	    throw new Error("TODO");
-	}
-
-	/* (non-Javadoc)
-	 * @see x10.lang.distribution#restriction(x10.lang.region)
-	 */
-	public distribution restriction(region R) {
-	    assert (this.region.contains(R));
-	    throw new Error("TODO");
-	}
-
-	/* (non-Javadoc)
-	 * @see x10.lang.distribution#difference(x10.lang.region)
-	 */
-	public distribution difference(region R) {
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see x10.lang.distribution#union(x10.lang.distribution)
-	 */
-	public distribution union(distribution D) {
-	    throw new Error("TODO");
-	}
-
-	/* (non-Javadoc)
-	 * @see x10.lang.distribution#overlay(x10.lang.region, x10.lang.distribution)
-	 */
-	public distribution overlay(region R, distribution D) {
-	    throw new Error("TODO");
-	}
-
-	/* (non-Javadoc)
-	 * @see x10.lang.distribution#subDistribution(x10.lang.region, x10.lang.distribution)
-	 */
-	public boolean subDistribution(region R, distribution D) {
-	    throw new Error("TODO");
-	}
-	public boolean equals(Object o) {
-		boolean ret = super.equals(o);
-		if (ret) {
-			Combined u = (Combined) o;
-			if (members_.length == u.members_.length) {
-				for (int i = 0; ret && i < members_.length; ++ i) {
-					ret &= members_[i].equals(u.members_[i]);
-				}
-			} else 
-				ret = false;
-		}
-		return ret;
-	}	
-	public String toString() {
-		StringBuffer s = new StringBuffer("CombinedDistribution_c<");
-		for (int i=0; i < members_.length;i++) 
-			s.append(members_[i]);
-		return s.append(">").toString();
-		
-	}
-  }// end of Distribution_c
-    
-    
+            s.append(">");
+            return s.toString();
+        }
+        
+    } // end of Distribution_c.Arbitrary
 } 
