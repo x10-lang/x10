@@ -7,7 +7,7 @@ package x10.lang;
  * @author Christian Grothoff
  * @author Christoph von Praun
  */
-public abstract class Future extends Object {
+public abstract class Future {
 
 	/**    
 	 * Wait for the completion of this activity and return the
