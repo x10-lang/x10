@@ -117,7 +117,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
   
     
     public IntReferenceArray lift( IntArray.binaryOp op, x10.lang.intArray arg ) {
-        assert arg.distribution == this.distribution;
+        assert arg.distribution.equals(distribution);
         IntReferenceArray result = newInstance(distribution);
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
             point p = (point) it.next();
