@@ -11,6 +11,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.ArrayAccess_c;
+import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.jl.ast.Call_c;
 
@@ -34,6 +35,7 @@ import polyglot.visit.AscriptionVisitor;
 
 import java.util.LinkedList;
 
+import polyglot.ext.x10.types.ParametricType_c;
 import polyglot.ext.x10.types.X10Type;
 
 import java.util.Iterator;
@@ -133,7 +135,18 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 		// we need to let X10ArrayAccessAssign have a chance to see an X10ArrayAccess object.
 		// Typechecking is a good time to do the rewriting.
 		
-		return new Call_c(position(), array, "get", index).typeCheck(tc);
+        if (type instanceof ParametricType_c) {
+            ParametricType_c pt = (ParametricType_c) type;
+            return
+            new Cast_c(position(), 
+                                       X10NodeFactory_c.getFactory().CanonicalTypeNode(position(),
+                                            (Type) pt.getTypeParameters().get(0)).type((Type) pt.getTypeParameters().get(0)),
+                               (Expr) new Call_c(position(), array, "get", index).typeCheck(tc)).typeCheck(tc);
+            
+        } else {
+            return new Call_c(position(), array, "get", index).typeCheck(tc);
+        //      return type(((X10Type) type).toX10Array().base());
+                }
 		/*
 		for (Iterator it = index.iterator(); it.hasNext();) {
 			Expr item = (Expr) it.next();

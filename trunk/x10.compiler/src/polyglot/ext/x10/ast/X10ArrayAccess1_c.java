@@ -5,36 +5,32 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.LinkedList;
 import java.util.List;
 
-import polyglot.ast.ArrayAccess;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
-import polyglot.ast.Assign.Operator;
 import polyglot.ext.jl.ast.ArrayAccess_c;
 import polyglot.ext.jl.ast.Call_c;
+import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Expr_c;
+import polyglot.ext.x10.types.ParametricType_c;
+import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
-import polyglot.ext.x10.types.X10TypeSystem;
-
-import polyglot.ext.x10.types.X10Type;
-import java.util.LinkedList;
-import polyglot.ast.Assign.Operator;
-import polyglot.ext.jl.ast.Assign_c;
 
 
 /** An immutable representation of an X10 array access with a single index elemen between "[" and "]".
@@ -147,8 +143,18 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		}
 		List args = new LinkedList();
 		args.add( index);
-		return new Call_c(position(), array, "get", args).typeCheck(tc);
+		if (type instanceof ParametricType_c) {
+		    ParametricType_c pt = (ParametricType_c) type;
+		    return
+		    new Cast_c(position(), 
+                                       X10NodeFactory_c.getFactory().CanonicalTypeNode(position(),
+		                                    (Type) pt.getTypeParameters().get(0)).type((Type) pt.getTypeParameters().get(0)),
+		                       (Expr) new Call_c(position(), array, "get", args).typeCheck(tc)).typeCheck(tc);
+            
+		} else {
+		    return new Call_c(position(), array, "get", args).typeCheck(tc);
 		// 		return type(((X10Type) type).toX10Array().base());
+                }
 	}
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {

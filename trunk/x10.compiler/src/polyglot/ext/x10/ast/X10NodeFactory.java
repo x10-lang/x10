@@ -65,6 +65,9 @@ public interface X10NodeFactory extends NodeFactory {
     DepParameterExpr DepParameterExpr(Position pos, List args);
     DepParameterExpr DepParameterExpr(Position pos, Expr cond);    
     GenParameterExpr GenParameterExpr(Position pos, List args);
+    TypeNode GenericArrayPointwiseOpTypeNode(Position pos,
+            TypeNode typeParam);
+
     X10ArrayTypeNode X10ArrayTypeNode(Position pos, TypeNode base, boolean isValueType, 
 			DepParameterExpr indexedSet );
     X10ArrayAccess X10ArrayAccess( Position pos, Expr a, List indices);

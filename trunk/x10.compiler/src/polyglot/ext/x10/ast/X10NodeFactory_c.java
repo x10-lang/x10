@@ -1,21 +1,30 @@
 package polyglot.ext.x10.ast;
 
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
-import polyglot.ast.*;
-import polyglot.ext.jl.ast.ArrayAccessAssign_c;
-import polyglot.ext.jl.ast.Call_c;
-import polyglot.ext.jl.ast.Formal_c;
-import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.ext.jl.ast.Instanceof_c;
-import polyglot.ext.jl.parse.Name;
+import polyglot.ast.Assign;
+import polyglot.ast.Binary;
+import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.ClassBody;
+import polyglot.ast.Expr;
+import polyglot.ast.ExtFactory;
+import polyglot.ast.Field;
+import polyglot.ast.Formal;
+import polyglot.ast.Instanceof;
+import polyglot.ast.Local;
+import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
+import polyglot.ast.TypeNode;
+import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
+import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
-import polyglot.util.Position;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.Flags;
 import polyglot.types.Type;
+import polyglot.util.Position;
 import x10.parser.X10VarDeclarator;
 
 /**
@@ -208,11 +217,33 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (DepParameterExpr) n.del(delFactory().delStmt());
 	}
         public GenParameterExpr GenParameterExpr(Position pos, List l) {
-                GenParameterExpr n = new GenParameterExpr_c( pos,  l);
+            List cpy = new LinkedList();
+            Iterator it = l.iterator();
+            while (it.hasNext()) {
+                cpy.add(X10NodeFactory_c.getFactory().CanonicalTypeNode(pos, (Type) it.next()));
+            }
+                GenParameterExpr n = new GenParameterExpr_c( pos,  cpy);
                 n = (GenParameterExpr) n.ext(extFactory().extStmt());
                 return (GenParameterExpr) n.del(delFactory().delStmt());
         }
 
+        public TypeNode GenericArrayPointwiseOpTypeNode(Position pos,
+                                                                              TypeNode typeParam) {
+            List l = new LinkedList();
+            l.add(typeParam);
+            GenParameterExpr gen = new GenParameterExpr_c( pos,  l);
+            gen = (GenParameterExpr) gen.ext(extFactory().extStmt());
+            gen = (GenParameterExpr) gen.del(delFactory().delStmt());
+            TypeNode tn
+                = this.CanonicalTypeNode(pos,
+                            X10TypeSystem_c.getFactory().GenericArrayPointwiseOp());
+            return ParametricTypeNode(pos,
+                       tn,
+                       gen,
+                       null);
+        }
+
+        
         public ParametricTypeNode ParametricTypeNode( Position pos,  
                     TypeNode node,
                     GenParameterExpr g,

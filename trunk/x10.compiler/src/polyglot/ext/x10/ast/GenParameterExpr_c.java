@@ -30,11 +30,11 @@ public class GenParameterExpr_c extends Expr_c implements GenParameterExpr {
 	/**
          * The argument list of a parametric type. Maybe null.
 	 */
-	protected List/*Type*/ args;
+	protected List/*TypeNode*/ args;
 	
 	public GenParameterExpr_c(Position pos, List l) {
 		super(pos);
-		this.args =  TypedList.copyAndCheck(l, Type.class, false);
+		this.args =  TypedList.copyAndCheck(l, TypeNode.class, false);
 	}
 	
 	public List args() {
@@ -62,7 +62,8 @@ public class GenParameterExpr_c extends Expr_c implements GenParameterExpr {
 	 */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		
+		// TypeNode tn = null;
+		// tn.typeCheck(tc);
 		return this;
 	}
 	/* (non-Javadoc)
@@ -91,7 +92,7 @@ public class GenParameterExpr_c extends Expr_c implements GenParameterExpr {
 	            s += "...";
 	            break;
 	        }
-	        Type n = (Type) i.next();
+	        TypeNode n = (TypeNode) i.next();
 	        s += n.toString();
 
 	        if (i.hasNext()) {

@@ -4,8 +4,9 @@
 
 package polyglot.ext.x10.types;
 
+import java.util.List;
+
 import polyglot.ast.Expr;
-import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
@@ -55,7 +56,7 @@ public interface X10TypeSystem extends TypeSystem {
     FutureType createFutureType( Position p, Type t);
     ParametricType createParametricType ( Position pos,
                 X10ReferenceType type,
-                GenParameterExpr texpr,
+                List typeparameters,
                 DepParameterExpr expr ) ;
     ClassType X10Object();
     ClassType place();
@@ -70,7 +71,7 @@ public interface X10TypeSystem extends TypeSystem {
     ClassType IntArrayPointwiseOp();
     ClassType DoubleArrayPointwiseOp();
     ClassType LongArrayPointwiseOp();
-    ReferenceType GenericArrayPointwiseOp(X10ReferenceType baseType);
+    ReferenceType GenericArrayPointwiseOp(Type baseType);
     
  
   

@@ -5,22 +5,21 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Node;
-import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.TypeNode_c;
-import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10ReferenceType;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
-import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
-import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
@@ -124,8 +123,15 @@ public class ParametricTypeNode_c extends TypeNode_c implements
 
 		GenParameterExpr newTParameter = typeparameter == null? null : (GenParameterExpr) typeparameter.disambiguate( sc );
 
+		List typeparameters = new LinkedList();
+		Iterator it = newTParameter.args().iterator();
+		while (it.hasNext())
+		    typeparameters.add(((TypeNode)it.next()).type());
+        
                 X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
-		this.type = ts.createParametricType( position(), (X10ReferenceType) baseType, newTParameter, newParameter );
+		this.type = ts.createParametricType( position(), (X10ReferenceType) baseType, 
+		        typeparameters,
+		        newParameter );
 		
 		Node result = reconstruct( newType, newTParameter, newParameter );
 		
@@ -167,9 +173,15 @@ public class ParametricTypeNode_c extends TypeNode_c implements
 			throw new SemanticException("Argument to parametric type node must be a reference type" 
 						+ position());
 		X10TypeSystem ts = (X10TypeSystem) argType.typeSystem();
+		List typeparameters = new LinkedList();
+		Iterator it = typeparameter.args().iterator();
+		while (it.hasNext())
+		    typeparameters.add(((TypeNode)it.next()).type());
+
+        
 		this.type = ts.createParametricType( position(),
 		        (X10ReferenceType) argType,
-		        typeparameter,
+		        typeparameters,
 		        parameter);
 		
 		// TODO: vj Check that the parameter is in fact a boolean expression, and uses only the fields 
@@ -189,7 +201,9 @@ public class ParametricTypeNode_c extends TypeNode_c implements
 	
 	
 	public String toString() {
-		return "/*nullable*/" + base.toString();
+		return "/*nullable*/" + base.toString() +
+		((typeparameter != null) ? typeparameter.toString() :"") +
+                ((parameter != null) ? parameter.toString() : "");
 	}
 	/**
 	 * Write out Java code for this node.

@@ -27,6 +27,8 @@ public final class Allocator {
             mb = new MemoryBlockSafeDoubleArray((int) size);
         else if (cl == Long.TYPE)
             mb = new MemoryBlockSafeLongArray((int) size);
+        else if (! cl.isPrimitive()) 
+            mb = new MemoryBlockSafeObjectArray((int) size);
         else {
             mb = null;
             throw new Error("Allocator:: allocSafe not implemented for type '" + cl + "'");
