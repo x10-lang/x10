@@ -83,12 +83,6 @@ public final class Configuration {
     public static int SAMPLING_FREQUENCY_MS = 50;
     
     /**
-     * If non-null, this option specifies the filename to
-     * which sampling data is written at each sampling point.
-     */
-    public static String XML_PE_FILE = "x10.xml"; 
-    
-    /**
      * Should statistics be dumped on exit?
      */
     public static boolean DUMP_STATS_ON_EXIT = false;
