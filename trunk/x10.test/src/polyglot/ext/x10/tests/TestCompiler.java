@@ -115,10 +115,6 @@ public TestCompiler(String name) {
         run("./Atomic1.x10","Atomic1");
     }
 
-    public void test_AtomicReturn() {
-        run("./AtomicReturn.x10","AtomicReturn");
-    }
-
     public void test_AtomicTest() {
         run("./AtomicTest.x10","AtomicTest");
     }
@@ -153,10 +149,6 @@ public TestCompiler(String name) {
 
     public void test_ClockTest2() {
         run("./ClockTest2.x10","ClockTest2");
-    }
-
-    public void test_ClockedFinalTest() {
-        run("./ClockedFinalTest.x10","ClockedFinalTest");
     }
 
     public void test_CommentTest() {
@@ -201,10 +193,6 @@ public TestCompiler(String name) {
 
     public void test_ForLoop4() {
         run("./ForLoop4.x10","ForLoop4");
-    }
-
-    public void test_Foreach() {
-        run("./Foreach.x10","Foreach");
     }
 
     public void test_Foreach2() {
@@ -293,6 +281,10 @@ public TestCompiler(String name) {
 
     public void test_Jacobi_skewed() {
         run("./Jacobi_skewed.x10","Jacobi_skewed");
+    }
+
+    public void test_LiteralTest() {
+        run("./LiteralTest.x10","LiteralTest");
     }
 
     public void test_MiscTest1() {
