@@ -77,7 +77,10 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     public GenericArray_c( distribution d, Parameter1 c, boolean safe ) {
     	this(d, c, safe, true);
 }
-    public GenericArray_c( distribution d, Parameter1 c, boolean safe, boolean mutable ) {
+    public GenericArray_c( distribution d, int c, boolean safe, boolean mutable ) {
+        this(d, (Parameter1) null, safe, mutable);
+    }
+        public GenericArray_c( distribution d, Parameter1 c, boolean safe, boolean mutable ) {
     	super(d);
         assert (safe); // just to be GC-safe ;-)
     	this.mutable_ = mutable;
