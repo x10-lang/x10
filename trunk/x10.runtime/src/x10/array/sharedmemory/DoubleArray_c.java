@@ -243,7 +243,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
-            double val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+            double val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
             ret.set(val, p);
         }
         return ret;

@@ -187,11 +187,11 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
        for (Iterator it = reg.iterator(); it.hasNext(); ) {
            point p = (point) it.next();
            place pl;
-           if (th.region.contains(p)) {
-               pl = th.get(p);
+           if (d.region.contains(p)) {
+               pl = d.get(p);
                assert (pl != null);
            } else {
-               pl = d.get(p);
+               pl = th.get(p);
                assert (pl != null);
            }
            hm.put(p, pl);
