@@ -1,5 +1,6 @@
 package x10.lang;
 
+import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
 
@@ -26,15 +27,18 @@ public abstract class Runtime implements x10.base.Runtime {
      * This field is intentionally private, obtain an instance through 
      * method getRuntime();
      */
-    public static final Runtime runtime;
+    public static Runtime runtime;
     
     /**
      * This instance should be used only in the implementation of 
      * the x10.runtime. 
      */
-    public static final JavaRuntime java;
+    public static JavaRuntime java;
     
-    static {
+    private static boolean done_;
+    public static void init() {
+        assert !done_;
+        done_ = true;
         String rt = System.getProperty("x10.runtime");
         Runtime r = null;
         try {
@@ -58,16 +62,18 @@ public abstract class Runtime implements x10.base.Runtime {
             assert (r != null);
             runtime = r;
             java = new JavaRuntime();
+            factory = runtime.getFactory();
             // ArrayFactory.init(r);
         }
     }
-    public static final Factory factory = runtime.getFactory();
+    public static Factory factory; // = runtime.getFactory();
    
-    protected void initialize() {
+    protected abstract void initialize();
     
-    }
     public static void main(String[] args) {
     	try {
+            Configuration.parseCommandLine(args);
+            init();
     		runtime.run(args);
     	} catch (Exception e) {
     		Runtime.java.error("Unexpected Exception in X10 Runtime.", e);

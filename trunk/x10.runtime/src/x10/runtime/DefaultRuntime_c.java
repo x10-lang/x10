@@ -100,8 +100,6 @@ public class DefaultRuntime_c
      * Run the X10 application.
      */
     protected void run(String[] args) throws Exception {
-        // setup the main activity from the client...
-        String[] appArgs = Configuration.parseCommandLine(args);
         
         // first: load libraries!
         if (null != Configuration.LOAD) {
