@@ -12,33 +12,19 @@ package x10.array;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class StridedRange implements Range {
+public class StridedRange extends Range {
     
-    /**
-	 * Cardinality of the range, i.e., the number of element 
-	 * in the integer space it covers.
-	 */	
-    public final int card;
-    public final int lo;
-    public final int hi;
     public final int stride; 
 	
-	public int count() {
-	    return card;
-	}
-	
 	public StridedRange(int lo, int hi, int stride) {
-		assert hi >= lo;
+	    super(lo, hi, ((hi - lo) / stride) + 1);
+	    
 		assert ((hi - lo) % stride) == 0;
-		
-		this.lo = lo;
-		this.hi = hi;
 		this.stride = stride;
-		card = ((hi - lo) / stride) + 1;
 	}
 	
 	public int coord(int ord) {
-	    assert ord < card;
+	    assert ord < count;
 	    throw new Error("TODO");
 	}
 	

@@ -1,5 +1,7 @@
 package x10.lang;
 
+import x10.base.TypeArgument;
+
 
 /**
  * @author Christian Grothoff

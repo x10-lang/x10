@@ -5,6 +5,8 @@ package x10.array;
 
 import java.util.Iterator;
 
+import x10.base.TypeArgument;
+
 /**
  * Implementation of Region. The Points in a region, aka. tuples, 
  * are implemented as one-dimensional int arrays. Instance of 
@@ -13,7 +15,7 @@ import java.util.Iterator;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-public interface Region {
+public interface Region extends TypeArgument {
 
     public int rank();
 
@@ -25,7 +27,7 @@ public interface Region {
 	
 	public Region intersect(Region r);
 	
-    public Range dim(int i);
+    public Range range(int i);
     
     public Range[] dim();
 	

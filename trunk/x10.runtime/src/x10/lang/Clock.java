@@ -1,5 +1,7 @@
 package x10.lang;
 
+import x10.base.TypeArgument;
+
 /**
  * Implementation of X10 Clocks.  There are some differences between
  * this implementation and what the spec says.  Most notably, clocks
