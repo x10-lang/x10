@@ -65,9 +65,10 @@ public class DistributionFactory extends distribution.factory {
 	public distribution block(region r, int n, Set/*<place>*/ qs) {
         assert n <= qs.size();
         
+        distribution ret = null;
         // avoid all the hardwork if it is an empty region.
         if (r.size() == 0)
-        	return new Distribution_c.Empty( r.rank );
+        	ret = new Distribution_c.Empty( r.rank );
         
         Object[] q = qs.toArray();
 
@@ -82,9 +83,28 @@ public class DistributionFactory extends distribution.factory {
         	Distribution_c[] dists = new Distribution_c[n];
         	for (int i=0; i < n; i++) 
         		dists[i] = new Distribution_c.Constant(((MultiDimRegion) r).sub(n, i), (place) q[i]);
-        	return new Distribution_c.Combined((MultiDimRegion) r, dists);
-        } else
+        	ret =  new Distribution_c.Combined((MultiDimRegion) r, dists);
+        } else if (r instanceof ContiguousRange){
+            ContiguousRange reg = (ContiguousRange) r;
+            if (reg.size() % n != 0) 
+                throw new Error("DistributionFactory::block can't block array with " + reg.size() + " rows in " + n + " parts.");
+                            
+            Distribution_c[] dists = new Distribution_c[n];
+            int sub_size = reg.size() / n;
+            int base = reg.low();
+            
+            for (int i=0; i < n; i++) {
+                int lo = base + (i * sub_size);
+                ContiguousRange sub = new ContiguousRange(lo, lo + sub_size - 1);
+                dists[i] = new Distribution_c.Constant(sub, (place) q[i]);
+            }
+            ret = new Distribution_c.Combined(r, dists);
+            System.out.println("CVP_DEBUG Distribution n=" + n + " input=" + r + " ret=" + ret);
+        } else {
+            System.out.println("CVP_DEBUG Distribution n=" + n + " r=" + r);
             throw new Error("DistributionFactory::block not supported for the given shape of distribution.");
+        }
+        return ret;
 	}
     
     
