@@ -1,8 +1,0 @@
-#!/bin/tcsh
-#automatically generate the TestCompiler.java file from all the
-#*.x10 files in the test directory
-setenv srcDir "examples/testcases/feb2005/allTests"
-(cd $X10/$srcDir; ls *.x10 | sed -e 's/\.x10//') > fileList
-awk -v SRCDIR="$srcDir" -f genTestList.awk fileList > TestCompiler2
-cat TestCompiler1 TestCompiler2 TestCompiler3 > TestCompiler.java
-rm -f TestCompiler2 fileList
