@@ -32,7 +32,7 @@ public class StridedRange extends Range {
 	
 	public /*nat*/int ordinal(point p) {
 	    assert contains(p);
-	    int val = p.valueAt(0);
+	    int val = p.get(0);
 	    return (val - lo) % stride;
     }
 	
@@ -65,7 +65,7 @@ public class StridedRange extends Range {
 	public boolean contains(point p) {
 		boolean ret = p.rank == 1;
 	    if (ret) {
-	        int val = p.valueAt(0);
+	        int val = p.get(0);
 	        ret = (val >= lo) && (val <= hi) && ((val - lo) % stride) == 0;
 	    }
 	    return ret;
