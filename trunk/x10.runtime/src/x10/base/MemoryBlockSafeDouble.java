@@ -14,6 +14,12 @@ public class MemoryBlockSafeDouble extends MemoryBlock {
         arr_ = new double[count];
     }
  
+    public void keepItLive() {}
+    
+    public long getUnsafeAddress() {
+        throw new Error("MemoryBlockSafeDouble: no unsafe address for safe memory.");
+    }
+    
     public int count() { 
         return arr_.length;
      }

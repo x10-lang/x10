@@ -6,6 +6,7 @@ package x10.array.sharedmemory;
 
 import x10.base.MemoryBlock;
 import x10.base.Allocator;
+import x10.base.UnsafeContainer;
 import x10.array.Array;
 import x10.array.Distribution;
 import x10.array.IntArray;
@@ -15,10 +16,16 @@ import x10.array.Operator;
 /**
  * @author Christian Grothoff, Christoph von Praun
  */
-public class IntArray_c extends IntArray {
+public class IntArray_c extends IntArray implements UnsafeContainer {
 
     private boolean safe_;
     private final MemoryBlock arr_;
+    
+    public void keepItLive() {}
+    
+    public long getUnsafeAddress() {
+        return arr_.getUnsafeAddress();
+    }
     
     /**
      * This constructor must not be used directly by an application programmer.
@@ -99,7 +106,6 @@ public class IntArray_c extends IntArray {
     public int get(int[] pos) {
         return arr_.getInt(dist.ordinal(pos));
     }
-    
     public int get(int d0) {
         int[] pos = {d0};
     	return get(pos);

@@ -33,7 +33,7 @@ public class MemoryBlockUnsafe extends MemoryBlock {
 
 
     // Return the underlying buffer address
-    long getBufferAddress() { 
+    public long getUnsafeAddress() { 
        return address_;
     }
 
@@ -124,7 +124,7 @@ public class MemoryBlockUnsafe extends MemoryBlock {
     // keepItLive() is invoked after the native call so that o will 
     // not be garbage collected during the native call
     //
-    void keepItLive() { 
+    public void keepItLive() { 
        live_ = 1; 
     }
 
