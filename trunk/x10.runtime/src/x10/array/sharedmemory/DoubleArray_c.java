@@ -53,9 +53,15 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
-        int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-        this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Double.TYPE);
+        }
         if (c != null)
             pointwise(this, c);
     }
@@ -76,10 +82,16 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
-    	int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-        this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
         this.safe_ = safe;
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Double.TYPE);
+        }
     	scan(this, new Assign(c));
     	
     }
@@ -93,17 +105,32 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
-        int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
-    	this.safe_ = safe;
+        this.safe_ = safe;
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Double.TYPE);
+        }
         scan(this, f);
     }
     
     private DoubleArray_c( distribution d, double[] a, boolean safe, boolean mutable) {
     	super(d);
-    	this.arr_ = Allocator.allocSafeDoubleArray( a);
-        this.safe_ = safe;
+        int count =  d.region.size();
+    	this.safe_ = safe;
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Double.TYPE);
+        }
         this.mutable_ = mutable;
     }
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.

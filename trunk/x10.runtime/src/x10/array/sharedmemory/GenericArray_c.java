@@ -52,9 +52,15 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         safe = true; // just to be GC-safe ;-)
         this.safe_ = safe;
         int count =  d.region.size();
-        int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-        this.arr_ = safe ? Allocator.allocSafe(count, Parameter1.class) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+        } else {
+            this.arr_ = Allocator.allocSafe(count, Parameter1.class);
+        }
         if (c != null)
             pointwise(this, c);
     }
@@ -73,13 +79,11 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 }
     public GenericArray_c( distribution d, Parameter1 c, boolean safe, boolean mutable ) {
     	super(d);
+        assert (safe); // just to be GC-safe ;-)
     	this.mutable_ = mutable;
     	int count =  d.region.size();
-    	int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-        safe = true; // just to be GC-safe ;-)
-        this.arr_ = safe ? Allocator.allocSafe(count, Parameter1.class) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
         this.safe_ = safe;
+        this.arr_ = Allocator.allocSafe(count, Parameter1.class);
     	scan(this, new Assign(c));
     	
     }
@@ -91,18 +95,17 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     }
     public GenericArray_c( distribution d, GenericArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
+        assert (safe); // just to be GC-safe ;-)
     	this.mutable_ = mutable;
     	int count =  d.region.size();
-        int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-        safe = true; // just to be GC-safe ;-)
-        this.arr_ = safe ? Allocator.allocSafe(count, Parameter1.class) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+        this.arr_ = Allocator.allocSafe(count, Parameter1.class);
     	this.safe_ = safe;
         scan(this, f);
     }
     
     private GenericArray_c( distribution d, Parameter1[] a, boolean safe, boolean mutable) {
     	super(d);
+        assert (safe); // just to be GC-safe ;-)
     	this.arr_ = Allocator.allocSafeObjectArray( a);
         this.safe_ = safe;
         this.mutable_ = mutable;
