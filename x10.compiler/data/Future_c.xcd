@@ -1,0 +1,11 @@
+#0.runFuture(new Activity.FutureActivity() {
+  private Object x10_result_; 
+  public void run() {
+     this.x10_result_ = #1; 
+  } 
+  public void getResult() { 
+     return x10_result_; 
+  } 
+});
+
+        
