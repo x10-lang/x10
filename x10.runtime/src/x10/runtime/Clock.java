@@ -7,6 +7,7 @@ import x10.lang.Runtime;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Implementation of X10 Clocks.  There are some differences between
@@ -121,8 +122,9 @@ public abstract class Clock extends clock implements TypeArgument {
      */
     public abstract void doNext();
 
-    public void doNext(Clock[] clocks) {
-        assert clocks != null;
+    public static void doNext(List clocks_l) {
+        assert clocks_l != null;
+        Object[] clocks = clocks_l.toArray();
         if (clocks.length > 1) {
             Arrays.sort(clocks, new Comparator() {
                 public int compare(java.lang.Object o1, java.lang.Object o2) {
@@ -138,13 +140,13 @@ public abstract class Clock extends clock implements TypeArgument {
                     return ret;
                 }
                 public boolean equals(java.lang.Object o) {
-                    return (o == Clock.this);
+                    return (o == this);
                 }
             });
         }
         
         for (int i=0; i < clocks.length; ++ i) {
-            clocks[i].doNext();
+            ((Clock) clocks[i]).doNext();
         }
     }
     
