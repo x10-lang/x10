@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import x10.lang.Activity;
 import x10.lang.Future;
+import x10.lang.MultipleExceptions;
 
 /**
  * A LocalPlace_c is an implementation of a place
@@ -155,7 +156,15 @@ public class LocalPlace_c extends Place {
                         startSignal.go = true;
                         startSignal.notifyAll();
                     }
-                    a.run();
+                    try {
+                        a.run();
+                    } catch (RuntimeException re) {
+                        reg_.registerActivityException(a,
+                                re);
+                    } catch (Error et) {
+                        reg_.registerActivityException(a,
+                                                                      et);
+                    } 
                 }
             }, a);
         // we now need to wait at least (!) until the 
@@ -185,6 +194,9 @@ public class LocalPlace_c extends Place {
                 public void run() {
                     Thread t = Thread.currentThread();
                     reg_.registerActivityStart(t, a, i);
+                    final x10.runtime.DefaultRuntime_c dr
+                       = (x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime;
+                    dr.startFinish(a);
                     synchronized(startSignal) {
                         startSignal.go = true;
                         startSignal.notifyAll();
@@ -193,13 +205,20 @@ public class LocalPlace_c extends Place {
                         a.run();
                         result.setResult(a.getResult());
                     } catch (Error e) {
-                        result.setException(e);
-                        throw e;
+                        dr.registerActivityException(a, e);
                     } catch (RuntimeException re) {
-                        result.setException(re);
-                        throw re;
+                        dr.registerActivityException(a, re);
+                    } finally {
+                        java.lang.Throwable tr                     
+                            = dr.getFinishExceptions(a);
+                        if (tr instanceof Error)
+                            result.setException((Error) tr);
+                        else if (tr instanceof RuntimeException)
+                            result.setException((RuntimeException) tr);
+                        else 
+                            assert tr == null;
                     }
-                }
+                }        
             }, a);
         // we now need to wait at least (!) until the 
         // "reg_.registerActivityStart(...)" line has been
@@ -374,12 +393,6 @@ public class LocalPlace_c extends Place {
                     try {
                         changeRunningStatus(1);
                         j.run();
-                    } catch (RuntimeException t) {
-                        reg_.registerActivityException(act,
-                                t);
-                    } catch (Error et) {
-                        reg_.registerActivityException(act,
-                                                                      et);
                     } finally {
                         changeRunningStatus(-1);
                         reg_.registerActivityStop(Thread.currentThread(), 
