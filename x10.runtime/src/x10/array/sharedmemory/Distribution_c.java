@@ -476,7 +476,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
 
         public String toString() {
             StringBuffer s = new StringBuffer("Distribution_c.Unique<");
-            for (int i=1; i < placeseq.length;i++)
+            for (int i=0; i < placeseq.length; i++)
                 s.append(placeseq[i].toString());
             return s.append(">").toString();
         }
