@@ -27,10 +27,6 @@ public TestCompiler(String name) {
         run("./Array1.x10","Array1");
     }
 
-    public void test_Array2() {
-        run("./Array2.x10","Array2");
-    }
-
     public void test_Array2v() {
         run("./Array2v.x10","Array2v");
     }
@@ -67,12 +63,12 @@ public TestCompiler(String name) {
         run("./AsyncTest1.x10","AsyncTest1");
     }
 
-    public void test_AtEach2() {
-        run("./AtEach2.x10","AtEach2");
+    public void test_AtEach() {
+        run("./AtEach.x10","AtEach");
     }
 
-    public void test_Ateach() {
-        run("./Ateach.x10","Ateach");
+    public void test_AtEach2() {
+        run("./AtEach2.x10","AtEach2");
     }
 
     public void test_Atomic1() {
@@ -135,6 +131,10 @@ public TestCompiler(String name) {
         run("./ForLoop.x10","ForLoop");
     }
 
+    public void test_ForLoop2() {
+        run("./ForLoop2.x10","ForLoop2");
+    }
+
     public void test_Foreach() {
         run("./Foreach.x10","Foreach");
     }
@@ -194,13 +194,18 @@ public TestCompiler(String name) {
     public void test_ImportTestPackage1_SubPackage_T3() {
         run("./ImportTestPackage1/SubPackage/T3.x10","ImportTestPackage1.SubPackage.T3");
     }
-
+/*
     public void test_InfiniteLoopTest() {
         run("./InfiniteLoopTest.x10","InfiniteLoopTest");
     }
+*/
 
     public void test_Jacobi() {
         run("./Jacobi.x10","Jacobi");
+    }
+
+    public void test_JacobiSmall() {
+        run("./JacobiSmall.x10","JacobiSmall");
     }
 
     public void test_MiscTest1() {
@@ -247,12 +252,24 @@ public TestCompiler(String name) {
         run("./NullableObject2.x10","NullableObject2");
     }
 
+    public void test_QueensList() {
+        run("./QueensList.x10","QueensList");
+    }
+
     public void test_RandomAccess() {
         run("./RandomAccess.x10","RandomAccess");
     }
 
-    public void test_RegionTest() {
-        run("./RegionTest.x10","RegionTest");
+    public void test_RandomAccess_int() {
+        run("./RandomAccess_int.x10","RandomAccess_int");
+    }
+
+    public void test_RandomAccess_long() {
+        run("./RandomAccess_long.x10","RandomAccess_long");
+    }
+
+    public void test_RandomAccessv() {
+        run("./RandomAccessv.x10","RandomAccessv");
     }
 
     public void test_RegionTest01() {
@@ -275,16 +292,8 @@ public TestCompiler(String name) {
         run("./ValueClass.x10","ValueClass");
     }
 
-    public void test_complex() {
-        run("./complex.x10","complex");
-    }
-
-    public void test_dummy() {
-        run("./dummy.x10","dummy");
-    }
-
-    public void test_queensList() {
-        run("./queensList.x10","queensList");
+    public void test_VariableScope() {
+        run("./VariableScope.x10","VariableScope");
     }
 
     public static void main(String args[]) {
