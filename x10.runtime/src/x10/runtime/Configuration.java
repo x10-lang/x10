@@ -159,7 +159,7 @@ public final class Configuration {
      * @return null if no file is given and only default values
      *  are used
      */
-    public static String getConfigurationFileName() {
+    private static String getConfigurationFileName_() {
         return System.getProperty("x10.configuration");
     }
     
@@ -168,7 +168,7 @@ public final class Configuration {
      * globals.
      */
     static {        
-        String cfg = getConfigurationFileName();
+        String cfg = getConfigurationFileName_();
         if (cfg != null) {
             try {
                 Properties props = new Properties();
