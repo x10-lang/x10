@@ -1,14 +1,3 @@
-//S1 finish {S} S2 should be translated to:
-
-//S1
-//future(here) {
-//  clock c=new clock(); 
-//  now(c) {S} 
-//  c.next(); 
-//  return true;
-// }.force();
-// S2
-
 (x10.lang.Runtime.here().runFuture(new x10.lang.Activity.Expr() {
   private boolean ret_;
   public void run() {
