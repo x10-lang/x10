@@ -26,9 +26,9 @@ class LocalPlace_c
     
     /**
      * Linked list of threads in the thread pool that are not currently
-     * assigned to an Activity.
+     * assigned to an Activity.  Package scoped to allow sampling.
      */
-    private PoolRunner threadQueue_;
+    PoolRunner threadQueue_;
     
     LocalPlace_c(ThreadRegistry reg, ActivityInformationProvider aip) {
         super();
