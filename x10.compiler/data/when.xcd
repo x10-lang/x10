@@ -1,15 +1,21 @@
+// when
 {
-	synchronized (x10.lang.Runtime.here()) {
-  		try {
-  			while (true) {
-  			    #0
-  				x10.lang.Runtime.here().wait();    			
-    		}
-    		x10.lang.Runtime.here().notifyAll();
-  		} catch (Throwable e) {
-  			e.printStackTrace();
-  			x10.lang.Runtime.runtime.java.log(java.util.logging.Level.SEVERE, "Unexpected exception during conditional atomic.", e);
-  			throw new RuntimeException(e);
-  		}
+    synchronized (x10.lang.Runtime.here()) {
+	try {
+	    while (true) {
+		// first when branch
+                if (#0) {
+                    #1;
+		    break;
+		}
+                #2
+		x10.lang.Runtime.here().wait();    			
+	    }
+	    x10.lang.Runtime.here().notifyAll();
+	} catch (Throwable tmp#3) {
+	    tmp#3.printStackTrace();
+	    x10.lang.Runtime.runtime.java.log(java.util.logging.Level.SEVERE, "Unexpected exception during conditional atomic.", tmp#3);
+	    throw new RuntimeException(tmp#3);
 	}
+    }
 }
