@@ -219,6 +219,10 @@ public TestCompiler(String name) {
         run("./DistributionTest1.x10","DistributionTest1");
     }
 
+    public void test_Exceptions() {
+        run("./Exceptions.x10","Exceptions");
+    }
+
     public void test_ExpressionParentheses() {
         run("./ExpressionParentheses.x10","ExpressionParentheses");
     }
