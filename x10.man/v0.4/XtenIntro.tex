@@ -1,13 +1,11 @@
 \clearextrapart{Introduction}
-
 \subsection*{Background}
-
 Bigger computational problems need bigger computers capable of
 performing a larger number of operations per second. The era of
 increasing performance by simply increasing clocking frequency now
 seems to be behind us; faster chips run hotter and current cooling
 technology does not scale as rapidly as the clock. Instead, computer
-designers are starting to look at ``scale out'' systems in which the
+designers are starting to look at {\em scale out} systems in which the
 system's computational capacity is increased by adding additional
 nodes of comparable power to existing nodes, and connecting nodes with
 a high-speed communication network.
@@ -37,23 +35,23 @@ fragmented across different nodes; all processors must generally
 execute the same code (in an SPMD fashion) etc.
 
 One response to this problem has been the advent of the {\em
-partitioned global address space} (PGAS) model underlying languages such as
-UPC, Titanium and Co-Array Fortran \cite{pgas}. These languages permit
-the programmer to think of a single computation running across the
-multiple processors, sharing a common address space. All data resides
-at some processors, which is said to have {\em affinity} to the
-data. Each processor may operate directly on the data it contains but
-must use some indirect mechanism to access or update data at other
-processors. Some kind of global {\em barriers} are used to ensure that
-processors remain roughly in lock-step.
+partitioned global address space} (GAS) model underlying languages
+such as UPC, Titanium and Co-Array Fortran \cite{pgas,titanium}. These
+languages permit the programmer to think of a single computation
+running across multiple processors, sharing a common address
+space. All data resides at some processors, which is said to have {\em
+affinity} to the data.  Each processor may operate directly on the
+data it contains but must use some indirect mechanism to access or
+update data at other processors. Some kind of global {\em barriers}
+are used to ensure that processors remain roughly in lock-step.
 
 \Xten{} is a modern object-oriented programming language
-in the PGAS family. The fundamental goal of \Xten{} is to enable
-high-performance, high-productivity transformational programming for
-high-end (scale-out) computers -- for traditional numerical
+in the GAS family. The fundamental goal of \Xten{} is to enable
+scalable, high-performance, high-productivity transformational
+programming for high-end computers -- for traditional numerical
 computation workloads (such as weather simulation, molecular dynamics,
 particle transport problems etc) as well as commercial server
-workloads. 
+workloads.
 %%(By transformational programming we mean computation
 %%focused on accepting some input, transforming it in some way and
 %%delivering some output. as opposed to computation focused on
@@ -76,36 +74,37 @@ language will support user-definable operator overloading.
 
 The major novel contribution of \Xten{} however is its flexible
 treatment of concurrency, distribution and locality, within an
-integrated type system. \Xten{} introduces {\em places} as an
-abstraction for a {\em virtual shared-memory multi-processor}; a
-computation runs over a large collection of places. Each place hosts
-some data and runs one or more {\em activities}. Activities are
-extremely lightweight threads of execution and may dynamically spawn
-new activities locally or at remote places. \Xten{} introduces a novel
-inter-thread exception flow model called the {\em rooted synchronous}
-model which allows every uncaught exception generated during execution
-to flow back up an activation path to a root activity
-(\S~\ref{XtenActivities}).  {\em Clocks} are used to ensure that a
-programmer-specified, data-dependent set of activities has quiesced
-before another action is initiated. Arrays may be distributed across
-multiple places. A static type system allows the programmer to keep
-track of the location of objects and ensures statically that an
-activity does not synchronously attempt to read/write remote data.
+integrated type system. \Xten{} extends the GAS model to the {\em
+globally asynchronous, locally synchronous} (GALS) model originally
+developed in hardware and embedded software research.  {}\Xten{}
+introduces {\em places} as an abstraction for a locally synchronous
+computational context. An \Xten{} computation runs over a large
+collection of places.  Each place hosts some data and runs one or more
+{\em activities}. Activities are extremely lightweight threads of
+execution. An activity may synchronously (and {\em atomically}) use
+one or more memory locations in the place in which it resides,
+leveraging current symmetric multiprocessor (SMP) technology.  It {\em
+must} spawn activities {\em asynchronously} to access or update memory
+at other places. \Xten{} provides weaker ordering guarantees for
+inter-place data access, enabling applications to scale.  {\em
+Immutable} data needs no consistency management and may be freely
+copied between places.  An attempt to read an uninitialized immutable
+location suspends until the location is written into, thus permitting
+data-flow synchronization. One or more {\em clocks} may be used to
+order activities running in multiple places. (Multi-dimensional)
+Arrays may be distributed across multiple places. Arrays support
+parallel collective operations. A novel exception flow model ensures
+that exceptions thrown by asynchronous activities can be caught at a
+suitable parent activity.  The type system statically tracks which
+locations may reside at the same place.  Linking with native code is
+supported.
 
-%% say something about native.
-
-\Xten{} is an experimental language. This document is a revision
-of the {\cf 0.32} version of the Report, released on 17 July 2004. It
-documents the language implemented by the first version of the
-implementation, available from the authors. An appendix discusses the
-high-level changes from the {\cf 0.32} version of the document, and
-also the limitations of the first implementation.
-
-Several representative concurrent idioms have already found pleasant
-expression in \Xten. We intend to develop several full-scale
-applications to get better experience with the language, and revisit
-the design in the light of this experience. Future versions of the
-language are expected to support user-definable operators and permit
-the specification of generic classes and methods.
+{}\Xten{} is an experimental language.  Several representative
+concurrent idioms have already found pleasant expression in \Xten. We
+intend to develop several full-scale applications to get better
+experience with the language, and revisit the design in the light of
+this experience. Future versions of the language are expected to
+support user-definable operators and permit the specification of
+generic classes and methods.
 
 

@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{kava}
 David Bacon.
@@ -7,7 +7,7 @@ David Bacon.
 \newblock {\em Concurrency -- Practice and Experience}, 15:185--206, 2003.
 
 \bibitem{pgas}
-William Carlson, Tarek El-Ghazawi, Bob Numrich, and Kathy Yellick.
+William Carlson, Tarek El-Ghazawi, Bob Numrich, and Kathy Yelick.
 \newblock {P}rogramming in the {P}artitioned {G}lobal {A}ddress {S}pace
   {M}odel, 2003.
 \newblock Presentation at SC 2003, http://www.gwu.edu/{~}upc/tutorials.html.
@@ -52,5 +52,13 @@ Anthony Skjellum, Ewing Lusk, and William Gropp.
 \newblock {\em {U}sing {MPI}: {P}ortable {P}arallel {P}rogramming with the
   {M}essage {P}assing {I}interface}.
 \newblock MIT Press, 1999.
+
+\bibitem{titanium}
+Katherine~A. Yelick, Luigi Semenzato, Geoff Pike, Carleton Miyamoto, Ben
+  Liblit, Arvind Krishnamurthy, Paul~N. Hilfinger, Susan~L. Graham, David Gay,
+  Phillip Colella, and Alexander Aiken.
+\newblock Titanium: A high-performance java dialect.
+\newblock {\em Concurrency - Practice and Experience}, 10(11-13):825--836,
+  1998.
 
 \end{thebibliography}

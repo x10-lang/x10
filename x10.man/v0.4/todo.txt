@@ -1,3 +1,9 @@
+2/17/2005
+* Add section on native code.
+* Check Java Memory Model for input on ordering of atomics.
+* Determine whether atomics can be general or not.
+
+
 6/12/2004
 o Need to respond to Kielstra note.
 o Need to figure out whether annotations are to be allowed.
