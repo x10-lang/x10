@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import x10.lang.Activity;
 import x10.lang.Runtime;
+import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
 
@@ -70,6 +71,11 @@ import x10.runtime.Place;
  */
 public class TestX10_Compiler extends TestCase {
 
+    static {
+        Configuration.parseCommandLine(null);
+        Runtime.init();
+    }
+    
 	/**
 	 * 
 	 */
@@ -104,7 +110,7 @@ public class TestX10_Compiler extends TestCase {
 	 * with the Runtime.
 	 */
 	public void setUp() {
-		DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
+        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
 		Place[] pls = Place.places();
 		Thread t = Thread.currentThread();
 		r.registerThread(t, pls[0]);

@@ -112,6 +112,7 @@ public final class Configuration {
      */
     public static String LOAD = null;
     
+    private static boolean done_;
     /**
      * Parses the command line.  This allows the user to specify 
      * options also on the command line (in addition to the
@@ -124,6 +125,11 @@ public final class Configuration {
      * @return the arguments for the application
      */
     public static String[] parseCommandLine(String[] args) {
+        assert !done_;
+        
+        if (args == null)
+            return new String[0];
+        
         int pos = 0;
         while (args[pos].charAt(0) == '-') {
             int eq = args[pos].indexOf('=');
