@@ -134,14 +134,21 @@ implements X10TypeSystem {
 			pointType_ = load("x10.lang.point"); // java file
 		return pointType_;
 	}
-	
-	protected ClassType distributionType_;
-	public ClassType distribution() {
-		if ( distributionType_ == null)
-			distributionType_ = load("x10.lang.distribution"); // java file
-		return distributionType_;
-	}
-	
+
+    protected ClassType valueType_;
+    public ClassType value() {
+        if ( valueType_ == null)
+            valueType_ = load("x10.lang.ValueType"); // java file
+        return valueType_;
+    }
+
+    protected ClassType distributionType_;
+    public ClassType distribution() {
+        if ( distributionType_ == null)
+            distributionType_ = load("x10.lang.distribution"); // java file
+        return distributionType_;
+    }
+    
 	protected ClassType activityType_;
 	public ClassType Activity() {
 		if ( activityType_ == null)

@@ -99,7 +99,7 @@ public class DefaultRuntime_c
     /**
      * Run the X10 application.
      */
-    protected void run(String[] args) throws Exception {
+    protected void run(String[] args) {
         
         // first: load libraries!
         if (null != Configuration.LOAD) {
@@ -116,7 +116,7 @@ public class DefaultRuntime_c
                 .newInstance(tmp);
         } catch (Exception e) {
             System.err.println("Could not find default constructor of main class '" + Configuration.MAIN_CLASS_NAME+ "$Main" + "'!");
-            throw e;
+            throw new Error(e);
         }
         final Activity appMain = atmp;
         // ok, some magic with the boot-thread here...
