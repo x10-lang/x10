@@ -48,10 +48,8 @@ import x10.runtime.Place;
  * the X10 source inputs will not be found by the compiler.
  * 
  * If you are not using eclipse, compile the code using
- * "ant x10-ext" and then run "bin/junit" (both from the main
- * x10 directory).  [ Note that this currently does not work,
- * it fails in the same way as x10c does, Vj said he'd look
- * into this, so I won't. ]
+ * "ant" and "ant x10rt" then run "bin/junit" (both from the main
+ * x10 directory).  
  * 
  * <h2>Internals</h2>
  * The harness works by using a class loader to load the
@@ -64,117 +62,221 @@ import x10.runtime.Place;
 public class TestCompiler extends TestCase {
 
     
-    public void testFutureTest() {
-        runMain("examples/testcases/working/FutureTest.x10", "FutureTest");
-        runMain("examples/testcases/working/FutureTest1.x10", "FutureTest1");
+
+    public void testArray1() {
+        run("examples/testcases/feb2005/allTests/Array1.x10","Array1");
     }
 
-    public void testHelloWorld() {
-        runMain("examples/testcases/working/HelloWorld.x10", "HelloWorld");
+    public void testArray2() {
+        run("examples/testcases/feb2005/allTests/Array2.x10","Array2");
+    }
+
+    public void testArrayCopy1() {
+        run("examples/testcases/feb2005/allTests/ArrayCopy1.x10","ArrayCopy1");
+    }
+
+    public void testArrayCopy2() {
+        run("examples/testcases/feb2005/allTests/ArrayCopy2.x10","ArrayCopy2");
+    }
+
+    public void testArrayCopy3() {
+        run("examples/testcases/feb2005/allTests/ArrayCopy3.x10","ArrayCopy3");
+    }
+
+    public void testAsyncTest() {
+        run("examples/testcases/feb2005/allTests/AsyncTest.x10","AsyncTest");
+    }
+
+    public void testAsyncTest1() {
+        run("examples/testcases/feb2005/allTests/AsyncTest1.x10","AsyncTest1");
+    }
+
+    public void testAteach() {
+        run("examples/testcases/feb2005/allTests/Ateach.x10","Ateach");
+    }
+
+    public void testAtomic1() {
+        run("examples/testcases/feb2005/allTests/Atomic1.x10","Atomic1");
+    }
+
+    public void testAtomicTest() {
+        run("examples/testcases/feb2005/allTests/AtomicTest.x10","AtomicTest");
+    }
+
+    public void testAwaitTest() {
+        run("examples/testcases/feb2005/allTests/AwaitTest.x10","AwaitTest");
+    }
+
+    public void testAwaitTest1() {
+        run("examples/testcases/feb2005/allTests/AwaitTest1.x10","AwaitTest1");
+    }
+
+    public void testAwaitTest2() {
+        run("examples/testcases/feb2005/allTests/AwaitTest2.x10","AwaitTest2");
     }
 
     public void testBoxing0() {
-        runMain("examples/testcases/working/Boxing0.x10", "Boxing0");
+        run("examples/testcases/feb2005/allTests/Boxing0.x10","Boxing0");
+    }
+
+    public void testBoxing1() {
+        run("examples/testcases/feb2005/allTests/Boxing1.x10","Boxing1");
+    }
+
+    public void testClockTest() {
+        run("examples/testcases/feb2005/allTests/ClockTest.x10","ClockTest");
+    }
+
+    public void testClockTest1() {
+        run("examples/testcases/feb2005/allTests/ClockTest1.x10","ClockTest1");
+    }
+
+    public void testClockTest2() {
+        run("examples/testcases/feb2005/allTests/ClockTest2.x10","ClockTest2");
+    }
+
+    public void testClockedFinalTest() {
+        run("examples/testcases/feb2005/allTests/ClockedFinalTest.x10","ClockedFinalTest");
+    }
+
+    public void testConditionalAtomicQueue() {
+        run("examples/testcases/feb2005/allTests/ConditionalAtomicQueue.x10","ConditionalAtomicQueue");
+    }
+
+    public void testConditionalAtomicTest() {
+        run("examples/testcases/feb2005/allTests/ConditionalAtomicTest.x10","ConditionalAtomicTest");
+    }
+
+    public void testDistributionTest() {
+        run("examples/testcases/feb2005/allTests/DistributionTest.x10","DistributionTest");
+    }
+
+    public void testFinishTest1() {
+        run("examples/testcases/feb2005/allTests/FinishTest1.x10","FinishTest1");
+    }
+
+    public void testForeach() {
+        run("examples/testcases/feb2005/allTests/Foreach.x10","Foreach");
     }
 
     public void testFuture0() {
-        runMain("examples/testcases/working/Future0.x10", "Future0");
-    }
-
-    public void testFuture0Boxed() {
-        runMain("examples/testcases/working/Future0Boxed.x10", "Future0Boxed");
+        run("examples/testcases/feb2005/allTests/Future0.x10","Future0");
     }
 
     public void testFuture1() {
-        runMain("examples/testcases/working/Future1.x10", "Future1");
+        run("examples/testcases/feb2005/allTests/Future1.x10","Future1");
     }
 
     public void testFuture1Boxed() {
-        runMain("examples/testcases/working/Future1Boxed.x10", "Future1Boxed");
-    }
-
-    public void testFuture2() {
-        runMain("examples/testcases/working/Future2.x10", "Future2");
+        run("examples/testcases/feb2005/allTests/Future1Boxed.x10","Future1Boxed");
     }
 
     public void testFuture2Boxed() {
-        runMain("examples/testcases/working/Future2Boxed.x10", "Future2Boxed");
+        run("examples/testcases/feb2005/allTests/Future2Boxed.x10","Future2Boxed");
     }
 
     public void testFuture3() {
-        runMain("examples/testcases/working/Future3.x10", "Future3");
+        run("examples/testcases/feb2005/allTests/Future3.x10","Future3");
     }
 
     public void testFuture3Boxed() {
-        runMain("examples/testcases/working/Future3Boxed.x10", "Future3Boxed");
+        run("examples/testcases/feb2005/allTests/Future3Boxed.x10","Future3Boxed");
     }
 
     public void testFuture4() {
-        runMain("examples/testcases/working/Future4.x10", "Future4");
+        run("examples/testcases/feb2005/allTests/Future4.x10","Future4");
     }
 
     public void testFuture4Boxed() {
-        runMain("examples/testcases/working/Future4Boxed.x10", "Future4Boxed");
+        run("examples/testcases/feb2005/allTests/Future4Boxed.x10","Future4Boxed");
+    }
+
+    public void testFutureNullable0() {
+        run("examples/testcases/feb2005/allTests/FutureNullable0.x10","FutureNullable0");
+    }
+
+    public void testFutureNullable1Boxed() {
+        run("examples/testcases/feb2005/allTests/FutureNullable1Boxed.x10","FutureNullable1Boxed");
+    }
+
+    public void testFutureTest2() {
+        run("examples/testcases/feb2005/allTests/FutureTest2.x10","FutureTest2");
+    }
+
+    public void testJacobi() {
+        run("examples/testcases/feb2005/allTests/Jacobi.x10","Jacobi");
+    }
+
+    public void testMiscTest1() {
+        run("examples/testcases/feb2005/allTests/MiscTest1.x10","MiscTest1");
+    }
+
+    public void testNopTest() {
+        run("examples/testcases/feb2005/allTests/NopTest.x10","NopTest");
     }
 
     public void testNullable0Ref() {
-        runMain("examples/testcases/working/Nullable0Ref.x10", "Nullable0Ref");
+        run("examples/testcases/feb2005/allTests/Nullable0Ref.x10","Nullable0Ref");
     }
 
     public void testNullable1() {
-        runMain("examples/testcases/working/Nullable1.x10", "Nullable1");
+        run("examples/testcases/feb2005/allTests/Nullable1.x10","Nullable1");
     }
 
     public void testNullable2() {
-        runMain("examples/testcases/working/Nullable2.x10", "Nullable2");
+        run("examples/testcases/feb2005/allTests/Nullable2.x10","Nullable2");
+    }
+
+    public void testNullable5() {
+        run("examples/testcases/feb2005/allTests/Nullable5.x10","Nullable5");
     }
 
     public void testNullableFuture0() {
-        runMain("examples/testcases/working/NullableFuture0.x10", "NullableFuture0");
+        run("examples/testcases/feb2005/allTests/NullableFuture0.x10","NullableFuture0");
     }
 
     public void testNullableFuture1() {
-        runMain("examples/testcases/working/NullableFuture1.x10", "NullableFuture1");
+        run("examples/testcases/feb2005/allTests/NullableFuture1.x10","NullableFuture1");
     }
 
     public void testNullableFuture2() {
-        runMain("examples/testcases/working/NullableFuture2.x10", "NullableFuture2");
+        run("examples/testcases/feb2005/allTests/NullableFuture2.x10","NullableFuture2");
     }
-    
-    public void TestConditionalAtomicTest() {
-        run("examples/testcases/ConditionalAtomicTest.x10", "ConditionalAtomicTest");
+
+    public void testNullableObject() {
+        run("examples/testcases/feb2005/allTests/NullableObject.x10","NullableObject");
     }
-    
-    public void TestAsyncTest() { // HANGS!
-        run("examples/testcases/AsyncTest.x10", "AsyncTest");
+
+    public void testNullableObject2() {
+        run("examples/testcases/feb2005/allTests/NullableObject2.x10","NullableObject2");
     }
-    
-    public void TestAsyncTest1() { // HANGS!
-        run("examples/testcases/AsyncTest1.x10", "AsyncTest1");
+
+    public void testRandomAccess() {
+        run("examples/testcases/feb2005/allTests/RandomAccess.x10","RandomAccess");
     }
-    
-    public void TestRangeTest() {
-        run("examples/testcases/RangeTest.x10", "RangeTest");
+
+    public void testRegionTest() {
+        run("examples/testcases/feb2005/allTests/RegionTest.x10","RegionTest");
     }
-    
-    public void TestClockTest() {
-        run("examples/testcases/ClockTest.x10", "ClockTest");
+
+    public void testRegionTest1() {
+        run("examples/testcases/feb2005/allTests/RegionTest1.x10","RegionTest1");
     }
-   
-    public void TestClockTest2() {
-        run("examples/testcases/ClockTest2.x10", "ClockTest2");
+
+    public void testRegionTest2() {
+        run("examples/testcases/feb2005/allTests/RegionTest2.x10","RegionTest2");
     }
-   
-    public void TestClockedFinalTest() {
-        run("examples/testcases/ClockedFinalTest.x10", "ClockFinalTest");
+
+    public void testRegionTestIterator() {
+        run("examples/testcases/feb2005/allTests/RegionTestIterator.x10","RegionTestIterator");
     }
-   
-    public void TestAtomic1() { // HANGS!
-        runMain("examples/testcases/working/Atomic1.x10", "Atomic1");
-    }  
-    
-    public void TestAwait() {
-        run("examples/testcases/AwaitTest.x10", "AwaitTest");
+
+    public void testValueClass() {
+        run("examples/testcases/feb2005/allTests/ValueClass.x10","ValueClass");
+    }
+
+    public void testqueensList() {
+        run("examples/testcases/feb2005/allTests/queensList.x10","queensList");
     }
 
     // *************** you should never have to edit anything
@@ -207,11 +309,11 @@ public class TestCompiler extends TestCase {
      * with the Runtime.
      */
     public void setUp() {
-    	DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
-    	Place[] pls = Place.places();
-    	Thread t = Thread.currentThread();
-    	r.registerThread(t, pls[0]);
-    	r.registerActivityStart(t, a, null);
+        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
+        Place[] pls = Place.places();
+        Thread t = Thread.currentThread();
+        r.registerThread(t, pls[0]);
+        r.registerActivityStart(t, a, null);
     }
 
 
@@ -254,36 +356,36 @@ public class TestCompiler extends TestCase {
     }
     
     private void runMain(String file, String main) {
-	runMain(file, main, null);
+    runMain(file, main, null);
     }
 
     private void runMain(String file,
                          String main,
                          String[] args) {
         compile(file);
-	try {
-	    ClassLoader loader 
-		= new URLClassLoader(new URL[] { new URL("file://" + System.getProperty("user.dir") + "/") }); 
-	    Class c
-		= loader.loadClass(main);
-	    Method m
-	        = c.getMethod("main", new Class[] { String[].class });
-	    m.invoke(null, new Object[] {args});	    
-	} catch (IOException io) {
-	    fail(io.toString());
-	} catch (NoSuchMethodException nmse) {
-	    fail(nmse.toString());
-	} catch (InvocationTargetException ite) {
-	    fail(ite.toString());
-	} catch (ClassNotFoundException cnfe) {
-	    fail(cnfe.toString());
-	} catch (IllegalArgumentException iae) {
-	    fail(iae.toString());
-	} catch (ClassFormatError cfe) {
-	    fail(cfe.toString());
-	} catch (IllegalAccessException iae) {
-	    fail(iae.toString());
-	}
+    try {
+        ClassLoader loader 
+        = new URLClassLoader(new URL[] { new URL("file://" + System.getProperty("user.dir") + "/") }); 
+        Class c
+        = loader.loadClass(main);
+        Method m
+            = c.getMethod("main", new Class[] { String[].class });
+        m.invoke(null, new Object[] {args});        
+    } catch (IOException io) {
+        fail(io.toString());
+    } catch (NoSuchMethodException nmse) {
+        fail(nmse.toString());
+    } catch (InvocationTargetException ite) {
+        fail(ite.toString());
+    } catch (ClassNotFoundException cnfe) {
+        fail(cnfe.toString());
+    } catch (IllegalArgumentException iae) {
+        fail(iae.toString());
+    } catch (ClassFormatError cfe) {
+        fail(cfe.toString());
+    } catch (IllegalAccessException iae) {
+        fail(iae.toString());
+    }
     }
 
 }
