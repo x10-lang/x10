@@ -66,19 +66,19 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 	}
 	
 	public void pointwise(DoubleArray res, Operator.Pointwise op) {
-	    assert res.distribution.equals(distribution);
+	    assert res == null || res.distribution.equals(distribution);
         /*
          * the following assertions are limitation that are in the current
          * implementation, not in the spec FIXME
          */
-        assert res instanceof DoubleArray;
+        assert res == null || res instanceof DoubleArray;
         
-        DoubleArray res_t = (DoubleArray) res;
         for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			double arg1 = get(p);
 			double val = op.apply(p, arg1);
-			res_t.set(val, p);
+			if (res != null)
+			    res.set(val, p);
 		}
 	}
 	
@@ -148,5 +148,43 @@ public abstract class DoubleArray extends DoubleReferenceArray {
     public abstract double get(int d0, int d1, int d2);
 
     public abstract double get(int d0, int d1, int d2, int d3);
+    
+    public Object toJava() {        
+        final int[] dims_tmp = new int[distribution.rank];       
+        for (int i = 0; i < distribution.rank; ++i) {
+            dims_tmp[i] = distribution.region.rank(i).high() + 1;
+        }
+        
+        final Object ret = java.lang.reflect.Array.newInstance(Double.TYPE, dims_tmp);
+        pointwise(null, new Operator.Pointwise() {
+            public double apply(point p, double arg) {
+                Object handle = ret;
+                int i = 0;
+                for (; i < dims_tmp.length - 1; ++i) {
+                    handle = java.lang.reflect.Array.get(handle, p.get(i));
+                }
+                java.lang.reflect.Array.setDouble(handle, p.get(i), arg);
+                return arg;
+            }
+        });
+        return ret;
+    }
+    
+    /* for debugging */
+    public static void printArray(String prefix, double[][] a) {
+        System.out.print(prefix + "{");
+        for (int i = 0; i < a.length; ++i) {
+            System.out.print("{");
+            for (int j = 0; j < a[i].length; ++ j) {
+                System.out.print(a[i][j]);
+                if (j < a[i].length - 1)
+                    System.out.print(", ");
+            }
+            System.out.print("}");
+            if (i < a.length - 1)
+                System.out.print(", ");
+        }
+        System.out.println("}");
+    }
 
 }
