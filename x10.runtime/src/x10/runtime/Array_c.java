@@ -1,8 +1,5 @@
 /*
  * Created on Oct 16, 2004
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package x10.runtime;
 
@@ -12,9 +9,6 @@ import x10.lang.X10Object;
 
 /**
  * @author praun
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class Array_c extends Array {
 
@@ -49,10 +43,10 @@ public class Array_c extends Array {
 	    return d.getValueAt(this,pos);
 	}
     
-    X10Object getInternal(int[] pos) {
+    X10Object getInternal(int pos) {
         return null; // FIXME Christoph!
     }
-    void setInternal(int[] pos, X10Object value) {
+    void setInternal(int pos, X10Object value) {
         // FIXME Christoph!
     }
 

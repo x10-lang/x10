@@ -7,6 +7,7 @@ import x10.lang.Range;
 
 /**
  * @author Christoph von Praun
+ * @author Christian Grothoff (bugfixes)
  */
 class Range_c extends Range {
 
@@ -21,7 +22,7 @@ class Range_c extends Range {
 	}
 	
 	public boolean contains(int p) {
-		return lo <= p && p < hi;
+		return lo <= p && p <= hi; // X10 spec says range is inclusive!
 	}
 	
 	public boolean contains(Range r) {

@@ -80,12 +80,6 @@ public abstract class Runtime {
      * @return New Region.
      */
     public abstract Region newRegion(Range[] dims);
-
-    /**
-     * Create a Distribution Factory.
-     * @return
-     */
-    public abstract Distribution.Factory getDistributionFactory();
     
     /**
      * @return  New array with Distribution d.
@@ -101,5 +95,70 @@ public abstract class Runtime {
     }
     
     public abstract Place currentPlace();
+    
+    // Distribution factory methods...
+    
+    /**
+     * Create a Distribution where the given Region is distributed
+     * into blocks over all available Places.
+     * @param r
+     * @return
+     */
+    public abstract Distribution newBlockDistribution(Region r, Place[] p);
+    
+    /**
+     * Create a Distribution where the given Region is distributed
+     * into blocks of size n over all available Places.
+     * @param r
+     * @return
+     */
+    public abstract Distribution newBlockDistribution(Region r, int n, Place[] p);
+    
+    /**
+     * Create a Distribution where the elements in the region are
+     * distributed over all Places in p in a cyclic manner,
+     * that is the next point in the region is at the next place
+     * for a cyclic ordering of the given places.
+     * @param r
+     * @return
+     */
+    public abstract Distribution newCyclicDistribution(Region r, Place[] p);
+    
+    /**
+     * Create a Distribution where the elements in the region are
+     * distributed over all Places in p in a cyclic manner,
+     * that is the next point in the region is at the next place
+     * for a cyclic ordering of the given places.
+     * @param r
+     * @return
+     */
+    public abstract Distribution newBlockCyclicDistribution(Region r, int n, Place[] p);
+    
+    /**
+     * Create a Distribution where the points of the Region are
+     * distributed randomly over all available Places.
+     * @param r
+     * @return
+     */
+    public abstract Distribution newArbitraryDistribution(Region r, Place[] p);
+    
+    /**
+     * Create a Distribution where all points in the given
+     * Region are mapped to the same Place.
+     * @param r
+     * @param p specifically use the given place for all points
+     * @return
+     */
+    public abstract Distribution newConstantDistribution(Region r, Place p);
+    
+    /**
+     * Create a Distribution where the points in the
+     * region 1...p.length are mapped to the respective
+     * places.
+     * @param p the list of places (implicitly defines the region)
+     * @return
+     */
+    public abstract Distribution newUniqueDistribution(Place[] p);
+    
     
 } // end of Runtime
