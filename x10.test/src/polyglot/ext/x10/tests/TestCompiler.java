@@ -42,11 +42,16 @@ import x10.runtime.ThreadRegistry;
  * 
  * <h2>Running the tests</h2>
  * Running this testcase is easy, add it as just any JUnit
- * test to eclipse (or invoke bin/junit from the main X10
- * directory).  You might want to make sure to have the
+ * test to eclipse.  You might want to make sure to have the
  * current working directory set to the root of the X10
  * checkout (x10/), otherwise the data/ files (xcds) and
  * the X10 source inputs will not be found by the compiler.
+ * 
+ * If you are not using eclipse, compile the code using
+ * "ant x10-ext" and then run "bin/junit" (both from the main
+ * x10 directory).  [ Note that this currently does not work,
+ * it fails in the same way as x10c does, Vj said he'd look
+ * into this, so I won't. ]
  * 
  * <h2>Internals</h2>
  * The harness works by using a class loader to load the
