@@ -38,7 +38,7 @@ public class ContiguousRange extends Range {
 	
 	public /*nat*/int ordinal(point p) {
 		assert contains(p);
-		return p.valueAt(0) - lo;
+		return p.get(0) - lo;
 	}
 	
 	public region union( region r ) {
@@ -104,7 +104,7 @@ public class ContiguousRange extends Range {
 	
 	public boolean contains(point p) {
 		assert p.rank == 1;
-		int val = p.valueAt(0);
+		int val = p.get(0);
 		return lo <= val && val <= hi; 
 	}
 	
@@ -129,10 +129,6 @@ public class ContiguousRange extends Range {
 	public String toString() {
 		return  lo + ":" + hi ;
 	}
-	
-
-	
-
 	
 	public boolean isConvex() {
 		return true;
