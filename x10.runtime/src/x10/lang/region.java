@@ -1,10 +1,7 @@
 package x10.lang;
 
 import java.util.Iterator;
-import java.util.List;
 
-import x10.array.Range;
-import x10.array.ContiguousRange;
 
 /**
  *  A region represents a (sparse or dense) k-dimensional space of
@@ -126,7 +123,15 @@ public abstract /*value*/ class region extends Object  {
 	/**
 	 Returns true iff this is a superset of r.
 	 */
-	abstract public boolean contains( region/*(rank)*/ r);
+    public boolean contains(region r) {
+        boolean ret = true;
+        for (Iterator it = r.iterator(); ret && it.hasNext(); ) {
+            point p = (point) it.next();
+            if (!contains(p))
+                ret = false;
+        }
+        return ret;
+    }
 	/**
 	 Returns true iff this region contains this point.
 	 */
@@ -147,7 +152,7 @@ public abstract /*value*/ class region extends Object  {
 	 * @param p a point in the coordinate space
 	 * @return the ordinal number of the point [0 ... size()[
 	 */
-	abstract public /*nat*/int ordinal(point/*(rank)*/ p) throws EmptyRegionError;
+	abstract public /*nat*/int ordinal(point/*(rank)*/ p) throws EmptyRegionError, PointOutOfRegionError;
 	
 	/**
 	 * @param ord the ordinal number, must be smaller than size()

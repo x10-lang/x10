@@ -1,6 +1,5 @@
 package x10.lang;
 
-import x10.lang.intArray.pointwiseOp;
 
 /** The class of all multidimensional, distributed int arrays in X10. Has no mutable data.
  * Specialized from array by replacing the type parameter with int.
