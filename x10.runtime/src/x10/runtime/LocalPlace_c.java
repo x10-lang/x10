@@ -3,9 +3,8 @@ package x10.runtime;
 import x10.lang.Activity;
 import x10.lang.Future;
 import x10.lang.Place;
-import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
-import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
+import EDU.oswego.cs.dl.util.concurrent.ThreadedExecutor;
 
 /**
  * A LocalPlace_c is an implementation of a place
@@ -33,7 +32,7 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
  *
  * @author Christian Grothoff
  */
-class LocalPlace_c extends PooledExecutor
+class LocalPlace_c extends ThreadedExecutor // PooledExecutor
     implements Place {
 
     private final ThreadRegistry reg_;
@@ -42,7 +41,7 @@ class LocalPlace_c extends PooledExecutor
     
     LocalPlace_c(final ThreadRegistry reg,
                  final ActivityInformationProvider aip) {
-	super(new LinkedQueue());
+	super(); // super(new LinkedQueue());
 	this.reg_ = reg;
         this.aip_ = aip;
 	this.setThreadFactory(new ThreadFactory() {
@@ -52,8 +51,8 @@ class LocalPlace_c extends PooledExecutor
 		    return t;
 		}
 	    });
-	this.setMinimumPoolSize(Configuration.PLACE_MINIMAL_THREAD_POOL_SIZE);
-	this.setKeepAliveTime(Configuration.PLACE_THREAD_KEEPALIVE_TIME);
+	/*this.setMinimumPoolSize(Configuration.PLACE_MINIMAL_THREAD_POOL_SIZE);
+	this.setKeepAliveTime(Configuration.PLACE_THREAD_KEEPALIVE_TIME);*/
     }
     
     /**
@@ -65,7 +64,7 @@ class LocalPlace_c extends PooledExecutor
      * at this point.
      */
     public void shutdown() {
-        this.shutdownAfterProcessingCurrentlyQueuedTasks();
+        // this.shutdownAfterProcessingCurrentlyQueuedTasks();
     }
 
     /**
