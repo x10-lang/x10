@@ -14,7 +14,7 @@ import x10.lang.doubleArray.binaryOp;
  * @author vj 12/24/2004
  */
 
-abstract public class intArray /*( distribution distribution )*/ implements Indexable {
+abstract public class intArray /*( distribution distribution )*/ implements Indexable, Unsafe {
 	public final distribution distribution;
 	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
