@@ -658,7 +658,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             // Rule 350:  Token ::= Minus GreaterThan
             //
             case 350: { 
-                makeToken(TK_RANGE);
+                makeToken(TK_ARROW);
                 break;
             }
      
