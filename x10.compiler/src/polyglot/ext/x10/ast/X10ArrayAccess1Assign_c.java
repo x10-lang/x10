@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Assign;
+import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
@@ -79,6 +80,7 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		 Type s = right.type();
 //		 Now it must be an X10ArrayAccess1 which has now resolved into a Call_c.
 			// Use the information in the call to construct the real set call.
+                 Expr left = (this.left instanceof Cast) ? ((Cast)this.left).expr() : this.left;                        
 			Call call = (Call) left;
 			Expr receiver = (Expr) call.target();
 			List args = TypedList.copyAndCheck(call.arguments(), Expr.class, false);
