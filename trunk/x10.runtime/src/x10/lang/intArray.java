@@ -31,6 +31,8 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	
 	public static final binaryOp sub = new binaryOp() { public int apply(int r, int s) { return r-s;}};
 	public static final binaryOp add = new binaryOp() { public int apply(int r, int s) { return r+s;}};
+	public static final binaryOp mul = new binaryOp() { public int apply(int r, int s) { return r*s;}};
+	public static final binaryOp div = new binaryOp() { public int apply(int r, int s) { return r/s;}};
 	public static final binaryOp max = new binaryOp() { public int apply(int r, int s) { return Math.max(r,s);}};
 	public static final unaryOp abs = new unaryOp() { public int apply(int r) { return Math.abs(r);}};
 	public static interface pointwiseOp/*(region r)*/ { 
@@ -164,6 +166,19 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	public int maxAbs() {
 		return max(abs);
 	}
+
+    public IntReferenceArray add( intArray other) {
+	return lift(add, other);
+    }
+    public IntReferenceArray mul( intArray other) {
+	return lift(mul, other);
+    }
+    public IntReferenceArray sub( intArray other) {
+	return lift(sub, other);
+    }
+    public IntReferenceArray div( intArray other) {
+	return lift(div, other);
+    }
     /** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and
 	 commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).

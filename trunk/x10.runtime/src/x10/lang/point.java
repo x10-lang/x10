@@ -65,5 +65,10 @@ implements Indexable {
 	 * dimension.
 	 */
 	abstract public boolean onLowerBoundary( /*nat*/ int i );
-	
+
+    abstract public boolean gt ( point/*(region)*/ p);
+    abstract public boolean lt ( point/*(region)*/ p);
+    abstract public boolean ge ( point/*(region)*/ p);
+    abstract public boolean le ( point/*(region)*/ p);
+ 
 }
