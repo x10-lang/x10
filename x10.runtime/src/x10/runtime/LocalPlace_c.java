@@ -3,8 +3,6 @@ package x10.runtime;
 import x10.lang.Activity;
 import x10.lang.Future;
 import x10.lang.Place;
-import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
-import EDU.oswego.cs.dl.util.concurrent.ThreadedExecutor;
 
 /**
  * A LocalPlace_c is an implementation of a place
@@ -27,10 +25,9 @@ class LocalPlace_c
      */
     private PoolRunner threadQueue_;
     
-    LocalPlace_c(ThreadRegistry reg,
-                 ActivityInformationProvider aip) {
-	super(); 
-	this.reg_ = reg;
+    LocalPlace_c(ThreadRegistry reg, ActivityInformationProvider aip) {
+        super();
+        this.reg_ = reg;
         this.aip_ = aip;
     }
     
@@ -175,23 +172,25 @@ class LocalPlace_c
          */
         public synchronized void run() {
             while (active) {
-                while (job == null) {
+                while (active && job == null) {
                     try {
                         wait();
                     } catch (InterruptedException ie) {
                         throw new Error(ie);
                     }
                 }
-                Runnable j = job;
-                job = null;
-                try {
-                    j.run();
-                } catch (Throwable t) {
-                    t.printStackTrace(); // see X10 spec for exceptions...
+                if (job != null) {
+                    Runnable j = job;
+                    job = null;
+                    try {
+                        j.run();
+                    } catch (Throwable t) {
+                        t.printStackTrace(); // see X10 spec for exceptions...
+                    }
+                    // notify the LocalPlace_c that we're again available
+                    // for more work!
+                    repool(this);
                 }
-                // notify the LocalPlace_c that we're again available
-                // for more work!
-                repool(this);
             }
         }
     } // end of LocalPlace_c.PoolRunner
