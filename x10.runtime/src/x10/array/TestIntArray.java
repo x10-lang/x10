@@ -57,7 +57,7 @@ public class TestIntArray extends TestCase {
             Runtime.Factory F = Runtime.factory;
             region.factory rf = F.getRegionFactory();
             region[] ranges = { rf.region(0, SIZE - 1), rf.region(0, SIZE-1)};
-            region r = rf.region(ranges);
+            region r = new ArbitraryRegion(ranges);// rf.region(ranges);
             distribution.factory DF = F.getDistributionFactory();
             distribution d = DF.constant(r, Runtime.here());
             IntArray.factory IF = Runtime.factory.getIntArrayFactory();
