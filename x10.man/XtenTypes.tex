@@ -161,18 +161,8 @@ are often useful in programs that desire to share only the bottom
 layers of the array while allowing the top layers to be copied to the
 referencing places.
 
-\paragraph{Nullable data type constructor.}
-The {\em nullary type constructor} (\S~\ref{NullableTypeConstructor})
-takes as argument a base data type and returns a new data type which
-has the same values as the original one and a value denoted by the
-literal {\cf null}, in case it did not already have this value.
-\begin{x10}
-{\em NullaryDataType ::}
-   ?{\em{}BaseDataType}
-\end{x10}
+\input{XtenNullableTypes}
 
-This type constructor may be applied to value or reference, scalar or
-array types.
 
 
 \section{Variables}\label{XtenVariables}\index{variables}
