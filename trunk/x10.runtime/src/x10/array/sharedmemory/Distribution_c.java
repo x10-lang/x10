@@ -3,11 +3,14 @@
  */
 package x10.array.sharedmemory;
 
+import java.util.HashSet;
+
 import x10.array.Distribution;
 import x10.array.Place;
 import x10.array.Range;
 import x10.array.ContiguousRange;
 import x10.array.Region;
+import x10.array.InvalidIndexException;
 
 
 /**
@@ -40,7 +43,7 @@ abstract class Distribution_c extends Region_c implements Distribution {
 	static Distribution_c makeBlock(Region_c r, int n, Place[] q) {
         assert n <= q.length;
         
-        Distribution[] dists = new Distribution[n];
+        Distribution_c[] dists = new Distribution_c[n];
         for (int i=0; i < n; i++) 
             dists[i] = new Distribution_c.Constant(r.sub(n, i), q[i]);
         return new Distribution_c.Combined(r, dists);
@@ -106,21 +109,47 @@ abstract class Distribution_c extends Region_c implements Distribution {
         super(r);
     }
     
+    /* 
+     * Subclasses must override this method! We cannot make it abstract though
+     * because this stub only serves to hand over thin invocation to the subclass.
+     */
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+    
     public Distribution asymetricUnion(Distribution d) { 
         throw new Error("TODO");
     }
     
-    public Distribution placeRestriction(Place r) { 
-        throw new Error("TODO");
-    } // change X10 report to call it place_restriction and I'll be happier
+    // called range restriction in the language report
+    public abstract Distribution placeRestriction(Place r);
     
     public Distribution domainRestriction(Region r) { 
         throw new Error("TODO");
     }
 
+    static final class Empty extends Distribution_c {
+        
+        Empty() {
+            super(new Region_c.Empty());
+        }
+        
+        public Place placeOf(int[] point) { 
+            throw new InvalidIndexException();
+        }
+        
+        public Distribution placeRestriction(Place r) {
+            return this;
+        }
+        
+        public boolean equals(Object o) {
+            return super.equals(o);
+        }
+    } // end of Distribution_c.Empty
+    
     static final class Constant extends Distribution_c {
         
-        private final Place place_;
+        final Place place_;
 
         Constant(Region_c r, Place p) {
             super(r);
@@ -131,6 +160,24 @@ abstract class Distribution_c extends Region_c implements Distribution {
             return place_;
         }
         
+        public Distribution placeRestriction(Place r) {
+            Distribution ret;
+            if (r == place_)
+                ret = this;
+            else
+                ret = new Empty();
+            return ret;
+        }
+        
+        public boolean equals(Object o) {
+            boolean ret = super.equals(o);
+            if (ret) {
+                Constant c = (Constant) o;
+                ret &= place_ == c.place_;
+            }
+            return ret;
+        }	
+        
     } // end of Distribution_c.Constant
     
     static class Unique extends Distribution_c {
@@ -139,7 +186,8 @@ abstract class Distribution_c extends Region_c implements Distribution {
         
         Unique(Place[] p) {
             super(new Region_c(new Range[] { new ContiguousRange(1, p.length) }));
-            this.places_ = p;
+            // defensive copy
+            this.places_ = (Place[]) p.clone();
         }
         
         public Place placeOf(int[] point) { 
@@ -148,19 +196,53 @@ abstract class Distribution_c extends Region_c implements Distribution {
             return places_[point[0]-1];
         }
         
+        public Distribution placeRestriction(Place r) {
+            Distribution ret;
+            boolean found = false;
+            for (int i = 0; i < places_.length; ++ i) {
+                if (places_[i] == r) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                Place[] parr = {r};
+                ret = new Unique(parr);
+            } else {
+                ret = new Empty();
+            }
+            return ret;
+        }
+        
+        public boolean equals(Object o) {
+            boolean ret = super.equals(o);
+            if (ret) {
+                Unique u = (Unique) o;
+                if (places_.length == u.places_.length) {
+                    for (int i = 0; ret && i < places_.length; ++ i) {
+                    	ret &= places_[i] == u.places_[i];
+                    }
+                } else 
+                    ret = false;
+            }
+            return ret;
+        }
+        
     } // end of Distribution_c.Unique
     
     static class Combined extends Distribution_c {
         
-        private final Distribution[] members_;
+        private final Distribution_c[] members_;
         
-        Combined(Region_c r, Distribution[] members_) {
+        Combined(Region_c r, Distribution_c[] members_) {
             super(r);
             assert members_ != null;
-            this.members_ = members_;
+            // defensive copy
+            this.members_ = (Distribution_c[]) members_.clone();
         }
         
         public Place placeOf(int[] point) {
+            // 
             Place ret = null;
             for (int i=0; ret == null && i < members_.length; ++i) {
                 if (members_[i].contains(point)) 
@@ -169,6 +251,58 @@ abstract class Distribution_c extends Region_c implements Distribution {
             assert ret != null;
             return ret;
         }
+        
+        /** 
+         * Currently only implemented for combined distributions where each part
+         * is a Distribution.Constant
+         */ 
+        public Distribution placeRestriction(Place r) {
+            // make sure that conditions are met under which this 
+            // implementation works properly
+            for (int i = 0; i < members_.length; ++i) {
+                assert(members_[i] instanceof Constant);
+            }
+            
+            
+            Distribution ret;
+            HashSet dists = new HashSet();
+            for (int i = 0; i < members_.length; ++ i) {
+                Constant c = (Constant) members_[i];
+                if (c.place_ == r)
+                    dists.add(c);
+            }
+            int size = dists.size();
+            
+            if (size == 0)
+                ret = new Empty();
+            else if (size == 1) 
+                ret = (Distribution) dists.iterator().next();
+            else {
+                // create array of distributions
+                Distribution_c[] arr = new  Distribution_c[size];
+                dists.toArray(arr);
+                // create union of all regions
+                Region u_region = arr[0];
+                for (int i = 1; i < size; ++ i) 
+                    u_region = u_region.union(arr[i]);
+                ret = new Combined((Region_c) u_region, arr);
+            }
+            return ret;
+        }
+        
+        public boolean equals(Object o) {
+            boolean ret = super.equals(o);
+            if (ret) {
+                Combined u = (Combined) o;
+                if (members_.length == u.members_.length) {
+                    for (int i = 0; ret && i < members_.length; ++ i) {
+                    	ret &= members_[i].equals(u.members_[i]);
+                    }
+                } else 
+                    ret = false;
+            }
+            return ret;
+        }	
         
     } // end of Distribution_c.Combined
     
