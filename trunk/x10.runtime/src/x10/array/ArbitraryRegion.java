@@ -10,8 +10,6 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Set;
-import java.util.HashSet;
-
 
 import x10.lang.point;
 import x10.lang.region;
