@@ -23,6 +23,7 @@ public class ContiguousRange extends Range {
 	
 	/**
 	 * Range that starts at 0 to hi (including!).
+	 * TODO: vj Check if we are following Fortran convention. Then the low is 1.
 	 */
 	public ContiguousRange(int hi) {
 		this(0, hi);
@@ -84,12 +85,12 @@ public class ContiguousRange extends Range {
 	public boolean contains(point p) {
 		assert p.rank == 1;
 		int val = p.valueAt(0);
-		return lo <= val && val < hi; 
+		return lo <= val && val <= hi; 
 	}
 	public boolean contains(int[] p) {
 		assert p.length == 1;
 		int val = p[0];
-		return lo <= val && val < hi; 
+		return lo <= val && val <= hi; 
 	}
 	
 	public boolean contains( region r) {
@@ -101,7 +102,7 @@ public class ContiguousRange extends Range {
 	}
 	
 	public String toString() {
-		return "[" + lo + ".." + hi + "]";
+		return  lo + ":" + hi ;
 	}
 	
 	public boolean equals(Object o) {
@@ -132,8 +133,9 @@ public class ContiguousRange extends Range {
 	public region rank( int index ) {
 		return this;
 	}
+	// TODO: vj check that this arithmetic is correct.
 	public  point/*(rank)*/ coord(/*nat*/ int ord) {
-		return Runtime.factory.getPointFactory().point(this, new int[] { ((int) ord % size) - lo});
+		return Runtime.factory.getPointFactory().point(this, new int[] { (ord % size) + lo});
 	}
 	public Iterator iterator() {
 		return new RegionIterator();
@@ -142,7 +144,7 @@ public class ContiguousRange extends Range {
 		private int next;
 		
 		public boolean hasNext() {
-			return next < hi;
+			return next <= hi;
 		}
 		
 		public void remove() {
