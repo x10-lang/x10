@@ -15,20 +15,4 @@ public abstract class Future extends Object {
 	 */    
 	public abstract Object force();
 	
-	public abstract boolean forceBoolean();
-	
-	public abstract byte forceByte();
-	
-	public abstract char forceChar();
-	
-	public abstract short forceShort();
-	
-	public abstract int forceInt();
-	
-	public abstract long forceLong();
-	
-	public abstract float forceFloat();
-	
-	public abstract double forceDouble(); 	
-	
 }
