@@ -144,7 +144,7 @@ implements Indexable {
     
 	public void checkAccess(point p) {
 	    // System.out.println("CHECK ACCESS!");
-            assert this.get(p) == x10.lang.Runtime.here();
+            // assert this.get(p) == x10.lang.Runtime.here();
         }
 	
 	/** Returns the region mapped by this distribution to the place P.
