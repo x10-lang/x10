@@ -4,13 +4,14 @@
 package polyglot.ext.x10.ast;
 
 import java.util.List;
+import polyglot.ast.CompoundStmt;
 import polyglot.ast.Stmt;
 
 /**
  * The node constructed for clocked (C) {S}.
  * TODO vj: Should take a list of clocks
  */
-public interface Clocked extends Stmt {
+public interface Clocked extends CompoundStmt {
 
     /** Get the clock. */
     List clocks();

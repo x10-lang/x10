@@ -84,11 +84,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     }
     
 	
-	public Drop Drop(Position pos, List clocks) {
-		Drop d = new Drop_c(pos, clocks);
-		d = (Drop) d.ext(extFactory().extStmt());
-		return (Drop) d.del(delFactory().delStmt());
-	}
+	
 	
 	public Next Next(Position pos) {
 		Next n = new Next_c(pos);
@@ -166,16 +162,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (Point) n.ext(extFactory().extExpr());
 		return (Point) n.del(delFactory().delExpr());
 	}
-	public ReductionCall ScanCall(Position pos, Receiver target, String name, List arguments) {
-		ReductionCall n = new ReductionCall_c( pos, target, name, arguments, ReductionCall.SCAN);
-		n = (ReductionCall) n.ext(extFactory().extExpr());
-		return (ReductionCall) n.del(delFactory().delExpr());
-	}
-	public ReductionCall ReduceCall(Position pos, Receiver target, String name, List arguments) {
-		ReductionCall n = new ReductionCall_c( pos, target, name, arguments, ReductionCall.REDUCE);
-		n = (ReductionCall) n.ext(extFactory().extExpr());
-		return (ReductionCall) n.del(delFactory().delExpr());
-	}
+	
 	public RemoteCall RemoteCall(Position pos, Receiver target, String name, List arguments) {
 		RemoteCall n = new RemoteCall_c( pos, target, name, arguments);
 		n = (RemoteCall) n.ext(extFactory().extExpr());
