@@ -35,12 +35,23 @@ abstract public class clock extends Object {
 	 * considered de-registered from the clock after this method
 	 * returns.
 	 */
-	abstract public void drop();
+	abstract public boolean drop();
 	
 	
 	/** An activity may call this method to determine whether it is
 	 * registered with this clock or not.
 	 */
 	abstract public boolean dropped();
+    
+	/**
+         * Block until all clocks that this activity is registered with
+         * have called continue (or next since next implies continue on
+         * all registered clocks). 
+         *
+         * This method is used internally by the Runtime and
+         * should not be visible for clients.  Clients should use
+         * Runtime.doNext().  
+	 */
+	abstract protected void doNext();
 	
 }

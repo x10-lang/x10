@@ -146,7 +146,7 @@ public class DefaultRuntime_c
             Sampling.boot(DefaultRuntime_c.this, boot);
 
         // run the main app
-        Future f = p0.runFuture(boot);
+        Future f = p0.runFuture(boot, null);
         // make sure we don't accidentially initialize Sampling by
         // being too fast with 'force'.
         while (signal.value == false) {

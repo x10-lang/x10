@@ -5,5 +5,10 @@ for (java.util.Iterator #2__ = #3.iterator() ; #2__.hasNext();) {
           public void run() {
              #4
           }
+       }, new ActivityInformation() {
+         public List getRegisteredClocks() {
+           java.util.LinkedList clocks = new java.util.LinkedList();  	
+           #5
+           return clocks;
        });
   }

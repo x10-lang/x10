@@ -4,9 +4,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
+import x10.lang.ActivityInformation;
 import x10.lang.Future;
-import x10.lang.MultipleExceptions;
 
 /**
  * A LocalPlace_c is an implementation of a place
@@ -143,7 +145,8 @@ public class LocalPlace_c extends Place {
     /**
      * Run the given activity asynchronously.
      */
-    public void runAsync(final Activity a) {
+    public void runAsync(final Activity a,
+                                      final ActivityInformation ai) {
         final Activity i = aip_.getCurrentActivity();
         assert i != a;
         final StartSignal startSignal = new StartSignal();
@@ -165,7 +168,7 @@ public class LocalPlace_c extends Place {
                                                                       et);
                     } 
                 }
-            }, a);
+            }, a, ai);
         // we now need to wait at least (!) until the 
         // "reg_.registerActivityStart(...)" line has been
         // reached.  Hence we wait on the start signal.
@@ -184,7 +187,8 @@ public class LocalPlace_c extends Place {
      * Run the given activity asynchronously.  Return a handle that
      * can be used to force the future result.
      */
-    public Future runFuture(final Activity.Expr a) {
+    public Future runFuture(final Activity.Expr a,
+                                         final ActivityInformation ai) {
         final Future_c result = new Future_c(a);
         final Activity i = aip_.getCurrentActivity();
         assert i != a;
@@ -218,7 +222,7 @@ public class LocalPlace_c extends Place {
                             assert tr == null;
                     }
                 }        
-            }, a);
+            }, a, ai);
         // we now need to wait at least (!) until the 
         // "reg_.registerActivityStart(...)" line has been
         // reached.  Hence we wait on the start signal.
@@ -242,7 +246,7 @@ public class LocalPlace_c extends Place {
      * @param r the activity to run
      * @throws InterruptedException
      */
-    protected synchronized void execute(Runnable r, Activity act) {
+    protected synchronized void execute(Runnable r, Activity act, ActivityInformation ai) {
         PoolRunner t;
         if (threadQueue_ == null) {
             t = new PoolRunner();
@@ -252,7 +256,7 @@ public class LocalPlace_c extends Place {
             t = threadQueue_;
             threadQueue_ = t.next;
         }
-        t.run(r, act);
+        t.run(r, act, ai);
     }
      
     /**
@@ -289,7 +293,8 @@ public class LocalPlace_c extends Place {
      *
      * @author Christian Grothoff
      */
-    final class PoolRunner extends LoadMonitored { // if you do NOT want load monitoring, make 'extend Thread'
+    final class PoolRunner extends LoadMonitored
+        implements ActivityInformation { // if you do NOT want load monitoring, make 'extend Thread'
         /**
          * For building a linked list of these.
          */
@@ -299,7 +304,8 @@ public class LocalPlace_c extends Place {
         private Activity act;
         private Method ac;
         private Object vmto;
-
+        private List myClocks_;
+        
         PoolRunner() {
             myThreads.add(this);
             try {
@@ -320,6 +326,10 @@ public class LocalPlace_c extends Place {
             }
         }
         
+        public List getRegisteredClocks() {
+            return myClocks_;
+        }
+    
         /**
          * On JikesRVM, get the total number of CPU cycles spend in this
          * thread.  We use reflection mostly because we want this to
@@ -360,10 +370,14 @@ public class LocalPlace_c extends Place {
          * Assign a new job to this runner and start running!
          * @param r
          */
-        synchronized void run(Runnable r, Activity a) {
+        synchronized void run(Runnable r, Activity a, ActivityInformation ai) {
             assert job == null;
             act = a;
             job = r;
+            if (ai == null)
+                this.myClocks_ = new LinkedList();
+            else
+                this.myClocks_ = new LinkedList(ai.getRegisteredClocks());
             this.notifyAll();
         }
         /**

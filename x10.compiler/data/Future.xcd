@@ -7,6 +7,6 @@
   public x10.lang.Object getResult() { 
      return x10_result_; 
   } 
-})
+}, null)
 
         

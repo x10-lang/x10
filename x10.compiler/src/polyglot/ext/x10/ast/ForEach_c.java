@@ -26,7 +26,7 @@ import polyglot.types.Type;
 
 /** An immutable representation of the X10 statement: foreach (i : D) S 
  * @author vj Dec 9, 2004
- * 
+ * @author Christian Grothoff
  */
 public class ForEach_c extends X10Loop_c implements ForEach, Clocked {
 	

@@ -1,14 +1,10 @@
 package x10.runtime;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import x10.base.TypeArgument;
 import x10.lang.Runtime;
 import x10.lang.clock;
 
@@ -21,32 +17,11 @@ import x10.lang.clock;
  * 
  * @author Christian Grothoff, Christoph von Praun
  */
-public final class Clock extends clock implements TypeArgument {
+public final class Clock extends clock {
 
-    /**
-     * Callback method used by the Clock to notify all listeners
-     * that the Clock is advancing into the next phase.
-     * 
-     * @author Christian Grothoff
-     */
-    public interface AdvanceListener {
-        public void notifyAdvance();
-    }
+    private static int idgen = 0; 
     
-    private static int nextId_ = 0;
-    private int id_;
-    
-    /**
-     * Create a new Clock.  Registers the current activity with
-     * the clock as a side-effect (see X10 Report).
-     */
-    protected Clock(ActivityInformationProvider aip) {
-        synchronized (getClass()) {
-            id_ = nextId_++;
-        }
-        this.aip_ = aip;
-        register();
-    }
+    public final int id = idgen++;
     
     /**
      * The activity information provider that this clock can use.
@@ -88,18 +63,22 @@ public final class Clock extends clock implements TypeArgument {
      */
     private int phase_;
 
+    
+    /**
+     * Create a new Clock.  Registers the current activity with
+     * the clock as a side-effect (see X10 Report).
+     */
+    Clock(ActivityInformationProvider aip) {
+        this.aip_ = aip;
+        register();
+    }
+
     /**
      * Register the current activity with this clock.
      */
-    public void register() {
-        register(aip_.getCurrentActivity());
-    }
-    
-    /**
-     * Register another activity with this clock.  It is an error
-     * to register an activity with a clock that is already registered.  
-     */
-    public synchronized void register(Activity a) {
+    public synchronized void register() {
+        Runtime.getCurrentActivityInformation().getRegisteredClocks().add(this);
+        Activity a = aip_.getCurrentActivity();
         assert ! activities_.contains(a);
         if (activities_.add(a))
             pending_.add(a);
@@ -117,7 +96,7 @@ public final class Clock extends clock implements TypeArgument {
         assert activities_.contains(aip_.getCurrentActivity());
         nowSet_.add(a);
         aip_.registerActivitySpawnListener(a, nowSpawnListener_);
-        ((Place) Runtime.here()).runAsync(a);
+        ((Place) Runtime.here()).runAsync(a, null);
     }
     
     /**
@@ -157,24 +136,29 @@ public final class Clock extends clock implements TypeArgument {
      * @return true if the activity has already dropped this
      *   clock (or if it never was registered).
      */
-    public boolean doDrop() {
-        return drop(aip_.getCurrentActivity());
-    }
-    
-    public void drop() {
-        doDrop();
+    public boolean drop() {
+        boolean b = drop(aip_.getCurrentActivity());
+        if (!b)
+            Runtime.getCurrentActivityInformation().getRegisteredClocks().remove(this);
+        return b; 
     }
     
     /**
      * Drop the given activity from the clock.  Afterwards the
      * activity may no longer use continue or now on this clock.
      * Other activities will no longer be blocked waiting for 
-     * the current activity to complete the phase.  
+     * the current activity to complete the phase.<p>  
+     * 
+     * Note that this method is used internally (by clock.drop or
+     * by an activity exiting) and should never be called directly
+     * by clients (hence package-scoped). Note that this method
+     * does not unregister the clock with the list of clocks kept
+     * by the activity.
      * 
      * @return true if the activity has already dropped this
      *   clock (or if it never was registered).
      */
-    public synchronized boolean drop(Activity a) {
+    synchronized boolean drop(Activity a) {
         boolean ret = activities_.remove(a);
         pending_.remove(a);
         tryAdvance(); 
@@ -185,11 +169,6 @@ public final class Clock extends clock implements TypeArgument {
      * Block until all clocks that this activity is registered with
      * have called continue (or next since next implies continue on
      * all registered clocks). 
-     * 
-     * Note that the semantics of this implementation are different
-     * than what is stated in the X10 Report in that the programmer
-     * does not specify the clocks but next applies to all clocks
-     * that the activity is registered with.
      */
     public void doNext() {
         Activity a = aip_.getCurrentActivity();
@@ -206,45 +185,17 @@ public final class Clock extends clock implements TypeArgument {
             int start = phase_;
             while (start == phase_) { // signal might be random in Java, check!
                 try {
-                    LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id_, null);
+                    LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id, null);
                     this.wait(); // wait for signal
                 } catch (InterruptedException ie) {
                     throw new Error(ie); // that was unexpected...
                 } finally {
-                    LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id_, null);
+                    LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id, null);
                 }
             }
         }
     }
         
-    public static void doNext(List clocks_l) {
-        assert clocks_l != null;
-        Object[] clocks = clocks_l.toArray();
-        if (clocks.length > 1) {
-            Arrays.sort(clocks, new Comparator() {
-                public int compare(java.lang.Object o1, java.lang.Object o2) {
-                    int ret = 0;
-                    assert (o1 instanceof Clock);
-                    assert (o2 instanceof Clock);
-                    Clock c1 = (Clock) o1;
-                    Clock c2 = (Clock) o2;
-                    if (c1.id_ < c2.id_)
-                        ret = -1;
-                    else if (c1.id_ > c2.id_)
-                        ret = 1;
-                    return ret;
-                }
-                public boolean equals(java.lang.Object o) {
-                    return (o == this);
-                }
-            });
-        }
-        
-        for (int i=0; i < clocks.length; ++ i) {
-            ((Clock) clocks[i]).doNext();
-        }
-    }
-    
     /**
      * Register a callback that is to be called whenever the clock
      * advances into the next phase.
@@ -288,7 +239,7 @@ public final class Clock extends clock implements TypeArgument {
             this.phase_++;
             if (Sampling.SINGLETON != null)
                 Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_CLOCK_ADVANCE,
-                        this.id_);
+                        this.id);
             // first notify everyone
             if (this.listener1_ != null) {
                 this.listener1_.notifyAdvance();
@@ -352,5 +303,15 @@ public final class Clock extends clock implements TypeArgument {
            tryAdvance();
        }
    };
-    
-} // end of Clock_c
+   
+   /**
+    * Callback method used by the Clock to notify all listeners
+    * that the Clock is advancing into the next phase.
+    *
+    * @author Christian Grothoff
+    */
+   public interface AdvanceListener {
+       public void notifyAdvance();
+   }
+
+} // end of Clock

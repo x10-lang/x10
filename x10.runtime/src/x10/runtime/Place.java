@@ -1,12 +1,10 @@
 package x10.runtime;
 
-import x10.array.point_c;
 import x10.base.TypeArgument;
+import x10.lang.ActivityInformation;
 import x10.lang.Future;
 import x10.lang.Runtime;
 import x10.lang.place;
-
-import x10.runtime.Activity.Expr;
 
 
 /**
@@ -30,7 +28,7 @@ implements TypeArgument, Comparable {
 	 * be passed here.  For an Activity.Future the
 	 * result will be thrown away.
 	 */
-	public abstract void runAsync(Activity a);
+	public abstract void runAsync(Activity a, ActivityInformation ai);
 	
 	/**
 	 * We return an Activity.Result here to force the programmer
@@ -51,7 +49,7 @@ implements TypeArgument, Comparable {
 	 * @param a reference to the closure that encapsulates the code to run
 	 * @return the placeholder for the future result.
 	 */
-	public abstract Future runFuture(Activity.Expr a); 
+	public abstract Future runFuture(Activity.Expr a, ActivityInformation ai); 
 	
 	/**
 	 * Shutdown this place, the current X10 runtime will exit.
