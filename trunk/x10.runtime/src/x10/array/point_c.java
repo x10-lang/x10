@@ -1,5 +1,6 @@
 package x10.array;
 
+import x10.lang.Indexable;
 import x10.lang.point;
 import x10.lang.region;
 
@@ -39,6 +40,25 @@ public class point_c extends point implements Comparable {
 	private final int[] val;
 	private final int hash_;
 	
+        
+        /**
+         * Is this indexable value-equals to the other indexable?
+         * @param other
+         * @return true if these objects are value-equals
+         */
+        public boolean valueEquals(Indexable other) {
+            point_c op = (point_c) other;
+            if ( (op.hash_ == hash_) &&
+                 (op.val.length == val.length) ) {
+                for (int i=val.length-1;i>=0;i--)
+                    if (val[i] != op.val[i])
+                        return false;
+                return true;
+            } else
+                return false;
+        }
+
+    
 	private point_c(region region , int[] val) {
 		super(region);
 		assert region.rank == val.length;
@@ -79,6 +99,10 @@ public class point_c extends point implements Comparable {
 		return region.rank(i).low() == get(i);
 	}
 	
+        public boolean isValue() {
+            return true; // points are values!
+        }
+    
 	/* 
 	 * This method overrideds superclass implementation - the argument 
 	 * must be of type java.lang.Object. 

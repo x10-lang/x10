@@ -10,6 +10,18 @@ public class MemoryBlockSafeLongArray extends MemoryBlockSafe {
     
     private long[] arr_;
     
+    public boolean valueEquals(MemoryBlock other) {
+        MemoryBlockSafeLongArray m = (MemoryBlockSafeLongArray) other;
+        if (m.arr_.length == arr_.length) {
+            for (int i=arr_.length-1;i>=0;i--) 
+                if (arr_[i] != m.arr_[i])
+                    return false;
+            return true;
+        } else
+            return false;
+    }
+
+    
     MemoryBlockSafeLongArray(int count) {
         arr_ = new long[count];
     }

@@ -14,6 +14,7 @@ import x10.array.IntArray.Assign;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
+import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.point;
 import x10.lang.distribution;
@@ -29,6 +30,11 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     private final boolean safe_;
     private final MemoryBlock arr_;
     public final boolean mutable_;
+    
+    public boolean valueEquals(Indexable other) {
+        return arr_.valueEquals(((DoubleArray_c)other).arr_);
+    }
+
     
     /**
      *  This constructor must not be used directly by an application programmer.
@@ -306,7 +312,11 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public x10.lang.doubleArray toValueArray() {
     	if (! mutable_) return this;
-    	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
-    	
+    	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");   
     }
+    public boolean isValue() {
+        return ! this.mutable_;
+    }
+
+    
 }

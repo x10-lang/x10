@@ -11,6 +11,18 @@ public class MemoryBlockSafeIntArray extends MemoryBlockSafe {
     
     private int[] arr_;
     
+    public boolean valueEquals(MemoryBlock other) {
+        MemoryBlockSafeIntArray m = (MemoryBlockSafeIntArray) other;
+        if (m.arr_.length == arr_.length) {
+            for (int i=arr_.length-1;i>=0;i--) 
+                if (arr_[i] != m.arr_[i])
+                    return false;
+            return true;
+        } else
+            return false;
+    }
+
+    
     MemoryBlockSafeIntArray(int size) {
         arr_ = new int[size];
     }

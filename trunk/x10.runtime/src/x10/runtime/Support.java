@@ -6,6 +6,7 @@ package x10.runtime;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import x10.lang.Indexable;
 import x10.lang.ValueType;
 
 /**
@@ -38,8 +39,16 @@ public class Support {
         Class c = o1.getClass();
         if (c != o2.getClass())
              return false;
-        if ( !(o1 instanceof ValueType) )
-            return false; 
+        if ( (o1 instanceof Indexable)) {
+            Indexable i1 = (Indexable) o1;
+            Indexable i2 = (Indexable) o2;
+            if (! (i1.isValue() && i2.isValue()))
+                return false;
+            return i1.valueEquals(i2);
+        } else {
+            if ( !(o1 instanceof ValueType) )
+                return false;
+        }
         try {
             while (c != null) {
                 Field[] fs = c.getDeclaredFields();

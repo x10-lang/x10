@@ -18,6 +18,16 @@ public class MemoryBlockUnsafe extends MemoryBlock {
 
     private static final Unsafe unsafe_ = getUnsafe(); // for sun.misc.Unsafe
 
+    public boolean valueEquals(MemoryBlock other) {
+        MemoryBlockUnsafe m = (MemoryBlockUnsafe) other;
+        if (m.size_ == size_) {
+            for (long i=size_-1;i>=0;i--) 
+                if (m.getByte((int)i) != getByte((int)i)) // FIXME: types inconsistent!
+                    return false;
+            return true;
+        } else
+            return false;
+    }
 
     // Allocate a buffer with size count elements each of given size
     MemoryBlockUnsafe(int count, long size) { 
