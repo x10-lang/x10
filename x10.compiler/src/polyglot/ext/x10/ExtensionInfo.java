@@ -9,6 +9,7 @@ import polyglot.ext.x10.parse.Grm;
 import polyglot.ext.x10.parse.Lexer_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.X10Boxer;
+import polyglot.ext.x10.visit.X10Qualifier;
 import polyglot.frontend.CupParser;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
@@ -18,10 +19,7 @@ import polyglot.frontend.VisitorPass;
 import polyglot.lex.Lexer;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
-import polyglot.util.CodeWriter;
-import polyglot.main.Report;
 
-import polyglot.visit.DumpAst;
 /**
  * Extension information for x10 extension.
  */
@@ -53,19 +51,22 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         return new X10TypeSystem_c();
     }
 
-
     public static final Pass.ID CAST_REWRITE = new Pass.ID("cast-rewrite");
-   
+    public static final Pass.ID SPECIAL_QUALIFIER = new Pass.ID("this/super-qualifier");
  
     public List passes(Job job) {
-		List passes = super.passes(job);
-		beforePass(passes, Pass.PRE_OUTPUT_ALL, new VisitorPass(CAST_REWRITE,
-				job, new X10Boxer(job, ts, nf)));
-		if (Report.should_report("debug", 6)) {
+        List passes = super.passes(job);
+        beforePass(passes, Pass.PRE_OUTPUT_ALL,
+                new VisitorPass(CAST_REWRITE,
+                        job, new X10Boxer(job, ts, nf)));
+        beforePass(passes, Pass.PRE_OUTPUT_ALL,
+                new VisitorPass(SPECIAL_QUALIFIER,
+                        job, new X10Qualifier(job, ts, nf)));
+        if (Report.should_report("debug", 6)) {
 			beforePass(passes, Pass.PRE_OUTPUT_ALL, new VisitorPass(Pass.DUMP, job,
 					new DumpAst(new CodeWriter(System.out, 1))));
-		}
-		return passes;
-	}
+        }
+        return passes;
+    }
 
 }
