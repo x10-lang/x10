@@ -4,8 +4,6 @@
  *
  */
 package x10.array;
-import x10.array.sharedmemory.Region_c;
-import x10.lang.Object;
 import x10.lang.point;
 import x10.lang.region;
 import java.util.Iterator;
@@ -77,19 +75,9 @@ public class StridedRange extends Range {
 	    return "[" + lo + ", " + hi + ": " + stride + "]";
 	}
 	
-	public boolean equals(Object o) {
-	    assert o != null;
-		assert o instanceof Range;
-		if (!(o instanceof StridedRange))
-			return false;
-		StridedRange rhs = (StridedRange) o;
-		return rhs.lo == lo && rhs.hi == hi;
-		
-	}
+
 	
-	public int hashCode() {
-	    return stride;
-	}
+
 	
 	public boolean isConvex() {
 		return stride != 1;

@@ -8,7 +8,6 @@ package x10.array;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import x10.lang.Object;
 import x10.lang.point;
 import x10.lang.region;
 import x10.lang.PointOutOfRegionError;
@@ -177,17 +176,12 @@ public class EmptyRegion extends region {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
-	public boolean equals(Object o) {
-		if (! (o instanceof EmptyRegion)) return false;
-		EmptyRegion oe = (EmptyRegion)o;
-		return oe.rank == this.rank;
+	public boolean equals(java.lang.Object o) {
+		assert o instanceof region;
+		region oe = (region) o;
+		return (oe.rank == this.rank) && oe.size() == 0;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	public int hashCode() {
-		return (int) this.rank;
-	}
+
 
 }

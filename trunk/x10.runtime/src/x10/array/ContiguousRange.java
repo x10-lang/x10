@@ -10,7 +10,6 @@ import java.util.Iterator;
 import x10.lang.point;
 import x10.lang.region;
 import x10.lang.Runtime;
-import x10.lang.Object;
 
 /** A ContiguousRange is a 1-d region (Range) from lo (inclusive) to hi (inclusive).
  * TODO: Implement difference (which produces discontinguous ranges).
@@ -32,7 +31,8 @@ public class ContiguousRange extends Range {
 	 * Range that starts at lo (including) to hi (including!).
 	 */
 	public ContiguousRange(int lo, int hi) {
-		super(lo, hi, hi - lo + 1);
+	    super(lo, hi, hi - lo + 1);
+	    assert (lo <= hi);
 	}
 	
 	
@@ -43,13 +43,17 @@ public class ContiguousRange extends Range {
 	
 	public region union( region r ) {
 		assert r != null;
-		region ret;
+		region ret = null;
 		if (r instanceof ContiguousRange) {
 		    ContiguousRange cr = (ContiguousRange) r;
-		    int l = (lo < cr.lo) ? lo : cr.lo;
-		    int h = (hi > cr.hi) ? hi : cr.hi;
-		    ret = new ContiguousRange(l, h);
-		} else {
+		    if (contains(cr.lo) || contains(cr.hi)) {
+		        // regions overlap - fuse them
+		        int l = (lo < cr.lo) ? lo : cr.lo;
+		        int h = (hi > cr.hi) ? hi : cr.hi;
+		        ret = new ContiguousRange(l, h);
+		    }
+		}
+		if (ret == null) {
 		    ret = super.union(r);
 		}
 		return ret;
@@ -62,7 +66,10 @@ public class ContiguousRange extends Range {
 		    ContiguousRange cr = (ContiguousRange) r;
 		    int l = (lo > cr.lo) ? lo : cr.lo;
 		    int h = (hi < cr.hi) ? hi : cr.hi;
-		    return new ContiguousRange(l, h);
+		    if (l <= h)
+		        ret = new ContiguousRange(l, h);
+		    else
+		        ret = new EmptyRegion(rank);
 		} else {
 		    ret = super.intersection(r);
 		}
@@ -123,20 +130,9 @@ public class ContiguousRange extends Range {
 		return  lo + ":" + hi ;
 	}
 	
-	public boolean equals(Object o) {
-		assert o != null;
-		assert o instanceof Range;
-		if (!(o instanceof ContiguousRange))
-			return false;
-		
-		ContiguousRange rhs = (ContiguousRange) o;
-		return rhs.lo == lo && rhs.hi == hi;
-		
-	}
+
 	
-	public int hashCode() {
-		return size;
-	}
+
 	
 	public boolean isConvex() {
 		return true;
@@ -159,10 +155,10 @@ public class ContiguousRange extends Range {
 		return new RegionIterator();
 	}
 	private class RegionIterator implements Iterator {
-		private int next;
+		private int next_ = lo;
 		
 		public boolean hasNext() {
-			return next <= hi;
+			return next_ <= hi;
 		}
 		
 		public void remove() {
@@ -171,8 +167,9 @@ public class ContiguousRange extends Range {
 		
 		public java.lang.Object next() {
 			assert hasNext();
-			next++;
-			return Runtime.factory.getPointFactory().point(ContiguousRange.this, new int[] { next });
+			point ret = Runtime.factory.getPointFactory().point(ContiguousRange.this, new int[] { next_ });
+			next_++;
+			return ret;
 		}
 	}
 }
