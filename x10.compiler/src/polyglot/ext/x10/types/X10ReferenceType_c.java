@@ -65,9 +65,64 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
 	public FutureType toFuture() {
 		return null;
 	}
-	
-	public boolean isX10Array() { return false; }
+	/** Returns true iff the type implements x10.lang.Indexable.
+	 * 
+	 */
+	public boolean isX10Array() { 
+		return ts.isSubtype(this, ((X10TypeSystem) ts).Indexable());
+	}
 
+	public boolean isDistributedArray() {
+		return isIntArray() || isLongArray() || isDoubleArray();
+	}
+	public boolean isNumericArray() {
+		return isIntArray() || isLongArray() || isDoubleArray();
+	}
+	/**
+	 * Returns true if this type is a subtype of intArray.
+	 * implies isX10Array().
+	 */
+	public boolean isIntArray() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.intArray()); 
+	}
+	
+	/**
+	 * Returns true if this type is a subtype of longArray.
+	 * implies isX10Array().
+	 */
+	public boolean isLongArray() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.longArray()); 
+	}
+	/**
+	 * Returns true if this type is a subtype of doubleArray.
+	 * implies isX10Array().
+	 */
+	public boolean isDoubleArray() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.doubleArray());
+	}
+	public boolean isClock() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.clock());
+	}
+	public boolean isPoint() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.point());
+	}
+	public boolean isPlace() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.place());
+	}
+	public boolean isRegion() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.region());
+	}
+	public boolean isDistribution() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.distribution());
+	}
 
 	public  boolean isSubtypeImpl( Type t) {
     	X10Type target = (X10Type) t;

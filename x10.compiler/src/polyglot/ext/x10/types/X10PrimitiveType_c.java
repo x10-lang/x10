@@ -78,8 +78,18 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public FutureType toFuture() {
 			return null;
 	}
-	public boolean isX10Array() { return false; }
 
+	public boolean isDistribution() { return false; }
+	public boolean isDistributedArray() { return false; }
+	public boolean isNumericArray() { return false; }
+	public boolean isLongArray() { return false; }
+	public boolean isIntArray() { return false; }
+	public boolean isDoubleArray() { return false; }
+	public boolean isClock() { return false; }
+	public boolean isRegion() { return false; }
+	public boolean isPlace() { return false;}
+	public boolean isPoint() { return false; }
+	public boolean isX10Array() { return false; }
 
 	/**
 	 * Note that this (general) mix-in code correctly takes care of ensuring that

@@ -8,6 +8,9 @@ import polyglot.ast.Expr;
 import polyglot.ext.jl.types.TypeSystem_c;
 import polyglot.ext.x10.types.X10PrimitiveType_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.ext.x10.ast.X10DelFactory_c;
+import polyglot.ext.x10.ast.X10ExtFactory_c;
+import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
@@ -39,6 +42,15 @@ import polyglot.main.Report;
 public class X10TypeSystem_c 
 extends TypeSystem_c 
 implements X10TypeSystem {
+	private static X10TypeSystem_c factory = null;
+	public static X10TypeSystem_c getFactory() {
+		return factory;
+	}
+	public X10TypeSystem_c() {
+		super();
+		factory = this;
+	}
+	
 	
 	/**
 	 * Requires: all type arguments are canonical.
