@@ -3,7 +3,10 @@ package x10.runtime;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Comparator;
 
 import x10.lang.Runtime;
 import x10.lang.clock;
@@ -19,9 +22,8 @@ import x10.lang.clock;
  */
 public final class Clock extends clock {
 
-    private static int idgen = 0; 
-    
-    public final int id = idgen++;
+    private static int nextId_ = 0;
+    private int id_;
     
     /**
      * The activity information provider that this clock can use.
@@ -55,7 +57,7 @@ public final class Clock extends clock {
      * Lazy initialization (since we typically only have at most one
      * listener).
      */
-    private Vector listeners_; // <AdvanceListener>
+    private ArrayList listeners_; // <AdvanceListener>
 
     /**
      * The current phase of the Clock.  Incremented by one in each
@@ -63,17 +65,19 @@ public final class Clock extends clock {
      */
     private int phase_;
 
-    
     /**
      * Create a new Clock.  Registers the current activity with
      * the clock as a side-effect (see X10 Report).
      */
-    Clock(ActivityInformationProvider aip) {
+    protected Clock(ActivityInformationProvider aip) {
+        synchronized (getClass()) {
+            id_ = nextId_++;
+        }
         this.aip_ = aip;
         Runtime.getCurrentActivityInformation().getRegisteredClocks().add(this);
         register();
     }
-
+    
     /**
      * Register the current activity with this clock.
      */
@@ -185,17 +189,45 @@ public final class Clock extends clock {
             int start = phase_;
             while (start == phase_) { // signal might be random in Java, check!
                 try {
-                    LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id, null);
+                    LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id_, null);
                     this.wait(); // wait for signal
                 } catch (InterruptedException ie) {
                     throw new Error(ie); // that was unexpected...
                 } finally {
-                    LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id, null);
+                    LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id_, null);
                 }
             }
         }
     }
+
+    public static void doNext(List clocks_l) {
+        assert clocks_l != null;
+        Object[] clocks = clocks_l.toArray();
+        if (clocks.length > 1) {
+            Arrays.sort(clocks, new Comparator() {
+                public int compare(java.lang.Object o1, java.lang.Object o2) {
+                    int ret = 0;
+                    assert (o1 instanceof Clock);
+                    assert (o2 instanceof Clock);
+                    Clock c1 = (Clock) o1;
+                    Clock c2 = (Clock) o2;
+                    if (c1.id_ < c2.id_)
+                        ret = -1;
+                    else if (c1.id_ > c2.id_)
+                        ret = 1;
+                    return ret;
+                }
+                public boolean equals(java.lang.Object o) {
+                    return (o == this);
+                }
+            });
+        }
         
+        for (int i=0; i < clocks.length; ++ i) {
+            ((Clock) clocks[i]).doNext();
+        }
+    }
+    
     /**
      * Register a callback that is to be called whenever the clock
      * advances into the next phase.
@@ -207,7 +239,7 @@ public final class Clock extends clock {
             this.listener1_ = al;
         } else {
             if (this.listeners_ == null)
-                this.listeners_ = new Vector();
+                this.listeners_ = new ArrayList();
             this.listeners_.add(al);
         }
     }
@@ -238,15 +270,14 @@ public final class Clock extends clock {
             
             this.phase_++;
             if (Sampling.SINGLETON != null)
-                Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_CLOCK_ADVANCE,
-                        this.id);
+                Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_CLOCK_ADVANCE, id_);
             // first notify everyone
             if (this.listener1_ != null) {
                 this.listener1_.notifyAdvance();
                 if (this.listeners_ != null) {
                     int size = listeners_.size();
                     for (int i=0;i<size;i++)
-                        ((AdvanceListener)listeners_.elementAt(i)).notifyAdvance();
+                        ((AdvanceListener)listeners_.get(i)).notifyAdvance();
                 }
             }
             
