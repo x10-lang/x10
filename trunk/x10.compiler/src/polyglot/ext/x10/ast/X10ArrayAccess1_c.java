@@ -134,7 +134,9 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 			return new ArrayAccess_c(position(), array, index).typeCheck( tc );
 		}
 		//System.out.println("X10ArrayAccess1_c: no, |" + this + "| isn't.");
-		if (!  ts.isImplicitCastValid(index.type(), ts.point())) {
+		if (!  ts.isImplicitCastValid(index.type(), ts.point())
+				&& (! index.type().isInt())
+				) {
 			throw new SemanticException(
 					"Array subscript |" + toString() + "| must be an integer or a point.", position());
 		}
