@@ -20,6 +20,7 @@ import polyglot.types.Type;
 
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.jl.ast.NewArray_c;
+import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
@@ -38,10 +39,10 @@ import polyglot.ext.x10.types.X10TypeSystem;
 public class ArrayConstructor_c 
 extends Expr_c 
 implements ArrayConstructor {
-		
+	
 	protected TypeNode base;
 	protected boolean isValue = false;
-    protected boolean safe = true;
+	protected boolean isSafe = true;
 	
 	/** distribution must contain a value whose type is either int or x10.lang.distribution.
 	 * If distribution == null, then init must be not null and in fact an Initializer.
@@ -64,11 +65,11 @@ implements ArrayConstructor {
 		// TODO Auto-generated constructor stub
 	}
 	public ArrayConstructor_c(Position pos, TypeNode base, boolean unsafe, 
-				  boolean isValue, Expr distribution, Expr initializer ) {
+			boolean isValue, Expr distribution, Expr initializer ) {
 		super(pos);
 		assert (distribution !=null) || (initializer instanceof ArrayInit);
 		this.base = base;
-		this.safe = ! unsafe;
+		this.isSafe = ! unsafe;
 		this.isValue = isValue;
 		this.distribution = distribution;
 		this.initializer = initializer;
@@ -118,12 +119,12 @@ implements ArrayConstructor {
 		return n;
 	}
 	
-    public boolean isSafe() {
-	return safe;
-    }
-    public boolean isValue() {
-	return isValue;
-    }
+	public boolean isSafe() {
+		return isSafe;
+	}
+	public boolean isValue() {
+		return isValue;
+	}
 	/** Is the expression between the square brackets of type int.
 	 *  Valid only after type checking.
 	 * @return
@@ -199,7 +200,7 @@ implements ArrayConstructor {
 		if (initializer != null) {
 			if (initializer instanceof ArrayInit) {
 				throw new InternalError("ArrayConstructor_c should really have been NewArray_c" + this);
-				// This is the {...} case, and should never happen.
+				// This is the {...} case, and the parser should rule this out.
 				// ((ArrayInit) initializer).typeCheckElements(base.type());
 			}
 			
@@ -207,20 +208,18 @@ implements ArrayConstructor {
 			Type initType = initializer.type();
 			if ( newBaseType.isInt()){
 				if (! ts.isImplicitCastValid(initType, ts.IntArrayPointwiseOp()))
-				throw new SemanticException("Array initializer must be of type x10.lang.intArray.pointwiseOp" 
-						+ position());
+					throw new SemanticException("Array initializer must be of type x10.lang.intArray.pointwiseOp" 
+							+ position());
 			} else if ( newBaseType.isDouble()) {
-			    if (! ts.isImplicitCastValid(initType, ts.DoubleArrayPointwiseOp()))
-				throw new SemanticException("Array initializer must be of type x10.lang.doubleArray.pointwiseOp" 
-						+ position());
+				if (! ts.isImplicitCastValid(initType, ts.DoubleArrayPointwiseOp()))
+					throw new SemanticException("Array initializer must be of type x10.lang.doubleArray.pointwiseOp" 
+							+ position());
 			} else if (newBaseType.isLong()) {
-			    if (! ts.isImplicitCastValid(initType, ts.LongArrayPointwiseOp()))
-				throw new SemanticException("Array initializer must be of type x10.lang.longArray.pointwiseOp" 
-						+ position());
+				if (! ts.isImplicitCastValid(initType, ts.LongArrayPointwiseOp()))
+					throw new SemanticException("Array initializer must be of type x10.lang.longArray.pointwiseOp" 
+							+ position());
 			}
 		}
-		
-		
 		Type t = ts.array( newBaseType, isValue );
 		
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);
@@ -229,6 +228,15 @@ implements ArrayConstructor {
 		
 	}
 	
+	public Context enterScope(Node child, Context c) {
+        if (child == initializer ) {
+        	
+         
+        }
+        Context result = super.enterScope(child, c);
+        
+        return result;
+    }
 	/** Write the statement to an output file. 
 	 * TODO: vj check if printBlock is the right thing to use here.
 	 * */
@@ -236,9 +244,9 @@ implements ArrayConstructor {
 		w.write("new ");
 		printBlock(base, w, tr);
 		if (isValue)
-		    w.write(" value ");
-		if ( ! safe )
-		    w.write(" unsafe ");
+			w.write(" value ");
+		if ( ! isSafe )
+			w.write(" unsafe ");
 		if (distribution == null) {
 			w.write("[]");
 			initializer.prettyPrint(w, tr);
@@ -254,7 +262,7 @@ implements ArrayConstructor {
 	public String toString() {
 		StringBuffer s = new StringBuffer("new " + base);
 		s.append( isValue ? " value " : "");
-		s.append( ! safe ? " unsafe " : "");
+		s.append( ! isSafe ? " unsafe " : "");
 		s.append("[");
 		s.append(this.distribution == null ? "" : distribution.toString());
 		s.append("]");
@@ -267,21 +275,18 @@ implements ArrayConstructor {
 	public Term entry() {
 		return (distribution != null) ? 
 				distribution.entry() 
-				:  initializer.entry();
+				:  (initializer  != null ? initializer.entry() : this);
 	}
 	
 	/**
 	 * Visit this term in evaluation order.
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-		if (distribution!= null)
-			v.visitCFG(distribution, this);
+		if (distribution != null)
+			v.visitCFG(distribution, (initializer != null) ? initializer.entry() : this);
 		if (initializer != null)
 			v.visitCFG(initializer, this);
 		return succs;
 	}
-	
-	
-	
 	
 }
