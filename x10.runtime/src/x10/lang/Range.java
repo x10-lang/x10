@@ -4,8 +4,65 @@
 package x10.lang;
 
 /**
+ * Ranges are a collection of points in the int space.
+ * Currently, only contiguous sets of points are supported.
+ * Range objects are immutable.
+ * 
  * @author Christoph von Praun
  */
-public interface Range extends TypeArgument {
-
+public class Range implements TypeArgument {
+	/**
+	 * Cardinality of the range, i.e., the number of element 
+	 * in the integer space it covers.
+	 */	
+	public final int card;
+	public final int lo;
+	public final int hi;
+	
+	/********************* CONSTRUCTION *********************/
+	
+	/** 
+	 * Convenience constructor.
+	 */
+	public Range(int hi) {
+		this(0, hi);
+	}
+	
+	/** 
+	 * Range that starts at lo (including)
+	 * to hi (excluded).
+	 */
+	public Range(int lo, int hi) {
+		assert hi >= lo && lo >= 0;
+		this.lo = lo;
+		this.hi = hi;
+		card = hi - lo;
+	}
+	
+	public int ordinal(int p) {
+		assert contains(p);
+		return p - lo;
+	}
+	
+	public boolean contains(int p) {
+		return lo <= p && p < hi;
+	}
+	
+	public boolean contains(Range r) {
+		return r.lo >= lo && r.hi <= hi;
+	}
+	
+	public String toString() {
+		return "[" + lo + ".." + hi + "]";
+	}
+	
+	public boolean equals(Object o) {
+		assert o instanceof Range;
+		Range rhs = (Range) o;
+		return rhs.lo == lo && rhs.hi == hi;
+	}
+	
+	public int hashCode() {
+		return card;
+	}
 }
