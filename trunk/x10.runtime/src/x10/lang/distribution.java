@@ -122,9 +122,24 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 	/** Returns the place to which the point p in region is mapped.
 	 */
 	abstract public place get(point/*(region)*/ p) throws MalformedError;
-	  public place get(int[] p) {
-	        return get(Runtime.factory.getPointFactory().point(region, p));
-	  }
+	public place get(int[] p) {
+		return get(Runtime.factory.getPointFactory().point(region, p));
+	}
+	public place get(int i) {
+		return get(new int[] {i} );
+	}
+	public place get(int i, int j) {
+		return get(new int[] {i, j} );
+	}
+	public place get(int i, int j, int k) {
+		return get(new int[] {i, j, k} );
+	}
+	public place get(int i, int j, int k, int l) {
+		return get(new int[] {i,j, k, l} );
+	}
+	public place get(int i, int j, int k, int l, int m) {
+		return get(new int[] {i, j, k, l, m} );
+	}
 	
 	/** Returns the region mapped by this distribution to the place P.
 	 The value returned is a subset of this.region.

@@ -190,7 +190,7 @@ implements ArrayConstructor {
 				return new NewArray_c( position(), newBase, l, 0, null).typeCheck( tc );
 			}
 			boolean distributionIsDist = ts.isImplicitCastValid(distType, ts.distribution());
-			// System.out.println("ArrayConstructor_c: distributionIsDist = " + distributionIsDist + " " + distType );
+			System.out.println("ArrayConstructor_c: distributionIsDist = " + distributionIsDist + " " + distType );
 			if ( ! distributionIsDist)
 				throw new SemanticException("Array distribution specifier must be of type int or distribution" 
 						+ position());
@@ -205,21 +205,19 @@ implements ArrayConstructor {
 			
 			// TODO: vj The following is hardwired for int, double and long arrays.
 			Type initType = initializer.type();
-			if ( ts.isImplicitCastValid(newBaseType, ts.Int())) {
+			if ( newBaseType.isInt()){
 				if (! ts.isImplicitCastValid(initType, ts.IntArrayPointwiseOp()))
 				throw new SemanticException("Array initializer must be of type x10.lang.intArray.pointwiseOp" 
 						+ position());
-			} else if ( ts.isImplicitCastValid(newBaseType, ts.Double())) {
+			} else if ( newBaseType.isDouble()) {
 			    if (! ts.isImplicitCastValid(initType, ts.DoubleArrayPointwiseOp()))
 				throw new SemanticException("Array initializer must be of type x10.lang.doubleArray.pointwiseOp" 
 						+ position());
-			} else if (ts.isImplicitCastValid(newBaseType, ts.Long())) {
+			} else if (newBaseType.isLong()) {
 			    if (! ts.isImplicitCastValid(initType, ts.LongArrayPointwiseOp()))
 				throw new SemanticException("Array initializer must be of type x10.lang.longArray.pointwiseOp" 
 						+ position());
 			}
-			
-			
 		}
 		
 		
