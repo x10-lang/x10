@@ -42,14 +42,12 @@ import x10.runtime.Place;
  * 
  * <h2>Running the tests</h2>
  * Running this testcase is easy, add it as just any JUnit
- * test to eclipse.  You might want to make sure to have the
- * current working directory set to the root of the X10
- * checkout (x10/), otherwise the data/ files (xcds) and
- * the X10 source inputs will not be found by the compiler.
+ * test to eclipse. Set the current directory to the test
+ * directory, e.g. examples/testcases/feb2005/allTests  
  * 
  * If you are not using eclipse, compile the code using
- * "ant" and "ant x10rt" then run "bin/junit" (both from the main
- * x10 directory).  
+ * "ant" and "ant x10rt" then run "junit"  at the 
+ * test directory, e.g. examples/testcases/feb2005/allTests 
  * 
  * <h2>Internals</h2>
  * The harness works by using a class loader to load the
@@ -58,223 +56,233 @@ import x10.runtime.Place;
  * Runtime.
  * 
  * @author Christian Grothoff <christian@grothoff.org>
+ * @author Kemal
+ * Automatically compiled from test directory
  */
 public class TestCompiler extends TestCase {
 
-    public void testArray1() {
-        run("examples/testcases/feb2005/allTests/Array1.x10","Array1");
+    public void test_Array1() {
+        run("./Array1.x10","Array1");
     }
 
-    public void testArray2() {
-        run("examples/testcases/feb2005/allTests/Array2.x10","Array2");
+    public void test_Array2() {
+        run("./Array2.x10","Array2");
     }
 
-    public void testArrayCopy1() {
-        run("examples/testcases/feb2005/allTests/ArrayCopy1.x10","ArrayCopy1");
+    public void test_ArrayCopy1() {
+        run("./ArrayCopy1.x10","ArrayCopy1");
     }
 
-    public void testArrayCopy2() {
-        run("examples/testcases/feb2005/allTests/ArrayCopy2.x10","ArrayCopy2");
+    public void test_ArrayCopy2() {
+        run("./ArrayCopy2.x10","ArrayCopy2");
     }
 
-    public void testArrayCopy3() {
-        run("examples/testcases/feb2005/allTests/ArrayCopy3.x10","ArrayCopy3");
+    public void test_ArrayCopy3() {
+        run("./ArrayCopy3.x10","ArrayCopy3");
     }
 
-    public void testAsyncTest() {
-        run("examples/testcases/feb2005/allTests/AsyncTest.x10","AsyncTest");
+    public void test_AsyncTest() {
+        run("./AsyncTest.x10","AsyncTest");
     }
 
-    public void testAsyncTest1() {
-        run("examples/testcases/feb2005/allTests/AsyncTest1.x10","AsyncTest1");
+    public void test_AsyncTest1() {
+        run("./AsyncTest1.x10","AsyncTest1");
     }
 
-    public void testAteach() {
-        run("examples/testcases/feb2005/allTests/Ateach.x10","Ateach");
+    public void test_Ateach() {
+        run("./Ateach.x10","Ateach");
     }
 
-    public void testAtomic1() {
-        run("examples/testcases/feb2005/allTests/Atomic1.x10","Atomic1");
+    public void test_Atomic1() {
+        run("./Atomic1.x10","Atomic1");
     }
 
-    public void testAtomicTest() {
-        run("examples/testcases/feb2005/allTests/AtomicTest.x10","AtomicTest");
+    public void test_AtomicTest() {
+        run("./AtomicTest.x10","AtomicTest");
     }
 
-    public void testAwaitTest() {
-        run("examples/testcases/feb2005/allTests/AwaitTest.x10","AwaitTest");
+    public void test_AwaitTest() {
+        run("./AwaitTest.x10","AwaitTest");
     }
 
-    public void testAwaitTest1() {
-        run("examples/testcases/feb2005/allTests/AwaitTest1.x10","AwaitTest1");
+    public void test_AwaitTest1() {
+        run("./AwaitTest1.x10","AwaitTest1");
     }
 
-    public void testAwaitTest2() {
-        run("examples/testcases/feb2005/allTests/AwaitTest2.x10","AwaitTest2");
+    public void test_AwaitTest2() {
+        run("./AwaitTest2.x10","AwaitTest2");
     }
 
-    public void testBoxing0() {
-        run("examples/testcases/feb2005/allTests/Boxing0.x10","Boxing0");
+    public void test_Boxing0() {
+        run("./Boxing0.x10","Boxing0");
     }
 
-    public void testBoxing1() {
-        run("examples/testcases/feb2005/allTests/Boxing1.x10","Boxing1");
+    public void test_Boxing1() {
+        run("./Boxing1.x10","Boxing1");
     }
 
-    public void testClockTest() {
-        run("examples/testcases/feb2005/allTests/ClockTest.x10","ClockTest");
+    public void test_ClockTest() {
+        run("./ClockTest.x10","ClockTest");
     }
 
-    public void testClockTest1() {
-        run("examples/testcases/feb2005/allTests/ClockTest1.x10","ClockTest1");
+    public void test_ClockTest1() {
+        run("./ClockTest1.x10","ClockTest1");
     }
 
-    public void testClockTest2() {
-        run("examples/testcases/feb2005/allTests/ClockTest2.x10","ClockTest2");
+    public void test_ClockTest2() {
+        run("./ClockTest2.x10","ClockTest2");
     }
 
-    public void testClockedFinalTest() {
-        run("examples/testcases/feb2005/allTests/ClockedFinalTest.x10","ClockedFinalTest");
+    public void test_ClockedFinalTest() {
+        run("./ClockedFinalTest.x10","ClockedFinalTest");
     }
 
-    public void testConditionalAtomicQueue() {
-        run("examples/testcases/feb2005/allTests/ConditionalAtomicQueue.x10","ConditionalAtomicQueue");
+    public void test_ConditionalAtomicQueue() {
+        run("./ConditionalAtomicQueue.x10","ConditionalAtomicQueue");
     }
 
-    public void testConditionalAtomicTest() {
-        run("examples/testcases/feb2005/allTests/ConditionalAtomicTest.x10","ConditionalAtomicTest");
+    public void test_ConditionalAtomicTest() {
+        run("./ConditionalAtomicTest.x10","ConditionalAtomicTest");
     }
 
-    public void testDistributionTest() {
-        run("examples/testcases/feb2005/allTests/DistributionTest.x10","DistributionTest");
+    public void test_DistributionTest() {
+        run("./DistributionTest.x10","DistributionTest");
     }
 
-    public void testFinishTest1() {
-        run("examples/testcases/feb2005/allTests/FinishTest1.x10","FinishTest1");
+    public void test_FinishTest1() {
+        run("./FinishTest1.x10","FinishTest1");
     }
 
-    public void testForeach() {
-        run("examples/testcases/feb2005/allTests/Foreach.x10","Foreach");
+    public void test_Foreach() {
+        run("./Foreach.x10","Foreach");
     }
 
-    public void testFuture0() {
-        run("examples/testcases/feb2005/allTests/Future0.x10","Future0");
+    public void test_Future0() {
+        run("./Future0.x10","Future0");
     }
 
-    public void testFuture1() {
-        run("examples/testcases/feb2005/allTests/Future1.x10","Future1");
+    public void test_Future1() {
+        run("./Future1.x10","Future1");
     }
 
-    public void testFuture1Boxed() {
-        run("examples/testcases/feb2005/allTests/Future1Boxed.x10","Future1Boxed");
+    public void test_Future1Boxed() {
+        run("./Future1Boxed.x10","Future1Boxed");
     }
 
-    public void testFuture2Boxed() {
-        run("examples/testcases/feb2005/allTests/Future2Boxed.x10","Future2Boxed");
+    public void test_Future2Boxed() {
+        run("./Future2Boxed.x10","Future2Boxed");
     }
 
-    public void testFuture3() {
-        run("examples/testcases/feb2005/allTests/Future3.x10","Future3");
+    public void test_Future3() {
+        run("./Future3.x10","Future3");
     }
 
-    public void testFuture3Boxed() {
-        run("examples/testcases/feb2005/allTests/Future3Boxed.x10","Future3Boxed");
+    public void test_Future3Boxed() {
+        run("./Future3Boxed.x10","Future3Boxed");
     }
 
-    public void testFuture4() {
-        run("examples/testcases/feb2005/allTests/Future4.x10","Future4");
+    public void test_Future4() {
+        run("./Future4.x10","Future4");
     }
 
-    public void testFuture4Boxed() {
-        run("examples/testcases/feb2005/allTests/Future4Boxed.x10","Future4Boxed");
+    public void test_Future4Boxed() {
+        run("./Future4Boxed.x10","Future4Boxed");
     }
 
-    public void testFutureNullable0() {
-        run("examples/testcases/feb2005/allTests/FutureNullable0.x10","FutureNullable0");
+    public void test_FutureNullable0() {
+        run("./FutureNullable0.x10","FutureNullable0");
     }
 
-    public void testFutureNullable1Boxed() {
-        run("examples/testcases/feb2005/allTests/FutureNullable1Boxed.x10","FutureNullable1Boxed");
+    public void test_FutureNullable1Boxed() {
+        run("./FutureNullable1Boxed.x10","FutureNullable1Boxed");
     }
 
-    public void testFutureTest2() {
-        run("examples/testcases/feb2005/allTests/FutureTest2.x10","FutureTest2");
+    public void test_FutureTest2() {
+        run("./FutureTest2.x10","FutureTest2");
     }
 
-    public void testJacobi() {
-        run("examples/testcases/feb2005/allTests/Jacobi.x10","Jacobi");
+    public void test_ImportTest() {
+        run("./ImportTest.x10","ImportTest");
     }
 
-    public void testMiscTest1() {
-        run("examples/testcases/feb2005/allTests/MiscTest1.x10","MiscTest1");
+    public void test_ImportTestPackage1_T3() {
+        run("./ImportTestPackage1/T3.x10","ImportTestPackage1.T3");
     }
 
-    public void testNopTest() {
-        run("examples/testcases/feb2005/allTests/NopTest.x10","NopTest");
+    public void test_Jacobi() {
+        run("./Jacobi.x10","Jacobi");
     }
 
-    public void testNullable0Ref() {
-        run("examples/testcases/feb2005/allTests/Nullable0Ref.x10","Nullable0Ref");
+    public void test_MiscTest1() {
+        run("./MiscTest1.x10","MiscTest1");
     }
 
-    public void testNullable1() {
-        run("examples/testcases/feb2005/allTests/Nullable1.x10","Nullable1");
+    public void test_NopTest() {
+        run("./NopTest.x10","NopTest");
     }
 
-    public void testNullable2() {
-        run("examples/testcases/feb2005/allTests/Nullable2.x10","Nullable2");
+    public void test_Nullable0Ref() {
+        run("./Nullable0Ref.x10","Nullable0Ref");
     }
 
-    public void testNullable5() {
-        run("examples/testcases/feb2005/allTests/Nullable5.x10","Nullable5");
+    public void test_Nullable1() {
+        run("./Nullable1.x10","Nullable1");
     }
 
-    public void testNullableFuture0() {
-        run("examples/testcases/feb2005/allTests/NullableFuture0.x10","NullableFuture0");
+    public void test_Nullable2() {
+        run("./Nullable2.x10","Nullable2");
     }
 
-    public void testNullableFuture1() {
-        run("examples/testcases/feb2005/allTests/NullableFuture1.x10","NullableFuture1");
+    public void test_Nullable5() {
+        run("./Nullable5.x10","Nullable5");
     }
 
-    public void testNullableFuture2() {
-        run("examples/testcases/feb2005/allTests/NullableFuture2.x10","NullableFuture2");
+    public void test_NullableFuture0() {
+        run("./NullableFuture0.x10","NullableFuture0");
     }
 
-    public void testNullableObject() {
-        run("examples/testcases/feb2005/allTests/NullableObject.x10","NullableObject");
+    public void test_NullableFuture1() {
+        run("./NullableFuture1.x10","NullableFuture1");
     }
 
-    public void testNullableObject2() {
-        run("examples/testcases/feb2005/allTests/NullableObject2.x10","NullableObject2");
+    public void test_NullableFuture2() {
+        run("./NullableFuture2.x10","NullableFuture2");
     }
 
-    public void testRandomAccess() {
-        run("examples/testcases/feb2005/allTests/RandomAccess.x10","RandomAccess");
+    public void test_NullableObject() {
+        run("./NullableObject.x10","NullableObject");
     }
 
-    public void testRegionTest() {
-        run("examples/testcases/feb2005/allTests/RegionTest.x10","RegionTest");
+    public void test_NullableObject2() {
+        run("./NullableObject2.x10","NullableObject2");
     }
 
-    public void testRegionTest1() {
-        run("examples/testcases/feb2005/allTests/RegionTest1.x10","RegionTest1");
+    public void test_RandomAccess() {
+        run("./RandomAccess.x10","RandomAccess");
     }
 
-    public void testRegionTest2() {
-        run("examples/testcases/feb2005/allTests/RegionTest2.x10","RegionTest2");
+    public void test_RegionTest() {
+        run("./RegionTest.x10","RegionTest");
     }
 
-    public void testRegionTestIterator() {
-        run("examples/testcases/feb2005/allTests/RegionTestIterator.x10","RegionTestIterator");
+    public void test_RegionTest1() {
+        run("./RegionTest1.x10","RegionTest1");
     }
 
-    public void testValueClass() {
-        run("examples/testcases/feb2005/allTests/ValueClass.x10","ValueClass");
+    public void test_RegionTest2() {
+        run("./RegionTest2.x10","RegionTest2");
     }
 
-    public void testqueensList() {
-        run("examples/testcases/feb2005/allTests/queensList.x10","queensList");
+    public void test_RegionTestIterator() {
+        run("./RegionTestIterator.x10","RegionTestIterator");
+    }
+
+    public void test_ValueClass() {
+        run("./ValueClass.x10","ValueClass");
+    }
+
+    public void test_queensList() {
+        run("./queensList.x10","queensList");
     }
 
     // *************** you should never have to edit anything
