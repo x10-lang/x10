@@ -1,3 +1,4 @@
+// ateach
   for (java.util.Iterator #2__ = #3.iterator(); 
        #2__.hasNext();
        ) {
@@ -12,5 +13,6 @@
            java.util.LinkedList clocks = new java.util.LinkedList();  	
            #5
            return clocks;
+         }
        } );
      }

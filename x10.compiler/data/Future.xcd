@@ -10,6 +10,7 @@
 }, new x10.lang.ActivityInformation() {
          public java.util.List getRegisteredClocks() {
            return new java.util.LinkedList();
+         }
 })
 
         
