@@ -179,7 +179,7 @@ implements ArrayConstructor {
 				return new NewArray_c( position(), newBase, l, 0, null).typeCheck( tc );
 			}
 			boolean distributionIsDist = ts.isImplicitCastValid(distType, ts.distribution());
-			System.out.println("ArrayConstructor_c: distributionIsDist = " + distributionIsDist + " " + distType );
+			// System.out.println("ArrayConstructor_c: distributionIsDist = " + distributionIsDist + " " + distType );
 			if ( ! distributionIsDist)
 				throw new SemanticException("Array distribution specifier must be of type int or distribution" 
 						+ position());
