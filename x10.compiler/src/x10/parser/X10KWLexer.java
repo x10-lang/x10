@@ -726,9 +726,19 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 68:  KeyWord ::= n e x t
+    // Rule 68:  KeyWord ::= m e t h o d l o c a l
     //
             case 68:
+            { 
+            setSym1(TK_methodlocal);
+          
+            }
+            break; 
+         
+    //
+    // Rule 69:  KeyWord ::= n e x t
+    //
+            case 69:
             { 
             setSym1(TK_next);
           
@@ -736,9 +746,9 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 69:  KeyWord ::= n o w
+    // Rule 70:  KeyWord ::= n o w
     //
-            case 69:
+            case 70:
             { 
             setSym1(TK_now);
           
@@ -746,9 +756,9 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 70:  KeyWord ::= n u l l a b l e
+    // Rule 71:  KeyWord ::= n u l l a b l e
     //
-            case 70:
+            case 71:
             { 
             setSym1(TK_nullable);
           
@@ -756,9 +766,9 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 71:  KeyWord ::= o r
+    // Rule 72:  KeyWord ::= o r
     //
-            case 71:
+            case 72:
             { 
             setSym1(TK_or);
           
@@ -766,9 +776,9 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 72:  KeyWord ::= p l a c e
+    // Rule 73:  KeyWord ::= p l a c e
     //
-            case 72:
+            case 73:
             { 
             setSym1(TK_place);
           
@@ -776,9 +786,19 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 73:  KeyWord ::= r a n g e
+    // Rule 74:  KeyWord ::= p l a c e l o c a l
     //
-            case 73:
+            case 74:
+            { 
+            setSym1(TK_placelocal);
+          
+            }
+            break; 
+         
+    //
+    // Rule 75:  KeyWord ::= r a n g e
+    //
+            case 75:
             { 
             setSym1(TK_range);
           
@@ -786,9 +806,9 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 74:  KeyWord ::= r a n k
+    // Rule 76:  KeyWord ::= r a n k
     //
-            case 74:
+            case 76:
             { 
             setSym1(TK_rank);
           
@@ -796,9 +816,9 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 75:  KeyWord ::= r e f e r e n c e
+    // Rule 77:  KeyWord ::= r e f e r e n c e
     //
-            case 75:
+            case 77:
             { 
             setSym1(TK_reference);
           
@@ -806,9 +826,9 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 76:  KeyWord ::= r e g i o n
+    // Rule 78:  KeyWord ::= r e g i o n
     //
-            case 76:
+            case 78:
             { 
             setSym1(TK_region);
           
@@ -816,9 +836,39 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 77:  KeyWord ::= v a l u e
+    // Rule 79:  KeyWord ::= r u n s a t
     //
-            case 77:
+            case 79:
+            { 
+            setSym1(TK_runsat);
+          
+            }
+            break; 
+         
+    //
+    // Rule 80:  KeyWord ::= r u n s o n
+    //
+            case 80:
+            { 
+            setSym1(TK_runson);
+          
+            }
+            break; 
+         
+    //
+    // Rule 81:  KeyWord ::= t h r e a d l o c a l
+    //
+            case 81:
+            { 
+            setSym1(TK_threadlocal);
+          
+            }
+            break; 
+         
+    //
+    // Rule 82:  KeyWord ::= v a l u e
+    //
+            case 82:
             { 
             setSym1(TK_value);
           
@@ -826,9 +876,9 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
             break; 
          
     //
-    // Rule 78:  KeyWord ::= w h e n
+    // Rule 83:  KeyWord ::= w h e n
     //
-            case 78:
+            case 83:
             { 
             setSym1(TK_when);
           

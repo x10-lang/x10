@@ -10,49 +10,49 @@ import com.ibm.lpg.*;
 import java.io.*;
 
 class X10Parserprs implements ParseTable, X10Parsersym {
-    public final static byte isKeyword[] = new byte[141];
+    public final static byte isKeyword[] = new byte[137];
     public final boolean isKeyword(int index) { return isKeyword[index] != 0; }
-    public final static short baseCheck[] = new short[10340];
+    public final static short baseCheck[] = new short[12625];
     public final int baseCheck(int index) { return baseCheck[index]; }
     public final static short rhs[] = baseCheck;
     public final int rhs(int index) { return rhs[index]; };
-    public final static char baseAction[] = new char[11476];
+    public final static char baseAction[] = new char[14277];
     public final int baseAction(int index) { return baseAction[index]; }
     public final static char lhs[] = baseAction;
     public final int lhs(int index) { return lhs[index]; };
-    public final static char termCheck[] = new char[7177];
+    public final static char termCheck[] = new char[8185];
     public final int termCheck(int index) { return termCheck[index]; }
-    public final static char termAction[] = new char[7106];
+    public final static char termAction[] = new char[8134];
     public final int termAction(int index) { return termAction[index]; }
-    public final static char asb[] = new char[616];
+    public final static char asb[] = new char[660];
     public final int asb(int index) { return asb[index]; }
-    public final static char asr[] = new char[1945];
+    public final static char asr[] = new char[1951];
     public final int asr(int index) { return asr[index]; }
-    public final static char nasb[] = new char[616];
+    public final static char nasb[] = new char[660];
     public final int nasb(int index) { return nasb[index]; }
-    public final static char nasr[] = new char[251];
+    public final static char nasr[] = new char[273];
     public final int nasr(int index) { return nasr[index]; }
-    public final static char terminalIndex[] = new char[141];
+    public final static char terminalIndex[] = new char[137];
     public final int terminalIndex(int index) { return terminalIndex[index]; }
-    public final static char nonterminalIndex[] = new char[309];
+    public final static char nonterminalIndex[] = new char[312];
     public final int nonterminalIndex(int index) { return nonterminalIndex[index]; }
-    public final static char scopePrefix[] = new char[143];
+    public final static char scopePrefix[] = new char[145];
     public final int scopePrefix(int index) { return scopePrefix[index]; }
-    public final static char scopeSuffix[] = new char[143];
+    public final static char scopeSuffix[] = new char[145];
     public final int scopeSuffix(int index) { return scopeSuffix[index]; }
-    public final static char scopeLhs[] = new char[143];
+    public final static char scopeLhs[] = new char[145];
     public final int scopeLhs(int index) { return scopeLhs[index]; }
-    public final static char scopeLa[] = new char[143];
+    public final static char scopeLa[] = new char[145];
     public final int scopeLa(int index) { return scopeLa[index]; }
-    public final static char scopeStateSet[] = new char[143];
+    public final static char scopeStateSet[] = new char[145];
     public final int scopeStateSet(int index) { return scopeStateSet[index]; }
-    public final static char scopeRhs[] = new char[709];
+    public final static char scopeRhs[] = new char[719];
     public final int scopeRhs(int index) { return scopeRhs[index]; }
-    public final static char scopeState[] = new char[410];
+    public final static char scopeState[] = new char[336];
     public final int scopeState(int index) { return scopeState[index]; }
-    public final static char inSymb[] = new char[616];
+    public final static char inSymb[] = new char[660];
     public final int inSymb(int index) { return inSymb[index]; }
-    public final static String name[] = new String[264];
+    public final static String name[] = new String[265];
     public final String name(int index) { return name[index]; }
 
 
@@ -93,7 +93,7 @@ class X10Parserprs implements ParseTable, X10Parsersym {
     static {
         try {
             InputStream infile = (new X10Parserprs()).getClass().getClassLoader().getResourceAsStream("X10Parserdcl.data");
-            final byte buffer[] = new byte[87850];
+            final byte buffer[] = new byte[102319];
 
             //
             // Normally, we should be able to read the content of infile with
@@ -139,9 +139,9 @@ class X10Parserprs implements ParseTable, X10Parsersym {
     }
 
     public final static int
-           ERROR_SYMBOL      = 140,
-           SCOPE_UBOUND      = 142,
-           SCOPE_SIZE        = 143,
+           ERROR_SYMBOL      = 136,
+           SCOPE_UBOUND      = 144,
+           SCOPE_SIZE        = 145,
            MAX_NAME_LENGTH   = 36;
 
     public final int getErrorSymbol() { return ERROR_SYMBOL; }
@@ -150,20 +150,20 @@ class X10Parserprs implements ParseTable, X10Parsersym {
     public final int getMaxNameLength() { return MAX_NAME_LENGTH; }
 
     public final static int
-           NUM_STATES        = 615,
-           NT_OFFSET         = 140,
-           LA_STATE_OFFSET   = 12147,
+           NUM_STATES        = 659,
+           NT_OFFSET         = 136,
+           LA_STATE_OFFSET   = 14954,
            MAX_LA            = 1,
-           NUM_RULES         = 671,
-           NUM_NONTERMINALS  = 308,
-           NUM_SYMBOLS       = 448,
+           NUM_RULES         = 677,
+           NUM_NONTERMINALS  = 311,
+           NUM_SYMBOLS       = 447,
            SEGMENT_SIZE      = 8192,
-           START_STATE       = 2670,
-           IDENTIFIER_SYMBOL = 36,
-           EOFT_SYMBOL       = 122,
-           EOLT_SYMBOL       = 122,
-           ACCEPT_ACTION     = 10340,
-           ERROR_ACTION      = 11476;
+           START_STATE       = 5859,
+           IDENTIFIER_SYMBOL = 41,
+           EOFT_SYMBOL       = 127,
+           EOLT_SYMBOL       = 127,
+           ACCEPT_ACTION     = 12625,
+           ERROR_ACTION      = 14277;
 
     public final static boolean BACKTRACK = true;
 
