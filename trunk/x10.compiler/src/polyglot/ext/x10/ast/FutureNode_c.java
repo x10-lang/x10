@@ -29,7 +29,7 @@ import polyglot.main.Report;
 
 
 /** A FutureNode is an TypeNode that has been marked with a future
- * qualifier.  ote that the base TypeNode may be ambiguous and may need to be resolved.
+ * qualifier.  Note that the base TypeNode may be ambiguous and may need to be resolved.
  * TODO: Check if the buildTypes phase should be used on this node.
  * TODO: Find a better way of handling the constructin of FutureType.
  * @author vj
@@ -114,13 +114,13 @@ public class FutureNode_c extends TypeNode_c implements FutureNode {
     }
 
     public String toString() {
-    	return "future " + (base == null ? "??" : base.toString());
+    	return  this.type.toString();
   }
     /**
      * Write out Java code for this node.
      */
     public void prettyPrint(CodeWriter w, PrettyPrinter ignore) {             
-        w.write("x10.lang.Future " /*+ base */);
+        w.write(this.type.toString());
       } 
 
     // translate??

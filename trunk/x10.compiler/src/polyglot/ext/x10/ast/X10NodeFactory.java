@@ -16,7 +16,7 @@ public interface X10NodeFactory extends NodeFactory {
     public Atomic Atomic(Position pos, Expr place, Block body);
     public Future Future(Position pos, Expr place, Expr body);
     public Here Here(Position pos);
-    public Force Force(Position pos, Expr expr);
+ 
     public When When(Position pos, List exprs, List statements);
     public Drop Drop(Position pos, List clocks);
     public Next Next(Position pos, List clocks);

@@ -6,6 +6,8 @@ import java.util.List;
 
 import polyglot.ext.jl.types.ArrayType_c;
 import polyglot.ext.jl.types.TypeSystem_c;
+import polyglot.ext.jl.types.NullType_c;
+
 import polyglot.ext.x10.types.X10PrimitiveType_c;
 import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
@@ -17,6 +19,8 @@ import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.NullType;
+
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
@@ -40,6 +44,10 @@ public class X10TypeSystem_c
     protected ArrayType arrayType(Position pos, Type type) {
         // FIXME: use our array type that support future/nullable here!
         return new ArrayType_c(this, pos, type);
+    }
+    
+    protected NullType createNull() {
+        return new NullType_c(this);
     }
 
        

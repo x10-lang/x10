@@ -112,7 +112,7 @@ public class NullableNode_c extends TypeNode_c  implements NullableNode {
     }
 
     public String toString() {
-    	return "nullable " + (base == null ? "??" : base.toString());
+    	return "/*nullable*/" + base.toString();
   }
     /**
      * Write out Java code for this node.
@@ -120,7 +120,7 @@ public class NullableNode_c extends TypeNode_c  implements NullableNode {
      * and just the reference type (unchanged) otherwise.
      */
     public void prettyPrint(CodeWriter w, PrettyPrinter ignore) {             
-        w.write( base.toString());
+        w.write( "/*nullable*/" + base.toString());
       } 
 
     // translate??

@@ -21,6 +21,8 @@ import polyglot.util.Position;
 import java.util.Collections;
 import java.util.ArrayList;
 
+import polyglot.main.Report;
+
 
 /** Implementation of Future types.
  * <p>This code does not yet implement Termination Equivalence for Future Types, i.e.  
@@ -90,14 +92,17 @@ public class FutureType_c extends ReferenceType_c implements FutureType {
 	 * @see polyglot.types.Type#translate(polyglot.types.Resolver)
 	 */
 	public String translate(Resolver c) {
-		return "future " + base().translate( c );
+		// return "future " + base().translate( c );
+		// return "x10.lang.Future /*" + base().translate( c ) + "*/";
+		return "x10.lang.Future";
 	}
 
 	/* 
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return "future " + base().toString( );
+		// return "future " + base().toString( );
+		return "x10.lang.Future";
 	}
 
 	/* Return the base type.
@@ -127,11 +132,31 @@ public class FutureType_c extends ReferenceType_c implements FutureType {
 	 }
 	 
 	 public boolean isCastValidImpl( Type toType) {
-	 	System.out.println(this + ".isCastValidImpl(" + toType +")");
+	 	if (Report.should_report("debug", 5)) {
+	 		Report.report(5, "[FutureType_c] |" +  this + "|.isCastValidImpl(|" + toType +"|):");
+	 	}
+	 	if (toType.equals(ts.Object())) {
+	 	 return true;
+	 	}
+	 	if (toType.isNullable()) {
+	 		NullableType nullType = toType.toNullable();
+	 		toType = nullType.base();
+	 	}
 	 	if (toType.isFuture()) {
 	 		FutureType target = toType.toFuture();
-	 		return base().isCastValidImpl( target.base() );
+	 		boolean result = base().isCastValidImpl( target.base() );
+	 		if (Report.should_report("debug", 5)) {
+		 		Report.report(5, "[FutureType_c] ... target=|" +  target + "|.");
+		 		Report.report(5, "[FutureType_c] ... returns |" +  result + "|.");
+		 	}
+	 		
+	 		return result;
 	 	}
+	 	if (Report.should_report("debug", 5)) {
+	 		
+	 		Report.report(5, "[FutureType_c] ... returns false.");
+	 	}
+ 		
 	 	return false;
 	 }
 	 

@@ -84,11 +84,15 @@ public class NullableType_c extends ReferenceType_c implements NullableType {
 
 
     public String toString() {
-    	return "nullable " + base().toString();
+    	return  base().toString();
     }
 
+    /** This needs to be changed so that the right boxed class is produced for 
+     * primitive types.
+     * @author vj
+     */
     public String translate( Resolver c ) {
-		return "nullable " + base().translate(c);
+		return  base().translate(c);
     }
 
     public boolean isCanonical() {
