@@ -67,6 +67,12 @@ public final class Configuration {
      * can be found in.
      */
     public static String COMPILER_FRAGMENT_DATA_DIRECTORY = "data/";
+
+    /**
+     * File name for generating PE files.  Use null to not generate
+     * PE traces.
+     */
+    public static String PE_FILE = "x10.pem"; // TODO: switch default to 'null' in the future
     
     public static int NUMBER_OF_LOCAL_PLACES = 2;
     

@@ -68,10 +68,110 @@ public class TestCompiler extends TestCase {
         run("examples/testcases/frontendworking/FutureTest.x10", "FutureTest");
     }
 
-    public void testAtomic1() {
-        runMain("examples/testcases/working/Atomic1.x10", "Atomic1");
+    public void testHelloWorld() {
+        runMain("examples/testcases/working/HelloWorld.x10", "HelloWorld");
     }
 
+    public void testBoxing0() {
+        runMain("examples/testcases/working/Boxing0.x10", "Boxing0");
+    }
+
+    public void testFuture0() {
+        runMain("examples/testcases/working/Future0.x10", "Future0");
+    }
+
+    public void testFuture0Boxed() {
+        runMain("examples/testcases/working/Future0Boxed.x10", "Future0Boxed");
+    }
+
+    public void testFuture1() {
+        runMain("examples/testcases/working/Future1.x10", "Future1");
+    }
+
+    public void testFuture1Boxed() {
+        runMain("examples/testcases/working/Future1Boxed.x10", "Future1Boxed");
+    }
+
+    public void testFuture2() {
+        runMain("examples/testcases/working/Future2.x10", "Future2");
+    }
+
+    public void testFuture2Boxed() {
+        runMain("examples/testcases/working/Future2Boxed.x10", "Future2Boxed");
+    }
+
+    public void testFuture3() {
+        runMain("examples/testcases/working/Future3.x10", "Future3");
+    }
+
+    public void testFuture3Boxed() {
+        runMain("examples/testcases/working/Future3Boxed.x10", "Future3Boxed");
+    }
+
+    public void testFuture4() {
+        runMain("examples/testcases/working/Future4.x10", "Future4");
+    }
+
+    public void testFuture4Boxed() {
+        runMain("examples/testcases/working/Future4Boxed.x10", "Future4Boxed");
+    }
+
+    public void testNullable0Ref() {
+        runMain("examples/testcases/working/Nullable0Ref.x10", "Nullable0Ref");
+    }
+
+    public void testNullable1() {
+        runMain("examples/testcases/working/Nullable1.x10", "Nullable1");
+    }
+
+    public void testNullable2() {
+        runMain("examples/testcases/working/Nullable2.x10", "Nullable2");
+    }
+
+    public void testNullableFuture0() {
+        runMain("examples/testcases/working/NullableFuture0.x10", "NullableFuture0");
+    }
+
+    public void testNullableFuture1() {
+        runMain("examples/testcases/working/NullableFuture1.x10", "NullableFuture1");
+    }
+
+    public void testNullableFuture2() {
+        runMain("examples/testcases/working/NullableFuture2.x10", "NullableFuture2");
+    }
+    
+    public void TestConditionalAtomicTest() {
+        run("examples/testcases/ConditionalAtomicTest.x10", "ConditionalAtomicTest");
+    }
+    
+    public void TestAsyncTest() { // HANGS!
+        run("examples/testcases/AsyncTest.x10", "AsyncTest");
+    }
+    
+    public void TestAsyncTest1() { // HANGS!
+        run("examples/testcases/AsyncTest1.x10", "AsyncTest1");
+    }
+    
+    public void TestRangeTest() {
+        run("examples/testcases/RangeTest.x10", "RangeTest");
+    }
+    
+    public void TestClockTest() {
+        run("examples/testcases/ClockTest.x10", "ClockTest");
+    }
+   
+    public void TestClockTest2() {
+        run("examples/testcases/ClockTest2.x10", "ClockTest2");
+    }
+   
+    public void TestClockedFinalTest() {
+        run("examples/testcases/ClockedFinalTest.x10", "ClockFinalTest");
+    }
+   
+    public void TestAtomic1() { // HANGS!
+        runMain("examples/testcases/working/Atomic1.x10", "Atomic1");
+    }  
+    
     public void TestAwait() {
         run("examples/testcases/AwaitTest.x10", "AwaitTest");
     }
