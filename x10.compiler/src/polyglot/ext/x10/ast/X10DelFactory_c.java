@@ -27,5 +27,19 @@ public class X10DelFactory_c
             }            
         };        
     }
+
+    /**
+     * For each term, add the delegate that redirects prettyPrint to the
+     * X10PrettyPrinterVisitor.
+     */
+    public JL delMethodDeclImpl() {
+        return new JL_c() {
+            public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
+               new X10PrettyPrinterVisitor(w,pp).visitAppropriate(jl());
+            }            
+        };        
+    }
+    
+   
     
 }
