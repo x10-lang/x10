@@ -37,11 +37,12 @@ public class Async_c extends Stmt_c
 	
 	public Expr place; 
 	public Stmt body;
-        protected List clocks;
+    protected List clocks;
 	
-	public Async_c( Position pos, Expr place, Stmt body ) {
+	public Async_c( Position pos, Expr place, List clocks, Stmt body ) {
 		super( pos );
 		this.place = place;
+		this.clocks = clocks;
 		this.body = body;
 	}
 	

@@ -21,7 +21,7 @@ import x10.parser.X10VarDeclarator;
  */
 public interface X10NodeFactory extends NodeFactory {
     Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
-    Async Async(Position pos, Expr place, Stmt body);
+    Async Async(Position pos, Expr place, List clocks, Stmt body);
     Atomic Atomic(Position pos, Expr place, Stmt body);
     Future Future(Position pos, Expr place, Expr body);
     Here Here(Position pos);
@@ -55,8 +55,8 @@ public interface X10NodeFactory extends NodeFactory {
     
     RemoteCall RemoteCall(Position pos, Receiver target, String name, List arguments);
     X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);
-    X10Loop ForEach(Position pos, Formal formal, Expr domain, Stmt body);
-    X10Loop AtEach(Position pos, Formal formal, Expr domain, Stmt body);
+    X10Loop ForEach(Position pos, Formal formal, Expr domain, List clocks, Stmt body);
+    X10Loop AtEach(Position pos, Formal formal, Expr domain, List clocks, Stmt body);
     Finish Finish(Position pos, Stmt body);
 
     //TODO: vj -> vj Change to a single call, with default values for missing parameters.

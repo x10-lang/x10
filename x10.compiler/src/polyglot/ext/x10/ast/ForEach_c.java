@@ -30,14 +30,13 @@ import polyglot.types.Type;
  */
 public class ForEach_c extends X10Loop_c implements ForEach, Clocked {
 	
-        protected List clocks;
+    protected List clocks;
         
 	/**
 	 * @param pos
 	 */
 	public ForEach_c(Position pos) {
 		super(pos);
-		
 	}
 	
 	/**
@@ -46,9 +45,9 @@ public class ForEach_c extends X10Loop_c implements ForEach, Clocked {
 	 * @param domain
 	 * @param body
 	 */
-	public ForEach_c(Position pos, Formal formal, Expr domain, Stmt body) {
+	public ForEach_c(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
 		super(pos, formal, domain, body);
-		
+		this.clocks = clocks;
 	}
 	
     /** Expression */
