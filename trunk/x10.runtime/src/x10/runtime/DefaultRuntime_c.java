@@ -25,7 +25,7 @@ class DefaultRuntime_c extends Runtime implements ThreadRegistry {
      */
     protected void run(String[] args) throws Exception {
 	if (args.length < 1) {
-	    System.err.println("Invoke with name of main x10 class!");
+	    System.err.println("Invoke with name of main X10 class!");
 	    System.exit(-1);
 	}
 	String[] appArgs = new String[args.length-1];

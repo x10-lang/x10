@@ -24,8 +24,8 @@ class LocalPlace_c extends PooledExecutor
 		    return t;
 		}
 	    });
-	this.setMinimumPoolSize(2);
-	this.setKeepAliveTime(5000);	
+	this.setMinimumPoolSize(Configuration.PLACE_MINIMAL_THREAD_POOL_SIZE);
+	this.setKeepAliveTime(Configuration.PLACE_THREAD_KEEPALIVE_TIME);	
     }
 
     public void runAsync(Activity a) {
