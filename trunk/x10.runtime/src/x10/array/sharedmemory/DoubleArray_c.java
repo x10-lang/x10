@@ -4,8 +4,13 @@
 package x10.array.sharedmemory;
 
 import java.util.Iterator;
+
+
+
 import x10.array.DoubleArray;
+import x10.array.IntArray;
 import x10.array.Operator;
+import x10.array.IntArray.Assign;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
@@ -131,7 +136,14 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         }
         return result;
     }
-
+    public x10.lang.doubleArray lift( DoubleArray.unaryOp op ) {
+        DoubleArray result = newInstance(distribution);
+        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+            point p = (point) it.next();
+             result.set(op.apply(this.get(p)),p);
+        }
+        return result;
+    }
     public double reduce( DoubleArray.binaryOp op, double unit ) {
         double result = unit;
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
@@ -221,7 +233,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
-    public x10.lang.doubleArray overlay(x10.lang.doubleArray d) {
+    public x10.lang.DoubleReferenceArray overlay(x10.lang.doubleArray d) {
     	throw new Error("TODO");
     }
     public x10.lang.doubleArray union(x10.lang.doubleArray d) {
