@@ -227,9 +227,9 @@ public final class Clock_c extends Clock {
         assert pending_.size() == 0;
         assert nowSet_.size() == 0;
         this.phase_++;
-        
-        Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_CLOCK_ADVANCE,
-                this.id);
+        if (Sampling.SINGLETON != null)
+            Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_CLOCK_ADVANCE,
+                    this.id);
         // first notify everyone
         if (this.listener1_ != null) {
             this.listener1_.notifyAdvance();

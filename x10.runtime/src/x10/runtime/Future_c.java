@@ -43,15 +43,17 @@ final class Future_c extends Future {
      * @see x10.runtime.Activity.Result#force()
      */
     public synchronized Object force() {
-        while (! haveResult_) {
-            try {
-                LoadMonitored.blocked(Sampling.CAUSE_FORCE, 0, waitFor_);
-                this.wait();
-            } catch (InterruptedException ie) {
-                throw new Error(ie); // this should never happen...
-            } finally {
-                LoadMonitored.unblocked(Sampling.CAUSE_FORCE, 0, waitFor_);
+        LoadMonitored.blocked(Sampling.CAUSE_FORCE, 0, waitFor_);
+        try {
+            while (! haveResult_) {
+                try {
+                    this.wait();
+                } catch (InterruptedException ie) {
+                    throw new Error(ie); // this should never happen...
+                }
             }
+        } finally {
+            LoadMonitored.unblocked(Sampling.CAUSE_FORCE, 0, waitFor_);
         }
         return result_;
     }
