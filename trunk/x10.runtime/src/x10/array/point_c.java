@@ -122,6 +122,19 @@ public class point_c extends point implements Comparable {
 	    }
 	    return res;
 	}
+    public boolean gt( point p) {
+    	return compareTo(p)==1;
+    }
+    public boolean lt( point p) {
+    	return compareTo(p)==-1;
+    }
+    public boolean ge( point p) {
+    	return compareTo(p)>=0;
+    }
+    public boolean le( point p) {
+    	return compareTo(p)<= 0;
+    }
+    
     
     public String toString() {
         StringBuffer sb = new StringBuffer();
