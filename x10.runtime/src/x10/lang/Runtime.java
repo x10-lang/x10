@@ -35,6 +35,8 @@ public abstract class Runtime implements x10.base.Runtime {
      */
     public static Runtime runtime;
     
+    private static int returnValue;
+    
     /**
      * This instance should be used only in the implementation of 
      * the x10.runtime. 
@@ -84,8 +86,13 @@ public abstract class Runtime implements x10.base.Runtime {
     	} catch (Exception e) {
     		Runtime.java.error("Unexpected Exception in X10 Runtime.", e);
     	}
+    	System.exit(returnValue);
     }
 
+    public static void setExitCode(int rv) {
+    	returnValue = rv;
+    }
+    
     protected Runtime() {}
 
     public static abstract class Factory {
