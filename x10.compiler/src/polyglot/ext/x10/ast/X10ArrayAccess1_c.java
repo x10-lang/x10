@@ -124,7 +124,7 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		
 		//System.out.println("X10ArrayAccess1_c: Checking if |" + this + "| should be an ArrayAccess.");
 		if ( type.isArray() || ts.isImplicitCastValid(index.type(), ts.Int())) {
-			System.out.println("X10ArrayAccess1_c: yes, |" + this + "| should.");
+			// System.out.println("X10ArrayAccess1_c: yes, |" + this + "| should.");
 			return new ArrayAccess_c(position(), array, index).typeCheck( tc );
 		}
 		//System.out.println("X10ArrayAccess1_c: no, |" + this + "| isn't.");
