@@ -260,7 +260,7 @@ public class DefaultRuntime_c
      * @return null if no exceptios were thrown,
      *   otherwise the collection of exceptions
      */
-    public Throwable getFinishExceptions(Activity a) {
+    public synchronized Throwable getFinishExceptions(Activity a) {
         Stack f = (Stack) activity2finish_.get(a);
         // first, clean up activity2finish_ map (free memory)
         Iterator it = activity2finish_.keySet().iterator();
