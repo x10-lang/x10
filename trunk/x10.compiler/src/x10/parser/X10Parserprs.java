@@ -10,31 +10,31 @@ import com.ibm.lpg.*;
 import java.io.*;
 
 class X10Parserprs implements ParseTable, X10Parsersym {
-    public final static byte isKeyword[] = new byte[142];
+    public final static byte isKeyword[] = new byte[141];
     public final boolean isKeyword(int index) { return isKeyword[index] != 0; }
-    public final static short baseCheck[] = new short[10220];
+    public final static short baseCheck[] = new short[10340];
     public final int baseCheck(int index) { return baseCheck[index]; }
     public final static short rhs[] = baseCheck;
     public final int rhs(int index) { return rhs[index]; };
-    public final static char baseAction[] = new char[11323];
+    public final static char baseAction[] = new char[11476];
     public final int baseAction(int index) { return baseAction[index]; }
     public final static char lhs[] = baseAction;
     public final int lhs(int index) { return lhs[index]; };
-    public final static char termCheck[] = new char[7555];
+    public final static char termCheck[] = new char[7177];
     public final int termCheck(int index) { return termCheck[index]; }
-    public final static char termAction[] = new char[7482];
+    public final static char termAction[] = new char[7106];
     public final int termAction(int index) { return termAction[index]; }
     public final static char asb[] = new char[616];
     public final int asb(int index) { return asb[index]; }
-    public final static char asr[] = new char[2014];
+    public final static char asr[] = new char[1945];
     public final int asr(int index) { return asr[index]; }
     public final static char nasb[] = new char[616];
     public final int nasb(int index) { return nasb[index]; }
-    public final static char nasr[] = new char[255];
+    public final static char nasr[] = new char[251];
     public final int nasr(int index) { return nasr[index]; }
-    public final static char terminalIndex[] = new char[142];
+    public final static char terminalIndex[] = new char[141];
     public final int terminalIndex(int index) { return terminalIndex[index]; }
-    public final static char nonterminalIndex[] = new char[308];
+    public final static char nonterminalIndex[] = new char[309];
     public final int nonterminalIndex(int index) { return nonterminalIndex[index]; }
     public final static char scopePrefix[] = new char[143];
     public final int scopePrefix(int index) { return scopePrefix[index]; }
@@ -93,8 +93,22 @@ class X10Parserprs implements ParseTable, X10Parsersym {
     static {
         try {
             InputStream infile = (new X10Parserprs()).getClass().getClassLoader().getResourceAsStream("X10Parserdcl.data");
-            final byte buffer[] = new byte[88959];
-            infile.read(buffer);
+            final byte buffer[] = new byte[87850];
+
+            //
+            // Normally, we should be able to read the content of infile with
+            // the single statement: infile.read(buffer);
+            // However, there appears to be a problem with this statement
+            // when it is used in an eclipse plugin - in that case, only 8192
+            // bytes are read, regardless of the length of buffer. Therefore, we
+            // have to replace the single statement above with the loop below...
+            //
+            int current_index = 0;
+            do {
+                int num_read = infile.read(buffer, current_index, buffer.length);
+                current_index += num_read;
+            } while (current_index < buffer.length);
+
             read(buffer, isKeyword);
             read(buffer, baseCheck);
             read(buffer, baseAction);
@@ -125,7 +139,7 @@ class X10Parserprs implements ParseTable, X10Parsersym {
     }
 
     public final static int
-           ERROR_SYMBOL      = 141,
+           ERROR_SYMBOL      = 140,
            SCOPE_UBOUND      = 142,
            SCOPE_SIZE        = 143,
            MAX_NAME_LENGTH   = 36;
@@ -137,19 +151,19 @@ class X10Parserprs implements ParseTable, X10Parsersym {
 
     public final static int
            NUM_STATES        = 615,
-           NT_OFFSET         = 141,
-           LA_STATE_OFFSET   = 11995,
+           NT_OFFSET         = 140,
+           LA_STATE_OFFSET   = 12147,
            MAX_LA            = 1,
-           NUM_RULES         = 672,
-           NUM_NONTERMINALS  = 307,
+           NUM_RULES         = 671,
+           NUM_NONTERMINALS  = 308,
            NUM_SYMBOLS       = 448,
            SEGMENT_SIZE      = 8192,
-           START_STATE       = 1414,
-           IDENTIFIER_SYMBOL = 34,
-           EOFT_SYMBOL       = 123,
-           EOLT_SYMBOL       = 123,
-           ACCEPT_ACTION     = 10220,
-           ERROR_ACTION      = 11323;
+           START_STATE       = 2670,
+           IDENTIFIER_SYMBOL = 36,
+           EOFT_SYMBOL       = 122,
+           EOLT_SYMBOL       = 122,
+           ACCEPT_ACTION     = 10340,
+           ERROR_ACTION      = 11476;
 
     public final static boolean BACKTRACK = true;
 
