@@ -29,7 +29,7 @@ import java.util.Set;
  * @author Christian Grothoff
  * @author vj
  */
-abstract class Distribution_c extends /*Region_c*/distribution /*implements Distribution*/ {
+public abstract class Distribution_c extends /*Region_c*/distribution /*implements Distribution*/ {
 	protected Set/*<place>*/ places;
 	public Set/*<place>*/ places() {
 		return places;
