@@ -33,7 +33,7 @@ public final class Sampling extends Thread {
     /**
      * The Sampling thread.  There can only be one.
      */
-    public final static Sampling _ = new Sampling();
+    public final static Sampling SINGLETON = new Sampling();
     
     /**
      * Activate sampling.  Called by the Runtime during the
@@ -50,12 +50,12 @@ public final class Sampling extends Thread {
      * Shutdown gathering process.
      */
     static synchronized void shutdown() {
-        synchronized(_) {
-            _.shutdown = true;
-            _.interrupt();
+        synchronized(SINGLETON) {
+            SINGLETON.shutdown = true;
+            SINGLETON.interrupt();
         }
         try {   
-            _.join(); 
+            SINGLETON.join(); 
         } catch (InterruptedException ie) { 
             throw new Error(ie);
         }       
@@ -443,7 +443,7 @@ public final class Sampling extends Thread {
                 public void notifyActivitySpawn(Activity a,
                                                 Activity i) {
                     assert a != i;
-                    _.signalEvent(dr.getPlaceOfActivity(i),
+                    SINGLETON.signalEvent(dr.getPlaceOfActivity(i),
                                         dr.getPlaceOfActivity(a),
                                         Sampling.EVENT_ID_ACTIVITY_START,
                                         0,
@@ -452,7 +452,7 @@ public final class Sampling extends Thread {
                     dr.registerActivitySpawnListener(a, this);
                 }
                 public void notifyActivityTerminated(Activity a) {
-                    _.signalEvent(null,
+                    SINGLETON.signalEvent(null,
                             dr.getPlaceOfActivity(a),
                             Sampling.EVENT_ID_ACTIVITY_END,
                             0,
@@ -529,11 +529,11 @@ public final class Sampling extends Thread {
      */
     public static class ThreadQueueSampler extends Sampler {
         ThreadQueueSampler() {
-            _.threadQueueSize = new int[_.places.length];
+            SINGLETON.threadQueueSize = new int[SINGLETON.places.length];
         }
         public void sample(long delta) {
-            for (int i=_.places.length-1;i>=0;i--) {
-                LocalPlace_c p = (LocalPlace_c) _.places[i];
+            for (int i=SINGLETON.places.length-1;i>=0;i--) {
+                LocalPlace_c p = (LocalPlace_c) SINGLETON.places[i];
                 int ql = 0;
                 synchronized(p) {
                     LocalPlace_c.PoolRunner head = p.threadQueue_;
@@ -542,7 +542,7 @@ public final class Sampling extends Thread {
                         ql++;
                     }
                 }
-                _.threadQueueSize[i] = ql;
+                SINGLETON.threadQueueSize[i] = ql;
             }
         }
     }
@@ -557,16 +557,16 @@ public final class Sampling extends Thread {
      */
     public static class LoadSampler extends Sampler {
         LoadSampler() {
-            _.loadSamples = new int[_.places.length];
+            SINGLETON.loadSamples = new int[SINGLETON.places.length];
         }
         public void sample(long delta) {
-            for (int i=_.places.length-1;i>=0;i--) {
-                LocalPlace_c p = (LocalPlace_c) _.places[i];
+            for (int i=SINGLETON.places.length-1;i>=0;i--) {
+                LocalPlace_c p = (LocalPlace_c) SINGLETON.places[i];
                 int ql;
                 synchronized(p) {
                     ql = p.runningThreads;
                 }
-                _.loadSamples[i] = ql;
+                SINGLETON.loadSamples[i] = ql;
             }
         }
     }
