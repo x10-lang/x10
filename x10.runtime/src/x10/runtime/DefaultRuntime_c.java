@@ -2,6 +2,7 @@ package x10.runtime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -227,16 +228,24 @@ public class DefaultRuntime_c
     public void startFinish(final Activity a) {
         final Stack fini = new Stack();
         this.activity2finish_.put(a, fini);
-        registerActivitySpawnListener(a, new ActivitySpawnListener() {
-            public void notifyActivitySpawn(Activity spawn,
-                    Activity i) {
-                if (activity2finish_.get(a) != fini)
-                    return; // YES, this line IS needed.  - CG 
-                registerActivitySpawnListener(spawn, this);
-                activity2finish_.put(spawn, fini);
-            }
-            public void notifyActivityTerminated(Activity a) {}
-        });
+        registerActivitySpawnListener(a,
+             new FinishASL(a, fini));
+    }
+    class FinishASL implements ActivitySpawnListener {
+        private final Activity root;
+        private final Stack fini;
+        FinishASL(Activity r, Stack f) { this.root = r; this.fini = f; }
+        public void notifyActivitySpawn(Activity spawn,
+                Activity i) {
+            if ( (activity2finish_.get(root) != fini) ||
+                  (activity2finish_.get(spawn) != null) )
+                return; // YES, this line IS needed.  - CG
+            
+            registerActivitySpawnListener(spawn,
+                    new FinishASL(i, fini));
+            activity2finish_.put(spawn, fini);
+        }
+        public void notifyActivityTerminated(Activity a) {}
     }
     
     /**
@@ -249,6 +258,14 @@ public class DefaultRuntime_c
      */
     public Throwable getFinishExceptions(Activity a) {
         Stack f = (Stack) activity2finish_.get(a);
+        // first, clean up activity2finish_ map (free memory)
+        Iterator it = activity2finish_.keySet().iterator();
+        while (it.hasNext()) {
+            java.lang.Object o = it.next();
+            if (activity2finish_.get(o) == f) 
+                it.remove();
+        }
+        // now, compute resulting exception and return it
         if (f.isEmpty())
             return null;
         if (f.size() == 1)
