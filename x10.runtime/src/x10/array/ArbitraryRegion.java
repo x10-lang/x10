@@ -12,7 +12,7 @@ import java.util.TreeSet;
 import java.util.Set;
 import java.util.HashSet;
 
-import x10.lang.PointOutOfRegionError;
+
 import x10.lang.point;
 import x10.lang.region;
 
@@ -246,7 +246,7 @@ public class ArbitraryRegion extends region {
     /* (non-Javadoc)
      * @see x10.lang.region#ordinal(x10.lang.point)
      */
-    public int ordinal(point p) throws EmptyRegionError, PointOutOfRegionError {
+    public int ordinal(point p) throws EmptyRegionError, ArrayIndexOutOfBoundsException {
         assert p != null;
         assert p.rank == rank;
         
@@ -254,7 +254,7 @@ public class ArbitraryRegion extends region {
         if (size() == 0)
             throw new EmptyRegionError();
         if (!contains(p))
-            throw new PointOutOfRegionError();
+            throw new ArrayIndexOutOfBoundsException();
         else {
             for (Iterator it = iterator(); it.hasNext(); ) {
     		    point q = (point) it.next();
@@ -270,12 +270,12 @@ public class ArbitraryRegion extends region {
     /* (non-Javadoc)
      * @see x10.lang.region#coord(int)
      */
-    public point coord(int ord) throws PointOutOfRegionError {
+    public point coord(int ord) throws ArrayIndexOutOfBoundsException {
         assert ord >= 0;
         
         point ret;
         if (ord >= size())
-            throw new PointOutOfRegionError();
+            throw new ArrayIndexOutOfBoundsException();
         else {
             int ctr = 0;
             Iterator it = iterator();
