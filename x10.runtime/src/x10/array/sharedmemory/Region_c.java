@@ -1,11 +1,13 @@
 /*
  * Created on Oct 3, 2004
  */
-package x10.array;
+package x10.array.sharedmemory;
 
 import java.util.Iterator;
 import java.util.Set;
 
+import x10.array.Range;
+import x10.array.Region;
 
 
 /**
@@ -34,7 +36,7 @@ class Region_c implements Region {
 		int tmp_card = 1;
 		dims_ = new Range[dims.length];
 		for (int i = 0; i < dims.length; ++ i) {
-			dims_[i] = new Range_c(0, dims[i]);
+			dims_[i] = new Range(0, dims[i]);
 			tmp_card *= dims[i];
 		}
 		card = tmp_card;
@@ -88,7 +90,7 @@ class Region_c implements Region {
                         ( (offS == offE) ) ) )
                     throw new Error("Not implemented"); /* we don't get a nice-cut region here! */
                 
-                ret[i] = new Range_c(offS + dims_[i].lo, offE + dims_[i].lo); /* -1: range is inclusive! */
+                ret[i] = new Range(offS + dims_[i].lo, offE + dims_[i].lo); /* -1: range is inclusive! */
                 start = delS;
                 end   = delE;
             }
@@ -223,7 +225,7 @@ class Region_c implements Region {
 		
 		Range[] ra = new Range[rank];
 		for (int i = 0; i < rank; ++i)
-			ra[i] = new Range_c(lo[i], hi[i]);
+			ra[i] = new Range(lo[i], hi[i]);
 		return new Region_c(ra);
 	}
 	

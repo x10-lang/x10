@@ -13,7 +13,7 @@ import x10.lang.TypeArgument;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-public abstract class Range implements TypeArgument {
+public class Range implements TypeArgument {
 	/**
 	 * Cardinality of the range, i.e., the number of element 
 	 * in the integer space it covers.
@@ -34,15 +34,31 @@ public abstract class Range implements TypeArgument {
 		card = hi - lo + 1; // inclusive!
 	}
     
-	public abstract boolean contains(int p);
+	public int ordinal(int p) {
+		assert contains(p);
+		
+		return p - lo;
+	}
 	
-	public abstract boolean contains(Range r);
+	public boolean contains(int p) {
+		return lo <= p && p <= hi; // X10 spec says range is inclusive!
+	}
 	
-	public abstract int ordinal(int p);
+	public boolean contains(Range r) {
+		return r.lo >= lo && r.hi <= hi;
+	}
 	
-	public abstract String toString();
+	public String toString() {
+		return "[" + lo + ".." + hi + "]";
+	}
 	
-	public abstract boolean equals(Object o);
+	public boolean equals(Object o) {
+		assert o instanceof Range;
+		Range rhs = (Range) o;
+		return rhs.lo == lo && rhs.hi == hi;
+	}
 	
-	public abstract int hashCode();
+	public int hashCode() {
+		return card;
+	}
 }
