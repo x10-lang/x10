@@ -3,12 +3,24 @@ HOWTO: Translate and run X10 programs on the command line and with eclipse:
 
 What you need:
 
- - obtain the latest version of the code from CVS (update in Eclipse)
+ - install a Java SDK and eclipse.
+ - obtain the latest version of the X10 prototype code from 
+   CVS (update in Eclipse)
+ - set the JAVA_HOME environment variable such that it points to the 
+   Java installation that you want to use to translate and run x10 
+   programs. The 'java' and 'javac' command shall be found at 
+   $JAVA_HOME/bin/ (Unix style).
  - run the build.xml ant script in the root directory of the x10
-   installation.  This should update the files bin/x10, bin/x10c and
+   installation.  
+   o if you call ant from within eclipse, then specify the 
+     following tragets explicitly (in this order): bin, base, jl, x10-ext.
+   o if you call ant form the command line the default target (i.e., all)
+     is fine.
+   This should create the files bin/x10, bin/x10c and
    etc/standard.cfg. (see note below).
  - add the bin directory of the x10 installation to your system's
-   search  path
+   search path
+
 
 Procedure:
 
