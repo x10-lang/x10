@@ -47,12 +47,6 @@ public abstract class LongArray extends LongReferenceArray {
 	public void pointwise(LongArray res, Operator.Pointwise op, LongArray arg) {
 	    assert res.distribution.equals(distribution);
         assert arg.distribution.equals(distribution);
-        /*
-         * the following assertions are limitation that are in the current
-         * implementation, not in the spec FIXME
-         */
-        assert arg instanceof LongArray;
-        assert res instanceof LongArray;
 		
 		LongArray arg_t =  arg;
 		LongArray res_t = res;
@@ -67,12 +61,7 @@ public abstract class LongArray extends LongReferenceArray {
 	
 	public void pointwise(LongArray res, Operator.Pointwise op) {
 	    assert res == null || res.distribution.equals(distribution);
-        /*
-         * the following assertions are limitation that are in the current
-         * implementation, not in the spec FIXME
-         */
-        assert res == null || res instanceof LongArray;
-        
+
         for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			long arg1 = get(p);
@@ -91,17 +80,13 @@ public abstract class LongArray extends LongReferenceArray {
 	}
 	
 	public void scan(LongArray res, Operator.Scan op) {
-	    assert res.distribution.equals(distribution);
-        /*
-         * the following assertions are limitation that are in the current
-         * implementation, not in the spec FIXME
-         */
-        assert res instanceof LongArray;
-        LongArray res_t = (LongArray) res;
+	    assert res != null;
+        assert res.distribution.equals(distribution);
+        
         for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			long arg1 = get(p);
-			res_t.set(op.apply(arg1), p);
+			res.set(op.apply(arg1), p);
 		}
 	}
 	

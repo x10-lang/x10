@@ -65,13 +65,8 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
      */
     public void pointwise(IntArray res, Operator.Pointwise op, IntArray arg) {
         assert res == null || res.distribution.equals(distribution);
+        assert arg != null;
         assert arg.distribution.equals(distribution);
-        /*
-         * the following assertions are limitation that are in the current
-         * implementation, not in the spec FIXME
-         */
-        assert arg instanceof IntArray;
-        assert res == null || res instanceof IntArray;
 
         IntArray res_t = (IntArray) res;
         IntArray arg_t = (IntArray) arg;
@@ -87,11 +82,6 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
 
     public void pointwise(IntArray res, Operator.Pointwise op) {
         assert res == null || res.distribution.equals(distribution);
-        /*
-         * the following assertions are limitation that are in the current
-         * implementation, not in the spec FIXME
-         */
-        assert res == null || res instanceof IntArray;
         
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
             point p = (point) it.next();
