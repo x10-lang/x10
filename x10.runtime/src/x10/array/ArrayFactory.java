@@ -13,13 +13,16 @@ import x10.base.Runtime;
 public abstract class ArrayFactory {
 	
 	/** default array factory */
-	private static final ArrayFactory af_;
-	private static final Runtime ar_;
+	private static ArrayFactory af_;
 	
-	static {
-		// depending on the system environment, this might change
-		af_ = new SharedMemoryArrayFactory();
-		ar_ = ArrayRuntime.getRuntime();
+	private static Runtime ar_;
+	
+	/* this must be called exactly once when the runtime system is bootstrapped */
+	public static void init(Runtime r) {
+	    assert (af_ == null);
+	    
+	    af_ = new SharedMemoryArrayFactory();
+		ar_ = r;
 	}
 	
 	/**
@@ -39,96 +42,104 @@ public abstract class ArrayFactory {
      * @return New Region.
      */
     public static Region newRegion(Range[] dims) {
-    	return af_.makeRegion(dims);
+        assert (af_ == null); 
+        return af_.makeRegion(dims);
     }
     
     public static Region newUpperTriangularRegion(int n) {
+        assert (af_ == null);
         return af_.makeUpperTriangularRegion(n);
 	}
 	
     public static Region newLowerTriangularRegion(int n) {
+        assert (af_ == null);
         return af_.makeLowerTriangularRegion(n);
 	}
  
     public static Region newBandedRegion(int n, int k) {
+        assert (af_ == null);
         return af_.makeBandedRegion(n, k);
 	}
-    
-    private static Distribution regionToDistribution_(Region r) {
-        Distribution d;
-        if (r instanceof Distribution) 
-            d = (Distribution) r;
-        else {
-            Place[] lp = { ar_.currentPlace() };
-            d = newBlockDistribution(r, lp);
-        }
-        return d;
+       
+    /**
+     * @return  New array with Distribution d.
+     */
+    public static IntArray newIntArray(Distribution r) {
+        assert (af_ == null);    
+        return af_.makeIntArray(r, true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static IntArray newIntArray(Region r) {
-        return af_.makeIntArray(regionToDistribution_(r), true);
+    public static IntArray newIntArray(Distribution r, int c) {
+        assert (af_ == null);    
+        return af_.makeIntArray(r, c, true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static IntArray newIntArray(Region r, int c) {
-    	return af_.makeIntArray(regionToDistribution_(r), c, true);
+    public static IntArray newIntArray(Distribution r, boolean safe) {
+        assert (af_ == null);    
+        return af_.makeIntArray(r, safe);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static IntArray newIntArray(Region r, boolean safe) {
-    	return af_.makeIntArray(regionToDistribution_(r), safe);
+    public static IntArray newIntArray(Distribution r, int c, boolean safe) {
+        assert (af_ == null);    
+        return af_.makeIntArray(r, c, safe);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static IntArray newIntArray(Region r, int c, boolean safe) {
-    	return af_.makeIntArray(regionToDistribution_(r), c, safe);
+    public static DoubleArray newDoubleArray(Distribution r) {
+        assert (af_ == null);    
+        return af_.makeDoubleArray(r, true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static DoubleArray newDoubleArray(Region r) {
-        return af_.makeDoubleArray(regionToDistribution_(r), true);
+    public static DoubleArray newDoubleArray(Distribution r, double c) {
+        assert (af_ == null);    
+        return af_.makeDoubleArray(r, c, true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static DoubleArray newDoubleArray(Region r, double c) {
-    	return af_.makeDoubleArray(regionToDistribution_(r), c, true);
+    public static DoubleArray newDoubleArray(Distribution r, boolean safe) {
+        assert (af_ == null);    
+        return af_.makeDoubleArray(r, safe);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static DoubleArray newDoubleArray(Region r, boolean safe) {
-        return af_.makeDoubleArray(regionToDistribution_(r), safe);
+    public static DoubleArray newDoubleArray(Distribution r, double c, boolean safe) {
+        assert (af_ == null);    
+        return af_.makeDoubleArray(r, c, safe);
     }
     
-    /**
-     * @return  New array with Distribution d.
-     */
-    public static DoubleArray newDoubleArray(Region r, double c, boolean safe) {
-    	return af_.makeDoubleArray(regionToDistribution_(r), c, safe);
+    public static Distribution newHereDistribution(Region r) {
+        Place p = ar_.currentPlace();
+        return af_.makeConstantDistribution(r, p);
     }
-    
-    /**
+        
+        /**
+    }
      * Create a Distribution where the given Region is distributed
      * into blocks over all available Places.
      * @param r
      * @return
      */
     public static Distribution newBlockDistribution(Region r, Place[] q) {
-    	return af_.makeBlockDistribution(r, q);
+        assert (af_ == null);    
+        return af_.makeBlockDistribution(r, q);
     }
     
     /**
@@ -138,7 +149,8 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newBlockDistribution(Region r, int n, Place[] p) {
-    	return af_.makeBlockDistribution(r, n, p);
+        assert (af_ == null);    
+        return af_.makeBlockDistribution(r, n, p);
     }
     
     /**
@@ -150,7 +162,8 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newCyclicDistribution(Region r, Place[] p) {
-    	return af_.makeCyclicDistribution(r,  p);
+        assert (af_ == null);    
+        return af_.makeCyclicDistribution(r,  p);
     }
     
     /**
@@ -162,7 +175,8 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newBlockCyclicDistribution(Region r, int n, Place[] p) {
-    	return af_.makeBlockCyclicDistribution(r, n, p);
+        assert (af_ == null);    
+        return af_.makeBlockCyclicDistribution(r, n, p);
     }
     
     /**
@@ -172,7 +186,8 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newArbitraryDistribution(Region r, Place[] p) {
-    	return af_.makeArbitraryDistribution(r, p);
+        assert (af_ == null);    
+        return af_.makeArbitraryDistribution(r, p);
     }
     
     /**
@@ -183,7 +198,8 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newConstantDistribution(Region r, Place p) {
-    	return af_.makeConstantDistribution(r, p);
+        assert (af_ == null);    
+        return af_.makeConstantDistribution(r, p);
     }
     
     /**
@@ -194,7 +210,8 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newUniqueDistribution(Place[] p) {
-    	return af_.makeUniqueDistribution(p);
+        assert (af_ == null);    
+        return af_.makeUniqueDistribution(p);
     }
     
     /**

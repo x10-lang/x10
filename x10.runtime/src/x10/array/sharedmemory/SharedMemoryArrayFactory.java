@@ -64,8 +64,9 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
     public DoubleArray makeDoubleArray(Distribution d, double c, boolean safe) {
         return new DoubleArray_c((Distribution_c)d, c, safe);
     }
-    
-    /**
+        
+        /**
+    }
      * Create a Distribution where the given Region is distributed
      * into blocks over all available Places.
      * @param r
