@@ -54,6 +54,15 @@ public class DefaultRuntime_c
     private final Map thread2place_ = new WeakHashMap(); // <Thread,Place>
 
     /**
+     * At what place is the given thread running (needed to support
+     * running multiple Places within the same VM). Note that we're
+     * using a weak hash map here since the threadpool code may decide
+     * to reduce the number of threads by just letting one exit, and
+     * we would in that case not want to hold on to the memory.
+     */
+    private final Map activity2place_ = new WeakHashMap(); // <Activity,Place>
+
+    /**
      * Which activity is the current thread executing?  This one does
      * not have to be a weak hash map since threads are explicitly 
      * removed from the map once they complete a particular activity.
@@ -146,7 +155,7 @@ public class DefaultRuntime_c
             public Object getResult() {
                 return null;
             }
-        };        
+        };
         // run the main app
         Future f = p0.runFuture(boot);
         // make sure we don't accidentially initialize Sampling by
@@ -220,6 +229,8 @@ public class DefaultRuntime_c
         ArrayList v;    
         synchronized(this) {
             assert a != i;
+            assert thread2place_.get(t) != null;
+            activity2place_.put(a, thread2place_.get(t));
             thread2activity_.put(t,a);
             if (i == null) 
                 return;        
@@ -384,6 +395,8 @@ public class DefaultRuntime_c
      * @return null if the activity is not running anywhere
      */
     public synchronized Place getPlaceOfActivity(Activity a) {
+        return (Place) this.activity2place_.get(a);
+        /*
         Iterator it = thread2activity_.keySet().iterator();
         while (it.hasNext()) {
             Thread t = (Thread) it.next();
@@ -392,6 +405,7 @@ public class DefaultRuntime_c
                 return (Place) thread2place_.get(t);
         }
         return null;
+        */
     }    
 
     static class Signal { boolean value; }
