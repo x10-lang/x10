@@ -311,6 +311,14 @@ public TestCompiler(String name) {
         run("./MiscTest1.x10","MiscTest1");
     }
 
+    public void test_MpiExample() {
+        run("./MpiExample.x10","MpiExample");
+    }
+
+    public void test_MpiExample2() {
+        run("./MpiExample2.x10","MpiExample2");
+    }
+
     public void test_NopTest() {
         run("./NopTest.x10","NopTest");
     }
