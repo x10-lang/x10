@@ -62,8 +62,8 @@ corresponding value of type {\cf T} otherwise.  If {\cf T} is a value
 type this may be seen as the ``unboxing'' operator.
 
 The expression {\cf (T) null} throws a {\cf ClassCastException} if {\cf
-T} is not equal to {\cf ?T}; otherwise it returns {\cf null} at type
-{\cf T}. Thus it may be used to check whether {\cf T=?T}.
+T} is not equal to {\cf nullable T}; otherwise it returns {\cf null} at type
+{\cf T}. Thus it may be used to check whether {\cf T=nullable T}.
 
 \paragraph{Arrays of nullary type}
 The nullary type constructor may also be used in (aggregate) instance
@@ -83,7 +83,7 @@ may be represented as the unique null reference.
 class definition extends a nullable type to produce a nullable type,
 whereas primitive types such as {\tt int} are not nullable --- the
 programmer has to explicitly use a boxed version of {\cf int}, {\cf
-Integer}, to get the effect of {\cf ?int}. Wherever \Java{} uses a
+Integer}, to get the effect of {\cf nullable int}. Wherever \Java{} uses a
 variable at reference type {\cf S}, and at runtime the variable may
 carry the value {\cf null}, the \Xten{} programmer should declare the
 variable at type {\cf nullable S}. However, there are many situations
@@ -105,7 +105,7 @@ that {\cf nullable nullable T} is distinct from {\cf nullable T}. Here
 one would think of nullable as a disjoint sum type constructor that
 adds a value {\cf null} to the interpretation of its argument type
 even if it already has that value. Thus {\cf nullable nullable T} is
-distinct from {\cf ?T} because it has one more {\cf null}
+distinct from {\cf nullable T} because it has one more {\cf null}
 value. Explicit injection/projection functions (of signature {\cf T ->
 nullable T} to {\cf nullable T ->T}) would need to be provided.
 
@@ -123,10 +123,10 @@ programming.
 Consider the following class:
 
 \begin{x10}
- final value Box \{ 
-   public nullable Object datum; 
-   public Box(nullable Object v) \{ this.datum = v; \}
-  \}
+final value Box \{ 
+  public nullable Object datum; 
+  public Box(nullable Object v) \{ this.datum = v; \}
+\}
 \end{x10}
 
 Now one may use a variable {\cf x} at type {\cf nullable Box} to
@@ -138,21 +138,21 @@ be {\cf null}.
 Such a type may be used to define efficient code for memoization:
 
 \begin{x10}
- abstract class Memo  \{
-   (nullable Box)[]  values; 
-   Memo(int n) \{
-     // initialized to all nulls
-     values = new (nullable Box)[n]; 
-   \}
-   nullable Object compute(int key); 
-   nullable Object lookup(int key) \{ 
-    if (values[key] != null) 
-      return values[key].datum;
-    V val = compute(key);
-    values[key] = new Box(val);
-    return val;
-   \}
- \}
+abstract class Memo  \{
+  (nullable Box)[]  values; 
+  Memo(int n) \{
+    // initialized to all nulls
+    values = new (nullable Box)[n]; 
+  \}
+  nullable Object compute(int key); 
+  nullable Object lookup(int key) \{ 
+   if (values[key] != null) 
+     return values[key].datum;
+   V val = compute(key);
+   values[key] = new Box(val);
+   return val;
+  \}
+\}
 \end{x10}
 
 

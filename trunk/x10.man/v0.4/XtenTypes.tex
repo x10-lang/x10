@@ -24,7 +24,6 @@ values, and a {\em place type} which specifies the place at which the
 value resides.  Types are constructed through the application of {\em
 type constructors} (\S~\ref{TypeConstructors}).
 
-
 Types are used in variable declarations, casts, object creation, array
 creation, class literals and {\cf instanceof} expressions.\footnote{In
 order to allow this version of the language to focus on the core new
@@ -47,25 +46,43 @@ not an error to also explicitly declare such variables as final.)\index{Upper-ca
 
 \section{Type constructors}\index{type constructors}\label{TypeConstructors}
 
-{}\Xten{} specifies five {\em type constructors}.  A type constructor
-takes one or more types as arguments and produces a type. For
-simplicity, this version of \Xten{} does not permit the specification
-of generic classes. This is expected to be remedied in future versions
-of the language.
-
+An \Xten{} type is a pair specifying a {\em datatype} and a {\em
+placetype}. Semantically, a datatype specifies a set of values and a
+placetype specifies the set of places at which these values may
+live. Thus taken together, a type specifies both the kind of value
+permitted and its location. 
 
 \begin{x10}
-
-509   {\em Type} ::= {\em DataType} {\em PlaceTypeSpecifieropt}
-510          | nullable {\em Type}
-511          | future < {\em Type} > 
-512   {\em DataType} ::= {\em PrimitiveType}
-513   {\em DataType} ::= {\em ClassOrInterfaceType}
-514              | {\em ArrayType}
+509   Type ::=  DataType  PlaceTypeSpecifieropt
+510     | nullable  Type
+511     | future <  Type > 
+512   DataType ::=  PrimitiveType
+513   DataType ::=  ClassOrInterfaceType
+514     |  ArrayType
 \end{x10}
 
+For simplicity, this version of \Xten{} does not permit the
+specification of generic classes or interfaces. This is expected to be
+remedied in future versions of the language.
 
-\paragraph{Interface declarations.}
+Every class and interface definition in \Xten{} defines a type with
+the same name. Additionally, {}\Xten{} specifies three {\em type
+constructors}: {\tt nullable}, the {\tt future}, and array type
+constructors. We discuss these constructors and place types in detail
+in the secions that follow; here we briefly discss interface and class
+declarations.
+
+\paragraph{Interface declarations.}\label{InterfaceTypes}
+An interface declaration specifies a name, a list of extended
+interfaces, and constants ({\tt public static final} fields) and
+method signatures associated with the interface. Each interface
+declaration introduces a type with the same name as the declaration.
+Semantically, the data type is the set of all objects which are
+instances of (value or reference) classes that implement the
+interface. A class implements an interface if it says it does and if
+it implements all the methods defined in the interface.
+
+
 The {\em interface declaration} (\S~\ref{XtenInterfaces}) takes as
 argument one or more interfaces (the {\em extended} interfaces), one
 or more type parameters and the definition of constants and method
@@ -73,83 +90,33 @@ signatures and the name of the defined interface.  Each such
 declaration introduces a data type.
 
 \begin{x10}
-{\em ClassOrInterfaceType ::}
-   {\em{}InterfaceTypeName} 
+426   DataType ::= ClassOrInterfaceType
+433   ClassOrInterfaceType ::= TypeName 
+13    ClassType ::= TypeName
+15    TypeName ::= identifier
+16     | TypeName . identifier
 \end{x10}
-
-Semantically, the data type is the set of all objects which are
-instances of (value or reference) classes and which implement the
-interface.
-
 
 \paragraph{Reference class declarations.}\label{ReferenceTypes}
-The {\em reference class declaration} takes as argument a reference
-class (the {\em extended class}), one or more interfaces (the {\em
-implemented interfaces}), the definition of fields, methods and inner
-types, and returns a class of the named type
-(\S~\ref{ReferenceClasses}). Each such declaration intrdouces a data
-type.
-
-\begin{x10}
-{\em ClassOrInterfaceType ::}
-   {\em{}ClassTypeName} 
-\end{x10}
-
-Semantically, the data type is the set of all objects
-which are instances of (subclasses of) the class.
+The {\em reference class declaration} (\S~\ref{ReferenceClasses} takes
+as argument a reference class (the {\em extended class}), one or more
+interfaces (the {\em implemented interfaces}), the definition of
+fields, methods and inner types, and returns a class of the named type
+(\S~\ref{ReferenceClasses}). Each such declaration introduces a data
+type. Semantically, the data type is the set of all objects which are
+instances of (subclasses of) the class.
 
 \paragraph{Value class declarations.}
-The {\em value class declaration} (\S~\ref{ReferenceClasses}) is
+The {\em value class declaration} (\S~\ref{ValueClasses}) is
 similar to the reference class declaration except that it must extend
-either a value class or a reference class that has no mutable
-fields. 
+either a value class or a reference class that has no mutable fields.
 It may be used to construct a value type in the same way as a
-reference class declaration can be used to construct a reference
-type. 
+reference class declaration can be used to construct a reference type.
 
-\paragraph{Array type constructor.}
-
-{}\XtenCurrVer{} does not have array class declarations
-(\S~\ref{XtenArrays}). This means that user cannot define new array
-class types. Instead arrays are created as instances of array types
-constructed through the application of {\em array type constructors}
-(\S~\ref{XtenArrays}).
-
-The array type constructor takes as argument a type (the {\em
-base type}), a distribution (\S~\ref{XtenDistributions}), and
-optionally either the keyword {\cf reference} or {\cf value}
-(the default is reference):
-\begin{x10}
-{\em{}ArrayType::}
- {\em{}BaseType} value `['[{\em{}Region}]`]'
- {\em{}BaseType} [reference] `['[{\em{}Distribution}]`]'
-\end{x10}
-
-\todo{Specify that a missing distribution means that the distribution will 
-be supplied dynamically.}
-
-The keyword {\cf value} indicates that the resulting type is a value
-array data type all of whose components are final; the keyword
-``reference'' indicates that the resulting type is a reference array
-data type and the components of the array are mutable.  For instance,
-{\cf int [(32,64)-> P]} is the data type of mutable arrays of {\cf
-32x64} variables, each containing an {\cf int}, and each located at
-{\cf P} (see \S~\ref{XtenDistributions}).  To obtain a reference type,
-one must specify where the array itself is located; thus {\cf (int
-[(32,64)->P])@Q} is the type of array objects located at {\cf Q} where
-the array components themslves are at {\cf P} as discussed above.
-
-Note that a distribution can be multidimensional, arrays can be
-nested, value arrays of reference base types can be constructed, as
-can reference arrays of value base type.  Indeed, value arrays of
-reference components (where the components themselves may be arrays)
-are often useful in programs that desire to share only the bottom
-layers of the array while allowing the top layers to be copied to the
-referencing places.
-
-\input{XtenNullableTypes}
-
-
+\input{NullableTypeConstructor.tex}
+\input{FutureTypes}
+\input{ArrayTypes}
+\input{PlaceTypes}
 
 \section{Variables}\label{XtenVariables}\index{variables}
 
@@ -244,17 +211,27 @@ default. This constructor initializes each field of the class (if any)
 as if it were a variable of the declared type of the field, as
 described above.
 
-\input{NullableTypeConstructor.tex}
-
 \section{Objects}\label{XtenObjects}\index{Object}
 
-An object is an instance of a scalar class or an array type. It is
+An object is an instance of a scalar class or an array type.  It is
 created by using a class instance creation expression
-(\S~\ref{ClassCreation}) or an array creation (\S~\ref{ArrayInitializer})
-expression, such as an array initializer. An object that is an
-instance of a reference (value) type is called a {\em reference} ({\em
-value}) {\em object}. In \XtenCurrVer{} a reference object stays
-resident at the place at which it was created for its entire lifetime.
+(\S~\ref{ClassCreation}) or an array creation
+(\S~\ref{ArrayInitializer}) expression, such as an array
+initializer. An object that is an instance of a reference (value) type
+is called a {\em reference} ({\em value}) {\em object}.
+
+All value and reference classes subclass from {\tt x10.lang.Object}.
+This class has one {\tt const} field {\tt location} of type {\tt
+x10.lang.place}. \index{place.location} Thus all objects in \Xten{}
+are located (have a place). However, \Xten{} permits value objects to
+be freely copied from place to place because they contain no mutable
+state.  It is permissible for a read of the {\tt location} field of
+such a value to always return {\tt here} (\S~\ref{Here});
+therefore no space needs to be allocated in the object representation
+for such a field.
+
+In \XtenCurrVer{} a reference object stays resident at the place at
+which it was created for its entire lifetime.
 
 {}\Xten{} has no operation to dispose of a reference.  Instead the
 collection of all objects across all places is globally garbage
@@ -369,7 +346,6 @@ place   distribution  region clock
 Please consult \cite{XtenLibrary} for more details.  \todo{Ensure that
 there are no language dependencies.}  
 
-\input{PlaceTypes}
 
 \section{Conversions and Promotions}\label{XtenConversions}\label{XtenPromotions}\index{conversions}\index{promotions}
 

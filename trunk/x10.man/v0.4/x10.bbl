@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{1}
 
 \bibitem{kava}
 David Bacon.
@@ -35,24 +35,17 @@ J.~Gosling, W.~Joy, G.~Steele, and G.~Bracha.
 \newblock {\em The Java Language Specification}.
 \newblock Addison Wesley, 2000.
 
-\bibitem{jsr201}
-Sun Microsystems.
-\newblock {E}xtending the {J}ava {P}rogramming {L}anguage with {E}enumerations,
-  {A}utoboxing, {E}nhanced for loops and {S}tatic {I}mport, 2004.
-\newblock JSR 201, http://www.jcp.org/en/jsr/detail?id=201.
+\bibitem{herlihy91waitfree}
+Maurice Herlihy.
+\newblock Wait-free synchronization.
+\newblock {\em ACM Transactions on Programming Languages and Systems},
+  13(1):124--149, January 1991.
 
 \bibitem{moreira00java}
 Jose~E. Moreira, Samuel~P. Midkiff, Manish Gupta, Pedro~V. Artigas, Marc Snir,
   and Richard~D. Lawrence.
 \newblock Java programming for high-performance numerical computing.
 \newblock {\em IBM Systems Journal}, 39(1):21--, 2000.
-
-\bibitem{SaraswatPODC88}
-Vijay Saraswat, Kenneth Kahn, Udi Shapiro, and David Weinbaum.
-\newblock Detecting stable properties of networks in concurrent logic
-  programming languages.
-\newblock In {\em Seventh Annual ACM Symposium on Principles of Distributed
-  Computing}, pages 210--222, 1988.
 
 \bibitem{mpi}
 Anthony Skjellum, Ewing Lusk, and William Gropp.

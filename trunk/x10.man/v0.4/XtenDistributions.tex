@@ -145,8 +145,8 @@ if {\cf p} lies in {\cf D.domain} otherwise it is {\cf D2[p]}.
 \paragraph{Disjoint union of distributions.}\index{distribution!union!disjoint}
 {\cf D1 || D2}, the disjoint union of {\cf D1} and {\cf D2}, is
 defined only if the domains of {\cf D1} and {\cf D2} are disjoint. Its
-value is {\cf D1[D2]} (or equivalently {\cf D2[D1]}.  (It is the least
-super-distribution of {\cf D1} and {\cf D2}.)
+value is {\cf D1.overlay(D2)} (or equivalently {\cf D2.overlay(D1)}.
+(It is the least super-distribution of {\cf D1} and {\cf D2}.)
 
 \paragraph{Difference of distributions.}\index{distribution!difference}
 {\cf D1 - D2} is the largest sub-distribution of {\cf D1} whose domain is

@@ -25,22 +25,21 @@ We focus on the expressions in \Xten{} which have a different
 semantics.
 
 \paragraph{The classcast operator}\label{ClassCast}\index{classcast}
-
 The classcast operation may be used to cast an expression to a given type:
-
 \begin{x10}
- {\em\tt{}CastExpression::}
-   `('{\em\tt{}ValueType}`)' {\em\tt{}Expression}
-   `('{\em\tt{}ReferenceDataType}@{\em\tt{}PlaceType}`)' {\em\tt{}Expression}
+306 UnaryExpressionNotPlusMinus ::= 
+      CastExpression
+506 CastExpression ::= 
+      ( Type ) UnaryExpressionNotPlusMinus
 \end{x10}
 
 The result of this operation is a value of the given type if the cast
-is permissible at runtime. For value types whether or not a cast is
-permissible at runtime is determined as for the \java{} language
-{}\cite[\S 5.5]{jls2}. For reference types a cast is permissible if
-the place type of the expression is the given {\tt PlaceType}, and the
-value of the expression can be cast to the given reference data type
-per \java{} rules.
+is permissible at runtime. Both the data type and place type of the
+value are checked. Data type conversion is checked according to the
+rules of the \java{} language (e.g.{}\cite[\S 5.5]{jls2}). If the
+value cannot be cast to the appropriate data type, a {\tt ClassCast}
+exception is thrown. Otherwise, if the value cannot be cast to the
+appropriate place type a {\tt BadPlaceException} is thrown. 
 
 Any attempt to cast an expression of a reference type to a value type
 (or vice versa) results in a compile-time error. Some casts -- such as
