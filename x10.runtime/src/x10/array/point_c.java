@@ -43,7 +43,7 @@ public class point_c extends point implements Comparable {
 	
 	/** Return the value of this point on the i'th dimension.
 	 */    
-	public int valueAt( /*nat*/int i ) {
+	public int get( /*nat*/int i ) {
 		return val[((int) i) % val.length];
 	}
 	
@@ -51,7 +51,7 @@ public class point_c extends point implements Comparable {
 	 * dimension of its region.
 	 */
 	public boolean onUpperBoundary( /*nat*/int i ) {
-		return region.rank(i).high() == valueAt(i);
+		return region.rank(i).high() == get(i);
 	}
 	
 	
@@ -59,7 +59,7 @@ public class point_c extends point implements Comparable {
 	 * dimension.
 	 */
 	public boolean onLowerBoundary( /*nat*/int i ) {
-		return region.rank(i).low() == valueAt(i);
+		return region.rank(i).low() == get(i);
 	}
 	
 	/* 
