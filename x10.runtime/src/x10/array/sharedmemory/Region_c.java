@@ -170,6 +170,12 @@ class Region_c implements Region {
         return dims_[i];
     }
 
+    public Range[] dim() {
+        Range[] ret = new Range[dims_.length];
+        System.arraycopy(dims_, 0, ret, 0, ret.length);
+        return ret;
+    }
+    
     public boolean contains(Region r) {
         assert r.rank() == rank;
 

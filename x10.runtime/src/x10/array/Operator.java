@@ -21,75 +21,75 @@ public abstract class Operator {
 	 * apply function is the current value at the current position in the array. 
 	 */
 	public static abstract class Pointwise extends Operator {
-		public boolean apply(boolean i) {
+		public boolean apply(int[] p, boolean i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public byte apply(byte i) {
+		public byte apply(int[] p, byte i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public char apply(char i) {
+		public char apply(int[] p, char i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public short apply(short i) {
+		public short apply(int[] p, short i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public int apply(int i) {
+		public int apply(int[] p, int i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public long apply(long i) {
+		public long apply(int[] p, long i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public float apply(float i) {
+		public float apply(int[] p, float i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public double apply(double i) {
+		public double apply(int[] p, double i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public Object apply(Object i) {
+		public Object apply(int[] p, Object i) {
 			throw new RuntimeException(ERR_);
 		}
 		
-		public boolean apply(boolean i, boolean j) {
+		public boolean apply(int[] p, boolean i, boolean j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public byte apply(byte i, byte j) {
+		public byte apply(int[] p, byte i, byte j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public char apply(char i, char j) {
+		public char apply(int[] p, char i, char j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public short apply(short i, short j) {
+		public short apply(int[] p, short i, short j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public int apply(int i, int j) {
+		public int apply(int[] p, int i, int j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public long apply(long i, long j) {
+		public long apply(int[] p, long i, long j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public float apply(float i, float j) {
+		public float apply(int[] p, float i, float j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public double apply(double i, double j) {
+		public double apply(int[] p, double i, double j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public Object apply(Object i, Object j) {
+		public Object apply(int[] p, Object i, Object j) {
 			throw new RuntimeException(ERR_);
 		}
 	}
@@ -131,7 +131,7 @@ public abstract class Operator {
 			throw new RuntimeException(ERR_);
 		}
 
-		public Object apply(Object i) {
+		public Object apply(Object o) {
 			throw new RuntimeException(ERR_);
 		}
 	}
@@ -140,8 +140,44 @@ public abstract class Operator {
 	 * The operation performed must be fully associative and cumulative. It is
 	 * the user's obligation to make sure that both conditions are met.
 	 */
-	public static abstract class Reduction extends Operator.Scan {
+	public static abstract class Reduction extends Operator {
 
+	    public void apply(boolean i) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public void apply(byte i) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public void apply(char i) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public void apply(short i) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public void apply(int i) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public void apply(long i) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public void apply(float i) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public void apply(double i) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public void apply(Object i) {
+			throw new RuntimeException(ERR_);
+		}
+		
 		public boolean getBooleanResult() {
 			throw new RuntimeException(ERR_);
 		}
@@ -174,46 +210,4 @@ public abstract class Operator {
 			throw new RuntimeException(ERR_);
 		}
 	}
-    
-	/**
-	 * Functional (!) operation that is applied to all points of an
-	 * array in parallel irrespective of the original value.  The
-         * primary use is to initialize an array.   
-	 * @author Christian Grothoff
-	 */
-	public static abstract class Initializer extends Operator {
-	public boolean getBooleanResult(int[] point) {
-            throw new RuntimeException(ERR_);
-        }
-
-        public byte getByteResult(int[] point) {
-            throw new RuntimeException(ERR_);
-        }
-
-        public short getShortResult(int[] point) {
-            throw new RuntimeException(ERR_);
-        }
-
-        public char getCharResult(int[] point){
-            throw new RuntimeException(ERR_);
-        }
-
-        public int getIntResult(int[] point) {
-            throw new RuntimeException(ERR_);
-        }
-
-        public long getLongResult(int[] point) {
-            throw new RuntimeException(ERR_);
-        }
-
-        public float getFloatResult(int[] point) {
-            throw new RuntimeException(ERR_);
-        }
-        
-        public double getDoubleResult(int[] point) {
-            throw new RuntimeException(ERR_);
-        }
-    	    
-	}
-    
 }

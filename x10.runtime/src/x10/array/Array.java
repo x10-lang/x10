@@ -62,22 +62,17 @@ public abstract class Array {
     /**
      * pointwise unary operation
      */
-    public abstract void pointwise(Operator.Pointwise op);
+    public abstract void pointwise(Array res, Operator.Pointwise op);
     
     /**
      * pointwise binary operation
      */
-    public abstract void pointwise(Array arg, Operator.Pointwise op);
+    public abstract void pointwise(Array res, Operator.Pointwise op, Array arg);
     
     /**
      * scan operation
      */
-    public abstract void scan(Operator.Scan op);
-    
-    /**
-     * initialize operation
-     */
-    public abstract void initialize(Operator.Initializer op);
+    public abstract void scan(Array res, Operator.Scan op);
     
     /**
      * reduction operation - the result is obtained through the reduction

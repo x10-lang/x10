@@ -29,23 +29,41 @@ public abstract class DoubleArray extends Array {
 	 * Generic implementation - an array with fixed, known number of dimensions
 	 * can of course do without the Iterator.
 	 */
-	public void pointwise(Array arg, Operator.Pointwise op) {
-		assert arg instanceof DoubleArray;
+	public void pointwise(Array res, Operator.Pointwise op, Array arg) {
+	    assert res.dist.equals(dist);
+        assert arg.dist.equals(dist);
+        /*
+         * the following assertions are limitation that are in the current
+         * implementation, not in the spec FIXME
+         */
+        assert arg instanceof DoubleArray;
+        assert res instanceof DoubleArray;
 		
 		DoubleArray arg_t = (DoubleArray) arg;
+		DoubleArray res_t = (DoubleArray) res;
 		for (Iterator it = dist.iterator(); it.hasNext(); ) {
 			int[] p = (int[]) it.next();
 			double arg1 = get(p);
 			double arg2 = arg_t.get(p);
-			set(op.apply(arg1, arg2), p);
+			double val = op.apply(p, arg1, arg2);
+			res_t.set(val, p);
 		}
 	}
 	
-	public void pointwise(Operator.Pointwise op) {
-		for (Iterator it = dist.iterator(); it.hasNext(); ) {
+	public void pointwise(Array res, Operator.Pointwise op) {
+	    assert res.dist.equals(dist);
+        /*
+         * the following assertions are limitation that are in the current
+         * implementation, not in the spec FIXME
+         */
+        assert res instanceof DoubleArray;
+        
+        DoubleArray res_t = (DoubleArray) res;
+        for (Iterator it = dist.iterator(); it.hasNext(); ) {
 			int[] p = (int[]) it.next();
 			double arg1 = get(p);
-			set(op.apply(arg1), p);
+			double val = op.apply(p, arg1);
+			res_t.set(val, p);
 		}
 	}
 	
@@ -57,11 +75,18 @@ public abstract class DoubleArray extends Array {
 		}
 	}
 	
-	public void scan(Operator.Scan op) {
-		for (Iterator it = dist.iterator(); it.hasNext(); ) {
+	public void scan(Array res, Operator.Scan op) {
+	    assert res.dist.equals(dist);
+        /*
+         * the following assertions are limitation that are in the current
+         * implementation, not in the spec FIXME
+         */
+        assert res instanceof DoubleArray;
+        DoubleArray res_t = (DoubleArray) res;
+        for (Iterator it = dist.iterator(); it.hasNext(); ) {
 			int[] p = (int[]) it.next();
 			double arg1 = get(p);
-			set(op.apply(arg1), p);
+			res_t.set(op.apply(arg1), p);
 		}
 	}
 	
