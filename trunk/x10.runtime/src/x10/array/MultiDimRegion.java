@@ -37,7 +37,8 @@ public class MultiDimRegion extends region  {
         
         int tmp_card = 1;
         base_ = new int[dims.length];
-        for (int i = 0; i < dims.length; ++i) {
+        // row major ordering (C conventions)
+        for (int i = rank-1; i >= 0; --i) {
             base_[i] = tmp_card;
             tmp_card *= dims[i].size;
         }
@@ -258,10 +259,9 @@ public class MultiDimRegion extends region  {
         assert ordinal < size();
         
         int[] ret = new int[rank];
-        // express nextOrd_ as a base of the regions
         int rest = ordinal;
         int base = 0;
-        for (int i = rank-1; i >=0 ; --i) {
+        for (int i = 0; i < rank ; ++i) {
             Range r = dims[i];
             int tmp = rest / base_[i];
             rest = rest % base_[i];

@@ -1,11 +1,8 @@
 /*
  * Created on Oct 23, 2004
  */
-package x10.array.sharedmemory;
+package x10.array;
 
-import x10.array.Range;
-import x10.array.ContiguousRange;
-import x10.array.MultiDimRegion;
 import x10.lang.Activity;
 import x10.lang.Runtime;
 import x10.lang.region;
@@ -20,7 +17,7 @@ import java.util.Iterator;
  * @author Christian Grothoff, Christoph von Praun
  * @author vj
  */
-public class TestRegion_c extends TestCase {
+public class TestMultiDimRegion extends TestCase {
     
     private final Activity a
     = new Activity() { public void run() {} }; // dummy
