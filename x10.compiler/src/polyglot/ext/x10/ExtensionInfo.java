@@ -56,12 +56,9 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
  
     public List passes(Job job) {
         List passes = super.passes(job);
-        //beforePass(passes, Pass.PRE_OUTPUT_ALL,
-          //        new VisitorPass(DE_ASYNCANDFUTUREIFICATION,
-            //                      job, new DeAsyncAndFutureifier(ts, nf)));
         beforePass(passes, Pass.PRE_OUTPUT_ALL,
                 new VisitorPass(CAST_REWRITE,
-                                job, new X10Boxer(job, ts, nf)));
+                        job, new X10Boxer(job, ts, nf)));
         return passes;
     }
 
