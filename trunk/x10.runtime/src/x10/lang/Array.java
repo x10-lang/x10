@@ -27,7 +27,7 @@ public abstract class Array {
     /**
      * Flat access.
      */
-    public abstract void set(Object v, int[] pos);
+    public abstract void set(X10Object v, int[] pos);
     
     /**
      * Flat access.
