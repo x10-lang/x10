@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  *
  * @author Christian Grothoff
  */
-public class Native {
+public class JavaSubsystem {
 
     private final Logger logger_ 
 	= Logger.getAnonymousLogger();

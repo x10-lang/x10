@@ -71,7 +71,21 @@ public abstract class Runtime {
     /**
      * Get the 'native' API.
      */ 
-    public abstract Native getNative();
+    public abstract JavaSubsystem getNative();
 
-
+    /**
+     * Get current runtime.
+     */ 
+    public static Runtime getRuntime() {
+    	return _;
+    }
+    
+    /**
+     * @return The place where the current execution takes place 
+     * ('here' in X10).
+     */
+    public static Place currentPlace() {
+    	return getRuntime().here();
+    }
+    
 } // end of Runtime

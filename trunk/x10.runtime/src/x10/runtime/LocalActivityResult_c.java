@@ -24,7 +24,8 @@ final class LocalActivityResult_c extends Result {
      * @param result
      */
     public synchronized void setResult(Object result) {
-        assert (! haveResult_);         
+        assert (! haveResult_); 
+		
         this.result_ = result;
         this.haveResult_ = true;
         this.notifyAll(); // wake up 'force' if waiting

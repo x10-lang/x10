@@ -8,7 +8,7 @@ import java.util.HashMap;
  */
 class DefaultRuntime_c extends Runtime implements ThreadRegistry {
 
-    private final Native native_ = new Native();
+    private final JavaSubsystem native_ = new JavaSubsystem();
 
     private final HashMap thread2place_ = new HashMap();
 
@@ -49,7 +49,7 @@ class DefaultRuntime_c extends Runtime implements ThreadRegistry {
 	    = (Activity) Class
 	    .forName(args[0])
 	    .getDeclaredConstructor(new Class[] { String[].class })
-	    .newInstance(new Object[] { appArgs} );
+	    .newInstance(appArgs);
 	Place[] p = initializePlaces();
 	p[0].runAsync(boot);
     }
@@ -90,7 +90,7 @@ class DefaultRuntime_c extends Runtime implements ThreadRegistry {
     /**
      * Get the 'native' API.
      */ 
-    public Native getNative() {
+    public JavaSubsystem getNative() {
 	return native_;
     }
 
