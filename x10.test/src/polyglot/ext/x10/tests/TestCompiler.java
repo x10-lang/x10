@@ -271,6 +271,10 @@ public TestCompiler(String name) {
         run("./ClockTest3.x10","ClockTest3","./Constructs/Clock");
     }
 
+    public void test_Constructs_Clock_ClockTest3a() {
+        run("./ClockTest3a.x10","ClockTest3a","./Constructs/Clock");
+    }
+
     public void test_Constructs_Clock_ClockTest4() {
         run("./ClockTest4.x10","ClockTest4","./Constructs/Clock");
     }
