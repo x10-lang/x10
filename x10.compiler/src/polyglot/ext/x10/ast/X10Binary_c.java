@@ -113,19 +113,13 @@ public class X10Binary_c extends Binary_c {
 			return type(ts.Boolean());
 		}
 		// TODO: Check that the underlying regions are disjoint.
-		if (op == COND_OR && l.isNumericArray()) { // <T>array.union(<T>array)
-			if (! (r.equals(l))) {
+
+		if (op == COND_OR && l.isDistributedArray()) { // <T>array.union( <T>array right)
+			if (! (l.equals(r))) {
 				throw new SemanticException("This " + op +
-						" operator instance must have a distribution operand.", right.position());
+						" operator instance must have distributed array operands of the same base type ", right.position());
 			}
 			return type(l);
-		}
-		if (op == COND_OR && l.isDistributedArray()) { // distribution.union( distribution d)
-			if (! (r.isDistribution())) {
-				throw new SemanticException("This " + op +
-						" operator instance must have a distribution operand.", right.position());
-			}
-			return type(ts.distribution());
 		}
 		if (op == COND_OR && l.isRegion()) { // region.union(region r)
 			if (! (r.isRegion())) {
@@ -142,6 +136,14 @@ public class X10Binary_c extends Binary_c {
 			return type(ts.region());
 		}
 		
+		
+		if (op == BIT_OR && l.isDistributedArray()) { // distribution.union( distribution d)
+			if (! (r.isDistribution())) {
+				throw new SemanticException("This " + op +
+						" operator instance must have a distribution operand.", right.position());
+			}
+			return type(l);
+		}
 		if (op == BIT_OR && l.isDistribution()) { 
 			// distribution.restriction(place p) or distribution.restriction(region r)
 			if ((! r.isPlace()) && (! r.isRegion() ))
@@ -218,7 +220,7 @@ public class X10Binary_c extends Binary_c {
 		}
 		
 		// New for X10.
-		if (op == BIT_OR && l.isDistribution()) {
+		if (op == BIT_OR && (l.isDistribution() || l.isDistributedArray())) {
 			printSubExpr(left, true, w, tr);
 			w.write(".restriction(");
 			printSubExpr(right, false, w, tr);
@@ -236,6 +238,7 @@ public class X10Binary_c extends Binary_c {
 		}	
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&  l.isNumericArray()) {
 			printSubExpr(left, true, w, tr);
+			w.write(".");
 			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
 			w.write("(");
 			printSubExpr(right, false, w, tr);

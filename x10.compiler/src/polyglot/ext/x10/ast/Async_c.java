@@ -18,6 +18,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.types.Type;
+import java.util.LinkedList;
 
 
 /*
