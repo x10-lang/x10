@@ -1,5 +1,6 @@
 package x10.runtime;
 
+import x10.array.point_c;
 import x10.base.TypeArgument;
 import x10.lang.Activity;
 import x10.lang.Future;
@@ -13,7 +14,7 @@ import x10.lang.Activity.Expr;
  * @author Christian Grothoff
  */
 public abstract class Place extends place 
-implements TypeArgument {
+implements TypeArgument, Comparable {
 	
 	private static int count_ = 0;
 
@@ -65,6 +66,32 @@ implements TypeArgument {
 	public static place here() {
 		return Runtime.here();
 	}
-	
+    
+    /* lexicographical ordering */
+    public final int compareTo(java.lang.Object o) {
+        assert o instanceof Place;
+        Place tmp = (Place) o;
+        
+        int res;
+        // row major ordering (C conventions)
+        if (id < tmp.id) 
+            res = -1;
+        else if (id > tmp.id)
+            res = 1;
+        else 
+            res = 0;
+        return res;
+    }
+    
+    public final int hashCode() {
+        return id;   
+    }
+    
+    public final boolean equals(Object o) {
+        assert o instanceof Place;
+        // works because every place has unique id
+        return this == o;
+    }
+    
 } // end of Place
 

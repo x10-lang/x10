@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.WeakHashMap;
 import java.util.Set;
-import java.util.HashSet;
+import java.util.TreeSet;
 
 import x10.array.DoubleArray;
 import x10.array.IntArray;
@@ -312,7 +312,7 @@ public class DefaultRuntime_c
     				 */
     				public Set/*<place>*/ places (int last) {
     					if (places_[0] == null) initialize();
-    					Set result = new HashSet();
+    					Set result = new TreeSet();
     					for (int i=0; i <= last % (place.MAX_PLACES); i++)
     						result.add(places_[i]);
     					return result;
