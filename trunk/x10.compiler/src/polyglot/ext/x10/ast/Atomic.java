@@ -3,14 +3,14 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Stmt;
+import polyglot.ast.CompoundStmt;
 import polyglot.ast.Expr;
-import polyglot.ast.Block;
+import polyglot.ast.Stmt;
 
 /** The node constructed for the X10 construct atomic(P) {S}.
  * @author Christian Grothoff
  */
-public interface Atomic extends Stmt {
+public interface Atomic extends CompoundStmt {
     
     /** Set the Atomic's body */
     Atomic body(Stmt body);
