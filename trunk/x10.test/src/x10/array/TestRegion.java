@@ -3,9 +3,13 @@
  */
 package x10.array;
 
+import java.util.Iterator;
+
 import junit.framework.TestCase;
+import x10.array.sharedmemory.Region_c;
 import x10.lang.Activity;
 import x10.lang.Runtime;
+import x10.lang.point;
 import x10.lang.region;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
@@ -108,4 +112,27 @@ public class TestRegion extends TestCase {
         }
     }
     
+    public void testRegion_iterator0() {
+        region[] ranges = new region[] { new ContiguousRange(2, 4)};        
+        ArbitraryRegion reg = new ArbitraryRegion(ranges);
+        
+        int cnt = 0;
+        for (Iterator it = reg.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            System.out.println(p);
+        }
+        assertTrue(cnt == 3);
+    }
+    
+    public void testRegion_iterator1() {
+        region[] ranges = new region[] { new ContiguousRange(1,3), new ContiguousRange(2, 4)};         
+        ArbitraryRegion reg = new ArbitraryRegion(ranges);
+        
+        int cnt = 0;
+        for (Iterator it = reg.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            System.out.println(p);
+        }
+        assertTrue(cnt == 9);
+    }
 }
