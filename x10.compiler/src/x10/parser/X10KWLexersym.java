@@ -1,6 +1,6 @@
 
 
-package x10parser;
+package x10.parser;
 
 interface X10KWLexersym {
     public final static int
