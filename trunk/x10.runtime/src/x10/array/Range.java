@@ -38,7 +38,7 @@ implements TypeArgument {
 		return j-lo;
 	}
 	public boolean contains(int i) {
-		return lo <= i && i < hi;
+		return lo <= i && i <= hi;
 	}
 	public int high() {
 		return hi;
