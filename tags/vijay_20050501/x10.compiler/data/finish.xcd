@@ -1,0 +1,27 @@
+//S1 finish {S} S2 should be translated to:
+
+//S1
+//future(here) {
+//  clock c=new clock(); 
+//  now(c) {S} 
+//  c.next(); 
+//  return true;
+// }.force();
+// S2
+
+(x10.lang.Runtime.here().runFuture(new x10.lang.Activity.Expr() {
+  private boolean ret_;
+  public void run() {
+     x10.lang.Clock c = x10.lang.Runtime.getRuntime().newClock();
+     c.doNow(new x10.lang.Activity() {
+               public void run() {
+                 #0; 
+               } 
+            });
+     c.doNext();
+     ret_ = true; 
+  } 
+  public x10.lang.Object getResult() { 
+     return new x10.compilergenerated.BoxedBoolean( ret_ ); 
+  } 
+})).force();

@@ -1,0 +1,48 @@
+// ateach($0:$1) $2
+// This translation does NOT work for all cases.
+// For example, the following code will break:
+//
+// int j = 0;
+// ateach(i:P) {
+//   j++;
+// }
+// The reason is that 'j++' is executed in an inner
+// class and thus 'j' would have to be final.  This
+// cannot be solved without some much more 
+// heavy-weight mechanism than XCD files...
+//
+// Also, 'break' and 'continue' will not work.
+
+if ($1.rank == 1) {
+  // Code for single-dimensional regions
+  for (int $0 = $1.range(0).coord(0); 
+       $1.coord($0) < $1.count;
+       $0 = $1.coord($1.ordinal($0))) {
+    ((x10.lang.Place)$1.placeOf($0)).runFuture
+       (new Activity.Expr() {
+          public void run() {
+             $2;
+          }
+          public x10.lang.Object getResult() {
+            return null;
+          }
+        }).force(); // force synchronous execution
+     }
+  }
+} else {
+  // Code for multi-dimensional regions
+  for (int[] $0 = $1.firstElement(); 
+       $1.hasNextElement($0);
+       $0 = $1.getNextElement($0)) {
+    ((x10.lang.Place)$1.placeOf($0)).runFuture
+       (new Activity.Expr() {
+          public void run() {
+             $2;
+          }
+          public x10.lang.Object getResult() {
+            return null;
+          }
+        }).force(); // force synchronous execution
+     }
+  }
+}

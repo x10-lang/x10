@@ -1,0 +1,70 @@
+Clocks in X10
+
+X10 has a built-in final value class, x10.lang.Clock. 
+
+Clocks are value types. Clock variables are implicitly declared to be
+final.
+
+Clocks can be communicated dynamically (through method calls) only
+through flow arguments. A flow variable cannot be stored in objects or
+values. It may be stored in local variables or communicated through
+method calls.
+
+Each activity is initiated with zero or more clocks. Because of the
+condition above, an activity cannot acquire any new locks during its
+lifetime. Therefore for each activity we can statically determine (a
+superset of) the clocks used by that activity through a simple flow
+analysis.
+
+{We need to have a cost-model for clocks. Should ensure that this
+ model reflects hierarchical quiescence detection, cf trees of short
+ circuits.)
+
+Two statements use clocks
+
+  now (c) {S}
+
+  next c;
+
+The statement now (c) {S} is said to be clocked on c. It behaves like
+S. However the clock c cannot advance as long as S is executing. This
+statement is useful in an activity that wishes to execute S in the
+current instant and does not require c thereafter. If it does wish to
+access c (or state related to c) in subsequent instants, it should use
+next c.
+
+The statement next c; blocks until clock c can advance.
+
+Note that S; next c; is equivalent to now(c) {S} next c;
+
+We allow types to specify clocks, via a clocked{c} modifier, e.g.
+
+  clocked(c) int r;
+
+This declaration asserts that r is accessible (readable/writable) only
+by those statements that are clocked on c. 
+
+The declaration 
+
+  clocked(c) final int r = 1;
+
+asserts additionally that in each clock instant r is final, i.e. the
+value of r can be reset in each time instant (and stays constant in
+that instant).
+
+I expect that most arrays containing application data will be declared
+to be phased final.
+
+
+We should prolly allow a variable to be clocked by multiple
+clocks.  For instance
+
+  clocked(c,d) final int r = 1;
+
+
+
+6/16/2004
+
+Now we should be able to get determinate computation with shared
+memory, if all shared variables are clocked final, and all accesses
+are from clocked statements.
