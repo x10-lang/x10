@@ -145,6 +145,7 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
     	return ((X10Type) toType).isNullable() || base().isCastValidImpl( toType );
     }
 
+  
 }
 
 

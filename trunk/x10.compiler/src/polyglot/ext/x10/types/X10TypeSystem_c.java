@@ -70,6 +70,7 @@ public class X10TypeSystem_c
     }
     
     
+    
     protected UnknownType createUnknownType() {
      return new X10UnknownType_c( this );
     }
@@ -106,7 +107,7 @@ public class X10TypeSystem_c
     }
     
     public ParsedClassType getX10ObjectType() {
-        return (ParsedClassType) forcefulLookup("x10.lang.X10Object");
+        return (ParsedClassType) forcefulLookup("x10.lang.Object");
     }
     
     public ParsedClassType getPlaceType() {

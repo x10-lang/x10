@@ -19,6 +19,7 @@ public interface X10TypeSystem extends TypeSystem {
 
     NullableType createNullableType( Position p, ReferenceType t);
     FutureType createFutureType( Position p, Type t);
+    ClassType X10Object();
     
     public ParsedClassType getRuntimeType();
     
