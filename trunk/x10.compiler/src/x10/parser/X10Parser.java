@@ -691,18 +691,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 44:  CompilationUnit ::= Commentopt PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+            // Rule 44:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
             case 44: {
-            	Object comment = btParser.getSym(1);
                 PackageNode a = (PackageNode) btParser.getSym(2);
                 List b = (List) btParser.getSym(3),
                      c = (List) btParser.getSym(4);
                 Node n = nf.SourceFile(pos(btParser.getFirstToken(), btParser.getLastToken()), a, b, c);
-                if (comment != null) {
-                	System.out.println("Setting comment on " + n + " to " + comment.toString());
-                   n.setComment(comment.toString());
-                }
                 btParser.setSym1(n);
                 break;
             }
