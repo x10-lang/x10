@@ -10,6 +10,7 @@ package x10.lang;
  @date 12/24/2004
  */
 import /*x10*/java.util.Set;
+import java.util.Iterator;
 
 abstract public /*value*/ class distribution/*( region region )*/ extends Object {
 	public final region region;
@@ -25,7 +26,7 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 	 * this.valueAt(p)==P.
 	 */
 	abstract public Set/*<place>*/ places(); // consider making this a parameter?
-	
+
 	protected distribution(region R) {
 		this.region = R;
 		this.rank = R.rank;
@@ -120,9 +121,9 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 	
 	/** Returns the place to which the point p in region is mapped.
 	 */
-	abstract public place valueAt(point/*(region)*/ p) throws MalformedError;
-	  public place valueAt(int[] p) {
-	        return valueAt(Runtime.factory.getPointFactory().point(region, p));
+	abstract public place get(point/*(region)*/ p) throws MalformedError;
+	  public place get(int[] p) {
+	        return get(Runtime.factory.getPointFactory().point(region, p));
 	  }
 	
 	/** Returns the region mapped by this distribution to the place P.
@@ -165,12 +166,12 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 	union(distribution/*(:region.disjoint(this.region) &&
 	rank=this.rank)*/ D);
 	
-	/** Returns a distribution defined on region.union(R): it takes on 
-	 this.valueAt(p) for all points p in region, and D.valueAt(p) for all
-	 points in R.difference(region).
+	/** Returns a distribution defined on region.union(R): it
+	 takes on D.get(p) for all points p in R, and this.get(p) for
+	 all remaining points.
 	 */
 	abstract public /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-	overlay( region/*(rank)*/ R, distribution/*(R)*/ D);
+	overlay(  distribution/*(R)*/ D);
 	
 	
 	/** Return true iff the given distribution D, which must be over a
@@ -191,6 +192,9 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 		return this.subDistribution(region,ot) 
 		&& ot.subDistribution(region, this);
 	}
+	 public Iterator iterator() {
+	 	return region.iterator();
+	 }
 	
 	
 }

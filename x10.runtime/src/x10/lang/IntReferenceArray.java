@@ -17,5 +17,9 @@ public abstract class IntReferenceArray extends intArray {
 		super( D );
 	}
 	abstract public void set( int v, point/*(region)*/ p );
+	abstract /*value*/ public void set(int v, int p);
+	abstract /*value*/ public void set(int v, int p, int q);
+	abstract /*value*/ public void set(int v, int p, int q, int r);
+	abstract /*value*/ public void set(int v, int p, int q, int r, int s);
 	
 }

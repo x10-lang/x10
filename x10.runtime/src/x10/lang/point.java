@@ -28,7 +28,7 @@ abstract public /*value*/ class point/*( region region )*/ extends Object {
 	}
 	/** Return the value of this point on the i'th dimension.
 	 */    
-	abstract public int valueAt( /*nat*/ int i );
+	abstract public int get( /*nat*/ int i );
 	
 	/** Return true iff the point is on the upper boundary of the i'th
 	 * dimension.

@@ -14,6 +14,11 @@ public abstract class DoubleReferenceArray extends doubleArray {
 	public DoubleReferenceArray( distribution D) {
 		super( D );
 	}
-	abstract public void set( double v, point/*(region)*/ p );
+
+	abstract public void set( double v, point/*(region)*/ p);
+	abstract /*value*/ public void set(double v, int p);
+	abstract /*value*/ public void set(double v, int p, int q);
+	abstract /*value*/ public void set(double v, int p, int q, int r);
+	abstract /*value*/ public void set(double v, int p, int q, int r, int s);
 	
 }

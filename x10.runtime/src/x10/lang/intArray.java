@@ -1,5 +1,9 @@
 package x10.lang;
 
+import java.util.Iterator;
+
+import x10.lang.doubleArray.binaryOp;
+
 /** The base class for all (value or reference) multidimensional,
  * distributed int arrays in X10.  Is a subclass-only mutable class
  * (has no mutable state, and all methods are value methods).
@@ -10,7 +14,7 @@ package x10.lang;
  * @author vj 12/24/2004
  */
 
-abstract public class intArray /*( distribution distribution )*/ {
+abstract public class intArray /*( distribution distribution )*/ implements Indexable {
 	public final distribution distribution;
 	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
@@ -25,6 +29,8 @@ abstract public class intArray /*( distribution distribution )*/ {
 		int apply(int r, int s);
 	}
 	
+	public static final binaryOp sub = new binaryOp() { public int apply(int r, int s) { return r-s;}};
+	public static final binaryOp add = new binaryOp() { public int apply(int r, int s) { return r+s;}};
 	public static interface pointwiseOp/*(region r)*/ {
 		int apply(point/*(r)*/ p);
 	}
@@ -108,6 +114,11 @@ abstract public class intArray /*( distribution distribution )*/ {
 	 * region.
 	 */
 	abstract /*value*/ public int get(point/*(region)*/ p);
+	//TODO: interim support for multi-index access.
+	abstract /*value*/ public int get(int p);
+	abstract /*value*/ public int get(int p, int q);
+	abstract /*value*/ public int get(int p, int q, int r);
+	abstract /*value*/ public int get(int p, int q, int r, int s);
 	
 	/** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and
@@ -161,4 +172,7 @@ abstract public class intArray /*( distribution distribution )*/ {
 	abstract /*value*/ public 
 	intArray/*(distribution)*/ lift(binaryOp fun, intArray/*(distribution)*/ a);
 	
+	public Iterator iterator() {
+	 	return region.iterator();
+	 }
 }

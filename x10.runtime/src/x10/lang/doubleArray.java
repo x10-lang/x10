@@ -9,9 +9,14 @@ package x10.lang;
  * @author vj 12/24/2004
  */
 
-abstract public class doubleArray /*( distribution distribution )*/ {
+import java.util.Iterator;
+
+abstract public class doubleArray /*( distribution distribution )*/ 
+/*implements Cloneable, Serializable */
+implements Indexable {
+
 	public final distribution distribution;
-	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
+	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
 	protected doubleArray( distribution D) {
@@ -22,6 +27,9 @@ abstract public class doubleArray /*( distribution distribution )*/ {
 	
 	public static interface binaryOp {
 		double apply(double r, double s);
+	}
+	public static interface unaryOp {
+		double apply(double r);
 	}
 	
 	public static interface pointwiseOp/*(region r)*/ {
@@ -105,8 +113,11 @@ abstract public class doubleArray /*( distribution distribution )*/ {
 	 * region.
 	 */
 	abstract public double get(point/*(region)*/ p);
-	
-	abstract public void set( double v, point/*(region)*/ p);
+	abstract /*value*/ public double get(int p);
+	abstract /*value*/ public double get(int p, int q);
+	abstract /*value*/ public double get(int p, int q, int r);
+	abstract /*value*/ public double get(int p, int q, int r, int s);
+
 	
 	/** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and
@@ -149,7 +160,7 @@ abstract public class doubleArray /*( distribution distribution )*/ {
 	 dist.asymmetricUnion(D).
 	 */
 	abstract public /*(distribution(:rank=this.rank) D)*/
-	doubleArray/*(distribution.asymmetricUnion(D))*/ overlay( doubleArray/*(D)*/ other);
+	DoubleReferenceArray/*(distribution.asymmetricUnion(D))*/ overlay( doubleArray/*(D)*/ other);
 	
 	
 	/** Assume given a DoubleArray a over the given distribution.
@@ -160,5 +171,11 @@ abstract public class doubleArray /*( distribution distribution )*/ {
 	 */
 	abstract public 
 	doubleArray/*(distribution)*/ lift(binaryOp fun, doubleArray/*(distribution)*/ a);
+	abstract public 
+	doubleArray/*(distribution)*/ lift(unaryOp fun);
+	
+	public Iterator iterator() {
+	 	return region.iterator();
+	 }
 	
 }
