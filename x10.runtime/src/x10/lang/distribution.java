@@ -141,6 +141,11 @@ implements Indexable {
 	public place get(int i, int j, int k, int l, int m) {
 		return get(new int[] {i, j, k, l, m} );
 	}
+    
+	public void checkAccess(point p) {
+	    // System.out.println("CHECK ACCESS!");
+            assert this.get(p) == x10.lang.Runtime.here();
+        }
 	
 	/** Returns the region mapped by this distribution to the place P.
 	 The value returned is a subset of this.region.

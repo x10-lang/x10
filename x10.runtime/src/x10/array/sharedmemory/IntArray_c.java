@@ -185,6 +185,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * @see x10.lang.IntArray#set(int, int[])
      */
     public int set(int v, point pos) {
+        distribution.checkAccess(pos);
         return arr_.setInt(v, distribution.region.ordinal(pos));
     }
     
@@ -221,6 +222,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * @see x10.lang.IntArray#get(int[])
      */
     public int get(point pos) {
+        distribution.checkAccess(pos);
         return arr_.getInt((int) distribution.region.ordinal(pos));
     }
     

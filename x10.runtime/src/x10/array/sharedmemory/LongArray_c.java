@@ -183,6 +183,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
      * @see x10.lang.LongArray#set(int, int[])
      */
     public long set(long v, point pos) {
+        distribution.checkAccess(pos);
         return arr_.setLong(v, (int) distribution.region.ordinal(pos));
     }
     
@@ -220,6 +221,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
      * @see x10.lang.LongArray#get(int[])
      */
     public long get(point pos) {
+        distribution.checkAccess(pos);
         return arr_.getLong((int) distribution.region.ordinal(pos));
     }
     
