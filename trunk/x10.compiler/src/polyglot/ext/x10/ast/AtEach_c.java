@@ -5,6 +5,8 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.List;
+
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 import polyglot.ast.Formal;
@@ -21,7 +23,9 @@ import polyglot.visit.PrettyPrinter;
  * @author vj Dec 9, 2004
  * 
  */
-public class AtEach_c extends X10Loop_c implements AtEach {
+public class AtEach_c extends X10Loop_c implements AtEach, Clocked {
+
+        protected List clocks;
 	
 	/**
 	 * @param pos
@@ -40,6 +44,18 @@ public class AtEach_c extends X10Loop_c implements AtEach {
 		super(pos, formal, domain, body);
 	}
 	
+         /** Expression */
+         public List clocks() {
+             return this.clocks;
+         }
+    
+         /** clock */
+        public Clocked expr(List clocks) {
+            AtEach_c n = (AtEach_c) copy();
+            n.clocks = clocks;
+            return n;
+        }
+    
 	public Expr getDomain( Expr d ) {
 		return new Field_c(position(), d, "distribution");
 	}

@@ -8,8 +8,7 @@ import polyglot.ast.CompoundStmt;
 import polyglot.ast.Stmt;
 
 /**
- * The node constructed for clocked (C) {S}.
- * TODO vj: Should take a list of clocks
+ * The node constructed for [ateach,foreach,async] clocked (C) [stmt].
  */
 public interface Clocked extends CompoundStmt {
 
@@ -17,9 +16,4 @@ public interface Clocked extends CompoundStmt {
     List clocks();
 
     Clocked expr(List clocks);
-
-    /** Get the statement. */
-    Stmt stmt();
-
-    Clocked stmt(Stmt stmt);
 }

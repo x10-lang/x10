@@ -5,6 +5,8 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.List;
+
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
@@ -26,8 +28,10 @@ import polyglot.types.Type;
  * @author vj Dec 9, 2004
  * 
  */
-public class ForEach_c extends X10Loop_c implements ForEach {
+public class ForEach_c extends X10Loop_c implements ForEach, Clocked {
 	
+        protected List clocks;
+        
 	/**
 	 * @param pos
 	 */
@@ -47,6 +51,18 @@ public class ForEach_c extends X10Loop_c implements ForEach {
 		
 	}
 	
+    /** Expression */
+    public List clocks() {
+        return this.clocks;
+    }
+    
+    /** clock */
+    public Clocked expr(List clocks) {
+        ForEach_c n = (ForEach_c) copy();
+        n.clocks = clocks;
+        return n;
+    }
+    
 	
 	public String toString() {
 		return "foreach (" + formal + ":" + domain + ")" + body;
