@@ -528,10 +528,9 @@ public final class Sampling extends Thread {
      * @author Christian Grothoff
      */
     public static class ThreadQueueSampler extends Sampler {
-        ThreadQueueSampler() {
-            SINGLETON.threadQueueSize = new int[SINGLETON.places.length];
-        }
         public void sample(long delta) {
+            if (SINGLETON.threadQueueSize == null)
+                SINGLETON.threadQueueSize = new int[SINGLETON.places.length];
             for (int i=SINGLETON.places.length-1;i>=0;i--) {
                 LocalPlace_c p = (LocalPlace_c) SINGLETON.places[i];
                 int ql = 0;
@@ -556,10 +555,10 @@ public final class Sampling extends Thread {
      * @author Christian Grothoff
      */
     public static class LoadSampler extends Sampler {
-        LoadSampler() {
-            SINGLETON.loadSamples = new int[SINGLETON.places.length];
-        }
+
         public void sample(long delta) {
+            if (SINGLETON.loadSamples == null)
+                SINGLETON.loadSamples = new int[SINGLETON.places.length];
             for (int i=SINGLETON.places.length-1;i>=0;i--) {
                 LocalPlace_c p = (LocalPlace_c) SINGLETON.places[i];
                 int ql;
