@@ -248,16 +248,20 @@ public class LocalPlace_c extends Place {
          */
         long getThreadRunTime() {
             try {
-                Field vmt = java.lang.Thread.class.getField("vmdata");
+                Field vmt = java.lang.Thread.class.getDeclaredField("vmdata");
                 vmt.setAccessible(true);
                 Object o = vmt.get(this); // o is 'VM_Thread'
                 Field trt = o.getClass().getDeclaredField("totalCycles");
                 trt.setAccessible(true);
                 return trt.getLong(o);                
             } catch (SecurityException se) {
+                // System.out.println("GSPT: " + se);
             } catch (IllegalAccessException iae) {
+                // System.out.println("GSPT: " + iae);
             } catch (NoClassDefFoundError ncfe) {
+                // System.out.println("GSPT: " + ncfe);
             } catch (NoSuchFieldException nsfe) {
+                // System.out.println("GSPT: " + nsfe);
                 // not JikesRVM
             }
             return 0;   
