@@ -4,7 +4,6 @@
 package x10.array;
 
 
-
 /**
  * Baseclass of all Arrays in X10.
  * 

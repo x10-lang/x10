@@ -1,6 +1,7 @@
 package x10.lang;
 
 
+
 /**
  * @author Christian Grothoff, Christoph von Praun
  */
@@ -15,7 +16,7 @@ public interface Activity extends Runnable {
 	 * Wait for the completion of this activity and return the
 	 * return value.
 	 */
-	public X10Object getResult();
+	public x10.lang.Object getResult();
 
     } // end of Activity.Expr
 

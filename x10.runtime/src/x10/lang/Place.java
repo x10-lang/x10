@@ -6,7 +6,7 @@ import x10.base.TypeArgument;
 /**
  * @author Christian Grothoff
  */
-public abstract class Place implements TypeArgument, x10.array.Place {
+public abstract class Place implements TypeArgument, x10.base.Place {
 
     /**
      * We allow passing Activity and Activity.Future to

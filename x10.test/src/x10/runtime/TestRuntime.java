@@ -8,8 +8,9 @@ import x10.compilergenerated.ClockedFinalInt;
 import x10.lang.Activity;
 import x10.lang.Clock;
 import x10.lang.Future;
+import x10.lang.Object;
 import x10.lang.Runtime;
-import x10.lang.X10Object;
+import x10.lang.Place;
 
 /**
  * Testcases for the X10 Runtime.  
@@ -19,6 +20,7 @@ import x10.lang.X10Object;
  * for use from JUnit.
  * 
  * @author Christian Grothoff
+ * @author Christoph von Praun
  */
 public class TestRuntime extends TestCase {
 
@@ -41,11 +43,12 @@ public class TestRuntime extends TestCase {
      * with the Runtime.
      */
     public void setUp() {
-        DefaultRuntime_c r = (DefaultRuntime_c) Runtime._;
+        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.getRuntime();
+        Place[] pls = Place.places();
         if (r instanceof ThreadRegistry) {
             Thread t = Thread.currentThread();
             ThreadRegistry tr = (ThreadRegistry) r;
-            tr.registerThread(t, r.getPlaces()[0]);
+            tr.registerThread(t, pls[0]);
             tr.registerActivityStart(t, a, null);
         }
     }
@@ -54,7 +57,7 @@ public class TestRuntime extends TestCase {
      * Clean-up effects from setUp().
      */
     public void tearDown() {
-        Runtime r = Runtime._;
+        Runtime r = Runtime.getRuntime();
         if (r instanceof ThreadRegistry) {
             Thread t = Thread.currentThread();
             ThreadRegistry tr = (ThreadRegistry) r;
@@ -80,20 +83,20 @@ public class TestRuntime extends TestCase {
     public void testPlaceRunFuture() {
         x = 0;
         Future f = Runtime.here().runFuture(new Activity.Expr() {
-            private Object val;
+            private x10.lang.Object val;
             public void run() {
-                val = this;
+                val = new x10.lang.Object();;
             }
-            public X10Object getResult() {
-                return new X10Object();
+            public Object getResult() {
+                return val;
             }
         });
-        assertTrue(f.force().getClass() == X10Object.class);
+        assertTrue(f.force().getClass() == x10.lang.Object.class);
     }
 
     public void testClockNext() {
         x = 0;
-        final Clock c = Runtime._.newClock();
+        final Clock c = Runtime.getRuntime().newClock();
         Activity b = new Activity() {
             public void run() {
                 c.doNext();
@@ -119,7 +122,7 @@ public class TestRuntime extends TestCase {
     
     public void testClockContinue() {
         x = 0;
-        final Clock c = Runtime._.newClock();
+        final Clock c = Runtime.getRuntime().newClock();
         Activity b = new Activity() {
             public void run() {
                 c.doNext();
@@ -140,7 +143,7 @@ public class TestRuntime extends TestCase {
     }
     
     public void testClockDrop() {
-        final Clock c = Runtime._.newClock();
+        final Clock c = Runtime.getRuntime().newClock();
         Activity b = new Activity() {
             public void run() {
                 c.drop();
@@ -156,7 +159,7 @@ public class TestRuntime extends TestCase {
     }
     
     public void testClockedFinal() {
-        final Clock c = Runtime._.newClock();
+        final Clock c = Runtime.getRuntime().newClock();
         final ClockedFinalInt i = new ClockedFinalInt(c, 0);
         Activity b = new Activity() {
             public void run() {
@@ -199,7 +202,7 @@ public class TestRuntime extends TestCase {
             }
         };
         x = 0;
-        final Clock c = Runtime._.newClock();
+        final Clock c = Runtime.getRuntime().newClock();
         c.doNow(b);
         c.doNext();
         assertTrue(x == 1);

@@ -6,10 +6,10 @@ package x10.array.sharedmemory;
 import x10.array.Distribution;
 import x10.array.DoubleArray;
 import x10.array.IntArray;
-import x10.array.Place;
 import x10.array.Range;
 import x10.array.Region;
 import x10.array.ArrayFactory;
+import x10.base.Place;
 
 /**
  * Abstract Factory for Array related classes.

@@ -9,9 +9,9 @@ package x10.array.sharedmemory;
 import x10.array.ContiguousRange;
 import x10.array.DoubleArray;
 import x10.array.Operator;
-import x10.array.Place;
 import x10.array.Range;
 import x10.array.ArrayRuntime;
+import x10.base.Place;
 
 
 import junit.framework.TestCase;

@@ -14,9 +14,9 @@ import x10.array.Region;
 import x10.array.sharedmemory.SharedMemoryArrayFactory;
 import x10.lang.Activity;
 import x10.lang.Clock;
+import x10.lang.Object;
 import x10.lang.Place;
 import x10.lang.Runtime;
-import x10.lang.X10Object;
 
 /**
  * Default implementation of Runtime.
@@ -82,7 +82,7 @@ public class DefaultRuntime_c
                 System.loadLibrary(libs[i]);
         }
         
-        Object[] tmp = { args };
+        java.lang.Object[] tmp = { args };
         Activity atmp = null;
         try {	
             atmp = (Activity) Class.forName(Configuration.MAIN_CLASS_NAME+"$Main")
@@ -94,8 +94,8 @@ public class DefaultRuntime_c
         }
         final Activity appMain = atmp;
         // ok, some magic with the boot-thread here...
-        Place[] p = getPlaces();
-        Place p0 = p[0];
+        x10.base.Place[] p = getPlaces();
+        Place p0 = (Place) p[0];
         bootThread = Thread.currentThread();
         registerThread(bootThread, p0);
         Activity.Expr boot = new Activity.Expr() {
@@ -113,7 +113,7 @@ public class DefaultRuntime_c
                 c.doNow(appMain);
                 c.doNext();
             }
-            public X10Object getResult() {
+            public Object getResult() {
                 return null;
             }
         };        
@@ -192,7 +192,7 @@ public class DefaultRuntime_c
         }
     }
 
-    public synchronized Place currentPlace() {
+    public synchronized x10.base.Place currentPlace() {
         if (places_.length == 1)
             return places_[0]; // fast path for simple test environments!
     	Place p = (Place) thread2place_.get(Thread.currentThread());
@@ -209,7 +209,7 @@ public class DefaultRuntime_c
      *  
      * @return All places available in this VM.
      */
-    public Place[] getPlaces() {
+    public x10.base.Place[] getPlaces() {
     	// return defensive copy
     	return (Place[]) places_.clone();
     }

@@ -3,7 +3,7 @@
  */
 package x10.array.sharedmemory;
 
-import x10.array.Place;
+import x10.base.Place;
 import x10.base.Runtime;
 
 /**

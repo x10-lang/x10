@@ -3,7 +3,7 @@
  */
 package x10.base;
 
-import x10.array.Place;
+
 
 /**
  * @author Christoph von Praun
