@@ -140,6 +140,12 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         	assert D.region.rank == this.region.rank;
         	return (D instanceof Empty);
         }   
+        public String toString() {
+        	StringBuffer s = new StringBuffer("Distribution_c.Empty<");
+        	s.append(region.toString());
+        	s.append("|>");
+        	return s.toString();
+        }
         
     } // end of Distribution_c.Empty
     
@@ -244,6 +250,14 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
             boolean subDistribution( region/*(rank)*/ R, distribution/*(R)*/ D) {
            	assert D.region.equals(R) && this.region.equals(R); // assume
            	return (this.region.contains(D.region) && (D instanceof Constant) && ((Constant) D).place_.equals(place_));
+        }
+        public String toString() {
+        	StringBuffer s = new StringBuffer("Distribution_c.Constant<region=|");
+        	s.append(region.toString());
+        	s.append("|, place=|");
+        	s.append(place_);
+        	s.append("|>");
+        	return s.toString();
         }
         
     } // end of Distribution_c.Constant
@@ -363,6 +377,12 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         	}
         	return ret;
         }
+        public String toString() {
+        	StringBuffer s = new StringBuffer("Distribution_c.Unique<");
+        	for (int i=1; i < placeseq.length;i++)
+        		s.append(placeseq[i].toString());
+        	return s.append(">").toString();
+        }
         
     } // end of Distribution_c.Unique
 
@@ -400,8 +420,10 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
 	public place valueAt(int[] p) throws MalformedError {
         place ret = null;
         for (int i=0; ret == null && i < members_.length; ++i) {
+        	
             if (members_[i].region.contains(p)) 
                 ret = members_[i].valueAt(p);
+ 
         }
         assert ret != null;
         return ret;
@@ -485,19 +507,26 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
 	public boolean subDistribution(region R, distribution D) {
 	    throw new Error("TODO");
 	}
-        public boolean equals(Object o) {
-            boolean ret = super.equals(o);
-            if (ret) {
-                Combined u = (Combined) o;
-                if (members_.length == u.members_.length) {
-                    for (int i = 0; ret && i < members_.length; ++ i) {
-                    	ret &= members_[i].equals(u.members_[i]);
-                    }
-                } else 
-                    ret = false;
-            }
-            return ret;
-        }	
+	public boolean equals(Object o) {
+		boolean ret = super.equals(o);
+		if (ret) {
+			Combined u = (Combined) o;
+			if (members_.length == u.members_.length) {
+				for (int i = 0; ret && i < members_.length; ++ i) {
+					ret &= members_[i].equals(u.members_[i]);
+				}
+			} else 
+				ret = false;
+		}
+		return ret;
+	}	
+	public String toString() {
+		StringBuffer s = new StringBuffer("CombinedDistribution_c<");
+		for (int i=0; i < members_.length;i++) 
+			s.append(members_[i]);
+		return s.append(">").toString();
+		
+	}
   }// end of Distribution_c
     
     
