@@ -12,4 +12,5 @@ package x10.lang;
  */
 public interface Unsafe {
   long getUnsafeAddress();
+  long getUnsafeDescriptor();
 }
