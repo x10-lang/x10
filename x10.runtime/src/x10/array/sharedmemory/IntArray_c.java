@@ -64,7 +64,6 @@ public class IntArray_c extends IntArray {
         }
     }
 
-    
 	protected Array newInstance(Distribution d) {
 		assert d instanceof Distribution_c;
 		
