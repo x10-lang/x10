@@ -3,7 +3,6 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Block;
 import polyglot.ast.Stmt;
 
 /**
@@ -12,9 +11,8 @@ import polyglot.ast.Stmt;
 public interface Async extends Stmt, RemoteActivityInvocation {
     
     /** Set the Async's body */
-    RemoteActivityInvocation body(Block body);
+    Async body(Stmt body);
 
     /** Get the body of the Async. */
-    Block body();
-       
+    Stmt body();
 }
