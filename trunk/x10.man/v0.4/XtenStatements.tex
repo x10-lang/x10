@@ -39,7 +39,7 @@ all sites hosting {\tt D}.
 \Xten{} specifies a simple syntax for the construction of points and regions.
 \begin{x10}
 281   ArgumentList ::= Expression
-282                  | ArgumentList , Expression
+282      | ArgumentList , Expression
 512   Primary ::= [ ArgumentList ]
 \end{x10}
 Each element in the argument list must be either of type {\tt int} or 
@@ -59,8 +59,9 @@ of type {\tt region}. In the former case the expression
 declarators in method arguments, local variables and loop variables
 (the ``exploded'' or {\em destructuring} syntax).
 \begin{x10}
-81    VariableDeclaratorId ::= identifier [ IdentifierList ]
-82                           | [ IdentifierList ]
+81    VariableDeclaratorId ::= 
+           identifier [ IdentifierList ]
+82       | [ IdentifierList ]
 \end{x10}
 In \XtenCurrVer{} the {\tt VariableDeclaratorId} must be declared at
 type {\tt x10.lang.point}. Intuitively, this syntax allows a
@@ -75,35 +76,35 @@ the index variables
 \paragraph{Example.}
 The following example succeeds when executed.
 \begin{x10}
-public class Array1Exploded {
-    public int select(point p[i,j], point [k,l]) {
+public class Array1Exploded \{
+    public int select(point p[i,j], point [k,l]) \{
         return i+k;
-    }
-    public boolean run() {
+    \}
+    public boolean run() \{
         distribution d =  [1:10, 1:10] -> here;
         int[.] ia = new int[d];
-        for(point p[i,j]: [1:10,1:10]) {
+        for(point p[i,j]: [1:10,1:10]) \{
             if(ia[p]!=0) return false;
             ia[p] = i+j;
-        }
-        for(point p[i,j]: d) {
+        \}
+        for(point p[i,j]: d) \{
             point q1 = [i,j];
             if (i != q1[0]) return false;
             if ( j != q1[1]) return false;
             if(ia[i,j]!= i+j) return false;
             if(ia[i,j]!=ia[p]) return false;
             if(ia[q1]!=ia[p]) return false;
-        }
+        \}
         if (! (4 == select([1,2],[3,4]))) return false;
-           return true;
-   }
+        return true;
+   \}
         
-   public static void main(String args[]) {
+   public static void main(String args[]) \{
         boolean b= (new Array1Exploded()).run();
         System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
         System.exit(b?0:1);
-   }
-}
+   \}
+\}
 \end{x10}
 
 \input{XtenExpressions} \par  % empty

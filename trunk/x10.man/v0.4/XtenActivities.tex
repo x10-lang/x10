@@ -56,10 +56,12 @@ An activity is created by executing the statement:
 \begin{x10}
 463 Statement ::= AsyncStatement
 473 StatementNoShortIf ::= AsyncStatementNoShortIf
-481 AsyncStatement ::= async PlaceExpressionSingleListopt Statement
-491 AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt StatementNoShortIf
+481 AsyncStatement ::= 
+      async PlaceExpressionSingleListopt Statement
+491 AsyncStatementNoShortIf ::= 
+      async PlaceExpressionSingleListopt StatementNoShortIf
 524   PlaceExpressionSingleListopt ::=
-525                                  | PlaceExpressionSingleList
+525       | PlaceExpressionSingleList
 499   PlaceExpressionSingleList ::= ( PlaceExpression )
 500   PlaceExpression ::= Expression
 \end{x10} 
@@ -109,7 +111,8 @@ termination and introduces a root activity.
 468 Statement ::= FinishStatement
 478 StatementNoShortif ::= FinishStatementNoShortIf
 488 FinishStatement ::= finish Statement
-498 FinishStatementNoShortIf ::= finish StatementNoShortIf
+498 FinishStatementNoShortIf ::= 
+      finish StatementNoShortIf
 \end{x10}
 
 An activity $A$ executes {\tt finish S} by executing {\tt S}.  The
@@ -165,7 +168,9 @@ for the entire computation.
 known as futures:
 \begin{x10}
 511   Primary ::= FutureExpression
-515   FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
+515   FutureExpression ::= 
+        future PlaceExpressionSingleListopt 
+           { Expression }
 \end{x10} 
 Intuitively such an expression evaluates its body asynchronously at
 the given place. The resulting value may be obtained from the future
@@ -181,10 +186,10 @@ If the type of {\cf e} is {\tt T@P} then the type of
 {\tt future (Q){e}} is {\tt future<T@P>}.  This 
 type {\tt future<T@P>} is defined as if by:
 \begin{x10}
-  public interface future<T@P> {
-    T@P force();
-    boolean forced();
-  }
+public interface future<T@P> \{
+  T@P force();
+  boolean latched();
+\}
 \end{x10}
 
 (Here we use the syntax for generic classes. \XtenCurrVer{} does not support
@@ -197,7 +202,7 @@ of a value {\tt f} of type {\tt future<T@P>}.  This value may be
 stored in objects, passed as arguments to methods, returned from
 method invocation etc. 
 
-At any point, the method {\tt forced} may be invoked on {\tt f}. This
+At any point, the method {\tt latched} may be invoked on {\tt f}. This
 method returns without blocking, with the value {\tt true} if the
 asynchronous evaluation of {\tt e} has terminated globally and with
 the value {\tt false} if it has not.
@@ -213,8 +218,8 @@ evaluation are stored in the future {\tt f} and used to respond to all
 {\tt force} queries.
 
 \begin{x10}
- future<T@P> promise = future (a.distribution[3]) \{ a[3] \};
- T@P value = promise.force();
+future<T@P> promise = future (a.distribution[3]) \{ a[3] \};
+T@P value = promise.force();
 \end{x10}
 
 \subsection{Implementation notes}
@@ -240,22 +245,23 @@ atomic section}:
 461 Statement ::= AtomicStatement
 474 StatementNoShortIf ::= AtomicStatementNoShortIf
 482 AtomicStatement ::= atomic  Statement
-492 AtomicStatementNoShortIf ::= atomic  StatementNoShortIf
+492 AtomicStatementNoShortIf ::= 
+       atomic StatementNoShortIf
 445 MethodModifier ::= atomic
 \end{x10}
 
-{\cf Statement} may include method calls, conditionals, asynchronous
-method invocations etc. It may not include any statement that may
-potentially block at runtime (e.g.{} {\tt when}, {\tt force}
-operations, {\tt next} operations on clocks, {\tt finish}).  Also for
-the sake of efficient implementation \XtenCurrVer{} requires that the
-atomic section be {\em analyzable}, that is, the set of locations that
-are read and written by the {\cf BlockStatement} are bounded and
-determined statically. All these locations must statically be
-determined to be located in the current place. (The programmer may use
-a place cast in the statement to check dynamically that a variable is
-local to the current place; if this cast fails a {\tt
-BadPlaceException} will be thrown.)
+{\cf Statement} may include method calls, conditionals etc.  It may
+not include the construction of any {\tt async} activity.  It may not
+include any statement that may potentially block at runtime (e.g.{}
+{\tt when}, {\tt force} operations, {\tt next} operations on clocks,
+{\tt finish}).  Also for the sake of efficient implementation
+\XtenCurrVer{} requires that the atomic section be {\em analyzable},
+that is, the set of locations that are read and written by the {\cf
+BlockStatement} are bounded and determined statically. All these
+locations must statically be determined to be located in the current
+place. (The programmer may use a place cast in the statement to check
+dynamically that a variable is local to the current place; if this
+cast fails a {\tt BadPlaceException} will be thrown.)
 
 Such a statement is executed by an activity as if in a single step
 during which all other concurrent activities in the same place are
@@ -272,7 +278,7 @@ a method is taken to stand for a method whose body is wrapped within an
 Note an important property of an (unconditonal) atomic section:
 
 \begin{eqnarray}
- {\cf atomic \{ atomic \{ S\}\}} &=& {\cf atomic \{S\}}
+ {\cf atomic atomic} S &=& {\cf atomic} S
 \end{eqnarray}
 
 Further, an atomic section will eventually terminate successfully or
@@ -286,13 +292,15 @@ non-blocking concurrent algorithms.
 
 The following class method implements a (generic) compare and swap (CAS) operation:
 \begin{x10}
-  public atomic boolean CAS( Object target, Object old, Object new) \{
-     if (target.equals(old)) \{
-       target = new;
-       return true;
-     \}
-     return false;
-  \}
+public atomic boolean CAS( Object target, 
+                           Object old, 
+                           Object new) \{
+   if (target.equals(old)) \{
+     target = new;
+     return true;
+   \}
+   return false;
+\}
 \end{x10}
 
 \subsection{Conditional atomic sections}
@@ -301,8 +309,8 @@ Conditional atomic sections are of the form:
 \begin{x10}
 465 Statement ::= WhenStatement
 475 StatementNoShortIf ::= WhenStatementNoShortIf
-483   WhenStatement ::= when ( Expression ) Statement
-484                   | WhenStatement or ( Expression ) Statement
+483 WhenStatement ::= when ( Expression ) Statement
+484     | WhenStatement or ( Expression ) Statement
 \end{x10}
 
 In such a statement the one or more expressions are called {\em
@@ -413,38 +421,38 @@ specified when the latch was set, that value is thrown on any attempt
 to read the latch. Otherwise the normal value is returned.
 
 \begin{x10}
-public interface future {
+public interface future \{
    boolean latched();
    Object force();
-}
+\}
 public class Latch implements future \{
-    boolean latched = false;
-    nullable boxed result = null;
-    nullable exception z = null;
+  boolean latched = false;
+  nullable boxed result = null;
+  nullable exception z = null;
 
-    public atomic boolean setValue( nullable Object val ) \{
-	return setValue( val, null);
+  public atomic boolean setValue( nullable Object val ) \{
+   return setValue( val, null);
     \}
     public atomic boolean setValue( nullable exception z ) \{
-	return setValue( null, z);
+        return setValue( null, z);
     \}
     public atomic boolean setValue( nullable Object val, 
                                     nullable exception z ) \{
-	if ( latched ) return false;
+        if ( latched ) return false;
         // this assignment happens only once for a latch.
-	this.result = val;
+        this.result = val;
         this.z = z;
         this.latched = true;
-	return true;
+        return true;
     \}
     public atomic boolean latched() \{
-	return latched;
+        return latched;
     \}
     public Object force() \{
-	when ( latched ) \{
+        when ( latched ) \{
             if (z != null) throw z;
-	    return result;
-	\}
+            return result;
+        \}
     \}
 \}
 \end{x10}
@@ -553,12 +561,17 @@ We introduce  $k$-dimensional versions of iteration operations {\cf for} and
 239 ForStatementNoShortIf ::= EnhancedForStatementNoShortIf
 466 Statement ::= ForEachStatement
 476 StatementNoShortIf ::= ForEachStatementNoShortIf
-487 EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
+487 EnhancedForStatement ::= 
+       for ( FormalParameter : Expression ) Statement
 487 EnhancedForStatementNoShortIf ::= 
-        for ( FormalParameter : Expression ) StatementNoShortIf
-485  ForEachStatement ::= foreach ( FormalParameter : Expression ) Statement
+       for ( FormalParameter : Expression ) 
+           StatementNoShortIf
+485  ForEachStatement ::= 
+       foreach ( FormalParameter : Expression ) 
+           Statement
 495  ForEachStatementNoShortIf ::= 
-        foreach ( FormalParameter : Expression ) StatementNoShortIf
+        foreach ( FormalParameter : Expression ) 
+          StatementNoShortIf
 \end{x10}
 
 In both statements, the expression is intendd to be of type {\tt
@@ -589,8 +602,11 @@ In a similar fashion we introduce the syntax:\index{ateach@{\tt ateach}}
 \begin{x10}
 467 Statement ::= AtEachStatement
 477 StatementNoShortIf ::= AtEachStatementNoShortIf
-486   AtEachStatement ::= ateach ( FormalParameter : Expression ) Statement
-496   AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) StatementNoShortIf
+486 AtEachStatement ::= 
+       ateach ( FormalParameter : Expression ) Statement
+496 AtEachStatementNoShortIf ::= 
+       ateach ( FormalParameter : Expression ) 
+           StatementNoShortIf
 \end{x10}
 
 Here the expression is intendd to be of type {\tt distribution}.

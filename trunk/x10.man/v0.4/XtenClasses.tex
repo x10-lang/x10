@@ -61,8 +61,11 @@ compiler allows the programmer to omit the keyword {\tt class} after
 
 \begin{x10}
 447  ClassDeclaration ::= ValueClassDeclaration
-448   ValueClassDeclaration ::= ClassModifiersopt value identifier Superopt Interfacesopt ClassBody
-449                           | ClassModifiersopt value class identifier Superopt Interfacesopt ClassBody
+448  ValueClassDeclaration ::= 
+       ClassModifiersopt value identifier Superopt 
+          Interfacesopt ClassBody
+449  | ClassModifiersopt value class identifier 
+          Superopt Interfacesopt ClassBody
 \end{x10}
 
 The {\cf nullable} type-constructor (\S~\ref{NullableTypeConstructor}) can
@@ -118,7 +121,8 @@ this. Could leave this for 0.7.}
      this(first, null);
   \}
   public
-    LinkedList(Object first,  nullable LinkedList rest) \{
+    LinkedList(Object first,  
+               nullable LinkedList rest) \{
     this.first = first;
     this.rest = rest;
   \}

@@ -25,20 +25,20 @@
 \indexentry{places}{13}
 \indexentry{finish}{15}
 \indexentry{initial activity}{15}
-\indexentry{atomic sections}{15}
+\indexentry{atomic sections}{16}
 \indexentry{remote method invocation}{18}
 \indexentry{foreach@{\tt foreach}}{18}
 \indexentry{for@{\tt for}}{18}
 \indexentry{ateach@{\tt ateach}}{18}
-\indexentry{clocks}{18}
+\indexentry{clocks}{19}
 \indexentry{clock!creation}{19}
 \indexentry{clock!clocked statements}{19}
-\indexentry{clock!continue}{19}
+\indexentry{clock!continue}{20}
 \indexentry{clock!next}{20}
 \indexentry{clock!now}{20}
 \indexentry{clock!drop}{20}
 \indexentry{clock!dropped}{20}
-\indexentry{interfaces}{20}
+\indexentry{interfaces}{21}
 \indexentry{class}{21}
 \indexentry{class!reference class}{21}
 \indexentry{class!value class}{21}
@@ -48,9 +48,9 @@
 \indexentry{region!upperTriangular}{22}
 \indexentry{region!lowerTriangular}{22}
 \indexentry{region!banded}{22}
-\indexentry{region!convex}{22}
-\indexentry{region!sub-region}{22}
-\indexentry{region!intersection}{22}
+\indexentry{region!convex}{23}
+\indexentry{region!sub-region}{23}
+\indexentry{region!intersection}{23}
 \indexentry{region!union}{23}
 \indexentry{region!set difference}{23}
 \indexentry{region!==}{23}
@@ -62,16 +62,16 @@
 \indexentry{distribution!block cyclic}{23}
 \indexentry{distribution!arbitrary}{23}
 \indexentry{distribution!restriction!domain}{23}
-\indexentry{distribution!restriction!range}{23}
-\indexentry{distribution!user-defined}{23}
-\indexentry{sub-distribution}{23}
-\indexentry{distribution!intersection}{23}
-\indexentry{distribution!union!asymmetric}{23}
+\indexentry{distribution!restriction!range}{24}
+\indexentry{distribution!user-defined}{24}
+\indexentry{sub-distribution}{24}
+\indexentry{distribution!intersection}{24}
+\indexentry{distribution!union!asymmetric}{24}
 \indexentry{distribution!union!disjoint}{24}
 \indexentry{distribution!difference}{24}
-\indexentry{array!access}{24}
-\indexentry{arrays!constant promotion}{24}
-\indexentry{array!restriction}{24}
+\indexentry{array!access}{25}
+\indexentry{arrays!constant promotion}{25}
+\indexentry{array!restriction}{25}
 \indexentry{array!union!disjoint}{25}
 \indexentry{array!union!asymmetric}{25}
 \indexentry{array!pointwise operations}{25}
@@ -80,10 +80,10 @@
 \indexentry{statements}{25}
 \indexentry{assignment}{25}
 \indexentry{[] syntax}{25}
-\indexentry{variable declarator!exploded}{25}
+\indexentry{variable declarator!exploded}{26}
 \indexentry{expressions}{26}
 \indexentry{classcast}{26}
 \indexentry{instanceof@{\tt instanceof}}{26}
-\indexentry{==}{26}
-\indexentry{!=}{26}
-\indexentry{X10 productions}{27}
+\indexentry{==}{27}
+\indexentry{!=}{27}
+\indexentry{X10 productions}{28}
