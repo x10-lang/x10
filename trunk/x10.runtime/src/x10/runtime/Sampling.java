@@ -539,13 +539,16 @@ public final class Sampling extends Thread {
             for (int i=SINGLETON.places.length-1;i>=0;i--) {
                 LocalPlace_c p = (LocalPlace_c) SINGLETON.places[i];
                 int ql = 0;
-                synchronized(p) {
+                // cvp: this synchronization leads to deadlock.
+                // we accept the risk to sample a stale/incorrect value due to a 
+                // data race.
+                //synchronized(p) {
                     LocalPlace_c.PoolRunner head = p.threadQueue_;
                     while (head != null) {
                         head = head.next;
                         ql++;
                     }
-                }
+                //}
                 SINGLETON.threadQueueSize[i] = ql;
             }
         }
@@ -567,9 +570,10 @@ public final class Sampling extends Thread {
             for (int i=SINGLETON.places.length-1;i>=0;i--) {
                 LocalPlace_c p = (LocalPlace_c) SINGLETON.places[i];
                 int ql;
-                synchronized(p) {
+                // cvp: this synchronization is non-sense and leads to deadlock.
+                // synchronized(p) {
                     ql = p.runningThreads;
-                }
+                //}
                 SINGLETON.loadSamples[i] = ql;
             }
         }
