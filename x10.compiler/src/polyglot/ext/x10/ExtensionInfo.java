@@ -20,6 +20,7 @@ import polyglot.frontend.VisitorPass;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
 import polyglot.util.CodeWriter;
+import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.visit.DumpAst;
 
@@ -27,6 +28,7 @@ import polyglot.visit.DumpAst;
  * Extension information for x10 extension.
  */
 public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
+    static final boolean DEBUG_ = false;
     static {
         // force Topics to load
         Topics t = new Topics();
@@ -73,6 +75,10 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     public List passes(Job job) {
         List passes = super.passes(job);
         
+        if (DEBUG_) {
+            System.out.println("polyglot.ext.x10.ExtensionInfo: disabled passes: " + getOptions().disable_passes);
+        }
+        
         beforePass(passes, Pass.PRE_OUTPUT_ALL,
                 new VisitorPass(ATOMIC_ELIMINATION,
                         job, new AtomicElimination()));
@@ -103,7 +109,7 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         return passes;
     }
     
-    public polyglot.main.Options getOptions() {
+    protected Options createOptions() {
         return new X10CompilerOptions(this);
     }
 
