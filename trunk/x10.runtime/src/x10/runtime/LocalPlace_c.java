@@ -262,7 +262,7 @@ public class LocalPlace_c extends Place {
     protected synchronized void execute(Runnable r, Activity act, ActivityInformation ai) {
         PoolRunner t;
         if (threadQueue_ == null) {
-            t = new PoolRunner();
+            t = new PoolRunner(this);
             reg_.registerThread(t, this);
             t.start();
         } else {
@@ -319,8 +319,10 @@ public class LocalPlace_c extends Place {
         private Object vmto;
         // FIXME: move myClocks_ into the Activity base class
         private List myClocks_;
+        final Place place;
         
-        PoolRunner() {
+        PoolRunner(Place p) {
+            place = p;
             synchronized (myThreads) { myThreads.add(this); }
             try {
                 Field vmt = java.lang.Thread.class.getDeclaredField("vmdata");

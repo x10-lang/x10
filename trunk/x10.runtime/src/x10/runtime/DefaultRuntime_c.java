@@ -2,7 +2,6 @@ package x10.runtime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -310,10 +309,17 @@ public class DefaultRuntime_c
             initialize();
         if (places_.length == 1)
             return places_[0]; // fast path for simple test environments!
-    	Place p = (Place) thread2place_.get(Thread.currentThread());
-    	if (p == null)
+    	Thread t = Thread.currentThread();
+        Place ret;
+        if (t instanceof LocalPlace_c.PoolRunner) {
+            LocalPlace_c.PoolRunner pr = (LocalPlace_c.PoolRunner) t;
+            ret = pr.place;
+        } else {
+            ret = (Place) thread2place_.get(t);
+        }
+    	if (ret == null)
     		throw new Error("This thread is not an X10 thread!");
-    	return p;
+    	return ret;
     }
 
     /**
