@@ -1,5 +1,5 @@
 // now(0) 1
-#0.doNow(new Activity() {
+((x10.runtime.Clock)(#0)).doNow(new x10.lang.Activity() {
   public void run() {
      #1 
   }
