@@ -41,7 +41,7 @@ public abstract class Clock extends clock implements TypeArgument {
         }
     }
     	
-    public static Clock Clock() {
+    public static Clock clock() {
     	return (Clock) Runtime.factory.getClockFactory().clock();
     }
     /**
