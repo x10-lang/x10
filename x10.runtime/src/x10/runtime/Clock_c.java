@@ -97,6 +97,7 @@ final class Clock_c implements Clock {
      */
     public synchronized void doNow(Activity a) {
         assert activities_.contains(aip_.getCurrentActivity());
+        nowSet_.add(a);
         aip_.registerActivitySpawnListener(a, nowSpawnListener_);
         Runtime.here().runAsync(a);
     }
@@ -162,13 +163,13 @@ final class Clock_c implements Clock {
             return; // we advanced, continue immediately!
         // wait for next phase
         int start = phase_;
-        do {
+        while (start == phase_) { // signal might be random in Java, check!
             try {
                 this.wait(); // wait for signal
             } catch (InterruptedException ie) {
                 throw new Error(ie); // that was unexpected...
             }
-        } while (start == phase_); // signal might be random in Java, check!        
+        }
     }
         
     /**
@@ -224,7 +225,9 @@ final class Clock_c implements Clock {
             Activity a = (Activity) it.next();
             pending_.add(a);
         }
-        notifyAll();
+        synchronized(this) {
+            notifyAll();
+        }
     }
 
     /**
@@ -243,20 +246,20 @@ final class Clock_c implements Clock {
 
     /**
      * Listener that (transitively) adds all spawned activities to
-     * the 'nowSet_'.    Also tracks activity exits to ensure
-     * dropping at the end.
+     * the 'nowSet_'.    
      */
     private final ActivitySpawnListener nowSpawnListener_ = 
        new ActivitySpawnListener() {
        public void notifyActivitySpawn(Activity a,
                                        Activity i) {
            assert nowSet_.contains(i);
-           nowSet_.add(i);
+           nowSet_.add(a);
+           aip_.registerActivitySpawnListener(a, this);
        }
        public void notifyActivityTerminated(Activity a) {
            assert nowSet_.contains(a);
            nowSet_.remove(a);
-           drop(a);
+           tryAdvance();
        }
    };
     
