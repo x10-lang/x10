@@ -1,5 +1,8 @@
 package x10.runtime;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+
 import x10.lang.Activity;
 import x10.lang.Future;
 
@@ -13,6 +16,24 @@ import x10.lang.Future;
  */
 class LocalPlace_c extends Place {
 
+    /**
+     * Compute the number of simulated cycles spent
+     * globally at this point.
+     * 
+     * @return max of all simulatedPlaceTimes of all places
+     */
+    private static long systemNow() {
+        long max = 0;
+        Place[] places = x10.lang.Runtime.places();
+        for (int i=places.length-1;i>=0;i--) {
+            long val = ((LocalPlace_c) places[i]).getSimulatedPlaceTime();
+            if (val > max)
+                max = val;
+        }
+        return max;
+    }
+
+    
     private final ThreadRegistry reg_;
     
     private final ActivityInformationProvider aip_;
@@ -32,13 +53,44 @@ class LocalPlace_c extends Place {
      * assigned to an Activity.  Package scoped to allow sampling.
      */
     PoolRunner threadQueue_;
+
+    /**
+     * List of all of the threads of this place.
+     */
+    final ArrayList myThreads = new ArrayList(); // <PoolRunner>
+    
+    /**
+     * The amount of cycles that this places was blocked waiting
+     * for activities at other places to complete.  
+     */
+    long blockedTime;
+    
+    /**
+     * "global" time at which this place was blocked (that is, all
+     * activities at this place were blocked).
+     */
+    private long startBlock; 
     
     LocalPlace_c(ThreadRegistry reg, ActivityInformationProvider aip) {
         super();
         this.reg_ = reg;
         this.aip_ = aip;
+        startBlock = systemNow();
     }
     
+    /**
+     * Get how many cycles were spent in computation or blocked at this 
+     * place so far.  Only (sort of) works on JikesRVM where we can get
+     * per-thread cycle counts.
+     *
+     * @return
+     */
+    public long getSimulatedPlaceTime() {
+        long ret = blockedTime;
+        for (int i = myThreads.size()-1;i>=0;i--)
+            ret += ((PoolRunner)myThreads.get(i)).getThreadRunTime();
+        return ret;
+    }
     
     /**
      * Shutdown this place, the current X10 runtime will exit.    Assumes
@@ -157,7 +209,15 @@ class LocalPlace_c extends Place {
      * @param delta +1 for thread starts to run (unblocked), -1 for thread is blocked
      */
     synchronized void changeRunningStatus(int delta) {
+        if (runningThreads == 0) {
+            assert delta > 0;
+            this.blockedTime += systemNow() - startBlock;
+        }
         runningThreads += delta;
+        if (runningThreads == 0) {
+            assert delta < 0;
+            startBlock = systemNow();
+        }
     }
     
     /**
@@ -173,6 +233,32 @@ class LocalPlace_c extends Place {
         PoolRunner next;
         private boolean active = true;
         private Runnable job;
+        PoolRunner() {
+            myThreads.add(this);
+        }
+        
+        /**
+         * On JikesRVM, get the total number of CPU cycles spend in this
+         * thread.  We use reflection mostly because we want this to
+         * still link (!) and compile under other VMs.  
+         * @return 0 on error
+         */
+        long getThreadRunTime() {
+            try {
+                Field vmt = java.lang.Thread.class.getField("vmdata");
+                vmt.setAccessible(true);
+                Object o = vmt.get(this); // o is 'VM_Thread'
+                Field trt = o.getClass().getDeclaredField("totalCycles");
+                trt.setAccessible(true);
+                return trt.getLong(o);                
+            } catch (SecurityException se) {
+            } catch (IllegalAccessException iae) {
+            } catch (NoSuchFieldException nsfe) {
+                // not JikesRVM
+            }
+            return 0;   
+        }
+        
         synchronized void shutdown() {
             active = false;
             this.notifyAll();

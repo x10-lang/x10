@@ -120,7 +120,7 @@ public class TestRuntime extends TestCase {
     
     public void testClockContinue() {
         x = 0;
-        final Clock c = Clock.Clock();
+        final Clock c = Clock.clock();
         Activity b = new Activity() {
             public void run() {
                 c.doNext();
