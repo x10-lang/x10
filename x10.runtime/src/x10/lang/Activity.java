@@ -20,5 +20,4 @@ public interface Activity extends Runnable {
 
     } // end of Activity.Expr
 
-
 } // end of Activity

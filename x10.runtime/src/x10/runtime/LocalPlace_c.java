@@ -189,8 +189,16 @@ public class LocalPlace_c extends Place {
                         startSignal.go = true;
                         startSignal.notifyAll();
                     }
-                    a.run();                    
-                    result.setResult(a.getResult());
+                    try {
+                        a.run();
+                        result.setResult(a.getResult());
+                    } catch (Error e) {
+                        result.setException(e);
+                        throw e;
+                    } catch (RuntimeException re) {
+                        result.setException(re);
+                        throw re;
+                    }
                 }
             }, a);
         // we now need to wait at least (!) until the 
@@ -366,8 +374,12 @@ public class LocalPlace_c extends Place {
                     try {
                         changeRunningStatus(1);
                         j.run();
-                    } catch (Throwable t) {
-                        t.printStackTrace(); // see X10 spec for exceptions...
+                    } catch (RuntimeException t) {
+                        reg_.registerActivityException(act,
+                                t);
+                    } catch (Error et) {
+                        reg_.registerActivityException(act,
+                                                                      et);
                     } finally {
                         changeRunningStatus(-1);
                         reg_.registerActivityStop(Thread.currentThread(), 

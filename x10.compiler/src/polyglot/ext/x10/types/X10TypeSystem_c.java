@@ -207,7 +207,11 @@ implements X10TypeSystem {
 			return doubleArray( isValueType, distribution);
 		if (type.isLong())
 			return longArray( isValueType, distribution);
-		throw new Error("X10 array types not yet implemented for base types other than int, double and long. ");
+                if (type.isPrimitive())
+                    throw new Error("X10 array types not yet implemented for base types other than int, double and long (got: " + type + ")");
+		// if (type.isReference())
+                // must be reference, but we can't establish that yet
+		return objectArray(isValueType, distribution, type);
 	}
 	
 	public ClassType array( Type type,  Expr distribution ) {
@@ -217,6 +221,8 @@ implements X10TypeSystem {
 			return doubleArray(  distribution );
 		if (type.isLong())
 			return longArray(  distribution );
+		if (type.isReference())
+		    return objectArray(distribution, type.toReference());
 		throw new Error("X10 array types not yet implemented for base types other than int, double and long. ");
 	}
 	
@@ -227,6 +233,9 @@ implements X10TypeSystem {
 		    return isValue ? doubleValueArray() : DoubleReferenceArray();
 		if (type.isLong())
 		    return isValue ? longValueArray() : LongReferenceArray();
+		if (type.isReference())
+		    return isValue ? objectValueArray(type.toReference())
+                                           : ObjectReferenceArray(type.toReference());
 		throw new Error("X10 array types not yet implemented for base types other than int, double and long. ");
 	}
 	
@@ -322,7 +331,54 @@ implements X10TypeSystem {
 		// return longReferenceArrayType_.setParameter( "distribution", distribution );
 		return longReferenceArrayType_;
 	}
-	
+
+    
+    static String generate(Type type) {
+        return "object";
+    }
+    
+    public ClassType objectArrayPointwiseOp(Type type) {
+        String name = generate(type);
+        return load("x10.lang."+name+"Array$pointwiseOp"); // java file
+    }
+    public ClassType objectArray(boolean isValueType, Expr distribution, Type type) {
+        return 
+        isValueType ? objectValueArray( distribution, type ) : ObjectReferenceArray( distribution, type );
+    }
+    
+    public ClassType objectArray( Expr distribution, Type type) {
+        String name = generate(type);
+        return load("x10.lang."+name+"Array"); // java file
+    }
+    
+    public ClassType objectArray(Type type) {
+        return objectArray(null, type );
+    }
+    
+    public ClassType objectValueArray(Type type) {
+        return objectValueArray(null, type);
+    }
+    
+    public ClassType objectValueArray( Expr distribution, Type type ) {
+        return objectArray( distribution, type);
+    }
+    public ClassType ObjectReferenceArray(Type type) {
+        return ObjectReferenceArray( null, type);
+    }
+    
+    public ClassType ObjectReferenceArray( Expr distribution, Type type) {
+        String name = generate(type);
+        return load("x10.lang."+name+"ReferenceArray"); // java file
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
 	
 	public ClassType doubleArray(boolean isValueType, Expr distribution ) {
 		return 

@@ -1,13 +1,23 @@
 (x10.lang.Runtime.here().runFuture(new x10.lang.Activity.Expr() {
   private boolean ret_;
   public void run() {
+  	 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).startFinish(this);
      final x10.runtime.Clock c = x10.runtime.Clock.Clock();
      c.doNow(new x10.lang.Activity() {
                public void run() {
                  #0; 
                } 
-            });
+            });    
      c.doNext();
+     java.lang.Throwable t 
+         = ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).getFinishExceptions(this);
+     if (t != null) {
+     	if (t instanceof Error)
+     	   throw (Error) t;
+        if (t instanceof RuntimeException)
+           throw (RuntimeException) t;
+        assert false;     	   
+     }
      ret_ = true; 
   } 
   public x10.lang.Object getResult() { 

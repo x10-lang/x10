@@ -38,6 +38,16 @@ public interface ThreadRegistry {
                                Activity i);
 
     /**
+     * Notifiation that an activity terminated with an
+     * exception.
+     * 
+     * @param a the activity that died
+     * @param i the Error or RuntimeException encountered
+     */
+    void registerActivityException(Activity a,
+                                                  Throwable t);
+
+    /**
      * Notification that an activity completed.
      * 
      * @param t
