@@ -59,10 +59,12 @@ An activity is created by executing the statement:
 481 AsyncStatement ::= 
       async PlaceExpressionSingleListopt Statement
 491 AsyncStatementNoShortIf ::= 
-      async PlaceExpressionSingleListopt StatementNoShortIf
+      async PlaceExpressionSingleListopt 
+         StatementNoShortIf
 524   PlaceExpressionSingleListopt ::=
 525       | PlaceExpressionSingleList
-499   PlaceExpressionSingleList ::= ( PlaceExpression )
+499   PlaceExpressionSingleList ::= 
+         ( PlaceExpression )
 500   PlaceExpression ::= Expression
 \end{x10} 
 
@@ -109,7 +111,8 @@ The statement {\tt finish S} converts global termination to local
 termination and introduces a root activity. 
 \begin{x10}
 468 Statement ::= FinishStatement
-478 StatementNoShortif ::= FinishStatementNoShortIf
+478 StatementNoShortif ::= 
+      FinishStatementNoShortIf
 488 FinishStatement ::= finish Statement
 498 FinishStatementNoShortIf ::= 
       finish StatementNoShortIf
@@ -218,7 +221,8 @@ evaluation are stored in the future {\tt f} and used to respond to all
 {\tt force} queries.
 
 \begin{x10}
-future<T@P> promise = future (a.distribution[3]) \{ a[3] \};
+future<T@P> promise 
+     = future (a.distribution[3]) \{ a[3] \};
 T@P value = promise.force();
 \end{x10}
 
@@ -243,7 +247,8 @@ atomic section}:
 
 \begin{x10}
 461 Statement ::= AtomicStatement
-474 StatementNoShortIf ::= AtomicStatementNoShortIf
+474 StatementNoShortIf ::= 
+       AtomicStatementNoShortIf
 482 AtomicStatement ::= atomic  Statement
 492 AtomicStatementNoShortIf ::= 
        atomic StatementNoShortIf
@@ -278,7 +283,7 @@ a method is taken to stand for a method whose body is wrapped within an
 Note an important property of an (unconditonal) atomic section:
 
 \begin{eqnarray}
- {\cf atomic atomic} S &=& {\cf atomic} S
+ {\cf atomic\ atomic}\ S &=& {\cf atomic}\ S
 \end{eqnarray}
 
 Further, an atomic section will eventually terminate successfully or
@@ -309,8 +314,10 @@ Conditional atomic sections are of the form:
 \begin{x10}
 465 Statement ::= WhenStatement
 475 StatementNoShortIf ::= WhenStatementNoShortIf
-483 WhenStatement ::= when ( Expression ) Statement
-484     | WhenStatement or ( Expression ) Statement
+483 WhenStatement ::= 
+          when ( Expression ) Statement
+484     | WhenStatement 
+          or ( Expression ) Statement
 \end{x10}
 
 In such a statement the one or more expressions are called {\em
@@ -430,16 +437,19 @@ public class Latch implements future \{
   nullable boxed result = null;
   nullable exception z = null;
 
-  public atomic boolean setValue( nullable Object val ) \{
+  public atomic 
+   boolean setValue( nullable Object val ) \{
    return setValue( val, null);
     \}
-    public atomic boolean setValue( nullable exception z ) \{
+   public atomic 
+   boolean setValue( nullable exception z ) \{
         return setValue( null, z);
     \}
-    public atomic boolean setValue( nullable Object val, 
-                                    nullable exception z ) \{
+    public atomic 
+    boolean setValue( nullable Object val, 
+                      nullable exception z ) \{
         if ( latched ) return false;
-        // this assignment happens only once for a latch.
+        // these assignment happens only once.
         this.result = val;
         this.z = z;
         this.latched = true;
@@ -533,7 +543,8 @@ Such an expression can be written as:
 We introduce shorthand for asynchronous remote method invocation:
 
 \begin{x10}
-507   MethodInvocation ::= Primary -> identifier ( ArgumentListopt )
+507   MethodInvocation ::= 
+        Primary -> identifier ( ArgumentListopt )
 \end{x10}
 
 If the method named is {\tt void} the expression {\tt o -> m(a1,...,ak)}
@@ -556,13 +567,17 @@ We introduce  $k$-dimensional versions of iteration operations {\cf for} and
 
 \begin{x10}
 189 Statement ::= ForStatement
-206 StatementNoShortIf ::= ForStatementNoShortIf
+206 StatementNoShortIf ::= 
+      ForStatementNoShortIf
 236 ForStatement ::= EnhancedForStatement
-239 ForStatementNoShortIf ::= EnhancedForStatementNoShortIf
+239 ForStatementNoShortIf ::= 
+      EnhancedForStatementNoShortIf
 466 Statement ::= ForEachStatement
-476 StatementNoShortIf ::= ForEachStatementNoShortIf
+476 StatementNoShortIf ::= 
+      ForEachStatementNoShortIf
 487 EnhancedForStatement ::= 
-       for ( FormalParameter : Expression ) Statement
+       for ( FormalParameter : Expression ) 
+         Statement
 487 EnhancedForStatementNoShortIf ::= 
        for ( FormalParameter : Expression ) 
            StatementNoShortIf
@@ -601,12 +616,14 @@ activities are propagated through to the root activity.
 In a similar fashion we introduce the syntax:\index{ateach@{\tt ateach}}
 \begin{x10}
 467 Statement ::= AtEachStatement
-477 StatementNoShortIf ::= AtEachStatementNoShortIf
+477 StatementNoShortIf ::= 
+      AtEachStatementNoShortIf
 486 AtEachStatement ::= 
-       ateach ( FormalParameter : Expression ) Statement
+      ateach ( FormalParameter : Expression ) 
+         Statement
 496 AtEachStatementNoShortIf ::= 
-       ateach ( FormalParameter : Expression ) 
-           StatementNoShortIf
+      ateach ( FormalParameter : Expression ) 
+          StatementNoShortIf
 \end{x10}
 
 Here the expression is intendd to be of type {\tt distribution}.
