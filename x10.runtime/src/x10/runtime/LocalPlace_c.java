@@ -1,5 +1,8 @@
 package x10.runtime;
 
+import x10.lang.Activity;
+import x10.lang.Future;
+import x10.lang.Place;
 import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
@@ -73,7 +76,7 @@ class LocalPlace_c extends PooledExecutor
      * Run the given activity asynchronously.  Return a handle that
      * can be used to force the future result.
      */
-    public Activity.Result runFuture(final Activity.Future a) {
+    public Future runFuture(final Activity.FutureActivity a) {
         final LocalActivityResult_c result = new LocalActivityResult_c();
         try {
             this.execute(new Runnable() {

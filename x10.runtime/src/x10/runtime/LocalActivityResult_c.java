@@ -3,7 +3,8 @@
  */
 package x10.runtime;
 
-import x10.runtime.Activity.Result;
+import x10.lang.Future;
+import x10.lang.Object;
 
 /**
  * This class encapsulates the return value of a local async
@@ -12,7 +13,7 @@ import x10.runtime.Activity.Result;
  * 
  * @author Christian Grothoff
  */
-final class LocalActivityResult_c extends Result {
+final class LocalActivityResult_c extends Future {
 
     private boolean haveResult_;
     

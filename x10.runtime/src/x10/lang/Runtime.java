@@ -1,4 +1,7 @@
-package x10.runtime;
+package x10.lang;
+
+import x10.runtime.DefaultRuntime_c;
+import x10.runtime.JavaSubsystem;
 
 /**
  * This is the central entrypoint to the X10 Runtime for the
@@ -36,17 +39,13 @@ public abstract class Runtime {
 	_.run(args);
     }
 
-    Runtime() {}
+    protected Runtime() {}
 
     /**
      * Run the X10 application.
      */
     protected abstract void run(String[] args) throws Exception;
 
-    /**
-     * Obtain the place of the current execution.
-     */
-    public abstract Place here();
 
     /**
      * Shutdown the X10 runtime system.
@@ -84,8 +83,10 @@ public abstract class Runtime {
      * @return The place where the current execution takes place 
      * ('here' in X10).
      */
-    public static Place currentPlace() {
-    	return getRuntime().here();
+    public static Place here() {
+    	return getRuntime().currentPlace();
     }
+    
+    public abstract Place currentPlace();
     
 } // end of Runtime

@@ -1,4 +1,5 @@
-package x10.runtime;
+package x10.lang;
+
 
 /**
  * @author Christian Grothoff
@@ -9,7 +10,7 @@ public abstract class Activity
     /**
      * @author Christian Grothoff
      */
-    public static abstract class Future 
+    public static abstract class FutureActivity 
 	extends Activity {
        
 	/**
@@ -17,19 +18,6 @@ public abstract class Activity
 	 * return value.
 	 */
 	public abstract Object getResult();
-
-    } // end of Activity.Future
-
-    /**
-     * @author Christian Grothoff
-     */
-    public static abstract class Result {
-       
-	/**    
-	 * Wait for the completion of this activity and return the
-	 * return value.   
-	 */    
-	public abstract Object force();    
 
     } // end of Activity.Future
 

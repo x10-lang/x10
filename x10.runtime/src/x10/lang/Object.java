@@ -2,7 +2,8 @@
  * Created on Oct 1, 2004
  *
  */
-package x10.runtime;
+package x10.lang;
+
 
 /**
  * @author Christoph von Praun
@@ -35,7 +36,7 @@ public class Object extends java.lang.Object {
 	 * 	                   If the class is not generic, the null is passed.  
 	 */
 	public Object(Class[] actual_types) {
-		place = Runtime.currentPlace();
+		place = Runtime.here();
 		actualTypes_ = actual_types;
 	}
 	

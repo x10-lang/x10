@@ -1,5 +1,7 @@
 package x10.runtime;
 
+import x10.lang.Place;
+
 /**
  * This interface is internal to x10.runtime.  It is used
  * to register the threads from the threadpool of the local

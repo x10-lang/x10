@@ -1,4 +1,4 @@
-package x10.runtime;
+package x10.lang;
 
 /**
  * @author Christian Grothoff
@@ -31,12 +31,13 @@ public interface Place {
      * @param a reference to the closure that encapsulates the code to run
      * @return the placeholder for the future result.
      */
-    public Activity.Result runFuture(Activity.Future a); 
+    public Future runFuture(Activity.FutureActivity a); 
     
     /**
      * Shutdown this place, the current X10 runtime will exit.
      */
     public void shutdown();
     
+
 } // end of Place
 
