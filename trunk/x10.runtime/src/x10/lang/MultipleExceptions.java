@@ -11,6 +11,9 @@ public class MultipleExceptions extends x10.lang.Exception {
     public MultipleExceptions(Stack s) {
         this.exceptions = s;
     }
+    public String toString() {
+        return exceptions.toString();
+    }
     public void printStackTrace() {
         super.printStackTrace();
         for (Iterator it = exceptions.iterator();it.hasNext();)
