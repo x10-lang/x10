@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import x10.lang.ActivityInformation;
 import x10.lang.Future;
 
 /**

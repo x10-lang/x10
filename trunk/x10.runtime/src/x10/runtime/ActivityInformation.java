@@ -1,7 +1,7 @@
 /*
  * Created on Mar 28, 2005
  */
-package x10.lang;
+package x10.runtime;
 
 import java.util.List;
 

@@ -1,7 +1,6 @@
 package x10.runtime;
 
 import x10.base.TypeArgument;
-import x10.lang.ActivityInformation;
 import x10.lang.Future;
 import x10.lang.Runtime;
 import x10.lang.place;
