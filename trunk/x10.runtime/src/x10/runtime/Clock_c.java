@@ -19,6 +19,10 @@ import x10.lang.Runtime;
  */
 final class Clock_c extends Clock {
 
+    private static int idgen = 0; 
+    
+    public final int id = idgen++;
+    
     /**
      * The activity information provider that this clock can use.
      */
@@ -169,12 +173,12 @@ final class Clock_c extends Clock {
         int start = phase_;
         while (start == phase_) { // signal might be random in Java, check!
             try {
-                LoadMonitored.blocked();
+                LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id);
                 this.wait(); // wait for signal
             } catch (InterruptedException ie) {
                 throw new Error(ie); // that was unexpected...
             } finally {
-                LoadMonitored.unblocked();
+                LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id);
             }
         }
     }
@@ -217,7 +221,9 @@ final class Clock_c extends Clock {
         assert pending_.size() == 0;
         assert nowSet_.size() == 0;
         this.phase_++;
-        Sampling._.signalEvent(Sampling.M_ID_CLOCK_ADVANCE);
+        
+        Sampling._.signalEvent(Sampling.EVENT_ID_CLOCK_ADVANCE,
+                                            this.id);
         // first notify everyone
         if (this.listener1_ != null) {
             this.listener1_.notifyAdvance();

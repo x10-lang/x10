@@ -38,12 +38,12 @@ final class Future_c extends Future {
     public synchronized Object force() {
         while (! haveResult_) {
             try {
-                LoadMonitored.blocked();
+                LoadMonitored.blocked(Sampling.CAUSE_FORCE, 0);
                 this.wait();
             } catch (InterruptedException ie) {
                 throw new Error(ie); // this should never happen...
             } finally {
-                LoadMonitored.unblocked();
+                LoadMonitored.unblocked(Sampling.CAUSE_FORCE, 0);
             }
         }
         return result_;

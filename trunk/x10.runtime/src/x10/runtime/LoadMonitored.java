@@ -11,11 +11,17 @@ package x10.runtime;
  *
  * @author Christian Grothoff
  */
-abstract class LoadMonitored extends Thread {
+public abstract class LoadMonitored extends Thread {
 
     public static final boolean ON = true;
     
-    public static void blocked() {
+    /**
+     * @param reason why are we blocking (see Sampling class
+     *    for possible values)
+     * @param info additional info for the blocking (depends on
+     *    the reason, i.e. clock ID; 0 otherwise)
+     */
+    public static void blocked(int reason, int info) {
         if (ON) {
             Thread t = Thread.currentThread();
             if (t instanceof LoadMonitored)
@@ -23,7 +29,13 @@ abstract class LoadMonitored extends Thread {
         }
     }
     
-    public static void unblocked() {
+    /**
+     * @param reason why are we blocking (see Sampling class
+     *    for possible values)
+     * @param info additional info for the blocking (depends on
+     *    the reason, i.e. clock ID; 0 otherwise)
+     */
+    public static void unblocked(int reason, int info) {
         if (ON) {
             Thread t = Thread.currentThread();
             if (t instanceof LoadMonitored)

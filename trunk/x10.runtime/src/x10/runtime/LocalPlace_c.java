@@ -22,7 +22,7 @@ class LocalPlace_c extends Place {
      * 
      * @return max of all simulatedPlaceTimes of all places
      */
-    private static long systemNow() {
+    public static long systemNow() {
         long max = 0;
         Place[] places = x10.lang.Runtime.places();
         for (int i=places.length-1;i>=0;i--) {

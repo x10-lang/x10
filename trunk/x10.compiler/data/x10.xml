@@ -32,7 +32,7 @@
 <event name="X10::Event::ActivityEnd" description="Record an activity terminating">
    <layerId value="X10" />
    <classId value="Event" />
-   <specifier value="ActivityEnds" />
+   <specifier value="ActivityEnd" />
    <fields>
       <field name="systemTime"  type="uint64" description="system time in milliseconds" />
       <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
@@ -47,7 +47,7 @@
 <event name="X10::Event::ActivityBlock" description="Record an activity blocking">
    <layerId value="X10" />
    <classId value="Event" />
-   <specifier value="ActivityBlocks" />
+   <specifier value="ActivityBlock" />
    <fields>
       <field name="systemTime"  type="uint64" description="system time in milliseconds" />
       <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
@@ -63,7 +63,7 @@
 <event name="X10::Event::ActivityUnblock" description="Record an activity unblocking">
    <layerId value="X10" />
    <classId value="Event" />
-   <specifier value="ActivityUnblocks" />
+   <specifier value="ActivityUnblock" />
    <fields>
       <field name="systemTime"  type="uint64" description="system time in milliseconds" />
       <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
