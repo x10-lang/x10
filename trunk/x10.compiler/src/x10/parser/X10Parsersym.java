@@ -4,7 +4,7 @@
 ////
 // This is the X10 grammar specification based on the Final Draft of the Java generic spec.
 //
-package x10parser;
+package x10.parser;
 
 interface X10Parsersym {
     public final static int

@@ -1,6 +1,6 @@
 
 
-package x10parser;
+package x10.parser;
 
 import com.ibm.lpg.*;
 import java.io.*;

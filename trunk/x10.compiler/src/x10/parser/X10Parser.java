@@ -5,7 +5,7 @@
 // This is the X10 grammar specification based on the Final Draft of the Java generic spec.
 //
 
-package x10parser;
+package x10.parser;
 
 
 import com.ibm.lpg.*;
