@@ -15,5 +15,6 @@ import polyglot.ast.Expr;
  */
 public interface Await extends Stmt {
 	Await expr( Expr e);
+	Expr expr();
 
 }

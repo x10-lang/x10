@@ -32,7 +32,7 @@ import polyglot.visit.TypeChecker;
  * 
  */
 public class Await_c extends Stmt_c implements Await {
-	Expr expr;
+	private Expr expr_;
 
 	/**
 	 * @param pos
@@ -43,21 +43,21 @@ public class Await_c extends Stmt_c implements Await {
 
 	public Await_c(Position pos, Expr expr) {
         super( pos );
-        this.expr = expr;
+        this.expr_ = expr;
     }
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
 	 */
 	public Term entry() {
 		// TODO Auto-generated method stub
-		return expr.entry();
+		return expr_.entry();
 	}
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-		v.visitCFG(expr, this);
+		v.visitCFG(expr_, this);
 		return succs;
 	}
 
@@ -66,8 +66,12 @@ public class Await_c extends Stmt_c implements Await {
 	 */
 	public Await expr( Expr expr ) {
 			Await_c n = (Await_c) copy();
-			n.expr = expr;
+			n.expr_ = expr;
 			return n;
+	}
+	
+	public Expr expr() {
+	    return expr_;
 	}
 	
 	  public Node typeCheck(TypeChecker tc) throws SemanticException {
@@ -86,7 +90,7 @@ public class Await_c extends Stmt_c implements Await {
 
 	/** Visit the children of the statement. */
 	public Node visitChildren( NodeVisitor v ) {
-		Expr expr = (Expr) visitChild(this.expr, v);
+		Expr expr = (Expr) visitChild(this.expr_, v);
 		return expr(expr);
 	}
 }
