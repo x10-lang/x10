@@ -1,4 +1,4 @@
-package x10.runtime;
+package x10.lang;
 
 public interface Distribution {
 

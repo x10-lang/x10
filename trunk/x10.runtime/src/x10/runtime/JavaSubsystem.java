@@ -3,6 +3,8 @@ package x10.runtime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import x10.lang.Object;
+
 /**
  * "Native" functions mapped through to Java.  In the long run the
  * idea is that this becomes the "X10 native interface" (akin to JNI,

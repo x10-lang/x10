@@ -2,11 +2,18 @@ package x10.runtime;
 
 import java.util.HashMap;
 
+import x10.lang.Activity;
+import x10.lang.Array;
+import x10.lang.Clock;
+import x10.lang.Distribution;
+import x10.lang.Place;
+import x10.lang.Runtime;
+
 /**
  * 
  * @author Christian Grothoff
  */
-class DefaultRuntime_c extends Runtime implements ThreadRegistry {
+public class DefaultRuntime_c extends Runtime implements ThreadRegistry {
 
     private final JavaSubsystem native_ = new JavaSubsystem();
 
@@ -17,7 +24,7 @@ class DefaultRuntime_c extends Runtime implements ThreadRegistry {
      */
     private final Place[] places_;
 
-    DefaultRuntime_c() {
+    public DefaultRuntime_c() {
         int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
 	this.places_ 
 	    = new Place[pc];
@@ -59,7 +66,7 @@ class DefaultRuntime_c extends Runtime implements ThreadRegistry {
 	thread2place_.put(t, p);
     }
 
-    public Place here() {
+    public Place currentPlace() {
 	Place p = (Place) thread2place_.get(Thread.currentThread());
 	if (p == null)
 	    throw new Error("This thread is not an X10 thread!");
