@@ -12,7 +12,7 @@ import java.util.Iterator;
 import x10.array.Range;
 import x10.array.ContiguousRange;
 import x10.array.ArbitraryRegion;
-import x10.array.Region_c;
+import x10.array.MultiDimRegion;
 import x10.lang.region;
 import x10.lang.distribution;
 import x10.lang.place;
@@ -489,7 +489,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         /**
          * @param r
          */
-        Combined(Region_c r, Distribution_c[] members_) {
+        Combined(MultiDimRegion r, Distribution_c[] members_) {
             super(r);
             assert members_ != null;
             // defensive copy

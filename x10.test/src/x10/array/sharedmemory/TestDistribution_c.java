@@ -4,7 +4,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 import x10.array.ContiguousRange;
 import x10.array.Range;
-import x10.array.Region_c;
+import x10.array.MultiDimRegion;
 import x10.array.sharedmemory.Distribution_c;
 import x10.lang.Activity;
 import x10.lang.Runtime;

@@ -2,7 +2,7 @@ package x10.array.sharedmemory;
 
 import x10.array.ContiguousRange;
 import x10.array.EmptyRegion;
-import x10.array.Region_c;
+import x10.array.MultiDimRegion;
 import x10.array.StridedRange;
 import x10.lang.region;
 
@@ -39,10 +39,10 @@ public  class RegionFactory extends region.factory {
 	 * arguments to the constructor.
 	 */
 	public region/*(regions.length)*/ region(region/*(1)*/[] regions ) {
-		return new Region_c( regions );
+		return new MultiDimRegion( regions );
 	}
 	public region/*(2)*/ region(region a, region b) {
-		return new Region_c( new region[] {a, b});
+		return new MultiDimRegion( new region[] {a, b});
 	}
 	
 	/** Return an \code{upperTriangular} Region_c for a dim-rankal

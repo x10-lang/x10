@@ -9,7 +9,6 @@ import java.util.Iterator;
 import x10.lang.PointOutOfRegionError;
 import x10.lang.region;
 import x10.lang.point;
-import x10.lang.Object;
 
 /**
  * Implementation of Region. Instance of this class are immutable! 
@@ -20,13 +19,13 @@ import x10.lang.Object;
  * @author vj
  */
 
-public class Region_c extends region  {
+public class MultiDimRegion extends region  {
     private final Range[] dims;
     private final int[] base_; 
     final int card;
     
     
-    public Region_c(final region[] d) {
+    public MultiDimRegion(final region[] d) {
         super(d.length);
         assert d != null;
         // assert that all dims are actually Ranges
@@ -52,7 +51,7 @@ public class Region_c extends region  {
      * @return The new sub-region.
      * TODO: vj -- check the intended logic survived the rework.
      */
-    public Region_c sub(int partitions, int part) {
+    public MultiDimRegion sub(int partitions, int part) {
         assert partitions > 0 && part >= 0 && part < partitions;        
         assert dims[0] instanceof ContiguousRange; 
         assert ((Range) dims[0]).size % partitions == 0;
@@ -67,7 +66,7 @@ public class Region_c extends region  {
         // initialize other dimensions
         for (int i = 1; i < rank; ++i) 
             new_dims[i] = dims[i];
-        return new Region_c(new_dims);
+        return new MultiDimRegion(new_dims);
     }
     
     public region union(region r) {
@@ -75,12 +74,12 @@ public class Region_c extends region  {
         assert r.rank == rank;
     
         region ret;
-        if (r instanceof Region_c) {
-            Region_c rc = (Region_c) r;
+        if (r instanceof MultiDimRegion) {
+            MultiDimRegion rc = (MultiDimRegion) r;
             region[] d = new region[rank];
             for (int i = 0; i < d.length; ++ i)
                 d[i] = dims[i].union(rc.dims[i]);
-            ret = new Region_c(d);
+            ret = new MultiDimRegion(d);
         } else {
             ret = ArbitraryRegion.union(this, r);
         }
@@ -92,12 +91,12 @@ public class Region_c extends region  {
         assert r.rank == rank;
         region ret;
         
-        if (r instanceof Region_c) {
-            Region_c rc = (Region_c) r;
+        if (r instanceof MultiDimRegion) {
+            MultiDimRegion rc = (MultiDimRegion) r;
             region[] d = new region[rank];
             for (int i = 0; i < d.length; ++ i)
                 d[i] = dims[i].intersection(rc.dims[i]);
-            ret = new Region_c(d);
+            ret = new MultiDimRegion(d);
         } else {
             ret = ArbitraryRegion.intersection(this, r);
         }
@@ -127,8 +126,8 @@ public class Region_c extends region  {
         assert r.rank == rank;
         
         boolean ret = true;
-        if (r instanceof Region_c) {
-            Region_c r_c = (Region_c) r;
+        if (r instanceof MultiDimRegion) {
+            MultiDimRegion r_c = (MultiDimRegion) r;
             for (int i = 0; i < r_c.rank && ret; ++i)
                 ret = r_c.dims[i].contains(dims[i]);
         } else 
@@ -268,6 +267,6 @@ public class Region_c extends region  {
             rest = rest % base_[i];
             ret[i] = r.coord(tmp).get(0);
         }
-        return point.factory.point(Region_c.this, ret);
+        return point.factory.point(MultiDimRegion.this, ret);
     }
 }
