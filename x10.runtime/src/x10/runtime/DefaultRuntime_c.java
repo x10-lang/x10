@@ -1,6 +1,7 @@
 package x10.runtime;
 
 import java.util.HashMap;
+import java.util.WeakHashMap;
 
 import x10.lang.Activity;
 import x10.lang.Array;
@@ -24,12 +25,17 @@ public class DefaultRuntime_c
 
     /**
      * At what place is the given thread running (needed to support
-     * running multiple Places within the same VM).
+     * running multiple Places within the same VM). Note that we're
+     * using a weak hash map here since the threadpool code may decide
+     * to reduce the number of threads by just letting one exit, and
+     * we would in that case not want to hold on to the memory.
      */
-    private final HashMap thread2place_ = new HashMap(); // <Thread,Place>
+    private final WeakHashMap thread2place_ = new WeakHashMap(); // <Thread,Place>
 
     /**
-     * Which activity is the current thread executing?
+     * Which activity is the current thread executing?  This one does
+     * not have to be a weak hash map since threads are explicitly 
+     * removed from the map once they complete a particular activity.
      */
     private final HashMap thread2activity_ = new HashMap(); // <Thread,Activity>
     
@@ -124,6 +130,8 @@ public class DefaultRuntime_c
                                                    Activity a,
                                                    Activity i) {
         thread2activity_.put(t,a);
+        if (i == null)
+            return;
         ActivitySpawnListener m = (ActivitySpawnListener) activity2asl_.get(i);
         if (m != null)
             m.notifyActivitySpawn(a, i);
