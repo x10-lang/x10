@@ -317,16 +317,50 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
     private polyglot.lex.CharacterLiteral char_lit(int i)
     {
+        char x;
         String s = prsStream.getName(i);
-        if (s.length() == 1) {
-            char x = s.charAt(0);
-            return new CharacterLiteral(pos(i), x, X10Parsersym.TK_CharacterLiteral);
+        if (s.charAt(1) == '\\') {
+            switch(s.charAt(2)) {
+                case 'u':
+                    x = (char) parseLong(s.substring(3, s.length() - 1), 16);
+                    break;
+                case 'b':
+                    x = '\b';
+                    break;
+                case 't':
+                    x = '\t';
+                    break;
+                case 'n':
+                    x = '\n';
+                    break;
+                case 'f':
+                    x = '\f';
+                    break;
+                case 'r':
+                    x = '\r';
+                    break;
+                case '\"':
+                    x = '\"';
+                    break;
+                case '\'':
+                    x = '\'';
+                    break;
+                case '\\':
+                    x = '\\';
+                    break;
+                default:
+                    x = (char) parseLong(s.substring(2, s.length() - 1), 8);
+                    if (x > 255)
+                        eq.enqueue(ErrorInfo.LEXICAL_ERROR,
+                                   "Illegal character literal " + s, pos(i));
+            }
         }
         else {
-            eq.enqueue(ErrorInfo.LEXICAL_ERROR,
-                       "Illegal character literal \'" + s + "\'", pos(i));
-            return null;
+            assert(s.length() == 3);
+            x = s.charAt(1);
         }
+
+        return new CharacterLiteral(pos(i), x, X10Parsersym.TK_CharacterLiteral);
     }
 
     private polyglot.lex.BooleanLiteral boolean_lit(int i)
@@ -516,7 +550,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 18:  TypeName ::= TypeName DOT identifier
+            // Rule 18:  TypeName ::= TypeName . identifier
             //
             case 18: {
                 Name a = (Name) btParser.getSym(1);
@@ -542,7 +576,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 21:  ArrayType ::= Type LBRACKET RBRACKET
+            // Rule 21:  ArrayType ::= Type [ ]
             //
             case 21: {
                 TypeNode a = (TypeNode) btParser.getSym(1);
@@ -579,14 +613,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 26:  AdditionalBound ::= AND InterfaceType
+            // Rule 26:  AdditionalBound ::= & InterfaceType
             //
             case 26:
                 bad_rule = 26;
                 break;
  
             //
-            // Rule 27:  TypeArguments ::= LESS ActualTypeArgumentList GREATER
+            // Rule 27:  TypeArguments ::= < ActualTypeArgumentList >
             //
             case 27:
                 bad_rule = 27;
@@ -600,14 +634,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 29:  ActualTypeArgumentList ::= ActualTypeArgumentList COMMA ActualTypeArgument
+            // Rule 29:  ActualTypeArgumentList ::= ActualTypeArgumentList , ActualTypeArgument
             //
             case 29:
                 bad_rule = 29;
                 break;
  
             //
-            // Rule 30:  Wildcard ::= QUESTION WildcardBoundsOpt
+            // Rule 30:  Wildcard ::= ? WildcardBoundsOpt
             //
             case 30:
                 bad_rule = 30;
@@ -637,7 +671,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 34:  PackageName ::= PackageName DOT identifier
+            // Rule 34:  PackageName ::= PackageName . identifier
             //
             case 34: {
                 Name a = (Name) btParser.getSym(1);
@@ -660,7 +694,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 36:  ExpressionName ::= AmbiguousName DOT identifier
+            // Rule 36:  ExpressionName ::= AmbiguousName . identifier
             //
             case 36: {
                 Name a = (Name) btParser.getSym(1);
@@ -683,7 +717,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 38:  MethodName ::= AmbiguousName DOT identifier
+            // Rule 38:  MethodName ::= AmbiguousName . identifier
             //
             case 38: {
                 Name a = (Name) btParser.getSym(1);
@@ -706,7 +740,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 40:  PackageOrTypeName ::= PackageOrTypeName DOT identifier
+            // Rule 40:  PackageOrTypeName ::= PackageOrTypeName . identifier
             //
             case 40: {
                 Name a = (Name) btParser.getSym(1);
@@ -729,7 +763,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 42:  AmbiguousName ::= AmbiguousName DOT identifier
+            // Rule 42:  AmbiguousName ::= AmbiguousName . identifier
             //
             case 42: {
                 Name a = (Name) btParser.getSym(1);
@@ -801,7 +835,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 48:  PackageDeclaration ::= package PackageName SEMICOLON
+            // Rule 48:  PackageDeclaration ::= package PackageName ;
             //
             case 48: {
 //vj                    assert(btParser.getSym(1) == null); // generic not yet supported
@@ -835,7 +869,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 53:  SingleTypeImportDeclaration ::= import TypeName SEMICOLON
+            // Rule 53:  SingleTypeImportDeclaration ::= import TypeName ;
             //
             case 53: {
                 Name a = (Name) btParser.getSym(2);
@@ -844,7 +878,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 54:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName DOT MULTIPLY SEMICOLON
+            // Rule 54:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
             case 54: {
                 Name a = (Name) btParser.getSym(2);
@@ -853,14 +887,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 55:  SingleStaticImportDeclaration ::= import static TypeName DOT identifier SEMICOLON
+            // Rule 55:  SingleStaticImportDeclaration ::= import static TypeName . identifier ;
             //
             case 55:
                 bad_rule = 55;
                 break;
  
             //
-            // Rule 56:  StaticImportOnDemandDeclaration ::= import static TypeName DOT MULTIPLY SEMICOLON
+            // Rule 56:  StaticImportOnDemandDeclaration ::= import static TypeName . * ;
             //
             case 56:
                 bad_rule = 56;
@@ -879,7 +913,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 59:  TypeDeclaration ::= SEMICOLON
+            // Rule 59:  TypeDeclaration ::= ;
             //
             case 59: {
                 btParser.setSym1(null);
@@ -987,7 +1021,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 71:  TypeParameters ::= LESS TypeParameterList GREATER
+            // Rule 71:  TypeParameters ::= < TypeParameterList >
             //
             case 71:
                 bad_rule = 71;
@@ -1001,7 +1035,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 73:  TypeParameterList ::= TypeParameterList COMMA TypeParameter
+            // Rule 73:  TypeParameterList ::= TypeParameterList , TypeParameter
             //
             case 73:
                 bad_rule = 73;
@@ -1034,7 +1068,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 77:  InterfaceTypeList ::= InterfaceTypeList COMMA InterfaceType
+            // Rule 77:  InterfaceTypeList ::= InterfaceTypeList , InterfaceType
             //
             case 77: {
                 List l = (TypedList) btParser.getSym(1);
@@ -1044,7 +1078,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 78:  ClassBody ::= LBRACE ClassBodyDeclarationsopt RBRACE
+            // Rule 78:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
             case 78: {
                 btParser.setSym1(nf.ClassBody(pos(btParser.getFirstToken(), btParser.getLastToken()), (List) btParser.getSym(2)));
@@ -1143,7 +1177,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 89:  ClassMemberDeclaration ::= SEMICOLON
+            // Rule 89:  ClassMemberDeclaration ::= ;
             //
             case 89: {
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -1152,7 +1186,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 90:  FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators SEMICOLON
+            // Rule 90:  FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators ;
             //
             case 90: {
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -1183,7 +1217,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 92:  VariableDeclarators ::= VariableDeclarators COMMA VariableDeclarator
+            // Rule 92:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
             case 92: {
                 List l = (List) btParser.getSym(1);
@@ -1199,7 +1233,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 94:  VariableDeclarator ::= VariableDeclaratorId EQUAL VariableInitializer
+            // Rule 94:  VariableDeclarator ::= VariableDeclaratorId = VariableInitializer
             //
             case 94: {
                 VarDeclarator a = (VarDeclarator) btParser.getSym(1);
@@ -1219,7 +1253,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 96:  VariableDeclaratorId ::= VariableDeclaratorId LBRACKET RBRACKET
+            // Rule 96:  VariableDeclaratorId ::= VariableDeclaratorId [ ]
             //
             case 96: {
                 VarDeclarator a = (VarDeclarator) btParser.getSym(1);
@@ -1366,7 +1400,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 112:  MethodDeclarator ::= identifier LPAREN FormalParameterListopt RPAREN
+            // Rule 112:  MethodDeclarator ::= identifier ( FormalParameterListopt )
             //
             case 112: {
                 Object[] a = new Object[3];
@@ -1378,7 +1412,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 113:  MethodDeclarator ::= MethodDeclarator LBRACKET RBRACKET
+            // Rule 113:  MethodDeclarator ::= MethodDeclarator [ ]
             //
             case 113: {
                 Object[] a = (Object []) btParser.getSym(1);
@@ -1398,7 +1432,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 115:  FormalParameterList ::= FormalParameters COMMA LastFormalParameter
+            // Rule 115:  FormalParameterList ::= FormalParameters , LastFormalParameter
             //
             case 115: {
                 List l = (List) btParser.getSym(1);
@@ -1418,7 +1452,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 117:  FormalParameters ::= FormalParameters COMMA FormalParameter
+            // Rule 117:  FormalParameters ::= FormalParameters , FormalParameter
             //
             case 117: {
                 List l = (List) btParser.getSym(1);
@@ -1575,7 +1609,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 136:  ExceptionTypeList ::= ExceptionTypeList COMMA ExceptionType
+            // Rule 136:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
             case 136: {
                 List l = (List) btParser.getSym(1);
@@ -1603,7 +1637,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 140:  MethodBody ::= SEMICOLON
+            // Rule 140:  MethodBody ::= ;
             //
             case 140:
                 btParser.setSym1(null);
@@ -1639,7 +1673,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 144:  ConstructorDeclarator ::= SimpleTypeName LPAREN FormalParameterListopt RPAREN
+            // Rule 144:  ConstructorDeclarator ::= SimpleTypeName ( FormalParameterListopt )
             //
             case 144: {
 //vj                    assert(btParser.getSym(1) == null);
@@ -1701,7 +1735,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 151:  ConstructorBody ::= LBRACE ExplicitConstructorInvocationopt BlockStatementsopt RBRACE
+            // Rule 151:  ConstructorBody ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
             case 151: {
                 Stmt a = (Stmt) btParser.getSym(2);
@@ -1720,7 +1754,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 152:  ExplicitConstructorInvocation ::= this LPAREN ArgumentListopt RPAREN SEMICOLON
+            // Rule 152:  ExplicitConstructorInvocation ::= this ( ArgumentListopt ) ;
             //
             case 152: {
 //vj                    assert(btParser.getSym(1) == null);
@@ -1730,7 +1764,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 153:  ExplicitConstructorInvocation ::= super LPAREN ArgumentListopt RPAREN SEMICOLON
+            // Rule 153:  ExplicitConstructorInvocation ::= super ( ArgumentListopt ) ;
             //
             case 153: {
 //vj                    assert(btParser.getSym(1) == null);
@@ -1740,7 +1774,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 154:  ExplicitConstructorInvocation ::= Primary DOT this LPAREN ArgumentListopt RPAREN SEMICOLON
+            // Rule 154:  ExplicitConstructorInvocation ::= Primary . this ( ArgumentListopt ) ;
             //
             case 154: {
                 Expr a = (Expr) btParser.getSym(1);
@@ -1751,7 +1785,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 155:  ExplicitConstructorInvocation ::= Primary DOT super LPAREN ArgumentListopt RPAREN SEMICOLON
+            // Rule 155:  ExplicitConstructorInvocation ::= Primary . super ( ArgumentListopt ) ;
             //
             case 155: {
                 Expr a = (Expr) btParser.getSym(1);
@@ -1769,7 +1803,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 157:  EnumBody ::= LBRACE EnumConstantsopt ,opt EnumBodyDeclarationsopt RBRACE
+            // Rule 157:  EnumBody ::= { EnumConstantsopt ,opt EnumBodyDeclarationsopt }
             //
             case 157:
                 bad_rule = 157;
@@ -1783,7 +1817,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 159:  EnumConstants ::= EnumConstants COMMA EnumConstant
+            // Rule 159:  EnumConstants ::= EnumConstants , EnumConstant
             //
             case 159:
                 bad_rule = 159;
@@ -1797,7 +1831,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 161:  Arguments ::= LPAREN ArgumentListopt RPAREN
+            // Rule 161:  Arguments ::= ( ArgumentListopt )
             //
             case 161: {
                 btParser.setSym1(btParser.getSym(2));
@@ -1805,7 +1839,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 162:  EnumBodyDeclarations ::= SEMICOLON ClassBodyDeclarationsopt
+            // Rule 162:  EnumBodyDeclarations ::= ; ClassBodyDeclarationsopt
             //
             case 162:
                 bad_rule = 162;
@@ -1905,7 +1939,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 174:  ExtendsInterfaces ::= ExtendsInterfaces COMMA InterfaceType
+            // Rule 174:  ExtendsInterfaces ::= ExtendsInterfaces , InterfaceType
             //
             case 174: {
                 List l = (List) btParser.getSym(1);
@@ -1915,7 +1949,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 175:  InterfaceBody ::= LBRACE InterfaceMemberDeclarationsopt RBRACE
+            // Rule 175:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
             case 175: {
                 List a = (List)btParser.getSym(2);
@@ -1977,7 +2011,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 182:  InterfaceMemberDeclaration ::= SEMICOLON
+            // Rule 182:  InterfaceMemberDeclaration ::= ;
             //
             case 182: {
                 btParser.setSym1(Collections.EMPTY_LIST);
@@ -2046,7 +2080,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 189:  AbstractMethodDeclaration ::= AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt SEMICOLON
+            // Rule 189:  AbstractMethodDeclaration ::= AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt ;
             //
             case 189: {
                 Flags a = (Flags) btParser.getSym(1);
@@ -2107,14 +2141,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 194:  AnnotationTypeDeclaration ::= InterfaceModifiersopt AT interface identifier AnnotationTypeBody
+            // Rule 194:  AnnotationTypeDeclaration ::= InterfaceModifiersopt @ interface identifier AnnotationTypeBody
             //
             case 194:
                 bad_rule = 194;
                 break;
  
             //
-            // Rule 195:  AnnotationTypeBody ::= LBRACE AnnotationTypeElementDeclarationsopt RBRACE
+            // Rule 195:  AnnotationTypeBody ::= { AnnotationTypeElementDeclarationsopt }
             //
             case 195:
                 bad_rule = 195;
@@ -2135,7 +2169,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 198:  AnnotationTypeElementDeclaration ::= AbstractMethodModifiersopt Type identifier LPAREN RPAREN DefaultValueopt SEMICOLON
+            // Rule 198:  AnnotationTypeElementDeclaration ::= AbstractMethodModifiersopt Type identifier ( ) DefaultValueopt ;
             //
             case 198:
                 bad_rule = 198;
@@ -2177,7 +2211,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 204:  AnnotationTypeElementDeclaration ::= SEMICOLON
+            // Rule 204:  AnnotationTypeElementDeclaration ::= ;
             //
             case 204:
                 bad_rule = 204;
@@ -2226,7 +2260,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 211:  NormalAnnotation ::= AT TypeName LPAREN ElementValuePairsopt RPAREN
+            // Rule 211:  NormalAnnotation ::= @ TypeName ( ElementValuePairsopt )
             //
             case 211:
                 bad_rule = 211;
@@ -2240,14 +2274,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 213:  ElementValuePairs ::= ElementValuePairs COMMA ElementValuePair
+            // Rule 213:  ElementValuePairs ::= ElementValuePairs , ElementValuePair
             //
             case 213:
                 bad_rule = 213;
                 break;
  
             //
-            // Rule 214:  ElementValuePair ::= SimpleName EQUAL ElementValue
+            // Rule 214:  ElementValuePair ::= SimpleName = ElementValue
             //
             case 214:
                 bad_rule = 214;
@@ -2284,7 +2318,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 219:  ElementValueArrayInitializer ::= LBRACE ElementValuesopt ,opt RBRACE
+            // Rule 219:  ElementValueArrayInitializer ::= { ElementValuesopt ,opt }
             //
             case 219:
                 bad_rule = 219;
@@ -2298,28 +2332,28 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 221:  ElementValues ::= ElementValues COMMA ElementValue
+            // Rule 221:  ElementValues ::= ElementValues , ElementValue
             //
             case 221:
                 bad_rule = 221;
                 break;
  
             //
-            // Rule 222:  MarkerAnnotation ::= AT TypeName
+            // Rule 222:  MarkerAnnotation ::= @ TypeName
             //
             case 222:
                 bad_rule = 222;
                 break;
  
             //
-            // Rule 223:  SingleElementAnnotation ::= AT TypeName LPAREN ElementValue RPAREN
+            // Rule 223:  SingleElementAnnotation ::= @ TypeName ( ElementValue )
             //
             case 223:
                 bad_rule = 223;
                 break;
  
             //
-            // Rule 224:  ArrayInitializer ::= LBRACE VariableInitializersopt ,opt RBRACE
+            // Rule 224:  ArrayInitializer ::= { VariableInitializersopt ,opt }
             //
             case 224: {
                 List a = (List) btParser.getSym(2);
@@ -2340,7 +2374,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 226:  VariableInitializers ::= VariableInitializers COMMA VariableInitializer
+            // Rule 226:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
             case 226: {
                 List l = (List) btParser.getSym(1);
@@ -2350,7 +2384,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 227:  Block ::= LBRACE BlockStatementsopt RBRACE
+            // Rule 227:  Block ::= { BlockStatementsopt }
             //
             case 227: {
                 List l = (List) btParser.getSym(2);
@@ -2408,7 +2442,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 233:  LocalVariableDeclarationStatement ::= LocalVariableDeclaration SEMICOLON
+            // Rule 233:  LocalVariableDeclarationStatement ::= LocalVariableDeclaration ;
             //
             case 233:
                 break;
@@ -2571,7 +2605,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 258:  IfThenStatement ::= if LPAREN Expression RPAREN Statement
+            // Rule 258:  IfThenStatement ::= if ( Expression ) Statement
             //
             case 258: {
                 Expr a = (Expr) btParser.getSym(3);
@@ -2581,7 +2615,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 259:  IfThenElseStatement ::= if LPAREN Expression RPAREN StatementNoShortIf else Statement
+            // Rule 259:  IfThenElseStatement ::= if ( Expression ) StatementNoShortIf else Statement
             //
             case 259: {
                 Expr a = (Expr) btParser.getSym(3);
@@ -2592,7 +2626,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 260:  IfThenElseStatementNoShortIf ::= if LPAREN Expression RPAREN StatementNoShortIf else StatementNoShortIf
+            // Rule 260:  IfThenElseStatementNoShortIf ::= if ( Expression ) StatementNoShortIf else StatementNoShortIf
             //
             case 260: {
                 Expr a = (Expr) btParser.getSym(3);
@@ -2603,7 +2637,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 261:  EmptyStatement ::= SEMICOLON
+            // Rule 261:  EmptyStatement ::= ;
             //
             case 261: {
                 btParser.setSym1(nf.Empty(pos()));
@@ -2611,7 +2645,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 262:  LabeledStatement ::= identifier COLON Statement
+            // Rule 262:  LabeledStatement ::= identifier : Statement
             //
             case 262: {
                 polyglot.lex.Identifier a = id(btParser.getToken(1));
@@ -2621,7 +2655,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 263:  LabeledStatementNoShortIf ::= identifier COLON StatementNoShortIf
+            // Rule 263:  LabeledStatementNoShortIf ::= identifier : StatementNoShortIf
             //
             case 263: {
                 polyglot.lex.Identifier a = id(btParser.getToken(1));
@@ -2631,7 +2665,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 264:  ExpressionStatement ::= StatementExpression SEMICOLON
+            // Rule 264:  ExpressionStatement ::= StatementExpression ;
             //
             case 264: {
                 Expr a = (Expr) btParser.getSym(1);
@@ -2682,7 +2716,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 272:  AssertStatement ::= assert Expression SEMICOLON
+            // Rule 272:  AssertStatement ::= assert Expression ;
             //
             case 272: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -2691,7 +2725,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 273:  AssertStatement ::= assert Expression COLON Expression SEMICOLON
+            // Rule 273:  AssertStatement ::= assert Expression : Expression ;
             //
             case 273: {
                 Expr a = (Expr) btParser.getSym(2),
@@ -2701,7 +2735,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 274:  SwitchStatement ::= switch LPAREN Expression RPAREN SwitchBlock
+            // Rule 274:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
             case 274: {
                 Expr a = (Expr) btParser.getSym(3);
@@ -2711,7 +2745,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 275:  SwitchBlock ::= LBRACE SwitchBlockStatementGroupsopt SwitchLabelsopt RBRACE
+            // Rule 275:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
             case 275: {
                 List l = (List) btParser.getSym(2),
@@ -2773,7 +2807,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 281:  SwitchLabel ::= case ConstantExpression COLON
+            // Rule 281:  SwitchLabel ::= case ConstantExpression :
             //
             case 281: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -2782,14 +2816,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 282:  SwitchLabel ::= case EnumConstant COLON
+            // Rule 282:  SwitchLabel ::= case EnumConstant :
             //
             case 282:
                 bad_rule = 282;
                 break;
  
             //
-            // Rule 283:  SwitchLabel ::= default COLON
+            // Rule 283:  SwitchLabel ::= default :
             //
             case 283: {
                 btParser.setSym1(nf.Default(pos()));
@@ -2804,7 +2838,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 285:  WhileStatement ::= while LPAREN Expression RPAREN Statement
+            // Rule 285:  WhileStatement ::= while ( Expression ) Statement
             //
             case 285: {
                 Expr a = (Expr) btParser.getSym(3);
@@ -2814,7 +2848,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 286:  WhileStatementNoShortIf ::= while LPAREN Expression RPAREN StatementNoShortIf
+            // Rule 286:  WhileStatementNoShortIf ::= while ( Expression ) StatementNoShortIf
             //
             case 286: {
                 Expr a = (Expr) btParser.getSym(3);
@@ -2824,7 +2858,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 287:  DoStatement ::= do Statement while LPAREN Expression RPAREN SEMICOLON
+            // Rule 287:  DoStatement ::= do Statement while ( Expression ) ;
             //
             case 287: {
                 Stmt a = (Stmt) btParser.getSym(2);
@@ -2846,7 +2880,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 290:  BasicForStatement ::= for LPAREN ForInitopt SEMICOLON Expressionopt SEMICOLON ForUpdateopt RPAREN Statement
+            // Rule 290:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
             case 290: {
                 List a = (List) btParser.getSym(3);
@@ -2858,7 +2892,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 291:  ForStatementNoShortIf ::= for LPAREN ForInitopt SEMICOLON Expressionopt SEMICOLON ForUpdateopt RPAREN StatementNoShortIf
+            // Rule 291:  ForStatementNoShortIf ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) StatementNoShortIf
             //
             case 291: {
                 List a = (List) btParser.getSym(3);
@@ -2904,7 +2938,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 296:  StatementExpressionList ::= StatementExpressionList COMMA StatementExpression
+            // Rule 296:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
             case 296: {
                 List l = (List) btParser.getSym(1);
@@ -2915,7 +2949,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 297:  BreakStatement ::= break identifieropt SEMICOLON
+            // Rule 297:  BreakStatement ::= break identifieropt ;
             //
             case 297: {
                 Name a = (Name) btParser.getSym(2);
@@ -2926,7 +2960,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 298:  ContinueStatement ::= continue identifieropt SEMICOLON
+            // Rule 298:  ContinueStatement ::= continue identifieropt ;
             //
             case 298: {
                 Name a = (Name) btParser.getSym(2);
@@ -2937,7 +2971,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 299:  ReturnStatement ::= return Expressionopt SEMICOLON
+            // Rule 299:  ReturnStatement ::= return Expressionopt ;
             //
             case 299: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -2946,7 +2980,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 300:  ThrowStatement ::= throw Expression SEMICOLON
+            // Rule 300:  ThrowStatement ::= throw Expression ;
             //
             case 300: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -2955,7 +2989,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 301:  SynchronizedStatement ::= synchronized LPAREN Expression RPAREN Block
+            // Rule 301:  SynchronizedStatement ::= synchronized ( Expression ) Block
             //
             case 301: {
                 Expr a = (Expr) btParser.getSym(3);
@@ -3006,7 +3040,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 306:  CatchClause ::= catch LPAREN FormalParameter RPAREN Block
+            // Rule 306:  CatchClause ::= catch ( FormalParameter ) Block
             //
             case 306: {
                 Formal a = (Formal) btParser.getSym(3);
@@ -3042,7 +3076,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 311:  PrimaryNoNewArray ::= Type DOT class
+            // Rule 311:  PrimaryNoNewArray ::= Type . class
             //
             case 311: {
                 Object o = btParser.getSym(1);
@@ -3066,7 +3100,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 312:  PrimaryNoNewArray ::= void DOT class
+            // Rule 312:  PrimaryNoNewArray ::= void . class
             //
             case 312: {
                 btParser.setSym1(nf.ClassLit(pos(),
@@ -3083,7 +3117,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 314:  PrimaryNoNewArray ::= ClassName DOT this
+            // Rule 314:  PrimaryNoNewArray ::= ClassName . this
             //
             case 314: {
                 Name a = (Name) btParser.getSym(1);
@@ -3092,7 +3126,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 315:  PrimaryNoNewArray ::= LPAREN Expression RPAREN
+            // Rule 315:  PrimaryNoNewArray ::= ( Expression )
             //
             case 315: {
                 btParser.setSym1(btParser.getSym(2));
@@ -3207,7 +3241,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 330:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType LPAREN ArgumentListopt RPAREN ClassBodyopt
+            // Rule 330:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
             //
             case 330: {
 //vj                    assert(btParser.getSym(2) == null);
@@ -3222,7 +3256,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 331:  ClassInstanceCreationExpression ::= Primary DOT new identifier LPAREN ArgumentListopt RPAREN ClassBodyopt
+            // Rule 331:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt ) ClassBodyopt
             //
             case 331: {
                 Expr a = (Expr) btParser.getSym(1);
@@ -3238,7 +3272,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 332:  ClassInstanceCreationExpression ::= AmbiguousName DOT new identifier LPAREN ArgumentListopt RPAREN ClassBodyopt
+            // Rule 332:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt ) ClassBodyopt
             //
             case 332: {
                 Name a = (Name) btParser.getSym(1);
@@ -3264,7 +3298,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 334:  ArgumentList ::= ArgumentList COMMA Expression
+            // Rule 334:  ArgumentList ::= ArgumentList , Expression
             //
             case 334: {
                 List l = (List) btParser.getSym(1);
@@ -3294,7 +3328,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 337:  DimExpr ::= LBRACKET Expression RBRACKET
+            // Rule 337:  DimExpr ::= [ Expression ]
             //
             case 337: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -3303,7 +3337,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 338:  Dims ::= LBRACKET RBRACKET
+            // Rule 338:  Dims ::= [ ]
             //
             case 338: {
                 btParser.setSym1(new Integer(1));
@@ -3311,7 +3345,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 339:  Dims ::= Dims LBRACKET RBRACKET
+            // Rule 339:  Dims ::= Dims [ ]
             //
             case 339: {
                 Integer a = (Integer) btParser.getSym(1);
@@ -3320,7 +3354,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 340:  FieldAccess ::= Primary DOT identifier
+            // Rule 340:  FieldAccess ::= Primary . identifier
             //
             case 340: {
                 Expr a = (Expr) btParser.getSym(1);
@@ -3330,7 +3364,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 341:  FieldAccess ::= super DOT identifier
+            // Rule 341:  FieldAccess ::= super . identifier
             //
             case 341: {
                 polyglot.lex.Identifier a = id(btParser.getToken(3));
@@ -3339,7 +3373,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 342:  FieldAccess ::= ClassName DOT super DOT identifier
+            // Rule 342:  FieldAccess ::= ClassName . super . identifier
             //
             case 342: {
                 Name a = (Name) btParser.getSym(1);
@@ -3349,7 +3383,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 343:  MethodInvocation ::= MethodName LPAREN ArgumentListopt RPAREN
+            // Rule 343:  MethodInvocation ::= MethodName ( ArgumentListopt )
             //
             case 343: {
                 Name a = (Name) btParser.getSym(1);
@@ -3359,7 +3393,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 344:  MethodInvocation ::= Primary DOT identifier LPAREN ArgumentListopt RPAREN
+            // Rule 344:  MethodInvocation ::= Primary . identifier ( ArgumentListopt )
             //
             case 344: {
                 Expr a = (Expr) btParser.getSym(1);
@@ -3371,7 +3405,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 345:  MethodInvocation ::= super DOT identifier LPAREN ArgumentListopt RPAREN
+            // Rule 345:  MethodInvocation ::= super . identifier ( ArgumentListopt )
             //
             case 345: {
 //vj                    assert(btParser.getSym(3) == null);
@@ -3382,7 +3416,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 346:  MethodInvocation ::= ClassName DOT super DOT identifier LPAREN ArgumentListopt RPAREN
+            // Rule 346:  MethodInvocation ::= ClassName . super . identifier ( ArgumentListopt )
             //
             case 346: {
                 Name a = (Name) btParser.getSym(1);
@@ -3421,7 +3455,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 351:  PostIncrementExpression ::= PostfixExpression PLUS_PLUS
+            // Rule 351:  PostIncrementExpression ::= PostfixExpression ++
             //
             case 351: {
                 Expr a = (Expr) btParser.getSym(1);
@@ -3430,7 +3464,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 352:  PostDecrementExpression ::= PostfixExpression MINUS_MINUS
+            // Rule 352:  PostDecrementExpression ::= PostfixExpression --
             //
             case 352: {
                 Expr a = (Expr) btParser.getSym(1);
@@ -3451,7 +3485,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 355:  UnaryExpression ::= PLUS UnaryExpression
+            // Rule 355:  UnaryExpression ::= + UnaryExpression
             //
             case 355: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -3460,7 +3494,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 356:  UnaryExpression ::= MINUS UnaryExpression
+            // Rule 356:  UnaryExpression ::= - UnaryExpression
             //
             case 356: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -3469,7 +3503,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 358:  PreIncrementExpression ::= PLUS_PLUS UnaryExpression
+            // Rule 358:  PreIncrementExpression ::= ++ UnaryExpression
             //
             case 358: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -3478,7 +3512,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 359:  PreDecrementExpression ::= MINUS_MINUS UnaryExpression
+            // Rule 359:  PreDecrementExpression ::= -- UnaryExpression
             //
             case 359: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -3493,7 +3527,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 361:  UnaryExpressionNotPlusMinus ::= TWIDDLE UnaryExpression
+            // Rule 361:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
             case 361: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -3502,7 +3536,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 362:  UnaryExpressionNotPlusMinus ::= NOT UnaryExpression
+            // Rule 362:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
             case 362: {
                 Expr a = (Expr) btParser.getSym(2);
@@ -3517,7 +3551,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 365:  MultiplicativeExpression ::= MultiplicativeExpression MULTIPLY UnaryExpression
+            // Rule 365:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
             case 365: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3527,7 +3561,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 366:  MultiplicativeExpression ::= MultiplicativeExpression DIVIDE UnaryExpression
+            // Rule 366:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
             case 366: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3537,7 +3571,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 367:  MultiplicativeExpression ::= MultiplicativeExpression REMAINDER UnaryExpression
+            // Rule 367:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
             case 367: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3553,7 +3587,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 369:  AdditiveExpression ::= AdditiveExpression PLUS MultiplicativeExpression
+            // Rule 369:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
             case 369: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3563,7 +3597,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 370:  AdditiveExpression ::= AdditiveExpression MINUS MultiplicativeExpression
+            // Rule 370:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
             case 370: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3579,7 +3613,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 372:  ShiftExpression ::= ShiftExpression LEFT_SHIFT AdditiveExpression
+            // Rule 372:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
             case 372: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3589,7 +3623,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 373:  ShiftExpression ::= ShiftExpression GREATER GREATER AdditiveExpression
+            // Rule 373:  ShiftExpression ::= ShiftExpression > > AdditiveExpression
             //
             case 373: {
                 // TODO: make sure that there is no space between the ">" signs
@@ -3600,7 +3634,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 374:  ShiftExpression ::= ShiftExpression GREATER GREATER GREATER AdditiveExpression
+            // Rule 374:  ShiftExpression ::= ShiftExpression > > > AdditiveExpression
             //
             case 374: {
                 // TODO: make sure that there is no space between the ">" signs
@@ -3617,7 +3651,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 376:  RelationalExpression ::= RelationalExpression LESS ShiftExpression
+            // Rule 376:  RelationalExpression ::= RelationalExpression < ShiftExpression
             //
             case 376: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3627,7 +3661,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 377:  RelationalExpression ::= RelationalExpression GREATER ShiftExpression
+            // Rule 377:  RelationalExpression ::= RelationalExpression > ShiftExpression
             //
             case 377: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3637,7 +3671,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 378:  RelationalExpression ::= RelationalExpression LESS_EQUAL ShiftExpression
+            // Rule 378:  RelationalExpression ::= RelationalExpression <= ShiftExpression
             //
             case 378: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3647,7 +3681,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 379:  RelationalExpression ::= RelationalExpression GREATER EQUAL ShiftExpression
+            // Rule 379:  RelationalExpression ::= RelationalExpression > = ShiftExpression
             //
             case 379: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3663,7 +3697,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 381:  EqualityExpression ::= EqualityExpression EQUAL_EQUAL RelationalExpression
+            // Rule 381:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
             case 381: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3673,7 +3707,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 382:  EqualityExpression ::= EqualityExpression NOT_EQUAL RelationalExpression
+            // Rule 382:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
             case 382: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3689,7 +3723,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 384:  AndExpression ::= AndExpression AND EqualityExpression
+            // Rule 384:  AndExpression ::= AndExpression & EqualityExpression
             //
             case 384: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3705,7 +3739,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 386:  ExclusiveOrExpression ::= ExclusiveOrExpression XOR AndExpression
+            // Rule 386:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
             case 386: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3721,7 +3755,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 388:  InclusiveOrExpression ::= InclusiveOrExpression OR ExclusiveOrExpression
+            // Rule 388:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
             case 388: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3737,7 +3771,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 390:  ConditionalAndExpression ::= ConditionalAndExpression AND_AND InclusiveOrExpression
+            // Rule 390:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
             case 390: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3753,7 +3787,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 392:  ConditionalOrExpression ::= ConditionalOrExpression OR_OR ConditionalAndExpression
+            // Rule 392:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
             case 392: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3769,7 +3803,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 394:  ConditionalExpression ::= ConditionalOrExpression QUESTION Expression COLON ConditionalExpression
+            // Rule 394:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
             case 394: {
                 Expr a = (Expr) btParser.getSym(1),
@@ -3824,7 +3858,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 401:  AssignmentOperator ::= EQUAL
+            // Rule 401:  AssignmentOperator ::= =
             //
             case 401: {
                 btParser.setSym1(Assign.ASSIGN);
@@ -3832,7 +3866,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 402:  AssignmentOperator ::= MULTIPLY_EQUAL
+            // Rule 402:  AssignmentOperator ::= *=
             //
             case 402: {
                 btParser.setSym1(Assign.MUL_ASSIGN);
@@ -3840,7 +3874,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 403:  AssignmentOperator ::= DIVIDE_EQUAL
+            // Rule 403:  AssignmentOperator ::= /=
             //
             case 403: {
                 btParser.setSym1(Assign.DIV_ASSIGN);
@@ -3848,7 +3882,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 404:  AssignmentOperator ::= REMAINDER_EQUAL
+            // Rule 404:  AssignmentOperator ::= %=
             //
             case 404: {
                 btParser.setSym1(Assign.MOD_ASSIGN);
@@ -3856,7 +3890,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 405:  AssignmentOperator ::= PLUS_EQUAL
+            // Rule 405:  AssignmentOperator ::= +=
             //
             case 405: {
                 btParser.setSym1(Assign.ADD_ASSIGN);
@@ -3864,7 +3898,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 406:  AssignmentOperator ::= MINUS_EQUAL
+            // Rule 406:  AssignmentOperator ::= -=
             //
             case 406: {
                 btParser.setSym1(Assign.SUB_ASSIGN);
@@ -3872,7 +3906,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 407:  AssignmentOperator ::= LEFT_SHIFT_EQUAL
+            // Rule 407:  AssignmentOperator ::= <<=
             //
             case 407: {
                 btParser.setSym1(Assign.SHL_ASSIGN);
@@ -3880,7 +3914,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 408:  AssignmentOperator ::= GREATER GREATER EQUAL
+            // Rule 408:  AssignmentOperator ::= > > =
             //
             case 408: {
                 // TODO: make sure that there is no space between the ">" signs
@@ -3889,7 +3923,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 409:  AssignmentOperator ::= GREATER GREATER GREATER EQUAL
+            // Rule 409:  AssignmentOperator ::= > > > =
             //
             case 409: {
                 // TODO: make sure that there is no space between the ">" signs
@@ -3898,7 +3932,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 410:  AssignmentOperator ::= AND_EQUAL
+            // Rule 410:  AssignmentOperator ::= &=
             //
             case 410: {
                 btParser.setSym1(Assign.BIT_AND_ASSIGN);
@@ -3906,7 +3940,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 411:  AssignmentOperator ::= XOR_EQUAL
+            // Rule 411:  AssignmentOperator ::= ^=
             //
             case 411: {
                 btParser.setSym1(Assign.BIT_XOR_ASSIGN);
@@ -3914,7 +3948,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 412:  AssignmentOperator ::= OR_EQUAL
+            // Rule 412:  AssignmentOperator ::= |=
             //
             case 412: {
                 btParser.setSym1(Assign.BIT_OR_ASSIGN);
@@ -3934,7 +3968,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 415:  Dimsopt ::=
+            // Rule 415:  Dimsopt ::= $Empty
             //
             case 415: {
                 btParser.setSym1(new Integer(0));
@@ -3948,7 +3982,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 417:  Catchesopt ::=
+            // Rule 417:  Catchesopt ::= $Empty
             //
             case 417: {
                 btParser.setSym1(new TypedList(new LinkedList(), Catch.class, false));
@@ -3962,7 +3996,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 419:  identifieropt ::=
+            // Rule 419:  identifieropt ::= $Empty
             //
             case 419:
                 btParser.setSym1(null);
@@ -3978,7 +4012,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 421:  ForUpdateopt ::=
+            // Rule 421:  ForUpdateopt ::= $Empty
             //
             case 421: {
                 btParser.setSym1(new TypedList(new LinkedList(), ForUpdate.class, false));
@@ -3992,7 +4026,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 423:  Expressionopt ::=
+            // Rule 423:  Expressionopt ::= $Empty
             //
             case 423:
                 btParser.setSym1(null);
@@ -4005,7 +4039,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 425:  ForInitopt ::=
+            // Rule 425:  ForInitopt ::= $Empty
             //
             case 425: {
                 btParser.setSym1(new TypedList(new LinkedList(), ForInit.class, false));
@@ -4019,7 +4053,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 427:  SwitchLabelsopt ::=
+            // Rule 427:  SwitchLabelsopt ::= $Empty
             //
             case 427: {
                 btParser.setSym1(new TypedList(new LinkedList(), Case.class, false));
@@ -4033,7 +4067,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 429:  SwitchBlockStatementGroupsopt ::=
+            // Rule 429:  SwitchBlockStatementGroupsopt ::= $Empty
             //
             case 429: {
                 btParser.setSym1(new TypedList(new LinkedList(), SwitchElement.class, false));
@@ -4047,7 +4081,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 431:  VariableModifiersopt ::=
+            // Rule 431:  VariableModifiersopt ::= $Empty
             //
             case 431: {
                 btParser.setSym1(Flags.NONE);
@@ -4061,7 +4095,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 433:  VariableInitializersopt ::=
+            // Rule 433:  VariableInitializersopt ::= $Empty
             //
             case 433:
                 btParser.setSym1(null);
@@ -4074,7 +4108,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 435:  ElementValuesopt ::=
+            // Rule 435:  ElementValuesopt ::= $Empty
             //
             case 435:
                 btParser.setSym1(null);
@@ -4088,7 +4122,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 437:  ElementValuePairsopt ::=
+            // Rule 437:  ElementValuePairsopt ::= $Empty
             //
             case 437:
                 btParser.setSym1(null);
@@ -4102,7 +4136,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 439:  DefaultValueopt ::=
+            // Rule 439:  DefaultValueopt ::= $Empty
             //
             case 439:
                 btParser.setSym1(null);
@@ -4115,7 +4149,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 441:  AnnotationTypeElementDeclarationsopt ::=
+            // Rule 441:  AnnotationTypeElementDeclarationsopt ::= $Empty
             //
             case 441:
                 btParser.setSym1(null);
@@ -4129,7 +4163,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 443:  AbstractMethodModifiersopt ::=
+            // Rule 443:  AbstractMethodModifiersopt ::= $Empty
             //
             case 443: {
                 btParser.setSym1(Flags.NONE);
@@ -4143,7 +4177,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 445:  ConstantModifiersopt ::=
+            // Rule 445:  ConstantModifiersopt ::= $Empty
             //
             case 445: {
                 btParser.setSym1(Flags.NONE);
@@ -4157,7 +4191,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 447:  InterfaceMemberDeclarationsopt ::=
+            // Rule 447:  InterfaceMemberDeclarationsopt ::= $Empty
             //
             case 447: {
                 btParser.setSym1(new TypedList(new LinkedList(), ClassMember.class, false));
@@ -4171,7 +4205,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 449:  ExtendsInterfacesopt ::=
+            // Rule 449:  ExtendsInterfacesopt ::= $Empty
             //
             case 449: {
                 btParser.setSym1(new TypedList(new LinkedList(), TypeNode.class, false));
@@ -4185,7 +4219,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 451:  InterfaceModifiersopt ::=
+            // Rule 451:  InterfaceModifiersopt ::= $Empty
             //
             case 451: {
                 btParser.setSym1(Flags.NONE);
@@ -4199,7 +4233,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 453:  ClassBodyopt ::=
+            // Rule 453:  ClassBodyopt ::= $Empty
             //
             case 453:
                 btParser.setSym1(null);
@@ -4212,7 +4246,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 455:  Argumentsopt ::=
+            // Rule 455:  Argumentsopt ::= $Empty
             //
             case 455:
                 btParser.setSym1(null);
@@ -4226,7 +4260,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 457:  EnumBodyDeclarationsopt ::=
+            // Rule 457:  EnumBodyDeclarationsopt ::= $Empty
             //
             case 457:
                 btParser.setSym1(null);
@@ -4240,20 +4274,20 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 459:  ,opt ::=
+            // Rule 459:  ,opt ::= $Empty
             //
             case 459:
                 btParser.setSym1(null);
                 break;
  
             //
-            // Rule 460:  ,opt ::= COMMA
+            // Rule 460:  ,opt ::= ,
             //
             case 460:
                 break;
  
             //
-            // Rule 461:  EnumConstantsopt ::=
+            // Rule 461:  EnumConstantsopt ::= $Empty
             //
             case 461:
                 btParser.setSym1(null);
@@ -4267,7 +4301,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 463:  ArgumentListopt ::=
+            // Rule 463:  ArgumentListopt ::= $Empty
             //
             case 463: {
                 btParser.setSym1(new TypedList(new LinkedList(), Catch.class, false));
@@ -4281,7 +4315,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 465:  BlockStatementsopt ::=
+            // Rule 465:  BlockStatementsopt ::= $Empty
             //
             case 465: {
                 btParser.setSym1(new TypedList(new LinkedList(), Stmt.class, false));
@@ -4295,7 +4329,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 467:  ExplicitConstructorInvocationopt ::=
+            // Rule 467:  ExplicitConstructorInvocationopt ::= $Empty
             //
             case 467:
                 btParser.setSym1(null);
@@ -4308,7 +4342,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 469:  ConstructorModifiersopt ::=
+            // Rule 469:  ConstructorModifiersopt ::= $Empty
             //
             case 469: {
                 btParser.setSym1(Flags.NONE);
@@ -4322,20 +4356,20 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 471:  ...opt ::=
+            // Rule 471:  ...opt ::= $Empty
             //
             case 471:
                 btParser.setSym1(null);
                 break;
  
             //
-            // Rule 472:  ...opt ::= ELLIPSIS
+            // Rule 472:  ...opt ::= ...
             //
             case 472:
                 break;
  
             //
-            // Rule 473:  FormalParameterListopt ::=
+            // Rule 473:  FormalParameterListopt ::= $Empty
             //
             case 473: {
                 btParser.setSym1(new TypedList(new LinkedList(), Formal.class, false));
@@ -4349,7 +4383,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 475:  Throwsopt ::=
+            // Rule 475:  Throwsopt ::= $Empty
             //
             case 475: {
                 btParser.setSym1(new TypedList(new LinkedList(), TypeNode.class, false));
@@ -4363,7 +4397,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 477:  MethodModifiersopt ::=
+            // Rule 477:  MethodModifiersopt ::= $Empty
             //
             case 477: {
                 btParser.setSym1(Flags.NONE);
@@ -4377,7 +4411,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 479:  FieldModifiersopt ::=
+            // Rule 479:  FieldModifiersopt ::= $Empty
             //
             case 479: {
                 btParser.setSym1(Flags.NONE);
@@ -4391,7 +4425,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 481:  ClassBodyDeclarationsopt ::=
+            // Rule 481:  ClassBodyDeclarationsopt ::= $Empty
             //
             case 481: {
                 btParser.setSym1(new TypedList(new LinkedList(), ClassMember.class, false));
@@ -4405,7 +4439,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 483:  Interfacesopt ::=
+            // Rule 483:  Interfacesopt ::= $Empty
             //
             case 483: {
                 btParser.setSym1(new TypedList(new LinkedList(), TypeNode.class, false));
@@ -4419,7 +4453,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 485:  Superopt ::=
+            // Rule 485:  Superopt ::= $Empty
             //
             case 485:
                 btParser.setSym1(null);
@@ -4432,7 +4466,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 487:  TypeParametersopt ::=
+            // Rule 487:  TypeParametersopt ::= $Empty
             //
             case 487:
                 btParser.setSym1(null);
@@ -4445,7 +4479,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 489:  ClassModifiersopt ::=
+            // Rule 489:  ClassModifiersopt ::= $Empty
             //
             case 489: {
                 btParser.setSym1(Flags.NONE);
@@ -4459,7 +4493,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 491:  Annotationsopt ::=
+            // Rule 491:  Annotationsopt ::= $Empty
             //
             case 491:
                 btParser.setSym1(null);
@@ -4473,7 +4507,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 493:  TypeDeclarationsopt ::=
+            // Rule 493:  TypeDeclarationsopt ::= $Empty
             //
             case 493: {
                 btParser.setSym1(new TypedList(new LinkedList(), TopLevelDecl.class, false));
@@ -4487,7 +4521,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 495:  ImportDeclarationsopt ::=
+            // Rule 495:  ImportDeclarationsopt ::= $Empty
             //
             case 495: {
                 btParser.setSym1(new TypedList(new LinkedList(), Import.class, false));
@@ -4501,7 +4535,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 497:  PackageDeclarationopt ::=
+            // Rule 497:  PackageDeclarationopt ::= $Empty
             //
             case 497:
                 btParser.setSym1(null);
@@ -4514,7 +4548,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 499:  WildcardBoundsOpt ::=
+            // Rule 499:  WildcardBoundsOpt ::= $Empty
             //
             case 499:
                 btParser.setSym1(null);
@@ -4528,7 +4562,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 501:  AdditionalBoundListopt ::=
+            // Rule 501:  AdditionalBoundListopt ::= $Empty
             //
             case 501:
                 btParser.setSym1(null);
@@ -4542,7 +4576,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 503:  TypeBoundopt ::=
+            // Rule 503:  TypeBoundopt ::= $Empty
             //
             case 503:
                 btParser.setSym1(null);
@@ -4556,7 +4590,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 505:  TypeArgumentsopt ::=
+            // Rule 505:  TypeArgumentsopt ::= $Empty
             //
             case 505:
                 btParser.setSym1(null);
@@ -4578,7 +4612,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
          
             //
-            // Rule 508:  Type ::= nullable LESS Type GREATER
+            // Rule 508:  Type ::= nullable < Type >
             //
             case 508: {
                 TypeNode a = (TypeNode) btParser.getSym(3);
@@ -4587,7 +4621,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
               
             //
-            // Rule 509:  Type ::= future LESS Type GREATER
+            // Rule 509:  Type ::= future < Type >
             //
             case 509: {
                 TypeNode a = (TypeNode) btParser.getSym(3);
@@ -4617,7 +4651,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
              
             //
-            // Rule 513:  PlaceTypeSpecifier ::= AT PlaceType
+            // Rule 513:  PlaceTypeSpecifier ::= @ PlaceType
             //
             case 513:
                 break; 
@@ -4664,7 +4698,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
         
             //
-            // Rule 520:  DepParameters ::= LPAREN DepParameterExpr RPAREN
+            // Rule 520:  DepParameters ::= ( DepParameterExpr )
             //
             case 520:
                 break; 
@@ -4689,13 +4723,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
         
             //
-            // Rule 523:  WhereClause ::= COLON Expression
+            // Rule 523:  WhereClause ::= : Expression
             //
             case 523:
                 break; 
  
             //
-            // Rule 525:  X10ArrayType ::= Type LBRACKET DOT RBRACKET
+            // Rule 525:  X10ArrayType ::= Type [ . ]
             //
             case 525: {
                 TypeNode a = (TypeNode) btParser.getSym(1);
@@ -4705,7 +4739,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 526:  X10ArrayType ::= Type reference LBRACKET DOT RBRACKET
+            // Rule 526:  X10ArrayType ::= Type reference [ . ]
             //
             case 526: {
              TypeNode a = (TypeNode) btParser.getSym(1);
@@ -4714,7 +4748,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
         
             //
-            // Rule 527:  X10ArrayType ::= Type value LBRACKET DOT RBRACKET
+            // Rule 527:  X10ArrayType ::= Type value [ . ]
             //
             case 527: {
              TypeNode a = (TypeNode) btParser.getSym(1);
@@ -4723,7 +4757,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
         
             //
-            // Rule 528:  X10ArrayType ::= Type LBRACKET DepParameterExpr RBRACKET
+            // Rule 528:  X10ArrayType ::= Type [ DepParameterExpr ]
             //
             case 528: {
              TypeNode a = (TypeNode) btParser.getSym(1);
@@ -4733,7 +4767,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
         
             //
-            // Rule 529:  X10ArrayType ::= Type reference LBRACKET DepParameterExpr RBRACKET
+            // Rule 529:  X10ArrayType ::= Type reference [ DepParameterExpr ]
             //
             case 529: {
              TypeNode a = (TypeNode) btParser.getSym(1);
@@ -4743,7 +4777,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
         
             //
-            // Rule 530:  X10ArrayType ::= Type value LBRACKET DepParameterExpr RBRACKET
+            // Rule 530:  X10ArrayType ::= Type value [ DepParameterExpr ]
             //
             case 530: {
              TypeNode a = (TypeNode) btParser.getSym(1);
@@ -4813,7 +4847,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
             }   
             //
-            // Rule 538:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt LBRACKET RBRACKET ArrayInitializer
+            // Rule 538:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt [ ] ArrayInitializer
             //
             case 538: {
                 TypeNode a = (TypeNode) btParser.getSym(2);
@@ -4824,7 +4858,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 539:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt LBRACKET Expression RBRACKET
+            // Rule 539:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt [ Expression ]
             //
             case 539: {
                 TypeNode a = (TypeNode) btParser.getSym(2);
@@ -4835,7 +4869,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 540:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt LBRACKET Expression RBRACKET Expression
+            // Rule 540:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt [ Expression ] Expression
             //
             case 540: {
                 TypeNode a = (TypeNode) btParser.getSym(2);
@@ -4847,7 +4881,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 541:  ArrayCreationExpression ::= new ArrayBaseType value Unsafeopt LBRACKET Expression RBRACKET
+            // Rule 541:  ArrayCreationExpression ::= new ArrayBaseType value Unsafeopt [ Expression ]
             //
             case 541: {
                 TypeNode a = (TypeNode) btParser.getSym(2);
@@ -4858,7 +4892,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 542:  ArrayCreationExpression ::= new ArrayBaseType value Unsafeopt LBRACKET Expression RBRACKET Expression
+            // Rule 542:  ArrayCreationExpression ::= new ArrayBaseType value Unsafeopt [ Expression ] Expression
             //
             case 542: {
                 TypeNode a = (TypeNode) btParser.getSym(2);
@@ -4883,7 +4917,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
           
             //
-            // Rule 545:  ArrayAccess ::= ExpressionName LBRACKET ArgumentList RBRACKET
+            // Rule 545:  ArrayAccess ::= ExpressionName [ ArgumentList ]
             //
             case 545: {
            Name e = (Name) btParser.getSym(1);
@@ -4895,7 +4929,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
          
             //
-            // Rule 546:  ArrayAccess ::= PrimaryNoNewArray LBRACKET ArgumentList RBRACKET
+            // Rule 546:  ArrayAccess ::= PrimaryNoNewArray [ ArgumentList ]
             //
             case 546: { 
            Expr a = (Expr) btParser.getSym(1);
@@ -5015,7 +5049,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 565:  NowStatement ::= now LPAREN Clock RPAREN Statement
+            // Rule 565:  NowStatement ::= now ( Clock ) Statement
             //
             case 565: {
                 Name a = (Name) btParser.getSym(3);
@@ -5025,7 +5059,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 566:  ClockedStatement ::= clocked LPAREN ClockList RPAREN Statement
+            // Rule 566:  ClockedStatement ::= clocked ( ClockList ) Statement
             //
             case 566: {
                 List a = (List) btParser.getSym(3);
@@ -5045,7 +5079,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 568:  AsyncStatement ::= async LPAREN here RPAREN Statement
+            // Rule 568:  AsyncStatement ::= async ( here ) Statement
             //
             case 568: {
                 Stmt b = (Stmt) btParser.getSym(5);
@@ -5064,7 +5098,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 570:  AtomicStatement ::= atomic LPAREN here RPAREN Statement
+            // Rule 570:  AtomicStatement ::= atomic ( here ) Statement
             //
             case 570: {
                 Stmt b = (Stmt) btParser.getSym(5);
@@ -5073,7 +5107,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 571:  WhenStatement ::= when LPAREN Expression RPAREN Statement
+            // Rule 571:  WhenStatement ::= when ( Expression ) Statement
             //
             case 571: {
                 Expr e = (Expr) btParser.getSym(3);
@@ -5083,20 +5117,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 572:  WhenStatement ::= WhenStatement or LPAREN Expression RPAREN Statement
+            // Rule 572:  WhenStatement ::= WhenStatement or ( Expression ) Statement
             //
             case 572: {
                 When w = (When) btParser.getSym(1);
                 Expr e = (Expr) btParser.getSym(4);
                 Stmt s = (Stmt) btParser.getSym(6);
-                When.Branch wb = nf.WhenBranch(pos(), e,s);
-                w.add(wb);
+                w.add(new When_c.Branch_c(pos(btParser.getFirstToken(3), btParser.getLastToken()), e,s));
                 btParser.setSym1(w);
                 break;
             }
      
             //
-            // Rule 573:  ForEachStatement ::= foreach LPAREN FormalParameter COLON Expression RPAREN Statement
+            // Rule 573:  ForEachStatement ::= foreach ( FormalParameter : Expression ) Statement
             //
             case 573: { 
                Formal f = (Formal) btParser.getSym(3);
@@ -5109,7 +5142,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 574:  AtEachStatement ::= ateach LPAREN FormalParameter COLON Expression RPAREN Statement
+            // Rule 574:  AtEachStatement ::= ateach ( FormalParameter : Expression ) Statement
             //
             case 574: { 
                Formal f = (Formal) btParser.getSym(3);
@@ -5122,7 +5155,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 575:  EnhancedForStatement ::= for LPAREN FormalParameter COLON Expression RPAREN Statement
+            // Rule 575:  EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
             //
             case 575: {
                Formal f = (Formal) btParser.getSym(3);
@@ -5143,7 +5176,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 577:  NowStatementNoShortIf ::= now LPAREN Clock RPAREN StatementNoShortIf
+            // Rule 577:  NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
             //
             case 577: {
                 Name a = (Name) btParser.getSym(3);
@@ -5153,7 +5186,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 578:  ClockedStatementNoShortIf ::= clocked LPAREN ClockList RPAREN StatementNoShortIf
+            // Rule 578:  ClockedStatementNoShortIf ::= clocked ( ClockList ) StatementNoShortIf
             //
             case 578: {
                 List a = (List) btParser.getSym(3);
@@ -5173,7 +5206,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 580:  AsyncStatementNoShortIf ::= async LPAREN here RPAREN StatementNoShortIf
+            // Rule 580:  AsyncStatementNoShortIf ::= async ( here ) StatementNoShortIf
             //
             case 580: {
                 Stmt b = (Stmt) btParser.getSym(5);
@@ -5192,7 +5225,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 582:  AtomicStatementNoShortIf ::= atomic LPAREN here RPAREN StatementNoShortIf
+            // Rule 582:  AtomicStatementNoShortIf ::= atomic ( here ) StatementNoShortIf
             //
             case 582: {
                 Stmt b = (Stmt) btParser.getSym(5);
@@ -5201,7 +5234,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 583:  WhenStatementNoShortIf ::= when LPAREN Expression RPAREN StatementNoShortIf
+            // Rule 583:  WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
             //
             case 583: {
                 Expr e = (Expr) btParser.getSym(3);
@@ -5211,20 +5244,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 584:  WhenStatementNoShortIf ::= WhenStatement or LPAREN Expression RPAREN StatementNoShortIf
+            // Rule 584:  WhenStatementNoShortIf ::= WhenStatement or ( Expression ) StatementNoShortIf
             //
             case 584: {
                 When w = (When) btParser.getSym(1);
                 Expr e = (Expr) btParser.getSym(4);
                 Stmt s = (Stmt) btParser.getSym(6);
-                When.Branch wb = nf.WhenBranch(pos(), e, s);
-                w.add(wb);
+                w.add(new When_c.Branch_c(pos(btParser.getFirstToken(3), btParser.getLastToken()), e, s));
                 btParser.setSym1(w);
                 break;
             }
      
             //
-            // Rule 585:  ForEachStatementNoShortIf ::= foreach LPAREN FormalParameter COLON Expression RPAREN StatementNoShortIf
+            // Rule 585:  ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) StatementNoShortIf
             //
             case 585: { 
                Formal f = (Formal) btParser.getSym(3);
@@ -5237,7 +5269,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 586:  AtEachStatementNoShortIf ::= ateach LPAREN FormalParameter COLON Expression RPAREN StatementNoShortIf
+            // Rule 586:  AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) StatementNoShortIf
             //
             case 586: { 
                Formal f = (Formal) btParser.getSym(3);
@@ -5259,7 +5291,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 588:  PlaceExpressionSingleList ::= LPAREN PlaceExpression RPAREN
+            // Rule 588:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
             case 588: {
                 btParser.setSym1(btParser.getSym(2));
@@ -5296,7 +5328,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 593:  NextStatement ::= next SEMICOLON
+            // Rule 593:  NextStatement ::= next ;
             //
             case 593: {
                 btParser.setSym1(nf.Next(pos()));
@@ -5304,7 +5336,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 594:  AwaitStatement ::= await Expression SEMICOLON
+            // Rule 594:  AwaitStatement ::= await Expression ;
             //
             case 594: { 
          Expr e = (Expr) btParser.getSym(2);
@@ -5324,7 +5356,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 596:  ClockList ::= ClockList COMMA Clock
+            // Rule 596:  ClockList ::= ClockList , Clock
             //
             case 596: {
                 List l = (List) btParser.getSym(1);
@@ -5344,7 +5376,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 598:  CastExpression ::= LPAREN Type RPAREN UnaryExpressionNotPlusMinus
+            // Rule 598:  CastExpression ::= ( Type ) UnaryExpressionNotPlusMinus
             //
             case 598: {
                 TypeNode a = (TypeNode) btParser.getSym(2);
@@ -5354,7 +5386,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 599:  MethodInvocation ::= Primary ARROW identifier LPAREN ArgumentListopt RPAREN
+            // Rule 599:  MethodInvocation ::= Primary -> identifier ( ArgumentListopt )
             //
             case 599: { 
           Expr a = (Expr) btParser.getSym(1);
@@ -5394,7 +5426,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 603:  Primary ::= LBRACKET DOT ArgumentList RBRACKET
+            // Rule 603:  Primary ::= [ . ArgumentList ]
             //
             case 603: {
         Name x10 = new Name(nf, ts, pos(), "x10");
@@ -5409,7 +5441,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 604:  AssignmentExpression ::= Expression ARROW Expression
+            // Rule 604:  AssignmentExpression ::= Expression -> Expression
             //
             case 604: {
         Expr a = (Expr) btParser.getSym(1);
@@ -5434,7 +5466,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 605:  Primary ::= Expression COLON Expression
+            // Rule 605:  Primary ::= Expression : Expression
             //
             case 605: {
 
@@ -5455,7 +5487,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 606:  FutureExpression ::= future PlaceExpressionSingleListopt LBRACE Expression RBRACE
+            // Rule 606:  FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
             //
             case 606: {
                 Expr e1 = (Expr) btParser.getSym(2),
@@ -5465,7 +5497,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 607:  FutureExpression ::= future LPAREN here RPAREN LBRACE Expression RBRACE
+            // Rule 607:  FutureExpression ::= future ( here ) { Expression }
             //
             case 607: {
                 Expr e2 = (Expr) btParser.getSym(6);
@@ -5474,70 +5506,70 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 608:  FunExpression ::= fun Type LPAREN FormalParameterListopt RPAREN LBRACE Expression RBRACE
+            // Rule 608:  FunExpression ::= fun Type ( FormalParameterListopt ) { Expression }
             //
             case 608:
                 bad_rule = 608;
                 break; 
  
             //
-            // Rule 609:  MethodInvocation ::= MethodName LPAREN ArgumentListopt RPAREN LPAREN ArgumentListopt RPAREN
+            // Rule 609:  MethodInvocation ::= MethodName ( ArgumentListopt ) ( ArgumentListopt )
             //
             case 609:
                 bad_rule = 609;
                 break; 
  
             //
-            // Rule 610:  MethodInvocation ::= Primary DOT identifier LPAREN ArgumentListopt RPAREN LPAREN ArgumentListopt RPAREN
+            // Rule 610:  MethodInvocation ::= Primary . identifier ( ArgumentListopt ) ( ArgumentListopt )
             //
             case 610:
                 bad_rule = 610;
                 break; 
  
             //
-            // Rule 611:  MethodInvocation ::= super DOT identifier LPAREN ArgumentListopt RPAREN LPAREN ArgumentListopt RPAREN
+            // Rule 611:  MethodInvocation ::= super . identifier ( ArgumentListopt ) ( ArgumentListopt )
             //
             case 611:
                 bad_rule = 611;
                 break; 
  
             //
-            // Rule 612:  MethodInvocation ::= ClassName DOT super DOT identifier LPAREN ArgumentListopt RPAREN LPAREN ArgumentListopt RPAREN
+            // Rule 612:  MethodInvocation ::= ClassName . super . identifier ( ArgumentListopt ) ( ArgumentListopt )
             //
             case 612:
                 bad_rule = 612;
                 break; 
  
             //
-            // Rule 613:  MethodInvocation ::= TypeName DOT identifier LPAREN ArgumentListopt RPAREN LPAREN ArgumentListopt RPAREN
+            // Rule 613:  MethodInvocation ::= TypeName . identifier ( ArgumentListopt ) ( ArgumentListopt )
             //
             case 613:
                 bad_rule = 613;
                 break; 
  
             //
-            // Rule 614:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType LPAREN ArgumentListopt RPAREN LPAREN ArgumentListopt RPAREN ClassBodyopt
+            // Rule 614:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt ) ( ArgumentListopt ) ClassBodyopt
             //
             case 614:
                 bad_rule = 614;
                 break; 
  
             //
-            // Rule 615:  ClassInstanceCreationExpression ::= Primary DOT new identifier LPAREN ArgumentListopt RPAREN LPAREN ArgumentListopt RPAREN ClassBodyopt
+            // Rule 615:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt ) ( ArgumentListopt ) ClassBodyopt
             //
             case 615:
                 bad_rule = 615;
                 break; 
  
             //
-            // Rule 616:  ClassInstanceCreationExpression ::= AmbiguousName DOT new identifier LPAREN ArgumentListopt RPAREN LPAREN ArgumentListopt RPAREN ClassBodyopt
+            // Rule 616:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt ) ( ArgumentListopt ) ClassBodyopt
             //
             case 616:
                 bad_rule = 616;
                 break; 
  
             //
-            // Rule 617:  PlaceTypeSpecifieropt ::=
+            // Rule 617:  PlaceTypeSpecifieropt ::= $Empty
             //
             case 617:
                 btParser.setSym1(null);
@@ -5550,7 +5582,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 619:  DepParametersopt ::=
+            // Rule 619:  DepParametersopt ::= $Empty
             //
             case 619:
                 btParser.setSym1(null);
@@ -5563,7 +5595,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 621:  WhereClauseopt ::=
+            // Rule 621:  WhereClauseopt ::= $Empty
             //
             case 621:
                 btParser.setSym1(null);
@@ -5576,7 +5608,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 623:  ObjectKindopt ::=
+            // Rule 623:  ObjectKindopt ::= $Empty
             //
             case 623:
                 btParser.setSym1(null);
@@ -5589,7 +5621,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 625:  ArrayInitializeropt ::=
+            // Rule 625:  ArrayInitializeropt ::= $Empty
             //
             case 625:
                 btParser.setSym1(null);
@@ -5602,7 +5634,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 627:  PlaceExpressionSingleListopt ::=
+            // Rule 627:  PlaceExpressionSingleListopt ::= $Empty
             //
             case 627:
                 btParser.setSym1(null);
@@ -5615,7 +5647,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 629:  ArgumentListopt ::=
+            // Rule 629:  ArgumentListopt ::= $Empty
             //
             case 629:
                 btParser.setSym1(null);
@@ -5628,7 +5660,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 631:  DepParametersopt ::=
+            // Rule 631:  DepParametersopt ::= $Empty
             //
             case 631:
                 btParser.setSym1(null);
@@ -5641,7 +5673,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break; 
  
             //
-            // Rule 633:  Unsafeopt ::=
+            // Rule 633:  Unsafeopt ::= $Empty
             //
             case 633:
                 btParser.setSym1(null);
