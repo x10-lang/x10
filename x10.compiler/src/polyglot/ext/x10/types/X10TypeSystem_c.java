@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.jl.types.TypeSystem_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.GenParameterExpr;
@@ -22,7 +23,6 @@ import polyglot.types.PrimitiveType;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -78,9 +78,9 @@ implements X10TypeSystem {
 	}
 	
 	public ParametricType createParametricType ( Position pos, X10ReferenceType type, 
-	        GenParameterExpr texpr,
+	        List typeparameters,
 	        DepParameterExpr expr ) {
-		return new ParametricType_c( this, pos, type, texpr, expr);
+		return new ParametricType_c( this, pos, type, typeparameters, expr);
 	}
 	
 	protected UnknownType createUnknownType() {
@@ -210,8 +210,7 @@ implements X10TypeSystem {
                 list.add(type);
                 return this.createParametricType(Position.COMPILER_GENERATED,
                         (X10ReferenceType) genericArray(isValueType, distribution),
-                        X10NodeFactory_c.getFactory().GenParameterExpr(Position.COMPILER_GENERATED,
-                                list),
+                         list,
                           null);
 	}
 	
@@ -228,8 +227,7 @@ implements X10TypeSystem {
                 list.add(type);
                 return this.createParametricType(Position.COMPILER_GENERATED,
                         (X10ReferenceType) genericArray(distribution),
-                        X10NodeFactory_c.getFactory().GenParameterExpr(Position.COMPILER_GENERATED,
-                                list),
+                          list,
                           null);
 	}
 	
@@ -246,8 +244,7 @@ implements X10TypeSystem {
                 list.add(type);
                 return this.createParametricType(Position.COMPILER_GENERATED,
                             (X10ReferenceType) genericValueArray(),
-                            X10NodeFactory_c.getFactory().GenParameterExpr(Position.COMPILER_GENERATED,
-                                    list),
+                                  list,
                               null);
 	}
 	
@@ -264,8 +261,7 @@ implements X10TypeSystem {
                 list.add(type);
                 return this.createParametricType(Position.COMPILER_GENERATED,
                             (X10ReferenceType) genericArray(),
-                            X10NodeFactory_c.getFactory().GenParameterExpr(Position.COMPILER_GENERATED,
-                                    list),
+                            list,
                               null);
 	}
 	public ClassType intArray(boolean isValueType, Expr distribution ) {
@@ -353,18 +349,19 @@ implements X10TypeSystem {
 	}
 
     protected X10ReferenceType genericArrayPointwiseOpType_;
-    public ReferenceType GenericArrayPointwiseOp(X10ReferenceType typeParam) {
+    public X10ReferenceType GenericArrayPointwiseOp() {
         if ( genericArrayPointwiseOpType_ == null)
             genericArrayPointwiseOpType_
                 = (X10ReferenceType) load("x10.lang.genericArray$pointwiseOp"); // java file
+        return genericArrayPointwiseOpType_;
+    }
+    public ReferenceType GenericArrayPointwiseOp(Type typeParam) {
         List l = new LinkedList();
         l.add(typeParam);
-        GenParameterExpr typeparam
-            = new GenParameterExpr_c(Position.COMPILER_GENERATED,l);
         return new ParametricType_c(this,
                 Position.COMPILER_GENERATED,
-                genericArrayPointwiseOpType_,
-                typeparam,
+                GenericArrayPointwiseOp(),
+                l,
                 null);
     }
     public ClassType genericArray(boolean isValueType, Expr distribution ) {
@@ -396,8 +393,12 @@ implements X10TypeSystem {
     
     protected ClassType genericReferenceArrayType_;
     public ClassType GenericReferenceArray( Expr distribution ) {
+        // FIXME: used to be GenericReferenceArray, but that
+        // results in type errors; why? how to fix?
+        // Also: I'd like to eliminate the plehora of Array classes
+        // in the runtime - CG
         if ( genericReferenceArrayType_ == null)
-            genericReferenceArrayType_ = load("x10.lang.GenericReferenceArray"); // java file
+            genericReferenceArrayType_ = load("x10.lang.genericArray"); // java file
         // return genericReferenceArrayType_.setParameter( "distribution", distribution );
         return genericReferenceArrayType_;
     }
@@ -416,7 +417,7 @@ implements X10TypeSystem {
 	}
 	
 	protected ClassType doubleArrayType_;
-	public ClassType doubleArray( Expr distribution ) {
+	public ClassType doubleArray( Expr distribution ) {	    
 		if ( doubleArrayType_ == null)
 			doubleArrayType_ = load("x10.lang.doubleArray"); // java file
 		

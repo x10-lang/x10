@@ -64,6 +64,7 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
 	public FutureType toFuture() {
 			return null;
 	}
+	
 	/** Returns true iff the type implements x10.lang.Indexable.
 	 * 
 	 */
@@ -131,7 +132,8 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
     	if (Report.should_report("debug", 5))
 			Report.report( 5, "[X10ParsedClassType_c] isSubTypeImpl |" + this +  "| of |" + t + "|?");	
     	
-    	boolean result = ts.equals(this, target) || ts.descendsFrom(this, target);
+    	boolean result = ts.equals(this, target);
+        result = result || ts.descendsFrom(this, target);
     	
        	if (result) {
        		if (Report.should_report("debug", 5))

@@ -1,7 +1,5 @@
 /*
  * Created by vj on Dec 9, 2004
- *
- * 
  */
 package polyglot.ext.x10.ast;
 
@@ -224,9 +222,9 @@ implements ArrayConstructor {
 					throw new SemanticException("Array initializer must be of type x10.lang.longArray.pointwiseOp" 
 							+ position());
 			} else {
-			    if (! ts.isImplicitCastValid(initType, ts.GenericArrayPointwiseOp((X10ReferenceType)newBaseType)))
-			        throw new SemanticException("Array initializer must be of type x10.lang.genericArray.pointwiseOp" 
-			                + position());
+			    Type toType = ts.GenericArrayPointwiseOp((X10ReferenceType)newBaseType);
+			    if (! ts.isImplicitCastValid(initType, toType))
+			        throw new SemanticException("Array initializer must be of type " + toType.toString()+ " at " + position());
 			}                     
 		}
 		Type t = ts.array( newBaseType, isValue );

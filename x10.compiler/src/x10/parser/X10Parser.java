@@ -13,23 +13,86 @@
 
 package x10.parser;
 
-import java.util.*;
-import polyglot.ast.*;
-import polyglot.lex.*;
-import polyglot.util.*;
-import polyglot.parse.*;
-import polyglot.types.*;
-import polyglot.*;
-import polyglot.ast.Assert;
-import polyglot.ext.x10.ast.*;
-import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.jl.parse.Name;
-import polyglot.frontend.Parser;
-import polyglot.frontend.FileSource;
-import polyglot.main.Report;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-import com.ibm.lpg.*;
+import polyglot.ast.AmbTypeNode;
+import polyglot.ast.ArrayInit;
+import polyglot.ast.Assign;
+import polyglot.ast.Binary;
+import polyglot.ast.Block;
+import polyglot.ast.Call;
+import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.Case;
+import polyglot.ast.Catch;
+import polyglot.ast.ClassBody;
+import polyglot.ast.ClassDecl;
+import polyglot.ast.ClassMember;
+import polyglot.ast.Eval;
+import polyglot.ast.Expr;
+import polyglot.ast.FloatLit;
+import polyglot.ast.ForInit;
+import polyglot.ast.ForUpdate;
+import polyglot.ast.Formal;
+import polyglot.ast.Import;
+import polyglot.ast.IntLit;
+import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
+import polyglot.ast.New;
+import polyglot.ast.NodeFactory;
+import polyglot.ast.PackageNode;
+import polyglot.ast.SourceFile;
+import polyglot.ast.Stmt;
+import polyglot.ast.SwitchElement;
+import polyglot.ast.TopLevelDecl;
+import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
+import polyglot.ext.jl.parse.Name;
+import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.ext.x10.ast.Tuple;
+import polyglot.ext.x10.ast.When;
+import polyglot.ext.x10.ast.X10Formal;
+import polyglot.ext.x10.ast.X10Loop;
+import polyglot.ext.x10.ast.X10NodeFactory;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.frontend.FileSource;
+import polyglot.frontend.Parser;
+import polyglot.lex.BooleanLiteral;
+import polyglot.lex.CharacterLiteral;
+import polyglot.lex.DoubleLiteral;
+import polyglot.lex.FloatLiteral;
+import polyglot.lex.Identifier;
+import polyglot.lex.IntegerLiteral;
+import polyglot.lex.LongLiteral;
+import polyglot.lex.NullLiteral;
+import polyglot.lex.Operator;
+import polyglot.lex.StringLiteral;
+import polyglot.main.Report;
+import polyglot.parse.VarDeclarator;
+import polyglot.types.Flags;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.util.ErrorInfo;
+import polyglot.util.ErrorQueue;
+import polyglot.util.Position;
+import polyglot.util.TypedList;
+
+import com.ibm.lpg.BacktrackingParser;
+import com.ibm.lpg.BadParseException;
+import com.ibm.lpg.BadParseSymFileException;
+import com.ibm.lpg.DiagnoseParser;
+import com.ibm.lpg.LexStream;
+import com.ibm.lpg.NotBacktrackParseTableException;
+import com.ibm.lpg.NullExportedSymbolsException;
+import com.ibm.lpg.NullTerminalSymbolsException;
+import com.ibm.lpg.ParseTable;
+import com.ibm.lpg.PrsStream;
+import com.ibm.lpg.RuleAction;
+import com.ibm.lpg.UndefinedEofSymbolException;
+import com.ibm.lpg.UnimplementedTerminalsException;
 
 public class X10Parser extends PrsStream implements RuleAction, Parser
 {
@@ -202,13 +265,64 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         return null;
     }
 
-   /** Pretend to have parsed new <T>Array.pointwiseOp 
+    /** Pretend to have parsed new <T>Array.pointwiseOp 
      * { public <T> apply(Formal) MethodBody } 
      * instead of (Formal) MethodBody. Note that Formal may have 
      * exploded vars.
      * @author vj
     */
+ 
     private New makeInitializer( Position pos, TypeNode resultType, 
+                                 X10Formal f, Block body ) {
+      if (f.hasExplodedVars()) {
+        List s = new TypedList(new LinkedList(), Stmt.class, false);
+        s.addAll( f.explode() );
+        s.addAll( body.statements() );
+        body = body.statements( s );
+      }
+      Flags flags = Flags.PUBLIC;
+      // resulttype is a.
+      List l1 = new TypedList(new LinkedList(), X10Formal.class, false);
+      l1.add(f);
+      TypeNode appResultType = resultType;
+      if (resultType instanceof AmbTypeNode) {
+        Name x10 = new Name(nf, ts, pos, "x10");
+        Name x10CG = new Name(nf, ts, pos, x10, "compilergenerated");
+        Name x10CGP1 = new Name(nf, ts, pos, x10CG, "Parameter1");
+        appResultType = x10CGP1.toType();
+      }
+      MethodDecl decl = nf.MethodDecl(pos, flags, appResultType, 
+                                    "apply", l1,
+                                      new LinkedList(), body);
+      //  new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
+      String prefix = (resultType instanceof AmbTypeNode) ? "generic" : resultType.toString();
+      Name x10 = new Name(nf, ts, pos, "x10");
+      Name x10Lang = new Name(nf, ts, pos, x10, "lang");
+      Name tArray
+          = new Name(nf, ts, pos, x10Lang, prefix + "Array");
+      Name tXArray
+      = new Name(nf, ts, pos, x10Lang, "x10.lang." + prefix + "Array");
+      Name tArrayPointwiseOp = new Name(nf, ts, pos, tArray, "pointwiseOp");
+      List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
+      classDecl.add( decl );
+      TypeNode t = (resultType instanceof AmbTypeNode) ?
+               (TypeNode) nf.GenericArrayPointwiseOpTypeNode(pos, resultType) :
+               (TypeNode) tArrayPointwiseOp.toType();
+                   
+      New initializer = nf.New(pos,
+                      t, 
+                      new LinkedList(), 
+                             nf.ClassBody( pos, classDecl ) );
+      return initializer;
+    }
+    
+    /** Pretend to have parsed new <T>Array.pointwiseOp 
+     * { public <T> apply(Formal) MethodBody } 
+     * instead of (Formal) MethodBody. Note that Formal may have 
+     * exploded vars.
+     * @author vj
+    */
+    private New XXmakeInitializer( Position pos, TypeNode resultType, 
                                  X10Formal f, Block body ) {
       if (f.hasExplodedVars()) {
         List s = new TypedList(new LinkedList(), Stmt.class, false);
@@ -228,7 +342,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
       Name tArrayPointwiseOp = new Name(nf, ts, pos, tArray, "pointwiseOp");
       List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
       classDecl.add( decl );
-      New initializer = nf.New(pos, tArrayPointwiseOp.toType(), new LinkedList(), 
+      New initializer = nf.New(pos, tArray.toExpr(), 
+                             tArrayPointwiseOp.toType(), 
+                             new LinkedList(), 
                              nf.ClassBody( pos, classDecl ) );
       return initializer;
     }
