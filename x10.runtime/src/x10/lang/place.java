@@ -67,7 +67,7 @@ public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ {
 	 */
 	public place/*(id+1 % MAX_PLACES)*/ next()  { 
 		final place result = next(1);
-		assert result.id == (id+1 % MAX_PLACES);
+		assert result.id == ((id+1) % MAX_PLACES);
 		return result; 
 	}
 	
@@ -86,7 +86,7 @@ public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ {
 	 */
 	public place/*(i+k % MAX_PLACES)*/ next( final int k ) {
 		final place result = factory.place( (id + k) % MAX_PLACES);
-		assert result.id == (id+k % MAX_PLACES);
+		assert result.id == ((id+k) % MAX_PLACES);
 		return result; 
 	}
 	
