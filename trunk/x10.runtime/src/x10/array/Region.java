@@ -26,6 +26,8 @@ public interface Region {
 	public Region intersect(Region r);
 	
     public Range dim(int i);
+    
+    public Range[] dim();
 	
     public boolean contains(Region r);
 	
