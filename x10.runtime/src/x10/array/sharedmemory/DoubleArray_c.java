@@ -25,7 +25,7 @@ import x10.lang.region;
  */
 public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
 
-    private boolean safe_;
+    private final boolean safe_;
     private final MemoryBlock arr_;
     protected boolean mutable_ = true;
     
@@ -44,6 +44,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
     protected DoubleArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
         this.mutable_ = mutable;
+        this.safe_ = safe;
         int count =  d.region.size();
         this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
         if (c != null)
