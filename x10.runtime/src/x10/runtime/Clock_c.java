@@ -156,7 +156,6 @@ final class Clock_c implements Clock {
      * that the activity is registered with.
      */
     public synchronized void doNext() {
-        Thread t = Thread.currentThread();
         Activity a = aip_.getCurrentActivity();
         assert activities_.contains(a);
         pending_.remove(a); // this one is done!
@@ -166,12 +165,12 @@ final class Clock_c implements Clock {
         int start = phase_;
         while (start == phase_) { // signal might be random in Java, check!
             try {
-                LoadMonitored.blocked(t);
+                LoadMonitored.blocked();
                 this.wait(); // wait for signal
             } catch (InterruptedException ie) {
                 throw new Error(ie); // that was unexpected...
             } finally {
-                LoadMonitored.unblocked(t);
+                LoadMonitored.unblocked();
             }
         }
     }

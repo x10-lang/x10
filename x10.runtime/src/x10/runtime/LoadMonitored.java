@@ -13,14 +13,22 @@ package x10.runtime;
  */
 abstract class LoadMonitored extends Thread {
 
-    public static void blocked(Thread t) {
-        if (t instanceof LoadMonitored)
-            ((LoadMonitored)t).changeRunningStatus(-1);
+    public static final boolean ON = true;
+    
+    public static void blocked() {
+        if (ON) {
+            Thread t = Thread.currentThread();
+            if (t instanceof LoadMonitored)
+                ((LoadMonitored)t).changeRunningStatus(-1);
+        }
     }
     
-    public static void unblocked(Thread t) {
-        if (t instanceof LoadMonitored)
-            ((LoadMonitored)t).changeRunningStatus(1);
+    public static void unblocked() {
+        if (ON) {
+            Thread t = Thread.currentThread();
+            if (t instanceof LoadMonitored)
+                ((LoadMonitored)t).changeRunningStatus(1);
+        }
     }
     
     /**
