@@ -3,7 +3,7 @@ try {
 	x10.runtime.LoadMonitored.blocked(x10.runtime.Sampling.CAUSE_ATOMIC, 0);
 	synchronized (x10.lang.Runtime.here()) {
   	    x10.runtime.LoadMonitored.unblocked(x10.runtime.Sampling.CAUSE_ATOMIC, 0);
-	    x10.runtime.Sampling._.signalEvent(x10.runtime.Sampling.EVENT_ID_ATOMIC_ENTRY);
+	    x10.runtime.Sampling.SINGLETON.signalEvent(x10.runtime.Sampling.EVENT_ID_ATOMIC_ENTRY);
 		try {        
 			#0
 			x10.lang.Runtime.here().notifyAll();
@@ -14,5 +14,5 @@ try {
 	  	}
 	}
 } finally {
-    x10.runtime.Sampling._.signalEvent(x10.runtime.Sampling.EVENT_ID_ATOMIC_EXIT);
+    x10.runtime.Sampling.SINGLETON.signalEvent(x10.runtime.Sampling.EVENT_ID_ATOMIC_EXIT);
 }
