@@ -123,12 +123,7 @@ implements Indexable {
 	abstract /*value*/ public double get(int p, int q);
 	abstract /*value*/ public double get(int p, int q, int r);
 	abstract /*value*/ public double get(int p, int q, int r, int s);
-
-    abstract public void set( double v, point/*(region)*/ p);
-    abstract /*value*/ public void set(double v, int p);
-    abstract /*value*/ public void set(double v, int p, int q);
-    abstract /*value*/ public void set(double v, int p, int q, int r);
-    abstract /*value*/ public void set(double v, int p, int q, int r, int s);
+    abstract public double get(int[] p);
     
     /** Convenience method for returning the sum of the array.
      * @return sum of the array.
@@ -155,7 +150,7 @@ implements Indexable {
 	 * Convenience method for applying abs to each element in the array.
 	 * @return
 	 */
-	public doubleArray abs() {
+	public DoubleReferenceArray abs() {
 		return lift(abs);
 	}
 	/**
@@ -175,19 +170,19 @@ implements Indexable {
 	/** Return a DoubleArray with the same distribution as this, by 
 	 scanning this with the function fun, and unit unit.
 	 */
-	abstract public doubleArray/*(distribution)*/ scan(binaryOp fun, double unit);
+	abstract public DoubleReferenceArray/*(distribution)*/ scan(binaryOp fun, double unit);
 	
 	/** Return an array of B@P defined on the intersection of the
 	 region underlying the array and the parameter region R.
 	 */
 	abstract public /*(region(rank) R)*/
-	doubleArray/*(distribution.restriction(R)())*/  restriction(region R);
+	DoubleReferenceArray/*(distribution.restriction(R)())*/  restriction(region R);
 	
 	/** Return an array of B@P defined on the intersection of 
 	 the region underlying this and the parametric distribution.
 	 */    
 	public  /*(distribution(:rank=this.rank) D)*/ 
-	doubleArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
+	DoubleReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
 	 return restriction(D.region);
 	}
 	
@@ -199,7 +194,7 @@ implements Indexable {
 	 * in other.region.
 	 */
 	abstract public /*(distribution(:region.disjoint(this.region) && rank=this.rank) D)*/
-	doubleArray/*(distribution.union(other.distribution))*/ union( doubleArray other);
+	DoubleReferenceArray/*(distribution.union(other.distribution))*/ union( doubleArray other);
 	
 	/** Return the array obtained by overlaying this array on top of
 	 other. The method takes as parameter a distribution D over the
@@ -207,7 +202,7 @@ implements Indexable {
 	 dist.asymmetricUnion(D).
 	 */
 	abstract public /*(distribution(:rank=this.rank) D)*/
-	doubleArray/*(distribution.asymmetricUnion(D))*/ overlay( doubleArray/*(D)*/ other);
+	DoubleReferenceArray/*(distribution.asymmetricUnion(D))*/ overlay( doubleArray/*(D)*/ other);
 	
 	
 	/** Assume given a DoubleArray a over the given distribution.
@@ -217,9 +212,16 @@ implements Indexable {
 	 * dist.region.
 	 */
 	abstract public 
-	doubleArray/*(distribution)*/ lift(binaryOp fun, doubleArray/*(distribution)*/ a);
+	DoubleReferenceArray/*(distribution)*/ lift(binaryOp fun, doubleArray/*(distribution)*/ a);
 	abstract public 
-	doubleArray/*(distribution)*/ lift(unaryOp fun);
+	DoubleReferenceArray/*(distribution)*/ lift(unaryOp fun);
+	
+	/**
+	 * Return an immutable copy of this array. Note: The implementation actually returns a copy
+	 * at the representation of the X10 type x10.lang.doubleValueArray, which is doubleArray.
+	 * @return an immutable version of this array.
+	 */
+	abstract public doubleArray toValueArray();
 	
 	public Iterator iterator() {
 	 	return region.iterator();

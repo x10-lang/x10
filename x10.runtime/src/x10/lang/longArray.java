@@ -128,12 +128,9 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	abstract /*value*/ public long get(int p, int q);
 	abstract /*value*/ public long get(int p, int q, int r);
 	abstract /*value*/ public long get(int p, int q, int r, int s);
+	abstract public long get(int[] p);
     
-    abstract public void set( long v, point/*(region)*/ p );
-    abstract /*value*/ public void set(long v, int p);
-    abstract /*value*/ public void set(long v, int p, int q);
-    abstract /*value*/ public void set(long v, int p, int q, int r);
-    abstract /*value*/ public void set(long v, int p, int q, int r, int s);
+  
     
     /** Convenience method for returning the sum of the array.
      * @return sum of the array.
@@ -180,19 +177,19 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	/** Return an IntArray with the same distribution as this, by 
 	 scanning this with the function fun, and unit unit.
 	 */
-	abstract /*value*/ public longArray/*(distribution)*/ scan(binaryOp fun, long unit);
+	abstract /*value*/ public LongReferenceArray/*(distribution)*/ scan(binaryOp fun, long unit);
 	
 	/** Return an array of B@P defined on the intersection of the
 	 region underlying the array and the parameter region R.
 	 */
 	abstract /*value*/ public /*(region(rank) R)*/
-	longArray/*(distribution.restriction(R)())*/  restriction(region R);
+	LongReferenceArray/*(distribution.restriction(R)())*/  restriction(region R);
 	
 	/** Return an array of B@P defined on the intersection of 
 	 the region underlying this and the parametric distribution.
 	 */    
 	abstract /*value*/ public  /*(distribution(:rank=this.rank) D)*/ 
-	longArray/*(distribution.restriction(D.region)())*/ restriction(distribution D);
+	LongReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D);
 	
 	/** Take as parameter a distribution D of the same rank as *
 	 * this, and defined over a disjoint region. Take as argument an *
@@ -203,7 +200,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	 */
 	abstract /*value*/ public /*(distribution(:region.disjoint(this.region) &&
 	rank=this.rank) D)*/
-	longArray/*(distribution.union(D))*/ union( longArray/*(D)*/ other);
+	LongReferenceArray/*(distribution.union(D))*/ union( longArray/*(D)*/ other);
 	
 	/** Return the array obtained by overlaying this array on top of
 	 other. The method takes as parameter a distribution D over the
@@ -211,7 +208,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	 dist.asymmetricUnion(D).
 	 */
 	abstract /*value*/ public /*(distribution(:rank=this.rank) D)*/
-	longArray/*(distribution.asymmetricUnion(D))*/ overlay( longArray/*(D)*/ other);
+	LongReferenceArray/*(distribution.asymmetricUnion(D))*/ overlay( longArray/*(D)*/ other);
 	
 	
 	/** Assume given a longArray a over the given distribution.
@@ -221,9 +218,16 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	 * dist.region.
 	 */
 	abstract /*value*/ public 
-	longArray/*(distribution)*/ lift(binaryOp fun, longArray/*(distribution)*/ a);
+	LongReferenceArray/*(distribution)*/ lift(binaryOp fun, longArray/*(distribution)*/ a);
 	abstract public 
-	longArray/*(distribution)*/ lift(unaryOp fun);
+	LongReferenceArray/*(distribution)*/ lift(unaryOp fun);
+	
+	/**
+	 * Return an immutable copy of this array. Note: The implementation actually returns a copy
+	 * at the representation of the X10 type x10.lang.longValueArray, which is longArray.
+	 * @return an immutable version of this array.
+	 */
+	abstract public longArray toValueArray();
 	
 	public Iterator iterator() {
 	 	return region.iterator();
