@@ -7,7 +7,8 @@ public class point_c extends point implements Comparable {
 	
 	public static class factory extends point.factory {
 		public point/*(region)*/ point(region region, int[/*rank*/] val) {
-			return new point_c(region,  val);
+			assert region.rank == val.length;
+            return new point_c(region,  val);
 		}
 		
 		public point point(int[/*rank*/] val) {
