@@ -67,7 +67,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         {
             System.out.println("The Lexer does not implement the Eof symbol " +
                                X10Parsersym.orderedTerminalSymbols[X10Parserprs.EOFT_SYMBOL]);
-            System.exit(12);
+            throw new Error(e);
         } 
     }
 
@@ -82,12 +82,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         catch (NotBacktrackParseTableException e)
         {
             System.out.println("****Error: Regenerate X10Parserprs.java with -BACKTRACK option");
-            System.exit(1);
+            throw new Error(e);
         }
         catch (BadParseSymFileException e)
         {
             System.out.println("****Error: Bad Parser Symbol File -- X10Parsersym.java");
-            System.exit(1);
+            throw new Error(e);
         }
 
         try

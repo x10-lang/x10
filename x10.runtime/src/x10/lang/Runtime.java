@@ -49,7 +49,7 @@ public abstract class Runtime implements x10.base.Runtime {
                 r = new DefaultRuntime_c();
         } catch (ClassNotFoundException cnfe) {
             System.err.println("Did not find Runtime " + rt);
-            System.exit(-1);
+            throw new Error(cnfe);
         } catch (IllegalAccessException iae) {
         
         } catch (InstantiationException ie) {
