@@ -122,7 +122,7 @@ public final class Sampling extends Thread {
             dos.writeByte(0);
             dos.writeByte(0);
             dos.writeInt(PEM.PEM_TRACE_VERSION); // version
-            dos.writeInt(1+3+4+4+4+8+8+8+8); // size
+            dos.writeInt((8+8+8+8+8+8)/8); // size
             dos.writeInt(0);
             dos.writeLong(0x4000000000000000L); // 'infinity'
             dos.writeLong(1); // ticks per second
@@ -197,6 +197,8 @@ public final class Sampling extends Thread {
     }
     
     private void writeHeader(int size, int type, int id) {
+        //System.err.println("WH(" + size + "," +  type + "," + id + ")");
+               
         if (size + 8 + 16 >= 8 * 8 * 8)
             throw new Error("XML Event too large, fix PE trace format!");
         assert ((size % 8) == 0); // alignment
