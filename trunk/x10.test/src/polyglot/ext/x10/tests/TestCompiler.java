@@ -275,6 +275,10 @@ public TestCompiler(String name) {
         run("./ClockTest4.x10","ClockTest4","./Constructs/Clock");
     }
 
+    public void test_Constructs_Distribution_ArrayToDist() {
+        run("./ArrayToDist.x10","ArrayToDist","./Constructs/Distribution");
+    }
+
     public void test_Constructs_Distribution_DistBounds1D() {
         run("./DistBounds1D.x10","DistBounds1D","./Constructs/Distribution");
     }
@@ -489,6 +493,10 @@ public TestCompiler(String name) {
 
     public void test_Misc_ExpressionParentheses() {
         run("./ExpressionParentheses.x10","ExpressionParentheses","./Misc");
+    }
+
+    public void test_Misc_FinalInitializationTest() {
+        run("./FinalInitializationTest.x10","FinalInitializationTest","./Misc");
     }
 
     public void test_Misc_LiteralTest() {
