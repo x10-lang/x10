@@ -3,7 +3,6 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.*;
-import polyglot.ext.x10.ast.*;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
