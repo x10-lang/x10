@@ -67,23 +67,7 @@ abstract class Distribution_c extends Region_c implements Distribution {
      * @return
      */
     static Distribution_c makeBlockCyclic(Region_c r, int n, Place[] q) {
-        assert n > 0;
-        int rs = r.size();
-        int pt = rs / n;
-        int qt = rs % n;
-        if (qt != 0)
-            pt++;
-        int ql = q.length;
-        Distribution[] dists = new Distribution[pt];
-        for (int i=0;i<pt;i++) {
-            int s = i*n;
-            int e = s + n;
-            if (e > rs)
-                e = rs;
-            dists[i] = new Distribution_c.Constant(r.subOrdinal(s, e), 
-                                                   q[i % ql]);
-        }
-        return new Distribution_c.Combined(r, dists);
+        throw new Error("TODO");
     }
     
     /**

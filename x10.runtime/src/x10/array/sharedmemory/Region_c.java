@@ -105,36 +105,6 @@ class Region_c implements Region {
         return new Region_c(new_dims);
     }
     
-    Region_c subOrdinal(int start, int end) { // end exclusive here!
-        assert start > end;
-        for (int i = 0; i < dims_.length; ++i)
-            assert dims_[i] instanceof ContiguousRange;
-        
-        Range[] ret = new Range[rank];
-        int multiplier = 1;
-        for (int i = rank - 1; i >= 0; i--)
-            multiplier *= dims_[i].size();
-
-        for (int i = rank - 1; i >= 0; i--) {
-            multiplier /= dims_[i].size();
-            int offS = (start / multiplier);
-            int delS = (start % multiplier);
-            int offE = (end / multiplier);
-            int delE = (end % multiplier);
-
-            if (!(((delS == 0) && (delE == multiplier - 1)) || ((offS == offE))))
-                throw new Error("Not implemented"); /*
-                                                     * we don't get a nice-cut
-                                                     * region here!
-                                                     */
-
-            ret[i] = new ContiguousRange(dims_[i].coord(offS), dims_[i].coord(offE)); // -1: range is inclusive!                                                                    
-            start = delS;
-            end = delE;
-        }
-        return new Region_c(ret);
-    }
-    
     public Region union(Region r) {
         assert r != null;
         assert r.rank() == rank;
@@ -217,10 +187,11 @@ class Region_c implements Region {
         assert p.length == dims_.length;
 
         int ret = 0;
-        for (int i = 0; i < p.length - 2; ++i) {
-            ret = (ret + dims_[i].ordinal(p[i])) * dims_[i + 1].size();
+        int base = 1;
+        for (int i = 0; i < p.length; ++i) {
+            ret += dims_[i].ordinal(p[i]) * base;
+            base *= dims_[i].size();
         }
-        ret += dims_[p.length - 1].ordinal(p.length - 1);
         return ret;
     }
 
@@ -275,9 +246,11 @@ class Region_c implements Region {
             int[] ret = new int[rank];
             // express nextOrd_ as a base of the regions
             int rest = nextOrd_;
-            for (int i = rank - 1; i > 0; --i) {
-                int tmp = rest / dims_[i].size();
-                rest -= tmp;
+            int base = 0;
+            for (int i = 0; rest > 0 && i < rank; ++i) {
+                base = dims_[i].size();
+                int tmp = rest % base;
+                rest = (rest - tmp) / base;
                 ret[i] = dims_[i].coord(tmp);
             }
             nextOrd_++;

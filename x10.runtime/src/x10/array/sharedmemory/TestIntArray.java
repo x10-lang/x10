@@ -6,8 +6,14 @@
  */
 package x10.array.sharedmemory;
 
+import x10.array.ContiguousRange;
+import x10.array.DoubleArray;
 import x10.array.Operator;
+import x10.array.Range;
+import x10.array.Place;
+
 import junit.framework.TestCase;
+
 
 /**
  * @author praun
@@ -37,30 +43,42 @@ public class TestIntArray extends TestCase {
         System.out.println("Result is " + result + "; should be " + 192);
         assertTrue(result == 192);
     }
-   
-    private static String fill_(int width) {
-        char[] buf = new char[width];
-        java.util.Arrays.fill(buf, ' ');
-        return new String(buf);
-    }
+    
+    public void testDoubleArray_reduce() {
+        final int N = 100; 
 
-    /** pretty-print an array into a string as <code>#(...)</code> */
-    private static String print_(Object obj, int offset) {
-        offset++;
-        String ret = "(";
-        for (int ii = 0; ii < java.lang.reflect.Array.getLength(obj); ii++) {
-            Object elt = java.lang.reflect.Array.get(obj, ii);
-            String elt_str = (elt == null ? "<null>" : (elt.getClass()
-                    .isArray() ? print_(elt, offset) : String.valueOf(elt)));
-            if (ii == 0)
-                ret += elt_str;
-            else if ((elt_str.indexOf('\n') > 0)
-                    || ((elt_str.length() + ret.length()
-                            - ret.lastIndexOf('\n') > 78) && (offset >= 0)))
-                ret += "\n" + fill_(offset) + elt_str;
-            else
-                ret += " " + elt_str;
-        }
-        return ret + ")";
+        Region_c r = new Region_c(new Range[] {
+                new ContiguousRange(0, N - 1),
+                new ContiguousRange(0, N - 1) });
+        Place[] places = {new Place_c(), new Place_c()}; 
+        Distribution_c d = Distribution_c.makeBlock(r, places);
+        DoubleArray A = new DoubleArray_c(d);
+
+        // initialize array A (this should happen in parallel, distributed
+        // over
+        // all places in a real implementation).
+        A.pointwise(A, new Operator.Pointwise() {
+            public double apply(int[] point, double arg) {
+                return N * point[0] + point[1];
+            }
+        });
+        
+        Operator.Reduction checksum = new Operator.Reduction() {
+            private double acc_;
+            public void apply(double d) {
+                acc_ += d;
+            }
+            public double getDoubleResult() {
+                return acc_;
+            }
+            public void reset() {
+                acc_ = 0;
+            }
+        };
+        A.reduction(checksum);
+        double result = checksum.getDoubleResult();
+        double should_result = 4.9995E7; 
+        System.out.println("Result is " + result + "; should be " + should_result);
+        assertTrue(result == should_result);
     }
 }
