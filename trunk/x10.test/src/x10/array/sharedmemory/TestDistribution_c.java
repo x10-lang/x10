@@ -1,14 +1,11 @@
 package x10.array.sharedmemory;
-import java.util.Iterator;
-
 import junit.framework.TestCase;
 import x10.array.ContiguousRange;
-import x10.array.Range;
-import x10.array.MultiDimRegion;
+
 import x10.array.sharedmemory.Distribution_c;
 import x10.lang.Activity;
 import x10.lang.Runtime;
-import x10.lang.point;
+import x10.lang.place;
 import x10.lang.distribution;
 import x10.lang.region;
 import x10.runtime.DefaultRuntime_c;
@@ -70,6 +67,24 @@ public class TestDistribution_c extends TestCase {
         System.out.println("assert3 = " + assert3);
         
         assertTrue(assert1 && assert2 && assert3);
+    }
+    
+    public void testDistribution_equals() {
+        int N = 1;
+        place p = Runtime.here();
+        
+        region R = region.factory.region(0, N);
+        distribution D = distribution.factory.constant(R, p); 
+        region R_local = region.factory.region(0, N);
+        distribution D_local = distribution.factory.constant(R, p);
+        
+        distribution D_nonlocal = D.difference(D_local.region);
+        
+        System.out.println("D_local =" + D_local);
+        System.out.println("D_nonlocal =" + D_nonlocal);
+        System.out.println("union =" + D_local.union(D_nonlocal));
+        System.out.println("D =" + D);
+        assertTrue(D_local.union(D_nonlocal).equals(D));
     }
     
     public void testDistribution_difference() {

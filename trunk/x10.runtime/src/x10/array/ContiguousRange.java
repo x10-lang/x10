@@ -84,12 +84,12 @@ public class ContiguousRange extends Range {
 		if (r instanceof ContiguousRange) {
 		    ContiguousRange cr = (ContiguousRange) r;
 		    if (lo == cr.lo || hi == cr.hi) {
-		        ret = intersection(r);
+		        ret = new EmptyRegion(rank);
 		    }
 		}
 		if (ret == null)
 		    ret = super.difference(r);
-		return ret;
+        return ret;
 	}
 	
 	public boolean disjoint(region r ) {
