@@ -10,6 +10,7 @@ import x10.array.DoubleArray;
 import x10.array.IntArray;
 import x10.array.Range;
 import x10.array.Region;
+import x10.array.ArrayFactory;
 import x10.array.sharedmemory.SharedMemoryArrayFactory;
 import x10.lang.Activity;
 import x10.lang.Clock;
@@ -54,12 +55,15 @@ public class DefaultRuntime_c
      */
     private final Place[] places_;
     
+    private ArrayFactory af_;
+    
     public DefaultRuntime_c() {
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
     	this.places_ 
 		= new Place[pc];
     	for (int i=pc-1;i>=0;i--)
     		places_[i] = new LocalPlace_c(this, this);
+    	af_ = new SharedMemoryArrayFactory();
     }
 
     /**
@@ -205,12 +209,20 @@ public class DefaultRuntime_c
     public IntArray newIntArray(Distribution d) {
         return SharedMemoryArrayFactory.newIntArray(d);
     }
+    
+    public IntArray newIntArray(Distribution d, int c) {
+        return SharedMemoryArrayFactory.newIntArray(d, c);
+    }
 
     /**
      * @return New array.
      */
     public DoubleArray newDoubleArray(Distribution d) {
         return SharedMemoryArrayFactory.newDoubleArray(d);
+    }
+    
+    public DoubleArray newDoubleArray(Distribution d, double c) {
+        return SharedMemoryArrayFactory.newDoubleArray(d, c);
     }
 				      
     /**
@@ -234,7 +246,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockDistribution(Region R, Place[] Q) {
-        return SharedMemoryArrayFactory.newBlockDistribution(R, Q);
+        return af_.makeBlockDistribution(R, Q);
     }
     
     /**
@@ -244,7 +256,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockDistribution(Region r, int n, Place[] p) {
-        return SharedMemoryArrayFactory.newBlockDistribution(r, n, p);
+        return af_.makeBlockDistribution(r, n, p);
     }
     
     /**
@@ -256,7 +268,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newCyclicDistribution(Region r, Place[] p) {
-        return SharedMemoryArrayFactory.newCyclicDistribution(r,  p);
+        return af_.makeCyclicDistribution(r,  p);
     }
     
     /**
@@ -268,7 +280,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockCyclicDistribution(Region r, int n, Place[] p) {
-        return SharedMemoryArrayFactory.newBlockCyclicDistribution(r, n, p);
+        return af_.makeBlockCyclicDistribution(r, n, p);
     }
     
     /**
@@ -278,7 +290,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newArbitraryDistribution(Region r, Place[] p) {
-        return SharedMemoryArrayFactory.newArbitraryDistribution(r, p);
+        return af_.makeArbitraryDistribution(r, p);
     }
     
     /**
@@ -289,7 +301,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newConstantDistribution(Region r, Place p) {
-        return SharedMemoryArrayFactory.newConstantDistribution(r, p);
+        return af_.makeConstantDistribution(r, p);
     }
     
     /**
@@ -300,7 +312,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newUniqueDistribution(Place[] p) {
-        return SharedMemoryArrayFactory.newUniqueDistribution(p);
+        return af_.makeUniqueDistribution(p);
     }
     
     /**
@@ -310,7 +322,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockDistribution(Region R) {
-        return SharedMemoryArrayFactory.newBlockDistribution(R, places_);
+        return af_.makeBlockDistribution(R, places_);
     }
     
     /**
@@ -320,7 +332,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockDistribution(Region r, int n) {
-        return SharedMemoryArrayFactory.newBlockDistribution(r, n, places_);
+        return af_.makeBlockDistribution(r, n, places_);
     }
     
     /**
@@ -332,7 +344,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newCyclicDistribution(Region r) {
-        return SharedMemoryArrayFactory.newCyclicDistribution(r,  places_);
+        return af_.makeCyclicDistribution(r,  places_);
     }
     
     /**
@@ -344,7 +356,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockCyclicDistribution(Region r, int n) {
-        return SharedMemoryArrayFactory.newBlockCyclicDistribution(r, n, places_);
+        return af_.makeBlockCyclicDistribution(r, n, places_);
     }
     
     /**
@@ -354,7 +366,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newArbitraryDistribution(Region r) {
-        return SharedMemoryArrayFactory.newArbitraryDistribution(r, places_);
+        return af_.makeArbitraryDistribution(r, places_);
     }
     
     /**
@@ -365,7 +377,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newUniqueDistribution() {
-        return SharedMemoryArrayFactory.newUniqueDistribution(places_);
+        return af_.makeUniqueDistribution(places_);
     }
 
 } // end of DefaultRuntime_c

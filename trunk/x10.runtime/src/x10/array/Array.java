@@ -11,31 +11,83 @@ package x10.array;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-public interface Array {
+public abstract class Array {
 
-    /**
-     * Pointwise arithmetic ADD operation.
+	public final Distribution dist;
+	
+	public Array(Distribution d) {
+		dist = d;
+	}
+	
+	/**
+     * Array overlay operation.
+     * This method is reentrant on the target array (this).
      */
-    public abstract Array padd(Array arg);
+	public final Array over(Array arg) {		
+		Distribution d_new = dist.asymetricUnion(arg.dist);
+		Array ret = newInstance(d_new);
+		ret.assign(arg);
+		ret.assign(this);
+		return ret;	
+	}
     
     /**
-     * Pointwise arithmetic SUB operation.
+     * Array assemble operation: returns a new array assembled from 
+     * the target array and arg. The distribution of both arrays must 
+     * be disjoint.
+     * 
+     *  This method is reentrant on the target array (this).
      */
-    public abstract Array psub(Array arg);
-
+    public final Array assemble(Array arg) {
+    	Distribution d_new = dist.disjointUnion(arg.dist);
+		Array ret = newInstance(d_new);
+		ret.assign(arg);
+		ret.assign(this);
+		return ret;	
+    }
+    
     /**
-     * Pointwise arithmetic MULT operation.
+     * Returns a restriction of the target array to Distribution <code>d</code>,
+     * where <code>d</code> must be a sub-distribution of the distribution of the target 
+     * array. 
+     * 
+     * This method is reentrant on the target array (this).
      */
-    public abstract Array pmult(Array arg);
-
+    public final Array restrict(Distribution d) {
+		Array ret = newInstance(d);
+		ret.assign(this);
+		return ret;	
+    }
+    
     /**
-     * Matrix MULT operation.
+     * pointwise unary operation
      */
-    public abstract Array mult(Array arg);
-
+    public abstract void pointwise(Operator.Pointwise op);
+    
     /**
-     * Arithmetic NEG operation.
+     * pointwise binary operation
      */
-    public abstract Array circshift(int[] arg);
+    public abstract void pointwise(Array arg, Operator.Pointwise op);
+    
+    /**
+     * scan operation
+     */
+    public abstract void scan(Operator.Scan op);
+    
+    /**
+     * reduction operation - the result is obtained through the reduction
+     * operator op
+     */
+    public abstract void reduction(Operator.Reduction op);
 
+    /** 
+     * Circular shift operator
+     */
+    public abstract void circshift(int[] arg);
+    
+    protected abstract void assign(Array rhs);
+	
+    /* "virtual" constructor */
+    protected abstract Array newInstance(Distribution d);
+    
 } // end of Array
