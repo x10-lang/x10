@@ -106,13 +106,13 @@ this. Could leave this for 0.7.}
 \begin{x10}
  value LinkedList <Node> \{ 
   Node first;
-  ?LinkedList<Node> rest;
+  nullable LinkedList<Node> rest;
   public
      LinkedList(Node first) \{
      this(first, null);
   \}
   public
-    LinkedList(Node first, ?LinkedList<Node> rest) \{
+    LinkedList(Node first,  nullable LinkedList<Node> rest) \{
     this.first = first;
     this.rest = rest;
   \}
@@ -121,7 +121,7 @@ this. Could leave this for 0.7.}
     return first;
   \}
   public 
-    ?LinkedList<Node> rest() \{
+    nullable LinkedList<Node> rest() \{
     return rest;
   \} 
   public

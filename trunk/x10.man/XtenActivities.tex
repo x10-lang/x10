@@ -2,7 +2,7 @@
 
 An \Xten{} computation may have many concurrent {\em activities} ``in
 flight'' at any give time. We use the term activity to denote a piece
-of code (wtih reference to data) that is intended to execute in
+of code (with references to data) that is intended to execute in
 parallel with other pieces of code. Activities are much lighter-weight
 than threads. In particular, there is no object associated with an
 activity. Activities may not be interrupted, suspended or resumed from
@@ -56,16 +56,16 @@ The statement is subject to the restriction that it must be acceptable
 as the body of a {\cf void} method for an anoymous inner class
 declared at that point in the code. As such, it may reference
 variables in lexically enclosing scopes (including {\cf clock}
-variables, \S~\ref{XtenClocks}) provided that the compiler is able to
-infer that these variables are not assigned to after the invocation of
-the {\cf async} statement.  (\java{} places a similar restriction
-requiring that such code access only {\tt final} lexically enclosing
-variables.)
+variables, \S~\ref{XtenClocks}) provided that such variables
+are declared {\cf final}.
 
-Such a statement is executed by launching a new activity at the the
+
+Such a statement is executed by launching a new activity at the
 designated place, to execute the specified statement. Any exception
 thrown by the statement is trapped and an error message printed out in
-the standard error file.
+the standard error file. (Programmers would typically wish to wrap the 
+statement in a {\cf try/catch} clause which catches those exceptions
+the code should explicitly manage.)
 
 
 \section{Asynchronous Expression and Futures}\label{XtenFutures}
@@ -198,7 +198,7 @@ local or the runtime will throw a {\cf BadPlaceException} because of a
 failed classcast.
 
 We allow methods of an object to be annotated with {\cf atomic}. Such
-a method is taken to stand for a method whose body is wrapped within a
+a method is taken to stand for a method whose body is wrapped within an
 {\cf atomic} statement.
 
 Note an important property of an (unconditonal) atomic section:
@@ -210,21 +210,21 @@ Note an important property of an (unconditonal) atomic section:
 Further, an atomic section will eventually terminate successfully or
 thrown an exception; it may not introduce a deadlock.
 
+Atomic sections are closely related to non-blocking synchronization
+constructs \cite{Herlihy-non-block}, and can be used to implement 
+non-blocking concurrent algorithms.
+
 \subsubsection{Example}
 
-The following class implements an atomic set and returns the old value:
+The following class method implements a (generic) compare and swap (CAS) operation:
 \begin{x10}
-public class TestAndSet \{
-  private int v;
-  public int run( final int newVal) \{
-      int old = 0;
-      atomic \{
-          old = this.v;
-          this.v = newVal;
-      \}
-      return old;
+  public atomic <T> boolean CAS(T target, T old, T new) \{
+     if (target.equals(old)) \{
+       target = new;
+       return true;
+     \}
+     return false;
   \}
-\}
 \end{x10}
 \subsection{Conditional atomic sections}
 

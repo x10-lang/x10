@@ -14,7 +14,7 @@ a high-speed communication network.
 
 A central problem with scale out systems is a definition of the {\em
 memory model}, that is, a model of the interaction between shared
-memory and multiple simultaneous (read, write) operations on that
+memory and  simultaneous (read, write) operations on that
 memory by multiple processors. The traditional ``one operation at a
 time, to completion'' model that underlies Lamport's notion of {\em
 sequential consistency} (SC) proves too expensive to implement in
@@ -47,17 +47,18 @@ must use some indirect mechanism to access or update data at other
 processors. Some kind of global {\em barriers} are used to ensure that
 processors remain roughly in lock-step.
 
-\Xten{} is a programming language based on \java{} in the PGAS
-family. The fundamental goal of \Xten{} is to enable high-performance,
-high-productivity programming for high-end (scale-out) computers --
-for traditional numerical computation workloads (such as weather
-simulation, molecular dynamics, particle transport problems etc) as
-well as commercial server workloads. \Xten{} is based on
-state-of-the-art object-oriented programming ideas primarily to take
-advantage of their proven flexibility and ease-of-use for a wide
-spectrum of programming problems. \Xten{} takes advantage of several
-years of research (e.g.{} in the context of the Java Grande forum,
-\cite{kava}) on how to adapt such languages to the context of
+\Xten{} is a modern object-oriented programming language
+in the PGAS family. The fundamental goal of \Xten{} is to enable
+high-performance, high-productivity programming for high-end
+(scale-out) computers -- for traditional numerical computation
+workloads (such as weather simulation, molecular dynamics, particle
+transport problems etc) as well as commercial server
+workloads. \Xten{} is based on state-of-the-art object-oriented
+programming ideas primarily to take advantage of their proven
+flexibility and ease-of-use for a wide spectrum of programming
+problems. \Xten{} takes advantage of several years of research (e.g.{}
+in the context of the Java Grande forum,
+\cite{moreira00java,kava}) on how to adapt such languages to the context of
 high-performance numerical computing. Thus \Xten{} provides support
 for user-defined {\em value types} (such as {\tt int}, {\tt float},
 {\tt complex} etc), including operator overloading, supports a very
@@ -79,11 +80,15 @@ programmer to keep track of the location of objects and ensures
 statically that an activity does not synchronously attempt to
 read/write remote data.
 
+%% say something about native.
+
 \Xten{} is an experimental language. This document lays out an initial set 
 of ideas which we expect to be the basis of an initial
-implementation. Several representative concurrent idioms have found 
+implementation. Several representative concurrent idioms have found
 pleasant expression in \Xten. We intend to develop several full-scale
 applications to get better experience with the language, and revisit
-the design in the light of this experience.
+the design in the light of this experience. Future versions of the
+language are expected to support user-definable operators and permit
+the specification of generic classes and methods. 
 
 

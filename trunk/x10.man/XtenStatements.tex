@@ -17,25 +17,27 @@ We focus on the new statements in \Xten.
 
 \section{Assignment}\index{assignment}\label{AssignmentStatement}
 
-It is often the case that an \Xten{} variable is assigned to only
-once. The user may declare such variables as {\cf final}. However,
-this is sometimes syntactically cumbersome.
+%It is often the case that an \Xten{} variable is assigned to only
+%once. The user may declare such variables as {\cf final}. However,
+%this is sometimes syntactically cumbersome.
+%
+%{}\Xten{} supports the syntax {\cf l := r} for assignment to mutable
+%variables.  The user is strongly enouraged to use this syntax to
+%assign variables that are intended to be assigned to more than
+%once. The \Xten{} compiler may issue a warning if it detects code 
+%that uses {\cf =} assignment statements on {\cf mutable} variables.
 
-{}\Xten{} supports the syntax {\cf l := r} for assignment to mutable
-variables.  The user is strongly enouraged to use this syntax to
-assign variables that are intended to be assigned to more than
-once. The \Xten{} compiler may issue a warning if it detects code 
-that uses {\cf =} assignment statements on {\cf mutable} variables.
+{}\Xten{} supports assignment {\tt l = r} to array variables. In this
+case {\tt r} must have the same distribution {\tt D} as {\tt l}. This
+statement involves control communication between the sites hosting
+{\tt D}. Each site performs the assignment(s) of array components
+locally. The assignment terminates when assignment has terminated at
+all sites hosting {\tt D}.
 
-{}\Xten{} supports assignment {\tt l = r} and {\tt l := r} to array
-variables. In this case {\tt r} must have the same distribution {\tt
-D} as {\tt l}. This statement involves control communication between
-the sites hosting {\tt D}. Each site performs the assignment(s) of
-array components locally. The assignment terminates when assignment
-has terminated at all sites hosting {\tt D}.
+%% TODO: Sectional assignment??
 
 \section{Remote Method Invocation}\index{remote method invocation}
-We also introduce shorthand for asynchronous remote method invocation:
+We introduce shorthand for asynchronous remote method invocation:
 
 \begin{x10}
    o -> m(a1,...,ak)
@@ -58,8 +60,10 @@ We introduce  $k$-dimensional versions of iteration operations {\cf for} and
    foreach(ind1, ..., indk : R) \{S\}
 \end{x10}
 
-Here {\cf R} is a region.\footnote{We also permit {\cf R} to be a distribution (array); in this case {\tt R} is taken to stand for {\tt R.region} ({\tt R.distribution.region}).}  Let {\cf [T1,...,
-Tk]} be the convex closure of the region.  Then the execution of this
+Here {\cf R} is a region.\footnote{We also permit {\cf R} to be a
+distribution (array); in this case {\tt R} is taken to stand for {\tt
+R.region} ({\tt R.distribution.region}).}  Let {\cf [T1,..., Tk]} be
+the convex closure of the region.  Then the execution of this
 statement results in the parallel execution of an activity
 
 \begin{x10}
