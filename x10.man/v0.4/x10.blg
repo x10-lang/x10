@@ -1,0 +1,47 @@
+This is BibTeX, Version 0.99c (Web2C 7.4.5)
+The top-level auxiliary file: x10.aux
+The style file: plain.bst
+Database file #1: master.bib
+Warning--I didn't find a database entry for "Herlihy-non-block"
+You've used 10 entries,
+            2118 wiz_defined-function locations,
+            554 strings with 5825 characters,
+and the built_in function-call counts, 3098 in all, are:
+= -- 284
+> -- 171
+< -- 1
++ -- 71
+- -- 58
+* -- 191
+:= -- 533
+add.period$ -- 31
+call.type$ -- 10
+change.case$ -- 58
+chr.to.int$ -- 0
+cite$ -- 10
+duplicate$ -- 112
+empty$ -- 244
+format.name$ -- 58
+if$ -- 641
+int.to.chr$ -- 0
+int.to.str$ -- 10
+missing$ -- 8
+newline$ -- 54
+num.names$ -- 20
+pop$ -- 82
+preamble$ -- 1
+purify$ -- 49
+quote$ -- 0
+skip$ -- 78
+stack$ -- 0
+substring$ -- 119
+swap$ -- 20
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 36
+warning$ -- 0
+while$ -- 26
+width$ -- 12
+write$ -- 109
+(There was 1 warning)
