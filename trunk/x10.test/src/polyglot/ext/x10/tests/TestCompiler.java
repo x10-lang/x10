@@ -179,12 +179,28 @@ public TestCompiler(String name) {
         run("./ConditionalAtomicTest.x10","ConditionalAtomicTest");
     }
 
+    public void test_DistBounds1D() {
+        run("./DistBounds1D.x10","DistBounds1D");
+    }
+
+    public void test_DistBounds2D() {
+        run("./DistBounds2D.x10","DistBounds2D");
+    }
+
+    public void test_DistBounds3D() {
+        run("./DistBounds3D.x10","DistBounds3D");
+    }
+
     public void test_DistributionTest() {
         run("./DistributionTest.x10","DistributionTest");
     }
 
     public void test_DistributionTest1() {
         run("./DistributionTest1.x10","DistributionTest1");
+    }
+
+    public void test_ExpressionParentheses() {
+        run("./ExpressionParentheses.x10","ExpressionParentheses");
     }
 
     public void test_FinishTest1() {
