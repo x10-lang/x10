@@ -39,7 +39,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
     
     protected DoubleArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
         super(d);
-        int count = (int) d.region.size();
+        int count =  d.region.size();
         this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
         if (c != null)
             pointwise(this, c);
@@ -53,15 +53,15 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
      */
     public DoubleArray_c( distribution d, double c, boolean safe) {
     	super(d);
-    	int count = (int) d.region.size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
+    	int count =  d.region.size();
+    	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
     	scan(this, new Assign(c));
     	
     }
     public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f, boolean safe) {
     	super(d);
-    	int count = (int) d.region.size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
+    	int count =  d.region.size();
+    	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
     	scan(this, f);
     	
     }
