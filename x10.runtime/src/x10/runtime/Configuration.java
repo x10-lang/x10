@@ -73,6 +73,13 @@ public final class Configuration {
     public static int PLACE_MINIMAL_THREAD_POOL_SIZE = 2;
     
     public static int PLACE_THREAD_KEEPALIVE_TIME = 5000; // in millis
+
+    /**
+     * Which statistics plugins should be enabled or disabled?
+     * Reserved values are "none" and "all".  Otherwise list
+     * the specific plugins that you want to disable.
+     */
+    public static String STATISTICS_DISABLE = "none";
     
     /**
      * Method to obtain the name of the configuration file used

@@ -93,6 +93,7 @@ public class DefaultRuntime_c
 	Thread t = Thread.currentThread();
 	registerThread(t, p0);
 	registerActivityStart(t, boot, null);
+	Statistics_c.boot();
 	p0.runAsync(boot);
     }
     
