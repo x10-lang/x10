@@ -23,7 +23,14 @@ public interface X10NodeFactory extends NodeFactory {
     Future Future(Position pos, Expr place, Expr body);
     Here Here(Position pos);
  
-    When When(Position pos, List exprs, List statements);
+    /** Return an immutable representation of a 1-armed When. (Additional arms are added
+     * by invoking the add method on the returned When.)
+     * @param pos
+     * @param expr
+     * @param statement
+     * @return
+     */
+    When When(Position pos, Expr expr, Stmt statement);
     Drop Drop(Position pos, List clocks);
     Next Next(Position pos);
     Now Now(Position pos, Expr expr, Stmt stmt);
@@ -41,10 +48,10 @@ public interface X10NodeFactory extends NodeFactory {
     ReductionCall ScanCall(Position pos, Receiver target, String name, List arguments);
     ReductionCall ReduceCall(Position pos, Receiver target, String name, List arguments);
     
-    Call RemoteCall(Position pos, Receiver target, String name, List arguments);
-    X10Loop ForLoop(Position pos, Variable formal, Expr domain, Stmt body);
-    X10Loop ForEach(Position pos, Variable formal, Expr domain, Stmt body);
-    X10Loop AtEach(Position pos, Variable formal, Expr domain, Stmt body);
+    RemoteCall RemoteCall(Position pos, Receiver target, String name, List arguments);
+    X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);
+    X10Loop ForEach(Position pos, Formal formal, Expr domain, Stmt body);
+    X10Loop AtEach(Position pos, Formal formal, Expr domain, Stmt body);
     Finish Finish(Position pos, Stmt body);
     
 }

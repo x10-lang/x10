@@ -8,10 +8,16 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Node;
+import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Stmt_c;
+import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeChecker;
 
 /** The concrete class implementing the X10 construct await (c);
  * TODO: fill out the methods and the passes.
@@ -44,15 +50,15 @@ public class Await_c extends Stmt_c implements Await {
 	 */
 	public Term entry() {
 		// TODO Auto-generated method stub
-		return null;
+		return expr.entry();
 	}
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-		// TODO Auto-generated method stub
-		return null;
+		v.visitCFG(expr, this);
+		return succs;
 	}
 
 	/** Return a copy of this node with this.expr equal to the given expr.
@@ -63,5 +69,24 @@ public class Await_c extends Stmt_c implements Await {
 			n.expr = expr;
 			return n;
 	}
+	
+	  public Node typeCheck(TypeChecker tc) throws SemanticException {
+    	TypeSystem ts = tc.typeSystem();
+    	
+    	/*
+    	 if (! ts.isSubtype(expr.type(), ts.Object()) ) {
+    	 throw new SemanticException(
+    	 "Cannot synchronize on an expression of type \"" +
+    	 expr.type() + "\".", expr.position());
+    	 }
+    	 */
+    	return this;
+    }
 
+
+	/** Visit the children of the statement. */
+	public Node visitChildren( NodeVisitor v ) {
+		Expr expr = (Expr) visitChild(this.expr, v);
+		return expr(expr);
+	}
 }

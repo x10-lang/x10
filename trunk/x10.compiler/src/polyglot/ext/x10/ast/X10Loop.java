@@ -8,7 +8,7 @@ package polyglot.ext.x10.ast;
 import polyglot.ast.CompoundStmt;
 import polyglot.ast.Stmt;
 import polyglot.ast.Expr;
-import polyglot.ast.Variable;
+import polyglot.ast.Formal;
 
 /**
  * @author vj Dec 9, 2004
@@ -16,7 +16,7 @@ import polyglot.ast.Variable;
  */
 public interface X10Loop extends CompoundStmt {
 	Stmt body();
-	Variable formal();
+	Formal formal();
 	Expr domain();
 
 }
