@@ -11,7 +11,7 @@ package x10.lang;
  * This class implements the root of the inheritance Hierarchy
  * for objects in an X10 program.
  */
-public class X10Object extends java.lang.Object {
+public class X10Object {
 	/**
 	 * the place where this object was allocated.
 	 */

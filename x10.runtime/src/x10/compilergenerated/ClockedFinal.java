@@ -3,6 +3,8 @@
  */
 package x10.compilergenerated;
 
+
+import x10.lang.X10Object;
 import x10.lang.Clock;
 import x10.lang.Clock.AdvanceListener;
 
@@ -94,7 +96,7 @@ import x10.lang.Clock.AdvanceListener;
  * 
  * @author Christian Grothoff
  */
-abstract class ClockedFinal {
+abstract class ClockedFinal extends X10Object {
 
     ClockedFinal(Clock c) {
         c.registerAdvanceListener(new AdvanceListener() {
