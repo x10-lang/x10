@@ -12,59 +12,46 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadedExecutor;
  * future we will have RemotePlaces that refer to
  * Places on other machines.
  * 
- * <p>
- * 
- * Possible problem: using the current implementation
- * I somehow doubt that the VM will automatically shutdown
- * once there are no more activities (since the threads
- * in the pool will still be live and this class will
- * still be reachable!).  
- * 
- * The "obvious" solution in Java would be to wrap the main method
- * of the X10 app and put a 'shutdown' call into the finally
- * clause -- but that would not be right for X10 since we could
- * have spawned other asyncs that are still running.  Adding a
- * test if there are (globally!) still any asyncs left will be
- * tricky, especially considering that we don't want to do this
- * in a way that might be expensive (i.e. permanently send messages
- * around asking 'are you done yet' while the application is still
- * running sounds like a particularly bad idea). 
- *
  * @author Christian Grothoff
  */
-class LocalPlace_c extends ThreadedExecutor // PooledExecutor
+class LocalPlace_c
     implements Place {
 
     private final ThreadRegistry reg_;
     
     private final ActivityInformationProvider aip_;
+
+    /**
+     * Linked list of threads in the thread pool that are not currently
+     * assigned to an Activity.
+     */
+    private PoolRunner threadQueue_;
     
-    LocalPlace_c(final ThreadRegistry reg,
-                 final ActivityInformationProvider aip) {
-	super(); // super(new LinkedQueue());
+    LocalPlace_c(ThreadRegistry reg,
+                 ActivityInformationProvider aip) {
+	super(); 
 	this.reg_ = reg;
         this.aip_ = aip;
-	this.setThreadFactory(new ThreadFactory() {
-		public Thread newThread(final Runnable cmd) {
-		    Thread t = new Thread(cmd);
-		    reg.registerThread(t, LocalPlace_c.this);
-		    return t;
-		}
-	    });
-	/*this.setMinimumPoolSize(Configuration.PLACE_MINIMAL_THREAD_POOL_SIZE);
-	this.setKeepAliveTime(Configuration.PLACE_THREAD_KEEPALIVE_TIME);*/
     }
     
+    
     /**
-     * Shutdown this place, the current X10 runtime will exit.
-     * Currently performs a 'soft' shutdown by allowing the
-     * thread pool to complete the existing activities.  I'm not
-     * sure if that's the semantics that we would want, ideally
-     * we would like to assert that there are no activities pending
-     * at this point.
+     * Shutdown this place, the current X10 runtime will exit.    Assumes
+     * that all activities have already completed.  Threads beloging
+     * to activities that are not done at this point will be left
+     * running (which is probably a good policy, least for the thread
+     * that calls shutdown :-).
      */
-    public void shutdown() {
-        // this.shutdownAfterProcessingCurrentlyQueuedTasks();
+    public synchronized void shutdown() {
+        while (this.threadQueue_ != null) {
+            threadQueue_.shutdown();
+            try {
+                threadQueue_.join();
+            } catch (InterruptedException ie) {
+                throw new Error(ie); // should never happen...
+            }
+            threadQueue_ = threadQueue_.next;
+        }
     }
 
     /**
@@ -73,8 +60,7 @@ class LocalPlace_c extends ThreadedExecutor // PooledExecutor
     public void runAsync(final Activity a) {
         final Activity i = aip_.getCurrentActivity();
         final StartSignal startSignal = new StartSignal();
-        try {
-            this.execute(new Runnable() {
+        this.execute(new Runnable() {
                 public void run() {
                     Thread t = Thread.currentThread();
                     reg_.registerActivityStart(t, a, i);
@@ -89,9 +75,6 @@ class LocalPlace_c extends ThreadedExecutor // PooledExecutor
                     }
                 }
             });
-        } catch (InterruptedException ie) {
-            throw new Error(ie); // should never happen!
-        }    
         // we now need to wait at least (!) until the 
         // "reg_.registerActivityStart(...)" line has been
         // reached.  Hence we wait on the start signal.
@@ -113,8 +96,7 @@ class LocalPlace_c extends ThreadedExecutor // PooledExecutor
     public Future runFuture(final Activity.Expr a) {
         final Future_c result = new Future_c();
         final Activity i = aip_.getCurrentActivity();
-        try {
-            this.execute(new Runnable() {
+        this.execute(new Runnable() {
                 public void run() {
                     Thread t = Thread.currentThread();
                     reg_.registerActivityStart(t, a, i);
@@ -126,11 +108,94 @@ class LocalPlace_c extends ThreadedExecutor // PooledExecutor
                     }
                 }
             });
-        } catch (InterruptedException ie) {
-            throw new Error(ie); // should never happen!
-        }
         return result;
     }
+
+    /**
+     * Run the given Runnable using one of the threads in the thread pool.
+     * Note that the activity is guaranteed to be assigned a thread 
+     * right away, the pool can never be exhausted (the size is infinite).
+     * 
+     * @param r the activity to run
+     * @throws InterruptedException
+     */
+    protected synchronized void execute(Runnable r) {
+        PoolRunner t;
+        if (threadQueue_ == null) {
+            t = new PoolRunner();
+            reg_.registerThread(t, this);
+            t.start();
+        } else {
+            t = threadQueue_;
+            threadQueue_ = t.next;
+        }
+        t.run(r);
+    }
+     
+    /**
+     * Method called by a PoolRunner to add a thread back
+     * to the thread pool (the PoolRunner is done running
+     * the job).
+     * 
+     * @param r
+     */
+    synchronized final void repool(PoolRunner r) {
+        r.next = threadQueue_;
+        threadQueue_ = r;
+    }
+    
+    /**
+     * Thread in the thread pool that can be used to run multiple
+     * activities over time.
+     *
+     * @author Christian Grothoff
+     */
+    final class PoolRunner extends Thread {
+        /**
+         * For building a linked list of these.
+         */
+        PoolRunner next;
+        private boolean active = true;
+        private Runnable job;
+        synchronized void shutdown() {
+            active = false;
+            this.notifyAll();
+        }
+        /**
+         * Assign a new job to this runner and start running!
+         * @param r
+         */
+        synchronized void run(Runnable r) {
+            assert job == null;
+            job = r;
+            this.notifyAll();
+        }
+        /**
+         * Run jobs until shutdown is called.
+         */
+        public synchronized void run() {
+            while (active) {
+                while (job == null) {
+                    try {
+                        wait();
+                    } catch (InterruptedException ie) {
+                        throw new Error(ie);
+                    }
+                }
+                Runnable j = job;
+                job = null;
+                try {
+                    j.run();
+                } catch (Throwable t) {
+                    t.printStackTrace(); // see X10 spec for exceptions...
+                }
+                // notify the LocalPlace_c that we're again available
+                // for more work!
+                repool(this);
+            }
+        }
+    } // end of LocalPlace_c.PoolRunner
+
     
     static class StartSignal {
         boolean go;
