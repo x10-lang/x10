@@ -13,6 +13,6 @@ import polyglot.types.ParsedClassType;
  *
  *
  */
-public interface X10ParsedClassType extends ParsedClassType, X10ReferenceType {
+public interface X10ParsedClassType extends ParsedClassType, X10ClassType {
 
 }
