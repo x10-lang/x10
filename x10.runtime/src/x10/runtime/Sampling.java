@@ -15,6 +15,9 @@ import x10.base.Place;
 import x10.lang.Activity;
 import x10.lang.Runtime;
 
+import com.ibm.PERCS.PPEM.traceFormat.PEM;
+import com.ibm.PERCS.PPEM.traceFormat.Events.X10;
+
 /**
  * Class that performs sampling in the background and 
  * that gathers various run-time statistics. The
@@ -68,22 +71,20 @@ public final class Sampling extends Thread {
      * EX is for events that happen right at the time
      * of the recording (not at the sample time).
      */
-    public static final int ET_EE = 0;
-    public static final int ET_M = 1;
-    public static final int ET_S = 2;
-    public static final int ED_EE = 3;
-    public static final int ED_M = 4;
-    public static final int ED_S = 5;
-    public static final int EX_EE = 6;
-    public static final int EX_M = 7;
-    public static final int EX_S = 8;
+    public static final int ET_EE = X10.EESampler;
+    public static final int ET_S = X10.Sampler;
+    public static final int ED_EE = X10.EDSampler;
+    public static final int EX_M = X10.Event;
     
     /**
      * List of entry-exit IDs.
      */
-    public static final int EE_ID_ATOMIC = 0;               // lock->unlock
-    public static final int EE_ID_ACTIVITY_RUN = 1;     // start->finish (number of activities started/completed)
-    public static final int EE_ID_ACTIVITY_BLOCK = 2; // block->unblock (not used, we're using load instead)
+    public static final int EE_ID_ATOMIC = X10.EESampler_Atomic;               // lock->unlock
+    public static final int EE_ID_ACTIVITY_RUN = X10.EESampler_ActivityRun;     // start->finish (number of activities started/completed)
+    public static final int EE_ID_ACTIVITY_BLOCK = X10.EESampler_Block; // block->unblock (not used, we're using load instead)
+    public static final int ED_ID_ATOMIC = X10.EDSampler_Atomic;               // lock->unlock
+    public static final int ED_ID_ACTIVITY_RUN = X10.EDSampler_Atomic;     // start->finish (number of activities started/completed)
+    public static final int ED_ID_ACTIVITY_BLOCK = X10.EDSampler_Block; // block->unblock (not used, we're using load instead)
     
     /**
      * List of 'marker' IDs (single, unrelated events in time).
@@ -132,11 +133,11 @@ public final class Sampling extends Thread {
         try {
             dos = new DataOutputStream
                 (new FileOutputStream(Configuration.PE_FILE));
-            dos.writeByte(1); // big endian == 1?
+            dos.writeByte(PEM.BIG_ENDIAN); 
             dos.writeByte(0);
             dos.writeByte(0);
             dos.writeByte(0);
-            dos.writeInt(3); // version
+            dos.writeInt(PEM.PEM_TRACE_VERSION); // version
             dos.writeInt(1+3+4+4+4+8+8+8+8); // size
             dos.writeInt(0);
             dos.writeLong(0x4000000000000000L); // 'infinity'
@@ -181,39 +182,6 @@ public final class Sampling extends Thread {
         this.exitCount = new int[places.length][maxEE];
         this.eventCount = new int[places.length][maxM];
         this.statusValue = new int[places.length][maxS];
-
-        // TODO: generate XML specification for PEM->PE conversion tool
-        try {
-            DataOutputStream xml
-                = new DataOutputStream
-                    (new FileOutputStream(Configuration.XML_PE_FILE));
-            
-            xml.writeBytes("<?xml version=\'1.0\' ?>\n");
-            for (int i=0;i<entryCount[0].length;i++) {            
-                xml.writeBytes("<event name=\"" + 
-                        eeNames.get(new Integer(i)) + 
-                        "\" description=\"FIXME\">\n");
-                xml.writeBytes("<layerId value=\"HW\" />\n");
-                xml.writeBytes("<classId value=\"Sampler\" />\n");
-                xml.writeBytes("<specifier value=\"Counters\" />\n");
-                xml.writeBytes("<fields>\n");
-                xml.writeBytes("</fields>\n");
-                xml.writeBytes("<k42Format 'plain event' />");
-                xml.writeBytes("<interval type='PERIODIC' name='SamplerInterval'"
-                            +" pair='HW::Sampler::Counters'  match='module' />\n");
-                xml.writeBytes("</event>");
-            }
-            for (int i=0;i<eventCount[0].length;i++) {                
-            }
-            for (int i=0;i<statusValue[0].length;i++) {                
-            }
-            
-            xml.close();
-        } catch (IOException io) {
-            System.err.println(io);
-            io.printStackTrace();
-            System.exit(-1);
-        }
         
         Class[] inners = this.getClass().getDeclaredClasses();
         for (int i=0;i<inners.length;i++) {
@@ -303,11 +271,10 @@ public final class Sampling extends Thread {
                 _.statusValue[i][s_id] += value;
     }
     
-    private final static int JVM_LAYER_ID = 4; // ??
     private void writeHeader(int size, int type, int id) {
         try {
             dos.writeInt((int) System.currentTimeMillis());
-            int larg = (size << 24) | (JVM_LAYER_ID << 20) | (type << 14)| id; 
+            int larg = ((size+8) << 24) | (PEM.Layer.X10 << 20) | (type << 14)| id; 
             dos.writeInt(larg);
         } catch (IOException io) {
             throw new Error(io);
@@ -321,14 +288,12 @@ public final class Sampling extends Thread {
      * @param pid the place id (where the event took place)
      */
     private synchronized void recordEvent(int id, int type, int pid) {
-        assert (type == EX_M) || (type == EX_S);
-        writeHeader(4+4+8+4+4, type, id);
+        assert (type == EX_M);
+        writeHeader(8+4+4, type, id);
         try {
-            dos.writeInt(4+4+8+4+4); // size
-            dos.writeInt(type); 
             dos.writeLong(System.currentTimeMillis()); // actual event time
-            dos.writeInt(id);
             dos.writeInt(pid); // place id (where)            
+            dos.writeInt(0); // for 64-bit alignment
         } catch (IOException io) {
             throw new Error(io);
         }
@@ -343,17 +308,15 @@ public final class Sampling extends Thread {
     private synchronized void recordEvent(int[][] eventData,
                                           int id, int type) {
         assert (type != ET_EE) && (type != ED_EE);
-        writeHeader(4+4+4+8+4+eventData.length*8, type, id);
+        writeHeader(8+8+eventData.length*8, type, id);
         try {
-            dos.writeInt(4+4+4+8+4+eventData.length*8); // size
-            dos.writeInt(type); 
             dos.writeLong(System.currentTimeMillis()); // sampling time 
-            dos.writeInt(id);
             dos.writeInt(eventData.length);            
-            for (int i=0;i<eventData.length;i++) {
-                dos.writeInt(i);
-                dos.writeInt(eventData[i][id]);
-            }
+            dos.writeInt(0);
+            for (int i=0;i<eventData.length;i++) 
+                dos.writeInt(i);            
+            for (int i=0;i<eventData.length;i++) 
+                dos.writeInt(eventData[i][id]);            
         } catch (IOException io) {
             throw new Error(io);
         }
@@ -371,11 +334,9 @@ public final class Sampling extends Thread {
                                  int[][] exitData) {
         writeHeader(4+4+8+4+entryData.length*8, type, id);
         try {
-            dos.writeInt(4+4+8+4+4+entryData.length*8); // size
-            dos.writeInt(type); 
             dos.writeLong(System.currentTimeMillis());  // sampling time
-            dos.writeInt(id);
             dos.writeInt(entryData.length);            
+            dos.writeInt(0);
             for (int i=0;i<entryData.length;i++) {
                 dos.writeInt(entryData[i][id]);
                 dos.writeInt(exitData[i][id]);
@@ -404,8 +365,6 @@ public final class Sampling extends Thread {
         long now = System.currentTimeMillis();
         int[][] lastEntryCount = new int[entryCount.length][entryCount[0].length];
         int[][] lastExitCount = new int[exitCount.length][exitCount[0].length];
-        int[][] lastEventCount = new int[eventCount.length][eventCount[0].length];
-        int[][] lastStatusValue = new int[statusValue.length][statusValue[0].length];
         while (! shutdown) {
             long last = now;
             now = System.currentTimeMillis();
@@ -418,28 +377,18 @@ public final class Sampling extends Thread {
 
             for (int i=0;i<entryCount[0].length;i++)
                 recordEntryExit(i, ET_EE, entryCount, exitCount);
-            for (int i=0;i<eventCount[0].length;i++)
-                recordEvent(eventCount, i, ET_M);
             for (int i=0;i<statusValue[0].length;i++)
                 recordEvent(statusValue, i, ET_S);
             // produce delta-values
             delta(entryCount, lastEntryCount);
             delta(exitCount, lastExitCount);
-            delta(eventCount, lastEventCount);
-            delta(statusValue, lastStatusValue);
             // record delta-values
             for (int i=0;i<entryCount[0].length;i++)
                 recordEntryExit(i, ED_EE, lastEntryCount, lastExitCount);
-            for (int i=0;i<lastEventCount[0].length;i++)
-                recordEvent(lastEventCount, i, ED_M);
-            for (int i=0;i<lastStatusValue[0].length;i++)
-                recordEvent(lastStatusValue, i, ED_S);
             // copy values for next round
             copy(entryCount, lastEntryCount);
             copy(exitCount, lastExitCount);
-            copy(eventCount, lastEventCount);
-            copy(statusValue, lastStatusValue);
-            
+
             try {
                 this.wait(Configuration.SAMPLING_FREQUENCY_MS);
             } catch (InterruptedException ie) {               
