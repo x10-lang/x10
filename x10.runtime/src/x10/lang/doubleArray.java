@@ -11,6 +11,8 @@ package x10.lang;
 
 import java.util.Iterator;
 
+import x10.lang.intArray.unaryOp;
+
 abstract public class doubleArray /*( distribution distribution )*/ 
 /*implements Cloneable, Serializable */
 implements Indexable {
@@ -30,6 +32,7 @@ implements Indexable {
 	}
 	public static final binaryOp sub = new binaryOp() { public double apply(double r, double s) { return r-s;}};
 	public static final binaryOp add = new binaryOp() { public double apply(double r, double s) { return r+s;}};
+	public static final binaryOp max = new binaryOp() { public double apply(double r, double s) { return Math.max(r,s);}};
 	public static interface unaryOp {
 		double apply(double r);
 	}
@@ -126,6 +129,42 @@ implements Indexable {
     abstract /*value*/ public void set(double v, int p, int q);
     abstract /*value*/ public void set(double v, int p, int q, int r);
     abstract /*value*/ public void set(double v, int p, int q, int r, int s);
+    
+    /** Convenience method for returning the sum of the array.
+     * @return sum of the array.
+     */
+	public double sum() {
+		return reduce(add, 0);
+	}
+	/**
+	 * Convenience method for returning the max of the array.
+	 * @return
+	 */
+	public double max() {
+		return reduce(max, 0);
+	}
+	/**
+	 * Convenience method for returning the max of the array after applying the given fun.
+	 * @param fun
+	 * @return
+	 */
+	public double max(unaryOp fun) {
+		return lift(fun).reduce(max, 0);
+	}
+	/**
+	 * Convenience method for applying abs to each element in the array.
+	 * @return
+	 */
+	public doubleArray abs() {
+		return lift(abs);
+	}
+	/**
+	 * Convenience method for applying max after applying abs.
+	 * @return
+	 */
+	public double maxAbs() {
+		return max(abs);
+	}
     
 	/** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and
