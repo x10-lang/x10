@@ -96,7 +96,7 @@ public class point_c extends point implements Comparable {
 	    assert (tmp.rank == rank);
 	    
 	    int res = 0;
-	    for (int i = 0; res == 0 && i < rank; ++ i) {
+	    for (int i = rank-1; res == 0 && i >= 0; --i) {
 	        int t1 = val[i], t2 = tmp.val[i];
 	        if (t1 < t2) 
 	            res = -1;
