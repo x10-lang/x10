@@ -193,6 +193,9 @@ public class DefaultRuntime_c
         if (v == null) {
             v = new ArrayList(2);
             activity2asl_.put(i,v);
+        } else {
+            // each listener must only be registered once!
+            assert (!v.contains(asl));
         }
         v.add(asl);
     }
@@ -200,20 +203,26 @@ public class DefaultRuntime_c
     /**
      * Notification that an activity completed.
      */
-    public void registerActivityStop(Thread t,
-                                                  Activity a) {
+    public void registerActivityStop(Thread t, Activity a) {
+        // this is called by the thread being stopped
+        assert (t == Thread.currentThread());
         ArrayList v;
         synchronized(this) {
-          v = (ArrayList) activity2asl_.get(a);
-          if (v == null) 
-              return;
+            v = (ArrayList) activity2asl_.get(a);
         }
-        for (int i=0;i<v.size();i++) {
-            ActivitySpawnListener asl = (ActivitySpawnListener) v.get(i);
-            asl.notifyActivityTerminated(a);
+        
+        // do not unnecessarily keep the lock for the following:
+        if (v != null) {
+            for (int i=0;i<v.size();i++) {
+                // tell other threads that this thread is about to terminate.
+                ActivitySpawnListener asl = (ActivitySpawnListener) v.get(i);
+                asl.notifyActivityTerminated(a);
+            }
         }
+        
         synchronized(this) {
-            activity2asl_.remove(a);
+            if (v != null) 
+                activity2asl_.remove(a);
             thread2activity_.remove(t);
         }
     }
@@ -228,9 +237,11 @@ public class DefaultRuntime_c
     public void registerActivityStart(Thread t,
                                                    Activity a,
                                                    Activity i) {
+        // this is called by the started thread!
+        assert (t == Thread.currentThread());
+        assert a != i;
         ArrayList v;    
         synchronized(this) {
-            assert a != i;
             assert thread2place_.get(t) != null;
             activity2place_.put(a, thread2place_.get(t));
             thread2activity_.put(t,a);
@@ -238,11 +249,12 @@ public class DefaultRuntime_c
                 return;        
             v = (ArrayList) activity2asl_.get(i);
         }
-        if (v == null) 
-            return;
-        for (int j=0;j<v.size();j++) {
-            ActivitySpawnListener asl = (ActivitySpawnListener) v.get(j);
-            asl.notifyActivitySpawn(a, i);
+        if (v != null) {
+            for (int j=0;j<v.size();j++) {
+                // tell other activities that want to know that a has been spawned
+                ActivitySpawnListener asl = (ActivitySpawnListener) v.get(j);
+                asl.notifyActivitySpawn(a, i);
+            }
         }
     }
 
