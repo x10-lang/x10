@@ -17,7 +17,7 @@ public final class Allocator {
     
     public static final MemoryBlock allocSafe(long size, Class cl) {
         assert (cl != null);
-        assert (size > 0);
+        assert (size >= 0);
         assert (size < Integer.MAX_VALUE);
         
         MemoryBlock mb;

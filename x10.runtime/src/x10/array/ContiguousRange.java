@@ -39,7 +39,8 @@ public class ContiguousRange extends Range {
 	
 	
 	public /*nat*/int ordinal(point p) {
-		assert contains(p);
+		if (!contains(p))
+            throw new ArrayIndexOutOfBoundsException();
 		return p.get(0) - lo;
 	}
 	

@@ -96,7 +96,7 @@ public class EmptyRegion extends region {
 	 */
 	public boolean contains(region r) {
 		assert this.rank == r.rank;
-		return false;
+		return r.size() == 0;
 	}
 
 	/* (non-Javadoc)
@@ -123,7 +123,7 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#ordinal(x10.lang.point)
 	 */
 	public int ordinal(point p) throws EmptyRegionError {
-		throw new EmptyRegionError();
+		throw new ArrayIndexOutOfBoundsException();
 	}
 
 	/* (non-Javadoc)
