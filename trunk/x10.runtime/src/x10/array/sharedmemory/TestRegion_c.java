@@ -62,6 +62,7 @@ public class TestRegion_c extends TestCase {
         for (Iterator it = reg.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
             System.out.println(p);
+            cnt++;
         }
         assertTrue(cnt == 9);
     }
