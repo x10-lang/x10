@@ -276,7 +276,7 @@ public final class Sampling extends Thread {
     private void writeHeader(int size, int type, int id) {
         try {
             dos.writeInt((int) System.currentTimeMillis());
-            int larg = ((size+8) << 24) | (PEM.Layer.X10 << 20) | (type << 14)| id; 
+            int larg = (((size+8)/8) << 24) | (PEM.Layer.X10 << 20) | (type << 14)| id; 
             dos.writeInt(larg);
         } catch (IOException io) {
             throw new Error(io);
@@ -335,7 +335,7 @@ public final class Sampling extends Thread {
                                  int[][] entryData,
                                  int[][] exitData) {
         assert (type == ET_EE) || (type == ED_EE);
-        writeHeader(4+4+8+4+entryData.length*8, type, id);
+        writeHeader(8+4+4+entryData.length*8, type, id);
         try {
             dos.writeLong(System.currentTimeMillis());  // sampling time
             dos.writeInt(entryData.length);            
