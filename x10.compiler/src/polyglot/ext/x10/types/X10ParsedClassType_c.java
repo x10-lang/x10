@@ -3,6 +3,7 @@ package polyglot.ext.x10.types;
 import polyglot.ext.jl.types.ParsedClassType_c;
 import polyglot.frontend.Source;
 import polyglot.types.LazyClassInitializer;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 
 /**
@@ -40,6 +41,12 @@ public class X10ParsedClassType_c
     
     public boolean isFuture() {
         return (flags_ & IS_FUTURE) > 0;
+    }
+    
+    /** Returns true iff a cast from this to <code>toType</code> is valid. */
+    public boolean isCastValidImpl(Type toType) {
+        return toType.isPrimitive() && ts.equals(this, ts.Object()) ||
+               super.isCastValidImpl(toType);
     }
     
 } // end of ParsedX10ClassType_c
