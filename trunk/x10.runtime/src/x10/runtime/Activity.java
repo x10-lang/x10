@@ -6,6 +6,9 @@ package x10.runtime;
 public abstract class Activity 
     implements Runnable {
 
+    /**
+     * @author Christian Grothoff
+     */
     public static abstract class Future 
 	extends Activity {
        
@@ -17,6 +20,9 @@ public abstract class Activity
 
     } // end of Activity.Future
 
+    /**
+     * @author Christian Grothoff
+     */
     public static abstract class Result {
        
 	/**    

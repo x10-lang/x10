@@ -3,6 +3,7 @@ package x10.runtime;
 import java.util.HashMap;
 
 /**
+ * 
  * @author Christian Grothoff
  */
 class DefaultRuntime_c extends Runtime implements ThreadRegistry {
@@ -11,13 +12,25 @@ class DefaultRuntime_c extends Runtime implements ThreadRegistry {
 
     private final HashMap thread2place_ = new HashMap();
 
+    /**
+     * The places of this X10 Runtime (for now a constant set).
+     */
     private final Place[] places_;
 
     DefaultRuntime_c() {
-	// FIXME: add mechanism for dynamic configuration
-	// Properties!
+        int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
 	this.places_ 
-	    = new Place[] { new LocalPlace_c(this) };
+	    = new Place[pc];
+	for (int i=pc-1;i>=0;i--)
+           places_[i] = new LocalPlace_c(this);
+    }
+
+    /**
+     * Shutdown the X10 runtime system.
+     */
+    public void shutdown() {
+        for (int i=places_.length-1;i>=0;i--)
+            places_[i].shutdown();
     }
 
     /**
@@ -54,7 +67,7 @@ class DefaultRuntime_c extends Runtime implements ThreadRegistry {
     }
 
     /**
-     * Create a new Clock at another place.
+     * Create a new Clock.
      */
     public Clock createClock() {
 	throw new Error("not implemented");

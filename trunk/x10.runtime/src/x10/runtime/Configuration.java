@@ -62,6 +62,8 @@ import java.util.Properties;
  */
 public final class Configuration {
 
+    public static int NUMBER_OF_LOCAL_PLACES = 2;
+    
     public static int PLACE_MINIMAL_THREAD_POOL_SIZE = 2;
     
     public static int PLACE_THREAD_KEEPALIVE_TIME = 5000; // in millis

@@ -1,7 +1,12 @@
 package x10.runtime;
 
 /**
+ * This is the central entrypoint to the X10 Runtime for the
+ * compiler.   There is exactly one Runtime per JVM running X10.
+ * 
  * @author Christian Grothoff
+ * @see Place
+ * @see Activity
  */
 public abstract class Runtime {
 
@@ -44,6 +49,11 @@ public abstract class Runtime {
     public abstract Place here();
 
     /**
+     * Shutdown the X10 runtime system.
+     */
+    public abstract void shutdown();
+    
+    /**
      * Create a new Clock.
      */
     public abstract Clock createClock();
@@ -64,4 +74,4 @@ public abstract class Runtime {
     public abstract Native getNative();
 
 
-}
+} // end of Runtime
