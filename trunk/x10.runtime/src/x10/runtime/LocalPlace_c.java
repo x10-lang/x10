@@ -73,11 +73,16 @@ class LocalPlace_c extends PooledExecutor
      */
     public void runAsync(final Activity a) {
         final Activity i = aip_.getCurrentActivity();
+        final StartSignal startSignal = new StartSignal();
         try {
             this.execute(new Runnable() {
                 public void run() {
                     Thread t = Thread.currentThread();
                     reg_.registerActivityStart(t, a, i);
+                    synchronized(startSignal) {
+                        startSignal.go = true;
+                        startSignal.notifyAll();
+                    }
                     try {
                         a.run();
                     } finally {
@@ -85,8 +90,20 @@ class LocalPlace_c extends PooledExecutor
                     }
                 }
             });
-            } catch (InterruptedException ie) {
+        } catch (InterruptedException ie) {
             throw new Error(ie); // should never happen!
+        }    
+        // we now need to wait at least (!) until the 
+        // "reg_.registerActivityStart(...)" line has been
+        // reached.  Hence we wait on the start signal.
+        synchronized (startSignal) {
+            try {
+                while (! startSignal.go) {
+                    startSignal.wait();
+                }
+            } catch (InterruptedException ie) {
+                throw new Error(ie); // should never happen!
+            }
         }
     }
 
@@ -115,5 +132,9 @@ class LocalPlace_c extends PooledExecutor
         }
         return result;
     }
+    
+    static class StartSignal {
+        boolean go;
+    }    
     
 } // end of LocalPlace_c

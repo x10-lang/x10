@@ -66,7 +66,6 @@ public class TestRuntime extends TestCase {
     // testcases
 
     private static volatile int x;
-    private static volatile int y;
     
     public void testPlaceRunAsync() {
         x = 0;
@@ -182,6 +181,31 @@ public class TestRuntime extends TestCase {
         c.doNext();
     }
 
+    public void testClockNow() {
+        Activity b = new Activity() {
+            public void run() {
+                sleep(100);
+                Activity c = new Activity() {
+                    public void run() {
+                        sleep(100);
+                        Activity d = new Activity() {
+                            public void run() {
+                                x = 1;
+                            }
+                        };                    
+                        Runtime.here().runAsync(d);
+                    }
+                };
+                Runtime.here().runAsync(c);
+            }
+        };
+        x = 0;
+        final Clock c = Runtime._.createClock();
+        c.doNow(b);
+        c.doNext();
+        assertTrue(x == 1);
+    }
+    
     /**
      * Helper method to delay execution (to ensure other threads
      * run a bit).

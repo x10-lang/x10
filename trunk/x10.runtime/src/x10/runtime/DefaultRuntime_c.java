@@ -42,7 +42,7 @@ public class DefaultRuntime_c
     
     /**
      * What listeners are registered for termination/spawning events
-     * for the given activity?
+     * for the given activity?  
      */
     private final HashMap activity2asl_ = new HashMap(); // <Activity,Vector<ActivitySpawnListener>>
     
@@ -140,7 +140,7 @@ public class DefaultRuntime_c
         thread2activity_.put(t,a);
         if (i == null)
             return;
-        Vector v = (Vector) activity2asl_.get(a);
+        Vector v = (Vector) activity2asl_.get(i);
         if (v == null) 
             return;
         for (int j=0;j<v.size();j++) {
