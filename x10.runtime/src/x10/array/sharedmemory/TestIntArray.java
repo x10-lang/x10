@@ -11,6 +11,8 @@ import x10.array.DoubleArray;
 import x10.array.Operator;
 import x10.array.Place;
 import x10.array.Range;
+import x10.array.ArrayRuntime;
+
 
 import junit.framework.TestCase;
 
@@ -24,7 +26,7 @@ import junit.framework.TestCase;
 public class TestIntArray extends TestCase {
     
     public void testIntArray_reduce() {
-        Place_c[] places = {new Place_c(), new Place_c()}; 
+        Place[] places = ArrayRuntime.places();
         int[] dims = {3,3};
         Region_c r = new Region_c(dims);
         Distribution_c d = Distribution_c.makeConstant(r, places[0]);
@@ -50,7 +52,7 @@ public class TestIntArray extends TestCase {
         Region_c r = new Region_c(new Range[] {
                 new ContiguousRange(0, N - 1),
                 new ContiguousRange(0, N - 1) });
-        Place[] places = {new Place_c(), new Place_c()}; 
+        Place[] places = ArrayRuntime.places();
         Distribution_c d = Distribution_c.makeBlock(r, places);
         DoubleArray A = new DoubleArray_c(d, true);
 

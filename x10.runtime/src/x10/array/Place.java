@@ -6,4 +6,4 @@ package x10.array;
 /**
  * @author Christoph von Praun
  */
-public interface Place {}
+public interface Place { }
