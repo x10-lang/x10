@@ -243,7 +243,9 @@ public final class Sampling extends Thread {
             if (p == places[i]) {
                 _.eventCount[i][m_id]++;
                 recordEvent(m_id, EX_M, i);
+                return;
             }
+        throw new Error("Place " + p + " not in place list!");
     }
     
     public void setStatus(int s_id, int value) {
@@ -332,6 +334,7 @@ public final class Sampling extends Thread {
     private void recordEntryExit(int id, int type, 
                                  int[][] entryData,
                                  int[][] exitData) {
+        assert (type == ET_EE) || (type == ED_EE);
         writeHeader(4+4+8+4+entryData.length*8, type, id);
         try {
             dos.writeLong(System.currentTimeMillis());  // sampling time
