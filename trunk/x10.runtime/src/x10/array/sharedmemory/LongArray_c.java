@@ -264,6 +264,16 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         return ret;
     }
     
+
+    public void update(x10.lang.longArray d) {
+        assert (region.contains(d.region));
+        for (Iterator it = d.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            set(d.get(p), p);
+        }
+    }
+    
+    
     public LongReferenceArray union(x10.lang.longArray d) {
         distribution dist = distribution.union(d.distribution);
         LongArray_c ret = new LongArray_c(dist, 0, safe_);
