@@ -15,7 +15,7 @@ import x10.lang.Place;
  * 
  * @author Christian Grothoff
  */
-interface ThreadRegistry {
+public interface ThreadRegistry {
 
     /**
      * Register the fact that the given thread runs at
