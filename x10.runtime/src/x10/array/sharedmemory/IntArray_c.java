@@ -94,7 +94,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * @return
      */
     public static IntArray_c IntArray_c(int[] a, boolean safe, boolean mutable ) {
-    	distribution d = Runtime.factory.getDistributionFactory().here(a.length);
+    	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new IntArray_c(d, a, safe, mutable );
     }
     protected IntArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
@@ -184,36 +184,36 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     /* (non-Javadoc)
      * @see x10.lang.IntArray#set(int, int[])
      */
-    public void set(int v, point pos) {
-        arr_.setInt(v, distribution.region.ordinal(pos));
+    public int set(int v, point pos) {
+        return arr_.setInt(v, distribution.region.ordinal(pos));
     }
     
-    public void set(int v, int d0) {
+    public int set(int v, int d0) {
     	assert this.region.rank == 1;
         int[] pos = {d0};
     	final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        set(v, p);
+        return set(v, p);
     }
     
-    public void set(int v, int d0, int d1) {
+    public int set(int v, int d0, int d1) {
     	assert this.region.rank == 2;
         int[] pos = {d0, d1};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        set(v, p);
+        return set(v, p);
     }
     
-    public void set(int v, int d0, int d1, int d2) {
+    public int set(int v, int d0, int d1, int d2) {
     	assert this.region.rank == 3;
         int[] pos = {d0, d1, d2};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        set(v, p);
+        return set(v, p);
     }
     
-    public void set(int v, int d0, int d1, int d2, int d3) {
+    public int set(int v, int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
         int[] pos = {d0, d1, d2, d3};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        set(v, p);
+        return set(v, p);
         
     }
 

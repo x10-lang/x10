@@ -401,9 +401,9 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
       
     
         //
-        // Rule 55:  KeyWord ::= a c t i v i t y
+        // Rule 55:  KeyWord ::= a c t i v i t y l o c a l
         //
-                keywordKind[55] = (TK_activity);
+                keywordKind[55] = (TK_activitylocal);
       
     
         //
@@ -515,9 +515,9 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
       
     
         //
-        // Rule 74:  KeyWord ::= p l a c e
+        // Rule 74:  KeyWord ::= p l a c e l o c a l
         //
-                keywordKind[74] = (TK_place);
+                keywordKind[74] = (TK_placelocal);
       
     
         //

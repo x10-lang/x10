@@ -64,7 +64,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 		 * @return
 		 */
 		public longArray/*(:rank=1)*/  longValueArray(/*nat*/ int k, long initVal) { 
-			return longValueArray(x10.lang.distribution.factory.here(k), initVal);
+			return longValueArray(x10.lang.distribution.factory.local(k), initVal);
 		}
 		/** Return the unique long value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -73,7 +73,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 		 * @return
 		 */
 		public longArray/*(:rank=1)*/ longValueArray(/*nat*/ int k, pointwiseOp init) {
-			return longValueArray( x10.lang.distribution.factory.here(k), init);
+			return longValueArray( x10.lang.distribution.factory.local(k), init);
 		}
 		
 		abstract public 
@@ -98,7 +98,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 		 * @return
 		 */
 		public LongReferenceArray/*(:rank=1)*/  LongReferenceArray(/*nat*/ int k, long initVal) { 
-			return LongReferenceArray(x10.lang.distribution.factory.here(k), initVal);
+			return LongReferenceArray(x10.lang.distribution.factory.local(k), initVal);
 		}
 		/** Return the unique long value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -107,7 +107,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 		 * @return
 		 */
 		public LongReferenceArray/*(:rank=1)*/ LongReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return LongReferenceArray( x10.lang.distribution.factory.here(k), init);
+			return LongReferenceArray( x10.lang.distribution.factory.local(k), init);
 		}
 		
 		
@@ -270,4 +270,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
+	public distribution toDistribution() {
+		return this.distribution;
+	}
 }

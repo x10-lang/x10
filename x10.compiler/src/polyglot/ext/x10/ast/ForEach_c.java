@@ -9,6 +9,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Formal;
+import polyglot.ext.jl.ast.Field_c;
 import polyglot.util.Position;
 
 import polyglot.util.CodeWriter;
@@ -44,24 +45,6 @@ public class ForEach_c extends X10Loop_c implements ForEach {
 	public ForEach_c(Position pos, Formal formal, Expr domain, Stmt body) {
 		super(pos, formal, domain, body);
 		
-	}
-	
-	public ForEach body(Stmt body) {
-		ForEach_c n = (ForEach_c) copy();
-		n.body = body;
-		return n;
-	}
-	
-	public ForEach formal(Formal formal) {
-		ForEach_c n = (ForEach_c) copy();
-		n.formal = formal;
-		return n;
-	}
-	
-	public ForEach domain(Expr domain) {
-		ForEach_c n = (ForEach_c) copy();
-		n.domain = domain;
-		return n;
 	}
 	
 	

@@ -26,8 +26,8 @@ public class MemoryBlockSafeLongArray extends MemoryBlockSafe {
          return Allocator.SIZE_DOUBLE;
      }
      
-     public void setLong(long val, int d0) {
-        arr_[d0] = val;
+     public long setLong(long val, int d0) {
+        return arr_[d0] = val;
     }
     
     public long getLong(int d0) {

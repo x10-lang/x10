@@ -26,8 +26,8 @@ public class MemoryBlockSafeDoubleArray extends MemoryBlockSafe {
          return Allocator.SIZE_DOUBLE;
      }
      
-     public void setDouble(double val, int d0) {
-        arr_[d0] = val;
+     public double setDouble(double val, int d0) {
+        return arr_[d0] = val;
     }
     
     public double getDouble(int d0) {

@@ -15,7 +15,7 @@ public abstract class MemoryBlock implements UnsafeContainer {
     
     public abstract int count(); 
     
-    public void setBoolean(boolean val, int d0) {
+    public boolean setBoolean(boolean val, int d0) {
         throw new Error(MSG_);
     }
 
@@ -23,7 +23,7 @@ public abstract class MemoryBlock implements UnsafeContainer {
         throw new Error(MSG_);
     }
 
-    public void setByte(byte val, int d0) {
+    public byte setByte(byte val, int d0) {
         throw new Error(MSG_);
     }
 
@@ -31,7 +31,7 @@ public abstract class MemoryBlock implements UnsafeContainer {
         throw new Error(MSG_);
     }
 
-    public void setChar(char val, int d0) {
+    public char setChar(char val, int d0) {
         throw new Error(MSG_);
     }
 
@@ -39,7 +39,7 @@ public abstract class MemoryBlock implements UnsafeContainer {
         throw new Error(MSG_);
     }
 
-    public void setShort(short val, int d0) {
+    public short setShort(short val, int d0) {
         throw new Error(MSG_);
     }
 
@@ -47,7 +47,7 @@ public abstract class MemoryBlock implements UnsafeContainer {
         throw new Error(MSG_);
     }
 
-    public void setInt(int val, int d0) {
+    public int setInt(int val, int d0) {
         throw new Error(MSG_);
     }
 
@@ -55,7 +55,7 @@ public abstract class MemoryBlock implements UnsafeContainer {
         throw new Error(MSG_);
     }
 
-    public void setLong(long val, int d0) {
+    public long setLong(long val, int d0) {
         throw new Error(MSG_);
     }
 
@@ -63,7 +63,7 @@ public abstract class MemoryBlock implements UnsafeContainer {
         throw new Error(MSG_);
     }
 
-    public void setFloat(float val, int d0) {
+    public float setFloat(float val, int d0) {
         throw new Error(MSG_);
     }
 
@@ -71,7 +71,7 @@ public abstract class MemoryBlock implements UnsafeContainer {
         throw new Error(MSG_);
     }
 
-    public void setDouble(double val, int d0) {
+    public double setDouble(double val, int d0) {
         throw new Error(MSG_);
     }
 

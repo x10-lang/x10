@@ -4,11 +4,13 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
+import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.util.Position;
 import polyglot.util.CodeWriter;
@@ -106,7 +108,15 @@ public class Future_c extends Expr_c
 
     /** Type check the expression. */
     public Node typeCheck( TypeChecker tc ) throws SemanticException {
-       	return type( new FutureType_c( tc.typeSystem(), position(), body.type() ));
+    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	Type placeType = place.type();
+    	Expr newPlace = place;
+    	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
+		if ( ! placeIsPlace ) {
+			newPlace = (Expr) (new Field_c(position(), place, "location")).typeCheck( tc );
+		}
+    	
+       	return ((Future_c) place(newPlace)).type( new FutureType_c( tc.typeSystem(), position(), body.type() ));
     }
     
     public Type childExpectedType(Expr child, AscriptionVisitor av) {

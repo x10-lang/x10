@@ -5,15 +5,24 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import polyglot.ast.ArrayInit;
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
+import polyglot.ast.TypeNode;
 import polyglot.ast.Variable;
 import polyglot.ast.Node;
 import polyglot.ast.Formal;
+import polyglot.ext.jl.ast.Call_c;
+import polyglot.ext.jl.ast.Field_c;
+import polyglot.ext.jl.ast.NewArray_c;
 import polyglot.ext.jl.ast.Stmt_c;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10Type;
+
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.types.Context;
@@ -80,11 +89,21 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
     
     /** Type check the statement. */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
-    	TypeSystem ts = tc.typeSystem();
-    	// Add rules.
-    	return this;
+    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		
+    	
+		Expr newDomain = domain;
+		X10Type domainType = (X10Type) domain.type();
+		if (domainType.isNumericArray())
+			newDomain = (Expr) getDomain( domain ).typeCheck( tc );
+		
+		return domain( newDomain);
+    	
     }
     
+    public Expr getDomain( Expr d ) {
+		return new Field_c(position(), d, "region");
+	}
     /* (non-Javadoc)
      * @see polyglot.ast.Term#entry()
      */
@@ -133,6 +152,24 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
     public Expr domain() {
     	return this.domain;
     }
+    public X10Loop_c body(Stmt body) {
+		X10Loop_c n = (X10Loop_c) copy();
+		n.body = body;
+		return n;
+	}
+	
+	public X10Loop_c formal(Formal formal) {
+		X10Loop_c n = (X10Loop_c) copy();
+		n.formal = formal;
+		return n;
+	}
+	
+	public X10Loop_c domain(Expr domain) {
+		X10Loop_c n = (X10Loop_c) copy();
+		n.domain = domain;
+		return n;
+	}
+	
     
     
 }

@@ -67,19 +67,99 @@ implements X10ArrayAccessAssign {
 		}
 	}
 	
-	
+	public String opString(Operator op) {
+		if (op == ASSIGN ) return "set";
+		if (op == ADD_ASSIGN) return "addSet";
+		if (op == SUB_ASSIGN) return "subSet";
+		if (op == MUL_ASSIGN) return "mulSet";
+		if (op == DIV_ASSIGN) return "divSet";
+		if (op == MOD_ASSIGN) return "modSet";
+		if (op == BIT_AND_ASSIGN) return "bitAndSet";
+		if (op == BIT_OR_ASSIGN) return "bitOrSet";
+		if (op == BIT_XOR_ASSIGN) return "bitXorSet";
+		if (op == SHL_ASSIGN) return "shlSet";
+		if (op == SHR_ASSIGN) return "shrSet";
+		if (op == USHR_ASSIGN) return "ushrSet";
+		throw new InternalCompilerError("Unknown assignment operator");
+	}
 	
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		TypeSystem ts = tc.typeSystem();
-		
-        // Now left must be an X10ArrayAccess which has now resolved into a Call_c.
-		// Use the information in the call to construct the real set call.
-		Call call = (Call) left;
-		Expr receiver = (Expr) call.target();
-		List args = TypedList.copyAndCheck(call.arguments(), Expr.class, false);
-		args.add( 0, right);
-		
-		return new Call_c(position(), receiver, "set", args).del().typeCheck(tc);
+		 Type t = left.type();
+		 Type s = right.type();
+//		 Now left must be an X10ArrayAccess which has now resolved into a Call_c.
+			// Use the information in the call to construct the real set call.
+			Call call = (Call) left;
+			Expr receiver = (Expr) call.target();
+			List args = TypedList.copyAndCheck(call.arguments(), Expr.class, false);
+			args.add( 0, right);
+			
+		if (op == ASSIGN) {
+		      if (! ts.isImplicitCastValid(s, t) &&
+		          ! ts.equals(s, t) &&
+		          ! ts.numericConversionValid(t, right.constantValue())) {
+
+		        throw new SemanticException("Cannot assign " + s + " to " + t + ".",
+		                                    position());
+		      }
+		      return new Call_c(position(), receiver, "set", args).del().typeCheck(tc);
+		    }
+
+		    if (op == ADD_ASSIGN) {
+		      // t += s
+		      if (ts.equals(t, ts.String()) && ts.canCoerceToString(s, tc.context())) {
+		        throw new SemanticException(" Arrays of strings are not supported yet.");
+		      }
+
+		      if (t.isNumeric() && s.isNumeric()) {
+		      	 return new Call_c(position(), receiver, "addSet", args).del().typeCheck(tc);
+		      }
+
+		      throw new SemanticException("The " + op + " operator must have "
+		                                  + "numeric or String operands.",
+		                                  position());
+		    }
+
+		    if (op == SUB_ASSIGN || op == MUL_ASSIGN ||
+		        op == DIV_ASSIGN || op == MOD_ASSIGN) {
+		      if (t.isNumeric() && s.isNumeric()) {
+		      	 return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
+		      }
+
+		      throw new SemanticException("The " + op + " operator must have "
+		                                  + "numeric operands.",
+		                                  position());
+		    }
+
+		    if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
+		      if (t.isBoolean() && s.isBoolean()) {
+		      	return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
+		      }
+
+		      if (ts.isImplicitCastValid(t, ts.Long()) &&
+		          ts.isImplicitCastValid(s, ts.Long())) {
+		      	return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
+		      }
+
+		      throw new SemanticException("The " + op + " operator must have "
+		                                  + "integral or boolean operands.",
+		                                  position());
+		    }
+
+		    if (op == SHL_ASSIGN || op == SHR_ASSIGN || op == USHR_ASSIGN) {
+		      if (ts.isImplicitCastValid(t, ts.Long()) &&
+		          ts.isImplicitCastValid(s, ts.Long())) {
+		        // Only promote the left of a shift.
+		      	return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
+		      }
+
+		      throw new SemanticException("The " + op + " operator must have "
+		                                  + "integral operands.",
+		                                  position());
+		    }
+
+		    throw new InternalCompilerError("Unrecognized assignment operator " +
+		                                    op + ".");
 		
 	}
 	

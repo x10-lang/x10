@@ -111,15 +111,15 @@ public abstract class LongArray extends LongReferenceArray {
     /**
      * Generic flat access.
      */
-    public abstract void set(long v, point pos);
+    public abstract long set(long v, point pos);
 
-    public abstract void set(long v, int d0);
+    public abstract long set(long v, int d0);
 
-    public abstract void set(long v, int d0, int d1);
+    public abstract long set(long v, int d0, int d1);
 
-    public abstract void set(long v, int d0, int d1, int d2);
+    public abstract long set(long v, int d0, int d1, int d2);
 
-    public abstract void set(long v, int d0, int d1, int d2, int d3);
+    public abstract long set(long v, int d0, int d1, int d2, int d3);
 
     /**
      * Generic flat access.

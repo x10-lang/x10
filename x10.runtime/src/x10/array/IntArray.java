@@ -138,15 +138,15 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
     /**
      * Generic flat access.
      */
-    public abstract void set(int v, point pos);
+    public abstract int set(int v, point pos);
 
-    public abstract void set(int v, int d0);
+    public abstract int set(int v, int d0);
 
-    public abstract void set(int v, int d0, int d1);
+    public abstract int set(int v, int d0, int d1);
 
-    public abstract void set(int v, int d0, int d1, int d2);
+    public abstract int set(int v, int d0, int d1, int d2);
 
-    public abstract void set(int v, int d0, int d1, int d2, int d3);
+    public abstract int set(int v, int d0, int d1, int d2, int d3);
 
     /**
      * Generic flat access. the leas significant dimension is pos[0].

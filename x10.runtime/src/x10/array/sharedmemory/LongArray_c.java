@@ -96,7 +96,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
      * @return
      */
     public static LongArray_c LongArray_c( long[] a) {
-    	distribution d = Runtime.factory.getDistributionFactory().here(a.length);
+    	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new LongArray_c(d, a);
     }
     
@@ -182,37 +182,37 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     /* (non-Javadoc)
      * @see x10.lang.LongArray#set(int, int[])
      */
-    public void set(long v, point pos) {
-        arr_.setLong(v, (int) distribution.region.ordinal(pos));
+    public long set(long v, point pos) {
+        return arr_.setLong(v, (int) distribution.region.ordinal(pos));
     }
     
     
-    public void set(long v, int d0) {
+    public long set(long v, int d0) {
     	assert this.region.rank == 1;
         int[] pos = {d0};
     	final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        set(v, p);
+        return set(v, p);
     }
     
-    public void set(long v, int d0, int d1) {
+    public long set(long v, int d0, int d1) {
     	assert this.region.rank == 2;
         int[] pos = {d0, d1};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        set(v, p);
+        return set(v, p);
     }
     
-    public void set(long v, int d0, int d1, int d2) {
+    public long set(long v, int d0, int d1, int d2) {
     	assert this.region.rank == 3;
         int[] pos = {d0, d1, d2};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        set(v, p);
+        return set(v, p);
     }
     
-    public void set(long v, int d0, int d1, int d2, int d3) {
+    public long set(long v, int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
         int[] pos = {d0, d1, d2, d3};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        set(v, p);
+        return set(v, p);
         
     }
 
