@@ -48,9 +48,15 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
-        int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-        this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Long.TYPE);
+        }
         if (c != null)
             pointwise(this, c);
     }
@@ -71,10 +77,16 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
-    	int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-        this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
         this.safe_ = safe;
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Long.TYPE);
+        }
     	scan(this, new Assign(c));
     	
     }
@@ -88,10 +100,16 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
-        int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
-    	this.safe_ = safe;
+        this.safe_ = safe;
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Long.TYPE);
+        }
         scan(this, f);
     }
     
@@ -154,7 +172,6 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 		return new LongArray_c((Distribution_c) d, c, safe_);	
 	}
 	
-
 	public LongReferenceArray lift( LongArray.binaryOp op, x10.lang.longArray arg ) {
 	    assert arg.distribution.equals(distribution); 
 	    LongArray arg1 = (LongArray)arg;
