@@ -84,7 +84,12 @@ public abstract class Runtime {
     /**
      * @return  New array with Distribution d.
      */
-    public abstract Array newArray(Distribution d);
+    public abstract IntArray newIntArray(Distribution d);
+    
+    /**
+     * @return  New array with Distribution d.
+     */
+    public abstract DoubleArray newDoubleArray(Distribution d);
 
     /**
      * @return The place where the current execution takes place 

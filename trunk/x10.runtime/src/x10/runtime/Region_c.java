@@ -113,6 +113,13 @@ class Region_c implements Region {
 		return ret;
 	}
 	
+	public int size() {
+	    int ret = 1;
+	    for (int i=dims_.length-1;i>=0;i--) 
+	        ret *= dims_[i].card; // TODO: check overflow?
+	    return ret;            
+	}
+    
 	/**
 	 * @param p A point in the region; the dimension of p must be compatible 
 	 *          with this region.

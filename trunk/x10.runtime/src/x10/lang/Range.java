@@ -9,6 +9,7 @@ package x10.lang;
  * Range objects are immutable.
  * 
  * @author Christoph von Praun
+ * @author Christian Grothoff
  */
 public abstract class Range implements TypeArgument {
 	/**
@@ -21,14 +22,14 @@ public abstract class Range implements TypeArgument {
 	
 	/** 
 	 * Range that starts at lo (including)
-	 * to hi (excluded).
+	 * to hi (including!).
 	 */
 	public Range(int lo, int hi) {
 		assert hi >= lo && lo >= 0;
 		
 		this.lo = lo;
 		this.hi = hi;
-		card = hi - lo;
+		card = hi - lo + 1; // inclusive!
 	}
 	
 	public abstract boolean contains(int p);

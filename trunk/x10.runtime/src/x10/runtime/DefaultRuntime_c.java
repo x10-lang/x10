@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.Vector;
 import java.util.WeakHashMap;
 
+import x10.compilergenerated.DoubleArray_c;
+import x10.compilergenerated.IntArray_c;
 import x10.lang.Activity;
-import x10.lang.Array;
 import x10.lang.Clock;
 import x10.lang.Distribution;
+import x10.lang.DoubleArray;
+import x10.lang.IntArray;
 import x10.lang.Place;
 import x10.lang.Range;
 import x10.lang.Region;
@@ -191,12 +194,19 @@ public class DefaultRuntime_c
     public Region newRegion(Range[] dims)  {
     	throw new Error("not implemented");
     }
-   
+    
     /**
      * @return New array.
      */
-    public Array newArray(Distribution d) {
-    	return new Array_c((Distribution_c)d);
+    public IntArray newIntArray(Distribution d) {
+        return new IntArray_c((Distribution_c)d);
+    }
+
+    /**
+     * @return New array.
+     */
+    public DoubleArray newDoubleArray(Distribution d) {
+        return new DoubleArray_c((Distribution_c)d);
     }
 				      
     /**
@@ -220,7 +230,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockDistribution(Region r, Place[] p) {
-        return newBlockDistribution(r, r.hashCode()/p.length, p); // FIXME: check formula against spec!
+        throw new Error("not implemented");
     }
     
     /**
