@@ -16,6 +16,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.ast.Call;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.types.PrimitiveType;
+import polyglot.types.ParsedClassType;
 
 /**
  * Visitor that inserts boxing and unboxing code into the AST.
@@ -63,18 +64,30 @@ public class X10Boxer extends AscriptionVisitor
         	    return ret_notype.type(target_t);
         	}
         }
+                
+        // This avoids that the int value in code like "String" + 2
+        // is boxed. The toType of the IntLit node that represents "2"
+        // is actually a ParsedClassType for java.lang.String.
+        // While the boxing is OK in case "String" + 2 , it would break
+        // the expression "String" + 2 + 3.
+
+        // A better way to fix this problem would be to modify the type system and  
+        // annotatioon such that it understand that operator "+" for Strings 
+        // and primitives is fine and would not ask for a String here.
+        // see line 405 in polyglot.ext.jl.as.Binary_c
+        // TODO  I leave this up to whoever implements the type system/checker
         
-        
+        boolean is_String_type = ts.equals(toType, ts.String());
         // Insert a cast.  Translation of the cast will insert the
         // correct boxing/unboxing code.
-        if (fromType.isPrimitive() && toType.isReference()) {
+        
+        if (!is_String_type && fromType.isPrimitive() && toType.isReference()) {
             ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, toType), e);
             return ret_notype.type(toType);
         }
-  
         return e;
     }
-
+    
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         n = super.leaveCall(old, n, v);
 
