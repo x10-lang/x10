@@ -8,7 +8,6 @@ import x10.lang.Activity;
 import x10.lang.Array;
 import x10.lang.Clock;
 import x10.lang.Distribution;
-import x10.lang.JavaRuntime;
 import x10.lang.Place;
 import x10.lang.Runtime;
 
