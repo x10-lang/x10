@@ -64,7 +64,6 @@ public class Now_c extends Expr_c implements Now {
     }
 
     public Term entry() {
-        // TODO:
         return stmt.entry();
     }
 

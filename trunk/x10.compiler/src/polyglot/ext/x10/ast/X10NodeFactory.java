@@ -35,7 +35,6 @@ public interface X10NodeFactory extends NodeFactory {
     When When(Position pos, Expr expr, Stmt statement);
     
     When.Branch WhenBranch(Position pos, Expr expr, Stmt statement);
-    Drop Drop(Position pos, List clocks);
     Next Next(Position pos);
     Now Now(Position pos, Expr expr, Stmt stmt);
     Clocked Clocked(Position pos, List clocks, Stmt body);
@@ -51,8 +50,6 @@ public interface X10NodeFactory extends NodeFactory {
     ArrayConstructor ArrayConstructor( Position pos, TypeNode base, boolean unsafe, 
 				       boolean isValue, Expr distribution, Expr init);
     Point Point( Position pos, List expr);
-    ReductionCall ScanCall(Position pos, Receiver target, String name, List arguments);
-    ReductionCall ReduceCall(Position pos, Receiver target, String name, List arguments);
     
     RemoteCall RemoteCall(Position pos, Receiver target, String name, List arguments);
     X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);
