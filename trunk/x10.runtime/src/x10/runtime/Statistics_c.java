@@ -140,5 +140,43 @@ public class Statistics_c {
     
     } // end of Statistics_c.ActivityCounter
     
+
+    /**
+     * Class that keeps track of how many activities are created in a 
+     * remote place.  This is a measure of how much remote communication
+     * there is.
+     * 
+     * @author Christian Grothoff
+     */
+    public static class InterPlaceCommunicationCounter {
+
+        int localActivitySpawns = 1;        
+        int remoteActivitySpawns = 0;
         
+        public Object activate() {
+            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime._;
+            dr.registerActivitySpawnListener(dr.getCurrentActivity(),
+                                             new ActivitySpawnListener() {
+                public void notifyActivitySpawn(Activity a,
+                                                Activity i) {
+                    if (dr.getPlaceOfActivity(a) == dr.getPlaceOfActivity(i))
+                        localActivitySpawns++;
+                    else
+                        remoteActivitySpawns++;
+                    dr.registerActivitySpawnListener(a, this);
+                }
+                public void notifyActivityTerminated(Activity a) {
+                    // we don't care.
+                }                
+            });
+            return this;
+        }
+        public String toString() {
+            return "Activities:\n\tLocal->Local: " + localActivitySpawns + "\n\tRUNNING: " + remoteActivitySpawns + "\n"; 
+        }
+    
+    } // end of Statistics_c.ActivityCounter
+    
+
+    
 } // end of Statistics_c

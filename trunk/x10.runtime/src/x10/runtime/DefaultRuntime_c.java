@@ -1,16 +1,16 @@
 package x10.runtime;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Vector;
 import java.util.WeakHashMap;
 
-
+import x10.array.ArrayFactory;
 import x10.array.Distribution;
 import x10.array.DoubleArray;
 import x10.array.IntArray;
 import x10.array.Range;
 import x10.array.Region;
-import x10.array.ArrayFactory;
 import x10.array.sharedmemory.SharedMemoryArrayFactory;
 import x10.lang.Activity;
 import x10.lang.Clock;
@@ -125,7 +125,6 @@ public class DefaultRuntime_c
      */
     public synchronized void registerActivityStop(Thread t,
                                                   Activity a) {
-        thread2activity_.remove(t);
         Vector v = (Vector) activity2asl_.get(a);
         if (v == null) 
             return;
@@ -134,6 +133,7 @@ public class DefaultRuntime_c
             asl.notifyActivityTerminated(a);
         }
         activity2asl_.remove(a);
+        thread2activity_.remove(t);
     }
     
     /**
@@ -235,7 +235,26 @@ public class DefaultRuntime_c
         return a;
     }
 
-    
+    /**
+     * At which place is the given activity running?  Note that this particular
+     * implementation is not very efficient (since we do not have an explicit
+     * mapping in this direction).  The reason is that this method is currently
+     * only used for profiling and we thus do not want to have any overhead on 
+     * the common path.
+     * 
+     * @param a 
+     * @return null if the activity is not running anywhere
+     */
+    public synchronized Place getPlaceOfActivity(Activity a) {
+        Iterator it=thread2activity_.keySet().iterator();
+        while (it.hasNext()) {
+            Thread t = (Thread) it.next();
+            Activity ta = (Activity) thread2activity_.get(t);
+            if (ta == a)
+                return (Place) thread2place_.get(t);
+        }
+        return null;
+    }    
     
     /**
      * Create a Distribution where the given Region is distributed
