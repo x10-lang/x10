@@ -2,9 +2,9 @@
 synchronized (x10.lang.Runtime.here()) {
 	try {
 		#0
-	} catch (InterruptedException e) {
+	} catch (Throwable e) {
   		e.printStackTrace();
-  		x10.lang.JavaRuntime.log(0, "Unexpected exception during atomic.", e);
-  		throw e;
+  		x10.lang.Runtime.getRuntime().java.log(java.util.logging.Level.SEVERE, "Unexpected exception during atomic.", e);
+  		throw new RuntimeException(e);
   	}
 }
