@@ -28,4 +28,8 @@
   public x10.lang.Object getResult() { 
      return new x10.compilergenerated.BoxedBoolean( ret_ ); 
   } 
+}, new x10.lang.ActivityInformation() {
+  public java.util.List getRegisteredClocks() {
+    return new java.util.LinkedList();  	
+  }
 })).force();
