@@ -1,0 +1,14 @@
+HOWTO: Subscribe to the X10 mailing list
+----------------------------------------
+
+Send a message to majordomo@cs.purdue.edu with an empty 
+subject and the following text in the message body:
+
+   subscribe x10-dev
+   end
+
+Jan Vitek will approve and you will receive a confirmation 
+message that your subscription has been approved.
+
+
+
