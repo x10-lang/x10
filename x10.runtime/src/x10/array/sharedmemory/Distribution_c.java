@@ -425,15 +425,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
 
 
 
-        /** Return true iff the given distribution D, which must be over a
-         * region of the same rank as this, is defined over a subset
-         * of this.region and agrees with it at each point.
-         */
-        public /*(region(rank) r)*/ 
-            boolean subDistribution( region/*(rank)*/ R, distribution/*(R)*/ D) {
-                assert D.region.equals(R) && this.region.equals(R); // assume
-                return (this.region.contains(D.region) && (D instanceof Constant) && ((Constant) D).place_.equals(place_));
-        }
+
                 
         public String toString() {
             StringBuffer s = new StringBuffer("Distribution_c.Constant<region=|");
@@ -557,14 +549,10 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         
         private final Map map_;
         
-        private Arbitrary(region r) {
-            super(r);
-            map_ = new HashMap();
-        }
-        
         private Arbitrary(region r, Map m) {
             super(r);
             map_ = m;
+            places.addAll(m.values());
         }
         
         /** Returns the place to which the point p in region is mapped.
