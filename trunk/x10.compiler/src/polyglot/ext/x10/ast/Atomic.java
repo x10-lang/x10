@@ -13,10 +13,10 @@ import polyglot.ast.Block;
 public interface Atomic extends Stmt {
     
     /** Set the Atomic's body */
-    Atomic body(Block body);
+    Atomic body(Stmt body);
 
     /** Get the body of the Atomic. */
-    Block body();
+    Stmt body();
 
     Expr place();
     

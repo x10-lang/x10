@@ -6,6 +6,7 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Stmt;
 import polyglot.ast.Block;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
@@ -18,12 +19,12 @@ import polyglot.visit.CFGBuilder;
 public class Now_c extends Expr_c implements Now {
 
     protected Expr clock;
-    protected Block body;
+    protected Stmt stmt;
 
-    public Now_c(Position p, Expr clock, Block body) {
+    public Now_c(Position p, Expr clock, Stmt stmt) {
         super(p);
         this.clock = clock;
-        this.body = body;
+        this.stmt = stmt;
     }
     
     public Now_c(Position p) {
@@ -43,14 +44,14 @@ public class Now_c extends Expr_c implements Now {
     }
 
     /** statement */
-    public Block body() {
-	return this.body;
+    public Stmt body() {
+	return this.stmt;
     }
 
     /** statement */
-    public Now body(Block body) {
+    public Now body(Stmt body) {
         Now_c n = (Now_c) copy();
-        n.body = body;
+        n.stmt = stmt;
         return n;
     }
 
@@ -61,7 +62,7 @@ public class Now_c extends Expr_c implements Now {
 
     public List acceptCFG(CFGBuilder v, List succs) {
         v.visitCFG(clock, this);
-        v.visitCFG(body, this);
+        v.visitCFG(stmt, this);
         return succs;
     }
 }

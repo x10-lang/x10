@@ -18,7 +18,7 @@ public interface Now extends Stmt {
     Now clock(Expr clock);
 
     /** Get the expression. */
-    Block body();
+    Stmt body();
 
-    Now body(Block body);
+    Now body(Stmt stmt);
 }

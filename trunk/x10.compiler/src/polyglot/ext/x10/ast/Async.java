@@ -12,8 +12,8 @@ import polyglot.ast.Block;
 public interface Async extends Stmt, RemoteActivityInvocation {
     
     /** Set the Async's body */
-    Async body(Block body);
+    Async body(Stmt body);
 
     /** Get the body of the Async. */
-    Block body();
+    Stmt body();
 }

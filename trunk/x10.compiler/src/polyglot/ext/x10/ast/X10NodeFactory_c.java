@@ -5,6 +5,7 @@ import java.util.List;
 import polyglot.ast.*;
 import polyglot.ext.jl.ast.ArrayAccessAssign_c;
 import polyglot.ext.jl.ast.Instanceof_c;
+import polyglot.ast.Stmt;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
 import polyglot.util.Position;
@@ -33,13 +34,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return (Instanceof)n.del(new X10InstanceofDel_c());
     }
     
-    public Async Async(Position pos, Expr place, Block body) {
+    public Async Async(Position pos, Expr place, Stmt body) {
         Async a = new Async_c(pos, place, body);
         a = (Async) a.ext(extFactory().extExpr());
         return (Async) a.del(delFactory().delExpr());
     }
     
-    public Atomic Atomic(Position pos, Expr place, Block body) {
+    public Atomic Atomic(Position pos, Expr place, Stmt body) {
         Atomic a = new Atomic_c(pos, place, body);
         a = (Atomic) a.ext(extFactory().extExpr());
         return (Atomic) a.del(delFactory().delExpr());
@@ -70,20 +71,21 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return (Drop) d.del(delFactory().delStmt());
     }
 
-    public Next Next(Position pos, List clocks) {
-        Next n = new Next_c(pos, clocks);
+    public Next Next(Position pos) {
+        Next n = new Next_c(pos);
         n = (Next) n.ext(extFactory().extStmt());
         return (Next) n.del(delFactory().delStmt());
     }
 
-    public Now Now(Position pos, Expr expr, Block body) {
-        Now n = new Now_c(pos, expr, body);
+    public Now Now(Position pos, Expr expr, Stmt stmt) {
+        Now n = new Now_c(pos, expr, stmt);
         n = (Now) n.ext(extFactory().extStmt());
         return (Now) n.del(delFactory().delStmt());
     }
 
-    public Clocked Clocked(Position pos, Expr expr, Block body) {
-        Clocked n = new Clocked_c(pos, expr, body);
+
+    public Clocked Clocked(Position pos, Expr expr, Stmt stmt) {
+        Clocked n = new Clocked_c(pos, expr, stmt);
         n = (Clocked) n.ext(extFactory().extStmt());
         return (Clocked) n.del(delFactory().delStmt());
     }
@@ -153,6 +155,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     }
     public Finish Finish(Position pos, Stmt body) {
     	Finish n = new Finish_c( pos,  body);
-    	return n;
+         n = (Finish) n.ext(extFactory().extStmt());
+         return (Finish) n.del(delFactory().delStmt());
     }
 }

@@ -6,6 +6,7 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.Block;
+import polyglot.ast.Stmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
@@ -30,11 +31,11 @@ import polyglot.types.Type;
 public class Atomic_c extends Stmt_c 
     implements Atomic {
 
-    public Block body;
+    public Stmt body;
     
     public Expr place; 
 
-    public Atomic_c(Position p, Expr place, Block body) {
+    public Atomic_c(Position p, Expr place, Stmt body) {
         super(p);
         this.place = place;
         this.body = body;
@@ -47,12 +48,12 @@ public class Atomic_c extends Stmt_c
     /* (non-Javadoc)
      * @see polyglot.ext.x10.ast.Future#body()
      */
-    public Block body() {
+    public Stmt body() {
         return body;
     }
 
     /** Set the body of the statement. */
-    public Atomic body(Block body) {
+    public Atomic body(Stmt body) {
 	Atomic_c n = (Atomic_c) copy();
 	n.body = body;
 	return n;
