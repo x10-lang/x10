@@ -8,6 +8,18 @@ import x10.base.TypeArgument;
  */
 public abstract class Place implements TypeArgument, x10.base.Place {
 
+    /* is initialized by a specific runtime, e.g. x10.runtime.DefaukltRuntime_c */
+    public static int MAX_PLACES;
+
+    private static int count_ = 0;
+    
+    private final int id; 
+    
+    protected Place() {
+        synchronized (Place.class) {
+            id = count_++;
+        }
+    }
     /**
      * We allow passing Activity and Activity.Future to
      * be passed here.  For an Activity.Future the
