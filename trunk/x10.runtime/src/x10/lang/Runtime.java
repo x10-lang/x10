@@ -43,13 +43,18 @@ public abstract class Runtime implements x10.base.Runtime {
             else
                 r = new DefaultRuntime_c();
         } catch (ClassNotFoundException cnfe) {
-            System.err.println("Did not find Runtime " + rt);
+            System.err.println("Runtime::<clinit> did not find runtime " + rt);
             throw new Error(cnfe);
         } catch (IllegalAccessException iae) {
-        
+            System.err.println("Runtime::<clinit> could not access runtime " + rt);
+            throw new Error(iae);
         } catch (InstantiationException ie) {
-            
-        } finally {
+            System.err.println("Runtime::<clinit> could not create runtime " + rt);
+            throw new Error(ie);
+        } catch (Throwable t) {
+            System.err.println("Runtime::<clinit> unknown exception during creation of runtime " + rt);
+            throw new Error(t);
+        } finally {        
             assert (r != null);
             runtime = r;
             java = new JavaRuntime();
@@ -70,8 +75,6 @@ public abstract class Runtime implements x10.base.Runtime {
     }
 
     protected Runtime() {}
-
-  
 
     public static abstract class Factory {
     	public abstract region.factory getRegionFactory();
