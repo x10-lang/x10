@@ -3,7 +3,7 @@ public class Generic4 {
 		T x;
 	}
 	public static void main(String[] v) {
-		<int>A x=new <int>A();
+        A<int> x=new A<int>();
 		x.x=(float)5;
 	}
 }
