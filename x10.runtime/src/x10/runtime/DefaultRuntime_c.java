@@ -10,14 +10,21 @@ import x10.lang.Place;
 import x10.lang.Runtime;
 
 /**
- * 
+ * Default implementation of Runtime.
+ *  
  * @author Christian Grothoff
  */
-public class DefaultRuntime_c extends Runtime implements ThreadRegistry {
+public class DefaultRuntime_c 
+    extends Runtime
+    implements 
+        ThreadRegistry,
+        ActivityInformationProvider {
 
     private final JavaRuntime native_ = new JavaRuntime();
 
     private final HashMap thread2place_ = new HashMap();
+
+    private final HashMap thread2activity_ = new HashMap();
 
     /**
      * The places of this X10 Runtime (for now a constant set).
@@ -29,7 +36,7 @@ public class DefaultRuntime_c extends Runtime implements ThreadRegistry {
 	this.places_ 
 	    = new Place[pc];
 	for (int i=pc-1;i>=0;i--)
-           places_[i] = new LocalPlace_c(this);
+           places_[i] = new LocalPlace_c(this, this);
     }
 
     /**
@@ -69,6 +76,28 @@ public class DefaultRuntime_c extends Runtime implements ThreadRegistry {
             throw new NullPointerException();
 	thread2place_.put(t, p);
     }
+    
+    public void registerActivityStop(Thread t,
+                                     Activity a) {
+        thread2activity_.remove(t);
+    }
+    
+    /**
+     * Notifiation that an activity was started.
+     * 
+     * @param t the thread that runs the activity
+     * @param a the activity that is being run
+     * @param i the activity that started a (null for boot/main).
+     */
+    public void registerActivityStart(Thread t,
+                                      Activity a,
+                                      Activity i) {
+        thread2activity_.put(t,a);
+        // FIXME: for 'now' we will use 'i' here, if 'i' was started
+        // in a 'now' section, we have to start 'a' in the same way;
+        // Clock will register a 'notify me' method with the Runtime,
+        // and the runtime will pass on the news.
+    }
 
     public Place currentPlace() {
 	Place p = (Place) thread2place_.get(Thread.currentThread());
@@ -81,7 +110,7 @@ public class DefaultRuntime_c extends Runtime implements ThreadRegistry {
      * Create a new Clock.
      */
     public Clock createClock() {
-	throw new Error("not implemented");
+        return new Clock_c(this);
     }
 
     /**
@@ -105,5 +134,16 @@ public class DefaultRuntime_c extends Runtime implements ThreadRegistry {
 	return native_;
     }
 
+    /**
+     * Get the Activity object that is executing this 
+     * method.
+     * @return
+     */
+    public Activity getCurrentActivity() {
+        Activity a = (Activity) thread2activity_.get(Thread.currentThread());
+        if (a == null)
+            throw new Error("This Thread is not an X10 Thread running X10 code!");
+        return a;
+    }
 
 } // end of DefaultRuntime_c

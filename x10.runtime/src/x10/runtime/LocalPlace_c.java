@@ -36,8 +36,15 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 class LocalPlace_c extends PooledExecutor
     implements Place {
 
-    LocalPlace_c(final ThreadRegistry reg) {
+    private final ThreadRegistry reg_;
+    
+    private final ActivityInformationProvider aip_;
+    
+    LocalPlace_c(final ThreadRegistry reg,
+                 final ActivityInformationProvider aip) {
 	super(new LinkedQueue());
+	this.reg_ = reg;
+        this.aip_ = aip;
 	this.setThreadFactory(new ThreadFactory() {
 		public Thread newThread(final Runnable cmd) {
 		    Thread t = new Thread(cmd);
@@ -65,9 +72,20 @@ class LocalPlace_c extends PooledExecutor
      * Run the given activity asynchronously.
      */
     public void runAsync(final Activity a) {
+        final Activity i = aip_.getCurrentActivity();
         try {
-            this.execute(a);            
-        } catch (InterruptedException ie) {
+            this.execute(new Runnable() {
+                public void run() {
+                    Thread t = Thread.currentThread();
+                    reg_.registerActivityStart(t, a, i);
+                    try {
+                        a.run();
+                    } finally {
+                        reg_.registerActivityStop(t, a);
+                    }
+                }
+            });
+            } catch (InterruptedException ie) {
             throw new Error(ie); // should never happen!
         }
     }
@@ -78,11 +96,18 @@ class LocalPlace_c extends PooledExecutor
      */
     public Future runFuture(final Activity.Expr a) {
         final FutureImpl result = new FutureImpl();
+        final Activity i = aip_.getCurrentActivity();
         try {
             this.execute(new Runnable() {
                 public void run() {
-                    a.run();
-                    result.setResult(a.getResult());
+                    Thread t = Thread.currentThread();
+                    reg_.registerActivityStart(t, a, i);
+                    try {
+                        a.run();                    
+                        result.setResult(a.getResult());
+                    } finally {
+                        reg_.registerActivityStop(t, a);
+                    }
                 }
             });
         } catch (InterruptedException ie) {
