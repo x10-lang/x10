@@ -2,6 +2,8 @@ package x10.lang;
 
 import java.util.Iterator;
 
+import x10.lang.doubleArray.unaryOp;
+
 /** The base class for all (value or reference) multidimensional,
  * distributed long arrays in X10.  Is a subclass-only mutable class
  * (has no mutable state, and all methods are value methods).
@@ -29,6 +31,8 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	
 	public static final binaryOp sub = new binaryOp() { public long apply(long r, long s) { return r-s;}};
 	public static final binaryOp add = new binaryOp() { public long apply(long r, long s) { return r+s;}};
+	public static final binaryOp max = new binaryOp() { public long apply(long r, long s) { return Math.max(r,s);}};
+	
 	public static interface pointwiseOp/*(region r)*/ {
 		long apply(point/*(r)*/ p);
 	}
@@ -36,6 +40,8 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
     public static interface unaryOp {
         long apply(long r);
     }
+	
+    public static final unaryOp abs = new unaryOp() { public long apply(long r) { return Math.abs(r);}};
 	
 	abstract public static /*value*/ class factory {
 		
@@ -128,6 +134,42 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
     abstract /*value*/ public void set(long v, int p, int q);
     abstract /*value*/ public void set(long v, int p, int q, int r);
     abstract /*value*/ public void set(long v, int p, int q, int r, int s);
+    
+    /** Convenience method for returning the sum of the array.
+     * @return sum of the array.
+     */
+	public long sum() {
+		return reduce(add, 0);
+	}
+	/**
+	 * Convenience method for returning the max of the array.
+	 * @return
+	 */
+	public long max() {
+		return reduce(max, 0);
+	}
+	/**
+	 * Convenience method for returning the max of the array after applying the given fun.
+	 * @param fun
+	 * @return
+	 */
+	public long max(unaryOp fun) {
+		return lift(fun).reduce(max, 0);
+	}
+	/**
+	 * Convenience method for applying abs to each element in the array.
+	 * @return
+	 */
+	public longArray abs() {
+		return lift(abs);
+	}
+	/**
+	 * Convenience method for applying max after applying abs.
+	 * @return
+	 */
+	public long maxAbs() {
+		return max(abs);
+	}
 	
 	/** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and
@@ -180,6 +222,8 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	 */
 	abstract /*value*/ public 
 	longArray/*(distribution)*/ lift(binaryOp fun, longArray/*(distribution)*/ a);
+	abstract public 
+	longArray/*(distribution)*/ lift(unaryOp fun);
 	
 	public Iterator iterator() {
 	 	return region.iterator();

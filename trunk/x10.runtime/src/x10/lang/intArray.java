@@ -31,7 +31,9 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	
 	public static final binaryOp sub = new binaryOp() { public int apply(int r, int s) { return r-s;}};
 	public static final binaryOp add = new binaryOp() { public int apply(int r, int s) { return r+s;}};
-	public static interface pointwiseOp/*(region r)*/ {
+	public static final binaryOp max = new binaryOp() { public int apply(int r, int s) { return Math.max(r,s);}};
+	public static final unaryOp abs = new unaryOp() { public int apply(int r) { return Math.abs(r);}};
+	public static interface pointwiseOp/*(region r)*/ { 
 		int apply(point/*(r)*/ p);
 	}
     
@@ -131,7 +133,42 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
     abstract /*value*/ public void set(int v, int p, int q, int r);
     abstract /*value*/ public void set(int v, int p, int q, int r, int s);
     
-	/** Return the value obtained by reducing the given array with the
+    /** Convenience method for returning the sum of the array.
+     * @return sum of the array.
+     */
+	public int sum() {
+		return reduce(add, 0);
+	}
+	/**
+	 * Convenience method for returning the max of the array.
+	 * @return
+	 */
+	public int max() {
+		return reduce(max, 0);
+	}
+	/**
+	 * Convenience method for returning the max of the array after applying the given fun.
+	 * @param fun
+	 * @return
+	 */
+	public int max(unaryOp fun) {
+		return lift(fun).reduce(max, 0);
+	}
+	/**
+	 * Convenience method for applying abs to each element in the array.
+	 * @return
+	 */
+	public intArray abs() {
+		return lift(abs);
+	}
+	/**
+	 * Convenience method for applying max after applying abs.
+	 * @return
+	 */
+	public int maxAbs() {
+		return max(abs);
+	}
+    /** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and
 	 commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).
 	 */
@@ -175,13 +212,22 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	
 	
 	/** Assume given an intArray a over the given distribution.
-	 * Assume given a function f: int -> int -> int.
+	 * Assume given a function fun: int -> int -> int.
 	 * Return an intArray with distribution dist 
 	 * containing fun(this.atValue(p),a.atValue(p)) for each p in
 	 * dist.region.
 	 */
 	abstract /*value*/ public 
 	intArray/*(distribution)*/ lift(binaryOp fun, intArray/*(distribution)*/ a);
+	
+	/** Apply the given fun: int -> int on each element of the array, returning
+	 * an array with the same distribution.
+	 * 
+	 * @param fun -- the function to be applied pointwise.
+	 * @return the array with fun applied pointwise
+	 */
+	abstract /*value*/ public 
+	intArray/*(distribution)*/ lift(unaryOp fun);
 	
 	public Iterator iterator() {
 	 	return region.iterator();

@@ -125,6 +125,15 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         }
         return result;
     }
+    public x10.lang.intArray lift( IntArray.unaryOp op ) {
+        IntReferenceArray result = newInstance(distribution);
+        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+            point p = (point) it.next();
+             result.set(op.apply(this.get(p)),p);
+        }
+        return result;
+    }
+
 
     public int reduce( IntArray.binaryOp op, int unit ) {
         int result = unit;
