@@ -27,19 +27,23 @@ import polyglot.visit.TypeChecker;
 
 /**
  * @author vj Jan 9, 2005
- * 
+ * @author Chrisitan Grothoff (added GenParameterExpr)
  */
 public class ParametricTypeNode_c extends TypeNode_c implements
 		ParametricTypeNode {
 	protected TypeNode base;
 	protected DepParameterExpr parameter;
+	protected GenParameterExpr typeparameter;
 
 	/**
 	 * @param pos
 	 */
-	public ParametricTypeNode_c(Position pos, TypeNode base, DepParameterExpr parameter) {
+	public ParametricTypeNode_c(Position pos, TypeNode base,
+            GenParameterExpr types,
+            DepParameterExpr parameter) {
 		super(pos);
 		this.base = base;
+		this.typeparameter = types;
 		this.parameter = parameter;
 
 	}
@@ -52,21 +56,35 @@ public class ParametricTypeNode_c extends TypeNode_c implements
 		n.base = base;
 		return n;
 	}
-	
+    
 	public DepParameterExpr parameter() {
-		return parameter;
+	    return parameter;
+	}
+    
+	public GenParameterExpr typeParameter() {
+	    return typeparameter;
 	}
 	public ParametricTypeNode_c expr( DepParameterExpr expr) {
-		ParametricTypeNode_c n = (ParametricTypeNode_c) copy();
-		n.parameter = expr;
-		return n;
+	    ParametricTypeNode_c n = (ParametricTypeNode_c) copy();
+	    n.parameter = expr;
+	    return n;
 	}
-	
-	protected ParametricTypeNode_c reconstruct( TypeNode base, DepParameterExpr parameter ) {
-		if (base == this.base && parameter == this.parameter) return this;
+    
+	public ParametricTypeNode_c expr(GenParameterExpr expr) {
+	    ParametricTypeNode_c n = (ParametricTypeNode_c) copy();
+	    n.typeparameter = expr;
+	    return n;
+	}
+    
+	protected ParametricTypeNode_c reconstruct( TypeNode base,
+            GenParameterExpr tp,
+            DepParameterExpr parameter) {
+		if (base == this.base && parameter == this.parameter &&
+                tp == this.typeparameter) return this;
 		ParametricTypeNode_c n = (ParametricTypeNode_c) copy();
 		n.base = base;
 		n.parameter = parameter;
+		n.typeparameter = tp;
 		return n;
 	  }
 	
@@ -74,7 +92,8 @@ public class ParametricTypeNode_c extends TypeNode_c implements
 	public Node visitChildren( NodeVisitor v ) {
 		TypeNode base = (TypeNode) visitChild( this.base, v);
 		DepParameterExpr parameter = (this.parameter == null)? null : (DepParameterExpr) visitChild( this.parameter, v);
-		return reconstruct( base, parameter );
+		GenParameterExpr tparam = (this.typeparameter == null)? null : (GenParameterExpr) visitChild( this.typeparameter, v);
+		return reconstruct( base, tparam, parameter);
 	}
 
 	/**
@@ -102,10 +121,13 @@ public class ParametricTypeNode_c extends TypeNode_c implements
 		
 		DepParameterExpr newParameter = parameter == null? null : (DepParameterExpr) parameter.disambiguate( sc );
 		
-		X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
-		this.type = ts.createParametricType( position(), (X10ReferenceType) baseType, newParameter );
+
+		GenParameterExpr newTParameter = typeparameter == null? null : (GenParameterExpr) typeparameter.disambiguate( sc );
+
+                X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
+		this.type = ts.createParametricType( position(), (X10ReferenceType) baseType, newTParameter, newParameter );
 		
-		Node result = reconstruct( newType, newParameter );
+		Node result = reconstruct( newType, newTParameter, newParameter );
 		
 		if (Report.should_report("debug", 5)) {
 			Report.report(5,"[ParametricTypeNode_c] ... returns |" + result +"|(#" 
@@ -145,7 +167,10 @@ public class ParametricTypeNode_c extends TypeNode_c implements
 			throw new SemanticException("Argument to parametric type node must be a reference type" 
 						+ position());
 		X10TypeSystem ts = (X10TypeSystem) argType.typeSystem();
-		this.type = ts.createParametricType( position(), (X10ReferenceType) argType, parameter);
+		this.type = ts.createParametricType( position(),
+		        (X10ReferenceType) argType,
+		        typeparameter,
+		        parameter);
 		
 		// TODO: vj Check that the parameter is in fact a boolean expression, and uses only the fields 
 		// of the base class that are marked as parameters.

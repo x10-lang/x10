@@ -5,6 +5,7 @@
 package x10.lang;
 
 import x10.base.TypeArgument;
+import x10.compilergenerated.Parameter1;
 
 /**
  * @author Christoph von Praun
@@ -12,7 +13,7 @@ import x10.base.TypeArgument;
  * This class implements the root of the inheritance Hierarchy
  * for objects in an X10 program.
  */
-public class Object {
+public class Object implements Parameter1 {
 	/**
 	 * the place where this object was allocated.
 	 */

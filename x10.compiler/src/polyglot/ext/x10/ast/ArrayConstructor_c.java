@@ -5,33 +5,28 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
-import polyglot.ast.Block;
+import polyglot.ast.ArrayInit;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
-import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Variable;
-import polyglot.ast.ArrayInit;
-import polyglot.types.Type;
-
+import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.jl.ast.NewArray_c;
-import polyglot.ext.jl.ast.Call_c;
+import polyglot.ext.x10.types.X10ReferenceType;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
+import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
-
-import polyglot.ext.x10.types.X10TypeSystem;
 
 /** An immutable representation of an X10 array constructor.
  * @author vj Dec 9, 2004
@@ -214,7 +209,7 @@ implements ArrayConstructor {
 				// ((ArrayInit) initializer).typeCheckElements(base.type());
 			}
 			
-			// TODO: vj The following is hardwired for int, double and long arrays.
+			// TODO: vj/cg: The following is hardwired for int, double and long arrays. Other primitives will fail.
 			Type initType = initializer.type();
 			if ( newBaseType.isInt()){
 				if (! ts.isImplicitCastValid(initType, ts.IntArrayPointwiseOp()))
@@ -228,7 +223,11 @@ implements ArrayConstructor {
 				if (! ts.isImplicitCastValid(initType, ts.LongArrayPointwiseOp()))
 					throw new SemanticException("Array initializer must be of type x10.lang.longArray.pointwiseOp" 
 							+ position());
-			}
+			} else {
+			    if (! ts.isImplicitCastValid(initType, ts.GenericArrayPointwiseOp((X10ReferenceType)newBaseType)))
+			        throw new SemanticException("Array initializer must be of type x10.lang.genericArray.pointwiseOp" 
+			                + position());
+			}                     
 		}
 		Type t = ts.array( newBaseType, isValue );
 		

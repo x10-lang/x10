@@ -45,11 +45,16 @@ public final class Allocator {
         return new MemoryBlockSafeDoubleArray( a );
     }
     
+    public static final MemoryBlock allocSafeObjectArray(Object[] a) {      
+        return new MemoryBlockSafeObjectArray( a );
+    }
+    
     public static final int SIZE_BOOLEAN = 1; 
     public static final int SIZE_BYTE = 1; 
     public static final int SIZE_CHAR = 2; 
     public static final int SIZE_SHORT = 2; 
     public static final int SIZE_INT = 4; 
+    public static final int SIZE_PTR = 4; // FIXME: 64 bit architectures... 
     public static final int SIZE_LONG = 8;
     public static final int SIZE_FLOAT = 4; 
     public static final int SIZE_DOUBLE = 8;

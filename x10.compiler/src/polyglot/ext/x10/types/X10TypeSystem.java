@@ -4,10 +4,17 @@
 
 package polyglot.ext.x10.types;
 
-import polyglot.types.*;
-import polyglot.util.Position;
 import polyglot.ast.Expr;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
+import polyglot.types.MethodInstance;
+import polyglot.types.PrimitiveType;
+import polyglot.types.ReferenceType;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.util.Position;
 
 
 /**
@@ -46,7 +53,10 @@ public interface X10TypeSystem extends TypeSystem {
 
     NullableType createNullableType( Position p, ReferenceType t);
     FutureType createFutureType( Position p, Type t);
-    ParametricType createParametricType ( Position pos, X10ReferenceType type, DepParameterExpr expr ) ;
+    ParametricType createParametricType ( Position pos,
+                X10ReferenceType type,
+                GenParameterExpr texpr,
+                DepParameterExpr expr ) ;
     ClassType X10Object();
     ClassType place();
     ClassType region();
@@ -60,6 +70,7 @@ public interface X10TypeSystem extends TypeSystem {
     ClassType IntArrayPointwiseOp();
     ClassType DoubleArrayPointwiseOp();
     ClassType LongArrayPointwiseOp();
+    ClassType GenericArrayPointwiseOp(X10ReferenceType baseType);
     
  
   
@@ -70,7 +81,7 @@ public interface X10TypeSystem extends TypeSystem {
      * TODO: implement for all native types.
      */
     
-    ClassType array( Type type, boolean isValueType, Expr distribution);
+    ReferenceType array( Type type, boolean isValueType, Expr distribution);
     
     /**Provide a generic type constructor for arrays:
      * Behaves the same as <Type>Array( distribution ).
@@ -78,7 +89,7 @@ public interface X10TypeSystem extends TypeSystem {
      * 1/13/2005 -- implemented for int and double only.
      * TODO: implement for all native types.
      */
-    ClassType array(Type type,  Expr distribution);
+    ReferenceType array(Type type,  Expr distribution);
     
     /**Provide a generic type constructor for arrays:
      * Behaves the same as <Type>Array( isValueType ).
@@ -86,7 +97,7 @@ public interface X10TypeSystem extends TypeSystem {
      * 1/13/2005 -- implemented for int and double only.
      * TODO: implement for all native types.
      */
-    ClassType array(Type type,  boolean isValueType );
+    ReferenceType array(Type type,  boolean isValueType );
     
     /**Provide a generic type constructor for arrays:
      * Behaves the same as <Type>Array( ).
@@ -94,7 +105,7 @@ public interface X10TypeSystem extends TypeSystem {
      * 1/13/2005 -- implemented for int and double only.
      * TODO: implement for all native types.
      */
-    ClassType array(Type type);
+    ReferenceType array(Type type);
     
     /** Return the parametric type of all X10 intArrays with the
 	 * given values for the isValueType and distribution parameters.

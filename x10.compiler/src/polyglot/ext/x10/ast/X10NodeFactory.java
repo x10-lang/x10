@@ -17,6 +17,7 @@ import x10.parser.X10VarDeclarator;
  * NodeFactory for x10 extension.
  * @author ??
  * @author vj
+ * @author Christian Grothoff
  */
 public interface X10NodeFactory extends NodeFactory {
     Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
@@ -41,7 +42,9 @@ public interface X10NodeFactory extends NodeFactory {
     
     NullableNode Nullable(Position pos, TypeNode type);
     FutureNode Future(Position pos, TypeNode type);
-    ParametricTypeNode ParametricTypeNode(Position pos, TypeNode type, DepParameterExpr expr);
+    ParametricTypeNode ParametricTypeNode(Position pos, TypeNode type,
+            GenParameterExpr g,
+            DepParameterExpr expr);
 
     ValueClassDecl ValueClassDecl(Position pos, Flags flags, String name,
 				  TypeNode superClass, List interfaces,
@@ -61,6 +64,7 @@ public interface X10NodeFactory extends NodeFactory {
     DepParameterExpr DepParameterExpr(Position pos, List args, Expr cond);    
     DepParameterExpr DepParameterExpr(Position pos, List args);
     DepParameterExpr DepParameterExpr(Position pos, Expr cond);    
+    GenParameterExpr GenParameterExpr(Position pos, List args);
     X10ArrayTypeNode X10ArrayTypeNode(Position pos, TypeNode base, boolean isValueType, 
 			DepParameterExpr indexedSet );
     X10ArrayAccess X10ArrayAccess( Position pos, Expr a, List indices);

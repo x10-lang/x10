@@ -4201,7 +4201,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             Name a = (Name) btParser.getSym(1);
             TypeNode t = a.toType();
             DepParameterExpr b = (DepParameterExpr) btParser.getSym(2);
-            btParser.setSym1(b == null ? t : nf.ParametricTypeNode(pos(), t, b));
+            btParser.setSym1(b == null ? t : nf.ParametricTypeNode(pos(), t, null, b));
                     break;
             }
         

@@ -7,28 +7,29 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
+import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.types.FieldInstance;
 import polyglot.types.Resolver;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
-import polyglot.ext.x10.ast.DepParameterExpr;
 
 /**
  * @author vj Jan 9, 2005
- * 
+ * @author Christian Grothoff
  */
 public class ParametricType_c extends X10ReferenceType_c implements
 		ParametricType {
 	protected X10ReferenceType base;
-    protected DepParameterExpr parameters;
+	protected DepParameterExpr parameters;
+	protected GenParameterExpr typeparameters;
 
 	/**
 	 * 
 	 */
 	public ParametricType_c() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -36,16 +37,20 @@ public class ParametricType_c extends X10ReferenceType_c implements
 	 */
 	public ParametricType_c(TypeSystem ts) {
 		super(ts);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @param ts
 	 * @param pos
 	 */
-	public ParametricType_c(TypeSystem ts, Position pos, X10ReferenceType base, DepParameterExpr parameters) {
+	public ParametricType_c(TypeSystem ts,
+	        Position pos, 
+	        X10ReferenceType base, 
+	        GenParameterExpr typeparameters,
+	        DepParameterExpr parameters) {
 		super(ts, pos);
 		this.base = base;
+		this.typeparameters = typeparameters;
 		this.parameters=parameters;
 	}
 
@@ -53,14 +58,18 @@ public class ParametricType_c extends X10ReferenceType_c implements
 	 * @see polyglot.types.ReferenceType#methods()
 	 */
 	public List methods() {
-		return base.methods();
+	    List methods = base.methods();
+	    // FIXME: translate methods (change signatures!)
+        
+	    return base.methods();
 	}
 
 	/* (non-Javadoc)
 	 * @see polyglot.types.ReferenceType#fields()
 	 */
 	public List fields() {
-		return base.fields();
+	    // FIXME: translate fields (change signatures!)
+	    return base.fields();
 	}
 
 	/* (non-Javadoc)
@@ -74,6 +83,8 @@ public class ParametricType_c extends X10ReferenceType_c implements
 	 * @see polyglot.types.ReferenceType#interfaces()
 	 */
 	public List interfaces() {
+	    // FIXME: interfaces may use parameters (implements List<T>)
+	    // that we need to instantiate (List<Foo>)
 		return base.interfaces();
 	}
 
