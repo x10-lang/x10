@@ -1,0 +1,6 @@
+// now(#0) #1
+#0.doNow(new Activity() {
+  public void run() {
+     #1 
+  }
+});
