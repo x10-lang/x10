@@ -10,49 +10,49 @@ import com.ibm.lpg.*;
 import java.io.*;
 
 class X10Parserprs implements ParseTable, X10Parsersym {
-    public final static byte isKeyword[] = new byte[137];
+    public final static byte isKeyword[] = new byte[146];
     public final boolean isKeyword(int index) { return isKeyword[index] != 0; }
-    public final static short baseCheck[] = new short[12625];
+    public final static short baseCheck[] = new short[11291];
     public final int baseCheck(int index) { return baseCheck[index]; }
     public final static short rhs[] = baseCheck;
     public final int rhs(int index) { return rhs[index]; };
-    public final static char baseAction[] = new char[14277];
+    public final static char baseAction[] = new char[12545];
     public final int baseAction(int index) { return baseAction[index]; }
     public final static char lhs[] = baseAction;
     public final int lhs(int index) { return lhs[index]; };
-    public final static char termCheck[] = new char[8185];
+    public final static char termCheck[] = new char[7200];
     public final int termCheck(int index) { return termCheck[index]; }
-    public final static char termAction[] = new char[8134];
+    public final static char termAction[] = new char[7152];
     public final int termAction(int index) { return termAction[index]; }
-    public final static char asb[] = new char[660];
+    public final static char asb[] = new char[634];
     public final int asb(int index) { return asb[index]; }
-    public final static char asr[] = new char[1951];
+    public final static char asr[] = new char[1723];
     public final int asr(int index) { return asr[index]; }
-    public final static char nasb[] = new char[660];
+    public final static char nasb[] = new char[634];
     public final int nasb(int index) { return nasb[index]; }
-    public final static char nasr[] = new char[273];
+    public final static char nasr[] = new char[238];
     public final int nasr(int index) { return nasr[index]; }
-    public final static char terminalIndex[] = new char[137];
+    public final static char terminalIndex[] = new char[146];
     public final int terminalIndex(int index) { return terminalIndex[index]; }
-    public final static char nonterminalIndex[] = new char[312];
+    public final static char nonterminalIndex[] = new char[295];
     public final int nonterminalIndex(int index) { return nonterminalIndex[index]; }
-    public final static char scopePrefix[] = new char[145];
+    public final static char scopePrefix[] = new char[141];
     public final int scopePrefix(int index) { return scopePrefix[index]; }
-    public final static char scopeSuffix[] = new char[145];
+    public final static char scopeSuffix[] = new char[141];
     public final int scopeSuffix(int index) { return scopeSuffix[index]; }
-    public final static char scopeLhs[] = new char[145];
+    public final static char scopeLhs[] = new char[141];
     public final int scopeLhs(int index) { return scopeLhs[index]; }
-    public final static char scopeLa[] = new char[145];
+    public final static char scopeLa[] = new char[141];
     public final int scopeLa(int index) { return scopeLa[index]; }
-    public final static char scopeStateSet[] = new char[145];
+    public final static char scopeStateSet[] = new char[141];
     public final int scopeStateSet(int index) { return scopeStateSet[index]; }
-    public final static char scopeRhs[] = new char[719];
+    public final static char scopeRhs[] = new char[711];
     public final int scopeRhs(int index) { return scopeRhs[index]; }
-    public final static char scopeState[] = new char[336];
+    public final static char scopeState[] = new char[331];
     public final int scopeState(int index) { return scopeState[index]; }
-    public final static char inSymb[] = new char[660];
+    public final static char inSymb[] = new char[634];
     public final int inSymb(int index) { return inSymb[index]; }
-    public final static String name[] = new String[265];
+    public final static String name[] = new String[297];
     public final String name(int index) { return name[index]; }
 
 
@@ -93,7 +93,7 @@ class X10Parserprs implements ParseTable, X10Parsersym {
     static {
         try {
             InputStream infile = (new X10Parserprs()).getClass().getClassLoader().getResourceAsStream("X10Parserdcl.data");
-            final byte buffer[] = new byte[102319];
+            final byte buffer[] = new byte[92033];
 
             //
             // Normally, we should be able to read the content of infile with
@@ -139,9 +139,9 @@ class X10Parserprs implements ParseTable, X10Parsersym {
     }
 
     public final static int
-           ERROR_SYMBOL      = 136,
-           SCOPE_UBOUND      = 144,
-           SCOPE_SIZE        = 145,
+           ERROR_SYMBOL      = 145,
+           SCOPE_UBOUND      = 140,
+           SCOPE_SIZE        = 141,
            MAX_NAME_LENGTH   = 36;
 
     public final int getErrorSymbol() { return ERROR_SYMBOL; }
@@ -150,20 +150,20 @@ class X10Parserprs implements ParseTable, X10Parsersym {
     public final int getMaxNameLength() { return MAX_NAME_LENGTH; }
 
     public final static int
-           NUM_STATES        = 659,
-           NT_OFFSET         = 136,
-           LA_STATE_OFFSET   = 14954,
+           NUM_STATES        = 633,
+           NT_OFFSET         = 145,
+           LA_STATE_OFFSET   = 13184,
            MAX_LA            = 1,
-           NUM_RULES         = 677,
-           NUM_NONTERMINALS  = 311,
-           NUM_SYMBOLS       = 447,
+           NUM_RULES         = 639,
+           NUM_NONTERMINALS  = 294,
+           NUM_SYMBOLS       = 439,
            SEGMENT_SIZE      = 8192,
-           START_STATE       = 5859,
-           IDENTIFIER_SYMBOL = 41,
-           EOFT_SYMBOL       = 127,
-           EOLT_SYMBOL       = 127,
-           ACCEPT_ACTION     = 12625,
-           ERROR_ACTION      = 14277;
+           START_STATE       = 10530,
+           IDENTIFIER_SYMBOL = 45,
+           EOFT_SYMBOL       = 130,
+           EOLT_SYMBOL       = 130,
+           ACCEPT_ACTION     = 11291,
+           ERROR_ACTION      = 12545;
 
     public final static boolean BACKTRACK = true;
 
@@ -176,6 +176,7 @@ class X10Parserprs implements ParseTable, X10Parsersym {
     public final int getNumSymbols() { return NUM_SYMBOLS; }
     public final int getSegmentSize() { return SEGMENT_SIZE; }
     public final int getStartState() { return START_STATE; }
+    public final int getStartSymbol() { return lhs[0]; }
     public final int getIdentifierSymbol() { return IDENTIFIER_SYMBOL; }
     public final int getEoftSymbol() { return EOFT_SYMBOL; }
     public final int getEoltSymbol() { return EOLT_SYMBOL; }

@@ -7,7 +7,6 @@
 
 package x10.parser;
 
-
 import com.ibm.lpg.*;
 
 public class X10Parser implements RuleAction
@@ -38,54 +37,57 @@ public class X10Parser implements RuleAction
             System.out.println("****Error: Bad Parser Symbol File -- X10Parsersym.java. Regenerate X10Parserprs.java");
             System.exit(1);
         }
-	try
+        try
         {
-	    return (Ast) btParser.parse();
-	}
-	catch (BadParseException e)
-	{
-    	    prsStream.reset(e.error_token); // point to error token
+            return (Ast) btParser.parse();
+        }
+        catch (BadParseException e)
+        {
+            prsStream.reset(e.error_token); // point to error token
 
-    	    DiagnoseParser diagnoseParser = new DiagnoseParser(prsStream, prs);
-    	    diagnoseParser.diagnose(e.error_token);
-	}
-	return null;
+            DiagnoseParser diagnoseParser = new DiagnoseParser(prsStream, prs);
+            diagnoseParser.diagnose(e.error_token);
+        }
+        return null;
     }
 
 
-    public void ruleAction( int ruleNumber)
+    public void ruleAction(int ruleNumber)
     {
-        switch(ruleNumber)
-        {
-
+        switch (ruleNumber)
+        { 
  
-    //
-    // Rule 1:  identifier ::= Identifier
-    //
+            //
+            // Rule 1:  identifier ::= IDENTIFIER
+            //
             case 1: 
             {
-   if (prsStream.getKind(btParser.getToken(1)) != X10Parserprs.TK_Identifier)
-   {
-        System.out.println("Turning keyword " + prsStream.getName(btParser.getToken(1)) + " into an identifier");
-        prsStream.reportError(btParser.getToken(1), "");
-   }
-             }
-            break; 
- 
-    //
-    // Rule 45:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
-    //
+                if (prsStream.getKind(btParser.getToken(1)) != X10Parsersym.TK_IDENTIFIER)
+                {
+                    System.out.println("Turning keyword " +
+                                       prsStream.getName(btParser.getToken(1)) +
+                                       " at " +
+                                       prsStream.getLine(btParser.getToken(1)) +
+                                       ":" +
+                                       prsStream.getColumn(btParser.getToken(1)) +
+                                       " into an identifier");
+                }
+                 break;
+            } 
+     
+            //
+            // Rule 45:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+            //
             case 45: 
             {
-         btParser.setSym1(new Ast());
-             }
-            break; 
-    
+             btParser.setSym1(new Ast());
+                 break;
+            } 
+        
             default:
-	    break;
-	}
-	return;
-    }
-
+                break;
+        }
+        return;
+    } 
 }
 
