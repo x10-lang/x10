@@ -5,6 +5,7 @@ package x10.array;
 
 import x10.lang.Activity;
 import x10.lang.Runtime;
+import x10.lang.distribution;
 import x10.lang.region;
 import x10.lang.point;
 import x10.runtime.DefaultRuntime_c;
@@ -76,6 +77,34 @@ public class TestMultiDimRegion extends TestCase {
         assertTrue(new MultiDimRegion(ranges2).equals(sub2));
     }
     
+    /* the X10 arrays should provide a row-major interface */
+    public void testRegion_majorness() {
+        Runtime.Factory F = Runtime.factory;
+        distribution.factory DF = F.getDistributionFactory();
+        IntArray.factory IF = Runtime.factory.getIntArrayFactory();
+        Range[] ranges = new Range[] { new ContiguousRange(0,2), new ContiguousRange(0,2) };          
+        MultiDimRegion r = new MultiDimRegion(ranges);
+        distribution d = DF.constant(r, Runtime.here());
+        x10.lang.IntReferenceArray arr = IF.IntReferenceArray(d, 0);
+        int num = 1;
+        for (int row = 0; row < 3; ++ row) {
+            for (int col = 0; col < 3; ++ col) {
+                arr.set(num, row, col);
+                num++;
+            }
+        }
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < 9; ++ i) {
+            sb.append(arr.get(r.coord(i)) + " ");
+        }
+        System.out.println("[0,0] [0,1] [0,2], ... == " + sb.toString());
+        
+        int[][] a1 = (int[][]) ((IntArray) arr).toJava();
+        IntArray.printArray("a1 = ", a1);
+        
+        assertTrue("1 2 3 4 5 6 7 8 9 ".equals(sb.toString()));
+    }
+    
     public void testRegion_ordinal() {
         Range[] ranges = new Range[] { new ContiguousRange(10,109), new ContiguousRange(100, 1099) }; // 6x4         
         MultiDimRegion reg = new MultiDimRegion(ranges);
@@ -85,11 +114,11 @@ public class TestMultiDimRegion extends TestCase {
         assertTrue(ord == 0);
         
         ord = (int) reg.ordinal(point.factory.point(reg, new int[] {11, 100}));
-        System.out.println("Result is " + ord + "; should be " + 1);
-        assertTrue(ord == 1);
+        System.out.println("Result is " + ord + "; should be " + 1000);
+        assertTrue(ord == 1000);
         
         ord = (int) reg.ordinal(point.factory.point(reg, new int[] {11, 102}));
-        System.out.println("Result is " + ord + "; should be " + 201);
-        assertTrue(ord == 201);
+        System.out.println("Result is " + ord + "; should be " + 1002);
+        assertTrue(ord == 1002);
     }
 }

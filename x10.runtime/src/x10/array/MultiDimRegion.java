@@ -171,7 +171,7 @@ public class MultiDimRegion extends region  {
         
         /*nat*/int ret = 0;
         int base = 1;
-        for (int i = 0; i < p.rank; ++i) {
+        for (int i = p.rank -1 ; i >= 0; --i) {
             Range r = (Range) dims[i];
             ret += r.ordinal(p.get(i)) * base;
             base *= r.size;
