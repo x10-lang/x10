@@ -104,7 +104,7 @@ public abstract class Runtime implements x10.base.Runtime {
      */
     public static java.lang.Object nullCheck(java.lang.Object o) {
         if (o == null)
-            throw new NullPointerException("Nullable cast away from null valued reference.");
+            throw new NullPointerException("Cast of value 'null' to non-nullable type failed.");
         return o;
     }
     
