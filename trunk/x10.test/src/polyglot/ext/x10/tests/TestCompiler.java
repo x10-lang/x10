@@ -95,6 +95,10 @@ public TestCompiler(String name) {
         run("./ArrayInitializer.x10","ArrayInitializer");
     }
 
+    public void test_ArrayInitializerShorthand() {
+        run("./ArrayInitializerShorthand.x10","ArrayInitializerShorthand");
+    }
+
     public void test_AsyncTest() {
         run("./AsyncTest.x10","AsyncTest");
     }
@@ -261,6 +265,10 @@ public TestCompiler(String name) {
 
     public void test_IntArrayExternUnsafe() {
         run("./IntArrayExternUnsafe.x10","IntArrayExternUnsafe");
+    }
+
+    public void test_IntArrayInitializerShorthand() {
+        run("./IntArrayInitializerShorthand.x10","IntArrayInitializerShorthand");
     }
 
     public void test_IntArrayMaxAbs() {
