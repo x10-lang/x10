@@ -27,7 +27,7 @@ public interface X10NodeFactory extends NodeFactory {
     Drop Drop(Position pos, List clocks);
     Next Next(Position pos);
     Now Now(Position pos, Expr expr, Stmt stmt);
-    Clocked Clocked(Position pos, Expr expr, Stmt body);
+    Clocked Clocked(Position pos, List clocks, Stmt body);
     
     NullableNode Nullable(Position pos, TypeNode type);
     FutureNode Future(Position pos, TypeNode type);

@@ -1,1 +1,1 @@
-(Runtime.getRuntime().newRegion(new Range[]{#0, #1}))
+(Runtime.factory.getRegionFactory().region(new region[]{#0, #1}))

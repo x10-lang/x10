@@ -1,1 +1,1 @@
-(Runtime.getRuntime().newBlockDistribution(#0, #1))
+(Runtime.factory.getDistributionFactory().block(#0, #1))

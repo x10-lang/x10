@@ -3,7 +3,7 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Expr;
+import java.util.List;
 import polyglot.ast.Stmt;
 
 /**
@@ -13,9 +13,9 @@ import polyglot.ast.Stmt;
 public interface Clocked extends Stmt {
 
     /** Get the clock. */
-    Expr clock();
+    List clocks();
 
-    Clocked expr(Expr clock);
+    Clocked expr(List clocks);
 
     /** Get the statement. */
     Stmt stmt();

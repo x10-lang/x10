@@ -7,7 +7,7 @@ try {
 			x10.lang.Runtime.here().notifyAll();
 		} catch (Throwable e) {
   			e.printStackTrace();
-  			x10.lang.Runtime.getRuntime().java.log(java.util.logging.Level.SEVERE, "Unexpected exception during atomic.", e);
+  			x10.lang.Runtime.runtime.java.log(java.util.logging.Level.SEVERE, "Unexpected exception during atomic.", e);
 	  		throw new RuntimeException(e);
 	  	}
 	}

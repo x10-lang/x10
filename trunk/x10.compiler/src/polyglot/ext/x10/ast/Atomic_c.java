@@ -91,16 +91,16 @@ public class Atomic_c extends Stmt_c
 
     /** Type check the statement. */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
-	TypeSystem ts = tc.typeSystem();
-
-	/*
-	if (! ts.isSubtype(expr.type(), ts.Object()) ) {
-	     throw new SemanticException(
-		 "Cannot synchronize on an expression of type \"" +
-		 expr.type() + "\".", expr.position());
-	}
-	*/
-	return this;
+    	TypeSystem ts = tc.typeSystem();
+    	
+    	/*
+    	 if (! ts.isSubtype(expr.type(), ts.Object()) ) {
+    	 throw new SemanticException(
+    	 "Cannot synchronize on an expression of type \"" +
+    	 expr.type() + "\".", expr.position());
+    	 }
+    	 */
+    	return this;
     }
 
     // not sure how this works.. vj. Copied from Synchronized_c.

@@ -1,1 +1,1 @@
-(Runtime.getRuntime().newConstantDistribution(#0, #1))
+(Runtime.factory.getDistributionFactory().constant(#0, #1))
