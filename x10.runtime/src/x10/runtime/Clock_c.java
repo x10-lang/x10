@@ -272,9 +272,6 @@ public final class Clock_c extends Clock {
        new ActivitySpawnListener() {
        public void notifyActivitySpawn(Activity a,
                                        Activity i) {
-           // CVP is the following assertion always correct?
-           // the initiator might have terminated when this registration happens.
-           // assert nowSet_.contains(i);
            nowSet_.add(a);
            aip_.registerActivitySpawnListener(a, this);
        }
