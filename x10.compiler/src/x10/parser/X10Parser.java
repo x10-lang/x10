@@ -694,9 +694,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 44:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
             case 44: {
-                PackageNode a = (PackageNode) btParser.getSym(2);
-                List b = (List) btParser.getSym(3),
-                     c = (List) btParser.getSym(4);
+                PackageNode a = (PackageNode) btParser.getSym(1);
+                List b = (List) btParser.getSym(2),
+                     c = (List) btParser.getSym(3);
                 Node n = nf.SourceFile(pos(btParser.getFirstToken(), btParser.getLastToken()), a, b, c);
                 btParser.setSym1(n);
                 break;
