@@ -1,17 +1,5 @@
 <?xml version='1.0' ?>
 <x10_pem_events>
-<event name="X10::Event::RemoteCall" description="Record an async call">
-   <layerId value="X10" />
-   <classId value="Event" />
-   <specifier value="RemoteCall" />
-   <fields>
-      <field name="systemTime"  type="uint64" description="system time in milliseconds" />
-      <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
-      <field name="spid"        type="uint32" description="source place identifier" />
-      <field name="tpid"        type="uint32" description="target place identifier" />
-   </fields>
-   <k42Format value='pid=%1[%d] time=%0[%lld]' />
-</event>
 
 <event name="X10::Event::ClockAdvance" description="Record a clock advancement">
    <layerId value="X10" />
@@ -21,7 +9,7 @@
       <field name="systemTime"  type="uint64" description="system time in milliseconds" />
       <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
       <field name="pid"         type="uint32" description="place identifier (of place triggering advance)" />
-      <field name="reserved"    type="uint32" description="reserved for 64-bit alignment (0)" />
+      <field name="clockid"     type="uint32" description="identifier of the clock instance" />
    </fields>
    <k42Format value='pid=%1[%d] time=%0[%lld]' />
 </event>
@@ -33,26 +21,30 @@
    <fields>
       <field name="systemTime"  type="uint64" description="system time in milliseconds" />
       <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
-      <field name="pid"         type="uint32" description="place identifier (of place where activity runs)" />
+      <field name="spid"        type="uint32" description="source place identifier, place of the caller" />
+      <field name="tpid"        type="uint32" description="target place identifier, place of the callee where the activity runs" />
       <field name="load"        type="uint32" description="new load at this place" />
+      <field name="said"         type="uint32" description="static activity (source) identifier, identifies (static) Activity code that is being run, not the instance (currently always 0)" />
    </fields>
    <k42Format value='pid=%1[%d] time=%0[%lld]' />
 </event>
 
-<event name="X10::Event::ActivityEnds" description="Record an activity terminating">
+<event name="X10::Event::ActivityEnd" description="Record an activity terminating">
    <layerId value="X10" />
    <classId value="Event" />
    <specifier value="ActivityEnds" />
    <fields>
       <field name="systemTime"  type="uint64" description="system time in milliseconds" />
       <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
-      <field name="pid"         type="uint32" description="place identifier (of place where activity runs)" />
+      <field name="reserved"    type="uint32" description="reserved (for 64-bit alignment, always 0)" />
+      <field name="pid"         type="uint32" description="place identifier (of place where activity was running)" />
       <field name="load"        type="uint32" description="new load at this place" />
+      <field name="said"         type="uint32" description="static activity (source) identifier, identifies (static) Activity code that is being run, not the instance (currently always 0)" />
    </fields>
    <k42Format value='pid=%1[%d] time=%0[%lld]' />
 </event>
 
-<event name="X10::Event::ActivityBlocks" description="Record an activity blocking">
+<event name="X10::Event::ActivityBlock" description="Record an activity blocking">
    <layerId value="X10" />
    <classId value="Event" />
    <specifier value="ActivityBlocks" />
@@ -61,11 +53,14 @@
       <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
       <field name="pid"         type="uint32" description="place identifier (of place where activity runs)" />
       <field name="load"        type="uint32" description="new load at this place" />
+      <field name="cause"       type="uint32" description="cause of the block (0 = atomic, 1 = force, 2 = clock)" />
+      <field name="causeinfo"   type="uint32" description="cause info (0 for atomic, remote place ID for force, clock id for clock)" />
+
    </fields>
    <k42Format value='pid=%1[%d] time=%0[%lld]' />
 </event>
 
-<event name="X10::Event::ActivityUnblocks" description="Record an activity unblocking">
+<event name="X10::Event::ActivityUnblock" description="Record an activity unblocking">
    <layerId value="X10" />
    <classId value="Event" />
    <specifier value="ActivityUnblocks" />
@@ -74,6 +69,8 @@
       <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
       <field name="pid"         type="uint32" description="place identifier (of place where activity runs)" />
       <field name="load"        type="uint32" description="new load at this place" />
+      <field name="cause"       type="uint32" description="cause of the block (0 = atomic, 1 = force, 2 = clock)" />
+      <field name="causeinfo"   type="uint32" description="cause info (0 for atomic, remote place ID for force, clock id for clock)" />
    </fields>
    <k42Format value='pid=%1[%d] time=%0[%lld]' />
 </event>
