@@ -141,7 +141,7 @@ implements X10TypeSystem {
 	protected ClassType futureActivityType_;
 	public ClassType FutureActivity() {
 		if ( futureActivityType_ == null)
-			futureActivityType_ = load("x10.lang.Activity.Expr"); // java file
+			futureActivityType_ = load("x10.lang.Activity$Expr"); // java file
 		return futureActivityType_;
 	}
 	
@@ -168,15 +168,17 @@ implements X10TypeSystem {
 	
 	protected ClassType intArrayPointwiseOpType_;
 	public ClassType IntArrayPointwiseOp() {
-		if ( intArrayPointwiseOpType_ == null)
-			intArrayPointwiseOpType_ = load("x10.lang.intArray.pointwiseOp"); // java file
+		if ( intArrayPointwiseOpType_ == null) {
+			intArray(); // ensure that intArray is loaded.
+			intArrayPointwiseOpType_ = load("x10.lang.intArray$pointwiseOp"); // java file
+		}
 		return intArrayPointwiseOpType_;
 	}
 	
 	protected ClassType doubleArrayPointwiseOpType_;
 	public ClassType DoubleArrayPointwiseOp() {
 		if ( doubleArrayPointwiseOpType_ == null)
-			doubleArrayPointwiseOpType_ = load("x10.lang.doubleArray.pointwiseOp"); // java file
+			doubleArrayPointwiseOpType_ = load("x10.lang.doubleArray$pointwiseOp"); // java file
 		return doubleArrayPointwiseOpType_;
 	}
 	
@@ -234,13 +236,14 @@ implements X10TypeSystem {
 	
 	protected ClassType intValueArrayType_;
 	public ClassType intValueArray( Expr distribution ) {
-		if ( intValueArrayType_ == null)
-			// Do not load the implementation class. Typechecking must be done against the 
-			// x10.lang class.
-			intValueArrayType_ = load("x10.lang.intValueArray"); // java file
-		// TODO: vj -- Implement dependent types. Pass the parameter information to the type.
-		// return intValueArrayType_.setParameter( "distribution", distribution );
-		return intValueArrayType_;
+			// vj: should really load x10.lang.intValueArray, but we are cheating...
+			// there is no difference in the public type (= methods) of x10.lang.intValueArray
+		    // and x10.lang.intArray, so we reuse the implementation of x10.lang.intArray.
+		    // The backend does not do anything special about value classes right now anyway,
+		    // so there is no need to tell the implementation that this is a value class.
+		    // This hack will need to be fixed once the compiler starts checking that
+		    // value classes can only be extended by value classes. 
+		return intArray( distribution );
 	}
 	public ClassType IntReferenceArray() {
 		return IntReferenceArray( null );
