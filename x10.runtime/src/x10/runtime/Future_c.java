@@ -52,17 +52,25 @@ final class Future_c extends Future {
      * @param result
      */
     public synchronized void setException(RuntimeException t) {
-        assert (! haveResult_); 
-        this.exception_ = t;
-        this.haveResult_ = true;
-        this.notifyAll(); // wake up 'force' if waiting
+        if (haveResult_) {
+            t.printStackTrace();
+            // FIXME: what should happen here?
+        } else {
+            this.exception_ = t;
+            this.haveResult_ = true;
+            this.notifyAll(); // wake up 'force' if waiting
+        }
     }
 
     public synchronized void setException(Error t) {
-        assert (! haveResult_); 
-        this.exception_ = t;
-        this.haveResult_ = true;
-        this.notifyAll(); // wake up 'force' if waiting
+        if (haveResult_) {
+            t.printStackTrace();
+            // FIXME: what should happen here?
+        } else {
+            this.exception_ = t;
+            this.haveResult_ = true;
+            this.notifyAll(); // wake up 'force' if waiting
+        }
     }
     
     /*

@@ -72,7 +72,8 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         this.safe_ = safe;
     	int count = d.region.size();
     	int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
+        for (int i = 0; i < count; ++i)
+            ranks[i] = d.region.rank(i).size();
         this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) 
     			: Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
     	scan(this, new Assign(c));
