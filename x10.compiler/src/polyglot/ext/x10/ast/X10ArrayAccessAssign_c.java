@@ -85,7 +85,7 @@ implements X10ArrayAccessAssign {
 //		 Now left must be an X10ArrayAccess which has now resolved into a Call_c.
 			// Use the information in the call to construct the real set call.
                  Expr left = (this.left instanceof Cast) ? ((Cast)this.left).expr() : this.left;                        
-		  	Call call = (Call) left; // FIXME: wrong: could be cast for UD types!            
+		  	Call call = (Call) left;            
 			List args = TypedList.copyAndCheck(call.arguments(), Expr.class, false);
 			args.add( 0, right);
 			Expr receiver = (Expr) call.target();

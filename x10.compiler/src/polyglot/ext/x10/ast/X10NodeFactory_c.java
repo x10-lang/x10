@@ -108,14 +108,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (Now) n.del(delFactory().delStmt());
 	}
 	
-	
-	public Clocked Clocked(Position pos, List clocks, Stmt stmt) {
-		Clocked n = new Clocked_c(pos, clocks, stmt);
-		n = (Clocked) n.ext(extFactory().extStmt());
-		return (Clocked) n.del(delFactory().delStmt());
-	}
-	
-	
 	/** Called when a future X has been parsed, where X should be a type.
 	 *  TODO cvp - do these nodes need specific delegate and extension objects? 
 	 */

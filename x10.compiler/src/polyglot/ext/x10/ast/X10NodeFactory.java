@@ -38,7 +38,6 @@ public interface X10NodeFactory extends NodeFactory {
     When.Branch WhenBranch(Position pos, Expr expr, Stmt statement);
     Next Next(Position pos);
     Now Now(Position pos, Expr expr, Stmt stmt);
-    Clocked Clocked(Position pos, List clocks, Stmt body);
     
     NullableNode Nullable(Position pos, TypeNode type);
     FutureNode Future(Position pos, TypeNode type);

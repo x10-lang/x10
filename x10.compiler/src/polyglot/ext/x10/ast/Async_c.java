@@ -33,10 +33,11 @@ import java.util.LinkedList;
  */
 
 public class Async_c extends Stmt_c 
-implements Async {
+      implements Async, Clocked {
 	
 	public Expr place; 
 	public Stmt body;
+        protected List clocks;
 	
 	public Async_c( Position pos, Expr place, Stmt body ) {
 		super( pos );
@@ -55,6 +56,18 @@ implements Async {
 		return body;
 	}
 	
+    /** Expression */
+    public List clocks() {
+        return this.clocks;
+    }
+    
+    /** clock */
+    public Clocked expr(List clocks) {
+        Async_c n = (Async_c) copy();
+        n.clocks = clocks;
+        return n;
+    }
+    
 	/** Set the body of the statement. 
 	 */
 	public Async body(Stmt body) {
