@@ -7,6 +7,7 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ext.jl.types.TypeSystem_c;
 import polyglot.ext.x10.types.X10PrimitiveType_c;
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
@@ -71,18 +72,33 @@ public class X10TypeSystem_c
     }
     
 
-	/**
+    /**
      * Return an array of <code>type</code>
      */
-    public ArrayType arrayOf(Type type, Expr indexedSet) {
-     return null;
+    public ArrayType arrayOf(Position pos, Type type) { 
+    	return new X10ArrayType_c( this, pos, type );
     }
 
     /**
      * Return an array of <code>type</code>
      */
-    public ArrayType arrayOf(Position pos, Type type, Expr indexedSet) {
-    	return null;
+    public ArrayType arrayOf(Position pos, Type type, 
+			     boolean isValue) {
+    	return new X10ArrayType_c( this, pos, type, isValue );
+    }
+
+    /**
+     * Return an array of <code>type</code>
+     */
+    public ArrayType arrayOf(Position pos, Type type, DepParameterExpr indexedSet) {
+	return new X10ArrayType_c( this, pos, type, indexedSet);
+    }
+
+    /**
+     * Return an array of <code>type</code>
+     */
+    public ArrayType arrayOf(Position pos, Type type, boolean isValue, DepParameterExpr indexedSet) {
+	return new X10ArrayType_c( this, pos, type, isValue, indexedSet);
     }
 
     
