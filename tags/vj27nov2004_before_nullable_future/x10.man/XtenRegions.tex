@@ -1,0 +1,115 @@
+\section{Regions}\label{XtenRegions}\index{region}
+
+A region is a set of indices (called {\em points}).  
+{}\Xten{} provides a built-in value class, {\tt
+x10.lang.region}, to allow the creation of new regions and
+to perform operations on regions. This class is {\tt final} in
+{}\XtenCurrVer; future versions of the language may permit
+user-definable regions. Since regions play a dual role
+(values as well as types), variables of type {\cf region} 
+must be initialized and are implicitly {\tt final}.
+
+Each region {\cf R} has a constant rank, {\cf R.rank}, which is a
+non-negative integer. The literal {\cf []} represents the {\em null
+region} and has rank {\cf 0}.
+
+For instance:
+\begin{x10}
+   range  E = 1..100;
+   region R = [0..99:2, -1..MAX\_HEIGHT];   
+   region R = region.upperTriangular(N);
+   region R = region.banded(N, K);
+     // A square region.
+   region R = [E, E];           
+     // Same region as above.
+   region R = [100, 100];       
+     // A representation for 52*7 days.
+   region W = [Week, Weekday];  
+     // Represents  the empty region
+   region Null = [];            
+     // Represents the intersection of two regions
+   region AandB = A \&\& B;       
+     // represents the union of two regions
+   region AOrB = A || B;        
+\end{x10}
+
+A region may be constructed using a comma-separated list of {\cf
+Ranges} (\S~\ref{XtenRanges}) within square brackets, as above and
+represents the Cartesian product of each of the arguments.  For
+convenience we allow an integer {\cf n} to stand for the enumeration
+{\cf 1..n}.  The bound of a dimension may be any
+final variable of a fixed-point numeric type. \XtenCurrVer{} does not
+support hierarchical regions.
+
+Various built-in regions are provided through {\tt static} factory
+methods on {\tt region}.  For instance:\index{region!upperTriangular}
+\index{region!lowerTriangular}\index{region!banded}
+\begin{itemize}
+{}\item {\cf region.upperTriangular(N)} returns a region corresponding
+to the non-zero indices in an upper-triangular {\cf N x N} matrix.
+{}\item {\cf region.lowerTriangular(N)} returns a region corresponding
+to the non-zero indices in a lower-triangular {\cf N x N} matrix.
+{}\item {\cf region.banded(N, K)} returns a region corresponding to
+the non-zero indices in a banded {\cf N x N} matrix where the width of
+the band is {\cf K}
+\end{itemize}
+
+All the points in a region are ordered canonically by the lexicographic total order. Thus the points of a region {\cf R=[1..2,1..2]} are ordered as 
+\begin{x10}
+  (1,1), (1,2), (2,1), (2,2)
+\end{x10}
+Sequential iteration statements such as {\cf for} (\S~\ref{ForAllLoop})
+iterate over the points in a region in the canonical order.
+
+A region is said to be {\em convex}\index{region!convex} if it is of
+the form {\cf [T1,..., Tk]} for some set of enumerations {\cf Ti}. Such a
+region satisfies the property that if two points $p_1$ and $p_3$ are
+in the region, then so is every point $p_2$ between them. (Note that
+{\cf ||} may produce non-convex regions from convex regions, e.g.{}
+{\cf [1,1] || [3,3]} is a non-convex region.)
+
+For each region {\cf R}, the {\em convex closure} of {\cf R} is the
+smallest convex region enclosing {\cf R}.  For each integer {\cf i}
+less than {\cf R.rank}, the term {\cf R.i} represents the enumeration
+in the {\cf i}th dimension of the convex closure of {\cf R}. It may be
+used in a type expression wherever an enumeration may be used.
+
+Region variables can be declared and used within user programs. They
+are implicitly {\tt final} since they can be used within type
+expressions (and hence must not take on different values at
+runtime). That is, \Xten{} does not permit the declaration of mutable
+{\tt region} variables.
+
+\subsection{Operations on Regions}
+Various non side-effecting operators (i.e.{} pure functions) are
+provided on regions. These allow the programmer to express sparse as
+well as dense regions.
+
+Let {\cf R} be a region. A subset of {\cf R} is also called a {\em
+sub-region}.\index{region!sub-region}
+
+Let {\cf R1} and {\cf R2} be two regions.
+
+{\cf R1 \&\& R2} is the intersection of {\cf R1} and {\cf R2}.\index{region!intersection}
+
+{\cf R1 || R2} is the union of the {\cf R1} and {\cf R2}.\index{region!union}
+
+{\cf R1 - R2} is the set difference of {\cf R1} and {\cf R2}.\index{region!set difference}
+
+Two regions are {\tt ==} if they represent the same set of points.\index{region!==}
+
+
+\todo{ Need to determine if regions can be passed to and returned from methods.}
+
+\todo{Can objects have region fields?}
+
+\todo{ Need to determine if Xten control constructs already provide the nesting of regions of ZPL.}
+
+\todo{ Need to determine if directions (and "of", wrap, reflect) make sense and should be included in Xten.}
+
+\todo{ Need to add translations (ZPL @). Check whether they are widely useful.}
+
+\todo{ Need to determine if {\tt index<d>} arrays are useful enough to include them.}
+
+
+

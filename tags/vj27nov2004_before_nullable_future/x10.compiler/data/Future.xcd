@@ -1,0 +1,12 @@
+// future(0) 1
+#0.runFuture(new x10.lang.Activity.Expr() {
+  private X10Object x10_result_; 
+  public void run() {
+     this.x10_result_ = #1; 
+  } 
+  public X10Object getResult() { 
+     return x10_result_; 
+  } 
+});
+
+        
