@@ -123,6 +123,10 @@ public TestCompiler(String name) {
         run("./AtomicMethodTest.x10","AtomicMethodTest");
     }
 
+    public void test_AtomicReturn() {
+        run("./AtomicReturn.x10","AtomicReturn");
+    }
+
     public void test_AtomicTest() {
         run("./AtomicTest.x10","AtomicTest");
     }
@@ -279,6 +283,10 @@ public TestCompiler(String name) {
         run("./IntArrayMaxAbs.x10","IntArrayMaxAbs");
     }
 
+    public void test_IntValuArrayInitializerShorthand() {
+        run("./IntValuArrayInitializerShorthand.x10","IntValuArrayInitializerShorthand");
+    }
+
     public void test_Jacobi() {
         run("./Jacobi.x10","Jacobi");
     }
@@ -393,14 +401,6 @@ public TestCompiler(String name) {
 
     public void test_Unsafe() {
         run("./Unsafe.x10","Unsafe");
-    }
-
-    public void test_ValueClass() {
-        run("./ValueClass.x10","ValueClass");
-    }
-
-    public void test_ValueClassHashcode() {
-        run("./ValueClassHashcode.x10","ValueClassHashcode");
     }
 
     public void test_ValueClassUserDefinedEquals() {
