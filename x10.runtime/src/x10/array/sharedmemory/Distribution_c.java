@@ -3,11 +3,10 @@
  */
 package x10.array.sharedmemory;
 
-import java.util.Iterator;
-
 import x10.array.Distribution;
 import x10.array.Place;
 import x10.array.Range;
+import x10.array.ContiguousRange;
 import x10.array.Region;
 
 
@@ -17,61 +16,33 @@ import x10.array.Region;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-abstract class Distribution_c implements Distribution {
+abstract class Distribution_c extends Region_c implements Distribution {
 
     // First: static factory methods for the use by the Runtime implemenation
     
     /**
      * Create a Distribution where the given Region is distributed
      * into blocks the specified places
-     * @param r
-     * @param q
+     * @param r Region
+     * @param q The set of Places
      * @return
      */
 	static Distribution_c makeBlock(Region_c r, Place[] q) {
-        int n = q.length;
-        int size = r.size();
-        int qt = size % n;
-        int pt = size / n;
-        Distribution[] dists = new Distribution[n];
-        
-        // these blocks obain p+1 elements
-        for (int i=0;i<qt;i++) {
-            dists[i] = new Distribution_c.Constant(r.subOrdinal(i*(pt+1), (i+1)*(pt+1)), 
-                                                   q[i]);
-        }
-        int base = qt * (pt+1);
-        
-        // these blocks obtain p elements
-        for (int i=qt;i<n;i++) {
-            int off = (i-qt) * pt;
-            dists[i] = new Distribution_c.Constant(r.subOrdinal(base+off, base+off+pt), 
-                                                   q[i]);
-        }
-        return new Distribution_c.Combined(r, dists);
+	    return makeBlock(r, q.length, q);
     }
     
     /**
      * Create a Distribution where the given Region is distributed
-     * into blocks over the first N Places.
+     * into blocks over the first n Places.
      * @param r
      * @return
      */
 	static Distribution_c makeBlock(Region_c r, int n, Place[] q) {
         assert n <= q.length;
-        int qt = r.size() % n;
-        int pt = r.size() / n;
+        
         Distribution[] dists = new Distribution[n];
-        for (int i=0;i<qt;i++) {
-            dists[i] = new Distribution_c.Constant(r.subOrdinal(i*(pt+1), (i+1)*(pt+1)), 
-                                                   q[i]);
-        }
-        int base = qt * (pt+1);
-        for (int i=qt;i<n;i++) {
-            int off = (i-qt) * pt;
-            dists[i] = new Distribution_c.Constant(((Region_c)r).subOrdinal(base+off, base+off+pt), 
-                                                   q[i]);
-        }
+        for (int i=0; i < n; i++) 
+            dists[i] = new Distribution_c.Constant(r.sub(n, i), q[i]);
         return new Distribution_c.Combined(r, dists);
     }
     
@@ -84,13 +55,7 @@ abstract class Distribution_c implements Distribution {
      * @return
      */
     static Distribution_c makeCyclic(Region_c r, Place[] q) {
-        int n = r.size();
-        Distribution[] dists = new Distribution[n];
-        for (int i=0;i<n;i++) {
-            dists[i] = new Distribution_c.Constant(r.subOrdinal(i,i+1), 
-                                                   q[i % q.length]);
-        }
-        return new Distribution_c.Combined(r, dists);
+        return makeBlockCyclic(r, q.length, q);
     }
     
     /**
@@ -152,71 +117,12 @@ abstract class Distribution_c implements Distribution {
     static Distribution_c makeUnique(Place[] p) {
         return new Distribution_c.Unique(p);
     }
-    
-    
-    // Actual Distribution implementation(s)
-    
-    final Region_c region_;
-    
+
     Distribution_c(Region_c r) {
-        this.region_ = r;
+        super(r);
     }
     
-    // Region interface (fascade style)
-    
-    public int rank() {
-        return region_.rank();
-    }
-    
-    public Region sub(Range[] dims) {
-        return region_.sub(dims);
-    }
-    
-    public Region subOrdinal(int i, int j) {
-        return region_.subOrdinal(i, j);
-    }
-    
-    public Region combine(Region r) {
-        return region_.combine(r);
-    }
-    
-    public Range dim(int i) {
-        return region_.dim(i);
-    }
-    
-    public int size() {
-        return region_.size();
-    }
-    
-    public boolean contains(Region r) {
-        return region_.contains(r);
-    }
-    
-    public boolean contains(int[] p) {
-        return region_.contains(p);
-    }
-    
-    public int ordinal(int[] p) {
-        return region_.ordinal(p);
-    }
-    
-    public Iterator iterator() {
-        return region_.iterator();
-    }
-
-    public Distribution intersect(Distribution d) { 
-        throw new Error("TODO");
-    }
-
     public Distribution asymetricUnion(Distribution d) { 
-        throw new Error("TODO");
-    }
-    
-    public Distribution disjointUnion(Distribution d) { 
-        throw new Error("TODO");
-    }
-    
-    public Distribution difference(Distribution d) { 
         throw new Error("TODO");
     }
     
@@ -237,35 +143,22 @@ abstract class Distribution_c implements Distribution {
             this.place_ = p;
         }
         
-        public Place getPlaceOf(int[] point) { 
+        public Place placeOf(int[] point) { 
             return place_;
         }
         
     } // end of Distribution_c.Constant
-    
-    static final class ConstantHere extends Distribution_c {
-        
-        ConstantHere(Region_c r) {
-            super(r);
-        }
-
-        public Place getPlaceOf(int[] point){ 
-            return x10.lang.Runtime.here();
-        }
-        
-    } // end of Distribution_c.ConstantHere
-
     
     static class Unique extends Distribution_c {
         
         private final Place[] places_;
         
         Unique(Place[] p) {
-            super(new Region_c(new Range[] { new Range(1, p.length) }));
+            super(new Region_c(new Range[] { new ContiguousRange(1, p.length) }));
             this.places_ = p;
         }
         
-        public Place getPlaceOf(int[] point){ 
+        public Place placeOf(int[] point) { 
             assert point.length == 1;
             assert contains(point);
             return places_[point[0]-1];
@@ -279,17 +172,20 @@ abstract class Distribution_c implements Distribution {
         
         Combined(Region_c r, Distribution[] members_) {
             super(r);
+            assert members_ != null;
             this.members_ = members_;
         }
         
-        public Place getPlaceOf(int[] point){
-            for (int i=members_.length-1;i>=0;i--)
-                if (members_[i].contains(point))
-                    return members_[i].getPlaceOf(point);
-            assert false;
-            throw new Error("This should never happen.");
+        public Place placeOf(int[] point) {
+            Place ret = null;
+            for (int i=0; ret == null && i < members_.length; ++i) {
+                if (members_[i].contains(point)) 
+                    ret = members_[i].placeOf(point);
+            }
+            assert ret != null;
+            return ret;
         }
         
-    } // end of Distribution_c.Unique
-
+    } // end of Distribution_c.Combined
+    
 } // end of Distribution_c

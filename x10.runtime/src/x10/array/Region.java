@@ -16,16 +16,14 @@ import java.util.Iterator;
 public interface Region {
 
     public int rank();
-    
-    /**
-     * 
-     * @return Highest index possibly returned by ordinal + 1.
-     */
+
     public int size();
     
-    public Region sub(Range[] dims);
-    
-    public Region combine(Region r);
+	public Region union(Region d);
+
+	public Region difference(Region r);
+	
+	public Region intersect(Region r);
 	
     public Range dim(int i);
 	

@@ -24,7 +24,11 @@ public abstract class ArrayFactory {
     public static Range newRange(int lo, int hi) {
     	// no abstract constructor necessary for Ranges - they are all
     	// regardless the underlying machine architecture
-    	return new Range(lo, hi);
+    	return new ContiguousRange(lo, hi);
+    }
+    
+    public static Range newRange(int lo, int hi, int stride) {
+    	return new StridedRange(lo, hi, stride);
     }
     
     /**
@@ -33,6 +37,18 @@ public abstract class ArrayFactory {
     public static Region newRegion(Range[] dims) {
     	return _.makeRegion(dims);
     }
+    
+    public static Region newUpperTriangularRegion(int n) {
+        return _.makeUpperTriangularRegion(n);
+	}
+	
+    public static Region newLowerTriangularRegion(int n) {
+        return _.makeLowerTriangularRegion(n);
+	}
+ 
+    public static Region newBandedRegion(int n, int k) {
+        return _.makeBandedRegion(n, k);
+	}
     
     /**
      * @return  New array with Distribution d.
@@ -52,7 +68,7 @@ public abstract class ArrayFactory {
      * @return  New array with Distribution d.
      */
     public static DoubleArray newDoubleArray(Distribution d) {
-    	throw new RuntimeException ("not implemented");
+        return _.makeDoubleArray(d);
     }
     
     /**
@@ -142,6 +158,12 @@ public abstract class ArrayFactory {
      * @return New Region.
      */
     public abstract Region makeRegion(Range[] dims);
+    
+    public abstract Region makeUpperTriangularRegion(int n);
+	
+    public abstract Region makeLowerTriangularRegion(int n);
+ 
+    public abstract Region makeBandedRegion(int n, int k);
     
     /**
      * @return  New array with Distribution d.

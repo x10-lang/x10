@@ -39,7 +39,7 @@ public abstract class Array {
      *  This method is reentrant on the target array (this).
      */
     public final Array assemble(Array arg) {
-    	Distribution d_new = dist.disjointUnion(arg.dist);
+    	Distribution d_new = (Distribution) dist.union(arg.dist);
 		Array ret = newInstance(d_new);
 		ret.assign(arg);
 		ret.assign(this);

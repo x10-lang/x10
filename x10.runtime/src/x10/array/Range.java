@@ -3,8 +3,6 @@
  */
 package x10.array;
 
-import x10.lang.TypeArgument;
-
 /**
  * Ranges are a collection of points in the int space.
  * Currently, only contiguous sets of points are supported.
@@ -13,52 +11,35 @@ import x10.lang.TypeArgument;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-public class Range implements TypeArgument {
-	/**
-	 * Cardinality of the range, i.e., the number of element 
-	 * in the integer space it covers.
-	 */	
-	public final int card;
-	public final int lo;
-	public final int hi;
-	
-	/** 
-	 * Range that starts at lo (including)
-	 * to hi (including!).
-	 */
-	public Range(int lo, int hi) {
-		assert hi >= lo && lo >= 0;
-		
-		this.lo = lo;
-		this.hi = hi;
-		card = hi - lo + 1; // inclusive!
-	}
+public interface Range {
+
+    public abstract int size();
     
-	public int ordinal(int p) {
-		assert contains(p);
-		
-		return p - lo;
-	}
+    /**
+     * @param ord the ordinal number, must be smaller than size()
+     * @return the coordinate that has ordinal number ord
+     */
+    public abstract int coord(int ord);
+    
+    /**
+     * @param p a point in the coordinate space
+     * @return the ordinal number of the point [0 ... size()[
+     */
+	public abstract int ordinal(int p);
 	
-	public boolean contains(int p) {
-		return lo <= p && p <= hi; // X10 spec says range is inclusive!
-	}
+	public abstract Range union(Range r);
 	
-	public boolean contains(Range r) {
-		return r.lo >= lo && r.hi <= hi;
-	}
+	public abstract Range intersect(Range r);
+
+	public abstract Range difference(Range r);
+
+	public abstract boolean contains(int p);
+
+	public abstract boolean contains(Range r);
+
+	public abstract String toString(); 
 	
-	public String toString() {
-		return "[" + lo + ".." + hi + "]";
-	}
+	public abstract boolean equals(Object o);
 	
-	public boolean equals(Object o) {
-		assert o instanceof Range;
-		Range rhs = (Range) o;
-		return rhs.lo == lo && rhs.hi == hi;
-	}
-	
-	public int hashCode() {
-		return card;
-	}
+	public abstract int hashCode();
 }
