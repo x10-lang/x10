@@ -269,6 +269,14 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         return ret;
     }
     
+    public void update(x10.lang.doubleArray d) {
+        assert (region.contains(d.region));
+        for (Iterator it = d.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            set(d.get(p), p);
+        }
+    }
+    
     public DoubleReferenceArray union(x10.lang.doubleArray d) {
         distribution dist = distribution.union(d.distribution);
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);

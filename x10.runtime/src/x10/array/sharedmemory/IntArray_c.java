@@ -266,6 +266,14 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         }
         return ret;
     }
+
+    public void update(x10.lang.intArray d) {
+        assert (region.contains(d.region));
+        for (Iterator it = d.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            set(d.get(p), p);
+        }
+    }
     
     public IntReferenceArray union(x10.lang.intArray d) {
         distribution dist = distribution.union(d.distribution);
