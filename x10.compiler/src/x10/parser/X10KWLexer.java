@@ -9,7 +9,7 @@ import com.ibm.lpg.*;
 public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
 {
     private char[] inputChars;
-    private final int keywordKind[] = new int[77 + 1];
+    private final int keywordKind[] = new int[78 + 1];
 
     public int lexer(int curtok, int lasttok)
     {
@@ -527,15 +527,21 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
       
     
         //
-        // Rule 76:  KeyWord ::= v a l u e
+        // Rule 76:  KeyWord ::= u n s a f e
         //
-                keywordKind[76] = (TK_value);
+                keywordKind[76] = (TK_unsafe);
       
     
         //
-        // Rule 77:  KeyWord ::= w h e n
+        // Rule 77:  KeyWord ::= v a l u e
         //
-                keywordKind[77] = (TK_when);
+                keywordKind[77] = (TK_value);
+      
+    
+        //
+        // Rule 78:  KeyWord ::= w h e n
+        //
+                keywordKind[78] = (TK_when);
       
     
         for (int i = 0; i < keywordKind.length; i++)

@@ -44,7 +44,8 @@ public interface X10NodeFactory extends NodeFactory {
 				  TypeNode superClass, List interfaces,
 				  ClassBody body);
     Await Await(Position pos, Expr expr);
-    ArrayConstructor ArrayConstructor( Position pos, TypeNode base, boolean isValue, Expr distribution, Expr init);
+    ArrayConstructor ArrayConstructor( Position pos, TypeNode base, boolean unsafe, 
+				       boolean isValue, Expr distribution, Expr init);
     Point Point( Position pos, List expr);
     ReductionCall ScanCall(Position pos, Receiver target, String name, List arguments);
     ReductionCall ReduceCall(Position pos, Receiver target, String name, List arguments);

@@ -41,7 +41,7 @@ implements ArrayConstructor {
 		
 	protected TypeNode base;
 	protected boolean isValue = false;
-
+    protected boolean safe = true;
 	
 	/** distribution must contain a value whose type is either int or x10.lang.distribution.
 	 * If distribution == null, then init must be not null and in fact an Initializer.
@@ -63,10 +63,12 @@ implements ArrayConstructor {
 		super(pos);
 		// TODO Auto-generated constructor stub
 	}
-	public ArrayConstructor_c(Position pos, TypeNode base, boolean isValue, Expr distribution, Expr initializer ) {
+	public ArrayConstructor_c(Position pos, TypeNode base, boolean unsafe, 
+				  boolean isValue, Expr distribution, Expr initializer ) {
 		super(pos);
 		assert (distribution !=null) || (initializer instanceof ArrayInit);
 		this.base = base;
+		this.safe = ! unsafe;
 		this.isValue = isValue;
 		this.distribution = distribution;
 		this.initializer = initializer;
@@ -116,6 +118,12 @@ implements ArrayConstructor {
 		return n;
 	}
 	
+    public boolean isSafe() {
+	return safe;
+    }
+    public boolean isValue() {
+	return isValue;
+    }
 	/** Is the expression between the square brackets of type int.
 	 *  Valid only after type checking.
 	 * @return
@@ -141,6 +149,9 @@ implements ArrayConstructor {
 	}
 	public boolean isDoubleArray() {
 		return base.type().isDouble();
+	}
+	public boolean isLongArray() {
+		return base.type().isLong();
 	}
 	public boolean hasInitializer() {
 		return initializer != null && initializer instanceof ArrayInit;
@@ -211,6 +222,7 @@ implements ArrayConstructor {
 			
 		}
 		
+		
 		Type t = ts.array( newBaseType, isValue );
 		
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);
@@ -225,6 +237,10 @@ implements ArrayConstructor {
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		w.write("new ");
 		printBlock(base, w, tr);
+		if (isValue)
+		    w.write(" value ");
+		if ( ! safe )
+		    w.write(" unsafe ");
 		if (distribution == null) {
 			w.write("[]");
 			initializer.prettyPrint(w, tr);
@@ -239,6 +255,8 @@ implements ArrayConstructor {
 	
 	public String toString() {
 		StringBuffer s = new StringBuffer("new " + base);
+		s.append( isValue ? " value " : "");
+		s.append( ! safe ? " unsafe " : "");
 		s.append("[");
 		s.append(this.distribution == null ? "" : distribution.toString());
 		s.append("]");

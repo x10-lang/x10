@@ -27,7 +27,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
 
     private final boolean safe_;
     private final MemoryBlock arr_;
-    public final boolean mutable;
+    public final boolean mutable_;
     
     /**
      *  This constructor must not be used directly by an application programmer.
@@ -43,7 +43,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
     }
     protected DoubleArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
-        this.mutable = mutable;
+        this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
         this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
@@ -65,7 +65,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
 }
     public DoubleArray_c( distribution d, double c, boolean safe, boolean mutable ) {
     	super(d);
-    	this.mutable = mutable;
+    	this.mutable_ = mutable;
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
         this.safe_ = safe;
@@ -80,27 +80,27 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
     }
     public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
-    	this.mutable = mutable;
+    	this.mutable_ = mutable;
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
     	this.safe_ = safe;
         scan(this, f);
     }
     
-    private DoubleArray_c( distribution d, double[] a) {
+    private DoubleArray_c( distribution d, double[] a, boolean safe, boolean mutable) {
     	super(d);
     	this.arr_ = Allocator.allocSafeDoubleArray( a);
-        this.safe_ = true;
-        this.mutable = true;
+        this.safe_ = safe;
+        this.mutable_ = mutable;
     }
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a
      * @return
      */
-    public static DoubleArray_c DoubleArray_c( double[] a) {
+    public static DoubleArray_c DoubleArray_c( double[] a, boolean safe, boolean mutable ) {
     	distribution d = Runtime.factory.getDistributionFactory().here(a.length);
-    	return new DoubleArray_c(d, a);
+    	return new DoubleArray_c(d, a, safe, mutable );
     }
     
     public void keepItLive() {}
