@@ -49,6 +49,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return (Future) f.del(delFactory().delStmt());
     }
     
+    public Here Here(Position pos) {
+        Here f = new Here_c(pos);
+        f = (Here) f.ext(extFactory().extStmt());
+        return (Here) f.del(delFactory().delStmt());
+    }
+    
     public Force Force(Position pos, Expr expr) {
         Force f = new Force_c(pos, expr);
         f = (Force) f.ext(extFactory().extStmt());
