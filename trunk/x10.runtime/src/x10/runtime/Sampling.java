@@ -162,6 +162,11 @@ public final class Sampling extends Thread {
                 /* can happen, ignore! */
             }
         }
+        
+        // sampling shall be done by a daemon thread - if nothing else 
+        // runs but daemon threads, then the JVM shall terminate.
+        setDaemon(true);
+        
         this.start(); // auto-start!
     }
 
