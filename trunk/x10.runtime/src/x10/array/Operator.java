@@ -174,4 +174,46 @@ public abstract class Operator {
 			throw new RuntimeException(ERR_);
 		}
 	}
+    
+	/**
+	 * Functional (!) operation that is applied to all points of an
+	 * array in parallel irrespective of the original value.  The
+         * primary use is to initialize an array.   
+	 * @author Christian Grothoff
+	 */
+	public static abstract class Initializer extends Operator {
+	public boolean getBooleanResult(int[] point) {
+            throw new RuntimeException(ERR_);
+        }
+
+        public byte getByteResult(int[] point) {
+            throw new RuntimeException(ERR_);
+        }
+
+        public short getShortResult(int[] point) {
+            throw new RuntimeException(ERR_);
+        }
+
+        public char getCharResult(int[] point){
+            throw new RuntimeException(ERR_);
+        }
+
+        public int getIntResult(int[] point) {
+            throw new RuntimeException(ERR_);
+        }
+
+        public long getLongResult(int[] point) {
+            throw new RuntimeException(ERR_);
+        }
+
+        public float getFloatResult(int[] point) {
+            throw new RuntimeException(ERR_);
+        }
+        
+        public double getDoubleResult(int[] point) {
+            throw new RuntimeException(ERR_);
+        }
+    	    
+	}
+    
 }

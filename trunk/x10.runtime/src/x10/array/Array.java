@@ -75,6 +75,11 @@ public abstract class Array {
     public abstract void scan(Operator.Scan op);
     
     /**
+     * initialize operation
+     */
+    public abstract void initialize(Operator.Initializer op);
+    
+    /**
      * reduction operation - the result is obtained through the reduction
      * operator op
      */

@@ -5,7 +5,6 @@ package x10.array.sharedmemory;
 
 import java.util.Iterator;
 
-import x10.array.sharedmemory.Distribution_c;
 import x10.array.Array;
 import x10.array.Distribution;
 import x10.array.IntArray;
@@ -40,9 +39,9 @@ public class IntArray_c extends IntArray {
     
     /* Overrides the superclass method - this implementation is more efficient */
     public void reduction(Operator.Reduction op) {
-		for (int i  = 0; i < arr_.length; ++i) 
-			op.apply(arr_[i]);
-	}
+        for (int i  = 0; i < arr_.length; ++i) 
+            op.apply(arr_[i]);
+    }
     
     /* Overrides the superclass method - this implementation is more efficient */
     protected void assign(Array rhs) {
@@ -56,6 +55,15 @@ public class IntArray_c extends IntArray {
     		// fall back to generic implementation
     		super.assign(rhs);
     }
+
+    /* TODO: this should be made a billion times more efficient... */
+    public void initialize(Operator.Initializer rhs) {
+        for (Iterator it = dist.iterator(); it.hasNext(); ) {
+            int[] pos = (int[]) it.next();
+            set(rhs.getIntResult(pos), pos);
+        }
+    }
+
     
 	protected Array newInstance(Distribution d) {
 		assert d instanceof Distribution_c;
