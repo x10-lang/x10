@@ -34,7 +34,7 @@ public final class Sampling extends Thread {
     /**
      * The Sampling thread.  There can only be one.
      */
-    final static Sampling _ = new Sampling();
+    public final static Sampling _ = new Sampling();
     
     /**
      * Activate sampling.  Called by the Runtime during the
