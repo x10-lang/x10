@@ -1,16 +1,15 @@
 {
-	Object _lock = x10.lang.Runtime.here();
-	synchronized (_lock) {
+	synchronized (x10.lang.Runtime.here()) {
   		try {
   			while (true) {
   			    #0
-  				lock.wait();    			
+  				x10.lang.Runtime.here().wait();    			
     		}
-    		_lock.notifyAll();
+    		x10.lang.Runtime.here().notifyAll();
   		} catch (Throwable e) {
   			e.printStackTrace();
   			x10.lang.Runtime.getRuntime().java.log(0, "Unexpected exception during conditional atomoic.", e);
-  			throw new RutimeException(e);
+  			throw new RuntimeException(e);
   		}
 	}
 }

@@ -1,9 +1,8 @@
 // atomic 0
-Object _lock = x10.lang.Runtime.here();
-synchronized (_lock) {
+synchronized (x10.lang.Runtime.here()) {
 	try {
 		#0
-		_lock.notifyAll();
+		x10.lang.Runtime.here().notifyAll();
 	} catch (Throwable e) {
   		e.printStackTrace();
   		x10.lang.Runtime.getRuntime().java.log(java.util.logging.Level.SEVERE, "Unexpected exception during atomic.", e);
