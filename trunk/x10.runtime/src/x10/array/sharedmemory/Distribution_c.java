@@ -36,6 +36,15 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     public boolean isValue() {
         return true;
     }
+
+    /**
+     * Is this indexable value-equals to the other indexable?
+     * @param other
+     * @return true if these objects are value-equals
+     */
+    public boolean valueEquals(Indexable other) {
+        return equals(other);
+    }
     
     /* this field should actually be final - ?? */
     protected final Set/*<place>*/ places;
@@ -240,15 +249,6 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
             this(1);
         }
         
-        /**
-         * Is this indexable value-equals to the other indexable?
-         * @param other
-         * @return true if these objects are value-equals
-         */
-        public boolean valueEquals(Indexable other) {
-            return true;
-        }
-
 
         
         /** The empty region of rank k
@@ -345,11 +345,6 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     static final class Constant extends Distribution_c {
         place place_;
 
-        public boolean valueEquals(Indexable other) {
-            return place_ == ((Constant)other).place_;
-        }
-
-        
         Constant(region r, place p) {
             super(r);
             this.places.add(p);
@@ -465,18 +460,6 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     static class Unique extends Distribution_c {
         place[] placeseq;
 
-        public boolean valueEquals(Indexable other) {
-            Unique dc = (Unique) other;
-            if (placeseq.length == dc.placeseq.length) {
-               for (int i=placeseq.length-1;i>=0;i--)
-                   if (placeseq[i] != dc.placeseq[i])
-                       return false;
-               return true;
-            } else
-                return false;
-        }
-
-        
         Unique(place[] ps) {
             super(new ContiguousRange(0, ps.length - 1));
             this.placeseq = ps;
@@ -532,11 +515,6 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     
     static class Combined extends Distribution_c {
         private final Distribution_c[] members_;
-        
-        public boolean valueEquals(Indexable other) {
-            throw new Error("not implemented");
-        }
-
         
         /**
          * @param r
@@ -594,10 +572,6 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         
         private final Map map_;
         
-        public boolean valueEquals(Indexable other) {
-            return map_.equals(((Arbitrary)other).map_);
-        }
-
         private Arbitrary(region r, Map m) {
             super(r);
             map_ = m;
