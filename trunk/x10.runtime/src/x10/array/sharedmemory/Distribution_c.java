@@ -489,7 +489,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         /**
          * @param r
          */
-        Combined(MultiDimRegion r, Distribution_c[] members_) {
+        Combined(region r, Distribution_c[] members_) {
             super(r);
             assert members_ != null;
             // defensive copy

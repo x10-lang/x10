@@ -101,4 +101,8 @@ public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ {
 	public boolean isLast() { 
 		return id==MAX_PLACES -1; 
 	}
+    
+	public String toString() {
+	    return "place(id=" + id +")"; 
+	}
 }
