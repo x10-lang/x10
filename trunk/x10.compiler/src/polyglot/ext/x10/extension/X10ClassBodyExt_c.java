@@ -132,7 +132,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			throw new Error("Unexpected type" + theType.toString());
 		}
 		else
-			return "long";//xlated to long getUnsafeAddress();
+			return "jlong";//xlated to long getUnsafeAddress();
 	}
 	
 	private String typeToJavaSigString(Type_c theType){
