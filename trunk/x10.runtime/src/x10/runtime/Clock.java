@@ -4,9 +4,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Comparator;
 
 import x10.lang.Runtime;
 import x10.lang.clock;
@@ -217,28 +214,11 @@ public final class Clock extends clock {
     }
     
     /**
-     * Some event happened that may trigger advancing the clock.
-     * Check if this is the case and if so advance the clock.
-     * This method does not need to be synchronized because it is called in 
-     * synchronized contexts
-     */
-    private boolean tryAdvance_() {
-        boolean ret;
-        if ( (nowSet_.size() == 0) && 
-             (pending_.size() == 0)) {
-            // no locking - the issue is double checked in method advance...
-            ret = advance_();
-        } else
-            ret = false;
-        return ret;
-    }
-    
-    /**
      * Advance to the next phase.  Increments the phase counter,
      * calls all advance listeners and then signals the activities
      * that are waiting to get them going again.
      */
-    private synchronized boolean advance_() {
+    private synchronized boolean tryAdvance_() {
         boolean ret;
         // double check ...
         if ( (nowSet_.size() == 0) && 
