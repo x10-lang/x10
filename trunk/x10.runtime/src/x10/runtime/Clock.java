@@ -291,14 +291,14 @@ public final class Clock extends clock {
        public void notifyActivityTerminated(Activity a) {
            // assertion not valid - the activity might already have
            // been removed from the nowSet_ (this method might be 
-           // called several times for the same activity -- se also 
+           // called several times for the same activity -- see also 
            // DefaultRuntime_c::registerActivityStop) 
            //
            // observed that this assertion is violated 'sometimes' in 
            // Jacobi_skewed.
            // assert nowSet_.contains(a);
            synchronized (Clock.this) {
-               nowSet_.remove(a);
+               nowSet_.remove(a);                
            }
            tryAdvance();
        }
