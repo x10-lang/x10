@@ -18,14 +18,14 @@ class LocalPlace_c extends PooledExecutor
     LocalPlace_c(final ThreadRegistry reg) {
 	super(new LinkedQueue());
 	this.setThreadFactory(new ThreadFactory() {
-		Thread newThread(final Runnable cmd) {
+		public Thread newThread(final Runnable cmd) {
 		    Thread t = new Thread(cmd);
-		    reg.register(t, LocalPlace_c.this);
+		    reg.registerThread(t, LocalPlace_c.this);
 		    return t;
 		}
 	    });
-	pool.setMinimumPoolSize(2);
-	pool.setKeepAliveTime(5000);	
+	this.setMinimumPoolSize(2);
+	this.setKeepAliveTime(5000);	
     }
 
     public void runAsync(Activity a) {
