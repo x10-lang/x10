@@ -137,7 +137,6 @@ implements X10TypeSystem {
 		return activityType_;
 	}
 
-	// TODO: vj -- check that  this is the right way to load a nested type.
 	protected ClassType futureActivityType_;
 	public ClassType FutureActivity() {
 		if ( futureActivityType_ == null)
@@ -187,31 +186,38 @@ implements X10TypeSystem {
 			return intArray( isValueType, distribution );
 		if (type.isDouble())
 			return doubleArray( isValueType, distribution);
+		if (type.isLong())
+			return longArray( isValueType, distribution);
 		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
 	}
 	
-	public ClassType array(Type type,  Expr distribution) {
+	public ClassType array( Type type,  Expr distribution ) {
 		if (type.isInt())
 			return intArray(  distribution );
 		if (type.isDouble())
-			return doubleArray(  distribution);
+			return doubleArray(  distribution );
+		if (type.isLong())
+			return longeArray(  distribution );
 		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
 	}
 	
 	public ClassType array(Type type, boolean isValue ) {
 		if (type.isInt())
 			return isValue ? intValueArray() : IntReferenceArray();
-			if (type.isDouble())
-				return isValue ? doubleValueArray() : DoubleReferenceArray();
-			
+		if (type.isDouble())
+		    return isValue ? doubleValueArray() : DoubleReferenceArray();
+		if (type.isLong())
+		    return isValue ? longValueArray() : LongReferenceArray();
 		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
 	}
 	
 	public ClassType array(Type type ) {
 		if (type.isInt())
-			return intArray( );
+		    return intArray( );
 		if (type.isDouble())
-			return doubleArray();
+		    return doubleArray();
+		if (type.isLong())
+		    return longArray();
 		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
 	}
 	public ClassType intArray(boolean isValueType, Expr distribution ) {
@@ -255,6 +261,47 @@ implements X10TypeSystem {
 			intReferenceArrayType_ = load("x10.lang.IntReferenceArray"); // java file
 		// return intReferenceArrayType_.setParameter( "distribution", distribution );
 		return intReferenceArrayType_;
+	}
+
+	protected ClassType longArrayPointwiseOpType_;
+	public ClassType LongArrayPointwiseOp() {
+		if ( longArrayPointwiseOpType_ == null)
+			longArrayPointwiseOpType_ = load("x10.lang.longArray$pointwiseOp"); // java file
+		return longArrayPointwiseOpType_;
+	}
+	public ClassType longArray(boolean isValueType, Expr distribution ) {
+		return 
+		isValueType ? longValueArray( distribution ) : LongReferenceArray( distribution );
+	}
+	
+	protected ClassType longArrayType_;
+	public ClassType longArray( Expr distribution ) {
+		if ( longArrayType_ == null)
+			longArrayType_ = load("x10.lang.longArray"); // java file
+		return longArrayType_;
+	}
+	
+	public ClassType longArray() {
+		return longArray( null );
+	}
+	
+	public ClassType longValueArray( ) {
+		return longValueArray(null );
+	}
+	
+	public ClassType longValueArray( Expr distribution ) {
+		return longArray( distribution );
+	}
+	public ClassType LongReferenceArray() {
+		return LongReferenceArray( null );
+	}
+	
+	protected ClassType longReferenceArrayType_;
+	public ClassType LongReferenceArray( Expr distribution ) {
+		if ( longReferenceArrayType_ == null)
+			longReferenceArrayType_ = load("x10.lang.LongReferenceArray"); // java file
+		// return longReferenceArrayType_.setParameter( "distribution", distribution );
+		return longReferenceArrayType_;
 	}
 	
 	

@@ -29,6 +29,9 @@ import x10.lang.intArray;
 import x10.lang.DoubleReferenceArray;
 import x10.lang.doubleArray;
 import x10.lang.doubleValueArray;
+import x10.lang.LongReferenceArray;
+import x10.lang.longArray;
+import x10.lang.longValueArray;
 
 /**
  * Default implementation of Runtime.
@@ -247,22 +250,43 @@ public class DefaultRuntime_c
     				}
     			};
     		}
-    		public IntArray.factory getIntArrayFactory() {
+    		public intArray.factory getIntArrayFactory() {
     			return new IntArray.factory() {
     				public IntReferenceArray IntReferenceArray(distribution d, int c) {
     					return new IntArray_c( d, c, true);
     				}
-    				public IntReferenceArray IntReferenceArray(distribution d, IntArray.pointwiseOp f) {
+    				public IntReferenceArray IntReferenceArray(distribution d, intArray.pointwiseOp f) {
     					return new IntArray_c( d, f, true);
     				}
     				public intArray intValueArray(distribution d, int c) {
     					return new IntArray_c(d, c, true, false);
     				}
-    				public intArray intValueArray(distribution d, IntArray.pointwiseOp f) {
+    				public intArray intValueArray(distribution d, intArray.pointwiseOp f) {
     					return new IntArray_c(d, f, true, false);
     				}
     			};
     		}
+    		public longArray.factory getLongArrayFactory() {
+    			return new longArray.factory() {
+    				public LongReferenceArray LongReferenceArray(distribution d, long c) {
+    					throw new Error("TODO");
+    					// return new LongArray_c( d, c, true);
+    				}
+    				public LongReferenceArray LongReferenceArray(distribution d, longArray.pointwiseOp f) {
+    					throw new Error("TODO");
+    					// return new LongArray_c( d, f, true);
+    				}
+    				public longArray longValueArray(distribution d, long c) {
+    					throw new Error("TODO");
+    					// return new LongArray_c(d, c, true, false);
+    				}
+    				public longArray longValueArray(distribution d, longArray.pointwiseOp f) {
+    					throw new Error("TODO");
+    					// return new LongArray_c(d, f, true, false);
+    				}
+    			};
+    		}
+
     		public DoubleArray.factory getDoubleArrayFactory() {
     			return new doubleArray.factory() {
     				public DoubleReferenceArray DoubleReferenceArray(distribution d, double c) {

@@ -192,16 +192,21 @@ implements ArrayConstructor {
 				// ((ArrayInit) initializer).typeCheckElements(base.type());
 			}
 			
-			// TODO: vj The following is hardwired for int and double arrays.
+			// TODO: vj The following is hardwired for int, double and long arrays.
 			Type initType = initializer.type();
 			if ( ts.isImplicitCastValid(newBaseType, ts.Int())) {
 				if (! ts.isImplicitCastValid(initType, ts.IntArrayPointwiseOp()))
 				throw new SemanticException("Array initializer must be of type x10.lang.intArray.pointwiseOp" 
 						+ position());
-			} else if ( ts.isImplicitCastValid(newBaseType, ts.Double()) 
-					&& ! ts.isImplicitCastValid(initType, ts.DoubleArrayPointwiseOp()))
+			} else if ( ts.isImplicitCastValid(newBaseType, ts.Double())) {
+			    if (! ts.isImplicitCastValid(initType, ts.DoubleArrayPointwiseOp()))
 				throw new SemanticException("Array initializer must be of type x10.lang.doubleArray.pointwiseOp" 
 						+ position());
+			} else if (ts.isImplicitCastValid(newBaseType, ts.Long())) {
+			    if (! ts.isImplicitCastValid(initType, ts.LongArrayPointwiseOp()))
+				throw new SemanticException("Array initializer must be of type x10.lang.longArray.pointwiseOp" 
+						+ position());
+			}
 			
 			
 		}
