@@ -372,7 +372,10 @@ implements X10TypeSystem {
     protected ClassType genericArrayType_;
     public ClassType genericArray( Expr distribution ) {
         if ( genericArrayType_ == null)
-            genericArrayType_ = load("x10.lang.genericArray"); // java file
+            genericArrayType_ = load("x10.lang.GenericReferenceArray"); // java file
+         // FIXME: was genericArray
+        // Also: I'd like to eliminate the plehora of Array classes
+        // in the runtime - CG
         return genericArrayType_;
     }
     
@@ -393,12 +396,8 @@ implements X10TypeSystem {
     
     protected ClassType genericReferenceArrayType_;
     public ClassType GenericReferenceArray( Expr distribution ) {
-        // FIXME: used to be GenericReferenceArray, but that
-        // results in type errors; why? how to fix?
-        // Also: I'd like to eliminate the plehora of Array classes
-        // in the runtime - CG
         if ( genericReferenceArrayType_ == null)
-            genericReferenceArrayType_ = load("x10.lang.genericArray"); // java file
+            genericReferenceArrayType_ = load("x10.lang.GenericReferenceArray"); // java file
         // return genericReferenceArrayType_.setParameter( "distribution", distribution );
         return genericReferenceArrayType_;
     }

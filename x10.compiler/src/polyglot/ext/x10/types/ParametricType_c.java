@@ -117,9 +117,12 @@ public class ParametricType_c
             return pt.parameters.equals(parameters);
         }
     
-    public boolean isArray() {
-        return base.isArray();
-    }
+        public boolean isArray() {
+            return base.isArray();
+        }
+        public boolean isX10Array() {
+            return base.isX10Array();
+        }
     public boolean isClass() {
         return base.isClass();
     }
