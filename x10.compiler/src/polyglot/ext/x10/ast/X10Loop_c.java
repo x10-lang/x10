@@ -16,6 +16,7 @@ import polyglot.ast.Formal;
 import polyglot.ext.jl.ast.Stmt_c;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
+import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.types.Type;
@@ -101,6 +102,10 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
     	return succs;
     }
     
+    public Context enterScope(Context c) {
+    	return c.pushBlock();
+        }
+
     /** Visit the children of the expression. */
 	public Node visitChildren(NodeVisitor v) {
 		Formal formal = (Formal) visitChild(this.formal, v);
