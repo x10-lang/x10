@@ -7,7 +7,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Block;
 
-/**
+/** The node constructed for the X10 construct atomic(P) {S}.
  * @author Christian Grothoff
  */
 public interface Atomic extends Stmt {

@@ -7,8 +7,8 @@ import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 import java.util.List;
 
-/**
- * @author
+/** The AST node representing the X10 construct when (c) {S} else (c) {S} ...
+ * @author ??
  */
 public interface When extends Stmt {
     /**
