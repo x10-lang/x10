@@ -129,6 +129,7 @@ public abstract /*value*/ class region extends Object  {
 	 Returns true iff this region contains this point.
 	 */
 	abstract public boolean contains( point/*(rank)*/ p);
+	abstract public boolean contains( int[] p);
 	/**
 	 Returns true iff this is disjoint from r.
 	 */

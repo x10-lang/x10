@@ -75,7 +75,7 @@ public class Region_c extends region  {
 		ContiguousRange cr = (ContiguousRange) dims[0];
 		int len = cr.size / partitions;
 		int offset = len * part;
-		region[] new_dims = new region[(int) rank];
+		region[] new_dims = new region[rank];
 		// determine most significant dimension
 		new_dims[0] = new ContiguousRange(cr.lo + offset, cr.lo + offset + len - 1);
 		
@@ -90,7 +90,7 @@ public class Region_c extends region  {
 		assert r.rank == rank;
 		
 		Region_c rc = (Region_c) r;
-		region[] d = new region[(int) rank];
+		region[] d = new region[rank];
 		for (int i = 0; i < d.length; ++ i)
 			d[i] = dims[i].union(rc.dims[i]);
 		return new Region_c(d);
@@ -101,7 +101,7 @@ public class Region_c extends region  {
 		assert r.rank == rank;
 		
 		Region_c rc = (Region_c) r;
-		region[] d = new region[(int) rank];
+		region[] d = new region[rank];
 		for (int i = 0; i < d.length; ++ i)
 			d[i] = dims[i].intersection(rc.dims[i]);
 		return new Region_c(d);
@@ -116,11 +116,11 @@ public class Region_c extends region  {
 	 * @return range in the i-th dimension.
 	 */
 	public region rank(/*nat*/int i) {
-		return dims[((int) i) % dims.length];
+		return dims[ i % dims.length];
 	}
 	
 	public region[] dim() {
-		region[] ret = new region[(int) rank];
+		region[] ret = new region[ rank];
 		System.arraycopy(dims, 0, ret, 0, ret.length);
 		return ret;
 	}
@@ -139,15 +139,24 @@ public class Region_c extends region  {
 		assert p.rank == rank;
 		boolean ret = true;
 		for (int i = 0; ret && i < rank; ++i) {
-			ret = ! ((Range) dims[i]).contains(p.valueAt(i));
+			ret = ((Range) dims[i]).contains(p.valueAt(i));
+		}
+		return ret;
+	}
+	public boolean contains(int[] val) {
+		assert val.length == rank;
+		boolean ret = true;
+		for (int i = 0; ret && i < rank; ++i) {
+			ret = ((Range) dims[i]).contains(val[i]);
 		}
 		return ret;
 	}
 	
+	
 	public /*nat*/int size() {
 		int ret = 1;
-		for (int i = (int) rank - 1; i >= 0; i--)
-			ret *= ((Range) dims[i]).size; // TODO: check overflow?
+		for (int i =  rank - 1; i >= 0; i--)
+			ret *= dims[i].size(); // TODO: check overflow?
 		return ret;
 	}
 	

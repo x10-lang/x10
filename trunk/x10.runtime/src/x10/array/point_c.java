@@ -9,12 +9,20 @@ public class point_c extends point {
 		public point/*(region)*/ point(region region, int[/*rank*/] val) {
 			return new point_c(region,  val);
 		}
+		
+		public point point(int[/*rank*/] val) {
+			region[] dims = new region[val.length];
+			for (int i=0; i<val.length;i++) 
+				dims[i] = x10.lang.region.factory.region(val[i], val[i]);	
+			region R = x10.lang.region.factory.region(dims);
+			return point(R, val);
+		}
 	}
 	final int[] val;
 	private point_c(region region , int[] val) {
 		super(region);
 		assert region.rank == val.length;
-		// vj: need to make sure that this point is in the region...
+		assert region.contains(val);
 		this.val = val;
 	}
 	

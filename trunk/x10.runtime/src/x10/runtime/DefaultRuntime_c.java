@@ -24,6 +24,11 @@ import x10.lang.distribution;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
+import x10.lang.IntReferenceArray;
+import x10.lang.intValueArray;
+import x10.lang.DoubleReferenceArray;
+import x10.lang.doubleArray;
+import x10.lang.doubleValueArray;
 
 /**
  * Default implementation of Runtime.
@@ -243,21 +248,33 @@ public class DefaultRuntime_c
     		}
     		public IntArray.factory getIntArrayFactory() {
     			return new IntArray.factory() {
-    				public x10.lang.IntArray IntArray(distribution d, int c) {
+    				public IntReferenceArray IntReferenceArray(distribution d, int c) {
     					return new IntArray_c( d, c, true);
     				}
-    				public x10.lang.IntArray IntArray(distribution d, IntArray.pointwiseOp f) {
+    				public IntReferenceArray IntReferenceArray(distribution d, IntArray.pointwiseOp f) {
     					return new IntArray_c( d, f, true);
+    				}
+    				public intValueArray intValueArray(distribution d, int c) {
+    					throw new Error("TODO");
+    				}
+    				public intValueArray intValueArray(distribution d, IntArray.pointwiseOp f) {
+    					throw new Error("TODO");
     				}
     			};
     		}
     		public DoubleArray.factory getDoubleArrayFactory() {
-    			return new DoubleArray.factory() {
-    				public x10.lang.DoubleArray DoubleArray(distribution d, double c) {
+    			return new doubleArray.factory() {
+    				public DoubleReferenceArray DoubleReferenceArray(distribution d, double c) {
     					return new DoubleArray_c( d, c, true);
     				}
-    				public x10.lang.DoubleArray DoubleArray(distribution d, DoubleArray.pointwiseOp f) {
+    				public DoubleReferenceArray DoubleReferenceArray(distribution d, doubleArray.pointwiseOp f) {
     					return new DoubleArray_c( d, f, true);
+    				}
+    				public doubleValueArray doubleValueArray(distribution d, double c) {
+    					throw new Error("TODO");
+    				}
+    				public doubleValueArray doubleValueArray(distribution d, doubleArray.pointwiseOp f) {
+    					throw new Error("TODO");
     				}
     			};
     			
@@ -271,7 +288,7 @@ public class DefaultRuntime_c
     				}
     				public Set/*<place>*/ places (int last) {
     					Set result = new HashSet();
-    					for (int i=0; i < last % (int) place.MAX_PLACES; i++)
+    					for (int i=0; i < last % place.MAX_PLACES; i++)
     						result.add(places_[i]);
     					return result;
     				}

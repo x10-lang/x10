@@ -6,13 +6,14 @@ package x10.array;
 import java.util.Iterator;
 import x10.lang.distribution;
 import x10.lang.point;
+import x10.lang.DoubleReferenceArray;
 
 /**
  * @author Christoph von Praun
  * 
  * Double Arrays are currently not implemented.
  */
-public abstract class DoubleArray extends x10.lang.DoubleArray {
+public abstract class DoubleArray extends DoubleReferenceArray {
     public DoubleArray(distribution d) {
         super(d);
     }
