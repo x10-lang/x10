@@ -32,7 +32,7 @@ public class TestIntArray extends TestCase {
         region.factory rf = F.getRegionFactory();
         region r = rf.region(new region[] {new ContiguousRange(3), new ContiguousRange(3)});
         distribution d = Runtime.factory.getDistributionFactory().constant(r, x10.lang.place.FIRST_PLACE);
-        IntArray ia = (IntArray) Runtime.factory.getIntArrayFactory().IntArray(d, 12);
+        IntArray ia = (IntArray) Runtime.factory.getIntArrayFactory().IntReferenceArray(d, 12);
         
         Operator.Reduction red = new Operator.Reduction() {
            private int acc_;
@@ -56,7 +56,7 @@ public class TestIntArray extends TestCase {
                 new ContiguousRange(0, N - 1),
                 new ContiguousRange(0, N - 1) });
         distribution d = Runtime.factory.getDistributionFactory().block(r);
-        DoubleArray A = (DoubleArray) Runtime.factory.getDoubleArrayFactory().DoubleArray(d, 0);
+        DoubleArray A = (DoubleArray) Runtime.factory.getDoubleArrayFactory().DoubleReferenceArray(d, 0);
 
         // initialize array A (this should happen in parallel, distributed
         // over

@@ -17,6 +17,7 @@ import x10.lang.point;
 import x10.lang.distribution;
 import x10.lang.region;
 import x10.lang.Runtime;
+import x10.lang.IntReferenceArray;
 
 
 /**
@@ -50,22 +51,24 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      */
     public IntArray_c( distribution d, int c, boolean safe) {
     	super(d);
-    	int count = (int) d.region.size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
+    	int count = d.region.size();
+    	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) 
+    			: Allocator.allocUnsafe(count, Allocator.SIZE_INT);
     	scan(this, new Assign(c));
     	
     }
     public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean safe) {
     	super(d);
-    	int count = (int) d.region.size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
+    	int count =  d.region.size();
+    	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE)
+    			: Allocator.allocUnsafe(count, Allocator.SIZE_INT);
     	scan(this, f);
     	
     }
     
     protected IntArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
         super(d);
-        int count = (int) d.region.size();
+        int count = d.region.size();
         this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
         if (c != null)
             pointwise(this, c);
@@ -80,9 +83,9 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     
   
     
-    public x10.lang.IntArray lift( IntArray.binaryOp op, x10.lang.IntArray arg ) {
+    public x10.lang.intArray lift( IntArray.binaryOp op, x10.lang.intArray arg ) {
         assert arg.distribution == this.distribution;
-        x10.lang.IntArray result = newInstance(distribution);
+        IntReferenceArray result = newInstance(distribution);
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
             point p = (point) it.next();
              result.set(op.apply(this.get(p), arg.get(p)),p);
@@ -99,9 +102,9 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         return result;
     }
 
-    public x10.lang.IntArray scan( IntArray.binaryOp op, int unit ) {
+    public x10.lang.intArray scan( IntArray.binaryOp op, int unit ) {
         int temp = unit;
-        x10.lang.IntArray result = newInstance(distribution);
+        x10.lang.IntReferenceArray result = newInstance(distribution);
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
             point p = (point) it.next();
             temp = op.apply(this.get(p), temp);
@@ -140,7 +143,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * @see x10.lang.IntArray#set(int, int[])
      */
     public void set(int v, point pos) {
-        arr_.setInt(v, (int) distribution.region.ordinal(pos));
+        arr_.setInt(v, distribution.region.ordinal(pos));
     }
     
     public void set(int v, int d0) {
@@ -202,16 +205,16 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
-    public x10.lang.IntArray overlay(x10.lang.IntArray d) {
+    public x10.lang.intArray overlay(x10.lang.intArray d) {
     	throw new Error("TODO");
     }
-    public x10.lang.IntArray union(x10.lang.IntArray d) {
+    public x10.lang.intArray union(x10.lang.intArray d) {
     	throw new Error("TODO");
     }
-    public x10.lang.IntArray restriction( distribution d) {
+    public x10.lang.intArray restriction( distribution d) {
     	throw new Error("TODO");
     }
-    public x10.lang.IntArray restriction( region d) {
+    public x10.lang.intArray restriction( region d) {
     	throw new Error("TODO");
     }
 }

@@ -45,6 +45,17 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 		public distribution/*(:rank=1)*/ unique() {
 			return unique( x10.lang.place.places );
 		}
+		public /*(region R)*/ distribution/*(R)*/ here( region R) {
+			return constant( R, Runtime.here());
+		}
+		/** Return the distribution that maps the region 0..k-1 to here.
+		 * 
+		 * @param k -- the upper bound of the 1-dimensional region. k >= 0
+		 * @return the given distribution
+		 */
+		public distribution/*(:rank=1)*/ here( int k) {
+			return here(x10.lang.region.factory.region(k));
+		}
 		
 		/** Returns the constant distribution which maps every point in its
 		 region to the given place P.
@@ -109,6 +120,7 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 	/** Returns the place to which the point p in region is mapped.
 	 */
 	abstract public place valueAt(point/*(region)*/ p) throws MalformedError;
+	abstract public place valueAt(int[] p) throws MalformedError;
 	
 	/** Returns the region mapped by this distribution to the place P.
 	 The value returned is a subset of this.region.

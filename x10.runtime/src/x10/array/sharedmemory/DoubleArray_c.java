@@ -106,7 +106,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
 	}
 	
 
-    public x10.lang.DoubleArray lift( DoubleArray.binaryOp op, x10.lang.DoubleArray arg ) {
+    public x10.lang.doubleArray lift( DoubleArray.binaryOp op, x10.lang.doubleArray arg ) {
         assert arg.distribution == this.distribution; 
         DoubleArray arg1 = (DoubleArray)arg;
         DoubleArray result = newInstance(distribution);
@@ -126,7 +126,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         return result;
     }
 
-    public x10.lang.DoubleArray scan( binaryOp op, double unit ) {
+    public x10.lang.doubleArray scan( binaryOp op, double unit ) {
         double temp = unit;
         DoubleArray result = newInstance(distribution);
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
@@ -206,16 +206,16 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
-    public x10.lang.DoubleArray overlay(x10.lang.DoubleArray d) {
+    public x10.lang.doubleArray overlay(x10.lang.doubleArray d) {
     	throw new Error("TODO");
     }
-    public x10.lang.DoubleArray union(x10.lang.DoubleArray d) {
+    public x10.lang.doubleArray union(x10.lang.doubleArray d) {
     	throw new Error("TODO");
     }
-    public x10.lang.DoubleArray restriction( distribution d) {
+    public x10.lang.doubleArray restriction( distribution d) {
     	throw new Error("TODO");
     }
-    public x10.lang.DoubleArray restriction( region d) {
+    public x10.lang.doubleArray restriction( region d) {
     	throw new Error("TODO");
     }
     

@@ -17,7 +17,7 @@ import x10.array.sharedmemory.Region_c;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-public abstract class IntArray extends x10.lang.IntArray {
+public abstract class IntArray extends x10.lang.IntReferenceArray {
 
     public static class Assign extends Operator.Scan {
         private final int c_;
@@ -94,13 +94,12 @@ public abstract class IntArray extends x10.lang.IntArray {
          */
         assert res == null || res instanceof IntArray;
         
-        IntArray res_t = (IntArray) res;
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
             point p = (point) it.next();
             int arg1 = get(p);
             int val = op.apply(p, arg1);
-            if (res_t != null)
-                res_t.set(val, p);
+            if (res != null)
+                res.set(val, p);
         }
     }
 

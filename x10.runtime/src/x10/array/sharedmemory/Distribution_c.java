@@ -65,6 +65,9 @@ abstract class Distribution_c extends /*Region_c*/distribution /*implements Dist
         public place valueAt(point/*(region)*/ p) throws MalformedError {
         	throw new MalformedError();
         }
+        public place valueAt(int[] p) throws MalformedError {
+        	throw new MalformedError();
+        }
     	
         /** Returns the region mapped by this distribution to the place P.
     	The value returned is a subset of this.region.
@@ -154,7 +157,9 @@ abstract class Distribution_c extends /*Region_c*/distribution /*implements Dist
         public place valueAt(point/*(region)*/ p) {
         	return place_;
         }
-    	
+        public place valueAt(int[] p) {
+        	return place_;
+        }
         /** Returns the region mapped by this distribution to the place P.
     	The value returned is a subset of this.region.
         */
@@ -260,6 +265,10 @@ abstract class Distribution_c extends /*Region_c*/distribution /*implements Dist
         public place valueAt(point/*(region)*/ p) {
         	assert this.region.contains(p.region);
         	return placeseq[(p.valueAt(0)) % placeseq.length];
+        }
+        public place valueAt(int[] val) {
+        	assert val.length == 1;
+        	return placeseq[val[0] % placeseq.length];
         }
     	
         /** Returns the region mapped by this distribution to the place P.
@@ -388,7 +397,15 @@ abstract class Distribution_c extends /*Region_c*/distribution /*implements Dist
             assert ret != null;
             return ret;
 	}
-
+	public place valueAt(int[] p) throws MalformedError {
+        place ret = null;
+        for (int i=0; ret == null && i < members_.length; ++i) {
+            if (members_[i].region.contains(p)) 
+                ret = members_[i].valueAt(p);
+        }
+        assert ret != null;
+        return ret;
+}
 	/* Currently only implemented for combined distributions where
          * each part is a Distribution.Constant
 	 * @see x10.lang.distribution#restriction(x10.lang.place)

@@ -6,7 +6,19 @@ abstract public /*value*/ class point/*( region region )*/ extends Object {
 	
 	
 	abstract public static /*value*/ class factory {
+		/** Create a point with the given coordinates in the given region.
+		 * Throws an error if the point is not in the region.
+		 * @param r
+		 * @param val
+		 * @return
+		 */
 		abstract public point/*(region)*/ point(region r, int[/*rank*/] val);
+		
+		/** Return a point with the given coordinates, created in the smallest region
+		 * that can enclose it.
+		 * 
+		 */
+		abstract public point point(int[/*rank*/] val);
 	}
 	public static final factory factory = Runtime.factory.getPointFactory();
 	

@@ -84,7 +84,12 @@ public class ContiguousRange extends Range {
 	public boolean contains(point p) {
 		assert p.rank == 1;
 		int val = p.valueAt(0);
-		return lo <= val && val <= hi; // X10 spec says range is inclusive!
+		return lo <= val && val < hi; 
+	}
+	public boolean contains(int[] p) {
+		assert p.length == 1;
+		int val = p[0];
+		return lo <= val && val < hi; 
 	}
 	
 	public boolean contains( region r) {

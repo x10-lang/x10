@@ -108,6 +108,10 @@ public class EmptyRegion extends region {
 		return false;
 	}
 
+	public boolean contains(int[] p) {
+		assert this.rank == p.length;
+		return false;
+	}
 	/* (non-Javadoc)
 	 * @see x10.lang.region#disjoint(x10.lang.region)
 	 */

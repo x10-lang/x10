@@ -55,12 +55,18 @@ public class StridedRange extends Range {
 	public boolean contains(int p) {
 	    throw new Error("TODO");
 	}
+	public boolean contains(int[] p) {
+	    throw new Error("TODO");
+	}
 
 	public boolean contains(Range r) {
 	    assert r instanceof StridedRange;
 	    
 	    throw new Error("TODO");
 	}
+	public boolean contains(point p) {
+		 throw new Error("TODO");
+		}
 
 	public String toString() {
 	    return "[" + lo + ", " + hi + ": " + stride + "]";
@@ -79,9 +85,7 @@ public class StridedRange extends Range {
 	public int hashCode() {
 	    return stride;
 	}
-	public boolean contains(point p) {
-	 throw new Error("TODO");
-	}
+	
 	public boolean isConvex() {
 		return stride != 1;
 	}

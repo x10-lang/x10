@@ -25,7 +25,7 @@ public class TestIntArray extends TestCase {
             distribution.factory DF = F.getDistributionFactory();
             distribution d = DF.constant(r, Runtime.here());
             IntArray.factory IF = Runtime.factory.getIntArrayFactory();
-            x10.lang.IntArray value = IF.IntArray(d, 12);
+            x10.lang.intArray value = IF.IntReferenceArray(d, 12);
     
             int[][] a1 = (int[][]) ((IntArray) value).toJava();
             int[][] a2 = new int[][] { { 12, 12, 12 }, { 12, 12, 12 },
