@@ -8,6 +8,7 @@ import polyglot.ast.Expr;
 import polyglot.ext.jl.types.TypeSystem_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.GenParameterExpr;
+import polyglot.ext.x10.ast.GenParameterExpr_c;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
@@ -21,6 +22,7 @@ import polyglot.types.PrimitiveType;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -31,8 +33,6 @@ import polyglot.util.Position;
  * @author Christian Grothoff
  * @author Christoph von Praun
  * @author vj
- *
- *
  */
 public class X10TypeSystem_c 
 extends TypeSystem_c 
@@ -222,6 +222,8 @@ implements X10TypeSystem {
 			return doubleArray(  distribution );
 		if (type.isLong())
 			return longArray(  distribution );
+                if (type.isPrimitive())
+                    throw new Error("X10 array types not yet implemented for base types other than int, double and long (got: " + type + ")");
                 List list = new LinkedList();
                 list.add(type);
                 return this.createParametricType(Position.COMPILER_GENERATED,
@@ -238,6 +240,8 @@ implements X10TypeSystem {
 		    return isValue ? doubleValueArray() : DoubleReferenceArray();
 		if (type.isLong())
 		    return isValue ? longValueArray() : LongReferenceArray();
+		if (type.isPrimitive())
+                    throw new Error("X10 array types not yet implemented for base types other than int, double and long (got: " + type + ")");
 		List list = new LinkedList();
                 list.add(type);
                 return this.createParametricType(Position.COMPILER_GENERATED,
@@ -254,6 +258,8 @@ implements X10TypeSystem {
 		    return doubleArray();
 		if (type.isLong())
 		    return longArray();
+                if (type.isPrimitive())
+                    throw new Error("X10 array types not yet implemented for base types other than int, double and long (got: " + type + ")");
 		List list = new LinkedList();
                 list.add(type);
                 return this.createParametricType(Position.COMPILER_GENERATED,
@@ -346,14 +352,20 @@ implements X10TypeSystem {
 		return longReferenceArrayType_;
 	}
 
-
-    
-    protected ClassType genericArrayPointwiseOpType_;
-    public ClassType GenericArrayPointwiseOp(X10ReferenceType typeParam) {
+    protected X10ReferenceType genericArrayPointwiseOpType_;
+    public ReferenceType GenericArrayPointwiseOp(X10ReferenceType typeParam) {
         if ( genericArrayPointwiseOpType_ == null)
-            genericArrayPointwiseOpType_ = load("x10.lang.genericArray$pointwiseOp"); // java file
-        // FIXME: we need to make this also into a parametric type (in typeParam)!
-        return genericArrayPointwiseOpType_;
+            genericArrayPointwiseOpType_
+                = (X10ReferenceType) load("x10.lang.genericArray$pointwiseOp"); // java file
+        List l = new LinkedList();
+        l.add(typeParam);
+        GenParameterExpr typeparam
+            = new GenParameterExpr_c(Position.COMPILER_GENERATED,l);
+        return new ParametricType_c(this,
+                Position.COMPILER_GENERATED,
+                genericArrayPointwiseOpType_,
+                typeparam,
+                null);
     }
     public ClassType genericArray(boolean isValueType, Expr distribution ) {
         return 

@@ -30,11 +30,11 @@ public class GenParameterExpr_c extends Expr_c implements GenParameterExpr {
 	/**
          * The argument list of a parametric type. Maybe null.
 	 */
-	protected List/*TypeNode*/ args;
+	protected List/*Type*/ args;
 	
 	public GenParameterExpr_c(Position pos, List l) {
 		super(pos);
-		this.args =  TypedList.copyAndCheck(l, TypeNode.class, false);
+		this.args =  TypedList.copyAndCheck(l, Type.class, false);
 	}
 	
 	public List args() {
@@ -91,7 +91,7 @@ public class GenParameterExpr_c extends Expr_c implements GenParameterExpr {
 	            s += "...";
 	            break;
 	        }
-	        Expr n = (Expr) i.next();
+	        Type n = (Type) i.next();
 	        s += n.toString();
 
 	        if (i.hasNext()) {

@@ -70,7 +70,7 @@ public interface X10TypeSystem extends TypeSystem {
     ClassType IntArrayPointwiseOp();
     ClassType DoubleArrayPointwiseOp();
     ClassType LongArrayPointwiseOp();
-    ClassType GenericArrayPointwiseOp(X10ReferenceType baseType);
+    ReferenceType GenericArrayPointwiseOp(X10ReferenceType baseType);
     
  
   
