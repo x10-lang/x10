@@ -187,6 +187,14 @@ public TestCompiler(String name) {
         run("./ClockTest2.x10","ClockTest2");
     }
 
+    public void test_ClockTest3() {
+        run("./ClockTest3.x10","ClockTest3");
+    }
+
+    public void test_ClockTest4() {
+        run("./ClockTest4.x10","ClockTest4");
+    }
+
     public void test_CommentTest() {
         run("./CommentTest.x10","CommentTest");
     }
@@ -331,12 +339,20 @@ public TestCompiler(String name) {
         run("./IntValueArrayInitializerShorthand.x10","IntValueArrayInitializerShorthand");
     }
 
+    public void test_JGFLUFactBenchSizeA() {
+        run("./JGFLUFactBenchSizeA.x10","JGFLUFactBenchSizeA");
+    }
+
     public void test_JGFMolDynBenchSizeA() {
         run("./JGFMolDynBenchSizeA.x10","JGFMolDynBenchSizeA");
     }
 
     public void test_JGFMonteCarloBenchSizeA() {
         run("./JGFMonteCarloBenchSizeA.x10","JGFMonteCarloBenchSizeA");
+    }
+
+    public void test_JGFSparseMatmultBenchSizeA() {
+        run("./JGFSparseMatmultBenchSizeA.x10","JGFSparseMatmultBenchSizeA");
     }
 
     public void test_Jacobi() {
