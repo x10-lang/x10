@@ -102,7 +102,14 @@ public abstract class Runtime {
     	return _.currentPlace();
     }
     
+    public static Place[] places() {
+        return _.getPlaces();
+    }
+    
     public abstract Place currentPlace();
+    
+    public abstract Place[] getPlaces();
+    
     
     // Distribution factory methods...
     

@@ -12,8 +12,7 @@ import x10.lang.Place;
  * 
  * @author Christian Grothoff
  */
-class LocalPlace_c
-    implements Place {
+class LocalPlace_c extends Place {
 
     private final ThreadRegistry reg_;
     
