@@ -26,10 +26,6 @@ import com.ibm.PERCS.PPEM.traceFormat.Events.X10;
  * The sampling class is also responsible for periodically
  * dumping data during runtime (if desired).
  * 
- * TODO:
- * - dump into PEM format
- * - generate 'correct' XML output
- * 
  * @author Christian Grothoff
  */
 public final class Sampling extends Thread {
@@ -71,48 +67,36 @@ public final class Sampling extends Thread {
      * EX is for events that happen right at the time
      * of the recording (not at the sample time).
      */
-    public static final int ET_EE = X10.EESampler;
-    public static final int ET_S = X10.Sampler;
-    public static final int ED_EE = X10.EDSampler;
-    public static final int EX_M = X10.Event;
+    public static final int SAMPLER = X10.Sampler;
+    public static final int EVENT = X10.Event;
     
     /**
-     * List of entry-exit IDs.
+     * List of 'marker' IDs.
      */
-    public static final int EE_ID_ATOMIC = X10.EESampler_Atomic;               // lock->unlock
-    public static final int EE_ID_ACTIVITY_RUN = X10.EESampler_ActivityRun;     // start->finish (number of activities started/completed)
-    public static final int EE_ID_ACTIVITY_BLOCK = X10.EESampler_Block; // block->unblock (not used, we're using load instead)
-    public static final int ED_ID_ATOMIC = X10.EDSampler_Atomic;               // lock->unlock
-    public static final int ED_ID_ACTIVITY_RUN = X10.EDSampler_Atomic;     // start->finish (number of activities started/completed)
-    public static final int ED_ID_ACTIVITY_BLOCK = X10.EDSampler_Block; // block->unblock (not used, we're using load instead)
+    public static final int EVENT_ID_CLOCK_ADVANCE = X10.Event_ClockAdvance;   // clock advances
+    public static final int EVENT_ID_ACTIVITY_START = X10.Event_ActivityStart;  
+    public static final int EVENT_ID_ACTIVITY_END = X10.Event_ActivityEnd;  
+    public static final int EVENT_ID_ACTIVITY_BLOCK = X10.Event_ActivityBlock;  
+    public static final int EVENT_ID_ACTIVITY_UNBLOCK = X10.Event_ActivityUnblock;
+    // events that are not (yet) signaled explicitly
+    public static final int EVENT_ID_ATOMIC_ENTRY = -1;
+    public static final int EVENT_ID_ATOMIC_EXIT = -2;
     
-    /**
-     * List of 'marker' IDs (single, unrelated events in time).
-     */
-    public static final int M_ID_LOCAL_CALL = X10.Event_LocalCall; // 'call'
-    public static final int M_ID_REMOTE_CALL = X10.Event_RemoteCall; // 'call'
-    public static final int M_ID_CLOCK_ADVANCE = X10.Event_ClockAdvance;   // clock advances
+    public static final int SAMPLER_DATA  = X10.Sampler_Data;
 
     /**
-     * List of status values (values that capture the current
-     * state of the system, but that have no clear relation
-     * with entry-exit events; for example, memory used
-     * or active threads in the thread pool).
+     * List of causes for blocking.
      */
-    public static final int S_ID_THREAD_QUEUE_SIZE = X10.Sampler_TQS;
-    public static final int S_ID_LOAD = X10.Sampler_Load; // number of threads that are currently running (non-blocked)
+    public static final int CAUSE_ATOMIC = 0;
+    public static final int CAUSE_FORCE = 1;
+    public static final int CAUSE_CLOCK = 2;
    
-    private final int[][] entryCount;
-    
-    private final int[][] exitCount;
-    
-    private final int[][] eventCount;
-
-    private final int[][] statusValue;
-    
-    private final HashMap eeNames = new HashMap();
-    private final HashMap mNames = new HashMap();
-    private final HashMap sNames = new HashMap();
+    private final int[] atomicEntry;
+    private final int[] atomicExit;
+    private final int[] blockEntry;
+    private final int[] blockExit;
+    private final int[] activityStart;
+    private final int[] activityEnd;
     
     /**
      * Map of Sampler.class objects to the values returned by the
@@ -148,40 +132,12 @@ public final class Sampling extends Thread {
             io.printStackTrace();
             throw new Error(io);
         }
-        Field[] fields = this.getClass().getFields();
-        int maxEE = 0;
-        int maxM = 0;
-        int maxS = 0;
-        try {
-            for (int i=0;i<fields.length;i++) {
-                Field f = fields[i];
-                if (f.getName().startsWith("EE_ID") && Modifier.isStatic(f.getModifiers())) {
-                    int val = f.getInt(null) + 1;
-                    eeNames.put(new Integer(val-1), f.getName());
-                    if (val > maxEE)
-                        maxEE = val;
-                }
-                if (f.getName().startsWith("M_ID") && Modifier.isStatic(f.getModifiers())) {
-                    int val = f.getInt(null) + 1;
-                    mNames.put(new Integer(val-1),f.getName());
-                    if (val > maxM)
-                        maxM = val;
-                }
-                if (f.getName().startsWith("S_ID") && Modifier.isStatic(f.getModifiers())) {
-                    int val = f.getInt(null) + 1;
-                    sNames.put(new Integer(val-1), f.getName());
-                    if (val > maxS)
-                        maxS = val;
-                }
-                
-            }
-        } catch (IllegalAccessException iae) {
-            throw new Error(iae);
-        }
-        this.entryCount = new int[places.length][maxEE];
-        this.exitCount = new int[places.length][maxEE];
-        this.eventCount = new int[places.length][maxM];
-        this.statusValue = new int[places.length][maxS];
+        this.atomicEntry = new int[places.length];
+        this.atomicExit = new int[places.length];
+        this.blockEntry = new int[places.length];
+        this.blockExit = new int[places.length];
+        this.activityStart = new int[places.length];
+        this.activityEnd = new int[places.length];
         
         Class[] inners = this.getClass().getDeclaredClasses();
         for (int i=0;i<inners.length;i++) {
@@ -213,152 +169,121 @@ public final class Sampling extends Thread {
         return samples_.toString(); // for now, may nicer later...
     }
 
-    public void signalEntry(int ee_id) {
-        signalEntry(Runtime.here(), ee_id);
+    public void signalEvent(int event_id) {
+        signalEvent(null, 
+                          Runtime.here(),
+                          event_id, 0,
+                          0, 
+                          0);        
     }
-    
-    public void signalExit(int ee_id) {
-        signalExit(Runtime.here(), ee_id);
+
+    public void signalEvent(int event_id,
+                                         int event_info) {
+        signalEvent(null, 
+                          Runtime.here(),
+                          event_id, event_info, 
+                          0, 
+                          0);        
     }
-    
-    public void signalEvent(int m_id) {
-        signalEvent(Runtime.here(), m_id);        
-    }
-    
-    public synchronized void signalEntry(Place p,
-                                                                 int ee_id) {
-        for (int i=places.length-1;i>=0;i--)
-            if (p == places[i])
-                _.entryCount[i][ee_id]++;
-    }
-    
-    public synchronized void signalExit(Place p, int ee_id) {
-        for (int i=places.length-1;i>=0;i--)
-            if (p == places[i])
-                _.exitCount[i][ee_id]++;        
-    }
-    
-    public synchronized void signalEvent(Place p, int m_id) {
-        for (int i=places.length-1;i>=0;i--)
-            if (p == places[i]) {
-                _.eventCount[i][m_id]++;
-                recordEvent(m_id, EX_M, i);
-                return;
-            }
-        throw new Error("Place " + p + " not in place list!");
-    }
-    
-    public void setStatus(int s_id, int value) {
-        setStatus(Runtime.here(), s_id, value);
-    }
-    
-    public void updateStatus(int s_id,
-                                            int value) {
-        updateStatus(Runtime.here(), s_id, value);
-    }
-    
-    public synchronized void setStatus(Place p, 
-                                                              int s_id, 
-                                                              int value) {        
-        for (int i=places.length-1;i>=0;i--)
-            if (p == places[i])
-                _.statusValue[i][s_id] = value;
-    }
-    
-    public synchronized void updateStatus(Place p, 
-                                                                   int s_id,
-                                                                   int value) {
-        for (int i=places.length-1;i>=0;i--)
-            if (p == places[i])
-                _.statusValue[i][s_id] += value;
+
+    public void signalEvent(int event_id,
+                                          int cause,
+                                          int causeInfo) {
+        signalEvent(null, 
+                          Runtime.here(),
+                          event_id, 0, 
+                          cause, 
+                          causeInfo);        
     }
     
     private void writeHeader(int size, int type, int id) {
         try {
             dos.writeInt((int) System.currentTimeMillis());
-            int larg = (((size+8)/8) << 24) | (PEM.Layer.X10 << 20) | (type << 14)| id; 
+            int larg = (((size+8+16)/8) << 24) | (PEM.Layer.X10 << 20) | (type << 14)| id; 
             dos.writeInt(larg);
+            dos.writeLong(System.currentTimeMillis());
+            dos.writeLong(LocalPlace_c.systemNow());
         } catch (IOException io) {
             throw new Error(io);
         }
     }
     
-    /**
-     * Record a single event.
-     * @param id the id of the event (i.e. call, clock advance)
-     * @param type the event category (marker or status)
-     * @param pid the place id (where the event took place)
-     */
-    private synchronized void recordEvent(int id, int type, int pid) {
-        assert (type == EX_M);
-        writeHeader(8+4+4, type, id);
+    public synchronized void signalEvent(Place srcPlace,
+                                                                 Place dstPlace, 
+                                                                 int event_id,
+                                                                 int event_info,
+                                                                 int cause,
+                                                                 int causeInfo) {
         try {
-            dos.writeLong(System.currentTimeMillis()); // actual event time
-            dos.writeInt(pid); // place id (where)            
-            dos.writeInt(0); // for 64-bit alignment
-        } catch (IOException io) {
-            throw new Error(io);
-        }
-    }
-
-    /**
-     * Record event data for all places (not for entry-exit type events)
-     * @param eventData the event data to record
-     * @param id which index in event data to record (event id, i.e. remote calls)
-     * @param type what is the event category (ET or ED, M or S, but not EE)
-     */
-    private synchronized void recordEvent(int[][] eventData,
-                                          int id, int type) {
-        assert (type != ET_EE) && (type != ED_EE);
-        writeHeader(8+8+eventData.length*8, type, id);
-        try {
-            dos.writeLong(System.currentTimeMillis()); // sampling time 
-            dos.writeInt(eventData.length);            
-            dos.writeInt(0);
-            for (int i=0;i<eventData.length;i++) 
-                dos.writeInt(i);            
-            for (int i=0;i<eventData.length;i++) 
-                dos.writeInt(eventData[i][id]);            
-        } catch (IOException io) {
-            throw new Error(io);
-        }
-    }
-    
-    /**
-     * Record event data for all places of an entry-exit type of event
-     * @param entryData the event data to record
-     * @param exitData the event data to record
-     * @param id which index in event data to record (event id, i.e. remote calls)
-     * @param type what is the event category (ET_EE or ED_EE)
-     */
-    private void recordEntryExit(int id, int type, 
-                                 int[][] entryData,
-                                 int[][] exitData) {
-        assert (type == ET_EE) || (type == ED_EE);
-        writeHeader(8+4+4+entryData.length*8, type, id);
-        try {
-            dos.writeLong(System.currentTimeMillis());  // sampling time
-            dos.writeInt(entryData.length);            
-            dos.writeInt(0);
-            for (int i=0;i<entryData.length;i++) {
-                dos.writeInt(entryData[i][id]);
-                dos.writeInt(exitData[i][id]);
+            for (int i=places.length-1;i>=0;i--) {
+                if (dstPlace != places[i]) 
+                    continue;
+                int j = -1;
+                if (srcPlace != null) {
+                    for (int k=places.length-1;k>=0;k--) {
+                        if (srcPlace == places[k]) {
+                               j=k;                        
+                               break;
+                        }
+                    }
+                    if (j == -1)
+                        throw new Error("Place " + srcPlace + " not in place list!");
+                }
+                switch (event_id) {
+                case EVENT_ID_CLOCK_ADVANCE:
+                    writeHeader(8, EVENT, event_id);
+                    dos.writeInt(i);
+                    dos.writeInt(event_info); // == clockId
+                    break;
+                case EVENT_ID_ACTIVITY_START:
+                    activityStart[i]++;
+                    writeHeader(4+4+4+4, EVENT, event_id);
+                    dos.writeInt(j); // src place
+                    dos.writeInt(i); // dst place
+                    dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    dos.writeInt(event_info);
+                    break;
+                case EVENT_ID_ACTIVITY_END:
+                    activityEnd[i]++;
+                    writeHeader(4+4+4+4, EVENT, event_id);
+                    dos.writeInt(0); // reserved
+                    dos.writeInt(i); // dst place
+                    dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    dos.writeInt(event_info);
+                    break;
+                case EVENT_ID_ACTIVITY_BLOCK:
+                    blockEntry[i]++;
+                    writeHeader(4+4+4+4, EVENT, event_id);
+                    dos.writeInt(i); // dst place
+                    dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    dos.writeInt(cause);
+                    dos.writeInt(causeInfo);
+                    break;
+                case EVENT_ID_ACTIVITY_UNBLOCK:
+                    blockExit[i]++;
+                    writeHeader(4+4+4+4, EVENT, event_id);
+                    dos.writeInt(i); // dst place
+                    dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    dos.writeInt(cause);
+                    dos.writeInt(causeInfo);
+                    break;
+                }
+                return;
             }
+            throw new Error("Place " + dstPlace + " not in place list!");
         } catch (IOException io) {
             throw new Error(io);
         }
     }
-
-    private void delta(int[][] now, int[][] last) {
-        for (int i=now.length-1;i>=0;i--)
-            for (int j=now[i].length-1;j>=0;j--)
-                last[i][j] = now [i][j] - last[i][j];
+    
+    private void delta(int[] now, int[] last) {
+        for (int j=now.length-1;j>=0;j--)
+            last[j] = now [j] - last[j];
     }
     
-    private void copy(int[][] now, int[][] last) {
-        for (int i=now.length-1;i>=0;i--)
-            for (int j=now[i].length-1;j>=0;j--)
-                last[i][j] = now [i][j];
+    private void copy(int[] now, int[] last) {
+        for (int j=now.length-1;j>=0;j--)
+            last[j] = now [j];
     }
 
     /**
@@ -366,8 +291,12 @@ public final class Sampling extends Thread {
      */
     public synchronized void run() {
         long now = System.currentTimeMillis();
-        int[][] lastEntryCount = new int[entryCount.length][entryCount[0].length];
-        int[][] lastExitCount = new int[exitCount.length][exitCount[0].length];
+        int[] lastAtomicEntryCount = new int[atomicEntry.length];
+        int[] lastAtomicExitCount = new int[atomicExit.length];
+        int[] lastActivityStartCount = new int[activityStart.length];
+        int[] lastActivityEndCount = new int[activityEnd.length];
+        int[] lastBlockEntryCount = new int[blockEntry.length];
+        int[] lastBlockExitCount = new int[blockExit.length];
         while (! shutdown) {
             long last = now;
             now = System.currentTimeMillis();
@@ -378,19 +307,64 @@ public final class Sampling extends Thread {
             while (it.hasNext())
                 ((Sampler)(samples_.get(it.next()))).sample(delta);
 
-            for (int i=0;i<entryCount[0].length;i++)
-                recordEntryExit(i, ET_EE, entryCount, exitCount);
-            for (int i=0;i<statusValue[0].length;i++)
-                recordEvent(statusValue, i, ET_S);
             // produce delta-values
-            delta(entryCount, lastEntryCount);
-            delta(exitCount, lastExitCount);
-            // record delta-values
-            for (int i=0;i<entryCount[0].length;i++)
-                recordEntryExit(i, ED_EE, lastEntryCount, lastExitCount);
+            delta(atomicEntry, lastAtomicEntryCount);
+            delta(atomicExit, lastAtomicExitCount);
+            delta(activityStart, lastActivityStartCount);
+            delta(activityEnd, lastActivityEndCount);
+            delta(blockEntry, lastBlockEntryCount);
+            delta(blockExit, lastBlockExitCount);
+
+            // generate event
+            try {
+                writeHeader(4+4 + places.length * 8 * 7, SAMPLER, SAMPLER_DATA);
+                dos.writeInt(places.length);
+                dos.writeInt(0); // reserved
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(this.threadQueueSize[i]);
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(this.loadSamples[i]);
+                
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(this.atomicEntry[i]);
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(this.atomicExit[i]);
+
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(this.blockEntry[i]);
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(this.blockExit[i]);
+
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(this.activityStart[i]);
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(this.activityEnd[i]);
+                
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(lastAtomicEntryCount[i]);
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(lastAtomicExitCount[i]);
+
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(lastActivityStartCount[i]);
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(lastActivityEndCount[i]);
+
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(lastBlockEntryCount[i]);
+                for (int i=0;i<places.length;i++) 
+                    dos.writeInt(lastBlockExitCount[i]);
+
+            } catch (IOException io) {
+                throw new Error(io);
+            }
             // copy values for next round
-            copy(entryCount, lastEntryCount);
-            copy(exitCount, lastExitCount);
+            copy(atomicEntry, lastAtomicEntryCount);
+            copy(atomicExit, lastAtomicExitCount);
+            copy(activityStart, lastActivityStartCount);
+            copy(activityEnd, lastActivityEndCount);
+            copy(blockEntry, lastBlockEntryCount);
+            copy(blockExit, lastBlockExitCount);
 
             try {
                 this.wait(Configuration.SAMPLING_FREQUENCY_MS);
@@ -463,11 +437,21 @@ public final class Sampling extends Thread {
                 public void notifyActivitySpawn(Activity a,
                                                 Activity i) {
                     assert a != i;
-                    _.signalEntry(EE_ID_ACTIVITY_RUN);
+                    _.signalEvent(dr.getPlaceOfActivity(i),
+                                        dr.getPlaceOfActivity(a),
+                                        Sampling.EVENT_ID_ACTIVITY_START,
+                                        0,
+                                        0,
+                                        0);
                     dr.registerActivitySpawnListener(a, this);
                 }
                 public void notifyActivityTerminated(Activity a) {
-                    _.signalExit(EE_ID_ACTIVITY_RUN);
+                    _.signalEvent(null,
+                            dr.getPlaceOfActivity(a),
+                            Sampling.EVENT_ID_ACTIVITY_END,
+                            0,
+                            0,
+                            0);
                 }                
             });
         }
@@ -489,10 +473,6 @@ public final class Sampling extends Thread {
                 public void notifyActivitySpawn(Activity a,
                                                 Activity i) {
                     assert a != i;
-                    if (dr.getPlaceOfActivity(a) == dr.getPlaceOfActivity(i))
-                        _.signalEvent(M_ID_LOCAL_CALL);
-                    else
-                        _.signalEvent(M_ID_REMOTE_CALL);
                     dr.registerActivitySpawnListener(a, this);
                 }
                 public void notifyActivityTerminated(Activity a) {
@@ -533,6 +513,8 @@ public final class Sampling extends Thread {
         
     } // end of Sampling.Sampler
 
+    int[] threadQueueSize;
+    
     /**
      * Class that keeps track of how many threads are waiting
      * in the thread pool (unassigned to activities).
@@ -540,6 +522,9 @@ public final class Sampling extends Thread {
      * @author Christian Grothoff
      */
     public static class ThreadQueueSampler extends Sampler {
+        ThreadQueueSampler() {
+            _.threadQueueSize = new int[_.places.length];
+        }
         public void sample(long delta) {
             for (int i=_.places.length-1;i>=0;i--) {
                 LocalPlace_c p = (LocalPlace_c) _.places[i];
@@ -551,11 +536,12 @@ public final class Sampling extends Thread {
                         ql++;
                     }
                 }
-                _.setStatus(p, S_ID_THREAD_QUEUE_SIZE, ql);
+                _.threadQueueSize[i] = ql;
             }
         }
     }
     
+    int[] loadSamples;
 
     /**
      * Class that keeps track of how high the load at a given
@@ -564,6 +550,9 @@ public final class Sampling extends Thread {
      * @author Christian Grothoff
      */
     public static class LoadSampler extends Sampler {
+        LoadSampler() {
+            _.loadSamples = new int[_.places.length];
+        }
         public void sample(long delta) {
             for (int i=_.places.length-1;i>=0;i--) {
                 LocalPlace_c p = (LocalPlace_c) _.places[i];
@@ -571,7 +560,7 @@ public final class Sampling extends Thread {
                 synchronized(p) {
                     ql = p.runningThreads;
                 }
-                _.setStatus(p, S_ID_LOAD, ql);
+                _.loadSamples[i] = ql;
             }
         }
     }
