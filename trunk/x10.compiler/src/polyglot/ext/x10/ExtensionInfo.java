@@ -4,7 +4,6 @@ import java.io.Reader;
 import java.util.List;
 
 import x10.parser.*;
-
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.Version;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
@@ -102,6 +101,10 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 					new DumpAst(new CodeWriter(System.out, 1))));
         }
         return passes;
+    }
+    
+    public polyglot.main.Options getOptions() {
+        return new Options(this);
     }
 
 }
