@@ -9,12 +9,17 @@ import x10.lang.DoubleArray;
 import x10.runtime.Array_c;
 
 /**
- * @author Christian Grothoff
+ * @author Christian Grothoff, Christoph von Praun
  */
 public class DoubleArray_c extends Array_c implements DoubleArray {
 
     private final double[] arr_;
     
+    /**
+     *  This constructor must not be used directly by an application programmer.
+     * Arrays are constructed by the corresponding factory methods in 
+     * x10.lang.Runtime.
+     */
     public DoubleArray_c(Distribution d) {
         super(d);
         this.arr_ = new double[d.size()];
