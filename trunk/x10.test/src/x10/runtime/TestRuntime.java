@@ -4,6 +4,7 @@
 package x10.runtime;
 
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import x10.compilergenerated.ClockedFinalInt;
 import x10.lang.Activity;
 import x10.lang.Future;
@@ -21,6 +22,10 @@ import x10.lang.Runtime;
  * @author Christoph von Praun
  */
 public class TestRuntime extends TestCase {
+
+    public static TestSuite suite() {
+        return new TestSuite(TestRuntime.class);
+    }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(TestRuntime.class);
