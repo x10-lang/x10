@@ -6,7 +6,6 @@ package x10.array;
 import java.util.Iterator;
 
 import junit.framework.TestCase;
-import x10.array.sharedmemory.Region_c;
 import x10.lang.Activity;
 import x10.lang.Runtime;
 import x10.lang.point;
