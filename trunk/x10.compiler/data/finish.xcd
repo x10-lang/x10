@@ -1,0 +1,10 @@
+//S1 finish {S} S2 should be translated to:
+
+//S1
+//future(here) {
+//  clock c=new clock(); 
+//  now(c) {S} 
+//  c.next(); 
+//  return true;
+// }.force();
+// S2
