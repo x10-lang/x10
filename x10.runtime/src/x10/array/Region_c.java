@@ -1,13 +1,11 @@
 /*
  * Created on Oct 3, 2004
  */
-package x10.runtime;
+package x10.array;
 
 import java.util.Iterator;
 import java.util.Set;
 
-import x10.lang.Range;
-import x10.lang.Region;
 
 
 /**

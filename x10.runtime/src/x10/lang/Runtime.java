@@ -1,5 +1,10 @@
 package x10.lang;
 
+import x10.array.Distribution;
+import x10.array.DoubleArray;
+import x10.array.IntArray;
+import x10.array.Range;
+import x10.array.Region;
 import x10.runtime.DefaultRuntime_c;
 
 /**

@@ -1,10 +1,8 @@
 /*
  * Created on Oct 16, 2004
  */
-package x10.runtime;
+package x10.array;
 
-import x10.lang.Array;
-import x10.lang.Distribution;
 
 /**
  * @author praun

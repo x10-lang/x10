@@ -1,7 +1,9 @@
 /*
  * Created on Oct 3, 2004
  */
-package x10.lang;
+package x10.array;
+
+import x10.lang.TypeArgument;
 
 /**
  * Ranges are a collection of points in the int space.

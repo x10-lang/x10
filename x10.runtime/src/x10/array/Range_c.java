@@ -1,9 +1,8 @@
 /*
  * Created on Oct 16, 2004
  */
-package x10.runtime;
+package x10.array;
 
-import x10.lang.Range;
 
 /**
  * @author Christoph von Praun

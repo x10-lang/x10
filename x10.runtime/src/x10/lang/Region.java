@@ -1,9 +1,10 @@
-/*
- * Created on Oct 3, 2004
- */
 package x10.lang;
 
-import java.util.Iterator;
+/**
+ * @author Christoph von Praun
+ */
+
+import x10.lang.TypeArgument;
 
 /**
  * Implementation of Region. The Points in a region, aka. tuples, 
@@ -13,28 +14,5 @@ import java.util.Iterator;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-public interface Region extends TypeArgument {
+public interface Region extends x10.array.Region, TypeArgument {}
 
-    public int rank();
-    
-    /**
-     * 
-     * @return Highest index possibly returned by ordinal + 1.
-     */
-    public int size();
-    
-    public Region sub(Range[] dims);
-    
-    public Region combine(Region r);
-	
-    public Range dim(int i);
-	
-    public boolean contains(Region r);
-	
-    public boolean contains(int[] p);
-	
-    public int ordinal(int[] p);
-	
-    public Iterator iterator();
-	
-}

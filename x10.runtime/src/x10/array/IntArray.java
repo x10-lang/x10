@@ -2,7 +2,8 @@
  * Created on Oct 10, 2004
  *
  */
-package x10.lang;
+package x10.array;
+
 
 
 /**
@@ -11,16 +12,16 @@ package x10.lang;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-public interface DoubleArray extends Array {
+public interface IntArray extends Array {
 
     /**
      * Flat access.
      */
-    public abstract void set(double v, int[] pos);
+    public abstract void set(int v, int[] pos);
     
     /**
      * Flat access.
      */
-    public abstract double get(int[] pos);
+    public abstract int get(int[] pos);
     
 } // end of IntArray

@@ -1,14 +1,10 @@
 /*
  * Created on Oct 3, 2004
  */
-package x10.runtime;
+package x10.array;
 
 import java.util.Iterator;
-
-import x10.lang.Distribution;
-import x10.lang.Place;
-import x10.lang.Range;
-import x10.lang.Region;
+import x10.array.Place;
 
 
 /**
@@ -28,7 +24,7 @@ abstract class Distribution_c
      * @param r
      * @return
      */
-    static Distribution makeBlock(Region R, Place[] Q) {
+	static Distribution makeBlock(Region R, Place[] Q) {
         int N = Q.length;
         int q = R.size() % N;
         int p = R.size() / N;
@@ -52,7 +48,7 @@ abstract class Distribution_c
      * @param r
      * @return
      */
-    static Distribution makeBlock(Region R, int N, Place[] Q) {
+	static Distribution makeBlock(Region R, int N, Place[] Q) {
         assert N <= Q.length;
         int q = R.size() % N;
         int p = R.size() / N;
