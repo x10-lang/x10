@@ -1,2 +1,2 @@
 // next (list of clocks)
-#0      
+x10.runtime.Clock.doNext(clocked_clocks);
