@@ -63,8 +63,8 @@ public class Atomic_c extends Stmt_c
         return place;
     }
     
-    /** Set the RemoteActivity's place. */
-    public RemoteActivityInvocation place(Expr place) {
+    /** Set the Atomic's place. */
+    public Atomic place(Expr place) {
         this.place = place;
         return this;
     }
@@ -119,10 +119,10 @@ public class Atomic_c extends Stmt_c
 
     /** Write the statement to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-    	w.write("atomic (");
-		printBlock(place, w, tr);
-		w.write(") ");
-		printSubStmt(body, w, tr);
+	w.write("atomic (");
+	printBlock(place, w, tr);
+	w.write(") ");
+	printSubStmt(body, w, tr);
     }
 
     /**
@@ -130,7 +130,7 @@ public class Atomic_c extends Stmt_c
      * term.
      */
     public Term entry() {
-         return place.entry();
+         return (place != null ? place.entry() : this);
     }
 
     /**

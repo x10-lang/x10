@@ -130,7 +130,7 @@ public class Async_c extends Stmt_c
      * term.
      */
     public Term entry() {
-         return place.entry();
+         return (place != null ? place.entry() : this);
     }
 
     /**
