@@ -3,6 +3,8 @@
  */
 package x10.array.sharedmemory;
 
+import java.util.Iterator;
+
 import x10.array.sharedmemory.Distribution_c;
 import x10.array.Array;
 import x10.array.Distribution;
@@ -36,11 +38,24 @@ public class IntArray_c extends IntArray {
         arr_ = arr;
     }
     
-    /* Overrides the superclass method - this implementation is more efficient! */
+    /* Overrides the superclass method - this implementation is more efficient */
     public void reduction(Operator.Reduction op) {
 		for (int i  = 0; i < arr_.length; ++i) 
 			op.apply(arr_[i]);
 	}
+    
+    /* Overrides the superclass method - this implementation is more efficient */
+    protected void assign(Array rhs) {
+    	assert rhs instanceof IntArray_c;
+    	
+    	IntArray_c rhs_t = (IntArray_c) rhs;
+    	if (rhs.dist.equals(dist)) {
+    		for (int i  = 0; i < arr_.length; ++i) 
+    			arr_[i] = rhs_t.arr_[i];
+    	} else 
+    		// fall back to generic implementation
+    		super.assign(rhs);
+    }
     
 	protected Array newInstance(Distribution d) {
 		assert d instanceof Distribution_c;

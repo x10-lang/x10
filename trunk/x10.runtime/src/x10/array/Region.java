@@ -36,5 +36,4 @@ public interface Region {
     public int ordinal(int[] p);
 	
     public Iterator iterator();
-	
 }
