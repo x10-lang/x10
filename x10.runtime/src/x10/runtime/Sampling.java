@@ -187,20 +187,21 @@ public final class Sampling extends Thread {
             DataOutputStream xml
                 = new DataOutputStream
                     (new FileOutputStream(Configuration.XML_PE_FILE));
-            xml.writeUTF("<?xml version=\'1.0\' ?>\n");
+            
+            xml.writeBytes("<?xml version=\'1.0\' ?>\n");
             for (int i=0;i<entryCount[0].length;i++) {            
-                xml.writeUTF("<event name=\"" + 
+                xml.writeBytes("<event name=\"" + 
                         eeNames.get(new Integer(i)) + 
                         "\" description=\"FIXME\">\n");
-                xml.writeUTF("<layerId value=\"HW\" />\n");
-                xml.writeUTF("<classId value=\"Sampler\" />\n");
-                xml.writeUTF("<specifier value=\"Counters\" />\n");
-                xml.writeUTF("<fields>\n");
-                xml.writeUTF("</fields>\n");
-                xml.writeUTF("<k42Format 'plain event' />");
-                xml.writeUTF("<interval type='PERIODIC' name='SamplerInterval'"
+                xml.writeBytes("<layerId value=\"HW\" />\n");
+                xml.writeBytes("<classId value=\"Sampler\" />\n");
+                xml.writeBytes("<specifier value=\"Counters\" />\n");
+                xml.writeBytes("<fields>\n");
+                xml.writeBytes("</fields>\n");
+                xml.writeBytes("<k42Format 'plain event' />");
+                xml.writeBytes("<interval type='PERIODIC' name='SamplerInterval'"
                             +" pair='HW::Sampler::Counters'  match='module' />\n");
-                xml.writeUTF("</event>");
+                xml.writeBytes("</event>");
             }
             for (int i=0;i<eventCount[0].length;i++) {                
             }
@@ -303,10 +304,11 @@ public final class Sampling extends Thread {
     }
     
     private final static int JVM_LAYER_ID = 4; // ??
-    private void writeHeader(int size, int specifier) {
+    private void writeHeader(int size, int type, int id) {
         try {
             dos.writeInt((int) System.currentTimeMillis());
-            int larg = (size << 24) | (JVM_LAYER_ID << 14) | specifier; 
+            int larg = (size << 24) | (JVM_LAYER_ID << 20) | (type << 14)| id; 
+            dos.writeInt(larg);
         } catch (IOException io) {
             throw new Error(io);
         }
@@ -320,7 +322,7 @@ public final class Sampling extends Thread {
      */
     private synchronized void recordEvent(int id, int type, int pid) {
         assert (type == EX_M) || (type == EX_S);
-        writeHeader(4+4+8+4+4, type);
+        writeHeader(4+4+8+4+4, type, id);
         try {
             dos.writeInt(4+4+8+4+4); // size
             dos.writeInt(type); 
@@ -341,7 +343,7 @@ public final class Sampling extends Thread {
     private synchronized void recordEvent(int[][] eventData,
                                           int id, int type) {
         assert (type != ET_EE) && (type != ED_EE);
-        writeHeader(4+4+4+8+4+eventData.length*8, type);
+        writeHeader(4+4+4+8+4+eventData.length*8, type, id);
         try {
             dos.writeInt(4+4+4+8+4+eventData.length*8); // size
             dos.writeInt(type); 
@@ -367,7 +369,7 @@ public final class Sampling extends Thread {
     private void recordEntryExit(int id, int type, 
                                  int[][] entryData,
                                  int[][] exitData) {
-        writeHeader(4+4+8+4+entryData.length*8, type);
+        writeHeader(4+4+8+4+entryData.length*8, type, id);
         try {
             dos.writeInt(4+4+8+4+4+entryData.length*8); // size
             dos.writeInt(type); 
