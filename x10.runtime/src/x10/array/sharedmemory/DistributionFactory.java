@@ -51,7 +51,7 @@ public class DistributionFactory extends distribution.factory {
             Distribution_c[] dists = new Distribution_c[chunks];       
             region[] sub = r.partition(chunks); 
             for (int i=0; i < chunks; i++) 
-                dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
+                dists[i] = new Distribution_c.Constant(sub[i], (place) q[i % q.length]);
             ret = new Distribution_c.Combined(r, dists);
         }
         return ret;
