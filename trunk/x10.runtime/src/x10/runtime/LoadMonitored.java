@@ -3,6 +3,8 @@
  */
 package x10.runtime;
 
+import x10.lang.Activity;
+
 /**
  * This interface is implemented by threads that want a notification to be
  * emitted whenever the thread is blocked (on synchronization or wait).
@@ -21,12 +23,13 @@ public abstract class LoadMonitored extends Thread {
      * @param info additional info for the blocking (depends on
      *    the reason, i.e. clock ID; 0 otherwise)
      */
-    public static void blocked(int reason, int info) {
+    public static void blocked(int reason, int info, Activity related) {
         if (ON) {
             Thread t = Thread.currentThread();
             if (t instanceof LoadMonitored)
                 ((LoadMonitored)t).changeRunningStatus(-1);
-            Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_ACTIVITY_BLOCK,
+            Sampling.SINGLETON.signalEvent(related,
+                    Sampling.EVENT_ID_ACTIVITY_BLOCK,
                     reason,
                     info);
         }
@@ -38,12 +41,13 @@ public abstract class LoadMonitored extends Thread {
      * @param info additional info for the blocking (depends on
      *    the reason, i.e. clock ID; 0 otherwise)
      */
-    public static void unblocked(int reason, int info) {
+    public static void unblocked(int reason, int info, Activity related) {
         if (ON) {
             Thread t = Thread.currentThread();
             if (t instanceof LoadMonitored)
                 ((LoadMonitored)t).changeRunningStatus(1);
-            Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_ACTIVITY_UNBLOCK,
+            Sampling.SINGLETON.signalEvent(related,
+                    Sampling.EVENT_ID_ACTIVITY_UNBLOCK,
                     reason,
                     info);
         }

@@ -152,7 +152,7 @@ public class LocalPlace_c extends Place {
      * can be used to force the future result.
      */
     public Future runFuture(final Activity.Expr a) {
-        final Future_c result = new Future_c();
+        final Future_c result = new Future_c(a);
         final Activity i = aip_.getCurrentActivity();
         assert i != a;
         this.execute(new Runnable() {
