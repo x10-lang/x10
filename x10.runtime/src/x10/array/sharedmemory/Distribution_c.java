@@ -124,10 +124,15 @@ abstract class Distribution_c extends Region_c implements Distribution {
     // called range restriction in the language report
     public abstract Distribution placeRestriction(Place r);
     
-    public Distribution domainRestriction(Region r) { 
-        throw new Error("TODO");
-    }
-
+    public abstract Distribution domainRestriction(Region r);
+    
+	/**
+	 * @return the underlying region
+	 */
+	public Region region() {
+	    return this;
+	}
+	
     static final class Empty extends Distribution_c {
         
         Empty() {
@@ -141,6 +146,15 @@ abstract class Distribution_c extends Region_c implements Distribution {
         public Distribution placeRestriction(Place r) {
             return this;
         }
+
+        public Distribution domainRestriction(Region r) { 
+            assert(contains(r));
+            return this;
+        }
+        
+    	public Place[] places() {
+    	    return new Place[0];
+    	}
         
         public boolean equals(Object o) {
             return super.equals(o);
@@ -169,6 +183,16 @@ abstract class Distribution_c extends Region_c implements Distribution {
             return ret;
         }
         
+        public Distribution domainRestriction(Region r) { 
+            assert(contains(r));
+            return new Constant((Region_c) r, place_);
+        }
+        
+    	public Place[] places() {
+    	    Place[] ret = {place_};
+    	    return ret;
+    	}
+    	
         public boolean equals(Object o) {
             boolean ret = super.equals(o);
             if (ret) {
@@ -213,7 +237,16 @@ abstract class Distribution_c extends Region_c implements Distribution {
             }
             return ret;
         }
+    	
+        public Distribution domainRestriction(Region r) { 
+            assert(contains(r));
+            throw new Error("TODO");
+        }
         
+        public Place[] places() {
+    	    return (Place[]) places_.clone();
+    	}
+    	
         public boolean equals(Object o) {
             boolean ret = super.equals(o);
             if (ret) {
@@ -262,8 +295,6 @@ abstract class Distribution_c extends Region_c implements Distribution {
             for (int i = 0; i < members_.length; ++i) {
                 assert(members_[i] instanceof Constant);
             }
-            
-            
             Distribution ret;
             HashSet dists = new HashSet();
             for (int i = 0; i < members_.length; ++ i) {
@@ -289,6 +320,23 @@ abstract class Distribution_c extends Region_c implements Distribution {
             }
             return ret;
         }
+        
+        public Distribution domainRestriction(Region r) { 
+            assert(contains(r));
+            throw new Error("TODO");
+        }
+        
+        public Place[] places() {
+            HashSet places = new HashSet();
+            for (int i = 0; i < members_.length; ++ i) {
+                Place[] pl_tmp = members_[i].places();
+                for (int j = 0; j < pl_tmp.length; ++j)
+                    places.add(pl_tmp[j]);
+            }
+            Place[] ret = new Place[places.size()];
+            places.toArray(ret);
+    	    return ret;
+    	}
         
         public boolean equals(Object o) {
             boolean ret = super.equals(o);

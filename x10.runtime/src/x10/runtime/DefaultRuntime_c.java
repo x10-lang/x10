@@ -209,7 +209,7 @@ public class DefaultRuntime_c
      *  
      * @return All places available in this VM.
      */
-    Place[] getPlaces() {
+    public Place[] getPlaces() {
     	// return defensive copy
     	return (Place[]) places_.clone();
     }
