@@ -70,9 +70,17 @@ public final class Configuration {
     
     public static int NUMBER_OF_LOCAL_PLACES = 2;
     
-    public static int SAMPLING_FREQUENCY_MS = 5000;
+    /**
+     * How often should the sampling instrumentations be run?
+     * Use -1 for no sampling.
+     */
+    public static int SAMPLING_FREQUENCY_MS = 500;
     
-    public static String SAMPLING_OUTPUT_FILE = "/tmp/x10-prof";
+    /**
+     * If non-null, this option specifies the filename to
+     * which sampling data is written at each sampling point.
+     */
+    public static String SAMPLING_OUTPUT_FILE = null;
     
     /**
      * Should statistics be dumped on exit?

@@ -102,6 +102,8 @@ public class DefaultRuntime_c
             public void run() {
                 // initialize X10 runtime system
                 Statistics_c.boot();
+                if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
+                    Sampling_c.boot();
 
                 // now run the actual client app (wrapped in this
                 // Activity.Expr since we want to use a Clock to 
@@ -122,8 +124,13 @@ public class DefaultRuntime_c
         // and now the shutdown sequence!
         for (int i=places_.length-1;i>=0;i--)
             places_[i].shutdown();
-        if (Configuration.DUMP_STATS_ON_EXIT)
+        if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
+            Sampling_c.shutdown();
+        if (Configuration.DUMP_STATS_ON_EXIT) {
             System.out.println(Statistics_c._.toString());
+            if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
+                System.out.println(Sampling_c._.toString());
+        }
     }
     
     public void registerThread(Thread t, Place p) {
