@@ -283,8 +283,8 @@ public TestCompiler(String name) {
         run("./IntArrayMaxAbs.x10","IntArrayMaxAbs");
     }
 
-    public void test_IntValuArrayInitializerShorthand() {
-        run("./IntValuArrayInitializerShorthand.x10","IntValuArrayInitializerShorthand");
+    public void test_IntValueArrayInitializerShorthand() {
+        run("./IntValueArrayInitializerShorthand.x10","IntValueArrayInitializerShorthand");
     }
 
     public void test_Jacobi() {
