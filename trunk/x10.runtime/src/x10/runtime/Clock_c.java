@@ -1,12 +1,17 @@
 package x10.runtime;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import x10.base.TypeArgument;
 import x10.lang.Activity;
 import x10.lang.Runtime;
+import x10.lang.clock;
 
 /**
  * Implementation of Clock.  Technically the spec says that this is
@@ -17,11 +22,32 @@ import x10.lang.Runtime;
  * 
  * @author Christian Grothoff, Christoph von Praun
  */
-public final class Clock_c extends Clock {
+public final class Clock_c extends clock implements TypeArgument {
 
-    private static int idgen = 0; 
+    /**
+     * Callback method used by the Clock to notify all listeners
+     * that the Clock is advancing into the next phase.
+     * 
+     * @author Christian Grothoff
+     */
+    public interface AdvanceListener {
+        public void notifyAdvance();
+    }
     
-    public final int id = idgen++;
+    private static int nextId_ = 0;
+    private int id_;
+    
+    /**
+     * Create a new Clock.  Registers the current activity with
+     * the clock as a side-effect (see X10 Report).
+     */
+    protected Clock_c(ActivityInformationProvider aip) {
+        synchronized (getClass()) {
+            id_ = nextId_++;
+        }
+        this.aip_ = aip;
+        register();
+    }
     
     /**
      * The activity information provider that this clock can use.
@@ -62,16 +88,6 @@ public final class Clock_c extends Clock {
      * phase (may wrap around!).
      */
     private int phase_;
-
-    
-    /**
-     * Create a new Clock.  Registers the current activity with
-     * the clock as a side-effect (see X10 Report).
-     */
-    Clock_c(ActivityInformationProvider aip) {
-        this.aip_ = aip;
-        register();
-    }
 
     /**
      * Register the current activity with this clock.
@@ -146,6 +162,10 @@ public final class Clock_c extends Clock {
         return drop(aip_.getCurrentActivity());
     }
     
+    public void drop() {
+        doDrop();
+    }
+    
     /**
      * Drop the given activity from the clock.  Afterwards the
      * activity may no longer use continue or now on this clock.
@@ -187,17 +207,45 @@ public final class Clock_c extends Clock {
             int start = phase_;
             while (start == phase_) { // signal might be random in Java, check!
                 try {
-                    LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id, null);
+                    LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id_, null);
                     this.wait(); // wait for signal
                 } catch (InterruptedException ie) {
                     throw new Error(ie); // that was unexpected...
                 } finally {
-                    LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id, null);
+                    LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id_, null);
                 }
             }
         }
     }
         
+    public static void doNext(List clocks_l) {
+        assert clocks_l != null;
+        Object[] clocks = clocks_l.toArray();
+        if (clocks.length > 1) {
+            Arrays.sort(clocks, new Comparator() {
+                public int compare(java.lang.Object o1, java.lang.Object o2) {
+                    int ret = 0;
+                    assert (o1 instanceof Clock_c);
+                    assert (o2 instanceof Clock_c);
+                    Clock_c c1 = (Clock_c) o1;
+                    Clock_c c2 = (Clock_c) o2;
+                    if (c1.id_ < c2.id_)
+                        ret = -1;
+                    else if (c1.id_ > c2.id_)
+                        ret = 1;
+                    return ret;
+                }
+                public boolean equals(java.lang.Object o) {
+                    return (o == this);
+                }
+            });
+        }
+        
+        for (int i=0; i < clocks.length; ++ i) {
+            ((Clock_c) clocks[i]).doNext();
+        }
+    }
+    
     /**
      * Register a callback that is to be called whenever the clock
      * advances into the next phase.
@@ -241,7 +289,7 @@ public final class Clock_c extends Clock {
             this.phase_++;
             if (Sampling.SINGLETON != null)
                 Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_CLOCK_ADVANCE,
-                        this.id);
+                        this.id_);
             // first notify everyone
             if (this.listener1_ != null) {
                 this.listener1_.notifyAdvance();

@@ -5,8 +5,8 @@ package x10.compilergenerated;
 
 
 import x10.lang.Object;
-import x10.runtime.Clock;
-import x10.runtime.Clock.AdvanceListener;
+import x10.runtime.Clock_c;
+import x10.runtime.Clock_c.AdvanceListener;
 
 /**
  * Abstract parent class of all subclasses that implement clocked
@@ -98,7 +98,7 @@ import x10.runtime.Clock.AdvanceListener;
  */
 abstract class ClockedFinal extends Object {
 
-    ClockedFinal(Clock c) {
+    ClockedFinal(Clock_c c) {
         c.registerAdvanceListener(new AdvanceListener() {
                 public void notifyAdvance() {
                     advance();
