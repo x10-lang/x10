@@ -20,6 +20,12 @@ public interface Point extends Expr {
 	 */
 	int rank();
 	
+	/** Returns the value of the point in the i'th dimension.
+	 * @param i
+	 * @return
+	 */
+	Expr valueAt(int i);
+	
 	/** Return a new Point whose value is given by this list of expressions.
 	 * 
 	 * @param l List of expressions for the new point.

@@ -57,6 +57,9 @@ public class Point_c extends Expr_c implements Point {
 		return exprs.size();
 	}
 
+	public Expr valueAt(int i) {
+		return (Expr) exprs.get(i);
+	}
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.ast.Point#value(java.util.List)
 	 */

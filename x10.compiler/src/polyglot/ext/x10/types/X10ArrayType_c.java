@@ -1,8 +1,7 @@
 /*
  * Created on Nov 30, 2004
  *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * 
  */
 package polyglot.ext.x10.types;
 
@@ -11,21 +10,22 @@ import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import polyglot.ast.Expr;
 
 /**
  * @author vj
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * 
  */
 public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 
+	Expr indexedSet = null;
+	
 	/**
 	 * 
 	 */
 	public X10ArrayType_c() {
-		super();
-		// TODO Auto-generated constructor stub
+		super();	
 	}
 
 	/**
@@ -35,7 +35,11 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	 */
 	public X10ArrayType_c(TypeSystem ts, Position pos, Type base) {
 		super(ts, pos, base);
-		// TODO Auto-generated constructor stub
+	}
+	
+	public X10ArrayType_c(TypeSystem ts, Position pos, Type base, Expr indexedSet) {
+		super(ts, pos, base);
+		this.indexedSet = indexedSet;
 	}
 
 //	 ----------------------------- begin manual mixin code from X10Type_c
@@ -72,13 +76,13 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
     	X10Type target = (X10Type) t;
     	
     	if (Report.should_report("debug", 5))
-			Report.report( 5, "[X10UnknownType_c] isSubTypeImpl |" + this +  "| of |" + t + "|?");	
+			Report.report( 5, "[X10ArrayType_c] isSubTypeImpl |" + this +  "| of |" + t + "|?");	
     	
     	boolean result = ts.equals(this, target) || ts.descendsFrom(this, target);
     	
        	if (result) {
        		if (Report.should_report("debug", 5))
-    			Report.report( 5, "[X10UnknownType_c] ..." + result+".");	
+    			Report.report( 5, "[X10ArrayType_c] ..." + result+".");	
      		return result;
     	}
     	if (target.isNullable()) {
@@ -86,11 +90,11 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
     		Type baseType = toType.base();
     		result = isSubtypeImpl( baseType );
     		if (Report.should_report("debug", 5))
-    			Report.report( 5, "[X10UnknownType_c] ..." + result+".");	
+    			Report.report( 5, "[X10ArrayType_c] ..." + result+".");	
     		return result;
     	}
     	if (Report.should_report("debug", 5))
-			Report.report( 5, "[X10UnknownType_c] ..." + result+".");	
+			Report.report( 5, "[X10ArrayType_c] ..." + result+".");	
     	return false;
     }
 	// ----------------------------- end manual mixin code from X10Type_c

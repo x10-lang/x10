@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import polyglot.ast.Expr;
 import polyglot.ext.jl.types.TypeSystem_c;
 import polyglot.ext.x10.types.X10PrimitiveType_c;
 import polyglot.frontend.Source;
@@ -69,11 +70,26 @@ public class X10TypeSystem_c
     	return new FutureType_c( this, pos, type );
     }
     
-    
+
+	/**
+     * Return an array of <code>type</code>
+     */
+    public ArrayType arrayOf(Type type, Expr indexedSet) {
+     return null;
+    }
+
+    /**
+     * Return an array of <code>type</code>
+     */
+    public ArrayType arrayOf(Position pos, Type type, Expr indexedSet) {
+    	return null;
+    }
+
     
     protected UnknownType createUnknownType() {
      return new X10UnknownType_c( this );
     }
+    
     /**
      * Factory method for ArrayTypes.
      */
