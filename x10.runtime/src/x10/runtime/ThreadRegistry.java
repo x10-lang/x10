@@ -38,6 +38,12 @@ interface ThreadRegistry {
                                Activity a,
                                Activity i);
 
+    /**
+     * Notification that an activity completed.
+     * 
+     * @param t
+     * @param a
+     */
     void registerActivityStop(Thread t,
                               Activity a);
     
