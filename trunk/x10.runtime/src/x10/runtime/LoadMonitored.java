@@ -23,12 +23,12 @@ public abstract class LoadMonitored extends Thread {
      */
     public static void blocked(int reason, int info) {
         if (ON) {
-            Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_ACTIVITY_BLOCK,
-                                                                reason,
-                                                                info);
             Thread t = Thread.currentThread();
             if (t instanceof LoadMonitored)
                 ((LoadMonitored)t).changeRunningStatus(-1);
+            Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_ACTIVITY_BLOCK,
+                    reason,
+                    info);
         }
     }
     
@@ -40,12 +40,12 @@ public abstract class LoadMonitored extends Thread {
      */
     public static void unblocked(int reason, int info) {
         if (ON) {
-            Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_ACTIVITY_UNBLOCK,
-                    reason,
-                    info);
             Thread t = Thread.currentThread();
             if (t instanceof LoadMonitored)
                 ((LoadMonitored)t).changeRunningStatus(1);
+            Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_ACTIVITY_UNBLOCK,
+                    reason,
+                    info);
         }
     }
     

@@ -282,9 +282,10 @@ public final class Sampling extends Thread {
                     dos.writeInt(j); // src place
                     dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
-                    if (dstPlace != null)
+                    if (dstPlace != null) {
+                        //System.out.println("START LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
                         dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
-                    else
+                    } else
                         dos.writeInt(-1);
                     dos.writeInt(event_info);
                     break;
@@ -293,9 +294,10 @@ public final class Sampling extends Thread {
                     writeHeader(4+4+4+4, EVENT, event_id);
                     dos.writeInt(getActivityId(a)); 
                     dos.writeInt(i); // dst place
-                    if (dstPlace != null)
-                        dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
-                    else
+                    if (dstPlace != null) {
+                        //System.out.println("END LOAD("+dstPlace+"): " + (((LocalPlace_c)dstPlace).runningThreads-1));
+                        dos.writeInt(((LocalPlace_c)dstPlace).runningThreads-1);
+                    } else
                         dos.writeInt(-1);
                     dos.writeInt(event_info);
                     break;
@@ -305,9 +307,10 @@ public final class Sampling extends Thread {
                     dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
                     dos.writeInt(0); // reserved
-                    if (dstPlace != null)
+                    if (dstPlace != null) {
+                        //System.out.println("BLOCK LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
                         dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
-                    else
+                    } else
                         dos.writeInt(-1);
                     dos.writeInt(cause);
                     dos.writeInt(causeInfo);
@@ -318,9 +321,10 @@ public final class Sampling extends Thread {
                     dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
                     dos.writeInt(0); // reserved
-                    if (dstPlace != null)
+                    if (dstPlace != null) {
+                        //System.out.println("UNBLOCK LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
                         dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
-                    else
+                    } else
                         dos.writeInt(-1);
                     dos.writeInt(cause);
                     dos.writeInt(causeInfo);
