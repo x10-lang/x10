@@ -125,13 +125,9 @@ public class TestX10_Compiler extends TestCase {
 	protected void run(String file, String main,String dir) {
 		
 		try {
-			String cwd=
-                             System.getProperty("user.dir")+
-                              dir.substring(1);
-			String lb=System.getProperty("java.library.path");
-			String ps=System.getProperty("path.separator");
 			compile(dir, file);
-			System.setProperty("java.library.path",lb+ps+cwd);
+			String cwd=System.getProperty("user.dir")+
+                              dir.substring(1);
 			ClassLoader loader = new URLClassLoader
                           (new URL[] {new URL("file://"+cwd+"/")}); 
 			Class c = loader.loadClass(main);
