@@ -106,7 +106,9 @@ public abstract class Runtime implements x10.base.Runtime {
      * ('here' in X10).
      */
     public static Place here() {
-    	return runtime.currentPlace();
+        Place p = runtime.currentPlace();
+        assert p != null;
+    	return p;
     }
     
     /**
