@@ -1,12 +1,12 @@
 \chapter{Activities}\label{XtenActivities}
 
 An \Xten{} computation may have many concurrent {\em activities} ``in
-flight'' at any give time. We use the term activity to denote a piece
-of code (with references to data) that is intended to execute in
-parallel with other pieces of code. Activities are much lighter-weight
-than threads. In particular, there is no object associated with an
-activity. Activities may not be interrupted, suspended or resumed from
-outside. There is no notion of ``activity groups''. 
+flight'' at any give time. We use the term activity to denote a
+dynamic execution instance of a piece of code (with references to
+data). An activity is intended to execute in parallel with other
+activities. An activity may be thought of as a very light-weight
+thread.  In \XtenCurrVer{}, activities may not be interrupted,
+suspended or resumed from outside. 
 
 An activity may asynchronously and in parallel launch activities at
 other places. An activity is spawned in a given place and stays in
@@ -18,7 +18,8 @@ the activity terminates with the same reason.
 
 An activity may be long-running and may invoke recursive methods (thus
 may have a stack associated with it). On the other hand, an activity
-may involve a single read or write.
+may be short-running, involving a fine-grained
+operation such as a single read or write.
 
 An activity may have an {\em activitylocal} heap accessible only
 to the activity. 
@@ -33,25 +34,55 @@ has terminated locally and all activities that it may have spawned at
 any place (if any) have, recursively, terminated globally.
 
 An \Xten{} computation is initiated as a single activity from the
-command line. This activity is the root activity for the entire
-computation. The entire computation terminates when (and only when)
-this activity globally terminates. Thus \Xten{} does not permit the
-creation of so called ``daemon threads'' -- threads that outlive the
-lifetime of the root activity. We say that an \Xten{} computation is
-{\em rooted} (\S~\ref{initial-computation}).
+command line. This activity is the {\em root activity}\index{root
+activity} for the entire computation. The entire computation
+terminates when (and only when) this activity globally
+terminates. Thus \Xten{} does not permit the creation of so called
+``daemon threads'' -- threads that outlive the lifetime of the root
+activity. We say that an \Xten{} computation is {\em rooted}
+(\S~\ref{initial-computation}).
+
+\section{The \Xten{} rooted exception model}
+\label{ExceptionModel}
 
 The rooted nature of \Xten{} computations permits the definition of a
-{\em rooted synchronous} exception model.  Every activity spawned in a
-computation has a path (the {\em activation path}) to a {\em root
-activity} which is suspended waiting for termination of this activity
-(possibly among others). (The root activity for the entire computation
-is the activity initiated from the command line.) An uncaught
-exception propagates up the activation path to its root activity,
-where it may be handled locally or propagated up when the root
-activity is unsuspended. Thus, unlike concurrent languages such as \java{} no
+{\em rooted} exception model. In multi-threaded programming languages
+there is a natural parent-child relationship between a thread and a
+thread that it spawns. Typically the parent thread continues execution
+in parallel with the child thread. Therefore the parent thread cannot
+serve to catch any exceptions thrown by the child thread. 
+
+The presence of a root activity permits \Xten{} to adopt a different
+model.  In any state of the computation, say that an activity $A$ is
+{\em a root of} an activity $B$ if $A$ is an ancestor of $B$ and $A$
+is suspended at a statement (such as the {\tt finish} statement
+\S~\ref{finish}) awaiting the termination of $B$ (and possibly other
+activities). For every \Xten{} computation, the {\tt root-of} relation
+is guaranteed to be a tree. The root of the tree is the root activity
+of the entire computation. If $A$ is the nearest root of $B$, the path
+from $A$ to $B$ is called the {\em activation path} for the
+activity.\footnote{Note that depending on the state of the computation
+the activation path may traverse activities that are running,
+suspended or terminated.}
+
+We may now state the exception model for \Xten.  An uncaught exception
+propagates up the activation path to its nearest root activity, where
+it may be handled locally or propagated up the {\tt root-of} tree when
+the activity terminates (based on the semantics of the statement being
+executed by the activity).\footnote{In \XtenCurrVer{} the {\tt finish}
+statement is the only statement that marks its activity as a root
+activity. Future versions of the language may introduce more such
+statements.}  Thus, unlike concurrent languages such as \java{} no
 exception is ``thrown on the floor''.
 
 \section{Spawning an activity}\label{AsynchronousActivity}\label{AsyncActivity}
+
+Asynchronous activities serve as a single abstraction for supporting a
+wide range of concurrency constructs such as message passing, threads,
+DMA, streaming, data prefetching. (In general, asynchronous operations
+are better suited for supporting scalability than synchronous
+operations.)
+
 An activity is created by executing the statement:
 \begin{x10}
 463 Statement ::= AsyncStatement
@@ -90,8 +121,9 @@ statement is to be executed by an analysis of the types of the
 variables occuring in the statement. (The place must be such that the
 statement can be executed safetly, without generating a {\tt
 BadPlaceException}.) In such cases the programmer may omit the place
-designator; the compiler will throw an error if it cannot uniquely
-determine the designated place.
+designator; the compiler will throw an error if it cannot 
+determine the unique designated place.\footnote{\XtenCurrVer{} does 
+not specify a particular algorithm; this will be fixed in future versions.}
 
 The statement is subject to the restriction that it must be acceptable
 as the body of a {\cf void} method for an anoymous inner class
@@ -277,8 +309,13 @@ include any statement that may potentially block at runtime (e.g.{}
 Also for the sake of efficient implementation \XtenCurrVer{} requires
 that the atomic section be {\em analyzable}, that is, the set of
 locations that are read and written by the {\cf BlockStatement} are
-bounded and determined statically.
-%% How exactly is this to be checked. 
+bounded and determined statically.\footnote{ A static bound is a constant
+that depends only on the program text, and is independent 
+of any runtime parameters. }
+The exact algorithm to be used by
+the compiler to perform this analysis will be specified in future
+versions of the language.
+%%% TBD
 
 All these locations must statically satisfy the {\em locality
 condition}: they must belong to the place of the current
@@ -372,19 +409,19 @@ For the sake of efficient implementation certain restrictions are
 placed on the guards and statements in a conditional atomic
 section. First, guards are required not to have side-effects, not to
 spawn asynchronous activities and to have a statically determinable
-upper bound $k$ on their execution. These conditions are expected to
-be checked statically by the compiler which may impose additionl
-restrictions (e.g.{} all method invocations are recursion-free).
+upper bound on their execution. These conditions are expected to
+be checked statically by the compiler.
 
-Second, as for unconditional atomic sections, guarded statements are
-required to be bounded and statically anlayzable.
+Second, as for unconditional atomic sections, the set of memory
+locations accessed by a guarded statements are required to be bounded
+and statically anlayzable.
 
 Third, guarded statements are required to be {\em flat}, that is, they
 may not contain conditional atomic sections. (The implementation of
 nested conditional atomic sections may require sophisticated
 operational techniques such as rollbacks.)
 
-Third, \Xten{} guarantees only {\em weak fairness} when executing
+Fourth, \Xten{} guarantees only {\em weak fairness} when executing
 conditional atomic sections. Let $c$ be the guard of some conditional
 atomic section $A$. $A$ is required to make forward progress only if
 $c$ is {\em eventually stable}. That is, any execution $s_1, s_2,
@@ -576,7 +613,7 @@ Such an expression can be written as:
 \end{x10}
 
 \section{Remote Method Invocation}\index{remote method invocation}
-We introduce shorthand for asynchronous remote method invocation:
+We introduce shorthand for remote method invocation:
 
 \begin{x10}
 507   MethodInvocation ::= 
@@ -670,7 +707,7 @@ distribution for the point. That is,
 {\tt ateach( point p[i1,...,ik]: A) S} may
 be thought of as standing for:
 \begin{x10}
-  foreach (point p[i1,...,tk] : A) 
+  foreach (point p[i1,...,ik] : A) 
     async (A.distribution[p]) \{S\}
 \end{x10}
 

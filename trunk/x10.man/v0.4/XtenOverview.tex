@@ -149,7 +149,12 @@ An \Xten{} array is a function from a {\em distribution}
 array type).
 
 A distribution is a map from a {\em region} (\S~\ref{XtenRegions}) to a
-subset of places.  A region is a collection of indices.
+subset of places.  A region is a collection of {\em points} or
+{\em indices}. For instance, the region {\tt [0:200,1:100]} specifies
+a collection of two-dimensional points {\tt (i,j)} with 
+{\tt i} ranging from {\tt 0} to {\tt 200} and {\tt j} ranging
+from {\tt 1} to {\tt 100}. Points are used in array index expressions
+to pick out a particular array element.
 
 Operations are provided to construct regions from other regions, and
 to iterate over regions. Standard set operations, such as union,
