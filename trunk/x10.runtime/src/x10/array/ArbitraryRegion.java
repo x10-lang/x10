@@ -54,7 +54,7 @@ public class ArbitraryRegion extends region {
             System.arraycopy(fix, 0, fix_new, 0, fix.length);
             for (Iterator it = cur_reg.iterator(); it.hasNext(); ) {
                 point tmp = (point) it.next();
-                int tmp_i = tmp.valueAt(0);
+                int tmp_i = tmp.get(0);
                 fix_new[fix.length] = tmp_i;
                 permutations_(hs, fix_new, var_new);
             }
@@ -98,7 +98,7 @@ public class ArbitraryRegion extends region {
         ArbitraryRegion ret = new ArbitraryRegion(1);
         for (Iterator it = iterator(); it.hasNext(); ) {
             point p = (point) it.next();
-            point p_onedim = point.factory.point(ret, new int[] {p.valueAt(index)});
+            point p_onedim = point.factory.point(ret, new int[] {p.get(index)});
             ret.add_(p_onedim);
         }
         return ret;
@@ -120,7 +120,7 @@ public class ArbitraryRegion extends region {
             throw new EmptyRegionError();
         
         point p = (point) points_.first(); 
-        return p.valueAt(0);
+        return p.get(0);
     }
 
     /* 
@@ -132,7 +132,7 @@ public class ArbitraryRegion extends region {
             throw new EmptyRegionError();
         
         point p = (point) points_.last(); 
-        return p.valueAt(0);
+        return p.get(0);
     }
 
     /* (non-Javadoc)
@@ -286,7 +286,6 @@ public class ArbitraryRegion extends region {
 		sb.append("}");
 		return sb.toString();
     }
-
 
 
 
