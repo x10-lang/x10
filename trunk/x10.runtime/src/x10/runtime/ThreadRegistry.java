@@ -1,7 +1,6 @@
 package x10.runtime;
 
 import x10.lang.Activity;
-import x10.lang.Place;
 
 /**
  * This interface is internal to x10.runtime.  It is used

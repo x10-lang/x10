@@ -731,7 +731,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 46: {
                 List l = (TypedList) btParser.getSym(1);
-                TopLevelDecl b = (TopLevelDecl) btParser.getSym(2);
+                Import b = (Import) btParser.getSym(2);
                 if (b != null)
                     l.add(b);
                 //btParser.setSym1(l);
@@ -3359,7 +3359,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 344:  Dims ::= LBRACKET RBRACKET
             //
             case 344: {
-                btParser.setSym1(new Integer(0));
+                btParser.setSym1(new Integer(1));
                 break;
             }
      
@@ -5097,9 +5097,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 576:  ClockedStatement ::= clocked LPAREN ClockList RPAREN Statement
             //
             case 576: {
-                Name a = (Name) btParser.getSym(3);
+                List a = (List) btParser.getSym(3);
                 Block b = (Block) btParser.getSym(5);
-                btParser.setSym1(nf.Clocked(pos(), a.toExpr(), b));
+                btParser.setSym1(nf.Clocked(pos(), a, b));
                 break;
             }
      
@@ -5205,9 +5205,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 587:  ClockedStatementNoShortIf ::= clocked LPAREN ClockList RPAREN StatementNoShortIf
             //
             case 587: {
-                Name a = (Name) btParser.getSym(3);
+                List a = (List) btParser.getSym(3);
                 Stmt b = (Stmt) btParser.getSym(5);
-                btParser.setSym1(nf.Clocked(pos(), a.toExpr(), b));
+                btParser.setSym1(nf.Clocked(pos(), a, b));
                 break;
             }
      
@@ -5361,8 +5361,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 604: {
                 Name c = (Name) btParser.getSym(1);
-                List l = new TypedList(new LinkedList(), String.class, false);
-                l.add(c.toString());
+                List l = new TypedList(new LinkedList(), Expr.class, false);
+                l.add(c.toExpr());
                 btParser.setSym1(l);
                 break;
             }
@@ -5373,7 +5373,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 605: {
                 List l = (List) btParser.getSym(1);
                 Name c = (Name) btParser.getSym(3);
-                l.add(c.toString());
+                l.add(c.toExpr());
                 // btParser.setSym1(l);
                 break;
             }

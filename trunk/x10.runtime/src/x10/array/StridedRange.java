@@ -1,16 +1,18 @@
 /*
  * Created on Nov 1, 2004
  *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
+ *
  */
 package x10.array;
+import x10.lang.Object;
+import x10.lang.point;
+import x10.lang.region;
+import java.util.Iterator;
 
 /**
  * @author praun
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * @author vj
+ * 
  */
 public class StridedRange extends Range {
     
@@ -23,28 +25,28 @@ public class StridedRange extends Range {
 		this.stride = stride;
 	}
 	
-	public int coord(int ord) {
-	    assert ord < count;
+	public point coord(/*nat*/long ord) {
+	    assert ord < size;
 	    throw new Error("TODO");
 	}
 	
-	public int ordinal(int p) {
+	public /*nat*/long ordinal(point p) {
         throw new Error("TODO");
     }
 	
-	public Range union(Range r) {
+	public region union( region r) {
 	    assert r instanceof StridedRange;
 	    
 	    throw new Error("TODO");
 	}
 	
-	public Range intersect(Range r) {
+	public region intersection( region r) {
 	    assert r instanceof StridedRange;
 	    
 	    throw new Error("TODO");
 	}
 
-	public Range difference(Range r) {
+	public region difference( region r) {
 	    assert r instanceof StridedRange;
 	    
 	    throw new Error("TODO");
@@ -68,15 +70,36 @@ public class StridedRange extends Range {
 	    assert o != null;
 		assert o instanceof Range;
 		if (!(o instanceof StridedRange))
-		    return false;
-		else {
-		    StridedRange rhs = (StridedRange) o;
-		    return rhs.lo == lo && rhs.hi == hi;
-		}
+			return false;
+		StridedRange rhs = (StridedRange) o;
+		return rhs.lo == lo && rhs.hi == hi;
+		
 	}
 	
 	public int hashCode() {
 	    return stride;
 	}
-
+	public boolean contains(point p) {
+	 throw new Error("TODO");
+	}
+	public boolean isConvex() {
+		return stride != 1;
+	}
+	public region convexHull() {
+		if (stride == 1) 
+			return this;
+		return new ContiguousRange(lo, hi);
+	}
+	public boolean disjoint( region r) {
+		throw new Error("TODO");
+	}
+	public /*nat*/long size() {
+		throw new Error("TODO");
+	}
+	public boolean contains( region r) {
+		throw new Error("TODO");
+	}
+	public Iterator iterator() {
+		throw new Error("TODO");
+	}
 }

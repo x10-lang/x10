@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import x10.lang.Activity;
-import x10.lang.Clock;
 import x10.lang.Runtime;
 
 /**
@@ -99,7 +98,7 @@ final class Clock_c extends Clock {
         assert activities_.contains(aip_.getCurrentActivity());
         nowSet_.add(a);
         aip_.registerActivitySpawnListener(a, nowSpawnListener_);
-        Runtime.here().runAsync(a);
+        ((Place) Runtime.here()).runAsync(a);
     }
     
     /**
@@ -109,7 +108,7 @@ final class Clock_c extends Clock {
      * it calls 'next'.
      *
      */
-    public synchronized void doContinue() {
+    public synchronized void resume() {
         Activity a = aip_.getCurrentActivity();
         assert activities_.contains(a);
         pending_.remove(a);
@@ -130,7 +129,7 @@ final class Clock_c extends Clock {
      * @return true if the activity has already dropped this
      *   clock (or if it never was registered).
      */
-    public boolean drop() {
+    public boolean doDrop() {
         return drop(aip_.getCurrentActivity());
     }
     

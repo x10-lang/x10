@@ -4,21 +4,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.WeakHashMap;
+import java.util.Set;
+import java.util.HashSet;
 
-import x10.array.ArrayFactory;
-import x10.array.Distribution;
 import x10.array.DoubleArray;
 import x10.array.IntArray;
-import x10.array.Range;
-import x10.array.Region;
-import x10.array.Operator;
-import x10.array.sharedmemory.SharedMemoryArrayFactory;
+
+import x10.array.point_c;
+import x10.array.sharedmemory.RegionFactory;
+import x10.array.sharedmemory.DistributionFactory;
+import x10.array.sharedmemory.IntArray_c;
+import x10.array.sharedmemory.DoubleArray_c;
 
 import x10.lang.Activity;
-import x10.lang.Clock;
 import x10.lang.Object;
-import x10.lang.Place;
 import x10.lang.Runtime;
+import x10.lang.clock;
+import x10.lang.distribution;
+import x10.lang.place;
+import x10.lang.point;
+import x10.lang.region;
 
 /**
  * Default implementation of Runtime.
@@ -56,19 +61,22 @@ public class DefaultRuntime_c
     /**
      * The places of this X10 Runtime (for now a constant set).
      */
-    private final Place[] places_;
-    
-    private ArrayFactory af_;
-
+    private  Place[] places_;
     private Thread bootThread;
     
     public DefaultRuntime_c() {
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
-    	Place.MAX_PLACES = pc;
-    	this.places_ = new Place[pc];
+
+     	this.places_ = new Place[pc];
+
+    }
+    protected void initialize() {
+       	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
+    	x10.lang.place.MAX_PLACES = pc;
+   
     	for (int i=pc-1;i>=0;i--)
     		places_[i] = new LocalPlace_c(this, this);
-    	af_ = new SharedMemoryArrayFactory();
+    
     }
 
     /**
@@ -97,8 +105,8 @@ public class DefaultRuntime_c
         }
         final Activity appMain = atmp;
         // ok, some magic with the boot-thread here...
-        x10.base.Place[] p = getPlaces();
-        Place p0 = (Place) p[0];
+        //Place p0 = (Place) p[0];
+        Place p0 = (Place) place.FIRST_PLACE;
         bootThread = Thread.currentThread();
         registerThread(bootThread, p0);
         Activity.Expr boot = new Activity.Expr() {
@@ -111,7 +119,7 @@ public class DefaultRuntime_c
                 // Activity.Expr since we want to use a Clock to 
                 // wait for the main app to exit, but we can't use
                 // a clock directly without being a proper activity).
-                Clock c = newClock();
+                Clock c = (Clock) factory.getClockFactory().clock();
                 c.doNow(appMain);
                 c.doNext();
             }
@@ -191,7 +199,7 @@ public class DefaultRuntime_c
         }
     }
 
-    public synchronized x10.base.Place currentPlace() {
+    public synchronized Place currentPlace() {
         if (places_.length == 1)
             return places_[0]; // fast path for simple test environments!
     	Place p = (Place) thread2place_.get(Thread.currentThread());
@@ -208,54 +216,80 @@ public class DefaultRuntime_c
      *  
      * @return All places available in this VM.
      */
-    public x10.base.Place[] getPlaces() {
+    public Place[] getPlaces() {
     	// return defensive copy
     	// return (Place[]) places_.clone();
 	return places_;
     }
     
-    /**
-     * Create a new Clock.
-     */
-    public Clock newClock() {
-        return new Clock_c(this);
-    }
+    public Factory getFactory() {
+    	System.out.println("Factory initialized.");
+    	Factory f = new Factory() {
+    		public region.factory getRegionFactory() {
+    			return new RegionFactory();
+    		}
+    		public distribution.factory getDistributionFactory() {
+    			return new DistributionFactory();
+    		}
+    		public point.factory getPointFactory() {
+    	
+    			return new point_c.factory();
+    		}
+    		public clock.factory getClockFactory() {
+    			return new clock.factory() {
+    				public clock clock() {
+    					return new Clock_c(DefaultRuntime_c.this);
+    				}
+    			};
+    		}
+    		public IntArray.factory getIntArrayFactory() {
+    			return new IntArray.factory() {
+    				public x10.lang.IntArray IntArray(distribution d, int c) {
+    					return new IntArray_c( d, c, true);
+    				}
+    				public x10.lang.IntArray IntArray(distribution d, IntArray.pointwiseOp f) {
+    					return new IntArray_c( d, f, true);
+    				}
+    			};
+    		}
+    		public DoubleArray.factory getDoubleArrayFactory() {
+    			return new DoubleArray.factory() {
+    				public x10.lang.DoubleArray DoubleArray(distribution d, double c) {
+    					return new DoubleArray_c( d, c, true);
+    				}
+    				public x10.lang.DoubleArray DoubleArray(distribution d, DoubleArray.pointwiseOp f) {
+    					return new DoubleArray_c( d, f, true);
+    				}
+    			};
+    			
+    		}
+    		public place.factory getPlaceFactory() {
+    			return new place.factory() {
+    				public place place(long i ) {
+    					System.out.println("Retruning a place... places_=" + places_);
 
-    /**
-     * @return New Range.
-     */
-    public Range newRange(int lo, int hi)  {
-    	return SharedMemoryArrayFactory.newRange(lo, hi);
+    					int index =(int) i % (int) place.MAX_PLACES;
+    					if (places_[index] == null) initialize();
+    					return places_[index];
+    				}
+    				public Set/*<place>*/ places (long last) {
+    					Set result = new HashSet();
+    					for (int i=0; i < last % (int) place.MAX_PLACES; i++)
+    						result.add(places_[i]);
+    					return result;
+    				}
+    				public place here() {
+    					return currentPlace();
+    				}
+    			};
+    		}
+    	};
+    	return f;
+    	
     }
     
-    /**
-     * @return New Region.
-     */
-    public Region newRegion(Range[] dims)  {
-    	return SharedMemoryArrayFactory.newRegion(dims);
-    }
     
-    /**
-     * @return New array.
-     */
-    public IntArray newIntArray(Distribution d) {
-        return SharedMemoryArrayFactory.newIntArray(d);
-    }
     
-    public IntArray newIntArray(Distribution d, Operator.Pointwise c) {
-        return SharedMemoryArrayFactory.newIntArray(d, c);
-    }
-
-    /**
-     * @return New array.
-     */
-    public DoubleArray newDoubleArray(Distribution d) {
-        return SharedMemoryArrayFactory.newDoubleArray(d);
-    }
-    
-    public DoubleArray newDoubleArray(Distribution d, Operator.Pointwise c) {
-        return SharedMemoryArrayFactory.newDoubleArray(d, c);
-    }
 				      
     /**
      * Get the Activity object that is executing this 
@@ -292,157 +326,5 @@ public class DefaultRuntime_c
         }
         return null;
     }    
-    
-    /**
-     * Create a Distribution where the given Region is distributed
-     * into blocks over all available Places.
-     * @param r
-     * @return
-     */
-    public Distribution newHereDistribution(Region R) {
-        x10.base.Place p = currentPlace();
-        return af_.makeConstantDistribution(R, p);
-    }
-    
-    /**
-     * Create a Distribution where the given Region is distributed
-     * into blocks over all available Places.
-     * @param r
-     * @return
-     */
-    public Distribution newBlockDistribution(Region R, Place[] Q) {
-        return af_.makeBlockDistribution(R, Q);
-    }
-    
-    /**
-     * Create a Distribution where the given Region is distributed
-     * into blocks of size n over all available Places.
-     * @param r
-     * @return
-     */
-    public Distribution newBlockDistribution(Region r, int n, Place[] p) {
-        return af_.makeBlockDistribution(r, n, p);
-    }
-    
-    /**
-     * Create a Distribution where the elements in the region are
-     * distributed over all Places in p in a cyclic manner,
-     * that is the next point in the region is at the next place
-     * for a cyclic ordering of the given places.
-     * @param r
-     * @return
-     */
-    public Distribution newCyclicDistribution(Region r, Place[] p) {
-        return af_.makeCyclicDistribution(r,  p);
-    }
-    
-    /**
-     * Create a Distribution where the elements in the region are
-     * distributed over all Places in p in a cyclic manner,
-     * that is the next point in the region is at the next place
-     * for a cyclic ordering of the given places.
-     * @param r
-     * @return
-     */
-    public Distribution newBlockCyclicDistribution(Region r, int n, Place[] p) {
-        return af_.makeBlockCyclicDistribution(r, n, p);
-    }
-    
-    /**
-     * Create a Distribution where the points of the Region are
-     * distributed randomly over all available Places.
-     * @param r
-     * @return
-     */
-    public Distribution newArbitraryDistribution(Region r, Place[] p) {
-        return af_.makeArbitraryDistribution(r, p);
-    }
-    
-    /**
-     * Create a Distribution where all points in the given
-     * Region are mapped to the same Place.
-     * @param r
-     * @param p specifically use the given place for all points
-     * @return
-     */
-    public Distribution newConstantDistribution(Region r, Place p) {
-        return af_.makeConstantDistribution(r, p);
-    }
-    
-    /**
-     * Create a Distribution where the points in the
-     * region 1...p.length are mapped to the respective
-     * places.
-     * @param p the list of places (implicitly defines the region)
-     * @return
-     */
-    public Distribution newUniqueDistribution(Place[] p) {
-        return af_.makeUniqueDistribution(p);
-    }
-    
-    /**
-     * Create a Distribution where the given Region is distributed
-     * into blocks over all available Places.
-     * @param r
-     * @return
-     */
-    public Distribution newBlockDistribution(Region R) {
-        return af_.makeBlockDistribution(R, places_);
-    }
-    
-    /**
-     * Create a Distribution where the given Region is distributed
-     * into blocks of size n over all available Places.
-     * @param r
-     * @return
-     */
-    public Distribution newBlockDistribution(Region r, int n) {
-        return af_.makeBlockDistribution(r, n, places_);
-    }
-    
-    /**
-     * Create a Distribution where the elements in the region are
-     * distributed over all Places in p in a cyclic manner,
-     * that is the next point in the region is at the next place
-     * for a cyclic ordering of the given places.
-     * @param r
-     * @return
-     */
-    public Distribution newCyclicDistribution(Region r) {
-        return af_.makeCyclicDistribution(r,  places_);
-    }
-    
-    /**
-     * Create a Distribution where the elements in the region are
-     * distributed over all Places in p in a cyclic manner,
-     * that is the next point in the region is at the next place
-     * for a cyclic ordering of the given places.
-     * @param r
-     * @return
-     */
-    public Distribution newBlockCyclicDistribution(Region r, int n) {
-        return af_.makeBlockCyclicDistribution(r, n, places_);
-    }
-    
-    /**
-     * Create a Distribution where the points of the Region are
-     * distributed randomly over all available Places.
-     * @param r
-     * @return
-     */
-    public Distribution newArbitraryDistribution(Region r) {
-        return af_.makeArbitraryDistribution(r, places_);
-    }
-    
-    /**
-     * Create a Distribution where the points in the
-     * region 1...p.length are mapped to the respective
-     * places.
-     * @param p the list of places (implicitly defines the region)
-     * @return
-     */
-    public Distribution newUniqueDistribution() {
-        return af_.makeUniqueDistribution(places_);
-    }
 
 } // end of DefaultRuntime_c

@@ -4,7 +4,6 @@
 package x10.runtime;
 
 import x10.lang.Activity;
-import x10.lang.Place;
 
 /**
  * Interface for the service that provides information about

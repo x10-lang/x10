@@ -6,11 +6,9 @@ package x10.runtime;
 import junit.framework.TestCase;
 import x10.compilergenerated.ClockedFinalInt;
 import x10.lang.Activity;
-import x10.lang.Clock;
 import x10.lang.Future;
 import x10.lang.Object;
 import x10.lang.Runtime;
-import x10.lang.Place;
 
 /**
  * Testcases for the X10 Runtime.  
@@ -43,7 +41,7 @@ public class TestRuntime extends TestCase {
      * with the Runtime.
      */
     public void setUp() {
-        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.getRuntime();
+        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
         Place[] pls = Place.places();
         if (r instanceof ThreadRegistry) {
             Thread t = Thread.currentThread();
@@ -57,7 +55,7 @@ public class TestRuntime extends TestCase {
      * Clean-up effects from setUp().
      */
     public void tearDown() {
-        Runtime r = Runtime.getRuntime();
+        Runtime r = Runtime.runtime;
         if (r instanceof ThreadRegistry) {
             Thread t = Thread.currentThread();
             ThreadRegistry tr = (ThreadRegistry) r;
@@ -96,7 +94,7 @@ public class TestRuntime extends TestCase {
 
     public void testClockNext() {
         x = 0;
-        final Clock c = Runtime.getRuntime().newClock();
+        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         Activity b = new Activity() {
             public void run() {
                 c.doNext();
@@ -122,12 +120,12 @@ public class TestRuntime extends TestCase {
     
     public void testClockContinue() {
         x = 0;
-        final Clock c = Runtime.getRuntime().newClock();
+        final Clock c = Clock.Clock();
         Activity b = new Activity() {
             public void run() {
                 c.doNext();
                 x = 1;
-                c.doContinue();
+                c.resume();
                 sleep(100); // wait for activity to hit first 'doNext'
                 x = 2; // 'bad' coding style :-)
             }
@@ -143,10 +141,10 @@ public class TestRuntime extends TestCase {
     }
     
     public void testClockDrop() {
-        final Clock c = Runtime.getRuntime().newClock();
+        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         Activity b = new Activity() {
             public void run() {
-                c.drop();
+                c.doDrop();
             }
         };
         c.register(b);
@@ -159,7 +157,7 @@ public class TestRuntime extends TestCase {
     }
     
     public void testClockedFinal() {
-        final Clock c = Runtime.getRuntime().newClock();
+        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         final ClockedFinalInt i = new ClockedFinalInt(c, 0);
         Activity b = new Activity() {
             public void run() {
@@ -202,7 +200,7 @@ public class TestRuntime extends TestCase {
             }
         };
         x = 0;
-        final Clock c = Runtime.getRuntime().newClock();
+        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         c.doNow(b);
         c.doNext();
         assertTrue(x == 1);
