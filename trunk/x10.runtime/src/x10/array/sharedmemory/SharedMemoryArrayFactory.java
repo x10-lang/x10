@@ -59,8 +59,9 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
      * @param r
      * @return
      */
-    public Distribution makeBlockDistribution(Region R, Place[] Q) {
-    	return Distribution_c.makeBlock(R, Q);
+    public Distribution makeBlockDistribution(Region r, Place[] q) {
+        assert r instanceof Region_c;
+        return Distribution_c.makeBlock((Region_c) r, q);
     }
     
     /**
@@ -70,7 +71,8 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
      * @return
      */
     public Distribution makeBlockDistribution(Region r, int n, Place[] p) {
-    	return Distribution_c.makeBlock(r, n, p);
+        assert r instanceof Region_c;
+        return Distribution_c.makeBlock((Region_c) r, n, p);
     }
     
     /**
@@ -82,7 +84,8 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
      * @return
      */
     public Distribution makeCyclicDistribution(Region r, Place[] p) {
-    	return Distribution_c.makeCyclic(r,  p);
+    	assert r instanceof Region_c;
+        return Distribution_c.makeCyclic((Region_c) r,  p);
     }
     
     /**
@@ -94,7 +97,8 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
      * @return
      */
     public Distribution makeBlockCyclicDistribution(Region r, int n, Place[] p) {
-    	return Distribution_c.makeBlockCyclic(r, n, p);
+        assert r instanceof Region_c;
+        return Distribution_c.makeBlockCyclic((Region_c)r, n, p);
     }
     
     /**
@@ -104,7 +108,8 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
      * @return
      */
     public Distribution makeArbitraryDistribution(Region r, Place[] p) {
-    	return Distribution_c.makeArbitrary(r, p);
+        assert r instanceof Region_c;
+        return Distribution_c.makeArbitrary((Region_c)r, p);
     }
     
     /**
@@ -115,7 +120,8 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
      * @return
      */
     public Distribution makeConstantDistribution(Region r, Place p) {
-    	return Distribution_c.makeConstant(r, p);
+        assert r instanceof Region_c;
+        return Distribution_c.makeConstant((Region_c)r, p);
     }
     
     /**

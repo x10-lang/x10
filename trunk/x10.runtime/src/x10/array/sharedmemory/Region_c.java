@@ -73,38 +73,40 @@ class Region_c implements Region {
 		return new Region_c(dims);
 	}
     
-        public Region subOrdinal(int start, int end) {// end exclusive here!
-            Range[] ret = new Range[rank];
-            int multiplier = 1;
-            for (int i=rank-1;i>=0;i--)
-                multiplier *= dims_[i].card;
-            
-            for (int i=rank-1;i>=0;i--) {
-                multiplier /= dims_[i].card;
-                int offS = (start / multiplier);
-                int delS = (start % multiplier);
-                int offE = (end   / multiplier);
-                int delE = (end   % multiplier);
-                
-                if ( ! ( ( (delS == 0) && (delE == multiplier-1) ) ||
-                        ( (offS == offE) ) ) )
-                    throw new Error("Not implemented"); /* we don't get a nice-cut region here! */
-                
-                ret[i] = new Range(offS + dims_[i].lo, offE + dims_[i].lo); /* -1: range is inclusive! */
-                start = delS;
-                end   = delE;
-            }
-            return new Region_c(ret);
+        Region_c subOrdinal(int start, int end) { // end exclusive here!
+        Range[] ret = new Range[rank];
+        int multiplier = 1;
+        for (int i = rank - 1; i >= 0; i--)
+            multiplier *= dims_[i].card;
+
+        for (int i = rank - 1; i >= 0; i--) {
+            multiplier /= dims_[i].card;
+            int offS = (start / multiplier);
+            int delS = (start % multiplier);
+            int offE = (end / multiplier);
+            int delE = (end % multiplier);
+
+            if (!(((delS == 0) && (delE == multiplier - 1)) || ((offS == offE))))
+                throw new Error("Not implemented"); /*
+                                                     * we don't get a nice-cut
+                                                     * region here!
+                                                     */
+
+            ret[i] = new Range(offS + dims_[i].lo, offE + dims_[i].lo); // -1: range is inclusive!
+            start = delS;
+            end = delE;
         }
+        return new Region_c(ret);
+    }
 
 	
 	public Region combine(Region r) {
 		throw new Error("not implemented");
 	}
 	
-	/** 
-	 * @return range in the i-th dimension.
-	 */
+	/**
+     * @return range in the i-th dimension.
+     */
 	public Range dim(int i) {
 		assert i < rank;
 		return dims_[i];
@@ -200,7 +202,7 @@ class Region_c implements Region {
 	 * @return A combined region that covers the space of the 
 	 *         convex hull of all other regions.
 	 */
-	static Region combine(Set l) {
+	static Region_c combine(Set l) {
 		int rank = -1;
 		for (Iterator it = l.iterator(); it.hasNext(); ) {
 			Region_c r = (Region_c) it.next();

@@ -17,33 +17,38 @@ import x10.array.Region;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-abstract class Distribution_c 
-    implements Distribution {
-    
+abstract class Distribution_c implements Distribution {
+
     // First: static factory methods for the use by the Runtime implemenation
     
     /**
      * Create a Distribution where the given Region is distributed
-     * into blocks over all available Places.
+     * into blocks the specified places
      * @param r
+     * @param q
      * @return
      */
-	static Distribution makeBlock(Region R, Place[] Q) {
-        int N = Q.length;
-        int q = R.size() % N;
-        int p = R.size() / N;
-        Distribution[] dists = new Distribution[N];
-        for (int i=0;i<q;i++) {
-            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(i*(p+1), (i+1)*(p+1)), 
-                                                   Q[i]);
+	static Distribution_c makeBlock(Region_c r, Place[] q) {
+        int n = q.length;
+        int size = r.size();
+        int qt = size % n;
+        int pt = size / n;
+        Distribution[] dists = new Distribution[n];
+        
+        // these blocks obain p+1 elements
+        for (int i=0;i<qt;i++) {
+            dists[i] = new Distribution_c.Constant(r.subOrdinal(i*(pt+1), (i+1)*(pt+1)), 
+                                                   q[i]);
         }
-        int base = q * (p+1);
-        for (int i=q;i<N;i++) {
-            int off = (i-q) * p;
-            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(base+off, base+off+p), 
-                                                   Q[i]);
+        int base = qt * (pt+1);
+        
+        // these blocks obtain p elements
+        for (int i=qt;i<n;i++) {
+            int off = (i-qt) * pt;
+            dists[i] = new Distribution_c.Constant(r.subOrdinal(base+off, base+off+pt), 
+                                                   q[i]);
         }
-        return new Distribution_c.Combined(R, dists);
+        return new Distribution_c.Combined(r, dists);
     }
     
     /**
@@ -52,22 +57,22 @@ abstract class Distribution_c
      * @param r
      * @return
      */
-	static Distribution makeBlock(Region R, int N, Place[] Q) {
-        assert N <= Q.length;
-        int q = R.size() % N;
-        int p = R.size() / N;
-        Distribution[] dists = new Distribution[N];
-        for (int i=0;i<q;i++) {
-            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(i*(p+1), (i+1)*(p+1)), 
-                                                   Q[i]);
+	static Distribution_c makeBlock(Region_c r, int n, Place[] q) {
+        assert n <= q.length;
+        int qt = r.size() % n;
+        int pt = r.size() / n;
+        Distribution[] dists = new Distribution[n];
+        for (int i=0;i<qt;i++) {
+            dists[i] = new Distribution_c.Constant(r.subOrdinal(i*(pt+1), (i+1)*(pt+1)), 
+                                                   q[i]);
         }
-        int base = q * (p+1);
-        for (int i=q;i<N;i++) {
-            int off = (i-q) * p;
-            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(base+off, base+off+p), 
-                                                   Q[i]);
+        int base = qt * (pt+1);
+        for (int i=qt;i<n;i++) {
+            int off = (i-qt) * pt;
+            dists[i] = new Distribution_c.Constant(((Region_c)r).subOrdinal(base+off, base+off+pt), 
+                                                   q[i]);
         }
-        return new Distribution_c.Combined(R, dists);
+        return new Distribution_c.Combined(r, dists);
     }
     
     /**
@@ -78,14 +83,14 @@ abstract class Distribution_c
      * @param r
      * @return
      */
-    static Distribution makeCyclic(Region R, Place[] Q) {
-        int N = R.size();
-        Distribution[] dists = new Distribution[N];
-        for (int i=0;i<N;i++) {
-            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(i,i+1), 
-                                                   Q[i % Q.length]);
+    static Distribution_c makeCyclic(Region_c r, Place[] q) {
+        int n = r.size();
+        Distribution[] dists = new Distribution[n];
+        for (int i=0;i<n;i++) {
+            dists[i] = new Distribution_c.Constant(r.subOrdinal(i,i+1), 
+                                                   q[i % q.length]);
         }
-        return new Distribution_c.Combined(R, dists);
+        return new Distribution_c.Combined(r, dists);
     }
     
     /**
@@ -96,24 +101,24 @@ abstract class Distribution_c
      * @param r
      * @return
      */
-    static Distribution makeBlockCyclic(Region R, int N, Place[] Q) {
-        assert N > 0;
-        int RS = R.size();
-        int p = RS / N;
-        int q = RS % N;
-        if (q != 0)
-            p++;
-        int QL = Q.length;
-        Distribution[] dists = new Distribution[p];
-        for (int i=0;i<p;i++) {
-            int s = i*N;
-            int e = s + N;
-            if (e > RS)
-                e = RS;
-            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(s, e), 
-                                                   Q[i % QL]);
+    static Distribution_c makeBlockCyclic(Region_c r, int n, Place[] q) {
+        assert n > 0;
+        int rs = r.size();
+        int pt = rs / n;
+        int qt = rs % n;
+        if (qt != 0)
+            pt++;
+        int ql = q.length;
+        Distribution[] dists = new Distribution[pt];
+        for (int i=0;i<pt;i++) {
+            int s = i*n;
+            int e = s + n;
+            if (e > rs)
+                e = rs;
+            dists[i] = new Distribution_c.Constant(r.subOrdinal(s, e), 
+                                                   q[i % ql]);
         }
-        return new Distribution_c.Combined(R, dists);
+        return new Distribution_c.Combined(r, dists);
     }
     
     /**
@@ -122,7 +127,7 @@ abstract class Distribution_c
      * @param r
      * @return
      */
-    static Distribution makeArbitrary(Region r, Place[] p) {
+    static Distribution_c makeArbitrary(Region_c r, Place[] p) {
         return makeBlockCyclic(r, 32, p);
     }
     
@@ -133,7 +138,7 @@ abstract class Distribution_c
      * @param p specifically use the given place for all points
      * @return
      */
-    static Distribution makeConstant(Region r, Place p) {
+    static Distribution_c makeConstant(Region_c r, Place p) {
         return new Distribution_c.Constant(r, p);
     }
     
@@ -144,16 +149,16 @@ abstract class Distribution_c
      * @param p the list of places (implicitly defines the region)
      * @return
      */
-    static Distribution makeUnique(Place[] p) {
+    static Distribution_c makeUnique(Place[] p) {
         return new Distribution_c.Unique(p);
     }
     
     
     // Actual Distribution implementation(s)
     
-    final Region region_;
+    final Region_c region_;
     
-    Distribution_c(Region r) {
+    Distribution_c(Region_c r) {
         this.region_ = r;
     }
     
@@ -168,7 +173,7 @@ abstract class Distribution_c
     }
     
     public Region subOrdinal(int i, int j) {
-        return ((Region_c)region_).subOrdinal(i, j);
+        return region_.subOrdinal(i, j);
     }
     
     public Region combine(Region r) {
@@ -199,8 +204,6 @@ abstract class Distribution_c
         return region_.iterator();
     }
 
-    
-
     public Distribution intersect(Distribution d) { 
         throw new Error("TODO");
     }
@@ -229,7 +232,7 @@ abstract class Distribution_c
         
         private final Place place_;
 
-        Constant(Region r, Place p) {
+        Constant(Region_c r, Place p) {
             super(r);
             this.place_ = p;
         }
@@ -242,7 +245,7 @@ abstract class Distribution_c
     
     static final class ConstantHere extends Distribution_c {
         
-        ConstantHere(Region r) {
+        ConstantHere(Region_c r) {
             super(r);
         }
 
@@ -274,7 +277,7 @@ abstract class Distribution_c
         
         private final Distribution[] members_;
         
-        Combined(Region r, Distribution[] members_) {
+        Combined(Region_c r, Distribution[] members_) {
             super(r);
             this.members_ = members_;
         }
@@ -288,9 +291,5 @@ abstract class Distribution_c
         }
         
     } // end of Distribution_c.Unique
-    
-    
-    
-    
-    
+
 } // end of Distribution_c
