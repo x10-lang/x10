@@ -205,8 +205,8 @@ public class TestCompiler extends TestCase {
         run("./ImportTest.x10","ImportTest");
     }
 
-    public void test_ImportTestPackage1_T3() {
-        run("./ImportTestPackage1/T3.x10","ImportTestPackage1.T3");
+    public void test_ImportTestPackage1_SubPackage_T3() {
+        run("./ImportTestPackage1/SubPackage/T3.x10","ImportTestPackage1.SubPackage.T3");
     }
 
     public void test_Jacobi() {
