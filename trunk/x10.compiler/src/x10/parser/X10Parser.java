@@ -195,7 +195,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     private String comment(int i) {
         String s = prsStream.getName(i);
         if (s != null && s.startsWith("/**") && s.endsWith("*/")) {
-           System.out.println("Recognized comment |" + s + "|");
             return s +"\n";
         }
         return null;
@@ -333,7 +332,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 1: {
                 if (prsStream.getKind(btParser.getToken(1)) != X10Parsersym.TK_IDENTIFIER)
                 {
-                    System.out.println("Turning keyword " +
+                    System.out.println("Parser turning keyword " +
                                        prsStream.getName(btParser.getToken(1)) +
                                        " at " +
                                        prsStream.getLine(btParser.getToken(1)) +
@@ -710,7 +709,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                      c = (List) btParser.getSym(4);
                 Node n = nf.SourceFile(pos(btParser.getFirstToken(), btParser.getLastToken()), a, b, c);
                 if (comment != null) {
-                  System.out.println("Read in comment |" + comment + "|");
                   n.setComment(comment.toString());
                 }
                 btParser.setSym1(n);
@@ -767,7 +765,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 if (a != null)
                     l.add(a);
                 if (comment != null) {
-                    System.out.println("Comment2 recognized:|" + comment + "|"); 
                     a.setComment(comment.toString());
                 }
                 btParser.setSym1(l);
@@ -887,6 +884,10 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 polyglot.lex.Identifier b = id(btParser.getToken(4));
 //vj                    assert(btParser.getSym(4) == null);
                 TypeNode c = (TypeNode) btParser.getSym(5);
+                // by default extend x10.lang.Object
+                if (c == null) {
+                  c= new Name(nf, ts, pos(), "x10.lang.Object").toType();
+                }
                 List d = (List) btParser.getSym(6);
                 ClassBody e = (ClassBody) btParser.getSym(7);
                 Node n = 
@@ -4654,35 +4655,30 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 521:  PlaceType ::= place
             //
             case 521:
-                bad_rule = 521;
                 break; 
  
             //
             // Rule 522:  PlaceType ::= activity
             //
             case 522:
-                bad_rule = 522;
                 break; 
  
             //
             // Rule 523:  PlaceType ::= method
             //
             case 523:
-                bad_rule = 523;
                 break; 
  
             //
             // Rule 524:  PlaceType ::= current
             //
             case 524:
-                bad_rule = 524;
                 break; 
  
             //
             // Rule 525:  PlaceType ::= PlaceExpression
             //
             case 525:
-                bad_rule = 525;
                 break; 
  
             //
