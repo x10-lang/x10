@@ -140,6 +140,9 @@ public final class Configuration {
         }        
         MAIN_CLASS_NAME = args[pos++];
         // vj hack to let Eclipse x10 command run with ${resource_loc}
+        
+       // get rid of prefix pathname.
+       MAIN_CLASS_NAME = MAIN_CLASS_NAME.substring(MAIN_CLASS_NAME.lastIndexOf("\\")+1);
         if (MAIN_CLASS_NAME.endsWith(".java"))
         	MAIN_CLASS_NAME = MAIN_CLASS_NAME.substring(0, MAIN_CLASS_NAME.length()-5);
         else  if (MAIN_CLASS_NAME.endsWith(".x10"))
