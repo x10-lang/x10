@@ -100,6 +100,7 @@ public abstract class DoubleArray extends DoubleReferenceArray {
                 res_t.set(val, p);
         }
     }
+    
 	
 	public void circshift (int[] args) {
 		throw new RuntimeException("TODO");
@@ -130,6 +131,7 @@ public abstract class DoubleArray extends DoubleReferenceArray {
     public abstract double get(int d0, int d1, int d2);
 
     public abstract double get(int d0, int d1, int d2, int d3);
+    public abstract double get(int[] p);
     
     public Object toJava() {        
         final int[] dims_tmp = new int[distribution.rank];       
