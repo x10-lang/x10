@@ -10,5 +10,5 @@ package x10.lang;
  * 
  */
 interface Indexable extends IndexableGet, IndexableSet {
-	public long getUnsafeAddress();
+	
 }

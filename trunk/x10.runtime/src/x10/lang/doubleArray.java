@@ -15,7 +15,7 @@ import x10.lang.intArray.unaryOp;
 
 abstract public class doubleArray /*( distribution distribution )*/ 
 /*implements Cloneable, Serializable */
-implements Indexable {
+implements Indexable, Unsafe {
 
 	public final distribution distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
