@@ -163,22 +163,28 @@ public final class Clock_c extends Clock {
      * does not specify the clocks but next applies to all clocks
      * that the activity is registered with.
      */
-    public synchronized void doNext() {
+    public void doNext() {
         Activity a = aip_.getCurrentActivity();
         assert activities_.contains(a);
-        pending_.remove(a); // this one is done!
-        if (tryAdvance())
-            return; // we advanced, continue immediately!
-        // wait for next phase
-        int start = phase_;
-        while (start == phase_) { // signal might be random in Java, check!
-            try {
-                LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id);
-                this.wait(); // wait for signal
-            } catch (InterruptedException ie) {
-                throw new Error(ie); // that was unexpected...
-            } finally {
-                LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id);
+        
+        // do not acquire lock earlier - otherwise deadlock can happen
+        // because the lock used to protected aip_.getCurrentActivity
+        // is also held when terminating activities drop locks ...
+        synchronized (this) {
+            pending_.remove(a); // this one is done! 
+            if (tryAdvance())
+                return; // we advanced, continue immediately!
+            // wait for next phase
+            int start = phase_;
+            while (start == phase_) { // signal might be random in Java, check!
+                try {
+                    LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id);
+                    this.wait(); // wait for signal
+                } catch (InterruptedException ie) {
+                    throw new Error(ie); // that was unexpected...
+                } finally {
+                    LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id);
+                }
             }
         }
     }
