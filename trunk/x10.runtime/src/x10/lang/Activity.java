@@ -2,22 +2,20 @@ package x10.lang;
 
 
 /**
- * @author Christian Grothoff
+ * @author Christian Grothoff, Christoph von Praun
  */
-public abstract class Activity 
-    implements Runnable {
+public interface Activity extends Runnable {
 
     /**
      * This is an Activity that has a result in the form of a Future.
      */
-    public static abstract class Expr 
-	extends Activity {
+    public interface Expr extends Activity {
        
 	/**
 	 * Wait for the completion of this activity and return the
 	 * return value.
 	 */
-	public abstract X10Object getResult();
+	public X10Object getResult();
 
     } // end of Activity.Expr
 
