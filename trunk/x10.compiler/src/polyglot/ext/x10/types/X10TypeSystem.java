@@ -6,6 +6,7 @@ package polyglot.ext.x10.types;
 
 import polyglot.types.*;
 import polyglot.util.Position;
+import polyglot.ast.Expr;
 
 
 /**
@@ -16,6 +17,18 @@ import polyglot.util.Position;
  */
 
 public interface X10TypeSystem extends TypeSystem {
+	
+	/**
+     * Return an array of <code>type</code>
+     */
+    ArrayType arrayOf(Type type, Expr indexedSet);
+
+    /**
+     * Return an array of <code>type</code>
+     */
+    ArrayType arrayOf(Position pos, Type type, Expr indexedSet);
+
+    
 
     NullableType createNullableType( Position p, ReferenceType t);
     FutureType createFutureType( Position p, Type t);
@@ -44,5 +57,6 @@ public interface X10TypeSystem extends TypeSystem {
 
     /** Return boxed type runtime.T for primitive t. */
     public Type boxedType(PrimitiveType t);
+    
     
 } // end of X10TypeSystem

@@ -41,4 +41,10 @@ public interface X10NodeFactory extends NodeFactory {
     ReductionCall ScanCall(Position pos, Receiver target, String name, List arguments);
     ReductionCall ReduceCall(Position pos, Receiver target, String name, List arguments);
     
+    Call RemoteCall(Position pos, Receiver target, String name, List arguments);
+    X10Loop ForLoop(Position pos, Variable formal, Expr domain, Stmt body);
+    X10Loop ForEach(Position pos, Variable formal, Expr domain, Stmt body);
+    X10Loop AtEach(Position pos, Variable formal, Expr domain, Stmt body);
+    Finish Finish(Position pos, Stmt body);
+    
 }

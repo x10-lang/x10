@@ -136,4 +136,23 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     public ReductionCall ReduceCall(Position pos, Receiver target, String name, List arguments) {
     	return new ReductionCall_c( pos, target, name, arguments, ReductionCall.REDUCE);
     }
+    public Call RemoteCall(Position pos, Receiver target, String name, List arguments) {
+    	return new RemoteCall_c( pos, target, name, arguments);
+    }
+    public X10Loop AtEach(Position pos, Variable formal, Expr domain, Stmt body) {
+    	X10Loop n = new AtEach_c( pos, formal, domain, body);
+    	return n;
+    }
+    public X10Loop ForLoop(Position pos, Variable formal, Expr domain, Stmt body) {
+    	X10Loop n = new ForLoop_c( pos, formal, domain, body);
+    	return n;
+    }
+    public X10Loop ForEach(Position pos, Variable formal, Expr domain, Stmt body) {
+    	X10Loop n = new ForEach_c( pos, formal, domain, body);
+    	return n;
+    }
+    public Finish Finish(Position pos, Stmt body) {
+    	Finish n = new Finish_c( pos,  body);
+    	return n;
+    }
 }
