@@ -21,20 +21,26 @@ import x10.lang.Object;
  */
 
 public class Region_c extends region  {
-    private final region[] dims;
+    private final Range[] dims;
     private final int[] base_; 
     final int card;
     
     
-    public Region_c(final region[] dims) {
-        super(dims.length);
-        assert dims != null;
+    public Region_c(final region[] d) {
+        super(d.length);
+        assert d != null;
+        // assert that all dims are actually Ranges
+        dims = new Range[d.length];
+        for (int i = 0; i < dims.length; ++i) {
+            assert (d[i] instanceof Range);
+            dims[i] = (Range) d[i];
+        }
+        
         int tmp_card = 1;
-        this.dims = dims;
         base_ = new int[dims.length];
         for (int i = 0; i < dims.length; ++i) {
             base_[i] = tmp_card;
-            tmp_card *= ((Range) dims[i]).size;
+            tmp_card *= dims[i].size;
         }
         card = tmp_card;
     }   
@@ -64,30 +70,45 @@ public class Region_c extends region  {
         return new Region_c(new_dims);
     }
     
-    public region union( region r ) {
+    public region union(region r) {
         assert r != null;
         assert r.rank == rank;
-        
-        Region_c rc = (Region_c) r;
-        region[] d = new region[rank];
-        for (int i = 0; i < d.length; ++ i)
-            d[i] = dims[i].union(rc.dims[i]);
-        return new Region_c(d);
+    
+        region ret;
+        if (r instanceof Region_c) {
+            Region_c rc = (Region_c) r;
+            region[] d = new region[rank];
+            for (int i = 0; i < d.length; ++ i)
+                d[i] = dims[i].union(rc.dims[i]);
+            ret = new Region_c(d);
+        } else {
+            ret = ArbitraryRegion.union(this, r);
+        }
+        return ret;
     }
     
-    public region intersection(region r ) {
+    public region intersection(region r) {
         assert r != null;
         assert r.rank == rank;
+        region ret;
         
-        Region_c rc = (Region_c) r;
-        region[] d = new region[rank];
-        for (int i = 0; i < d.length; ++ i)
-            d[i] = dims[i].intersection(rc.dims[i]);
-        return new Region_c(d);
+        if (r instanceof Region_c) {
+            Region_c rc = (Region_c) r;
+            region[] d = new region[rank];
+            for (int i = 0; i < d.length; ++ i)
+                d[i] = dims[i].intersection(rc.dims[i]);
+            ret = new Region_c(d);
+        } else {
+            ret = ArbitraryRegion.intersection(this, r);
+        }
+        return ret;
     }
     
     // This wont return a contiguous region.
-    public region difference(region d) { 
+    public region difference(region d) {
+        assert d != null;
+        assert d.rank == rank;
+        
         return ArbitraryRegion.difference(this, d);
     }
     
@@ -95,25 +116,31 @@ public class Region_c extends region  {
      * @return range in the i-th dimension.
      */
     public region rank(/*nat*/int i) {
-        return dims[i % dims.length];
+        assert i <= dims.length;
+        assert i >= 0;
+        
+        return dims[i];
     }
     
     public boolean contains(region r) {
+        assert r != null;
         assert r.rank == rank;
-        Region_c r_c = (Region_c) r;
-        boolean ret = true;
         
-        for (int i = 0; i < r_c.rank && ret; ++i)
-            ret = r_c.dims[i].contains(dims[i]);
+        boolean ret = true;
+        if (r instanceof Region_c) {
+            Region_c r_c = (Region_c) r;
+            for (int i = 0; i < r_c.rank && ret; ++i)
+                ret = r_c.dims[i].contains(dims[i]);
+        } else 
+            ret = super.contains(r);
         return ret;
     }
     
     public boolean contains(point p) {
         assert p.rank == rank;
         boolean ret = true;
-        for (int i = 0; ret && i < rank; ++i) {
-            ret = ((Range) dims[i]).contains(p.get(i));
-        }
+        for (int i = 0; ret && i < rank; ++i) 
+            ret = dims[i].contains(p.get(i));
         return ret;
     }
     public boolean contains(int[] val) {
@@ -170,10 +197,6 @@ public class Region_c extends region  {
         return sb.toString();
     }
     
-    
-    
-    
-    
     private class RegionIterator implements Iterator {
         private int nextOrd_ = 0;
         
@@ -227,8 +250,7 @@ public class Region_c extends region  {
     public boolean isConvex() {
         boolean ret = true;	
         for (int i = 0; i < rank && ret; ++i) {
-            Region_c r = (Region_c) dims[i];
-            ret = r.isConvex();
+            ret = dims[i].isConvex();
         }
         return ret;
     }
@@ -241,7 +263,7 @@ public class Region_c extends region  {
         int rest = ordinal;
         int base = 0;
         for (int i = rank-1; i >=0 ; --i) {
-            Range r = (Range) dims[i];
+            Range r = dims[i];
             int tmp = rest / base_[i];
             rest = rest % base_[i];
             ret[i] = r.coord(tmp).get(0);
