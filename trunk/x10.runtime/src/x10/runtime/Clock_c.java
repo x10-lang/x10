@@ -16,7 +16,7 @@ import x10.lang.Runtime;
  * Runtime and with places since they need to interact with activity
  * creation.  
  * 
- * @author Christian Grothoff
+ * @author Christian Grothoff, Christoph von Praun
  */
 final class Clock_c implements Clock {
 
@@ -114,6 +114,11 @@ final class Clock_c implements Clock {
         assert activities_.contains(a);
         pending_.remove(a);
         tryAdvance(); 
+    }
+    
+    public boolean dropped() {
+        Activity a = aip_.getCurrentActivity();
+        return activities_.contains(a);
     }
     
     /**
