@@ -95,7 +95,7 @@ class LocalPlace_c extends PooledExecutor
      * can be used to force the future result.
      */
     public Future runFuture(final Activity.Expr a) {
-        final FutureImpl result = new FutureImpl();
+        final Future_c result = new Future_c();
         final Activity i = aip_.getCurrentActivity();
         try {
             this.execute(new Runnable() {

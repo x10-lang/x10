@@ -15,6 +15,11 @@ import x10.lang.X10Object;
  * unlikely that we will have multiple implementations of any of these
  * functions other than the default, we currently do without.
  *
+ * I'm not sure that this class should live in this package -- maybe
+ * the code can live here (JavaRuntime_c), but the current situation
+ * where x10.lang.Runtime directly refers to a class in x10.runtime
+ * is definitively bad.  TODO: find a better place for JavaRuntime!
+ *
  * @author Christian Grothoff
  */
 public class JavaRuntime {
