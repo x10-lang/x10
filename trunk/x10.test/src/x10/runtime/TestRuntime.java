@@ -8,6 +8,8 @@ import x10.compilergenerated.ClockedFinalInt;
 import x10.lang.Activity;
 import x10.lang.Clock;
 import x10.lang.Future;
+import x10.lang.Range;
+import x10.lang.Region;
 import x10.lang.Runtime;
 import x10.lang.X10Object;
 
@@ -203,6 +205,19 @@ public class TestRuntime extends TestCase {
         c.doNow(b);
         c.doNext();
         assertTrue(x == 1);
+    }
+    
+    public void testRegion_subOrdinal() {
+        Range[] ranges = new Range[] { new Range_c(7,12), new Range_c(42, 45) }; // 6x4         
+        Region_c reg = new Region_c(ranges);
+        
+        Region sub2 = reg.subOrdinal(6, 7); // => (7,8) x (43,43)
+        Range[] ranges2 = new Range[] { new Range_c(7,8), new Range_c(43, 43) }; // 2x1
+        assertTrue(new Region_c(ranges2).equals(sub2));
+        
+        Region sub3 = reg.subOrdinal(6, 17); // => (7,12) x (43,44)
+        Range[] ranges3 = new Range[] { new Range_c(7,12), new Range_c(43, 44) }; // 6x2
+        assertTrue(new Region_c(ranges3).equals(sub3));        
     }
     
     /**

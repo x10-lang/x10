@@ -74,7 +74,27 @@ class Region_c implements Region {
 	}
     
         public Region subOrdinal(int start, int end) {// end exclusive here!
-            throw new Error("not implemented");
+            Range[] ret = new Range[rank];
+            int multiplier = 1;
+            for (int i=rank-1;i>=0;i--)
+                multiplier *= dims_[i].card;
+            
+            for (int i=rank-1;i>=0;i--) {
+                multiplier /= dims_[i].card;
+                int offS = (start / multiplier);
+                int delS = (start % multiplier);
+                int offE = (end   / multiplier);
+                int delE = (end   % multiplier);
+                
+                if ( ! ( ( (delS == 0) && (delE == multiplier-1) ) ||
+                        ( (offS == offE) ) ) )
+                    throw new Error("Not implemented"); /* we don't get a nice-cut region here! */
+                
+                ret[i] = new Range_c(offS + dims_[i].lo, offE + dims_[i].lo); /* -1: range is inclusive! */
+                start = delS;
+                end   = delE;
+            }
+            return new Region_c(ret);
         }
 
 	

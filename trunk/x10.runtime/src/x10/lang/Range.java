@@ -31,7 +31,7 @@ public abstract class Range implements TypeArgument {
 		this.hi = hi;
 		card = hi - lo + 1; // inclusive!
 	}
-	
+    
 	public abstract boolean contains(int p);
 	
 	public abstract boolean contains(Range r);
