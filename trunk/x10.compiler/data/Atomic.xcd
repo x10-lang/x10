@@ -3,7 +3,7 @@ Object _lock = x10.lang.Runtime.here();
 synchronized (_lock) {
 	try {
 		#0
-		_lock.notifiyAll();
+		_lock.notifyAll();
 	} catch (Throwable e) {
   		e.printStackTrace();
   		x10.lang.Runtime.getRuntime().java.log(java.util.logging.Level.SEVERE, "Unexpected exception during atomic.", e);
