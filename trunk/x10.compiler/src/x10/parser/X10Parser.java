@@ -192,6 +192,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     private polyglot.lex.Identifier id(int i) {
         return new Identifier(pos(i), prsStream.getName(i), X10Parsersym.TK_IDENTIFIER);
     }
+    private String comment(int i) {
+   	String s = prsStream.getName(i);
+   	if (s != null && s.startsWith("/**") && s.endsWith("/"))
+ 	    return s +"\n";
+ 	return null;
+    }
+
+
 
     /* Roll our own integer parser.  We can't use Long.parseLong because
      * it doesn't handle numbers greater than 0x7fffffffffffffff correctly.
@@ -691,13 +699,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 44:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+            // Rule 44:  CompilationUnit ::= Commentopt PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
             case 44: {
-                PackageNode a = (PackageNode) btParser.getSym(1);
-                List b = (List) btParser.getSym(2),
-                     c = (List) btParser.getSym(3);
+                Object comment = comment(btParser.getToken(1));
+                PackageNode a = (PackageNode) btParser.getSym(2);
+                List b = (List) btParser.getSym(3),
+                     c = (List) btParser.getSym(4);
                 Node n = nf.SourceFile(pos(btParser.getFirstToken(), btParser.getLastToken()), a, b, c);
+                if (comment != null) {
+                  n.setComment(comment.toString());
+                }
                 btParser.setSym1(n);
                 break;
             }
@@ -842,18 +854,25 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 62:  NormalClassDeclaration ::= ClassModifiersopt class identifier Superopt Interfacesopt ClassBody
+            // Rule 62:  NormalClassDeclaration ::= Commentopt ClassModifiersopt class identifier Superopt Interfacesopt ClassBody
             //
             case 62: {
-                Flags a = (Flags) btParser.getSym(1);
-                polyglot.lex.Identifier b = id(btParser.getToken(3));
+                String comment = comment(btParser.getToken(1));
+                Flags a = (Flags) btParser.getSym(2);
+                polyglot.lex.Identifier b = id(btParser.getToken(4));
 //vj                    assert(btParser.getSym(4) == null);
-                TypeNode c = (TypeNode) btParser.getSym(4);
-                List d = (List) btParser.getSym(5);
-                ClassBody e = (ClassBody) btParser.getSym(6);
-                if (a.isValue())
-                     btParser.setSym1(nf.ValueClassDecl(pos(btParser.getFirstToken(), btParser.getLastToken()), a, b.getIdentifier(), c, d, e));
-                else btParser.setSym1(nf.ClassDecl(pos(btParser.getFirstToken(), btParser.getLastToken()), a, b.getIdentifier(), c, d, e));
+                TypeNode c = (TypeNode) btParser.getSym(5);
+                List d = (List) btParser.getSym(6);
+                ClassBody e = (ClassBody) btParser.getSym(7);
+                Node n = 
+                   a.isValue() ?
+                     nf.ValueClassDecl(pos(btParser.getFirstToken(), btParser.getLastToken()), 
+                                       a, b.getIdentifier(), c, d, e) 
+                    : nf.ClassDecl(pos(btParser.getFirstToken(), btParser.getLastToken()), 
+                                       a, b.getIdentifier(), c, d, e);
+                if (comment != null)
+                  n.setComment(comment);
+                btParser.setSym1(n);
                 break;
             }
      
@@ -1095,13 +1114,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 91:  FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators SEMICOLON
+            // Rule 91:  FieldDeclaration ::= Commentopt FieldModifiersopt Type VariableDeclarators SEMICOLON
             //
             case 91: {
+                String comment = comment(btParser.getToken(1));
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
-                Flags a = (Flags) btParser.getSym(1);
-                TypeNode b = (TypeNode) btParser.getSym(2);
-                List c = (List) btParser.getSym(3);
+                Flags a = (Flags) btParser.getSym(2);
+                TypeNode b = (TypeNode) btParser.getSym(3);
+                List c = (List) btParser.getSym(4);
                 for (Iterator i = c.iterator(); i.hasNext();)
                 {
                     VarDeclarator d = (VarDeclarator) i.next();
@@ -1111,6 +1131,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                                        d.name,
                                        d.init));
                 }
+                if  (comment != null) 
+                    ((Node) l.get(0)).setComment(comment);
                 btParser.setSym1(l);
                 break;
             }
@@ -1256,11 +1278,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 109:  MethodDeclaration ::= MethodHeader MethodBody
+            // Rule 109:  MethodDeclaration ::= Commentopt MethodHeader MethodBody
             //
             case 109: {
-                MethodDecl a = (MethodDecl) btParser.getSym(1);
-                Block b = (Block) btParser.getSym(2);
+                Object comment = comment(btParser.getToken(1));
+                MethodDecl a = (MethodDecl) btParser.getSym(2);
+                Block b = (Block) btParser.getSym(3);
+                if (comment != null) 
+                  a.setComment(comment.toString());
                 btParser.setSym1(a.body(b));
                 break;
             }
@@ -1760,15 +1785,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 break;
  
             //
-            // Rule 165:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier ExtendsInterfacesopt InterfaceBody
+            // Rule 165:  NormalInterfaceDeclaration ::= Commentopt InterfaceModifiersopt interface identifier ExtendsInterfacesopt InterfaceBody
             //
             case 165: {
-                Flags a = (Flags) btParser.getSym(1);
-                polyglot.lex.Identifier b = id(btParser.getToken(3));
+                String comment = comment(btParser.getToken(1));
+                Flags a = (Flags) btParser.getSym(2);
+                polyglot.lex.Identifier b = id(btParser.getToken(4));
 //vj                    assert(btParser.getSym(4) == null);
-                List c = (List) btParser.getSym(4);
-                ClassBody d = (ClassBody) btParser.getSym(5);
-                btParser.setSym1(nf.ClassDecl(pos(), a.Interface(), b.getIdentifier(), null, c, d));
+                List c = (List) btParser.getSym(5);
+                ClassBody d = (ClassBody) btParser.getSym(6);
+                Node n = nf.ClassDecl(pos(), a.Interface(), b.getIdentifier(), 
+                                      null, c, d);
+                if (comment != null) n.setComment( comment );
+                btParser.setSym1(n);
                 break;
             }
      
@@ -4798,7 +4827,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode a = (TypeNode) btParser.getSym(2);
                 ArrayInit d = (ArrayInit) btParser.getSym(5);
                 // btParser.setSym1(nf.ArrayConstructor(pos(), a, false, null, d));
-                btParser.setSym1(nf.NewArray(pos(), a, 0, d));
+                btParser.setSym1(nf.NewArray(pos(), a, 1, d));
                 break;
             }
      
