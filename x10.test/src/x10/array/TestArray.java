@@ -15,7 +15,7 @@ import x10.runtime.ThreadRegistry;
 /**
  * @author Christoph von Praun
  */
-public class TestIntArray extends TestCase {
+public class TestArray extends TestCase {
     
     private final Activity a
     = new Activity() { public void run() {} }; // dummy
@@ -66,8 +66,8 @@ public class TestIntArray extends TestCase {
             int[][] a1 = (int[][]) ((IntArray) value).toJava();
             int[][] a2 = new int[][] { { 12, 12, 12 }, { 12, 12, 12 },
                     { 12, 12, 12 } };
-            printArray_("a1 = ", a1);
-            printArray_("a2 = ", a2);
+            IntArray.printArray("a1 = ", a1);
+            IntArray.printArray("a2 = ", a2);
             assertTrue(equalArrays_(a1, a2));
         } catch (Exception e) {
             System.err.println("Exception" + e);
@@ -75,23 +75,7 @@ public class TestIntArray extends TestCase {
             throw new RuntimeException(e);
         }
     }
-    
-    private static void printArray_(String prefix, int[][] a) {
-        System.out.print(prefix + "{");
-        for (int i = 0; i < a.length; ++i) {
-            System.out.print("{");
-            for (int j = 0; j < a[i].length; ++ j) {
-                System.out.print(a[i][j]);
-                if (j < a[i].length - 1)
-                    System.out.print(", ");
-            }
-            System.out.print("}");
-            if (i < a.length - 1)
-                System.out.print(", ");
-        }
-        System.out.println("}");
-    }
-    
+       
     private static boolean equalArrays_(int[][] a1, int[][] a2) {
         boolean ret = true;
         ret &= a1.length == a2.length;
