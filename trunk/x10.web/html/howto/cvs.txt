@@ -1,4 +1,4 @@
-HOWTO: Access the CVS repository form the command line:
+HOWTO: Access the CVS repository from the command line:
 -------------------------------------------------------
 
 What you need:
@@ -16,9 +16,4 @@ Procedure:
    CVSUMASK=770
 
 - cvs checkout x10
-
-
-
-
-
 
