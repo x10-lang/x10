@@ -13,6 +13,7 @@ import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
 import x10.runtime.ThreadRegistry;
 import junit.framework.TestCase;
+import java.util.Iterator;
 
 /**
  * @author Christian Grothoff, Christoph von Praun
@@ -51,6 +52,18 @@ public class TestRegion extends TestCase {
             ThreadRegistry tr = (ThreadRegistry) r;
             tr.registerActivityStop(t, a);
         }
+    }
+    
+    public void testRegion_iterator1() {
+        Range[] ranges = new Range[] { new ContiguousRange(1,3), new ContiguousRange(2, 4) }; // 6x4         
+        Region_c reg = new Region_c(ranges);
+        
+        int cnt = 0;
+        for (Iterator it = reg.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            System.out.println(p);
+        }
+        assertTrue(cnt == 9);
     }
     
     public void testRegion_sub() {
