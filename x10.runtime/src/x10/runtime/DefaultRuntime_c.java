@@ -25,7 +25,7 @@ import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
 import x10.lang.IntReferenceArray;
-import x10.lang.intValueArray;
+import x10.lang.intArray;
 import x10.lang.DoubleReferenceArray;
 import x10.lang.doubleArray;
 import x10.lang.doubleValueArray;
@@ -255,11 +255,11 @@ public class DefaultRuntime_c
     				public IntReferenceArray IntReferenceArray(distribution d, IntArray.pointwiseOp f) {
     					return new IntArray_c( d, f, true);
     				}
-    				public intValueArray intValueArray(distribution d, int c) {
-    					throw new Error("TODO");
+    				public intArray intValueArray(distribution d, int c) {
+    					return new IntArray_c(d, c, true, false);
     				}
-    				public intValueArray intValueArray(distribution d, IntArray.pointwiseOp f) {
-    					throw new Error("TODO");
+    				public intArray intValueArray(distribution d, IntArray.pointwiseOp f) {
+    					return new IntArray_c(d, f, true, false);
     				}
     			};
     		}

@@ -36,14 +36,15 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	}
 	
 	abstract public static /*value*/ class factory {
-		//TBD::: To be uncommented when intValueArrays are implemented.
+		
 		/** Return the unique int value array initialized with 0 
 		 * and defined over the distribution 0..k-1 -> here.
-		 * 
+		 * vj: Note that in this implementation, returns intArray rather than
+		 * intValueArray.
 		 * @param k
 		 * @return
 		 */
-		public intValueArray intValueArray( /*nat*/ int k) {
+		public intArray intValueArray( /*nat*/ int k) {
 			return intValueArray(k, 0);
 		}
 		/** Return the unique int value array initialized with initVal 
@@ -52,7 +53,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		 * @param k
 		 * @return
 		 */
-		public intValueArray/*(:rank=1)*/  intValueArray(/*nat*/ int k, int initVal) { 
+		public intArray/*(:rank=1)*/  intValueArray(/*nat*/ int k, int initVal) { 
 			return intValueArray(x10.lang.distribution.factory.here(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
@@ -61,14 +62,14 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		 * @param k
 		 * @return
 		 */
-		public intValueArray/*(:rank=1)*/ intValueArray(/*nat*/ int k, pointwiseOp init) {
+		public intArray/*(:rank=1)*/ intValueArray(/*nat*/ int k, pointwiseOp init) {
 			return intValueArray( x10.lang.distribution.factory.here(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ intValueArray/*(D)*/ intValueArray(distribution D, int init);
+		/*(distribution D)*/ intArray/*(D)*/ intValueArray(distribution D, int init);
 		abstract public 
-		/*(distribution D)*/ intValueArray/*(D)*/ intValueArray(distribution D, pointwiseOp/*(D.region)*/ init);
+		/*(distribution D)*/ intArray/*(D)*/ intValueArray(distribution D, pointwiseOp/*(D.region)*/ init);
 		
 		
 		/** Return the unique int value array initialized with 0 

@@ -27,6 +27,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 
     private boolean safe_;
     private final MemoryBlock arr_;
+    protected boolean mutable = true;
     
     public void keepItLive() {}
     
@@ -50,10 +51,14 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * @param safe
      */
     public IntArray_c( distribution d, int c) {
-	this(d, c, true);
+	this(d, c, true, true);
     }
-    public IntArray_c( distribution d, int c, boolean safe) {
+    public IntArray_c( distribution d, int c, boolean mutable ) {
+    	this( d, c, true, mutable);
+    }
+    public IntArray_c( distribution d, int c, boolean safe, boolean mutable) {
     	super(d);
+    	this.mutable = mutable;
     	int count = d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) 
     			: Allocator.allocUnsafe(count, Allocator.SIZE_INT);
@@ -61,10 +66,14 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	
     }
     public IntArray_c( distribution d, IntArray.pointwiseOp f){
-	this(d, f, true);
+	this(d, f, true, true);
     }
-    public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean safe) {
+    public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean mutable ){
+    	this(d, f, true, mutable);
+        }
+    public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
+    	this.mutable = mutable;
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE)
     			: Allocator.allocUnsafe(count, Allocator.SIZE_INT);
