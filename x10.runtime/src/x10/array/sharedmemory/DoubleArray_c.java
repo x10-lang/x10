@@ -14,6 +14,7 @@ import x10.array.Operator;
  */
 public class DoubleArray_c extends DoubleArray {
 
+    private boolean safe_;
     private final double[] arr_;
     
     /**
@@ -21,14 +22,14 @@ public class DoubleArray_c extends DoubleArray {
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    public DoubleArray_c(Distribution_c d) {
+    public DoubleArray_c(Distribution_c d, boolean safe) {
         super(d);
-        this.arr_ = new double[d.size()];
+        this.arr_ = new double[d.count()];
     }
     
-    public DoubleArray_c(Distribution_c d, double c) {
+    public DoubleArray_c(Distribution_c d, double c, boolean safe) {
         super(d);
-        int size = d.size();
+        int size = d.count();
         double[] arr = new double[size];
         for (int i =0; i < size; ++i)
         	arr[i] = c;
@@ -57,7 +58,7 @@ public class DoubleArray_c extends DoubleArray {
 	protected Array newInstance(Distribution d) {
 		assert d instanceof Distribution_c;
 		
-		return new DoubleArray_c((Distribution_c) d);	
+		return new DoubleArray_c((Distribution_c) d, safe_);	
 	}
 	
     /* (non-Javadoc)
