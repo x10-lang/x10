@@ -68,20 +68,20 @@ import x10.runtime.Place;
  * @author vj Jan 11, 2005
  * 
  */
-public class TestX10 extends TestCase {
+public class TestX10_Compiler extends TestCase {
 
 	/**
 	 * 
 	 */
-	public TestX10() {
+	public TestX10_Compiler() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 	/**
-     * Constructor for TestX10PrettyPrinterVisitor.
+     * Constructor for TestX10_CompilerPrettyPrinterVisitor.
      * @param name
      */
-	public TestX10(String name ) {
+	public TestX10_Compiler(String name ) {
 		super( name );
 	}
 
