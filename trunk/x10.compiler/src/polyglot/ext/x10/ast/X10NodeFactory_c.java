@@ -344,4 +344,9 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         n = (Formal)n.del(delFactory().delFormal());
         return n;
     }
+    public ParExpr ParExpr( Position pos, Expr expr) {
+		ParExpr n = new ParExpr_c( pos, expr);
+		n = (ParExpr) n.ext(extFactory().extExpr());
+		return (ParExpr) n.del(delFactory().delExpr());
+	}
 }
