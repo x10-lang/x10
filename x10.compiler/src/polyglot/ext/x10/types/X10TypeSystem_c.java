@@ -23,53 +23,17 @@ import polyglot.util.Position;
 /**
  * A TypeSystem implementation for X10.
  * 
- * @author Christian Grothoff, Christoph von Praun
+ * @author Christian Grothoff
+ * @author Christoph von Praun
+ * @author vj
  *
- * TODO Various methods need to be updated for futures; in particular we will
- * probably need to make a 'force()' method be the only thing visible for objects
- * of type 'future'.
+ *
  */
 public class X10TypeSystem_c 
     extends TypeSystem_c 
     implements X10TypeSystem {
  
-	
-	/******************** Futures and Asyncs ******************/
-	
-    /**
-     * Extends Java's type system with Futures, that is, a future
-     * must not be cased to a non-future and vice-versa. 
-     */
-    public boolean isCastValid(Type fromType, Type toType) {
-        if (fromType instanceof X10ReferenceType) {
-            X10ReferenceType ft = (X10ReferenceType) fromType;
-            if (toType instanceof X10ReferenceType) {
-                X10ReferenceType tt = (X10ReferenceType) toType;
-                if (ft.isFuture() != tt.isFuture())
-                    return false;
-            }
-        } else if (toType instanceof X10ReferenceType) {
-            X10ReferenceType tt = (X10ReferenceType) toType;
-            if (tt.isFuture())
-                return false;
-        }
-        return super.isCastValid(fromType, toType);
-    }
-    
-    /**
-     * Returns true iff child and ancestor are distinct
-     * reference types, and child descends from ancestor.
-     **/
-    public boolean descendsFrom(Type child, Type ancestor) {
-           // FIXME: futures!
-        return super.descendsFrom(child, ancestor);
-    }
-
-    public boolean isImplicitCastValid(Type fromType, Type toType) {
-        // FIXME: futures!
-        return super.isImplicitCastValid(fromType, toType);
-    }
-
+		
     /**
      * Factory method for ArrayTypes.
      */
@@ -78,25 +42,7 @@ public class X10TypeSystem_c
         return new ArrayType_c(this, pos, type);
     }
 
-    public ParsedClassType createClassType(int flags) {
-        return new X10ParsedClassType_c(this, defaultClassInitializer(), null, flags);
-    }
-
-    public ParsedClassType createClassType(LazyClassInitializer init, Source fromSource) {
-        return new X10ParsedClassType_c(this, init, fromSource, 0);
-    }
-
-    public final ParsedClassType createClassType(Source fromSource,
-                                                 int flags) {
-        return createClassType(defaultClassInitializer(), fromSource, flags);
-    }
-
-    public ParsedClassType createClassType(LazyClassInitializer init, 
-                                           Source fromSource,
-                                           int flags) {
-        return new X10ParsedClassType_c(this, init, fromSource, flags);
-    }
-    
+       
     public ParsedClassType getRuntimeType() {
         return (ParsedClassType) forcefulLookup("x10.lang.Runtime");
     }

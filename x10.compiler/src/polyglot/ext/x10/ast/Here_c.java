@@ -10,7 +10,11 @@ import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.util.Position;
+import polyglot.util.CodeWriter;
+import polyglot.visit.PrettyPrinter;
+
 import polyglot.visit.CFGBuilder;
+
 
 /**
  *
@@ -39,11 +43,19 @@ public class Here_c extends Expr_c
         return succs;
     }
     
+    public String toString() {
+    	return "here";
+    }
     /* (non-Javadoc)
      * @see polyglot.ext.x10.ast.TranslateWhenDumpedNode#getArgument(int)
      */
     public Node getArgument(int id) {
         assert (false);
         return null;
+    }
+    
+    /** Write the statement to an output file. */
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+    	w.write(" here ");
     }
 }
