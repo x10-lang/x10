@@ -197,7 +197,7 @@ implements X10TypeSystem {
 		if (type.isDouble())
 			return doubleArray(  distribution );
 		if (type.isLong())
-			return longeArray(  distribution );
+			return longArray(  distribution );
 		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
 	}
 	
@@ -326,11 +326,9 @@ implements X10TypeSystem {
 	}
 	
 	protected ClassType doubleValueArrayType_;
+	// see the todo for intValueArray.
 	public ClassType doubleValueArray( Expr distribution ) {
-		if ( doubleValueArrayType_ == null)
-			doubleValueArrayType_ = load("x10.lang.doubleValueArray"); // java file
-       //  return doubleReferenceArrayType_.setParameter( "distribution", distribution );
-		return doubleValueArrayType_;
+			return doubleArray( distribution );
 	}
 	
 	public ClassType DoubleReferenceArray( ) {

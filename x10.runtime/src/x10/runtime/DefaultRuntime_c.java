@@ -295,11 +295,11 @@ public class DefaultRuntime_c
     				public DoubleReferenceArray DoubleReferenceArray(distribution d, doubleArray.pointwiseOp f) {
     					return new DoubleArray_c( d, f, true);
     				}
-    				public doubleValueArray doubleValueArray(distribution d, double c) {
-    					throw new Error("TODO");
+    				public doubleArray doubleValueArray(distribution d, double c) {
+    					return new DoubleArray_c(d, c, true, false);
     				}
-    				public doubleValueArray doubleValueArray(distribution d, doubleArray.pointwiseOp f) {
-    					throw new Error("TODO");
+    				public doubleArray doubleValueArray(distribution d, doubleArray.pointwiseOp f) {
+    					return new DoubleArray_c(d, f, true, false);
     				}
     			};
     			
