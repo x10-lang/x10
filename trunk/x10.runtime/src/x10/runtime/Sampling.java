@@ -202,7 +202,7 @@ public final class Sampling extends Thread {
     }
     
     private void writeHeader(int size, int type, int id) {
-        //System.err.println("WH(" + size + "," +  type + "," + id + ")");
+        // System.err.println("WH(" + size + "," +  type + "," + id + ")");
                
         if (size + 8 + 16 >= 8 * 8 * 8)
             throw new Error("XML Event too large, fix PE trace format!");

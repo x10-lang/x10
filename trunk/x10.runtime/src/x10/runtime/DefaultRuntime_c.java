@@ -3,34 +3,34 @@ package x10.runtime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.WeakHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.WeakHashMap;
 
 import x10.array.DoubleArray;
 import x10.array.IntArray;
-
 import x10.array.point_c;
-import x10.array.sharedmemory.RegionFactory;
 import x10.array.sharedmemory.DistributionFactory;
-import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.DoubleArray_c;
+import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.LongArray_c;
-
+import x10.array.sharedmemory.RegionFactory;
 import x10.lang.Activity;
+import x10.lang.DoubleReferenceArray;
+import x10.lang.Future;
+import x10.lang.IntReferenceArray;
+import x10.lang.LongReferenceArray;
 import x10.lang.Object;
 import x10.lang.Runtime;
 import x10.lang.clock;
 import x10.lang.distribution;
+import x10.lang.doubleArray;
+import x10.lang.intArray;
+import x10.lang.longArray;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
-import x10.lang.IntReferenceArray;
-import x10.lang.intArray;
-import x10.lang.DoubleReferenceArray;
-import x10.lang.doubleArray;
-import x10.lang.LongReferenceArray;
-import x10.lang.longArray;
 
 
 /**
@@ -51,29 +51,28 @@ public class DefaultRuntime_c
      * to reduce the number of threads by just letting one exit, and
      * we would in that case not want to hold on to the memory.
      */
-    private final WeakHashMap thread2place_ = new WeakHashMap(); // <Thread,Place>
+    private final Map thread2place_ = new WeakHashMap(); // <Thread,Place>
 
     /**
      * Which activity is the current thread executing?  This one does
      * not have to be a weak hash map since threads are explicitly 
      * removed from the map once they complete a particular activity.
      */
-    private final HashMap thread2activity_ = new HashMap(); // <Thread,Activity>
+    private final Map thread2activity_ = new HashMap(); // <Thread,Activity>
     
     /**
      * What listeners are registered for termination/spawning events
      * for the given activity?  
      */
-    private final HashMap activity2asl_ = new HashMap(); // <Activity,Vector<ActivitySpawnListener>>
+    private final Map activity2asl_ = new HashMap(); // <Activity,Vector<ActivitySpawnListener>>
     
     /**
      * The places of this X10 Runtime (for now a constant set).
      */
-    private  Place[] places_;
+    private Place[] places_;
     private Thread bootThread;
     
     public DefaultRuntime_c() {
-    	
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
      	this.places_ = new Place[pc];
 
@@ -81,11 +80,9 @@ public class DefaultRuntime_c
     protected void initialize() {
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
     	x10.lang.place.MAX_PLACES = pc;
-    
     	
     	for (int i=pc-1;i>=0;i--)
     		places_[i] = new LocalPlace_c(this, this);
-    
     }
 
     /**
@@ -114,16 +111,19 @@ public class DefaultRuntime_c
         }
         final Activity appMain = atmp;
         // ok, some magic with the boot-thread here...
-        //Place p0 = (Place) p[0];
         Place p0 = (Place) place.FIRST_PLACE;
         bootThread = Thread.currentThread();
         registerThread(bootThread, p0);
+        final Signal signal = new Signal();
         Activity.Expr boot = new Activity.Expr() {
             public void run() {
                 // initialize X10 runtime system
                 if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
                     Sampling.boot();
-
+                synchronized(signal) {
+                    signal.value = true;
+                    signal.notifyAll();
+                }
                 // now run the actual client app (wrapped in this
                 // Activity.Expr since we want to use a Clock to 
                 // wait for the main app to exit, but we can't use
@@ -138,7 +138,18 @@ public class DefaultRuntime_c
         };        
         
         // run the main app
-        p0.runFuture(boot).force(); // use force to wait for termination!
+        Future f = p0.runFuture(boot);
+        // make sure we don't accidentially initialize Sampling by
+        // being too fast with 'force'.
+        while (signal.value == false) {
+            try {
+                synchronized(signal) {
+                    signal.wait();
+                }
+            } catch (InterruptedException ie) {            
+            }
+        }
+        f.force(); // use force to wait for termination!
         
         // and now the shutdown sequence!
         for (int i=places_.length-1;i>=0;i--)
@@ -197,8 +208,8 @@ public class DefaultRuntime_c
                                                    Activity i) {
         assert a != i;
         thread2activity_.put(t,a);
-        if (i == null)
-            return;
+        if (i == null) 
+            return;        
         ArrayList v = (ArrayList) activity2asl_.get(i);
         if (v == null) 
             return;
@@ -369,4 +380,6 @@ public class DefaultRuntime_c
         return null;
     }    
 
+    static class Signal { boolean value; }
+    
 } // end of DefaultRuntime_c
