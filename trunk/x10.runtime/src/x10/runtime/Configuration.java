@@ -178,7 +178,7 @@ public final class Configuration {
                 } // end of 'for each configuration directive'
             } catch (IOException io) {
                 System.err.println("Failed to read configuration file " + cfg + ": " + io);
-                System.exit(-1);
+                throw new Error(io);
             } 
         } // end of 'have configuration file'       
     } // end of static initializer
@@ -216,7 +216,7 @@ public final class Configuration {
             System.err.println("Field " + key + " not found, configuration directive ignored.");
         } catch (IllegalAccessException iae) {
             System.err.println("Wrong permissions for field " + key + ": " + iae);
-            System.exit(-1);                        
+            throw new Error(iae);
         }
     }
 

@@ -146,7 +146,7 @@ public final class Sampling extends Thread {
         } catch (IOException io) {
             System.err.println(io);
             io.printStackTrace();
-            System.exit(-1);
+            throw new Error(io);
         }
         Field[] fields = this.getClass().getFields();
         int maxEE = 0;
