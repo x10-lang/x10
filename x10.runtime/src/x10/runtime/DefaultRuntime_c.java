@@ -319,11 +319,14 @@ public class DefaultRuntime_c
         Activity a = (Activity) thread2activity_.get(Thread.currentThread());
         if (a == null) {
             if (Thread.currentThread() == bootThread)
-                return null; // magic 'boot' thread!
+                return magic_boot; // magic 'boot' thread!
             throw new Error("This Thread is not an X10 Thread running X10 code!");
         }
         return a;
     }
+    private static Activity magic_boot = new Activity() {
+           public void run() {};
+    };
 
     /**
      * At which place is the given activity running?  Note that this particular
