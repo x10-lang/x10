@@ -123,13 +123,12 @@ public final class Configuration {
                         System.err.println("Wrong permissions for field " + key + ": " + iae);
                         System.exit(-1);                        
                     }
-                }
-                
+                } // end of 'for each configuration directive'
             } catch (IOException io) {
                 System.err.println("Failed to read configuration file " + cfg + ": " + io);
                 System.exit(-1);
             } 
-        }
-    }
+        } // end of 'have configuration file'       
+    } // end of static initializer
     
 } // end of Configuration
