@@ -331,6 +331,14 @@ public TestCompiler(String name) {
         run("./IntValueArrayInitializerShorthand.x10","IntValueArrayInitializerShorthand");
     }
 
+    public void test_JGFMolDynBenchSizeA() {
+        run("./JGFMolDynBenchSizeA.x10","JGFMolDynBenchSizeA");
+    }
+
+    public void test_JGFMonteCarloBenchSizeA() {
+        run("./JGFMonteCarloBenchSizeA.x10","JGFMonteCarloBenchSizeA");
+    }
+
     public void test_Jacobi() {
         run("./Jacobi.x10","Jacobi");
     }
@@ -383,6 +391,10 @@ public TestCompiler(String name) {
         run("./Nullable5.x10","Nullable5");
     }
 
+    public void test_NullableArray() {
+        run("./NullableArray.x10","NullableArray");
+    }
+
     public void test_NullableFuture0() {
         run("./NullableFuture0.x10","NullableFuture0");
     }
@@ -409,6 +421,10 @@ public TestCompiler(String name) {
 
     public void test_QueensList() {
         run("./QueensList.x10","QueensList");
+    }
+
+    public void test_RandomAccess() {
+        run("./RandomAccess.x10","RandomAccess");
     }
 
     public void test_RandomAccess_int() {
