@@ -8,7 +8,6 @@ import java.util.Iterator;
 import x10.lang.distribution;
 import x10.lang.region;
 import x10.lang.point;
-import x10.array.sharedmemory.Region_c;
 
 
 /**

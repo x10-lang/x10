@@ -52,14 +52,10 @@ public class StridedRange extends Range {
 	 * one dimentional, then this is returned. 
 	 */
 	public region difference(region r) {
-	    region ret;
-	    if (r.rank != 1)
-	        ret = this;
-	    else {
-	        //??
-	        ret = null;
-	    }
-	    return ret;
+	    assert r != null;
+        assert r.rank == rank;
+        
+        return super.difference(r);
 	}
 
 	public boolean contains(point p) {

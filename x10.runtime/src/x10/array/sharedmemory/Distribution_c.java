@@ -12,6 +12,7 @@ import java.util.Iterator;
 import x10.array.Range;
 import x10.array.ContiguousRange;
 import x10.array.ArbitraryRegion;
+import x10.array.Region_c;
 import x10.lang.region;
 import x10.lang.distribution;
 import x10.lang.place;
@@ -169,6 +170,10 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
        return overlay(this, r, d);
    }
    
+   public distribution overlay(distribution d) {
+       return overlay(this, d.region, d);
+   }
+   
    /** Returns a distribution defined on region.union(R): it takes on 
     this.get(p) for all points p in region, and D.get(p) for all
     points in R.difference(region).
@@ -182,16 +187,13 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
        for (Iterator it = reg.iterator(); it.hasNext(); ) {
            point p = (point) it.next();
            place pl;
-           try {
+           if (th.region.contains(p)) {
                pl = th.get(p);
-           } catch (PointOutOfRegionError _) {
-           } finally {
-               pl = null; 
-           }
-           if (pl == null) {
+               assert (pl != null);
+           } else {
                pl = d.get(p);
+               assert (pl != null);
            }
-           assert (pl != null);
            hm.put(p, pl);
        }
        distribution ret = new Arbitrary(reg, hm); 
@@ -300,15 +302,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
             return D;
         }
         
-        /** Returns a distribution defined on region.union(R): it takes on 
-         this.get(p) for all points p in region, and D.get(p) for all
-         points in R.difference(region).
-         */
-        public /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-        overlay( distribution/*(R)*/ D) {
-            assert D.region.rank == this.region.rank;
-            return D;
-        }
+
         
         /** Return true iff the given distribution D, which must be over a
          * region of the same rank as this, is defined over a subset
@@ -411,15 +405,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
                 
         }
 
-        /** Returns a distribution defined on region.union(R): it takes on 
-            this.get(p) for all points p in region, and D.get(p) for all
-            points in R.difference(region).
-         */
-        public /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-            overlay(  distribution/*(R)*/ D) {
-                
-                throw new Error("TODO");
-        }
+
 
 
         /** Return true iff the given distribution D, which must be over a
@@ -486,17 +472,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
             return RF.region(index, index);
         }
 
-         // TODO: vj -> cp. This was removed in the last code u committed.
-         // But overlay is defined in x10.lang.distribution, so needs to be implemented.
-         // I have copied over the default definition from the previous version.
-        /** Returns a distribution defined on region.union(R): it takes on 
-            this.valueAt(p) for all points p in region, and D.valueAt(p) for all
-            points in R.difference(region).
-         */
-        public /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-            overlay(  distribution/*(R)*/ D) {
-                throw new Error("TODO");
-        }
+
 
         public String toString() {
             StringBuffer s = new StringBuffer("Distribution_c.Unique<");
@@ -530,8 +506,10 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         public place get(point p) {
             place ret = null;
             for (int i=0; ret == null && i < members_.length; ++i) {
-                if (members_[i].region.contains(p)) 
+                if (members_[i].region.contains(p)) {
                     ret = members_[i].get(p);
+                    assert ret != null;
+                }
             }
             if (ret == null)
                 throw new PointOutOfRegionError();
@@ -539,26 +517,16 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         }
         
         public place get(int[] p)  {
-        place ret = null;
-        for (int i=0; ret == null && i < members_.length; ++i) {
-                
-            if (members_[i].region.contains(p)) 
-                ret = members_[i].get(p);
- 
-        }
-        assert ret != null;
-        return ret;
+            place ret = null;
+            for (int i=0; ret == null && i < members_.length; ++i) {   
+                if (members_[i].region.contains(p)) 
+                    ret = members_[i].get(p);
+            }
+            assert ret != null;
+            return ret;
         }
         
-        /** Returns a distribution defined on region.union(R): it takes on 
-         this.get(p) for all points p in region, and D.get(p) for all
-         points in R.difference(region).
-         */
-        public /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-		overlay(  distribution/*(R)*/ D) {
-        	
-        	throw new Error("TODO");
-        }
+
 
         public String toString() {
             StringBuffer s = new StringBuffer("CombinedDistribution_c<");
@@ -592,15 +560,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
                 throw new PointOutOfRegionError();
             return ret;
         }
-        /** Returns a distribution defined on region.union(R): it takes on 
-         this.get(p) for all points p in region, and D.get(p) for all
-         points in R.difference(region).
-         */
-        public /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-		overlay(  distribution/*(R)*/ D) {
-        	
-        	throw new Error("TODO");
-        }
+
         
         public String toString() {
             StringBuffer s = new StringBuffer("Distribution_c.Arbitrary<\n");
