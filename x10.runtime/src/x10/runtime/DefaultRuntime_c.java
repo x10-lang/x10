@@ -208,7 +208,8 @@ public class DefaultRuntime_c
      */
     public x10.base.Place[] getPlaces() {
     	// return defensive copy
-    	return (Place[]) places_.clone();
+    	// return (Place[]) places_.clone();
+	return places_;
     }
     
     /**
