@@ -72,6 +72,11 @@ class Region_c implements Region {
 		}
 		return new Region_c(dims);
 	}
+    
+        public Region subOrdinal(int start, int end) {// end exclusive here!
+            throw new Error("not implemented");
+        }
+
 	
 	public Region combine(Region r) {
 		throw new Error("not implemented");

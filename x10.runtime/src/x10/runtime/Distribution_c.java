@@ -19,7 +19,138 @@ import x10.lang.Region;
  */
 abstract class Distribution_c 
     implements Distribution {
-
+    
+    // First: static factory methods for the use by the Runtime implemenation
+    
+    /**
+     * Create a Distribution where the given Region is distributed
+     * into blocks over all available Places.
+     * @param r
+     * @return
+     */
+    static Distribution makeBlock(Region R, Place[] Q) {
+        int N = Q.length;
+        int q = R.size() % N;
+        int p = R.size() / N;
+        Distribution[] dists = new Distribution[N];
+        for (int i=0;i<q;i++) {
+            dists[i] = new Distribution_c.Constant(R.subOrdinal(i*(p+1), (i+1)*(p+1)), 
+                                                   Q[i]);
+        }
+        int base = q * (p+1);
+        for (int i=q;i<N;i++) {
+            int off = (i-q) * p;
+            dists[i] = new Distribution_c.Constant(R.subOrdinal(base+off, base+off+p), 
+                                                   Q[i]);
+        }
+        return new Distribution_c.Combined(R, dists);
+    }
+    
+    /**
+     * Create a Distribution where the given Region is distributed
+     * into blocks over the first N Places.
+     * @param r
+     * @return
+     */
+    static Distribution makeBlock(Region R, int N, Place[] Q) {
+        assert N <= Q.length;
+        int q = R.size() % N;
+        int p = R.size() / N;
+        Distribution[] dists = new Distribution[N];
+        for (int i=0;i<q;i++) {
+            dists[i] = new Distribution_c.Constant(R.subOrdinal(i*(p+1), (i+1)*(p+1)), 
+                                                   Q[i]);
+        }
+        int base = q * (p+1);
+        for (int i=q;i<N;i++) {
+            int off = (i-q) * p;
+            dists[i] = new Distribution_c.Constant(R.subOrdinal(base+off, base+off+p), 
+                                                   Q[i]);
+        }
+        return new Distribution_c.Combined(R, dists);
+    }
+    
+    /**
+     * Create a Distribution where the elements in the region are
+     * distributed over all Places in p in a cyclic manner,
+     * that is the next point in the region is at the next place
+     * for a cyclic ordering of the given places.
+     * @param r
+     * @return
+     */
+    static Distribution makeCyclic(Region R, Place[] Q) {
+        int N = R.size();
+        Distribution[] dists = new Distribution[N];
+        for (int i=0;i<N;i++) {
+            dists[i] = new Distribution_c.Constant(R.subOrdinal(i,i+1), 
+                                                   Q[i % Q.length]);
+        }
+        return new Distribution_c.Combined(R, dists);
+    }
+    
+    /**
+     * Create a Distribution where the elements in the region are
+     * distributed over all Places in p in a cyclic manner,
+     * that is the next point in the region is at the next place
+     * for a cyclic ordering of the given places.
+     * @param r
+     * @return
+     */
+    static Distribution makeBlockCyclic(Region R, int N, Place[] Q) {
+        assert N > 0;
+        int RS = R.size();
+        int p = RS / N;
+        int q = RS % N;
+        if (q != 0)
+            p++;
+        int QL = Q.length;
+        Distribution[] dists = new Distribution[p];
+        for (int i=0;i<p;i++) {
+            int s = i*N;
+            int e = s + N;
+            if (e > RS)
+                e = RS;
+            dists[i] = new Distribution_c.Constant(R.subOrdinal(s, e), 
+                                                   Q[i % QL]);
+        }
+        return new Distribution_c.Combined(R, dists);
+    }
+    
+    /**
+     * Create a Distribution where the points of the Region are
+     * distributed randomly over all available Places.
+     * @param r
+     * @return
+     */
+    static Distribution makeArbitrary(Region r, Place[] p) {
+        return makeBlockCyclic(r, 32, p);
+    }
+    
+    /**
+     * Create a Distribution where all points in the given
+     * Region are mapped to the same Place.
+     * @param r
+     * @param p specifically use the given place for all points
+     * @return
+     */
+    static Distribution makeConstant(Region r, Place p) {
+        return new Distribution_c.Constant(r, p);
+    }
+    
+    /**
+     * Create a Distribution where the points in the
+     * region 1...p.length are mapped to the respective
+     * places.
+     * @param p the list of places (implicitly defines the region)
+     * @return
+     */
+    static Distribution makeUnique(Place[] p) {
+        return new Distribution_c.Unique(p);
+    }
+    
+    
+    // Actual Distribution implementation(s)
+    
     final Region region_;
     
     Distribution_c(Region r) {
@@ -34,6 +165,10 @@ abstract class Distribution_c
     
     public Region sub(Range[] dims) {
         return region_.sub(dims);
+    }
+    
+    public Region subOrdinal(int i, int j) {
+        return region_.subOrdinal(i, j);
     }
     
     public Region combine(Region r) {
@@ -131,6 +266,25 @@ abstract class Distribution_c
             assert point.length == 1;
             assert contains(point);
             return places_[point[0]-1];
+        }
+        
+    } // end of Distribution_c.Unique
+    
+    static class Combined extends Distribution_c {
+        
+        private final Distribution[] members_;
+        
+        Combined(Region r, Distribution[] members_) {
+            super(r);
+            this.members_ = members_;
+        }
+        
+        public Place getPlaceOf(int[] point){
+            for (int i=members_.length-1;i>=0;i--)
+                if (members_[i].contains(point))
+                    return members_[i].getPlaceOf(point);
+            assert false;
+            throw new Error("This should never happen.");
         }
         
     } // end of Distribution_c.Unique
