@@ -52,22 +52,21 @@ public class MultiDimRegion extends region  {
      * @return The new sub-region.
      * TODO: vj -- check the intended logic survived the rework.
      */
-    public MultiDimRegion sub(int partitions, int part) {
-        assert partitions > 0 && part >= 0 && part < partitions;        
-        assert dims[0] instanceof ContiguousRange; 
-        assert ((Range) dims[0]).size % partitions == 0;
-        
+    public region[] partition(int n) {   
+        if (! (dims[0] instanceof ContiguousRange)) 
+            throw new Error("MultiDimRegion::partition can only block those arrays that have contiguos dimension 0.");
+
         ContiguousRange cr = (ContiguousRange) dims[0];
-        int len = cr.size / partitions;
-        int offset = len * part;
-        region[] new_dims = new region[rank];
-        // determine most significant dimension
-        new_dims[0] = new ContiguousRange(cr.lo + offset, cr.lo + offset + len - 1);
-        
-        // initialize other dimensions
-        for (int i = 1; i < rank; ++i) 
-            new_dims[i] = dims[i];
-        return new MultiDimRegion(new_dims);
+        region[] new_first_dims = cr.partition(n);
+        region[] ret = new MultiDimRegion[n];
+        for (int i = 0; i < n; ++i) {
+            region[] new_dims = new region[rank];
+            new_dims[0] = new_first_dims[i];
+            for (int j = 1; j < rank; ++j) 
+                new_dims[j] = dims[j];
+            ret[i] = new MultiDimRegion(new_dims);
+        }
+        return ret;
     }
     
     public region union(region r) {

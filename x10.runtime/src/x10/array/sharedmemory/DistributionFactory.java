@@ -74,34 +74,19 @@ public class DistributionFactory extends distribution.factory {
 
         if (r instanceof MultiDimRegion) {
             MultiDimRegion reg = (MultiDimRegion) r;
-            region first_d = reg.rank(0);
-            if (! (first_d instanceof ContiguousRange)) 
-                throw new Error("DistributionFactory::block can only block those arrays that have contiguos dimension 0.");
-            if (first_d.size() % n != 0) 
-                throw new Error("DistributionFactory::block can't block array with " + first_d.size() + " rows in " + n + " parts.");
-                
+            region sub[] = reg.partition(n);
         	Distribution_c[] dists = new Distribution_c[n];
         	for (int i=0; i < n; i++) 
-        		dists[i] = new Distribution_c.Constant(((MultiDimRegion) r).sub(n, i), (place) q[i]);
-        	ret =  new Distribution_c.Combined((MultiDimRegion) r, dists);
+        		dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
+            ret =  new Distribution_c.Combined((MultiDimRegion) r, dists);
         } else if (r instanceof ContiguousRange){
             ContiguousRange reg = (ContiguousRange) r;
-            if (reg.size() % n != 0) 
-                throw new Error("DistributionFactory::block can't block array with " + reg.size() + " rows in " + n + " parts.");
-                            
+            region[] sub = reg.partition(n); 
             Distribution_c[] dists = new Distribution_c[n];
-            int sub_size = reg.size() / n;
-            int base = reg.low();
-            
-            for (int i=0; i < n; i++) {
-                int lo = base + (i * sub_size);
-                ContiguousRange sub = new ContiguousRange(lo, lo + sub_size - 1);
-                dists[i] = new Distribution_c.Constant(sub, (place) q[i]);
-            }
+            for (int i=0; i < n; i++) 
+                dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
             ret = new Distribution_c.Combined(r, dists);
-            System.out.println("CVP_DEBUG Distribution n=" + n + " input=" + r + " ret=" + ret);
         } else {
-            System.out.println("CVP_DEBUG Distribution n=" + n + " r=" + r);
             throw new Error("DistributionFactory::block not supported for the given shape of distribution.");
         }
         return ret;

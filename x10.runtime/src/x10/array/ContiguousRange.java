@@ -7,6 +7,8 @@ package x10.array;
 
 import java.util.Iterator;
 
+import x10.array.sharedmemory.Distribution_c;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
 import x10.lang.Runtime;
@@ -129,6 +131,30 @@ public class ContiguousRange extends Range {
 	public String toString() {
 		return  lo + ":" + hi ;
 	}
+    
+    public region[] partition(int n) {
+        region[] ret = new region[n];  
+        int all_size = size();
+        int base = low();
+        
+        if (n >= all_size) {
+            int i = 0;
+            for (; i < all_size; i++) {
+                ret [i] = new ContiguousRange(base, base);
+                base++;
+            }
+            for ( ; i < n; i++)
+                ret [i] = new EmptyRegion(1);
+        } else {
+            int sub_size = (all_size % n == 0) ? (all_size / n) : ((all_size + (all_size % n)) / n);
+            for (int i=0; i < n; i++) {
+                int lo = base + (i * sub_size);
+                int hi = (i < n - 1) ? (lo + sub_size - 1) : (base + all_size - 1);
+                ret[i] = new ContiguousRange(lo, hi);
+            }
+        }
+        return ret;
+    }
 	
 	public boolean isConvex() {
 		return true;

@@ -54,7 +54,23 @@ public class TestDistribution_c extends TestCase {
         }
     }
     
-
+    public void testDistribution_block() {
+        boolean assert1, assert2, assert3;
+        region cont = new ContiguousRange(37);
+        distribution d = distribution.factory.block(cont);
+        assert1 = d instanceof Distribution_c.Combined;
+        System.out.println("assert1 = " + assert1);
+        
+        assert2 = d.region.size() == 38;
+        System.out.println("assert2 = " + assert2);
+        
+        System.out.println(d.toString());
+        
+        assert3 = d.toString().equals("CombinedDistribution_c<Distribution_c.Constant<region=|0:18|, place=|place(id=0)|>Distribution_c.Constant<region=|19:37|, place=|place(id=1)|>>");
+        System.out.println("assert3 = " + assert3);
+        
+        assertTrue(assert1 && assert2 && assert3);
+    }
     
     public void testDistribution_difference() {
         // must be a number that can be blocked on the 
