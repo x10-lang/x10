@@ -114,7 +114,9 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     }
 
     public Await Await(Position pos, Expr expr ) {
-    	return new Await_c( pos, expr );
+        Await n = new Await_c( pos, expr );
+        n = (Await) n.ext(extFactory().extStmt());
+        return (Await) n.del(delFactory().delStmt());
     }
     public ArrayAccess ArrayAccess( Position pos, Expr array, Expr index ) {
     	return new X10ArrayAccess_c( pos, array, index );
