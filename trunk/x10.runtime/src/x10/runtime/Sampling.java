@@ -38,9 +38,9 @@ public final class Sampling extends Thread {
      * Activate sampling.  Called by the Runtime during the
      * initialization process.
      */
-    static synchronized void boot(Runtime rt) { 
+    static synchronized void boot(Runtime rt, Activity boot) { 
         assert (SINGLETON == null);
-        SINGLETON = new Sampling(rt);
+        SINGLETON = new Sampling(rt, boot);
     }
 
     /**
@@ -121,7 +121,7 @@ public final class Sampling extends Thread {
     /**
      * Create the sampler.
      */
-    private Sampling(Runtime rt) {
+    private Sampling(Runtime rt, Activity boot) {
         // avoid cyclic initialization dependency
         // DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime.runtime;
         this.places  = rt.getPlaces();
@@ -158,14 +158,14 @@ public final class Sampling extends Thread {
             try {
                 Object coll = c.newInstance();
                 if (coll instanceof Sampler) {
-                    Sampler s = (Sampler) coll;                
+                    Sampler s = (Sampler) coll;
                     if (s.isActive())
                         install(s);
                 }
                 if (coll instanceof Collector) {
                     Collector s = (Collector) coll;                
                     if (s.isActive())
-                        s.activate();
+                        s.activate((DefaultRuntime_c)rt, boot);
                 }
             } catch (ClassCastException cce) {
                 /* ok, not a Sampler */
@@ -490,7 +490,8 @@ public final class Sampling extends Thread {
      */
     public static abstract class Collector {
         protected Collector() {            
-        }        
+        }
+        
         /**
          * Is this plugin active?  Checks with the configuration if this
          * plugin was disabled by the user.
@@ -509,7 +510,7 @@ public final class Sampling extends Thread {
          * @return an Object of which the toString() method prints useful data about 
          *  the system, or null if not available
          */
-        public abstract void activate();
+        public abstract void activate(DefaultRuntime_c rt, Activity  boot);
         
     } // end of Sampling.Collector
 
@@ -520,9 +521,9 @@ public final class Sampling extends Thread {
      * @author Christian Grothoff
      */
     public static class ActivityCounter extends Collector {
-        public void activate() {
-            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime.runtime;
-            dr.registerActivitySpawnListener(dr.getCurrentActivity(),
+        public void activate(final DefaultRuntime_c dr,
+                Activity  boot) {
+            dr.registerActivitySpawnListener(boot,
                                              new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,
                                                 Activity i) {
@@ -558,9 +559,9 @@ public final class Sampling extends Thread {
      * @author Christian Grothoff
      */
     public static class InterPlaceCommunicationCounter extends Collector {
-        public void activate() {
-            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime.runtime;
-            dr.registerActivitySpawnListener(dr.getCurrentActivity(),
+        public void activate(final DefaultRuntime_c dr,
+                Activity  boot) {
+            dr.registerActivitySpawnListener(boot,
                                              new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,
                                                 Activity i) {

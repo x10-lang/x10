@@ -140,9 +140,6 @@ public class DefaultRuntime_c
                 return "DefaultRuntime_c boot activity";
             }
             public void run() {
-                // initialize X10 runtime system
-                if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
-                    Sampling.boot(DefaultRuntime_c.this);
                 
                 synchronized(signal) {
                     signal.value = true;
@@ -165,6 +162,10 @@ public class DefaultRuntime_c
                 return null;
             }
         };
+        // initialize X10 runtime system
+        if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
+            Sampling.boot(DefaultRuntime_c.this, boot);
+
         // run the main app
         Future f = p0.runFuture(boot);
         // make sure we don't accidentially initialize Sampling by
