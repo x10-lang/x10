@@ -187,6 +187,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @see x10.lang.DoubleArray#set(int, int[])
      */
     public double set(double v, point pos) {
+        distribution.checkAccess(pos);
         return arr_.setDouble(v, (int) distribution.region.ordinal(pos));
     }
     
@@ -224,6 +225,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @see x10.lang.DoubleArray#get(int[])
      */
     public double get(point pos) {
+        distribution.checkAccess(pos);
         return arr_.getDouble((int) distribution.region.ordinal(pos));
     }
     
