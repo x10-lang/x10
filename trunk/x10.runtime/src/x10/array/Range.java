@@ -49,7 +49,7 @@ implements TypeArgument {
 	/**
 	 * Returns itself -- this is the 1-d region at index (i % 1) = 0.
 	 */
-	public region rank(long i) {
+	public region rank(int i) {
 		return this;
 	}
 	

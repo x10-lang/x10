@@ -25,12 +25,12 @@ public class StridedRange extends Range {
 		this.stride = stride;
 	}
 	
-	public point coord(/*nat*/long ord) {
+	public point coord(/*nat*/int ord) {
 	    assert ord < size;
 	    throw new Error("TODO");
 	}
 	
-	public /*nat*/long ordinal(point p) {
+	public /*nat*/int ordinal(point p) {
         throw new Error("TODO");
     }
 	
@@ -93,7 +93,7 @@ public class StridedRange extends Range {
 	public boolean disjoint( region r) {
 		throw new Error("TODO");
 	}
-	public /*nat*/long size() {
+	public /*nat*/int size() {
 		throw new Error("TODO");
 	}
 	public boolean contains( region r) {

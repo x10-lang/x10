@@ -18,7 +18,7 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 	 * distribution(dimension=k) is the type of all k-dimensional
 	 * distributions.
 	 */
-	/*parameter*/ public final /*nat*/ long rank;
+	/*parameter*/ public final /*nat*/ int rank;
 	
 	/** places is the range of the distribution. Guranteed that if a
 	 * place P is in this set then for some point p in region,
@@ -85,7 +85,7 @@ abstract public /*value*/ class distribution/*( region region )*/ extends Object
 		 * place.MAX_PLACES places. Exception thrown if blockSize < 1.
 		 */
 		abstract public  
-		/*(region R)*/ distribution/*(R)*/ blockCyclic( region R, /*nat*/long blockSize) 
+		/*(region R)*/ distribution/*(R)*/ blockCyclic( region R, /*nat*/int blockSize) 
 		throws MalformedError;
 		
 		/** Returns a distribution which assigns a random place in the

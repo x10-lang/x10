@@ -22,21 +22,21 @@ public class EmptyRegion extends region {
 	/**
 	 * @param rank
 	 */
-	public EmptyRegion(long rank) {
+	public EmptyRegion(/*long*/ int rank) {
 		super(rank);
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.lang.region#size()
 	 */
-	public long size() {
+	public int size() {
 		return 0;
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.lang.region#rank(long)
 	 */
-	public region rank(long index) {
+	public region rank(int index) {
 		return new EmptyRegion(1);
 	}
 
@@ -119,14 +119,14 @@ public class EmptyRegion extends region {
 	/* (non-Javadoc)
 	 * @see x10.lang.region#ordinal(x10.lang.point)
 	 */
-	public long ordinal(point p) throws EmptyRegionError {
+	public int ordinal(point p) throws EmptyRegionError {
 		throw new EmptyRegionError();
 	}
 
 	/* (non-Javadoc)
-	 * @see x10.lang.region#coord(long)
+	 * @see x10.lang.region#coord(int)
 	 */
-	public point coord(long ord) throws PointOutOfRegionError {
+	public point coord(int ord) throws PointOutOfRegionError {
 		throw new PointOutOfRegionError();
 	}
 
