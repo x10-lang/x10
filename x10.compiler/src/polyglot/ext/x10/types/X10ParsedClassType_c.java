@@ -15,18 +15,18 @@ import polyglot.types.TypeSystem;
  * 
  * @author Christian Grothoff
  */
-public class ParsedX10ClassType_c 
+public class X10ParsedClassType_c 
     extends ParsedClassType_c 
     implements X10ReferenceType {
     
     private final int flags_;
     
-    protected ParsedX10ClassType_c(int flags) {
+    protected X10ParsedClassType_c(int flags) {
         super();
         this.flags_ = flags;
     }
 
-    public ParsedX10ClassType_c(TypeSystem ts, 
+    public X10ParsedClassType_c(TypeSystem ts, 
                                 LazyClassInitializer init, 
                                 Source fromSource,
                                 int flags) {

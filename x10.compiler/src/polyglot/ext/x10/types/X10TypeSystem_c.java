@@ -1,11 +1,20 @@
 package polyglot.ext.x10.types;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import polyglot.ext.jl.types.ArrayType_c;
 import polyglot.ext.jl.types.TypeSystem_c;
+import polyglot.ext.pao.types.PaoPrimitiveType_c;
 import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
+import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.LazyClassInitializer;
+import polyglot.types.MethodInstance;
 import polyglot.types.ParsedClassType;
+import polyglot.types.PrimitiveType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
@@ -24,7 +33,9 @@ public class X10TypeSystem_c
     extends TypeSystem_c 
     implements X10TypeSystem {
  
-
+	
+	/******************** Futures and Asyncs ******************/
+	
     /**
      * Extends Java's type system with Futures, that is, a future
      * must not be cased to a non-future and vice-versa. 
@@ -68,11 +79,11 @@ public class X10TypeSystem_c
     }
 
     public ParsedClassType createClassType(int flags) {
-        return new ParsedX10ClassType_c(this, defaultClassInitializer(), null, flags);
+        return new X10ParsedClassType_c(this, defaultClassInitializer(), null, flags);
     }
 
     public ParsedClassType createClassType(LazyClassInitializer init, Source fromSource) {
-        return new ParsedX10ClassType_c(this, init, fromSource, 0);
+        return new X10ParsedClassType_c(this, init, fromSource, 0);
     }
 
     public final ParsedClassType createClassType(Source fromSource,
@@ -83,9 +94,8 @@ public class X10TypeSystem_c
     public ParsedClassType createClassType(LazyClassInitializer init, 
                                            Source fromSource,
                                            int flags) {
-        return new ParsedX10ClassType_c(this, init, fromSource, flags);
+        return new X10ParsedClassType_c(this, init, fromSource, flags);
     }
-
     
     public ParsedClassType getRuntimeType() {
         return (ParsedClassType) forcefulLookup("x10.lang.Runtime");
@@ -122,6 +132,80 @@ public class X10TypeSystem_c
             throw new InternalCompilerError("While looking up "+name,
                                             e);
         }
+    }
+    
+    /******************** Primitive types as Objects ******************/
+    
+    private static final String WRAPPER_PACKAGE = "polyglot.ext.x10.runtime";
+    
+    public PrimitiveType createPrimitive(PrimitiveType.Kind kind) {
+        return new X10PrimitiveType_c(this, kind);
+    }
+
+    public MethodInstance primitiveEquals() {
+        String name = WRAPPER_PACKAGE + ".Primitive";
+
+        try {
+            Type ct = (Type) systemResolver().find(name);
+
+            List args = new LinkedList();
+            args.add(Object());
+            args.add(Object());
+
+            for (Iterator i = ct.toClass().methods("equals", args).iterator();
+                 i.hasNext(); ) {
+
+                MethodInstance mi = (MethodInstance) i.next();
+                return mi;
+            }
+        }
+        catch (SemanticException e) {
+            throw new InternalCompilerError(e.getMessage());
+        }
+
+        throw new InternalCompilerError("Could not find equals method.");
+    }
+
+    public MethodInstance getter(PrimitiveType t) {
+        String methodName = t.toString() + "Value";
+        ConstructorInstance ci = wrapper(t);
+
+        for (Iterator i = ci.container().methods().iterator();
+              i.hasNext(); ) {
+            MethodInstance mi = (MethodInstance) i.next();
+            if (mi.name().equals(methodName) && mi.formalTypes().isEmpty()) {
+                return mi;
+            }
+        }
+
+        throw new InternalCompilerError("Could not find getter for " + t);
+    }
+
+    public Type boxedType(PrimitiveType t) {
+        return wrapper(t).container();
+    }
+
+    public ConstructorInstance wrapper(PrimitiveType t) {
+        String name = WRAPPER_PACKAGE + "." + wrapperTypeString(t).substring("java.lang.".length());
+
+        try {
+            ClassType ct = ((Type) systemResolver().find(name)).toClass();
+
+            for (Iterator i = ct.constructors().iterator(); i.hasNext(); ) {
+                ConstructorInstance ci = (ConstructorInstance) i.next();
+                if (ci.formalTypes().size() == 1) {
+                    Type argType = (Type) ci.formalTypes().get(0);
+                    if (equals(argType, t)) {
+                        return ci;
+                    }
+                }
+            }
+        }
+        catch (SemanticException e) {
+            throw new InternalCompilerError(e.getMessage());
+        }
+
+        throw new InternalCompilerError("Could not find constructor for " + t);
     }
     
     
