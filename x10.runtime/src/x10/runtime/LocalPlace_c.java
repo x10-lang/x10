@@ -130,13 +130,9 @@ public class LocalPlace_c extends Place {
                         startSignal.go = true;
                         startSignal.notifyAll();
                     }
-                    try {
-                        a.run();
-                    } finally {
-                        reg_.registerActivityStop(t, a);
-                    }
+                    a.run();
                 }
-            });
+            }, a);
         // we now need to wait at least (!) until the 
         // "reg_.registerActivityStart(...)" line has been
         // reached.  Hence we wait on the start signal.
@@ -163,14 +159,10 @@ public class LocalPlace_c extends Place {
                 public void run() {
                     Thread t = Thread.currentThread();
                     reg_.registerActivityStart(t, a, i);
-                    try {
-                        a.run();                    
-                        result.setResult(a.getResult());
-                    } finally {
-                        reg_.registerActivityStop(t, a);
-                    }
+                    a.run();                    
+                    result.setResult(a.getResult());
                 }
-            });
+            }, a);
         return result;
     }
 
@@ -182,7 +174,7 @@ public class LocalPlace_c extends Place {
      * @param r the activity to run
      * @throws InterruptedException
      */
-    protected synchronized void execute(Runnable r) {
+    protected synchronized void execute(Runnable r, Activity act) {
         PoolRunner t;
         if (threadQueue_ == null) {
             t = new PoolRunner();
@@ -192,7 +184,7 @@ public class LocalPlace_c extends Place {
             t = threadQueue_;
             threadQueue_ = t.next;
         }
-        t.run(r);
+        t.run(r, act);
     }
      
     /**
@@ -236,6 +228,7 @@ public class LocalPlace_c extends Place {
         PoolRunner next;
         private boolean active = true;
         private Runnable job;
+        private Activity act;
         PoolRunner() {
             myThreads.add(this);
         }
@@ -275,8 +268,9 @@ public class LocalPlace_c extends Place {
          * Assign a new job to this runner and start running!
          * @param r
          */
-        synchronized void run(Runnable r) {
+        synchronized void run(Runnable r, Activity a) {
             assert job == null;
+            act = a;
             job = r;
             this.notifyAll();
         }
@@ -310,6 +304,8 @@ public class LocalPlace_c extends Place {
                         t.printStackTrace(); // see X10 spec for exceptions...
                     } finally {
                         changeRunningStatus(-1);
+                        reg_.registerActivityStop(Thread.currentThread(), 
+                                                              act);
                     }
                     // notify the LocalPlace_c that we're again available
                     // for more work!

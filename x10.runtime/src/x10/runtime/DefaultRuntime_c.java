@@ -182,17 +182,22 @@ public class DefaultRuntime_c
     /**
      * Notification that an activity completed.
      */
-    public synchronized void registerActivityStop(Thread t,
+    public void registerActivityStop(Thread t,
                                                   Activity a) {
-        ArrayList v = (ArrayList) activity2asl_.get(a);
-        if (v == null) 
-            return;
+        ArrayList v;
+        synchronized(this) {
+          v = (ArrayList) activity2asl_.get(a);
+          if (v == null) 
+              return;
+        }
         for (int i=0;i<v.size();i++) {
             ActivitySpawnListener asl = (ActivitySpawnListener) v.get(i);
             asl.notifyActivityTerminated(a);
         }
-        activity2asl_.remove(a);
-        thread2activity_.remove(t);
+        synchronized(this) {
+            activity2asl_.remove(a);
+            thread2activity_.remove(t);
+        }
     }
     
     /**
@@ -202,14 +207,17 @@ public class DefaultRuntime_c
      * @param a the activity that is being run
      * @param i the activity that started a (null for boot/main).
      */
-    public synchronized void registerActivityStart(Thread t,
+    public void registerActivityStart(Thread t,
                                                    Activity a,
                                                    Activity i) {
-        assert a != i;
-        thread2activity_.put(t,a);
-        if (i == null) 
-            return;        
-        ArrayList v = (ArrayList) activity2asl_.get(i);
+        ArrayList v;    
+        synchronized(this) {
+            assert a != i;
+            thread2activity_.put(t,a);
+            if (i == null) 
+                return;        
+            v = (ArrayList) activity2asl_.get(i);
+        }
         if (v == null) 
             return;
         for (int j=0;j<v.size();j++) {
