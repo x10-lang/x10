@@ -207,7 +207,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					break;
 			}
 		}
-		System.out.println("convert from "+inName+" to "+buffer.toString());
+		//System.out.println("convert from "+inName+" to "+buffer.toString());
 		return buffer.toString();
 	}
 	/**
@@ -311,7 +311,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				Call getAddr = nf.Call(pos,nf.Local(pos,parameter.name()),getUnsafeAddressMethod);
 				getAddr = (Call_c)getAddr.methodInstance(memberMI);
 				args.add(getAddr);
-				System.out.println("just added " + getAddr);
+				//System.out.println("just added " + getAddr);
 			
 			}
 		}
