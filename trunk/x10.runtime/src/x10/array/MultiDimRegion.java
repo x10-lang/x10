@@ -60,17 +60,21 @@ public class MultiDimRegion extends region  {
         // partition fails if the first dimension has size less than n
         if (cr.size() < n) 
             throw new Error("MultiDimRegion::partition can only block those arrays that have size of dimension 0 larger than number of partitions.");
-        region[] ret = new MultiDimRegion[n];
+        region[] ret = new region[n];
         if (n == 1) {
             ret[0] = this;
         } else {
             region[] new_first_dims = cr.partition(n);
             for (int i = 0; i < n; ++i) {
-                region[] new_dims = new region[rank];
-                new_dims[0] = new_first_dims[i];
-                for (int j = 1; j < rank; ++j) 
-                    new_dims[j] = dims[j];
-                ret[i] = new MultiDimRegion(new_dims);
+                if (new_first_dims[i].size() == 0) 
+                    ret[i] = new EmptyRegion(rank);
+                else {
+                    region[] new_dims = new region[rank];
+                    new_dims[0] = new_first_dims[i];
+                    for (int j = 1; j < rank; ++j) 
+                        new_dims[j] = dims[j];
+                    ret[i] = new MultiDimRegion(new_dims);
+                }
             }
         }
         return ret;

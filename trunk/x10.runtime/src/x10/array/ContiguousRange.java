@@ -154,7 +154,12 @@ public class ContiguousRange extends Range {
             for (int i=0; i < n; i++) {
                 int lo = base + (i * sub_size);
                 int hi = (i < n - 1) ? (lo + sub_size - 1) : (base + all_size - 1);
-                ret[i] = new ContiguousRange(lo, hi);
+                if (lo <= hi) 
+                    ret[i] = new ContiguousRange(lo, hi);
+                else {
+                    // that might occur, e.g. if splitting a region of length 6 into 4 parts
+                    ret[i] = new EmptyRegion(1);
+                }
             }
         }
         return ret;
