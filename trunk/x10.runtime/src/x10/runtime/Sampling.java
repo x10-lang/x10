@@ -184,13 +184,13 @@ public final class Sampling extends Thread {
                         "\" description=\"FIXME\">\n");
                 xml.writeUTF("<layerId value=\"HW\" />\n");
                 xml.writeUTF("<classId value=\"Sampler\" />\n");
-                xml.writeUTF(")<specifier value=\"Counters\" />\n");
+                xml.writeUTF("<specifier value=\"Counters\" />\n");
                 xml.writeUTF("<fields>\n");
                 xml.writeUTF("</fields>\n");
-                xml.writeUTF(")<k42Format 'plain event' />");
-                xml.writeUTF(")<interval type='PERIODIC' name='SamplerInterval'"
+                xml.writeUTF("<k42Format 'plain event' />");
+                xml.writeUTF("<interval type='PERIODIC' name='SamplerInterval'"
                             +" pair='HW::Sampler::Counters'  match='module' />\n");
-                xml.writeUTF(")</event>");
+                xml.writeUTF("</event>");
             }
             for (int i=0;i<eventCount[0].length;i++) {                
             }
@@ -301,9 +301,10 @@ public final class Sampling extends Thread {
     private synchronized void recordEvent(int id, int type, int pid) {
         assert (type == EX_M) || (type == EX_S);
         try {
-            dos.writeInt(4+4+8+4); // size
+            dos.writeInt(4+4+8+4+4); // size
             dos.writeInt(type); 
-            dos.writeLong(System.currentTimeMillis()); // actual event time 
+            dos.writeLong(System.currentTimeMillis()); // actual event time
+            dos.writeInt(id);
             dos.writeInt(pid); // place id (where)            
         } catch (IOException io) {
             throw new Error(io);
@@ -317,12 +318,13 @@ public final class Sampling extends Thread {
      * @param type what is the event category (ET or ED, M or S, but not EE)
      */
     private synchronized void recordEvent(int[][] eventData,
-            int id, int type) {
+                                          int id, int type) {
         assert (type != ET_EE) && (type != ED_EE);
         try {
-            dos.writeInt(4+4+8+4+eventData.length*4); // size
+            dos.writeInt(4+4+4+8+4+eventData.length*4); // size
             dos.writeInt(type); 
             dos.writeLong(System.currentTimeMillis()); // sampling time 
+            dos.writeInt(id);
             dos.writeInt(eventData.length);            
             for (int i=0;i<eventData.length;i++)
                 dos.writeInt(eventData[i][id]);
@@ -339,12 +341,13 @@ public final class Sampling extends Thread {
      * @param type what is the event category (ET_EE or ED_EE)
      */
     private void recordEntryExit(int id, int type, 
-                                                 int[][] entryData,
-                                                 int[][] exitData) {
+                                 int[][] entryData,
+                                 int[][] exitData) {
         try {
-            dos.writeInt(4+4+8+4+entryData.length*8); // size
+            dos.writeInt(4+4+8+4+4+entryData.length*8); // size
             dos.writeInt(type); 
             dos.writeLong(System.currentTimeMillis());  // sampling time
+            dos.writeInt(id);
             dos.writeInt(entryData.length);            
             for (int i=0;i<entryData.length;i++) {
                 dos.writeInt(entryData[i][id]);
