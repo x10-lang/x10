@@ -272,6 +272,7 @@ public final class Clock_c extends Clock {
        new ActivitySpawnListener() {
        public void notifyActivitySpawn(Activity a,
                                        Activity i) {
+           // CVP is the following assertion always correct?
            assert nowSet_.contains(i);
            nowSet_.add(a);
            aip_.registerActivitySpawnListener(a, this);
