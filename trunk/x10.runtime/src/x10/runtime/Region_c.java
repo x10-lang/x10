@@ -8,7 +8,6 @@ import java.util.Set;
 
 import x10.lang.Range;
 import x10.lang.Region;
-import x10.lang.TypeArgument;
 
 
 /**
@@ -17,19 +16,22 @@ import x10.lang.TypeArgument;
  * this class are immutable!
  *
  * @author Christoph von Praun
+ * @author Christian Grothoff
  */
-class Region_c extends Region implements TypeArgument {
+class Region_c implements Region {
 	
 	private final Range[] dims_;
 	final int card;
-	
+
+	final int rank;
+    
 	/**
 	 * Convenience constructor.
 	 * Region starts in all dimensions at index 0.
 	 */
 	Region_c(int[] dims) {
-		super (dims.length);
 		assert dims != null;
+		rank = dims.length;
 		
 		int tmp_card = 1;
 		dims_ = new Range[dims.length];
@@ -41,16 +43,19 @@ class Region_c extends Region implements TypeArgument {
 	}
 	
 	Region_c(Range[] dims) {
-		super(dims.length);
 		assert dims != null;
-		
+		rank = dims.length;
 		int tmp_card = 1;
 		dims_ = dims;
 		for (int i = 0; i < dims.length; ++ i) 
 			tmp_card *= dims_[i].card;
 		card = tmp_card;
 	}
-	
+
+	public int rank() {
+	    return rank;
+	}
+    
 	/**
 	 * @param  dims Regions that must be subsets of the ranges of 
 	 *              this region, or null if the entire range along 
@@ -81,7 +86,7 @@ class Region_c extends Region implements TypeArgument {
 	}
 	
 	public boolean contains(Region r) {
-		assert r.rank == rank;
+		assert r.rank() == rank;
 		
 		Region_c r_c = (Region_c) r;
 		boolean ret = true;

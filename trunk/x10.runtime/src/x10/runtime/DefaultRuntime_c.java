@@ -50,11 +50,6 @@ public class DefaultRuntime_c
      * The places of this X10 Runtime (for now a constant set).
      */
     private final Place[] places_;
-
-    /**
-     * Distribution Factory singleton.
-     */
-    private final Distribution.Factory distFactory_ = new Distribution_c.Factory_c();
     
     public DefaultRuntime_c() {
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
@@ -155,6 +150,8 @@ public class DefaultRuntime_c
     }
 
     public synchronized Place currentPlace() {
+        if (places_.length == 1)
+            return places_[0]; // fast path for simple test environments!
     	Place p = (Place) thread2place_.get(Thread.currentThread());
     	if (p == null)
     		throw new Error("This thread is not an X10 thread!");
@@ -194,14 +191,6 @@ public class DefaultRuntime_c
     public Region newRegion(Range[] dims)  {
     	throw new Error("not implemented");
     }
-    	
-    /**
-     * Create a Distribution Factory.
-     * @return
-     */
-    public Distribution.Factory getDistributionFactory() {
-        return distFactory_;
-    }
    
     /**
      * @return New array.
@@ -222,4 +211,90 @@ public class DefaultRuntime_c
         return a;
     }
 
+    
+    
+    /**
+     * Create a Distribution where the given Region is distributed
+     * into blocks over all available Places.
+     * @param r
+     * @return
+     */
+    public Distribution newBlockDistribution(Region r, Place[] p) {
+        return newBlockDistribution(r, r.hashCode()/p.length, p); // FIXME: check formula against spec!
+    }
+    
+    /**
+     * Create a Distribution where the given Region is distributed
+     * into blocks of size n over all available Places.
+     * @param r
+     * @return
+     */
+    public Distribution newBlockDistribution(Region r, int n, Place[] p) {
+        throw new Error("not implemented");
+        // return new Distribution_c.Block(r, n, p);
+    }
+    
+    /**
+     * Create a Distribution where the elements in the region are
+     * distributed over all Places in p in a cyclic manner,
+     * that is the next point in the region is at the next place
+     * for a cyclic ordering of the given places.
+     * @param r
+     * @return
+     */
+    public Distribution newCyclicDistribution(Region r, Place[] p) {
+        throw new Error("not implemented");
+        // return new Distribution_c.Cyclic(r, p);
+    }
+    
+    /**
+     * Create a Distribution where the elements in the region are
+     * distributed over all Places in p in a cyclic manner,
+     * that is the next point in the region is at the next place
+     * for a cyclic ordering of the given places.
+     * @param r
+     * @return
+     */
+    public Distribution newBlockCyclicDistribution(Region r, int n, Place[] p) {
+        throw new Error("not implemented");
+        // return new Distribution_c.BlockCyclic(r, n, p);
+    }
+    
+    /**
+     * Create a Distribution where the points of the Region are
+     * distributed randomly over all available Places.
+     * @param r
+     * @return
+     */
+    public Distribution newArbitraryDistribution(Region r, Place[] p) {
+        return newBlockCyclicDistribution(r, 32, p);
+    }
+    
+    /**
+     * Create a Distribution where all points in the given
+     * Region are mapped to the same Place.
+     * @param r
+     * @param p specifically use the given place for all points
+     * @return
+     */
+    public Distribution newConstantDistribution(Region r, Place p) {
+        if (places_.length == 1)
+            return new Distribution_c.ConstantHere(r);
+        return new Distribution_c.Constant(r, p);
+    }
+    
+    /**
+     * Create a Distribution where the points in the
+     * region 1...p.length are mapped to the respective
+     * places.
+     * @param p the list of places (implicitly defines the region)
+     * @return
+     */
+    public Distribution newUniqueDistribution(Place[] p) {
+        return new Distribution_c.Unique(p);
+    }
+    
+    
+    
+    
 } // end of DefaultRuntime_c

@@ -11,31 +11,24 @@ import java.util.Iterator;
  * this class are immutable!
  *
  * @author Christoph von Praun
+ * @author Christian Grothoff
  */
-public abstract class Region extends X10Object implements TypeArgument {
-	public final int rank;
+public interface Region extends TypeArgument {
 
-	public Region(int r) {		
-		this.rank = r;
-	}
+    public int rank();
+    
+    public Region sub(Range[] dims);
 	
-	public abstract Region sub(Range[] dims);
+    public Region combine(Region r);
 	
-	public abstract Region combine(Region r);
+    public Range dim(int i);
 	
-	public abstract Range dim(int i);
+    public boolean contains(Region r);
 	
-	public abstract boolean contains(Region r);
+    public boolean contains(int[] p);
 	
-	public abstract boolean contains(int[] p);
+    public int ordinal(int[] p);
 	
-	public abstract int ordinal(int[] p);
+    public Iterator iterator();
 	
-	public abstract Iterator iterator();
-	
-	public abstract String toString();
-	
-	public abstract boolean equals(Object o);
-	
-	public abstract int hashCode();		
 }

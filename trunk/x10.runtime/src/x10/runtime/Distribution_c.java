@@ -1,10 +1,13 @@
-/*
+/*4
  * Created on Oct 3, 2004
  */
 package x10.runtime;
 
+import java.util.Iterator;
+
 import x10.lang.Distribution;
 import x10.lang.Place;
+import x10.lang.Range;
 import x10.lang.Region;
 import x10.lang.X10Object;
 
@@ -15,12 +18,52 @@ import x10.lang.X10Object;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-abstract class Distribution_c extends Distribution {
+abstract class Distribution_c 
+    implements Distribution {
 
+    final Region region_;
+    
     Distribution_c(Region r) {
-        super(r);
+        this.region_ = r;
     }
     
+    // Region interface (fascade style)
+    
+    public int rank() {
+        return region_.rank();
+    }
+    
+    public Region sub(Range[] dims) {
+        return region_.sub(dims);
+    }
+    
+    public Region combine(Region r) {
+        return region_.combine(r);
+    }
+    
+    public Range dim(int i) {
+        return region_.dim(i);
+    }
+    
+    public boolean contains(Region r) {
+        return region_.contains(r);
+    }
+    
+    public boolean contains(int[] p) {
+        return region_.contains(p);
+    }
+    
+    public int ordinal(int[] p) {
+        return region_.ordinal(p);
+    }
+    
+    public Iterator iterator() {
+        return region_.iterator();
+    }
+
+    // Actual Distribution code...
+    
+
     /**
      * Rough idea: Array has a method 'get(point)'.  Array_c implements that
      * by calling distribution.get(this, point).  The Distrib then finds the
@@ -33,7 +76,13 @@ abstract class Distribution_c extends Distribution {
      * @param point
      * @return
      */
-    abstract X10Object getValueAt(Array_c a, int[] point);
+    X10Object getValueAt(Array_c a, int[] point) {
+        Place p = getPlaceOf(point);
+        if (p == x10.lang.Runtime.here())
+            return a.getInternal(region_.ordinal(point));
+        else
+            throw new Error("not implemented");
+    }
     
     /**
      * Rough idea: Array has a method 'set(point,val)'.  Array_c implements that
@@ -47,212 +96,94 @@ abstract class Distribution_c extends Distribution {
      * @param point
      * @return
      */
-    abstract void setValueAt(Array_c a, int[] point, X10Object val);
-    
-    
-    
-    
-    /**
-     * Get the Place of the given point in the Region of this
-     * Distribution.  This function can only be used for one-dimensional
-     * Regions.  We use this function to avoid an allocation of the
-     * form "new int[] { point }" for this common case.
-     *   
-     * @param point 
-     * @return the place to which the given point maps in this Distribution
-     */
-    public Place getPlaceOf(int point) { 
-        throw new Error("TODO");
+    void setValueAt(Array_c a, int[] point, X10Object val) {
+        Place p = getPlaceOf(point);
+        if (p == x10.lang.Runtime.here())
+            a.setInternal(region_.ordinal(point), val);
+        else
+            throw new Error("not implemented");
     }
     
-    /**
-     * Get the Place of the given point in the Region of this
-     * Distribution. 
-     *   
-     * @param point 
-     * @return the place to which the given point maps in this Distribution
-     */
-    public Place getPlaceOf(int[] point){ 
+
+    public Distribution intersect(Distribution d) { 
         throw new Error("TODO");
     }
 
-    public Distribution intersect(Distribution d){ 
-        throw new Error("TODO");
-    }
-
-    public Distribution asymmetric_union(Distribution d){ 
+    public Distribution asymmetric_union(Distribution d) { 
         throw new Error("TODO");
     }
     
-    public Distribution disjoint_union(Distribution d){ 
+    public Distribution disjoint_union(Distribution d) { 
         throw new Error("TODO");
     }
     
-    public Distribution difference(Distribution d){ 
+    public Distribution difference(Distribution d) { 
         throw new Error("TODO");
     }
     
-    public Distribution range_restriction(Place r){ 
+    public Distribution range_restriction(Place r) { 
         throw new Error("TODO");
     } // change X10 report to call it place_restriction and I'll be happier
     
-    public Distribution domain_restriction(Region r){ 
+    public Distribution domain_restriction(Region r) { 
         throw new Error("TODO");
     }
 
-    static class Factory_c implements Distribution.Factory {
+    static final class Constant extends Distribution_c {
+        
+        private final Place place_;
 
-        /**
-         * Create a Distribution where the given Region is distributed
-         * into blocks over all available Places.
-         * @param r
-         * @return
-         */
-        public Distribution block(Region r, Place[] p){
-            throw new Error("TODO");
+        Constant(Region r, Place p) {
+            super(r);
+            this.place_ = p;
         }
         
-        /**
-         * Create a Distribution where the given Region is distributed
-         * into blocks over all available Places.
-         * @param r
-         * @return
-         */
-        public Distribution block(Region r){
-            throw new Error("TODO");
+        public Place getPlaceOf(int[] point) { 
+            return place_;
         }
         
-        /**
-         * Create a Distribution where the given Region is distributed
-         * into blocks of size n over all available Places.
-         * @param r
-         * @return
-         */
-        public Distribution block(Region r, int n, Place[] p){
-            throw new Error("TODO");
-        }
+    } // end of Distribution_c.Constant
+    
+    static final class ConstantHere extends Distribution_c {
         
-        /**
-         * Create a Distribution where the given Region is distributed
-         * into blocks of size n over all available Places.
-         * @param r
-         * @return
-         */
-        public Distribution block(Region r, int n){
-            throw new Error("TODO");
-        }
-        
-        /**
-         * Create a Distribution where the elements in the region are
-         * distributed over all Places in p in a cyclic manner,
-         * that is the next point in the region is at the next place
-         * for a cyclic ordering of the given places.
-         * @param r
-         * @return
-         */
-        public Distribution cyclic(Region r, Place[] p){
-            throw new Error("TODO");
-        }
-        
-        /**
-         * Create a Distribution where the elements in the region are
-         * distributed over all Places in p in a cyclic manner,
-         * that is the next point in the region is at the next place
-         * for a cyclic ordering of the given places.
-         * @param r
-         * @return
-         */
-        public Distribution cyclic(Region r){
-            throw new Error("TODO");
-        }
-        
-        /**
-         * Create a Distribution where the elements in the region are
-         * distributed over all Places in p in a cyclic manner,
-         * that is the next point in the region is at the next place
-         * for a cyclic ordering of the given places.
-         * @param r
-         * @return
-         */
-        public Distribution blockCyclic(Region r, int n, Place[] p){
-            throw new Error("TODO");
-        }
-        
-        /**
-         * Create a Distribution where the elements in the region are
-         * distributed over all Places in p in a cyclic manner,
-         * that is the next point in the region is at the next place
-         * for a cyclic ordering of the given places.
-         * @param r
-         * @return
-         */
-        public Distribution blockCyclic(Region r, int n){
-            throw new Error("TODO");
-        }
-        
-        /**
-         * Create a Distribution where the points of the Region are
-         * distributed randomly over all available Places.
-         * @param r
-         * @return
-         */
-        public Distribution arbitrary(Region r, Place[] p){
-            throw new Error("TODO");
-        }
-        
-        /**
-         * Create a Distribution where the points of the Region are
-         * distributed randomly over all available Places.
-         * @param r
-         * @return
-         */
-        public Distribution arbitrary(Region r){
-            throw new Error("TODO");
-        }
-        
-        /**
-         * Create a Distribution where all points in the given
-         * Region are mapped to the same Place.
-         * @param r
-         * @param p specifically use the given place for all points
-         * @return
-         */
-        public Distribution constant(Region r, Place p){
-            throw new Error("TODO");
-        }
-        
-        /**
-         * Create a Distribution where all points in the given
-         * Region are mapped to the same Place.
-         * @param r
-         * @return
-         */
-        public Distribution constant(Region r){
-            throw new Error("TODO");
-        }
-        
-        /**
-         * Create a Distribution where the points in the
-         * region 1...p.length are mapped to the respective
-         * places.
-         * @param p the list of places (implicitly defines the region)
-         * @return
-         */
-        public Distribution unique(Place[] p){
-            throw new Error("TODO");
-        }
-        
-        /**
-         * Create a Distribution where the points in the
-         * region 1...p.length are mapped to the respective
-         * places.
-         * @return
-         */
-        public Distribution unique() {
-            throw new Error("TODO");
+        ConstantHere(Region r) {
+            super(r);
         }
 
+        X10Object getValueAt(Array_c a, int[] point) {
+            return a.getInternal(region_.ordinal(point));
+        }
         
-    } // end of Distribution_c.Factory_c
+        void setValueAt(Array_c a, int[] point, X10Object val) {
+            a.setInternal(region_.ordinal(point), val);
+        }        
+        
+        public Place getPlaceOf(int[] point){ 
+            return x10.lang.Runtime.here();
+        }
+        
+    } // end of Distribution_c.ConstantHere
+
+    
+    static class Unique extends Distribution_c {
+        
+        private final Place[] places_;
+        
+        Unique(Place[] p) {
+            super(new Region_c(new Range[] { new Range_c(1, p.length) }));
+            this.places_ = p;
+        }
+        
+        public Place getPlaceOf(int[] point){ 
+            assert point.length == 1;
+            assert contains(point);
+            return places_[point[0]-1];
+        }
+        
+    } // end of Distribution_c.Unique
+    
+    
+    
+    
     
 } // end of Distribution_c
