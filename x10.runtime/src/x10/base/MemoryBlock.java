@@ -7,7 +7,7 @@ package x10.base;
  * @author Christoph von Praun
  */
 
-public abstract class MemoryBlock {
+public abstract class MemoryBlock implements UnsafeContainer {
 
     private static final String MSG_ = "MemoryBlock: Implementation deferred.";
 
