@@ -68,7 +68,7 @@ public class point_c extends point implements Comparable {
 	    assert o != null;
 		boolean ret = false;
 	    
-		if (!(o instanceof point_c)) {
+		if (o.getClass() == point_c.class) {
 			point_c tmp = (point_c) o;
 			if (tmp.rank == rank) {
 			    ret = true;
@@ -103,4 +103,16 @@ public class point_c extends point implements Comparable {
 	    }
 	    return res;
 	}
+    
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("[");
+        for (int i = 0; i < val.length; ++i) {
+            sb.append(val[i]);
+            if (i < val.length -1)
+                sb.append(",");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 }
