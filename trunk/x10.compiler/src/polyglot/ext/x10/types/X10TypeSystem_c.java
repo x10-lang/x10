@@ -73,37 +73,6 @@ implements X10TypeSystem {
 	public ParametricType createParametricType ( Position pos, X10ReferenceType type, DepParameterExpr expr ) {
 		return new ParametricType_c( this, pos, type, expr);
 	}
-	/*
-	
-	public X10ArrayType x10arrayOf(Type type, boolean isValue) {
-		return x10arrayOf( type.position(), type, isValue);
-	}
-	public X10ArrayType x10arrayOf(Type type, DepParameterExpr expr) {
-		return x10arrayOf( type.position(), type, expr);
-	}
-	public X10ArrayType x10arrayOf(Type type, boolean isValue, DepParameterExpr expr) {
-		return x10arrayOf( type.position(), type, isValue, expr);
-	}
-	
-	
-	public X10ArrayType x10arrayOf(Position pos, Type type) { 
-		return new X10ArrayType_c( this, pos, type );
-	}
-	
-	public X10ArrayType x10arrayOf(Position pos, Type type, boolean isValue) {
-		return new X10ArrayType_c( this, pos, type, isValue );
-	}
-	
-	
-	public X10ArrayType x10arrayOf(Position pos, Type type, DepParameterExpr distribution) {
-		return new X10ArrayType_c( this, pos, type, distribution);
-	}
-	
-	
-	public X10ArrayType x10arrayOf(Position pos, Type type, boolean isValue, DepParameterExpr distribution ) {
-		return new X10ArrayType_c( this, pos, type, isValue, distribution );
-	}
-	*/
 	
 	protected UnknownType createUnknownType() {
 		return new X10UnknownType_c( this );
