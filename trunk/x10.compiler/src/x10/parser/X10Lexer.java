@@ -938,21 +938,29 @@ public class X10Lexer implements RuleAction, X10Parsersym
             break; 
 	 
     //
-    // Rule 363:  MSOperator ::= Dot Dot
+    // Rule 363:  Token ::= IntLiteralAndRange
     //
-            case 363:
+   	    case 363:
+               lexParser.resetStateStack();
+               break;  
+ 
+    //
+    // Rule 364:  IntLiteralAndRange ::= Integer Dot Dot
+    //
+            case 364:
             { 
-                 makeToken(lexParser.getToken(1), lexParser.getToken(2), TK_RANGE);
-          
+	        makeToken(lexParser.getToken(1), lexParser.getSym(1), TK_IntegerLiteral);
+                makeToken(lexParser.getToken(2), lexParser.getToken(3), TK_RANGE);
+	  
             }
             break; 
 	 
     //
-    // Rule 364:  MSOperator ::= Colon Equal
+    // Rule 365:  MSOperator ::= Dot Dot
     //
-            case 364:
+            case 365:
             { 
-                 makeToken(lexParser.getToken(1), lexParser.getToken(2), TK_COLON_EQUAL);
+                 makeToken(lexParser.getToken(1), lexParser.getToken(2), TK_RANGE);
           
             }
             break; 
