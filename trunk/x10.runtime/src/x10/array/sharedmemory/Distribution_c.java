@@ -168,6 +168,7 @@ abstract class Distribution_c extends Region_c implements Distribution {
         Constant(Region_c r, Place p) {
             super(r);
             this.place_ = p;
+            assert p != null;
         }
         
         public Place placeOf(int[] point) { 
@@ -212,6 +213,8 @@ abstract class Distribution_c extends Region_c implements Distribution {
             super(new Region_c(new Range[] { new ContiguousRange(1, p.length) }));
             // defensive copy
             this.places_ = (Place[]) p.clone();
+            for (int i=0;i<places_.length;i++)
+                assert places_[i] != null;
         }
         
         public Place placeOf(int[] point) { 
