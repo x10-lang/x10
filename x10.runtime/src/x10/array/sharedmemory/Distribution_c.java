@@ -403,7 +403,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     static class Unique extends Distribution_c {
         place[] placeseq;
         Unique(place[] ps) {
-            super(new Region_c(new Range[] { new ContiguousRange(1, ps.length) }));
+            super(new ContiguousRange(1, ps.length));
             this.placeseq = ps;
             Set s = new HashSet();
             for (int i=0;i<placeseq.length;i++) 
