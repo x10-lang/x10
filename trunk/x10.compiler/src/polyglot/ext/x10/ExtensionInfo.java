@@ -1,20 +1,20 @@
 package polyglot.ext.x10;
 
-import polyglot.lex.Lexer;
-import polyglot.ext.x10.parse.Lexer_c;
+import java.io.Reader;
+import java.util.List;
+
+import polyglot.ast.NodeFactory;
+import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.parse.Grm;
-import polyglot.ext.x10.ast.*;
-import polyglot.ext.x10.types.*;
-
-import polyglot.ast.*;
-import polyglot.types.*;
-import polyglot.util.*;
-import polyglot.visit.*;
-import polyglot.frontend.*;
-import polyglot.main.*;
-
-import java.util.*;
-import java.io.*;
+import polyglot.ext.x10.parse.Lexer_c;
+import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.frontend.CupParser;
+import polyglot.frontend.FileSource;
+import polyglot.frontend.Job;
+import polyglot.frontend.Parser;
+import polyglot.lex.Lexer;
+import polyglot.types.TypeSystem;
+import polyglot.util.ErrorQueue;
 
 /**
  * Extension information for x10 extension.
