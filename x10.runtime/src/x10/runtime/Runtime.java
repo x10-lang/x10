@@ -9,11 +9,12 @@ public abstract class Runtime {
 
     static {
         String rt = System.getProperty("x10.runtime");
+        Runtime r = null;
         try {
             if (rt != null)
-                _ = (Runtime) Class.forName(rt).newInstance();
+                r = (Runtime) Class.forName(rt).newInstance();
             else
-                _ = new DefaultRuntime_c();
+                r = new DefaultRuntime_c();
         } catch (ClassNotFoundException cnfe) {
             System.err.println("Did not find Runtime " + rt);
             System.exit(-1);
@@ -21,6 +22,8 @@ public abstract class Runtime {
         
         } catch (InstantiationException ie) {
             
+        } finally {
+            _ = r;
         }
     }
 
