@@ -4573,8 +4573,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 507:  Type ::= DataType PlaceTypeSpecifieropt
             //
             case 507: {
-                assert(btParser.getSym(2) == null);
-                //btParser.setSym1();
+
                     break;
             }
          
@@ -4635,7 +4634,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 515:  PlaceTypeSpecifier ::= AT PlaceType
             //
             case 515:
-                bad_rule = 515;
                 break; 
  
             //
