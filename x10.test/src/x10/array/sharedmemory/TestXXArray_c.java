@@ -29,7 +29,7 @@ import junit.framework.TestCase;
  *
  
  */
-public class TestArray extends TestCase {
+public class TestXXArray_c extends TestCase {
     
     private final Activity a
     = new Activity() { public void run() {} }; // dummy
