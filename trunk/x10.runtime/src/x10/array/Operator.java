@@ -4,11 +4,12 @@
 package x10.array;
 
 /**
- * @author Christoph von Praun
- * 
  * Base class for reduction and scan operations on arrays. Implementations
  * override one of the methods. The default implementation of each operator throws a
  * runtime exception.
+ *
+ *
+ * @author Christoph von Praun
  */
 public abstract class Operator {
 
@@ -17,7 +18,7 @@ public abstract class Operator {
 	/**
 	 * The operation performed must be functional, i.e. stateless. It is the
 	 * user's obligation to make sure that both conditions are met. The argument of the
-	 * apply fcuntion is the current value at the current position in the array. 
+	 * apply function is the current value at the current position in the array. 
 	 */
 	public static abstract class Pointwise extends Operator {
 		public boolean apply(boolean i) {
