@@ -25,9 +25,9 @@ import x10.lang.IntReferenceArray;
  */
 public class IntArray_c extends IntArray implements UnsafeContainer {
 
-    private boolean safe_;
+    private final boolean safe_;
     private final MemoryBlock arr_;
-    protected boolean mutable = true;
+    public final boolean mutable;
     
     public void keepItLive() {}
     
@@ -59,6 +59,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public IntArray_c( distribution d, int c, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable = mutable;
+        this.safe_ = safe;
     	int count = d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) 
     			: Allocator.allocUnsafe(count, Allocator.SIZE_INT);
@@ -74,15 +75,18 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable = mutable;
+        this.safe_ = safe;
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE)
     			: Allocator.allocUnsafe(count, Allocator.SIZE_INT);
     	scan(this, f);
     	
     }
-    private IntArray_c( distribution d, int[] a) {
+    private IntArray_c( distribution d, int[] a, boolean safe) {
     	super(d);
+        this.mutable = true;
     	this.arr_ = Allocator.allocSafeIntArray( a);
+        this.safe_ = safe;
     }
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
@@ -91,11 +95,13 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      */
     public static IntArray_c IntArray_c(int[] a) {
     	distribution d = Runtime.factory.getDistributionFactory().here(a.length);
-    	return new IntArray_c(d, a);
+    	return new IntArray_c(d, a, true);
     }
     protected IntArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
         super(d);
         int count = d.region.size();
+        this.mutable = true;
+        this.safe_ = safe;
         this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
         if (c != null)
             pointwise(this, c);
