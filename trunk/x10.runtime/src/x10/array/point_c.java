@@ -3,7 +3,7 @@ package x10.array;
 import x10.lang.point;
 import x10.lang.region;
 
-public class point_c extends point {
+public class point_c extends point implements Comparable {
 	
 	public static class factory extends point.factory {
 		public point/*(region)*/ point(region region, int[/*rank*/] val) {
@@ -18,6 +18,7 @@ public class point_c extends point {
 			return point(R, val);
 		}
 	}
+	
 	private final int[] val;
 	private final int hash_;
 	
@@ -84,5 +85,22 @@ public class point_c extends point {
 	
 	public int hashCode() {
 	    return hash_;
+	}
+	
+	/* lexicographical ordering */
+	public int compareTo(java.lang.Object o) {
+	    assert o.getClass() == point_c.class;
+	    point_c tmp = (point_c) o;
+	    assert (tmp.rank == rank);
+	    
+	    int res = 0;
+	    for (int i = 0; res == 0 && i < rank; ++ i) {
+	        int t1 = val[i], t2 = tmp.val[i];
+	        if (t1 < t2) 
+	            res = -1;
+	        else if (t1 > t2)
+	            res = 1;
+	    }
+	    return res;
 	}
 }
