@@ -197,6 +197,9 @@ public final class Sampling extends Thread {
     }
     
     private void writeHeader(int size, int type, int id) {
+        if (size + 8 + 16 >= 8 * 8 * 8)
+            throw new Error("XML Event too large, fix PE trace format!");
+        assert ((size % 8) == 0); // alignment
         try {
             dos.writeInt((int) System.currentTimeMillis());
             int larg = (((size+8+16)/8) << 24) | (PEM.Layer.X10 << 20) | (type << 14)| id; 
