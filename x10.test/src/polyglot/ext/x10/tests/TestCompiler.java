@@ -103,6 +103,10 @@ public TestCompiler(String name) {
         run("./ArrayOpAssign.x10","ArrayOpAssign");
     }
 
+    public void test_ArrayOpAssign2() {
+        run("./ArrayOpAssign2.x10","ArrayOpAssign2");
+    }
+
     public void test_ArrayOverRegion() {
         run("./ArrayOverRegion.x10","ArrayOverRegion");
     }
