@@ -12,7 +12,7 @@
 (x10.lang.Runtime.here().runFuture(new x10.lang.Activity.Expr() {
   private boolean ret_;
   public void run() {
-     Clock c = x10.lang.Runtime.getRuntime().newClock();
+     x10.lang.Clock c = x10.lang.Runtime.getRuntime().newClock();
      c.doNow(new x10.lang.Activity() {
                public void run() {
                  #0; 
@@ -22,6 +22,6 @@
      ret_ = true; 
   } 
   public x10.lang.Object getResult() { 
-     return ret_; 
+     return new x10.compilergenerated.BoxedBoolean( ret_ ); 
   } 
-}).force();
+})).force();
