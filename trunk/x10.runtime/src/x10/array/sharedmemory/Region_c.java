@@ -5,7 +5,7 @@ package x10.array.sharedmemory;
 
 import java.util.Iterator;
 
-import x10.array.InvalidIndexException;
+import x10.array.PointOutOfRegionException;
 import x10.array.Range;
 import x10.array.ContiguousRange;
 import x10.array.Region;
@@ -161,7 +161,7 @@ class Region_c implements Region {
 
     public boolean contains(int[] p) {
         if (p.length != rank)
-            throw new InvalidIndexException();
+            throw new PointOutOfRegionException();
 
         boolean ret = true;
         for (int i = 0; ret && i < rank; ++i) {
@@ -187,7 +187,7 @@ class Region_c implements Region {
      */
     public int ordinal(int[] p) {
         if (p.length != rank)
-            throw new InvalidIndexException();
+            throw new PointOutOfRegionException();
 
         int ret = 0;
         int base = 1;
