@@ -64,7 +64,7 @@ public class When_c extends Stmt_c implements When {
     	super(p);
     	this.expr = expr;
     	this.stmt = stmt;
-    	this.rest = new TypedList(new LinkedList(), Branch_c.class, true);
+    	this.rest = new TypedList(new LinkedList(), Branch_c.class, false);
     }
     
     
@@ -88,16 +88,9 @@ public class When_c extends Stmt_c implements When {
 
     /** Visit the children of the statement. */
     public Node visitChildren( NodeVisitor v ) {
-    	TypedList result = new TypedList(new LinkedList(), Branch_c.class, false);
     	Expr e = (Expr) visitChild(expr, v);
     	Stmt s = (Stmt) visitChild(stmt, v);
-    	if (rest.size() > 0)
-    		for (Iterator it = rest.iterator(); it.hasNext();) {
-    			Branch_c branch = (Branch_c) it.next();
-    			Expr expr = (Expr) visitChild(branch.expr, v);
-    			Stmt stmt = (Stmt) visitChild(branch.stmt, v);
-    			result.add( new Branch_c(expr, stmt));
-    		}
+    	List result = visitList(rest, v);
     	return branches( e, s, result);
     	
     }
@@ -151,15 +144,12 @@ public class When_c extends Stmt_c implements When {
      */
     public List acceptCFG(CFGBuilder v, List succs) {
     	v.visitCFG(expr, stmt.entry());
-    	v.visitCFG(stmt, this);
-    	if (rest.size() > 0) 
-    		for (Iterator it = rest.iterator(); it.hasNext();) {
-    			Branch_c branch = (Branch_c) it.next();
-    			v.visitCFG(branch.expr, branch.stmt.entry());
-    			v.visitCFG(branch.stmt, this);
-    		}
+    	v.visitCFG(stmt, listEntry( rest, this));
+    	v.visitCFGList( rest, this);
     	return succs;
     }
+    
+  
 
   
 }
