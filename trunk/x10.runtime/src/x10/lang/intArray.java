@@ -167,18 +167,18 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		return max(abs);
 	}
 
-    public IntReferenceArray add( intArray other) {
-	return lift(add, other);
-    }
-    public IntReferenceArray mul( intArray other) {
-	return lift(mul, other);
-    }
-    public IntReferenceArray sub( intArray other) {
-	return lift(sub, other);
-    }
-    public IntReferenceArray div( intArray other) {
-	return lift(div, other);
-    }
+	public IntReferenceArray add( intArray other) {
+		return lift(add, other);
+	}
+	public IntReferenceArray mul( intArray other) {
+		return lift(mul, other);
+	}
+	public IntReferenceArray sub( intArray other) {
+		return lift(sub, other);
+	}
+	public IntReferenceArray div( intArray other) {
+		return lift(div, other);
+	}
     /** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and
 	 commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).
@@ -221,6 +221,11 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	abstract /*value*/ public /*(distribution(:rank=this.rank) D)*/
 	IntReferenceArray/*(distribution.asymmetricUnion(D))*/ overlay( intArray/*(D)*/ other);
 	
+	/** Update this array in place by overlaying the array other on top of this. The distribution
+	 * of the input array must be a subdistribution of D.
+	 * TODO: update the description of the parametric type.
+	 */
+    abstract public void update( intArray/*(D)*/ other);
 	
 	/** Assume given an intArray a over the given distribution.
 	 * Assume given a function fun: int -> int -> int.

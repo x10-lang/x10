@@ -32,6 +32,8 @@ implements Indexable, Unsafe {
 	}
 	public static final binaryOp sub = new binaryOp() { public double apply(double r, double s) { return r-s;}};
 	public static final binaryOp add = new binaryOp() { public double apply(double r, double s) { return r+s;}};
+	public static final binaryOp mul = new binaryOp() { public double apply(double r, double s) { return r*s;}};
+	public static final binaryOp div = new binaryOp() { public double apply(double r, double s) { return r/s;}};
 	public static final binaryOp max = new binaryOp() { public double apply(double r, double s) { return Math.max(r,s);}};
 	public static interface unaryOp {
 		double apply(double r);
@@ -162,6 +164,28 @@ implements Indexable, Unsafe {
 		return lift(sub, s);
 	}
 	/**
+	 * Convenience method for subtracting another array pointwise.
+	 * @return
+	 */
+	public DoubleReferenceArray add( doubleArray s) {
+		return lift(add, s);
+	}
+	/**
+	 * Convenience method for subtracting another array pointwise.
+	 * @return
+	 */
+	public DoubleReferenceArray mul( doubleArray s) {
+		return lift(mul, s);
+	}
+	/**
+	 * Convenience method for subtracting another array pointwise.
+	 * @return
+	 */
+	public DoubleReferenceArray div( doubleArray s) {
+		return lift(div, s);
+	}
+	
+	/**
 	 * Convenience method for applying max after applying abs.
 	 * @return
 	 */
@@ -212,7 +236,12 @@ implements Indexable, Unsafe {
 	abstract public /*(distribution(:rank=this.rank) D)*/
 	DoubleReferenceArray/*(distribution.asymmetricUnion(D))*/ overlay( doubleArray/*(D)*/ other);
 	
-	
+	/** Update this array in place by overlaying the array other on top of this. The distribution
+	 * of the input array must be a subdistribution of D.
+	 * TODO: update the description of the parametric type.
+	 */
+    abstract public void update( doubleArray/*(D)*/ other);
+    
 	/** Assume given a DoubleArray a over the given distribution.
 	 * Assume given a function f: double -> double -> double.
 	 * Return a DoubleArray with distribution dist 
