@@ -108,12 +108,6 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
 	   public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 		return type( ts.array( base.type(), isValueType, distribution ));
-		/*
-	        return type(distribution == null 
-	        		? ts.x10arrayOf(position(), base.type())
-	        				: ts.x10arrayOf(position(), base.type(), distribution)
-	        		);
-	        		*/
 	    }
 	  
 
@@ -131,8 +125,6 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
     	// Now the base type is known. Simply ask the type system to load the corresponding
     	// class and return the type you thus get back. No need for X10ArrayType and X10ArrayType_c.
     	return nf.CanonicalTypeNode(position(), ts.array(baseType, isValueType, distribution));
-    	//   	return nf.CanonicalTypeNode(position(), 
-    	//		ts.x10arrayOf(position(), baseType));
     }
 
     public Node typeCheck(TypeChecker tc) throws SemanticException {
