@@ -6,12 +6,12 @@ package x10.array;
 /**
  * @author Christoph von Praun
  */
-public class InvalidIndexException extends RuntimeException {
+public class PointOutOfRegionException extends RuntimeException {
 	/**
 	 * Constructs a <code>InvalidIndexException</code> with no detail  message.
 	 *
 	 */
-	public InvalidIndexException() {}
+	public PointOutOfRegionException() {}
 
 	/**
 	 * Constructs a <code>InvalidIndexException</code> with the specified 
@@ -19,7 +19,7 @@ public class InvalidIndexException extends RuntimeException {
 	 *
 	 * @param   s   the detail message.
 	 */
-	public InvalidIndexException(String s) {
+	public PointOutOfRegionException(String s) {
 		super(s);
 	}
 }

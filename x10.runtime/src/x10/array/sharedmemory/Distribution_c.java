@@ -9,7 +9,7 @@ import x10.array.Distribution;
 import x10.array.Range;
 import x10.array.ContiguousRange;
 import x10.array.Region;
-import x10.array.InvalidIndexException;
+import x10.array.PointOutOfRegionException;
 import x10.base.Place;
 
 
@@ -140,7 +140,7 @@ abstract class Distribution_c extends Region_c implements Distribution {
         }
         
         public Place placeOf(int[] point) { 
-            throw new InvalidIndexException();
+            throw new PointOutOfRegionException();
         }
         
         public Distribution placeRestriction(Place r) {
