@@ -78,40 +78,39 @@ public class DefaultRuntime_c
      * Run the X10 application.
      */
     protected void run(String[] args) throws Exception {
-	if (args.length < 1) {
-	    System.err.println("Invoke with name of main X10 class!");
-	    System.exit(-1);
-	}
-	String[] appArgs = new String[args.length-1];
-	System.arraycopy(args, 1,
-			 appArgs, 0,
-			 appArgs.length);
-	Object[] tmp = {args};
-	Activity boot 
-	    = (Activity) Class
-	    .forName(args[0])
-	    .getDeclaredConstructor(new Class[] { String[].class })
-	    .newInstance(tmp);
-	Place[] p = getPlaces();
-	Place p0 = p[0];
-	Thread t = Thread.currentThread();
-	registerThread(t, p0);
-	registerActivityStart(t, boot, null);
-	Statistics_c.boot();
-	p0.runAsync(boot);
+        if (args.length < 1) 
+            throw new Error("Invoke with name of main X10 class!");
+        String[] appArgs = new String[args.length - 1];
+        System.arraycopy(args, 1, appArgs, 0, appArgs.length);
+        Object[] tmp = { args };
+        Activity boot = null;
+        try {	
+            boot = (Activity) Class.forName(args[0])
+                .getDeclaredConstructor(new Class[] { String[].class })
+                .newInstance(tmp);
+        } catch (Exception e) {
+            System.err.println("Could not find default constructor of main class!");
+            throw e;
+        }
+        Place[] p = getPlaces();
+        Place p0 = p[0];
+        Thread t = Thread.currentThread();
+        registerThread(t, p0);
+        registerActivityStart(t, boot, null);
+        Statistics_c.boot();
+        p0.runAsync(boot);
     }
     
-    public void registerThread(Thread t, 
-			       Place p) {
-        if (p == null)
-            throw new NullPointerException();
-	thread2place_.put(t, p);
-    }
+    public void registerThread(Thread t, Place p) {
+		if (p == null)
+			throw new NullPointerException();
+		thread2place_.put(t, p);
+	}
     
     /**
-     * Notify the asl via a callback whenever the given activity
-     * starts another Activity (via async, future or now).
-     */
+	 * Notify the asl via a callback whenever the given activity starts another
+	 * Activity (via async, future or now).
+	 */
     public synchronized void registerActivitySpawnListener(Activity i,
                                                            ActivitySpawnListener asl) {
         Vector v = (Vector) activity2asl_.get(i);
