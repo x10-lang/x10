@@ -9,8 +9,8 @@ package x10.array;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.HashSet;
 
 import x10.lang.PointOutOfRegionError;
 import x10.lang.point;
@@ -28,17 +28,6 @@ public class ArbitraryRegion extends region {
         points_ = new TreeSet();
     }
     
-    private static class PointComparator_ implements java.util.Comparator {
-        public int compare(java.lang.Object o1, java.lang.Object o2) {
-            point_c p1 = (point_c) o1;
-            point_c p2 = (point_c) o2;
-            return p1.compareTo(p2);
-        }
-        public boolean equals(Object o) {
-            return false;
-        }
-    };
-    
     public ArbitraryRegion(region[] dims) {
         super(dims.length);
         int sz = dims[0].size();
@@ -48,11 +37,8 @@ public class ArbitraryRegion extends region {
             assert dims[i].rank == 1;;
         }
  
-        points_ = new TreeSet(new PointComparator_());
-        HashSet x = new HashSet();
-        permutations_(x, new int[]{}, dims);
-        points_.addAll(x);
-        System.out.println( "x=== " + x.size() + "   points===" + points_.size());
+        points_ = new TreeSet();
+        permutations_(points_, new int[]{}, dims);
     }
     
     /* create all points in the region that is spawned by the dimensions in var */
@@ -112,7 +98,7 @@ public class ArbitraryRegion extends region {
         ArbitraryRegion ret = new ArbitraryRegion(1);
         for (Iterator it = iterator(); it.hasNext(); ) {
             point p = (point) it.next();
-            point p_onedim = point.factory.point(ArbitraryRegion.this, new int[] {p.valueAt(index)});
+            point p_onedim = point.factory.point(ret, new int[] {p.valueAt(index)});
             ret.add_(p_onedim);
         }
         return ret;
@@ -300,6 +286,7 @@ public class ArbitraryRegion extends region {
 		sb.append("}");
 		return sb.toString();
     }
+
 
 
 
