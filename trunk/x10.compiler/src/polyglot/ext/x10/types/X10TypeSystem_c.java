@@ -6,7 +6,7 @@ import java.util.List;
 
 import polyglot.ext.jl.types.ArrayType_c;
 import polyglot.ext.jl.types.TypeSystem_c;
-import polyglot.ext.pao.types.PaoPrimitiveType_c;
+import polyglot.ext.x10.types.X10PrimitiveType_c;
 import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
