@@ -118,7 +118,7 @@ abstract class Distribution_c extends Region_c implements Distribution {
         return new Distribution_c.Unique(p);
     }
 
-    Distribution_c(Region_c r) {
+    private Distribution_c(Region_c r) {
         super(r);
     }
     
