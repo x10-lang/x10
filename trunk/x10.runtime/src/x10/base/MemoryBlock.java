@@ -87,4 +87,12 @@ public abstract class MemoryBlock implements UnsafeContainer {
     public double getDouble(int d0) {
         throw new Error(MSG_);
     }
+
+    public Object set(Object val, int d0) {
+        throw new Error(MSG_);
+    }
+
+    public Object get(int d0) {
+        throw new Error(MSG_);
+    }
 }

@@ -3,6 +3,7 @@
  */
 package x10.array;
 
+import x10.compilergenerated.Parameter1;
 import x10.lang.point;
 
 /**
@@ -56,7 +57,11 @@ public abstract class Operator {
 		}
 
 		public Object apply(point p, Object i) {
-			throw new RuntimeException(ERR_);
+		    throw new RuntimeException(ERR_);
+		}
+
+		public Parameter1 apply(point p, Parameter1 i) {
+		    throw new RuntimeException(ERR_);
 		}
 		
 		public boolean apply(point p, boolean i, boolean j) {
@@ -91,9 +96,12 @@ public abstract class Operator {
 			throw new RuntimeException(ERR_);
 		}
 
-		public Object apply(point p, Object i, Object j) {
-			throw new RuntimeException(ERR_);
-		}
+        public Object apply(point p, Object i, Object j) {
+            throw new RuntimeException(ERR_);
+        }
+    public Parameter1 apply(point p, Parameter1 i, Parameter1 j) {
+        throw new RuntimeException(ERR_);
+    }
 	}
 	
 	/**
@@ -133,9 +141,12 @@ public abstract class Operator {
 			throw new RuntimeException(ERR_);
 		}
 
-		public Object apply(Object o) {
-			throw new RuntimeException(ERR_);
-		}
+        public Object apply(Object o) {
+            throw new RuntimeException(ERR_);
+        }
+    public Parameter1 apply(Parameter1 o) {
+        throw new RuntimeException(ERR_);
+    }
 	}
 	
 	/**

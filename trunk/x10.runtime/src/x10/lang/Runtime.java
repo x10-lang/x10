@@ -89,7 +89,8 @@ public abstract class Runtime implements x10.base.Runtime {
     	public abstract clock.factory getClockFactory();
     	public abstract intArray.factory getIntArrayFactory();
     	public abstract longArray.factory getLongArrayFactory();
-    	public abstract doubleArray.factory getDoubleArrayFactory();
+        public abstract doubleArray.factory getDoubleArrayFactory();
+        public abstract genericArray.factory getGenericArrayFactory();
     	public abstract place.factory getPlaceFactory();
     }
 

@@ -10,16 +10,20 @@ import java.util.TreeSet;
 import java.util.WeakHashMap;
 
 import x10.array.DoubleArray;
+import x10.array.GenericArray;
 import x10.array.IntArray;
 import x10.array.point_c;
 import x10.array.sharedmemory.DistributionFactory;
 import x10.array.sharedmemory.DoubleArray_c;
+import x10.array.sharedmemory.GenericArray_c;
 import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.LongArray_c;
 import x10.array.sharedmemory.RegionFactory;
+import x10.compilergenerated.Parameter1;
 import x10.lang.Activity;
 import x10.lang.DoubleReferenceArray;
 import x10.lang.Future;
+import x10.lang.GenericReferenceArray;
 import x10.lang.IntReferenceArray;
 import x10.lang.LongReferenceArray;
 import x10.lang.MultipleExceptions;
@@ -433,7 +437,26 @@ public class DefaultRuntime_c
     			};
     			
     		}
-    		public place.factory getPlaceFactory() {
+            public GenericArray.factory getGenericArrayFactory() {
+            return new x10.lang.genericArray.factory() {
+                public GenericReferenceArray GenericReferenceArray(distribution d, Parameter1 c) {
+                    return new GenericArray_c( d, c, true);
+                }
+                public GenericReferenceArray GenericReferenceArray(distribution d, x10.lang.genericArray.pointwiseOp f) {
+                    return new GenericArray_c( d, f, true);
+                }
+                public x10.lang.genericArray GenericValueArray(distribution d, Parameter1 c) {
+                    return new GenericArray_c(d, c, true, false);
+                }
+                public x10.lang.genericArray GenericValueArray(distribution d, x10.lang.genericArray.pointwiseOp f) {
+                    return new GenericArray_c(d, f, true, false);
+                }
+            };
+            
+        }
+
+            
+            public place.factory getPlaceFactory() {
     			return new place.factory() {
     				public place place(int i ) {
     					int index =( i %  place.MAX_PLACES);

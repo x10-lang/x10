@@ -22,6 +22,7 @@ import x10.parser.X10VarDeclarator;
  * NodeFactory for X10 extension.
  * @author ??
  * @author vj
+ * @author Christian Grothoff
  */
 public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	
@@ -206,8 +207,17 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (DepParameterExpr) n.ext(extFactory().extStmt());
 		return (DepParameterExpr) n.del(delFactory().delStmt());
 	}
-	public ParametricTypeNode ParametricTypeNode( Position pos,  TypeNode node, DepParameterExpr d) {
-		ParametricTypeNode n = new ParametricTypeNode_c( pos, node, d);
+        public GenParameterExpr GenParameterExpr(Position pos, List l) {
+                GenParameterExpr n = new GenParameterExpr_c( pos,  l);
+                n = (GenParameterExpr) n.ext(extFactory().extStmt());
+                return (GenParameterExpr) n.del(delFactory().delStmt());
+        }
+
+        public ParametricTypeNode ParametricTypeNode( Position pos,  
+                    TypeNode node,
+                    GenParameterExpr g,
+                    DepParameterExpr d) {
+		ParametricTypeNode n = new ParametricTypeNode_c( pos, node, g, d);
 		n = (ParametricTypeNode) n.ext(extFactory().extTypeNode());
 		return (ParametricTypeNode) n.del(delFactory().delTypeNode());
 	} 

@@ -6,29 +6,24 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ext.jl.types.TypeSystem_c;
-import polyglot.ext.x10.types.X10PrimitiveType_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.ast.X10DelFactory_c;
-import polyglot.ext.x10.ast.X10ExtFactory_c;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.frontend.Source;
-import polyglot.types.ArrayType;
+import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.LazyClassInitializer;
 import polyglot.types.MethodInstance;
+import polyglot.types.NullType;
 import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
+import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.NullType;
-import polyglot.types.ReferenceType;
 import polyglot.types.UnknownType;
-
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-
-import polyglot.main.Report;
 
 /**
  * A TypeSystem implementation for X10.
@@ -82,8 +77,10 @@ implements X10TypeSystem {
 		return new FutureType_c( this, pos, type );
 	}
 	
-	public ParametricType createParametricType ( Position pos, X10ReferenceType type, DepParameterExpr expr ) {
-		return new ParametricType_c( this, pos, type, expr);
+	public ParametricType createParametricType ( Position pos, X10ReferenceType type, 
+	        GenParameterExpr texpr,
+	        DepParameterExpr expr ) {
+		return new ParametricType_c( this, pos, type, texpr, expr);
 	}
 	
 	protected UnknownType createUnknownType() {
@@ -200,7 +197,7 @@ implements X10TypeSystem {
 		return doubleArrayPointwiseOpType_;
 	}
 	
-	public ClassType array(Type type, boolean isValueType, Expr distribution) {
+	public ReferenceType array(Type type, boolean isValueType, Expr distribution) {
 		if (type.isInt())
 			return intArray( isValueType, distribution );
 		if (type.isDouble())
@@ -209,44 +206,61 @@ implements X10TypeSystem {
 			return longArray( isValueType, distribution);
                 if (type.isPrimitive())
                     throw new Error("X10 array types not yet implemented for base types other than int, double and long (got: " + type + ")");
-		// if (type.isReference())
-                // must be reference, but we can't establish that yet
-		return objectArray(isValueType, distribution, type);
+                List list = new LinkedList();
+                list.add(type);
+                return this.createParametricType(Position.COMPILER_GENERATED,
+                        (X10ReferenceType) genericArray(isValueType, distribution),
+                        X10NodeFactory_c.getFactory().GenParameterExpr(Position.COMPILER_GENERATED,
+                                list),
+                          null);
 	}
 	
-	public ClassType array( Type type,  Expr distribution ) {
+	public ReferenceType array( Type type,  Expr distribution ) {
 		if (type.isInt())
 			return intArray(  distribution );
 		if (type.isDouble())
 			return doubleArray(  distribution );
 		if (type.isLong())
 			return longArray(  distribution );
-		if (type.isReference())
-		    return objectArray(distribution, type.toReference());
-		throw new Error("X10 array types not yet implemented for base types other than int, double and long. ");
+                List list = new LinkedList();
+                list.add(type);
+                return this.createParametricType(Position.COMPILER_GENERATED,
+                        (X10ReferenceType) genericArray(distribution),
+                        X10NodeFactory_c.getFactory().GenParameterExpr(Position.COMPILER_GENERATED,
+                                list),
+                          null);
 	}
 	
-	public ClassType array(Type type, boolean isValue ) {
+	public ReferenceType array(Type type, boolean isValue ) {
 		if (type.isInt())
 			return isValue ? intValueArray() : IntReferenceArray();
 		if (type.isDouble())
 		    return isValue ? doubleValueArray() : DoubleReferenceArray();
 		if (type.isLong())
 		    return isValue ? longValueArray() : LongReferenceArray();
-		if (type.isReference())
-		    return isValue ? objectValueArray(type.toReference())
-                                           : ObjectReferenceArray(type.toReference());
-		throw new Error("X10 array types not yet implemented for base types other than int, double and long. ");
+		List list = new LinkedList();
+                list.add(type);
+                return this.createParametricType(Position.COMPILER_GENERATED,
+                            (X10ReferenceType) genericValueArray(),
+                            X10NodeFactory_c.getFactory().GenParameterExpr(Position.COMPILER_GENERATED,
+                                    list),
+                              null);
 	}
 	
-	public ClassType array(Type type ) {
+	public ReferenceType array(Type type ) {
 		if (type.isInt())
 		    return intArray( );
 		if (type.isDouble())
 		    return doubleArray();
 		if (type.isLong())
 		    return longArray();
-		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
+		List list = new LinkedList();
+                list.add(type);
+                return this.createParametricType(Position.COMPILER_GENERATED,
+                            (X10ReferenceType) genericArray(),
+                            X10NodeFactory_c.getFactory().GenParameterExpr(Position.COMPILER_GENERATED,
+                                    list),
+                              null);
 	}
 	public ClassType intArray(boolean isValueType, Expr distribution ) {
 		return 
@@ -332,43 +346,48 @@ implements X10TypeSystem {
 		return longReferenceArrayType_;
 	}
 
+
     
-    static String generate(Type type) {
-        return "object";
+    protected ClassType genericArrayPointwiseOpType_;
+    public ClassType GenericArrayPointwiseOp(X10ReferenceType typeParam) {
+        if ( genericArrayPointwiseOpType_ == null)
+            genericArrayPointwiseOpType_ = load("x10.lang.genericArray$pointwiseOp"); // java file
+        // FIXME: we need to make this also into a parametric type (in typeParam)!
+        return genericArrayPointwiseOpType_;
     }
-    
-    public ClassType objectArrayPointwiseOp(Type type) {
-        String name = generate(type);
-        return load("x10.lang."+name+"Array$pointwiseOp"); // java file
-    }
-    public ClassType objectArray(boolean isValueType, Expr distribution, Type type) {
+    public ClassType genericArray(boolean isValueType, Expr distribution ) {
         return 
-        isValueType ? objectValueArray( distribution, type ) : ObjectReferenceArray( distribution, type );
+        isValueType ? genericValueArray( distribution ) : GenericReferenceArray( distribution );
     }
     
-    public ClassType objectArray( Expr distribution, Type type) {
-        String name = generate(type);
-        return load("x10.lang."+name+"Array"); // java file
+    protected ClassType genericArrayType_;
+    public ClassType genericArray( Expr distribution ) {
+        if ( genericArrayType_ == null)
+            genericArrayType_ = load("x10.lang.genericArray"); // java file
+        return genericArrayType_;
     }
     
-    public ClassType objectArray(Type type) {
-        return objectArray(null, type );
+    public ClassType genericArray() {
+        return genericArray( null );
     }
     
-    public ClassType objectValueArray(Type type) {
-        return objectValueArray(null, type);
+    public ClassType genericValueArray( ) {
+        return genericValueArray(null );
     }
     
-    public ClassType objectValueArray( Expr distribution, Type type ) {
-        return objectArray( distribution, type);
+    public ClassType genericValueArray( Expr distribution ) {
+        return genericArray( distribution );
     }
-    public ClassType ObjectReferenceArray(Type type) {
-        return ObjectReferenceArray( null, type);
+    public ClassType GenericReferenceArray() {
+        return GenericReferenceArray( null );
     }
     
-    public ClassType ObjectReferenceArray( Expr distribution, Type type) {
-        String name = generate(type);
-        return load("x10.lang."+name+"ReferenceArray"); // java file
+    protected ClassType genericReferenceArrayType_;
+    public ClassType GenericReferenceArray( Expr distribution ) {
+        if ( genericReferenceArrayType_ == null)
+            genericReferenceArrayType_ = load("x10.lang.GenericReferenceArray"); // java file
+        // return genericReferenceArrayType_.setParameter( "distribution", distribution );
+        return genericReferenceArrayType_;
     }
 
     
@@ -376,11 +395,7 @@ implements X10TypeSystem {
     
     
     
-    
-    
-    
-	
-	public ClassType doubleArray(boolean isValueType, Expr distribution ) {
+    public ClassType doubleArray(boolean isValueType, Expr distribution ) {
 		return 
 		isValueType ? doubleValueArray( distribution ) : DoubleReferenceArray( distribution );
 	}
