@@ -188,6 +188,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         this.eq = q;
     }
 
+    public void reportError(int errorCode, String locationInfo, int leftToken, int rightToken, String tokenText)
+    {
+        if (errorCode == DELETION_CODE ||
+            errorCode == MISPLACED_CODE) tokenText = "";
+        if (! tokenText.equals("")) tokenText += ' ';
+        eq.enqueue(ErrorInfo.SYNTAX_ERROR, locationInfo + tokenText + errorMsgText[errorCode]);
+    }
+
     public polyglot.ast.Node parse() {
         try
         {
@@ -4290,25 +4298,25 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 518:  IdentifierList ::= IdentifierList , identifier
+            // Rule 518:  IdentifierList ::= identifier
             //
             case 518: {
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) btParser.getSym(1);
+                List l = new TypedList(new LinkedList(), Name.class, false);
+                l.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                btParser.setSym1(l);
+                break;
+            }
+     
+            //
+            // Rule 519:  IdentifierList ::= IdentifierList , identifier
+            //
+            case 519: {
                 List IdentifierList = (List) btParser.getSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) btParser.getSym(3); 
                 IdentifierList.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 btParser.setSym1(IdentifierList);
                 break;
-            }
-     
-            //
-            // Rule 519:  IdentifierList ::= identifier
-            //
-            case 519: {
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) btParser.getSym(1);
-                List l = new TypedList(new LinkedList(), Name.class, false);
-                l.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
-                btParser.setSym1(l);
-                 break;
             }
      
             //
