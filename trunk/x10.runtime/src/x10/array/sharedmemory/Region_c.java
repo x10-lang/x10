@@ -96,12 +96,6 @@ public class Region_c extends region  {
         return dims[ i % dims.length];
     }
     
-    public region[] dim() {
-        region[] ret = new region[ rank];
-        System.arraycopy(dims, 0, ret, 0, ret.length);
-        return ret;
-    }
-    
     public boolean contains(region r) {
         assert r.rank == rank;
         Region_c r_c = (Region_c) r;
