@@ -5,15 +5,17 @@ What you need:
 
  - obtain the latest version of the code from CVS (update in Eclipse)
  - run the build.xml ant script in the root directory of the x10
-  installation.  This should update the files bin/x10, bin/x10c and
-  etc/standard.cfg
+   installation.  This should update the files bin/x10, bin/x10c and
+   etc/standard.cfg. (see note below).
  - add the bin directory of the x10 installation to your system's
    search  path
-
 
 Procedure:
 
  To translate and run the X10 examples from the command line:
+ Note: This only works with cygwin: You have to build the scripts 
+       x10 and x10c with ant/cygwin and also run those scripts within 
+       cygwin!
 
  - cd x10/examples/testcases/working
  - x10c Future1Boxed.x10 (this will create .java files and translate
@@ -37,4 +39,8 @@ Procedure:
    - classpath - User Entries - Advanced: add path 
      x10/examples/testcases/working
    - click OK
+
+
+
+
 
