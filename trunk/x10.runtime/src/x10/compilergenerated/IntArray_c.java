@@ -3,10 +3,11 @@
  */
 package x10.compilergenerated;
 
-import x10.lang.Array;
-import x10.lang.Distribution;
-import x10.lang.IntArray;
-import x10.runtime.Array_c;
+import x10.array.Array;
+import x10.array.Array_c;
+import x10.array.Distribution;
+import x10.array.IntArray;
+
 
 /**
  * @author Christian Grothoff, Christoph von Praun

@@ -4,16 +4,16 @@ import java.util.HashMap;
 import java.util.Vector;
 import java.util.WeakHashMap;
 
-import x10.compilergenerated.DoubleArray_c;
-import x10.compilergenerated.IntArray_c;
+
+import x10.array.Distribution;
+import x10.array.DoubleArray;
+import x10.array.IntArray;
+import x10.array.Range;
+import x10.array.Region;
+import x10.array.ArrayFactory;
 import x10.lang.Activity;
 import x10.lang.Clock;
-import x10.lang.Distribution;
-import x10.lang.DoubleArray;
-import x10.lang.IntArray;
 import x10.lang.Place;
-import x10.lang.Range;
-import x10.lang.Region;
 import x10.lang.Runtime;
 
 /**
@@ -189,28 +189,28 @@ public class DefaultRuntime_c
      * @return New Range.
      */
     public Range newRange(int lo, int hi)  {
-    	throw new Error("not implemented");
+    	return ArrayFactory.newRange(lo, hi);
     }
     
     /**
      * @return New Region.
      */
     public Region newRegion(Range[] dims)  {
-    	throw new Error("not implemented");
+    	return ArrayFactory.newRegion(dims);
     }
     
     /**
      * @return New array.
      */
     public IntArray newIntArray(Distribution d) {
-        return new IntArray_c((Distribution_c)d);
+        return ArrayFactory.newIntArray(d);
     }
 
     /**
      * @return New array.
      */
     public DoubleArray newDoubleArray(Distribution d) {
-        return new DoubleArray_c((Distribution_c)d);
+        return ArrayFactory.newDoubleArray(d);
     }
 				      
     /**
@@ -234,7 +234,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockDistribution(Region R, Place[] Q) {
-        return Distribution_c.makeBlock(R, Q);
+        return ArrayFactory.newBlockDistribution(R, Q);
     }
     
     /**
@@ -244,7 +244,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockDistribution(Region r, int n, Place[] p) {
-        return Distribution_c.makeBlock(r, n, p);
+        return ArrayFactory.newBlockDistribution(r, n, p);
     }
     
     /**
@@ -256,7 +256,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newCyclicDistribution(Region r, Place[] p) {
-        return Distribution_c.makeCyclic(r,  p);
+        return ArrayFactory.newCyclicDistribution(r,  p);
     }
     
     /**
@@ -268,7 +268,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockCyclicDistribution(Region r, int n, Place[] p) {
-        return Distribution_c.makeBlockCyclic(r, n, p);
+        return ArrayFactory.newBlockCyclicDistribution(r, n, p);
     }
     
     /**
@@ -278,7 +278,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newArbitraryDistribution(Region r, Place[] p) {
-        return Distribution_c.makeArbitrary(r, p);
+        return ArrayFactory.newArbitraryDistribution(r, p);
     }
     
     /**
@@ -289,7 +289,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newConstantDistribution(Region r, Place p) {
-        return Distribution_c.makeConstant(r, p);
+        return ArrayFactory.newConstantDistribution(r, p);
     }
     
     /**
@@ -300,7 +300,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newUniqueDistribution(Place[] p) {
-        return Distribution_c.makeUnique(p);
+        return ArrayFactory.newUniqueDistribution(p);
     }
     
     /**
@@ -310,7 +310,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockDistribution(Region R) {
-        return Distribution_c.makeBlock(R, places_);
+        return ArrayFactory.newBlockDistribution(R, places_);
     }
     
     /**
@@ -320,7 +320,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockDistribution(Region r, int n) {
-        return Distribution_c.makeBlock(r, n, places_);
+        return ArrayFactory.newBlockDistribution(r, n, places_);
     }
     
     /**
@@ -332,7 +332,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newCyclicDistribution(Region r) {
-        return Distribution_c.makeCyclic(r,  places_);
+        return ArrayFactory.newCyclicDistribution(r,  places_);
     }
     
     /**
@@ -344,7 +344,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockCyclicDistribution(Region r, int n) {
-        return Distribution_c.makeBlockCyclic(r, n, places_);
+        return ArrayFactory.newBlockCyclicDistribution(r, n, places_);
     }
     
     /**
@@ -354,7 +354,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newArbitraryDistribution(Region r) {
-        return Distribution_c.makeArbitrary(r, places_);
+        return ArrayFactory.newArbitraryDistribution(r, places_);
     }
     
     /**
@@ -365,7 +365,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newUniqueDistribution() {
-        return Distribution_c.makeUnique(places_);
+        return ArrayFactory.newUniqueDistribution(places_);
     }
 
 } // end of DefaultRuntime_c

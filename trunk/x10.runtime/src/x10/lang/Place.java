@@ -3,7 +3,7 @@ package x10.lang;
 /**
  * @author Christian Grothoff
  */
-public interface Place extends TypeArgument {
+public interface Place extends TypeArgument, x10.array.Place {
 
     /**
      * We allow passing Activity and Activity.Future to
