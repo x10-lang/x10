@@ -56,8 +56,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (Instanceof)n.del(new X10InstanceofDel_c());
 	}
 	
-	public Async Async(Position pos, Expr place, Stmt body) {
-		Async a = new Async_c(pos, place, body);
+	public Async Async(Position pos, Expr place, List clocks, Stmt body) {
+		Async a = new Async_c(pos, place, clocks, body);
 		a = (Async) a.ext(extFactory().extExpr());
 		return (Async) a.del(delFactory().delExpr());
 	}
@@ -171,8 +171,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (RemoteCall) n.del(delFactory().delExpr());
 		
 	}
-	public X10Loop AtEach(Position pos, Formal formal, Expr domain, Stmt body) {
-		X10Loop n = new AtEach_c( pos, formal, domain, body);
+	public X10Loop AtEach(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
+		X10Loop n = new AtEach_c( pos, formal, domain, clocks, body);
 		n = (X10Loop) n.ext(extFactory().extStmt());
 		return (X10Loop) n.del(delFactory().delStmt());
 	}
@@ -181,8 +181,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (X10Loop) n.ext(extFactory().extStmt());
 		return (X10Loop) n.del(delFactory().delStmt());
 	}
-	public X10Loop ForEach(Position pos, Formal formal, Expr domain, Stmt body) {
-		X10Loop n = new ForEach_c( pos, formal, domain, body);
+	public X10Loop ForEach(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
+		X10Loop n = new ForEach_c( pos, formal, domain, clocks, body);
 		n = (X10Loop) n.ext(extFactory().extStmt());
 		return (X10Loop) n.del(delFactory().delStmt());
 	}

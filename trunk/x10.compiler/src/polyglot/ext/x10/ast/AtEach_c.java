@@ -25,7 +25,7 @@ import polyglot.visit.PrettyPrinter;
  */
 public class AtEach_c extends X10Loop_c implements AtEach, Clocked {
 
-        protected List clocks;
+    protected List clocks;
 	
 	/**
 	 * @param pos
@@ -40,21 +40,22 @@ public class AtEach_c extends X10Loop_c implements AtEach, Clocked {
 	 * @param domain
 	 * @param body
 	 */
-	public AtEach_c(Position pos, Formal formal, Expr domain, Stmt body) {
+	public AtEach_c(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
 		super(pos, formal, domain, body);
+		this.clocks = clocks;
 	}
 	
-         /** Expression */
-         public List clocks() {
-             return this.clocks;
-         }
+    /** Expression */
+    public List clocks() {
+        return this.clocks;
+    }
     
-         /** clock */
-        public Clocked expr(List clocks) {
-            AtEach_c n = (AtEach_c) copy();
-            n.clocks = clocks;
-            return n;
-        }
+    /** clock */
+    public Clocked expr(List clocks) {
+        AtEach_c n = (AtEach_c) copy();
+        n.clocks = clocks;
+        return n;
+    }
     
 	public Expr getDomain( Expr d ) {
 		return new Field_c(position(), d, "distribution");
@@ -72,6 +73,4 @@ public class AtEach_c extends X10Loop_c implements AtEach, Clocked {
 		w.write(") ");
 		printSubStmt(body, w, tr);
 	}
-	
-	
 }
