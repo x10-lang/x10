@@ -19,6 +19,9 @@ import polyglot.frontend.VisitorPass;
 import polyglot.lex.Lexer;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
+import polyglot.util.CodeWriter;
+import polyglot.main.Report;
+import polyglot.visit.DumpAst;
 
 /**
  * Extension information for x10 extension.
