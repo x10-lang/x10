@@ -135,4 +135,16 @@ public class TestRegion extends TestCase {
         }
         assertTrue(cnt == 9);
     }
+    
+    public void testRegion_iterator2() {
+        region[] ranges = new region[] { new ContiguousRange(1,3), new ContiguousRange(2, 4), new ContiguousRange(1,3)};         
+        ArbitraryRegion reg = new ArbitraryRegion(ranges);
+        
+        int cnt = 0;
+        for (Iterator it = reg.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            System.out.println(p);
+        }
+        assertTrue(cnt == 9);
+    }
 }
