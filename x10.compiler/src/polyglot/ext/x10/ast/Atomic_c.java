@@ -24,7 +24,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.types.Type;
 /**
- * @author Christian Grothoff
+ * @author Philippe Charles
+ * @author vj
  */
 public class Atomic_c extends Stmt_c 
     implements Atomic {
@@ -113,15 +114,15 @@ public class Atomic_c extends Stmt_c
     }
 
     public String toString() {
-	return "async (" + place + ") { ... }";
+	return "atomic (" + place + ") { ... }";
     }
 
     /** Write the statement to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-	w.write("atomic (");
-	printBlock(place, w, tr);
-	w.write(") ");
-	printSubStmt(body, w, tr);
+    	w.write("atomic (");
+		printBlock(place, w, tr);
+		w.write(") ");
+		printSubStmt(body, w, tr);
     }
 
     /**
