@@ -27,7 +27,8 @@ This example illustrates 2-d Jacobi iteration.
            new double[DInner] (point [i,j]) 
              \{return (read(i+1,j)+read(i-1,j)
                       +read(i,j+1)+read(i,j-1))/4.0;\};       
-        if((err=((B | DInner) - Temp).abs().sum()) < epsilon)
+        if((err=((B | DInner) - Temp).abs().sum()) 
+            < epsilon)
            break; 
         B.update(Temp);
         iters++; 
@@ -42,8 +43,9 @@ This example illustrates 2-d Jacobi iteration.
    \}
    public static void main(String args[]) \{
       boolean b= (new Jacobi()).run();
-      System.out.println("++++++ "+(b? "Test succeeded."
-                                     :"Test failed."));
+      System.out.println("++++++ "
+                         + (b? "Test succeeded."
+                             :"Test failed."));
       System.exit(b?0:1);
    \}
 \}
