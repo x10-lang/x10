@@ -49,8 +49,12 @@ public abstract class Runtime {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-	_.run(args);
+    public static void main(String[] args) {
+    	try {
+    		_.run(args);
+    	} catch (Exception e) {
+    		Runtime.java.error("Unexpected Exception in X10 Runtime.", e);
+    	}
     }
 
     protected Runtime() {}
