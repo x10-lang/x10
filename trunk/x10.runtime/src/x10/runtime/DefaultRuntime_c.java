@@ -85,7 +85,7 @@ public class DefaultRuntime_c
         Object[] tmp = { args };
         Activity atmp = null;
         try {	
-            atmp = (Activity) Class.forName(Configuration.MAIN_CLASS_NAME)
+            atmp = (Activity) Class.forName(Configuration.MAIN_CLASS_NAME+"$Main")
                 .getDeclaredConstructor(new Class[] { String[].class })
                 .newInstance(tmp);
         } catch (Exception e) {
