@@ -1,8 +1,8 @@
+// await 
 {
 	synchronized (x10.lang.Runtime.here()) {
   		try {
-  			while (true) {
-  			    #0
+  			while (!(#0)) {
   				x10.lang.Runtime.here().wait();    			
     		}
     		x10.lang.Runtime.here().notifyAll();
