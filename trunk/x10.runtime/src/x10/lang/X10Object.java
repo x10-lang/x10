@@ -11,7 +11,7 @@ package x10.lang;
  * This class implements the root of the inheritance Hierarchy
  * for objects in an X10 program.
  */
-public class Object extends java.lang.Object {
+public class X10Object extends java.lang.Object {
 	/**
 	 * the place where this object was allocated.
 	 */
@@ -26,7 +26,7 @@ public class Object extends java.lang.Object {
 	 * Convenience constructor that is only used for instances of non-generic. 
 	 * types.
 	 */
-	public Object() {
+	public X10Object() {
 		this(null);
 	}
 	
@@ -35,7 +35,7 @@ public class Object extends java.lang.Object {
 	 *                     passed as type parameters when this instance was created.
 	 * 	                   If the class is not generic, the null is passed.  
 	 */
-	public Object(Class[] actual_types) {
+	public X10Object(Class[] actual_types) {
 		place = Runtime.here();
 		actualTypes_ = actual_types;
 	}

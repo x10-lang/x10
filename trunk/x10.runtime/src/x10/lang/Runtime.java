@@ -1,7 +1,7 @@
 package x10.lang;
 
 import x10.runtime.DefaultRuntime_c;
-import x10.runtime.JavaSubsystem;
+import x10.runtime.JavaRuntime;
 
 /**
  * This is the central entrypoint to the X10 Runtime for the
@@ -11,7 +11,7 @@ import x10.runtime.JavaSubsystem;
  * @see Place
  * @see Activity
  */
-public abstract class Runtime {
+public abstract class Runtime extends X10Object {
 
     public static final Runtime _;
 
@@ -70,7 +70,7 @@ public abstract class Runtime {
     /**
      * Get the 'native' API.
      */ 
-    public abstract JavaSubsystem getNative();
+    public abstract JavaRuntime getJavaRuntime();
 
     /**
      * Get current runtime.

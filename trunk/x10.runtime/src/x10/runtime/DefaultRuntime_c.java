@@ -15,7 +15,7 @@ import x10.lang.Runtime;
  */
 public class DefaultRuntime_c extends Runtime implements ThreadRegistry {
 
-    private final JavaSubsystem native_ = new JavaSubsystem();
+    private final JavaRuntime native_ = new JavaRuntime();
 
     private final HashMap thread2place_ = new HashMap();
 
@@ -97,7 +97,7 @@ public class DefaultRuntime_c extends Runtime implements ThreadRegistry {
     /**
      * Get the 'native' API.
      */ 
-    public JavaSubsystem getNative() {
+    public JavaRuntime getJavaRuntime() {
 	return native_;
     }
 

@@ -31,7 +31,7 @@ public interface Place {
      * @param a reference to the closure that encapsulates the code to run
      * @return the placeholder for the future result.
      */
-    public Future runFuture(Activity.FutureActivity a); 
+    public Future runFuture(Activity.Expr a); 
     
     /**
      * Shutdown this place, the current X10 runtime will exit.

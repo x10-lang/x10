@@ -4,7 +4,7 @@
 package x10.runtime;
 
 import x10.lang.Future;
-import x10.lang.Object;
+import x10.lang.X10Object;
 
 /**
  * This class encapsulates the return value of a local async
@@ -13,18 +13,18 @@ import x10.lang.Object;
  * 
  * @author Christian Grothoff
  */
-final class LocalActivityResult_c extends Future {
+final class FutureImpl implements Future {
 
     private boolean haveResult_;
     
-    private Object result_;    
+    private X10Object result_;    
     
     /**
      * Set the result value returned by this async call.
      * 
      * @param result
      */
-    public synchronized void setResult(Object result) {
+    public synchronized void setResult(X10Object result) {
         assert (! haveResult_); 
 		
         this.result_ = result;
@@ -35,7 +35,7 @@ final class LocalActivityResult_c extends Future {
     /*
      * @see x10.runtime.Activity.Result#force()
      */
-    public synchronized Object force() {
+    public synchronized X10Object force() {
         while (! haveResult_) {
             try {
                 this.wait();
