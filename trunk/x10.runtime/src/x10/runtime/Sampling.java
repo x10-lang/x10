@@ -6,11 +6,10 @@ package x10.runtime;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Iterator;
-import x10.runtime.Place;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import x10.lang.Activity;
 import x10.lang.Runtime;
@@ -46,6 +45,12 @@ public final class Sampling extends Thread {
      */
     private final Place[] places;
     
+    final int[] activityCounts;
+    
+    final Map activityToIdentifier = new WeakHashMap();
+    
+    final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime.runtime;
+
     /**
      * Shutdown gathering process.
      */
@@ -114,6 +119,7 @@ public final class Sampling extends Thread {
     private Sampling() {
         DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime.runtime;
         this.places  = rt.getPlaces();
+        this.activityCounts = new int[places.length+1];
         try {
             dos = new DataOutputStream
                 (new FileOutputStream(Configuration.PE_FILE));
@@ -170,13 +176,35 @@ public final class Sampling extends Thread {
         this.start(); // auto-start!
     }
 
+    private synchronized void freshActivity(Activity a) {
+        DefaultRuntime_c dr = (DefaultRuntime_c) Runtime.runtime;
+        Place p = dr.getPlaceOfActivity(a);
+        int j = -1;
+        for (int i=places.length-1;i>=0;i--) {
+            if (p == places[i]) {
+                j = i;
+                break;
+            }
+        }
+        activityToIdentifier.put(a, new Integer(activityCounts[j+1]++)); 
+    }
+    
+    int getActivityId(Activity a) {
+        Object ret = activityToIdentifier.get(a);
+        if (ret == null) {
+            freshActivity(a);
+            ret = activityToIdentifier.get(a);
+        }
+        return ((Integer) ret).intValue();
+    }
+    
     public String toString() {
         return samples_.toString(); // for now, may nicer later...
     }
 
     public void signalEvent(int event_id) {
         signalEvent(null, 
-                          Runtime.here(),
+                          dr.getCurrentActivity(),
                           event_id, 0,
                           0, 
                           0);        
@@ -185,7 +213,7 @@ public final class Sampling extends Thread {
     public void signalEvent(int event_id,
                                          int event_info) {
         signalEvent(null, 
-                          Runtime.here(),
+                          dr.getCurrentActivity(),
                           event_id, event_info, 
                           0, 
                           0);        
@@ -195,7 +223,7 @@ public final class Sampling extends Thread {
                                           int cause,
                                           int causeInfo) {
         signalEvent(null, 
-                          Runtime.here(),
+                          dr.getCurrentActivity(),
                           event_id, 0, 
                           cause, 
                           causeInfo);        
@@ -218,28 +246,30 @@ public final class Sampling extends Thread {
         }
     }
     
-    public synchronized void signalEvent(Place srcPlace,
-                                                                 Place dstPlace, 
+    public synchronized void signalEvent(Activity ia,
+                                                                 Activity a, 
                                                                  int event_id,
                                                                  int event_info,
                                                                  int cause,
-                                                                 int causeInfo) {
+                                                                 int causeInfo) {        
+        Place srcPlace = (ia == null) ? null : dr.getPlaceOfActivity(ia);
+        Place dstPlace = (a == null) ? null : dr.getPlaceOfActivity(a);
         try {
-            for (int i=places.length-1;i>=0;i--) {
-                if (dstPlace != places[i]) 
-                    continue;
-                int j = -1;
-                if (srcPlace != null) {
-                    for (int k=places.length-1;k>=0;k--) {
-                        if (srcPlace == places[k]) {
-                               j=k;                        
-                               break;
-                        }
-                    }
-                    if (j == -1)
-                        throw new Error("Place " + srcPlace + " not in place list!");
+            int i=-1;
+            for (int k=places.length-1;k>=0;k--) {
+                if (dstPlace != places[k]) {
+                    i = k;
+                    break;
                 }
-                switch (event_id) {
+            }
+            int j = -1;
+            for (int k=places.length-1;k>=0;k--) {
+                if (srcPlace == places[k]) {
+                    j=k;                        
+                    break;
+                }
+            }
+            switch (event_id) {
                 case EVENT_ID_CLOCK_ADVANCE:
                     writeHeader(8, EVENT, event_id);
                     dos.writeInt(i);
@@ -247,43 +277,58 @@ public final class Sampling extends Thread {
                     break;
                 case EVENT_ID_ACTIVITY_START:
                     activityStart[i]++;
-                    writeHeader(4+4+4+4, EVENT, event_id);
+                    writeHeader(4+4+4+4+4+4, EVENT, event_id);                   
+                    dos.writeInt(getActivityId(ia));
                     dos.writeInt(j); // src place
+                    dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
-                    dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    if (dstPlace != null)
+                        dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    else
+                        dos.writeInt(-1);
                     dos.writeInt(event_info);
                     break;
                 case EVENT_ID_ACTIVITY_END:
                     activityEnd[i]++;
                     writeHeader(4+4+4+4, EVENT, event_id);
-                    dos.writeInt(0); // reserved
+                    dos.writeInt(getActivityId(a)); 
                     dos.writeInt(i); // dst place
-                    dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    if (dstPlace != null)
+                        dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    else
+                        dos.writeInt(-1);
                     dos.writeInt(event_info);
                     break;
                 case EVENT_ID_ACTIVITY_BLOCK:
                     blockEntry[i]++;
-                    writeHeader(4+4+4+4, EVENT, event_id);
+                    writeHeader(4+4+4+4+4+4, EVENT, event_id);
+                    dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
-                    dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    dos.writeInt(0); // reserved
+                    if (dstPlace != null)
+                        dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    else
+                        dos.writeInt(-1);
                     dos.writeInt(cause);
                     dos.writeInt(causeInfo);
                     break;
                 case EVENT_ID_ACTIVITY_UNBLOCK:
                     blockExit[i]++;
-                    writeHeader(4+4+4+4, EVENT, event_id);
+                    writeHeader(4+4+4+4+4+4, EVENT, event_id);
+                    dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
-                    dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    dos.writeInt(0); // reserved
+                    if (dstPlace != null)
+                        dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                    else
+                        dos.writeInt(-1);
                     dos.writeInt(cause);
                     dos.writeInt(causeInfo);
                     break;
-                }
-                return;
-            }
-            throw new Error("Place " + dstPlace + " not in place list!");
+            }        
         } catch (IOException io) {
-            throw new Error(io);
-        }
+                throw new Error(io);
+        }         
     }
     
     private void delta(int[] now, int[] last) {
@@ -452,9 +497,9 @@ public final class Sampling extends Thread {
                                              new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,
                                                 Activity i) {
-                    assert a != i;
-                    SINGLETON.signalEvent(dr.getPlaceOfActivity(i),
-                                        dr.getPlaceOfActivity(a),
+                    assert a != i;                    
+                    SINGLETON.signalEvent(i,
+                                        a,
                                         Sampling.EVENT_ID_ACTIVITY_START,
                                         0,
                                         0,
@@ -463,7 +508,7 @@ public final class Sampling extends Thread {
                 }
                 public void notifyActivityTerminated(Activity a) {
                     SINGLETON.signalEvent(null,
-                            dr.getPlaceOfActivity(a),
+                            a,
                             Sampling.EVENT_ID_ACTIVITY_END,
                             0,
                             0,
