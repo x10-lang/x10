@@ -8,15 +8,6 @@ import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
 import polyglot.util.Position;
 
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.types.ReferenceType;
-
-import polyglot.ext.x10.types.FutureType_c;
-import polyglot.ext.x10.types.NullableType_c;
-
-import polyglot.ext.jl.types.UnknownType_c;
-
 /**
  * NodeFactory for x10 extension.
  */
@@ -54,7 +45,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     
     public Future Future(Position pos, Expr place, Expr body) {
         Future f = new Future_c(pos, place, body);
-        f = (Future) f.ext(extFactory().extStmt());
+        X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+        f = (Future) f.ext(ext_fac.extFutureImpl());
         return (Future) f.del(delFactory().delStmt());
     }
     

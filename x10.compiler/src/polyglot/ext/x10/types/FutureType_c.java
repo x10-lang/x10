@@ -8,9 +8,7 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
-import polyglot.ext.jl.types.ReferenceType_c;
 import polyglot.types.FieldInstance;
-import polyglot.types.ReferenceType;
 import polyglot.types.Resolver;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -187,6 +185,4 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	 	return false;
 	 }
 	 
-	 
-
 }
