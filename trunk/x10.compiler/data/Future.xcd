@@ -1,5 +1,5 @@
 // future(0) 1
-((x10.runtime.Place) #0).runFuture(new x10.lang.Activity.Expr() {
+((x10.runtime.Place) (#0)).runFuture(new x10.lang.Activity.Expr() {
   private x10.lang.Object x10_result_; 
   public void run() {
      this.x10_result_ = (#1); 
