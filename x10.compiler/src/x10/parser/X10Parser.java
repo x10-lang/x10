@@ -1404,6 +1404,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                   s.addAll(b.statements());
                   b = b.statements(s);
                 }
+                Flags f = a.flags();
+                if (f.contains(Flags.ATOMIC)) {
+                	  List ss = new TypedList(new LinkedList(), Stmt.class, false);
+                      ss.add(nf.Atomic(pos(), nf.Here(pos()), b));
+                      b = b.statements(ss);
+                      a = a.flags(f.clear(Flags.ATOMIC));
+                }
                 btParser.setSym1(a.body(b));
                 break;
             }
