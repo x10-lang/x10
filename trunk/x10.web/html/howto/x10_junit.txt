@@ -2,6 +2,8 @@ HOWTO: Add a new testcase to the X1- development environment.
 ------------------------------------------------------------
 
 JUnit testing harness for the X10 compiler.
+File: x10/src/polyglot/ext/x10/tests/TestCompiler.java.
+
  
 Overview
 --------
