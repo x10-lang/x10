@@ -71,11 +71,15 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	this.mutable_ = mutable;
         this.safe_ = safe;
     	int count = d.region.size();
-    	int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i)
-            ranks[i] = d.region.rank(i).size();
-        this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) 
-    			: Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
+    	if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Integer.TYPE);
+        }
     	scan(this, new Assign(c));
     	
     }
@@ -90,18 +94,32 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	this.mutable_ = mutable;
         this.safe_ = safe;
     	int count =  d.region.size();
-    	int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-        this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE)
-    			: Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Integer.TYPE);
+        }
     	scan(this, f);
     	
     }
     private IntArray_c( distribution d, int[] a, boolean safe, boolean mutable ) {
     	super(d);
         this.mutable_ = mutable;
-    	this.arr_ = Allocator.allocSafeIntArray( a);
         this.safe_ = safe;
+        int count =  d.region.size();
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Integer.TYPE);
+        }
     }
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
@@ -117,9 +135,15 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         int count = d.region.size();
         this.mutable_ = true;
         this.safe_ = safe;
-        int ranks[] = new int[count];
-        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
-        this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
+        } else {
+            this.arr_ =Allocator.allocSafe(count, Integer.TYPE);
+        }
         if (c != null)
             pointwise(this, c);
     }
