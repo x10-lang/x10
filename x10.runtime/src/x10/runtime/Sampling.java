@@ -132,6 +132,16 @@ public final class Sampling extends Thread {
         try {
             dos = new DataOutputStream
                 (new FileOutputStream(Configuration.PE_FILE));
+            dos.writeByte(1); // big endian == 1?
+            dos.writeByte(0);
+            dos.writeByte(0);
+            dos.writeByte(0);
+            dos.writeInt(3); // version
+            dos.writeInt(1+3+4+4+4+8+8+8+8); // size
+            dos.writeInt(0);
+            dos.writeLong(0x4000000000000000L); // 'infinity'
+            dos.writeLong(1); // ticks per second
+            dos.writeLong(System.currentTimeMillis()); // initial timestamp = system time
         } catch (IOException io) {
             System.err.println(io);
             io.printStackTrace();
@@ -291,7 +301,17 @@ public final class Sampling extends Thread {
             if (p == places[i])
                 _.statusValue[i][s_id] += value;
     }
-
+    
+    private final static int JVM_LAYER_ID = 4; // ??
+    private void writeHeader(int size, int specifier) {
+        try {
+            dos.writeInt((int) System.currentTimeMillis());
+            int larg = (size << 24) | (JVM_LAYER_ID << 14) | specifier; 
+        } catch (IOException io) {
+            throw new Error(io);
+        }
+    }
+    
     /**
      * Record a single event.
      * @param id the id of the event (i.e. call, clock advance)
@@ -300,6 +320,7 @@ public final class Sampling extends Thread {
      */
     private synchronized void recordEvent(int id, int type, int pid) {
         assert (type == EX_M) || (type == EX_S);
+        writeHeader(4+4+8+4+4, type);
         try {
             dos.writeInt(4+4+8+4+4); // size
             dos.writeInt(type); 
@@ -320,14 +341,17 @@ public final class Sampling extends Thread {
     private synchronized void recordEvent(int[][] eventData,
                                           int id, int type) {
         assert (type != ET_EE) && (type != ED_EE);
+        writeHeader(4+4+4+8+4+eventData.length*8, type);
         try {
-            dos.writeInt(4+4+4+8+4+eventData.length*4); // size
+            dos.writeInt(4+4+4+8+4+eventData.length*8); // size
             dos.writeInt(type); 
             dos.writeLong(System.currentTimeMillis()); // sampling time 
             dos.writeInt(id);
             dos.writeInt(eventData.length);            
-            for (int i=0;i<eventData.length;i++)
+            for (int i=0;i<eventData.length;i++) {
+                dos.writeInt(i);
                 dos.writeInt(eventData[i][id]);
+            }
         } catch (IOException io) {
             throw new Error(io);
         }
@@ -343,6 +367,7 @@ public final class Sampling extends Thread {
     private void recordEntryExit(int id, int type, 
                                  int[][] entryData,
                                  int[][] exitData) {
+        writeHeader(4+4+8+4+entryData.length*8, type);
         try {
             dos.writeInt(4+4+8+4+4+entryData.length*8); // size
             dos.writeInt(type); 
