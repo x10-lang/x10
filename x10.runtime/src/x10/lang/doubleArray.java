@@ -153,6 +153,14 @@ implements Indexable, Unsafe {
 	public DoubleReferenceArray abs() {
 		return lift(abs);
 	}
+	
+	/**
+	 * Convenience method for subtracting another array pointwise.
+	 * @return
+	 */
+	public DoubleReferenceArray sub( doubleArray s) {
+		return lift(sub, s);
+	}
 	/**
 	 * Convenience method for applying max after applying abs.
 	 * @return
