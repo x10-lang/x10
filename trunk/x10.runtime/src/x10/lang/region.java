@@ -215,4 +215,7 @@ public abstract /*value*/ class region extends Object  {
     public region[] partition(int n) {   
         throw new Error(getClass().getName() + "::partition - not implemented.");    
     }
+    public distribution/*(:region=this)*/ toDistribution() {
+    	return distribution.factory.local( this);
+    }
 }

@@ -109,15 +109,15 @@ public abstract class DoubleArray extends DoubleReferenceArray {
     /**
      * Generic flat access.
      */
-    public abstract void set(double v, point pos);
+    public abstract double set(double v, point pos);
 
-    public abstract void set(double v, int d0);
+    public abstract double set(double v, int d0);
 
-    public abstract void set(double v, int d0, int d1);
+    public abstract double set(double v, int d0, int d1);
 
-    public abstract void set(double v, int d0, int d1, int d2);
+    public abstract double set(double v, int d0, int d1, int d2);
 
-    public abstract void set(double v, int d0, int d1, int d2, int d3);
+    public abstract double set(double v, int d0, int d1, int d2, int d3);
 
     /**
      * Generic flat access.

@@ -61,7 +61,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public doubleArray/*(:rank=1)*/  doubleValueArray(/*nat*/ int k, double initVal) { 
-			return doubleValueArray(x10.lang.distribution.factory.here(k), initVal);
+			return doubleValueArray(x10.lang.distribution.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -70,7 +70,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public doubleArray/*(:rank=1)*/ doubleValueArray(/*nat*/ int k, pointwiseOp init) {
-			return doubleValueArray( x10.lang.distribution.factory.here(k), init);
+			return doubleValueArray( x10.lang.distribution.factory.local(k), init);
 		}
 		
 		abstract public 
@@ -94,7 +94,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public DoubleReferenceArray/*(:rank=1)*/  DoubleReferenceArray(/*nat*/ int k, double initVal) { 
-			return DoubleReferenceArray(x10.lang.distribution.factory.here(k), initVal);
+			return DoubleReferenceArray(x10.lang.distribution.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -103,7 +103,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public DoubleReferenceArray/*(:rank=1)*/ DoubleReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return DoubleReferenceArray( x10.lang.distribution.factory.here(k), init);
+			return DoubleReferenceArray( x10.lang.distribution.factory.local(k), init);
 		}
 		
 		public DoubleReferenceArray DoubleReferenceArray( distribution D) {
@@ -263,5 +263,7 @@ implements Indexable, Unsafe {
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
-	
+	public distribution toDistribution() {
+		return distribution;
+	}
 }

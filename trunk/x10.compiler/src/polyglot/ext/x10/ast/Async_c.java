@@ -7,7 +7,10 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
+import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.Stmt_c;
+import polyglot.ext.x10.types.FutureType_c;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.util.Position;
 import polyglot.util.CodeWriter;
 import polyglot.visit.CFGBuilder;
@@ -92,16 +95,17 @@ implements Async {
 	
 	/** Type check the statement. */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		TypeSystem ts = tc.typeSystem();
+		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	Type placeType = place.type();
+    	Expr newPlace = place;
+    	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
+		if ( ! placeIsPlace ) {
+			newPlace = (Expr) (new Field_c(position(), place, "location")).typeCheck( tc );
+		}
+    	
+       	return (Async_c) place(newPlace);
 		
-		/*
-		 if (! ts.isSubtype(expr.type(), ts.Object()) ) {
-		 throw new SemanticException(
-		 "Cannot synchronize on an expression of type \"" +
-		 expr.type() + "\".", expr.position());
-		 }
-		 */
-		return this;
+		
 	}
 	
 	// not sure how this works.. vj. Copied from Synchronized_c.

@@ -13,6 +13,7 @@ import polyglot.util.Position;
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 import polyglot.ast.Formal;
+import polyglot.ext.jl.ast.Field_c;
 import polyglot.util.Position;
 
 import polyglot.util.CodeWriter;
@@ -51,5 +52,6 @@ public class ForLoop_c extends X10Loop_c {
 		super(pos, formal, domain, body);
 		
 	}
+	
 
 }

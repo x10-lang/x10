@@ -15,10 +15,73 @@ public abstract class DoubleReferenceArray extends doubleArray {
 		super( D );
 	}
 
-	abstract public void set( double v, point/*(region)*/ p);
-	abstract /*value*/ public void set(double v, int p);
-	abstract /*value*/ public void set(double v, int p, int q);
-	abstract /*value*/ public void set(double v, int p, int q, int r);
-	abstract /*value*/ public void set(double v, int p, int q, int r, int s);
+	abstract public double set( double v, point/*(region)*/ p);
+	abstract /*value*/ public double set(double v, int p);
+	abstract /*value*/ public double set(double v, int p, int q);
+	abstract /*value*/ public double set(double v, int p, int q, int r);
+	abstract /*value*/ public double set(double v, int p, int q, int r, int s);
+	
+	public double addSet( double v, point/*(region)*/ p) {
+		return set(get(p)+v,p);
+	}
+	public double addSet(double v, int p) {
+		return set(get(p)+v,p);
+	}
+	public double addSet(double v, int p, int q) {
+		return set(get(p,q)+v,p,q);
+	}
+	public double addSet(double v, int p, int q, int r) {
+		return set(get(p,q,r)+v,p,q,r);
+	}
+	public double addSet(double v, int p, int q, int r, int s) {
+		return set(get(p,q,r,s)+v,p,q,r,s);
+	}
+	
+	public double mulSet( double v, point/*(region)*/ p) {
+		return set(get(p)*v,p);
+	}
+	public double mulSet(double v, int p) {
+		return set(get(p)*v,p);
+	}
+	public double mulSet(double v, int p, int q) {
+		return set(get(p,q)*v,p,q);
+	}
+	public double mulSet(double v, int p, int q, int r) {
+		return set(get(p,q,r)*v,p,q,r);
+	}
+	public double mulSet(double v, int p, int q, int r, int s) {
+		return set(get(p,q,r,s)*v,p,q,r,s);
+	}
+	public double subSet( double v, point/*(region)*/ p) {
+		return set(get(p)-v,p);
+	}
+	public double subSet(double v, int p) {
+		return set(get(p)-v,p);
+	}
+	public double subSet(double v, int p, int q) {
+		return set(get(p,q)-v,p,q);
+	}
+	public double subSet(double v, int p, int q, int r) {
+		return set(get(p,q,r)-v,p,q,r);
+	}
+	public double subSet(double v, int p, int q, int r, int s) {
+		return set(get(p,q,r,s)-v,p,q,r,s);
+	}
+	public double divSet( double v, point/*(region)*/ p) {
+		return set(get(p)/v,p);
+	}
+	public double divSet(double v, int p) {
+		return set(get(p)/v,p);
+	}
+	public double divSet(double v, int p, int q) {
+		return set(get(p,q)/v,p,q);
+	}
+	public double divSet(double v, int p, int q, int r) {
+		return set(get(p,q,r)/v,p,q,r);
+	}
+	public double divSet(double v, int p, int q, int r, int s) {
+		return set(get(p,q,r,s)/v,p,q,r,s);
+	}
+	
 	
 }

@@ -62,7 +62,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		 * @return
 		 */
 		public intArray/*(:rank=1)*/  intValueArray(/*nat*/ int k, int initVal) { 
-			return intValueArray(x10.lang.distribution.factory.here(k), initVal);
+			return intValueArray(x10.lang.distribution.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -71,7 +71,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		 * @return
 		 */
 		public intArray/*(:rank=1)*/ intValueArray(/*nat*/ int k, pointwiseOp init) {
-			return intValueArray( x10.lang.distribution.factory.here(k), init);
+			return intValueArray( x10.lang.distribution.factory.local(k), init);
 		}
 		
 		abstract public 
@@ -96,7 +96,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		 * @return
 		 */
 		public IntReferenceArray/*(:rank=1)*/  IntReferenceArray(/*nat*/ int k, int initVal) { 
-			return IntReferenceArray(x10.lang.distribution.factory.here(k), initVal);
+			return IntReferenceArray(x10.lang.distribution.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -105,7 +105,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		 * @return
 		 */
 		public IntReferenceArray/*(:rank=1)*/ IntReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return IntReferenceArray( x10.lang.distribution.factory.here(k), init);
+			return IntReferenceArray( x10.lang.distribution.factory.local(k), init);
 		}
 		
 		
@@ -255,4 +255,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
+	public distribution toDistribution() {
+		return this.distribution;
+	}
 }

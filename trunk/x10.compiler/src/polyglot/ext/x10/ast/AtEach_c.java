@@ -9,22 +9,13 @@ import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 import polyglot.ast.Formal;
 import polyglot.util.Position;
-import polyglot.ast.Block;
-import polyglot.ast.Stmt;
-import polyglot.ast.Expr;
-import polyglot.ast.Node;
-import polyglot.ast.Term;
-import polyglot.ext.jl.ast.Stmt_c;
-import polyglot.util.Position;
 import polyglot.util.CodeWriter;
-import polyglot.visit.CFGBuilder;
-import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
-import polyglot.visit.AscriptionVisitor;
+
+import polyglot.ext.jl.ast.Field_c;
+
+
 import polyglot.visit.PrettyPrinter;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
-import polyglot.types.Type;
+
 
 /** An immutable representation of the X10 statement: ateach (i : D) S
  * @author vj Dec 9, 2004
@@ -37,7 +28,6 @@ public class AtEach_c extends X10Loop_c implements AtEach {
 	 */
 	public AtEach_c(Position pos) {
 		super(pos);
-		// TODO Auto-generated constructor stub
 	}
 	
 	/**
@@ -50,24 +40,9 @@ public class AtEach_c extends X10Loop_c implements AtEach {
 		super(pos, formal, domain, body);
 	}
 	
-	public AtEach body(Stmt body) {
-		AtEach_c n = (AtEach_c) copy();
-		n.body = body;
-		return n;
+	public Expr getDomain( Expr d ) {
+		return new Field_c(position(), d, "distribution");
 	}
-	
-	public AtEach formal(Formal formal) {
-		AtEach_c n = (AtEach_c) copy();
-		n.formal = formal;
-		return n;
-	}
-	
-	public AtEach domain(Expr domain) {
-		AtEach_c n = (AtEach_c) copy();
-		n.domain = domain;
-		return n;
-	}
-	
 	
 	public String toString() {
 		return "ateach (" + formal + ":" + domain + ")" + body;

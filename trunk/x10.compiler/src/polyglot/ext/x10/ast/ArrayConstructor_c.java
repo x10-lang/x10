@@ -20,6 +20,7 @@ import polyglot.types.Type;
 
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.jl.ast.NewArray_c;
+import polyglot.ext.jl.ast.Call_c;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
@@ -179,6 +180,7 @@ implements ArrayConstructor {
 		
 		TypeNode newBase = (TypeNode) n;
 		Type newBaseType = newBase.type();
+		Expr newDistribution = distribution;
 		
 		
 		if (this.distribution != null) {
@@ -190,11 +192,19 @@ implements ArrayConstructor {
 				l.add( distribution );
 				return new NewArray_c( position(), newBase, l, 0, null).typeCheck( tc );
 			}
-			boolean distributionIsDist = ts.isImplicitCastValid(distType, ts.distribution());
-			// System.out.println("ArrayConstructor_c: distributionIsDist = " + distributionIsDist + " " + distType );
-			if ( ! distributionIsDist)
-				throw new SemanticException("Array distribution specifier must be of type int or distribution" 
-						+ position());
+			boolean distributionIsRegion = ts.isImplicitCastValid(distType, ts.region());
+			if (distributionIsRegion) {
+				// convert this region to a distribution.
+				
+				newDistribution = (Expr) (new Call_c(position(), distribution, "toDistribution", new LinkedList())).typeCheck( tc );
+			} else {
+				// it must be a distribution.
+				boolean distributionIsDist = ts.isImplicitCastValid(distType, ts.distribution());
+				// System.out.println("ArrayConstructor_c: distributionIsDist = " + distributionIsDist + " " + distType );
+				if ( ! distributionIsDist)
+					throw new SemanticException("Array distribution specifier must be of type int or distribution" 
+							+ position());
+			}
 		}
 		
 		if (initializer != null) {
@@ -224,7 +234,7 @@ implements ArrayConstructor {
 		
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);
 		
-		return n1.arrayBaseType( newBase);
+		return n1.distribution( newDistribution ).arrayBaseType( newBase );
 		
 	}
 	

@@ -30,8 +30,8 @@ public class MemoryBlockSafeIntArray extends MemoryBlockSafe {
          return Allocator.SIZE_INT;
     }
      
-    public void setInt(int val, int d0) {
-        arr_[d0] = val;
+    public int setInt(int val, int d0) {
+        return arr_[d0] = val;
     }
     
     public int getInt(int d0) {

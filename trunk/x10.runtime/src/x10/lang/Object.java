@@ -16,7 +16,7 @@ public class Object {
 	/**
 	 * the place where this object was allocated.
 	 */
-	public final place place;
+	public final place location;
 	
 	/**
 	 * The actual type parameters with which this type was instanced.
@@ -37,7 +37,7 @@ public class Object {
 	 * 	                   If the class is not generic, the null is passed.  
 	 */
 	public Object(TypeArgument[] actual_type_args) {
-		place = Runtime.here();
+		location = Runtime.here();
 		actualTypeArguments_ = actual_type_args;
 	}
 	

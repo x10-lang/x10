@@ -11,6 +11,7 @@ import polyglot.types.Type;
  */
 public interface Future extends Expr, RemoteActivityInvocation {
 
+
     /** Set the RemoteActivity's body */
     Future body(Expr body);
 

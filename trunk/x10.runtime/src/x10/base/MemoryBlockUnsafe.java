@@ -52,43 +52,48 @@ public class MemoryBlockUnsafe extends MemoryBlock {
     //
     // 1D Array based set() and get() methods  (d0 is array index)
     //    
-     public void setByte(byte val, int d0) { 
+     public byte setByte(byte val, int d0) { 
        check(d0); 
        unsafe_.putByte(address_+d0*Allocator.SIZE_BYTE, val); 
+       return val;
     }
     public byte getByte(int d0) { 
        check(d0); 
        return unsafe_.getByte(address_+d0*Allocator.SIZE_BYTE); 
     }
 
-    public void setChar(char val, int d0) {
+    public char setChar(char val, int d0) {
         unsafe_.putChar(address_+d0*Allocator.SIZE_CHAR, val); 
+        return val;
     }
     
     public char getChar(int d0) {
         return unsafe_.getChar(address_+d0*Allocator.SIZE_CHAR); 
     }
     
-    public void setShort(short val, int d0) { 
+    public short setShort(short val, int d0) { 
        unsafe_.putShort(address_+d0*Allocator.SIZE_SHORT, val); 
+       return val;
     }
     public short getShort(int d0) { 
        check(d0); 
        return unsafe_.getShort(address_+d0*Allocator.SIZE_SHORT); 
     }
 
-    public void setInt(int val, int d0) { 
+    public int setInt(int val, int d0) { 
        check(d0); 
        unsafe_.putInt(address_+d0*Allocator.SIZE_INT, val); 
+       return val;
     }
     public int getInt(int d0) { 
        check(d0); 
        return unsafe_.getInt(address_+d0*Allocator.SIZE_INT); 
     }
     
-    public void setLong(long val, int d0) { 
+    public long setLong(long val, int d0) { 
         check(d0); 
         unsafe_.putLong(address_+d0*Allocator.SIZE_LONG, val); 
+        return val;
      }
     
      public long getLong(int d0) { 
@@ -96,18 +101,20 @@ public class MemoryBlockUnsafe extends MemoryBlock {
         return unsafe_.getLong(address_+d0*Allocator.SIZE_LONG); 
      }
 
-    public void setFloat(float val, int d0) { 
+    public float setFloat(float val, int d0) { 
        check(d0); 
        unsafe_.putFloat(address_+d0*Allocator.SIZE_FLOAT, val); 
+       return val;
     }
     public float getFloat(int d0) { 
        check(d0); 
        return unsafe_.getFloat(address_+d0*Allocator.SIZE_FLOAT); 
     }
 
-    public void setDouble(double val, int d0) { 
+    public double setDouble(double val, int d0) { 
        check(d0); 
        unsafe_.putDouble(address_+d0*Allocator.SIZE_DOUBLE, val); 
+       return val;
     }
     public double getDouble(int d0) { 
        check(d0); 
