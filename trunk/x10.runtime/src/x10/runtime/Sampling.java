@@ -104,7 +104,7 @@ public final class Sampling extends Thread {
     private final int[] atomicExit;
     private final int[] blockEntry;
     private final int[] blockExit;
-    private final int[] activityStart;
+    private final int[] activityStart, localActivityStart, remoteActivityStart;
     private final int[] activityEnd;
     
     /**
@@ -149,6 +149,8 @@ public final class Sampling extends Thread {
         this.blockEntry = new int[places.length];
         this.blockExit = new int[places.length];
         this.activityStart = new int[places.length];
+        this.localActivityStart = new int[places.length];
+        this.remoteActivityStart = new int[places.length];
         this.activityEnd = new int[places.length];
         
         Class[] inners = this.getClass().getDeclaredClasses();
@@ -203,8 +205,46 @@ public final class Sampling extends Thread {
         return ((Integer) ret).intValue();
     }
     
+    public static String intArrayToString(int a[]) {
+    	if (a == null) return "NULL";
+    	else {
+    		StringBuffer sb = new StringBuffer("[");
+    		for (int i = 0; i < a.length; i++) {
+    			sb.append(a[i]);
+    			if (i == a.length - 1)
+    				break;
+    			sb.append(", ");
+    		}
+    		sb.append("]\n");
+    		return sb.toString();
+    	}
+    }
+    
+    /**
+	 * Sample output from Sampling.toString() at the end of the execution of a
+	 * single-threaded program: 
+	 * 		localActivityStart = [1, 0, 0, 0]
+	 * 		remoteActivityStart = [0, 0, 0, 0] 
+	 * 		activityStart = [1, 0, 0, 0]
+	 * 		activityEnd = [0, 0, 0, 0] 
+	 * 		atomicEntry = [0, 0, 0, 0] 
+	 * 		atomicExit = [0, 0, 0, 0] 
+	 * 		blockEntry = [1, 0, 0, 0] 
+	 * 		blockExit = [1, 0, 0, 0]
+	 * 
+	 * These events arise from X10 initialization and should be subtracted when looking at application-level statistics
+	 */
+
     public String toString() {
-        return samples_.toString(); // for now, may nicer later...
+    	return 
+			"localActivityStart = " + intArrayToString(localActivityStart) + 
+    		"remoteActivityStart = " + intArrayToString(remoteActivityStart) +
+			"activityStart = " + intArrayToString(activityStart) +
+			"activityEnd = " + intArrayToString(activityEnd) +
+			"atomicEntry = " + intArrayToString(atomicEntry) +
+			"atomicExit = " + intArrayToString(atomicExit) +
+			"blockEntry = " + intArrayToString(blockEntry) +
+			"blockExit = " + intArrayToString(blockExit);
     }
 
     public void signalEvent(int event_id) {
@@ -285,8 +325,12 @@ public final class Sampling extends Thread {
                     dos.writeInt(event_info); // == clockId
                     break;
                 case EVENT_ID_ACTIVITY_START:                       
-                    if (i != -1)
+                    if (i != -1) {
                         activityStart[i]++;
+                        // (VIVEK) Also update localActivityStart[] and remoteActivityStart[]
+                        if (i == j) localActivityStart[i]++;
+                        else remoteActivityStart[i]++;
+                    }
                     writeHeader(4+4+4+4+4+4, EVENT, event_id);                   
                     dos.writeInt(getActivityId(ia));
                     dos.writeInt(j); // src place
