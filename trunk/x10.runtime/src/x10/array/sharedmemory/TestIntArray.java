@@ -30,7 +30,11 @@ public class TestIntArray extends TestCase {
         int[] dims = {3,3};
         Region_c r = new Region_c(dims);
         Distribution_c d = Distribution_c.makeConstant(r, places[0]);
-        IntArray_c ia = new IntArray_c(d, 12, true);
+        IntArray_c ia = new IntArray_c(d, new Operator.Pointwise() {
+            public int apply(int[] p, int i) {
+                return 12;
+            }
+        }, true);
         Operator.Reduction red = new Operator.Reduction() {
            private int acc_;
            public void apply(int i) {
@@ -42,8 +46,8 @@ public class TestIntArray extends TestCase {
         };
         ia.reduction(red);
         int result = red.getIntResult();
-        System.out.println("Result is " + result + "; should be " + 192);
-        assertTrue(result == 192);
+        System.out.println("Result is " + result + "; should be " + 108);
+        assertTrue(result == 108);
     }
     
     public void testDoubleArray_reduce() {
