@@ -70,15 +70,16 @@ public class DefaultRuntime_c
     private Thread bootThread;
     
     public DefaultRuntime_c() {
+    	
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
-
      	this.places_ = new Place[pc];
 
     }
     protected void initialize() {
-       	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
+    	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
     	x10.lang.place.MAX_PLACES = pc;
-   
+    
+    	
     	for (int i=pc-1;i>=0;i--)
     		places_[i] = new LocalPlace_c(this, this);
     
@@ -286,9 +287,13 @@ public class DefaultRuntime_c
     					if (places_[index] == null) initialize();
     					return places_[index];
     				}
+    				/** Return the set of places from place(0) to place(last) (inclusive).
+    				 * 
+    				 */
     				public Set/*<place>*/ places (int last) {
+    					if (places_[0] == null) initialize();
     					Set result = new HashSet();
-    					for (int i=0; i < last % place.MAX_PLACES; i++)
+    					for (int i=0; i <= last % (place.MAX_PLACES); i++)
     						result.add(places_[i]);
     					return result;
     				}
