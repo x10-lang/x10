@@ -27,7 +27,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 
     private final boolean safe_;
     private final MemoryBlock arr_;
-    public final boolean mutable;
+    public final boolean mutable_;
     
     public void keepItLive() {}
     
@@ -58,7 +58,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     }
     public IntArray_c( distribution d, int c, boolean safe, boolean mutable) {
     	super(d);
-    	this.mutable = mutable;
+    	this.mutable_ = mutable;
         this.safe_ = safe;
     	int count = d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) 
@@ -74,7 +74,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         }
     public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
-    	this.mutable = mutable;
+    	this.mutable_ = mutable;
         this.safe_ = safe;
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE)
@@ -82,9 +82,9 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	scan(this, f);
     	
     }
-    private IntArray_c( distribution d, int[] a, boolean safe) {
+    private IntArray_c( distribution d, int[] a, boolean safe, boolean mutable ) {
     	super(d);
-        this.mutable = true;
+        this.mutable_ = mutable;
     	this.arr_ = Allocator.allocSafeIntArray( a);
         this.safe_ = safe;
     }
@@ -93,14 +93,14 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * @param a
      * @return
      */
-    public static IntArray_c IntArray_c(int[] a) {
+    public static IntArray_c IntArray_c(int[] a, boolean safe, boolean mutable ) {
     	distribution d = Runtime.factory.getDistributionFactory().here(a.length);
-    	return new IntArray_c(d, a, true);
+    	return new IntArray_c(d, a, safe, mutable );
     }
     protected IntArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
         super(d);
         int count = d.region.size();
-        this.mutable = true;
+        this.mutable_ = true;
         this.safe_ = safe;
         this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
         if (c != null)

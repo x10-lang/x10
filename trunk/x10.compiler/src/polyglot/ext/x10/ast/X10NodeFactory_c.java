@@ -139,8 +139,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (ArrayAccessAssign) n.del(delFactory().delArrayAccessAssign());
 	}
 	*/
-	public ArrayConstructor ArrayConstructor(Position pos,  TypeNode base, boolean isValue, Expr d, Expr i ) {
-		ArrayConstructor n = new ArrayConstructor_c(pos, base, isValue, d, i);
+	public ArrayConstructor ArrayConstructor(Position pos,  TypeNode base, boolean unsafe, boolean isValue, Expr d, Expr i ) {
+		ArrayConstructor n = new ArrayConstructor_c(pos, base, unsafe, isValue, d, i);
 		n = (ArrayConstructor) n.ext(extFactory().extExpr());
 		return (ArrayConstructor) n.del(delFactory().delExpr());
 	}
