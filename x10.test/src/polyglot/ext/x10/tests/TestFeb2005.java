@@ -66,51 +66,179 @@ import x10.runtime.ThreadRegistry;
 public class TestFeb2005 extends TestCase {
 
     
-    public void testFeb2005() {
+    public void testArray1() {
         runMain("examples/testcases/feb2005/parserworking/Array1.x10", "Array1");
-	runMain("examples/testcases/feb2005/parserworking/Array1.x10", "Array1");
+    }
+
+    public void testArray2() {
 	runMain("examples/testcases/feb2005/parserworking/Array2.x10", "Array2");
+    }
+
+    public void testAsyncTest() {
 	runMain("examples/testcases/feb2005/parserworking/AsyncTest.x10", "AsyncTest");
+    }
+
+    public void testAsyncTest1() {
 	runMain("examples/testcases/feb2005/parserworking/AsyncTest1.x10", "AsyncTest1");
+    }
+
+    public void testAteach() {
 	runMain("examples/testcases/feb2005/parserworking/Ateach.x10", "Ateach");
+    }
+
+    public void testAtomic1() {
 	runMain("examples/testcases/feb2005/parserworking/Atomic1.x10", "Atomic1");
+    }
+
+    public void testAtomicTest() {
 	runMain("examples/testcases/feb2005/parserworking/AtomicTest.x10", "AtomicTest");
+    }
+
+    public void testAwaitTest() {
 	runMain("examples/testcases/feb2005/parserworking/AwaitTest.x10", "AwaitTest");
+    }
+
+    public void testBoxing0() {
 	runMain("examples/testcases/feb2005/parserworking/Boxing0.x10", "Boxing0");
+    }
+
+    public void testClockTest() {
 	runMain("examples/testcases/feb2005/parserworking/ClockTest.x10", "ClockTest");
+    }
+
+    public void testClockTest1() {
 	runMain("examples/testcases/feb2005/parserworking/ClockTest1.x10", "ClockTest1");
+    }
+
+    public void testClockTest2() {
 	runMain("examples/testcases/feb2005/parserworking/ClockTest2.x10", "ClockTest2");
+    }
+
+    public void testConditionalAtomicTest() {
 	runMain("examples/testcases/feb2005/parserworking/ConditionalAtomicTest.x10", "ConditionalAtomicTest");
+    }
+
+    public void testConditionalAtomicTest2() {
 	runMain("examples/testcases/feb2005/parserworking/ConditionalAtomicTest2.x10", "ConditionalAtomicTest2");
+    }
+
+    public void testDistributionTest() {
 	runMain("examples/testcases/feb2005/parserworking/DistributionTest.x10", "DistributionTest");
+    }
+
+    public void testFinishTest1() {
 	runMain("examples/testcases/feb2005/parserworking/FinishTest1.x10", "FinishTest1");
+    }
+
+    public void testForeach() {
 	runMain("examples/testcases/feb2005/parserworking/Foreach.x10", "Foreach");
+    }
+
+    public void testFuture0() {
 	runMain("examples/testcases/feb2005/parserworking/Future0.x10", "Future0");
+    }
+
+    public void testFuture1() {
 	runMain("examples/testcases/feb2005/parserworking/Future1.x10", "Future1");
+    }
+
+    public void testFuture1Boxed() {
 	runMain("examples/testcases/feb2005/parserworking/Future1Boxed.x10", "Future1Boxed");
+    }
+
+    public void testFuture2Boxed() {
 	runMain("examples/testcases/feb2005/parserworking/Future2Boxed.x10", "Future2Boxed");
+    }
+
+    public void testFuture3() {
 	runMain("examples/testcases/feb2005/parserworking/Future3.x10", "Future3");
+    }
+
+    public void testFuture3Boxed() {
 	runMain("examples/testcases/feb2005/parserworking/Future3Boxed.x10", "Future3Boxed");
+    }
+
+    public void testFuture4() {
 	runMain("examples/testcases/feb2005/parserworking/Future4.x10", "Future4");
+    }
+
+    public void testFuture4Boxed() {
 	runMain("examples/testcases/feb2005/parserworking/Future4Boxed.x10", "Future4Boxed");
+    }
+
+    public void testFutureNullable0() {
 	runMain("examples/testcases/feb2005/parserworking/FutureNullable0.x10", "FutureNullable0");
+    }
+
+    public void testFutureNullable1Boxed() {
 	runMain("examples/testcases/feb2005/parserworking/FutureNullable1Boxed.x10", "FutureNullable1Boxed");
+    }
+
+    public void testFutureTest2() {
 	runMain("examples/testcases/feb2005/parserworking/FutureTest2.x10", "FutureTest2");
+    }
+
+    public void testJacobi() {
 	runMain("examples/testcases/feb2005/parserworking/Jacobi.x10", "Jacobi");
+    }
+
+    public void testMiscTest1() {
 	runMain("examples/testcases/feb2005/parserworking/MiscTest1.x10", "MiscTest1");
+    }
+
+    public void testNopTest() {
 	runMain("examples/testcases/feb2005/parserworking/NopTest.x10", "NopTest");
+    }
+
+    public void testNullable0Ref() {
 	runMain("examples/testcases/feb2005/parserworking/Nullable0Ref.x10", "Nullable0Ref");
+    }
+
+    public void testNullable1() {
 	runMain("examples/testcases/feb2005/parserworking/Nullable1.x10", "Nullable1");
+    }
+
+    public void testNullable2() {
 	runMain("examples/testcases/feb2005/parserworking/Nullable2.x10", "Nullable2");
+    }
+
+    public void testNullable5() {
 	runMain("examples/testcases/feb2005/parserworking/Nullable5.x10", "Nullable5");
+    }
+
+    public void testNullableFuture0() {
 	runMain("examples/testcases/feb2005/parserworking/NullableFuture0.x10", "NullableFuture0");
+    }
+
+    public void testNullableFuture1() {
 	runMain("examples/testcases/feb2005/parserworking/NullableFuture1.x10", "NullableFuture1");
+    }
+
+    public void testNullableFuture2() {
 	runMain("examples/testcases/feb2005/parserworking/NullableFuture2.x10", "NullableFuture2");
+    }
+
+    public void testNullableObject() {
 	runMain("examples/testcases/feb2005/parserworking/NullableObject.x10", "NullableObject");
+    }
+
+    public void testRegionTest() {
 	runMain("examples/testcases/feb2005/parserworking/RegionTest.x10", "RegionTest");
+    }
+
+    public void testRegionTest1() {
 	runMain("examples/testcases/feb2005/parserworking/RegionTest1.x10", "RegionTest1");
+    }
+
+    public void testRegionTest2() {
 	runMain("examples/testcases/feb2005/parserworking/RegionTest2.x10", "RegionTest2");
+    }
+
+    public void testTestBase() {
 	runMain("examples/testcases/feb2005/parserworking/TestBase.x10", "TestBase");
+    }
+
+    public void testValueClass() {
 	runMain("examples/testcases/feb2005/parserworking/ValueClass.x10", "ValueClass");
     }
   
