@@ -82,14 +82,17 @@ public class DefaultRuntime_c
 	System.arraycopy(args, 1,
 			 appArgs, 0,
 			 appArgs.length);
+	Object[] tmp = {args};
 	Activity boot 
 	    = (Activity) Class
 	    .forName(args[0])
 	    .getDeclaredConstructor(new Class[] { String[].class })
-	    .newInstance(appArgs);
+	    .newInstance(tmp);
 	Place[] p = getPlaces();
 	Place p0 = p[0];
-	registerThread(Thread.currentThread(), p0);
+	Thread t = Thread.currentThread();
+	registerThread(t, p0);
+	registerActivityStart(t, boot, null);
 	p0.runAsync(boot);
     }
     
