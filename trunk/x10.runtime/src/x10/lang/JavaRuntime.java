@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+
 /**
  * "Native" functions mapped through to Java.  In the long run the
  * idea is that this becomes the "X10 native interface" (akin to JNI,
@@ -32,13 +33,13 @@ public class JavaRuntime {
 
     public void log(Level l,
 		    String message,
-		    X10Object param1) {
+		    Object param1) {
 	logger_.log(l, message, param1);
     }
 
     public void log(Level l,
 		    String message,
-		    X10Object[] params) {
+		    Object[] params) {
 	logger_.log(l, message, params);
     }
 

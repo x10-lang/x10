@@ -24,13 +24,22 @@ import x10.runtime.DefaultRuntime_c;
  * @see Place
  * @see Activity
  */
-public abstract class Runtime {
+public abstract class Runtime implements x10.base.Runtime {
 
+    /* 
+     * This field is intentionally private, obtain an instance through 
+     * method getRuntime();
+     */
+    private static final Runtime _;
+    
+    public static Runtime getRuntime() {
+        return _;
+    }
+    
     /**
      * This instance should be used only in the implementation of 
      * the x10.runtime. 
      */
-    public static final Runtime _;
     public static final JavaRuntime java;
     
     static {
@@ -99,17 +108,15 @@ public abstract class Runtime {
      * ('here' in X10).
      */
     public static Place here() {
-    	return _.currentPlace();
+    	return (x10.lang.Place) _.currentPlace();
     }
     
     public static Place[] places() {
-        return _.getPlaces();
+        x10.base.Place[] pl = _.getPlaces();
+        Place[] ret = new Place[pl.length];
+        System.arraycopy(pl, 0, ret, 0, pl.length);
+        return ret;
     }
-    
-    public abstract Place currentPlace();
-    
-    public abstract Place[] getPlaces();
-    
     
     // Distribution factory methods...
     

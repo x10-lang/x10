@@ -8,8 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-
-import x10.lang.Place;
+import x10.base.Place;
 
 
 /**
@@ -202,7 +201,7 @@ public final class Sampling_c extends Thread {
         private final LocalPlace_c[] lp;
         
         ThreadQueueSampler() {
-            DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime._;
+            DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime.getRuntime();
             Place[] places  = rt.getPlaces();
             int locals = 0;
             for (int i=places.length-1;i>=0;i--) 
@@ -271,7 +270,7 @@ public final class Sampling_c extends Thread {
         private final LocalPlace_c[] lp;
         
         LoadSampler() {
-            DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime._;
+            DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime.getRuntime();
             Place[] places  = rt.getPlaces();
             int locals = 0;
             for (int i=places.length-1;i>=0;i--) 

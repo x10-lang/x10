@@ -143,7 +143,7 @@ public class X10TypeSystem_c
         if (X10Object_ != null) 
             ret = X10Object_;
         else
-        	ret = X10Object_ = load("x10.lang.X10Object");
+        	ret = X10Object_ = load("x10.lang.Object");
         return ret;
     }
     

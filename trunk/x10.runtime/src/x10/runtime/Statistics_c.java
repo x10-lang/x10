@@ -119,7 +119,7 @@ public final class Statistics_c {
         int totalActivitiesRunning = 1;
         
         public Object activate() {
-            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime._;
+            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime.getRuntime();
             dr.registerActivitySpawnListener(dr.getCurrentActivity(),
                                              new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,
@@ -155,7 +155,7 @@ public final class Statistics_c {
         int remoteActivitySpawns = 0;
         
         public Object activate() {
-            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime._;
+            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime.getRuntime();
             dr.registerActivitySpawnListener(dr.getCurrentActivity(),
                                              new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,

@@ -13,7 +13,7 @@ import x10.base.TypeArgument;
  * This class implements the root of the inheritance Hierarchy
  * for objects in an X10 program.
  */
-public class X10Object {
+public class Object {
 	/**
 	 * the place where this object was allocated.
 	 */
@@ -28,7 +28,7 @@ public class X10Object {
 	 * Convenience constructor that is only used for instances of non-generic. 
 	 * types.
 	 */
-	public X10Object() {
+	public Object() {
 		this(null);
 	}
 	
@@ -37,7 +37,7 @@ public class X10Object {
 	 *                     passed as type parameters when this instance was created.
 	 * 	                   If the class is not generic, the null is passed.  
 	 */
-	public X10Object(TypeArgument[] actual_type_args) {
+	public Object(TypeArgument[] actual_type_args) {
 		place = Runtime.here();
 		actualTypeArguments_ = actual_type_args;
 	}

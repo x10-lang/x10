@@ -4,6 +4,7 @@
 package x10.array;
 
 import x10.array.sharedmemory.SharedMemoryArrayFactory;
+import x10.base.Place;
 import x10.base.Runtime;
 
 /**
