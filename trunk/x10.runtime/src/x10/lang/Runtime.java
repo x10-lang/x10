@@ -1,7 +1,6 @@
 package x10.lang;
 
 import x10.runtime.DefaultRuntime_c;
-import x10.runtime.JavaRuntime;
 
 /**
  * This is the central entrypoint to the X10 Runtime for the
