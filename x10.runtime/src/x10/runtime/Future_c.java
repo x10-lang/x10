@@ -3,6 +3,7 @@
  */
 package x10.runtime;
 
+import x10.lang.Activity;
 import x10.lang.Future;
 import x10.lang.Object;
 
@@ -18,7 +19,13 @@ final class Future_c extends Future {
 
     private boolean haveResult_;
     
+    private final Activity waitFor_;     
+    
     private Object result_;
+    
+    Future_c(Activity wf) {
+        this.waitFor_ = wf;
+    }
     
     /**
      * Set the result value returned by this async call.
@@ -38,12 +45,12 @@ final class Future_c extends Future {
     public synchronized Object force() {
         while (! haveResult_) {
             try {
-                LoadMonitored.blocked(Sampling.CAUSE_FORCE, 0);
+                LoadMonitored.blocked(Sampling.CAUSE_FORCE, 0, waitFor_);
                 this.wait();
             } catch (InterruptedException ie) {
                 throw new Error(ie); // this should never happen...
             } finally {
-                LoadMonitored.unblocked(Sampling.CAUSE_FORCE, 0);
+                LoadMonitored.unblocked(Sampling.CAUSE_FORCE, 0, waitFor_);
             }
         }
         return result_;

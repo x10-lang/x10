@@ -178,12 +178,12 @@ public final class Clock_c extends Clock {
             int start = phase_;
             while (start == phase_) { // signal might be random in Java, check!
                 try {
-                    LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id);
+                    LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id, null);
                     this.wait(); // wait for signal
                 } catch (InterruptedException ie) {
                     throw new Error(ie); // that was unexpected...
                 } finally {
-                    LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id);
+                    LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id, null);
                 }
             }
         }

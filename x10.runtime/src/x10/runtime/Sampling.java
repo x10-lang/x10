@@ -128,7 +128,7 @@ public final class Sampling extends Thread {
             dos.writeByte(0);
             dos.writeByte(0);
             dos.writeInt(PEM.PEM_TRACE_VERSION); // version
-            dos.writeInt((8+8+8+8+8+8)/8); // size
+            dos.writeInt((8+8+8+8+8)/8); // size
             dos.writeInt(0);
             dos.writeLong(0x4000000000000000L); // 'infinity'
             dos.writeLong(1); // ticks per second
@@ -211,18 +211,32 @@ public final class Sampling extends Thread {
     }
 
     public void signalEvent(int event_id,
-                                         int event_info) {
-        signalEvent(null, 
-                          dr.getCurrentActivity(),
-                          event_id, event_info, 
-                          0, 
-                          0);        
+            int event_info) {
+        signalEvent(null, event_id, event_info); 
+    }
+
+    public void signalEvent(Activity related,
+            int event_id,
+            int event_info) {
+        signalEvent(related, 
+                dr.getCurrentActivity(),
+                event_id, event_info, 
+                0, 
+                0);        
     }
 
     public void signalEvent(int event_id,
+            int cause,
+            int causeInfo) {
+        signalEvent(null, event_id, cause, causeInfo);
+    }
+
+    
+    public void signalEvent(Activity related,
+                                          int event_id,
                                           int cause,
                                           int causeInfo) {
-        signalEvent(null, 
+        signalEvent(related, 
                           dr.getCurrentActivity(),
                           event_id, 0, 
                           cause, 
@@ -251,7 +265,7 @@ public final class Sampling extends Thread {
                                                                  int event_id,
                                                                  int event_info,
                                                                  int cause,
-                                                                 int causeInfo) {        
+                                                                 int causeInfo) {                                                                   
         Place srcPlace = (ia == null) ? null : dr.getPlaceOfActivity(ia);
         Place dstPlace = (a == null) ? null : dr.getPlaceOfActivity(a);
         try {
@@ -306,7 +320,6 @@ public final class Sampling extends Thread {
                     writeHeader(4+4+4+4+4+4, EVENT, event_id);
                     dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
-                    dos.writeInt(0); // reserved
                     if (dstPlace != null) {
                         //System.out.println("BLOCK LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
                         dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
@@ -314,13 +327,13 @@ public final class Sampling extends Thread {
                         dos.writeInt(-1);
                     dos.writeInt(cause);
                     dos.writeInt(causeInfo);
+                    dos.writeInt(getActivityId(ia)); // causeInfoExtra
                     break;
                 case EVENT_ID_ACTIVITY_UNBLOCK:
                     blockExit[i]++;
                     writeHeader(4+4+4+4+4+4, EVENT, event_id);
                     dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
-                    dos.writeInt(0); // reserved
                     if (dstPlace != null) {
                         //System.out.println("UNBLOCK LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
                         dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
@@ -328,6 +341,7 @@ public final class Sampling extends Thread {
                         dos.writeInt(-1);
                     dos.writeInt(cause);
                     dos.writeInt(causeInfo);
+                    dos.writeInt(getActivityId(ia)); // causeInfo2
                     break;
             }        
         } catch (IOException io) {
@@ -378,7 +392,7 @@ public final class Sampling extends Thread {
             try {
                 writeHeader(4+4 + places.length * 8 * 7, SAMPLER, SAMPLER_DATA);
                 dos.writeInt(places.length);
-                dos.writeInt(0); // reserved
+                dos.writeInt((int)delta);
                 for (int i=0;i<places.length;i++)
                     if (this.threadQueueSize != null)
                         dos.writeInt(this.threadQueueSize[i]);
