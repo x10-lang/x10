@@ -16,4 +16,6 @@ public interface UnsafeContainer {
     
     public long getUnsafeAddress();
     
+    public long getUnsafeDescriptor();
+    
 }

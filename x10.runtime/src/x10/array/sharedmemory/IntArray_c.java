@@ -41,6 +41,10 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         return arr_.getUnsafeAddress();
     }
     
+    public long getUnsafeDescriptor() {
+        return arr_.getUnsafeDescriptor();
+    }
+    
     /**
      * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
@@ -67,8 +71,10 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	this.mutable_ = mutable;
         this.safe_ = safe;
     	int count = d.region.size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) 
-    			: Allocator.allocUnsafe(count, Allocator.SIZE_INT);
+    	int ranks[] = new int[count];
+        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
+        this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) 
+    			: Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
     	scan(this, new Assign(c));
     	
     }
@@ -83,8 +89,10 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	this.mutable_ = mutable;
         this.safe_ = safe;
     	int count =  d.region.size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE)
-    			: Allocator.allocUnsafe(count, Allocator.SIZE_INT);
+    	int ranks[] = new int[count];
+        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
+        this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE)
+    			: Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
     	scan(this, f);
     	
     }
@@ -108,7 +116,9 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         int count = d.region.size();
         this.mutable_ = true;
         this.safe_ = safe;
-        this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
+        int ranks[] = new int[count];
+        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
+        this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
         if (c != null)
             pointwise(this, c);
     }

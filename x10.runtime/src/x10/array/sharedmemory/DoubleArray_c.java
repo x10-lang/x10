@@ -53,7 +53,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
-        this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
+        int ranks[] = new int[count];
+        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
+        this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
         if (c != null)
             pointwise(this, c);
     }
@@ -74,7 +76,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
+    	int ranks[] = new int[count];
+        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
+        this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
         this.safe_ = safe;
     	scan(this, new Assign(c));
     	
@@ -89,7 +93,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
+        int ranks[] = new int[count];
+        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
+    	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
     	this.safe_ = safe;
         scan(this, f);
     }
@@ -114,6 +120,10 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public long getUnsafeAddress() {
         return arr_.getUnsafeAddress();
+    }
+    
+    public long getUnsafeDescriptor() {
+        return arr_.getUnsafeDescriptor();
     }
     
     /* Overrides the superclass method - this implementation is more efficient */

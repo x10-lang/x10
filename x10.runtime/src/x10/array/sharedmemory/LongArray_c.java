@@ -48,7 +48,9 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
-        this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_LONG);
+        int ranks[] = new int[count];
+        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
+        this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
         if (c != null)
             pointwise(this, c);
     }
@@ -69,7 +71,9 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_LONG);
+    	int ranks[] = new int[count];
+        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
+        this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
         this.safe_ = safe;
     	scan(this, new Assign(c));
     	
@@ -84,7 +88,9 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
-    	this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_LONG);
+        int ranks[] = new int[count];
+        for (int i = 0; i < count; ++i) ranks[i] = d.region.rank(i).size();
+    	this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
     	this.safe_ = safe;
         scan(this, f);
     }
@@ -109,6 +115,10 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     
     public long getUnsafeAddress() {
         return arr_.getUnsafeAddress();
+    }
+    
+    public long getUnsafeDescriptor() {
+        return arr_.getUnsafeDescriptor();
     }
     
     /* Overrides the superclass method - this implementation is more efficient */

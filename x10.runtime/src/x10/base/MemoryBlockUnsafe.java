@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 public class MemoryBlockUnsafe extends MemoryBlock {
     
     private final long     address_;     // address of allocated region
+    private final long     descriptor_;  // descriptor of allocated region
     private final long     size_;        // total size of allocated region
     private final int      count_;       // number of elements 
     private volatile int   live_;        // see keepItLive() below
@@ -29,22 +30,39 @@ public class MemoryBlockUnsafe extends MemoryBlock {
             return false;
     }
 
-    // Allocate a buffer with size count elements each of given size
-    MemoryBlockUnsafe(int count, long size) { 
+    /* Allocate a buffer with size count elements each of given size
+     * If this memory block serves as backup memory for arrays, then 
+     * the argument ranks specifies the size of the dimensions. */
+    MemoryBlockUnsafe(int count, int[] ranks, long size) { 
        count_   = count; 
        size_    = count_*size;
        address_ = unsafe_.allocateMemory(size_); 
+       if (ranks != null) {
+           int desc_size = Allocator.SIZE_INT * (ranks.length + 1); 
+           descriptor_ = unsafe_.allocateMemory(desc_size);
+           unsafe_.putInt(descriptor_ + 0 * Allocator.SIZE_INT, ranks.length); 
+           for (int i = 0; i < ranks.length; ++i) 
+               unsafe_.putInt(descriptor_ + (i + 1) * Allocator.SIZE_INT, ranks[i]); 
+       } else
+           descriptor_ = 0;
     }
     
     // Free the allocated buffer
     protected void finalize() { 
         unsafe_.freeMemory(address_);
+        unsafe_.freeMemory(descriptor_);
     }
 
 
     // Return the underlying buffer address
     public long getUnsafeAddress() { 
        return address_;
+    }
+    
+    // Return the underlying descriptor address
+    public long getUnsafeDescriptor() {
+        assert (descriptor_ != 0);
+        return descriptor_;
     }
 
     public int count() { 

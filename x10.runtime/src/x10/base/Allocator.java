@@ -9,10 +9,10 @@ package x10.base;
  */
 public final class Allocator {
 
-    public static final MemoryBlock allocUnsafe(int count, long size) {
+    public static final MemoryBlock allocUnsafe(int count, int[] ranks, long size) {
         assert (size > 0);
         assert (count >= 0);
-        return new MemoryBlockUnsafe(count, size); 
+        return new MemoryBlockUnsafe(count, ranks, size); 
     }
     
     public static final MemoryBlock allocSafe(long size, Class cl) {

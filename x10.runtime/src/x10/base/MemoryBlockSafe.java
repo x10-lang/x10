@@ -13,4 +13,8 @@ public abstract class MemoryBlockSafe extends MemoryBlock {
     public long getUnsafeAddress() {
         throw new Error("MemoryBlockSafe: no unsafe address for safe memory.");
     }
+    
+    public long getUnsafeDescriptor() {
+        throw new Error("MemoryBlockSafe: no descriptor for safe memory.");
+    }
 }
