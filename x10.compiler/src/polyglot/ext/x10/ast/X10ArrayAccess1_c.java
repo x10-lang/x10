@@ -13,6 +13,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.ArrayAccess_c;
+import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
@@ -27,8 +28,10 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10ArrayType;
+
 import polyglot.ext.x10.types.X10Type;
+import java.util.LinkedList;
+
 
 /** An immutable representation of an X10 array access with a single index elemen between "[" and "]".
  * index.type() can be either an int, in which case this is an ArrayAccess
@@ -110,7 +113,10 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
     	return reconstruct(array, index);
     }
 
-	/** Type check the expression. */
+	/** Type check the expression. Fork into an ArrayAccess if the underlying
+	 * array is a Java array, or if the index is an int and not a distribution.
+	 * 
+	 * */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Type type = array.type();
@@ -132,8 +138,10 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 			throw new SemanticException(
 					"Array subscript |" + toString() + "| must be an integer or a point.", position());
 		}
-		
-		return type(((X10Type) type).toX10Array().base());
+		List args = new LinkedList();
+		args.add( index);
+		return new Call_c(position(), array, "get", args).typeCheck(tc);
+		// 		return type(((X10Type) type).toX10Array().base());
 	}
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {

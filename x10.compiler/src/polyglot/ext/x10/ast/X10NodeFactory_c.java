@@ -1,9 +1,11 @@
 package polyglot.ext.x10.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.*;
 import polyglot.ext.jl.ast.ArrayAccessAssign_c;
+import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ast.Stmt;
 import polyglot.ext.jl.ast.NodeFactory_c;
@@ -118,21 +120,25 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (Await) n.ext(extFactory().extStmt());
 		return (Await) n.del(delFactory().delStmt());
 	}
-	public X10ArrayAccess1 X10ArrayAccess1( Position pos, Expr array, Expr index ) {
+	public X10ArrayAccess1 X10ArrayAccess1( Position pos, Expr array, Expr index )  {
 		X10ArrayAccess1 n = new X10ArrayAccess1_c( pos, array, index );
 		n = (X10ArrayAccess1) n.ext(extFactory().extArrayAccess());
 		return (X10ArrayAccess1) n.del(delFactory().delArrayAccess());
 	}
 	public X10ArrayAccess X10ArrayAccess( Position pos, Expr array, List/*<Expr>*/ index ) {
+		// return Call(pos, array, "get", index);
 		X10ArrayAccess n = new X10ArrayAccess_c( pos, array, index );
 		n = (X10ArrayAccess) n.ext(extFactory().extArrayAccess());
 		return (X10ArrayAccess) n.del(delFactory().delArrayAccess());
+		
 	}
-	public ArrayAccessAssign ArrayAccessAssign(Position pos, X10ArrayAccess left, Assign.Operator op, Expr right) {
+	/*
+	 * public ArrayAccessAssign ArrayAccessAssign(Position pos, X10ArrayAccess left, Assign.Operator op, Expr right) {
 		ArrayAccessAssign n = new X10ArrayAccessAssign_c(pos, left, op, right);
 		n = (ArrayAccessAssign) n.ext(extFactory().extArrayAccessAssign());
 		return (ArrayAccessAssign) n.del(delFactory().delArrayAccessAssign());
 	}
+	*/
 	public ArrayConstructor ArrayConstructor(Position pos,  TypeNode base, boolean isValue, Expr d, Expr i ) {
 		ArrayConstructor n = new ArrayConstructor_c(pos, base, isValue, d, i);
 		n = (ArrayConstructor) n.ext(extFactory().extExpr());
@@ -221,8 +227,9 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         }
         return AmbAssign(pos, left, op, right);
     }
-	 public X10ArrayAccessAssign X10ArrayAccessAssign(Position pos,  X10ArrayAccess left, Assign.Operator op,
+	public X10ArrayAccessAssign X10ArrayAccessAssign(Position pos,  X10ArrayAccess left, Assign.Operator op,
 	 		Expr right) {
+	 	
 		X10ArrayAccessAssign n = new X10ArrayAccessAssign_c( pos, left, op, right );
 		n = (X10ArrayAccessAssign) n.ext(extFactory().extArrayAccess());
 		return (X10ArrayAccessAssign) n.del(delFactory().delArrayAccess());
@@ -233,5 +240,62 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (X10ArrayAccess1Assign) n.ext(extFactory().extArrayAccess());
 		return (X10ArrayAccess1Assign) n.del(delFactory().delArrayAccess());
 	}
-	
+	/*
+		class AssignableCall_c extends Call_c implements Assign {
+	 		protected Expr left, right;
+	 		protected Assign.Operator op;
+	 		protected Position pos;
+	 		AssignableCall_c(Position pos, Variable left, Assign.Operator op, Expr right, 
+	 				Receiver array,  List args) {
+	 			super( pos, array, "set", args);
+	 			this.left = left;
+	 			this.right = right;
+	 			this.op = op;
+	 		}
+	 		public Expr left() { return this.left; }
+	 		public Expr right() { return this.right;}
+	 		public Assign.Operator operator() { return this.op;}
+	 		public Assign operator(Assign.Operator op) {
+	 		  AssignableCall_c n = (AssignableCall_c) copy();
+	 		  n.op = op;
+	 		  return n;
+	 		}
+	 		public Assign left (Expr left ) {
+		 		  AssignableCall_c n = (AssignableCall_c) copy();
+		 		  n.left = left;
+		 		  return n;
+		 		}
+	 		public Assign right(Expr right) {
+		 		  AssignableCall_c n = (AssignableCall_c) copy();
+		 		  n.right = right;
+		 		  return n;
+		 		}
+	 		public boolean throwsArithmeticException() {
+	 		   return op == DIV_ASSIGN || op == MOD_ASSIGN;
+	 		}
+	 	}
+	 
+	 public Assign X10ArrayAccess1Assign(Position pos,  X10ArrayAccess1 left, Assign.Operator op,
+	 		Expr right) {
+	 
+	 	if (op != Assign.ASSIGN) throw new Error("X10 arrays do not yet support assignment operators.");
+		Expr array = left.array();
+		Expr index = left.index();
+		
+		// TODO NOW: vj change implementation of X10ArrayAcess in X10NodeFactory to create this node to begin with.
+		List args = new ArrayList(2);
+		args.add( right);
+		args.add( index );
+		return new AssignableCall_c(pos, left, op, right, array, args);
+	}
+	 public Assign X10ArrayAccessAssign(Position pos,  X10ArrayAccess left, Assign.Operator op,
+	 		Expr right) {
+	 	if (op != Assign.ASSIGN) throw new Error("X10 arrays do not yet support assignment operators.");
+	 	Expr array = left.array();
+	 	List args = left.index();
+	 	args.add(0, right);
+	 	return new AssignableCall_c(pos, left, op, right, array, args);
+
+	}
+	 */
 }

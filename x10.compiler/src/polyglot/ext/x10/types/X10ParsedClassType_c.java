@@ -64,8 +64,10 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
 	public FutureType toFuture() {
 			return null;
 	}
-	public boolean isX10Array() { return false; }
-	public X10ArrayType toX10Array() { return null; }
+	public boolean isX10Array() { 
+		return ts.isSubtype(this, ((X10TypeSystem) ts).Indexable());
+	}
+	
 
 	
 	public  boolean isSubtypeImpl( Type t) {

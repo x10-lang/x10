@@ -12,30 +12,35 @@ import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.ArrayAccess_c;
 import polyglot.ext.jl.ast.Expr_c;
+import polyglot.ext.jl.ast.Call_c;
+
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Flags;
+
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
+import polyglot.util.TypedList;
+
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import polyglot.visit.AscriptionVisitor;
-import polyglot.types.Flags;
+
 import java.util.LinkedList;
 
-import polyglot.util.TypedList;
 import polyglot.ext.x10.types.X10Type;
 
 import java.util.Iterator;
 import java.util.List;
 
 /** An immutable representation of a (multdimensional) X10 array access, involving more than
- * one indices.
+ * one index.
  * 
  * 
  * @seealso X10ArrayAccess1_c
@@ -56,8 +61,7 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 		this.array = array;
 		this.index = index;	
 	}
-	
-	
+
 	/** Get the precedence of the expression. */
 	public Precedence precedence() { 
 		return Precedence.LITERAL;
@@ -77,7 +81,7 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 	
 	/** Get the index of the expression. */
 	public List/*<Expr>*/ index() {
-		return this.index;
+		return TypedList.copy(this.index, Expr.class, false);
 	}
 	
 	/** Set the index of the expression. */
@@ -119,12 +123,18 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 		if (type.isArray())
 			throw new SemanticException(
 					"Multiple subscript cannot follow an array of rank 1.", position());
+		//System.out.println("X10ArrayAccess_c: typeCheck type="  + type);
 		X10Type target = (X10Type) type;
 		if (! target.isX10Array()) {
 			throw new SemanticException(
 					"Multiple subscripts can only follow an array of rank > 1.", position());
 		}
+		// Note that we cannot change X10NodeFactory to produce this call to begin with because
+		// we need to let X10ArrayAccessAssign have a chance to see an X10ArrayAccess object.
+		// Typechecking is a good time to do the rewriting.
 		
+		return new Call_c(position(), array, "get", index).typeCheck(tc);
+		/*
 		for (Iterator it = index.iterator(); it.hasNext();) {
 			Expr item = (Expr) it.next();
 			if (! ts.isImplicitCastValid(item.type(), ts.Int())) {
@@ -139,6 +149,7 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 		//*     region takes a value not in the region (e.g. as a result of arithmetic operations). 
 		
 		return type(target.toX10Array().base());
+		*/
 	}
 	
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {

@@ -79,7 +79,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			return null;
 	}
 	public boolean isX10Array() { return false; }
-	public X10ArrayType toX10Array() { return null; }
+
 
 	/**
 	 * Note that this (general) mix-in code correctly takes care of ensuring that

@@ -12,8 +12,11 @@ import polyglot.ast.Assign;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
+import polyglot.ast.Call;
+
 import polyglot.ext.jl.ast.Assign_c;
 import polyglot.ext.jl.ast.ArrayAccessAssign_c;
+import polyglot.ext.jl.ast.Call_c;
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign.Operator;
 import polyglot.ext.jl.ast.ArrayAccess_c;
@@ -22,7 +25,10 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.TypedList;
+
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 
 /** An immutable representation of the X10 array assignment a[ index ] = e.
@@ -43,16 +49,25 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 			Expr right) {
 		super(pos, left, op, right);
 	}
+	
 	/** Type check the expression. */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		// Used to have an X10ArrayAccess1 to the left, but it has now
+		// resolved into an ArrayAccess. So this node must resolve into an ArrayAccessAssign.
 		if (left instanceof ArrayAccess_c) {
 			ArrayAccessAssign_c n = new ArrayAccessAssign_c( position(), (ArrayAccess) left, op, right);
-			return n.typeCheck( tc );
+			return n.del().typeCheck( tc );
 		}
-		return super.typeCheck( tc );
+		// Now it must be an X10ArrayAccess1 which has now resolved into a Call_c.
+		// Use the information in the call to construct the Call representing the assign.
+		Call call = (Call) left;
+		Expr receiver = (Expr) call.target();
+		List args = TypedList.copyAndCheck(call.arguments(), Expr.class, false);
+		args.add( 0, right);
+		return new Call_c(position(), receiver, "set", args).del().typeCheck(tc);
 	}
-	
+
 
 	  public Assign left(Expr left) {
 	      X10ArrayAccess1Assign_c n = (X10ArrayAccess1Assign_c)super.left(left);

@@ -73,7 +73,7 @@ implements X10TypeSystem {
 	public ParametricType createParametricType ( Position pos, X10ReferenceType type, DepParameterExpr expr ) {
 		return new ParametricType_c( this, pos, type, expr);
 	}
-	
+	/*
 	
 	public X10ArrayType x10arrayOf(Type type, boolean isValue) {
 		return x10arrayOf( type.position(), type, isValue);
@@ -85,33 +85,25 @@ implements X10TypeSystem {
 		return x10arrayOf( type.position(), type, isValue, expr);
 	}
 	
-	/**
-	 * Return an X10 array of <code>type</code>
-	 */
+	
 	public X10ArrayType x10arrayOf(Position pos, Type type) { 
 		return new X10ArrayType_c( this, pos, type );
 	}
 	
-	/**
-	 * Return an X10 array of <code>type</code>
-	 */
 	public X10ArrayType x10arrayOf(Position pos, Type type, boolean isValue) {
 		return new X10ArrayType_c( this, pos, type, isValue );
 	}
 	
-	/**
-	 * Return an X10 array of <code>type</code>
-	 */
-	public X10ArrayType x10arrayOf(Position pos, Type type, DepParameterExpr indexedSet) {
-		return new X10ArrayType_c( this, pos, type, indexedSet);
+	
+	public X10ArrayType x10arrayOf(Position pos, Type type, DepParameterExpr distribution) {
+		return new X10ArrayType_c( this, pos, type, distribution);
 	}
 	
-	/**
-	 * Return an X10 array of <code>type</code>
-	 */
-	public X10ArrayType x10arrayOf(Position pos, Type type, boolean isValue, DepParameterExpr indexedSet) {
-		return new X10ArrayType_c( this, pos, type, isValue, indexedSet);
+	
+	public X10ArrayType x10arrayOf(Position pos, Type type, boolean isValue, DepParameterExpr distribution ) {
+		return new X10ArrayType_c( this, pos, type, isValue, distribution );
 	}
+	*/
 	
 	protected UnknownType createUnknownType() {
 		return new X10UnknownType_c( this );
@@ -125,8 +117,6 @@ implements X10TypeSystem {
 		return new X10ParsedClassType_c(this, init, fromSource);    
 	}
 	
-	
-	
 	/******************** Primitive types as Objects ******************/
 	
 	private static final String WRAPPER_PACKAGE = "x10.compilergenerated";
@@ -135,119 +125,212 @@ implements X10TypeSystem {
 		return new X10PrimitiveType_c(this, kind);
 	}
 	
-	/* predefined classes that need not be translated by polyglot */
-	protected Type x10ObjectType_;
-	protected Type placeType_;
-	protected Type regionType_;
-	protected Type pointType_;
-	protected Type distributionType_;
-	protected Type activityType_;
-	protected Type futureActivityType_;
-	protected Type arrayType_;
-	protected Type clockType_;
-	protected Type runtimeType_;
-	protected Type intArrayPointwiseOpType_;
-	protected Type doubleArrayPointwiseOpType_;
-	protected Type intArrayType_;
-	protected Type doubleArrayType_;
-	protected Type doubleValueArrayType_;
-	protected Type doubleReferenceArrayType_;
-	protected Type intValueArrayType_;
-	protected Type intReferenceArrayType_;
-
-	
-	public Type X10Object() {
+	/* Predefined x10.lang classes that need not be translated by polyglot */
+	protected ClassType x10ObjectType_;
+	public ClassType X10Object() {
 		if ( x10ObjectType_ == null)
 			x10ObjectType_ = load("x10.lang.Object"); // java file
 		return x10ObjectType_;
 	}
-	public Type place() {
+	
+	protected ClassType placeType_;
+	public ClassType place() {
 		if ( placeType_ == null)
 			placeType_ = load("x10.lang.place"); // java file
 		return placeType_;
 	}
-	public Type region() {
+	
+	protected ClassType regionType_;
+	public ClassType region() {
 		if ( regionType_ == null)
 			regionType_ = load("x10.lang.region"); // java file
 		return regionType_;
 	}
-	public Type point() {
+	
+	protected ClassType pointType_;
+	public ClassType point() {
 		if ( pointType_ == null)
 			pointType_ = load("x10.lang.point"); // java file
 		return pointType_;
 	}
-	public Type distribution() {
+	
+	protected ClassType distributionType_;
+	public ClassType distribution() {
 		if ( distributionType_ == null)
 			distributionType_ = load("x10.lang.distribution"); // java file
 		return distributionType_;
 	}
-	public Type Activity() {
+	
+	protected ClassType activityType_;
+	public ClassType Activity() {
 		if ( activityType_ == null)
 			activityType_ = load("x10.lang.Activity"); // java file
 		return activityType_;
 	}
 
 	// TODO: vj -- check that  this is the right way to load a nested type.
-	public Type FutureActivity() {
+	protected ClassType futureActivityType_;
+	public ClassType FutureActivity() {
 		if ( futureActivityType_ == null)
 			futureActivityType_ = load("x10.lang.Activity.Expr"); // java file
 		return futureActivityType_;
 	}
-	public Type array() {
+	
+	protected ClassType arrayType_;
+	public ClassType array() {
 		if ( arrayType_ == null)
 			arrayType_ = load("x10.lang.array"); // java file
 		return arrayType_;
 	}
-	public Type clock() {
+	
+	protected ClassType clockType_;
+	public ClassType clock() {
 		if ( clockType_ == null)
 			clockType_ = load("x10.lang.clock"); // java file
 		return clockType_;
 	}
 
-	public Type Runtime() {
+	protected ClassType runtimeType_;
+	public ClassType Runtime() {
 		if ( runtimeType_ == null)
 			runtimeType_ = load("x10.lang.Runtime"); // java file
 		return runtimeType_;
 	}
-	public Type IntArrayPointwiseOp() {
+	
+	protected ClassType intArrayPointwiseOpType_;
+	public ClassType IntArrayPointwiseOp() {
 		if ( intArrayPointwiseOpType_ == null)
 			intArrayPointwiseOpType_ = load("x10.lang.intArray.pointwiseOp"); // java file
 		return intArrayPointwiseOpType_;
 	}
-	public Type DoubleArrayPointwiseOp() {
+	
+	protected ClassType doubleArrayPointwiseOpType_;
+	public ClassType DoubleArrayPointwiseOp() {
 		if ( doubleArrayPointwiseOpType_ == null)
 			doubleArrayPointwiseOpType_ = load("x10.lang.doubleArray.pointwiseOp"); // java file
 		return doubleArrayPointwiseOpType_;
 	}
-	public Type intArray() {
+	
+	public ClassType array(Type type, boolean isValueType, Expr distribution) {
+		if (type.isInt())
+			return intArray( isValueType, distribution );
+		if (type.isDouble())
+			return doubleArray( isValueType, distribution);
+		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
+	}
+	
+	public ClassType array(Type type,  Expr distribution) {
+		if (type.isInt())
+			return intArray(  distribution );
+		if (type.isDouble())
+			return doubleArray(  distribution);
+		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
+	}
+	
+	public ClassType array(Type type, boolean isValue ) {
+		if (type.isInt())
+			return isValue ? intValueArray() : IntReferenceArray();
+			if (type.isDouble())
+				return isValue ? doubleValueArray() : DoubleReferenceArray();
+			
+		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
+	}
+	
+	public ClassType array(Type type ) {
+		if (type.isInt())
+			return intArray( );
+		if (type.isDouble())
+			return doubleArray();
+		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
+	}
+	public ClassType intArray(boolean isValueType, Expr distribution ) {
+		return 
+		isValueType ? intValueArray( distribution ) : IntReferenceArray( distribution );
+	}
+	
+	protected ClassType intArrayType_;
+	public ClassType intArray( Expr distribution ) {
 		if ( intArrayType_ == null)
 			intArrayType_ = load("x10.lang.intArray"); // java file
 		return intArrayType_;
 	}
-	public Type intValueArray() {
+	
+	public ClassType intArray() {
+		return intArray( null );
+	}
+	
+	public ClassType intValueArray( ) {
+		return intValueArray(null );
+	}
+	
+	protected ClassType intValueArrayType_;
+	public ClassType intValueArray( Expr distribution ) {
 		if ( intValueArrayType_ == null)
+			// Do not load the implementation class. Typechecking must be done against the 
+			// x10.lang class.
 			intValueArrayType_ = load("x10.lang.intValueArray"); // java file
+		// TODO: vj -- Implement dependent types. Pass the parameter information to the type.
+		// return intValueArrayType_.setParameter( "distribution", distribution );
 		return intValueArrayType_;
 	}
-	public Type IntReferenceArray() {
+	public ClassType IntReferenceArray() {
+		return IntReferenceArray( null );
+	}
+	
+	protected ClassType intReferenceArrayType_;
+	public ClassType IntReferenceArray( Expr distribution ) {
 		if ( intReferenceArrayType_ == null)
 			intReferenceArrayType_ = load("x10.lang.IntReferenceArray"); // java file
+		// return intReferenceArrayType_.setParameter( "distribution", distribution );
 		return intReferenceArrayType_;
 	}
-	public Type doubleArray() {
+	
+	
+	public ClassType doubleArray(boolean isValueType, Expr distribution ) {
+		return 
+		isValueType ? doubleValueArray( distribution ) : DoubleReferenceArray( distribution );
+	}
+	public ClassType doubleArray() {
+		return doubleArray( null );
+	}
+	
+	protected ClassType doubleArrayType_;
+	public ClassType doubleArray( Expr distribution ) {
 		if ( doubleArrayType_ == null)
 			doubleArrayType_ = load("x10.lang.doubleArray"); // java file
+		
 		return doubleArrayType_;
 	}
-	public Type doubleValueArray() {
+	
+	public ClassType doubleValueArray( ) {
+		return doubleValueArray(null );
+	}
+	
+	protected ClassType doubleValueArrayType_;
+	public ClassType doubleValueArray( Expr distribution ) {
 		if ( doubleValueArrayType_ == null)
 			doubleValueArrayType_ = load("x10.lang.doubleValueArray"); // java file
+       //  return doubleReferenceArrayType_.setParameter( "distribution", distribution );
 		return doubleValueArrayType_;
 	}
-	public Type DoubleReferenceArray() {
+	
+	public ClassType DoubleReferenceArray( ) {
+		return DoubleReferenceArray(null );
+	}
+	
+	protected ClassType doubleReferenceArrayType_;
+	public ClassType DoubleReferenceArray( Expr distribution ) {
 		if ( doubleReferenceArrayType_ == null)
 			doubleReferenceArrayType_ = load("x10.lang.DoubleReferenceArray"); // java file
+         //	 return doubleReferenceArrayType_.setParameter( "distribution", distribution );
 		return doubleReferenceArrayType_;
+	}
+	
+	protected ClassType indexableType_ = null;
+	public ClassType Indexable() {
+		if ( indexableType_ == null) 
+			indexableType_ = load("x10.lang.Indexable"); // java file
+		return indexableType_;
 	}
 	
 	public MethodInstance primitiveEquals() {

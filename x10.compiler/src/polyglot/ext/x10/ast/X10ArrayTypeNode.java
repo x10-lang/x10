@@ -7,6 +7,7 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.TypeNode;
 import polyglot.ast.Expr;
+import polyglot.types.Type;
 
 
 /**
@@ -14,6 +15,7 @@ import polyglot.ast.Expr;
  * 
  */
 public interface X10ArrayTypeNode /*extends ArrayTypeNode*/ extends TypeNode {
+	TypeNode base();
 	/**
 	 * Was this array declared to be a value array? 
 	 * @return
@@ -27,5 +29,5 @@ public interface X10ArrayTypeNode /*extends ArrayTypeNode*/ extends TypeNode {
 	 * @author vj Dec 9, 2004
 	 *
 	 */
-	Expr indexSet();
+	Expr distribution();
 }
