@@ -19,6 +19,31 @@ abstract public /*value*/ class point/*( region region )*/ extends Object {
 		 * 
 		 */
 		abstract public point point(int[/*rank*/] val);
+		/** Return a point of rank 1 with the given coordinates, created in the smallest region
+		 * that can enclose it.
+		 * 
+		 */
+		abstract public point point(int v1);
+		/** Return a point of rank 2 with the given coordinates, created in the smallest region
+		 * that can enclose it.
+		 * 
+		 */
+		abstract public point point(int v1, int v2);
+		/** Return a point of rank 3 with the given coordinates, created in the smallest region
+		 * that can enclose it.
+		 * 
+		 */
+		abstract public point point(int v1, int v2, int v3);
+		/** Return a point of rank 4 with the given coordinates, created in the smallest region
+		 * that can enclose it.
+		 * 
+		 */
+		abstract public point point(int v1, int v2, int v3, int v4);
+		/** Return a point of rank 5 with the given coordinates, created in the smallest region
+		 * that can enclose it.
+		 * 
+		 */
+		abstract public point point(int v1, int v2, int v3, int v4, int v5);
 	}
 	public static final factory factory = Runtime.factory.getPointFactory();
 	
