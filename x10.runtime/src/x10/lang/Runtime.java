@@ -22,7 +22,11 @@ import x10.runtime.JavaRuntime;
  */
 public abstract class Runtime {
 
-    public static final Runtime _;
+    /**
+     * This instance should be used only in the implementation of 
+     * the x10.runtime. 
+     */
+	public static final Runtime _;
 
     static {
         String rt = System.getProperty("x10.runtime");
@@ -82,18 +86,11 @@ public abstract class Runtime {
     public abstract JavaRuntime getJavaRuntime();
 
     /**
-     * Get current runtime.
-     */ 
-    public static Runtime getRuntime() {
-    	return _;
-    }
-    
-    /**
      * @return The place where the current execution takes place 
      * ('here' in X10).
      */
     public static Place here() {
-    	return getRuntime().currentPlace();
+    	return _.currentPlace();
     }
     
     public abstract Place currentPlace();
