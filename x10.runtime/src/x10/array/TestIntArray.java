@@ -18,7 +18,11 @@ public class TestIntArray extends TestCase {
                     ArrayFactory.newRange(0, SIZE - 1) };
             Region r = ArrayFactory.newRegion(ranges);
             Distribution d = ArrayFactory.newHereDistribution(r);
-            IntArray ia = ArrayFactory.newIntArray(d, 12);
+            IntArray ia = ArrayFactory.newIntArray(d, new Operator.Pointwise() {
+                public int apply(int[] p, int i) {
+                    return 12;
+                }
+            });
 
             int[][] a1 = (int[][]) ia.toJava();
             int[][] a2 = new int[][] { { 12, 12, 12 }, { 12, 12, 12 },
