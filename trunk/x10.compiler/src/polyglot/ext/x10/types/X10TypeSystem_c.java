@@ -127,7 +127,7 @@ public class X10TypeSystem_c
     }
     
     public ParsedClassType getPlaceType() {
-        return (ParsedClassType) forcefulLookup("x10.lang.Place");
+        return (ParsedClassType) forcefulLookup("x10.lang.place");
     }
 
     
