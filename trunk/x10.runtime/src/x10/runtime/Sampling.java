@@ -99,8 +99,8 @@ public final class Sampling extends Thread {
      * with entry-exit events; for example, memory used
      * or active threads in the thread pool).
      */
-    public static final int S_ID_THREAD_QUEUE_SIZE = 0;
-    public static final int S_ID_LOAD = 1; // number of threads that are currently running (non-blocked)
+    public static final int S_ID_THREAD_QUEUE_SIZE = X10.Sampler_TQS;
+    public static final int S_ID_LOAD = X10.Sampler_Load; // number of threads that are currently running (non-blocked)
    
     private final int[][] entryCount;
     
