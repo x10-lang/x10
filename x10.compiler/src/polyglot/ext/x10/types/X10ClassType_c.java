@@ -1,8 +1,6 @@
 /*
  * Created on Nov 30, 2004
  *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package polyglot.ext.x10.types;
 
@@ -15,9 +13,6 @@ import polyglot.types.Type;
 
 /**
  * @author vj
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public abstract class X10ClassType_c extends ClassType_c implements
 		X10ClassType {
@@ -27,7 +22,6 @@ public abstract class X10ClassType_c extends ClassType_c implements
 	 */
 	public X10ClassType_c() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -35,7 +29,6 @@ public abstract class X10ClassType_c extends ClassType_c implements
 	 */
 	public X10ClassType_c(TypeSystem ts) {
 		super(ts);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -44,7 +37,6 @@ public abstract class X10ClassType_c extends ClassType_c implements
 	 */
 	public X10ClassType_c(TypeSystem ts, Position pos) {
 		super(ts, pos);
-		// TODO Auto-generated constructor stub
 	}
 //	 ----------------------------- begin manual mixin code from X10Type_c
 	/* (non-Javadoc)

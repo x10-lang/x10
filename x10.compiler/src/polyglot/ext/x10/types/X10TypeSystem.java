@@ -7,6 +7,7 @@ package polyglot.ext.x10.types;
 import polyglot.types.*;
 import polyglot.util.Position;
 import polyglot.ast.Expr;
+import polyglot.ext.x10.ast.DepParameterExpr;
 
 
 /**
@@ -17,33 +18,40 @@ import polyglot.ast.Expr;
  */
 
 public interface X10TypeSystem extends TypeSystem {
-	
-	/**
-     * Return an array of <code>type</code>
-     */
-    ArrayType arrayOf(Type type, Expr indexedSet);
 
     /**
-     * Return an array of <code>type</code>
+     * Return a reference array of <code>base</code> type.
      */
-    ArrayType arrayOf(Position pos, Type type, Expr indexedSet);
+    ArrayType arrayOf(Position pos, Type base);
 
-    
+    /**
+     * Return an array of <code>base</code> type -- a
+     * <code>value</code> array if <code>isValue==true</code>, and a
+     * <code>reference</code> array otherwise.
+     */
+    ArrayType arrayOf(Position pos, Type base, boolean isValue);
+
+    /**
+     * Return a reference array of <code>base</code> type with a
+     * dependent parameter, expr.
+     */
+    ArrayType arrayOf(Position pos, Type base, DepParameterExpr expr);
+    /**
+     * Return an array of <code>base</code> type -- a <code>value</code> array
+     * if <code>isValue==true</code>, and a <code>reference</code> array
+     * otherwise -- with a dependent parameter, expr.
+     */
+    ArrayType arrayOf(Position pos, Type base, 
+		      boolean isValue, DepParameterExpr expr);
 
     NullableType createNullableType( Position p, ReferenceType t);
     FutureType createFutureType( Position p, Type t);
     ClassType X10Object();
-    
     public ParsedClassType getRuntimeType();
-    
     public ParsedClassType getActivityType();
-
     public ParsedClassType getFutureActivityType();
-    
     public ParsedClassType getFutureType();
-    
     public ParsedClassType getX10ObjectType();
-    
     public ParsedClassType getPlaceType();
     
     /** Return the method instance for runtime.Primitive.equals */
