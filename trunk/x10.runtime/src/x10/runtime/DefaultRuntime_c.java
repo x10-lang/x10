@@ -133,8 +133,8 @@ public class DefaultRuntime_c
                 c.doNext();
 
                 if (Sampling.SINGLETON != null && Configuration.DUMP_STATS_ON_EXIT) {  
-                    Sampling.shutdown();
                     System.out.println(Sampling.SINGLETON.toString());
+                    Sampling.shutdown();
                 }
             }
             public Object getResult() {

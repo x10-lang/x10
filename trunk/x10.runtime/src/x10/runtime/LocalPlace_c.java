@@ -117,8 +117,10 @@ public class LocalPlace_c extends Place {
      */
     public long getSimulatedPlaceTime() {
         long ret = blockedTime;
-        for (int i = myThreads.size()-1;i>=0;i--)
-            ret += ((PoolRunner)myThreads.get(i)).getThreadRunTime();
+        synchronized (myThreads) {
+            for (int i = myThreads.size()-1;i>=0;i--)
+                ret += ((PoolRunner)myThreads.get(i)).getThreadRunTime();
+        }
         return ret;
     }
     
@@ -319,7 +321,7 @@ public class LocalPlace_c extends Place {
         private List myClocks_;
         
         PoolRunner() {
-            myThreads.add(this);
+            synchronized (myThreads) { myThreads.add(this); }
             try {
                 Field vmt = java.lang.Thread.class.getDeclaredField("vmdata");
                 vmt.setAccessible(true);
