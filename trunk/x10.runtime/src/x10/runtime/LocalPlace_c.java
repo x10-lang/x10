@@ -26,7 +26,10 @@ class LocalPlace_c extends Place {
         long max = 0;
         Place[] places = x10.lang.Runtime.places();
         for (int i=places.length-1;i>=0;i--) {
-            long val = ((LocalPlace_c) places[i]).getSimulatedPlaceTime();
+            long val = 0;
+            if (places[i] instanceof LocalPlace_c) {
+             val = ((LocalPlace_c) places[i]).getSimulatedPlaceTime();
+            }
             if (val > max)
                 max = val;
         }
