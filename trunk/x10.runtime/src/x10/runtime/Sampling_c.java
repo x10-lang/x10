@@ -195,9 +195,9 @@ public final class Sampling_c extends Thread {
      */
     public static class ThreadQueueSampler extends Sampler {
 
-        int maxThreadQueue = 1;        
-        long totThreadQueue = 0;
-        int threadQueueSamples = 0;
+        int[] maxThreadQueue;        
+        long[] totThreadQueue;
+        int[] threadQueueSamples;
 
         private final LocalPlace_c[] lp;
         
@@ -211,7 +211,10 @@ public final class Sampling_c extends Thread {
             lp = new LocalPlace_c[locals];
             for (int i=places.length-1;i>=0;i--) 
                 if (places[i] instanceof LocalPlace_c) 
-                    lp[--locals] = (LocalPlace_c) places[i];                
+                    lp[--locals] = (LocalPlace_c) places[i];
+            maxThreadQueue = new int[lp.length];
+            totThreadQueue = new long[lp.length];
+            threadQueueSamples = new int[lp.length];
         }
         
         /**
@@ -228,19 +231,25 @@ public final class Sampling_c extends Thread {
                         ql++;
                     }
                 }
-                if (ql > maxThreadQueue)
-                    maxThreadQueue = ql;
-                totThreadQueue += ql;
-                threadQueueSamples++;
+                if (ql > maxThreadQueue[i])
+                    maxThreadQueue[i] = ql;
+                totThreadQueue[i] += ql;
+                threadQueueSamples[i]++;
             }
         }
       
         public String toString() {
-            if (this.threadQueueSamples > 0)
-                return "Thead Pool:\n\tMAX: " + maxThreadQueue + 
-                "\n\tAVG: " + (this.totThreadQueue/this.threadQueueSamples) + "\n";
-            else
-                return "No samples.";
+            StringBuffer buf = new StringBuffer();
+            buf.append("Thread Pool:\n");
+            for (int i=lp.length-1;i>=0;i--) {
+                buf.append(i);
+                if (this.threadQueueSamples[i] > 0) 
+                    buf.append(":\tMAX: " + maxThreadQueue[i] + 
+                               "\n  \tAVG: " + (this.totThreadQueue[i]/this.threadQueueSamples[i]) + "\n");
+                else                           
+                    buf.append(" \tNo samples.\n");
+            }
+            return buf.toString();
         }
     
     } // end of Statistics_c.ActivityCounter
