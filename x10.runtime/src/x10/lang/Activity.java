@@ -19,7 +19,7 @@ public abstract class Activity
 	 */
 	public abstract X10Object getResult();
 
-    } // end of Activity.Future
+    } // end of Activity.Expr
 
 
 } // end of Activity
