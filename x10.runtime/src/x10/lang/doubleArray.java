@@ -48,7 +48,7 @@ implements Indexable {
 		 * @param k
 		 * @return
 		 */
-		public doubleValueArray doubleValueArray( /*nat*/ int k) {
+		public doubleArray doubleValueArray( /*nat*/ int k) {
 			return doubleValueArray(k, 0);
 		}
 		/** Return the unique int value array initialized with initVal 
@@ -57,7 +57,7 @@ implements Indexable {
 		 * @param k
 		 * @return
 		 */
-		public doubleValueArray/*(:rank=1)*/  doubleValueArray(/*nat*/ int k, double initVal) { 
+		public doubleArray/*(:rank=1)*/  doubleValueArray(/*nat*/ int k, double initVal) { 
 			return doubleValueArray(x10.lang.distribution.factory.here(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
@@ -66,14 +66,14 @@ implements Indexable {
 		 * @param k
 		 * @return
 		 */
-		public doubleValueArray/*(:rank=1)*/ doubleValueArray(/*nat*/ int k, pointwiseOp init) {
+		public doubleArray/*(:rank=1)*/ doubleValueArray(/*nat*/ int k, pointwiseOp init) {
 			return doubleValueArray( x10.lang.distribution.factory.here(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ doubleValueArray/*(D)*/ doubleValueArray(distribution D, double init);
+		/*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray(distribution D, double init);
 		abstract public 
-		/*(distribution D)*/ doubleValueArray/*(D)*/ doubleValueArray( distribution D, 
+		/*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray( distribution D, 
 				pointwiseOp/*(D.region)*/ init);
 		/** Return the unique int value array initialized with 0 
 		 * and defined over the distribution 0..k-1 -> here.
