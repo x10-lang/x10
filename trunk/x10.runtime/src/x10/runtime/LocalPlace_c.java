@@ -1,6 +1,8 @@
 package x10.runtime;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import x10.lang.Activity;
@@ -269,8 +271,27 @@ public class LocalPlace_c extends Place {
         private boolean active = true;
         private Runnable job;
         private Activity act;
+        private Method ac;
+        private Object vmto;
+
         PoolRunner() {
             myThreads.add(this);
+            try {
+                Field vmt = java.lang.Thread.class.getDeclaredField("vmdata");
+                vmt.setAccessible(true);
+                this.vmto = vmt.get(this); // o is 'VM_Thread'
+                this.ac = vmto.getClass().getDeclaredMethod("accumulateCycles", new Class[0]);
+            } catch (SecurityException se) {
+                // System.out.println("GSPT: " + se);
+            } catch (IllegalAccessException iae) {
+                // System.out.println("GSPT: " + iae);
+            } catch (NoClassDefFoundError ncfe) {
+                // System.out.println("GSPT: " + ncfe);
+            } catch (NoSuchMethodException ncme) {
+                // System.out.println("GSPT: " + ncfe);
+            } catch (NoSuchFieldException ncfe) {
+                // System.out.println("GSPT: " + ncfe);
+            }
         }
         
         /**
@@ -280,23 +301,28 @@ public class LocalPlace_c extends Place {
          * @return 0 on error
          */
         long getThreadRunTime() {
+            if (ac == null)
+                return 0;
             try {
-                Field vmt = java.lang.Thread.class.getDeclaredField("vmdata");
-                vmt.setAccessible(true);
-                Object o = vmt.get(this); // o is 'VM_Thread'
-                Field trt = o.getClass().getDeclaredField("totalCycles");
-                trt.setAccessible(true);
-                return trt.getLong(o);                
+                // Field vmt = java.lang.Thread.class.getDeclaredField("vmdata");
+                // vmt.setAccessible(true);
+                // Object o = vmt.get(this); // o is 'VM_Thread'
+                // Field trt = o.getClass().getDeclaredField("totalCycles");
+                // trt.setAccessible(true);
+                // return trt.getLong(o);                
+                return ((Long)ac.invoke(vmto, new Object[0])).longValue();                
             } catch (SecurityException se) {
                 // System.out.println("GSPT: " + se);
             } catch (IllegalAccessException iae) {
                 // System.out.println("GSPT: " + iae);
             } catch (NoClassDefFoundError ncfe) {
                 // System.out.println("GSPT: " + ncfe);
-            } catch (NoSuchFieldException nsfe) {
+            } catch (InvocationTargetException ite) {
+                // System.out.println("GSPT: " + ncfe);
+            }/* catch (NoSuchFieldException nsfe) {
                 // System.out.println("GSPT: " + nsfe);
                 // not JikesRVM
-            }
+            }*/
             return 0;   
         }
         
