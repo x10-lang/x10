@@ -81,6 +81,10 @@ public class AtomicElimination extends NodeVisitor {
      * The stmt in the body of atomic is optimizable if it is 
      * a simple assignment and the rhs meets the criteria of
      * method isOptimizableExpr_.
+     * 
+     * For writes to shared variables, the atomic block must be kept, because 
+     * the write might lead to a notfiy that is necessary to wake-up an activity 
+     * that is blocked on await.
      */
     private boolean isOptimizableStmt_(Stmt s) {
         boolean ret = false;
@@ -92,7 +96,7 @@ public class AtomicElimination extends NodeVisitor {
                 e_expr instanceof FieldAssign ||
                 e_expr instanceof LocalAssign) {
                 a = (Assign) e_expr;
-                ret = numFieldRefs_(a.left()) + 
+                ret = numFieldRefs_(a.left()) == 0 && // don't allow writes 
                       numFieldRefs_(a.right()) <= 1;
             }
         } 

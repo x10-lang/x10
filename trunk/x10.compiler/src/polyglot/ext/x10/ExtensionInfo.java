@@ -74,14 +74,10 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     public List passes(Job job) {
         List passes = super.passes(job);
         
-        // This transformation is disabled, because it might cause programs with 
-        // await statements to hang when atomic blocks that modify variables checked 
-        // in await are removed (e.g., testcase AwaitTest).
-        //
-        // beforePass(passes, Pass.PRE_OUTPUT_ALL,
-        //     new VisitorPass(ATOMIC_ELIMINATION,
-        //          job, new AtomicElimination()));
-
+        beforePass(passes, Pass.PRE_OUTPUT_ALL,
+                new VisitorPass(ATOMIC_ELIMINATION,
+                        job, new AtomicElimination()));
+        
         // Schedule elimination of async / future after the atomic elimination 
         // because atomic eliminiation might create additional opportunities.
         //
@@ -89,9 +85,9 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         // incorrect because remote accesses may 'look like' local access in the 
         // program.
         //
-        // beforePass(passes, Pass.PRE_OUTPUT_ALL,
-        //      new VisitorPass(ASYNC_ELIMINATION,
-        //               job, new AsyncElimination()));
+        beforePass(passes, Pass.PRE_OUTPUT_ALL,
+                new VisitorPass(ASYNC_ELIMINATION,
+                        job, new AsyncElimination()));
         
         beforePass(passes, Pass.PRE_OUTPUT_ALL,
                 new VisitorPass(CAST_REWRITE,
