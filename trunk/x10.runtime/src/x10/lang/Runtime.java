@@ -1,10 +1,12 @@
 package x10.lang;
 
+import java.util.Set;
+
 import x10.runtime.DefaultRuntime_c;
 
 /**
  * This is the central entrypoint to the X10 Runtime for the
- * compiler.   There is exactly one Runtime per JVM running X10.
+ * compiler. There is exactly one Runtime per JVM running X10.
  * 
  * The Runtime is NOT an X10Object! In fact, it cannot be since
  * X10Object's constructor requires already an existing and working
@@ -65,21 +67,41 @@ public abstract class Runtime {
      * Shutdown the X10 runtime system.
      */
     public abstract void shutdown();
+
+    /**
+     * @return New Clock.
+     */
+    public abstract Clock newClock();
+
+    /**
+     * @return New Range.
+     */
+    public abstract Range newRange(int lo, int hi);
     
     /**
-     * Create a new Clock.
+     * @return New Region.
      */
-    public abstract Clock createClock();
-
+    public abstract Region newRegion(Range[] dims);
+    	
     /**
-     * Return all places available in this VM.
+     * @param p Set of places.
+     * @return Unique, one-dimensional Distribution that maps
+     *         one point to each place.
      */
-    public abstract Place[] initializePlaces();
+    public abstract Distribution newUniqueDist(Set p);
+	
+	public abstract Distribution newConstantDist(Place p);
+	
+	public abstract Distribution newBlockDist(Region r, Set p);
 
+	public abstract Distribution newCyclicDist(Region r, Set p); 
+	
+	public abstract Distribution newBlockCyclicDist(Region r, Set p, int bsize); 
+		
     /**
-     * Create a new array.
+     * @return  New array with Distribution d.
      */
-    public abstract Array createArray(Distribution d);
+    public abstract Array newArray(Distribution d);
 
     /**
      * @return The place where the current execution takes place 

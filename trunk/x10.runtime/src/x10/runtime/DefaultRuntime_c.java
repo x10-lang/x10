@@ -1,6 +1,7 @@
 package x10.runtime;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Vector;
 import java.util.WeakHashMap;
 
@@ -9,6 +10,8 @@ import x10.lang.Array;
 import x10.lang.Clock;
 import x10.lang.Distribution;
 import x10.lang.Place;
+import x10.lang.Range;
+import x10.lang.Region;
 import x10.lang.Runtime;
 
 /**
@@ -50,19 +53,19 @@ public class DefaultRuntime_c
     private final Place[] places_;
 
     public DefaultRuntime_c() {
-        int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
-	this.places_ 
-	    = new Place[pc];
-	for (int i=pc-1;i>=0;i--)
-           places_[i] = new LocalPlace_c(this, this);
+    	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
+    	this.places_ 
+		= new Place[pc];
+    	for (int i=pc-1;i>=0;i--)
+    		places_[i] = new LocalPlace_c(this, this);
     }
 
     /**
      * Shutdown the X10 runtime system.
      */
     public void shutdown() {
-        for (int i=places_.length-1;i>=0;i--)
-            places_[i].shutdown();
+    	for (int i=places_.length-1;i>=0;i--)
+    		places_[i].shutdown();
     }
 
     /**
@@ -82,7 +85,7 @@ public class DefaultRuntime_c
 	    .forName(args[0])
 	    .getDeclaredConstructor(new Class[] { String[].class })
 	    .newInstance(appArgs);
-	Place[] p = initializePlaces();
+	Place[] p = getPlaces();
 	Place p0 = p[0];
 	registerThread(Thread.currentThread(), p0);
 	p0.runAsync(boot);
@@ -148,31 +151,76 @@ public class DefaultRuntime_c
     }
 
     public synchronized Place currentPlace() {
-	Place p = (Place) thread2place_.get(Thread.currentThread());
-	if (p == null)
-	    throw new Error("This thread is not an X10 thread!");
-	return p;
+    	Place p = (Place) thread2place_.get(Thread.currentThread());
+    	if (p == null)
+    		throw new Error("This thread is not an X10 thread!");
+    	return p;
     }
 
     /**
+     * this method should not be exposed to x10.lang and 
+     * application programmers, because the X10 programming model 
+     * does not know such construct (Places are obtained indirectly 
+     * through distributions).
+     *  
+     * @return All places available in this VM.
+     */
+    Place[] getPlaces() {
+    	// return defensive copy
+    	return (Place[]) places_.clone();
+    }
+    
+    /**
      * Create a new Clock.
      */
-    public Clock createClock() {
+    public Clock newClock() {
         return new Clock_c(this);
     }
 
     /**
-     * Return all places available in this VM.
+     * @return New Range.
      */
-    public Place[] initializePlaces() {
-	return places_;
+    public Range newRange(int lo, int hi)  {
+    	throw new Error("not implemented");
+    }
+    
+    /**
+     * @return New Region.
+     */
+    public Region newRegion(Range[] dims)  {
+    	throw new Error("not implemented");
+    }
+    	
+    /**
+     * @param p Set of places.
+     * @return Unique, one-dimensional Distribution that maps
+     *         one point to each place.
+     */
+    public Distribution newUniqueDist(Set p) {
+    	return Distribution_c.unique(p);
+    }
+	
+	public Distribution newConstantDist(Place p) {
+		return Distribution_c.constant(p);
+    }
+	
+	public Distribution newBlockDist(Region r, Set p) {
+		return Distribution_c.block(r,p);
     }
 
+	public Distribution newCyclicDist(Region r, Set p) {
+		return Distribution_c.cyclic(r, p);
+    }
+	
+	public Distribution newBlockCyclicDist(Region r, Set p, int bsize) {
+		return Distribution_c.blockcyclic(r, p, bsize);
+    }
+    
     /**
-     * Create a new array.
+     * @return New array.
      */
-    public Array createArray(Distribution d) {
-	throw new Error("not implemented");
+    public Array newArray(Distribution d) {
+    	return new Array_c(d);
     }
 				      
     /**

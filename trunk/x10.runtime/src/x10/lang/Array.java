@@ -4,6 +4,8 @@
  */
 package x10.lang;
 
+import x10.lang.Distribution;
+
 
 /**
 * Baseclass of all Arrays in X10.
@@ -13,11 +15,14 @@ package x10.lang;
 
 public abstract class Array {
 
-	public static Array alloc(Distribution d) {
-		throw new Error("TODO not implemented");
-	}
+	public final Distribution dist;
 	
-    public abstract Distribution getDistribution();
+	/**
+	 * @param d Distribution of the array.
+	 */
+	protected Array(Distribution d) {
+		dist = d;
+	}
     
     /**
      * Flat access.

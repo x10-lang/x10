@@ -1,0 +1,221 @@
+/*
+ * Created on Oct 3, 2004
+ */
+package x10.runtime;
+
+import java.util.Iterator;
+import java.util.Set;
+
+import x10.lang.Range;
+import x10.lang.Region;
+import x10.lang.TypeArgument;
+
+
+/**
+ * Implementation of Region. The Points in a region, aka. tuples, 
+ * are implemented as one-dimensional int arrays. Instance of 
+ * this class are immutable!
+ *
+ * @author Christoph von Praun
+ */
+class Region_c extends Region implements TypeArgument {
+	
+	private final Range[] dims_;
+	final int card;
+	
+	/**
+	 * Convenience constructor.
+	 * Region starts in all dimensions at index 0.
+	 */
+	Region_c(int[] dims) {
+		super (dims.length);
+		assert dims != null;
+		
+		int tmp_card = 1;
+		dims_ = new Range[dims.length];
+		for (int i = 0; i < dims.length; ++ i) {
+			dims_[i] = new Range_c(0, dims[i]);
+			tmp_card *= dims[i];
+		}
+		card = tmp_card;
+	}
+	
+	Region_c(Range[] dims) {
+		super(dims.length);
+		assert dims != null;
+		
+		int tmp_card = 1;
+		dims_ = dims;
+		for (int i = 0; i < dims.length; ++ i) 
+			tmp_card *= dims_[i].card;
+		card = tmp_card;
+	}
+	
+	/**
+	 * @param  dims Regions that must be subsets of the ranges of 
+	 *              this region, or null if the entire range along 
+	 *              one dimension should be considered.
+	 * @return A sub-region of this region. 
+	 */
+	public Region sub(Range[] dims) {
+		assert dims.length == rank;
+		for (int i = 0; i < dims.length; ++i) {
+			if (dims[i] != null) {
+				assert dims_[i].contains(dims[i]);
+			} else 
+				dims[i] = dims_[i];
+		}
+		return new Region_c(dims);
+	}
+	
+	public Region combine(Region r) {
+		throw new Error("not implemented");
+	}
+	
+	/** 
+	 * @return range in the i-th dimension.
+	 */
+	public Range dim(int i) {
+		assert i < rank;
+		return dims_[i];
+	}
+	
+	public boolean contains(Region r) {
+		assert r.rank == rank;
+		
+		Region_c r_c = (Region_c) r;
+		boolean ret = true;
+		
+		for (int i = 0; i < r_c.rank && ret; ++ i) 
+			ret = r_c.dims_[i].contains(dims_[i]);
+		return ret;
+	}
+	
+	public boolean contains(int[] p) {
+		assert p.length == dims_.length;
+		
+		boolean ret = true;
+		for (int i = 0; i < dims_.length; ++i) {
+			Range r = dims_[i];
+			for (int j = 0; i < p.length; ++j) {
+				if (!r.contains(p[j])) {
+					ret = false;
+					break;
+				}
+			}
+			if (!ret) break;
+		}
+		return ret;
+	}
+	
+	/**
+	 * @param p A point in the region; the dimension of p must be compatible 
+	 *          with this region.
+	 * @return  Returns the ordinal of the point in this region (its position, 
+	 *          where the initial constant is assigned an ordinal of zero).
+	 */
+	public int ordinal(int[] p) {
+		assert p.length == dims_.length;
+		
+		int ret = 0;
+		for (int i = 0; i < p.length - 2; ++i) {
+			ret = (ret + dims_[i].ordinal(p[i])) * dims_[i+1].card;
+		}
+		ret += dims_[p.length -1].ordinal(p.length -1);
+		return ret;
+	}
+	
+	/**
+	 * Iterator that yields the individual points of a region in 
+	 * lexicographical order. Points are specified as arrays of int.
+	 */
+	public Iterator iterator() {
+		return new RegionIterator();
+	}
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		for (int i = 0; i < dims_.length; ++i) {
+			sb.append(dims_[i].toString());
+			if (i < dims_.length - 1)
+				sb.append(",");
+		}
+		sb.append("}");
+		return sb.toString();
+	}
+	
+	public boolean equals(Object o) {
+		assert o instanceof Range;
+		
+		Region_c rhs = (Region_c) o;
+		boolean ret = rhs.rank == rank && rhs.card == card;
+		for (int i = 0; ret && i < dims_.length; ++ i) 
+			ret = dims_[i].equals(rhs.dims_[i]);
+		return ret;
+	}
+	
+	public int hashCode() {
+		return card;
+	}
+	
+	/** 
+	 * @return A combined region that covers the space of the 
+	 *         convex hull of all other regions.
+	 */
+	static Region combine(Set l) {
+		int rank = -1;
+		for (Iterator it = l.iterator(); it.hasNext(); ) {
+			Region_c r = (Region_c) it.next();
+			if (rank == -1)
+				rank = r.rank;
+			else
+				assert rank == r.rank;
+		}
+		
+		int[] lo = new int[rank];
+		int[] hi = new int[rank];
+		for (Iterator it = l.iterator(); it.hasNext(); ) {
+			Region_c r = (Region_c) it.next();
+			for (int i = 0; i < rank; ++i) {
+				Range rg = r.dim(i);
+				if (lo[i] > rg.lo)
+					lo[i] = rg.lo;
+				if (hi[i] < rg.hi)
+					hi[i] = rg.hi;
+			}
+		}
+		
+		Range[] ra = new Range[rank];
+		for (int i = 0; i < rank; ++i)
+			ra[i] = new Range_c(lo[i], hi[i]);
+		return new Region_c(ra);
+	}
+	
+	private class RegionIterator implements Iterator {
+		private int nextOrd_;
+		
+		public boolean hasNext() {
+			return nextOrd_ < card;
+		}
+		
+		public void remove() {
+			throw new Error("not implemented");
+		}
+		
+		public Object next() {
+			assert hasNext();
+			
+			int[] ret = new int[rank];
+			// express nextOrd_ as a base of the regions
+			int rest = nextOrd_;
+			for (int i = rank - 1; i > 0; --i) {
+				int tmp = rest / dims_[i].card;
+				rest -= tmp;
+				ret[i] = tmp + dims_[i].lo;
+			}
+			nextOrd_++;
+			return ret;
+		}
+	}
+}
