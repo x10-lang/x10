@@ -48,7 +48,7 @@ implements Indexable {
 		public distribution/*(:rank=1)*/ unique() {
 			return unique( x10.lang.place.places );
 		}
-		public /*(region R)*/ distribution/*(R)*/ here( region R) {
+		public /*(region R)*/ distribution/*(R)*/ local( region R) {
 			return constant( R, Runtime.here());
 		}
 		/** Return the distribution that maps the region 0..k-1 to here.
@@ -56,8 +56,8 @@ implements Indexable {
 		 * @param k -- the upper bound of the 1-dimensional region. k >= 0
 		 * @return the given distribution
 		 */
-		public distribution/*(:rank=1)*/ here( int k) {
-			return here(x10.lang.region.factory.region(k));
+		public distribution/*(:rank=1)*/ local( int k) {
+			return local(x10.lang.region.factory.region(k));
 		}
 		
 		/** Returns the constant distribution which maps every point in its
@@ -216,5 +216,7 @@ implements Indexable {
 	 	return region.iterator();
 	 }
 	
-	
+	public distribution toDistribution() {
+		return this;
+	}
 }
