@@ -41,7 +41,8 @@ class Region_c implements Region {
 	}
 	    
     /**
-     * Convenience constructor. Region starts in all dimensions at index 0.
+     * Convenience constructor. Region starts in all dimensions 
+     * at index 0, to index idx[i], including the latter.
      */
     Region_c(int[] dims) {
         assert dims != null;
