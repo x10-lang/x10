@@ -17,6 +17,22 @@ public class point_c extends point implements Comparable {
 			region R = x10.lang.region.factory.region(dims);
 			return point(R, val);
 		}
+		public point point(int i) {
+			return point(new int[] { i });
+		}
+		public point point( int i, int j ) {
+			return point(new int[] { i, j });
+		}
+		public point point( int i, int j, int k ) {
+			return point(new int[] { i, j, k });
+		}
+		public point point( int i, int j, int k , int l) {
+			return point(new int[] { i, j, k, l });
+		}
+		public point point( int i, int j, int k , int l, int m) {
+			return point(new int[] { i, j, k, l, m});
+		}
+		
 	}
 	
 	private final int[] val;
