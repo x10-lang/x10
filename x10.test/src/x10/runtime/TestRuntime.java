@@ -10,6 +10,12 @@ import x10.lang.Runtime;
 import x10.lang.X10Object;
 
 /**
+ * Testcases for the X10 Runtime.  
+ * This includes testcases for all classes in x10.runtime and
+ * x10.lang.  We collect them all in here since all of these 
+ * tests share some common setup code that prepares the Runtime
+ * for use from JUnit.
+ * 
  * @author Christian Grothoff
  */
 public class TestRuntime extends TestCase {
@@ -21,11 +27,9 @@ public class TestRuntime extends TestCase {
     public TestRuntime(String name) {
         super(name);
     }
-
+    
     private final Activity a
         = new Activity() { public void run() {} }; // dummy
-    
-    static volatile int x;
     
     /**
      * Junit may use additional threads to run the testcases
@@ -45,6 +49,9 @@ public class TestRuntime extends TestCase {
         }
     }
 
+    /**
+     * Clean-up effects from setUp().
+     */
     public void tearDown() {
         Runtime r = Runtime._;
         if (r instanceof ThreadRegistry) {
@@ -54,6 +61,9 @@ public class TestRuntime extends TestCase {
         }
     }
 
+    // testcases
+
+    private static volatile int x;
     
     public void testPlaceRunAsync() {
         x = 0;
@@ -84,6 +94,20 @@ public class TestRuntime extends TestCase {
         assertTrue(f.force().getClass() == X10Object.class);
     }
 
+    public void testClockNext() {
+        assertTrue(false);
+    }
     
+    public void testClockContinue() {
+        assertTrue(false);
+    }
+    
+    public void testClockDrop() {
+        assertTrue(false);
+    }
+    
+    public void testClockedFinal() {
+        assertTrue(false);
+    }
     
 } // end of TestRuntime
