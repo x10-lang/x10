@@ -1,171 +1,106 @@
 <?xml version='1.0' ?>
 <x10_pem_events>
-<event name="X10::Event::RemoteCall" description="Record a remote call">
+<event name="X10::Event::RemoteCall" description="Record an async call">
    <layerId value="X10" />
    <classId value="Event" />
    <specifier value="RemoteCall" />
    <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
-      <field name="pid"        type="uint32" description="place identifier" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
+      <field name="systemTime"  type="uint64" description="system time in milliseconds" />
+      <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
+      <field name="spid"        type="uint32" description="source place identifier" />
+      <field name="tpid"        type="uint32" description="target place identifier" />
    </fields>
    <k42Format value='pid=%1[%d] time=%0[%lld]' />
 </event>
-
 
 <event name="X10::Event::ClockAdvance" description="Record a clock advancement">
    <layerId value="X10" />
    <classId value="Event" />
    <specifier value="ClockAdvance" />
    <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
-      <field name="pid"        type="uint32" description="place identifier" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
+      <field name="systemTime"  type="uint64" description="system time in milliseconds" />
+      <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
+      <field name="pid"         type="uint32" description="place identifier (of place triggering advance)" />
+      <field name="reserved"    type="uint32" description="reserved for 64-bit alignment (0)" />
    </fields>
    <k42Format value='pid=%1[%d] time=%0[%lld]' />
 </event>
 
-<event name="X10::Event::LocalCall" description="Record a local (async) call">
+<event name="X10::Event::ActivityStart" description="Record an activity starting">
    <layerId value="X10" />
    <classId value="Event" />
-   <specifier value="LocalCall" />
+   <specifier value="ActivityStart" />
    <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
-      <field name="pid"        type="uint32" description="place identifier" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
+      <field name="systemTime"  type="uint64" description="system time in milliseconds" />
+      <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
+      <field name="pid"         type="uint32" description="place identifier (of place where activity runs)" />
+      <field name="load"        type="uint32" description="new load at this place" />
    </fields>
    <k42Format value='pid=%1[%d] time=%0[%lld]' />
 </event>
 
+<event name="X10::Event::ActivityEnds" description="Record an activity terminating">
+   <layerId value="X10" />
+   <classId value="Event" />
+   <specifier value="ActivityEnds" />
+   <fields>
+      <field name="systemTime"  type="uint64" description="system time in milliseconds" />
+      <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
+      <field name="pid"         type="uint32" description="place identifier (of place where activity runs)" />
+      <field name="load"        type="uint32" description="new load at this place" />
+   </fields>
+   <k42Format value='pid=%1[%d] time=%0[%lld]' />
+</event>
 
+<event name="X10::Event::ActivityBlocks" description="Record an activity blocking">
+   <layerId value="X10" />
+   <classId value="Event" />
+   <specifier value="ActivityBlocks" />
+   <fields>
+      <field name="systemTime"  type="uint64" description="system time in milliseconds" />
+      <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
+      <field name="pid"         type="uint32" description="place identifier (of place where activity runs)" />
+      <field name="load"        type="uint32" description="new load at this place" />
+   </fields>
+   <k42Format value='pid=%1[%d] time=%0[%lld]' />
+</event>
 
+<event name="X10::Event::ActivityUnblocks" description="Record an activity unblocking">
+   <layerId value="X10" />
+   <classId value="Event" />
+   <specifier value="ActivityUnblocks" />
+   <fields>
+      <field name="systemTime"  type="uint64" description="system time in milliseconds" />
+      <field name="virtualTime" type="uint64" description="virtual time in milliseconds" />
+      <field name="pid"         type="uint32" description="place identifier (of place where activity runs)" />
+      <field name="load"        type="uint32" description="new load at this place" />
+   </fields>
+   <k42Format value='pid=%1[%d] time=%0[%lld]' />
+</event>
 
-<event name="X10::Sampler::Load" description="Record load data for all places">
+<event name="X10::Sampler::Data" description="Record sample data for all places">
    <layerId value="X10" />
    <classId value="Sampler" />
-   <specifier value="Load" />
+   <specifier value="Data" />
    <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
+      <field name="systemTime"     type="uint64" description="system time in milliseconds" />
+      <field name="virtualTime"    type="uint64" description="virtual time in milliseconds" />
       <field name="numberOfPlaces" type="uint32" description="number of places" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
-      <field name="places" type="list" size="numberOfPlaces" eltType="uint32" description="list of place IDs" />
-      <field name="load" type="list" size="numberOfPlaces" eltType="uint32" description="load values" />
-	
-   </fields>
-   <k42Format value='time=%0[%lld] number=%1[%d]' />
-</event>
-
-<event name="X10::Sampler::TQS" description="Record thread queue size for all places">
-   <layerId value="X10" />
-   <classId value="Sampler" />
-   <specifier value="TQS" />
-   <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
-      <field name="numberOfPlaces" type="uint32" description="number of places" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
-      <field name="places" type="list" size="numberOfPlaces" eltType="uint32" description="list of place IDs" />
-      <field name="tqs" type="list" size="numberOfPlaces" eltType="uint32" description="size of thread queue" />
-	
-   </fields>
-   <k42Format value='time=%0[%lld] number=%1[%d]' />
-</event>
-
-
-
-
-
-
-
-
-
-
-
-
-<event name="X10::EESampler::Atomic" description="Cummulated number of Atomic entry-exit events">
-   <layerId value="X10" />
-   <classId value="EESampler" />
-   <specifier value="Atomic" />
-   <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
-      <field name="numberOfPlaces" type="uint32" description="number of places" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
-      <field name="entry" type="list" size="numberOfPlaces" eltType="uint32" description="number of entries into atomic" />
-      <field name="exit" type="list" size="numberOfPlaces" eltType="uint32" description="number of exits from atomic" />
-   </fields>
-   <k42Format value='time=%0[%lld] count=%1[%d]' />
-</event>
-
-
-<event name="X10::EESampler::Block" description="Cummulated number of Block-unblock events">
-   <layerId value="X10" />
-   <classId value="EESampler" />
-   <specifier value="Block" />
-   <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
-      <field name="numberOfPlaces" type="uint32" description="number of places" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
-      <field name="entry" type="list" size="numberOfPlaces" eltType="uint32" description="number of activities blocked" />
-      <field name="exit" type="list" size="numberOfPlaces" eltType="uint32" description="number of activities unblocked" />
-   </fields>
-   <k42Format value='time=%0[%lld] count=%1[%d]' />
-</event>
-
-
-<event name="X10::EESampler::ActivityRun" description="Cummulated number of ActivityRun entry-exit events">
-   <layerId value="X10" />
-   <classId value="EESampler" />
-   <specifier value="ActivityRun" />
-   <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
-      <field name="numberOfPlaces" type="uint32" description="number of places" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
-      <field name="entry" type="list" size="numberOfPlaces" eltType="uint32" description="number of activities started" />
-      <field name="exit" type="list" size="numberOfPlaces" eltType="uint32" description="number of activities completed" />
-   </fields>
-   <k42Format value='time=%0[%lld] count=%1[%d]' />
-</event>
-
-
-<event name="X10::EDSampler::Atomic" description="Difference in number of Atomic entry-exit events">
-   <layerId value="X10" />
-   <classId value="EDSampler" />
-   <specifier value="Atomic" />
-   <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
-      <field name="numberOfPlaces" type="uint32" description="number of places" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
-      <field name="entry" type="list" size="numberOfPlaces" eltType="uint32" description="number of entries into atomic" />
-      <field name="exit" type="list" size="numberOfPlaces" eltType="uint32" description="number of exits from atomic" />
-   </fields>
-   <k42Format value='time=%0[%lld] count=%1[%d]' />
-</event>
-
-
-<event name="X10::EDSampler::Block" description="Difference in number of Block-unblock events">
-   <layerId value="X10" />
-   <classId value="EDSampler" />
-   <specifier value="Block" />
-   <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
-      <field name="numberOfPlaces" type="uint32" description="number of places" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
-      <field name="entry" type="list" size="numberOfPlaces" eltType="uint32" description="number of activities blocked" />
-      <field name="exit" type="list" size="numberOfPlaces" eltType="uint32" description="number of activities unblocked" />
-   </fields>
-   <k42Format value='time=%0[%lld] count=%1[%d]' />
-</event>
-
-
-<event name="X10::EDSampler::ActivityRun" description="Difference in number of ActivityRun entry-exit events">
-   <layerId value="X10" />
-   <classId value="EDSampler" />
-   <specifier value="ActivityRun" />
-   <fields>
-      <field name="systemTime" type="uint64" description="system time in milliseconds" />
-      <field name="numberOfPlaces" type="uint32" description="number of places" />
-      <field name="reserved"   type="uint32" description="reserved for 64-bit alignment (0)" />
-      <field name="entry" type="list" size="numberOfPlaces" eltType="uint32" description="number of activities started" />
-      <field name="exit" type="list" size="numberOfPlaces" eltType="uint32" description="number of activities completed" />
+      <field name="reserved"       type="uint32" description="reserved for 64-bit alignment (0)" />
+      <field name="tqs"                  type="list" size="numberOfPlaces" eltType="uint32" description="size of thread queue" />
+      <field name="load"                 type="list" size="numberOfPlaces" eltType="uint32" description="load values" />
+      <field name="atomic_entry"         type="list" size="numberOfPlaces" eltType="uint32" description="number of entries into atomic" />
+      <field name="atomic_exit"          type="list" size="numberOfPlaces" eltType="uint32" description="number of exits from atomic" />
+      <field name="block_entry"          type="list" size="numberOfPlaces" eltType="uint32" description="number of activities blocked" />
+      <field name="block_exit"           type="list" size="numberOfPlaces" eltType="uint32" description="number of activities unblocked" />
+      <field name="activity_start"       type="list" size="numberOfPlaces" eltType="uint32" description="number of activities started" />
+      <field name="activity_stop"        type="list" size="numberOfPlaces" eltType="uint32" description="number of activities completed" />
+      <field name="atomic_delta_entry"   type="list" size="numberOfPlaces" eltType="uint32" description="number of entries into atomic (change)" />
+      <field name="atomic_delta_exit"    type="list" size="numberOfPlaces" eltType="uint32" description="number of exits from atomic (change)" />
+      <field name="block_delta_entry"    type="list" size="numberOfPlaces" eltType="uint32" description="number of activities blocked (change)" />
+      <field name="block_delta_exit"     type="list" size="numberOfPlaces" eltType="uint32" description="number of activities unblocked (change)" />
+      <field name="activity_delta_start" type="list" size="numberOfPlaces" eltType="uint32" description="number of activities started (change)" />
+      <field name="activity_delta_stop"  type="list" size="numberOfPlaces" eltType="uint32" description="number of activities completed (change)" />
    </fields>
    <k42Format value='time=%0[%lld] count=%1[%d]' />
 </event>
