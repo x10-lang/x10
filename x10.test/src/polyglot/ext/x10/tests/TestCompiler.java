@@ -8,10 +8,11 @@ import java.net.URLClassLoader;
 
 import junit.framework.TestCase;
 import x10.lang.Activity;
-import x10.lang.Place;
 import x10.lang.Runtime;
 import x10.runtime.DefaultRuntime_c;
+import x10.runtime.Place;
 import x10.runtime.ThreadRegistry;
+import x10.lang.place;
 
 /**
  * JUnit testing harness for the X10 compiler.
@@ -203,14 +204,11 @@ public class TestCompiler extends TestCase {
      * with the Runtime.
      */
     public void setUp() {
-        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.getRuntime();
-        Place[] pls = Place.places();
-        if (r instanceof ThreadRegistry) {
-            Thread t = Thread.currentThread();
-            ThreadRegistry tr = (ThreadRegistry) r;
-            tr.registerThread(t, pls[0]);
-            tr.registerActivityStart(t, a, null);
-        }
+    	DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
+    	Place[] pls = Place.places();
+    	Thread t = Thread.currentThread();
+    	r.registerThread(t, pls[0]);
+    	r.registerActivityStart(t, a, null);
     }
 
     private void run(String file, String main) {

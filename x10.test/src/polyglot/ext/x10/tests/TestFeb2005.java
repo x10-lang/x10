@@ -8,9 +8,9 @@ import java.net.URLClassLoader;
 
 import junit.framework.TestCase;
 import x10.lang.Activity;
-import x10.lang.Place;
 import x10.lang.Runtime;
 import x10.runtime.DefaultRuntime_c;
+import x10.runtime.Place;
 import x10.runtime.ThreadRegistry;
 
 /**
@@ -269,7 +269,7 @@ public class TestFeb2005 extends TestCase {
      * with the Runtime.
      */
     public void setUp() {
-        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.getRuntime();
+        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
         Place[] pls = Place.places();
         if (r instanceof ThreadRegistry) {
             Thread t = Thread.currentThread();

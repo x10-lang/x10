@@ -1,1 +1,1 @@
-(Runtime.getRuntime().newClock())
+(Runtime.factory.getClockFactory().clock())

@@ -84,8 +84,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     }
 
 
-    public Clocked Clocked(Position pos, Expr expr, Stmt stmt) {
-        Clocked n = new Clocked_c(pos, expr, stmt);
+    public Clocked Clocked(Position pos, List clocks, Stmt stmt) {
+        Clocked n = new Clocked_c(pos, clocks, stmt);
         n = (Clocked) n.ext(extFactory().extStmt());
         return (Clocked) n.del(delFactory().delStmt());
     }

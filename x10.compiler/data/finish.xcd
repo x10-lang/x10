@@ -12,7 +12,7 @@
 (x10.lang.Runtime.here().runFuture(new x10.lang.Activity.Expr() {
   private boolean ret_;
   public void run() {
-     x10.lang.Clock c = x10.lang.Runtime.getRuntime().newClock();
+     final x10.runtime.Clock c = x10.runtime.Clock.Clock();
      c.doNow(new x10.lang.Activity() {
                public void run() {
                  #0; 

@@ -1,1 +1,1 @@
-(Runtime.getRuntime().newRange(#0, #1))
+(Runtime.factory.getRegionFactory().region(#0, #1))

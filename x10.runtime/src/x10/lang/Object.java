@@ -5,6 +5,7 @@
 package x10.lang;
 
 import x10.base.TypeArgument;
+import x10.runtime.Place;
 
 
 /**
@@ -17,7 +18,7 @@ public class Object {
 	/**
 	 * the place where this object was allocated.
 	 */
-	public final Place place;
+	public final place place;
 	
 	/**
 	 * The actual type parameters with which this type was instanced.
