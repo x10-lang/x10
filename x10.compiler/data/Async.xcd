@@ -1,4 +1,4 @@
-#0.runAsync(new Activity() {
+#0.runAsync(new x10.lang.Activity() {
   public void run() {
      #1; 
   } 
