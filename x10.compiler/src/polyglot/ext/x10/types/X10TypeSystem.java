@@ -40,4 +40,16 @@ public interface X10TypeSystem extends TypeSystem {
     
     public ParsedClassType getPlaceType();
     
+    /** Return the method instance for runtime.Primitive.equals */
+    public MethodInstance primitiveEquals();
+
+    /** Return the method instance for runtime.T.tValue() */
+    public MethodInstance getter(PrimitiveType t);
+
+    /** Return the constructor instance for runtime.T.T(t) */
+    public ConstructorInstance wrapper(PrimitiveType t);
+
+    /** Return boxed type runtime.T for primitive t. */
+    public Type boxedType(PrimitiveType t);
+    
 } // end of X10TypeSystem

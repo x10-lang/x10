@@ -4,6 +4,7 @@ import java.io.Reader;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
+import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.parse.Grm;
 import polyglot.ext.x10.parse.Lexer_c;
@@ -50,28 +51,18 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         return new X10TypeSystem_c();
     }
 
-    public static final Pass.ID VALUE_FIELD_EN_FINALIFICATION =
-        new Pass.ID("value-field-en-finalification");
     public static final Pass.ID DE_ASYNCANDFUTUREIFICATION =
         new Pass.ID("de-asyncandfutureification");
-    public static final Pass.ID DE_ATOMICIFICATION =
-        new Pass.ID("de-atomicification");
-    public static final Pass.ID DE_VALUEIFICATION =
-        new Pass.ID("de-valueification");
-    public static final Pass.ID EXPLICIT_CASTIFICATION =
-        new Pass.ID("explicit-castification");
-    public static final Pass.ID EQUALS_SLOWIFICATION =
-        new Pass.ID("equals-slowification");
-    public static final Pass.ID DE_NULLABLE_AND_FUTUREIFICATION =
-        new Pass.ID("de-nullableandfutureification");
-    public static final Pass.ID DE_CHUCKIFICATION =
-        new Pass.ID("de-chuckification");
-
+    public static final Pass.ID CAST_REWRITE = new Pass.ID("cast-rewrite");
+ 
     public List passes(Job job) {
         List passes = super.passes(job);
         beforePass(passes, Pass.PRE_OUTPUT_ALL,
                   new VisitorPass(DE_ASYNCANDFUTUREIFICATION,
                                   job, new DeAsyncAndFutureifier(ts, nf)));
+        beforePass(passes, Pass.PRE_OUTPUT_ALL,
+                new VisitorPass(CAST_REWRITE,
+                                job, new X10Boxer(job, ts, nf)));
         return passes;
     }
 
