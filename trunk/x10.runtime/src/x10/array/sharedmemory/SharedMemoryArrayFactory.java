@@ -40,29 +40,29 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
     /**
      * @return  New array with Distribution d.
      */
-    public IntArray makeIntArray(Distribution d) {
+    public IntArray makeIntArray(Distribution d, boolean safe) {
     	// if the distribution has dimension1, 2, 3, 
     	// we can be much smarter here and return an 
     	// instance of a specialized class. 
-    	return new IntArray_c((Distribution_c)d);
+    	return new IntArray_c((Distribution_c)d, safe);
     }
     
-    public IntArray makeIntArray(Distribution d, int c) {
+    public IntArray makeIntArray(Distribution d, int c, boolean safe) {
     	// if the distribution has dimension1, 2, 3, 
     	// we can be much smarter here and return an 
     	// instance of a specialized class. 
-    	return new IntArray_c((Distribution_c)d, c);
+    	return new IntArray_c((Distribution_c)d, c, safe);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public DoubleArray makeDoubleArray(Distribution d) {
-        return new DoubleArray_c((Distribution_c)d);
+    public DoubleArray makeDoubleArray(Distribution d, boolean safe) {
+        return new DoubleArray_c((Distribution_c)d, safe);
     }
     
-    public DoubleArray makeDoubleArray(Distribution d, double c) {
-        return new DoubleArray_c((Distribution_c)d, c);
+    public DoubleArray makeDoubleArray(Distribution d, double c, boolean safe) {
+        return new DoubleArray_c((Distribution_c)d, c, safe);
     }
     
     /**

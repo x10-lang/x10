@@ -23,7 +23,7 @@ public class StridedRange implements Range {
     public final int hi;
     public final int stride; 
 	
-	public int size() {
+	public int count() {
 	    return card;
 	}
 	

@@ -13,7 +13,7 @@ package x10.array;
  */
 public interface Range {
 
-    public abstract int size();
+    public abstract int count();
     
     /**
      * @param ord the ordinal number, must be smaller than size()

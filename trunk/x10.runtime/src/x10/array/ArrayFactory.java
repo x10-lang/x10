@@ -54,28 +54,56 @@ public abstract class ArrayFactory {
      * @return  New array with Distribution d.
      */
     public static IntArray newIntArray(Distribution d) {
-    	return _.makeIntArray(d);
+    	return _.makeIntArray(d, true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
     public static IntArray newIntArray(Distribution d, int c) {
-    	return _.makeIntArray(d, c);
+    	return _.makeIntArray(d, c, true);
+    }
+    
+    /**
+     * @return  New array with Distribution d.
+     */
+    public static IntArray newIntArray(Distribution d, boolean safe) {
+    	return _.makeIntArray(d, safe);
+    }
+    
+    /**
+     * @return  New array with Distribution d.
+     */
+    public static IntArray newIntArray(Distribution d, int c, boolean safe) {
+    	return _.makeIntArray(d, c, safe);
     }
     
     /**
      * @return  New array with Distribution d.
      */
     public static DoubleArray newDoubleArray(Distribution d) {
-        return _.makeDoubleArray(d);
+        return _.makeDoubleArray(d, true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
     public static DoubleArray newDoubleArray(Distribution d, double c) {
-    	return _.makeDoubleArray(d, c);
+    	return _.makeDoubleArray(d, c, true);
+    }
+    
+    /**
+     * @return  New array with Distribution d.
+     */
+    public static DoubleArray newDoubleArray(Distribution d, boolean safe) {
+        return _.makeDoubleArray(d, safe);
+    }
+    
+    /**
+     * @return  New array with Distribution d.
+     */
+    public static DoubleArray newDoubleArray(Distribution d, double c, boolean safe) {
+    	return _.makeDoubleArray(d, c, safe);
     }
     
     /**
@@ -168,24 +196,24 @@ public abstract class ArrayFactory {
     /**
      * @return  New array with Distribution d.
      */
-    public abstract IntArray makeIntArray(Distribution d);
+    public abstract IntArray makeIntArray(Distribution d, boolean safe);
     
     /**
      * @return  New array with Distribution d and initialize every element
      * with constant c.
      */
-    public abstract IntArray makeIntArray(Distribution d, int c);
+    public abstract IntArray makeIntArray(Distribution d, int c, boolean safe);
     
     /**
      * @return  New array with Distribution d.
      */
-    public abstract DoubleArray makeDoubleArray(Distribution d); 
+    public abstract DoubleArray makeDoubleArray(Distribution d, boolean safe); 
     
     /**
      * @return  New array with Distribution d and initialize every element
      * with constant c. 
      */
-    public abstract DoubleArray makeDoubleArray(Distribution d, double c); 
+    public abstract DoubleArray makeDoubleArray(Distribution d, double c, boolean safe); 
     
     /**
      * Create a Distribution where the given Region is distributed

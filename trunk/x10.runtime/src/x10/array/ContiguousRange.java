@@ -42,7 +42,7 @@ public class ContiguousRange implements Range {
         card = hi - lo + 1; // inclusive!
     }
 
-    public int size() {
+    public int count() {
         return card;
     }
 

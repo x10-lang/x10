@@ -28,7 +28,7 @@ public class TestIntArray extends TestCase {
         int[] dims = {3,3};
         Region_c r = new Region_c(dims);
         Distribution_c d = Distribution_c.makeConstant(r, places[0]);
-        IntArray_c ia = new IntArray_c(d, 12);
+        IntArray_c ia = new IntArray_c(d, 12, true);
         Operator.Reduction red = new Operator.Reduction() {
            private int acc_;
            public void apply(int i) {
@@ -52,7 +52,7 @@ public class TestIntArray extends TestCase {
                 new ContiguousRange(0, N - 1) });
         Place[] places = {new Place_c(), new Place_c()}; 
         Distribution_c d = Distribution_c.makeBlock(r, places);
-        DoubleArray A = new DoubleArray_c(d);
+        DoubleArray A = new DoubleArray_c(d, true);
 
         // initialize array A (this should happen in parallel, distributed
         // over

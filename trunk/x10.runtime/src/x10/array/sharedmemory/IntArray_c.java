@@ -4,6 +4,8 @@
 package x10.array.sharedmemory;
 
 
+import x10.base.MemoryBlock;
+import x10.base.Allocator;
 import x10.array.Array;
 import x10.array.Distribution;
 import x10.array.IntArray;
@@ -15,41 +17,44 @@ import x10.array.Operator;
  */
 public class IntArray_c extends IntArray {
 
-    private final int[] arr_;
+    private boolean safe_;
+    private final MemoryBlock arr_;
     
     /**
-     *  This constructor must not be used directly by an application programmer.
+     * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    public IntArray_c(Distribution_c d) {
+    public IntArray_c(Distribution_c d, boolean safe) {
         super(d);
-        this.arr_ = new int[d.size()];
+        int count = d.count();
+        this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
     }
     
-    public IntArray_c(Distribution_c d, int c) {
+    public IntArray_c(Distribution_c d, int c, boolean safe) {
         super(d);
-        int size = d.size();
-        int[] arr = new int[size];
-        for (int i =0; i < size; ++i)
-        	arr[i] = c;
-        arr_ = arr;
+        int count = d.count();
+        this.arr_ = safe ? Allocator.allocSafe(count, Integer.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_INT);
+        for (int i = 0; i < count; ++i)
+        	arr_.setInt(c, i);
     }
     
     /* Overrides the superclass method - this implementation is more efficient */
     public void reduction(Operator.Reduction op) {
-        for (int i  = 0; i < arr_.length; ++i) 
-            op.apply(arr_[i]);
+        int count = arr_.count();
+        for (int i  = 0; i < count; ++i) 
+            op.apply(arr_.getInt(i));
     }
     
     /* Overrides the superclass method - this implementation is more efficient */
     protected void assign(Array rhs) {
-    	assert rhs instanceof IntArray_c;
+    	assert rhs.getClass() == this.getClass();
     	
     	IntArray_c rhs_t = (IntArray_c) rhs;
     	if (rhs.dist.equals(dist)) {
-    		for (int i  = 0; i < arr_.length; ++i) 
-    			arr_[i] = rhs_t.arr_[i];
+    	    int count = arr_.count();
+    		for (int i  = 0; i < count; ++i) 
+    			arr_.setInt(rhs_t.arr_.getInt(i), i);
     	} else 
     		// fall back to generic implementation
     		super.assign(rhs);
@@ -58,14 +63,14 @@ public class IntArray_c extends IntArray {
 	protected Array newInstance(Distribution d) {
 		assert d instanceof Distribution_c;
 		
-		return new IntArray_c((Distribution_c) d);	
+		return new IntArray_c((Distribution_c) d, safe_);	
 	}
 	
     /* (non-Javadoc)
      * @see x10.lang.IntArray#set(int, int[])
      */
     public void set(int v, int[] pos) {
-        arr_[dist.ordinal(pos)] = v;
+        arr_.setInt(v, dist.ordinal(pos));
     }
     
     public void set(int v, int d0) {
@@ -92,7 +97,7 @@ public class IntArray_c extends IntArray {
      * @see x10.lang.IntArray#get(int[])
      */
     public int get(int[] pos) {
-        return arr_[dist.ordinal(pos)];
+        return arr_.getInt(dist.ordinal(pos));
     }
     
     public int get(int d0) {

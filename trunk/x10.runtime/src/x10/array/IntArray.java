@@ -158,7 +158,7 @@ public abstract class IntArray extends Array {
         Range[] dims = dist.dim();
         final int[] dims_tmp = new int[dims.length];       
         for (int i = 0; i < dims_tmp.length; ++i) 
-            dims_tmp[i] = dims[i].size();
+            dims_tmp[i] = dims[i].count();
         
         final Object ret = java.lang.reflect.Array.newInstance(Integer.TYPE, dims_tmp);
         pointwise(null, new Operator.Pointwise() {
