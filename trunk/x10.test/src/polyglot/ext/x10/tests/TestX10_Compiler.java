@@ -81,7 +81,6 @@ public class TestX10_Compiler extends TestCase {
 	 */
 	public TestX10_Compiler() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 	/**
      * Constructor for TestX10_CompilerPrettyPrinterVisitor.
@@ -118,17 +117,17 @@ public class TestX10_Compiler extends TestCase {
 	}
 	
 	
-	protected void compile(String file) {
-		String[] poargs = new String[] { "-ext", "x10", file };
+	protected void compile(String dir, String file) {
+		String[] poargs = new String[] { "-sourcepath",dir,"-d",dir,"-ext", "x10", dir + file.substring(1) };
 		polyglot.main.Main.main( poargs ); // run compiler!
 	}
 	
-	protected void run(String file, String main) {
+	protected void run(String file, String main,String dir) {
 		
 		try {
-			compile(file);
+			compile(dir, file);
 			ClassLoader loader 
-			= new URLClassLoader(new URL[] { new URL("file://" + System.getProperty("user.dir") + "/") }); 
+			= new URLClassLoader(new URL[] { new URL("file://" + System.getProperty("user.dir") + dir.substring(1) + "/") }); 
 			
 			Class c = loader.loadClass(main);
 			Object inst = c.newInstance();
@@ -144,23 +143,23 @@ public class TestX10_Compiler extends TestCase {
 			fail(nmse.toString());
 		} catch (InvocationTargetException ite) {
 			fail(ite.getCause().getMessage());
-		} catch (ClassNotFoundException cnfe) {
-			fail(cnfe.toString());
+		} catch (ClassNotFoundException cnfe) { fail(cnfe.toString());
 		} catch (IllegalArgumentException iae) {
 			fail(iae.toString());
 		} catch (ClassFormatError cfe) {
 			fail(cfe.toString());
 		} catch (IllegalAccessException iae) {
 			iae.printStackTrace();
-            fail(iae.toString());
+                        fail(iae.toString());
 		}
 	}
 	
+/*
 	protected void runMain(String file, String main) {
 		runMain(file, main, null);
 	}
 	
-	protected void runMain(String file, String main, String[] args) {
+	protected void runMain(String file, String main, String dir, String[] args) {
 		compile(file);
 		try {
 			ClassLoader loader 
@@ -186,6 +185,7 @@ public class TestX10_Compiler extends TestCase {
 			fail(iae.toString());
 		}
 	}
+*/
 	
 }
 
