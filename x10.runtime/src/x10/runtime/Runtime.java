@@ -8,11 +8,20 @@ public abstract class Runtime {
     public static final Runtime _;
 
     static {
-	String rt = System.getProperty("x10.runtime");
-	if (rt != null)
-	    _ = (Runtime) Class.forName(rt).newInstance();
-	else
-	    _ = new DefaultRuntime_c();
+        String rt = System.getProperty("x10.runtime");
+        try {
+            if (rt != null)
+                _ = (Runtime) Class.forName(rt).newInstance();
+            else
+                _ = new DefaultRuntime_c();
+        } catch (ClassNotFoundException cnfe) {
+            System.err.println("Did not find Runtime " + rt);
+            System.exit(-1);
+        } catch (IllegalAccessException iae) {
+        
+        } catch (InstantiationException ie) {
+            
+        }
     }
 
     public static void main(String[] args) throws Exception {

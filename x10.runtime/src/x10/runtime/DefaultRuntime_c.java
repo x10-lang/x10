@@ -5,7 +5,7 @@ import java.util.HashMap;
 /**
  * @author Christian Grothoff
  */
-class DefaultRuntime_c implements ThreadRegistry {
+class DefaultRuntime_c extends Runtime implements ThreadRegistry {
 
     private final Native native_ = new Native();
 
@@ -13,7 +13,7 @@ class DefaultRuntime_c implements ThreadRegistry {
 
     private final Place[] places_;
 
-    DefaultRuntime_() {
+    DefaultRuntime_c() {
 	// FIXME: add mechanism for dynamic configuration
 	// Properties!
 	this.places_ 
@@ -32,8 +32,8 @@ class DefaultRuntime_c implements ThreadRegistry {
 	System.arraycopy(args, 1,
 			 appArgs, 0,
 			 appArgs.length);
-	Activity.Async boot 
-	    = (Activity.Async) Class
+	Activity boot 
+	    = (Activity) Class
 	    .forName(args[0])
 	    .getDeclaredConstructor(new Class[] { String[].class })
 	    .newInstance(new Object[] { appArgs} );
@@ -42,7 +42,7 @@ class DefaultRuntime_c implements ThreadRegistry {
     }
     
     public void registerThread(Thread t, 
-4			       Place p) {
+			       Place p) {
 	thread2place_.put(t, p);
     }
 
