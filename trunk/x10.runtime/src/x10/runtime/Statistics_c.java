@@ -113,7 +113,7 @@ public class Statistics_c {
      * 
      * @author Christian Grothoff
      */
-    public static class ActivityCounter {
+    public static class ActivityCounter extends Collector {
 
         int totalActivityCount = 1;        
         int totalActivitiesRunning = 1;
@@ -124,6 +124,7 @@ public class Statistics_c {
                                              new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,
                                                 Activity i) {
+                    assert a != i;
                     totalActivitiesRunning++;
                     totalActivityCount++;
                     dr.registerActivitySpawnListener(a, this);
@@ -148,7 +149,7 @@ public class Statistics_c {
      * 
      * @author Christian Grothoff
      */
-    public static class InterPlaceCommunicationCounter {
+    public static class InterPlaceCommunicationCounter extends Collector {
 
         int localActivitySpawns = 1;        
         int remoteActivitySpawns = 0;
@@ -159,6 +160,7 @@ public class Statistics_c {
                                              new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,
                                                 Activity i) {
+                    assert a != i;
                     if (dr.getPlaceOfActivity(a) == dr.getPlaceOfActivity(i))
                         localActivitySpawns++;
                     else
@@ -172,7 +174,7 @@ public class Statistics_c {
             return this;
         }
         public String toString() {
-            return "Activities:\n\tLocal->Local: " + localActivitySpawns + "\n\tRUNNING: " + remoteActivitySpawns + "\n"; 
+            return "Activities:\n\tLocal->Local: " + localActivitySpawns + "\n\tLocal->Remote: " + remoteActivitySpawns + "\n"; 
         }
     
     } // end of Statistics_c.ActivityCounter

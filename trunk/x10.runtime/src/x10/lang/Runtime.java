@@ -69,12 +69,6 @@ public abstract class Runtime {
      */
     protected abstract void run(String[] args) throws Exception;
 
-
-    /**
-     * Shutdown the X10 runtime system.
-     */
-    public abstract void shutdown();
-
     /**
      * @return New Clock.
      */

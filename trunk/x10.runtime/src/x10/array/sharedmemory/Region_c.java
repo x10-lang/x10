@@ -245,7 +245,7 @@ class Region_c implements Region {
     }
 
     public boolean equals(Object o) {
-        assert o instanceof Range;
+        assert o instanceof Region_c;
 
         Region_c rhs = (Region_c) o;
         boolean ret = rhs.rank == rank && rhs.card == card;

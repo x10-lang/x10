@@ -75,11 +75,54 @@ public final class Configuration {
     public static int PLACE_THREAD_KEEPALIVE_TIME = 5000; // in millis
 
     /**
+     * Should statistics be dumped on exit?
+     */
+    public static boolean DUMP_STATS_ON_EXIT = false;
+    
+    /**
+     * The name of the main class of the application.
+     */
+    public static String MAIN_CLASS_NAME = null;
+    
+    /**
      * Which statistics plugins should be enabled or disabled?
      * Reserved values are "none" and "all".  Otherwise list
      * the specific plugins that you want to disable.
      */
     public static String STATISTICS_DISABLE = "none";
+    
+    /**
+     * Parses the command line.  This allows the user to specify 
+     * options also on the command line (in addition to the
+     * configuration file and the defaults).  The name of the
+     * main class is the first argument that does not start with
+     * a "-".  All arguments after the main class are returned
+     * and should be passed to the application.
+     * 
+     * @param args arguments.  Example: -STATISTICS_DISABLE=all
+     * @return the arguments for the application
+     */
+    public static String[] parseCommandLine(String[] args) {
+        int pos = 0;
+        while (args[pos].charAt(0) == '-') {
+            int eq = args[pos].indexOf('=');
+            String optionName;
+            String optionValue = null;
+            if (eq == -1) {
+                optionName = args[pos].substring(1);
+            } else {               
+                optionName = args[pos].substring(1, eq);
+                optionValue = args[pos].substring(eq+1);
+            }
+            set(optionName, optionValue);
+            pos++;
+        }        
+        MAIN_CLASS_NAME = args[pos++];
+        int aa = args.length-pos;
+        String[] appArgs = new String[aa];
+        System.arraycopy(args, pos, appArgs, 0, aa);
+        return appArgs;
+    }
     
     /**
      * Method to obtain the name of the configuration file used
@@ -98,7 +141,6 @@ public final class Configuration {
     static {        
         String cfg = getConfigurationFileName();
         if (cfg != null) {
-            Class c = Configuration.class;
             try {
                 Properties props = new Properties();
                 props.load(new FileInputStream(cfg));
@@ -106,38 +148,7 @@ public final class Configuration {
                 while (i.hasNext()) {
                     String key = (String) i.next();
                     String val = props.getProperty(key);
-                    try {
-                        Field f = c.getField(key);
-                        Class t = f.getType();
-                        if (t == String.class) {
-                            f.set(null, val);
-                        } else if (t == Integer.TYPE) {
-                            f.setInt(null, new Integer(val).intValue());
-                        } else if (t == Float.TYPE) {
-                            f.setFloat(null, new Float(val).floatValue());
-                        } else if (t == Double.TYPE) {
-                            f.setDouble(null, new Double(val).doubleValue());
-                        } else if (t == Long.TYPE) {
-                            f.setLong(null, new Long(val).longValue());
-                        } else if (t == Short.TYPE) {
-                            f.setShort(null, new Short(val).shortValue());
-                        } else if (t == Byte.TYPE) {
-                            f.setByte(null, new Byte(val).byteValue());
-                        } else if (t == Character.TYPE) {
-                            if (val.length() != 1)
-                                System.err.println("Field " + key + " only takes on character,"+
-                                                   " using only the first character of configuration"+
-                                                   " value >>" + val + "<<");
-                            f.setChar(null, new Character(val.charAt('0')).charValue());
-                        } else if (t == Boolean.TYPE) {
-                            f.setBoolean(null, new Boolean(val).booleanValue());
-                        }
-                    } catch (NoSuchFieldException nsfe) {
-                        System.err.println("Field " + key + " not found, configuration directive ignored.");
-                    } catch (IllegalAccessException iae) {
-                        System.err.println("Wrong permissions for field " + key + ": " + iae);
-                        System.exit(-1);                        
-                    }
+                    set(key, val);
                 } // end of 'for each configuration directive'
             } catch (IOException io) {
                 System.err.println("Failed to read configuration file " + cfg + ": " + io);
@@ -146,4 +157,42 @@ public final class Configuration {
         } // end of 'have configuration file'       
     } // end of static initializer
     
+
+    private static void set(String key, String val) {
+        Class c = Configuration.class;
+        try {
+            Field f = c.getField(key);
+            Class t = f.getType();
+            if (t == String.class) {
+                f.set(null, val);
+            } else if (t == Integer.TYPE) {
+                f.setInt(null, new Integer(val).intValue());
+            } else if (t == Float.TYPE) {
+                f.setFloat(null, new Float(val).floatValue());
+            } else if (t == Double.TYPE) {
+                f.setDouble(null, new Double(val).doubleValue());
+            } else if (t == Long.TYPE) {
+                f.setLong(null, new Long(val).longValue());
+            } else if (t == Short.TYPE) {
+                f.setShort(null, new Short(val).shortValue());
+            } else if (t == Byte.TYPE) {
+                f.setByte(null, new Byte(val).byteValue());
+            } else if (t == Character.TYPE) {
+                if (val.length() != 1)
+                    System.err.println("Field " + key + " only takes on character,"+
+                                       " using only the first character of configuration"+
+                                       " value >>" + val + "<<");
+                f.setChar(null, new Character(val.charAt('0')).charValue());
+            } else if (t == Boolean.TYPE) {
+                f.setBoolean(null, new Boolean(val).booleanValue());
+            }
+        } catch (NoSuchFieldException nsfe) {
+            System.err.println("Field " + key + " not found, configuration directive ignored.");
+        } catch (IllegalAccessException iae) {
+            System.err.println("Wrong permissions for field " + key + ": " + iae);
+            System.exit(-1);                        
+        }
+    }
+
+
 } // end of Configuration
