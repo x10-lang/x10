@@ -64,7 +64,7 @@ class Region_c implements Region {
         int tmp_card = 1;
         dims_ = dims;
         for (int i = 0; i < dims.length; ++i)
-            tmp_card *= dims_[i].count();
+            tmp_card *= dims_[i].count;
         card = tmp_card;
     }
 
@@ -91,10 +91,10 @@ class Region_c implements Region {
         assert partitions > 0 && part >= 0 && part < partitions;
         assert count() % partitions == 0;
         assert dims_[0] instanceof ContiguousRange;
-        assert dims_[0].count() % partitions == 0;
+        assert dims_[0].count % partitions == 0;
         
         ContiguousRange cr = (ContiguousRange) dims_[0];
-        int len = cr.card / partitions;
+        int len = cr.count / partitions;
         int offset = len * part;
         Range[] new_dims = new Range[rank];
         // determine most significant dimension
@@ -137,7 +137,7 @@ class Region_c implements Region {
     /**
      * @return range in the i-th dimension.
      */
-    public Range dim(int i) {
+    public Range range(int i) {
         assert i < rank;
         return dims_[i];
     }
@@ -175,7 +175,7 @@ class Region_c implements Region {
     public int count() {
         int ret = 1;
         for (int i = rank - 1; i >= 0; i--)
-            ret *= dims_[i].count(); // TODO: check overflow?
+            ret *= dims_[i].count; // TODO: check overflow?
         return ret;
     }
     
@@ -193,7 +193,7 @@ class Region_c implements Region {
         int base = 1;
         for (int i = 0; i < p.length; ++i) {
             ret += dims_[i].ordinal(p[i]) * base;
-            base *= dims_[i].count();
+            base *= dims_[i].count;
         }
         return ret;
     }
@@ -257,7 +257,7 @@ class Region_c implements Region {
             int rest = nextOrd_;
             int base = 0;
             for (int i = 0; rest > 0 && i < rank; ++i) {
-                base = dims_[i].count();
+                base = dims_[i].count;
                 int tmp = rest % base;
                 rest = (rest - tmp) / base;
                 ret[i] = dims_[i].coord(tmp);

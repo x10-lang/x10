@@ -3,6 +3,8 @@
  */
 package x10.array;
 
+import x10.base.TypeArgument;
+
 /**
  * Ranges are a collection of points in the int space.
  * Currently, only contiguous sets of points are supported.
@@ -11,9 +13,25 @@ package x10.array;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-public interface Range {
+public abstract class Range implements TypeArgument {
 
-    public abstract int count();
+    /**
+     * Cardinality of the range, i.e., the number of element in the integer
+     * space it covers.
+     */
+    public final int count;
+
+    public final int lo;
+
+    public final int hi;
+
+    
+    public Range (int l, int h, int c) {
+        lo = l;
+        hi = h;
+        count = c;
+        assert hi >= lo;
+    }
     
     /**
      * @param ord the ordinal number, must be smaller than size()

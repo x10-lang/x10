@@ -12,17 +12,7 @@ package x10.array;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class ContiguousRange implements Range {
-
-    /**
-     * Cardinality of the range, i.e., the number of element in the integer
-     * space it covers.
-     */
-    public final int card;
-
-    public final int lo;
-
-    public final int hi;
+public class ContiguousRange extends Range {
 
     /**
      * Range that starts at 0 to hi (including!).
@@ -35,19 +25,11 @@ public class ContiguousRange implements Range {
      * Range that starts at lo (including) to hi (including!).
      */
     public ContiguousRange(int lo, int hi) {
-        assert hi >= lo;
-
-        this.lo = lo;
-        this.hi = hi;
-        card = hi - lo + 1; // inclusive!
-    }
-
-    public int count() {
-        return card;
+        super(lo, hi, hi - lo + 1);
     }
 
     public int coord(int ord) {
-        assert ord < card;
+        assert ord < count;
         return lo + ord;
     }
 
@@ -115,6 +97,6 @@ public class ContiguousRange implements Range {
     }
 
     public int hashCode() {
-        return card;
+        return count;
     }
 }

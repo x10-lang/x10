@@ -3,7 +3,7 @@
  */
 package x10.array;
 
-
+import x10.base.TypeArgument;
 
 /**
  * Interface for all Distributions.
@@ -11,7 +11,7 @@ package x10.array;
  * @author Christoph von Praun
  * @author Christian Grothoff
  */
-public interface Distribution extends Region {
+public interface Distribution extends Region, TypeArgument {
 
 	/**
 	 * Get the Place of the given point in the Region of this Distribution.
