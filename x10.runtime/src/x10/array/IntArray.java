@@ -172,11 +172,11 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
 
     public abstract int get(int d0, int d1, int d2, int d3);
 
-    public Object toJava() {
-        region[] dims = ((Region_c) distribution.region).dim();
-        final int[] dims_tmp = new int[dims.length];       
-        for (int i = 0; i < dims_tmp.length; ++i) 
-            dims_tmp[i] = (int) dims[i].size();
+    public Object toJava() {        
+
+        final int[] dims_tmp = new int[distribution.rank];       
+        for (int i = 0; i < distribution.rank; ++i) 
+            dims_tmp[i] = distribution.region.rank(i).high() + 1;
         
         final Object ret = java.lang.reflect.Array.newInstance(Integer.TYPE, dims_tmp);
         pointwise(null, new Operator.Pointwise() {
