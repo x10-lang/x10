@@ -1,16 +1,17 @@
 package x10.lang;
 
+
 /**
  * @author Christian Grothoff
  */
-public interface Place extends TypeArgument, x10.array.Place {
+public abstract class Place implements TypeArgument, x10.array.Place {
 
     /**
      * We allow passing Activity and Activity.Future to
      * be passed here.  For an Activity.Future the
      * result will be thrown away.
      */
-    public void runAsync(Activity a);
+    public abstract void runAsync(Activity a);
 
     /**
      * We return an Activity.Result here to force the programmer
@@ -31,13 +32,16 @@ public interface Place extends TypeArgument, x10.array.Place {
      * @param a reference to the closure that encapsulates the code to run
      * @return the placeholder for the future result.
      */
-    public Future runFuture(Activity.Expr a); 
+    public abstract Future runFuture(Activity.Expr a); 
     
     /**
      * Shutdown this place, the current X10 runtime will exit.
      */
-    public void shutdown();
-    
+    public abstract void shutdown();
+
+    public static Place[] places() {
+        return Runtime.places();
+    }
 
 } // end of Place
 

@@ -3,7 +3,6 @@
  */
 package x10.array;
 
-import x10.array.Place;
 
 /**
  * Interface for all Distributions.
@@ -31,5 +30,15 @@ public interface Distribution extends Region {
 	public Distribution placeRestriction(Place r);
 
 	public Distribution domainRestriction(Region r);
+	
+	/**
+	 * @return the underlying region
+	 */
+	public Region region();
+	
+	/**
+	 * @return a "set" of places of this distribution
+	 */
+	public Place[] places();
 
 } // end of Distribution
