@@ -23,6 +23,11 @@ class LocalPlace_c
      * Is this place shutdown?
      */
     boolean shutdown;
+
+    /**
+     * How many threads are truely running (not blocked) in this place?
+     */
+    int runningThreads;
     
     /**
      * Linked list of threads in the thread pool that are not currently
@@ -150,12 +155,20 @@ class LocalPlace_c
     }
     
     /**
+     * Change the 'running' status of a thread.
+     * @param delta +1 for thread starts to run (unblocked), -1 for thread is blocked
+     */
+    synchronized void changeRunningStatus(int delta) {
+        runningThreads += delta;
+    }
+    
+    /**
      * Thread in the thread pool that can be used to run multiple
      * activities over time.
      *
      * @author Christian Grothoff
      */
-    final class PoolRunner extends Thread {
+    final class PoolRunner extends LoadMonitored { // if you do NOT want load monitoring, make 'extend Thread'
         /**
          * For building a linked list of these.
          */
@@ -176,6 +189,14 @@ class LocalPlace_c
             this.notifyAll();
         }
         /**
+         * Change the 'running' status of a thread.
+         * @param delta +1 for thread starts to run (unblocked), -1 for thread is blocked
+         */
+        public void changeRunningStatus(int delta) {
+            LocalPlace_c.this.changeRunningStatus(delta);
+        }
+        
+        /**
          * Run jobs until shutdown is called.
          */
         public synchronized void run() {
@@ -191,9 +212,12 @@ class LocalPlace_c
                     Runnable j = job;
                     job = null;
                     try {
+                        changeRunningStatus(1);
                         j.run();
                     } catch (Throwable t) {
                         t.printStackTrace(); // see X10 spec for exceptions...
+                    } finally {
+                        changeRunningStatus(-1);
                     }
                     // notify the LocalPlace_c that we're again available
                     // for more work!
