@@ -19,7 +19,7 @@ import java.util.Iterator;
  * @author Christian Grothoff, Christoph von Praun
  * @author vj
  */
-public class TestRegion extends TestCase {
+public class TestRegion_c extends TestCase {
     
     private final Activity a
     = new Activity() { public void run() {} }; // dummy
