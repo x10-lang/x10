@@ -369,9 +369,13 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         restriction( region/*(rank)*/ R) {
             assert R.rank == this.rank; //assume
             region r = this.region.intersection( R );
-            final distribution result = new Constant( r, place_);
+            distribution ret;
+            if (r.size() == 0) 
+                ret = new Empty(rank);
+            else 
+                ret =  new Constant( r, place_);
             // assert result.region == R.intersection( this.region);
-            return result;
+            return ret;
         }
         
         /** Returns the restriction of this to the domain region.difference(R),
@@ -382,9 +386,12 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         difference( region/*(rank)*/ R) {
             assert R.rank == this.rank; //assume
             region r = this.region.difference( R );
-            final distribution result = new Constant( r, place_);
-            // assert result.region == R.intersection( this.region);
-            return result;            
+            distribution ret;
+            if (r.size() == 0) 
+                ret = new Empty(rank);
+            else 
+                ret  = new Constant( r, place_);
+            return ret;            
         }
         
 /** Takes as parameter a distribution D defined over a region
@@ -396,13 +403,23 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
             @seealso distribution.asymmetricUnion.
          */
         public /*(distribution(:region.disjoint(this.region) &&
-                      rank=this.rank) D)*/ 
-            distribution/*(region.union(D.region))*/
+        rank=this.rank) D)*/ 
+        distribution/*(region.union(D.region))*/
         union(distribution/*(:region.disjoint(this.region) &&
-                            rank=this.rank)*/ D) {
-                assert D.rank == this.rank && D.region.disjoint(this.region); // assume
-                throw new Error("TODO");
-                
+        rank=this.rank)*/ D) {
+            assert D.rank == rank && D.region.disjoint(region); // assume
+            assert D instanceof Distribution_c;
+            distribution ret;
+            if (D.region.size() == 0)
+                ret = this;
+            else {
+                Distribution_c arr[] = new Distribution_c[2];
+                arr[0] = this;
+                arr[1] = (Distribution_c) D;
+                region r = region.union(D.region);
+                ret = new Distribution_c.Combined(r, arr);
+            }
+            return ret;
         }
 
 

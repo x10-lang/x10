@@ -36,15 +36,16 @@ public class DistributionFactory extends distribution.factory {
     public distribution blockCyclic(region r, /*nat*/int n, Set/*<place>*/ qs) {
         distribution ret;
         assert n > 0;
-        if (r.size() == 0)
+        
+        int sz = r.size();
+        if (sz == 0)
             ret = new Distribution_c.Empty( r.rank );
-        else if (qs.size() == 1) {
+        else if (qs.size() == 1 || sz <= n) {
             place p = (place) qs.iterator().next();
             ret = new Distribution_c.Constant(r, p);
         } else {
             Object[] q = qs.toArray();
-            int sz = r.size();
-            int chunks = (sz % n == 0 || sz < n) ? (sz / n) : (sz / n) + 1;
+            int chunks = (sz % n == 0 || sz < n) ? (sz / n) : ((sz / n) + 1);
             assert chunks > 0;
             
             Distribution_c[] dists = new Distribution_c[chunks];       
@@ -98,7 +99,7 @@ public class DistributionFactory extends distribution.factory {
             Distribution_c[] dists = new Distribution_c[n];
             for (int i=0; i < n; i++) 
                 dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
-            ret =  new Distribution_c.Combined((MultiDimRegion) r, dists);
+            ret =  new Distribution_c.Combined(r, dists);
         } 
         return ret;
 	}
@@ -111,7 +112,8 @@ public class DistributionFactory extends distribution.factory {
      * @return
      */
     public distribution arbitrary(region r) {
-        return blockCyclic(r, 32, x10.lang.place.places);
+        int blocksize = r.size() / x10.lang.place.places.size();
+        return blockCyclic(r, blocksize, x10.lang.place.places);
     }
     
     /**

@@ -200,13 +200,13 @@ implements Indexable {
 	/** Returns true iff this and d map each point in their common
 	 * domain to the same place.
 	 */
-	public boolean equals(Object o) {
+	public boolean equals(java.lang.Object o) {
 		if (! (o instanceof distribution)) return false;
 		distribution ot = (distribution) o;
 		if (! (ot.region.equals(this.region))) return false;
 		
 		return this.subDistribution(region,ot) 
-		&& ot.subDistribution(region, this);
+		      && ot.subDistribution(region, this);
 	}
 	 public Iterator iterator() {
 	 	return region.iterator();

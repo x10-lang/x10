@@ -193,6 +193,12 @@ public abstract /*value*/ class region extends Object  {
 	public final int hashCode() {
 	    return rank;
 	}
-	
-	
+    
+    /**  
+     * @return a set of regions that are a partition of n consecutive chunks of the original     
+     * region (this).    
+     */      
+    public region[] partition(int n) {   
+        throw new Error(getClass().getName() + "::partition - not implemented.");    
+    }
 }
