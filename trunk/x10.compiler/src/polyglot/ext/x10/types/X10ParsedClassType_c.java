@@ -108,4 +108,12 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
         return result;
     }
 
+    /** Returns true iff a cast from this to <code>toType</code> is valid. */
+    public boolean isCastValidImpl(Type toType) {
+        // TODO: compare to ts.Object returns java.lang.Object, required is however
+        // x10.lang.Object
+        return toType.isPrimitive() && ts.equals(this, ts.Object()) ||
+               super.isCastValidImpl(toType);
+    }
 }
+
