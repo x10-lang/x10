@@ -7,6 +7,7 @@ import x10.array.sharedmemory.Distribution_c;
 import x10.array.Array;
 import x10.array.Distribution;
 import x10.array.IntArray;
+import x10.array.Operator;
 
 
 /**
@@ -34,6 +35,12 @@ public class IntArray_c extends IntArray {
         	arr[i] = c;
         arr_ = arr;
     }
+    
+    /* Overrides the superclass method - this implementation is more efficient! */
+    public void reduction(Operator.Reduction op) {
+		for (int i  = 0; i < arr_.length; ++i) 
+			op.apply(arr_[i]);
+	}
     
 	protected Array newInstance(Distribution d) {
 		assert d instanceof Distribution_c;
