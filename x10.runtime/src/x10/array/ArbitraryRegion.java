@@ -95,6 +95,9 @@ public class ArbitraryRegion extends region {
     /* returns a one-dimenasional region (formerly called range)
      */
     public region rank(int index) {
+        assert index >= 0;
+        assert index < rank;
+        
         ArbitraryRegion ret = new ArbitraryRegion(1);
         for (Iterator it = iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -139,6 +142,8 @@ public class ArbitraryRegion extends region {
      * @see x10.lang.region#union(x10.lang.region)
      */
     public region union(region r) {
+        assert r != null;
+        assert r.rank == rank;
         return union(this, r);
     }
     
@@ -160,6 +165,8 @@ public class ArbitraryRegion extends region {
     /* 
      */
     public region intersection(region r) {
+        assert r != null;
+        assert r.rank == rank;
         return intersection(this, r);
     }
     
@@ -179,6 +186,8 @@ public class ArbitraryRegion extends region {
      * @see x10.lang.region#difference(x10.lang.region)
      */
     public region difference(region r) {
+        assert r != null;
+        assert r.rank == rank;
         return difference(this, r);
     }
     
@@ -204,6 +213,8 @@ public class ArbitraryRegion extends region {
      */
     public boolean contains(point p) {
         assert p != null;
+        assert p.rank == rank;
+        
         return points_.contains(p);
     }
 
@@ -212,6 +223,8 @@ public class ArbitraryRegion extends region {
      */
     public boolean contains(int[] p) {
         assert p != null;
+        assert p.length == rank;
+        
         boolean ret;
         if (p.length == rank) {
             point pp = point.factory.point(ArbitraryRegion.this, p);
@@ -225,6 +238,8 @@ public class ArbitraryRegion extends region {
      * @see x10.lang.region#disjoint(x10.lang.region)
      */
     public boolean disjoint(region r) {
+        assert r != null;
+        assert r.rank == rank;
         return intersection(r).size() == 0;
     }
 
@@ -232,6 +247,9 @@ public class ArbitraryRegion extends region {
      * @see x10.lang.region#ordinal(x10.lang.point)
      */
     public int ordinal(point p) throws EmptyRegionError, PointOutOfRegionError {
+        assert p != null;
+        assert p.rank == rank;
+        
         int ret = 0;
         if (size() == 0)
             throw new EmptyRegionError();
@@ -253,6 +271,8 @@ public class ArbitraryRegion extends region {
      * @see x10.lang.region#coord(int)
      */
     public point coord(int ord) throws PointOutOfRegionError {
+        assert ord >= 0;
+        
         point ret;
         if (ord >= size())
             throw new PointOutOfRegionError();
