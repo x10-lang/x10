@@ -145,7 +145,9 @@ public class ContiguousRange extends Range {
 	}
 	// TODO: vj check that this arithmetic is correct.
 	public  point/*(rank)*/ coord(/*nat*/ int ord) {
-		return Runtime.factory.getPointFactory().point(this, new int[] { (ord % size) + lo});
+        assert ord < size();
+        
+		return Runtime.factory.getPointFactory().point(this, new int[] {ord + lo});
 	}
 	public Iterator iterator() {
 		return new RegionIterator();
