@@ -87,7 +87,7 @@ public class X10NullType_c extends NullType_c implements X10NullType {
 	}
 
 	public boolean isX10Array() { return false; }
-	public X10ArrayType toX10Array() { return null; }
+
 
 	public  boolean isSubtypeImpl( Type t) {
     	X10Type target = (X10Type) t;

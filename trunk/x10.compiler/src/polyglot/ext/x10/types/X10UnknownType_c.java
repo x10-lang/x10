@@ -56,7 +56,7 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 	}
 
 	public boolean isX10Array() { return false; }
-	public X10ArrayType toX10Array() { return null; }
+
 
 	public  boolean isSubtypeImpl( Type t) {
     	X10Type target = (X10Type) t;

@@ -34,7 +34,7 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
 		X10ArrayTypeNode {
     protected TypeNode base;
 	protected boolean isValueType;
-	protected DepParameterExpr indexedSet;
+	protected DepParameterExpr distribution;
 	
 	/**
 	 * @param pos
@@ -61,7 +61,7 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
 		super(pos);
 		this.base = base;
 		this.isValueType = isValueType;
-		this.indexedSet = indexedSet;
+		this.distribution = indexedSet;
 	}
 	
 	/* (non-Javadoc)
@@ -83,16 +83,16 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
 	 * May return null.
 	 * @see polyglot.ext.x10.ast.X10ArrayTypeNode#indexSet()
 	 */
-	public Expr indexSet() {
-		return this.indexedSet;
+	public Expr distribution() {
+		return this.distribution;
 	}
 
 	 protected X10ArrayTypeNode_c reconstruct(TypeNode base,  DepParameterExpr indexedSet) {
         if (base != this.base || (isValueType != this.isValueType) 
-        		|| (indexedSet != this.indexedSet)) {
+        		|| (indexedSet != this.distribution)) {
 	    X10ArrayTypeNode_c n = (X10ArrayTypeNode_c) copy();
 	    n.base = base;
-	    n.indexedSet = indexedSet;
+	    n.distribution = indexedSet;
 	    return n;
         }
 
@@ -101,16 +101,19 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
 
 	 public Node visitChildren(NodeVisitor v) {
 		TypeNode base = (TypeNode) visitChild(this.base, v);
-		DepParameterExpr indexedSet = (DepParameterExpr) visitChild(this.indexedSet, v);
+		DepParameterExpr indexedSet = (DepParameterExpr) visitChild(this.distribution, v);
 		return reconstruct(base, indexedSet);
 	}
 
 	   public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
-	        return type(indexedSet == null 
+		return type( ts.array( base.type(), isValueType, distribution ));
+		/*
+	        return type(distribution == null 
 	        		? ts.x10arrayOf(position(), base.type())
-	        				: ts.x10arrayOf(position(), base.type(), indexedSet)
+	        				: ts.x10arrayOf(position(), base.type(), distribution)
 	        		);
+	        		*/
 	    }
 	  
 
@@ -125,9 +128,11 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
     				"Base type " + baseType + " of array could not be resolved.",
 					base.position());
     	}
-    	
-    	return nf.CanonicalTypeNode(position(),
-    			ts.x10arrayOf(position(), baseType));
+    	// Now the base type is known. Simply ask the type system to load the corresponding
+    	// class and return the type you thus get back. No need for X10ArrayType and X10ArrayType_c.
+    	return nf.CanonicalTypeNode(position(), ts.array(baseType, isValueType, distribution));
+    	//   	return nf.CanonicalTypeNode(position(), 
+    	//		ts.x10arrayOf(position(), baseType));
     }
 
     public Node typeCheck(TypeChecker tc) throws SemanticException {
@@ -143,7 +148,7 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
         print(base, w, tr);
         w.write( (isValueType ? " value " : "") + "[." 
-        		+ (indexedSet == null ? "" : indexedSet.toString()) + "]");
+        		+ (distribution == null ? "" : distribution.toString()) + "]");
     }
 
     public void translate(CodeWriter w, Translator tr) {
@@ -155,7 +160,7 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
     public String toString() {
         return base.toString() 
 		+ (isValueType ? " value " : "")
-		+ "[." + (indexedSet == null ? "" : indexedSet.toString()) + "]";
+		+ "[." + (distribution == null ? "" : distribution.toString()) + "]";
     }
 
 }

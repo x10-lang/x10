@@ -206,7 +206,7 @@ implements ArrayConstructor {
 			
 		}
 		
-		Type t = ts.x10arrayOf(position(), newBaseType);
+		Type t = ts.array( newBaseType, isValue );
 		
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);
 		

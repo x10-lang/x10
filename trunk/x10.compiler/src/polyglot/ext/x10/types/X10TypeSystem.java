@@ -23,49 +23,184 @@ public interface X10TypeSystem extends TypeSystem {
     /**
      * Return a reference array of <code>base</code> type.
      */
-    X10ArrayType x10arrayOf(Position pos, Type base);
+    // X10ArrayType x10arrayOf(Position pos, Type base);
 
     /**
      * Return an array of <code>base</code> type -- a
      * <code>value</code> array if <code>isValue==true</code>, and a
      * <code>reference</code> array otherwise.
      */
-    X10ArrayType x10arrayOf(Position pos, Type base, boolean isValue);
+    // X10ArrayType x10arrayOf(Position pos, Type base, boolean isValue);
 
     /**
      * Return a reference array of <code>base</code> type with a
      * dependent parameter, expr.
      */
-    X10ArrayType x10arrayOf(Position pos, Type base, DepParameterExpr expr);
+    // X10ArrayType x10arrayOf(Position pos, Type base, DepParameterExpr expr);
     /**
      * Return an array of <code>base</code> type -- a <code>value</code> array
      * if <code>isValue==true</code>, and a <code>reference</code> array
      * otherwise -- with a dependent parameter, expr.
      */
-    X10ArrayType x10arrayOf(Position pos, Type base, boolean isValue, DepParameterExpr expr);
+    // X10ArrayType x10arrayOf(Position pos, Type base, boolean isValue, DepParameterExpr expr);
 
     NullableType createNullableType( Position p, ReferenceType t);
     FutureType createFutureType( Position p, Type t);
     ParametricType createParametricType ( Position pos, X10ReferenceType type, DepParameterExpr expr ) ;
-    Type X10Object();
-    Type place();
-    Type region();
-    Type point();
-    Type distribution();
-    Type Activity();
-    Type FutureActivity();
-    Type array();
-    Type clock();
-    Type Runtime();
-    Type IntArrayPointwiseOp();
-    Type DoubleArrayPointwiseOp();
-    Type intArray();
-    Type intValueArray();
-    Type IntReferenceArray();
-    Type doubleArray();
-    Type doubleValueArray();
-    Type DoubleReferenceArray();
+    ClassType X10Object();
+    ClassType place();
+    ClassType region();
+    ClassType point();
+    ClassType distribution();
+    ClassType Activity();
+    ClassType FutureActivity();
+    ClassType array();
+    ClassType clock();
+    ClassType Runtime();
+    ClassType IntArrayPointwiseOp();
+    ClassType DoubleArrayPointwiseOp();
     
+ 
+  
+    /**Provide a generic type constructor for arrays:
+     * Behaves the same as <Type>Array( isValueType, distribution ).
+     * May throw an Error if not implemented for the given type.
+     * 1/13/2005 -- implemented for int and double only.
+     * TODO: implement for all native types.
+     */
+    
+    ClassType array( Type type, boolean isValueType, Expr distribution);
+    
+    /**Provide a generic type constructor for arrays:
+     * Behaves the same as <Type>Array( distribution ).
+     * May throw an Error if not implemented for the given type.
+     * 1/13/2005 -- implemented for int and double only.
+     * TODO: implement for all native types.
+     */
+    ClassType array(Type type,  Expr distribution);
+    
+    /**Provide a generic type constructor for arrays:
+     * Behaves the same as <Type>Array( isValueType ).
+     * May throw an Error if not implemented for the given type.
+     * 1/13/2005 -- implemented for int and double only.
+     * TODO: implement for all native types.
+     */
+    ClassType array(Type type,  boolean isValueType );
+    
+    /**Provide a generic type constructor for arrays:
+     * Behaves the same as <Type>Array( ).
+     * May throw an Error if not implemented for the given type.
+     * 1/13/2005 -- implemented for int and double only.
+     * TODO: implement for all native types.
+     */
+    ClassType array(Type type);
+    
+    /** Return the parametric type of all X10 intArrays with the
+	 * given values for the isValueType and distribution parameters.
+	 * @param isValueType -- true if this type is a value type.
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+	ClassType intArray(boolean isValueType, Expr distribution );
+	
+	/** Return the parametric type of all X10 int arrays with the
+	 * given  distribution. The class returned is a superclass of
+	 * intValueArray and IntReferenceArray.
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+	ClassType intArray( Expr distribution );
+	
+	/** Return the parametric type of all X10 int arrays with no
+	 *  constraints on the distribution.The class returned is a superclass of
+	 * intValueArray and IntReferenceArray.
+	 * @return -- the ClassType object
+	 */
+	ClassType intArray(); 
+	
+	/** Return the parametric type of all X10 int value arrays with the
+	 * given  distribution. 
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+	ClassType intValueArray( Expr distribution );
+	
+	/**Return the parametric type of all X10 int value arrays with no constraints on the
+	 * given  distribution. 
+	 * @return -- the ClassType object
+	 */
+	ClassType intValueArray(); 
+	
+	/** Return the parametric type of all X10 int reference arrays with the
+	 * given  distribution. 
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+    ClassType IntReferenceArray( Expr distribution );
+    
+    /**Return the parametric type of all X10 int reference arrays with no constraints on the
+	 * given  distribution. 
+	 *
+	 * @return -- the ClassType object
+	 */
+    ClassType IntReferenceArray();
+    
+    /** Return the parametric type of all X10 doubleArrays with the
+	 * given values for the isValueType and distribution parameters.
+	 * @param isValueType -- true if this type is a value type.
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+	ClassType doubleArray(boolean isValueType, Expr distribution );
+	
+	/** Return the parametric type of all X10 double arrays with the
+	 * given  distribution. The class returned is a superclass of
+	 * doubleValueArray and DoubleReferenceArray.
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+	ClassType doubleArray( Expr distribution );
+	
+	/** Return the parametric type of all X10 double arrays with no
+	 *  constraints on the distribution.The class returned is a superclass of
+	 * doubleValueArray and DoubleReferenceArray.
+	 * @return -- the ClassType object
+	 */
+	ClassType doubleArray(); 
+	
+	/** Return the parametric type of all X10 double value arrays with the
+	 * given  distribution. 
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+	ClassType doubleValueArray( Expr distribution );
+	
+	/**Return the parametric type of all X10 double value arrays with no constraints on the
+	 * given  distribution. 
+	 * @return -- the ClassType object
+	 */
+	ClassType doubleValueArray(); 
+	
+	/** Return the parametric type of all X10 double reference arrays with the
+	 * given  distribution. 
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+    ClassType DoubleReferenceArray( Expr distribution );
+    
+    /**Return the parametric type of all X10 double reference arrays with no constraints on the
+	 * given  distribution. 
+	 *
+	 * @return -- the ClassType object
+	 */
+    ClassType DoubleReferenceArray();
+    
+    // TODO: Add similar support for arrays of long and boolean.
+    
+    /** Return the ClassType object for the x10.lang.Indexable interface.
+     * 
+     */
+    ClassType Indexable();
     
     /** Return the method instance for runtime.Primitive.equals */
     public MethodInstance primitiveEquals();

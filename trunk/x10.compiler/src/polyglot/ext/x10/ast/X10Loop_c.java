@@ -55,7 +55,6 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
      */
     protected X10Loop_c(Position pos) {
 	super(pos);
-	// TODO Auto-generated constructor stub
     }
 
     protected X10Loop_c( Position pos, Formal formal, Expr domain, Stmt body) {
