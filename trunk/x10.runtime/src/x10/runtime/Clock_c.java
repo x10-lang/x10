@@ -71,15 +71,21 @@ final class Clock_c implements Clock {
     }
 
     /**
-     * Register the current activity with this clock.  While
-     * the current spec does not allow this to happen other than
-     * by creating the clock, I believe this is a problem with the
-     * spec and we need some kind of method like this one.
+     * Register the current activity with this clock.
      */
-    public synchronized void register() {
-        Activity a = aip_.getCurrentActivity();
+    public void register() {
+        register(aip_.getCurrentActivity());
+    }
+    
+    /**
+     * Register another activity with this clock.  It is an error
+     * to register an activity with a clock that is already registered.  
+     */
+    public synchronized void register(Activity a) {
+        assert ! activities_.contains(a);
         if (activities_.add(a))
             pending_.add(a);
+        aip_.registerActivitySpawnListener(a, dropListener_);
     }
     
     /**
@@ -90,18 +96,8 @@ final class Clock_c implements Clock {
      * @param a an activity to run
      */
     public synchronized void doNow(Activity a) {
-        aip_.registerActivitySpawnListener(a, 
-                                           new ActivitySpawnListener() {
-            public void notifyActivitySpawn(Activity a,
-                                            Activity i) {
-                assert nowSet_.contains(i);
-                nowSet_.add(i);
-            }
-            public void notifyActivityTerminated(Activity a) {
-                assert nowSet_.contains(a);
-                nowSet_.remove(a);
-            }
-        });
+        assert activities_.contains(aip_.getCurrentActivity());
+        aip_.registerActivitySpawnListener(a, nowSpawnListener_);
         Runtime.here().runAsync(a);
     }
     
@@ -114,6 +110,7 @@ final class Clock_c implements Clock {
      */
     public synchronized void doContinue() {
         Activity a = aip_.getCurrentActivity();
+        assert activities_.contains(a);
         pending_.remove(a);
         tryAdvance(); 
     }
@@ -127,8 +124,20 @@ final class Clock_c implements Clock {
      * @return true if the activity has already dropped this
      *   clock (or if it never was registered).
      */
-    public synchronized boolean drop() {
-        Activity a = aip_.getCurrentActivity();
+    public boolean drop() {
+        return drop(aip_.getCurrentActivity());
+    }
+    
+    /**
+     * Drop the given activity from the clock.  Afterwards the
+     * activity may no longer use continue or now on this clock.
+     * Other activities will no longer be blocked waiting for 
+     * the current activity to complete the phase.  
+     * 
+     * @return true if the activity has already dropped this
+     *   clock (or if it never was registered).
+     */
+    public synchronized boolean drop(Activity a) {
         boolean ret = activities_.remove(a);
         pending_.remove(a);
         tryAdvance(); 
@@ -147,20 +156,19 @@ final class Clock_c implements Clock {
      */
     public synchronized void doNext() {
         Activity a = aip_.getCurrentActivity();
+        assert activities_.contains(a);
         pending_.remove(a); // this one is done!
         if (tryAdvance())
             return; // we advanced, continue immediately!
         // wait for next phase
         int start = phase_;
-        synchronized (a) {
-            do {
-                try {
-                    a.wait(); // wait for signal
-                } catch (InterruptedException ie) {
-                    throw new Error(ie); // that was unexpected...
-                }
-            } while (start == phase_); // signal might be random in Java, check!
-        }
+        do {
+            try {
+                this.wait(); // wait for signal
+            } catch (InterruptedException ie) {
+                throw new Error(ie); // that was unexpected...
+            }
+        } while (start == phase_); // signal might be random in Java, check!        
     }
         
     /**
@@ -215,10 +223,41 @@ final class Clock_c implements Clock {
         while (it.hasNext()) {
             Activity a = (Activity) it.next();
             pending_.add(a);
-            synchronized (a) {
-                a.notifyAll();
-            }
         }
+        notifyAll();
     }
- 
+
+    /**
+     * Listener that tracks activity exits to ensure
+     * dropping at the end.
+     */
+    private final ActivitySpawnListener dropListener_ = 
+        new ActivitySpawnListener() {
+        public void notifyActivitySpawn(Activity a,
+                                        Activity i) {
+        }
+        public void notifyActivityTerminated(Activity a) {
+            drop(a);
+        }
+    };
+
+    /**
+     * Listener that (transitively) adds all spawned activities to
+     * the 'nowSet_'.    Also tracks activity exits to ensure
+     * dropping at the end.
+     */
+    private final ActivitySpawnListener nowSpawnListener_ = 
+       new ActivitySpawnListener() {
+       public void notifyActivitySpawn(Activity a,
+                                       Activity i) {
+           assert nowSet_.contains(i);
+           nowSet_.add(i);
+       }
+       public void notifyActivityTerminated(Activity a) {
+           assert nowSet_.contains(a);
+           nowSet_.remove(a);
+           drop(a);
+       }
+   };
+    
 } // end of Clock_c
