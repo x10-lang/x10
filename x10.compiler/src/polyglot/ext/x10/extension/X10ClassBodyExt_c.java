@@ -121,7 +121,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			if (theType.isShort())
 				return "signed short";
 			if (theType.isLong())
-				return "signed long";
+				return "jlong"; // best to use jni.h's defn
 			if (theType.isFloat())
 				return "float";
 			if (theType.isDouble())
