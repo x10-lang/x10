@@ -6,7 +6,7 @@ package polyglot.ext.x10.ast;
 import polyglot.ast.Expr;
 import polyglot.types.Type;
 
-/**
+/** The AST node for the X10 construct future (P) {e}
  *
  */
 public interface Future extends Expr, RemoteActivityInvocation {

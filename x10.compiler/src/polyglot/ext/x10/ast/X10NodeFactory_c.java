@@ -3,10 +3,12 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.*;
+import polyglot.ext.jl.ast.ArrayAccessAssign_c;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
 import polyglot.util.Position;
+import polyglot.types.Flags;
 
 /**
  * NodeFactory for x10 extension.
@@ -94,7 +96,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     	return new FutureNode_c(pos, type);
     }
     
-    /** Called when a nullable X has been parsed, where X should be a
+    /** Called when a nullable X has been parsed, where X should be a type.
       * 
      */
 
@@ -102,5 +104,36 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
      	return new NullableNode_c(pos, type);
     }
 
+    public ValueClassDecl ValueClassDecl(Position pos, Flags flags, String name,
+				  TypeNode superClass, List interfaces,
+					 ClassBody body) {
+	return new ValueClassDecl_c( pos, flags, name, superClass, 
+				     interfaces, body );
+    }
 
+    public Await Await(Position pos, Expr expr ) {
+    	return new Await_c( pos, expr );
+    }
+    public ArrayAccess ArrayAccess( Position pos, Expr array, Expr index ) {
+    	return new X10ArrayAccess_c( pos, array, index );
+    }
+    public ArrayAccessAssign ArrayAccessAssign(Position pos, ArrayAccess left, Assign.Operator op, Expr right) {
+        ArrayAccessAssign n = new X10ArrayAccessAssign_c(pos, left, op, right);
+        return n;
+    }
+    public ArrayConstructor ArrayConstructor(Position pos, TypeNode base, Expr distribution, Variable formal,
+    		Block body) {
+        ArrayConstructor n = new ArrayConstructor_c(pos, base, distribution, formal, body);
+        return n;
+    }
+    public Point Point( Position pos, List exprs) {
+    	Point n = new Point_c( pos, exprs);
+    	return n;
+    }
+    public ReductionCall ScanCall(Position pos, Receiver target, String name, List arguments) {
+    	return new ReductionCall_c( pos, target, name, arguments, ReductionCall.SCAN);
+    }
+    public ReductionCall ReduceCall(Position pos, Receiver target, String name, List arguments) {
+    	return new ReductionCall_c( pos, target, name, arguments, ReductionCall.REDUCE);
+    }
 }

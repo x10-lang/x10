@@ -8,11 +8,9 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.TypeNode;
 
-/**
+/** The node constructed for the X10 type constructor future X.
  * @author vj
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public interface FutureNode extends TypeNode {
 	TypeNode base();
