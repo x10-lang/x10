@@ -25,6 +25,8 @@ public interface Region extends TypeArgument {
     
     public Region sub(Range[] dims);
 	
+    public Region subOrdinal(int start, int end); // end exclusive here!
+    
     public Region combine(Region r);
 	
     public Range dim(int i);

@@ -229,8 +229,8 @@ public class DefaultRuntime_c
      * @param r
      * @return
      */
-    public Distribution newBlockDistribution(Region r, Place[] p) {
-        throw new Error("not implemented");
+    public Distribution newBlockDistribution(Region R, Place[] Q) {
+        return Distribution_c.makeBlock(R, Q);
     }
     
     /**
@@ -240,8 +240,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockDistribution(Region r, int n, Place[] p) {
-        throw new Error("not implemented");
-        // return new Distribution_c.Block(r, n, p);
+        return Distribution_c.makeBlock(r, n, p);
     }
     
     /**
@@ -253,8 +252,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newCyclicDistribution(Region r, Place[] p) {
-        throw new Error("not implemented");
-        // return new Distribution_c.Cyclic(r, p);
+        return Distribution_c.makeCyclic(r,  p);
     }
     
     /**
@@ -266,8 +264,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newBlockCyclicDistribution(Region r, int n, Place[] p) {
-        throw new Error("not implemented");
-        // return new Distribution_c.BlockCyclic(r, n, p);
+        return Distribution_c.makeBlockCyclic(r, n, p);
     }
     
     /**
@@ -277,7 +274,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newArbitraryDistribution(Region r, Place[] p) {
-        return newBlockCyclicDistribution(r, 32, p);
+        return Distribution_c.makeArbitrary(r, p);
     }
     
     /**
@@ -288,9 +285,7 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newConstantDistribution(Region r, Place p) {
-        if (places_.length == 1)
-            return new Distribution_c.ConstantHere(r);
-        return new Distribution_c.Constant(r, p);
+        return Distribution_c.makeConstant(r, p);
     }
     
     /**
@@ -301,10 +296,72 @@ public class DefaultRuntime_c
      * @return
      */
     public Distribution newUniqueDistribution(Place[] p) {
-        return new Distribution_c.Unique(p);
+        return Distribution_c.makeUnique(p);
     }
     
+    /**
+     * Create a Distribution where the given Region is distributed
+     * into blocks over all available Places.
+     * @param r
+     * @return
+     */
+    public Distribution newBlockDistribution(Region R) {
+        return Distribution_c.makeBlock(R, places_);
+    }
     
+    /**
+     * Create a Distribution where the given Region is distributed
+     * into blocks of size n over all available Places.
+     * @param r
+     * @return
+     */
+    public Distribution newBlockDistribution(Region r, int n) {
+        return Distribution_c.makeBlock(r, n, places_);
+    }
     
+    /**
+     * Create a Distribution where the elements in the region are
+     * distributed over all Places in p in a cyclic manner,
+     * that is the next point in the region is at the next place
+     * for a cyclic ordering of the given places.
+     * @param r
+     * @return
+     */
+    public Distribution newCyclicDistribution(Region r) {
+        return Distribution_c.makeCyclic(r,  places_);
+    }
     
+    /**
+     * Create a Distribution where the elements in the region are
+     * distributed over all Places in p in a cyclic manner,
+     * that is the next point in the region is at the next place
+     * for a cyclic ordering of the given places.
+     * @param r
+     * @return
+     */
+    public Distribution newBlockCyclicDistribution(Region r, int n) {
+        return Distribution_c.makeBlockCyclic(r, n, places_);
+    }
+    
+    /**
+     * Create a Distribution where the points of the Region are
+     * distributed randomly over all available Places.
+     * @param r
+     * @return
+     */
+    public Distribution newArbitraryDistribution(Region r) {
+        return Distribution_c.makeArbitrary(r, places_);
+    }
+    
+    /**
+     * Create a Distribution where the points in the
+     * region 1...p.length are mapped to the respective
+     * places.
+     * @param p the list of places (implicitly defines the region)
+     * @return
+     */
+    public Distribution newUniqueDistribution() {
+        return Distribution_c.makeUnique(places_);
+    }
+
 } // end of DefaultRuntime_c
