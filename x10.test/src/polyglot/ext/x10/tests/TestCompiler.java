@@ -7,12 +7,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import x10.lang.Activity;
 import x10.lang.Runtime;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
-import x10.runtime.ThreadRegistry;
-import x10.lang.place;
 
 /**
  * JUnit testing harness for the X10 compiler.
@@ -185,6 +184,10 @@ public class TestCompiler extends TestCase {
         junit.textui.TestRunner.run(TestCompiler.class);
     }
 
+    public static TestSuite suite() {
+        return new TestSuite(TestCompiler.class);
+    }
+    
     /**
      * Constructor for TestX10PrettyPrinterVisitor.
      * @param name
@@ -211,10 +214,15 @@ public class TestCompiler extends TestCase {
     	r.registerActivityStart(t, a, null);
     }
 
-    private void run(String file, String main) {
+
+    private void compile(String file) {
         String[] poargs 
             = new String[] { "-ext", "x10", file };
         polyglot.main.Main.main(poargs); // run compiler!
+    }
+
+    private void run(String file, String main) {
+        compile(file);
         try {
             ClassLoader loader 
                 = new URLClassLoader(new URL[] { new URL("file://" + System.getProperty("user.dir") + "/") }); 
@@ -252,10 +260,7 @@ public class TestCompiler extends TestCase {
     private void runMain(String file,
                          String main,
                          String[] args) {
-	String[] poargs 
-	    = new String[] { "-ext", "x10",
-			     file };
-	polyglot.main.Main.main(poargs); // run compiler!
+        compile(file);
 	try {
 	    ClassLoader loader 
 		= new URLClassLoader(new URL[] { new URL("file://" + System.getProperty("user.dir") + "/") }); 
