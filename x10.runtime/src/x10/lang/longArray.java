@@ -31,6 +31,8 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	
 	public static final binaryOp sub = new binaryOp() { public long apply(long r, long s) { return r-s;}};
 	public static final binaryOp add = new binaryOp() { public long apply(long r, long s) { return r+s;}};
+	public static final binaryOp mul = new binaryOp() { public long apply(long r, long s) { return r*s;}};
+	public static final binaryOp div = new binaryOp() { public long apply(long r, long s) { return r/s;}};
 	public static final binaryOp max = new binaryOp() { public long apply(long r, long s) { return Math.max(r,s);}};
 	
 	public static interface pointwiseOp/*(region r)*/ {
@@ -154,6 +156,35 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 		return lift(fun).reduce(max, 0);
 	}
 	/**
+	 * Convenience method for subtracting another array pointwise.
+	 * @return
+	 */
+	public LongReferenceArray sub( longArray s) {
+		return lift(sub, s);
+	}
+	/**
+	 * Convenience method for subtracting another array pointwise.
+	 * @return
+	 */
+	public LongReferenceArray add( longArray s) {
+		return lift(add, s);
+	}
+	/**
+	 * Convenience method for subtracting another array pointwise.
+	 * @return
+	 */
+	public LongReferenceArray mul( longArray s) {
+		return lift(mul, s);
+	}
+	/**
+	 * Convenience method for subtracting another array pointwise.
+	 * @return
+	 */
+	public LongReferenceArray div( longArray s) {
+		return lift(div, s);
+	}
+	
+	/**
 	 * Convenience method for applying abs to each element in the array.
 	 * @return
 	 */
@@ -202,13 +233,20 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	rank=this.rank) D)*/
 	LongReferenceArray/*(distribution.union(D))*/ union( longArray/*(D)*/ other);
 	
-	/** Return the array obtained by overlaying this array on top of
-	 other. The method takes as parameter a distribution D over the
+	/** Return the array obtained by overlaying the array other on top of this.
+	 The method takes as parameter a distribution D over the
 	 same rank. It returns an array over the distribution
 	 dist.asymmetricUnion(D).
 	 */
 	abstract /*value*/ public /*(distribution(:rank=this.rank) D)*/
 	LongReferenceArray/*(distribution.asymmetricUnion(D))*/ overlay( longArray/*(D)*/ other);
+	
+	/** Update this array in place by overlaying the array other on top of this. The distribution
+	 * of the input array must be a subdistribution of D.
+	 * TODO: update the description of the parametric type.
+	 */
+    abstract public void update( longArray/*(D)*/ other);
+	
 	
 	
 	/** Assume given a longArray a over the given distribution.
