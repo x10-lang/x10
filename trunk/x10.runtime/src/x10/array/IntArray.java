@@ -184,9 +184,9 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
                 Object handle = ret;
                 int i = 0;
                 for (; i < dims_tmp.length - 1; ++i) {
-                    handle = java.lang.reflect.Array.get(handle, p.valueAt(i));
+                    handle = java.lang.reflect.Array.get(handle, p.get(i));
                 }
-                java.lang.reflect.Array.setInt(handle, p.valueAt(i), arg);
+                java.lang.reflect.Array.setInt(handle, p.get(i), arg);
                 return arg;
             }
         });
