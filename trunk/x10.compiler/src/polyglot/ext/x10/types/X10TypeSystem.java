@@ -19,40 +19,53 @@ import polyglot.ext.x10.ast.DepParameterExpr;
 
 public interface X10TypeSystem extends TypeSystem {
 
+
     /**
      * Return a reference array of <code>base</code> type.
      */
-    ArrayType arrayOf(Position pos, Type base);
+    X10ArrayType x10arrayOf(Position pos, Type base);
 
     /**
      * Return an array of <code>base</code> type -- a
      * <code>value</code> array if <code>isValue==true</code>, and a
      * <code>reference</code> array otherwise.
      */
-    ArrayType arrayOf(Position pos, Type base, boolean isValue);
+    X10ArrayType x10arrayOf(Position pos, Type base, boolean isValue);
 
     /**
      * Return a reference array of <code>base</code> type with a
      * dependent parameter, expr.
      */
-    ArrayType arrayOf(Position pos, Type base, DepParameterExpr expr);
+    X10ArrayType x10arrayOf(Position pos, Type base, DepParameterExpr expr);
     /**
      * Return an array of <code>base</code> type -- a <code>value</code> array
      * if <code>isValue==true</code>, and a <code>reference</code> array
      * otherwise -- with a dependent parameter, expr.
      */
-    ArrayType arrayOf(Position pos, Type base, 
-		      boolean isValue, DepParameterExpr expr);
+    X10ArrayType x10arrayOf(Position pos, Type base, boolean isValue, DepParameterExpr expr);
 
     NullableType createNullableType( Position p, ReferenceType t);
     FutureType createFutureType( Position p, Type t);
-    ClassType X10Object();
-    public ParsedClassType getRuntimeType();
-    public ParsedClassType getActivityType();
-    public ParsedClassType getFutureActivityType();
-    public ParsedClassType getFutureType();
-    public ParsedClassType getX10ObjectType();
-    public ParsedClassType getPlaceType();
+    ParametricType createParametricType ( Position pos, X10ReferenceType type, DepParameterExpr expr ) ;
+    Type X10Object();
+    Type place();
+    Type region();
+    Type point();
+    Type distribution();
+    Type Activity();
+    Type FutureActivity();
+    Type array();
+    Type clock();
+    Type Runtime();
+    Type IntArrayPointwiseOp();
+    Type DoubleArrayPointwiseOp();
+    Type intArray();
+    Type intValueArray();
+    Type IntReferenceArray();
+    Type doubleArray();
+    Type doubleValueArray();
+    Type DoubleReferenceArray();
+    
     
     /** Return the method instance for runtime.Primitive.equals */
     public MethodInstance primitiveEquals();

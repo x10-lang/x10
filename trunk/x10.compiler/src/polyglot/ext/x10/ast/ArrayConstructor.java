@@ -5,9 +5,7 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Term;
-import polyglot.ast.Block;
-import polyglot.ast.Variable;
+
 import polyglot.ast.TypeNode;
 import polyglot.ast.Expr;
 
@@ -20,16 +18,16 @@ import polyglot.ast.Expr;
  * @author vj Dec 9, 2004
  * 
  */
-public interface ArrayConstructor extends Term {
+public interface ArrayConstructor extends Expr {
 	TypeNode arrayBaseType();
 	Expr distribution();
-	Block body();
-	Variable formal();
+	Expr initializer();
 	ArrayConstructor arrayBaseType( TypeNode t);
 	ArrayConstructor distribution( Expr e);
-	ArrayConstructor body(Block b);
-	ArrayConstructor formal( Variable v);
-	
+	ArrayConstructor initializer( Expr e);
+	boolean hasLocal1DimDistribution();
+	boolean isIntArray();
+	boolean isDoubleArray();
 	
 	//TODO: vj Determine if this needs a CodeInstance as well.
 

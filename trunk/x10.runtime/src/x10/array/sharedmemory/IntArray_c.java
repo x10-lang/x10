@@ -49,6 +49,9 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * @param c
      * @param safe
      */
+    public IntArray_c( distribution d, int c) {
+	this(d, c, true);
+    }
     public IntArray_c( distribution d, int c, boolean safe) {
     	super(d);
     	int count = d.region.size();
@@ -56,6 +59,9 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     			: Allocator.allocUnsafe(count, Allocator.SIZE_INT);
     	scan(this, new Assign(c));
     	
+    }
+    public IntArray_c( distribution d, IntArray.pointwiseOp f){
+	this(d, f, true);
     }
     public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean safe) {
     	super(d);
@@ -65,7 +71,19 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	scan(this, f);
     	
     }
-    
+    private IntArray_c( distribution d, int[] a) {
+    	super(d);
+    	this.arr_ = Allocator.allocSafeIntArray( a);
+    }
+    /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
+     * 
+     * @param a
+     * @return
+     */
+    public static IntArray_c IntArray_c(int[] a) {
+    	distribution d = Runtime.factory.getDistributionFactory().here(a.length);
+    	return new IntArray_c(d, a);
+    }
     protected IntArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
         super(d);
         int count = d.region.size();

@@ -32,6 +32,8 @@ public interface X10Type extends Type {
 
     NullableType toNullable();
     FutureType toFuture();
+    boolean isX10Array();
+    X10ArrayType toX10Array();
     
 
 }

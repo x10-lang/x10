@@ -5,7 +5,7 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.ArrayTypeNode;
+import polyglot.ast.TypeNode;
 import polyglot.ast.Expr;
 
 
@@ -13,7 +13,7 @@ import polyglot.ast.Expr;
  * @author vj Dec 9, 2004
  * 
  */
-public interface X10ArrayTypeNode extends ArrayTypeNode {
+public interface X10ArrayTypeNode /*extends ArrayTypeNode*/ extends TypeNode {
 	/**
 	 * Was this array declared to be a value array? 
 	 * @return

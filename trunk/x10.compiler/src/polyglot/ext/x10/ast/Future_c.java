@@ -112,7 +112,7 @@ public class Future_c extends Expr_c
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
     	X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
     	if ( child == place ) {
-    		return ts.getPlaceType();
+    		return ts.place();
     	}
     	return child.type();
     }

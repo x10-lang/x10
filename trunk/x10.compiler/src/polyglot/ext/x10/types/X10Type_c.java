@@ -46,6 +46,13 @@ public abstract class X10Type_c extends Type_c implements X10Type {
 	return null;
     }
     
+    public boolean isX10Array() {
+    	return false;
+    }
+    public X10ArrayType toX10Array() {
+    	return null;
+    }
+    
     public  boolean isSubtypeImpl( Type t) {
     	X10Type target = (X10Type) t;
     	

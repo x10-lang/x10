@@ -10,10 +10,10 @@ package x10.lang;
  */
 
 public abstract class DoubleReferenceArray extends doubleArray {
-
-    public DoubleReferenceArray( distribution D) {
-	super( D );
-    }
-    abstract public void set( double v, point/*(region)*/ p );
-
+	
+	public DoubleReferenceArray( distribution D) {
+		super( D );
+	}
+	abstract public void set( double v, point/*(region)*/ p );
+	
 }
