@@ -111,6 +111,10 @@ public TestCompiler(String name) {
         run("./ClockedFinalTest.x10","ClockedFinalTest");
     }
 
+    public void test_CommentTest() {
+        run("./CommentTest.x10","CommentTest");
+    }
+
     public void test_ConditionalAtomicQueue() {
         run("./ConditionalAtomicQueue.x10","ConditionalAtomicQueue");
     }
@@ -286,6 +290,10 @@ public TestCompiler(String name) {
 
     public void test_RegionTestIterator() {
         run("./RegionTestIterator.x10","RegionTestIterator");
+    }
+
+    public void test_StringTest() {
+        run("./StringTest.x10","StringTest");
     }
 
     public void test_ValueClass() {
