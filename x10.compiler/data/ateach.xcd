@@ -7,8 +7,8 @@
           public void run() {
              #4
           }
-       }, new ActivityInformation() {
-         public List getRegisteredClocks() {
+       }, new x10.lang.ActivityInformation() {
+         public java.util.List getRegisteredClocks() {
            java.util.LinkedList clocks = new java.util.LinkedList();  	
            #5
            return clocks;

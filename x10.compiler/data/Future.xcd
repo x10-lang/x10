@@ -7,6 +7,9 @@
   public x10.lang.Object getResult() { 
      return x10_result_; 
   } 
-}, null)
+}, new x10.lang.ActivityInformation() {
+         public java.util.List getRegisteredClocks() {
+           return new java.util.LinkedList();
+})
 
         
