@@ -164,6 +164,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	}
 	
 	
+	
 	private String generateJavaSignature(MethodDecl_c method){
 		MethodInstance mi = method.methodInstance();
 		String signature = "";// "("
@@ -175,10 +176,51 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		if(false)signature += ")" + typeToJavaSigString((Type_c) mi.returnType());
 		return signature;
 	}
+	
+	/**
+	 * replace '_' with '_1'
+	 *         '<unicode>' with '_0<unicode>'
+	 *         ';' with '_2
+	 *         '[' with _3
+	 * @param inName
+	 * @return
+	 */
+	private String JNImangle(String inName){
+		char [] charName = inName.toCharArray();
+		StringBuffer buffer = new StringBuffer(inName.length());
+		for(int i=0;i< inName.length();++i){
+			char ch = inName.charAt(i);
+			
+			switch(ch){
+				case '_':
+					buffer.append("_1");
+					continue;
+				case ';':
+					buffer.append("_2");
+					continue;
+				case '[':
+					buffer.append("_3");
+					continue;
+				default:
+					//FIXME: handle unicode conversion
+					buffer.append(ch);
+					break;
+			}
+		}
+		System.out.println("convert from "+inName+" to "+buffer.toString());
+		return buffer.toString();
+	}
+	/**
+	 * Apply same mangling algorithm as javah does so we can automatically 
+	 * generate a name for the JNI code.
+	 * @param method
+	 * @param isOverloaded
+	 * @return
+	 */
 	private String generateJNIName(MethodDecl_c method, boolean isOverloaded){
-		String name = "Java_" + method.methodInstance().container().toString()+ 
-		"_" + method.methodInstance().container().toString() +
-		"_1" + method.name();
+		String name = "Java_" + JNImangle(method.methodInstance().container().toString())+ 
+		"_" + JNImangle(method.methodInstance().container().toString()) +
+		"_1" + JNImangle(method.name());
 		if(isOverloaded)
 			name += "__" + generateJavaSignature(method);
 		return name;
@@ -254,6 +296,9 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				args.add(nf.Local(pos,parameter.name()));
 			else{
 				ClassType_c ct = (ClassType_c)parameter.declType().toClass();
+				if(null == ct) 
+					throw new Error("Problems with unsafe array "+parameter.name());
+				
 				List methods = ct.methods();
 				MethodInstance memberMI=null;
 				for(ListIterator j = methods.listIterator();j.hasNext();){
