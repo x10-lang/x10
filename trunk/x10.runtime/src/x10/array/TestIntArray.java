@@ -11,12 +11,13 @@ import junit.framework.TestCase;
 public class TestIntArray extends TestCase {
 
     public void testToJava() {
+        ArrayFactory.init(ArrayRuntime.getRuntime());
         try {
             final int SIZE = 3;
             Range[] ranges = { ArrayFactory.newRange(0, SIZE - 1),
                     ArrayFactory.newRange(0, SIZE - 1) };
             Region r = ArrayFactory.newRegion(ranges);
-            Distribution d = ArrayFactory.newConstantDistribution(r, null);
+            Distribution d = ArrayFactory.newHereDistribution(r);
             IntArray ia = ArrayFactory.newIntArray(d, 12);
 
             int[][] a1 = (int[][]) ia.toJava();

@@ -118,7 +118,7 @@ class Region_c implements Region {
         return new Region_c(d);
     }
 
-    public Region intersect(Region r) {
+    public Region intersection(Region r) {
         assert r != null;
         assert r.rank() == rank;
         assert r instanceof Region_c;
@@ -148,7 +148,7 @@ class Region_c implements Region {
         return ret;
     }
     
-    public boolean contains(Region r) {
+    public boolean subset(Region r) {
         assert r.rank() == rank;
 
         Region_c r_c = (Region_c) r;

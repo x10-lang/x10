@@ -1,6 +1,7 @@
 package x10.lang;
 
 import x10.array.Distribution;
+import x10.array.ArrayFactory;
 import x10.array.DoubleArray;
 import x10.array.IntArray;
 import x10.array.Range;
@@ -61,6 +62,7 @@ public abstract class Runtime implements x10.base.Runtime {
             assert (r != null);
             _ = r;
             java = new JavaRuntime();
+            ArrayFactory.init(r);
         }
     }
 

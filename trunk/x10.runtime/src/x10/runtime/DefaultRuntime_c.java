@@ -300,6 +300,17 @@ public class DefaultRuntime_c
      * @param r
      * @return
      */
+    public Distribution newHereDistribution(Region R) {
+        x10.base.Place p = currentPlace();
+        return af_.makeConstantDistribution(R, p);
+    }
+    
+    /**
+     * Create a Distribution where the given Region is distributed
+     * into blocks over all available Places.
+     * @param r
+     * @return
+     */
     public Distribution newBlockDistribution(Region R, Place[] Q) {
         return af_.makeBlockDistribution(R, Q);
     }

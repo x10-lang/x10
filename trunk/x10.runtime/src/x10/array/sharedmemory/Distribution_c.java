@@ -148,7 +148,7 @@ abstract class Distribution_c extends Region_c implements Distribution {
         }
 
         public Distribution domainRestriction(Region r) { 
-            assert(contains(r));
+            assert(subset(r));
             return this;
         }
         
@@ -185,7 +185,7 @@ abstract class Distribution_c extends Region_c implements Distribution {
         }
         
         public Distribution domainRestriction(Region r) { 
-            assert(contains(r));
+            assert(subset(r));
             return new Constant((Region_c) r, place_);
         }
         
@@ -242,7 +242,7 @@ abstract class Distribution_c extends Region_c implements Distribution {
         }
     	
         public Distribution domainRestriction(Region r) { 
-            assert(contains(r));
+            assert(subset(r));
             throw new Error("TODO");
         }
         
@@ -325,7 +325,7 @@ abstract class Distribution_c extends Region_c implements Distribution {
         }
         
         public Distribution domainRestriction(Region r) { 
-            assert(contains(r));
+            assert(subset(r));
             throw new Error("TODO");
         }
         
