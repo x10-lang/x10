@@ -14,7 +14,7 @@ import x10.lang.Future;
  * 
  * @author Christian Grothoff
  */
-class LocalPlace_c extends Place {
+public class LocalPlace_c extends Place {
 
     /**
      * Compute the number of simulated cycles spent
