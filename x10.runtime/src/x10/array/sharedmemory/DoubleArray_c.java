@@ -7,15 +7,18 @@ import x10.array.Array;
 import x10.array.Distribution;
 import x10.array.DoubleArray;
 import x10.array.Operator;
+import x10.base.Allocator;
+import x10.base.MemoryBlock;
+import x10.base.UnsafeContainer;
 
 
 /**
  * @author Christian Grothoff, Christoph von Praun
  */
-public class DoubleArray_c extends DoubleArray {
+public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
 
     private boolean safe_;
-    private final double[] arr_;
+    private final MemoryBlock arr_;
     
     /**
      *  This constructor must not be used directly by an application programmer.
@@ -24,22 +27,29 @@ public class DoubleArray_c extends DoubleArray {
      */
     public DoubleArray_c(Distribution_c d, boolean safe) {
         super(d);
-        this.arr_ = new double[d.count()];
+        int count = d.count();
+        this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
     }
     
     public DoubleArray_c(Distribution_c d, double c, boolean safe) {
         super(d);
-        int size = d.count();
-        double[] arr = new double[size];
-        for (int i =0; i < size; ++i)
-        	arr[i] = c;
-        arr_ = arr;
+        int count = d.count();
+        this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
+        for (int i = 0; i < count; ++i)
+        	arr_.setDouble(c, i);
+    }
+    
+    public void keepItLive() {}
+    
+    public long getUnsafeAddress() {
+        return arr_.getUnsafeAddress();
     }
     
     /* Overrides the superclass method - this implementation is more efficient */
     public void reduction(Operator.Reduction op) {
-        for (int i  = 0; i < arr_.length; ++i) 
-            op.apply(arr_[i]);
+        int count = arr_.count();
+        for (int i  = 0; i < count; ++i) 
+            op.apply(arr_.getDouble(i));
     }
     
     /* Overrides the superclass method - this implementation is more efficient */
@@ -48,8 +58,9 @@ public class DoubleArray_c extends DoubleArray {
     	
     	DoubleArray_c rhs_t = (DoubleArray_c) rhs;
     	if (rhs.dist.equals(dist)) {
-    		for (int i  = 0; i < arr_.length; ++i) 
-    			arr_[i] = rhs_t.arr_[i];
+    	    int count = arr_.count();
+    		for (int i  = 0; i < count; ++i) 
+    			arr_.setDouble(rhs_t.arr_.getDouble(i), i);
     	} else 
     		// fall back to generic implementation
     		super.assign(rhs);
@@ -65,7 +76,7 @@ public class DoubleArray_c extends DoubleArray {
      * @see x10.lang.DoubleArray#set(int, int[])
      */
     public void set(double v, int[] pos) {
-        arr_[dist.ordinal(pos)] = v;
+        arr_.setDouble(v, dist.ordinal(pos));
     }
     
     public void set(double v, int d0) {
@@ -92,7 +103,7 @@ public class DoubleArray_c extends DoubleArray {
      * @see x10.lang.DoubleArray#get(int[])
      */
     public double get(int[] pos) {
-        return arr_[dist.ordinal(pos)];
+        return arr_.getDouble(dist.ordinal(pos));
     }
     
     public double get(int d0) {
