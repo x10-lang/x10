@@ -11,7 +11,7 @@ public final class Allocator {
 
     public static final MemoryBlock allocUnsafe(int count, long size) {
         assert (size > 0);
-        assert (count > 0);
+        assert (count >= 0);
         return new MemoryBlockUnsafe(count, size); 
     }
     
