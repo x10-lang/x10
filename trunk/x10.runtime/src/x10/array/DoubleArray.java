@@ -47,12 +47,6 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 	public void pointwise(DoubleArray res, Operator.Pointwise op, DoubleArray arg) {
 	    assert res.distribution.equals(distribution);
         assert arg.distribution.equals(distribution);
-        /*
-         * the following assertions are limitation that are in the current
-         * implementation, not in the spec FIXME
-         */
-        assert arg instanceof DoubleArray;
-        assert res instanceof DoubleArray;
 		
 		DoubleArray arg_t =  arg;
 		DoubleArray res_t = res;
@@ -67,11 +61,6 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 	
 	public void pointwise(DoubleArray res, Operator.Pointwise op) {
 	    assert res == null || res.distribution.equals(distribution);
-        /*
-         * the following assertions are limitation that are in the current
-         * implementation, not in the spec FIXME
-         */
-        assert res == null || res instanceof DoubleArray;
         
         for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
@@ -92,16 +81,10 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 	
 	public void scan(DoubleArray res, Operator.Scan op) {
 	    assert res.distribution.equals(distribution);
-        /*
-         * the following assertions are limitation that are in the current
-         * implementation, not in the spec FIXME
-         */
-        assert res instanceof DoubleArray;
-        DoubleArray res_t = (DoubleArray) res;
         for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			double arg1 = get(p);
-			res_t.set(op.apply(arg1), p);
+			res.set(op.apply(arg1), p);
 		}
 	}
 	
@@ -117,7 +100,6 @@ public abstract class DoubleArray extends DoubleReferenceArray {
                 res_t.set(val, p);
         }
     }
-    
 	
 	public void circshift (int[] args) {
 		throw new RuntimeException("TODO");
