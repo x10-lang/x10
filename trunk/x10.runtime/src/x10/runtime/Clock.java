@@ -113,7 +113,6 @@ public final class Clock extends clock {
         synchronized (this) {
             assert activities_.contains(a);
             pending_.remove(a);
-            tryAdvance_();
         }
     }
      
