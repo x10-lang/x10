@@ -1,12 +1,6 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.*;
-import polyglot.ext.jl.ast.*;
-import polyglot.ext.coffer.types.*;
-import polyglot.types.Flags;
-import polyglot.types.Package;
-import polyglot.types.Type;
-import polyglot.types.Qualifier;
 import polyglot.util.*;
 import java.util.*;
 

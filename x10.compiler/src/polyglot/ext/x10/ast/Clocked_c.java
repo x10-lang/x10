@@ -7,7 +7,6 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
-import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.util.Position;
