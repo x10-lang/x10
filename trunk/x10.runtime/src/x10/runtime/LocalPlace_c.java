@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -152,8 +153,13 @@ public class LocalPlace_c extends Place {
         final StartSignal startSignal = new StartSignal();
         this.execute(new Runnable() {
                 public void run() {
-                    Thread t = Thread.currentThread();
+                    PoolRunner t = (PoolRunner) Thread.currentThread();
                     reg_.registerActivityStart(t, a, i);
+                    Iterator it = t.myClocks_.iterator();
+                    while (it.hasNext()) {
+                        Clock c = (Clock) it.next();                    
+                        c.register();
+                    }
                     synchronized(startSignal) {
                         startSignal.go = true;
                         startSignal.notifyAll();
@@ -195,11 +201,17 @@ public class LocalPlace_c extends Place {
         final StartSignal startSignal = new StartSignal();
         this.execute(new Runnable() {
                 public void run() {
-                    Thread t = Thread.currentThread();
+                    PoolRunner t = (PoolRunner) Thread.currentThread();
                     reg_.registerActivityStart(t, a, i);
                     final x10.runtime.DefaultRuntime_c dr
                        = (x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime;
                     dr.startFinish(a);
+                    Iterator it = t.myClocks_.iterator();
+                    while (it.hasNext()) {
+                        Clock c = (Clock) it.next();                    
+                        c.register();
+                    }
+
                     synchronized(startSignal) {
                         startSignal.go = true;
                         startSignal.notifyAll();
@@ -304,6 +316,7 @@ public class LocalPlace_c extends Place {
         private Activity act;
         private Method ac;
         private Object vmto;
+        // FIXME: move myClocks_ into the Activity base class
         private List myClocks_;
         
         PoolRunner() {
@@ -376,8 +389,8 @@ public class LocalPlace_c extends Place {
             job = r;
             if (ai == null)
                 this.myClocks_ = new LinkedList();
-            else
-                this.myClocks_ = new LinkedList(ai.getRegisteredClocks());
+            else 
+                this.myClocks_ = new LinkedList(ai.getRegisteredClocks());            
             this.notifyAll();
         }
         /**

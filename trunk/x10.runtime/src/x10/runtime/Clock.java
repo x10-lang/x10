@@ -70,14 +70,14 @@ public final class Clock extends clock {
      */
     Clock(ActivityInformationProvider aip) {
         this.aip_ = aip;
+        Runtime.getCurrentActivityInformation().getRegisteredClocks().add(this);
         register();
     }
 
     /**
      * Register the current activity with this clock.
      */
-    public synchronized void register() {
-        Runtime.getCurrentActivityInformation().getRegisteredClocks().add(this);
+    synchronized void register() {
         Activity a = aip_.getCurrentActivity();
         assert ! activities_.contains(a);
         if (activities_.add(a))
