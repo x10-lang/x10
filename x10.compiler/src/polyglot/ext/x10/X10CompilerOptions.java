@@ -5,9 +5,9 @@ package polyglot.ext.x10;
 import java.io.PrintStream;
 import polyglot.frontend.ExtensionInfo;
 
-public class Options extends polyglot.main.Options {
+public class X10CompilerOptions extends polyglot.main.Options {
 
-    public Options(ExtensionInfo extension) {
+    public X10CompilerOptions(ExtensionInfo extension) {
         super(extension);
     }
 
