@@ -1,11 +1,11 @@
-  for (java.util.Iterator #1__ = #2.iterator(); 
-       #1__.hasNext();
+  for (java.util.Iterator #2__ = #3.iterator(); 
+       #2__.hasNext();
        ) {
-   final #0 #1 = (#0) #1__.next();
-   ((x10.runtime.Place) #2.get(#1)).runAsync
+   #0 #1 #2 = (#1) #2__.next();
+   ((x10.runtime.Place) #3.get(#2)).runAsync
        (new Activity() {
           public void run() {
-             #3
+             #4
           }
        });
      }
