@@ -72,9 +72,9 @@ public abstract class Runtime implements x10.base.Runtime {
     
     public static void main(String[] args) {
     	try {
-            Configuration.parseCommandLine(args);
+            String[] args_stripped = Configuration.parseCommandLine(args);
             init();
-    		runtime.run(args);
+    		runtime.run(args_stripped);
     	} catch (Exception e) {
     		Runtime.java.error("Unexpected Exception in X10 Runtime.", e);
     	}
