@@ -13,6 +13,7 @@ import x10.base.UnsafeContainer;
 
 import x10.array.IntArray;
 import x10.array.Operator;
+import x10.lang.Indexable;
 import x10.lang.point;
 import x10.lang.distribution;
 import x10.lang.region;
@@ -28,6 +29,11 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     private final boolean safe_;
     private final MemoryBlock arr_;
     public final boolean mutable_;
+    
+    public boolean valueEquals(Indexable other) {
+        return arr_.valueEquals(((IntArray_c)other).arr_);
+    }
+
     
     public void keepItLive() {}
     
@@ -306,4 +312,8 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
     	
     }
+    public boolean isValue() {
+        return ! this.mutable_;
+    }
+    
 }

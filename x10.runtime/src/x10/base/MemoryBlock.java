@@ -3,6 +3,9 @@
  */
 package x10.base;
 
+import x10.array.point_c;
+import x10.lang.Indexable;
+
 /**
  * @author Christoph von Praun
  */
@@ -14,6 +17,12 @@ public abstract class MemoryBlock implements UnsafeContainer {
     public abstract long size();
     
     public abstract int count(); 
+    
+    /**
+     * @param other
+     * @return true if these objects are value-equals
+     */
+    public abstract boolean valueEquals(MemoryBlock other);
     
     public boolean setBoolean(boolean val, int d0) {
         throw new Error(MSG_);
