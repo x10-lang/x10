@@ -119,6 +119,10 @@ public TestCompiler(String name) {
         run("./Atomic1.x10","Atomic1");
     }
 
+    public void test_AtomicMethodTest() {
+        run("./AtomicMethodTest.x10","AtomicMethodTest");
+    }
+
     public void test_AtomicTest() {
         run("./AtomicTest.x10","AtomicTest");
     }
@@ -129,6 +133,10 @@ public TestCompiler(String name) {
 
     public void test_AwaitTest2() {
         run("./AwaitTest2.x10","AwaitTest2");
+    }
+
+    public void test_BasicExternTest1() {
+        run("./BasicExternTest1.x10","BasicExternTest1");
     }
 
     public void test_Boxing0() {
@@ -173,10 +181,6 @@ public TestCompiler(String name) {
 
     public void test_DistributionTest1() {
         run("./DistributionTest1.x10","DistributionTest1");
-    }
-
-    public void test_DoubleArrayExternUnsafe() {
-        run("./DoubleArrayExternUnsafe.x10","DoubleArrayExternUnsafe");
     }
 
     public void test_FinishTest1() {
@@ -385,10 +389,6 @@ public TestCompiler(String name) {
 
     public void test_StringTest() {
         run("./StringTest.x10","StringTest");
-    }
-
-    public void test_TestExternUnsafe1() {
-        run("./TestExternUnsafe1.x10","TestExternUnsafe1");
     }
 
     public void test_Unsafe() {
