@@ -93,7 +93,7 @@ final class Clock_c implements Clock {
      * it calls 'next'.
      *
      */
-    public void doContinue() {
+    public synchronized void doContinue() {
         Activity a = aip_.getCurrentActivity();
         pending_.remove(a);
         tryAdvance(); 
@@ -108,7 +108,7 @@ final class Clock_c implements Clock {
      * @return true if the activity has already dropped this
      *   clock (or if it never was registered).
      */
-    public boolean drop() {
+    public synchronized boolean drop() {
         Activity a = aip_.getCurrentActivity();
         boolean ret = activities_.remove(a);
         pending_.remove(a);
