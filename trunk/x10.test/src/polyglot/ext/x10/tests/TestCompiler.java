@@ -61,8 +61,6 @@ import x10.runtime.Place;
  */
 public class TestCompiler extends TestCase {
 
-    
-
     public void testArray1() {
         run("examples/testcases/feb2005/allTests/Array1.x10","Array1");
     }
@@ -389,3 +387,4 @@ public class TestCompiler extends TestCase {
     }
 
 }
+
