@@ -32,13 +32,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return (Instanceof)n.del(new X10InstanceofDel_c());
     }
     
-    public Async Async(Position pos, Expr place, Stmt body) {
+    public Async Async(Position pos, Expr place, Block body) {
         Async a = new Async_c(pos, place, body);
         a = (Async) a.ext(extFactory().extExpr());
         return (Async) a.del(delFactory().delExpr());
     }
     
-    public Atomic Atomic(Position pos, Expr place, Stmt body) {
+    public Atomic Atomic(Position pos, Expr place, Block body) {
         Atomic a = new Atomic_c(pos, place, body);
         a = (Atomic) a.ext(extFactory().extExpr());
         return (Atomic) a.del(delFactory().delExpr());
@@ -74,14 +74,14 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return (Next) n.del(delFactory().delStmt());
     }
 
-    public Now Now(Position pos, Expr expr, Stmt stmt) {
-        Now n = new Now_c(pos, expr, stmt);
+    public Now Now(Position pos, Expr expr, Block body) {
+        Now n = new Now_c(pos, expr, body);
         n = (Now) n.ext(extFactory().extStmt());
         return (Now) n.del(delFactory().delStmt());
     }
 
-    public Clocked Clocked(Position pos, Expr expr, Stmt stmt) {
-        Clocked n = new Clocked_c(pos, expr, stmt);
+    public Clocked Clocked(Position pos, Expr expr, Block body) {
+        Clocked n = new Clocked_c(pos, expr, body);
         n = (Clocked) n.ext(extFactory().extStmt());
         return (Clocked) n.del(delFactory().delStmt());
     }

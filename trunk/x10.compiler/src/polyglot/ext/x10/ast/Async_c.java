@@ -3,6 +3,7 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.Stmt;
+import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
@@ -34,9 +35,9 @@ public class Async_c extends Stmt_c
     implements Async {
 
     public Expr place; 
-    public Stmt body;
+    public Block body;
 
-    public Async_c( Position pos, Expr place, Stmt body ) {
+    public Async_c( Position pos, Expr place, Block body ) {
         super( pos );
         this.place = place;
         this.body = body;
@@ -49,13 +50,13 @@ public class Async_c extends Stmt_c
     /* (non-Javadoc)
      * @see polyglot.ext.x10.ast.Future#body()
      */
-    public Stmt body() {
+    public Block body() {
         return body;
     }
 
     /** Set the body of the statement. 
      */
-    public Async body(Stmt body) {
+    public Async body(Block body) {
 	Async_c n = (Async_c) copy();
 	n.body = body;
 	return n;
@@ -73,7 +74,7 @@ public class Async_c extends Stmt_c
     }
 
     /** Reconstruct the statement. */
-    protected Async reconstruct( Expr place, Stmt body ) {
+    protected Async reconstruct( Expr place, Block body ) {
 	if ( place != this.place || body != this.body ) {
 	    Async_c n = (Async_c) copy();
 	    n.place = place;
@@ -87,7 +88,7 @@ public class Async_c extends Stmt_c
     /** Visit the children of the statement. */
     public Node visitChildren( NodeVisitor v ) {
 	Expr place = (Expr) visitChild(this.place, v);
-	Stmt body = (Stmt) visitChild(this.body, v);
+	Block body = (Block) visitChild(this.body, v);
 	return reconstruct(place, body);
     }
 
@@ -122,7 +123,7 @@ public class Async_c extends Stmt_c
 
     /** Write the statement to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-	w.write("synchronized (");
+	w.write("async (");
 	printBlock(place, w, tr);
 	w.write(") ");
 	printSubStmt(body, w, tr);
@@ -144,6 +145,4 @@ public class Async_c extends Stmt_c
         v.visitCFG(body, this);
         return succs;
     }
-    
-
 }

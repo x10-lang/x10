@@ -23,7 +23,7 @@ public class X10DelFactory_c
     public JL delTermImpl() {
         return new JL_c() {
             public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
-                new X10PrettyPrinterVisitor(w,pp).visitAppropriate(jl());
+               // new X10PrettyPrinterVisitor(w,pp).visitAppropriate(jl());
             }            
         };        
     }
