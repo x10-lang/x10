@@ -22,9 +22,9 @@ public final class Allocator {
         
         MemoryBlock mb;
         if (cl == Integer.TYPE) 
-            mb = new MemoryBlockSafeInt((int) size);
+            mb = new MemoryBlockSafeIntArray((int) size);
         else if (cl == Double.TYPE)
-            mb = new MemoryBlockSafeDouble((int) size);
+            mb = new MemoryBlockSafeDoubleArray((int) size);
         else {
             mb = null;
             throw new Error("Allocator:: allocSafe not implemented for type '" + cl + "'");

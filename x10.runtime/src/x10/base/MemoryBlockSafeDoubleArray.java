@@ -6,18 +6,12 @@ package x10.base;
 /**
  * @author Christoph von Praun
  */
-public class MemoryBlockSafeDouble extends MemoryBlock {
+public class MemoryBlockSafeDoubleArray extends MemoryBlockSafe {
     
     private double[] arr_;
     
-    MemoryBlockSafeDouble(int count) {
+    MemoryBlockSafeDoubleArray(int count) {
         arr_ = new double[count];
-    }
- 
-    public void keepItLive() {}
-    
-    public long getUnsafeAddress() {
-        throw new Error("MemoryBlockSafeDouble: no unsafe address for safe memory.");
     }
     
     public int count() { 

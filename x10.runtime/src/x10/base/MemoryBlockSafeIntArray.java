@@ -6,25 +6,19 @@ package x10.base;
 /**
  * @author Christoph von Praun
  */
-public class MemoryBlockSafeInt extends MemoryBlock {
+public class MemoryBlockSafeIntArray extends MemoryBlockSafe {
     
     private int[] arr_;
     
-    MemoryBlockSafeInt(int size) {
+    MemoryBlockSafeIntArray(int size) {
         arr_ = new int[size];
-    }
-    
-    public void keepItLive() {}
-    
-    public long getUnsafeAddress() {
-        throw new Error("MemoryBlockSafeDouble: no unsafe address for safe memory.");
     }
     
     public int count() { 
         return arr_.length;
     }
 
-     public long size() {
+    public long size() {
          return Allocator.SIZE_INT;
     }
      
