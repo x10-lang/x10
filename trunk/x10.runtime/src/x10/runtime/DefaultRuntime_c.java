@@ -100,7 +100,7 @@ public class DefaultRuntime_c
                 .getDeclaredConstructor(new Class[] { String[].class })
                 .newInstance(tmp);
         } catch (Exception e) {
-            System.err.println("Could not find default constructor of main class!");
+            System.err.println("Could not find default constructor of main class '" + Configuration.MAIN_CLASS_NAME+ "$Main" + "'!");
             throw e;
         }
         final Activity appMain = atmp;
