@@ -12,7 +12,7 @@ import x10.lang.Activity;
  * 
  * @author Christian Grothoff
  */
-public interface ActivityInformationProvider {
+interface ActivityInformationProvider {
 
     /**
      * Get the Activity object that is associated with the

@@ -12,7 +12,7 @@ import x10.lang.Activity;
  * 
  * @author Christian Grothoff
  */
-public interface ActivitySpawnListener {
+interface ActivitySpawnListener {
 
     /**
      * Function called to send a notification about the
