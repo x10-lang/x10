@@ -188,7 +188,7 @@ implements X10TypeSystem {
 			return doubleArray( isValueType, distribution);
 		if (type.isLong())
 			return longArray( isValueType, distribution);
-		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
+		throw new Error("X10 array types not yet implemented for base types other than int, double and long. ");
 	}
 	
 	public ClassType array( Type type,  Expr distribution ) {
@@ -198,7 +198,7 @@ implements X10TypeSystem {
 			return doubleArray(  distribution );
 		if (type.isLong())
 			return longArray(  distribution );
-		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
+		throw new Error("X10 array types not yet implemented for base types other than int, double and long. ");
 	}
 	
 	public ClassType array(Type type, boolean isValue ) {
@@ -208,7 +208,7 @@ implements X10TypeSystem {
 		    return isValue ? doubleValueArray() : DoubleReferenceArray();
 		if (type.isLong())
 		    return isValue ? longValueArray() : LongReferenceArray();
-		throw new Error("X10 array types not yet implemented for base types other than int, double. ");
+		throw new Error("X10 array types not yet implemented for base types other than int, double and long. ");
 	}
 	
 	public ClassType array(Type type ) {
