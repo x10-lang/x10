@@ -22,7 +22,6 @@ import polyglot.visit.PrettyPrinter;
 
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 
 import polyglot.ext.x10.types.FutureType_c;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -148,7 +147,5 @@ public class Future_c extends Expr_c
         v.visitCFG(body(), this);
         return succs;
     }
-    
-
         
 }

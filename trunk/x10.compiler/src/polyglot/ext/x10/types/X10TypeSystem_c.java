@@ -4,10 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import polyglot.ext.jl.types.ArrayType_c;
 import polyglot.ext.jl.types.TypeSystem_c;
-import polyglot.ext.jl.types.NullType_c;
-
 import polyglot.ext.x10.types.X10PrimitiveType_c;
 import polyglot.frontend.Source;
 import polyglot.types.ArrayType;

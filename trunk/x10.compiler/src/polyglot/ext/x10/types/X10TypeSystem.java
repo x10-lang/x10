@@ -4,7 +4,6 @@
 
 package polyglot.ext.x10.types;
 
-import polyglot.frontend.Source;
 import polyglot.types.*;
 import polyglot.util.Position;
 
