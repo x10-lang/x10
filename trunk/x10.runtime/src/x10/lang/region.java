@@ -89,7 +89,8 @@ public abstract /*value*/ class region extends Object  {
 	public static final factory factory = Runtime.factory.getRegionFactory();
 	
 	protected region( /*nat long*/ int rank ) {
-		this.rank = rank;
+		assert rank >= 1;
+        this.rank = rank;
 	}
 	
 	
