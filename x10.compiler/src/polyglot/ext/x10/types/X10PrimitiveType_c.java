@@ -7,16 +7,20 @@
 package polyglot.ext.x10.types;
 
 import polyglot.ext.jl.types.PrimitiveType_c;
+import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 
-/**
+/** X10 has no primitive types. Types such as int etc are all value class types. 
+ * However, this particular X10 implementation uses Java primitive types to implement some of
+ * X10's value class types, namely, char, boolean, byte, int etc etc. It implements other
+ * value class types as Java classes.
+ * 
+ * Thus this class represents one of specially implemented X10 value class types.
  * @author praun
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * @author vj
  */
-public class X10PrimitiveType_c extends PrimitiveType_c {
+public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveType {
 
 	/** Used for deserializing types. */
     protected X10PrimitiveType_c() { }
@@ -25,8 +29,8 @@ public class X10PrimitiveType_c extends PrimitiveType_c {
         super(ts, kind);
     }
 
-    /**
-     * Return true if this type strictly descends from <code>ancestor</code>.
+    /** Every X10 value type descends from X10.lang.Object, the base class.
+     *
      */
     public boolean descendsFromImpl(Type ancestor) {
         return ts.equals(ancestor, ts.Object());
@@ -42,4 +46,67 @@ public class X10PrimitiveType_c extends PrimitiveType_c {
     public boolean isCastValidImpl(Type toType) {
         return ts.equals(toType, ts.Object()) || super.isCastValidImpl(toType);
     }
+    
+//	 ----------------------------- begin manual mixin code from X10Type_c
+	/* (non-Javadoc)
+	 * @see polyglot.ext.x10.types.X10Type#isNullable()
+	 */
+	public boolean isNullable() {
+			return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see polyglot.ext.x10.types.X10Type#isFuture()
+	 */
+	public boolean isFuture() {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see polyglot.ext.x10.types.X10Type#toNullable()
+	 */
+	public NullableType toNullable() {
+			return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see polyglot.ext.x10.types.X10Type#toFuture()
+	 */
+	public FutureType toFuture() {
+			return null;
+	}
+
+	/**
+	 * Note that this (general) mix-in code correctly takes care of ensuring that
+	 * int is a subtype of nullable int as well as x10.lang.X10Object.
+	 */
+	
+	public  boolean isSubtypeImpl( Type t) {
+    	X10Type target = (X10Type) t;
+    	
+    	if (Report.should_report("debug", 5))
+			Report.report( 5, "[X10PrimitiveType_c] isSubTypeImpl |" + this +  "| of |" + t + "|?");	
+    	
+    	boolean result = ts.equals(this, target) || ts.descendsFrom(this, target);
+    	
+       	if (result) {
+       		if (Report.should_report("debug", 5))
+    			Report.report( 5, "[X10PrimitiveType_c] ..." + result+".");	
+     		return result;
+    	}
+    	if (target.isNullable()) {
+    		NullableType toType = target.toNullable();
+    		Type baseType = toType.base();
+    		result = isSubtypeImpl( baseType );
+    		if (Report.should_report("debug", 5))
+    			Report.report( 5, "[X10PrimitiveType_c] ..." + result+".");	
+    		return result;
+    	}
+    	if (Report.should_report("debug", 5))
+			Report.report( 5, "[X10PrimitiveType_c] ..." + result+".");	
+    	return false;
+    }
+	// ----------------------------- end manual mixin code from X10Type_c
+	
+	
 }

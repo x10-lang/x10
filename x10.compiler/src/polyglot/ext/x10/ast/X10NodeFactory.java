@@ -22,6 +22,8 @@ public interface X10NodeFactory extends NodeFactory {
     public Next Next(Position pos, List clocks);
     public Now Now(Position pos, Expr expr, Block body);
     public Clocked Clocked(Position pos, Expr expr, Block body);
-    public TypeNode Future(Position pos, TypeNode type);
-    public TypeNode Nullable(Position pos, TypeNode type);
+    
+    NullableNode Nullable(Position pos, TypeNode type);
+    FutureNode Future(Position pos, TypeNode type);
+
 }

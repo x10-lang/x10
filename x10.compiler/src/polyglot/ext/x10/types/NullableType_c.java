@@ -13,17 +13,17 @@ import polyglot.types.Resolver;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
-import polyglot.types.NullableType;
 
 import polyglot.util.Position;
 
-/**
+/** Implementation of the nullable type constructor.
+ * 
  * @author vj
  *
  */
-public class NullableType_c extends ReferenceType_c implements NullableType {
+public class NullableType_c extends X10ReferenceType_c implements NullableType {
 
-    protected ReferenceType base;
+    protected X10ReferenceType base;
     protected List fields;
     protected List methods;
     protected List interfaces;
@@ -41,7 +41,7 @@ public class NullableType_c extends ReferenceType_c implements NullableType {
     public static NullableType makeNullable( TypeSystem ts, Position pos, ReferenceType base ) {
     	if ( base instanceof NullableType )
     		return (NullableType) base;
-    	return new NullableType_c( ts, pos, base );
+    	return new NullableType_c( ts, pos, (X10ReferenceType) base );
     }
     
     /** Constructor is made private. Called only in the factory method above.
@@ -50,7 +50,7 @@ public class NullableType_c extends ReferenceType_c implements NullableType {
      * @param pos
      * @param base
      */
-    private NullableType_c(TypeSystem ts, Position pos, ReferenceType base) {
+    private NullableType_c(TypeSystem ts, Position pos, X10ReferenceType base) {
     	super(ts, pos);
     	this.base = base;
     	assert base != null;
@@ -69,12 +69,12 @@ public class NullableType_c extends ReferenceType_c implements NullableType {
     	return this;
     }
     
-    public ReferenceType base() {
+    public X10ReferenceType base() {
     	return this.base;
     }
 
     /** Set the base type. */
-    public NullableType base( ReferenceType base ) {
+    public NullableType base( X10ReferenceType base ) {
         if (base == this.base)
             return this;
         NullableType_c n = (NullableType_c) copy();
@@ -132,15 +132,17 @@ public class NullableType_c extends ReferenceType_c implements NullableType {
     	return false;
     }
     public boolean isImplicitCastValidImpl( Type toType ) {
-    	if (toType.isNullable() ){
-    		NullableType target = toType.toNullable();
+    	X10Type targetType = (X10Type) toType;
+    	if (targetType.isNullable() ){
+    		NullableType target = targetType.toNullable();
     		return base().isImplicitCastValidImpl( target.base() );
     	}
         
         return false;
     }
     public boolean isCastValidImpl( Type toType ) {
-    	return toType.isNullable() || base().isCastValidImpl( toType );
+    	
+    	return ((X10Type) toType).isNullable() || base().isCastValidImpl( toType );
     }
 
 }

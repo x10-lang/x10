@@ -6,6 +6,8 @@ package polyglot.ext.x10.types;
 
 import polyglot.frontend.Source;
 import polyglot.types.*;
+import polyglot.util.Position;
+
 
 /**
  * Parts of this code are taken from the pao extension in the polyglot framework.
@@ -16,6 +18,8 @@ import polyglot.types.*;
 
 public interface X10TypeSystem extends TypeSystem {
 
+    NullableType createNullableType( Position p, ReferenceType t);
+    FutureType createFutureType( Position p, Type t);
     
     public ParsedClassType getRuntimeType();
     

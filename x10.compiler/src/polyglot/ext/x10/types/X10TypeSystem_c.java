@@ -20,9 +20,13 @@ import polyglot.types.PrimitiveType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.NullType;
+import polyglot.types.ReferenceType;
+import polyglot.types.UnknownType;
 
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+
+import polyglot.main.Report;
 
 /**
  * A TypeSystem implementation for X10.
@@ -37,19 +41,56 @@ public class X10TypeSystem_c
     extends TypeSystem_c 
     implements X10TypeSystem {
  
-		
+ /**
+     * Requires: all type arguments are canonical.
+     *
+     * Returns true iff an implicit cast from fromType to toType is valid;
+     * in other words, every member of fromType is member of toType.
+     *
+     * Returns true iff child and ancestor are non-primitive
+     * types, and a variable of type child may be legally assigned
+     * to a variable of type ancestor.
+     *
+     */
+    public boolean isImplicitCastValid(Type fromType, Type toType) {
+        assert_(fromType);
+        assert_(toType);
+        if (Report.should_report("debug", 5))
+	    Report.report(5, "[TypeSystem_c] isImplicitCastValid |" + fromType + "| to |" + toType + "|?");
+        boolean result = fromType.isImplicitCastValidImpl(toType);
+        if (Report.should_report("debug", 5))
+	    Report.report(5, "[TypeSystem_c] ... " + result);
+        return result;
+    }
+
+
+    public NullableType createNullableType( Position pos, ReferenceType type ) {
+    	return NullableType_c.makeNullable( this, pos, type );
+    }
+
+    public FutureType createFutureType( Position pos, Type type ) {
+    	return new FutureType_c( this, pos, type );
+    }
+    
+    
+    protected UnknownType createUnknownType() {
+     return new X10UnknownType_c( this );
+    }
     /**
      * Factory method for ArrayTypes.
      */
     protected ArrayType arrayType(Position pos, Type type) {
         // FIXME: use our array type that support future/nullable here!
-        return new ArrayType_c(this, pos, type);
+        return new X10ArrayType_c(this, pos, type);
     }
     
     protected NullType createNull() {
-        return new NullType_c(this);
+        return new X10NullType_c(this);
     }
 
+    public ParsedClassType createClassType(LazyClassInitializer init, Source fromSource) {
+        return new X10ParsedClassType_c(this, init, fromSource);    
+    }
        
     public ParsedClassType getRuntimeType() {
         return (ParsedClassType) forcefulLookup("x10.lang.Runtime");
