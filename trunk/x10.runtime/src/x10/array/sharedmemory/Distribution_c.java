@@ -1,10 +1,14 @@
 /*
  * Created on Oct 3, 2004
  */
-package x10.array;
+package x10.array.sharedmemory;
 
 import java.util.Iterator;
+
+import x10.array.Distribution;
 import x10.array.Place;
+import x10.array.Range;
+import x10.array.Region;
 
 
 /**
@@ -254,7 +258,7 @@ abstract class Distribution_c
         private final Place[] places_;
         
         Unique(Place[] p) {
-            super(new Region_c(new Range[] { new Range_c(1, p.length) }));
+            super(new Region_c(new Range[] { new Range(1, p.length) }));
             this.places_ = p;
         }
         

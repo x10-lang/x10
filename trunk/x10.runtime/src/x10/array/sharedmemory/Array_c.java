@@ -1,7 +1,10 @@
 /*
  * Created on Oct 16, 2004
  */
-package x10.array;
+package x10.array.sharedmemory;
+
+import x10.array.Array;
+import x10.array.Distribution;
 
 
 /**

@@ -4,9 +4,9 @@
 package x10.compilergenerated;
 
 import x10.array.Array;
-import x10.array.Array_c;
 import x10.array.Distribution;
 import x10.array.DoubleArray;
+import x10.array.sharedmemory.Array_c;
 
 
 /**
