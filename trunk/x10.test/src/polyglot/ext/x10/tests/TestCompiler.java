@@ -439,6 +439,10 @@ public TestCompiler(String name) {
         run("./RegionTestIterator.x10","RegionTestIterator");
     }
 
+    public void test_RemoteAccessCheck() {
+        run("./RemoteAccessCheck.x10","RemoteAccessCheck");
+    }
+
     public void test_SimpleDataRace() {
         run("./SimpleDataRace.x10","SimpleDataRace");
     }
@@ -451,8 +455,20 @@ public TestCompiler(String name) {
         run("./Unsafe.x10","Unsafe");
     }
 
+    public void test_UserDefinedArray() {
+        run("./UserDefinedArray.x10","UserDefinedArray");
+    }
+
+    public void test_ValueClass() {
+        run("./ValueClass.x10","ValueClass");
+    }
+
     public void test_ValueClassUserDefinedEquals() {
         run("./ValueClassUserDefinedEquals.x10","ValueClassUserDefinedEquals");
+    }
+
+    public void test_ValueEquality() {
+        run("./ValueEquality.x10","ValueEquality");
     }
 
     public void test_VariableScope() {
