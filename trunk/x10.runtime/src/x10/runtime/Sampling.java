@@ -131,10 +131,11 @@ public final class Sampling extends Thread {
             dos.writeByte(0);
             dos.writeByte(0);
             dos.writeInt(PEM.PEM_TRACE_VERSION); // version
-            dos.writeInt((8+8+8+8+8)/8); // size
+            dos.writeInt((8+8+8+8+8+8)/8); // size
             dos.writeInt(0);
             dos.writeLong(0x4000000000000000L); // 'infinity'
             dos.writeLong(1); // ticks per second
+            dos.writeLong(0); // physical processor
             dos.writeLong(System.currentTimeMillis()); // initial timestamp = system time
         } catch (IOException io) {
             System.err.println(io);
@@ -182,17 +183,15 @@ public final class Sampling extends Thread {
     private synchronized void freshActivity(Activity a) {
         DefaultRuntime_c dr = (DefaultRuntime_c) Runtime.runtime;
         Place p = dr.getPlaceOfActivity(a);
-        int j = -1;
-        for (int i=places.length-1;i>=0;i--) {
-            if (p == places[i]) {
-                j = i;
-                break;
-            }
+        if (p == null) {
+            activityToIdentifier.put(a, new Integer(activityCounts[places.length]++)); 
+        } else {
+            //System.out.println("New AID for " + a + " is " + activityCounts[p.id]);
+            activityToIdentifier.put(a, new Integer(activityCounts[p.id]++));
         }
-        activityToIdentifier.put(a, new Integer(activityCounts[j+1]++)); 
     }
     
-    int getActivityId(Activity a) {
+    synchronized int getActivityId(Activity a) {
         Object ret = activityToIdentifier.get(a);
         if (ret == null) {
             freshActivity(a);
@@ -282,7 +281,7 @@ public final class Sampling extends Thread {
                     dos.writeInt(i);
                     dos.writeInt(event_info); // == clockId
                     break;
-                case EVENT_ID_ACTIVITY_START:
+                case EVENT_ID_ACTIVITY_START:                       
                     if (i != -1)
                         activityStart[i]++;
                     writeHeader(4+4+4+4+4+4, EVENT, event_id);                   
@@ -290,7 +289,10 @@ public final class Sampling extends Thread {
                     dos.writeInt(j); // src place
                     dos.writeInt(getActivityId(a));
                     dos.writeInt(i); // dst place
-                    // System.out.println("AS from " + j + " to " + i);
+                    if (ia == a)
+                        throw new Error("Activities match!?");
+                    if ( (getActivityId(ia) == getActivityId(a)) && (i == j))
+                        throw new Error("Activity ids match!?");
                     if (dstPlace != null) {
                         //System.out.println("START LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
                         dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
@@ -324,7 +326,10 @@ public final class Sampling extends Thread {
                         dos.writeInt(-1);
                     dos.writeInt(cause);
                     dos.writeInt(causeInfo);
-                    dos.writeInt(getActivityId(ia)); // causeInfoExtra
+                    if (ia == null)
+                        dos.writeInt(0);
+                    else
+                        dos.writeInt(getActivityId(ia)); // causeInfoExtra
                     break;
                 case EVENT_ID_ACTIVITY_UNBLOCK:
                     if (i != -1)
@@ -602,6 +607,8 @@ public final class Sampling extends Thread {
      */
     public static class ThreadQueueSampler extends Sampler {
         public void sample(long delta) {
+            if (SINGLETON == null)
+               return;
             if (SINGLETON.threadQueueSize == null)
                 SINGLETON.threadQueueSize = new int[SINGLETON.places.length];
             for (int i=SINGLETON.places.length-1;i>=0;i--) {
@@ -633,6 +640,8 @@ public final class Sampling extends Thread {
     public static class LoadSampler extends Sampler {
 
         public void sample(long delta) {
+            if (SINGLETON == null)
+                return;
             if (SINGLETON.loadSamples == null)
                 SINGLETON.loadSamples = new int[SINGLETON.places.length];
             for (int i=SINGLETON.places.length-1;i>=0;i--) {
