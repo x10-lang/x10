@@ -59,6 +59,7 @@ public interface X10TypeSystem extends TypeSystem {
     ClassType Runtime();
     ClassType IntArrayPointwiseOp();
     ClassType DoubleArrayPointwiseOp();
+    ClassType LongArrayPointwiseOp();
     
  
   
@@ -194,6 +195,56 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @return -- the ClassType object
 	 */
     ClassType DoubleReferenceArray();
+    
+    /** Return the parametric type of all X10 longArrays with the
+	 * given values for the isValueType and distribution parameters.
+	 * @param isValueType -- true if this type is a value type.
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+	ClassType longArray(boolean isValueType, Expr distribution );
+	
+	/** Return the parametric type of all X10 long arrays with the
+	 * given  distribution. The class returned is a superclass of
+	 * longValueArray and DoubleReferenceArray.
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+	ClassType longArray( Expr distribution );
+	
+	/** Return the parametric type of all X10 long arrays with no
+	 *  constraints on the distribution.The class returned is a superclass of
+	 * longValueArray and DoubleReferenceArray.
+	 * @return -- the ClassType object
+	 */
+	ClassType longArray(); 
+	
+	/** Return the parametric type of all X10 long value arrays with the
+	 * given  distribution. 
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+	ClassType longValueArray( Expr distribution );
+	
+	/**Return the parametric type of all X10 long value arrays with no constraints on the
+	 * given  distribution. 
+	 * @return -- the ClassType object
+	 */
+	ClassType longValueArray(); 
+	
+	/** Return the parametric type of all X10 long reference arrays with the
+	 * given  distribution. 
+	 * @param distribution  -- the underlying distribution for this type. May be null.
+	 * @return -- the ClassType object
+	 */
+    ClassType LongReferenceArray( Expr distribution );
+    
+    /**Return the parametric type of all X10 long reference arrays with no constraints on the
+	 * given  distribution. 
+	 *
+	 * @return -- the ClassType object
+	 */
+    ClassType LongReferenceArray();
     
     // TODO: Add similar support for arrays of long and boolean.
     

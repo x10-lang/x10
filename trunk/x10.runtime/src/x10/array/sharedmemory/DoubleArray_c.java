@@ -27,6 +27,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
 
     private boolean safe_;
     private final MemoryBlock arr_;
+    protected boolean mutable_ = true;
     
     /**
      *  This constructor must not be used directly by an application programmer.
@@ -38,7 +39,11 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
     }
     
     protected DoubleArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
+    	this( d, c, safe, true);
+    }
+    protected DoubleArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
+        this.mutable_ = mutable;
         int count =  d.region.size();
         this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
         if (c != null)
@@ -54,8 +59,12 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
     public DoubleArray_c( distribution d, double c) {
         this(d, c, true);
     }
-    public DoubleArray_c( distribution d, double c, boolean safe) {
+    public DoubleArray_c( distribution d, double c, boolean safe ) {
+    	this(d, c, safe, true);
+}
+    public DoubleArray_c( distribution d, double c, boolean safe, boolean mutable ) {
     	super(d);
+    	this.mutable_ = mutable;
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
         this.safe_ = safe;
@@ -66,7 +75,11 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         this(d, f, true);
     }
     public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f, boolean safe) {
+    	this(d, f, safe, true);
+    }
+    public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
+    	this.mutable_ = mutable;
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
     	this.safe_ = safe;
