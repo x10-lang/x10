@@ -6,800 +6,675 @@ package x10.parser;
 import java.util.*;
 import com.ibm.lpg.*;
 
-public class X10Lexer implements RuleAction, X10Parsersym
+public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, X10Lexersym
 {
-    X10LexerStream lexStream;
     PrsStream prsStream;
     ParseTable prs;
     LexParser lexParser;
 
-    public X10Lexer(X10LexerStream lexStream)
+    public X10Lexer(char[] input_chars, String filename)
     {
-	this.lexStream = lexStream;
-	this.prsStream = new PrsStream(lexStream);
-	this.prs = new X10Lexerprs();
-	this.lexParser = new LexParser((TokenStream)lexStream, prs, (RuleAction)this);
+        super(input_chars, filename);
+        prsStream = new PrsStream(this);
+        prs = new X10Lexerprs();
+        lexParser = new LexParser(this, prs, this);
+    }
+
+    public X10Lexer(char[] input_chars, String filename, int tab)
+    {
+        super(input_chars, filename, tab);
+        prsStream = new PrsStream(this);
+        prs = new X10Lexerprs();
+        lexParser = new LexParser(this, prs, this);
     }
 
     public PrsStream lexer()
     {
-        IToken badToken = new Token(0, 0, 0);
-        prsStream.addToken(badToken);
-
-    	lexParser.parseCharacters();
-
-	int i = lexStream.getStreamIndex();
-	IToken eofToken = new Token(i, i, TK_EOF_TOKEN);
-	prsStream.addToken(eofToken);
-	prsStream.setSize();
-
-	return prsStream;
+        prsStream.makeToken(0, 0, 0); // Token list must start with a bad token
+            
+        lexParser.parseCharacters();  // Lex the input characters
+            
+        int i = getStreamIndex();
+        prsStream.makeToken(i, i, TK_EOF_TOKEN); // and end with the end of file token
+        prsStream.setSize();
+            
+        return prsStream;
     }
-
+    //
+    // The Lexer contains an array of characters as the input stream to be parsed.
+    // There are methods to retrieve and classify characters.
+    // The lexparser "token" is implemented simply as the index of the next character in the array.
+    // The Lexer extends the abstract class LpgLexStream with an implementation of the abstract
+    // method getKind.  The template defines the Lexer class and the lexer() method.
+    // A driver creates the action class, "Lexer", passing an Option object to the constructor.
+    // The Option object gives access to the input character arrary, the file name and other options.
+    //
+    Option option;
     X10KWLexer kwLexer;
+    boolean printTokens;
+    private final static int ECLIPSE_TAB_VALUE = 4;
 
-    public PrsStream x10Lexer()
+    public X10Lexer(Option option)
     {
-        kwLexer = new X10KWLexer(lexStream.getInputChars());
-	return lexer();
+        this(option.getInputChars(), option.getFileName(), ECLIPSE_TAB_VALUE);
+        this.option = option;
+        printTokens = option.printTokens();
+        kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
     }
 
-    void makeToken(int startOffset, int endOffset, int kind)
+    final void makeToken(int kind)
     {
-	Token t  = new Token(startOffset, endOffset, kind);
-	prsStream.addToken(t);
-	printValue(t);
+        int startOffset = lexParser.getToken(1),
+            endOffset = lexParser.getLastToken();
+        prsStream.makeToken(startOffset, endOffset, kind);
+        if (printTokens) printValue(startOffset, endOffset);
     }
 
-    void skipToken(int startOffset, int endOffset)
+    final void skipToken()
     {
-	Token t  = new Token(startOffset, endOffset, 0);
-	printValue(t);
+        if (printTokens) printValue(lexParser.getToken(1), lexParser.getLastToken());
+    }
+    
+    final void checkForKeyWord()
+    {
+        int startOffset = lexParser.getToken(1),
+            endOffset = lexParser.getLastToken(),
+        kwKind = kwLexer.lexer(startOffset, endOffset);
+        prsStream.makeToken(startOffset, endOffset, kwKind);
+        if(printTokens) printValue(startOffset, endOffset);
+    }
+    
+    final void printValue(int startOffset, int endOffset)
+    {
+        String s = new String(getInputChars(), startOffset, endOffset - startOffset + 1);
+        System.out.print(s);
     }
 
-    void checkForKeyWord(int startOffset, int endOffset, int kind)
+    public final static int tokenKind[] =
     {
-	int kwKind = kwLexer.lexer(startOffset, endOffset);
-	Token t  = new Token(startOffset, endOffset, (kwKind != 0 ? kwKind : kind));
-	prsStream.addToken(t);
-	printValue(t);
-    }
-
-    void singleCharOperator(int kind)
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_HT,
+        Char_LF,
+        Char_CtlCharNotWS,
+        Char_FF,
+        Char_CR,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_Space,
+        Char_Exclamation,
+        Char_DoubleQuote,
+        Char_Sharp,
+        Char_DollarSign,
+        Char_Percent,
+        Char_Ampersand,
+        Char_SingleQuote,
+        Char_LeftParen,
+        Char_RightParen,
+        Char_Star,
+        Char_Plus,
+        Char_Comma,
+        Char_Minus,
+        Char_Dot,
+        Char_Slash,
+        Char_0,
+        Char_1,
+        Char_2,
+        Char_3,
+        Char_4,
+        Char_5,
+        Char_6,
+        Char_7,
+        Char_8,
+        Char_9,
+        Char_Colon,
+        Char_SemiColon,
+        Char_LessThan,
+        Char_Equal,
+        Char_GreaterThan,
+        Char_QuestionMark,
+        Char_AtSign,
+        Char_A,
+        Char_B,
+        Char_C,
+        Char_D,
+        Char_E,
+        Char_F,
+        Char_G,
+        Char_H,
+        Char_I,
+        Char_J,
+        Char_K,
+        Char_L,
+        Char_M,
+        Char_N,
+        Char_O,
+        Char_P,
+        Char_Q,
+        Char_R,
+        Char_S,
+        Char_T,
+        Char_U,
+        Char_V,
+        Char_W,
+        Char_X,
+        Char_Y,
+        Char_Z,
+        Char_LeftBracket,
+        Char_BackSlash,
+        Char_RightBracket,
+        Char_Caret,
+        Char__,
+        Char_BackQuote,
+        Char_a,
+        Char_b,
+        Char_c,
+        Char_d,
+        Char_e,
+        Char_f,
+        Char_g,
+        Char_h,
+        Char_i,
+        Char_j,
+        Char_k,
+        Char_l,
+        Char_m,
+        Char_n,
+        Char_o,
+        Char_p,
+        Char_q,
+        Char_r,
+        Char_s,
+        Char_t,
+        Char_u,
+        Char_v,
+        Char_w,
+        Char_x,
+        Char_y,
+        Char_z,
+        Char_LeftBrace,
+        Char_VerticalBar,
+        Char_RightBrace,
+        Char_Tilde,
+        Char_AfterASCII, // for all chars in range 128..65534
+        Char_EOF         // for '\uffff' or 65535 
+    };
+            
+    public final int getKind(int i)  // Classify character at ith location
     {
-	Token t  = new Token(lexParser.getToken(1), lexParser.getToken(1), kind);
-	prsStream.addToken(t);
-	printValue(t);
+        char c = (i >= getStreamLength() ? '\uffff' : getCharValue(i));
+        return (c < 128 // ASCII Character
+                  ? tokenKind[c]
+                  : c == '\uffff'
+                       ? Char_EOF
+                       : Char_AfterASCII);
     }
-
-    void doubleCharOperator(int kind)
-    {
-	Token t  = new Token(lexParser.getToken(1), lexParser.getToken(2), kind);
-	prsStream.addToken(t);
-	printValue(t);
-    }
-
-    void printValue( Token t )
-    {
-	if (lexStream.printTokens())
-	{
-		System.out.print(t.getValue(lexStream.getInputChars()));
-	}
-    }
-
 
     public void ruleAction( int ruleNumber)
     {
-	switch(ruleNumber)
-	{
-
+        switch(ruleNumber)
+        {
  
-    //
-    // Rule 3:  Token ::= Identifier
-    //
-   	    case 3:
-               lexParser.resetStateStack();
-               break;  
- 
-    //
-    // Rule 4:  Token ::= StringLiteral
-    //
-   	    case 4:
-               lexParser.resetStateStack();
-               break;  
- 
-    //
-    // Rule 5:  Token ::= CharLiteral
-    //
-   	    case 5:
-               lexParser.resetStateStack();
-               break;  
- 
-    //
-    // Rule 6:  Token ::= IntegerLiteral
-    //
-   	    case 6:
-               lexParser.resetStateStack();
-               break;  
- 
-    //
-    // Rule 7:  Token ::= FloatingPointLiteral
-    //
-   	    case 7:
-               lexParser.resetStateStack();
-               break;  
- 
-    //
-    // Rule 8:  Token ::= MLComment
-    //
-   	    case 8:
-               lexParser.resetStateStack();
-               break;  
- 
-    //
-    // Rule 9:  Token ::= SLComment
-    //
-   	    case 9:
-               lexParser.resetStateStack();
-               break;  
- 
-    //
-    // Rule 10:  Token ::= Operator
-    //
-   	    case 10:
-               lexParser.resetStateStack();
-               break;  
- 
-    //
-    // Rule 11:  Token ::= WhiteSpace
-    //
-   	    case 11:
-               lexParser.resetStateStack();
-               break;  
- 
-    //
-    // Rule 15:  ID ::= Ident
-    //
-            case 15:
-            { 
-	        checkForKeyWord(lexParser.getToken(1), lexParser.getLastToken(1), TK_Identifier);
-	  
+            //
+            // Rule 1:  Token ::= Identifier
+            //
+            case 1: { 
+                checkForKeyWord();
             }
             break; 
-	 
-    //
-    // Rule 16:  WhiteSpace ::= WS
-    //
-            case 16:
-            { 
-	        skipToken(lexParser.getToken(1), lexParser.getLastToken(1));
-	  
+     
+            //
+            // Rule 2:  Token ::= DoubleQuote SLBody DoubleQuote
+            //
+            case 2: { 
+                makeToken(TK_StringLiteral);
             }
             break; 
-	 
-    //
-    // Rule 22:  StringLiteral ::= DoubleQuote SLBody DoubleQuote
-    //
-            case 22:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getToken(3), TK_StringLiteral);
-	  
+     
+            //
+            // Rule 3:  Token ::= SingleQuote NotSQ SingleQuote
+            //
+            case 3: { 
+                makeToken(TK_CharacterLiteral);
             }
             break; 
-	 
-    //
-    // Rule 23:  StringLiteral ::= DoubleQuote DoubleQuote
-    //
-            case 23:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getToken(2), TK_StringLiteral);
-	  
+     
+            //
+            // Rule 4:  Token ::= IntegerLiteral
+            //
+            case 4: { 
+                makeToken(TK_IntegerLiteral);
             }
             break; 
-	 
-    //
-    // Rule 24:  CharLiteral ::= SingleQuote NotSQ SingleQuote
-    //
-            case 24:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getToken(3), TK_CharacterLiteral);
-	  
+     
+            //
+            // Rule 5:  Token ::= FloatingPointLiteral
+            //
+            case 5: { 
+                makeToken(TK_FloatingPointLiteral);
             }
             break; 
-	 
-    //
-    // Rule 29:  IntLiteral ::= Integer
-    //
-            case 29:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getLastToken(1), TK_IntegerLiteral);
-	  
+     
+            //
+            // Rule 6:  Token ::= Slash Star Inside Stars Slash
+            //
+            case 6: { 
+                skipToken();
             }
             break; 
-	 
-    //
-    // Rule 30:  IntLiteral ::= Integer LetterLl
-    //
-            case 30:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getToken(2), TK_IntegerLiteral);
-	  
+     
+            //
+            // Rule 7:  Token ::= SLC
+            //
+            case 7: { 
+                skipToken();
             }
             break; 
-	 
-    //
-    // Rule 33:  HexLiteral ::= 0 LetterXx HexDigits
-    //
-            case 33:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getLastToken(3), TK_IntegerLiteral);
-	  
+     
+            //
+            // Rule 8:  Token ::= WS
+            //
+            case 8: { 
+                skipToken();
             }
             break; 
-	 
-    //
-    // Rule 34:  HexLiteral ::= 0 LetterXx HexDigits LetterLl
-    //
-            case 34:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getToken(4), TK_IntegerLiteral);
-	  
+     
+            //
+            // Rule 9:  Token ::= Plus
+            //
+            case 9: { 
+                makeToken(TK_PLUS);
             }
             break; 
-	 
-    //
-    // Rule 37:  FloatingPointLiteral ::= Decimal
-    //
-            case 37:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getLastToken(1), TK_FloatingPointLiteral);
-	  
+     
+            //
+            // Rule 10:  Token ::= Minus
+            //
+            case 10: { 
+                makeToken(TK_MINUS);
             }
             break; 
-	 
-    //
-    // Rule 38:  FloatingPointLiteral ::= Decimal LetterForD
-    //
-            case 38:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getToken(2), TK_FloatingPointLiteral);
-	  
+     
+            //
+            // Rule 11:  Token ::= Star
+            //
+            case 11: { 
+                makeToken(TK_MULTIPLY);
             }
             break; 
-	 
-    //
-    // Rule 39:  FloatingPointLiteral ::= Decimal Exponent
-    //
-            case 39:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getLastToken(2), TK_FloatingPointLiteral);
-	  
+     
+            //
+            // Rule 12:  Token ::= Slash
+            //
+            case 12: { 
+                makeToken(TK_DIVIDE);
             }
             break; 
-	 
-    //
-    // Rule 40:  FloatingPointLiteral ::= Decimal Exponent LetterForD
-    //
-            case 40:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getToken(3), TK_FloatingPointLiteral);
-	  
+     
+            //
+            // Rule 13:  Token ::= LeftParen
+            //
+            case 13: { 
+                makeToken(TK_LPAREN);
             }
             break; 
-	 
-    //
-    // Rule 41:  FloatingPointLiteral ::= Integer Exponent
-    //
-            case 41:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getLastToken(2), TK_FloatingPointLiteral);
-	  
+     
+            //
+            // Rule 14:  Token ::= RightParen
+            //
+            case 14: { 
+                makeToken(TK_RPAREN);
             }
             break; 
-	 
-    //
-    // Rule 42:  FloatingPointLiteral ::= Integer Exponent LetterForD
-    //
-            case 42:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getToken(3), TK_FloatingPointLiteral);
-	  
+     
+            //
+            // Rule 15:  Token ::= Equal
+            //
+            case 15: { 
+                makeToken(TK_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 43:  FloatingPointLiteral ::= Integer LetterForD
-    //
-            case 43:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getToken(2), TK_FloatingPointLiteral);
-	  
+     
+            //
+            // Rule 16:  Token ::= Comma
+            //
+            case 16: { 
+                makeToken(TK_COMMA);
             }
             break; 
-	 
-    //
-    // Rule 50:  MLComment ::= Slash Star Inside Stars Slash
-    //
-            case 50:
-            { 
-	        skipToken(lexParser.getToken(1), lexParser.getToken(5));
-	  
+     
+            //
+            // Rule 17:  Token ::= Colon
+            //
+            case 17: { 
+                makeToken(TK_COLON);
             }
             break; 
-	 
-    //
-    // Rule 57:  SLComment ::= SLC
-    //
-            case 57:
-            { 
-		skipToken(lexParser.getToken(1), lexParser.getLastToken(1));
-	  
+     
+            //
+            // Rule 18:  Token ::= SemiColon
+            //
+            case 18: { 
+                makeToken(TK_SEMICOLON);
             }
             break; 
-	 
-    //
-    // Rule 171:  SSOperator ::= Plus
-    //
-            case 171:
-            { 
-                singleCharOperator(TK_PLUS);
-	  
+     
+            //
+            // Rule 19:  Token ::= Caret
+            //
+            case 19: { 
+                makeToken(TK_XOR);
             }
             break; 
-	 
-    //
-    // Rule 172:  SSOperator ::= Minus
-    //
-            case 172:
-            { 
-                singleCharOperator(TK_MINUS);
-	  
+     
+            //
+            // Rule 20:  Token ::= Percent
+            //
+            case 20: { 
+                makeToken(TK_REMAINDER);
             }
             break; 
-	 
-    //
-    // Rule 173:  SSOperator ::= Star
-    //
-            case 173:
-            { 
-                singleCharOperator(TK_MULTIPLY);
-	  
+     
+            //
+            // Rule 21:  Token ::= Tilde
+            //
+            case 21: { 
+                makeToken(TK_TWIDDLE);
             }
             break; 
-	 
-    //
-    // Rule 174:  SSOperator ::= Slash
-    //
-            case 174:
-            { 
-                singleCharOperator(TK_DIVIDE);
-	  
+     
+            //
+            // Rule 22:  Token ::= VerticalBar
+            //
+            case 22: { 
+                makeToken(TK_OR);
             }
             break; 
-	 
-    //
-    // Rule 175:  SSOperator ::= LeftParen
-    //
-            case 175:
-            { 
-                singleCharOperator(TK_LPAREN);
-	  
+     
+            //
+            // Rule 23:  Token ::= Ampersand
+            //
+            case 23: { 
+                makeToken(TK_AND);
             }
             break; 
-	 
-    //
-    // Rule 176:  SSOperator ::= RightParen
-    //
-            case 176:
-            { 
-                singleCharOperator(TK_RPAREN);
-	  
+     
+            //
+            // Rule 24:  Token ::= LessThan
+            //
+            case 24: { 
+                makeToken(TK_LESS);
             }
             break; 
-	 
-    //
-    // Rule 177:  SSOperator ::= Equal
-    //
-            case 177:
-            { 
-                singleCharOperator(TK_EQUAL);
-	  
+     
+            //
+            // Rule 25:  Token ::= GreaterThan
+            //
+            case 25: { 
+                makeToken(TK_GREATER);
             }
             break; 
-	 
-    //
-    // Rule 178:  SSOperator ::= Comma
-    //
-            case 178:
-            { 
-                singleCharOperator(TK_COMMA);
-	  
+     
+            //
+            // Rule 26:  Token ::= Dot
+            //
+            case 26: { 
+                makeToken(TK_DOT);
             }
             break; 
-	 
-    //
-    // Rule 179:  SSOperator ::= Colon
-    //
-            case 179:
-            { 
-                singleCharOperator(TK_COLON);
-	  
+     
+            //
+            // Rule 27:  Token ::= Exclamation
+            //
+            case 27: { 
+                makeToken(TK_NOT);
             }
             break; 
-	 
-    //
-    // Rule 180:  SSOperator ::= SemiColon
-    //
-            case 180:
-            { 
-                singleCharOperator(TK_SEMICOLON);
-	  
+     
+            //
+            // Rule 28:  Token ::= LeftBracket
+            //
+            case 28: { 
+                makeToken(TK_LBRACKET);
             }
             break; 
-	 
-    //
-    // Rule 181:  SSOperator ::= Caret
-    //
-            case 181:
-            { 
-                singleCharOperator(TK_XOR);
-	  
+     
+            //
+            // Rule 29:  Token ::= RightBracket
+            //
+            case 29: { 
+                makeToken(TK_RBRACKET);
             }
             break; 
-	 
-    //
-    // Rule 182:  SSOperator ::= Percent
-    //
-            case 182:
-            { 
-                singleCharOperator(TK_REMAINDER);
-	  
+     
+            //
+            // Rule 30:  Token ::= LeftBrace
+            //
+            case 30: { 
+                makeToken(TK_LBRACE);
             }
             break; 
-	 
-    //
-    // Rule 183:  SSOperator ::= Tilde
-    //
-            case 183:
-            { 
-                singleCharOperator(TK_TWIDDLE);
-	  
+     
+            //
+            // Rule 31:  Token ::= RightBrace
+            //
+            case 31: { 
+                makeToken(TK_RBRACE);
             }
             break; 
-	 
-    //
-    // Rule 184:  SSOperator ::= VerticalBar
-    //
-            case 184:
-            { 
-                singleCharOperator(TK_OR);
-	  
+     
+            //
+            // Rule 32:  Token ::= QuestionMark
+            //
+            case 32: { 
+                makeToken(TK_QUESTION);
             }
             break; 
-	 
-    //
-    // Rule 185:  SSOperator ::= Ampersand
-    //
-            case 185:
-            { 
-                singleCharOperator(TK_AND);
-	  
+     
+            //
+            // Rule 33:  Token ::= AtSign
+            //
+            case 33: { 
+                makeToken(TK_AT);
             }
             break; 
-	 
-    //
-    // Rule 186:  SSOperator ::= LessThan
-    //
-            case 186:
-            { 
-                singleCharOperator(TK_LESS);
-	  
+     
+            //
+            // Rule 34:  Token ::= Plus Plus
+            //
+            case 34: { 
+                makeToken(TK_PLUS_PLUS);
             }
             break; 
-	 
-    //
-    // Rule 187:  SSOperator ::= GreaterThan
-    //
-            case 187:
-            { 
-                singleCharOperator(TK_GREATER);
-	  
+     
+            //
+            // Rule 35:  Token ::= Minus Minus
+            //
+            case 35: { 
+                makeToken(TK_MINUS_MINUS);
             }
             break; 
-	 
-    //
-    // Rule 188:  SSOperator ::= Dot
-    //
-            case 188:
-            { 
-                singleCharOperator(TK_DOT);
-	  
+     
+            //
+            // Rule 36:  Token ::= Equal Equal
+            //
+            case 36: { 
+                makeToken(TK_EQUAL_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 189:  SSOperator ::= Exclamation
-    //
-            case 189:
-            { 
-                singleCharOperator(TK_NOT);
-	  
+     
+            //
+            // Rule 37:  Token ::= LessThan Equal
+            //
+            case 37: { 
+                makeToken(TK_LESS_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 190:  SSOperator ::= LeftBracket
-    //
-            case 190:
-            { 
-                singleCharOperator(TK_LBRACKET);
-	  
+     
+            //
+            // Rule 38:  Token ::= Exclamation Equal
+            //
+            case 38: { 
+                makeToken(TK_NOT_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 191:  SSOperator ::= RightBracket
-    //
-            case 191:
-            { 
-                singleCharOperator(TK_RBRACKET);
-	  
+     
+            //
+            // Rule 39:  Token ::= LessThan LessThan
+            //
+            case 39: { 
+                makeToken(TK_LEFT_SHIFT);
             }
             break; 
-	 
-    //
-    // Rule 192:  SSOperator ::= LeftBrace
-    //
-            case 192:
-            { 
-                singleCharOperator(TK_LBRACE);
-	  
+     
+            //
+            // Rule 40:  Token ::= Plus Equal
+            //
+            case 40: { 
+                makeToken(TK_PLUS_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 193:  SSOperator ::= RightBrace
-    //
-            case 193:
-            { 
-                singleCharOperator(TK_RBRACE);
-	  
+     
+            //
+            // Rule 41:  Token ::= Minus Equal
+            //
+            case 41: { 
+                makeToken(TK_MINUS_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 194:  SSOperator ::= QuestionMark
-    //
-            case 194:
-            { 
-                singleCharOperator(TK_QUESTION);
-	  
+     
+            //
+            // Rule 42:  Token ::= Star Equal
+            //
+            case 42: { 
+                makeToken(TK_MULTIPLY_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 195:  SSOperator ::= AtSign
-    //
-            case 195:
-            { 
-                singleCharOperator(TK_AT);
-	  
+     
+            //
+            // Rule 43:  Token ::= Slash Equal
+            //
+            case 43: { 
+                makeToken(TK_DIVIDE_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 196:  MSOperator ::= Plus Plus
-    //
-            case 196:
-            { 
-                 doubleCharOperator(TK_PLUS_PLUS);
-          
+     
+            //
+            // Rule 44:  Token ::= Ampersand Equal
+            //
+            case 44: { 
+                makeToken(TK_AND_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 197:  MSOperator ::= Minus Minus
-    //
-            case 197:
-            { 
-                 doubleCharOperator(TK_MINUS_MINUS);
-          
+     
+            //
+            // Rule 45:  Token ::= VerticalBar Equal
+            //
+            case 45: { 
+                makeToken(TK_OR_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 198:  MSOperator ::= Equal Equal
-    //
-            case 198:
-            { 
-                 doubleCharOperator(TK_EQUAL_EQUAL);
-          
+     
+            //
+            // Rule 46:  Token ::= Caret Equal
+            //
+            case 46: { 
+                makeToken(TK_XOR_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 199:  MSOperator ::= LessThan Equal
-    //
-            case 199:
-            { 
-                 doubleCharOperator(TK_LESS_EQUAL);
-          
+     
+            //
+            // Rule 47:  Token ::= Percent Equal
+            //
+            case 47: { 
+                makeToken(TK_REMAINDER_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 200:  MSOperator ::= Exclamation Equal
-    //
-            case 200:
-            { 
-                 doubleCharOperator(TK_NOT_EQUAL);
-          
+     
+            //
+            // Rule 48:  Token ::= LessThan LessThan Equal
+            //
+            case 48: { 
+                makeToken(TK_LEFT_SHIFT_EQUAL);
             }
             break; 
-	 
-    //
-    // Rule 201:  MSOperator ::= LessThan LessThan
-    //
-            case 201:
-            { 
-                 doubleCharOperator(TK_LEFT_SHIFT);
-          
+     
+            //
+            // Rule 49:  Token ::= VerticalBar VerticalBar
+            //
+            case 49: { 
+                makeToken(TK_OR_OR);
             }
             break; 
-	 
-    //
-    // Rule 202:  MSOperator ::= Plus Equal
-    //
-            case 202:
-            { 
-                 doubleCharOperator(TK_PLUS_EQUAL);
-          
+     
+            //
+            // Rule 50:  Token ::= Ampersand Ampersand
+            //
+            case 50: { 
+                makeToken(TK_AND_AND);
             }
             break; 
-	 
-    //
-    // Rule 203:  MSOperator ::= Minus Equal
-    //
-            case 203:
-            { 
-                 doubleCharOperator(TK_MINUS_EQUAL);
-          
+     
+            //
+            // Rule 51:  Token ::= Dot Dot Dot
+            //
+            case 51: { 
+                makeToken(TK_ELLIPSIS);
             }
             break; 
-	 
-    //
-    // Rule 204:  MSOperator ::= Star Equal
-    //
-            case 204:
-            { 
-                 doubleCharOperator(TK_MULTIPLY_EQUAL);
-          
+     
+            //
+            // Rule 349:  Token ::= Dot Dot
+            //
+            case 349: { 
+                 makeToken(TK_RANGE);
+             }
+            break; 
+      
+            //
+            // Rule 350:  Token ::= Minus GreaterThan
+            //
+            case 350: { 
+                makeToken(TK_RANGE);
             }
             break; 
-	 
-    //
-    // Rule 205:  MSOperator ::= Slash Equal
-    //
-            case 205:
-            { 
-                 doubleCharOperator(TK_DIVIDE_EQUAL);
-          
-            }
-            break; 
-	 
-    //
-    // Rule 206:  MSOperator ::= Ampersand Equal
-    //
-            case 206:
-            { 
-                 doubleCharOperator(TK_AND_EQUAL);
-          
-            }
-            break; 
-	 
-    //
-    // Rule 207:  MSOperator ::= VerticalBar Equal
-    //
-            case 207:
-            { 
-                 doubleCharOperator(TK_OR_EQUAL);
-          
-            }
-            break; 
-	 
-    //
-    // Rule 208:  MSOperator ::= Caret Equal
-    //
-            case 208:
-            { 
-                 doubleCharOperator(TK_XOR_EQUAL);
-          
-            }
-            break; 
-	 
-    //
-    // Rule 209:  MSOperator ::= Percent Equal
-    //
-            case 209:
-            { 
-                 doubleCharOperator(TK_REMAINDER_EQUAL);
-          
-            }
-            break; 
-	 
-    //
-    // Rule 210:  MSOperator ::= LessThan LessThan Equal
-    //
-            case 210:
-            { 
-                 makeToken(lexParser.getToken(1), lexParser.getToken(3), TK_LEFT_SHIFT_EQUAL);
-          
-            }
-            break; 
-	 
-    //
-    // Rule 211:  MSOperator ::= VerticalBar VerticalBar
-    //
-            case 211:
-            { 
-                 doubleCharOperator(TK_OR_OR);
-          
-            }
-            break; 
-	 
-    //
-    // Rule 212:  MSOperator ::= Ampersand Ampersand
-    //
-            case 212:
-            { 
-                 doubleCharOperator(TK_AND_AND);
-          
-            }
-            break; 
-	 
-    //
-    // Rule 213:  MSOperator ::= Dot Dot Dot
-    //
-            case 213:
-            { 
-                 makeToken(lexParser.getToken(1), lexParser.getToken(3), TK_ELLIPSIS);
-          
-            }
-            break; 
-	 
-    //
-    // Rule 363:  Token ::= IntLiteralAndRange
-    //
-   	    case 363:
-               lexParser.resetStateStack();
-               break;  
- 
-    //
-    // Rule 364:  IntLiteralAndRange ::= Integer Dot Dot
-    //
-            case 364:
-            { 
-	        makeToken(lexParser.getToken(1), lexParser.getLastToken(1), TK_IntegerLiteral);
+     
+            //
+            // Rule 351:  IntLiteralAndRange ::= Integer Dot Dot
+            //
+            case 351: { 
+                makeToken(lexParser.getToken(1), lexParser.getLastToken(1), TK_IntegerLiteral);
                 makeToken(lexParser.getToken(2), lexParser.getToken(3), TK_RANGE);
-	  
             }
             break; 
-	 
-    //
-    // Rule 365:  MSOperator ::= Dot Dot
-    //
-            case 365:
-            { 
-                 makeToken(lexParser.getToken(1), lexParser.getToken(2), TK_RANGE);
-          
-            }
-            break; 
-	    
-	    default:
-	        break;
-	}
-	return;
+        
+            default:
+                break;
+        }
+        return;
     }
-
 }
 
