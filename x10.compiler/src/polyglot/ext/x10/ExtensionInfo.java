@@ -50,8 +50,6 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         return new X10TypeSystem_c();
     }
 
-    public static final Pass.ID DE_ASYNCANDFUTUREIFICATION =
-        new Pass.ID("de-asyncandfutureification");
     public static final Pass.ID CAST_REWRITE = new Pass.ID("cast-rewrite");
  
     public List passes(Job job) {
