@@ -17,7 +17,7 @@ public interface Region {
 
     public int rank();
 
-    public int size();
+    public int count();
     
 	public Region union(Region d);
 

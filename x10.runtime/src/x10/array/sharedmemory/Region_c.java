@@ -5,6 +5,7 @@ package x10.array.sharedmemory;
 
 import java.util.Iterator;
 
+import x10.array.InvalidIndexException;
 import x10.array.Range;
 import x10.array.ContiguousRange;
 import x10.array.Region;
@@ -63,7 +64,7 @@ class Region_c implements Region {
         int tmp_card = 1;
         dims_ = dims;
         for (int i = 0; i < dims.length; ++i)
-            tmp_card *= dims_[i].size();
+            tmp_card *= dims_[i].count();
         card = tmp_card;
     }
 
@@ -88,9 +89,9 @@ class Region_c implements Region {
      */
     Region_c sub(int partitions, int part) {
         assert partitions > 0 && part >= 0 && part < partitions;
-        assert size() % partitions == 0;
+        assert count() % partitions == 0;
         assert dims_[0] instanceof ContiguousRange;
-        assert dims_[0].size() % partitions == 0;
+        assert dims_[0].count() % partitions == 0;
         
         ContiguousRange cr = (ContiguousRange) dims_[0];
         int len = cr.card / partitions;
@@ -100,7 +101,7 @@ class Region_c implements Region {
         new_dims[0] = new ContiguousRange(cr.lo + offset, cr.lo + offset + len - 1);
         
         // initialize other dimensions
-        for (int i = 1; i < dims_.length; ++i) 
+        for (int i = 1; i < rank; ++i) 
             new_dims[i] = dims_[i];
         return new Region_c(new_dims);
     }
@@ -111,7 +112,7 @@ class Region_c implements Region {
         assert r instanceof Region_c;
         
         Region_c rc = (Region_c) r;
-        Range[] d = new Range[dims_.length];
+        Range[] d = new Range[rank];
         for (int i = 0; i < d.length; ++ i)
             d[i] = dims_[i].union(rc.dims_[i]);
         return new Region_c(d);
@@ -123,7 +124,7 @@ class Region_c implements Region {
         assert r instanceof Region_c;
         
         Region_c rc = (Region_c) r;
-        Range[] d = new Range[dims_.length];
+        Range[] d = new Range[rank];
         for (int i = 0; i < d.length; ++ i)
             d[i] = dims_[i].intersect(rc.dims_[i]);
         return new Region_c(d);
@@ -142,7 +143,7 @@ class Region_c implements Region {
     }
 
     public Range[] dim() {
-        Range[] ret = new Range[dims_.length];
+        Range[] ret = new Range[rank];
         System.arraycopy(dims_, 0, ret, 0, ret.length);
         return ret;
     }
@@ -159,10 +160,11 @@ class Region_c implements Region {
     }
 
     public boolean contains(int[] p) {
-        assert p.length == dims_.length;
+        if (p.length != rank)
+            throw new InvalidIndexException();
 
         boolean ret = true;
-        for (int i = 0; ret && i < dims_.length; ++i) {
+        for (int i = 0; ret && i < rank; ++i) {
             Range r = dims_[i];
             if (!r.contains(p[i]))
                 ret = false;
@@ -170,10 +172,10 @@ class Region_c implements Region {
         return ret;
     }
 
-    public int size() {
+    public int count() {
         int ret = 1;
-        for (int i = dims_.length - 1; i >= 0; i--)
-            ret *= dims_[i].size(); // TODO: check overflow?
+        for (int i = rank - 1; i >= 0; i--)
+            ret *= dims_[i].count(); // TODO: check overflow?
         return ret;
     }
     
@@ -184,13 +186,14 @@ class Region_c implements Region {
      *         where the initial constant is assigned an ordinal of zero).
      */
     public int ordinal(int[] p) {
-        assert p.length == dims_.length;
+        if (p.length != rank)
+            throw new InvalidIndexException();
 
         int ret = 0;
         int base = 1;
         for (int i = 0; i < p.length; ++i) {
             ret += dims_[i].ordinal(p[i]) * base;
-            base *= dims_[i].size();
+            base *= dims_[i].count();
         }
         return ret;
     }
@@ -206,9 +209,9 @@ class Region_c implements Region {
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("{");
-        for (int i = 0; i < dims_.length; ++i) {
+        for (int i = 0; i < rank; ++i) {
             sb.append(dims_[i].toString());
-            if (i < dims_.length - 1)
+            if (i < rank - 1)
                 sb.append(",");
         }
         sb.append("}");
@@ -216,11 +219,11 @@ class Region_c implements Region {
     }
 
     public boolean equals(Object o) {
-        assert o instanceof Region_c;
+        assert o.getClass() == getClass();
 
         Region_c rhs = (Region_c) o;
         boolean ret = rhs.rank == rank && rhs.card == card;
-        for (int i = 0; ret && i < dims_.length; ++i)
+        for (int i = 0; ret && i < rank; ++i)
             ret = dims_[i].equals(rhs.dims_[i]);
         return ret;
     }
@@ -229,6 +232,12 @@ class Region_c implements Region {
         return card;
     }
 
+    static final class Empty extends Region_c {
+        Empty() {
+            super(new Range[0]);
+        }
+    }
+    
     private class RegionIterator implements Iterator {
         private int nextOrd_;
 
@@ -248,7 +257,7 @@ class Region_c implements Region {
             int rest = nextOrd_;
             int base = 0;
             for (int i = 0; rest > 0 && i < rank; ++i) {
-                base = dims_[i].size();
+                base = dims_[i].count();
                 int tmp = rest % base;
                 rest = (rest - tmp) / base;
                 ret[i] = dims_[i].coord(tmp);
