@@ -22,6 +22,18 @@ import polyglot.visit.CFGBuilder;
  *     the system must behave as if the user typed a.region.
  * (3) Perhaps we can allow continue statements within a for loop, but not within 
  *     a foreach or an ateach.
+ * 
+ * COMMENTS / TODO (added by Christian)
+ * (1) for now, continue/break should work as usual
+ *      for foreach;
+ * (2) ateach is broken in many respects, including break/continue,
+ *      see comments in ateach.xcd
+ * (3) this AST node does not seem to support the 'correct' syntax for
+ *      multi-dimensional arrays (ateach(i,j:D) { S }).  But that's
+ *      probably ok, for now the XCD files expect to see
+ *      ateach(i:D) { S } and type 'i' as 'int[]' for multi-dimensional
+ *      arrays, and as 'int' for single-dimensional arrays.
+ * 
  * @author vj Dec 9, 2004
  * 
  */

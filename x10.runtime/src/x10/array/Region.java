@@ -4,6 +4,7 @@
 package x10.array;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import x10.base.TypeArgument;
 
@@ -42,4 +43,12 @@ public interface Region extends TypeArgument {
     public boolean equals(Object o);
     
     public int hashCode();
+    
+    public int[] firstElement();
+
+    public int[] nextElement(int[] in);
+
+    public boolean hasNextElement(int[] in);
+
+    
 }
