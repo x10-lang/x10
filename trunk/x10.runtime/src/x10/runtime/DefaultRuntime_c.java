@@ -15,6 +15,7 @@ import x10.array.sharedmemory.RegionFactory;
 import x10.array.sharedmemory.DistributionFactory;
 import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.DoubleArray_c;
+import x10.array.sharedmemory.LongArray_c;
 
 import x10.lang.Activity;
 import x10.lang.Object;
@@ -28,10 +29,9 @@ import x10.lang.IntReferenceArray;
 import x10.lang.intArray;
 import x10.lang.DoubleReferenceArray;
 import x10.lang.doubleArray;
-import x10.lang.doubleValueArray;
 import x10.lang.LongReferenceArray;
 import x10.lang.longArray;
-import x10.lang.longValueArray;
+
 
 /**
  * Default implementation of Runtime.
@@ -269,20 +269,16 @@ public class DefaultRuntime_c
     		public longArray.factory getLongArrayFactory() {
     			return new longArray.factory() {
     				public LongReferenceArray LongReferenceArray(distribution d, long c) {
-    					throw new Error("TODO");
-    					// return new LongArray_c( d, c, true);
+    					return new LongArray_c( d, c, true);
     				}
     				public LongReferenceArray LongReferenceArray(distribution d, longArray.pointwiseOp f) {
-    					throw new Error("TODO");
-    					// return new LongArray_c( d, f, true);
+    					return new LongArray_c( d, f, true);
     				}
     				public longArray longValueArray(distribution d, long c) {
-    					throw new Error("TODO");
-    					// return new LongArray_c(d, c, true, false);
+    					return new LongArray_c(d, c, true, false);
     				}
     				public longArray longValueArray(distribution d, longArray.pointwiseOp f) {
-    					throw new Error("TODO");
-    					// return new LongArray_c(d, f, true, false);
+    					return new LongArray_c(d, f, true, false);
     				}
     			};
     		}

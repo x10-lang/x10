@@ -2,8 +2,6 @@ package x10.lang;
 
 import java.util.Iterator;
 
-import x10.lang.doubleArray.binaryOp;
-
 /** The base class for all (value or reference) multidimensional,
  * distributed long arrays in X10.  Is a subclass-only mutable class
  * (has no mutable state, and all methods are value methods).
@@ -34,6 +32,10 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	public static interface pointwiseOp/*(region r)*/ {
 		long apply(point/*(r)*/ p);
 	}
+    
+    public static interface unaryOp {
+        long apply(long r);
+    }
 	
 	abstract public static /*value*/ class factory {
 		
@@ -120,6 +122,12 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	abstract /*value*/ public long get(int p, int q);
 	abstract /*value*/ public long get(int p, int q, int r);
 	abstract /*value*/ public long get(int p, int q, int r, int s);
+    
+    abstract public void set( long v, point/*(region)*/ p );
+    abstract /*value*/ public void set(long v, int p);
+    abstract /*value*/ public void set(long v, int p, int q);
+    abstract /*value*/ public void set(long v, int p, int q, int r);
+    abstract /*value*/ public void set(long v, int p, int q, int r, int s);
 	
 	/** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and

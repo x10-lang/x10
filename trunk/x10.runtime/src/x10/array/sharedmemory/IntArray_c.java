@@ -214,40 +214,68 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public int get(point pos) {
         return arr_.getInt((int) distribution.region.ordinal(pos));
     }
+    
     public int get(int d0) {
     	assert this.region.rank == 1;
         int[] pos = {d0};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
+    
     public int get(int d0, int d1) {
     	assert this.region.rank == 2;
         int[] pos = {d0, d1};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
+    
     public int get(int d0, int d1, int d2) {
     	assert this.region.rank == 3;
         int[] pos = {d0, d1, d2};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
+    
     public int get(int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
         int[] pos = {d0, d1, d2, d3};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
+    
     public x10.lang.intArray overlay(x10.lang.intArray d) {
-    	throw new Error("TODO");
+        distribution dist = distribution.overlay(d.distribution);
+        IntArray_c ret = new IntArray_c(dist, 0, safe_);
+        for (Iterator it = dist.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            int val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+            ret.set(val, p);
+        }
+        return ret;
     }
+    
     public x10.lang.intArray union(x10.lang.intArray d) {
-    	throw new Error("TODO");
+        distribution dist = distribution.union(d.distribution);
+        IntArray_c ret = new IntArray_c(dist, 0, safe_);
+        for (Iterator it = dist.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            int val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+            ret.set(val, p);
+        }
+        return ret;
     }
+    
     public x10.lang.intArray restriction( distribution d) {
-    	throw new Error("TODO");
+        return restriction(d.region);
     }
-    public x10.lang.intArray restriction( region d) {
-    	throw new Error("TODO");
+    
+    public x10.lang.intArray restriction(region d) {
+        distribution dist = distribution.restriction(d);
+        IntArray_c ret = new IntArray_c(dist, 0, safe_);
+        for (Iterator it = dist.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            ret.set(get(p), p);
+        }
+        return ret;
     }
 }

@@ -34,6 +34,10 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	public static interface pointwiseOp/*(region r)*/ {
 		int apply(point/*(r)*/ p);
 	}
+    
+    public static interface unaryOp {
+        int apply(int r);
+    }
 	
 	abstract public static /*value*/ class factory {
 		
@@ -121,6 +125,12 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	abstract /*value*/ public int get(int p, int q, int r);
 	abstract /*value*/ public int get(int p, int q, int r, int s);
 	
+    abstract public void set( int v, point/*(region)*/ p );
+    abstract /*value*/ public void set(int v, int p);
+    abstract /*value*/ public void set(int v, int p, int q);
+    abstract /*value*/ public void set(int v, int p, int q, int r);
+    abstract /*value*/ public void set(int v, int p, int q, int r, int s);
+    
 	/** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and
 	 commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).
