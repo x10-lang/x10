@@ -11,8 +11,6 @@ package x10.lang;
 
 import java.util.Iterator;
 
-import x10.lang.intArray.binaryOp;
-
 abstract public class doubleArray /*( distribution distribution )*/ 
 /*implements Cloneable, Serializable */
 implements Indexable {
@@ -123,7 +121,12 @@ implements Indexable {
 	abstract /*value*/ public double get(int p, int q, int r);
 	abstract /*value*/ public double get(int p, int q, int r, int s);
 
-	
+    abstract public void set( double v, point/*(region)*/ p);
+    abstract /*value*/ public void set(double v, int p);
+    abstract /*value*/ public void set(double v, int p, int q);
+    abstract /*value*/ public void set(double v, int p, int q, int r);
+    abstract /*value*/ public void set(double v, int p, int q, int r, int s);
+    
 	/** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and
 	 commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).
@@ -165,7 +168,7 @@ implements Indexable {
 	 dist.asymmetricUnion(D).
 	 */
 	abstract public /*(distribution(:rank=this.rank) D)*/
-	DoubleReferenceArray/*(distribution.asymmetricUnion(D))*/ overlay( doubleArray/*(D)*/ other);
+	doubleArray/*(distribution.asymmetricUnion(D))*/ overlay( doubleArray/*(D)*/ other);
 	
 	
 	/** Assume given a DoubleArray a over the given distribution.

@@ -2,7 +2,6 @@ package x10.lang;
 
 import java.util.Iterator;
 
-import x10.array.ArbitraryRegion;
 
 
 /**
