@@ -14,6 +14,7 @@ import x10.lang.Runtime;
 import x10.lang.point;
 import x10.lang.distribution;
 import x10.lang.region;
+import x10.lang.LongReferenceArray;
 
 
 /**
@@ -23,7 +24,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 
     private final boolean safe_;
     private final MemoryBlock arr_;
-    public final boolean mutable;
+    public final boolean mutable_;
     
     /**
      *  This constructor must not be used directly by an application programmer.
@@ -39,7 +40,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     }
     protected LongArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
-        this.mutable = mutable;
+        this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
         this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_LONG);
@@ -61,7 +62,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 }
     public LongArray_c( distribution d, long c, boolean safe, boolean mutable ) {
     	super(d);
-    	this.mutable = mutable;
+    	this.mutable_ = mutable;
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_LONG);
         this.safe_ = safe;
@@ -76,7 +77,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     }
     public LongArray_c( distribution d, LongArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
-    	this.mutable = mutable;
+    	this.mutable_ = mutable;
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Long.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_LONG);
     	this.safe_ = safe;
@@ -87,7 +88,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     	super(d);
     	this.arr_ = Allocator.allocSafeLongArray( a);
         this.safe_ = true;
-        this.mutable = true;
+        this.mutable_ = true;
     }
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
@@ -139,7 +140,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 	}
 	
 
-	public x10.lang.longArray lift( LongArray.binaryOp op, x10.lang.longArray arg ) {
+	public LongReferenceArray lift( LongArray.binaryOp op, x10.lang.longArray arg ) {
 	    assert arg.distribution.equals(distribution); 
 	    LongArray arg1 = (LongArray)arg;
 	    LongArray result = newInstance(distribution);
@@ -149,7 +150,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 	    }
 	    return result;
 	}
-	public x10.lang.longArray lift( LongArray.unaryOp op ) {
+	public LongReferenceArray lift( LongArray.unaryOp op ) {
 	    LongArray result = newInstance(distribution);
 	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
 	        point p = (point) it.next();
@@ -166,7 +167,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         return result;
     }
 
-    public x10.lang.longArray scan( binaryOp op, long unit ) {
+    public LongReferenceArray scan( binaryOp op, long unit ) {
         long temp = unit;
         LongArray result = newInstance(distribution);
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
@@ -248,8 +249,11 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
-    
-    public x10.lang.longArray overlay(x10.lang.longArray d) {
+    public long get(int[] pos) {
+        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+    	return get(p);
+    }
+    public LongReferenceArray overlay(x10.lang.longArray d) {
     	distribution dist = distribution.overlay(d.distribution);
         LongArray_c ret = new LongArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -260,7 +264,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         return ret;
     }
     
-    public x10.lang.longArray union(x10.lang.longArray d) {
+    public LongReferenceArray union(x10.lang.longArray d) {
         distribution dist = distribution.union(d.distribution);
         LongArray_c ret = new LongArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -271,11 +275,11 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         return ret;
     }
     
-    public x10.lang.longArray restriction(distribution d) {
+    public LongReferenceArray restriction(distribution d) {
         return restriction(d.region);
     }
     
-    public x10.lang.longArray restriction(region r) {
+    public LongReferenceArray restriction(region r) {
         distribution dist = distribution.restriction(r);
         LongArray_c ret = new LongArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -283,6 +287,11 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
             ret.set(get(p), p);
         }
         return ret;
+    }
+    public x10.lang.longArray toValueArray() {
+    	if (! mutable_) return this;
+    	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
+    	
     }
     
 }

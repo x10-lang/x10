@@ -18,12 +18,13 @@ import x10.lang.Runtime;
 import x10.lang.point;
 import x10.lang.distribution;
 import x10.lang.region;
+import x10.lang.DoubleReferenceArray;
 
 
 /**
  * @author Christian Grothoff, Christoph von Praun
  */
-public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
+public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Cloneable {
 
     private final boolean safe_;
     private final MemoryBlock arr_;
@@ -143,7 +144,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
 	}
 	
 
-	public x10.lang.doubleArray lift( DoubleArray.binaryOp op, x10.lang.doubleArray arg ) {
+	public DoubleReferenceArray lift( DoubleArray.binaryOp op, x10.lang.doubleArray arg ) {
 	    assert arg.distribution.equals(distribution); 
 	    DoubleArray arg1 = (DoubleArray)arg;
 	    DoubleArray result = newInstance(distribution);
@@ -153,7 +154,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
 	    }
 	    return result;
 	}
-	public x10.lang.doubleArray lift( DoubleArray.unaryOp op ) {
+	public DoubleReferenceArray lift( DoubleArray.unaryOp op ) {
 	    DoubleArray result = newInstance(distribution);
 	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
 	        point p = (point) it.next();
@@ -170,7 +171,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         return result;
     }
 
-    public x10.lang.doubleArray scan( binaryOp op, double unit ) {
+    public DoubleReferenceArray scan( binaryOp op, double unit ) {
         double temp = unit;
         DoubleArray result = newInstance(distribution);
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
@@ -252,8 +253,12 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
+    public double get(int[] pos) {
+        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+    	return get(p);
+    }
     
-    public x10.lang.doubleArray overlay(x10.lang.doubleArray d) {
+    public x10.lang.DoubleReferenceArray overlay(x10.lang.doubleArray d) {
     	distribution dist = distribution.overlay(d.distribution);
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -264,7 +269,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         return ret;
     }
     
-    public x10.lang.doubleArray union(x10.lang.doubleArray d) {
+    public DoubleReferenceArray union(x10.lang.doubleArray d) {
         distribution dist = distribution.union(d.distribution);
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -275,11 +280,11 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         return ret;
     }
     
-    public x10.lang.doubleArray restriction(distribution d) {
+    public DoubleReferenceArray restriction(distribution d) {
         return restriction(d.region);
     }
     
-    public x10.lang.doubleArray restriction(region r) {
+    public DoubleReferenceArray restriction(region r) {
         distribution dist = distribution.restriction(r);
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -289,4 +294,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         return ret;
     }
     
+    public x10.lang.doubleArray toValueArray() {
+    	if (! mutable_) return this;
+    	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
+    	
+    }
 }

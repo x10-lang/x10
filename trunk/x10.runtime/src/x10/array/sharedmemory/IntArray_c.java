@@ -116,7 +116,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     
   
     
-    public x10.lang.intArray lift( IntArray.binaryOp op, x10.lang.intArray arg ) {
+    public IntReferenceArray lift( IntArray.binaryOp op, x10.lang.intArray arg ) {
         assert arg.distribution == this.distribution;
         IntReferenceArray result = newInstance(distribution);
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
@@ -125,7 +125,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         }
         return result;
     }
-    public x10.lang.intArray lift( IntArray.unaryOp op ) {
+    public IntReferenceArray lift( IntArray.unaryOp op ) {
         IntReferenceArray result = newInstance(distribution);
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
             point p = (point) it.next();
@@ -144,7 +144,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         return result;
     }
 
-    public x10.lang.intArray scan( IntArray.binaryOp op, int unit ) {
+    public IntReferenceArray scan( IntArray.binaryOp op, int unit ) {
         int temp = unit;
         x10.lang.IntReferenceArray result = newInstance(distribution);
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
@@ -251,8 +251,12 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
+    public int get(int[] pos) {
+        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+    	return get(p);
+    }
     
-    public x10.lang.intArray overlay(x10.lang.intArray d) {
+    public IntReferenceArray overlay(x10.lang.intArray d) {
         distribution dist = distribution.overlay(d.distribution);
         IntArray_c ret = new IntArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -263,7 +267,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         return ret;
     }
     
-    public x10.lang.intArray union(x10.lang.intArray d) {
+    public IntReferenceArray union(x10.lang.intArray d) {
         distribution dist = distribution.union(d.distribution);
         IntArray_c ret = new IntArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -274,11 +278,11 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         return ret;
     }
     
-    public x10.lang.intArray restriction( distribution d) {
+    public IntReferenceArray restriction( distribution d) {
         return restriction(d.region);
     }
     
-    public x10.lang.intArray restriction(region d) {
+    public IntReferenceArray restriction(region d) {
         distribution dist = distribution.restriction(d);
         IntArray_c ret = new IntArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -286,5 +290,10 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
             ret.set(get(p), p);
         }
         return ret;
+    }
+    public x10.lang.intArray toValueArray() {
+    	if (! mutable_) return this;
+    	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
+    	
     }
 }

@@ -126,12 +126,8 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	abstract /*value*/ public int get(int p, int q);
 	abstract /*value*/ public int get(int p, int q, int r);
 	abstract /*value*/ public int get(int p, int q, int r, int s);
-	
-    abstract public void set( int v, point/*(region)*/ p );
-    abstract /*value*/ public void set(int v, int p);
-    abstract /*value*/ public void set(int v, int p, int q);
-    abstract /*value*/ public void set(int v, int p, int q, int r);
-    abstract /*value*/ public void set(int v, int p, int q, int r, int s);
+	abstract public int get(int[] p);
+   
     
     /** Convenience method for returning the sum of the array.
      * @return sum of the array.
@@ -158,7 +154,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	 * Convenience method for applying abs to each element in the array.
 	 * @return
 	 */
-	public intArray abs() {
+	public IntReferenceArray abs() {
 		return lift(abs);
 	}
 	/**
@@ -177,19 +173,19 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	/** Return an IntArray with the same distribution as this, by 
 	 scanning this with the function fun, and unit unit.
 	 */
-	abstract /*value*/ public intArray/*(distribution)*/ scan(binaryOp fun, int unit);
+	abstract /*value*/ public IntReferenceArray/*(distribution)*/ scan(binaryOp fun, int unit);
 	
 	/** Return an array of B@P defined on the intersection of the
 	 region underlying the array and the parameter region R.
 	 */
 	abstract /*value*/ public /*(region(rank) R)*/
-	intArray/*(distribution.restriction(R)())*/  restriction(region R);
+	IntReferenceArray/*(distribution.restriction(R)())*/  restriction(region R);
 	
 	/** Return an array of B@P defined on the intersection of 
 	 the region underlying this and the parametric distribution.
 	 */    
 	abstract /*value*/ public  /*(distribution(:rank=this.rank) D)*/ 
-	intArray/*(distribution.restriction(D.region)())*/ restriction(distribution D);
+	IntReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D);
 	
 	/** Take as parameter a distribution D of the same rank as *
 	 * this, and defined over a disjoint region. Take as argument an *
@@ -200,7 +196,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	 */
 	abstract /*value*/ public /*(distribution(:region.disjoint(this.region) &&
 	rank=this.rank) D)*/
-	intArray/*(distribution.union(D))*/ union( intArray/*(D)*/ other);
+	IntReferenceArray/*(distribution.union(D))*/ union( intArray/*(D)*/ other);
 	
 	/** Return the array obtained by overlaying this array on top of
 	 other. The method takes as parameter a distribution D over the
@@ -208,7 +204,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	 dist.asymmetricUnion(D).
 	 */
 	abstract /*value*/ public /*(distribution(:rank=this.rank) D)*/
-	intArray/*(distribution.asymmetricUnion(D))*/ overlay( intArray/*(D)*/ other);
+	IntReferenceArray/*(distribution.asymmetricUnion(D))*/ overlay( intArray/*(D)*/ other);
 	
 	
 	/** Assume given an intArray a over the given distribution.
@@ -218,7 +214,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	 * dist.region.
 	 */
 	abstract /*value*/ public 
-	intArray/*(distribution)*/ lift(binaryOp fun, intArray/*(distribution)*/ a);
+	IntReferenceArray/*(distribution)*/ lift(binaryOp fun, intArray/*(distribution)*/ a);
 	
 	/** Apply the given fun: int -> int on each element of the array, returning
 	 * an array with the same distribution.
@@ -227,7 +223,14 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	 * @return the array with fun applied pointwise
 	 */
 	abstract /*value*/ public 
-	intArray/*(distribution)*/ lift(unaryOp fun);
+	IntReferenceArray/*(distribution)*/ lift(unaryOp fun);
+	
+	/**
+	 * Return an immutable copy of this array. Note: The implementation actually returns a copy
+	 * at the representation of the X10 type x10.lang.intValueArray, which is intArray.
+	 * @return an immutable version of this array.
+	 */
+	abstract public intArray toValueArray();
 	
 	public Iterator iterator() {
 	 	return region.iterator();
