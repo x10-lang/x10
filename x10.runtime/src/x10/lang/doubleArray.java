@@ -11,6 +11,8 @@ package x10.lang;
 
 import java.util.Iterator;
 
+import x10.lang.intArray.binaryOp;
+
 abstract public class doubleArray /*( distribution distribution )*/ 
 /*implements Cloneable, Serializable */
 implements Indexable {
@@ -28,9 +30,12 @@ implements Indexable {
 	public static interface binaryOp {
 		double apply(double r, double s);
 	}
+	public static final binaryOp sub = new binaryOp() { public double apply(double r, double s) { return r-s;}};
+	public static final binaryOp add = new binaryOp() { public double apply(double r, double s) { return r+s;}};
 	public static interface unaryOp {
 		double apply(double r);
 	}
+	public static final unaryOp abs = new unaryOp() { public double apply(double r) { return Math.abs(r);}};
 	
 	public static interface pointwiseOp/*(region r)*/ {
 		double apply(point/*(r)*/ p);
