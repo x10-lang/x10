@@ -118,7 +118,7 @@ public final class Clock_c extends Clock {
         pending_.remove(a);
         tryAdvance(); 
     }
-    
+     
     public boolean dropped() {
         Activity a = aip_.getCurrentActivity();
         return !activities_.contains(a);
