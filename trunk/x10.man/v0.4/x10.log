@@ -1,0 +1,325 @@
+This is pdfTeXk, Version 3.14159-1.10b (Web2C 7.4.5) (format=pdflatex 2005.1.27)  7 FEB 2005 10:23
+ %&-line parsing enabled.
+**x10
+(./x10.tex{/usr/share/texmf/pdftex/config/pdftex.cfg}
+LaTeX2e <2001/06/01>
+Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, n
+ohyphenation, loaded.
+(./algol60.cls
+Document Class: algol60 1997/03/13 Algol 60 document class
+(/usr/share/texmf/tex/latex/base/size10.clo
+File: size10.clo 2001/04/21 v1.4e Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@chapter=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+\@indexfile=\write3
+\openout3 = `x10.idx'.
+
+
+Writing index file x10.idx
+(./commands.tex
+\modwidth=\skip43
+\modskip=\skip44
+\@modheight=\skip45
+\@modpos=\skip46
+) (./x10.aux)
+\openout1 = `x10.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+ (./first.tex
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 28.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 28.
+
+Underfull \hbox (badness 1960) in paragraph at lines 51--70
+/cmr10/D/cmcsc10@7.0pt/ONAWA/cmr10/, J/cmcsc10@7.0pt/ULIAN /cmr10/D/cmcsc10@7.0
+pt/OLBY/cmr10/, K/cmcsc10@7.0pt/EMAL /cmr10/E/cmcsc10@7.0pt/BCIOGLU/cmr10/, P/c
+mcsc10@7.0pt/ATRICK
+
+\hbox(6.83331+1.94444)x254.0, glue set 2.69781 []
+
+(./x10.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 1.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 1.
+)
+\tf@toc=\write4
+\openout4 = `x10.toc'.
+
+ [1{/usr/share/texmf/dvips/config/pdftex.map}
+
+]) (./XtenIntro.tex
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 86.
+
+(/usr/share/texmf/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 86.
+
+Underfull \hbox (badness 1132) in paragraph at lines 102--108
+[]/cmr10/Several rep-re-sen-ta-tive con-cur-rent id-ioms have al-ready
+
+\hbox(6.94444+1.94444)x254.0, glue set 2.24663 []
+
+[2
+
+]) [3
+
+] (./XtenOverview.tex
+ 1.
+[4
+
+] [5]) (./XtenLex.tex
+ 2.
+LaTeX Font Info:    Try loading font information for OMS+cmtt on input line 55.
+
+LaTeX Font Info:    No file OMScmtt.fd. on input line 55.
+
+LaTeX Font Warning: Font shape `OMS/cmtt/m/n' undefined
+(Font)              using `OMS/cmsy/m/n' instead
+(Font)              for symbol `textbraceleft' on input line 55.
+
+) (./XtenTypes.tex
+ 3.
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <9> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 7.
+[6]
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <9> on input line 29.
+ (./XtenNullableTypes.tex [7])
+Underfull \hbox (badness 8151) in paragraph at lines 203--206
+[]/cmss9/X10 /cmr9/fol-lows /cmss9/Java /cmr9/lan-guage rules in this re-spect 
+[[],
+
+\hbox(6.75+2.25)x254.0, glue set 4.33876 []
+
+(./NullableTypeConstructor.tex [8]) [9] (./PlaceTypes.tex [10] [11] [12]))
+(./XtenPackages.tex
+ 4.
+) (./XtenPlaces.tex
+ 5.
+[13]) (./XtenActivities.tex
+ 6.
+[14] [15]
+Underfull \hbox (badness 1418) in paragraph at lines 247--259
+[]/cmtt9/Statement /cmr9/may in-clude method calls, con-di-tion-als, asyn-
+
+\hbox(6.25+1.75)x254.0, glue set 2.42099 []
+
+
+LaTeX Warning: Citation `Herlihy-non-block' on page 16 undefined on input line 
+282.
+
+
+Underfull \hbox (badness 1838) in paragraph at lines 321--326
+/cmtt9/(true) S /cmr9/is be-hav-iorally iden-ti-cal to /cmtt9/atomic S/cmr9/: i
+t never
+
+\hbox(6.25+1.75)x254.0, glue set 2.64099 []
+
+[16] [17]) (./XtenClocks.tex
+ 7.
+[18]
+Underfull \hbox (badness 7273) in paragraph at lines 72--74
+/cmr9/Clocks are cre-ated us-ing the nullary con-struc-tor for
+
+\hbox(6.25+1.75)x254.0, glue set 4.17635 []
+
+[19]) (./XtenInterfaces.tex
+ 8.
+) (./XtenClasses.tex
+ 9.
+[20]
+Underfull \hbox (badness 1622) in paragraph at lines 30--39
+/cmr9/A ref-er-ence class is de-clared with the op-tional key-word
+
+\hbox(6.25+1.75)x254.0, glue set 2.532 []
+
+[21]) (./XtenArrays.tex
+ 10.
+(./XtenRegions.tex
+Underfull \hbox (badness 1215) in paragraph at lines 45--47
+[]/cmtt9/region.factory.upperTriangular(N) /cmr9/re-turns a re-gion
+
+\hbox(6.25+2.0)x233.99997, glue set 2.30067 []
+
+
+Underfull \hbox (badness 1990) in paragraph at lines 45--47
+/cmr9/cor-re-spond-ing to the non-zero in-dices in an upper-
+
+\hbox(6.25+1.75)x233.99997, glue set 2.71231 []
+
+
+Underfull \hbox (badness 1215) in paragraph at lines 47--49
+[]/cmtt9/region.factory.lowerTriangular(N) /cmr9/re-turns a re-gion
+
+\hbox(6.25+2.0)x233.99997, glue set 2.30067 []
+
+) (./XtenDistributions.tex [22]
+Underfull \hbox (badness 2556) in paragraph at lines 74--76
+[]/cmr9/The dis-tri-bu-tion /cmtt9/cyclic(R) /cmr9/is the same dis-tri-bu-tion 
+as
+
+\hbox(6.25+2.0)x254.0, glue set 2.94905 []
+
+
+Underfull \hbox (badness 1603) in paragraph at lines 77--80
+[]/cmr9/Thus the dis-tri-bu-tion /cmtt9/cyclic(place.MAX[]PLACES) /cmr9/pro-vid
+es
+
+\hbox(6.25+2.0)x254.0, glue set 2.52432 []
+
+
+Underfull \hbox (badness 1762) in paragraph at lines 77--80
+/cmr9/a $1 /cmsy9/^^@ /cmr9/1$ map-ping from the re-gion /cmtt9/place.MAX[]PLAC
+ES /cmr9/to
+
+\hbox(6.25+2.0)x254.0, glue set 2.60594 []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 82--85
+ /cmbx10/Block cyclic dis-tri-bu-tions.[] /cmr9/The dis-tri-bu-tion
+
+\hbox(6.94444+1.94444)x254.0, glue set 8.89008 []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 87--90
+ /cmbx10/Ar-bi-trary dis-tri-bu-tions.[] /cmr9/The dis-tri-bu-tion
+
+\hbox(6.94444+1.94444)x254.0, glue set 17.08818 []
+
+[23]) [24]
+Underfull \hbox (badness 2126) in paragraph at lines 115--121
+ /cmbx10/Over-lay-ing an ar-ray on an-other[] /cmr9/The ex-pres-sion
+
+\hbox(6.94444+1.94444)x254.0, glue set 2.77144 []
+
+) (./XtenStatements.tex
+ 11.
+
+Underfull \hbox (badness 3884) in paragraph at lines 76--77
+ /cmbx10/Ex-am-ple.[] /cmr9/The fol-low-ing ex-am-ple suc-ceeds when ex-e-
+
+\hbox(6.94444+1.94444)x254.0, glue set 3.39049 []
+
+(./XtenExpressions.tex [25])) (./example.tex) [26] (./x10-syntax.tex [27
+
+]
+Underfull \vbox (badness 10000) has occurred while \output is active
+\vbox(663.0+0.0)x523.0 []
+
+ [28
+
+]
+Underfull \vbox (badness 10000) has occurred while \output is active
+\vbox(663.0+0.0)x523.0 []
+
+ [29]
+Underfull \vbox (badness 10000) has occurred while \output is active
+\vbox(663.0+0.0)x523.0 []
+
+ [30]
+Underfull \vbox (badness 10000) has occurred while \output is active
+\vbox(663.0+0.0)x523.0 []
+
+ [31]
+Underfull \vbox (badness 10000) has occurred while \output is active
+\vbox(663.0+0.0)x523.0 []
+
+ [32]
+Underfull \vbox (badness 10000) has occurred while \output is active
+\vbox(663.0+0.0)x523.0 []
+
+ [33]
+Underfull \vbox (badness 10000) has occurred while \output is active
+\vbox(663.0+0.0)x523.0 []
+
+ [34]
+[35]) (./x10-changes.tex) (./x10.bbl
+Underfull \hbox (badness 7631) in paragraph at lines 23--26
+[]/cmr9/Gilad Bracha et al.  Adding Gener-ics to the
+
+\hbox(6.75+2.25)x234.6112, glue set 4.24503 []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 23--26
+/cmr9/Java Pro-gram-ming Lan-guage, 2001.  JSR 014,
+
+\hbox(6.14998+1.75)x234.6112, glue set 4.43736 []
+
+
+Underfull \hbox (badness 3396) in paragraph at lines 39--43
+[]/cmr9/Sun Mi-crosys-tems.  Ex-tend-ing the Java Pro-gram-
+
+\hbox(6.75+2.25)x234.6112, glue set 3.24158 []
+
+) [36
+
+] (./x10.ind) [37
+
+] (./x10.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: There were undefined references.
+
+ )
+(\end occurred inside a group at level 3) 
+Here is how much of TeX's memory you used:
+ 553 strings out of 10437
+ 5918 string characters out of 1190233
+ 77395 words of memory out of 1000001
+ 3527 multiletter control sequences out of 10000+50000
+ 11858 words of font info for 43 fonts, out of 500000 for 1000
+ 14 hyphenation exceptions out of 1000
+ 26i,11n,23p,238b,474s stack positions out of 300i,100n,500p,50000b,4000s
+ 190 PDF objects out of 65536
+ 0 named destinations out of 20000
+ 0 words of extra memory for PDF output out of 65536
+{/usr/share/texmf/dvips/tetex/aae443f0
+.enc}</usr/share/texmf/fonts/type1/bluesky/cm/cmmi6.pfb>{/usr/share/texmf/dvips
+/tetex/f7b6d320.enc}</usr/share/texmf/fonts/type1/bluesky/cm/cmbx9.pfb></usr/sh
+are/texmf/fonts/type1/bluesky/cm/cmmi9.pfb>{/usr/share/texmf/dvips/tetex/09fbbf
+ac.enc}</usr/share/texmf/fonts/type1/bluesky/cm/cmtt8.pfb>{/usr/share/texmf/dvi
+ps/tetex/bbad153f.enc}</usr/share/texmf/fonts/type1/bluesky/cm/cmsy9.pfb></usr/
+share/texmf/fonts/type1/bluesky/cm/cmss9.pfb></usr/share/texmf/fonts/type1/blue
+sky/cm/cmr9.pfb>{/usr/share/texmf/dvips/tetex/74afc74c.enc}</usr/share/texmf/fo
+nts/type1/bluesky/cm/cmti9.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmtt9.p
+fb></usr/share/texmf/fonts/type1/bluesky/cm/cmr6.pfb></usr/share/texmf/fonts/ty
+pe1/bluesky/cm/cmss12.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmsy10.pfb><
+/usr/share/texmf/fonts/type1/bluesky/cm/cmti10.pfb></usr/share/texmf/fonts/type
+1/bluesky/cm/cmss8.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmr8.pfb></usr/
+share/texmf/fonts/type1/bluesky/cm/cmr7.pfb></usr/share/texmf/fonts/type1/blues
+ky/cm/cmmi10.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmss10.pfb></usr/shar
+e/texmf/fonts/type1/bluesky/cm/cmbx10.pfb></usr/share/texmf/fonts/type1/bluesky
+/cm/cmr10.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmtt10.pfb>{/usr/share/t
+exmf/dvips/tetex/0ef0afca.enc}</usr/share/texmf/fonts/type1/bluesky/cm/cmcsc10.
+pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmss17.pfb></usr/share/texmf/fonts
+/type1/bluesky/cm/cmbx12.pfb>
+Output written on x10.pdf (37 pages, 344900 bytes).
