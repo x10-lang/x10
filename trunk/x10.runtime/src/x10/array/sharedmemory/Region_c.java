@@ -115,7 +115,7 @@ public class Region_c extends region  {
 	/**
 	 * @return range in the i-th dimension.
 	 */
-	public region rank(/*nat*/long i) {
+	public region rank(/*nat*/int i) {
 		return dims[((int) i) % dims.length];
 	}
 	
@@ -144,7 +144,7 @@ public class Region_c extends region  {
 		return ret;
 	}
 	
-	public /*nat*/long size() {
+	public /*nat*/int size() {
 		int ret = 1;
 		for (int i = (int) rank - 1; i >= 0; i--)
 			ret *= ((Range) dims[i]).size; // TODO: check overflow?
@@ -157,10 +157,10 @@ public class Region_c extends region  {
 	 * @return Returns the ordinal of the point in this region (its position,
 	 *         where the initial constant is assigned an ordinal of zero).
 	 */
-	public /*nat*/long ordinal(point/*(this)*/ p) {
+	public /*nat*/int ordinal(point/*(this)*/ p) {
 		assert (p.rank == rank);
 		
-		/*nat*/long ret = 0;
+		/*nat*/int ret = 0;
 		int base = 1;
 		for (int i = 0; i < p.rank; ++i) {
 			Range r = (Range) dims[i];
@@ -261,32 +261,32 @@ public class Region_c extends region  {
 		return ret;
 		
 	}
-	public point coord(/*nat*/ long ordinal) throws PointOutOfRegionError {
+	public point coord(/*nat*/ int ordinal) throws PointOutOfRegionError {
 	 throw new Error("TODO");
 	}
-    
+    /*
     public int[] firstElement() {
         if (rank == 0)
             return null; // empty!
         int[] ret = new int[rank];
         // express nextOrd_ as a base of the regions
         for (int i = 0; i < rank; ++i) {
-            if (dims_[i].count == 0)
+            if (dims[i].size() == 0)
                 return null; // empty!
-            ret[i] = dims_[i].coord(0);
+            ret[i] = dims[i].coord(0);
 }
         return ret;
     }
 
     public int[] nextElement(int[] in) {
         for (int i = rank-1;i>=0;i--) {
-            int ord = dims_[i].ordinal(in[i]);
-            int base = dims_[i].count;
+            int ord = dims[i].ordinal(in[i]);
+            int base = dims[i].size();
             if (ord < base-1) {
-              in[i] = dims_[i].coord(ord+1);  
+              in[i] = dims[i].coord(ord+1);  
               break;
             } else {
-              in[i] = dims_[i].coord(0);
+              in[i] = dims[i].coord(0);
               if (i == 0) 
                   return null;
             }            
@@ -297,6 +297,6 @@ public class Region_c extends region  {
     public boolean hasNextElement(int[] in) {
         return (in != null);
     }
-
+*/
     
 }
