@@ -6,6 +6,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.List;
+import java.util.LinkedList;
 
 import polyglot.ast.Block;
 import polyglot.ast.Expr;
@@ -18,6 +19,7 @@ import polyglot.ast.ArrayInit;
 import polyglot.types.Type;
 
 import polyglot.ext.jl.ast.Expr_c;
+import polyglot.ext.jl.ast.NewArray_c;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
@@ -39,7 +41,7 @@ implements ArrayConstructor {
 		
 	protected TypeNode base;
 	protected boolean isValue = false;
-	protected int baseType;
+
 	
 	/** distribution must contain a value whose type is either int or x10.lang.distribution.
 	 * If distribution == null, then init must be not null and in fact an Initializer.
@@ -166,41 +168,50 @@ implements ArrayConstructor {
 		TypeNode newBase = (TypeNode) n;
 		Type newBaseType = newBase.type();
 		
-
+		
 		if (this.distribution != null) {
 			Type distType = distribution.type();
 			boolean distributionIsInt = ts.isImplicitCastValid(distType, ts.Int());
+			if (distributionIsInt) {
+				// This is a NewArray in disguise. Unmask it and bail.
+				List l = new LinkedList();
+				l.add( distribution );
+				return new NewArray_c( position(), newBase, l, 0, null).typeCheck( tc );
+			}
 			boolean distributionIsDist = ts.isImplicitCastValid(distType, ts.distribution());
-			if (! distributionIsInt & ! distributionIsDist)
+			System.out.println("ArrayConstructor_c: distributionIsDist = " + distributionIsDist + " " + distType );
+			if ( ! distributionIsDist)
 				throw new SemanticException("Array distribution specifier must be of type int or distribution" 
 						+ position());
 		}
 		
 		if (initializer != null) {
-			if (initializer instanceof ArrayInit) 
-				// This is the {...} case
-				((ArrayInit) initializer).typeCheckElements(base.type());
-			else {
-				// TODO: vj The following is hardwired for int and double arrays.
-				Type initType = initializer.type();
-				if ( ts.isImplicitCastValid(newBaseType, ts.Int()) 
-						&& ! ts.isImplicitCastValid(initType, ts.IntArrayPointwiseOp()))
-					throw new SemanticException("Array initializer must be of type x10.lang.intArray.pointwiseOp" 
-							+ position());
-				if ( ts.isImplicitCastValid(newBaseType, ts.Double()) 
-						&& ! ts.isImplicitCastValid(initType, ts.DoubleArrayPointwiseOp()))
-					throw new SemanticException("Array initializer must be of type x10.lang.doubleArray.pointwiseOp" 
-							+ position());
-				
+			if (initializer instanceof ArrayInit) {
+				throw new InternalError("ArrayConstructor_c should really have been NewArray_c" + this);
+				// This is the {...} case, and should never happen.
+				// ((ArrayInit) initializer).typeCheckElements(base.type());
 			}
+			
+			// TODO: vj The following is hardwired for int and double arrays.
+			Type initType = initializer.type();
+			if ( ts.isImplicitCastValid(newBaseType, ts.Int()) 
+					&& ! ts.isImplicitCastValid(initType, ts.IntArrayPointwiseOp()))
+				throw new SemanticException("Array initializer must be of type x10.lang.intArray.pointwiseOp" 
+						+ position());
+			if ( ts.isImplicitCastValid(newBaseType, ts.Double()) 
+					&& ! ts.isImplicitCastValid(initType, ts.DoubleArrayPointwiseOp()))
+				throw new SemanticException("Array initializer must be of type x10.lang.doubleArray.pointwiseOp" 
+						+ position());
+			
+			
 		}
 		
 		Type t = ts.x10arrayOf(position(), newBaseType);
 		
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);
-	
+		
 		return n1.arrayBaseType( newBase);
-	
+		
 	}
 	
 	/** Write the statement to an output file. 
