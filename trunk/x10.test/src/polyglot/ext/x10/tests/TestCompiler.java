@@ -65,7 +65,8 @@ public class TestCompiler extends TestCase {
 
     
     public void testFutureTest() {
-        run("examples/testcases/frontendworking/FutureTest.x10", "FutureTest");
+        runMain("examples/testcases/working/FutureTest.x10", "FutureTest");
+        runMain("examples/testcases/working/FutureTest1.x10", "FutureTest1");
     }
 
     public void testHelloWorld() {
