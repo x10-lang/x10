@@ -104,7 +104,7 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     }
     
     public polyglot.main.Options getOptions() {
-        return new Options(this);
+        return new X10CompilerOptions(this);
     }
 
 }
