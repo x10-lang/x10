@@ -62,6 +62,7 @@ public class DefaultRuntime_c
     
     public DefaultRuntime_c() {
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
+    	Place.MAX_PLACES = pc;
     	this.places_ = new Place[pc];
     	for (int i=pc-1;i>=0;i--)
     		places_[i] = new LocalPlace_c(this, this);

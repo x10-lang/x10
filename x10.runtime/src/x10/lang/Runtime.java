@@ -58,6 +58,7 @@ public abstract class Runtime implements x10.base.Runtime {
         } catch (InstantiationException ie) {
             
         } finally {
+            assert (r != null);
             _ = r;
             java = new JavaRuntime();
         }
