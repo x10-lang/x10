@@ -137,7 +137,7 @@ public class DefaultRuntime_c
         if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
             Sampling.shutdown();
         if (Configuration.DUMP_STATS_ON_EXIT) 
-            System.out.println(Sampling._.toString());
+            System.out.println(Sampling.SINGLETON.toString());
     }
     
     public void registerThread(Thread t, Place p) {

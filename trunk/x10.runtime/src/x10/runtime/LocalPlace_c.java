@@ -256,6 +256,7 @@ class LocalPlace_c extends Place {
                 return trt.getLong(o);                
             } catch (SecurityException se) {
             } catch (IllegalAccessException iae) {
+            } catch (NoClassDefFoundError ncfe) {
             } catch (NoSuchFieldException nsfe) {
                 // not JikesRVM
             }
