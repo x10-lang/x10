@@ -36,14 +36,16 @@ public class DistributionFactory extends distribution.factory {
     public distribution blockCyclic(region r, /*nat*/int n, Set/*<place>*/ qs) {
         distribution ret;
         assert n > 0;
+        assert r.rank > 0;
         
-        int sz = r.size();
+        int sz = r.rank(0).size();
         if (sz == 0)
             ret = new Distribution_c.Empty( r.rank );
-        else if (qs.size() == 1 || sz <= n) {
+        else if (qs.size() == 1 || sz < n) {
             place p = (place) qs.iterator().next();
             ret = new Distribution_c.Constant(r, p);
         } else {
+            // partitioning done along dimension 0
             Object[] q = qs.toArray();
             int chunks = (sz % n == 0 || sz < n) ? (sz / n) : ((sz / n) + 1);
             assert chunks > 0;
@@ -87,13 +89,16 @@ public class DistributionFactory extends distribution.factory {
         assert n > 0;
         
         distribution ret = null;
+        int sz = r.rank(0).size();
+        
         // avoid all the hardwork if it is an empty region.
         if (r.size() == 0)
         	ret = new Distribution_c.Empty( r.rank );
-        else if (qs.size() == 1) {
+        else if (qs.size() == 1 || sz < n) {
             place p = (place) qs.iterator().next();
             ret = new Distribution_c.Constant(r, p);
         } else {
+            // partition along dimension 0
             Object[] q = qs.toArray();            
             region sub[] = r.partition(n);
             Distribution_c[] dists = new Distribution_c[n];
@@ -112,8 +117,13 @@ public class DistributionFactory extends distribution.factory {
      * @return
      */
     public distribution arbitrary(region r) {
+        distribution ret;
         int blocksize = r.size() / x10.lang.place.places.size();
-        return blockCyclic(r, blocksize, x10.lang.place.places);
+        if (blocksize == 0) 
+            ret = constant(r, x10.lang.place.FIRST_PLACE);
+        else
+            ret = blockCyclic(r, blocksize, x10.lang.place.places);
+        return ret;
     }
     
     /**

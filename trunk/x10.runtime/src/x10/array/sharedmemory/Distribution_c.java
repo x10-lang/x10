@@ -458,8 +458,10 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         }
 
         public place get(int[] val) {
-                assert val.length == 1;
-                return placeseq[val[0] % placeseq.length];
+            assert val.length == 1;
+            if (val[0] >= placeseq.length || val[0] < 0)
+                throw new ArrayIndexOutOfBoundsException();
+            return placeseq[val[0]];
         }
 
         
@@ -530,7 +532,8 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
                 if (members_[i].region.contains(p)) 
                     ret = members_[i].get(p);
             }
-            assert ret != null;
+            if (ret == null)
+                throw new ArrayIndexOutOfBoundsException();
             return ret;
         }
         

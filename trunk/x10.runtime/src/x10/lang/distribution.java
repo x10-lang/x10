@@ -72,7 +72,7 @@ implements Indexable {
 		public 
 		/*(region R)*/ distribution/*(R)*/ block( final region R ) {
 			final distribution/*(R)*/ result = this.block/*(R)*/(R, x10.lang.place.places);
-			assert result.region==R; 
+			assert result.region.equals(R); 
 			return result;
 		}
 		
@@ -89,7 +89,7 @@ implements Indexable {
 		 */
 		public /*(region R)*/ distribution/*(R)*/ cyclic( final region R ) {
 			final distribution result = this.cyclic/*(R)*/(R, x10.lang.place.places);
-			assert result.region == R;
+			assert result.region.equals(R);
 			return result;
 		}
 		
