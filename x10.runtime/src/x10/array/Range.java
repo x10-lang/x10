@@ -41,7 +41,10 @@ implements TypeArgument {
 	}
 	
 	public int ordinal(int j) {
-		return j-lo;
+		int ret = j-lo;
+        if (ret < 0 || ret >= size)
+            throw new ArrayIndexOutOfBoundsException();
+        return ret;
 	}
 	
 	public boolean contains(int i) {
