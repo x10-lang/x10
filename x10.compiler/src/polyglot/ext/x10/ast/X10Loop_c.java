@@ -65,8 +65,18 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
     	this.body = body;
     	
     }
-  
-  
+    
+	/** Reconstruct the expression. */
+	protected X10Loop_c reconstruct( Formal formal, Expr domain, Stmt body ) {
+		if (formal != this.formal || domain != this.domain || body != this.body) {
+			X10Loop_c n = (X10Loop_c) copy();
+			n.formal = formal;
+			n.domain = domain;
+			n.body = body;
+			return n;
+		}
+		return this;
+	}
     
     /** Type check the statement. */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
@@ -92,6 +102,13 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
     	return succs;
     }
     
+    /** Visit the children of the expression. */
+	public Node visitChildren(NodeVisitor v) {
+		Formal formal = (Formal) visitChild(this.formal, v);
+		Expr domain = (Expr) visitChild(this.domain, v);
+		Stmt body = (Stmt) visitChild(this.body, v);
+		return reconstruct( formal, domain, body );
+	}
     /* (non-Javadoc)
      * @see polyglot.ext.x10.ast.X10Loop#body()
      */

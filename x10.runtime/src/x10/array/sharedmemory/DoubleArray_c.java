@@ -51,6 +51,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
      * @param c
      * @param safe
      */
+    public DoubleArray_c( distribution d, double c) {
+	this(d, c, true);
+    }
     public DoubleArray_c( distribution d, double c, boolean safe) {
     	super(d);
     	int count =  d.region.size();
@@ -58,12 +61,29 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
     	scan(this, new Assign(c));
     	
     }
+    public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f) {
+	this(d, f, true);
+    }
     public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f, boolean safe) {
     	super(d);
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
     	scan(this, f);
     	
+    }
+    
+    private DoubleArray_c( distribution d, double[] a) {
+    	super(d);
+    	this.arr_ = Allocator.allocSafeDoubleArray( a);
+    }
+    /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
+     * 
+     * @param a
+     * @return
+     */
+    public static DoubleArray_c DoubleArray_c( double[] a ) {
+    	distribution d = Runtime.factory.getDistributionFactory().here(a.length);
+    	return new DoubleArray_c(d, a);
     }
     
     public void keepItLive() {}

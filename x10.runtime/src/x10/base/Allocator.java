@@ -31,6 +31,12 @@ public final class Allocator {
         }
         return mb;
     }
+    public static final MemoryBlock allocSafeIntArray(int[] a) {      
+        return new MemoryBlockSafeIntArray( a );
+    }
+    public static final MemoryBlock allocSafeDoubleArray(double[] a) {      
+        return new MemoryBlockSafeDoubleArray( a );
+    }
     
     public static final int SIZE_BOOLEAN = 1; 
     public static final int SIZE_BYTE = 1; 

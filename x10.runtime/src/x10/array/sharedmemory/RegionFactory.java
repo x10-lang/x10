@@ -22,10 +22,14 @@ public  class RegionFactory extends region.factory {
 	}
 	
 	/** Construct a 1-dimensional Region_c, low..high with the given stride.
+	 * Return an empty region if low > high
 	 */
 	public region /*(1)*/ region(int low, int high, int stride) {
+		if (low > high) 
+			return emptyRegion(1);
+		
 		return (stride == 1) 
-		? (region) new ContiguousRange(low, high) 
+		? (region) new ContiguousRange(low, high)
 				: (region) new StridedRange(low, high, stride);
 	}
 	
@@ -35,6 +39,9 @@ public  class RegionFactory extends region.factory {
 	 */
 	public region/*(regions.length)*/ region(region/*(1)*/[] regions ) {
 		return new Region_c( regions );
+	}
+	public region/*(2)*/ region(region a, region b) {
+		return new Region_c( new region[] {a, b});
 	}
 	
 	/** Return an \code{upperTriangular} Region_c for a dim-rankal

@@ -63,6 +63,8 @@ public abstract /*value*/ class region extends Object  {
 			return result;
 		}
 		
+		public abstract region/*2*/ region( region a, region b);
+		
 		/** Construct a region, using the list of region(1)'s passed as
 		 * arguments to the constructor.
 		 */

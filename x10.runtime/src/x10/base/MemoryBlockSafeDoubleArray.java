@@ -14,6 +14,10 @@ public class MemoryBlockSafeDoubleArray extends MemoryBlockSafe {
         arr_ = new double[count];
     }
     
+    MemoryBlockSafeDoubleArray(double[] a) {
+        arr_ = a;
+    }
+    
     public int count() { 
         return arr_.length;
      }

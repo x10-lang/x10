@@ -42,7 +42,6 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
 	 * @see polyglot.ext.x10.types.X10Type#isNullable()
 	 */
 	public boolean isNullable() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -50,7 +49,6 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
 	 * @see polyglot.ext.x10.types.X10Type#isFuture()
 	 */
 	public boolean isFuture() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -58,7 +56,6 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
 	 * @see polyglot.ext.x10.types.X10Type#toNullable()
 	 */
 	public NullableType toNullable() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -66,9 +63,11 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
 	 * @see polyglot.ext.x10.types.X10Type#toFuture()
 	 */
 	public FutureType toFuture() {
-		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public boolean isX10Array() { return false; }
+	public X10ArrayType toX10Array() { return null; }
 
 	public  boolean isSubtypeImpl( Type t) {
     	X10Type target = (X10Type) t;

@@ -34,7 +34,6 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
 	public X10ParsedClassType_c(TypeSystem ts, LazyClassInitializer init,
 			Source fromSource) {
 		super(ts, init, fromSource);
-		// TODO Auto-generated constructor stub
 	}
 	
 //	 ----------------------------- begin manual mixin code from X10Type_c
@@ -65,6 +64,8 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
 	public FutureType toFuture() {
 			return null;
 	}
+	public boolean isX10Array() { return false; }
+	public X10ArrayType toX10Array() { return null; }
 
 	
 	public  boolean isSubtypeImpl( Type t) {
@@ -97,6 +98,7 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
 	// ugh... toString() is being used to write out code..!!
 	
 	 public boolean isImplicitCastValidImpl(Type toType) {
+	 	if (toType.isArray()) return false;
 	 	X10Type targetType = (X10Type) toType;
         if (! targetType.isClass() && ! targetType.isNullable()) 
         	return false;
