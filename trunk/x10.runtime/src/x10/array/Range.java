@@ -33,6 +33,7 @@ implements TypeArgument {
 		lo = l;
 		hi = h;
 		size = c;
+		assert size == hi-lo+1;
 		assert hi >= lo;
 	}
 	
@@ -43,7 +44,7 @@ implements TypeArgument {
 	public int ordinal(int j) {
 		int ret = j-lo;
         if (ret < 0 || ret >= size)
-            throw new ArrayIndexOutOfBoundsException();
+            throw new ArrayIndexOutOfBoundsException(j);
         return ret;
 	}
 	
