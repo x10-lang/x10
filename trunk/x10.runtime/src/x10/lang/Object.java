@@ -5,8 +5,6 @@
 package x10.lang;
 
 import x10.base.TypeArgument;
-import x10.runtime.Place;
-
 
 /**
  * @author Christoph von Praun

@@ -1,10 +1,5 @@
 package x10.lang;
 
-
-
-import x10.array.DoubleArray;
-import x10.array.IntArray;
-
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
 

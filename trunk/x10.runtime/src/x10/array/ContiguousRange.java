@@ -23,7 +23,6 @@ public class ContiguousRange extends Range {
 	
 	/**
 	 * Range that starts at 0 to hi (including!).
-	 * TODO: vj Check if we are following Fortran convention. Then the low is 1.
 	 */
 	public ContiguousRange(int hi) {
 		this(0, hi);
@@ -44,42 +43,56 @@ public class ContiguousRange extends Range {
 	
 	public region union( region r ) {
 		assert r != null;
-		assert r instanceof ContiguousRange;
-		
-		ContiguousRange cr = (ContiguousRange) r;
-		int l = (lo < cr.lo) ? lo : cr.lo;
-		int h = (hi > cr.hi) ? hi : cr.hi;
-		return new ContiguousRange(l, h);
+		region ret;
+		if (r instanceof ContiguousRange) {
+		    ContiguousRange cr = (ContiguousRange) r;
+		    int l = (lo < cr.lo) ? lo : cr.lo;
+		    int h = (hi > cr.hi) ? hi : cr.hi;
+		    ret = new ContiguousRange(l, h);
+		} else {
+		    ret = super.union(r);
+		}
+		return ret;
 	}
 	
 	public region intersection( region r ) {
 		assert r != null;
-		assert r instanceof ContiguousRange;
-		
-		ContiguousRange cr = (ContiguousRange) r;
-		int l = (lo > cr.lo) ? lo : cr.lo;
-		int h = (hi < cr.hi) ? hi : cr.hi;
-		return new ContiguousRange(l, h);
+		region ret;
+		if (r instanceof ContiguousRange) {
+		    ContiguousRange cr = (ContiguousRange) r;
+		    int l = (lo > cr.lo) ? lo : cr.lo;
+		    int h = (hi < cr.hi) ? hi : cr.hi;
+		    return new ContiguousRange(l, h);
+		} else {
+		    ret = super.intersection(r);
+		}
+		return ret;
 	}
 	
-	public region difference( region r ) {
+	public region difference(region r ) {
 		assert r != null;
-		assert r instanceof ContiguousRange;
-		
-		// Ranges with holes are not allowed (yet), hence
-		// both ranges must have either a common lo or hi level or both.
-		ContiguousRange cr = (ContiguousRange) r;
-		assert lo == cr.lo || hi == cr.hi;
-		return intersection(r);
+		region ret = null;
+		if (r instanceof ContiguousRange) {
+		    ContiguousRange cr = (ContiguousRange) r;
+		    if (lo == cr.lo || hi == cr.hi) {
+		        ret = intersection(r);
+		    }
+		}
+		if (ret == null)
+		    ret = super.difference(r);
+		return ret;
 	}
-	public boolean disjoint( region r ) {
+	
+	public boolean disjoint(region r ) {
 		assert r != null;
-		assert r instanceof ContiguousRange;
-		
-		// Ranges with holes are not allowed (yet), hence
-		// both ranges must have either a common lo or hi level or both.
-		ContiguousRange cr = (ContiguousRange) r;
-		return cr.hi < lo || hi < cr.lo;
+		boolean ret;
+		if (r instanceof ContiguousRange) {
+		    ContiguousRange cr = (ContiguousRange) r;
+		    ret = cr.hi < lo || hi < cr.lo;
+		} else {
+		    ret = super.disjoint(r);
+		}
+		return ret;
 	}
 	
 	public boolean contains(point p) {
@@ -87,18 +100,23 @@ public class ContiguousRange extends Range {
 		int val = p.valueAt(0);
 		return lo <= val && val <= hi; 
 	}
+	
 	public boolean contains(int[] p) {
 		assert p.length == 1;
 		int val = p[0];
 		return lo <= val && val <= hi; 
 	}
 	
-	public boolean contains( region r) {
+	public boolean contains(region r) {
 		assert r != null;
-		assert r instanceof ContiguousRange;
-		
-		ContiguousRange cr = (ContiguousRange) r;
-		return cr.lo >= lo && cr.hi <= hi;
+		boolean ret;
+		if (r instanceof ContiguousRange) {
+		    ContiguousRange cr = (ContiguousRange) r;
+		    ret = cr.lo >= lo && cr.hi <= hi;
+		} else {
+		    ret = super.contains(r);
+		}
+		return ret;
 	}
 	
 	public String toString() {

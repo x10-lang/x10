@@ -5,8 +5,6 @@
  */
 package x10.lang;
 
-import x10.base.TypeArgument;
-
 /**
  * @author vj Jan 1, 2005
  * 

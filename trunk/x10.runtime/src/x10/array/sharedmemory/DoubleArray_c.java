@@ -8,9 +8,7 @@ import java.util.Iterator;
 
 
 import x10.array.DoubleArray;
-import x10.array.IntArray;
 import x10.array.Operator;
-import x10.array.IntArray.Assign;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;

@@ -4,12 +4,9 @@
 package x10.array.sharedmemory;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import x10.array.Range;
 import x10.array.ContiguousRange;
-import x10.array.StridedRange;
-import x10.array.EmptyRegion;
 
 import x10.lang.PointOutOfRegionError;
 import x10.lang.region;

@@ -6,19 +6,13 @@ package x10.array.sharedmemory;
 import java.util.HashSet;
 import java.util.Set;
 
-
 import x10.array.Range;
 import x10.array.ContiguousRange;
-
 import x10.lang.region;
 import x10.lang.distribution;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.Runtime;
-
-
-import java.util.Set;
-
 
 
 /**
