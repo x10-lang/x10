@@ -3,14 +3,15 @@
  */
 package x10.base;
 
-
+import x10.lang.place;
+import x10.runtime.Place;
 
 /**
  * @author Christoph von Praun
  */
 public interface Runtime {
 
-    public abstract Place currentPlace();
+     Place currentPlace();
     
-    public abstract Place[] getPlaces();
+     Place[] getPlaces();
 }

@@ -6,266 +6,264 @@ package x10.array.sharedmemory;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import x10.array.PointOutOfRegionException;
 import x10.array.Range;
 import x10.array.ContiguousRange;
-import x10.array.Region;
+import x10.array.StridedRange;
+import x10.array.EmptyRegion;
+
+import x10.lang.PointOutOfRegionError;
+import x10.lang.region;
+import x10.lang.point;
+import x10.lang.Object;
 
 /**
- * Implementation of Region. The Points in a region, aka. tuples, are
- * implemented as one-dimensional int arrays. Instance of this class are
- * immutable!
- * 
+ * Implementation of Region. Instance of this class are immutable! 
+ * This class only implements a cross-product of contiguous or strided regions.
+ *  @seealso point
  * @author Christoph von Praun
  * @author Christian Grothoff
+ * @author vj
  */
-class Region_c implements Region {
 
-    private final Range[] dims_;
-
-    final int card;
-
-    final int rank;
-
-	static Region_c makeUpperTriangular(int n) {
-        assert n >= 0;
-        throw new Error ("TODO");
+public class Region_c extends region  {
+	private final region[] dims;
+	final int card;
+	
+	
+	
+	/**
+	 * Convenience constructor. Region starts in all ranks 
+	 * at index 0, to index idx[i], including the latter.
+	 */
+	Region_c(int[] dims) {
+		super(dims.length);
+		assert dims != null;
+		
+		int tmp_card = 1;
+		this.dims = new region[dims.length];
+		for (int i = 0; i < dims.length; ++i) {
+			this.dims[i] = new ContiguousRange(0, dims[i]);
+			tmp_card *= dims[i];
+		}
+		card = tmp_card;
 	}
 	
-	static Region_c makeLowerTriangular(int n) {
-        assert n >= 0;
-        throw new Error ("TODO");
+	Region_c(final region[] dims) {
+		super(dims.length);
+		assert dims != null;
+		int tmp_card = 1;
+		this.dims = dims;
+		for (int i = 0; i < dims.length; ++i)
+			tmp_card *= ((Range) dims[i]).size;
+		card = tmp_card;
 	}
- 
-	static Region_c makeBanded(int n, int k) {
-        assert n >= 0;
-        throw new Error ("TODO");
+	
+	
+	/**
+	 * Creates a subregion from this region
+	 * @param partitions
+	 * @param part
+	 * @return The new sub-region.
+	 * TODO: vj -- check the intended logic survived the rework.
+	 */
+	Region_c sub(int partitions, int part) {
+		assert partitions > 0 && part >= 0 && part < partitions;
+		assert size() % partitions == 0;
+		assert dims[0] instanceof ContiguousRange;
+		assert ((Range) dims[0]).size % partitions == 0;
+		
+		ContiguousRange cr = (ContiguousRange) dims[0];
+		int len = cr.size / partitions;
+		int offset = len * part;
+		region[] new_dims = new region[(int) rank];
+		// determine most significant dimension
+		new_dims[0] = new ContiguousRange(cr.lo + offset, cr.lo + offset + len - 1);
+		
+		// initialize other dimensions
+		for (int i = 1; i < rank; ++i) 
+			new_dims[i] = dims[i];
+		return new Region_c(new_dims);
 	}
-	    
-    /**
-     * Convenience constructor. Region starts in all dimensions 
-     * at index 0, to index idx[i], including the latter.
-     */
-    Region_c(int[] dims) {
-        assert dims != null;
-        rank = dims.length;
-
-        int tmp_card = 1;
-        dims_ = new Range[dims.length];
-        for (int i = 0; i < dims.length; ++i) {
-            dims_[i] = new ContiguousRange(0, dims[i]);
-            tmp_card *= dims[i];
-        }
-        card = tmp_card;
-    }
-
-    Region_c(Range[] dims) {
-        assert dims != null;
-        rank = dims.length;
-        int tmp_card = 1;
-        dims_ = dims;
-        for (int i = 0; i < dims.length; ++i)
-            tmp_card *= dims_[i].count;
-        card = tmp_card;
-    }
-
-    /**
-     * Copy constructor.
-     */
-    Region_c (Region_c r) {
-        dims_ = r.dims_;
-        card = r.card;
-        rank = r.rank;
-    }
-    
-    public int rank() {
-        return rank;
-    }
-
-    /**
-     * Creates a subregion from this region
-     * @param partitions
-     * @param part
-     * @return The new sub-region.
-     */
-    Region_c sub(int partitions, int part) {
-        assert partitions > 0 && part >= 0 && part < partitions;
-        assert count() % partitions == 0;
-        assert dims_[0] instanceof ContiguousRange;
-        assert dims_[0].count % partitions == 0;
-        
-        ContiguousRange cr = (ContiguousRange) dims_[0];
-        int len = cr.count / partitions;
-        int offset = len * part;
-        Range[] new_dims = new Range[rank];
-        // determine most significant dimension
-        new_dims[0] = new ContiguousRange(cr.lo + offset, cr.lo + offset + len - 1);
-        
-        // initialize other dimensions
-        for (int i = 1; i < rank; ++i) 
-            new_dims[i] = dims_[i];
-        return new Region_c(new_dims);
-    }
-    
-    public Region union(Region r) {
-        assert r != null;
-        assert r.rank() == rank;
-        assert r instanceof Region_c;
-        
-        Region_c rc = (Region_c) r;
-        Range[] d = new Range[rank];
-        for (int i = 0; i < d.length; ++ i)
-            d[i] = dims_[i].union(rc.dims_[i]);
-        return new Region_c(d);
-    }
-
-    public Region intersection(Region r) {
-        assert r != null;
-        assert r.rank() == rank;
-        assert r instanceof Region_c;
-        
-        Region_c rc = (Region_c) r;
-        Range[] d = new Range[rank];
-        for (int i = 0; i < d.length; ++ i)
-            d[i] = dims_[i].intersect(rc.dims_[i]);
-        return new Region_c(d);
-    }
-
-    public Region difference(Region d) { 
-        throw new Error("TODO");
-    }
-    
-    /**
-     * @return range in the i-th dimension.
-     */
-    public Range range(int i) {
-        assert i < rank;
-        return dims_[i];
-    }
-
-    public Range[] dim() {
-        Range[] ret = new Range[rank];
-        System.arraycopy(dims_, 0, ret, 0, ret.length);
-        return ret;
-    }
-    
-    public boolean subset(Region r) {
-        assert r.rank() == rank;
-
-        Region_c r_c = (Region_c) r;
-        boolean ret = true;
-
-        for (int i = 0; i < r_c.rank && ret; ++i)
-            ret = r_c.dims_[i].contains(dims_[i]);
-        return ret;
-    }
-
-    public boolean contains(int[] p) {
-        if (p.length != rank)
-            throw new PointOutOfRegionException();
-
-        boolean ret = true;
-        for (int i = 0; ret && i < rank; ++i) {
-            Range r = dims_[i];
-            if (!r.contains(p[i]))
-                ret = false;
-        }
-        return ret;
-    }
-
-    public int count() {
-        int ret = 1;
-        for (int i = rank - 1; i >= 0; i--)
-            ret *= dims_[i].count; // TODO: check overflow?
-        return ret;
-    }
-    
-    /**
-     * @param p A point in the region; the dimension of p must be compatible
-     *          with this region.
-     * @return Returns the ordinal of the point in this region (its position,
-     *         where the initial constant is assigned an ordinal of zero).
-     */
-    public int ordinal(int[] p) {
-        if (p.length != rank)
-            throw new PointOutOfRegionException();
-
-        int ret = 0;
-        int base = 1;
-        for (int i = 0; i < p.length; ++i) {
-            ret += dims_[i].ordinal(p[i]) * base;
-            base *= dims_[i].count;
-        }
-        return ret;
-    }
-
-    /**
-     * @return Iterator that yields the individual points of a region in lexicographical
-     * order. Points are specified as arrays of int.
-     */
-    public Iterator iterator() {
-        return new RegionIterator();
-    }
-
-    public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("{");
-        for (int i = 0; i < rank; ++i) {
-            sb.append(dims_[i].toString());
-            if (i < rank - 1)
-                sb.append(",");
-        }
-        sb.append("}");
-        return sb.toString();
-    }
-
-    public boolean equals(Object o) {
-        assert o.getClass() == getClass();
-
-        Region_c rhs = (Region_c) o;
-        boolean ret = rhs.rank == rank && rhs.card == card;
-        for (int i = 0; ret && i < rank; ++i)
-            ret = dims_[i].equals(rhs.dims_[i]);
-        return ret;
-    }
-
-    public int hashCode() {
-        return card;
-    }
-
-    static final class Empty extends Region_c {
-        Empty() {
-            super(new Range[0]);
-        }
-    }
-    
-    private class RegionIterator implements Iterator {
-        private int nextOrd_;
-
-        public boolean hasNext() {
-            return nextOrd_ < card;
-        }
-
-        public void remove() {
-            throw new Error("not implemented");
-        }
-
-        public Object next() {
-            assert hasNext();
-
-            int[] ret = new int[rank];
-            // express nextOrd_ as a base of the regions
-            int rest = nextOrd_;
-            for (int i = 0; i < rank; ++i) {
-                int base = dims_[i].count;
-                int tmp = rest % base;
-                rest = (rest - tmp) / base;
-                ret[i] = dims_[i].coord(tmp);
-            }
-            nextOrd_++;
-            return ret;
-        }
-    }
+	
+	public region union( region r ) {
+		assert r != null;
+		assert r.rank == rank;
+		
+		Region_c rc = (Region_c) r;
+		region[] d = new region[(int) rank];
+		for (int i = 0; i < d.length; ++ i)
+			d[i] = dims[i].union(rc.dims[i]);
+		return new Region_c(d);
+	}
+	
+	public region intersection( region r ) {
+		assert r != null;
+		assert r.rank == rank;
+		
+		Region_c rc = (Region_c) r;
+		region[] d = new region[(int) rank];
+		for (int i = 0; i < d.length; ++ i)
+			d[i] = dims[i].intersection(rc.dims[i]);
+		return new Region_c(d);
+	}
+	
+	// This wont return a contiguous region.
+	public region difference( region d) { 
+		throw new Error("TODO");
+	}
+	
+	/**
+	 * @return range in the i-th dimension.
+	 */
+	public region rank(/*nat*/long i) {
+		return dims[((int) i) % dims.length];
+	}
+	
+	public region[] dim() {
+		region[] ret = new region[(int) rank];
+		System.arraycopy(dims, 0, ret, 0, ret.length);
+		return ret;
+	}
+	
+	public boolean contains(region r) {
+		assert r.rank == rank;
+		Region_c r_c = (Region_c) r;
+		boolean ret = true;
+		
+		for (int i = 0; i < r_c.rank && ret; ++i)
+			ret = r_c.dims[i].contains(dims[i]);
+		return ret;
+	}
+	
+	public boolean contains(point p) {
+		assert p.rank == rank;
+		boolean ret = true;
+		for (int i = 0; ret && i < rank; ++i) {
+			ret = ! ((Range) dims[i]).contains(p.valueAt(i));
+		}
+		return ret;
+	}
+	
+	public /*nat*/long size() {
+		int ret = 1;
+		for (int i = (int) rank - 1; i >= 0; i--)
+			ret *= ((Range) dims[i]).size; // TODO: check overflow?
+		return ret;
+	}
+	
+	/**
+	 * @param p A point in the region; the dimension of p must be compatible
+	 *          with this region.
+	 * @return Returns the ordinal of the point in this region (its position,
+	 *         where the initial constant is assigned an ordinal of zero).
+	 */
+	public /*nat*/long ordinal(point/*(this)*/ p) {
+		assert (p.rank == rank);
+		
+		/*nat*/long ret = 0;
+		int base = 1;
+		for (int i = 0; i < p.rank; ++i) {
+			Range r = (Range) dims[i];
+			ret += r.ordinal(p.valueAt(i)) * base;
+			base *= r.size;
+		}
+		return ret;
+	}
+	
+	/**
+	 * @return Iterator that yields the individual points of a region
+	 * in lexicographical * order. Points are specified as arrays of
+	 * int.
+	 */
+	public Iterator iterator() {
+		return new RegionIterator();
+	}
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		for (int i = 0; i < rank; ++i) {
+			sb.append(dims[i].toString());
+			if (i < rank - 1)
+				sb.append(",");
+		}
+		sb.append("}");
+		return sb.toString();
+	}
+	
+	public boolean equals( Object o ) {
+		assert o.getClass() == getClass();
+		
+		Region_c rhs = (Region_c) o;
+		boolean ret = rhs.rank == rank && rhs.card == card;
+		for (int i = 0; ret && i < rank; ++i)
+			ret = dims[i].equals(rhs.dims[i]);
+		return ret;
+	}
+	
+	public int hashCode() {
+		return card;
+	}
+	
+	private class RegionIterator implements Iterator {
+		private int nextOrd_;
+		
+		public boolean hasNext() {
+			return nextOrd_ < card;
+		}
+		
+		public void remove() {
+			throw new Error("not implemented");
+		}
+		
+		public java.lang.Object next() {
+			assert hasNext();
+			
+			int[] ret = new int[(int) rank];
+			// express nextOrd_ as a base of the regions
+			int rest = nextOrd_;
+			int base = 0;
+			for (int i = 0; rest > 0 && i < rank; ++i) {
+				Range r = (Range) dims[i];
+				base = r.size;
+				int tmp = rest % base;
+				rest = (rest - tmp) / base;
+				ret[i] = r.coord(tmp).valueAt(0);
+			}
+			nextOrd_++;
+			return point.factory.point(Region_c.this, ret);
+		}
+	}
+	public region convexHull() {
+	 throw new Error("TODO");
+	}
+	public boolean disjoint(region r) {
+		throw new Error("TODO");
+	}
+	
+	public int high() throws EmptyRegionError {
+		if (rank > 0) 
+			return dims[0].high();
+		throw new EmptyRegionError();
+	}
+	public int low() throws EmptyRegionError {
+		if (rank > 0) 
+			return dims[0].low();
+		throw new EmptyRegionError();
+	}
+	public boolean isConvex() {
+		
+		boolean ret = true;	
+		for (int i = 0; i < rank && ret; ++i) {
+			Region_c r = (Region_c) dims[i];
+			ret = r.isConvex();
+		}
+		return ret;
+		
+	}
+	public point coord(/*nat*/ long ordinal) throws PointOutOfRegionError {
+	 throw new Error("TODO");
+	}
     
     public int[] firstElement() {
         if (rank == 0)
@@ -276,7 +274,7 @@ class Region_c implements Region {
             if (dims_[i].count == 0)
                 return null; // empty!
             ret[i] = dims_[i].coord(0);
-        }
+}
         return ret;
     }
 
