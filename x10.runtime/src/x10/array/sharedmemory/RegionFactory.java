@@ -9,7 +9,7 @@ public  class RegionFactory extends region.factory {
 	/** Create a Region_c of zero ranks. This is an empty
 	 * Region_c of size 0.
 	 */
-	public region /*(k)*/ emptyRegion(/*nat*/ long k) {
+	public region /*(k)*/ emptyRegion(/*nat*/ int k) {
 		return new EmptyRegion(k);
 	}
 	
@@ -40,25 +40,25 @@ public  class RegionFactory extends region.factory {
 	/** Return an \code{upperTriangular} Region_c for a dim-rankal
 	 * space of size \code{size} in each dimension.
 	 */
-	public region/*(rank)*/ upperTriangular( /*nat*/ long rank, 
-			/*nat*/ long size ) {
+	public region/*(rank)*/ upperTriangular( /*nat*/ int rank, 
+			/*nat*/ int size ) {
 		throw new Error("TODO");
 	}
 	
 	/** Return a lowerTriangular Region_c for a rank-dimensional space of
 	 * size \code{size} in each rankension.
 	 */
-	public region/*(rank)*/ lowerTriangular( /*nat*/ long rank, 
-			/*nat*/ long size ) {
+	public region/*(rank)*/ lowerTriangular( /*nat*/ int rank, 
+			/*nat*/ int size ) {
 		throw new Error("TODO");
 	}
 	
 	/** Return a banded Region_c of width {\code width} for a
 	 * rank-dimensional space of size {\code size} in each dimension.
 	 */
-	public region/*(rank)*/ banded( /*nat*/ long rank, 
-			/*nat*/ long size, 
-			/*nat*/ long width) {
+	public region/*(rank)*/ banded( /*nat*/ int rank, 
+			/*nat*/ int size, 
+			/*nat*/ int width) {
 		throw new Error("TODO");	    
 	}
 }

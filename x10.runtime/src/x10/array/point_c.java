@@ -20,14 +20,14 @@ public class point_c extends point {
 	
 	/** Return the value of this point on the i'th dimension.
 	 */    
-	public int valueAt( /*nat*/long i ) {
+	public int valueAt( /*nat*/int i ) {
 		return val[((int) i) % val.length];
 	}
 	
 	/** Return true iff the point is on the upper boundary of the i'th
 	 * dimension of its region.
 	 */
-	public boolean onUpperBoundary( /*nat*/long i ) {
+	public boolean onUpperBoundary( /*nat*/int i ) {
 		return region.rank(i).high() == valueAt(i);
 	}
 	
@@ -35,7 +35,7 @@ public class point_c extends point {
 	/** Return true iff the point is on the lower boundary of the i'th
 	 * dimension.
 	 */
-	public boolean onLowerBoundary( /*nat*/long i ) {
+	public boolean onLowerBoundary( /*nat*/int i ) {
 		return region.rank(i).low() == valueAt(i);
 	}
 	

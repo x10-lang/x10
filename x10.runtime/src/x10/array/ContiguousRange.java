@@ -35,12 +35,8 @@ public class ContiguousRange extends Range {
 		super(lo, hi, hi - lo + 1);
 	}
 	
-	public int coord(int ord) {
-		assert ord < size;
-		return lo + ord;
-	}
 	
-	public /*nat*/long ordinal(point p) {
+	public /*nat*/int ordinal(point p) {
 		assert contains(p);
 		return p.valueAt(0) - lo;
 	}
@@ -125,13 +121,13 @@ public class ContiguousRange extends Range {
 		return this;
 	}
 	
-	public /*nat*/long size() {
+	public /*nat*/int size() {
 		return size;
 	}
-	public region rank( long index ) {
+	public region rank( int index ) {
 		return this;
 	}
-	public  point/*(rank)*/ coord(/*nat*/ long ord) {
+	public  point/*(rank)*/ coord(/*nat*/ int ord) {
 		return Runtime.factory.getPointFactory().point(this, new int[] { ((int) ord % size) - lo});
 	}
 	public Iterator iterator() {

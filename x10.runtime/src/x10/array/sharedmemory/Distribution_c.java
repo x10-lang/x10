@@ -55,7 +55,7 @@ abstract class Distribution_c extends /*Region_c*/distribution /*implements Dist
     	/** The empty region of rank k
     	 * @param k
     	 */
-        Empty(/*nat*/long k) {
+        Empty(/*nat*/int k) {
         	// get an empty region of rank 0
             super( Runtime.factory.getRegionFactory().emptyRegion(k));
         }

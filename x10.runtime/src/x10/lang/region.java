@@ -20,15 +20,15 @@ import x10.array.ContiguousRange;
  * @author vj
  */
 public abstract /*value*/ class region extends Object  {
-	// nat is translated to long for now.
-	public final /*nat*/ long rank;
+	// nat is translated to int for now.
+	public final /*nat*/ /*long*/ int rank;
 	
 	public static class EmptyRegionError extends Error {}
 	public static abstract /*value*/ class factory {
 		/** Create a region of zero ranks. This is an empty
 		 * region of size 0.
 		 */
-		public abstract region /*(k)*/ emptyRegion(/*nat*/ long k);
+		public abstract region /*(k)*/ emptyRegion(/*nat long*/ int k);
 		
 		/**  Construct a 1-dimensional region 1..high, with stride 1.
 		 */
@@ -47,17 +47,17 @@ public abstract /*value*/ class region extends Object  {
 		 */
 		public abstract region/*(1)*/ region(int low, int high, int stride);
 		
-		public region/*(2)*/ upperTriangular( /*nat*/ long size ) {
+		public region/*(2)*/ upperTriangular( /*nat*/ int size ) {
 			final region/*(2)*/ result = upperTriangular(2, size);
 			assert result.rank==2;
 			return result;
 		}
-		public region/*(2)*/ lowerTriangular( /*nat*/ long size ) {
+		public region/*(2)*/ lowerTriangular( /*nat*/ int size ) {
 			final region/*2*/ result = lowerTriangular(2, size);
 			assert result.rank==2;
 			return result;
 		}
-		public region/*(2)*/ banded( /*nat*/ long  size, /*nat*/ long width) {
+		public region/*(2)*/ banded( /*nat*/ int  size, /*nat*/ int width) {
 			final region/*(2)*/ result = banded(2, size, width);
 			assert result.rank==2;
 			return result;
@@ -71,35 +71,35 @@ public abstract /*value*/ class region extends Object  {
 		/** Return an \code{upperTriangular} region for a dim-dimensional
 		 * space of size \code{size} in each dimension.
 		 */
-		public abstract region/*(dim)*/ upperTriangular( /*nat*/ long dim, /*nat*/ long size );
+		public abstract region/*(dim)*/ upperTriangular( /*nat*/ int dim, /*nat*/ int size );
 		
 		/** Return a lowerTriangular region for a dim-dimensional space of
 		 * size \code{size} in each dimension.
 		 */
-		public abstract region/*(dim)*/ lowerTriangular( /*nat*/ long dim, /*nat*/ long size );
+		public abstract region/*(dim)*/ lowerTriangular( /*nat*/ int dim, /*nat*/ int size );
 		
 		/** Return a banded region of width {\code width} for a
 		 * dim-dimensional space of size {\code size} in each dimension.
 		 */
-		public abstract region/*(dim)*/ banded( /*nat*/ long dim, /*nat*/ long size, /*nat*/ long width);
+		public abstract region/*(dim)*/ banded( /*nat*/ int dim, /*nat*/ int size, /*nat*/ int width);
 		
 	}
 	
 	public static final factory factory = Runtime.factory.getRegionFactory();
 	
-	protected region( /*nat*/long rank ) {
+	protected region( /*nat long*/ int rank ) {
 		this.rank = rank;
 	}
 	
 	
 	/**  Return the number of points in this region.
 	 */
-	abstract public /*nat*/long size();
+	abstract public /*nat*/int size();
 	
 	/** Use modular arithmetic on the index to determine the dimension
 	 to return.
 	 */
-	abstract public region/*(1)*/ rank( /*nat*/long  index ); 
+	abstract public region/*(1)*/ rank( /*nat*/int  index ); 
 	
 	/** Returns true iff the region contains every point between two
 	 * points in the region.
@@ -144,13 +144,13 @@ public abstract /*value*/ class region extends Object  {
 	 * @param p a point in the coordinate space
 	 * @return the ordinal number of the point [0 ... size()[
 	 */
-	abstract public /*nat*/long ordinal(point/*(rank)*/ p) throws EmptyRegionError;
+	abstract public /*nat*/int ordinal(point/*(rank)*/ p) throws EmptyRegionError;
 	
 	/**
 	 * @param ord the ordinal number, must be smaller than size()
 	 * @return the coordinate that has ordinal number ord
 	 */
-	public abstract point/*(rank)*/ coord(/*nat*/ long ord) throws PointOutOfRegionError;
+	public abstract point/*(rank)*/ coord(/*nat*/ int ord) throws PointOutOfRegionError;
 	
 	/**
 	 * @return Iterator that yields the individual points of a region in lexicographical

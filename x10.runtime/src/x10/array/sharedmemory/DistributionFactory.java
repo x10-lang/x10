@@ -31,10 +31,10 @@ public class DistributionFactory extends distribution.factory {
      * @param r
      * @return
      */
-    public distribution blockCyclic(region r, /*nat*/long n, Set/*<place>*/ q) {
+    public distribution blockCyclic(region r, /*nat*/int n, Set/*<place>*/ q) {
         throw new Error("TODO");
     }
-    public distribution blockCyclic(region r, /*nat*/ long p) {
+    public distribution blockCyclic(region r, /*nat*/ int p) {
         return blockCyclic(r, p, x10.lang.place.places);
     }
 
