@@ -43,6 +43,13 @@ Procedure:
   your 'local workspace' (CVS checkout).
 - the x20 project will appear in the workspace.
 
+Note:
+
+When you build x10, you will encounter several compilation errors
+using eclipse's default settings.  You should adjust your workspace
+Java compilation properties as described in the HOWTO:
+eclipse_java_assert.txt to make it work.
+
 
 
 
