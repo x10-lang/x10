@@ -1,4 +1,5 @@
-\documentclass[fullpage]{article}
+\documentclass{article}
+\input{../../../../vj/res/pagesizes}
 \def\csharp{{\sf C\#}}
 \usepackage[pdftex]{graphicx}
 \def\Xten{{\sf X10}}
@@ -12,7 +13,7 @@ Vijay Saraswat \\
 IBM TJ Watson Research Center \\
 PO Box 704, Yorktown Heights\\
 NY 10598\\
-({\sc Draft Version 0.2})\\
+({\sc Draft Version 0.21})\\
 (Please do not cite)\\
 (Send comments to {\tt vsaraswa@us.ibnm.com}.)
 }
@@ -38,20 +39,34 @@ the type of all {\tt 2}-dimensional regions, {\tt int[5]}, the type of
 all arrays of {\tt int} of length {\tt 5}, and {\tt int[region(2)]},
 the type of all arrays over two dimensional regions. The underlying
 general idea is that of {\em dependent types} -- types that are
-parametrized by {\em values}, just as generic types are types
-paramterized by other types.
+parametrized by {\em values} \cite{xi99dependent}, just as generic
+types are types paramterized by other types.
 
 In this paper we develop a general syntactic and semantic framework
 for user-defined dependent types in the context of modern class-based
 OO languages such as \java{}, \csharp{} and \Xten{}. The design
 supports the definition of dependent and generic interfaces, classes
-and methods.  As in staged languages, it distinguishes between
-compile-time evaluation and run-time evaluation. Dependent types are
-checked at compile-time; expressions occurring in them are perforce
-evaluated at compile-time.  We outline the design for a compiler which
-can use an extensible constraint-solver for type-checking. No
-extension of an underlying Virtual Machine is necessary.
+and methods.  Run time casts to parametric types are permitted.  As in
+staged languages, the design distinguishes between compile-time
+evaluation and run-time evaluation. Dependent types are checked
+(mostly) at compile-time.  The compiler uses a constraint-solver to
+perform universal reasoning (``for all possible values of method
+parameters'') for dependent type-checking.  There is no run-time
+constraint-solving; run-time casts involve arithmetic, not algebra
+(the values of all parameters are known).  No extension of an
+underlying Virtual Machine is necessary, except as may be useful in
+improving efficiency (for example, eliminating array bounds checks).
 
+We outline the design for a compiler which can use an extensible
+constraint-solver for type-checking. The compiler translates source
+programs into target programs without dependent classes or parametric
+types but with {\tt assume} and {\tt assert} statements. A general
+constraint-propagator that depends only on the operational semantics
+of the language and is independent of the underlying constraint solver
+may be run on the program in order to eliminate branches and {\tt
+asserts} forced by the assumptions. If all {\tt assert}s cannot be
+eliminated at compile-time, some residual constraint-checking
+may need to be performed at runtime.
 \end{abstract}
 
 \section{Introduction}
@@ -66,83 +81,153 @@ We permit the definition of a class {\tt C} to specify a {\em
 parameter list}, a list of typed parameters {\tt (T1 x1, \ldots, Tk
 xk)} similar in syntactic structure to a method argument list. Each
 parameter in this list is treated as a {\tt public final} instance
-field of the class. We also permit the specification of a {\em where
-clause} in the class definition. A where clause is a boolean
-expression on the parameters separated from the parameter list with a
-``{\tt :}''.  All instances of the class created at runtime must
-satisfy the where clause associated with the class.
+field of the class. Thus for instance, we may specify a class {\tt
+List} with a {\tt nat length} parameter.  We also permit the
+specification of a {\em where clause} in the class definition. A where
+clause is a boolean expression on the parameters separated from the
+parameter list with a ``{\tt :}''.  The compiler ensures that all
+instances of the class created at runtime satisfy the where clause
+associated with the class.
 
-It is now straightforward to see what a parametric type should be.  It
-should simply by the name of a class (the {\em base class} of the
-type) followed by a where clause (a boolean expression on the
-parameters of that class), called the {\em condition} of the
-parametric type.\footnote{By insisting that the condition reference
-only parameters, we ensure that whether an object belongs to a
-parametric type or not does not depend on the state of the object. By
-explicitly marking final fields as parameters we ensure that only
-those fields can be used to construct parametric types which were
-intended by the programmer to be used in types. An ``accidentally''
-final field cannot be used to construct a parametric type.}  The
-denotation (semantic interpretation) of such a type is the set of all
-instances of subtypes of the base class whose parameters satisfy the
-where clause. Clearly, for the denotation of a parametric type $t$ to
-be non-empty it must be the case that the condition of the parametric
+Given such a class definition, what types can be constructed from it?
+If the class {\tt C} has no parameters, the only type that can be
+constructed is the type {\tt C}. However, if the class has parameters,
+a large set of possibilities opens up. Indeed, on very general
+principles one can argue that {\em any} boolean expression on the
+parameters should specify a type: the type of all instances of the
+class which satisfy the boolean expression. Thus, 
+{\tt List(:length > 3)} should be a permissible type, as should 
+{\tt List(:length =< 41)}.
+
+Accordingly we define a {\em parametric type} to be simply the name of
+a class or interface followed by a where clause (a boolean expression
+on the parameters of that class). We call the name of the class or
+interface the {\em base class} of the parametric type, and the where
+clause the {\em condition} of the parametric type. The denotation
+(semantic interpretation) of such a type is the set of all instances
+of subtypes of the base class whose parameters satisfy the where
+clause. Clearly, for the denotation of a parametric type $t$ to be
+non-empty it must be the case that the condition of the parametric
 type is consistent with the where clause (if any) of the base class of
-$t$. We shall require that the type of any variable declaration must
-be non-empty.\footnote{Types that are not parametric are always
-non-empty, assuming that there is at least one invocation of a
-constructor for the base class which does not throw an exception.} For
-simplicity we shall permit the syntax {\tt C(t1,\ldots, tk)} for the
-type {\tt C (:x1 = t1 \&\& \ldots \&\& xk = tk)} (assuming that the
-parameter list for {\tt C} specifies the {\tt k} parameters {\tt
-x1,\ldots, xk}).
+$t$. We shall require that the compiler ensure that the type of any
+variable declaration is non-empty.  
 
-Parametric types naturally come equipped with a {\em subtyping structure}:
-type $t_1$ is a subtype of $t_2$ if the denotation of $t_1$ is a
-subset of $t_2$. Clearly this definition satisfies Liskov's
-Substitution Principle.
+For simplicity we shall permit the syntax {\tt C(t1,\ldots, tk)} for
+the type {\tt C (:x1 = t1 \&\& \ldots \&\& xk = tk)} (assuming that
+the parameter list for {\tt C} specifies the {\tt k} parameters {\tt
+x1,\ldots, xk}, and each each term {\tt ti} is of the correct
+type). Thus {\tt List(n)} is the type of all lists whose length is
+{\tt n}. We shall continue to use {\tt C} as a type as well; it
+corresponds to the (vacuously) parametric type {\tt C(:true)}, i.e.{}
+the type of all instances of {\tt C}.
 
-We will permit constructors and methods to specify preconditions as
-where clauses on parameters. For an invocation of a method (or
+Parametric types naturally come equipped with a {\em subtyping
+structure}: type $t_1$ is a subtype of $t_2$ if the denotation of
+$t_1$ is a subset of $t_2$. This definition is clearly reasonable
+(i.e.{} satisfies Liskov's Substitution Principle).  It implies that
+$C(:e)$ is a subtype of $C(:e')$ if $e$ implies $e'$.  Specifically,
+$C(:e)$ is a subtype of $C$, for all $e$.  $C(:e)$ is empty exactly
+when $e$ conjoined with the class invariant of $C$ is inconsistent.
+
+\paragraph{Preconditions on parameters.}
+We will permit constructors and methods to specify preconditions (as
+where clauses) on parameters. For an invocation of a method (or
 constructor) to be type-correct it must be the case that the
-associated where clause is statically known to be satisfied.
+associated where clause is statically known to be satisfied. The
+return type of a method may contain expressions involving the
+parameters of arguments to the method. However, we will require
+tha any argument used in this way must be declared {\tt final}. 
+For instance:
 
+{\footnotesize
+\begin{verbatim}
+  public List(length+arg.length) append( final List arg) {...}
+\end{verbatim}}
+
+\noindent will be a valid method declaration. It says that {\tt
+append} method invoked on a list with length {\tt length} and with an
+argument {\tt arg} will return a list whose length is {\tt
+length+arg.length}.
+
+\paragraph{Dependent methods.}
 We will permit {\em dependent methods} (similar to generic methods): a
 method may specify a list of parameters in the same way that a class
 may. The parameters may be used to construct dependent types for the
 arguments and return value of the method.
 
+\paragraph{Dependent, Generic types.}
 We will permit a type to be simultaneously a dependent and a generic type.
 For instance, we will permit the type:
 {\footnotesize
 \begin{verbatim}
-  List(3)<region(1)>  
+  List(3)<Point>  
 \end{verbatim}}
 \noindent This is the type of all lists with {\tt 3} elements, each of
-which is a 1-dimensional region.
+which is a {\tt Point}.
 
-We will permit {\em static parameters}. These are static final fields
-of classes marked as parameters. Some static parameters are {\em
-configuration} parameters: they may be directly assigned a value from
-the invocation environment for a program (e.g.{} via  a command line or
-a config file).
+\paragraph{Static parameters.}
+We will permit {\em static parameters}. A static parameter is a {\tt
+parameter constant} field of a class, i.e.{} a static final field
+explicitly marked as a parameter. Some fields may be marked as {\tt
+config} fields: {\tt config} fields are implicitly {\tt parameter
+constant} and their values are assigned from the invocation
+environment for the program (e.g.{} command line or a configuration
+file).
 
-In order to facilitate compile-time type-checking we shall require
-that all expressions occurring in parametric types must reference only
-constants or (instance or static) parameters visible at that type, and
-involve methods that have been specially marked as parametric. This is
-necessary because it must be possible for the compiler to reason about
-the execution of these methods (e.g.{} by executing them
-symbolically). Further details are discussed below.
+All expressions appearing in parametric types must reference only
+constants or instance or static parameters visible at that type or
+variables declared {\tt final}. Further, they must only involve
+methods that have been specially marked as parametric. This
+facilitates compile-time type-checking, as discussed below.
+
+%% Figure out the real condition. Not sure this is important.
+
+\paragraph{Properties of the design.}
+A few points are worth emphasizing.  By insisting that the condition
+of a parametric type reference only parameters of the base type, we
+ensure that whether an object belongs to a parametric type or not does
+not depend on the mutable state of the object, since parameters are
+{\tt final} instance fields of the object. That is, the status of the
+predication ``this object belongs to this parametric type'' does not
+change over the lifetime of the object. Second, by insisting that each
+parameter be a {\em field} of the object, we are enforcing the
+reasonable property that whether an object is of a given type can be
+determined merely by examining the state of the object and evaluating
+a boolean expression. Of course an implementation is free to not {\em
+explicitly} allocate memory in the object for such fields. For
+instance it may use some scheme of colored pointers to implicitly
+encode the values of these fields. Recall further that \Xten{}
+requires the immutable state of an object (the ``value kernel'') to be
+transmitted with the reference to an object; thus a remote place may
+evaluate casts of objects to parametric types using only information
+available with the reference to the object.
+
+Further, by requiring that the programmer distinguish certain {\tt
+final} fields of a class as parameters, we ensure that the programmer
+consciously controls {\em which} {\tt final} fields should be available for
+constructing parametric types. (A field that is ``accidentally'' {\tt
+final} may not be used in the construction of a parametric type. It must be
+declared as a parameter.)
+
+\java{}-like languages permit constructors to throw exceptions. This
+is necessary to deal with the situation in which the arguments to a
+constructor for a class {\tt C} are such that no object can be
+constructed which satisfies the invariants for {\tt C}. Dependent
+types make it possible to perform some of these checks at
+compile-time. The where clause for a class explicitly captures
+conditions on the parameters of the class that must be satisfied by
+any instance of the class. Thus the \Xten{} compiler's static check for
+non-emptiness of the type of any variable captures these invariant
+violations at compile-time.
 
 \paragraph{Rest of this paper}
 In the next section I flesh out the syntactic details of the current
 proposal and consider a small example, {\tt List(n)}. After that I
-present the code for {\tt region}, {\tt point}, {\tt distribution} and
-{\tt arrays} in \Xten. Most of the methods are {\tt extern} methods
-(defined natively); however their signature shows how considerable
-information about the structure of the datatypes and the operations on
-them can be expressed through the type system.
+present the code for {\tt place}, {\tt region}, {\tt point}, {\tt
+distribution} and {\tt arrays} in \Xten. Most of the methods are {\tt
+extern} methods (defined natively); however their signature shows how
+considerable information about the structure of the datatypes and the
+operations on them can be expressed through the type system.
 
 \section{Dependent Types}
 A dependent type is a type that takes values as arguments; such a
@@ -178,49 +263,82 @@ which can statically be known to satisfy the where clause.
 Consider the class {\tt List}:
 {\footnotesize
 \begin{verbatim}
-  public value class List( int n : n >= 0) <Node> {
+  public value class List( nat n ) <Node> {
     nullable Node node = null;
     nullable List(n-1)<Node> rest = null;
 
     /** Returns the empty list. Defined only when the parameter n 
         has the value 0. Invocation: new List(0)<Node>().
      */
-    public List (: n=0) () {}
+    public List (:n=0) () {}
 
     /** Returns a list of length 1 containing the given node.
         Invocation: new List(1)<Node>( node ).
      */
-    public List (: n=1) (Node node) {
-      this.node = node;
-      this.rest = new List(0)<Node>();
+    public List (:n=1) (Node node) {
+      this(node, new List(0)<Node>());
     }
-    public List (: n >= 2) {Node node, List(n-1)<Node> rest) {
+    public List (:n >= 1) {Node node, List(n-1)<Node> rest) {
         this.node = node;
         this.rest = rest;
     }
-    public (int m : m >= 0) List(n+m)<Node> append(List<m>Node l) {
+    public  List(n+arg.n)<Node> append(final List<Node> arg) {
       return 
-          (n == 0) ? l : new List(n+m)<Node>(node, rest.append(m)(l));
+          (n == 0) ? arg : new List(n+arg.n)<Node>(node, rest.append(arg));
+    }
+    public  List(n)<Node> rev() {
+      return rev(new List(0)<Node>());
+    }
+    public  List(n+arg.n)<Node> rev( final List<Node> arg) {
+      return 
+        (n == 0) 
+        ? arg 
+        : rest.rev(new List(1+arg.m)<Node>( node, arg));
+    }
+    /** Return a list of compile-time unknown length, obtained by filtering
+        this with f. */
+    public List<Node> filter(fun<Node, boolean> f) {
+         if (n==0) return this;
+         if (f(node)) {
+           List<Node> l = rest.filter(f);
+           return new List(l+1)<Node>(node, l);
+         } else {
+           return rest.filter(f);
+         }
+    }
+    /** Return a list of m numbers from o..m-1. */
+    public static (nat m) List(m)<nat> gen() {
+         return gen(0,m)();
+    }
+    /** Return a list of (m-i) elements, from i to m-1. */
+    public static (nat i, nat m: i =< m) List(m-i)<nat> gen() {
+      return (i == m)? new List(m-i)<nat>() : new List(m-i)<nat>(i, gen(i+1,m));
     }
   }  
 \end{verbatim}}
+
 Intuitively, this definition states that a {\tt List} object can only
-be created when supplied with an {\tt int} parameter {\tt n} (intended
-to represent the length of the list). {\tt n} is required to be
-non-negative. The class has two fields intended to hold the data item
-in the head of the list and the rest of the list. The nullary
-constructor is defined only if the value of the parameter is {\tt 0}.
-The unary constructor is defined only if the value of the parameter is
-{\tt 1}. Similarly for the binary constructor. 
+be created when supplied with a {\tt nat} parameter {\tt n} (intended
+to represent the length of the list). The class has two fields
+intended to hold the data item in the head of the list and the rest of
+the list. The nullary constructor is defined only if the value of the
+parameter is {\tt 0}.  The unary constructor is defined only if the
+value of the parameter is {\tt 1}. Similarly for the binary
+constructor.
 
-The example also illustrates {\em dependent methods}. {\tt append} is
-a dependent method that has an {\tt int} parameter {\tt m}; it is
-required that {\tt m} be non-negative. {\tt append} returns a value of
-type {\tt List(n+m)<Node>} and takes a {\tt List<m>Node} argument. The
-parameter {\tt m} is passed to the recursive call to {\tt append}.
+Functions that append one list to another or that reverse a list can
+be defined quite naturally. In both of these cases the size of the
+list returned is known statically (as a function of the size of the
+list and the argument to the method).  The example also illustrates a
+method {\tt filter} which returns a list whose size cannot be known
+statically (it depends on properties of the argument function {\tt f}
+which are not captured statically).
 
+Finally, the example illustrates a dependent method. This example is
+discussed more below.
 \end{example}
 
+{}\paragraph{Implicit parameters.}
 A dependent class may also specify additional parameters in the body
 of the class. Such parameters are called {\em implicit} parameters.
 Syntactically, an implicit parameter is specified using instance field
@@ -294,44 +412,61 @@ error.
 {}\paragraph{Dependent methods.}  
 Instance method declarations may specify parameters after the
 qualifiers and before the return type of the method, through a
-parameter list (called the parameter list of the method).  The
-parameter list may be followed by a where expression on the parameters
-of the method and/or the parameters of the class. (Recall that a where
-expression is a boolean expression following a ``{\tt :}''.)  
+parameter list (called the {\em parameter list} of the
+method\footnote{We shall use the term ``arguments'' or ``argument
+list'' for the usual arguments passed to a method.}).  The parameter
+list may be followed by a where expression on the parameters of the
+method and/or the parameters of the class. (Recall that a where
+expression is a boolean expression following a ``{\tt :}''.)
 
 The parameter list of the method is visible in the declaration of the
-method and the body of the method. Thus the types of arguments to the
-method, and the return type of the method, may be built from type
-expressions referencing these parameters.
-
-For example, consider the definition of the {\tt append} method on lists:
-{\footnotesize
-\begin{verbatim}
-    public (int m : m >= 0) List(n+m)<Node> append(List<m>Node l) {
-      return 
-          (n == 0) ? l : new List(n+m)<Node>(node, rest.append(m)(l));
-    }
-\end{verbatim}}
-
-The method specifies an {\tt int} parameter, {\tt m}. This parameter
-is referenced in the return type of the method {\tt List(n+m)<Node>}
-and the argument type of the method {\tt List<m>Node}.
+method and the body of the method. Each parameter is treated as a {\tt
+final} local variable in the body of the method.  The types of
+arguments to the method, and the return type of the method, may be
+built from type expressions referencing these parameters.
 
 A method invocation must specify the parameters in an actual parameter
 list after the name of the method and before the arguments to the
-method, e.g:
-
-{\footnotesize
-\begin{verbatim}
-  rest.append(m)(l)
-\end{verbatim}}
-
-For each such method invocation, the compiler must determine the
+method.  For each such method invocation, the compiler must determine the
 corresponding method definition and statically check that its where
 clause (if any) is satisfied by the invocation.
 
 {\em MetaNote Need to determine rules for overriding for generic
 methods and compare with the rule above.}
+
+Dependent methods are useful in particular when a parameter in the
+type of the result is not functionally determined by parameters of
+arguments. For instance, suppose we want to write a method to return
+the list of all numbers upto $n$. This method cannot take $n$ as an
+argument because then it would not be able to assert that the return
+type of the method is {\tt List(n)} (all variables that can be
+referenced in the return type of a method must be parameters visible
+to the method). Thus instead of writing 
+{\footnotesize
+\begin{verbatim}
+    public static List<nat> gen(nat m) {
+       // returns the list of numbers from 0 to m.
+    }
+\end{verbatim}}
+\noindent one may write:
+{\footnotesize
+\begin{verbatim}
+    public static (nat m) List(m)<nat> gen() {
+       // returns the list of numbers from 0 to m.
+    }
+\end{verbatim}}
+
+Such a method may be invoked as:
+{\footnotesize
+\begin{verbatim}
+    List(32)<nat> l = C.gen(32)();
+\end{verbatim}}
+
+%% TODO vj: Hmm... can the argument be a runtime computed value? 
+%% For usefulness we may need to allow that. But then how do we compile-time check
+%% List(m)<nat> l = C.gen(arb())
+%% where m is a number already specified and arb() is some random computation
+%% on non-parameters?
 
 \paragraph{Extending dependent classes.}
 
@@ -347,10 +482,10 @@ A dependent class definition introduces many types.
 
 Let {\tt C} be a class declared with explicit parameters {\tt
 x1,\ldots, xk} of type {\tt T1,\ldots, Tk}.  A parametric type is an
-expression of the form {\tt C (: e)} where {\tt e} is a boolean
+expression of the form {\tt C (:e)} where {\tt e} is a boolean
 expression in the parameters of the class. We permit the syntactic
 abbreviation {\tt C(t1,\ldots, tk)}, for values {\tt t1,\ldots, tk} of
-type {\tt T1,\ldots, Tk} respectively for the type {\tt C(: x1=t1 \&\&
+type {\tt T1,\ldots, Tk} respectively for the type {\tt C(:x1=t1 \&\&
 x2=t2\ldots \&\& xk=tk)}.  If {\tt C} is a generic class with type
 parameters {\tt <T1,\ldots, Tm>}, then any type expression based on
 {\tt C} must also specify the generic type parameters.
@@ -360,7 +495,9 @@ the base type, and the values of its parameters satisfy the boolean
 condition. 
 
 {}\begin{example} The expression {\tt List(3)<Node>} is a type -- the
-type of all lists of {\tt Node} of length {\tt 3}. 
+type of all lists of {\tt Node} whose {\tt n} field contains the value
+{\tt 3}. By design of the {\tt List} class, such a list has length
+{\tt n}.
 
 The expression {\tt List (: isEven) <Node>} is a type -- the type of all
 lists of {\tt Node} of even length.
@@ -368,112 +505,520 @@ lists of {\tt Node} of even length.
 
 \subsection{Dependent interfaces}
 
-\section{Type-checking dependent classes}
+\section{Understanding Dependent Types via translation.}
+One may understand dependent classes and parametric types via a
+simple, compositional source-to-source translation into a language
+without these features, but with {\tt assert} and {\tt assume}
+statements (as in modern \java{} like languages). A program simplifier
+may flow {\tt assume} assertions around the program, treating them as
+constraints. It may simplify or eliminate {\tt assert} statements
+using logical reasoning over constraints.  If all {\tt assert}
+statements are eliminated by the simplifier, then the program is said
+to be {\em statically correct}. Otherwise some residual checks are
+left for runtime and may generate runtime errors.
 
-We first consider an example.
-\begin{example}[List, revisisted]
-Consider the code in Example~\ref{List}.  In type-checking this code,
-the compiler must perform the following inferences. It must verify
-that {\tt null} is a permissible value for the type {\tt nullable
-Node}. It must also verify that {\tt null} is a permissible value for
-the type {\tt nullable List(n-1)<Node>} under the assumption that {\tt
-n >= 0}. Both these inferences follow from the inference rule that
-{\tt null} is a permissible value for the type {\tt nullable T} for
-any {\tt T}.
+Thus compile-time type-checking is seen as a way of performing some
+runtime calculations early and ensuring that certain exceptions are
+not thrown at runtime.
 
-To type-check the body of the second constructor, the compiler must
-establish that the value {\tt 0} for {\tt n} satisfies the condition
-{\tt n=0} (the condition guarding the nullary constructor).
+\subsection{The target language}
+The target language for the translation is \Xten{} without dependent
+or parametric types, but with {\tt assert} and {\tt assume}
+statements, which we now define.
 
-To type-check the third constructor, the compiler must establish that
-the type {\tt List(n-1)<Node>} is non-empty, given that {\tt n >=
-2}.\footnote{The \Xten{} compiler must ensure that all types used as
-types of arguments, fields, or local, loop or try/catch variable are
-statically known to be non-empty. Without dependent types, all types
-other than {\tt void} are non-empty. Dependent types introduce the
-possibility that some types may denote empty sets, e.g. {\tt
-List(-1)}.}  To establish this, it must show that {\tt n >=2} implies
-{\tt n-1 >= 0}. The check for the body of the constructor is
-straightforward.
-
-To type-check the method, the compiler must infer that if if {\tt m}
-and {\tt n} are non-negative, then so is {\tt m+n}. This establishes
-that the return type of the method is not empty. It must also infer
-that under the condition {\tt n==0}, {\tt m+n} is identical to {\tt
-m}, and hence returning the value {\tt l} is type-correct. It must
-also determine that the type of {\tt rest.append(m)(l)} is {\tt
-List(m+n-1)<Node>}, and hence the invocation of the binary constructor
-is correct.
-\end{example}
-
-The general idea is this. In general, the compiler must use
-constraints (perform algebraic reasoning). Thus corresponding to each
-program is an underlying logical theory in which reasoning will be
-performed. 
-
-Each programming language -- such as \Xten{} -- will specify the base
-underlying classes (and the operations on them) which can occur as
-types in parameter lists. For instance, in the code for {\tt List}
-above, the only type that appears in parameter lists is {\tt int}, and
-the only operations on {\tt int} are addition, subtraction, {\tt >=},
-{\tt ==}, and the only constants are {\tt 0} and {\tt 1}.  (This
-language falls within Presburger arithmetic, a decidable fragment of
-arithmetic.)  The compiler must come equipped with a constraint solver
-(decision procedure) that can answer questions of the form: does one
-constraint entail another?  Constraints are atomic formulas built up
-from these operations, using variables. For instance, the compiler
-must answer each one of:
+For {\tt e} a boolean expression the statement:
 {\footnotesize
 \begin{verbatim}
-  n >= 2 |- n-1 >= 0
-  n >= 0, m >= 0 |- m+n >= 0
+   assume e; 
+\end{verbatim}}
+asserts that {\tt e} will be true whenever control reaches that point
+in the code. This assertion is categorical -- it does not depend on
+any property of the code other than what is expressed through the type
+system and hence checked statically. Thus it is a mere comment -- it
+does not translate into any runtime code.  A programmer may not add
+{\tt assume} statements; only the compiler may add such statements
+e.g.{} when translating an enhanced type system into a base type
+system.
+
+On the contrary the statement: 
+{\footnotesize
+\begin{verbatim}
+   assert e : s; 
+\end{verbatim}}
+(where {\tt e} is a boolean expression and {\tt s} a string) is an
+assertion that says {\tt e} {\em should} be true at runtime whenever
+control reaches that point. In case it is not, a runtime error should be thrown
+with the given string as argument. Thus it translates into the code:
+{\footnotesize
+\begin{verbatim}
+   if (! e) throw new RuntimeError( s );
 \end{verbatim}}
 
-Ultimately, the only variables that will occur in constraints are
-those that correspond to {\tt config} parameters and those that are
-defined by implicit parameter definitions. We need to establish that
-the verification of any class will generate only a finite number of
-constraints, hence only a finite constraint problem for the constraint
-solver.
+We permit the user to add arbitrary {\tt assert} statements to the
+program.
 
-Second, it should be possible for instances of user-defined classes
-(and operations on them) to occur as type parameters. For the compiler
-to check conditions involving such values, it is necessary that the
-underlying constraint solver be extended. 
+\paragraph{State invariant predications.}
+Certain kinds of predications play a special role in {\tt assert} and
+{\tt assume} statements. They permit a very direct correspondence
+between program execution and constraint-solving and are central to
+the idea that a uniform constraint-propagator may eliminate {\tt assert}
+statements based on the logical content of {\tt assume} statements. 
 
-There are two general ways in which the constraint solver may be
-extended.  Both require that the programmer single out some classes
-and methods on those classes as {\em pure}. (We shall think of
-constants as corresponding to zero-ary methods.) Only instances of
-pure classes and expressions involving pure methods on these instances
-are allowed in parameter expressions.
+We say that a predication ({\tt boolean} valued expression) is {\em
+state invariant} if its value is independent of any mutations to any
+variable (or object referenced by a variable) involved in the
+expression. Specifically, any variable occurring in the predication
+must be a {\tt final} variable, any field accesses must be to {\tt
+final} fields, and any method occuring in the predication must be {\em
+state invariant} (see below).  For instance, the predication {\tt
+list.n+1==3} for a {\tt final} variable {\tt list} of type {\tt List}
+is state-invariant; it depends only on the {\tt final} field {\tt n}
+of the {\tt final} variable {\tt list}, the constant {\tt 3} and the
+operation {\tt +} which is (intuitively) state invariant.
 
-How shall constraints be generated for such pure methods? First, the
-programmer may explicitly supply with each pure method {\tt T m(T1 x1,
-..., Tn xn)} a constraint on {\tt n+2} variables in the constraint
-system of the underlying solver that is entailed by {\tt y =
-o.m(x1,..., xn)}. Whenever the compiler has to perform reasoning on an
-expression involving this method invocation, it uses the constraint
-supplied by the programmer. A second more ambitious possibility is
-that a symbolic evaluator of the language may be run on the body of
-the method to automatically generate the corresponding constraint.
+We permit user-defined methods to occur in state invariant
+predications as long as they satisfy certain properties.  Let $m$ be a
+method on a class $C$, with $k$ arguments.  We say that it is {\em
+state invariant} is it satisfies the property that the set of tuples
+of objects on which it succeeds is closed under equivalence of
+objects.  Two objects (of the same class) are said to be equivalent if
+their immutable state is identical. Thus a state invariant method
+satisfies the property that if on being invoked with arguments
+$a_1,\ldots, a_k$ it returns an object $a$, then on being invoked with
+$a_1', \ldots, a_k'$ where each $a_i$ is equivalent to $a_i$ it will
+return a value $a'$ which is equivalent to $a$.
 
-Finally an additional possibility is that the constraint solver itself
-be made extensible. In this case, when a user writes a class which is
-intended to be used in specifying parameters, he also supplies an
-additional program which is used to extend the underlying constraint
-solver used by the compiler. This program adds more primitive
-constraints and knows how to perform reasoning using these
-constraints. This is how I expect we will initially implement the
-\Xten{} language. As language designers and implementers we will
-provide constraint solvers for finite functions and {\tt Herbrand}
-terms on top of arithmetic. 
+Further such a method $m$ must be associated with a {\em logical
+invariant}, a constraint (in the underlying constraint language) of
+arity $k+1$, which is a finite representation of the (infinite) {\em
+extension} of the method. The extension of a method $m$ which takes
+$k$ arguments is the set of all tuples $\langle t_1,\ldots, t_k,
+t\rangle$ which satisfy the property that when $m$ is invoked on
+$t_1,\ldots, t_k$ it returns $t$.  
 
-\section{A more extended example}
-Below I discuss the problem of specifying the operations on regions,
+Thus the constraint is a symbolic representation of the method and can
+be used for compile-time symbolic reasoning about the method.  At
+runtime we can use the code of $m$ to evaluate a call to $m$, since
+all the values of the method arguments are known. At compile-time,
+the actual values to a method call are not known. Instead we must 
+reason about the execution of the body of a method assuming simply
+that the arguments are some arbitrary but unknown values (i.e.{}
+assuming that they are {\em logical variables}). Thus we must use
+the logical invariant associated with the method. 
+
+For instance each operation on {\tt nat} (e.g.{} ``{\tt +}'',''{\tt *}'',
+``{\tt \%}'' is state invariant and may be associated with a logical
+invariant. For instance the  ``{\tt +}'' operation may be associated
+with the constraint {\tt x+y=z} in an arithmetic constraint solver. 
+
+\paragraph{Simplification of programs with state-invariant {\tt assume} and {\tt asserts}.}
+
+As we shall see below, the translation of a program with dependent and
+parametric types introduces only those {\tt assert} and {\tt assume}
+statements whose predications are state invariant. (This is easy to
+see, dependent classes are designed to express only those properties
+of objects which are state invariant.)
+
+State-invariant {\tt assume} and {\tt asserts} are quite easy to
+reason with, since the value of the expressions occurring in these
+assertions does not change with program execution. Thus the compiler
+may transform {\tt assume e} to a {\em tell} of the constraint $c_e$
+obtained by simply translating $e$ (treating each program variable as
+a logical variable, and replacing each method call in $e$ with the
+corresponding logical invariant). An assert statement $s$ of the form
+{\tt assert e} can be eliminated if the conjunction of tell
+constraints on each path leading into it entails $c_e$, the constraint
+obtained from $e$. (If a path is guarded by a conditional, then the
+condition may be assumed on the positive path, and the negation on the
+negative path.) The ask and tell constraint languages of
+\cite{my-thesis-book} may be used fruitfully in this context.
+
+
+\subsection{ The translation }
+
+The basic idea behind the translation is simple. Each dependent class
+is translated into a single class of the same name (without dependent
+types). The explicit parameters of the dependent class are translated
+into {\tt public final} (instance) fields of the target class.
+
+Each constructor of the target class takes a {\tt final} additional
+argument for each explicit parameter, and initializes the correspoding
+field to that value. Each constructor {\tt assume}s the constructor's
+where clause (if any) at the beginning of the constructor, and {\tt
+assert}s the class's where condition at the end of the
+constructor. Within the body of each constructor a call to a
+constructor for the superclass is treated like a method call: an {\tt
+assert} is added for the precondition of the super constructor, and
+for the arguments of the call to the superconstructor. After the call,
+an {\tt assume} is added for the super-class's where clause applied to
+{\tt this}.
+
+A dependent method of the source class with $k$ parameters is
+translated into a method in the target class of the same name with $k$
+additional {\tt final} arguments.\footnote{For simplicity of
+presentation we are assuming that the class does not already have a
+method with the same name and $k$ extra arguments.} The body of the
+target method {\tt assume}s the arguments satisfy the source method's
+where clause.  It may also {\tt assume} the class's where clause on
+{\tt this} at the begining of the method.  After that it executes the
+translated body of the source method.
+
+Now we consider the translation of parametric types in the body of
+methods.  For simplicity let us assume that the body of the method is
+translated into a ``single assignment'' form with nested method calls
+``flattened''. Every argument to a method invocation at a parametric
+type is a {\tt final} local variable.  If a method has a parametric
+return type then every {\tt return} statement is of the form {\tt
+return v} where {\tt v} is a {\tt final} local variable.  Similarly
+the value read from every mutable variable of parametric type (e.g.{}
+local variable, field) is read into a {\tt final} variable of the same
+type (i.e.{} reads of mutable variables of parametric type occur only
+on the RHS of an assignment to a {\tt final} local variable). The
+value written into every mutable variable of parametric type is read
+from a {\tt final} variable of the same type. 
+
+Every statement in \Xten{} can be transformed into an equivalent such
+statement by introducing enough new {\tt final} local variables. For
+instance the method:
+{\footnotesize
+  \begin{verbatim}
+    public  List(n+arg.n)<Node> rev( final List<Node> arg) {
+      return 
+        (n == 0) 
+        ? arg 
+        : rest.rev(new List(1+arg.n)<Node>( node, arg));
+    }
+  \end{verbatim}
+}
+
+\noindent is translated to:
+
+{\footnotesize
+  \begin{verbatim}
+    public  List(n+arg.n)<Node> rev( final List<Node> arg) {
+      if (n==0) {
+         return arg;
+      } else {
+        final List(1+arg.n)<Node> arg2 = new List(1+arg.n)<Node>(node, arg);
+        final List(n-1)<Node> restval = rest;              // Read from a mutable field of parametric type
+        final List(restval.n+arg2.n)<Node> result = restval.rev( arg2 );
+        return result;
+    }
+  \end{verbatim}}
+
+Let {\tt v} be a local variable or field declared at a parametric type
+{\tt C(:b)}. The translation will declare {\tt v} at type {\tt C}.
+Every write to {\tt v} must be of the form {\tt v=r} where {\tt r} is
+a final variable, per the reasoning above. The write must be preceded
+by the statement {\tt assert r.b : "DependentTypeError";} where {\tt
+r.b} stands for the clause {\tt b} with each parameter {\tt p} in {\tt
+b} replaced by {\tt r.p}. Every read of {\tt v} must be of the form
+{\tt r=v} where {\tt r} is a {\tt final} variable; such a read is
+succeeded by the statement {\tt assume r.e}.
+
+Formal arguments to methods of a parametric type are treated similarly. 
+
+Similarly a parametric type occurring as the return type of a method
+is replaced in the translation by the base type. Each expression {\tt
+return e;} in the body of the method is translated as a write of {\tt e} 
+to a local variable declared at the parametric type.
+
+Every method invocation is considered as a write to the formal
+arguments of the method, and hence preceded by {\tt assert}s if the
+type of a formal argument is parametric. It is also preceded by an
+{\tt assert} of the method precondition, if any.  Every method
+invocation is succeded by an {\tt assume} of the return type of the
+method applied to the return value.
+
+For instance the code above is translated to:
+{\footnotesize
+  \begin{verbatim}
+    public  List(n+arg.n)<Node> rev( final List<Node> arg) {
+      if (n==0) {
+         assert n+arg.n == arg.n : "DependentTypeError"; // For the return value.
+         return arg;
+      } else {
+        assert 1+arg.n-1=arg.n : "DependentTypeError"; // For the argument to the constructor
+        final List<Node> arg2 = new List<Node>(1+arg.n,node, arg));
+        assume arg2.n==1+arg.n;                      // From the constructor invocation
+        final List<Node> restval = rest;             // Read from a mutable field of parametric type
+        assume restval.n == n-1;                     // From the field read.
+        final List<Node> result = restval.rev( arg2 );
+        assume result.n=restval.n+arg2.n
+        assert n+arg.n == result.n                   // For the return value
+        return result;
+    }
+  \end{verbatim}}
+
+\paragraph{Simplifcation}
+The statement in the body of the method now generates the following
+constraint operations. Here we assume that {\tt arg} and {\tt n}
+{\tt restval}, {\tt result}, {\tt arg2} are free {\tt nat} variables.
+
+There is a single path to the first ask, guarded by {\tt n=0}. Thus the constraint problem
+to be solved is:
+{\footnotesize
+  \begin{verbatim}
+      n=0,  (n+arg.n = arg.n => Remove1)
+\end{verbatim}}
+\noindent The underlying constraint system can solve the problem:
+{\footnotesize
+  \begin{verbatim}
+      n=0 |-  (n+arg.n = arg.n)
+\end{verbatim}}
+\noindent thereby establishing {\tt Remove1}. Hence the first {\tt assert} can be removed.
+
+\noindent There is a single path to the second and third asks, guarded by {\tt
+n!=0}. The constraint problem generated is:
+{\footnotesize
+  \begin{verbatim}
+      (n!= 0),  (1+arg.n-1 =arg.n) => Remove2
+      1+arg.n-1 = arg.n,
+      arg2.n =1+arg.n,
+      restval.n = n-1, 
+      result.n = restval.n+arg2.n,
+      (n+arg.n = result.n) => Remove3
+\end{verbatim}}
+\noindent  The underlying constraint solver can establish
+{\footnotesize
+  \begin{verbatim}
+      |- 1+arg.n-1=arg.n
+\end{verbatim}}
+without using any constraint at all (this is vacuously true). Hence
+{\tt Remove2} is established. It can also establish:
+{\footnotesize
+  \begin{verbatim}
+      arg2.n =1+arg.n, restval.n = n-1, result.n = restval.n+arg2.n |- n+arg.n=result.n
+\end{verbatim}}
+\noindent through simple substitution. Hence {\tt Remove3} is established.
+
+For the {\tt List} program, all asserts can be removed. The resulting
+program is given in Table~\ref{assume-table1}-\ref{assume-table2}.
+
+\begin{table}
+{\footnotesize
+\begin{verbatim}
+  public value class List <Node> {
+    public final nat n;   // is a parameter
+    nullable Node node = null;
+    nullable List<Node> rest = null;  // All assignments must check n = this.n-1.
+
+    public List ( final nat n ) {
+      assume n==0;
+      this.n = n;
+    }
+    public List ( final nat n, Node node ) {
+      assume n==1;                         // From the constructor precondition.
+      this(n, node, new List<Node>(0));
+    }
+
+    public List ( final nat n, Node node, List<Node> rest ) {
+      assume n>=1;                               // From the constructor precondition
+      assume rest.n==n-1;
+      this.n = n;
+      this.node = node;
+      this.rest = rest;
+    }
+
+    public  List<Node> append( final List<Node> arg ) {
+      if (n == 0) {
+          return arg;
+      } else {
+          final List<Node> restval = rest;
+          assume restval.n == n-1;
+          final List<Node> argval = restval.append(arg);
+          assume argval.n == restval.n+arg.n;
+          final List<Node> result = new List<Node>(n+arg.n, node, argval);
+          assume result.n == n+arg.n;
+          return result;
+      }
+    }
+\end{verbatim}}
+\caption{Translation of {\tt List} (contd in Table~\ref{assume-table2}).}\label{assume-table1}
+\end{table}
+
+\begin{table}
+{\footnotesize
+\begin{verbatim}
+    public  List<Node> rev() {
+      final List<Node> arg = new List<Node>(0);
+      assume arg.n = 0;                           // From the constructor call.
+      final List<Node> result = rev( arg );
+      assume result.n == n+arg.n;                  // From the method signature
+      return result;
+    }
+
+    public  List<Node> rev( final List<Node> arg) {
+      if (n==0) {
+         return arg;
+      } else {
+        final List<Node> arg2 = new List<Node>(1+arg.n,node, arg));
+        assume arg2.n==1+arg.n;                      // From the constructor invocation
+        final List<Node> restval = rest;             // Read from a mutable field of parametric type
+        assume restval.n == n-1;                     // From the field read.
+        final List<Node> result = restval.rev( arg2 );
+        assume result.n=restval.n+arg2.n
+        return result;
+    }
+
+    public List<Node> filter(fun<Node, boolean> f) {
+         if (n==0) return this;
+         if (f(node)) {
+           final List<Node> l = rest.filter(f);
+           return new List<Node>(l.n+1,node, l);
+         } else {
+           return rest.filter(f);
+         }
+    }
+
+
+    public static  List<nat> gen( final nat m ) {
+         final List<nat> result = gen(0,m);
+         assume result.n=m-0 : "DependentTypeError";  // From the method signature
+         return result;
+    }
+
+    public static List<nat> gen(final nat i, final nat m) {
+      assume i =< m;                                   // Method precondition.
+      if (i==m) {
+        final List result = new List<nat>(m-i);  
+        assume result.n == m-i;                        // From the constructor call.
+        return result;
+      } else {
+        final List<nat> arg = gen(i+1,m); 
+        assume arg.n = m-(i+1);                        // From the method call.
+        final List result = new List<nat>(m-i, i, arg);
+        assume result.n = m-i;                         // From the constructor invocation.
+        return result;
+    }
+  }  
+\end{verbatim}}
+\caption{Translation of {\tt List} (contd.}\label{assume-table2}
+\end{table}
+
+\section{Conclusion}
+We have presented a simple design for dependent types in \java-like
+languages. The design considerably enriches the space of (mostly)
+statically checkable types expressible in the language. This is
+particularly important for data-structurs such as lists and arrays. We
+have shown a simple translation scheme for dependent types into an
+underlying language with {\tt assert} and {\tt assume} statements.
+The assert and assume statements generated by this translation have
+the important property of state invariance. This enables a very simple
+notion of simplification for such programs. A general constraint
+propagator can simplify programs by using ask and tell operations on
+he underlying constraint system. Assert statements are removed if they
+are entailed by the conjunction of {\tt assume}s on each path to the
+statement.
+
+Our treatment is parametric in that the underlying constraint system
+can vary. Indeed the constraint system is not required to be complete;
+any incompleteness results merely in certain asserts being relegated
+to runtime. Some of these asserts may throw runtime exceptions if they
+are violated.
+
+In future work we plan to investigate optimizations (such as array
+bounds check elimination) enabled by dependent types. We also plan to
+pursue much richer constraint systems, e.g.{} those necessary to deal
+with regions, cyclic and block-cyclic distributions etc. 
+
+\bibliographystyle{plain}
+\bibliography{master}
+\appendix
+\section{More extended examples}
+Below I discuss the problem of specifying the operations on places, regions,
 distributions and arrays in \Xten. I specify the signatures of these
 classes, making extensive use of dependent types.
 
+\subsection{Places}
+{\footnotesize
+\begin{verbatim}
+/**
+
+ * This class implements the notion of places in X10. The maximum
+ * number of places is determined by a configuration parameter
+ * (MAX_PLACES). Each place is indexed by a nat, from 0 to MAX_PLACES;
+ * thus there are MAX_PLACES+1 places. This ensures that there is
+ * always at least 1 place, the 0'th place.
+
+ * We use a dependent parameter to ensure that the compiler can track
+ * indices for places.
+ * 
+ * Note that place(i), for i =< MAX_PLACES, can now be used as a non-empty type.
+ * Thus it is possible to run an async at another place, without using arays ---
+ * just use async(place(i)) {...} for an appropriate i.
+
+ * @author Christoph von Praun
+ * @author vj
+ */
+ 
+package x10.lang;
+
+import x10.util.List;
+import x10.util.Set;
+
+public value class place (nat i : i =< MAX_PLACES){
+
+    /** The number of places in this run of the system. Set on
+     * initialization, through the command line/init parameters file.
+     */
+    config nat MAX_PLACES;
+
+    // Create this array at the very beginning.
+    private constant place value [] myPlaces = new place[MAX_PLACES+1] fun place (int i) { 
+	return new place( i )(); };
+
+    /** The last place in this program execution.
+     */
+    public static final place LAST_PLACE = myPlaces[MAX_PLACES];
+
+    /** The first place in this program execution.
+     */
+    public static final place FIRST_PLACE = myPlaces[0];
+    public static final Set<place> places = makeSet( MAX_PLACES );	
+
+    /** Returns the set of places from first place to last place.
+     */
+    public static Set<place> makeSet( nat lastPlace ) {
+	Set<place> result = new Set<place>();
+	for ( int i : 0 .. lastPlace ) {
+	    result.add( myPlaces[i] );
+	}
+	return result;
+    }
+
+    /**  Return the current place for this activity.
+     */
+    public static place here() {
+	return activity.currentActivity().place();
+    }
+
+    /** Returns the next place, using modular arithmetic. Thus the
+     * next place for the last place is the first place. 
+     */
+    public place(i+1 % MAX_PLACES) next()  { return next( 1 ); }
+
+    /** Returns the previous place, using modular arithmetic. Thus the
+     * previous place for the first place is the last place. 
+     */
+    public place(i-1 % MAX_PLACES) prev()  { return next( -1 ); }
+
+    /** Returns the k'th next place, using modular arithmetic. k may
+     * be negative.
+     */
+    public place(i+k % MAX_PLACES) next( int k ) {
+	return places[ (i + k) % MAX_PLACES];
+    }
+
+    /**  Is this the first place?
+     */
+    public boolean isFirst() { return i==0; }
+
+    /** Is this the last place?
+     */
+    public boolean isLast() { return i==MAX_PLACES; }
+}
+\end{verbatim}}
 \subsection{$k$-dimensional regions}
 {\footnotesize
 \begin{verbatim}
@@ -872,4 +1417,199 @@ public final value class array ( distribution dist )<B@P> {
 
 }
 \end{verbatim}}
+
 \end{document}
+
+\begin{example}
+ The code for {\tt List} translates as given in Table~\ref{List-translation}.
+\end{example}
+
+\begin{table}
+{\footnotesize
+\begin{verbatim}
+  public value class List <Node> {
+    public final nat n;   // is a parameter
+    nullable Node node = null;
+    nullable List<Node> rest = null;  // All assignments must check n = this.n-1.
+
+    /** Returns the empty list. Defined only when the parameter n 
+        has the value 0. Invocation: new List(0)<Node>().
+     */
+    public List ( final nat n ) {
+      assume n==0;
+      this.n = n;
+    }
+
+    /** Returns a list of length 1 containing the given node.
+        Invocation: new List(1)<Node>( node ).
+     */
+    public List ( final nat n, Node node ) {
+      assume n==1;                         // From the constructor precondition.
+      assert 0==0 : "DependentTypeError"; // For the constructor call.
+      assert n>=1 : "DependentTypeError"; // For the this call.
+      this(n, node, new List<Node>(0));
+    }
+
+    public List ( final nat n, Node node, List<Node> rest ) {
+      assume n>=1;                               // From the constructor precondition
+      assume rest.n==n-1 : "DependentTypeError"; // From the argument type.
+      this.n = n;
+      this.node = node;
+      assert rest.n==n-1 : "DependentTypeError"; // For the field assignment.
+      this.rest = rest;
+    }
+
+    public  List<Node> append( List<Node> arg ) {
+      if (n == 0) {
+          final List<Node> result = arg;
+          assert n+arg.n == result.n : "DependentTypeError"; // For the return value
+          return result;
+      } else {
+          assume rest.n == n-1;
+          final List<Node> argval = rest.append(arg);
+          assume argval.n == rest.n+arg.n;
+          assert n+arg.n-1== argval.n : "DependentTypeError"; // For the constructor call.
+          final List<Node> result = new List<Node>(n+arg.n, node, argval);
+          assume result.n == n+arg.n;
+          assert n+arg.n == result.n : "DependentTypeError"; // For the return value
+          return result;
+      }
+    }
+
+\end{verbatim}}
+\caption{Translation of {\tt List} (contd in Table~\ref{List-translation-2}).}\label{List-translation}
+\end{table}
+\begin{table}
+{\footnotesize
+\begin{verbatim}
+    public  List<Node> rev() {
+      final List<Node> arg = new List<Node>(0);
+      assume arg.n = 0;                           // From the constructor call.
+      final List<Node> result = rev( arg );
+      assume result.n == n+arg.n;                  // From the method signature
+      assert n == result.n : "DependentTypeError"; // For the return value.
+      return result;
+    }
+
+    public  List(n+arg.n)<Node> rev( final List<Node> arg) {
+      if (n==0) {
+         assert n+arg.n == arg.n : "DependentTypeError"; // For the return value.
+         return arg;
+      } else {
+        assert 1+arg.n-1=arg.n : "DependentTypeError"; // For the argument to the constructor
+        final List<Node> arg2 = new List<Node>(1+arg.n,node, arg));
+        assume arg2.n==1+arg.n;                      // From the constructor invocation
+        final List<Node> restval = rest;             // Read from a mutable field of parametric type
+        assume restval.n == n-1;                     // From the field read.
+        final List(restval.n+arg2.n)<Node> result = restval.rev( arg2 );
+        assume result.n=restval.n+arg2.n
+        assert n+arg.n == result.n                   // For the return value
+        return result;
+    }
+
+    /** Return a list of compile-time unknown length, obtained by filtering
+        this with f. */
+    public List<Node> filter(fun<Node, boolean> f) {
+         if (n==0) return this;
+         if (f(node)) {
+           final List<Node> l = rest.filter(f);
+           assert l.n+1-1==l.n : "DependentTypeError"; // For the constructor call
+           return new List<Node>(l.n+1,node, l);
+         } else {
+           return rest.filter(f);
+         }
+    }
+
+    /** Return a list of m numbers from o..m-1. */
+    public static  List<nat> gen( final nat m ) {
+         assert 0 =< m : "DependentTypeError";        // Precondition for method call.
+         final List<nat> result = gen(0,m);
+         assume result.n=m-0 : "DependentTypeError";  // From the method signature
+         assert m == result.n : "DependentTypeError"; // For the return value
+         return result;
+    }
+
+    /** Return a list of (m-i) elements, from i to m-1. */
+    public static List<nat> gen(final nat i, final nat m) {
+      assume i =< m;                                   // Method precondition.
+      if (i==m) {
+        assert m-i == 0 : "DependentTypeError";        // For the constructor call
+        final List result = new List<nat>(m-i);  
+        assume result.n == 0;                          // From the constructor call.
+        assert m-i == result.n : "DependentTypeError"; // For the return value.
+        return result;
+      } else {
+        assert i+1 =< m : "DependentTypeError";        // For the method call.
+        final List<nat> arg = gen(i+1,m); 
+        assume arg.n = m-(i+1);                        // From the method call.
+        assert m-i-1 = arg.n;                          // For the constructor invocation.
+        final List result = new List<nat>(m-i, i, arg);
+        assume result.n = m-i;                         // From the constructor invocation.
+        assert m-i == result.n : "DependentTypeError"; // For the return value
+        return result;
+    }
+  }  
+\end{verbatim}}
+\caption{Translation of {\tt List} (continued).}\label{List-translation-2}
+\end{table}
+
+\section{Type-checking dependent classes}
+
+Each programming language -- such as \Xten{} -- will specify the base
+underlying classes (and the operations on them) which can occur as
+types in parameter lists. For instance, in the code for {\tt List}
+above, the only type that appears in parameter lists is {\tt int}, and
+the only operations on {\tt int} are addition, subtraction, {\tt >=},
+{\tt ==}, and the only constants are {\tt 0} and {\tt 1}.  (This
+language falls within Presburger arithmetic, a decidable fragment of
+arithmetic.)  The compiler must come equipped with a constraint solver
+(decision procedure) that can answer questions of the form: does one
+constraint entail another?  Constraints are atomic formulas built up
+from these operations, using variables. For instance, the compiler
+must answer each one of:
+{\footnotesize
+\begin{verbatim}
+  n >= 2 |- n-1 >= 0
+  n >= 0, m >= 0 |- m+n >= 0
+\end{verbatim}}
+
+Ultimately, the only variables that will occur in constraints are
+those that correspond to {\tt config} parameters and those that are
+defined by implicit parameter definitions. We need to establish that
+the verification of any class will generate only a finite number of
+constraints, hence only a finite constraint problem for the constraint
+solver.
+
+Second, it should be possible for instances of user-defined classes
+(and operations on them) to occur as type parameters. For the compiler
+to check conditions involving such values, it is necessary that the
+underlying constraint solver be extended. 
+
+There are two general ways in which the constraint solver may be
+extended.  Both require that the programmer single out some classes
+and methods on those classes as {\em pure}. (We shall think of
+constants as corresponding to zero-ary methods.) Only instances of
+pure classes and expressions involving pure methods on these instances
+are allowed in parameter expressions.
+
+How shall constraints be generated for such pure methods? First, the
+programmer may explicitly supply with each pure method {\tt T m(T1 x1,
+..., Tn xn)} a constraint on {\tt n+2} variables in the constraint
+system of the underlying solver that is entailed by {\tt y =
+o.m(x1,..., xn)}. Whenever the compiler has to perform reasoning on an
+expression involving this method invocation, it uses the constraint
+supplied by the programmer. A second more ambitious possibility is
+that a symbolic evaluator of the language may be run on the body of
+the method to automatically generate the corresponding constraint.
+
+Finally an additional possibility is that the constraint solver itself
+be made extensible. In this case, when a user writes a class which is
+intended to be used in specifying parameters, he also supplies an
+additional program which is used to extend the underlying constraint
+solver used by the compiler. This program adds more primitive
+constraints and knows how to perform reasoning using these
+constraints. This is how I expect we will initially implement the
+\Xten{} language. As language designers and implementers we will
+provide constraint solvers for finite functions and {\tt Herbrand}
+terms on top of arithmetic. 
+
