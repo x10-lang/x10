@@ -38,9 +38,10 @@ public final class Sampling extends Thread {
      * Activate sampling.  Called by the Runtime during the
      * initialization process.
      */
-    static synchronized void boot() { 
-        SINGLETON = new Sampling(); 
-        }
+    static synchronized void boot(Runtime rt) { 
+        assert (SINGLETON == null);
+        SINGLETON = new Sampling(rt);
+    }
 
     /**
      * List of all places.
@@ -57,6 +58,7 @@ public final class Sampling extends Thread {
      * Shutdown gathering process.
      */
     static synchronized void shutdown() {
+        assert (SINGLETON != null);
         synchronized(SINGLETON) {
             SINGLETON.shutdown = true;
             SINGLETON.interrupt();
@@ -119,8 +121,9 @@ public final class Sampling extends Thread {
     /**
      * Create the sampler.
      */
-    private Sampling() {
-        DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime.runtime;
+    private Sampling(Runtime rt) {
+        // avoid cyclic initialization dependency
+        // DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime.runtime;
         this.places  = rt.getPlaces();
         this.activityCounts = new int[places.length+1];
         try {

@@ -131,7 +131,8 @@ public class DefaultRuntime_c
             public void run() {
                 // initialize X10 runtime system
                 if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
-                    Sampling.boot();
+                    Sampling.boot(DefaultRuntime_c.this);
+                
                 synchronized(signal) {
                     signal.value = true;
                     signal.notifyAll();
@@ -143,14 +144,11 @@ public class DefaultRuntime_c
                 Clock c = (Clock) factory.getClockFactory().clock();
                 c.doNow(appMain);
                 c.doNext();
-                Sampling ss = null;
-                if (Configuration.DUMP_STATS_ON_EXIT)  
-                    ss = Sampling.SINGLETON;
 
-                if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
+                if (Sampling.SINGLETON != null && Configuration.DUMP_STATS_ON_EXIT) {  
                     Sampling.shutdown();
-                if (ss != null)
-                    System.out.println(ss.toString());
+                    System.out.println(Sampling.SINGLETON.toString());
+                }
             }
             public Object getResult() {
                 return null;
