@@ -20,6 +20,11 @@ class LocalPlace_c
     private final ActivityInformationProvider aip_;
 
     /**
+     * Is this place shutdown?
+     */
+    boolean shutdown;
+    
+    /**
      * Linked list of threads in the thread pool that are not currently
      * assigned to an Activity.
      */
@@ -40,6 +45,7 @@ class LocalPlace_c
      * that calls shutdown :-).
      */
     public synchronized void shutdown() {
+        shutdown = true;
         while (this.threadQueue_ != null) {
             threadQueue_.shutdown();
             try {
@@ -56,6 +62,7 @@ class LocalPlace_c
      */
     public void runAsync(final Activity a) {
         final Activity i = aip_.getCurrentActivity();
+        assert i != a;
         final StartSignal startSignal = new StartSignal();
         this.execute(new Runnable() {
                 public void run() {
@@ -93,6 +100,7 @@ class LocalPlace_c
     public Future runFuture(final Activity.Expr a) {
         final Future_c result = new Future_c();
         final Activity i = aip_.getCurrentActivity();
+        assert i != a;
         this.execute(new Runnable() {
                 public void run() {
                     Thread t = Thread.currentThread();
@@ -189,7 +197,12 @@ class LocalPlace_c
                     }
                     // notify the LocalPlace_c that we're again available
                     // for more work!
-                    repool(this);
+                    synchronized (LocalPlace_c.this) {
+                        if (LocalPlace_c.this.shutdown)
+                            return;
+                        else
+                            repool(this);
+                    }
                 }
             }
         }

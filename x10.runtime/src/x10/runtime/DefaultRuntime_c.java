@@ -16,6 +16,7 @@ import x10.lang.Activity;
 import x10.lang.Clock;
 import x10.lang.Place;
 import x10.lang.Runtime;
+import x10.lang.X10Object;
 
 /**
  * Default implementation of Runtime.
@@ -56,6 +57,8 @@ public class DefaultRuntime_c
     private final Place[] places_;
     
     private ArrayFactory af_;
+
+    private Thread bootThread;
     
     public DefaultRuntime_c() {
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
@@ -66,38 +69,53 @@ public class DefaultRuntime_c
     }
 
     /**
-     * Shutdown the X10 runtime system.
-     */
-    public void shutdown() {
-    	for (int i=places_.length-1;i>=0;i--)
-    		places_[i].shutdown();
-    }
-
-    /**
      * Run the X10 application.
      */
     protected void run(String[] args) throws Exception {
-        if (args.length < 1) 
-            throw new Error("Invoke with name of main X10 class!");
-        String[] appArgs = new String[args.length - 1];
-        System.arraycopy(args, 1, appArgs, 0, appArgs.length);
+        // setup the main activity from the client...
+        String[] appArgs = Configuration.parseCommandLine(args);
         Object[] tmp = { args };
-        Activity boot = null;
+        Activity atmp = null;
         try {	
-            boot = (Activity) Class.forName(args[0])
+            atmp = (Activity) Class.forName(Configuration.MAIN_CLASS_NAME)
                 .getDeclaredConstructor(new Class[] { String[].class })
                 .newInstance(tmp);
         } catch (Exception e) {
             System.err.println("Could not find default constructor of main class!");
             throw e;
         }
+        final Activity appMain = atmp;
+        // ok, some magic with the boot-thread here...
         Place[] p = getPlaces();
         Place p0 = p[0];
-        Thread t = Thread.currentThread();
-        registerThread(t, p0);
-        registerActivityStart(t, boot, null);
-        Statistics_c.boot();
-        p0.runAsync(boot);
+        bootThread = Thread.currentThread();
+        registerThread(bootThread, p0);
+        Activity.Expr boot = new Activity.Expr() {
+            public void run() {
+                // initialize X10 runtime system
+                Statistics_c.boot();
+
+                // now run the actual client app (wrapped in this
+                // Activity.Expr since we want to use a Clock to 
+                // wait for the main app to exit, but we can't use
+                // a clock directly without being a proper activity).
+                Clock c = newClock();
+                c.doNow(appMain);
+                c.doNext();
+            }
+            public X10Object getResult() {
+                return null;
+            }
+        };        
+        
+        // run the main app
+        p0.runFuture(boot).force(); // use force to wait for termination!
+        
+        // and now the shutdown sequence!
+        for (int i=places_.length-1;i>=0;i--)
+            places_[i].shutdown();
+        if (Configuration.DUMP_STATS_ON_EXIT)
+            System.out.println(Statistics_c._.toString());
     }
     
     public void registerThread(Thread t, Place p) {
@@ -107,9 +125,9 @@ public class DefaultRuntime_c
 	}
     
     /**
-	 * Notify the asl via a callback whenever the given activity starts another
-	 * Activity (via async, future or now).
-	 */
+     * Notify the asl via a callback whenever the given activity starts another
+     * Activity (via async, future or now).
+     */
     public synchronized void registerActivitySpawnListener(Activity i,
                                                            ActivitySpawnListener asl) {
         Vector v = (Vector) activity2asl_.get(i);
@@ -146,6 +164,7 @@ public class DefaultRuntime_c
     public synchronized void registerActivityStart(Thread t,
                                                    Activity a,
                                                    Activity i) {
+        assert a != i;
         thread2activity_.put(t,a);
         if (i == null)
             return;
@@ -230,8 +249,11 @@ public class DefaultRuntime_c
      */
     public synchronized Activity getCurrentActivity() {
         Activity a = (Activity) thread2activity_.get(Thread.currentThread());
-        if (a == null)
+        if (a == null) {
+            if (Thread.currentThread() == bootThread)
+                return null; // magic 'boot' thread!
             throw new Error("This Thread is not an X10 Thread running X10 code!");
+        }
         return a;
     }
 
