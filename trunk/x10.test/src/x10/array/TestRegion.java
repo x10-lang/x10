@@ -120,6 +120,7 @@ public class TestRegion extends TestCase {
         for (Iterator it = reg.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
             System.out.println(p);
+            cnt++;
         }
         assertTrue(cnt == 3);
     }
@@ -132,6 +133,7 @@ public class TestRegion extends TestCase {
         for (Iterator it = reg.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
             System.out.println(p);
+            cnt++;
         }
         assertTrue(cnt == 9);
     }
@@ -144,7 +146,8 @@ public class TestRegion extends TestCase {
         for (Iterator it = reg.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
             System.out.println(p);
+            cnt++;
         }
-        assertTrue(cnt == 9);
+        assertTrue(cnt == 27);
     }
 }
