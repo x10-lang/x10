@@ -1,4 +1,4 @@
-This is pdfTeXk, Version 3.14159-1.10b (Web2C 7.4.5) (format=pdflatex 2005.1.27)  18 FEB 2005 14:07
+This is pdfTeXk, Version 3.14159-1.10b (Web2C 7.4.5) (format=pdflatex 2005.1.27)  19 FEB 2005 21:04
  %&-line parsing enabled.
 **x10
 (./x10.tex{/usr/share/texmf/pdftex/config/pdftex.cfg}
@@ -60,6 +60,13 @@ pt/OLBY/cmr10/, K/cmcsc10@7.0pt/EMAL /cmr10/E/cmcsc10@7.0pt/BCIO[]GLU/cmr10/, P
 /cmcsc10@7.0pt/ATRICK
 
 \hbox(6.83331+1.94444)x254.0, glue set 2.69781 []
+
+
+Underfull \hbox (badness 1412) in paragraph at lines 83--93
+/cmr10/V/cmcsc10@7.0pt/IJAY /cmr10/S/cmcsc10@7.0pt/ARASWAT/cmr10/, C/cmcsc10@7.
+0pt/HRISTOPH von /cmr10/P/cmcsc10@7.0pt/RAUN/cmr10/, and K/cmcsc10@7.0pt/EMAL
+
+\hbox(6.94444+1.94444)x254.0, glue set 2.41902 []
 
 (./x10.toc
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -296,9 +303,6 @@ Underfull \hbox (badness 1694) in paragraph at lines 39--43
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
  )
 (\end occurred inside a group at level 3) 
 Here is how much of TeX's memory you used:
@@ -333,4 +337,4 @@ xmf/fonts/type1/bluesky/cm/cmtt10.pfb>{/usr/share/texmf/dvips/tetex/0ef0afca.en
 c}</usr/share/texmf/fonts/type1/bluesky/cm/cmcsc10.pfb></usr/share/texmf/fonts/
 type1/bluesky/cm/cmss17.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmbx12.pfb
 >
-Output written on x10.pdf (39 pages, 364275 bytes).
+Output written on x10.pdf (39 pages, 364293 bytes).

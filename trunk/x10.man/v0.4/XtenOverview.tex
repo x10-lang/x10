@@ -58,28 +58,28 @@ a {\cf BadPlaceException} -- but only because of a failed place cast.)
 Such a statement is executed by the activity as if in a single step
 during which all other activities are frozen.
 
-\paragraph{Asynch activities}
+\paragraph{Asynchronous activities}
 
-An asynch activity is a statement of the form {\cf async (P) S} where
-{\cf P} is a place expression and {\cf S} is a statement.  Such a
-statement is executed by spawning an activity at the place designated
-by {\cf P} to execute statement {\cf S}.
+An asynchronous activity is created by a statement {\cf async (P) S}
+where {\cf P} is a place expression and {\cf S} is a statement.  Such
+a statement is executed by spawning an activity at the place
+designated by {\cf P} to execute statement {\cf S}.
 
-An async expression of type {\cf future<T>} has the form {\cf future
-(P) E} where {\tt E} is an expression of type {\tt T}. It executess
-the expression {\tt E} at the place {\tt P} as an async activity,
-immediately returning with a future. The future may later be forced
-causing the activity to be blocked until the return value has been
-computed by the async activity.
+An asynchronous expression of type {\cf future<T>} has the form {\cf
+future (P) E} where {\tt E} is an expression of type {\tt T}. It
+executess the expression {\tt E} at the place {\tt P} as an
+asynchronous activity, immediately returning with a future. The future
+may later be forced causing the activity to be blocked until the
+return value has been computed by the asynchronous activity.
 
 \section{Clocks}
 The MPI style of coordinating the activity of multiple processes with
-a single barrier is not suitable for the dynamic, asynchronous network
-of activities in an \Xten{} computation. Instead, it becomes necessary
-to allow a computation to use multiple barriers. \Xten{} {\em clocks}
-(\S~\ref{XtenClocks}) are designed to offer the functionality of
-multiple barriers in a dynamic context while still supporting
-determinate, deadlock-free parallel computation.
+a single barrier is not suitable for the dynamic network of (possibly
+diverse) activities in an \Xten{} computation. Instead, it becomes
+necessary to allow a computation to use multiple barriers. \Xten{}
+{\em clocks} (\S~\ref{XtenClocks}) are designed to offer the
+functionality of multiple barriers in a dynamic context while still
+supporting determinate, deadlock-free parallel computation.
 
 Activities may use clocks to repeatedly detect quiescence of arbitrary
 programmer-specified, data-dependent set of activities. Each activity
