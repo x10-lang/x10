@@ -40,7 +40,7 @@ public abstract /*value*/ class region extends Object  {
 			assert result.rank == 1;
 			return region(low, high, 1);
 		}
-		
+        
 		/** Construct a 1-dimensional region, low..high with the given stride.
 		 */
 		public abstract region/*(1)*/ region(int low, int high, int stride);
@@ -50,6 +50,7 @@ public abstract /*value*/ class region extends Object  {
 			assert result.rank==2;
 			return result;
 		}
+        
 		public region/*(2)*/ lowerTriangular( /*nat*/ int size ) {
 			final region/*2*/ result = lowerTriangular(2, size);
 			assert result.rank==2;
@@ -102,7 +103,15 @@ public abstract /*value*/ class region extends Object  {
 	 */
 	abstract public region/*(1)*/ rank( /*nat*/int  index ); 
 	
-	/** Returns true iff the region contains every point between two
+    /** 
+     * @return a set of regions that are a partition of n consecutive chunks of the original 
+     * region (this).
+     */
+    public region[] partition(int n) {
+        throw new Error(getClass().getName() + "::partition - not implemented.");
+    }
+    
+    /** Returns true iff the region contains every point between two
 	 * points in the region.
 	 */
 	abstract public boolean isConvex();

@@ -133,11 +133,14 @@ public class ContiguousRange extends Range {
 	}
     
     public region[] partition(int n) {
+        assert n > 0;
         region[] ret = new region[n];  
         int all_size = size();
         int base = low();
         
-        if (n >= all_size) {
+        if (n == 1) {
+            ret[0] = this;
+        } else if (n >= all_size) {
             int i = 0;
             for (; i < all_size; i++) {
                 ret [i] = new ContiguousRange(base, base);

@@ -33,8 +33,27 @@ public class DistributionFactory extends distribution.factory {
      * @param r
      * @return
      */
-    public distribution blockCyclic(region r, /*nat*/int n, Set/*<place>*/ q) {
-        throw new Error("TODO");
+    public distribution blockCyclic(region r, /*nat*/int n, Set/*<place>*/ qs) {
+        distribution ret;
+        assert n > 0;
+        if (r.size() == 0)
+            ret = new Distribution_c.Empty( r.rank );
+        else if (qs.size() == 1) {
+            place p = (place) qs.iterator().next();
+            ret = new Distribution_c.Constant(r, p);
+        } else {
+            Object[] q = qs.toArray();
+            int sz = r.size();
+            int chunks = (sz % n == 0 || sz < n) ? (sz / n) : (sz / n) + 1;
+            assert chunks > 0;
+            
+            Distribution_c[] dists = new Distribution_c[chunks];       
+            region[] sub = r.partition(chunks); 
+            for (int i=0; i < chunks; i++) 
+                dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
+            ret = new Distribution_c.Combined(r, dists);
+        }
+        return ret;
     }
     public distribution blockCyclic(region r, /*nat*/ int p) {
         return blockCyclic(r, p, x10.lang.place.places);
@@ -64,31 +83,23 @@ public class DistributionFactory extends distribution.factory {
      */
 	public distribution block(region r, int n, Set/*<place>*/ qs) {
         assert n <= qs.size();
+        assert n > 0;
         
         distribution ret = null;
         // avoid all the hardwork if it is an empty region.
         if (r.size() == 0)
         	ret = new Distribution_c.Empty( r.rank );
-        
-        Object[] q = qs.toArray();
-
-        if (r instanceof MultiDimRegion) {
-            MultiDimRegion reg = (MultiDimRegion) r;
-            region sub[] = reg.partition(n);
-        	Distribution_c[] dists = new Distribution_c[n];
-        	for (int i=0; i < n; i++) 
-        		dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
-            ret =  new Distribution_c.Combined((MultiDimRegion) r, dists);
-        } else if (r instanceof ContiguousRange){
-            ContiguousRange reg = (ContiguousRange) r;
-            region[] sub = reg.partition(n); 
+        else if (qs.size() == 1) {
+            place p = (place) qs.iterator().next();
+            ret = new Distribution_c.Constant(r, p);
+        } else {
+            Object[] q = qs.toArray();            
+            region sub[] = r.partition(n);
             Distribution_c[] dists = new Distribution_c[n];
             for (int i=0; i < n; i++) 
                 dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
-            ret = new Distribution_c.Combined(r, dists);
-        } else {
-            throw new Error("DistributionFactory::block not supported for the given shape of distribution.");
-        }
+            ret =  new Distribution_c.Combined((MultiDimRegion) r, dists);
+        } 
         return ret;
 	}
     
