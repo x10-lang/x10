@@ -125,16 +125,21 @@ public class TestX10_Compiler extends TestCase {
 	protected void run(String file, String main,String dir) {
 		
 		try {
+			String cwd=
+                             System.getProperty("user.dir")+
+                              dir.substring(1);
+			String lb=System.getProperty("java.library.path");
+			String ps=System.getProperty("path.separator");
 			compile(dir, file);
-			ClassLoader loader 
-			= new URLClassLoader(new URL[] { new URL("file://" + System.getProperty("user.dir") + dir.substring(1) + "/") }); 
-			
+			System.setProperty("java.library.path",lb+ps+cwd);
+			ClassLoader loader = new URLClassLoader
+                          (new URL[] {new URL("file://"+cwd+"/")}); 
 			Class c = loader.loadClass(main);
 			Object inst = c.newInstance();
 			Method m = c.getMethod("run", new Class[0]);
 			Boolean ret = (Boolean) m.invoke(inst, null);
 			assertTrue(ret.booleanValue());
-			System.out.println("Test " + main + " completed.");
+			System.out.println("Test "+main+" completed.");
 		} catch (IOException io) {
 			fail(io.toString());
 		} catch (InstantiationException ie) {
