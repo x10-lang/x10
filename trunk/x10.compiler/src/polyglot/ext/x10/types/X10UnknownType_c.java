@@ -55,6 +55,16 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 			return null;
 	}
 
+	public boolean isDistribution() { return false; }
+	public boolean isDistributedArray() { return false; }
+	public boolean isNumericArray() { return false; }
+	public boolean isLongArray() { return false; }
+	public boolean isIntArray() { return false; }
+	public boolean isDoubleArray() { return false; }
+	public boolean isClock() { return false; }
+	public boolean isRegion() { return false; }
+	public boolean isPlace() { return false;}
+	public boolean isPoint() { return false; }
 	public boolean isX10Array() { return false; }
 
 

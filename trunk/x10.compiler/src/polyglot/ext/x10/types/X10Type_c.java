@@ -45,11 +45,47 @@ public abstract class X10Type_c extends Type_c implements X10Type {
 	public NullableType toNullable() {
 		return null;
 	}
-	
-	public boolean isX10Array() {
-		return false;
+	// TODO: Extend this for other kinds of X10 arrays
+	public boolean isNumericArray() {
+		return isIntArray() || isLongArray() || isDoubleArray();
 	}
 	
+	public boolean isX10Array() { 
+		return ts.isSubtype(this, ((X10TypeSystem) ts).Indexable());
+	}
+
+	public boolean isIntArray() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.intArray()); 
+	}
+	public boolean isLongArray() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.longArray()); 
+	}
+	public boolean isDoubleArray() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.doubleArray());
+	}
+	public boolean isClock() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.clock());
+	}
+	public boolean isPoint() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.point());
+	}
+	public boolean isPlace() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.place());
+	}
+	public boolean isRegion() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.region());
+	}
+	public boolean isDistribution() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.distribution());
+	}
 	
 	public  boolean isSubtypeImpl( Type t) {
 		X10Type target = (X10Type) t;

@@ -9,6 +9,8 @@ import polyglot.ast.TypeNode;
 import polyglot.types.ReferenceType;
 import polyglot.types.Flags;
 import polyglot.ast.Block;
+import polyglot.ext.jl.parse.Name;
+import x10.parser.X10VarDeclarator;
 
 
 /**
@@ -66,4 +68,8 @@ public interface X10NodeFactory extends NodeFactory {
 			DepParameterExpr indexedSet );
     X10ArrayAccess X10ArrayAccess( Position pos, Expr a, List indices);
     X10ArrayAccess1 X10ArrayAccess1( Position pos, Expr a, Expr index);
+
+    Tuple Tuple( Position pos, Name p, Name r, List args);
+    TypeNode array(TypeNode n, Position pos, int dims);
+    Formal Formal( Position pos, TypeNode type, X10VarDeclarator v);
 }

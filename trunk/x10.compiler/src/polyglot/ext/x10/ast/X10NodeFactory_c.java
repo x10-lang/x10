@@ -6,12 +6,17 @@ import java.util.List;
 import polyglot.ast.*;
 import polyglot.ext.jl.ast.ArrayAccessAssign_c;
 import polyglot.ext.jl.ast.Call_c;
+import polyglot.ext.jl.ast.Formal_c;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.jl.ast.Instanceof_c;
+import polyglot.ext.jl.parse.Name;
 import polyglot.ast.Stmt;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
 import polyglot.util.Position;
 import polyglot.types.Flags;
+import polyglot.types.Type;
+import x10.parser.X10VarDeclarator;
 
 /**
  * NodeFactory for X10 extension.
@@ -20,10 +25,15 @@ import polyglot.types.Flags;
  */
 public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	
-	
+	private static Error marker;
+	private static X10NodeFactory_c factory = null;
+	public static X10NodeFactory_c getFactory() {
+		return factory;
+	}
 	public X10NodeFactory_c() {
 		super(new X10ExtFactory_c(),
 				new X10DelFactory_c());
+		factory = this;
 	}
 	
 	protected X10NodeFactory_c(ExtFactory extFact) {
@@ -66,7 +76,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		w = (When) w.ext(extFactory().extStmt());
 		return (When) w.del(delFactory().delStmt());
 	}
-    
+	
     public When.Branch WhenBranch(Position pos, Expr expr, Stmt statement) {
         When.Branch w = new When_c.Branch_c(pos, expr, statement);
         w = (When.Branch) w.ext(extFactory().extStmt());
@@ -305,4 +315,46 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	}
 	 */
+	 
+    public Binary Binary(Position pos, Expr left, Binary.Operator op, Expr right) {
+        Binary n = new X10Binary_c(pos, left, op, right);
+        n = (Binary)n.ext(extFactory().extBinary());
+        n = (Binary)n.del(delFactory().delBinary());
+        return n;
+    }
+    public Tuple Tuple(Position pos, Name p, Name r, List a) {
+        Tuple n = new Tuple_c( pos, p, r, a);
+        n = (Tuple)n.ext(extFactory().extCall());
+        n = (Tuple)n.del(delFactory().delCall());
+        return n; 
+    }
+    /**
+     * Return a TypeNode representing a <code>dims</code>-dimensional
+     * array of <code>n</code>.
+     */
+    public TypeNode array(TypeNode n, Position pos, int dims) {
+    	if (dims > 0) {
+    		if (n instanceof CanonicalTypeNode) {
+    			Type t = ((CanonicalTypeNode) n).type ();
+    			return CanonicalTypeNode (pos, X10TypeSystem_c.getFactory().arrayOf (t, dims));
+    		}
+    		return ArrayTypeNode (pos, array (n, pos, dims - 1));
+    	}
+    	return n;
+    }
+    public Formal Formal( Position pos, TypeNode type, X10VarDeclarator v) {
+    	Formal n = new X10Formal_c( pos, type, v);
+    	 n = (Formal)n.ext(extFactory().extFormal());
+         n = (Formal)n.del(delFactory().delFormal());
+         return n;
+    	
+    }
+    public Formal Formal(Position pos, Flags flags, TypeNode type, String name) {
+    	X10VarDeclarator v = new X10VarDeclarator(pos, name);
+    	v.setFlag( flags );
+        Formal n = Formal(pos, type, v);
+        n = (Formal)n.ext(extFactory().extFormal());
+        n = (Formal)n.del(delFactory().delFormal());
+        return n;
+    }
 }

@@ -32,8 +32,62 @@ public interface X10Type extends Type {
 
     NullableType toNullable();
     FutureType toFuture();
+    /** Succeeds if this type implements Indexable.
+     * 
+     * @return 
+     */
     boolean isX10Array();
-    //X10ArrayType toX10Array();
+    /** Succeeds if this type represents an array of longs.
+     * 
+     * @return 
+     */
+    boolean isLongArray();
+    /** Succeeds if this type represents an array of ints.
+     * 
+     * @return 
+     */
+    boolean isIntArray();
+    /** Succeeds if this type represents an array of doubles.
+     * 
+     * @return 
+     */
+    boolean isDoubleArray();
+    /**
+     * Succeeds if this type represents an array with the arithmetic operations add, sub, mul, div defined on it.
+     * @return
+     */
+    boolean isNumericArray();
+    /**
+     * Succeeds if this type represents an array with a distribution, that is, an array possibly 
+     * distributed across multiple places.
+     * @return true if this type has a distribution.
+     */
+    boolean isDistributedArray();
+    /** Succeeds if this type is a subtype of x10.lang.point.
+     * 
+     * @return
+     */
+    boolean isPoint();
+    /**
+     * Succeeds if this type is a subtype of x10.lang.place.
+     * @return
+     */
+    boolean isPlace();
+    /**
+     * Succeeds if this type is a subtype of x10.lang.distribution.
+     * @return
+     */
+    boolean isDistribution();
+    /**
+     * Succeeds if this type is a subtype of x10.lang.region.
+     * @return
+     */
+    boolean isRegion();
+    /**
+     * Succeeds if this type is a subtype of x10.lang.clock.
+     * @return
+     */
+    boolean isClock();
     
 
 }
