@@ -1,0 +1,24 @@
+HOWTO: Access the CVS repository form the command line:
+-------------------------------------------------------
+
+What you need:
+
+ - Windows or Linux installation with CVS.
+ - an account in on quillback.cs.purdue.edu
+ - your private ssh keys
+
+Procedure:
+
+- set the following environment variables:
+
+   CVSROOT=:ext:<yourlogin>@quillback.cs.purdue.edu:/home/ibmcvs
+   CVS_RSH=ssh
+   CVSUMASK=770
+
+- cvs checkout x10
+
+
+
+
+
+
