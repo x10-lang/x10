@@ -1,62 +1,31 @@
 /*
- * Created on Nov 28, 2004
+ * Created on Nov 30, 2004
  *
  * TODO To change the template for this generated file go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
 package polyglot.ext.x10.types;
 
-import polyglot.ext.jl.types.NullType_c;
+import polyglot.ext.jl.types.UnknownType_c;
 import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 
-/** Every X10 term must have a type. This is the type of the X10 term null.
- * Note that there is no X10 type called Null; only the term null.
+/**
  * @author vj
  *
  */
-public class X10NullType_c extends NullType_c implements X10NullType {
+public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
+
 	 /** Used for deserializing types. */
-    protected X10NullType_c() { }
-
-    public X10NullType_c( TypeSystem ts ) {
-    	super(ts);
-    }
+    protected X10UnknownType_c() { }
     
-    /**
-     * This is different from the definition of jl.Nullable. X10 does not 
-     * assume that every reference type contains null. The type must be nullable
-     * for it to contain null.
-     * TODO: Check if the result should be just: targetType.isNullable().
-     */
-    public boolean isImplicitCastValidImpl(Type toType) {
-    	X10Type targetType = (X10Type) toType;
-    	return toType.isNull() || targetType.isNullable();
-    }	
-
-    /** 
-     * TOOD: vj -- check if this implementation is correct.
-     * The definition of descendsFrom in TypeSystem is
-     * Returns true iff child is not ancestor, but child descends from ancestor. 
-     * In the X10 type system, the Null type should not descend from any type.
-     */
-    public boolean descendsFromImpl(Type ancestor) {
-    	return ts.equals(ancestor, ts.Object());
-        // if (ancestor.isNull()) return false;
-        // if (ancestor.isReference()) return true;
-        // return false;
+    /** Creates a new type in the given a TypeSystem. */
+    public X10UnknownType_c( TypeSystem ts ) {
+        super(ts);
     }
 
-
-    /**
-     * Same as isImplicitCastValidImpl.
-     **/
-    public boolean isCastValidImpl(Type toType) {
-    	X10Type targetType = (X10Type) toType;
-        return toType.isNull() || targetType.isNullable();
-    }
-
+	
 //	 ----------------------------- begin manual mixin code from X10Type_c
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.types.X10Type#isNullable()

@@ -64,8 +64,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return (Here) f.del(delFactory().delStmt());
     }
     
-  
-    
     public When When(Position pos, List exprs, List statements) {
         When w = new When_c(pos, exprs, statements);
         w = (When) w.ext(extFactory().extStmt());
@@ -95,24 +93,22 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         n = (Clocked) n.ext(extFactory().extStmt());
         return (Clocked) n.del(delFactory().delStmt());
     }
-
-    /** Called when a future X has been parsed, where X should be a reference type.
+  
+    
+    /** Called when a future X has been parsed, where X should be a type.
      * 
      */
-    public TypeNode Future(Position pos, TypeNode type ) {
-    	TypeNode result = (TypeNode) type.copy();
-       	// System.out.println( "[X10NodeFactory] making FutureNode_c(|" + pos +"|,|"+ type +"|)");
+    public FutureNode Future(Position pos, TypeNode type ) {
     	return new FutureNode_c(pos, type);
-    
     }
     
-    /** Called when a nullable X has been parsed, where X should be a reference type.
-     * 
+    /** Called when a nullable X has been parsed, where X should be a
+      * 
      */
 
-    public TypeNode Nullable(Position pos, TypeNode type ) {
-    	// System.out.println( "[X10NodeFactory] making NullableNode_c(|" + pos +"|,|"+ type +"|)");
+    public NullableNode Nullable(Position pos, TypeNode type ) {
      	return new NullableNode_c(pos, type);
     }
+
 
 }

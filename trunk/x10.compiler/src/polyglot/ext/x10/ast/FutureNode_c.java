@@ -7,6 +7,7 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ext.jl.ast.TypeNode_c;
 import polyglot.ext.x10.types.FutureType_c;
+import polyglot.ext.x10.types.X10TypeSystem;
 
 import polyglot.util.Position;
 import polyglot.util.CodeWriter;
@@ -87,7 +88,8 @@ public class FutureNode_c extends TypeNode_c implements FutureNode {
     		throw new SemanticException("The type constructor future cannot be applied to a <null> type", 
         			position());
     	}
-    	this.type = new FutureType_c( baseType.typeSystem(), position(), baseType);
+	X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
+	this.type = ts.createFutureType( position(), baseType );
     	Node result = reconstruct( newType );
     	// Report.report(5,"[FutureNode_c] ... returns |" + result +"|(#" + result.hashCode() +").");
     	return result; 
@@ -103,8 +105,10 @@ public class FutureNode_c extends TypeNode_c implements FutureNode {
     	if (n instanceof TypeNode) {
     	 TypeNode arg = (TypeNode) n;
     	 Type argType = arg.type();
-    	 // TypeNode result = new CanonicalFutureTypeNode_c( position(), arg.type());
-    	 this.type = new FutureType_c( argType.typeSystem(), position(), argType);
+
+	 X10TypeSystem ts = (X10TypeSystem) argType.typeSystem();
+	 this.type = ts.createFutureType( position(), argType );
+
     	 // this.base = null?
 		 // Report.report(5, "[FutureNode_c] ... sets type to |" + this.type + "|.");
 		 // Report.report(5, "[FutureNode_c] ... returns |" + this + "|.");

@@ -10,12 +10,10 @@ import java.util.List;
 
 import polyglot.ext.jl.types.ReferenceType_c;
 import polyglot.types.FieldInstance;
-import polyglot.types.NullableType;
 import polyglot.types.ReferenceType;
 import polyglot.types.Resolver;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.FutureType;
 
 import polyglot.util.Position;
 import java.util.Collections;
@@ -24,7 +22,8 @@ import java.util.ArrayList;
 import polyglot.main.Report;
 
 
-/** Implementation of Future types.
+/** Implementation of Future type constructor.
+ * 
  * <p>This code does not yet implement Termination Equivalence for Future Types, i.e.  
  * future future X = future X 
  * future nullable future X = future nullable X 
@@ -33,15 +32,23 @@ import polyglot.main.Report;
  * @author vj
  *
  */
-public class FutureType_c extends ReferenceType_c implements FutureType {
-	protected Type base;
+public class FutureType_c extends X10ReferenceType_c implements FutureType {
+	protected X10Type base;
 	protected List methods;
 	
 	protected FutureType_c() {}
 	
+	/** We type base to Type instead of X10Type because we wish to reuse code from
+	 * jl which traffics in Type's. We rely on the global invariant, maintained manually 
+	 * in this version of the code, that at runtime the only Type's created are X10Type's.
+
+	 * @param ts
+	 * @param pos
+	 * @param base
+	 */
 	public FutureType_c( TypeSystem ts, Position pos, Type base ) {
 		super( ts, pos);
-		this.base = base;
+		this.base = (X10Type) base;
 		this.methods = new ArrayList(1);
 		this.methods.add(ts.methodInstance( position(),
 				this,
@@ -108,7 +115,7 @@ public class FutureType_c extends ReferenceType_c implements FutureType {
 	/* Return the base type.
 	 * @see polyglot.ext.x10.types.FutureType#base()
 	 */
-	public Type base() {
+	public X10Type base() {
 		return this.base;
 	}
 
@@ -119,19 +126,39 @@ public class FutureType_c extends ReferenceType_c implements FutureType {
 		return null;
 	}
 	
-	 public boolean isImplicitCastValidImpl( Type toType ) {
-	 	// System.out.println(this + ".isImplicitCastValidImpl(" + toType +")");
+	 public boolean isImplicitCastValidImpl( Type origType ) {
+
+	    if ( Report.should_report("debug", 5) )  {
+	       Report.report(5, "[FutureType_c] |" + this + "|.isImplicitCastValidImpl(|" + origType +"|):");
+	    }
+	    X10Type toType = (X10Type) origType;
+
+	 	if (toType.isNullable()) {
+	 	  NullableType targetType = toType.toNullable();
+	 	  toType = targetType.base();
+	 	}
     	if (toType.isFuture()) {
     		
     		FutureType target = toType.toFuture();
-    		// System.out.println(base()+ ".isImplicitCastValidImpl(" + target.base() +")");
-    		return base().isImplicitCastValidImpl( target.base() );
+    		boolean result = base().isImplicitCastValidImpl( target.base() );
+    		
+    		if ( Report.should_report("debug", 5) )  {
+    		       Report.report(5, "[FutureType_c] ..." + result);
+    		    }
+	
+    		return result;
+    		
     	}
-     	// System.out.println(this + ".isImplicitCastValidImpl(" + toType +") returns false!");	 
+    	if ( Report.should_report("debug", 5) )  {
+		       Report.report(5, "[FutureType_c] ... false");
+		    }
+     	
         return false;
 	 }
 	 
-	 public boolean isCastValidImpl( Type toType) {
+	 public boolean isCastValidImpl( Type origType) { 
+	 	X10Type toType = (X10Type) origType;
+	 	
 	 	if (Report.should_report("debug", 5)) {
 	 		Report.report(5, "[FutureType_c] |" +  this + "|.isCastValidImpl(|" + toType +"|):");
 	 	}

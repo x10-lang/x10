@@ -6,7 +6,7 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ext.jl.ast.TypeNode_c;
-import polyglot.ext.x10.types.NullableType_c;
+import polyglot.ext.x10.types.X10TypeSystem;
 
 import polyglot.util.Position;
 import polyglot.util.CodeWriter;
@@ -68,33 +68,61 @@ public class NullableNode_c extends TypeNode_c  implements NullableNode {
     }
 
     /**
-     * Disambiguate the base node. Ensure that it is unambiguous and a ReferenceType. Create a NullableType_c 
-     * and store it in this.type.
+     * Disambiguate the base node. Ensure that it is unambiguous and a
+     * ReferenceType. Create a NullableType_c and store it in
+     * this.type.
      */
     public Node disambiguate(AmbiguityRemover sc) throws SemanticException {
-    	// Report.report(5,"[NullableNode_c] Disambiguating |" + this + "|(#" + this.hashCode() +"):");
+	if (Report.should_report("debug", 5)) {
+	   Report.report(5,"[NullableNode_c] Disambiguating |" + this + "|(#" 
+			 + this.hashCode() +") with base=|" + base + "|:");
+	}
+
     	TypeNode newType = (TypeNode) base.disambiguate( sc );
-    	// Report.report(5,"[NullableNode_c] ... yields type |" + type + "|.");
+
+	if (Report.should_report("debug", 5)) {
+	    Report.report(5,"[NullableNode_c] ... yields type |" + newType + "|.");
+	}
+
     	Type baseType = newType.type();
     	if (null == baseType || ! (baseType instanceof ReferenceType) ) {
     		throw new SemanticException("The type constructor future cannot be applied to a <null> type", 
         			position());
     	}
-    	this.type = NullableType_c.makeNullable( baseType.typeSystem(), position(), (ReferenceType) baseType);
+    	
+    	X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
+    	this.type = ts.createNullableType( position(), (ReferenceType) baseType);
+
     	Node result = reconstruct( newType );
-    	// Report.report(5,"[NullableNode_c] ... returns |" + result +"|(#" + result.hashCode() +").");
+
+	if (Report.should_report("debug", 5)) {
+	     Report.report(5,"[NullableNode_c] ... returns |" + result +"|(#" 
+			   + result.hashCode() +").");
+	}
+
     	return result; 
        }
 
     /**
-     * Typecheck the type-argument (in this.base). If it typechecks (e.g. passes visibility constraints),
-     * and the result is a ReferenceType, update type.this if necessary. Otherwise throw a semantic exception.
-     * TODO: Ensure that visibility of this node is the same as that of the type argument.
+     * Typecheck the type-argument (in this.base). If it typechecks
+     * (e.g. passes visibility constraints), and the result is a
+     * ReferenceType, update type.this if necessary. Otherwise throw a
+     * semantic exception.  TODO: Ensure that visibility of this node
+     * is the same as that of the type argument.
      */
+
     public Node typeCheck( TypeChecker tc) throws SemanticException {
-    	// Report.report(5,"[NullableNode_c] Type checking |" + this +"|:");
+
+	if (Report.should_report("debug", 5)) {
+	    Report.report(5,"[NullableNode_c] Type checking |" + this +"|:");
+	}
+
     	Node n = base.typeCheck( tc );
-    	// Report.report(5,"[NullableNode_c] ... yields node |" + n +"|.");
+
+	if (Report.should_report("debug", 5)) {
+	    Report.report(5,"[NullableNode_c] ... yields node |" + n +"|.");
+	}
+
     	if (! (n instanceof TypeNode)) 
     		throw new SemanticException("Argument to nullable type-constructor does not type-check" + position());
     	if (n == base )
@@ -103,10 +131,14 @@ public class NullableNode_c extends TypeNode_c  implements NullableNode {
     	Type argType = arg.type();
     	if ( ! (argType instanceof ReferenceType ))
     		throw new SemanticException("Argument to nullable type-constructor must be a reference type" + position());
-    	 // TypeNode result = new CanonicalFutureTypeNode_c( position(), arg.type());
-    	this.type = NullableType_c.makeNullable( argType.typeSystem(), position(), (ReferenceType) argType);
-    	// Report.report(5, "[NullableNode_c] ... sets type to |" + this.type + "|.");
-    	// Report.report(5, "[NullableNode_c] ... returns |" + this + "|.");
+	X10TypeSystem ts = (X10TypeSystem) argType.typeSystem();
+    	this.type = ts.createNullableType( position(), (ReferenceType) argType);
+
+	if (Report.should_report("debug", 5)) {
+	   Report.report(5, "[NullableNode_c] ... sets type to |" + this.type + "|.");
+	   Report.report(5, "[NullableNode_c] ... returns |" + this + "|."); 
+	}
+
     	return this;
    	
     }
