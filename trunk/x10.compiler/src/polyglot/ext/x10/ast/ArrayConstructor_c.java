@@ -194,11 +194,11 @@ implements ArrayConstructor {
 			
 			// TODO: vj The following is hardwired for int and double arrays.
 			Type initType = initializer.type();
-			if ( ts.isImplicitCastValid(newBaseType, ts.Int()) 
-					&& ! ts.isImplicitCastValid(initType, ts.IntArrayPointwiseOp()))
+			if ( ts.isImplicitCastValid(newBaseType, ts.Int())) {
+				if (! ts.isImplicitCastValid(initType, ts.IntArrayPointwiseOp()))
 				throw new SemanticException("Array initializer must be of type x10.lang.intArray.pointwiseOp" 
 						+ position());
-			if ( ts.isImplicitCastValid(newBaseType, ts.Double()) 
+			} else if ( ts.isImplicitCastValid(newBaseType, ts.Double()) 
 					&& ! ts.isImplicitCastValid(initType, ts.DoubleArrayPointwiseOp()))
 				throw new SemanticException("Array initializer must be of type x10.lang.doubleArray.pointwiseOp" 
 						+ position());
