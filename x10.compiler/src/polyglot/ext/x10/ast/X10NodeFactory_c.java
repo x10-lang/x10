@@ -59,8 +59,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return (Here) f.del(delFactory().delStmt());
     }
     
-    public When When(Position pos, List exprs, List statements) {
-        When w = new When_c(pos, exprs, statements);
+    public When When(Position pos, Expr expr, Stmt statement) {
+        When w = new When_c(pos, expr, statement);
         w = (When) w.ext(extFactory().extStmt());
         return (When) w.del(delFactory().delStmt());
     }
@@ -138,18 +138,18 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     public ReductionCall ReduceCall(Position pos, Receiver target, String name, List arguments) {
     	return new ReductionCall_c( pos, target, name, arguments, ReductionCall.REDUCE);
     }
-    public Call RemoteCall(Position pos, Receiver target, String name, List arguments) {
+    public RemoteCall RemoteCall(Position pos, Receiver target, String name, List arguments) {
     	return new RemoteCall_c( pos, target, name, arguments);
     }
-    public X10Loop AtEach(Position pos, Variable formal, Expr domain, Stmt body) {
+    public X10Loop AtEach(Position pos, Formal formal, Expr domain, Stmt body) {
     	X10Loop n = new AtEach_c( pos, formal, domain, body);
     	return n;
     }
-    public X10Loop ForLoop(Position pos, Variable formal, Expr domain, Stmt body) {
+    public X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body) {
     	X10Loop n = new ForLoop_c( pos, formal, domain, body);
     	return n;
     }
-    public X10Loop ForEach(Position pos, Variable formal, Expr domain, Stmt body) {
+    public X10Loop ForEach(Position pos, Formal formal, Expr domain, Stmt body) {
     	X10Loop n = new ForEach_c( pos, formal, domain, body);
     	return n;
     }

@@ -16,7 +16,7 @@ import polyglot.util.Position;
  * @author vj Dec 9, 2004
  * 
  */
-public class RemoteCall_c extends Call_c {
+public class RemoteCall_c extends Call_c implements RemoteCall {
 
 	/**
 	 * @param pos

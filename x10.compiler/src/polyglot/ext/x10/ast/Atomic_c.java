@@ -71,7 +71,7 @@ public class Atomic_c extends Stmt_c
     }
 
     /** Reconstruct the statement. */
-    protected Atomic reconstruct( Expr place, Block body ) {
+    protected Atomic reconstruct( Expr place, Stmt body ) {
 	if ( place != this.place || body != this.body ) {
 	    Atomic_c n = (Atomic_c) copy();
 	    n.place = place;
@@ -85,7 +85,7 @@ public class Atomic_c extends Stmt_c
     /** Visit the children of the statement. */
     public Node visitChildren( NodeVisitor v ) {
 	Expr place = (Expr) visitChild(this.place, v);
-	Block body = (Block) visitChild(this.body, v);
+	Stmt body = (Stmt) visitChild(this.body, v);
 	return reconstruct(place, body);
     }
 

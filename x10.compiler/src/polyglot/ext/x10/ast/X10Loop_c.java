@@ -11,9 +11,17 @@ import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.Variable;
+import polyglot.ast.Node;
+import polyglot.ast.Formal;
 import polyglot.ext.jl.ast.Stmt_c;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
+import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
+import polyglot.types.Type;
+import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeChecker;
+
 
 /** Captures the commonality of for, foreach and ateach loops in X10.
  * TODO:
@@ -38,60 +46,72 @@ import polyglot.visit.CFGBuilder;
  * 
  */
 public abstract class X10Loop_c extends Stmt_c implements X10Loop {
-		Variable formal;
-		Expr domain;
-		Stmt body;
+    protected Formal formal;
+    protected Expr domain;
+    protected Stmt body;
 
-	/**
-	 * @param pos
-	 */
-	protected X10Loop_c(Position pos) {
-		super(pos);
-		// TODO Auto-generated constructor stub
-	}
+    /**
+     * @param pos
+     */
+    protected X10Loop_c(Position pos) {
+	super(pos);
+	// TODO Auto-generated constructor stub
+    }
 
-	protected X10Loop_c( Position pos, Variable formal, Expr domain, Stmt body) {
-		super( pos );
-		this.formal = formal;
-		this.domain = domain;
-		this.body = body;
-		
-	}
-	/* (non-Javadoc)
-	 * @see polyglot.ast.Term#entry()
-	 */
-	public Term entry() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
-	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.ast.X10Loop#body()
-	 */
-	public Stmt body() {
-		return this.body;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.ast.X10Loop#formal()
-	 */
-	public Variable formal() {
-		return this.formal;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.ast.X10Loop#domain()
-	 */
-	public Expr domain() {
-		return this.domain;
-	}
-
+    protected X10Loop_c( Position pos, Formal formal, Expr domain, Stmt body) {
+    	super( pos );
+    	this.formal = formal;
+    	this.domain = domain;
+    	this.body = body;
+    	
+    }
+  
+  
+    
+    /** Type check the statement. */
+    public Node typeCheck(TypeChecker tc) throws SemanticException {
+    	TypeSystem ts = tc.typeSystem();
+    	// Add rules.
+    	return this;
+    }
+    
+    /* (non-Javadoc)
+     * @see polyglot.ast.Term#entry()
+     */
+    public Term entry() {
+    	return formal.entry();
+    }
+    
+    /* (non-Javadoc)
+     * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
+     */
+    public List acceptCFG(CFGBuilder v, List succs) {
+    	v.visitCFG( formal, domain.entry());
+    	v.visitCFG( domain, body.entry());
+    	v.visitCFG( body, this);
+    	return succs;
+    }
+    
+    /* (non-Javadoc)
+     * @see polyglot.ext.x10.ast.X10Loop#body()
+     */
+    public Stmt body() {
+    	return this.body;
+    }
+    
+    /* (non-Javadoc)
+     * @see polyglot.ext.x10.ast.X10Loop#formal()
+     */
+    public Formal formal() {
+    	return this.formal;
+    }
+    
+    /* (non-Javadoc)
+     * @see polyglot.ext.x10.ast.X10Loop#domain()
+     */
+    public Expr domain() {
+    	return this.domain;
+    }
+    
+    
 }
