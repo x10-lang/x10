@@ -7,31 +7,31 @@ import java.util.Iterator;
 
 import x10.array.Array;
 import x10.array.Distribution;
-import x10.array.IntArray;
+import x10.array.DoubleArray;
 import x10.array.Operator;
 
 
 /**
  * @author Christian Grothoff, Christoph von Praun
  */
-public class IntArray_c extends IntArray {
+public class DoubleArray_c extends DoubleArray {
 
-    private final int[] arr_;
+    private final double[] arr_;
     
     /**
      *  This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    public IntArray_c(Distribution_c d) {
+    public DoubleArray_c(Distribution_c d) {
         super(d);
-        this.arr_ = new int[d.size()];
+        this.arr_ = new double[d.size()];
     }
     
-    public IntArray_c(Distribution_c d, int c) {
+    public DoubleArray_c(Distribution_c d, double c) {
         super(d);
         int size = d.size();
-        int[] arr = new int[size];
+        double[] arr = new double[size];
         for (int i =0; i < size; ++i)
         	arr[i] = c;
         arr_ = arr;
@@ -45,9 +45,9 @@ public class IntArray_c extends IntArray {
     
     /* Overrides the superclass method - this implementation is more efficient */
     protected void assign(Array rhs) {
-    	assert rhs instanceof IntArray_c;
+    	assert rhs instanceof DoubleArray_c;
     	
-    	IntArray_c rhs_t = (IntArray_c) rhs;
+    	DoubleArray_c rhs_t = (DoubleArray_c) rhs;
     	if (rhs.dist.equals(dist)) {
     		for (int i  = 0; i < arr_.length; ++i) 
     			arr_[i] = rhs_t.arr_[i];
@@ -60,63 +60,63 @@ public class IntArray_c extends IntArray {
     public void initialize(Operator.Initializer rhs) {
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             int[] pos = (int[]) it.next();
-            set(rhs.getIntResult(pos), pos);
+            set(rhs.getDoubleResult(pos), pos);
         }
     }
 
 	protected Array newInstance(Distribution d) {
 		assert d instanceof Distribution_c;
 		
-		return new IntArray_c((Distribution_c) d);	
+		return new DoubleArray_c((Distribution_c) d);	
 	}
 	
     /* (non-Javadoc)
-     * @see x10.lang.IntArray#set(int, int[])
+     * @see x10.lang.DoubleArray#set(int, int[])
      */
-    public void set(int v, int[] pos) {
+    public void set(double v, int[] pos) {
         arr_[dist.ordinal(pos)] = v;
     }
     
-    public void set(int v, int d0) {
+    public void set(double v, int d0) {
         int[] pos = {d0};
         set(v, pos);
     }
     
-    public void set(int v, int d0, int d1) {
+    public void set(double v, int d0, int d1) {
         int[] pos = {d0, d1};
         set(v, pos);
     }
     
-    public void set(int v, int d0, int d1, int d2) {
+    public void set(double v, int d0, int d1, int d2) {
         int[] pos = {d0, d1, d2};
         set(v, pos);
     }
     
-    public void set(int v, int d0, int d1, int d2, int d3) {
+    public void set(double v, int d0, int d1, int d2, int d3) {
         int[] pos = {d0, d1, d2, d3};
         set(v, pos);
     }
 
     /* (non-Javadoc)
-     * @see x10.lang.IntArray#get(int[])
+     * @see x10.lang.DoubleArray#get(int[])
      */
-    public int get(int[] pos) {
+    public double get(int[] pos) {
         return arr_[dist.ordinal(pos)];
     }
     
-    public int get(int d0) {
+    public double get(int d0) {
         int[] pos = {d0};
     	return get(pos);
     }
-    public int get(int d0, int d1) {
+    public double get(int d0, int d1) {
         int[] pos = {d0, d1};
     	return get(pos);
     }
-    public int get(int d0, int d1, int d2) {
+    public double get(int d0, int d1, int d2) {
         int[] pos = {d0, d1, d2};
     	return get(pos);
     }
-    public int get(int d0, int d1, int d2, int d3) {
+    public double get(int d0, int d1, int d2, int d3) {
         int[] pos = {d0, d1, d2, d3};
     	return get(pos);
     }

@@ -25,6 +25,18 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
     	return new Region_c(dims);
     }
     
+    public Region makeUpperTriangularRegion(int n) {
+        return Region_c.makeUpperTriangular(n);
+    }
+	
+    public Region makeLowerTriangularRegion(int n) {
+        return Region_c.makeLowerTriangular(n);
+    }
+ 
+    public Region makeBandedRegion(int n, int k) {
+        return Region_c.makeBanded(n, k);
+    }
+    
     /**
      * @return  New array with Distribution d.
      */
@@ -46,11 +58,11 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
      * @return  New array with Distribution d.
      */
     public DoubleArray makeDoubleArray(Distribution d) {
-    	throw new RuntimeException("not implemented");
+        return new DoubleArray_c((Distribution_c)d);
     }
     
     public DoubleArray makeDoubleArray(Distribution d, double c) {
-    	throw new RuntimeException("not implemented");
+        return new DoubleArray_c((Distribution_c)d, c);
     }
     
     /**
