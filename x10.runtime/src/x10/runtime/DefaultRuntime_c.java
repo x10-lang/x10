@@ -136,7 +136,6 @@ public class DefaultRuntime_c
                 return null;
             }
         };        
-        
         // run the main app
         Future f = p0.runFuture(boot);
         // make sure we don't accidentially initialize Sampling by
@@ -148,7 +147,7 @@ public class DefaultRuntime_c
                 }
             } catch (InterruptedException ie) {            
             }
-        }
+        }        
         f.force(); // use force to wait for termination!
         
         // and now the shutdown sequence!
@@ -337,10 +336,7 @@ public class DefaultRuntime_c
     	return f;
     	
     }
-    
-    
-    
-				      
+    			      
     /**
      * Get the Activity object that is executing this 
      * method.
@@ -370,7 +366,7 @@ public class DefaultRuntime_c
      * @return null if the activity is not running anywhere
      */
     public synchronized Place getPlaceOfActivity(Activity a) {
-        Iterator it=thread2activity_.keySet().iterator();
+        Iterator it = thread2activity_.keySet().iterator();
         while (it.hasNext()) {
             Thread t = (Thread) it.next();
             Activity ta = (Activity) thread2activity_.get(t);
