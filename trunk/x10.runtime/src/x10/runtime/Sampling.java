@@ -89,9 +89,9 @@ public final class Sampling extends Thread {
     /**
      * List of 'marker' IDs (single, unrelated events in time).
      */
-    public static final int M_ID_LOCAL_CALL = 0; // 'call'
-    public static final int M_ID_REMOTE_CALL = 1; // 'call'
-    public static final int M_ID_CLOCK_ADVANCE = 2;   // clock advances
+    public static final int M_ID_LOCAL_CALL = X10.Event_LocalCall; // 'call'
+    public static final int M_ID_REMOTE_CALL = X10.Event_RemoteCall; // 'call'
+    public static final int M_ID_CLOCK_ADVANCE = X10.Event_ClockAdvance;   // clock advances
 
     /**
      * List of status values (values that capture the current
