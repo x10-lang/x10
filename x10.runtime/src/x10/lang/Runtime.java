@@ -3,6 +3,7 @@ package x10.lang;
 import java.util.Iterator;
 import java.util.List;
 
+import x10.runtime.ActivityInformation;
 import x10.runtime.Clock;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
