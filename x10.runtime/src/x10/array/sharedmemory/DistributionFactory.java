@@ -22,7 +22,7 @@ public class DistributionFactory extends distribution.factory {
      * @return
      */
     public distribution cyclic(region r, Set/*<place>*/ q) {
-        return blockCyclic(r, q.size(), q);
+        return blockCyclic(r, 1, q);
     }
     
     /**

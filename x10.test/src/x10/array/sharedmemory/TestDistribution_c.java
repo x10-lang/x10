@@ -51,6 +51,20 @@ public class TestDistribution_c extends TestCase {
         }
     }
     
+    public void testDistribution_cyclic() {
+        boolean assert1;
+        int NP=x10.lang.place.MAX_PLACES;
+        region R=region.factory.region(0,NP-1);
+        distribution D=distribution.factory.block(R);
+        distribution D3=distribution.factory.cyclic(R);
+        assert1 = D.equals(D3);
+        
+        System.out.println(D);
+        System.out.println(D3);
+        
+        assertTrue(assert1);
+    }
+    
     public void testDistribution_block() {
         boolean assert1, assert2, assert3;
         region cont = new ContiguousRange(37);
