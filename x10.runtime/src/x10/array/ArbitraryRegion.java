@@ -11,7 +11,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Set;
 
-import x10.lang.Object;
 import x10.lang.PointOutOfRegionError;
 import x10.lang.point;
 import x10.lang.region;
@@ -254,23 +253,8 @@ public class ArbitraryRegion extends region {
 		return sb.toString();
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    public boolean equals(Object o) {
-        boolean ret = (o == this);
-        if (!ret && o.getClass() == getClass()) {
-            ArbitraryRegion rhs = (ArbitraryRegion) o;
-            ret = rhs.points_.equals(points_);
-        }
-        return ret;
-    }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    public int hashCode() {
-        return points_.hashCode();
-    }
+
+
 
 }

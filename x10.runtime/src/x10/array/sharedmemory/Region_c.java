@@ -93,7 +93,7 @@ public class Region_c extends region  {
 		return new Region_c(d);
 	}
 	
-	public region intersection( region r ) {
+	public region intersection(region r ) {
 		assert r != null;
 		assert r.rank == rank;
 		
@@ -197,19 +197,9 @@ public class Region_c extends region  {
 		return sb.toString();
 	}
 	
-	public boolean equals( Object o ) {
-		assert o.getClass() == getClass();
-		
-		Region_c rhs = (Region_c) o;
-		boolean ret = rhs.rank == rank && rhs.card == card;
-		for (int i = 0; ret && i < rank; ++i)
-			ret = dims[i].equals(rhs.dims[i]);
-		return ret;
-	}
+
 	
-	public int hashCode() {
-		return card;
-	}
+
 	
 	private class RegionIterator implements Iterator {
 		private int nextOrd_;

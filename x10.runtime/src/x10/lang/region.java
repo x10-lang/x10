@@ -2,6 +2,8 @@ package x10.lang;
 
 import java.util.Iterator;
 
+import x10.array.ArbitraryRegion;
+
 
 /**
  *  A region represents a (sparse or dense) k-dimensional space of
@@ -166,7 +168,31 @@ public abstract /*value*/ class region extends Object  {
 	 */
 	abstract public Iterator iterator();
 	abstract public String toString(); 
-	abstract public boolean equals(Object o);
-	abstract public  int hashCode();
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+	public boolean equals(java.lang.Object o) {
+	    assert o instanceof region;
+	    
+	    boolean ret = (o == this);
+	    if (!ret) {
+	        region rhs = (region) o;
+	        if (rhs.rank == rank && rhs.size() == size()) { 
+	            ret = true;
+	            for (Iterator it = iterator(); it.hasNext(); ) {
+	                point p = (point) it.next();
+	                if (!rhs.contains(p)) {
+	                    ret = false;
+	                    break;
+	                }
+	            }
+	        }
+	    }
+	    return ret;
+	}
+	public final int hashCode() {
+	    return rank;
+	}
+	
 	
 }
