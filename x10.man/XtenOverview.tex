@@ -14,14 +14,22 @@ and a bounded amount of shared memory uniformly accessible by all
 threads.  An \Xten{} program is intended to run on a computer capable
 of supporting millions of places.
 
-An \Xten{} computation acts on {\em data objects}(\S~\ref{XtenObjects})
-through the execution of lightweight threads called {\em
-activities}(\S~\ref{XtenActivities}).  Objects are of two kinds. A {\em
-scalar} object has a small, statically fixed set of fields, each of
-which has a distinct name. A scalar object is located at a single
-place. An {\em aggregate} object has many fields (the number may be
-known only when the object is created), uniformly accessed through an
-index (e.g.{} an integer) and may be distributed across many places.
+An \Xten{} computation acts on {\em data
+objects}(\S~\ref{XtenObjects}) through the execution of lightweight
+threads called {\em activities}(\S~\ref{XtenActivities}).  Objects are
+of two kinds. A {\em scalar} object has a small, statically fixed set
+of fields, each of which has a distinct name. A scalar object is
+located at a single place and stays at that place throughout its
+lifetime.  An {\em aggregate} object has many fields (the number may
+be known only when the object is created), uniformly accessed through
+an index (e.g.{} an integer) and may be distributed across many
+places. The distribution of an aggregate object remains unchanged
+throughout the computation. \Xten{} assumes an underlying garbage
+collector will dispose of (scalar and aggregate) objects and reclaim
+the memory associated with them once it can be determined that these
+objects are no longer accessible from the current state of the
+computation. (There are no operations in the language to allow a
+programmer to explicitly release memory.)
 
 {}\Xten{} has a {\em unified} or {\em global address space}. This
 means that an activity can reference objects at other places.
@@ -33,10 +41,9 @@ within an {\em atomic section}. To read a remote location, an activity
 must spawn another activitiy {\em asynchronously}
 (\S~\ref{AsynchronousActivity}). This operation returns immediately,
 leaving the spawning activity with a {\em future}
-(\S~\ref{XtenFutures}) for the result. This future will be replaced
-with an actual value once the spawned activity returns a
-value. Similarly, remote location can be written into only by
-asynchronously spawning an activity to run at that location.
+(\S~\ref{XtenFutures}) for the result. Similarly, remote location can
+be written into only by asynchronously spawning an activity to run at
+that location.
 
 Throughout its lifetime an activity executes at the same place. An
 activity may dynamically spawn activities in the current or remote
@@ -44,9 +51,9 @@ places.
 
 \paragraph{Atomic sections}
 
-\Xten{} allows a programmer to prefix a statement block with the keyword {\cf
-atomic}. The type system ensures that such a statement will
-dynamically access only local data. (The statement may of course throw
+\Xten{} introduces statements of the form {\cf atomic S} where {\cf S}
+is a statement.  The type system ensures that such a statement will
+dynamically access only local data. (The statement may throw
 a {\cf BadPlaceException} -- but only because of a failed place cast.)
 Such a statement is executed by the activity as if in a single step
 during which all other activities are frozen.
@@ -54,16 +61,16 @@ during which all other activities are frozen.
 \paragraph{Asynch activities}
 
 An asynch activity is a statement of the form {\cf async (P) S} where
-{\cf S} is a statement and {\cf P} is a place expression. Such a
+{\cf P} is a place expression and {\cf S} is a statement.  Such a
 statement is executed by spawning an activity at the place designated
 by {\cf P} to execute statement {\cf S}.
 
-An async expression of type {\tt \Hat T} (read: {\em future {\tt T}})
-has the form {\cf future (P) E} where {\tt E} is an expression of type
-{\tt T}. It executess the expression {\tt E} at the place {\tt P} as
-an async activity immediately returning with a future. The future may
-later be forced causing the activity to be blocked until the return
-value has been computed by the async activity.
+An async expression of type {\cf future T}} has the form {\cf future
+(P) E} where {\tt E} is an expression of type {\tt T}. It executess
+the expression {\tt E} at the place {\tt P} as an async activity,
+immediately returning with a future. The future may later be forced
+causing the activity to be blocked until the return value has been
+computed by the async activity.
 
 \subsection{Clocks}
 The MPI style of coordinating the activity of multiple processes with
