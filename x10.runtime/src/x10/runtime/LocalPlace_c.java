@@ -155,14 +155,31 @@ public class LocalPlace_c extends Place {
         final Future_c result = new Future_c(a);
         final Activity i = aip_.getCurrentActivity();
         assert i != a;
+        final StartSignal startSignal = new StartSignal();
         this.execute(new Runnable() {
                 public void run() {
                     Thread t = Thread.currentThread();
                     reg_.registerActivityStart(t, a, i);
+                    synchronized(startSignal) {
+                        startSignal.go = true;
+                        startSignal.notifyAll();
+                    }
                     a.run();                    
                     result.setResult(a.getResult());
                 }
             }, a);
+        // we now need to wait at least (!) until the 
+        // "reg_.registerActivityStart(...)" line has been
+        // reached.  Hence we wait on the start signal.
+        synchronized (startSignal) {
+            try {
+                while (! startSignal.go) {
+                    startSignal.wait();
+                }
+            } catch (InterruptedException ie) {
+                throw new Error(ie); // should never happen!
+            }
+        }
         return result;
     }
 

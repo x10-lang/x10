@@ -184,7 +184,8 @@ public final class Sampling extends Thread {
         DefaultRuntime_c dr = (DefaultRuntime_c) Runtime.runtime;
         Place p = dr.getPlaceOfActivity(a);
         if (p == null) {
-            activityToIdentifier.put(a, new Integer(activityCounts[places.length]++)); 
+            //System.out.println("*New AID for " + a + " is " + activityCounts[places.length]);
+            activityToIdentifier.put(a, new Integer(activityCounts[places.length]++));
         } else {
             //System.out.println("New AID for " + a + " is " + activityCounts[p.id]);
             activityToIdentifier.put(a, new Integer(activityCounts[p.id]++));
@@ -292,7 +293,8 @@ public final class Sampling extends Thread {
                     if (ia == a)
                         throw new Error("Activities match!?");
                     if ( (getActivityId(ia) == getActivityId(a)) && (i == j))
-                        throw new Error("Activity ids match!?");
+                        throw new Error("Activity ids match!?: " + 
+                                   getActivityId(ia) + "==" + getActivityId(a));
                     if (dstPlace != null) {
                         //System.out.println("START LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
                         dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
@@ -344,7 +346,10 @@ public final class Sampling extends Thread {
                         dos.writeInt(-1);
                     dos.writeInt(cause);
                     dos.writeInt(causeInfo);
-                    dos.writeInt(getActivityId(ia)); // causeInfo2
+                    if (ia == null)
+                        dos.writeInt(0);
+                    else
+                        dos.writeInt(getActivityId(ia)); // causeInfo2
                     break;
             }        
         } catch (IOException io) {
