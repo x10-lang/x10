@@ -100,7 +100,7 @@ public class TestXXArray_c extends TestCase {
         // all places in a real implementation).
         A.pointwise(A, new Operator.Pointwise() {
             public double apply(point point, double arg) {
-                return N * point.valueAt(0) + point.valueAt(1);
+                return N * point.get(0) + point.get(1);
             }
         });
         
