@@ -1,0 +1,20 @@
+HOWTO: Create ssh keys
+----------------------
+
+What you need:
+
+ - Win: cygwin with ssh 
+ - Linux: ssh
+
+Procedure:
+
+ - issue command: 'ssh-keygen -t dsa'
+ - the keys will be created in a directory $HOME/.ssh
+ - use <empty> passphrase (just hit return when asked)
+ 
+Result: 
+
+ - files are in $HOME/.ssh
+ - file id_dsa (private key)
+ - file id_dsa.pub (public key)
+
