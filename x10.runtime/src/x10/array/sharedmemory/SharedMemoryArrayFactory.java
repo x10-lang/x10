@@ -10,8 +10,6 @@ import x10.array.Place;
 import x10.array.Range;
 import x10.array.Region;
 import x10.array.ArrayFactory;
-import x10.compilergenerated.DoubleArray_c;
-import x10.compilergenerated.IntArray_c;
 
 /**
  * Abstract Factory for Array related classes.
@@ -31,14 +29,28 @@ public class SharedMemoryArrayFactory extends ArrayFactory {
      * @return  New array with Distribution d.
      */
     public IntArray makeIntArray(Distribution d) {
+    	// if the distribution has dimension1, 2, 3, 
+    	// we can be much smarter here and return an 
+    	// instance of a specialized class. 
     	return new IntArray_c((Distribution_c)d);
+    }
+    
+    public IntArray makeIntArray(Distribution d, int c) {
+    	// if the distribution has dimension1, 2, 3, 
+    	// we can be much smarter here and return an 
+    	// instance of a specialized class. 
+    	return new IntArray_c((Distribution_c)d, c);
     }
     
     /**
      * @return  New array with Distribution d.
      */
     public DoubleArray makeDoubleArray(Distribution d) {
-    	return new DoubleArray_c((Distribution_c)d);
+    	throw new RuntimeException("not implemented");
+    }
+    
+    public DoubleArray makeDoubleArray(Distribution d, double c) {
+    	throw new RuntimeException("not implemented");
     }
     
     /**

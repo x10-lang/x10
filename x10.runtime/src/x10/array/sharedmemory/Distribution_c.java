@@ -205,11 +205,11 @@ abstract class Distribution_c
         throw new Error("TODO");
     }
 
-    public Distribution asymmetric_union(Distribution d) { 
+    public Distribution asymetricUnion(Distribution d) { 
         throw new Error("TODO");
     }
     
-    public Distribution disjoint_union(Distribution d) { 
+    public Distribution disjointUnion(Distribution d) { 
         throw new Error("TODO");
     }
     
@@ -217,11 +217,11 @@ abstract class Distribution_c
         throw new Error("TODO");
     }
     
-    public Distribution range_restriction(Place r) { 
+    public Distribution placeRestriction(Place r) { 
         throw new Error("TODO");
     } // change X10 report to call it place_restriction and I'll be happier
     
-    public Distribution domain_restriction(Region r) { 
+    public Distribution domainRestriction(Region r) { 
         throw new Error("TODO");
     }
 

@@ -44,8 +44,22 @@ public abstract class ArrayFactory {
     /**
      * @return  New array with Distribution d.
      */
+    public static IntArray newIntArray(Distribution d, int c) {
+    	return _.makeIntArray(d, c);
+    }
+    
+    /**
+     * @return  New array with Distribution d.
+     */
     public static DoubleArray newDoubleArray(Distribution d) {
-    	return _.makeDoubleArray(d);
+    	throw new RuntimeException ("not implemented");
+    }
+    
+    /**
+     * @return  New array with Distribution d.
+     */
+    public static DoubleArray newDoubleArray(Distribution d, double c) {
+    	return _.makeDoubleArray(d, c);
     }
     
     /**
@@ -135,9 +149,21 @@ public abstract class ArrayFactory {
     public abstract IntArray makeIntArray(Distribution d);
     
     /**
+     * @return  New array with Distribution d and initialize every element
+     * with constant c.
+     */
+    public abstract IntArray makeIntArray(Distribution d, int c);
+    
+    /**
      * @return  New array with Distribution d.
      */
     public abstract DoubleArray makeDoubleArray(Distribution d); 
+    
+    /**
+     * @return  New array with Distribution d and initialize every element
+     * with constant c. 
+     */
+    public abstract DoubleArray makeDoubleArray(Distribution d, double c); 
     
     /**
      * Create a Distribution where the given Region is distributed
