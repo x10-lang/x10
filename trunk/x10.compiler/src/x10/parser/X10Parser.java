@@ -448,7 +448,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                     default:
                     {
                         int n = j + 1;
-                        while(Character.isDigit(s.charAt(n)))
+                        for (int l = 0; l < 3 && Character.isDigit(s.charAt(n)); l++)
                             n++;
                         char c = (char) parseLong(s.substring(j + 1, n), 8);
                         if (c > 255)
