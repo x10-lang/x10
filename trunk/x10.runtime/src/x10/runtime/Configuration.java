@@ -74,7 +74,7 @@ public final class Configuration {
      * How often should the sampling instrumentations be run?
      * Use -1 for no sampling.
      */
-    public static int SAMPLING_FREQUENCY_MS = 500;
+    public static int SAMPLING_FREQUENCY_MS = 50;
     
     /**
      * If non-null, this option specifies the filename to
