@@ -197,6 +197,10 @@ implements Indexable {
 	abstract public /*(region(rank) r)*/ 
 	boolean subDistribution( region/*(rank)*/ R, distribution/*(R)*/ D); 
 	
+	public boolean contains( point p ) {
+		return this.region.contains(p);
+	}
+	
 	/** Returns true iff this and d map each point in their common
 	 * domain to the same place.
 	 */
