@@ -1,39 +1,18 @@
 /*
  * Created on Oct 1, 2004
- *
  */
 package x10.lang;
 
-import x10.lang.Distribution;
 
 
 /**
-* Baseclass of all Arrays in X10.
-* 
-* @author Christoph von Praun
-*/
+ * Baseclass of all Arrays in X10.
+ * 
+ * @author Christoph von Praun
+ * @author Christian Grothoff
+ */
+public interface Array {
 
-public abstract class Array {
-
-	public final Distribution dist;
-	
-	/**
-	 * @param d Distribution of the array.
-	 */
-	protected Array(Distribution d) {
-		dist = d;
-	}
-    
-    /**
-     * Flat access.
-     */
-    public abstract void set(X10Object v, int[] pos);
-    
-    /**
-     * Flat access.
-     */
-    public abstract X10Object get(int[] pos);
-    
     /**
      * Pointwise arithmetic ADD operation.
      */
@@ -58,4 +37,5 @@ public abstract class Array {
      * Arithmetic NEG operation.
      */
     public abstract Array circshift(int[] arg);
+
 } // end of Array

@@ -17,6 +17,12 @@ public interface Region extends TypeArgument {
 
     public int rank();
     
+    /**
+     * 
+     * @return Highest index possibly returned by ordinal + 1.
+     */
+    public int size();
+    
     public Region sub(Range[] dims);
 	
     public Region combine(Region r);

@@ -1,4 +1,4 @@
-/*4
+/*
  * Created on Oct 3, 2004
  */
 package x10.runtime;
@@ -9,7 +9,6 @@ import x10.lang.Distribution;
 import x10.lang.Place;
 import x10.lang.Range;
 import x10.lang.Region;
-import x10.lang.X10Object;
 
 
 /**
@@ -45,6 +44,10 @@ abstract class Distribution_c
         return region_.dim(i);
     }
     
+    public int size() {
+        return region_.size();
+    }
+    
     public boolean contains(Region r) {
         return region_.contains(r);
     }
@@ -61,48 +64,6 @@ abstract class Distribution_c
         return region_.iterator();
     }
 
-    // Actual Distribution code...
-    
-
-    /**
-     * Rough idea: Array has a method 'get(point)'.  Array_c implements that
-     * by calling distribution.get(this, point).  The Distrib then finds the
-     * right place and (possibly using force future) calls at the right 
-     * place the "Array_c.getInternal(point)", which is GUARANTEED to be
-     * called only if point resides here, so the getInternal knows that the
-     * given point is in its local range.
-     *   
-     * @param a
-     * @param point
-     * @return
-     */
-    X10Object getValueAt(Array_c a, int[] point) {
-        Place p = getPlaceOf(point);
-        if (p == x10.lang.Runtime.here())
-            return a.getInternal(region_.ordinal(point));
-        else
-            throw new Error("not implemented");
-    }
-    
-    /**
-     * Rough idea: Array has a method 'set(point,val)'.  Array_c implements that
-     * by calling distribution.set(this, point, val).  The Distrib then finds the
-     * right place and (possibly using force future) calls at the right 
-     * place the "Array_c.getInternal(point)", which is GUARANTEED to be
-     * called only if point resides here, so the getInternal knows that the
-     * given point is in its local range.
-     *   
-     * @param a
-     * @param point
-     * @return
-     */
-    void setValueAt(Array_c a, int[] point, X10Object val) {
-        Place p = getPlaceOf(point);
-        if (p == x10.lang.Runtime.here())
-            a.setInternal(region_.ordinal(point), val);
-        else
-            throw new Error("not implemented");
-    }
     
 
     public Distribution intersect(Distribution d) { 
@@ -150,14 +111,6 @@ abstract class Distribution_c
             super(r);
         }
 
-        X10Object getValueAt(Array_c a, int[] point) {
-            return a.getInternal(region_.ordinal(point));
-        }
-        
-        void setValueAt(Array_c a, int[] point, X10Object val) {
-            a.setInternal(region_.ordinal(point), val);
-        }        
-        
         public Place getPlaceOf(int[] point){ 
             return x10.lang.Runtime.here();
         }
