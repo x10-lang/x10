@@ -1,6 +1,6 @@
 package x10.lang;
 
-public interface Region {
+public interface Region extends TypeArgument {
 
 
 

@@ -15,15 +15,13 @@ import x10.lang.Runtime;
 /**
  * Default implementation of Runtime.
  * 
- * @author Christian Grothoff
+ * @author Christian Grothoff, Christoph von Praun
  */
 public class DefaultRuntime_c 
     extends Runtime
     implements 
         ThreadRegistry,
         ActivityInformationProvider {
-
-    private final JavaRuntime native_ = new JavaRuntime();
 
     /**
      * At what place is the given thread running (needed to support
@@ -178,13 +176,6 @@ public class DefaultRuntime_c
 	throw new Error("not implemented");
     }
 				      
-    /**
-     * Get the 'native' API.
-     */ 
-    public JavaRuntime getJavaRuntime() {
-	return native_;
-    }
-
     /**
      * Get the Activity object that is executing this 
      * method.

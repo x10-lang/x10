@@ -15,7 +15,7 @@ import x10.runtime.DefaultRuntime_c;
  * implementation.  Sadly, Java does not allow statics code in
  * interfaces, otherwise this would be an interface. 
  * 
- * @author Christian Grothoff
+ * @author Christian Grothoff, Christoph von Praun
  * @see Place
  * @see Activity
  */
@@ -26,7 +26,8 @@ public abstract class Runtime {
      * the x10.runtime. 
      */
     public static final Runtime _;
-
+    public static final JavaRuntime java;
+    
     static {
         String rt = System.getProperty("x10.runtime");
         Runtime r = null;
@@ -44,6 +45,7 @@ public abstract class Runtime {
             
         } finally {
             _ = r;
+            java = new JavaRuntime();
         }
     }
 
@@ -78,11 +80,6 @@ public abstract class Runtime {
      * Create a new array.
      */
     public abstract Array createArray(Distribution d);
-				      
-    /**
-     * Get the 'native' API.
-     */ 
-    public abstract JavaRuntime getJavaRuntime();
 
     /**
      * @return The place where the current execution takes place 

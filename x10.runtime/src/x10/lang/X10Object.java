@@ -20,7 +20,7 @@ public class X10Object {
 	/**
 	 * The actual type parameters with which this type was instanced.
 	 */
-	private final Class[] actualTypes_;
+	private final TypeArgument[] actualTypeArguments_;
 	
 	/**
 	 * Convenience constructor that is only used for instances of non-generic. 
@@ -35,16 +35,16 @@ public class X10Object {
 	 *                     passed as type parameters when this instance was created.
 	 * 	                   If the class is not generic, the null is passed.  
 	 */
-	public X10Object(Class[] actual_types) {
+	public X10Object(TypeArgument[] actual_type_args) {
 		place = Runtime.here();
-		actualTypes_ = actual_types;
+		actualTypeArguments_ = actual_type_args;
 	}
 	
-	public Class getTypeArg_(int i) {
+	public TypeArgument getActualTypeArguments(int i) {
 		// must be a generic type
-		assert actualTypes_ != null;
-		assert i < actualTypes_.length;
-		
-		return actualTypes_[i];
+		assert actualTypeArguments_ != null;
+		assert i < actualTypeArguments_.length;
+		 
+		return actualTypeArguments_[i];
 	}
 }

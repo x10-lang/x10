@@ -1,6 +1,13 @@
+/*
+ * Created on Oct 3, 2004
+ */
 package x10.lang;
 
-public interface Distribution {
+/**
+ * @author Christoph von Praun
+ */
+
+public interface Distribution extends TypeArgument {
 
 
 

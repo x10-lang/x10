@@ -21,7 +21,7 @@ package x10.lang;
  * 
  * @author Christian Grothoff
  */
-public interface Clock {
+public interface Clock extends TypeArgument {
 
     /**
      * Register the current activity with this clock.  It is an error

@@ -17,9 +17,9 @@ import java.util.logging.Logger;
  * I'm not sure that this class should live in this package -- maybe
  * the code can live here (JavaRuntime_c), but the current situation
  * where x10.lang.Runtime directly refers to a class in x10.runtime
- * is definitively bad.  TODO: find a better place for JavaRuntime!
+ * is definitively bad. 
  *
- * @author Christian Grothoff
+ * @author Christian Grothoff, Christoph von Praun
  */
 public class JavaRuntime {
 
@@ -46,6 +46,16 @@ public class JavaRuntime {
 		    String message,
 		    Throwable thrown) {
 	logger_.log(l, message, thrown);
+    }
+    
+    public void error(String message, Throwable thrown) {
+    	Error tmp = new Error("Unexpected runtime error, see log for details.");
+    	if (thrown != null)
+    		thrown.printStackTrace();
+    	else 
+    		tmp.printStackTrace();
+    	logger_.log(Level.SEVERE, message, (Object) null);
+    	throw tmp;
     }
 
 } // end of Native
