@@ -60,6 +60,12 @@ public interface Clock extends TypeArgument {
     public void doContinue();
     
     /**
+     * @return true if the activity has already dropped this
+     *   clock (or if it never was registered).
+     */
+    public boolean dropped();
+    
+    /**
      * Drop this activity from the clock.  Afterwards the
      * activity may no longer use continue or now on this clock.
      * Other activities will no longer be blocked waiting for 
