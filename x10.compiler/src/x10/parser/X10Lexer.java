@@ -162,7 +162,7 @@ public class X10Lexer implements RuleAction, X10Parsersym
     //
             case 15:
             { 
-	        checkForKeyWord(lexParser.getToken(1), lexParser.getSym(1), TK_Identifier);
+	        checkForKeyWord(lexParser.getToken(1), lexParser.getLastToken(1), TK_Identifier);
 	  
             }
             break; 
@@ -172,57 +172,7 @@ public class X10Lexer implements RuleAction, X10Parsersym
     //
             case 16:
             { 
-	        skipToken(lexParser.getToken(1), lexParser.getSym(1));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 17:  WS ::= WSChar
-    //
-            case 17:
-            { 
-	        lexParser.setSym1(lexParser.getToken(1));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 18:  WS ::= WS WSChar
-    //
-            case 18:
-            { 
-	        lexParser.setSym1(lexParser.getToken(2));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 19:  Ident ::= Letter
-    //
-            case 19:
-            { 
-	        lexParser.setSym1(lexParser.getToken(1));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 20:  Ident ::= Ident Letter
-    //
-            case 20:
-            { 
-	        lexParser.setSym1(lexParser.getToken(2));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 21:  Ident ::= Ident Digit
-    //
-            case 21:
-            { 
-	        lexParser.setSym1(lexParser.getToken(2));
+	        skipToken(lexParser.getToken(1), lexParser.getLastToken(1));
 	  
             }
             break; 
@@ -262,7 +212,7 @@ public class X10Lexer implements RuleAction, X10Parsersym
     //
             case 29:
             { 
-	        makeToken(lexParser.getToken(1), lexParser.getSym(1), TK_IntegerLiteral);
+	        makeToken(lexParser.getToken(1), lexParser.getLastToken(1), TK_IntegerLiteral);
 	  
             }
             break; 
@@ -278,31 +228,11 @@ public class X10Lexer implements RuleAction, X10Parsersym
             break; 
 	 
     //
-    // Rule 31:  Integer ::= Digit
-    //
-            case 31:
-            { 
-	        lexParser.setSym1(lexParser.getToken(1));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 32:  Integer ::= Integer Digit
-    //
-            case 32:
-            { 
-	        lexParser.setSym1(lexParser.getToken(2));
-	  
-            }
-            break; 
-	 
-    //
     // Rule 33:  HexLiteral ::= 0 LetterXx HexDigits
     //
             case 33:
             { 
-	        makeToken(lexParser.getToken(1), lexParser.getSym(3), TK_IntegerLiteral);
+	        makeToken(lexParser.getToken(1), lexParser.getLastToken(3), TK_IntegerLiteral);
 	  
             }
             break; 
@@ -318,31 +248,11 @@ public class X10Lexer implements RuleAction, X10Parsersym
             break; 
 	 
     //
-    // Rule 35:  HexDigits ::= HexDigit
-    //
-            case 35:
-            { 
-	        lexParser.setSym1(lexParser.getToken(1));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 36:  HexDigits ::= HexDigits HexDigit
-    //
-            case 36:
-            { 
-	        lexParser.setSym1(lexParser.getToken(2));
-	  
-            }
-            break; 
-	 
-    //
     // Rule 37:  FloatingPointLiteral ::= Decimal
     //
             case 37:
             { 
-	        makeToken(lexParser.getToken(1), lexParser.getSym(1), TK_FloatingPointLiteral);
+	        makeToken(lexParser.getToken(1), lexParser.getLastToken(1), TK_FloatingPointLiteral);
 	  
             }
             break; 
@@ -362,7 +272,7 @@ public class X10Lexer implements RuleAction, X10Parsersym
     //
             case 39:
             { 
-	        makeToken(lexParser.getToken(1), lexParser.getSym(2), TK_FloatingPointLiteral);
+	        makeToken(lexParser.getToken(1), lexParser.getLastToken(2), TK_FloatingPointLiteral);
 	  
             }
             break; 
@@ -382,7 +292,7 @@ public class X10Lexer implements RuleAction, X10Parsersym
     //
             case 41:
             { 
-	        makeToken(lexParser.getToken(1), lexParser.getSym(2), TK_FloatingPointLiteral);
+	        makeToken(lexParser.getToken(1), lexParser.getLastToken(2), TK_FloatingPointLiteral);
 	  
             }
             break; 
@@ -408,66 +318,6 @@ public class X10Lexer implements RuleAction, X10Parsersym
             break; 
 	 
     //
-    // Rule 44:  Decimal ::= Dot Integer
-    //
-            case 44:
-            { 
-                lexParser.setSym1(lexParser.getSym(2));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 45:  Decimal ::= Integer Dot
-    //
-            case 45:
-            { 
-                lexParser.setSym1(lexParser.getToken(2));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 46:  Decimal ::= Integer Dot Integer
-    //
-            case 46:
-            { 
-                lexParser.setSym1(lexParser.getSym(3));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 47:  Exponent ::= LetterEe Integer
-    //
-            case 47:
-            { 
-                lexParser.setSym1(lexParser.getSym(2));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 48:  Exponent ::= LetterEe Plus Integer
-    //
-            case 48:
-            { 
-               lexParser.setSym1(lexParser.getSym(3));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 49:  Exponent ::= LetterEe Minus Integer
-    //
-            case 49:
-            { 
-                lexParser.setSym1(lexParser.getSym(3));
-	  
-            }
-            break; 
-	 
-    //
     // Rule 50:  MLComment ::= Slash Star Inside Stars Slash
     //
             case 50:
@@ -482,27 +332,7 @@ public class X10Lexer implements RuleAction, X10Parsersym
     //
             case 57:
             { 
-		skipToken(lexParser.getToken(1), lexParser.getSym(1));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 58:  SLC ::= Slash Slash
-    //
-            case 58:
-            { 
-		lexParser.setSym1(lexParser.getToken(2));
-	  
-            }
-            break; 
-	 
-    //
-    // Rule 59:  SLC ::= SLC NotEol
-    //
-            case 59:
-            { 
-		lexParser.setSym1(lexParser.getToken(2));
+		skipToken(lexParser.getToken(1), lexParser.getLastToken(1));
 	  
             }
             break; 
@@ -949,7 +779,7 @@ public class X10Lexer implements RuleAction, X10Parsersym
     //
             case 364:
             { 
-	        makeToken(lexParser.getToken(1), lexParser.getSym(1), TK_IntegerLiteral);
+	        makeToken(lexParser.getToken(1), lexParser.getLastToken(1), TK_IntegerLiteral);
                 makeToken(lexParser.getToken(2), lexParser.getToken(3), TK_RANGE);
 	  
             }

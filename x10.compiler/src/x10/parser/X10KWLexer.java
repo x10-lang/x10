@@ -1,10 +1,10 @@
 
 
 
-package x10.parser;
+	package x10.parser;
 
-import java.util.*;
-import com.ibm.lpg.*;
+	import java.util.*;
+	import com.ibm.lpg.*;
 
 public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
 {
@@ -13,15 +13,15 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
     int index = -1;
     int len = 0;
 
-    public X10KWLexer(char[] inputChars)
-    {
-	this.inputChars = inputChars;
-    }
+	    public X10KWLexer(char[] inputChars)
+	    {
+			this.inputChars = inputChars;
+	    }
 
     public int lexer(int startOffset, int endOffset)
     {
-	reset(startOffset, endOffset);
-	return parseCharacters();
+		reset(startOffset, endOffset);
+		return parseCharacters();
     }
 
     int next(int i) { return (++i < len ? i : len); }
@@ -43,1001 +43,900 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
 
     void reset(int startToken, int endToken)
     {
-	len = endToken + 1;
-	index = startToken - 1;
-	startIndex = index;
+		len = endToken + 1;
+		index = startToken - 1;
+		startIndex = index;
     }
 
+	    // The KeyWord parser
+	    int act, curtok, currentKind, result = 0;
+	    int stateStackTop, stack[] = new int [1024];
+	
+	    public int parseCharacters()
+	    {
+	    	curtok = token();
+	    	act = START_STATE;
+	    	currentKind = kind(curtok);
+	    	stateStackTop = -1;
+	    	
+	    	ProcessTerminals: for (;;)
+	    	{
+	    		stack[++stateStackTop] = act;
+	    		act = tAction(act, currentKind);
+	    		
+	    		if (act <= NUM_RULES)
+	    		{
+	    			stateStackTop--; // make reduction look like a shift-reduce
+	    			stateStackTop -= (rhs[act] - 1);
+	    			ruleAction(act);
+	    			act = ntAction(stack[stateStackTop], lhs[act]);
+	    		}
+	    		else if (act > ERROR_ACTION)
+	    		{
+	    			curtok = token();
+	    			currentKind = kind(curtok);
+	    			
+	    			act -= ERROR_ACTION;
+	    			stateStackTop -= (rhs[act] - 1);
+	    			ruleAction(act);
+	    			act = ntAction(stack[stateStackTop], lhs[act]);
+	    		}
+	    		else if (act < ACCEPT_ACTION)
+	    		{
+	    			curtok = token();
+	    			currentKind = kind(curtok);
+	    		}
+	    		else break ProcessTerminals;
+	    	}
+	    	
+	    	return  (act == ERROR_ACTION ? 0 : result);
+	    }
+	    
+	    public void setResult(int n) { result = n; }
+    
 
     public void ruleAction( int ruleNumber)
-    {
-	switch(ruleNumber)
-	{
-
+{
+		switch(ruleNumber)
+		{
+	
  
     //
     // Rule 1:  KeyWord ::= a b s t r a c t
     //
-            case 1:
-            { 
-		    setSym1(TK_abstract);
+        case 1:
+        { 
+		    setResult(TK_abstract);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 2:  KeyWord ::= a s s e r t
     //
-            case 2:
-            { 
-		    setSym1(TK_assert);
+        case 2:
+        { 
+		    setResult(TK_assert);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 3:  KeyWord ::= b o o l e a n
     //
-            case 3:
-            { 
-		    setSym1(TK_boolean);
+        case 3:
+        { 
+		    setResult(TK_boolean);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 4:  KeyWord ::= b r e a k
     //
-            case 4:
-            { 
-		    setSym1(TK_break);
+        case 4:
+        { 
+		    setResult(TK_break);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 5:  KeyWord ::= b y t e
     //
-            case 5:
-            { 
-		    setSym1(TK_byte);
+        case 5:
+        { 
+		    setResult(TK_byte);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 6:  KeyWord ::= c a s e
     //
-            case 6:
-            { 
-		    setSym1(TK_case);
+        case 6:
+        { 
+		    setResult(TK_case);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 7:  KeyWord ::= c a t c h
     //
-            case 7:
-            { 
-		    setSym1(TK_catch);
+        case 7:
+        { 
+		    setResult(TK_catch);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 8:  KeyWord ::= c h a r
     //
-            case 8:
-            { 
-		    setSym1(TK_char);
+        case 8:
+        { 
+		    setResult(TK_char);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 9:  KeyWord ::= c l a s s
     //
-            case 9:
-            { 
-		    setSym1(TK_class);
+        case 9:
+        { 
+		    setResult(TK_class);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 10:  KeyWord ::= c o n s t
     //
-            case 10:
-            { 
-		    setSym1(TK_const);
+        case 10:
+        { 
+		    setResult(TK_const);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 11:  KeyWord ::= c o n t i n u e
     //
-            case 11:
-            { 
-		    setSym1(TK_continue);
+        case 11:
+        { 
+		    setResult(TK_continue);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 12:  KeyWord ::= d e f a u l t
     //
-            case 12:
-            { 
-		    setSym1(TK_default);
+        case 12:
+        { 
+		    setResult(TK_default);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 13:  KeyWord ::= d o
     //
-            case 13:
-            { 
-		    setSym1(TK_do);
+        case 13:
+        { 
+		    setResult(TK_do);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 14:  KeyWord ::= d o u b l e
     //
-            case 14:
-            { 
-		    setSym1(TK_double);
+        case 14:
+        { 
+		    setResult(TK_double);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 15:  KeyWord ::= e l s e
     //
-            case 15:
-            { 
-		    setSym1(TK_else);
+        case 15:
+        { 
+		    setResult(TK_else);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 16:  KeyWord ::= e n u m
     //
-            case 16:
-            { 
-		    setSym1(TK_enum);
+        case 16:
+        { 
+		    setResult(TK_enum);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 17:  KeyWord ::= e x t e n d s
     //
-            case 17:
-            { 
-		    setSym1(TK_extends);
+        case 17:
+        { 
+		    setResult(TK_extends);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 18:  KeyWord ::= f a l s e
     //
-            case 18:
-            { 
-		    setSym1(TK_false);
+        case 18:
+        { 
+		    setResult(TK_false);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 19:  KeyWord ::= f i n a l
     //
-            case 19:
-            { 
-		    setSym1(TK_final);
+        case 19:
+        { 
+		    setResult(TK_final);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 20:  KeyWord ::= f i n a l l y
     //
-            case 20:
-            { 
-		    setSym1(TK_finally);
+        case 20:
+        { 
+		    setResult(TK_finally);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 21:  KeyWord ::= f l o a t
     //
-            case 21:
-            { 
-		    setSym1(TK_float);
+        case 21:
+        { 
+		    setResult(TK_float);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 22:  KeyWord ::= f o r
     //
-            case 22:
-            { 
-		    setSym1(TK_for);
+        case 22:
+        { 
+		    setResult(TK_for);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 23:  KeyWord ::= g o t o
     //
-            case 23:
-            { 
-		    setSym1(TK_goto);
+        case 23:
+        { 
+		    setResult(TK_goto);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 24:  KeyWord ::= i f
     //
-            case 24:
-            { 
-		    setSym1(TK_if);
+        case 24:
+        { 
+		    setResult(TK_if);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 25:  KeyWord ::= i m p l e m e n t s
     //
-            case 25:
-            { 
-		    setSym1(TK_implements);
+        case 25:
+        { 
+		    setResult(TK_implements);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 26:  KeyWord ::= i m p o r t
     //
-            case 26:
-            { 
-		    setSym1(TK_import);
+        case 26:
+        { 
+		    setResult(TK_import);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 27:  KeyWord ::= i n s t a n c e o f
     //
-            case 27:
-            { 
-		    setSym1(TK_instanceof);
+        case 27:
+        { 
+		    setResult(TK_instanceof);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 28:  KeyWord ::= i n t
     //
-            case 28:
-            { 
-		    setSym1(TK_int);
+        case 28:
+        { 
+		    setResult(TK_int);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 29:  KeyWord ::= i n t e r f a c e
     //
-            case 29:
-            { 
-		    setSym1(TK_interface);
+        case 29:
+        { 
+		    setResult(TK_interface);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 30:  KeyWord ::= l o n g
     //
-            case 30:
-            { 
-		    setSym1(TK_long);
+        case 30:
+        { 
+		    setResult(TK_long);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 31:  KeyWord ::= n a t i v e
     //
-            case 31:
-            { 
-		    setSym1(TK_native);
+        case 31:
+        { 
+		    setResult(TK_native);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 32:  KeyWord ::= n e w
     //
-            case 32:
-            { 
-		    setSym1(TK_new);
+        case 32:
+        { 
+		    setResult(TK_new);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 33:  KeyWord ::= n u l l
     //
-            case 33:
-            { 
-		    setSym1(TK_null);
+        case 33:
+        { 
+		    setResult(TK_null);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 34:  KeyWord ::= p a c k a g e
     //
-            case 34:
-            { 
-		    setSym1(TK_package);
+        case 34:
+        { 
+		    setResult(TK_package);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 35:  KeyWord ::= p r i v a t e
     //
-            case 35:
-            { 
-		    setSym1(TK_private);
+        case 35:
+        { 
+		    setResult(TK_private);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 36:  KeyWord ::= p r o t e c t e d
     //
-            case 36:
-            { 
-		    setSym1(TK_protected);
+        case 36:
+        { 
+		    setResult(TK_protected);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 37:  KeyWord ::= p u b l i c
     //
-            case 37:
-            { 
-		    setSym1(TK_public);
+        case 37:
+        { 
+		    setResult(TK_public);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 38:  KeyWord ::= r e t u r n
     //
-            case 38:
-            { 
-		    setSym1(TK_return);
+        case 38:
+        { 
+		    setResult(TK_return);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 39:  KeyWord ::= s h o r t
     //
-            case 39:
-            { 
-		    setSym1(TK_short);
+        case 39:
+        { 
+		    setResult(TK_short);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 40:  KeyWord ::= s t a t i c
     //
-            case 40:
-            { 
-		    setSym1(TK_static);
+        case 40:
+        { 
+		    setResult(TK_static);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 41:  KeyWord ::= s t r i c t f p
     //
-            case 41:
-            { 
-		    setSym1(TK_strictfp);
+        case 41:
+        { 
+		    setResult(TK_strictfp);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 42:  KeyWord ::= s u p e r
     //
-            case 42:
-            { 
-		    setSym1(TK_super);
+        case 42:
+        { 
+		    setResult(TK_super);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 43:  KeyWord ::= s w i t c h
     //
-            case 43:
-            { 
-		    setSym1(TK_switch);
+        case 43:
+        { 
+		    setResult(TK_switch);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 44:  KeyWord ::= s y n c h r o n i z e d
     //
-            case 44:
-            { 
-		    setSym1(TK_synchronized);
+        case 44:
+        { 
+		    setResult(TK_synchronized);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 45:  KeyWord ::= t h i s
     //
-            case 45:
-            { 
-		    setSym1(TK_this);
+        case 45:
+        { 
+		    setResult(TK_this);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 46:  KeyWord ::= t h r o w
     //
-            case 46:
-            { 
-		    setSym1(TK_throw);
+        case 46:
+        { 
+		    setResult(TK_throw);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 47:  KeyWord ::= t h r o w s
     //
-            case 47:
-            { 
-		    setSym1(TK_throws);
+        case 47:
+        { 
+		    setResult(TK_throws);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 48:  KeyWord ::= t r a n s i e n t
     //
-            case 48:
-            { 
-		    setSym1(TK_transient);
+        case 48:
+        { 
+		    setResult(TK_transient);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 49:  KeyWord ::= t r u e
     //
-            case 49:
-            { 
-		    setSym1(TK_true);
+        case 49:
+        { 
+		    setResult(TK_true);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 50:  KeyWord ::= t r y
     //
-            case 50:
-            { 
-		    setSym1(TK_try);
+        case 50:
+        { 
+		    setResult(TK_try);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 51:  KeyWord ::= v o i d
     //
-            case 51:
-            { 
-		    setSym1(TK_void);
+        case 51:
+        { 
+		    setResult(TK_void);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 52:  KeyWord ::= v o l a t i l e
     //
-            case 52:
-            { 
-		    setSym1(TK_volatile);
+        case 52:
+        { 
+		    setResult(TK_volatile);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 53:  KeyWord ::= w h i l e
     //
-            case 53:
-            { 
-		    setSym1(TK_while);
+        case 53:
+        { 
+		    setResult(TK_while);
 		  
-            }
-            break; 
+        }
+        break; 
 		 
     //
     // Rule 54:  KeyWord ::= a s y n c
     //
-            case 54:
-            { 
-            setSym1(TK_async);
+        case 54:
+        { 
+            setResult(TK_async);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 55:  KeyWord ::= a t e a c h
     //
-            case 55:
-            { 
-            setSym1(TK_ateach);
+        case 55:
+        { 
+            setResult(TK_ateach);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 56:  KeyWord ::= a t o m i c
     //
-            case 56:
-            { 
-            setSym1(TK_atomic);
+        case 56:
+        { 
+            setResult(TK_atomic);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 57:  KeyWord ::= c l o c k
     //
-            case 57:
-            { 
-            setSym1(TK_clock);
+        case 57:
+        { 
+            setResult(TK_clock);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 58:  KeyWord ::= c l o c k e d
     //
-            case 58:
-            { 
-            setSym1(TK_clocked);
+        case 58:
+        { 
+            setResult(TK_clocked);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 59:  KeyWord ::= c u r r e n t
     //
-            case 59:
-            { 
-            setSym1(TK_current);
+        case 59:
+        { 
+            setResult(TK_current);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 60:  KeyWord ::= d i s t r i b u t i o n
     //
-            case 60:
-            { 
-            setSym1(TK_distribution);
+        case 60:
+        { 
+            setResult(TK_distribution);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 61:  KeyWord ::= d r o p
     //
-            case 61:
-            { 
-            setSym1(TK_drop);
+        case 61:
+        { 
+            setResult(TK_drop);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 62:  KeyWord ::= f l o w
     //
-            case 62:
-            { 
-            setSym1(TK_flow);
+        case 62:
+        { 
+            setResult(TK_flow);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 63:  KeyWord ::= f o r c e
     //
-            case 63:
-            { 
-            setSym1(TK_force);
+        case 63:
+        { 
+            setResult(TK_force);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 64:  KeyWord ::= f o r e a c h
     //
-            case 64:
-            { 
-            setSym1(TK_foreach);
+        case 64:
+        { 
+            setResult(TK_foreach);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 65:  KeyWord ::= f u t u r e
     //
-            case 65:
-            { 
-            setSym1(TK_future);
+        case 65:
+        { 
+            setResult(TK_future);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 66:  KeyWord ::= h e r e
     //
-            case 66:
-            { 
-            setSym1(TK_here);
+        case 66:
+        { 
+            setResult(TK_here);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 67:  KeyWord ::= l o c a l
     //
-            case 67:
-            { 
-            setSym1(TK_local);
+        case 67:
+        { 
+            setResult(TK_local);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 68:  KeyWord ::= m e t h o d l o c a l
     //
-            case 68:
-            { 
-            setSym1(TK_methodlocal);
+        case 68:
+        { 
+            setResult(TK_methodlocal);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 69:  KeyWord ::= n e x t
     //
-            case 69:
-            { 
-            setSym1(TK_next);
+        case 69:
+        { 
+            setResult(TK_next);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 70:  KeyWord ::= n o w
     //
-            case 70:
-            { 
-            setSym1(TK_now);
+        case 70:
+        { 
+            setResult(TK_now);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 71:  KeyWord ::= n u l l a b l e
     //
-            case 71:
-            { 
-            setSym1(TK_nullable);
+        case 71:
+        { 
+            setResult(TK_nullable);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 72:  KeyWord ::= o r
     //
-            case 72:
-            { 
-            setSym1(TK_or);
+        case 72:
+        { 
+            setResult(TK_or);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 73:  KeyWord ::= p l a c e
     //
-            case 73:
-            { 
-            setSym1(TK_place);
+        case 73:
+        { 
+            setResult(TK_place);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 74:  KeyWord ::= p l a c e l o c a l
     //
-            case 74:
-            { 
-            setSym1(TK_placelocal);
+        case 74:
+        { 
+            setResult(TK_placelocal);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 75:  KeyWord ::= r a n g e
     //
-            case 75:
-            { 
-            setSym1(TK_range);
+        case 75:
+        { 
+            setResult(TK_range);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 76:  KeyWord ::= r a n k
     //
-            case 76:
-            { 
-            setSym1(TK_rank);
+        case 76:
+        { 
+            setResult(TK_rank);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 77:  KeyWord ::= r e f e r e n c e
     //
-            case 77:
-            { 
-            setSym1(TK_reference);
+        case 77:
+        { 
+            setResult(TK_reference);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 78:  KeyWord ::= r e g i o n
     //
-            case 78:
-            { 
-            setSym1(TK_region);
+        case 78:
+        { 
+            setResult(TK_region);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 79:  KeyWord ::= r u n s a t
     //
-            case 79:
-            { 
-            setSym1(TK_runsat);
+        case 79:
+        { 
+            setResult(TK_runsat);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 80:  KeyWord ::= r u n s o n
     //
-            case 80:
-            { 
-            setSym1(TK_runson);
+        case 80:
+        { 
+            setResult(TK_runson);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 81:  KeyWord ::= t h r e a d l o c a l
     //
-            case 81:
-            { 
-            setSym1(TK_threadlocal);
+        case 81:
+        { 
+            setResult(TK_threadlocal);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 82:  KeyWord ::= v a l u e
     //
-            case 82:
-            { 
-            setSym1(TK_value);
+        case 82:
+        { 
+            setResult(TK_value);
           
-            }
-            break; 
+        }
+        break; 
          
     //
     // Rule 83:  KeyWord ::= w h e n
     //
-            case 83:
-            { 
-            setSym1(TK_when);
+        case 83:
+        { 
+            setResult(TK_when);
           
-            }
-            break; 
+        }
+        break; 
             
-	    default:
+	    	default:
 	        break;
-	}
-	return;
+		}
+		return;
     }
-
-
-// The KeyWord parser
-int act, curtok, currentKind;
-
-int processReductions(int act)
-{
-    do
-    {
-        stateStackTop -= (rhs(act) - 1);
-        ruleAction(act);
-        // lexers will reset the stateStack whenever a token has been recognized
-        if (stateStackTop == -1) return START_STATE;
-        act = ntAction(stack[stateStackTop], lhs(act));
-    } while(act <= NUM_RULES);
-
-    return act;
-}
-
-//
-//
-//
-public int parseCharacters()
-{
-    curtok = token();
-    act = START_STATE;
-    currentKind = kind(curtok);
-
-    //
-    // Start parsing.
-    //
-    resetStateStack();
-
-    ProcessTerminals: for (;;)
-    {
-        if (++stateStackTop >= stackLength)
-            reallocateStacks();
-
-        stack[stateStackTop] = act;
-
-        locationStack[stateStackTop] = curtok;
-
-        act = termAction(act, currentKind);
-
-        if (act <= NUM_RULES)
-        {
-            stateStackTop--; // make reduction look like a shift-reduce
-            act = processReductions(act);
-        }
-        else if (act > ERROR_ACTION)
-        {
-            curtok = token();
-            currentKind = kind(curtok);
-
-            act = processReductions(act - ERROR_ACTION);
-        }
-        else if (act < ACCEPT_ACTION)
-        {
-            curtok = token();
-            currentKind = kind(curtok);
-        }
-        else if (act == ERROR_ACTION)
-        {
-            return 0;
-        }
-        else break ProcessTerminals;
-    }
-
-    return parseStack[0];
-}
-
-// Stacks portion
-final static int STACK_INCREMENT = 1024;
-
-int stateStackTop,
-    stackLength = 0,
-    stack[],
-    locationStack[];
-int parseStack[];
-
-//
-// This method is used in lexers (written as parsers) which recognize single tokens
-//
-public final void resetStateStack()
-{
-	stateStackTop = -1;
-}
-
-//
-// Given a rule of the form     A ::= x1 x2 ... xn     n > 0
-//
-// the function TOKEN(i) yields the symbol xi, if xi is a terminal
-// or ti, if xi is a nonterminal that produced a string of the form
-// xi => ti w.
-//
-public final int getToken(int i)
-{
-    return locationStack[stateStackTop + (i - 1)];
-}
-
-//
-// Given a rule of the form     A ::= x1 x2 ... xn     n > 0
-//
-// The function SYM(i) yields the int subtree associated with symbol
-// xi. NOTE that if xi is a terminal, SYM(i) is undefined ! (However,
-// see token_action below.)
-//
-// setSYM1(int ast) is a function that allows us to assign an int
-// tree to SYM(1).
-//
-public final int getSym(int i) { return parseStack[stateStackTop + (i - 1)]; }
-public final void setSym1(int n) { parseStack[stateStackTop] = n; }
-
-void reallocateStacks()
-{
-    int old_stack_length = (stack == null ? 0 : stackLength);
-    stackLength += STACK_INCREMENT;
-
-    if (old_stack_length == 0)
-    {
-        stack = new int[stackLength];
-        locationStack = new int[stackLength];
-        parseStack = new int[stackLength];
-    }
-    else
-    {
-        System.arraycopy(stack, 0, stack = new int[stackLength], 0, old_stack_length);
-        System.arraycopy(locationStack, 0, locationStack = new int[stackLength], 0, old_stack_length);
-        System.arraycopy(parseStack, 0, parseStack = new int[stackLength], 0, old_stack_length);
-    }
-    return;
-}
-
-public int termAction(int act, int sym)
-{
-    act = tAction(act, sym);
-    if (act > LA_STATE_OFFSET)
-    {
-        int next_token = peek();
-        act = lookAhead(act - LA_STATE_OFFSET, kind(next_token));
-        while(act > LA_STATE_OFFSET)
-        {
-            next_token = next(next_token);
-            act = lookAhead(act - LA_STATE_OFFSET, kind(next_token));
-        }
-    }
-    return act;
-}
+	
 
 }
-
+	
