@@ -66,7 +66,7 @@ public class X10ArrayType_c extends ReferenceType_c implements X10ArrayType {
 		this.expr = expr;
 		this.isValue = isValue;
 	}
-	
+// TODO: vj finish adding all the methods and fields from x10.lang.array.
 	void init() {
 		if (methods == null) {
 			methods = new ArrayList(1);
