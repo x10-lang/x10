@@ -36,11 +36,15 @@ final class Future_c implements Future {
      * @see x10.runtime.Activity.Result#force()
      */
     public synchronized X10Object force() {
+        Thread t = Thread.currentThread();
         while (! haveResult_) {
             try {
+                LoadMonitored.blocked(t);
                 this.wait();
             } catch (InterruptedException ie) {
                 throw new Error(ie); // this should never happen...
+            } finally {
+                LoadMonitored.unblocked(t);
             }
         }
         return result_;

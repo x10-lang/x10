@@ -240,7 +240,7 @@ public final class Sampling_c extends Thread {
       
         public String toString() {
             StringBuffer buf = new StringBuffer();
-            buf.append("Thread Pool:\n");
+            buf.append("Thread Pool Queue Size (unused Threads):\n");
             for (int i=lp.length-1;i>=0;i--) {
                 buf.append(i);
                 if (this.threadQueueSamples[i] > 0) 
@@ -252,6 +252,71 @@ public final class Sampling_c extends Thread {
             return buf.toString();
         }
     
-    } // end of Statistics_c.ActivityCounter
+    }
     
+
+    /**
+     * Class that keeps track of how many threads are waiting
+     * in the thread pool (unassigned to activities) on average
+     * and maximum.
+     * 
+     * @author Christian Grothoff
+     */
+    public static class LoadSampler extends Sampler {
+
+        int[] maxLoad;        
+        long[] totLoad;
+        int[] loadSamples;
+
+        private final LocalPlace_c[] lp;
+        
+        LoadSampler() {
+            DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime._;
+            Place[] places  = rt.getPlaces();
+            int locals = 0;
+            for (int i=places.length-1;i>=0;i--) 
+                if (places[i] instanceof LocalPlace_c) 
+                    locals++;
+            lp = new LocalPlace_c[locals];
+            for (int i=places.length-1;i>=0;i--) 
+                if (places[i] instanceof LocalPlace_c) 
+                    lp[--locals] = (LocalPlace_c) places[i];
+            maxLoad = new int[lp.length];
+            totLoad = new long[lp.length];
+            loadSamples = new int[lp.length];
+        }
+        
+        /**
+         * Sample.  The time difference is delta ms. 
+         */
+        public void sample(long delta) {
+            for (int i=lp.length-1;i>=0;i--) {
+                LocalPlace_c p = lp[i];
+                int ql = 0;
+                synchronized(p) {
+                    ql = p.runningThreads;
+                }
+                if (ql > maxLoad[i])
+                    maxLoad[i] = ql;
+                totLoad[i] += ql;
+                loadSamples[i]++;
+            }
+        }
+      
+        public String toString() {
+            StringBuffer buf = new StringBuffer();
+            buf.append("Load (running, non-blocked Threads):\n");
+            for (int i=lp.length-1;i>=0;i--) {
+                buf.append(i);
+                if (this.loadSamples[i] > 0) 
+                    buf.append(":\tMAX: " + maxLoad[i] + 
+                               "\n  \tAVG: " + (totLoad[i]/loadSamples[i]) + "\n");
+                else                           
+                    buf.append(" \tNo samples.\n");
+            }
+            return buf.toString();
+        }
+    
+    }
+
 } // end of Sampling_c
