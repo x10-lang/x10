@@ -12,7 +12,8 @@ package x10.lang;
 import /*x10*/java.util.Set;
 import java.util.Iterator;
 
-abstract public /*value*/ class distribution/*( region region )*/ extends Object {
+abstract public /*value*/ class distribution/*( region region )*/ extends Object 
+implements Indexable {
 	public final region region;
 	/** The parameter dimension may be used in constructing types derived
 	 * from the class distribution. For instance,

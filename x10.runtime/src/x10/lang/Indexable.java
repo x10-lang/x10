@@ -9,6 +9,6 @@ package x10.lang;
  * @author vj Jan 13, 2005
  * 
  */
-interface Indexable {
+interface Indexable extends IndexableGet, IndexableSet {
 
 }
