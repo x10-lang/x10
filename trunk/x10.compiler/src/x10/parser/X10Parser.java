@@ -5089,7 +5089,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 When w = (When) btParser.getSym(1);
                 Expr e = (Expr) btParser.getSym(4);
                 Stmt s = (Stmt) btParser.getSym(6);
-                w.add(new When_c.Branch_c(e,s));
+                When.Branch wb = nf.WhenBranch(pos(), e,s);
+                w.add(wb);
                 btParser.setSym1(w);
                 break;
             }
@@ -5216,7 +5217,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 When w = (When) btParser.getSym(1);
                 Expr e = (Expr) btParser.getSym(4);
                 Stmt s = (Stmt) btParser.getSym(6);
-                w.add(new When_c.Branch_c(e,s));
+                When.Branch wb = nf.WhenBranch(pos(), e, s);
+                w.add(wb);
                 btParser.setSym1(w);
                 break;
             }

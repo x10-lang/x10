@@ -36,26 +36,73 @@ import polyglot.visit.PrettyPrinter;
  */
 public class When_c extends Stmt_c implements When {
 
-    public static class Branch_c implements Branch {
+    public static class Branch_c extends Stmt_c implements Branch {
     	public Expr expr;
     	public Stmt stmt;
     	public Expr expr() { return this.expr; }
     	public Stmt stmt() { return this.stmt; }
-    	public Branch branch(Expr expr, Stmt stmt) {
+    	
+        public Branch branch(Expr expr, Stmt stmt) {
     		if (expr != this.expr || stmt != this.stmt) {
-    			return new Branch_c(expr, stmt);
+    			return new Branch_c(position, expr, stmt);
     		}
     		return this;
     	}
-    	public Branch_c(Expr expr, Stmt stmt) {
-    		this.expr = expr;
+    	
+        public Branch_c(Position p, Expr expr, Stmt stmt) {
+    		super(p);
+            this.expr = expr;
     		this.stmt = stmt;
     	}
+        
+//      TODO: cvp -> vj implement this
+        public Node typeCheck(TypeChecker tc) throws SemanticException {
+    	    TypeSystem ts = tc.typeSystem();
+    	    return super.typeCheck(tc);
+    	}
     	
+    	/** Visit the children of the statement. */
+    	public Node visitChildren( NodeVisitor v ) {
+    	    Expr e = (Expr) visitChild(expr, v);
+    	    Stmt s = (Stmt) visitChild(stmt, v);
+    	    return reconstruct(e, s);
+    	}
+    	
+    	/** Reconstruct the statement. */
+    	protected Node reconstruct( Expr e, Stmt s) {
+    	    if ( e != this.expr || s != this.stmt ) {
+    	        Branch_c n = (Branch_c) copy();
+    	        n.expr = e;
+    	        n.stmt = s;
+    	        return n;
+    	    }
+    	    return this;
+    	}
+        
+        /**
+         * Return the first (sub)term performed when evaluating this
+         * term.
+         */
+        public Term entry() {
+            return expr.entry();
+        }
+        
+        /**
+         * Visit this term in evaluation order.
+         */
+        public List acceptCFG(CFGBuilder v, List succs) {
+            v.visitCFG(expr, stmt.entry());
+            v.visitCFG(stmt, this);
+            return succs;
+        }
     }
     // Optimize the implementation of single-armed whens.
     Expr expr;
     Stmt stmt;
+    
+    public Expr expr() { return this.expr; }
+    
+    public Stmt stmt() { return this.stmt; }
     
 	public /*final*/ List/*<Branches>*/ rest; 
     
@@ -73,7 +120,7 @@ public class When_c extends Stmt_c implements When {
     }
     public List branches() {
     	List result = new LinkedList();
-    	result.add(new Branch_c(expr, stmt));
+    	result.add(new Branch_c(position, expr, stmt));
     	result.addAll( rest);
     	return result;
     }
@@ -91,11 +138,11 @@ public class When_c extends Stmt_c implements When {
     	Expr e = (Expr) visitChild(expr, v);
     	Stmt s = (Stmt) visitChild(stmt, v);
     	List result = visitList(rest, v);
-    	return branches( e, s, result);
-    	
+    	return branches( e, s, result);	
     }
     
     /** Type check the statement. */
+//  TODO: cvp -> vj implement this
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	TypeSystem ts = tc.typeSystem();
     	
@@ -106,7 +153,7 @@ public class When_c extends Stmt_c implements When {
     	 expr.type() + "\".", expr.position());
     	 }
     	 */
-    	return this;
+    	return super.typeCheck(tc);// this;
     }
     
    
