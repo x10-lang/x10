@@ -3,7 +3,7 @@ package x10.runtime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import x10.lang.Object;
+import x10.lang.X10Object;
 
 /**
  * "Native" functions mapped through to Java.  In the long run the
@@ -17,7 +17,7 @@ import x10.lang.Object;
  *
  * @author Christian Grothoff
  */
-public class JavaSubsystem {
+public class JavaRuntime {
 
     private final Logger logger_ 
 	= Logger.getAnonymousLogger();
@@ -28,13 +28,13 @@ public class JavaSubsystem {
 
     public void log(Level l,
 		    String message,
-		    Object param1) {
+		    X10Object param1) {
 	logger_.log(l, message, param1);
     }
 
     public void log(Level l,
 		    String message,
-		    Object[] params) {
+		    X10Object[] params) {
 	logger_.log(l, message, params);
     }
 

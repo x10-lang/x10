@@ -8,16 +8,16 @@ public abstract class Activity
     implements Runnable {
 
     /**
-     * @author Christian Grothoff
+     * This is an Activity that has a result in the form of a Future.
      */
-    public static abstract class FutureActivity 
+    public static abstract class Expr 
 	extends Activity {
        
 	/**
 	 * Wait for the completion of this activity and return the
 	 * return value.
 	 */
-	public abstract Object getResult();
+	public abstract X10Object getResult();
 
     } // end of Activity.Future
 

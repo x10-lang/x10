@@ -76,8 +76,8 @@ class LocalPlace_c extends PooledExecutor
      * Run the given activity asynchronously.  Return a handle that
      * can be used to force the future result.
      */
-    public Future runFuture(final Activity.FutureActivity a) {
-        final LocalActivityResult_c result = new LocalActivityResult_c();
+    public Future runFuture(final Activity.Expr a) {
+        final FutureImpl result = new FutureImpl();
         try {
             this.execute(new Runnable() {
                 public void run() {
