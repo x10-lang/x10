@@ -11,7 +11,7 @@ import x10.lang.Runtime;
 
 /**
  * Default implementation of Runtime.
- *  
+ * 
  * @author Christian Grothoff
  */
 public class DefaultRuntime_c 
@@ -22,10 +22,23 @@ public class DefaultRuntime_c
 
     private final JavaRuntime native_ = new JavaRuntime();
 
-    private final HashMap thread2place_ = new HashMap();
+    /**
+     * At what place is the given thread running (needed to support
+     * running multiple Places within the same VM).
+     */
+    private final HashMap thread2place_ = new HashMap(); // <Thread,Place>
 
-    private final HashMap thread2activity_ = new HashMap();
-
+    /**
+     * Which activity is the current thread executing?
+     */
+    private final HashMap thread2activity_ = new HashMap(); // <Thread,Activity>
+    
+    /**
+     * What listeners are registered for termination/spawning events
+     * for the given activity?
+     */
+    private final HashMap activity2asl_ = new HashMap(); // <Activity,ActivitySpawnListener>
+    
     /**
      * The places of this X10 Runtime (for now a constant set).
      */
@@ -77,9 +90,27 @@ public class DefaultRuntime_c
 	thread2place_.put(t, p);
     }
     
-    public void registerActivityStop(Thread t,
-                                     Activity a) {
+    /**
+     * Notify the asl via a callback whenever the given activity
+     * starts another Activity (via async, future or now).
+     */
+    public synchronized void registerActivitySpawnListener(Activity i,
+                                                           ActivitySpawnListener asl) {
+        assert null == activity2asl_.get(asl);
+        activity2asl_.put(i, asl);
+    }
+
+    /**
+     * Notification that an activity completed.
+     */
+    public synchronized void registerActivityStop(Thread t,
+                                                  Activity a) {
         thread2activity_.remove(t);
+        ActivitySpawnListener asl = (ActivitySpawnListener) activity2asl_.get(a);
+        if (asl != null) {
+            activity2asl_.remove(a);
+            asl.notifyActivityTerminated(a);
+        }
     }
     
     /**
@@ -89,17 +120,16 @@ public class DefaultRuntime_c
      * @param a the activity that is being run
      * @param i the activity that started a (null for boot/main).
      */
-    public void registerActivityStart(Thread t,
-                                      Activity a,
-                                      Activity i) {
+    public synchronized void registerActivityStart(Thread t,
+                                                   Activity a,
+                                                   Activity i) {
         thread2activity_.put(t,a);
-        // FIXME: for 'now' we will use 'i' here, if 'i' was started
-        // in a 'now' section, we have to start 'a' in the same way;
-        // Clock will register a 'notify me' method with the Runtime,
-        // and the runtime will pass on the news.
+        ActivitySpawnListener m = (ActivitySpawnListener) activity2asl_.get(i);
+        if (m != null)
+            m.notifyActivitySpawn(a, i);
     }
 
-    public Place currentPlace() {
+    public synchronized Place currentPlace() {
 	Place p = (Place) thread2place_.get(Thread.currentThread());
 	if (p == null)
 	    throw new Error("This thread is not an X10 thread!");
@@ -139,7 +169,7 @@ public class DefaultRuntime_c
      * method.
      * @return
      */
-    public Activity getCurrentActivity() {
+    public synchronized Activity getCurrentActivity() {
         Activity a = (Activity) thread2activity_.get(Thread.currentThread());
         if (a == null)
             throw new Error("This Thread is not an X10 Thread running X10 code!");

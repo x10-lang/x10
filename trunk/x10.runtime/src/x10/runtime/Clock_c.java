@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import x10.lang.Activity;
 import x10.lang.Clock;
+import x10.lang.Runtime;
 
 /**
  * Implementation of Clock.  Technically the spec says that this is
@@ -27,13 +28,19 @@ final class Clock_c implements Clock {
     /**
      * A Set of all activities registered with this clock.
      */
-    private final Set activities_ = new HashSet();
+    private final Set activities_ = new HashSet(); // <Activity>
    
     /**
      * The Set of all activities that have not yet completed in the
      * current cycle. 
      */
-    private final Set pending_ = new HashSet();
+    private final Set pending_ = new HashSet(); // <Activity>
+    
+    /**
+     * Activities spawned via 'now'.  All of these activities
+     * must terminate before we can advance to the next phase.
+     */
+    private final Set nowSet_ = new HashSet(); // <Activity>
     
     /**
      * The first registered advance listener.  null if none is
@@ -45,7 +52,7 @@ final class Clock_c implements Clock {
      * Lazy initialization (since we typically only have at most one
      * listener).
      */
-    private Vector listeners_; // Vector<AdvanceListener>
+    private Vector listeners_; // <AdvanceListener>
 
     /**
      * The current phase of the Clock.  Incremented by one in each
@@ -82,8 +89,20 @@ final class Clock_c implements Clock {
      * 
      * @param a an activity to run
      */
-    public void doNow(Activity a) {
-        throw new Error("not implemented");
+    public synchronized void doNow(Activity a) {
+        aip_.registerActivitySpawnListener(a, 
+                                           new ActivitySpawnListener() {
+            public void notifyActivitySpawn(Activity a,
+                                            Activity i) {
+                assert nowSet_.contains(i);
+                nowSet_.add(i);
+            }
+            public void notifyActivityTerminated(Activity a) {
+                assert nowSet_.contains(a);
+                nowSet_.remove(a);
+            }
+        });
+        Runtime.here().runAsync(a);
     }
     
     /**
@@ -165,7 +184,8 @@ final class Clock_c implements Clock {
      * Check if this is the case and if so advance the clock.
      */
     private boolean tryAdvance() {
-        if (pending_.size() == 0) {
+        if ( (nowSet_.size() == 0) && 
+             (pending_.size() == 0)) {
             advance();
             return true;
         } else
@@ -179,6 +199,7 @@ final class Clock_c implements Clock {
      */
     private void advance() {
         assert pending_.size() == 0;
+        assert nowSet_.size() == 0;
         this.phase_++;
         // first notify everyone
         if (this.listener1_ != null) {
@@ -199,6 +220,5 @@ final class Clock_c implements Clock {
             }
         }
     }
-
  
 } // end of Clock_c

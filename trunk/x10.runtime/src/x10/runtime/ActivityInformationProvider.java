@@ -21,4 +21,11 @@ public interface ActivityInformationProvider {
      */
     public Activity getCurrentActivity();
     
+    /**
+     * Notify the asl via a callback whenever the given activity
+     * starts another Activity (via async, future or now).
+     */
+    public void registerActivitySpawnListener(Activity i,
+                                              ActivitySpawnListener asl);
+
 } // end of ActivityInformationProvider
