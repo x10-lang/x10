@@ -1,0 +1,9 @@
+synchronized (x10.lang.Runtime.here()) {
+	try {
+		#1
+	} catch (InterruptedException e) {
+  		e.printStackTrace();
+  		x10.lang.JavaRuntime.log(0, "Unexpected exception during atomic.", e);
+  		throw e;
+  	}
+}
