@@ -8,3 +8,20 @@
 //  return true;
 // }.force();
 // S2
+
+(x10.lang.Runtime.here().runFuture(new x10.lang.Activity.Expr() {
+  private boolean ret_;
+  public void run() {
+     Clock c = x10.lang.Runtime.getRuntime().newClock();
+     c.doNow(new x10.lang.Activity() {
+               public void run() {
+                 #0; 
+               } 
+            });
+     c.doNext();
+     ret_ = true; 
+  } 
+  public x10.lang.Object getResult() { 
+     return ret_; 
+  } 
+}).force();
