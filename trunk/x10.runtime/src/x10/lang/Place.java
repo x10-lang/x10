@@ -42,6 +42,10 @@ public abstract class Place implements TypeArgument, x10.array.Place {
     public static Place[] places() {
         return Runtime.places();
     }
+    
+    public static Place here() {
+        return Runtime.here();
+    }
 
 } // end of Place
 

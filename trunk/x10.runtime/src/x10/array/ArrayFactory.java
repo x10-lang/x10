@@ -4,6 +4,7 @@
 package x10.array;
 
 import x10.array.sharedmemory.SharedMemoryArrayFactory;
+import x10.base.Runtime;
 
 /**
  * @author Christoph von Praun
@@ -11,11 +12,13 @@ import x10.array.sharedmemory.SharedMemoryArrayFactory;
 public abstract class ArrayFactory {
 	
 	/** default array factory */
-	static final ArrayFactory _;
+	private static final ArrayFactory af_;
+	private static final Runtime ar_;
 	
 	static {
 		// depending on the system environment, this might change
-		_ = new SharedMemoryArrayFactory();
+		af_ = new SharedMemoryArrayFactory();
+		ar_ = ArrayRuntime.getRuntime();
 	}
 	
 	/**
@@ -35,75 +38,86 @@ public abstract class ArrayFactory {
      * @return New Region.
      */
     public static Region newRegion(Range[] dims) {
-    	return _.makeRegion(dims);
+    	return af_.makeRegion(dims);
     }
     
     public static Region newUpperTriangularRegion(int n) {
-        return _.makeUpperTriangularRegion(n);
+        return af_.makeUpperTriangularRegion(n);
 	}
 	
     public static Region newLowerTriangularRegion(int n) {
-        return _.makeLowerTriangularRegion(n);
+        return af_.makeLowerTriangularRegion(n);
 	}
  
     public static Region newBandedRegion(int n, int k) {
-        return _.makeBandedRegion(n, k);
+        return af_.makeBandedRegion(n, k);
 	}
     
-    /**
-     * @return  New array with Distribution d.
-     */
-    public static IntArray newIntArray(Distribution d) {
-    	return _.makeIntArray(d, true);
+    private static Distribution regionToDistribution_(Region r) {
+        Distribution d;
+        if (r instanceof Distribution) 
+            d = (Distribution) r;
+        else {
+            Place[] lp = { ar_.currentPlace() };
+            d = newBlockDistribution(r, lp);
+        }
+        return d;
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static IntArray newIntArray(Distribution d, int c) {
-    	return _.makeIntArray(d, c, true);
+    public static IntArray newIntArray(Region r) {
+        return af_.makeIntArray(regionToDistribution_(r), true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static IntArray newIntArray(Distribution d, boolean safe) {
-    	return _.makeIntArray(d, safe);
+    public static IntArray newIntArray(Region r, int c) {
+    	return af_.makeIntArray(regionToDistribution_(r), c, true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static IntArray newIntArray(Distribution d, int c, boolean safe) {
-    	return _.makeIntArray(d, c, safe);
+    public static IntArray newIntArray(Region r, boolean safe) {
+    	return af_.makeIntArray(regionToDistribution_(r), safe);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static DoubleArray newDoubleArray(Distribution d) {
-        return _.makeDoubleArray(d, true);
+    public static IntArray newIntArray(Region r, int c, boolean safe) {
+    	return af_.makeIntArray(regionToDistribution_(r), c, safe);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static DoubleArray newDoubleArray(Distribution d, double c) {
-    	return _.makeDoubleArray(d, c, true);
+    public static DoubleArray newDoubleArray(Region r) {
+        return af_.makeDoubleArray(regionToDistribution_(r), true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static DoubleArray newDoubleArray(Distribution d, boolean safe) {
-        return _.makeDoubleArray(d, safe);
+    public static DoubleArray newDoubleArray(Region r, double c) {
+    	return af_.makeDoubleArray(regionToDistribution_(r), c, true);
     }
     
     /**
      * @return  New array with Distribution d.
      */
-    public static DoubleArray newDoubleArray(Distribution d, double c, boolean safe) {
-    	return _.makeDoubleArray(d, c, safe);
+    public static DoubleArray newDoubleArray(Region r, boolean safe) {
+        return af_.makeDoubleArray(regionToDistribution_(r), safe);
+    }
+    
+    /**
+     * @return  New array with Distribution d.
+     */
+    public static DoubleArray newDoubleArray(Region r, double c, boolean safe) {
+    	return af_.makeDoubleArray(regionToDistribution_(r), c, safe);
     }
     
     /**
@@ -113,7 +127,7 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newBlockDistribution(Region r, Place[] q) {
-    	return _.makeBlockDistribution(r, q);
+    	return af_.makeBlockDistribution(r, q);
     }
     
     /**
@@ -123,7 +137,7 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newBlockDistribution(Region r, int n, Place[] p) {
-    	return _.makeBlockDistribution(r, n, p);
+    	return af_.makeBlockDistribution(r, n, p);
     }
     
     /**
@@ -135,7 +149,7 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newCyclicDistribution(Region r, Place[] p) {
-    	return _.makeCyclicDistribution(r,  p);
+    	return af_.makeCyclicDistribution(r,  p);
     }
     
     /**
@@ -147,7 +161,7 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newBlockCyclicDistribution(Region r, int n, Place[] p) {
-    	return _.makeBlockCyclicDistribution(r, n, p);
+    	return af_.makeBlockCyclicDistribution(r, n, p);
     }
     
     /**
@@ -157,7 +171,7 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newArbitraryDistribution(Region r, Place[] p) {
-    	return _.makeArbitraryDistribution(r, p);
+    	return af_.makeArbitraryDistribution(r, p);
     }
     
     /**
@@ -168,7 +182,7 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newConstantDistribution(Region r, Place p) {
-    	return _.makeConstantDistribution(r, p);
+    	return af_.makeConstantDistribution(r, p);
     }
     
     /**
@@ -179,7 +193,7 @@ public abstract class ArrayFactory {
      * @return
      */
     public static Distribution newUniqueDistribution(Place[] p) {
-    	return _.makeUniqueDistribution(p);
+    	return af_.makeUniqueDistribution(p);
     }
     
     /**
