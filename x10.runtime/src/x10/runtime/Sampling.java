@@ -320,10 +320,16 @@ public final class Sampling extends Thread {
                 writeHeader(4+4 + places.length * 8 * 7, SAMPLER, SAMPLER_DATA);
                 dos.writeInt(places.length);
                 dos.writeInt(0); // reserved
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(this.threadQueueSize[i]);
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(this.loadSamples[i]);
+                for (int i=0;i<places.length;i++)
+                    if (this.threadQueueSize != null)
+                        dos.writeInt(this.threadQueueSize[i]);
+                    else
+                        dos.writeInt(0);
+                for (int i=0;i<places.length;i++)
+                    if (this.loadSamples != null)
+                        dos.writeInt(this.loadSamples[i]);
+                    else
+                        dos.writeInt(0);
                 
                 for (int i=0;i<places.length;i++) 
                     dos.writeInt(this.atomicEntry[i]);
