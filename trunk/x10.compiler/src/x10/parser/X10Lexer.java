@@ -282,7 +282,9 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             // Rule 6:  Token ::= Slash Star Inside Stars Slash
             //
             case 6: { 
-                skipToken();
+                if (getKind(lexParser.getFirstToken(3)) == Char_Star && getKind(getNext(lexParser.getFirstToken(3))) != Char_Star)
+                     makeToken(TK_Comment);
+                else skipToken();
                 break;
             }
      
