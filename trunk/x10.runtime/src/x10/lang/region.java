@@ -168,13 +168,13 @@ public abstract /*value*/ class region extends Object  {
 	 * @param p a point in the coordinate space
 	 * @return the ordinal number of the point [0 ... size()[
 	 */
-	abstract public /*nat*/int ordinal(point/*(rank)*/ p) throws EmptyRegionError, PointOutOfRegionError;
+	abstract public /*nat*/int ordinal(point/*(rank)*/ p) throws EmptyRegionError, ArrayIndexOutOfBoundsException;
 	
 	/**
 	 * @param ord the ordinal number, must be smaller than size()
 	 * @return the coordinate that has ordinal number ord
 	 */
-	public abstract point/*(rank)*/ coord(/*nat*/ int ord) throws PointOutOfRegionError;
+	public abstract point/*(rank)*/ coord(/*nat*/ int ord) throws ArrayIndexOutOfBoundsException;
 	
 	/**
 	 * @return Iterator that yields the individual points of a region in lexicographical

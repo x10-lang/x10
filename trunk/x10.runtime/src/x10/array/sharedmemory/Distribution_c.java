@@ -18,7 +18,7 @@ import x10.lang.distribution;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.Runtime;
-import x10.lang.PointOutOfRegionError;
+
 
 
 /**
@@ -243,11 +243,11 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         /** Returns the place to which the point p in region is mapped.
          */
         public place get(point/*(region)*/ p) {
-            throw new PointOutOfRegionError();
+            throw new ArrayIndexOutOfBoundsException();
         }
 
         public place get(int[] p)  {
-            throw new PointOutOfRegionError();
+            throw new ArrayIndexOutOfBoundsException();
         }
         
         /** Returns the region mapped by this distribution to the place P.
@@ -336,7 +336,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
          */
         public place get(point/*(region)*/ p) {
             if (!region.contains(p))
-                throw new PointOutOfRegionError();
+                throw new ArrayIndexOutOfBoundsException();
             else
                 return place_;
         }
@@ -452,7 +452,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
          */
         public place get(point/*(region)*/ p) {
             if (!region.contains(p)) {
-                throw new PointOutOfRegionError();
+                throw new ArrayIndexOutOfBoundsException();
             } else
                 return placeseq[(p.get(0)) % placeseq.length];
         }
@@ -520,7 +520,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
                 }
             }
             if (ret == null)
-                throw new PointOutOfRegionError();
+                throw new ArrayIndexOutOfBoundsException();
             return ret;
         }
         
@@ -561,7 +561,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
             assert p != null;
             place ret = (place) map_.get(p);
             if (ret == null)
-                throw new PointOutOfRegionError();
+                throw new ArrayIndexOutOfBoundsException();
             return ret;
         }
 

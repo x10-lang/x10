@@ -6,7 +6,7 @@ package x10.array;
 import java.util.Iterator;
 
 
-import x10.lang.PointOutOfRegionError;
+
 import x10.lang.region;
 import x10.lang.point;
 
@@ -258,7 +258,7 @@ public class MultiDimRegion extends region  {
         return ret;
     }
     
-    public point coord(/*nat*/ int ordinal) throws PointOutOfRegionError {
+    public point coord(/*nat*/ int ordinal) throws ArrayIndexOutOfBoundsException {
         assert ordinal < size();
         
         int[] ret = new int[rank];

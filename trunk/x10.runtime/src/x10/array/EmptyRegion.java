@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
 
 import x10.lang.point;
 import x10.lang.region;
-import x10.lang.PointOutOfRegionError;
+
 
 /** The empty region of rank k. There is only one unique object in each such type.
  * @author vj Jan 4, 2005
@@ -129,8 +129,8 @@ public class EmptyRegion extends region {
 	/* (non-Javadoc)
 	 * @see x10.lang.region#coord(int)
 	 */
-	public point coord(int ord) throws PointOutOfRegionError {
-		throw new PointOutOfRegionError();
+	public point coord(int ord) throws ArrayIndexOutOfBoundsException {
+		throw new ArrayIndexOutOfBoundsException();
 	}
 
 	/* (non-Javadoc)
