@@ -11,6 +11,7 @@ import polyglot.ext.jl.ast.ArrayTypeNode_c;
 import polyglot.util.Position;
 import polyglot.ast.Node;
 import polyglot.visit.NodeVisitor;
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.visit.TypeBuilder;
 import polyglot.types.SemanticException;
@@ -23,7 +24,7 @@ public class X10ArrayTypeNode_c extends ArrayTypeNode_c implements
 		X10ArrayTypeNode {
 
 	protected boolean isValueType;
-	protected Expr indexedSet;
+	protected DepParameterExpr indexedSet;
 	
 	/**
 	 * @param pos
@@ -46,7 +47,7 @@ public class X10ArrayTypeNode_c extends ArrayTypeNode_c implements
 	 * @param indexedSet -- the region or distribution.
 	 */
 	public X10ArrayTypeNode_c(Position pos, TypeNode base, boolean isValueType, 
-			Expr indexedSet ) {
+			DepParameterExpr indexedSet ) {
 		super(pos, base);
 		this.isValueType = isValueType;
 		this.indexedSet = indexedSet;
@@ -67,7 +68,7 @@ public class X10ArrayTypeNode_c extends ArrayTypeNode_c implements
 		return this.indexedSet;
 	}
 
-	 protected X10ArrayTypeNode_c reconstruct(TypeNode base,  Expr indexedSet) {
+	 protected X10ArrayTypeNode_c reconstruct(TypeNode base,  DepParameterExpr indexedSet) {
         if (base != this.base || (isValueType != this.isValueType) 
         		|| (indexedSet != this.indexedSet)) {
 	    X10ArrayTypeNode_c n = (X10ArrayTypeNode_c) copy();
@@ -81,7 +82,7 @@ public class X10ArrayTypeNode_c extends ArrayTypeNode_c implements
 
 	 public Node visitChildren(NodeVisitor v) {
 		TypeNode base = (TypeNode) visitChild(this.base, v);
-		Expr indexedSet = (Expr) visitChild(this.indexedSet, v);
+		DepParameterExpr indexedSet = (DepParameterExpr) visitChild(this.indexedSet, v);
 		return reconstruct(base, indexedSet);
 	}
 

@@ -53,5 +53,8 @@ public interface X10NodeFactory extends NodeFactory {
     X10Loop ForEach(Position pos, Formal formal, Expr domain, Stmt body);
     X10Loop AtEach(Position pos, Formal formal, Expr domain, Stmt body);
     Finish Finish(Position pos, Stmt body);
-    
+
+    DepParameterExpr DepParameterExpr(Position pos, List args, Expr cond);    
+    DepParameterExpr DepParameterExpr(Position pos, List args);
+    DepParameterExpr DepParameterExpr(Position pos, Expr cond);    
 }

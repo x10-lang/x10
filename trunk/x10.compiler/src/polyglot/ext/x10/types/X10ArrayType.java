@@ -13,5 +13,6 @@ import polyglot.types.ArrayType;
  * 
  */
 public interface X10ArrayType extends X10ReferenceType, ArrayType {
+    boolean isValue();
 
 }
