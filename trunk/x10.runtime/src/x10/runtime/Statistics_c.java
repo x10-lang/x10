@@ -12,12 +12,12 @@ import x10.lang.Activity;
  * 
  * @author Christian Grothoff
  */
-public class Statistics_c {
+public final class Statistics_c {
 
     /**
      * The 'global' Statistics_c object.
      */
-    public static Statistics_c _ = new Statistics_c();
+    public final static Statistics_c _ = new Statistics_c();
     
     /**
      * Activate gathering statistics.  Called by the Runtime during the
@@ -36,7 +36,7 @@ public class Statistics_c {
      * all active statistics collectors that are defined as inner
      * classes of this class.
      */
-    public Statistics_c() {
+    private Statistics_c() {
         Class[] inners = this.getClass().getDeclaredClasses();
         for (int i=0;i<inners.length;i++) {
             Class c = inners[i];

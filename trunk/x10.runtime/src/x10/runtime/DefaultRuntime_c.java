@@ -74,6 +74,14 @@ public class DefaultRuntime_c
     protected void run(String[] args) throws Exception {
         // setup the main activity from the client...
         String[] appArgs = Configuration.parseCommandLine(args);
+        
+        // first: load libraries!
+        if (null != Configuration.LOAD) {
+            String[] libs = Configuration.LOAD.split(":");
+            for (int i=libs.length-1;i>=0;i--)
+                System.loadLibrary(libs[i]);
+        }
+        
         Object[] tmp = { args };
         Activity atmp = null;
         try {	

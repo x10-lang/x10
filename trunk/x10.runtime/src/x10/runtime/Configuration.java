@@ -70,10 +70,10 @@ public final class Configuration {
     
     public static int NUMBER_OF_LOCAL_PLACES = 2;
     
-    public static int PLACE_MINIMAL_THREAD_POOL_SIZE = 2;
+    public static int SAMPLING_FREQUENCY_MS = 5000;
     
-    public static int PLACE_THREAD_KEEPALIVE_TIME = 5000; // in millis
-
+    public static String SAMPLING_OUTPUT_FILE = "/tmp/x10-prof";
+    
     /**
      * Should statistics be dumped on exit?
      */
@@ -90,6 +90,13 @@ public final class Configuration {
      * the specific plugins that you want to disable.
      */
     public static String STATISTICS_DISABLE = "none";
+
+    /**
+     * Which shared libraries should be loaded?  The format
+     * is libraryname[:libraryname]*.  Null or "" are valid
+     * entries (for not loading any libraries).   
+     */
+    public static String LOAD = null;
     
     /**
      * Parses the command line.  This allows the user to specify 
