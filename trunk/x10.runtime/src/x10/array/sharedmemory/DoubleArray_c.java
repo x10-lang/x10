@@ -52,36 +52,38 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
      * @param safe
      */
     public DoubleArray_c( distribution d, double c) {
-	this(d, c, true);
+        this(d, c, true);
     }
     public DoubleArray_c( distribution d, double c, boolean safe) {
     	super(d);
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
+        this.safe_ = safe;
     	scan(this, new Assign(c));
     	
     }
     public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f) {
-	this(d, f, true);
+        this(d, f, true);
     }
     public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f, boolean safe) {
     	super(d);
     	int count =  d.region.size();
     	this.arr_ = safe ? Allocator.allocSafe(count, Double.TYPE) : Allocator.allocUnsafe(count, Allocator.SIZE_DOUBLE);
-    	scan(this, f);
-    	
+    	this.safe_ = safe;
+        scan(this, f);
     }
     
     private DoubleArray_c( distribution d, double[] a) {
     	super(d);
     	this.arr_ = Allocator.allocSafeDoubleArray( a);
+        this.safe_ = true;
     }
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a
      * @return
      */
-    public static DoubleArray_c DoubleArray_c( double[] a ) {
+    public static DoubleArray_c DoubleArray_c( double[] a) {
     	distribution d = Runtime.factory.getDistributionFactory().here(a.length);
     	return new DoubleArray_c(d, a);
     }
@@ -221,29 +223,55 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
+    
     public double get(int d0, int d1, int d2) {
     	assert this.region.rank == 3;
         int[] pos = {d0, d1, d2};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
+    
     public double get(int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
         int[] pos = {d0, d1, d2, d3};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
+    
     public x10.lang.DoubleReferenceArray overlay(x10.lang.doubleArray d) {
-    	throw new Error("TODO");
+    	distribution dist = distribution.overlay(d.distribution);
+        DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
+        for (Iterator it = dist.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            double val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+            ret.set(val, p);
+        }
+        return ret;
     }
+    
     public x10.lang.doubleArray union(x10.lang.doubleArray d) {
-    	throw new Error("TODO");
+        distribution dist = distribution.union(d.distribution);
+        DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
+        for (Iterator it = dist.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            double val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+            ret.set(val, p);
+        }
+        return ret;
     }
-    public x10.lang.doubleArray restriction( distribution d) {
-    	throw new Error("TODO");
+    
+    public x10.lang.doubleArray restriction(distribution d) {
+        return restriction(d.region);
     }
-    public x10.lang.doubleArray restriction( region d) {
-    	throw new Error("TODO");
+    
+    public x10.lang.doubleArray restriction(region r) {
+        distribution dist = distribution.restriction(r);
+        DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
+        for (Iterator it = dist.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            ret.set(get(p), p);
+        }
+        return ret;
     }
     
 }

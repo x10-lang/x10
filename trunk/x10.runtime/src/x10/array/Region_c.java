@@ -1,12 +1,10 @@
 /*
  * Created on Oct 3, 2004
  */
-package x10.array.sharedmemory;
+package x10.array;
 
 import java.util.Iterator;
 
-import x10.array.Range;
-import x10.array.ContiguousRange;
 
 import x10.lang.PointOutOfRegionError;
 import x10.lang.region;
@@ -28,7 +26,7 @@ public class Region_c extends region  {
     final int card;
     
     
-    Region_c(final region[] dims) {
+    public Region_c(final region[] dims) {
         super(dims.length);
         assert dims != null;
         int tmp_card = 1;
@@ -48,10 +46,9 @@ public class Region_c extends region  {
      * @return The new sub-region.
      * TODO: vj -- check the intended logic survived the rework.
      */
-    Region_c sub(int partitions, int part) {
-        assert partitions > 0 && part >= 0 && part < partitions;
-        assert size() % partitions == 0;
-        assert dims[0] instanceof ContiguousRange;
+    public Region_c sub(int partitions, int part) {
+        assert partitions > 0 && part >= 0 && part < partitions;        
+        assert dims[0] instanceof ContiguousRange; 
         assert ((Range) dims[0]).size % partitions == 0;
         
         ContiguousRange cr = (ContiguousRange) dims[0];
@@ -90,15 +87,15 @@ public class Region_c extends region  {
     }
     
     // This wont return a contiguous region.
-    public region difference( region d) { 
-        throw new Error("TODO");
+    public region difference(region d) { 
+        return ArbitraryRegion.difference(this, d);
     }
     
     /**
      * @return range in the i-th dimension.
      */
     public region rank(/*nat*/int i) {
-        return dims[ i % dims.length];
+        return dims[i % dims.length];
     }
     
     public boolean contains(region r) {

@@ -2,6 +2,8 @@ package x10.array.sharedmemory;
 
 import java.util.Set;
 
+import x10.array.ContiguousRange;
+import x10.array.Region_c;
 import x10.lang.distribution;
 import x10.lang.place;
 import x10.lang.region;
@@ -62,20 +64,27 @@ public class DistributionFactory extends distribution.factory {
      */
 	public distribution block(region r, int n, Set/*<place>*/ qs) {
         assert n <= qs.size();
-       
+        
         // avoid all the hardwork if it is an empty region.
         if (r.size() == 0)
         	return new Distribution_c.Empty( r.rank );
         
         Object[] q = qs.toArray();
+
         if (r instanceof Region_c) {
+            Region_c reg = (Region_c) r;
+            region first_d = reg.rank(0);
+            if (! (first_d instanceof ContiguousRange)) 
+                throw new Error("DistributionFactory::block can only block those arrays that have contiguos dimension 0.");
+            if (first_d.size() % n != 0) 
+                throw new Error("DistributionFactory::block can't block array with " + first_d.size() + " rows in " + n + " parts.");
+                
         	Distribution_c[] dists = new Distribution_c[n];
         	for (int i=0; i < n; i++) 
         		dists[i] = new Distribution_c.Constant(((Region_c) r).sub(n, i), (place) q[i]);
         	return new Distribution_c.Combined((Region_c) r, dists);
-        }
-        throw new Error("TODO");
-        	
+        } else
+            throw new Error("DistributionFactory::block not supported for the given shape of distribution.");
 	}
     
     
