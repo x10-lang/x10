@@ -36,6 +36,7 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#rank(long)
 	 */
 	public region rank(int index) {
+        assert index < rank;
 		return new EmptyRegion(1);
 	}
 

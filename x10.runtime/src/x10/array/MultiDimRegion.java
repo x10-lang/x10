@@ -56,11 +56,14 @@ public class MultiDimRegion extends region  {
         assert (n > 0);
         if (! (dims[0] instanceof ContiguousRange)) 
             throw new Error("MultiDimRegion::partition can only block those arrays that have contiguos dimension 0.");
+        ContiguousRange cr = (ContiguousRange) dims[0];
+        // partition fails if the first dimension has size less than n
+        if (cr.size() < n) 
+            throw new Error("MultiDimRegion::partition can only block those arrays that have size of dimension 0 larger than number of partitions.");
         region[] ret = new MultiDimRegion[n];
-        if (n ==1) {
+        if (n == 1) {
             ret[0] = this;
         } else {
-            ContiguousRange cr = (ContiguousRange) dims[0];
             region[] new_first_dims = cr.partition(n);
             for (int i = 0; i < n; ++i) {
                 region[] new_dims = new region[rank];
