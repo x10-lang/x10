@@ -3,24 +3,18 @@ package polyglot.ext.x10;
 import java.io.Reader;
 import java.util.List;
 
-import com.ibm.lpg.LexStream;
-
 import x10.parser.*;
 
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
-import polyglot.ext.x10.parse.Grm;
-import polyglot.ext.x10.parse.Lexer_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Qualifier;
-import polyglot.frontend.CupParser;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Pass;
 import polyglot.frontend.VisitorPass;
-import polyglot.lex.Lexer;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
 import polyglot.util.CodeWriter;
