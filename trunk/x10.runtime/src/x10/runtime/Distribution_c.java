@@ -34,13 +34,13 @@ abstract class Distribution_c
         int p = R.size() / N;
         Distribution[] dists = new Distribution[N];
         for (int i=0;i<q;i++) {
-            dists[i] = new Distribution_c.Constant(R.subOrdinal(i*(p+1), (i+1)*(p+1)), 
+            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(i*(p+1), (i+1)*(p+1)), 
                                                    Q[i]);
         }
         int base = q * (p+1);
         for (int i=q;i<N;i++) {
             int off = (i-q) * p;
-            dists[i] = new Distribution_c.Constant(R.subOrdinal(base+off, base+off+p), 
+            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(base+off, base+off+p), 
                                                    Q[i]);
         }
         return new Distribution_c.Combined(R, dists);
@@ -58,13 +58,13 @@ abstract class Distribution_c
         int p = R.size() / N;
         Distribution[] dists = new Distribution[N];
         for (int i=0;i<q;i++) {
-            dists[i] = new Distribution_c.Constant(R.subOrdinal(i*(p+1), (i+1)*(p+1)), 
+            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(i*(p+1), (i+1)*(p+1)), 
                                                    Q[i]);
         }
         int base = q * (p+1);
         for (int i=q;i<N;i++) {
             int off = (i-q) * p;
-            dists[i] = new Distribution_c.Constant(R.subOrdinal(base+off, base+off+p), 
+            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(base+off, base+off+p), 
                                                    Q[i]);
         }
         return new Distribution_c.Combined(R, dists);
@@ -82,7 +82,7 @@ abstract class Distribution_c
         int N = R.size();
         Distribution[] dists = new Distribution[N];
         for (int i=0;i<N;i++) {
-            dists[i] = new Distribution_c.Constant(R.subOrdinal(i,i+1), 
+            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(i,i+1), 
                                                    Q[i % Q.length]);
         }
         return new Distribution_c.Combined(R, dists);
@@ -110,7 +110,7 @@ abstract class Distribution_c
             int e = s + N;
             if (e > RS)
                 e = RS;
-            dists[i] = new Distribution_c.Constant(R.subOrdinal(s, e), 
+            dists[i] = new Distribution_c.Constant(((Region_c)R).subOrdinal(s, e), 
                                                    Q[i % QL]);
         }
         return new Distribution_c.Combined(R, dists);
@@ -168,7 +168,7 @@ abstract class Distribution_c
     }
     
     public Region subOrdinal(int i, int j) {
-        return region_.subOrdinal(i, j);
+        return ((Region_c)region_).subOrdinal(i, j);
     }
     
     public Region combine(Region r) {
