@@ -21,6 +21,9 @@ public class TestRuntime extends TestCase {
     public TestRuntime(String name) {
         super(name);
     }
+
+    private final Activity a
+        = new Activity() { public void run() {} }; // dummy
     
     static volatile int x;
     
@@ -33,10 +36,24 @@ public class TestRuntime extends TestCase {
      */
     public void setUp() {
         Runtime r = Runtime._;
-        if (r instanceof ThreadRegistry)
-            ((ThreadRegistry)r).registerThread(Thread.currentThread(),
-                                               r.initializePlaces()[0]);
+        if (r instanceof ThreadRegistry) {
+            Thread t = Thread.currentThread();
+            ThreadRegistry tr = (ThreadRegistry) r;
+            tr.registerThread(t,
+                              r.initializePlaces()[0]);
+            tr.registerActivityStart(t, a, null);
+        }
     }
+
+    public void tearDown() {
+        Runtime r = Runtime._;
+        if (r instanceof ThreadRegistry) {
+            Thread t = Thread.currentThread();
+            ThreadRegistry tr = (ThreadRegistry) r;
+            tr.registerActivityStop(t, a);
+        }
+    }
+
     
     public void testPlaceRunAsync() {
         x = 0;
