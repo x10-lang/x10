@@ -128,24 +128,24 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer {
 	}
 	
 
-    public x10.lang.doubleArray lift( DoubleArray.binaryOp op, x10.lang.doubleArray arg ) {
-        assert arg.distribution == this.distribution; 
-        DoubleArray arg1 = (DoubleArray)arg;
-        DoubleArray result = newInstance(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-             result.set(op.apply(this.get(p), arg1.get(p)),p);
-        }
-        return result;
-    }
-    public x10.lang.doubleArray lift( DoubleArray.unaryOp op ) {
-        DoubleArray result = newInstance(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-             result.set(op.apply(this.get(p)),p);
-        }
-        return result;
-    }
+	public x10.lang.doubleArray lift( DoubleArray.binaryOp op, x10.lang.doubleArray arg ) {
+	    assert arg.distribution.equals(distribution); 
+	    DoubleArray arg1 = (DoubleArray)arg;
+	    DoubleArray result = newInstance(distribution);
+	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	        point p = (point) it.next();
+	        result.set(op.apply(this.get(p), arg1.get(p)),p);
+	    }
+	    return result;
+	}
+	public x10.lang.doubleArray lift( DoubleArray.unaryOp op ) {
+	    DoubleArray result = newInstance(distribution);
+	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	        point p = (point) it.next();
+	        result.set(op.apply(this.get(p)),p);
+	    }
+	    return result;
+	}
     public double reduce( DoubleArray.binaryOp op, double unit ) {
         double result = unit;
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
