@@ -20,6 +20,10 @@ public class LocalPlace_c extends Place {
      * Compute the number of simulated cycles spent
      * globally at this point.
      * 
+     * this method must not be called in the constructor of 
+     * LocalPlace_c, and not before the runtime is initialized 
+     * completely.
+     *  
      * @return max of all simulatedPlaceTimes of all places
      */
     public static long systemNow() {
@@ -28,12 +32,28 @@ public class LocalPlace_c extends Place {
         for (int i=places.length-1;i>=0;i--) {
             long val = 0;
             if (places[i] instanceof LocalPlace_c) {
-             val = ((LocalPlace_c) places[i]).getSimulatedPlaceTime();
+                val = ((LocalPlace_c) places[i]).getSimulatedPlaceTime();
             }
             if (val > max)
                 max = val;
         }
         return max;
+    }
+    
+    public static void initAllPlaceTimes(Place[] places) {
+        long max = 0;
+        for (int i=places.length-1;i>=0;i--) {
+            assert (places[i] instanceof LocalPlace_c);
+            long val = 0;
+            LocalPlace_c lp = (LocalPlace_c) places[i];
+            val = lp.getSimulatedPlaceTime();
+            if (val > max)
+                max = val;
+        }
+        for (int i=places.length-1;i>=0;i--) {
+            LocalPlace_c lp = (LocalPlace_c) places[i];
+            lp.startBlock = max; 
+        }
     }
 
     
@@ -78,7 +98,10 @@ public class LocalPlace_c extends Place {
         super();
         this.reg_ = reg;
         this.aip_ = aip;
-        startBlock = systemNow();
+        // this is done in initAllPlaceTimes - 
+        // it must not be done at this point, because the
+        // runtime system is not initialized at this point
+        // startBlock = systemNow();
     }
     
     /**
