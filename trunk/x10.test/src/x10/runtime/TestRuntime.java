@@ -29,6 +29,9 @@ public class TestRuntime extends TestCase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(TestRuntime.class);
+        Place[] pls = Place.places();
+        for (int i=pls.length-1;i>=0;i--)
+            pls[i].shutdown();
     }
 
     public TestRuntime(String name) {
@@ -60,7 +63,7 @@ public class TestRuntime extends TestCase {
      * Clean-up effects from setUp().
      */
     public void tearDown() {
-        Runtime r = Runtime.runtime;
+        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
         if (r instanceof ThreadRegistry) {
             Thread t = Thread.currentThread();
             ThreadRegistry tr = (ThreadRegistry) r;
