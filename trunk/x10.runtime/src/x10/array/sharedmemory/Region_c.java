@@ -4,6 +4,7 @@
 package x10.array.sharedmemory;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import x10.array.PointOutOfRegionException;
 import x10.array.Range;
@@ -255,9 +256,8 @@ class Region_c implements Region {
             int[] ret = new int[rank];
             // express nextOrd_ as a base of the regions
             int rest = nextOrd_;
-            int base = 0;
-            for (int i = 0; rest > 0 && i < rank; ++i) {
-                base = dims_[i].count;
+            for (int i = 0; i < rank; ++i) {
+                int base = dims_[i].count;
                 int tmp = rest % base;
                 rest = (rest - tmp) / base;
                 ret[i] = dims_[i].coord(tmp);
@@ -266,4 +266,39 @@ class Region_c implements Region {
             return ret;
         }
     }
+    
+    public int[] firstElement() {
+        if (rank == 0)
+            return null; // empty!
+        int[] ret = new int[rank];
+        // express nextOrd_ as a base of the regions
+        for (int i = 0; i < rank; ++i) {
+            if (dims_[i].count == 0)
+                return null; // empty!
+            ret[i] = dims_[i].coord(0);
+        }
+        return ret;
+    }
+
+    public int[] nextElement(int[] in) {
+        for (int i = rank-1;i>=0;i--) {
+            int ord = dims_[i].ordinal(in[i]);
+            int base = dims_[i].count;
+            if (ord < base-1) {
+              in[i] = dims_[i].coord(ord+1);  
+              break;
+            } else {
+              in[i] = dims_[i].coord(0);
+              if (i == 0) 
+                  return null;
+            }            
+        }            
+        return in;
+    }
+
+    public boolean hasNextElement(int[] in) {
+        return (in != null);
+    }
+
+    
 }
