@@ -72,7 +72,7 @@ public final class Configuration {
      * File name for generating PE files.  Use null to not generate
      * PE traces.
      */
-    public static String PE_FILE = "x10.pem"; // TODO: switch default to 'null' in the future
+    public static String PE_FILE = "x10.pem"; 
     
     public static int NUMBER_OF_LOCAL_PLACES = 2;
     
@@ -86,7 +86,7 @@ public final class Configuration {
      * If non-null, this option specifies the filename to
      * which sampling data is written at each sampling point.
      */
-    public static String SAMPLING_OUTPUT_FILE = null;
+    public static String XML_PE_FILE = "x10.xml"; 
     
     /**
      * Should statistics be dumped on exit?
