@@ -7,10 +7,8 @@ import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.Expr;
-import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Stmt_c;
-import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 
@@ -18,11 +16,17 @@ import polyglot.visit.CFGBuilder;
  * @author Christian Grothoff
  */
 public class Async_c extends Stmt_c 
-    implements Async, NodeDumperHelper.Dumpable {
+    implements Async {
 
     public Block body;
     
     public Expr place; 
+
+    public Async_c(Position p, Expr place, Block body) {
+        super(p);
+        this.place = place;
+        this.body = body;
+    }
     
     public Async_c(Position p) {
         super(p);
@@ -45,19 +49,6 @@ public class Async_c extends Stmt_c
         return succs;
     }
     
-    /* (non-Javadoc)
-     * @see polyglot.ext.x10.ast.TranslateWhenDumpedNode#getArgument(int)
-     */
-    public Node getArgument(int id) {
-        if (id == 0)
-            return place;
-        if (id == 1)
-            return body;
-        assert (false);
-        return null;
-    }
-    
-
     /* (non-Javadoc)
      * @see polyglot.ext.x10.ast.Future#body(polyglot.ast.Expr)
      */
@@ -84,8 +75,4 @@ public class Async_c extends Stmt_c
         return this;
     }
     
-    public void dump(CodeWriter w) {
-        NodeDumperHelper.dump(this, w);
-    }
-        
 }

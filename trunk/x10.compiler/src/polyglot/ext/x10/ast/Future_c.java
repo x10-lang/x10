@@ -9,7 +9,6 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
-import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 
@@ -17,11 +16,18 @@ import polyglot.visit.CFGBuilder;
  * @author Christian Grothoff
  */
 public class Future_c extends Expr_c 
-    implements Future, NodeDumperHelper.Dumpable {
+    implements Future{
 
     public Expr body;
     
     public Expr place; 
+    
+
+    public Future_c(Position p, Expr place, Expr body) {
+        super(p);
+        this.place = place;
+        this.body = body;
+    }
     
     public Future_c(Position p) {
         super(p);
@@ -81,10 +87,6 @@ public class Future_c extends Expr_c
     public RemoteActivityInvocation place(Expr place) {
         this.place = place;
         return this;
-    }
-    
-    public void dump(CodeWriter w) {
-        NodeDumperHelper.dump(this, w);
     }
         
 }
