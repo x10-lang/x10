@@ -11,33 +11,12 @@ import polyglot.types.*;
  * Parts of this code are taken from the pao extension in the polyglot framework.
  * 
  * @author Christoph von Praun
+ * @author vj
  */
 
 public interface X10TypeSystem extends TypeSystem {
 
-    /**
-     * Create a class type in the X10 Typesystem
-     * @param fromSource
-     * @param flags see X10ReferenceType flags (bitmask over NULLABLE, IS_FUTURE)
-     */
-    public ParsedClassType createClassType(int flags);
-
-    /**
-     * Create a class type in the X10 Typesystem
-     * @param fromSource
-     * @param flags see X10ReferenceType flags (bitmask over NULLABLE, IS_FUTURE)
-     */
-    public ParsedClassType createClassType(Source fromSource,
-                                           int flags);
-
-    /**
-     * Create a class type in the X10 Typesystem
-     * @param flags see X10ReferenceType flags (bitmask over NULLABLE, IS_FUTURE)
-     */
-    public ParsedClassType createClassType(LazyClassInitializer init, 
-                                           Source fromSource,
-                                           int flags);
-
+    
     public ParsedClassType getRuntimeType();
     
     public ParsedClassType getActivityType();

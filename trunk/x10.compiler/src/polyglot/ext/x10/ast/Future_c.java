@@ -1,5 +1,6 @@
 /*
- *
+ * @author Philippe Charles
+ * @author vj
  */
 package polyglot.ext.x10.ast;
 
@@ -10,18 +11,31 @@ import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.util.Position;
-import polyglot.visit.CFGBuilder;
+import polyglot.util.CodeWriter;
 
-/**
- *
+
+import polyglot.visit.CFGBuilder;
+import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeChecker;
+import polyglot.visit.AscriptionVisitor;
+import polyglot.visit.PrettyPrinter;
+
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+
+import polyglot.ext.x10.types.FutureType_c;
+import polyglot.ext.x10.types.X10TypeSystem;
+
+
+/** A <code>Future </code> is a representation of the X10 future construct:
+ * <code>future (place) { expression }<code>
  */
 public class Future_c extends Expr_c 
-    implements Future{
+    implements Future {
 
-    public Expr body;
-    
     public Expr place; 
-    
+    public Expr body;
 
     public Future_c(Position p, Expr place, Expr body) {
         super(p);
@@ -31,24 +45,6 @@ public class Future_c extends Expr_c
     
     public Future_c(Position p) {
         super(p);
-    }
-    
-    /**
-     * Return the first (sub)term performed when evaluating this
-     * term.
-     */
-    public Term entry() {
-        // TODO:
-        return this;
-    }
-
-    /**
-     * Visit this term in evaluation order.
-     */
-    public List acceptCFG(CFGBuilder v, List succs) {
-        v.visitCFG(place, body());
-        v.visitCFG(body(), this);
-        return succs;
     }
     
     /* (non-Javadoc)
@@ -90,5 +86,69 @@ public class Future_c extends Expr_c
         this.place = place;
         return this;
     }
+
+    protected Future_c reconstruct( Expr place, Expr body ) {
+	if ( place != this.place || body != this.body ) {
+	    Future_c n = (Future_c) copy();
+	    n.place = place;
+	    n.body = body;
+	    return n;
+	}
+	return this;
+    }
+
+    /** Visit the children of the expression. */
+    public Node visitChildren( NodeVisitor v ) {
+    	Expr place = (Expr) visitChild( this.place, v );
+    	Expr body = (Expr) visitChild( this.body, v );
+    	return reconstruct( place, body );
+    }
+
+
+    /** Type check the expression. */
+    public Node typeCheck( TypeChecker tc ) throws SemanticException {
+       	return type( new FutureType_c( tc.typeSystem(), position(), body.type() ));
+    }
+    
+    public Type childExpectedType(Expr child, AscriptionVisitor av) {
+    	X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+    	if ( child == place ) {
+    		return ts.getPlaceType();
+    	}
+    	return child.type();
+    }
+
+    public String toString() {
+    	return  " future ( " + place + " ) { " + body + "}";
+    }
+
+    /** Write the expression to an output file. */
+
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+    	w.write("future (");
+    	printSubExpr(place, false, w, tr);
+    	w.write(" ) {  ");
+    	printSubExpr(body, false, w, tr);
+    	w.write("}");
+    }
+
+    /**
+     * Return the first (sub)term performed when evaluating this
+     * term.
+     */
+    public Term entry() {
+        return place.entry();
+    }
+
+    /**
+     * Visit this term in evaluation order.
+     */
+    public List acceptCFG(CFGBuilder v, List succs) {
+        v.visitCFG(place, body());
+        v.visitCFG(body(), this);
+        return succs;
+    }
+    
+
         
 }

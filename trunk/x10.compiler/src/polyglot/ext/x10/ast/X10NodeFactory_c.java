@@ -8,6 +8,15 @@ import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
 import polyglot.util.Position;
 
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.types.ReferenceType;
+
+import polyglot.ext.x10.types.FutureType_c;
+import polyglot.ext.x10.types.NullableType_c;
+
+import polyglot.ext.jl.types.UnknownType_c;
+
 /**
  * NodeFactory for x10 extension.
  */
@@ -90,4 +99,24 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         n = (Clocked) n.ext(extFactory().extStmt());
         return (Clocked) n.del(delFactory().delStmt());
     }
+
+    /** Called when a future X has been parsed, where X should be a reference type.
+     * 
+     */
+    public TypeNode Future(Position pos, TypeNode type ) {
+    	TypeNode result = (TypeNode) type.copy();
+       	// System.out.println( "[X10NodeFactory] making FutureNode_c(|" + pos +"|,|"+ type +"|)");
+    	return new FutureNode_c(pos, type);
+    
+    }
+    
+    /** Called when a nullable X has been parsed, where X should be a reference type.
+     * 
+     */
+
+    public TypeNode Nullable(Position pos, TypeNode type ) {
+    	// System.out.println( "[X10NodeFactory] making NullableNode_c(|" + pos +"|,|"+ type +"|)");
+     	return new NullableNode_c(pos, type);
+    }
+
 }
