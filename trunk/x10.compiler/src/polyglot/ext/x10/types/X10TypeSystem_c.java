@@ -136,14 +136,14 @@ public class X10TypeSystem_c
     
     /******************** Primitive types as Objects ******************/
     
-    private static final String WRAPPER_PACKAGE = "polyglot.ext.x10.runtime";
+    private static final String WRAPPER_PACKAGE = "polyglot.ext.pao.runtime";
     
     public PrimitiveType createPrimitive(PrimitiveType.Kind kind) {
         return new X10PrimitiveType_c(this, kind);
     }
 
     public MethodInstance primitiveEquals() {
-        String name = WRAPPER_PACKAGE + ".Primitive";
+        String name = WRAPPER_PACKAGE + ".Number";
 
         try {
             Type ct = (Type) systemResolver().find(name);
