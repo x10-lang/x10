@@ -3,7 +3,6 @@
  */
 package x10.runtime;
 
-import x10.lang.Activity;
 
 /**
  * This interface is implemented by threads that want a notification to be

@@ -3,7 +3,7 @@
        ) {
    #0 #1 #2 = (#1) #2__.next();
    ((x10.runtime.Place) #3.get(#2)).runAsync
-       (new Activity() {
+       (new x10.runtime.Activity() {
           public void run() {
              #4
           }

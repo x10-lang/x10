@@ -3,11 +3,11 @@ import junit.framework.TestCase;
 import x10.array.ContiguousRange;
 
 import x10.array.sharedmemory.Distribution_c;
-import x10.lang.Activity;
 import x10.lang.Runtime;
 import x10.lang.place;
 import x10.lang.distribution;
 import x10.lang.region;
+import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;

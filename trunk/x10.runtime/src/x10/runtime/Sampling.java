@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import x10.lang.Activity;
 import x10.lang.Runtime;
 
 import com.ibm.PERCS.PPEM.traceFormat.PEM;

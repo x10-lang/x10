@@ -3,7 +3,6 @@
  */
 package x10.runtime;
 
-import x10.lang.Activity;
 import x10.lang.Future;
 import x10.lang.Object;
 

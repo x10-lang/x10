@@ -6,11 +6,10 @@ package x10.runtime;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import x10.compilergenerated.ClockedFinalInt;
-import x10.lang.Activity;
 import x10.lang.Future;
 import x10.lang.Object;
 import x10.lang.Runtime;
-import x10.runtime.Clock_c;
+import x10.runtime.Clock;
 
 /**
  * Testcases for the X10 Runtime.  
@@ -108,7 +107,7 @@ public class TestRuntime extends TestCase {
 
     public void testClockNext() {
         x = 0;
-        final Clock_c c = (Clock_c) Runtime.factory.getClockFactory().clock();
+        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         Activity b = new Activity() {
             public void run() {
                 c.doNext();
@@ -134,7 +133,7 @@ public class TestRuntime extends TestCase {
     
     public void testClockContinue() {
         x = 0;
-        final Clock_c c = (Clock_c) Runtime.factory.getClockFactory().clock();
+        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         Activity b = new Activity() {
             public void run() {
                 c.doNext();
@@ -155,7 +154,7 @@ public class TestRuntime extends TestCase {
     }
     
     public void testClockDrop() {
-        final Clock_c c = (Clock_c) Runtime.factory.getClockFactory().clock();
+        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         Activity b = new Activity() {
             public void run() {
                 c.doDrop();
@@ -171,7 +170,7 @@ public class TestRuntime extends TestCase {
     }
     
     public void testClockedFinal() {
-        final Clock_c c = (Clock_c) Runtime.factory.getClockFactory().clock();
+        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         final ClockedFinalInt i = new ClockedFinalInt(c, 0);
         Activity b = new Activity() {
             public void run() {
@@ -214,7 +213,7 @@ public class TestRuntime extends TestCase {
             }
         };
         x = 0;
-        final Clock_c c = (Clock_c) Runtime.factory.getClockFactory().clock();
+        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         c.doNow(b);
         c.doNext();
         assertTrue(x == 1);

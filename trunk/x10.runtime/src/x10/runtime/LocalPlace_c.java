@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import x10.lang.Activity;
 import x10.lang.Future;
 import x10.lang.MultipleExceptions;
 

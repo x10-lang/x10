@@ -1,6 +1,6 @@
 // Main method 0 is Formal, 1 is body
 	
-public static class Main implements x10.lang.Activity {
+public static class Main extends x10.runtime.Activity {
 	private final String[] form;
 	public Main(String[] args) {
 	   this.form = args;

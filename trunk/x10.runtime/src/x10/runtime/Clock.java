@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import x10.base.TypeArgument;
-import x10.lang.Activity;
 import x10.lang.Runtime;
 import x10.lang.clock;
 
@@ -22,7 +21,7 @@ import x10.lang.clock;
  * 
  * @author Christian Grothoff, Christoph von Praun
  */
-public final class Clock_c extends clock implements TypeArgument {
+public final class Clock extends clock implements TypeArgument {
 
     /**
      * Callback method used by the Clock to notify all listeners
@@ -41,7 +40,7 @@ public final class Clock_c extends clock implements TypeArgument {
      * Create a new Clock.  Registers the current activity with
      * the clock as a side-effect (see X10 Report).
      */
-    protected Clock_c(ActivityInformationProvider aip) {
+    protected Clock(ActivityInformationProvider aip) {
         synchronized (getClass()) {
             id_ = nextId_++;
         }
@@ -225,10 +224,10 @@ public final class Clock_c extends clock implements TypeArgument {
             Arrays.sort(clocks, new Comparator() {
                 public int compare(java.lang.Object o1, java.lang.Object o2) {
                     int ret = 0;
-                    assert (o1 instanceof Clock_c);
-                    assert (o2 instanceof Clock_c);
-                    Clock_c c1 = (Clock_c) o1;
-                    Clock_c c2 = (Clock_c) o2;
+                    assert (o1 instanceof Clock);
+                    assert (o2 instanceof Clock);
+                    Clock c1 = (Clock) o1;
+                    Clock c2 = (Clock) o2;
                     if (c1.id_ < c2.id_)
                         ret = -1;
                     else if (c1.id_ > c2.id_)
@@ -242,7 +241,7 @@ public final class Clock_c extends clock implements TypeArgument {
         }
         
         for (int i=0; i < clocks.length; ++ i) {
-            ((Clock_c) clocks[i]).doNext();
+            ((Clock) clocks[i]).doNext();
         }
     }
     
@@ -331,7 +330,7 @@ public final class Clock_c extends clock implements TypeArgument {
        new ActivitySpawnListener() {
        public void notifyActivitySpawn(Activity a,
                                        Activity i) {
-           synchronized (Clock_c.this) {
+           synchronized (Clock.this) {
                nowSet_.add(a);
            }
            // also register the spawned activity with this spawn listener
@@ -347,7 +346,7 @@ public final class Clock_c extends clock implements TypeArgument {
            // observed that this assertion is violated 'sometimes' in 
            // Jacobi_skewed.
            // assert nowSet_.contains(a);
-           synchronized (Clock_c.this) {
+           synchronized (Clock.this) {
                nowSet_.remove(a);
            }
            tryAdvance();
