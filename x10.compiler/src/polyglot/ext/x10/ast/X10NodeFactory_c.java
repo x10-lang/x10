@@ -1,10 +1,9 @@
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Block;
-import polyglot.ast.Expr;
-import polyglot.ast.ExtFactory;
-import polyglot.ast.Instanceof;
-import polyglot.ast.TypeNode;
+import java.util.List;
+
+import polyglot.ast.*;
+import polyglot.ext.x10.ast.*;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
@@ -22,6 +21,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         super(new X10ExtFactory_c(),
               new X10DelFactory_c());
     }
+
     protected X10NodeFactory_c(ExtFactory extFact) {
         super(extFact);
     }
@@ -32,10 +32,16 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return (Instanceof)n.del(new X10InstanceofDel_c());
     }
     
-    public Async Async(Position pos, Expr place, Block body) {
+    public Async Async(Position pos, Expr place, Stmt body) {
         Async a = new Async_c(pos, place, body);
         a = (Async) a.ext(extFactory().extExpr());
         return (Async) a.del(delFactory().delExpr());
+    }
+    
+    public Atomic Atomic(Position pos, Expr place, Stmt body) {
+        Atomic a = new Atomic_c(pos, place, body);
+        a = (Atomic) a.ext(extFactory().extExpr());
+        return (Atomic) a.del(delFactory().delExpr());
     }
     
     public Future Future(Position pos, Expr place, Expr body) {
@@ -44,4 +50,39 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return (Future) f.del(delFactory().delStmt());
     }
     
+    public Force Force(Position pos, Expr expr) {
+        Force f = new Force_c(pos, expr);
+        f = (Force) f.ext(extFactory().extStmt());
+        return (Force) f.del(delFactory().delStmt());
+    }
+    
+    public When When(Position pos, List exprs, List statements) {
+        When w = new When_c(pos, exprs, statements);
+        w = (When) w.ext(extFactory().extStmt());
+        return (When) w.del(delFactory().delStmt());
+    }
+
+    public Drop Drop(Position pos, List clocks) {
+        Drop d = new Drop_c(pos, clocks);
+        d = (Drop) d.ext(extFactory().extStmt());
+        return (Drop) d.del(delFactory().delStmt());
+    }
+
+    public Next Next(Position pos, List clocks) {
+        Next n = new Next_c(pos, clocks);
+        n = (Next) n.ext(extFactory().extStmt());
+        return (Next) n.del(delFactory().delStmt());
+    }
+
+    public Now Now(Position pos, Expr expr, Stmt stmt) {
+        Now n = new Now_c(pos, expr, stmt);
+        n = (Now) n.ext(extFactory().extStmt());
+        return (Now) n.del(delFactory().delStmt());
+    }
+
+    public Clocked Clocked(Position pos, Expr expr, Stmt stmt) {
+        Clocked n = new Clocked_c(pos, expr, stmt);
+        n = (Clocked) n.ext(extFactory().extStmt());
+        return (Clocked) n.del(delFactory().delStmt());
+    }
 }

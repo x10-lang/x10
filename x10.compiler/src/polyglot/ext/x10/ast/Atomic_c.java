@@ -15,20 +15,20 @@ import polyglot.visit.CFGBuilder;
 /**
  * @author Christian Grothoff
  */
-public class Async_c extends Stmt_c 
-    implements Async {
+public class Atomic_c extends Stmt_c 
+    implements Atomic {
 
     public Stmt body;
     
     public Expr place; 
 
-    public Async_c(Position p, Expr place, Stmt body) {
+    public Atomic_c(Position p, Expr place, Stmt body) {
         super(p);
         this.place = place;
         this.body = body;
     }
     
-    public Async_c(Position p) {
+    public Atomic_c(Position p) {
         super(p);
     }
     
@@ -58,8 +58,8 @@ public class Async_c extends Stmt_c
     }
 
     /** Set the body of the statement. */
-    public Async body(Stmt body) {
-	Async_c n = (Async_c) copy();
+    public Atomic body(Stmt body) {
+	Atomic_c n = (Atomic_c) copy();
 	n.body = body;
 	return n;
     }

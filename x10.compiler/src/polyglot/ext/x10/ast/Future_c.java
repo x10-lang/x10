@@ -1,5 +1,5 @@
 /*
- * Created on Oct 5, 2004
+ *
  */
 package polyglot.ext.x10.ast;
 
@@ -13,7 +13,7 @@ import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 
 /**
- * @author Christian Grothoff
+ *
  */
 public class Future_c extends Expr_c 
     implements Future{
@@ -38,7 +38,8 @@ public class Future_c extends Expr_c
      * term.
      */
     public Term entry() {
-        return place;
+        // TODO:
+        return this;
     }
 
     /**
@@ -66,9 +67,10 @@ public class Future_c extends Expr_c
     /* (non-Javadoc)
      * @see polyglot.ext.x10.ast.Future#body(polyglot.ast.Expr)
      */
-    public RemoteActivityInvocation body(Expr body) {
-        this.body = body;
-        return this;
+    public Future body(Expr body) {
+        Future_c n = (Future_c) copy();
+        n.body = body;
+        return n;
     }
 
     /* (non-Javadoc)
