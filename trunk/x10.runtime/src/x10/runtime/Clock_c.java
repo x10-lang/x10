@@ -112,16 +112,25 @@ public final class Clock_c extends Clock {
      * it calls 'next'.
      *
      */
-    public synchronized void resume() {
+    public void resume() {
         Activity a = aip_.getCurrentActivity();
-        assert activities_.contains(a);
-        pending_.remove(a);
-        tryAdvance(); 
+        // do not lock earlier - see comment in doNext
+        synchronized (this) {
+            assert activities_.contains(a);
+            pending_.remove(a);
+            tryAdvance();
+        }
     }
      
     public boolean dropped() {
+        boolean ret;
         Activity a = aip_.getCurrentActivity();
-        return !activities_.contains(a);
+
+        // do not lock earlier - see comment in doNow       
+        synchronized (this) {
+            ret = !activities_.contains(a);
+        }
+        return ret;
     }
     
     /**
@@ -165,12 +174,12 @@ public final class Clock_c extends Clock {
      */
     public void doNext() {
         Activity a = aip_.getCurrentActivity();
-        assert activities_.contains(a);
         
         // do not acquire lock earlier - otherwise deadlock can happen
         // because the lock used to protected aip_.getCurrentActivity
         // is also held when terminating activities drop locks ...
         synchronized (this) {
+            assert activities_.contains(a);
             pending_.remove(a); // this one is done! 
             if (tryAdvance())
                 return; // we advanced, continue immediately!
@@ -223,7 +232,7 @@ public final class Clock_c extends Clock {
      * calls all advance listeners and then signals the activities
      * that are waiting to get them going again.
      */
-    private void advance() {
+    private synchronized void advance() {
         assert pending_.size() == 0;
         assert nowSet_.size() == 0;
         this.phase_++;
@@ -245,9 +254,7 @@ public final class Clock_c extends Clock {
             Activity a = (Activity) it.next();
             pending_.add(a);
         }
-        synchronized(this) {
-            notifyAll();
-        }
+        notifyAll();
     }
 
     /**
@@ -272,12 +279,25 @@ public final class Clock_c extends Clock {
        new ActivitySpawnListener() {
        public void notifyActivitySpawn(Activity a,
                                        Activity i) {
-           nowSet_.add(a);
+           synchronized (Clock_c.this) {
+               nowSet_.add(a);
+           }
+           // also register the spawned activity with this spawn listener
+           // don't do it in the scope if the above lock due to risk of deadlock
            aip_.registerActivitySpawnListener(a, this);
        }
        public void notifyActivityTerminated(Activity a) {
-           assert nowSet_.contains(a);
-           nowSet_.remove(a);
+           // assertion not valid - the activity might already have
+           // been removed from the nowSet_ (this method might be 
+           // called several times for the same activity -- se also 
+           // DefaultRuntime_c::registerActivityStop) 
+           //
+           // observed that this assertion is violated 'sometimes' in 
+           // Jacobi_skewed.
+           // assert nowSet_.contains(a);
+           synchronized (Clock_c.this) {
+               nowSet_.remove(a);
+           }
            tryAdvance();
        }
    };
