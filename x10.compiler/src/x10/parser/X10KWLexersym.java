@@ -30,9 +30,38 @@ interface X10KWLexersym {
       Char_x = 23,
       Char_y = 20,
       Char_z = 24,
-      Char_EOF = 25,
+      Char_EOF = 25;
 
-      NUM_TOKENS = 27;
+      public final static String orderedTerminalSymbols[] = {
+                 "",
+                 "e",
+                 "t",
+                 "a",
+                 "o",
+                 "c",
+                 "l",
+                 "n",
+                 "r",
+                 "i",
+                 "s",
+                 "u",
+                 "h",
+                 "d",
+                 "f",
+                 "b",
+                 "w",
+                 "g",
+                 "m",
+                 "p",
+                 "y",
+                 "k",
+                 "v",
+                 "x",
+                 "z",
+                 "EOF",
+                 "j",
+                 "q"
+             };
 
     public final static boolean isValidForParser = true;
 }

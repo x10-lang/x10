@@ -8,28 +8,28 @@ import com.ibm.lpg.*;
 
 public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, X10Lexersym
 {
-    PrsStream prsStream;
-    ParseTable prs;
-    LexParser lexParser;
-
-    public X10Lexer(char[] input_chars, String filename)
-    {
-        super(input_chars, filename);
-        prsStream = new PrsStream(this);
-        prs = new X10Lexerprs();
-        lexParser = new LexParser(this, prs, this);
-    }
+    private PrsStream prsStream;
+    private ParseTable prs;
+    private LexParser lexParser;
 
     public X10Lexer(char[] input_chars, String filename, int tab)
     {
         super(input_chars, filename, tab);
-        prsStream = new PrsStream(this);
         prs = new X10Lexerprs();
         lexParser = new LexParser(this, prs, this);
     }
 
-    public PrsStream lexer()
+    public X10Lexer(char[] input_chars, String filename)
     {
+        this(input_chars, filename, 1);
+    }
+
+    public String[] orderedExportedSymbols() { return X10Parsersym.orderedTerminalSymbols; }
+
+    public void lexer(PrsStream prsStream)
+    {
+        this.prsStream = prsStream;
+
         prsStream.makeToken(0, 0, 0); // Token list must start with a bad token
             
         lexParser.parseCharacters();  // Lex the input characters
@@ -38,7 +38,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         prsStream.makeToken(i, i, TK_EOF_TOKEN); // and end with the end of file token
         prsStream.setSize();
             
-        return prsStream;
+        return;
     }
     //
     // The Lexer contains an array of characters as the input stream to be parsed.
@@ -243,424 +243,424 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             //
             case 1: { 
                 checkForKeyWord();
+                break;
             }
-            break; 
      
             //
             // Rule 2:  Token ::= DoubleQuote SLBody DoubleQuote
             //
             case 2: { 
                 makeToken(TK_StringLiteral);
+                break;
             }
-            break; 
      
             //
             // Rule 3:  Token ::= SingleQuote NotSQ SingleQuote
             //
             case 3: { 
                 makeToken(TK_CharacterLiteral);
+                break;
             }
-            break; 
      
             //
             // Rule 4:  Token ::= IntegerLiteral
             //
             case 4: { 
                 makeToken(TK_IntegerLiteral);
+                break;
             }
-            break; 
      
             //
             // Rule 5:  Token ::= FloatingPointLiteral
             //
             case 5: { 
                 makeToken(TK_FloatingPointLiteral);
+                break;
             }
-            break; 
      
             //
             // Rule 6:  Token ::= Slash Star Inside Stars Slash
             //
             case 6: { 
                 skipToken();
+                break;
             }
-            break; 
      
             //
             // Rule 7:  Token ::= SLC
             //
             case 7: { 
                 skipToken();
+                break;
             }
-            break; 
      
             //
             // Rule 8:  Token ::= WS
             //
             case 8: { 
                 skipToken();
+                break;
             }
-            break; 
      
             //
             // Rule 9:  Token ::= Plus
             //
             case 9: { 
                 makeToken(TK_PLUS);
+                break;
             }
-            break; 
      
             //
             // Rule 10:  Token ::= Minus
             //
             case 10: { 
                 makeToken(TK_MINUS);
+                break;
             }
-            break; 
      
             //
             // Rule 11:  Token ::= Star
             //
             case 11: { 
                 makeToken(TK_MULTIPLY);
+                break;
             }
-            break; 
      
             //
             // Rule 12:  Token ::= Slash
             //
             case 12: { 
                 makeToken(TK_DIVIDE);
+                break;
             }
-            break; 
      
             //
             // Rule 13:  Token ::= LeftParen
             //
             case 13: { 
                 makeToken(TK_LPAREN);
+                break;
             }
-            break; 
      
             //
             // Rule 14:  Token ::= RightParen
             //
             case 14: { 
                 makeToken(TK_RPAREN);
+                break;
             }
-            break; 
      
             //
             // Rule 15:  Token ::= Equal
             //
             case 15: { 
                 makeToken(TK_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 16:  Token ::= Comma
             //
             case 16: { 
                 makeToken(TK_COMMA);
+                break;
             }
-            break; 
      
             //
             // Rule 17:  Token ::= Colon
             //
             case 17: { 
                 makeToken(TK_COLON);
+                break;
             }
-            break; 
      
             //
             // Rule 18:  Token ::= SemiColon
             //
             case 18: { 
                 makeToken(TK_SEMICOLON);
+                break;
             }
-            break; 
      
             //
             // Rule 19:  Token ::= Caret
             //
             case 19: { 
                 makeToken(TK_XOR);
+                break;
             }
-            break; 
      
             //
             // Rule 20:  Token ::= Percent
             //
             case 20: { 
                 makeToken(TK_REMAINDER);
+                break;
             }
-            break; 
      
             //
             // Rule 21:  Token ::= Tilde
             //
             case 21: { 
                 makeToken(TK_TWIDDLE);
+                break;
             }
-            break; 
      
             //
             // Rule 22:  Token ::= VerticalBar
             //
             case 22: { 
                 makeToken(TK_OR);
+                break;
             }
-            break; 
      
             //
             // Rule 23:  Token ::= Ampersand
             //
             case 23: { 
                 makeToken(TK_AND);
+                break;
             }
-            break; 
      
             //
             // Rule 24:  Token ::= LessThan
             //
             case 24: { 
                 makeToken(TK_LESS);
+                break;
             }
-            break; 
      
             //
             // Rule 25:  Token ::= GreaterThan
             //
             case 25: { 
                 makeToken(TK_GREATER);
+                break;
             }
-            break; 
      
             //
             // Rule 26:  Token ::= Dot
             //
             case 26: { 
                 makeToken(TK_DOT);
+                break;
             }
-            break; 
      
             //
             // Rule 27:  Token ::= Exclamation
             //
             case 27: { 
                 makeToken(TK_NOT);
+                break;
             }
-            break; 
      
             //
             // Rule 28:  Token ::= LeftBracket
             //
             case 28: { 
                 makeToken(TK_LBRACKET);
+                break;
             }
-            break; 
      
             //
             // Rule 29:  Token ::= RightBracket
             //
             case 29: { 
                 makeToken(TK_RBRACKET);
+                break;
             }
-            break; 
      
             //
             // Rule 30:  Token ::= LeftBrace
             //
             case 30: { 
                 makeToken(TK_LBRACE);
+                break;
             }
-            break; 
      
             //
             // Rule 31:  Token ::= RightBrace
             //
             case 31: { 
                 makeToken(TK_RBRACE);
+                break;
             }
-            break; 
      
             //
             // Rule 32:  Token ::= QuestionMark
             //
             case 32: { 
                 makeToken(TK_QUESTION);
+                break;
             }
-            break; 
      
             //
             // Rule 33:  Token ::= AtSign
             //
             case 33: { 
                 makeToken(TK_AT);
+                break;
             }
-            break; 
      
             //
             // Rule 34:  Token ::= Plus Plus
             //
             case 34: { 
                 makeToken(TK_PLUS_PLUS);
+                break;
             }
-            break; 
      
             //
             // Rule 35:  Token ::= Minus Minus
             //
             case 35: { 
                 makeToken(TK_MINUS_MINUS);
+                break;
             }
-            break; 
      
             //
             // Rule 36:  Token ::= Equal Equal
             //
             case 36: { 
                 makeToken(TK_EQUAL_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 37:  Token ::= LessThan Equal
             //
             case 37: { 
                 makeToken(TK_LESS_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 38:  Token ::= Exclamation Equal
             //
             case 38: { 
                 makeToken(TK_NOT_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 39:  Token ::= LessThan LessThan
             //
             case 39: { 
                 makeToken(TK_LEFT_SHIFT);
+                break;
             }
-            break; 
      
             //
             // Rule 40:  Token ::= Plus Equal
             //
             case 40: { 
                 makeToken(TK_PLUS_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 41:  Token ::= Minus Equal
             //
             case 41: { 
                 makeToken(TK_MINUS_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 42:  Token ::= Star Equal
             //
             case 42: { 
                 makeToken(TK_MULTIPLY_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 43:  Token ::= Slash Equal
             //
             case 43: { 
                 makeToken(TK_DIVIDE_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 44:  Token ::= Ampersand Equal
             //
             case 44: { 
                 makeToken(TK_AND_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 45:  Token ::= VerticalBar Equal
             //
             case 45: { 
                 makeToken(TK_OR_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 46:  Token ::= Caret Equal
             //
             case 46: { 
                 makeToken(TK_XOR_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 47:  Token ::= Percent Equal
             //
             case 47: { 
                 makeToken(TK_REMAINDER_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 48:  Token ::= LessThan LessThan Equal
             //
             case 48: { 
                 makeToken(TK_LEFT_SHIFT_EQUAL);
+                break;
             }
-            break; 
      
             //
             // Rule 49:  Token ::= VerticalBar VerticalBar
             //
             case 49: { 
                 makeToken(TK_OR_OR);
+                break;
             }
-            break; 
      
             //
             // Rule 50:  Token ::= Ampersand Ampersand
             //
             case 50: { 
                 makeToken(TK_AND_AND);
+                break;
             }
-            break; 
      
             //
             // Rule 51:  Token ::= Dot Dot Dot
             //
             case 51: { 
                 makeToken(TK_ELLIPSIS);
+                break;
             }
-            break; 
      
             //
             // Rule 349:  Token ::= Dot Dot
             //
             case 349: { 
                  makeToken(TK_RANGE);
-             }
-            break; 
+                 break;
+            }
       
             //
             // Rule 350:  Token ::= Minus GreaterThan
             //
             case 350: { 
                 makeToken(TK_RANGE);
+                break;
             }
-            break; 
      
             //
             // Rule 351:  IntLiteralAndRange ::= Integer Dot Dot
@@ -668,8 +668,8 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             case 351: { 
                 makeToken(lexParser.getToken(1), lexParser.getLastToken(1), TK_IntegerLiteral);
                 makeToken(lexParser.getToken(2), lexParser.getToken(3), TK_RANGE);
+                break;
             }
-            break; 
         
             default:
                 break;

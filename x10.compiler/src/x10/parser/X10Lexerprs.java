@@ -3,7 +3,6 @@
 package x10.parser;
 
 import com.ibm.lpg.*;
-import java.io.*;
 
 class X10Lexerprs implements ParseTable, X10Lexersym {
 

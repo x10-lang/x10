@@ -3,6 +3,10 @@ package polyglot.ext.x10;
 import java.io.Reader;
 import java.util.List;
 
+import com.ibm.lpg.LexStream;
+
+import x10.parser.*;
+
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.parse.Grm;
@@ -40,10 +44,18 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         return "x10c";
     }
 
+//    public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
+//        Lexer lexer = new Lexer_c(reader, source.name(), eq);
+//        Grm grm = new Grm(lexer, ts, nf, eq);
+//        return new CupParser(grm, source, eq);
+//    }
+    
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
-        Lexer lexer = new Lexer_c(reader, source.name(), eq);
-        Grm grm = new Grm(lexer, ts, nf, eq);
-        return new CupParser(grm, source, eq);
+    	Option option = new Option(source.name());
+        X10Lexer x10_lexer = new X10Lexer(option); // Create the lexer
+        X10Parser x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
+        x10_lexer.lexer(x10_parser);
+        return x10_parser; // Parse the token stream to produce an AST
     }
 
     protected NodeFactory createNodeFactory() {
