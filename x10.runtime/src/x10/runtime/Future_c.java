@@ -13,7 +13,7 @@ import x10.lang.X10Object;
  * 
  * @author Christian Grothoff
  */
-final class Future_c implements Future {
+final class Future_c extends Future {
 
     private boolean haveResult_;
     

@@ -6,11 +6,11 @@ package x10.lang;
 /**
  * @author Christian Grothoff
  */
-public interface Future {
+public abstract class Future extends X10Object {
 
 	/**    
 	 * Wait for the completion of this activity and return the
 	 * return value.   
 	 */    
-	public X10Object force();    
+	public abstract X10Object force();    
 }

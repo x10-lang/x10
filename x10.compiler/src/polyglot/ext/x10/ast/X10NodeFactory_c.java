@@ -64,11 +64,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return (Here) f.del(delFactory().delStmt());
     }
     
-    public Force Force(Position pos, Expr expr) {
-        Force f = new Force_c(pos, expr);
-        f = (Force) f.ext(extFactory().extStmt());
-        return (Force) f.del(delFactory().delStmt());
-    }
+  
     
     public When When(Position pos, List exprs, List statements) {
         When w = new When_c(pos, exprs, statements);
