@@ -9,6 +9,7 @@ package x10.array;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.HashSet;
 import java.util.Set;
 
 import x10.lang.PointOutOfRegionError;
@@ -25,6 +26,53 @@ public class ArbitraryRegion extends region {
     private ArbitraryRegion(int rank) {
         super(rank);
         points_ = new TreeSet();
+    }
+    
+    private static class PointComparator_ implements java.util.Comparator {
+        public int compare(java.lang.Object o1, java.lang.Object o2) {
+            point_c p1 = (point_c) o1;
+            point_c p2 = (point_c) o2;
+            return p1.compareTo(p2);
+        }
+        public boolean equals(Object o) {
+            return false;
+        }
+    };
+    
+    public ArbitraryRegion(region[] dims) {
+        super(dims.length);
+        int sz = dims[0].size();
+        int sz_total = sz;
+        for (int i = 1; i < dims.length; ++ i) {
+            assert dims[i].size() == sz;
+            assert dims[i].rank == 1;;
+        }
+ 
+        points_ = new TreeSet(new PointComparator_());
+        HashSet x = new HashSet();
+        permutations_(x, new int[]{}, dims);
+        points_.addAll(x);
+        System.out.println( "x=== " + x.size() + "   points===" + points_.size());
+    }
+    
+    /* create all points in the region that is spawned by the dimensions in var */
+    private void permutations_(Set hs, int[] fix, region[] var) {
+        if (var.length == 0) {
+            point new_point = point.factory.point(ArbitraryRegion.this, fix);
+            hs.add(new_point);
+        } else {
+            region[] var_new = new region[var.length - 1];
+            System.arraycopy(var, 1, var_new, 0, var.length - 1);
+            region cur_reg = var[0];
+            int[] fix_new = new int[fix.length + 1];
+            System.arraycopy(fix, 0, fix_new, 0, fix.length);
+            for (Iterator it = cur_reg.iterator(); it.hasNext(); ) {
+                point tmp = (point) it.next();
+                int tmp_i = tmp.valueAt(0);
+                fix_new[fix.length] = tmp_i;
+                permutations_(hs, fix_new, var_new);
+            }
+        }
     }
     
     public ArbitraryRegion(int rank, Set points) {
