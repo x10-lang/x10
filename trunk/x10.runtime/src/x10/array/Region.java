@@ -25,17 +25,21 @@ public interface Region extends TypeArgument {
 
 	public Region difference(Region r);
 	
-	public Region intersect(Region r);
+	public Region intersection(Region r);
 	
     public Range range(int i);
     
     public Range[] dim();
 	
-    public boolean contains(Region r);
+    public boolean subset(Region r);
 	
     public boolean contains(int[] p);
 	
     public int ordinal(int[] p);
 	
     public Iterator iterator();
+    
+    public boolean equals(Object o);
+    
+    public int hashCode();
 }
