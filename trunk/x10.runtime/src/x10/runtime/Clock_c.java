@@ -17,7 +17,7 @@ import x10.lang.Runtime;
  * 
  * @author Christian Grothoff, Christoph von Praun
  */
-final class Clock_c extends Clock {
+public final class Clock_c extends Clock {
 
     private static int idgen = 0; 
     
