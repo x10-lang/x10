@@ -145,7 +145,8 @@ public class TestX10_Compiler extends TestCase {
 		} catch (ClassFormatError cfe) {
 			fail(cfe.toString());
 		} catch (IllegalAccessException iae) {
-			fail(iae.toString());
+			iae.printStackTrace();
+            fail(iae.toString());
 		}
 	}
 	
