@@ -235,6 +235,10 @@ public TestCompiler(String name) {
         run("./FutureTest2.x10","FutureTest2");
     }
 
+    public void test_GameOfLife() {
+        run("./GameOfLife.x10","GameOfLife");
+    }
+
     public void test_ImportTest() {
         run("./ImportTest.x10","ImportTest");
     }
@@ -375,10 +379,6 @@ public TestCompiler(String name) {
 
     public void test_VariableScope() {
         run("./VariableScope.x10","VariableScope");
-    }
-
-    public void test_gameOfLife() {
-        run("./gameOfLife.x10","gameOfLife");
     }
 
     public static void main(String args[]) {
