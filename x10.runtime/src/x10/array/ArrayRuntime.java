@@ -4,11 +4,12 @@
 package x10.array;
 
 import x10.array.sharedmemory.Runtime_c;
-import x10.base.Place;
 import x10.base.Runtime;
+import x10.runtime.Place;
 
 /**
  * @author Christoph von Praun
+ * @author vj
  */
 public abstract class ArrayRuntime implements Runtime {
     

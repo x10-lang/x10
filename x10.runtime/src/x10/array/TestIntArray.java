@@ -4,6 +4,10 @@
 package x10.array;
 
 import junit.framework.TestCase;
+import x10.lang.Runtime;
+import x10.lang.region;
+import x10.lang.distribution;
+import x10.lang.place;
 
 /**
  * @author Christoph von Praun
@@ -11,20 +15,19 @@ import junit.framework.TestCase;
 public class TestIntArray extends TestCase {
 
     public void testToJava() {
-        ArrayFactory.init(ArrayRuntime.getRuntime());
+        // ArrayFactory.init(ArrayRuntime.getRuntime());
         try {
             final int SIZE = 3;
-            Range[] ranges = { ArrayFactory.newRange(0, SIZE - 1),
-                    ArrayFactory.newRange(0, SIZE - 1) };
-            Region r = ArrayFactory.newRegion(ranges);
-            Distribution d = ArrayFactory.newHereDistribution(r);
-            IntArray ia = ArrayFactory.newIntArray(d, new Operator.Pointwise() {
-                public int apply(int[] p, int i) {
-                    return 12;
-                }
-            });
-
-            int[][] a1 = (int[][]) ia.toJava();
+            Runtime.Factory F = Runtime.factory;
+            region.factory rf = F.getRegionFactory();
+            region[] ranges = { rf.region(0, SIZE - 1), rf.region(0, SIZE-1)};
+            region r = rf.region(ranges);
+            distribution.factory DF = F.getDistributionFactory();
+            distribution d = DF.constant(r, Runtime.here());
+            IntArray.factory IF = Runtime.factory.getIntArrayFactory();
+            x10.lang.IntArray value = IF.IntArray(d, 12);
+    
+            int[][] a1 = (int[][]) ((IntArray) value).toJava();
             int[][] a2 = new int[][] { { 12, 12, 12 }, { 12, 12, 12 },
                     { 12, 12, 12 } };
             printArray_("a1 = ", a1);

@@ -4,6 +4,7 @@
 package x10.array;
 
 import x10.base.TypeArgument;
+import x10.lang.region;
 
 /**
  * Ranges are a collection of points in the int space.
@@ -12,52 +13,44 @@ import x10.base.TypeArgument;
  * 
  * @author Christoph von Praun
  * @author Christian Grothoff
+ * @author vj
  */
-public abstract class Range implements TypeArgument {
-
-    /**
-     * Cardinality of the range, i.e., the number of element in the integer
-     * space it covers.
-     */
-    public final int count;
-
-    public final int lo;
-
-    public final int hi;
-
-    
-    public Range (int l, int h, int c) {
-        lo = l;
-        hi = h;
-        count = c;
-        assert hi >= lo;
-    }
-    
-    /**
-     * @param ord the ordinal number, must be smaller than size()
-     * @return the coordinate that has ordinal number ord
-     */
-    public abstract int coord(int ord);
-    
-    /**
-     * @param p a point in the coordinate space
-     * @return the ordinal number of the point [0 ... size()[
-     */
-	public abstract int ordinal(int p);
+public abstract class Range 
+extends region/*(1)*/
+implements TypeArgument {
 	
-	public abstract Range union(Range r);
+	/**
+	 * Cardinality of the range, i.e., the number of element in the integer
+	 * space it covers.
+	 */
+	public final int size;
+	public final int lo;
+	public final int hi;
 	
-	public abstract Range intersect(Range r);
-
-	public abstract Range difference(Range r);
-
-	public abstract boolean contains(int p);
-
-	public abstract boolean contains(Range r);
-
-	public abstract String toString(); 
+	public Range (int l, int h, int c) {
+		super(1);
+		lo = l;
+		hi = h;
+		size = c;
+		assert hi >= lo;
+	}
+	public int ordinal(int j) {
+		return j-lo;
+	}
+	public boolean contains(int i) {
+		return lo <= i && i < hi;
+	}
+	public int high() {
+		return hi;
+	}
+	public int low() {
+		return lo;
+	}
+	/**
+	 * Returns itself -- this is the 1-d region at index (i % 1) = 0.
+	 */
+	public region rank(long i) {
+		return this;
+	}
 	
-	public abstract boolean equals(Object o);
-	
-	public abstract int hashCode();
 }

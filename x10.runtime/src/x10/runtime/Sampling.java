@@ -10,8 +10,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Iterator;
+import x10.runtime.Place;
 
-import x10.base.Place;
 import x10.lang.Activity;
 import x10.lang.Runtime;
 
@@ -128,7 +128,7 @@ public final class Sampling extends Thread {
      * Create the sampler.
      */
     private Sampling() {
-        DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime.getRuntime();
+        DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime.runtime;
         this.places  = rt.getPlaces();
         try {
             dos = new DataOutputStream
@@ -457,7 +457,7 @@ public final class Sampling extends Thread {
      */
     public static class ActivityCounter extends Collector {
         public void activate() {
-            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime.getRuntime();
+            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime.runtime;
             dr.registerActivitySpawnListener(dr.getCurrentActivity(),
                                              new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,
@@ -483,7 +483,7 @@ public final class Sampling extends Thread {
      */
     public static class InterPlaceCommunicationCounter extends Collector {
         public void activate() {
-            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime.getRuntime();
+            final DefaultRuntime_c dr = (DefaultRuntime_c)x10.lang.Runtime.runtime;
             dr.registerActivitySpawnListener(dr.getCurrentActivity(),
                                              new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,

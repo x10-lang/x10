@@ -139,6 +139,11 @@ public final class Configuration {
             pos++;
         }        
         MAIN_CLASS_NAME = args[pos++];
+        // vj hack to let Eclipse x10 command run with ${resource_loc}
+        if (MAIN_CLASS_NAME.endsWith(".java"))
+        	MAIN_CLASS_NAME = MAIN_CLASS_NAME.substring(0, MAIN_CLASS_NAME.length()-5);
+        else  if (MAIN_CLASS_NAME.endsWith(".x10"))
+        	MAIN_CLASS_NAME = MAIN_CLASS_NAME.substring(0, MAIN_CLASS_NAME.length()-3);
         int aa = args.length-pos;
         String[] appArgs = new String[aa];
         System.arraycopy(args, pos, appArgs, 0, aa);

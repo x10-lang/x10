@@ -4,23 +4,37 @@
 package x10.array;
 
 import java.util.Iterator;
+import x10.lang.distribution;
+import x10.lang.point;
 
 /**
  * @author Christoph von Praun
  * 
  * Double Arrays are currently not implemented.
  */
-public abstract class DoubleArray extends Array {
-    public DoubleArray(Distribution d) {
+public abstract class DoubleArray extends x10.lang.DoubleArray {
+    public DoubleArray(distribution d) {
         super(d);
     }
+    
+    public static class Assign extends Operator.Scan {
+        private final double c_;
 
-    protected void assign(Array rhs) {
+        public Assign(double c) {
+            c_ = c;
+        }
+
+        public double apply(double i) {
+            return c_;
+        }
+    }
+
+    protected void assign(DoubleArray rhs) {
         assert rhs instanceof DoubleArray;
 
         DoubleArray rhs_t = (DoubleArray) rhs;
-        for (Iterator it = rhs_t.dist.iterator(); it.hasNext();) {
-            int[] pos = (int[]) it.next();
+        for (Iterator it = rhs_t.distribution.region.iterator(); it.hasNext();) {
+            point pos = (point) it.next();
             set(rhs_t.get(pos), pos);
         }
     }
@@ -29,9 +43,9 @@ public abstract class DoubleArray extends Array {
 	 * Generic implementation - an array with fixed, known number of dimensions
 	 * can of course do without the Iterator.
 	 */
-	public void pointwise(Array res, Operator.Pointwise op, Array arg) {
-	    assert res.dist.equals(dist);
-        assert arg.dist.equals(dist);
+	public void pointwise(DoubleArray res, Operator.Pointwise op, DoubleArray arg) {
+	    assert res.distribution.equals(distribution);
+        assert arg.distribution.equals(distribution);
         /*
          * the following assertions are limitation that are in the current
          * implementation, not in the spec FIXME
@@ -41,8 +55,8 @@ public abstract class DoubleArray extends Array {
 		
 		DoubleArray arg_t = (DoubleArray) arg;
 		DoubleArray res_t = (DoubleArray) res;
-		for (Iterator it = dist.iterator(); it.hasNext(); ) {
-			int[] p = (int[]) it.next();
+		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+			point p = (point) it.next();
 			double arg1 = get(p);
 			double arg2 = arg_t.get(p);
 			double val = op.apply(p, arg1, arg2);
@@ -50,8 +64,8 @@ public abstract class DoubleArray extends Array {
 		}
 	}
 	
-	public void pointwise(Array res, Operator.Pointwise op) {
-	    assert res.dist.equals(dist);
+	public void pointwise(DoubleArray res, Operator.Pointwise op) {
+	    assert res.distribution.equals(distribution);
         /*
          * the following assertions are limitation that are in the current
          * implementation, not in the spec FIXME
@@ -59,8 +73,8 @@ public abstract class DoubleArray extends Array {
         assert res instanceof DoubleArray;
         
         DoubleArray res_t = (DoubleArray) res;
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-			int[] p = (int[]) it.next();
+        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+			point p = (point) it.next();
 			double arg1 = get(p);
 			double val = op.apply(p, arg1);
 			res_t.set(val, p);
@@ -68,27 +82,41 @@ public abstract class DoubleArray extends Array {
 	}
 	
 	public void reduction(Operator.Reduction op) {
-		for (Iterator it = dist.iterator(); it.hasNext(); ) {
-			int[] p = (int[]) it.next();
+		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+			point p = (point) it.next();
 			double arg1 = get(p);
 			op.apply(arg1);
 		}
 	}
 	
-	public void scan(Array res, Operator.Scan op) {
-	    assert res.dist.equals(dist);
+	public void scan(DoubleArray res, Operator.Scan op) {
+	    assert res.distribution.equals(distribution);
         /*
          * the following assertions are limitation that are in the current
          * implementation, not in the spec FIXME
          */
         assert res instanceof DoubleArray;
         DoubleArray res_t = (DoubleArray) res;
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-			int[] p = (int[]) it.next();
+        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+			point p = (point) it.next();
 			double arg1 = get(p);
 			res_t.set(op.apply(arg1), p);
 		}
 	}
+	
+	  public void scan( DoubleArray res, pointwiseOp op ) {
+        assert res == null || res instanceof DoubleArray;
+        assert res.distribution.equals(distribution);
+
+        DoubleArray res_t = (res == null) ? null : (DoubleArray) res;
+        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+            point p = (point) it.next();
+            double val = op.apply(p);
+            if (res_t != null)
+                res_t.set(val, p);
+        }
+    }
+    
 	
 	public void circshift (int[] args) {
 		throw new RuntimeException("TODO");
@@ -97,7 +125,7 @@ public abstract class DoubleArray extends Array {
     /**
      * Generic flat access.
      */
-    public abstract void set(double v, int[] pos);
+    public abstract void set(double v, point pos);
 
     public abstract void set(double v, int d0);
 
@@ -110,7 +138,7 @@ public abstract class DoubleArray extends Array {
     /**
      * Generic flat access.
      */
-    public abstract double get(int[] pos);
+    public abstract double get(point pos);
 
     public abstract double get(int d0);
 

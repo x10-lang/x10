@@ -3,6 +3,8 @@
  */
 package x10.array;
 
+import x10.lang.point;
+
 /**
  * Base class for reduction and scan operations on arrays. Implementations
  * override one of the methods. The default implementation of each operator throws a
@@ -21,75 +23,75 @@ public abstract class Operator {
 	 * apply function is the current value at the current position in the array. 
 	 */
 	public static abstract class Pointwise extends Operator {
-		public boolean apply(int[] p, boolean i) {
+		public boolean apply(point p, boolean i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public byte apply(int[] p, byte i) {
+		public byte apply(point p, byte i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public char apply(int[] p, char i) {
+		public char apply(point p, char i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public short apply(int[] p, short i) {
+		public short apply(point p, short i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public int apply(int[] p, int i) {
+		public int apply(point p, int i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public long apply(int[] p, long i) {
+		public long apply(point p, long i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public float apply(int[] p, float i) {
+		public float apply(point p, float i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public double apply(int[] p, double i) {
+		public double apply(point p, double i) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public Object apply(int[] p, Object i) {
+		public Object apply(point p, Object i) {
 			throw new RuntimeException(ERR_);
 		}
 		
-		public boolean apply(int[] p, boolean i, boolean j) {
+		public boolean apply(point p, boolean i, boolean j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public byte apply(int[] p, byte i, byte j) {
+		public byte apply(point p, byte i, byte j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public char apply(int[] p, char i, char j) {
+		public char apply(point p, char i, char j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public short apply(int[] p, short i, short j) {
+		public short apply(point p, short i, short j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public int apply(int[] p, int i, int j) {
+		public int apply(point p, int i, int j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public long apply(int[] p, long i, long j) {
+		public long apply(point p, long i, long j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public float apply(int[] p, float i, float j) {
+		public float apply(point p, float i, float j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public double apply(int[] p, double i, double j) {
+		public double apply(point p, double i, double j) {
 			throw new RuntimeException(ERR_);
 		}
 
-		public Object apply(int[] p, Object i, Object j) {
+		public Object apply(point p, Object i, Object j) {
 			throw new RuntimeException(ERR_);
 		}
 	}
