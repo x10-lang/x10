@@ -180,13 +180,13 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
         
         final Object ret = java.lang.reflect.Array.newInstance(Integer.TYPE, dims_tmp);
         pointwise(null, new Operator.Pointwise() {
-            public int apply(int[] p, int arg) {
+            public int apply(point p, int arg) {
                 Object handle = ret;
                 int i = 0;
                 for (; i < dims_tmp.length - 1; ++i) {
-                    handle = java.lang.reflect.Array.get(handle, p[i]);
+                    handle = java.lang.reflect.Array.get(handle, p.valueAt(i));
                 }
-                java.lang.reflect.Array.setInt(handle, p[i], arg);
+                java.lang.reflect.Array.setInt(handle, p.valueAt(i), arg);
                 return arg;
             }
         });
