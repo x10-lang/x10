@@ -84,6 +84,6 @@ public class TestRuntime extends TestCase {
         assertTrue(f.force().getClass() == X10Object.class);
     }
 
-        
     
-}
+    
+} // end of TestRuntime
