@@ -33,7 +33,7 @@ public abstract class DoubleArray extends DoubleReferenceArray {
     protected void assign(DoubleArray rhs) {
         assert rhs instanceof DoubleArray;
 
-        DoubleArray rhs_t = (DoubleArray) rhs;
+        DoubleArray rhs_t =  rhs;
         for (Iterator it = rhs_t.distribution.region.iterator(); it.hasNext();) {
             point pos = (point) it.next();
             set(rhs_t.get(pos), pos);
@@ -54,8 +54,8 @@ public abstract class DoubleArray extends DoubleReferenceArray {
         assert arg instanceof DoubleArray;
         assert res instanceof DoubleArray;
 		
-		DoubleArray arg_t = (DoubleArray) arg;
-		DoubleArray res_t = (DoubleArray) res;
+		DoubleArray arg_t =  arg;
+		DoubleArray res_t = res;
 		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			double arg1 = get(p);
