@@ -6,6 +6,7 @@ import java.util.List;
 import x10.parser.*;
 
 import polyglot.ast.NodeFactory;
+import polyglot.ext.x10.Version;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.X10Boxer;
@@ -29,7 +30,10 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         // force Topics to load
         Topics t = new Topics();
     }
-
+    
+    public polyglot.main.Version version() {
+    	return new Version();
+    }
     public String defaultFileExtension() {
         return "x10";
     }
