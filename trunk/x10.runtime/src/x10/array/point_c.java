@@ -26,7 +26,9 @@ public class point_c extends point implements Comparable {
 		super(region);
 		assert region.rank == val.length;
 		assert region.contains(val);
-		this.val = val;
+		// make a copy of the array!
+        this.val = new int[val.length];
+        System.arraycopy(val, 0, this.val, 0, val.length);
 		
 		// compute hash
 		int b = 378551;
