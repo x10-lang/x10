@@ -221,6 +221,7 @@ public final class Clock_c extends Clock {
     private boolean tryAdvance() {
         if ( (nowSet_.size() == 0) && 
              (pending_.size() == 0)) {
+            // no locking - the issue is double checked in method advance...
             advance();
             return true;
         } else
@@ -233,28 +234,31 @@ public final class Clock_c extends Clock {
      * that are waiting to get them going again.
      */
     private synchronized void advance() {
-        assert pending_.size() == 0;
-        assert nowSet_.size() == 0;
-        this.phase_++;
-        if (Sampling.SINGLETON != null)
-            Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_CLOCK_ADVANCE,
-                    this.id);
-        // first notify everyone
-        if (this.listener1_ != null) {
-            this.listener1_.notifyAdvance();
-            if (this.listeners_ != null) {
-                int size = listeners_.size();
-                for (int i=0;i<size;i++)
-                    ((AdvanceListener)listeners_.elementAt(i)).notifyAdvance();
+        // double check ...
+        if ( (nowSet_.size() == 0) && 
+             (pending_.size() == 0)) {
+            
+            this.phase_++;
+            if (Sampling.SINGLETON != null)
+                Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_CLOCK_ADVANCE,
+                        this.id);
+            // first notify everyone
+            if (this.listener1_ != null) {
+                this.listener1_.notifyAdvance();
+                if (this.listeners_ != null) {
+                    int size = listeners_.size();
+                    for (int i=0;i<size;i++)
+                        ((AdvanceListener)listeners_.elementAt(i)).notifyAdvance();
+                }
             }
+            
+            Iterator it = activities_.iterator();
+            while (it.hasNext()) {
+                Activity a = (Activity) it.next();
+                pending_.add(a);
+            }
+            notifyAll();
         }
-        
-        Iterator it = activities_.iterator();
-        while (it.hasNext()) {
-            Activity a = (Activity) it.next();
-            pending_.add(a);
-        }
-        notifyAll();
     }
 
     /**
