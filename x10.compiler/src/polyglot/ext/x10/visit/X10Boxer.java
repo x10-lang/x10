@@ -26,9 +26,16 @@ public class X10Boxer extends AscriptionVisitor
         super(job, ts, nf);
     }
 
+    /* 
+     * This method rewrites an AST node. We have to be careful also to 
+     * provide type information with the newly created node, because the 
+     * type checker ran before this pass and the node must hence be annotated.
+     * Just calling the node factory is not sufficient.
+     */
     public Expr ascribe(Expr e, Type toType) {
         Type fromType = e.type();
-
+        Expr ret_notype;
+        
         if (toType == null) {
             return e;
         }
@@ -49,18 +56,21 @@ public class X10Boxer extends AscriptionVisitor
         	    if (fromType.isPrimitive()) {
         	        Type boxed_t = ((X10TypeSystem) ts).boxedType((PrimitiveType) fromType);
             	    call_n = (Call) call_n.type(boxed_t);
-            	    return nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
+            	    ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
         	    } else {
-        	       return nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
+        	        ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
         	    }
+        	    return ret_notype.type(target_t);
         	}
         }
         
         
         // Insert a cast.  Translation of the cast will insert the
         // correct boxing/unboxing code.
-        if (fromType.isPrimitive() && toType.isReference()) 
-                return nf.Cast(p, nf.CanonicalTypeNode(p, toType), e);
+        if (fromType.isPrimitive() && toType.isReference()) {
+            ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, toType), e);
+            return ret_notype.type(toType);
+        }
   
         return e;
     }
