@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import x10.runtime.ActivityInformation;
-import x10.runtime.Clock;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
@@ -27,7 +26,7 @@ import x10.runtime.Place;
  * @see Place
  * @see Activity
  */
-public abstract class Runtime implements x10.base.Runtime {
+public abstract class Runtime {
 
     /* 
      * This field is intentionally private, obtain an instance through 
@@ -114,6 +113,10 @@ public abstract class Runtime implements x10.base.Runtime {
      */
     protected abstract void run(String[] args) throws Exception;
 
+    public abstract Place currentPlace();
+    
+    public abstract Place[] getPlaces();
+    
     /**
      * @return The place where the current execution takes place 
      * ('here' in X10).
