@@ -6,7 +6,6 @@ package x10.array;
 
 import java.util.Iterator;
 import x10.lang.distribution;
-import x10.lang.region;
 import x10.lang.point;
 
 
