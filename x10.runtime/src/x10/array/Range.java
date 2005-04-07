@@ -3,7 +3,6 @@
  */
 package x10.array;
 
-import x10.base.TypeArgument;
 import x10.lang.point;
 import x10.lang.region;
 
@@ -17,8 +16,7 @@ import x10.lang.region;
  * @author vj
  */
 public abstract class Range 
-extends region/*(1)*/
-implements TypeArgument {
+extends region/*(1)*/ {
 	
 	/**
 	 * Cardinality of the range, i.e., the number of element in the integer

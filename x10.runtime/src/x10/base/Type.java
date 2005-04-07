@@ -1,9 +1,8 @@
 /*
  * Created on Oct 14, 2004
  */
-package x10.runtime;
+package x10.base;
 
-import x10.base.TypeArgument;
 import x10.lang.Runtime;
 
 /**
