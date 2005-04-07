@@ -1,7 +1,7 @@
 package x10.lang;
 
-import java.util.Iterator;
-
+import /*x10*/java.util.Iterator;
+import x10.base.TypeArgument;
 
 
 /**
@@ -17,7 +17,7 @@ import java.util.Iterator;
  
  * @author vj
  */
-public abstract /*value*/ class region extends Object  {
+public abstract /*value*/ class region extends Object implements TypeArgument {
 	// nat is translated to int for now.
 	public final /*nat*/ /*long*/ int rank;
 	

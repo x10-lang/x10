@@ -1,6 +1,5 @@
 package x10.runtime;
 
-import x10.base.TypeArgument;
 import x10.lang.Future;
 import x10.lang.Runtime;
 import x10.lang.place;
@@ -10,7 +9,7 @@ import x10.lang.place;
  * @author Christian Grothoff
  */
 public abstract class Place extends place 
-implements TypeArgument, Comparable {
+implements Comparable {
 	
 	private static int count_ = 0;
 
