@@ -10,6 +10,12 @@ What you need:
    Java installation that you want to use to translate and run x10 
    programs. The 'java' and 'javac' command shall be found at 
    $JAVA_HOME/bin/ (Unix style).
+ - set the PLATFORM environment variable according to your platform.
+   This will correspond to the subdirectory under tests/lib where
+   native libraries are kept.  For 32-bit Windows on x86 hardware,
+   the string is win32_x86.  For AIX on PowerPC it is aix_ppc.
+   The naming convention is <OperatingSystem>"_"<Hardware>, consistent
+   with Eclipses ${system:OS} and ${system:ARCH} variables.
  - run the build.xml ant script in the root directory of the x10
    installation.  
    o if you call ant from within eclipse, then specify the 
@@ -29,7 +35,7 @@ Procedure:
        x10 and x10c with ant/cygwin and also run those scripts within 
        cygwin!
 
- - cd x10/examples/testcases/working
+ - cd x10/tests/Constructs/Future
  - x10c Future1Boxed.x10 (this will create .java files and translate
    them with javac to class files)
  - x10 Future1Boxed (will start the x10 runtime and run that program).
@@ -41,7 +47,8 @@ Procedure:
  - choose "Run" from menu
    - main class: ployglot.main.Main
    - program arguments: -ext x10 ${resource_name}
-   - vm args: -Dx10.configuration=${project_loc}/etc/standard.cfg
+   - vm args: -Dx10.configuration=${project_loc}/etc/standard.cfg 
+              -Djava.library.path=${project_loc}/tests/lib/${system:OS}_${system:ARCH}
    - working directory: ${container_loc}
 
  - right-click on the example to be executed:
@@ -49,7 +56,7 @@ Procedure:
    - main class: x10.lang.Runtime
    - program arguments: Future1Boxed
    - classpath - User Entries - Advanced: add path 
-     x10/examples/testcases/working
+     x10/tests/Constructs/Future
    - click OK
 
 
