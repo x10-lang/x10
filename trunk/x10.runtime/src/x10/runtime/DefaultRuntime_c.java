@@ -351,8 +351,7 @@ public class DefaultRuntime_c
     		public distribution.factory getDistributionFactory() {
     			return new DistributionFactory();
     		}
-    		public point.factory getPointFactory() {
-    	
+    		public point.factory getPointFactory() {    	
     			return new point_c.factory();
     		}
     		public clock.factory getClockFactory() {

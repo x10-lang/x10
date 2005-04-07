@@ -6,9 +6,6 @@
 package x10.array;
 
 import java.util.Iterator;
-
-import x10.array.sharedmemory.Distribution_c;
-import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
 import x10.lang.Runtime;

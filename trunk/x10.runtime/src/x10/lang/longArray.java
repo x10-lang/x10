@@ -2,8 +2,6 @@ package x10.lang;
 
 import java.util.Iterator;
 
-import x10.lang.doubleArray.unaryOp;
-
 /** The base class for all (value or reference) multidimensional,
  * distributed long arrays in X10.  Is a subclass-only mutable class
  * (has no mutable state, and all methods are value methods).

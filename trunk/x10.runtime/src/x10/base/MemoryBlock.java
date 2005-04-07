@@ -3,9 +3,6 @@
  */
 package x10.base;
 
-import x10.array.point_c;
-import x10.lang.Indexable;
-
 /**
  * @author Christoph von Praun
  */
