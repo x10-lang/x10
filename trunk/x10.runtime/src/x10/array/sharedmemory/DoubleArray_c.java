@@ -244,9 +244,14 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public double set(double v, int d0, int d1) {
     	assert this.region.rank == 2;
-        int[] pos = {d0, d1};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
+    	if(false){
+    		int[] pos = {d0, d1};
+    		final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+    		return set(v, p);
+    	}else {
+    		int theIndex= d1 + (d0 *region.rank(1).size());
+    		return arr_.setDouble(v,theIndex);
+    	}
     }
     
     public double set(double v, int d0, int d1, int d2) {
@@ -280,9 +285,15 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     }
     public double get(int d0, int d1) {
     	assert this.region.rank == 2;
-        int[] pos = {d0, d1};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	if(false){
+    		int[] pos = {d0, d1};
+    		final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+    		return get(p);
+    	}else {
+    		int theIndex= d1 + (d0 *region.rank(1).size());
+    		
+    		return arr_.getDouble(theIndex);
+    	}
     }
     
     public double get(int d0, int d1, int d2) {
