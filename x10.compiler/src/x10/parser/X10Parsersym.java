@@ -125,7 +125,6 @@ interface X10Parsersym {
       TK_atomic = 77,
       TK_await = 92,
       TK_boxed = 131,
-      TK_clocked = 126,
       TK_current = 22,
       TK_extern = 116,
       TK_finish = 93,
@@ -140,7 +139,7 @@ interface X10Parsersym {
       TK_now = 18,
       TK_nullable = 19,
       TK_or = 7,
-      TK_placelocal = 127,
+      TK_placelocal = 126,
       TK_reference = 5,
       TK_unsafe = 113,
       TK_value = 3,
@@ -153,6 +152,7 @@ interface X10Parsersym {
       TK_RIGHT_SHIFT_EQUAL = 137,
       TK_UNSIGNED_RIGHT_SHIFT_EQUAL = 138,
       TK_EOF_TOKEN = 117,
+      TK_clocked = 127,
       TK_$error = 139;
 
       public final static String orderedTerminalSymbols[] = {
@@ -282,8 +282,8 @@ interface X10Parsersym {
                  "implements",
                  "package",
                  "activitylocal",
-                 "clocked",
                  "placelocal",
+                 "clocked",
                  "RANGE",
                  "enum",
                  "goto",
