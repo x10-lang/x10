@@ -79,9 +79,13 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
             System.out.println("polyglot.ext.x10.ExtensionInfo: disabled passes: " + getOptions().disable_passes);
         }
         
-        beforePass(passes, Pass.PRE_OUTPUT_ALL,
-                new VisitorPass(ATOMIC_ELIMINATION,
-                        job, new AtomicElimination()));
+        // The elimination of synchronization may lead JiT's to promote local variables
+        // to memory where it it not permissible -- example would be AsyncTest1, which could fail
+        // if the atomic elimination is enabled.
+        
+        // beforePass(passes, Pass.PRE_OUTPUT_ALL,
+        //        new VisitorPass(ATOMIC_ELIMINATION,
+        //                job, new AtomicElimination()));
         
         // Schedule elimination of async / future after the atomic elimination 
         // because atomic eliminiation might create additional opportunities.
