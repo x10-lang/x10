@@ -47,8 +47,7 @@ Procedure:
  - choose "Run" from menu
    - main class: ployglot.main.Main
    - program arguments: -ext x10 ${resource_name}
-   - vm args: -Dx10.configuration=${project_loc}/etc/standard.cfg 
-              -Djava.library.path=${project_loc}/examples/lib/${system:OS}_${system:ARCH}
+   - VM args: -Djava.library.path=${project_loc}/examples/lib/${system:OS}_${system:ARCH}
    - working directory: ${container_loc}
 
  - right-click on the example to be executed:
