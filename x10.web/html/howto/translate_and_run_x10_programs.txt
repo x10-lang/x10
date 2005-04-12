@@ -35,7 +35,7 @@ Procedure:
        x10 and x10c with ant/cygwin and also run those scripts within 
        cygwin!
 
- - cd x10/tests/Constructs/Future
+ - cd x10/examples/Constructs/Future
  - x10c Future1Boxed.x10 (this will create .java files and translate
    them with javac to class files)
  - x10 Future1Boxed (will start the x10 runtime and run that program).
@@ -48,7 +48,7 @@ Procedure:
    - main class: ployglot.main.Main
    - program arguments: -ext x10 ${resource_name}
    - vm args: -Dx10.configuration=${project_loc}/etc/standard.cfg 
-              -Djava.library.path=${project_loc}/tests/lib/${system:OS}_${system:ARCH}
+              -Djava.library.path=${project_loc}/examples/lib/${system:OS}_${system:ARCH}
    - working directory: ${container_loc}
 
  - right-click on the example to be executed:
@@ -56,7 +56,7 @@ Procedure:
    - main class: x10.lang.Runtime
    - program arguments: Future1Boxed
    - classpath - User Entries - Advanced: add path 
-     x10/tests/Constructs/Future
+     x10/examples/Constructs/Future
    - click OK
 
 
