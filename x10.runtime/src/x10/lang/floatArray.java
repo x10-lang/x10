@@ -4,14 +4,14 @@ package x10.lang;
 /** The class of all multidimensional, distributed int arrays in X10. Has no mutable data.
  * Specialized from array by replacing the type parameter with int.
  
- * Handtranslated from the X10 code in x10/lang/DoubleArray.x10
+ * Handtranslated from the X10 code in x10/lang/FloatArray.x10
  * 
  * @author vj 12/24/2004
  */
 
 import java.util.Iterator;
 
-abstract public class doubleArray /*( distribution distribution )*/ 
+abstract public class floatArray /*( distribution distribution )*/ 
 /*implements Cloneable, Serializable */
 implements Indexable, Unsafe {
 
@@ -19,27 +19,27 @@ implements Indexable, Unsafe {
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
-	protected doubleArray( distribution D) {
+	protected floatArray( distribution D) {
 		this.distribution = D;
 		this.region = D.region;
 		this.rank = D.rank;
 	}
 	
 	public static interface binaryOp {
-		double apply(double r, double s);
+		float apply(float r, float s);
 	}
-	public static final binaryOp sub = new binaryOp() { public double apply(double r, double s) { return r-s;}};
-	public static final binaryOp add = new binaryOp() { public double apply(double r, double s) { return r+s;}};
-	public static final binaryOp mul = new binaryOp() { public double apply(double r, double s) { return r*s;}};
-	public static final binaryOp div = new binaryOp() { public double apply(double r, double s) { return r/s;}};
-	public static final binaryOp max = new binaryOp() { public double apply(double r, double s) { return Math.max(r,s);}};
+	public static final binaryOp sub = new binaryOp() { public float apply(float r, float s) { return r-s;}};
+	public static final binaryOp add = new binaryOp() { public float apply(float r, float s) { return r+s;}};
+	public static final binaryOp mul = new binaryOp() { public float apply(float r, float s) { return r*s;}};
+	public static final binaryOp div = new binaryOp() { public float apply(float r, float s) { return r/s;}};
+	public static final binaryOp max = new binaryOp() { public float apply(float r, float s) { return Math.max(r,s);}};
 	public static interface unaryOp {
-		double apply(double r);
+		float apply(float r);
 	}
-	public static final unaryOp abs = new unaryOp() { public double apply(double r) { return Math.abs(r);}};
+	public static final unaryOp abs = new unaryOp() { public float apply(float r) { return Math.abs(r);}};
 	
 	public static interface pointwiseOp/*(region r)*/ {
-		double apply(point/*(r)*/ p);
+		float apply(point/*(r)*/ p);
 	}
 	
 	abstract public static /*value*/ class factory {
@@ -49,8 +49,8 @@ implements Indexable, Unsafe {
 		 * @param k
 		 * @return
 		 */
-		public doubleArray doubleValueArray( /*nat*/ int k) {
-			return doubleValueArray(k, 0);
+		public floatArray floatValueArray( /*nat*/ int k) {
+			return floatValueArray(k, 0);
 		}
 		/** Return the unique int value array initialized with initVal 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -58,8 +58,8 @@ implements Indexable, Unsafe {
 		 * @param k
 		 * @return
 		 */
-		public doubleArray/*(:rank=1)*/  doubleValueArray(/*nat*/ int k, double initVal) { 
-			return doubleValueArray(x10.lang.distribution.factory.local(k), initVal);
+		public floatArray/*(:rank=1)*/  floatValueArray(/*nat*/ int k, float initVal) { 
+			return floatValueArray(x10.lang.distribution.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -67,14 +67,14 @@ implements Indexable, Unsafe {
 		 * @param k
 		 * @return
 		 */
-		public doubleArray/*(:rank=1)*/ doubleValueArray(/*nat*/ int k, pointwiseOp init) {
-			return doubleValueArray( x10.lang.distribution.factory.local(k), init);
+		public floatArray/*(:rank=1)*/ floatValueArray(/*nat*/ int k, pointwiseOp init) {
+			return floatValueArray( x10.lang.distribution.factory.local(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray(distribution D, double init);
+		/*(distribution D)*/ floatArray/*(D)*/ floatValueArray(distribution D, float init);
 		abstract public 
-		/*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray( distribution D, 
+		/*(distribution D)*/ floatArray/*(D)*/ floatValueArray( distribution D, 
 				pointwiseOp/*(D.region)*/ init);
 		/** Return the unique int value array initialized with 0 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -82,8 +82,8 @@ implements Indexable, Unsafe {
 		 * @param k
 		 * @return
 		 */
-		public DoubleReferenceArray DoubleReferenceArray( /*nat*/ int k) {
-			return DoubleReferenceArray(k, 0);
+		public FloatReferenceArray FloatReferenceArray( /*nat*/ int k) {
+			return FloatReferenceArray(k, 0);
 		}
 		/** Return the unique int value array initialized with initVal 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -91,8 +91,8 @@ implements Indexable, Unsafe {
 		 * @param k
 		 * @return
 		 */
-		public DoubleReferenceArray/*(:rank=1)*/  DoubleReferenceArray(/*nat*/ int k, double initVal) { 
-			return DoubleReferenceArray(x10.lang.distribution.factory.local(k), initVal);
+		public FloatReferenceArray/*(:rank=1)*/  FloatReferenceArray(/*nat*/ int k, float initVal) { 
+			return FloatReferenceArray(x10.lang.distribution.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -100,42 +100,42 @@ implements Indexable, Unsafe {
 		 * @param k
 		 * @return
 		 */
-		public DoubleReferenceArray/*(:rank=1)*/ DoubleReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return DoubleReferenceArray( x10.lang.distribution.factory.local(k), init);
+		public FloatReferenceArray/*(:rank=1)*/ FloatReferenceArray(/*nat*/ int k, pointwiseOp init) {
+			return FloatReferenceArray( x10.lang.distribution.factory.local(k), init);
 		}
 		
-		public DoubleReferenceArray DoubleReferenceArray( distribution D) {
-			return DoubleReferenceArray( D, 0);
+		public FloatReferenceArray FloatReferenceArray( distribution D) {
+			return FloatReferenceArray( D, 0);
 		}
 		abstract public 
-		/*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleReferenceArray(distribution D, double init);
+		/*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray(distribution D, float init);
 		abstract public 
-		/*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleReferenceArray( distribution D, 
+		/*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray( distribution D, 
 				pointwiseOp/*(D.region)*/ init);
 	}
-	public static final factory factory = Runtime.factory.getDoubleArrayFactory();
+	public static final factory factory = Runtime.factory.getFloatArrayFactory();
 	
 	/** Return the value of the array at the given point in the
 	 * region.
 	 */
-	abstract public double get(point/*(region)*/ p);
-	abstract /*value*/ public double get(int p);
-	abstract /*value*/ public double get(int p, int q);
-	abstract /*value*/ public double get(int p, int q, int r);
-	abstract /*value*/ public double get(int p, int q, int r, int s);
-    abstract public double get(int[] p);
+	abstract public float get(point/*(region)*/ p);
+	abstract /*value*/ public float get(int p);
+	abstract /*value*/ public float get(int p, int q);
+	abstract /*value*/ public float get(int p, int q, int r);
+	abstract /*value*/ public float get(int p, int q, int r, int s);
+    abstract public float get(int[] p);
     
     /** Convenience method for returning the sum of the array.
      * @return sum of the array.
      */
-	public double sum() {
+	public float sum() {
 		return reduce(add, 0);
 	}
 	/**
 	 * Convenience method for returning the max of the array.
 	 * @return
 	 */
-	public double max() {
+	public float max() {
 		return reduce(max, 0);
 	}
 	/**
@@ -143,14 +143,14 @@ implements Indexable, Unsafe {
 	 * @param fun
 	 * @return
 	 */
-	public double max(unaryOp fun) {
+	public float max(unaryOp fun) {
 		return lift(fun).reduce(max, 0);
 	}
 	/**
 	 * Convenience method for applying abs to each element in the array.
 	 * @return
 	 */
-	public DoubleReferenceArray abs() {
+	public FloatReferenceArray abs() {
 		return lift(abs);
 	}
 	
@@ -158,28 +158,28 @@ implements Indexable, Unsafe {
 	 * Convenience method for subtracting another array pointwise.
 	 * @return
 	 */
-	public DoubleReferenceArray sub( doubleArray s) {
+	public FloatReferenceArray sub( floatArray s) {
 		return lift(sub, s);
 	}
 	/**
 	 * Convenience method for subtracting another array pointwise.
 	 * @return
 	 */
-	public DoubleReferenceArray add( doubleArray s) {
+	public FloatReferenceArray add( floatArray s) {
 		return lift(add, s);
 	}
 	/**
 	 * Convenience method for subtracting another array pointwise.
 	 * @return
 	 */
-	public DoubleReferenceArray mul( doubleArray s) {
+	public FloatReferenceArray mul( floatArray s) {
 		return lift(mul, s);
 	}
 	/**
 	 * Convenience method for subtracting another array pointwise.
 	 * @return
 	 */
-	public DoubleReferenceArray div( doubleArray s) {
+	public FloatReferenceArray div( floatArray s) {
 		return lift(div, s);
 	}
 	
@@ -187,7 +187,7 @@ implements Indexable, Unsafe {
 	 * Convenience method for applying max after applying abs.
 	 * @return
 	 */
-	public double maxAbs() {
+	public float maxAbs() {
 		return max(abs);
 	}
     
@@ -195,24 +195,24 @@ implements Indexable, Unsafe {
 	 function fun, which is assumed to be associative and
 	 commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).
 	 */
-	abstract public double reduce(binaryOp fun, double unit);
+	abstract public float reduce(binaryOp fun, float unit);
 	
-	/** Return a DoubleArray with the same distribution as this, by 
+	/** Return a FloatArray with the same distribution as this, by 
 	 scanning this with the function fun, and unit unit.
 	 */
-	abstract public DoubleReferenceArray/*(distribution)*/ scan(binaryOp fun, double unit);
+	abstract public FloatReferenceArray/*(distribution)*/ scan(binaryOp fun, float unit);
 	
 	/** Return an array of B@P defined on the intersection of the
 	 region underlying the array and the parameter region R.
 	 */
 	abstract public /*(region(rank) R)*/
-	DoubleReferenceArray/*(distribution.restriction(R)())*/  restriction(region R);
+	FloatReferenceArray/*(distribution.restriction(R)())*/  restriction(region R);
 	
 	/** Return an array of B@P defined on the intersection of 
 	 the region underlying this and the parametric distribution.
 	 */    
 	public  /*(distribution(:rank=this.rank) D)*/ 
-	DoubleReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
+	FloatReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
 	 return restriction(D.region);
 	}
 	
@@ -224,7 +224,7 @@ implements Indexable, Unsafe {
 	 * in other.region.
 	 */
 	abstract public /*(distribution(:region.disjoint(this.region) && rank=this.rank) D)*/
-	DoubleReferenceArray/*(distribution.union(other.distribution))*/ union( doubleArray other);
+	FloatReferenceArray/*(distribution.union(other.distribution))*/ union( floatArray other);
 	
 	/** Return the array obtained by overlaying this array on top of
 	 other. The method takes as parameter a distribution D over the
@@ -232,31 +232,31 @@ implements Indexable, Unsafe {
 	 dist.asymmetricUnion(D).
 	 */
 	abstract public /*(distribution(:rank=this.rank) D)*/
-	DoubleReferenceArray/*(distribution.asymmetricUnion(D))*/ overlay( doubleArray/*(D)*/ other);
+	FloatReferenceArray/*(distribution.asymmetricUnion(D))*/ overlay( floatArray/*(D)*/ other);
 	
 	/** Update this array in place by overlaying the array other on top of this. The distribution
 	 * of the input array must be a subdistribution of D.
 	 * TODO: update the description of the parametric type.
 	 */
-    abstract public void update( doubleArray/*(D)*/ other);
+    abstract public void update( floatArray/*(D)*/ other);
     
-	/** Assume given a DoubleArray a over the given distribution.
-	 * Assume given a function f: double -> double -> double.
-	 * Return a DoubleArray with distribution dist 
+	/** Assume given a FloatArray a over the given distribution.
+	 * Assume given a function f: float -> float -> float.
+	 * Return a FloatArray with distribution dist 
 	 * containing fun(this.atValue(p),a.atValue(p)) for each p in
 	 * dist.region.
 	 */
 	abstract public 
-	DoubleReferenceArray/*(distribution)*/ lift(binaryOp fun, doubleArray/*(distribution)*/ a);
+	FloatReferenceArray/*(distribution)*/ lift(binaryOp fun, floatArray/*(distribution)*/ a);
 	abstract public 
-	DoubleReferenceArray/*(distribution)*/ lift(unaryOp fun);
+	FloatReferenceArray/*(distribution)*/ lift(unaryOp fun);
 	
 	/**
 	 * Return an immutable copy of this array. Note: The implementation actually returns a copy
-	 * at the representation of the X10 type x10.lang.doubleValueArray, which is doubleArray.
+	 * at the representation of the X10 type x10.lang.floatValueArray, which is floatArray.
 	 * @return an immutable version of this array.
 	 */
-	abstract public doubleArray toValueArray();
+	abstract public floatArray toValueArray();
 	
 	public Iterator iterator() {
 	 	return region.iterator();

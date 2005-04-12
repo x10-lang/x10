@@ -7,9 +7,9 @@ import java.util.Iterator;
 
 
 
-import x10.array.DoubleArray;
+import x10.array.BooleanArray;
 import x10.array.Operator;
-import x10.base.Allocator;
+import x10.base.Allocator; 
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
@@ -17,20 +17,20 @@ import x10.lang.Runtime;
 import x10.lang.point;
 import x10.lang.distribution;
 import x10.lang.region;
-import x10.lang.DoubleReferenceArray;
+import x10.lang.BooleanReferenceArray;
 
 
 /**
  * @author Christian Grothoff, Christoph von Praun
  */
-public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Cloneable {
+public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Cloneable {
 
     private final boolean safe_;
     private final MemoryBlock arr_;
     public final boolean mutable_;
     
     public boolean valueEquals(Indexable other) {
-        return arr_.valueEquals(((DoubleArray_c)other).arr_);
+        return arr_.valueEquals(((BooleanArray_c)other).arr_);
     }
 
     
@@ -39,14 +39,14 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    protected DoubleArray_c(Distribution_c d, boolean safe) {
+    protected BooleanArray_c(Distribution_c d, boolean safe) {
         this(d, (Operator.Pointwise) null, safe);
     }
     
-    protected DoubleArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
+    protected BooleanArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
     	this( d, c, safe, true);
     }
-    protected DoubleArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+    protected BooleanArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
         this.mutable_ = mutable;
         this.safe_ = safe;
@@ -56,9 +56,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
             int ranks[] = new int[rank];
             for (int i = 0; i < rank; ++i) 
                 ranks[i] = d.region.rank(i).size();
-            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BOOLEAN);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Double.TYPE);
+            this.arr_ =Allocator.allocSafe(count, Boolean.TYPE);
         }
         if (c != null)
             pointwise(this, c);
@@ -70,13 +70,13 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @param c
      * @param safe
      */
-    public DoubleArray_c( distribution d, double c) {
+    public BooleanArray_c( distribution d, boolean c) {
         this(d, c, true);
     }
-    public DoubleArray_c( distribution d, double c, boolean safe ) {
+    public BooleanArray_c( distribution d, boolean c, boolean safe ) {
     	this(d, c, safe, true);
 }
-    public DoubleArray_c( distribution d, double c, boolean safe, boolean mutable ) {
+    public BooleanArray_c( distribution d, boolean c, boolean safe, boolean mutable ) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -86,20 +86,20 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
             int ranks[] = new int[rank];
             for (int i = 0; i < rank; ++i) 
                 ranks[i] = d.region.rank(i).size();
-            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BOOLEAN);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Double.TYPE);
+            this.arr_ =Allocator.allocSafe(count, Boolean.TYPE);
         }
     	scan(this, new Assign(c));
     	
     }
-    public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f) {
+    public BooleanArray_c( distribution d, BooleanArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f, boolean safe) {
+    public BooleanArray_c( distribution d, BooleanArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public BooleanArray_c( distribution d, BooleanArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -109,14 +109,14 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
             int ranks[] = new int[rank];
             for (int i = 0; i < rank; ++i) 
                 ranks[i] = d.region.rank(i).size();
-            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BOOLEAN);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Double.TYPE);
+            this.arr_ =Allocator.allocSafe(count, Boolean.TYPE);
         }
         scan(this, f);
     }
     
-    private DoubleArray_c( distribution d, double[] a, boolean safe, boolean mutable) {
+    private BooleanArray_c( distribution d, boolean[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -125,9 +125,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
             int ranks[] = new int[rank];
             for (int i = 0; i < rank; ++i) 
                 ranks[i] = d.region.rank(i).size();
-            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BOOLEAN);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Double.TYPE);
+            this.arr_ =Allocator.allocSafe(count, Boolean.TYPE);
         }
         this.mutable_ = mutable;
     }
@@ -136,9 +136,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @param a
      * @return
      */
-    public static DoubleArray_c DoubleArray_c( double[] a, boolean safe, boolean mutable ) {
+    public static BooleanArray_c BooleanArray_c( boolean[] a, boolean safe, boolean mutable ) {
     	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
-    	return new DoubleArray_c(d, a, safe, mutable );
+    	return new BooleanArray_c(d, a, safe, mutable );
     }
     
     public void keepItLive() {}
@@ -155,56 +155,56 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     public void reduction(Operator.Reduction op) {
         int count = arr_.count();
         for (int i  = 0; i < count; ++i) 
-            op.apply(arr_.getDouble(i));
+            op.apply(arr_.getBoolean(i));
     }
     
     /* Overrides the superclass method - this implementation is more efficient */
-    protected void assign(DoubleArray rhs) {
-    	assert rhs instanceof DoubleArray_c;
+    protected void assign(BooleanArray rhs) {
+    	assert rhs instanceof BooleanArray_c;
     	
-    	DoubleArray_c rhs_t = (DoubleArray_c) rhs;
+    	BooleanArray_c rhs_t = (BooleanArray_c) rhs;
     	if (rhs.distribution.equals(distribution)) {
     	    int count = arr_.count();
     		for (int i  = 0; i < count; ++i) 
-    			arr_.setDouble(rhs_t.arr_.getDouble(i), i);
+    			arr_.setBoolean(rhs_t.arr_.getBoolean(i), i);
     	} else 
     		// fall back to generic implementation
     		super.assign(rhs);
     }
 
-	protected DoubleArray newInstance(distribution d) {
+	protected BooleanArray newInstance(distribution d) {
 		assert d instanceof Distribution_c;
 		
-		return new DoubleArray_c((Distribution_c) d, safe_);	
+		return new BooleanArray_c((Distribution_c) d, safe_);	
 	}
 	
-	protected DoubleArray newInstance(distribution d, Operator.Pointwise c) {
+	protected BooleanArray newInstance(distribution d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
-		return new DoubleArray_c((Distribution_c) d, c, safe_);	
+		return new BooleanArray_c((Distribution_c) d, c, safe_);	
 	}
 	
 
-	public DoubleReferenceArray lift( DoubleArray.binaryOp op, x10.lang.doubleArray arg ) {
+	public BooleanReferenceArray lift( BooleanArray.binaryOp op, x10.lang.booleanArray arg ) {
 	    assert arg.distribution.equals(distribution); 
-	    DoubleArray arg1 = (DoubleArray)arg;
-	    DoubleArray result = newInstance(distribution);
+	    BooleanArray arg1 = (BooleanArray)arg;
+	    BooleanArray result = newInstance(distribution);
 	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
 	        point p = (point) it.next();
 	        result.set(op.apply(this.get(p), arg1.get(p)),p);
 	    }
 	    return result;
 	}
-	public DoubleReferenceArray lift( DoubleArray.unaryOp op ) {
-	    DoubleArray result = newInstance(distribution);
+	public BooleanReferenceArray lift( BooleanArray.unaryOp op ) {
+	    BooleanArray result = newInstance(distribution);
 	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
 	        point p = (point) it.next();
-	        result.set(op.apply(this.get(p)),p);
+	        result.set((boolean) op.apply(this.get(p)),p);
 	    }
 	    return result;
 	}
-    public double reduce( DoubleArray.binaryOp op, double unit ) {
-        double result = unit;
+    public boolean reduce( BooleanArray.binaryOp op, boolean unit ) {
+        boolean result = unit;
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
             point p = (point) it.next();
              result = op.apply(this.get(p), result);
@@ -212,9 +212,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         return result;
     }
 
-    public DoubleReferenceArray scan( binaryOp op, double unit ) {
-        double temp = unit;
-        DoubleArray result = newInstance(distribution);
+    public BooleanReferenceArray scan( binaryOp op, boolean unit ) {
+        boolean temp = unit;
+        BooleanArray result = newInstance(distribution);
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
             point p = (point) it.next();
             temp = op.apply(this.get(p), temp);
@@ -225,22 +225,22 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
 	
     /* (non-Javadoc)
-     * @see x10.lang.DoubleArray#set(int, int[])
+     * @see x10.lang.BooleanArray#set(int, int[])
      */
-    public double set(double v, point pos) {
+    public boolean set(boolean v, point pos) {
         distribution.checkAccess(pos);
-        return arr_.setDouble(v, (int) distribution.region.ordinal(pos));
+        return arr_.setBoolean(v, (int) distribution.region.ordinal(pos));
     }
     
     
-    public double set(double v, int d0) {
+    public boolean set(boolean v, int d0) {
     	assert this.region.rank == 1;
         int[] pos = {d0};
     	final point p = Runtime.factory.getPointFactory().point(this.region, pos);
         return set(v, p);
     }
     
-    public double set(double v, int d0, int d1) {
+    public boolean set(boolean v, int d0, int d1) {
     	assert this.region.rank == 2;
     	if(false){
     		int[] pos = {d0, d1};
@@ -248,18 +248,18 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     		return set(v, p);
     	}else {
     		int theIndex= d1 + (d0 *region.rank(1).size());
-    		return arr_.setDouble(v,theIndex);
+    		return arr_.setBoolean(v,theIndex);
     	}
     }
     
-    public double set(double v, int d0, int d1, int d2) {
+    public boolean set(boolean v, int d0, int d1, int d2) {
     	assert this.region.rank == 3;
         int[] pos = {d0, d1, d2};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
         return set(v, p);
     }
     
-    public double set(double v, int d0, int d1, int d2, int d3) {
+    public boolean set(boolean v, int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
         int[] pos = {d0, d1, d2, d3};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
@@ -268,20 +268,20 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     }
 
     /* (non-Javadoc)
-     * @see x10.lang.DoubleArray#get(int[])
+     * @see x10.lang.BooleanArray#get(int[])
      */
-    public double get(point pos) {
+    public boolean get(point pos) {
         distribution.checkAccess(pos);
-        return arr_.getDouble((int) distribution.region.ordinal(pos));
+        return arr_.getBoolean((int) distribution.region.ordinal(pos));
     }
     
-    public double get(int d0) {
+    public boolean get(int d0) {
     	assert this.region.rank == 1;
         int[] pos = {d0};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
-    public double get(int d0, int d1) {
+    public boolean get(int d0, int d1) {
     	assert this.region.rank == 2;
     	if(false){
     		int[] pos = {d0, d1};
@@ -290,40 +290,40 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     	}else {
     		int theIndex= d1 + (d0 *region.rank(1).size());
     		
-    		return arr_.getDouble(theIndex);
+    		return arr_.getBoolean(theIndex);
     	}
     }
     
-    public double get(int d0, int d1, int d2) {
+    public boolean get(int d0, int d1, int d2) {
     	assert this.region.rank == 3;
         int[] pos = {d0, d1, d2};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
     
-    public double get(int d0, int d1, int d2, int d3) {
+    public boolean get(int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
         int[] pos = {d0, d1, d2, d3};
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
-    public double get(int[] pos) {
+    public boolean get(int[] pos) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
     
-    public x10.lang.DoubleReferenceArray overlay(x10.lang.doubleArray d) {
+    public x10.lang.BooleanReferenceArray overlay(x10.lang.booleanArray d) {
     	distribution dist = distribution.overlay(d.distribution);
-        DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
+        BooleanArray_c ret = new BooleanArray_c(dist, false, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
-            double val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+            boolean val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
             ret.set(val, p);
         }
         return ret;
     }
     
-    public void update(x10.lang.doubleArray d) {
+    public void update(x10.lang.booleanArray d) {
         assert (region.contains(d.region));
         for (Iterator it = d.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -331,24 +331,24 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         }
     }
     
-    public DoubleReferenceArray union(x10.lang.doubleArray d) {
+    public BooleanReferenceArray union(x10.lang.booleanArray d) {
         distribution dist = distribution.union(d.distribution);
-        DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
+        BooleanArray_c ret = new BooleanArray_c(dist, false, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
-            double val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+            boolean val = (distribution.region.contains(p)) ? get(p) : d.get(p);
             ret.set(val, p);
         }
         return ret;
     }
     
-    public DoubleReferenceArray restriction(distribution d) {
+    public BooleanReferenceArray restriction(distribution d) {
         return restriction(d.region);
     }
     
-    public DoubleReferenceArray restriction(region r) {
+    public BooleanReferenceArray restriction(region r) {
         distribution dist = distribution.restriction(r);
-        DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
+        BooleanArray_c ret = new BooleanArray_c(dist, false, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
             ret.set(get(p), p);
@@ -356,7 +356,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         return ret;
     }
     
-    public x10.lang.doubleArray toValueArray() {
+    public x10.lang.booleanArray toValueArray() {
     	if (! mutable_) return this;
     	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");   
     }
