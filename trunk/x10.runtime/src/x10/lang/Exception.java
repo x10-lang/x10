@@ -9,5 +9,6 @@ package x10.lang;
  * on top of Java this is the best way to get that.
  */
 public class Exception extends java.lang.Error {
+    public Exception(String s) { super(s); }
     public Exception() { }
 }
