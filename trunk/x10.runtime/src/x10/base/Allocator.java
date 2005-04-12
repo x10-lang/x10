@@ -21,8 +21,18 @@ public final class Allocator {
         assert (size < Integer.MAX_VALUE);
         
         MemoryBlock mb;
-        if (cl == Integer.TYPE) 
+        if (cl == Boolean.TYPE) 
+            mb = new MemoryBlockSafeBooleanArray((int) size);
+        else if (cl == Character.TYPE) 
+            mb = new MemoryBlockSafeCharArray((int) size);
+        else if (cl == Byte.TYPE) 
+            mb = new MemoryBlockSafeByteArray((int) size);
+        else if (cl == Short.TYPE) 
+            mb = new MemoryBlockSafeShortArray((int) size);
+        else if (cl == Integer.TYPE) 
             mb = new MemoryBlockSafeIntArray((int) size);
+        else if (cl == Float.TYPE)
+            mb = new MemoryBlockSafeFloatArray((int) size);
         else if (cl == Double.TYPE)
             mb = new MemoryBlockSafeDoubleArray((int) size);
         else if (cl == Long.TYPE)
@@ -31,7 +41,7 @@ public final class Allocator {
             mb = new MemoryBlockSafeObjectArray((int) size);
         else {
             mb = null;
-            throw new Error("Allocator:: allocSafe not implemented for type '" + cl + "'");
+            throw new Error("Allocator:: allocSafe not unknown " + cl + "'");
         }
         return mb;
     }

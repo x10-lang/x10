@@ -9,19 +9,34 @@ import java.util.TreeSet;
 import java.util.WeakHashMap;
 
 import x10.array.DoubleArray;
+import x10.array.FloatArray;
 import x10.array.GenericArray;
 import x10.array.IntArray;
+import x10.array.BooleanArray;
+import x10.array.CharArray;
+import x10.array.ByteArray;
+import x10.array.ShortArray;
 import x10.array.point_c;
 import x10.array.sharedmemory.DistributionFactory;
 import x10.array.sharedmemory.DoubleArray_c;
+import x10.array.sharedmemory.FloatArray_c;
 import x10.array.sharedmemory.GenericArray_c;
+import x10.array.sharedmemory.BooleanArray_c;
+import x10.array.sharedmemory.CharArray_c;
+import x10.array.sharedmemory.ByteArray_c;
+import x10.array.sharedmemory.ShortArray_c;
 import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.LongArray_c;
 import x10.array.sharedmemory.RegionFactory;
 import x10.compilergenerated.Parameter1;
+import x10.lang.FloatReferenceArray;
 import x10.lang.DoubleReferenceArray;
 import x10.lang.Future;
 import x10.lang.GenericReferenceArray;
+import x10.lang.BooleanReferenceArray;
+import x10.lang.CharReferenceArray;
+import x10.lang.ByteReferenceArray;
+import x10.lang.ShortReferenceArray;
 import x10.lang.IntReferenceArray;
 import x10.lang.LongReferenceArray;
 import x10.lang.MultipleExceptions;
@@ -30,6 +45,11 @@ import x10.lang.Runtime;
 import x10.lang.clock;
 import x10.lang.distribution;
 import x10.lang.doubleArray;
+import x10.lang.floatArray;
+import x10.lang.booleanArray;
+import x10.lang.charArray;
+import x10.lang.byteArray;
+import x10.lang.shortArray;
 import x10.lang.intArray;
 import x10.lang.longArray;
 import x10.lang.place;
@@ -361,7 +381,71 @@ public class DefaultRuntime_c
     				}
     			};
     		}
-    		public intArray.factory getIntArrayFactory() {
+    		public booleanArray.factory getBooleanArrayFactory() {
+                return new BooleanArray.factory() {
+                    public BooleanReferenceArray BooleanReferenceArray(distribution d, boolean c) {
+                        return new BooleanArray_c( d, c, true);
+                    }
+                    public BooleanReferenceArray BooleanReferenceArray(distribution d, booleanArray.pointwiseOp f) {
+                        return new BooleanArray_c( d, f, true);
+                    }
+                    public booleanArray booleanValueArray(distribution d, boolean c) {
+                        return new BooleanArray_c(d, c, true, false);
+                    }
+                    public booleanArray booleanValueArray(distribution d, booleanArray.pointwiseOp f) {
+                        return new BooleanArray_c(d, f, true, false);
+                    }
+                };
+            }
+            public charArray.factory getCharArrayFactory() {
+                return new CharArray.factory() {
+                    public CharReferenceArray CharReferenceArray(distribution d, char c) {
+                        return new CharArray_c( d, c, true);
+                    }
+                    public CharReferenceArray CharReferenceArray(distribution d, charArray.pointwiseOp f) {
+                        return new CharArray_c( d, f, true);
+                    }
+                    public charArray charValueArray(distribution d, char c) {
+                        return new CharArray_c(d, c, true, false);
+                    }
+                    public charArray charValueArray(distribution d, charArray.pointwiseOp f) {
+                        return new CharArray_c(d, f, true, false);
+                    }
+                };
+            }
+            public byteArray.factory getByteArrayFactory() {
+                return new ByteArray.factory() {
+                    public ByteReferenceArray ByteReferenceArray(distribution d, byte c) {
+                        return new ByteArray_c( d, c, true);
+                    }
+                    public ByteReferenceArray ByteReferenceArray(distribution d, byteArray.pointwiseOp f) {
+                        return new ByteArray_c( d, f, true);
+                    }
+                    public byteArray byteValueArray(distribution d, byte c) {
+                        return new ByteArray_c(d, c, true, false);
+                    }
+                    public byteArray byteValueArray(distribution d, byteArray.pointwiseOp f) {
+                        return new ByteArray_c(d, f, true, false);
+                    }
+                };
+            }
+            public shortArray.factory getShortArrayFactory() {
+                return new ShortArray.factory() {
+                    public ShortReferenceArray ShortReferenceArray(distribution d, short c) {
+                        return new ShortArray_c( d, c, true);
+                    }
+                    public ShortReferenceArray ShortReferenceArray(distribution d, shortArray.pointwiseOp f) {
+                        return new ShortArray_c( d, f, true);
+                    }
+                    public shortArray shortValueArray(distribution d, short c) {
+                        return new ShortArray_c(d, c, true, false);
+                    }
+                    public shortArray shortValueArray(distribution d, shortArray.pointwiseOp f) {
+                        return new ShortArray_c(d, f, true, false);
+                    }
+                };
+            }
+            public intArray.factory getIntArrayFactory() {
     			return new IntArray.factory() {
     				public IntReferenceArray IntReferenceArray(distribution d, int c) {
     					return new IntArray_c( d, c, true);
@@ -393,8 +477,25 @@ public class DefaultRuntime_c
     				}
     			};
     		}
-
-    		public DoubleArray.factory getDoubleArrayFactory() {
+    		
+            public FloatArray.factory getFloatArrayFactory() {
+                return new floatArray.factory() {
+                    public FloatReferenceArray FloatReferenceArray(distribution d, float c) {
+                        return new FloatArray_c( d, c, true);
+                    }
+                    public FloatReferenceArray FloatReferenceArray(distribution d, floatArray.pointwiseOp f) {
+                        return new FloatArray_c( d, f, true);
+                    }
+                    public floatArray floatValueArray(distribution d, float c) {
+                        return new FloatArray_c(d, c, true, false);
+                    }
+                    public floatArray floatValueArray(distribution d, floatArray.pointwiseOp f) {
+                        return new FloatArray_c(d, f, true, false);
+                    }
+                };              
+            }
+            
+            public DoubleArray.factory getDoubleArrayFactory() {
     			return new doubleArray.factory() {
     				public DoubleReferenceArray DoubleReferenceArray(distribution d, double c) {
     					return new DoubleArray_c( d, c, true);
@@ -408,9 +509,9 @@ public class DefaultRuntime_c
     				public doubleArray doubleValueArray(distribution d, doubleArray.pointwiseOp f) {
     					return new DoubleArray_c(d, f, true, false);
     				}
-    			};
-    			
+    			};   			
     		}
+            
             public GenericArray.factory getGenericArrayFactory() {
             return new x10.lang.genericArray.factory() {
                 public GenericReferenceArray GenericReferenceArray(distribution d, Parameter1 c) {

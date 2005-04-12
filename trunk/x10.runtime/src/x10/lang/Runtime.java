@@ -99,8 +99,13 @@ public abstract class Runtime {
     	public abstract distribution.factory getDistributionFactory();
     	public abstract point.factory getPointFactory();
     	public abstract clock.factory getClockFactory();
+        public abstract booleanArray.factory getBooleanArrayFactory();
+        public abstract charArray.factory getCharArrayFactory();
+        public abstract byteArray.factory getByteArrayFactory();
+        public abstract shortArray.factory getShortArrayFactory();
     	public abstract intArray.factory getIntArrayFactory();
     	public abstract longArray.factory getLongArrayFactory();
+        public abstract floatArray.factory getFloatArrayFactory();
         public abstract doubleArray.factory getDoubleArrayFactory();
         public abstract genericArray.factory getGenericArrayFactory();
     	public abstract place.factory getPlaceFactory();
