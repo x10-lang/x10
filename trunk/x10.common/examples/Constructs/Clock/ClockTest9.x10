@@ -36,7 +36,7 @@ public class ClockTest9 {
           }
           System.out.println("#0a i="+i);
 	  next;
-	  now(c) for(point [i]:val) chk(val[i]==0);
+	  now(c) for(point [j]:val) chk(val[j]==0);
           System.out.println("#0b i="+i);
 	  next;
 	}
