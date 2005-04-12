@@ -11,7 +11,7 @@ What you need:
    programs. The 'java' and 'javac' command shall be found at 
    $JAVA_HOME/bin/ (Unix style).
  - set the PLATFORM environment variable according to your platform.
-   This will correspond to the subdirectory under tests/lib where
+   Currently this corresponds to the subdirectory under examples/lib where
    native libraries are kept.  For 32-bit Windows on x86 hardware,
    the string is win32_x86.  For AIX on PowerPC it is aix_ppc.
    The naming convention is <OperatingSystem>"_"<Hardware>, consistent
