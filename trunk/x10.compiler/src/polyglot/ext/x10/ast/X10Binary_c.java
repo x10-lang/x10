@@ -168,7 +168,7 @@ public class X10Binary_c extends Binary_c {
 			return type(ts.region());
 		}	
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) && 
-				l.isNumericArray()) {
+				l.isPrimitiveTypeArray()) {
 			// pointwise numerical operations. TODO: Check that one type can be numerically coerced to the other.
 			if (! l.equals(r)) {
 				throw new SemanticException("The " + op 
@@ -204,7 +204,7 @@ public class X10Binary_c extends Binary_c {
 			return;
 		}
 		
-		if (op == COND_OR && (l.isDistribution() || l.isRegion() || l.isNumericArray())) {
+		if (op == COND_OR && (l.isDistribution() || l.isRegion() || l.isPrimitiveTypeArray())) {
 			printSubExpr(left, true, w, tr);
 			w.write(".union(");
 			printSubExpr(right, false, w, tr);
@@ -236,7 +236,7 @@ public class X10Binary_c extends Binary_c {
 			w.write(")");
 			return;
 		}	
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&  l.isNumericArray()) {
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&  l.isPrimitiveTypeArray()) {
 			printSubExpr(left, true, w, tr);
 			w.write(".");
 			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");

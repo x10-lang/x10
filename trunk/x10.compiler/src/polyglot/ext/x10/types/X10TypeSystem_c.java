@@ -177,7 +177,35 @@ implements X10TypeSystem {
 		return runtimeType_;
 	}
 	
-	protected ClassType intArrayPointwiseOpType_;
+	protected ClassType booleanArrayPointwiseOpType_;
+    public ClassType BooleanArrayPointwiseOp() {
+        if ( booleanArrayPointwiseOpType_ == null)
+            booleanArrayPointwiseOpType_ = load("x10.lang.longArray$pointwiseOp"); // java file
+        return booleanArrayPointwiseOpType_;
+    }
+    
+    protected ClassType charArrayPointwiseOpType_;
+    public ClassType CharArrayPointwiseOp() {
+        if ( charArrayPointwiseOpType_ == null)
+            charArrayPointwiseOpType_ = load("x10.lang.longArray$pointwiseOp"); // java file
+        return charArrayPointwiseOpType_;
+    }
+    
+    protected ClassType byteArrayPointwiseOpType_;
+    public ClassType ByteArrayPointwiseOp() {
+        if ( byteArrayPointwiseOpType_ == null)
+            byteArrayPointwiseOpType_ = load("x10.lang.longArray$pointwiseOp"); // java file
+        return byteArrayPointwiseOpType_;
+    }
+    
+    protected ClassType shortArrayPointwiseOpType_;
+    public ClassType ShortArrayPointwiseOp() {
+        if ( shortArrayPointwiseOpType_ == null)
+            shortArrayPointwiseOpType_ = load("x10.lang.longArray$pointwiseOp"); // java file
+        return shortArrayPointwiseOpType_;
+    }
+    
+    protected ClassType intArrayPointwiseOpType_;
 	public ClassType IntArrayPointwiseOp() {
 		if ( intArrayPointwiseOpType_ == null) {
 			intArray(); // ensure that intArray is loaded.
@@ -185,7 +213,14 @@ implements X10TypeSystem {
 		}
 		return intArrayPointwiseOpType_;
 	}
-	
+    
+    protected ClassType floatArrayPointwiseOpType_;
+    public ClassType FloatArrayPointwiseOp() {
+        if ( floatArrayPointwiseOpType_ == null)
+            floatArrayPointwiseOpType_ = load("x10.lang.floatArray$pointwiseOp"); // java file
+        return floatArrayPointwiseOpType_;
+    }
+    
 	protected ClassType doubleArrayPointwiseOpType_;
 	public ClassType DoubleArrayPointwiseOp() {
 		if ( doubleArrayPointwiseOpType_ == null)
