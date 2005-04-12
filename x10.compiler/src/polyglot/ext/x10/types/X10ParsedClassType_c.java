@@ -72,14 +72,47 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
 		return ts.isSubtype(this, ((X10TypeSystem) ts).Indexable());
 	}
 	
-	public boolean isNumericArray() {
-		return isIntArray() || isLongArray() || isDoubleArray();
+	public boolean isPrimitiveTypeArray() {
+		return 
+            isBooleanArray() || 
+            isCharArray() || 
+            isByteArray() || 
+            isShortArray() || 
+            isIntArray() || 
+            isLongArray() ||
+            isFloatArray() ||
+            isDoubleArray();
 	}
+    
 	public boolean isDistributedArray() {
-		return isIntArray() || isLongArray() || isDoubleArray();
+		return 
+        isBooleanArray() || 
+        isCharArray() || 
+        isByteArray() || 
+        isShortArray() || 
+        isIntArray() || 
+        isLongArray() ||
+        isFloatArray() ||
+        isDoubleArray();
 	}
 
-	/**
+	public boolean isBooleanArray() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        return xts.isSubtype( this, xts.booleanArray()); 
+    }
+    public boolean isCharArray() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        return xts.isSubtype( this, xts.charArray()); 
+    }
+    public boolean isByteArray() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        return xts.isSubtype( this, xts.byteArray()); 
+    }
+    public boolean isShortArray() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        return xts.isSubtype( this, xts.shortArray()); 
+    }
+    /**
 	 * Returns true if this type is a subtype of intArray.
 	 * implies isX10Array().
 	 */
@@ -96,7 +129,11 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.longArray()); 
 	}
-	/**
+	public boolean isFloatArray() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        return xts.isSubtype( this, xts.floatArray());
+    }
+    /**
 	 * Returns true if this type is a subtype of doubleArray.
 	 * implies isX10Array().
 	 */

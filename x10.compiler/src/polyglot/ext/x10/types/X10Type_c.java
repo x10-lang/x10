@@ -46,15 +46,39 @@ public abstract class X10Type_c extends Type_c implements X10Type {
 		return null;
 	}
 	// TODO: Extend this for other kinds of X10 arrays
-	public boolean isNumericArray() {
-		return isIntArray() || isLongArray() || isDoubleArray();
+	public boolean isPrimitiveTypeArray() {
+		return 
+        isBooleanArray() || 
+        isCharArray() || 
+        isByteArray() || 
+        isShortArray() || 
+        isIntArray() || 
+        isLongArray() || 
+        isFloatArray() || 
+        isDoubleArray();
 	}
 	
 	public boolean isX10Array() { 
 		return ts.isSubtype(this, ((X10TypeSystem) ts).Indexable());
 	}
 
-	public boolean isIntArray() {
+	public boolean isBooleanArray() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        return xts.isSubtype( this, xts.booleanArray()); 
+    }
+    public boolean isCharArray() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        return xts.isSubtype( this, xts.charArray()); 
+    }
+    public boolean isByteArray() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        return xts.isSubtype( this, xts.byteArray()); 
+    }
+    public boolean isShortArray() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        return xts.isSubtype( this, xts.shortArray()); 
+    }
+    public boolean isIntArray() {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.intArray()); 
 	}
@@ -62,6 +86,10 @@ public abstract class X10Type_c extends Type_c implements X10Type {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.longArray()); 
 	}
+    public boolean isFloatArray() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        return xts.isSubtype( this, xts.floatArray()); 
+    }
 	public boolean isDoubleArray() {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.doubleArray());

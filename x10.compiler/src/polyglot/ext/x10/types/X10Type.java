@@ -37,6 +37,31 @@ public interface X10Type extends Type {
      * @return 
      */
     boolean isX10Array();
+    
+    /** Succeeds if this type represents an array of booleans.
+     * 
+     * @return 
+     */
+    boolean isBooleanArray();
+    
+    /** Succeeds if this type represents an array of chars.
+     * 
+     * @return 
+     */
+    boolean isCharArray();
+    
+    /** Succeeds if this type represents an array of bytes.
+     * 
+     * @return 
+     */
+    boolean isByteArray();
+    
+    /** Succeeds if this type represents an array of shorts.
+     * 
+     * @return 
+     */
+    boolean isShortArray();
+    
     /** Succeeds if this type represents an array of longs.
      * 
      * @return 
@@ -47,6 +72,13 @@ public interface X10Type extends Type {
      * @return 
      */
     boolean isIntArray();
+    
+    /** Succeeds if this type represents an array of floats.
+     * 
+     * @return 
+     */
+    boolean isFloatArray();
+    
     /** Succeeds if this type represents an array of doubles.
      * 
      * @return 
@@ -56,7 +88,7 @@ public interface X10Type extends Type {
      * Succeeds if this type represents an array with the arithmetic operations add, sub, mul, div defined on it.
      * @return
      */
-    boolean isNumericArray();
+    boolean isPrimitiveTypeArray();
     /**
      * Succeeds if this type represents an array with a distribution, that is, an array possibly 
      * distributed across multiple places.

@@ -68,8 +68,13 @@ public interface X10TypeSystem extends TypeSystem {
     ClassType array();
     ClassType clock();
     ClassType Runtime();
+    ClassType BooleanArrayPointwiseOp();
+    ClassType CharArrayPointwiseOp();
+    ClassType ByteArrayPointwiseOp();
+    ClassType ShortArrayPointwiseOp();
     ClassType IntArrayPointwiseOp();
     ClassType DoubleArrayPointwiseOp();
+    ClassType FloatArrayPointwiseOp();
     ClassType LongArrayPointwiseOp();
     ReferenceType GenericArrayPointwiseOp(Type baseType);
     
@@ -107,6 +112,38 @@ public interface X10TypeSystem extends TypeSystem {
      * TODO: implement for all native types.
      */
     ReferenceType array(Type type);
+    
+    ClassType booleanArray(boolean isValueType, Expr distribution );
+    ClassType booleanArray( Expr distribution );  
+    ClassType booleanArray(); 
+    ClassType booleanValueArray( Expr distribution );
+    ClassType booleanValueArray(); 
+    ClassType BooleanReferenceArray( Expr distribution );
+    ClassType BooleanReferenceArray();
+    
+    ClassType charArray(boolean isValueType, Expr distribution );
+    ClassType charArray( Expr distribution );  
+    ClassType charArray(); 
+    ClassType charValueArray( Expr distribution );
+    ClassType charValueArray(); 
+    ClassType CharReferenceArray( Expr distribution );
+    ClassType CharReferenceArray();
+    
+    ClassType byteArray(boolean isValueType, Expr distribution );
+    ClassType byteArray( Expr distribution );  
+    ClassType byteArray(); 
+    ClassType byteValueArray( Expr distribution );
+    ClassType byteValueArray(); 
+    ClassType ByteReferenceArray( Expr distribution );
+    ClassType ByteReferenceArray();
+    
+    ClassType shortArray(boolean isValueType, Expr distribution );
+    ClassType shortArray( Expr distribution );  
+    ClassType shortArray(); 
+    ClassType shortValueArray( Expr distribution );
+    ClassType shortValueArray(); 
+    ClassType ShortReferenceArray( Expr distribution );
+    ClassType ShortReferenceArray();
     
     /** Return the parametric type of all X10 intArrays with the
 	 * given values for the isValueType and distribution parameters.
@@ -157,6 +194,14 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @return -- the ClassType object
 	 */
     ClassType IntReferenceArray();
+    
+    ClassType floatArray(boolean isValueType, Expr distribution );
+    ClassType floatArray( Expr distribution );  
+    ClassType floatArray(); 
+    ClassType floatValueArray( Expr distribution );
+    ClassType floatValueArray(); 
+    ClassType FloatReferenceArray( Expr distribution );
+    ClassType FloatReferenceArray();
     
     /** Return the parametric type of all X10 doubleArrays with the
 	 * given values for the isValueType and distribution parameters.
