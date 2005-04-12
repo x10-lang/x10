@@ -86,8 +86,7 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
     	
 		Expr newDomain = domain;
 		X10Type domainType = (X10Type) domain.type();
-        /* TODO: cvp -> vj/cg: not sure if *** can be checked at compile-time */
-		if (domainType.isX10Array() /* *** && !domainType.base().isPlace() */)
+		if (domainType.isX10Array())
 			newDomain = (Expr) getDomain( domain ).typeCheck( tc );
 		
 		return domain( newDomain);
