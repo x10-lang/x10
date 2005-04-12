@@ -9,7 +9,7 @@ public class Array3Byte {
 		region r = region.factory.region(e, e); 
 		distribution d=distribution.factory.local(r);
 		byte[.] ia = new byte[d];
-		ia[1,1] = 42;
+		ia[1,1] = (byte) 42;
 		return (42 == ia[1,1]);
 	
 	}
