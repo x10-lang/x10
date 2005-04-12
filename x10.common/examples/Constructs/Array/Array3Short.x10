@@ -9,7 +9,7 @@ public class Array3Short {
 		region r = region.factory.region(e, e); 
 		distribution d=distribution.factory.local(r);
 		short[.] ia = new short[d];
-		ia[1,1] = 42;
+		ia[1,1] = (short) 42;
 		return (42 == ia[1,1]);
 	
 	}
