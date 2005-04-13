@@ -149,7 +149,7 @@ public class DefaultRuntime_c
                 // a clock directly without being a proper activity).
                 Clock c = (Clock) factory.getClockFactory().clock();
                 c.doNow(appMain);
-                c.doNext();
+                Runtime.doNext();
 
                 if (Sampling.SINGLETON != null && Configuration.DUMP_STATS_ON_EXIT) {  
                     System.out.println(Sampling.SINGLETON.toString());
