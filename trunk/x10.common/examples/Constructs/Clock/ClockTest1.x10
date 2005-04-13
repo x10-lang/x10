@@ -1,5 +1,3 @@
-import x10.lang.*;
-
 /**
  * @author Vivek Sarkar (vsarkar@us.ibm.com)
  * Minimal test for clock.
@@ -11,7 +9,7 @@ public class ClockTest1  {
 	
 	public boolean run() {
 		clock c = clock.factory.clock();
-  	    now (c) { atomic {flag = true;} }
+         	now (c) { atomic {flag = true;} }
 		next ;		
 		boolean b;
 		atomic{b=flag;}

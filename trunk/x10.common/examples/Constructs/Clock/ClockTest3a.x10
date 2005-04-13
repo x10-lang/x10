@@ -1,7 +1,3 @@
-/*
- * Test for 'now'.  Very likely to fail if now is not translated
- * properly (but depends theoretically on the scheduler).
- */
 /**
  * Clock test for  barrier functions
  * @author kemal 3/2005
