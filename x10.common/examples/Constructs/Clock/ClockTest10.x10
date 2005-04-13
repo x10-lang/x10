@@ -98,7 +98,7 @@ public class ClockTest10 {
 	     varD[ph(k)]=tmp.val;
 	     System.out.println(k+" D before next");
 	     int n=k-pipeDepth;
-	     chk(!(k==N) || varD[ph(k)]==n+n+n*n+10);
+	     chk(!(k>pipeDepth) || varD[ph(k)]==n+n+n*n+10);
              next;
           }
         }
@@ -115,7 +115,7 @@ public class ClockTest10 {
 	     varE[ph(k)]=tmp.val;
 	     System.out.println(k+" E before next");
 	     int n=k-pipeDepth;
-	     chk(!(k==N) || varE[ph(k)]==n*n*7);
+	     chk(!(k>pipeDepth) || varE[ph(k)]==n*n*7);
              next;
           }
         }
