@@ -82,7 +82,6 @@ compiler can verify that at the place {\tt P} the values contained in
 the variables {\tt a} and {\tt b} are local, hence it is legal to 
 access their fields. 
 
-An example:
 
 In many circumstances it becomes necessary to use final variables of type
 {\tt place} as 
@@ -151,17 +150,16 @@ m(Object obj) \{
 
 \paragraph{{\tt current}}
 Similarly the object reference type {\tt current} can be used in
-(i)~constructing a distribution for a reference array or (ii)
-specifying the location of the base type of a reference array. In the
-first case points mapped to {\tt current} by the distribution will
-reside in the same place as the array object itself, and in the second
-case the value of the array at a particular point is an object in the
+%%(i)~constructing a distribution for a reference array or (ii)
+specifying the location of the base type of a reference array. 
+%% In the first case points mapped to {\tt current} by the distribution will
+%% reside in the same place as the array object itself, and in the second
+%% case 
+The value of the array at a particular point is an object in the
 same place as that array component. Example:
 \begin{x10}
     Object@current[] objects;
 \end{x10}
-
-
 
 \Xten{} permits user-definable place constants (= final variables =
 variables that must be assigned before use, and can be assigned only

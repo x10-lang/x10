@@ -1,3 +1,7 @@
+Wed Apr 13 05:15:46 2005
+
+* Insert syntax statements for clock. XtenClocks.tex
+
 2/17/2005
 * Add section on native code. (done)
 * Check Java Memory Model for input on ordering of atomics.
@@ -29,6 +33,24 @@
   a field of a placelocal or placeglobal object. It can only be
   passed into methods, or returned from methods, or passed into
   created activities.
+
+* Ensure that the array type constructor is equivariant. Cannot assign
+  to a variable of type T[] an array of type S[] where S is a subtype
+  of T.
+
+* Add a comment about Cilk. async is closely related to spawn and
+  finish to sync. X10 programs with "finish mains" generate
+  series/parallel call graphs.
+
+* Allow a method to be annotated with finish. This is the same as
+  wrapping a finish around the body of the method. Hmm.. Need to allow
+  an atomic to spawn an async as well. Then methods could be both
+  finish and atomic. However, the finish must be outside the atomic.
+
+* Thus X10 is changed to permit daemon threads.
+
+* Fix the X10 clock spec so that clocked statements are correctly
+  dealt with.
 
 Grammar
 
