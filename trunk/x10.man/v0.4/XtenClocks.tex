@@ -139,17 +139,18 @@ invocation:
 Nothing happens if the activity invokes this method on a clock it is
 not registered with, or if it has already invoked a {\tt resume} on
 this clock in the current phase.  Otherwise execution of this
-statement indicates that the activity will invoke no further operation
-on {\cf c} until it terminates or executes a {\tt next}. The runtime
-throws a {\tt ClockUseException} if it detects a violation of this
-condition.
+statement indicates that the activity will not transmit {\cf c} to an
+async or invoke {\cf now} until it terminates, drops {\cf c} or
+executes a {\tt next}. The runtime throws a {\tt ClockUseException} if
+it detects a violation of this condition.
 
 \paragraph{Static semantics.} 
 The compiler should issue an error if any activity has a potentially
 live execution path from a {\cf resume} statement on a clock {\tt c}
-to a {\cf now} or {\cf drop} or async spawn statement (which registers
-the new activity on {\cf c}) unless the path goes through a {\cf next}
-statement.
+to a {\cf now} or async spawn statement (which registers the new
+activity on {\cf c}) unless the path goes through a {\cf next}
+statement. (A {\cf c.drop()} following a {\cf c.resume()} is legal,
+as is {\cf c.resume()} following a {\cf c.resume()}.
 
 \subsection{Advancing clocks}\index{clock!next}
 An activity may execute the statement

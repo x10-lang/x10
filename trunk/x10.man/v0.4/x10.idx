@@ -2,94 +2,95 @@
 \indexentry{comments}{6}
 \indexentry{identifier}{6}
 \indexentry{keyword}{6}
+\indexentry{literals}{6}
 \indexentry{types}{6}
 \indexentry{Upper-case Convention}{6}
 \indexentry{type constructors}{6}
 \indexentry{nullable@{\tt nullable}}{7}
 \indexentry{null@{\tt null}}{7}
 \indexentry{array types}{8}
-\indexentry{place types}{8}
+\indexentry{place types}{9}
 \indexentry{? place type}{9}
-\indexentry{places!shared}{9}
-\indexentry{places!scoped}{9}
+\indexentry{places!shared}{10}
+\indexentry{places!scoped}{10}
 \indexentry{variables}{10}
-\indexentry{variable!final}{10}
-\indexentry{final variable}{10}
-\indexentry{nullary constructor}{10}
+\indexentry{variable!final}{11}
+\indexentry{final variable}{11}
+\indexentry{nullary constructor}{11}
 \indexentry{Object}{11}
 \indexentry{place.location}{11}
-\indexentry{conversions}{11}
-\indexentry{promotions}{11}
-\indexentry{names}{12}
-\indexentry{packages}{12}
-\indexentry{Upper case convention}{12}
-\indexentry{places}{12}
-\indexentry{here}{12}
-\indexentry{root activity}{13}
-\indexentry{finish}{14}
-\indexentry{initial activity}{14}
-\indexentry{atomic sections}{15}
-\indexentry{locality condition}{15}
-\indexentry{remote method invocation}{17}
-\indexentry{foreach@{\tt foreach}}{17}
-\indexentry{for@{\tt for}}{17}
-\indexentry{ateach@{\tt ateach}}{18}
-\indexentry{clocks}{18}
-\indexentry{clock!creation}{18}
-\indexentry{clock!clocked statements}{19}
-\indexentry{clock!continue}{19}
-\indexentry{clock!next}{19}
-\indexentry{clock!drop}{19}
-\indexentry{clock!dropped}{19}
-\indexentry{clock!now}{19}
-\indexentry{interfaces}{20}
-\indexentry{class}{20}
-\indexentry{class!reference class}{20}
-\indexentry{class!value class}{20}
-\indexentry{local!{\tt local}}{21}
-\indexentry{arrays}{21}
-\indexentry{arrays!distribution@\tt distribution}{21}
-\indexentry{region}{22}
-\indexentry{region!upperTriangular}{22}
-\indexentry{region!lowerTriangular}{22}
-\indexentry{region!banded}{22}
-\indexentry{region!convex}{22}
-\indexentry{region!sub-region}{22}
-\indexentry{region!intersection}{22}
-\indexentry{region!union}{22}
-\indexentry{region!set difference}{22}
-\indexentry{region!==}{22}
-\indexentry{distribution}{22}
-\indexentry{distribution!unique}{23}
-\indexentry{distribution!constant}{23}
-\indexentry{distribution!block}{23}
-\indexentry{distribution!cyclic}{23}
-\indexentry{distribution!block cyclic}{23}
-\indexentry{distribution!arbitrary}{23}
-\indexentry{distribution!restriction!domain}{23}
-\indexentry{distribution!restriction!range}{23}
-\indexentry{distribution!user-defined}{23}
-\indexentry{sub-distribution}{23}
-\indexentry{distribution!intersection}{23}
-\indexentry{distribution!union!asymmetric}{23}
-\indexentry{distribution!union!disjoint}{23}
-\indexentry{distribution!difference}{23}
-\indexentry{array!access}{24}
-\indexentry{arrays!constant promotion}{24}
-\indexentry{array!restriction}{24}
-\indexentry{array!union!disjoint}{24}
-\indexentry{array!union!asymmetric}{24}
-\indexentry{array!pointwise operations}{24}
-\indexentry{array!reductions}{25}
-\indexentry{array!scans}{25}
-\indexentry{statements}{25}
-\indexentry{assignment}{25}
-\indexentry{[] syntax}{25}
-\indexentry{variable declarator!exploded}{25}
-\indexentry{expressions}{26}
-\indexentry{classcast}{26}
-\indexentry{instanceof@{\tt instanceof}}{26}
-\indexentry{==}{26}
-\indexentry{!=}{26}
-\indexentry{extern}{26}
-\indexentry{X10 productions}{28}
+\indexentry{Object}{12}
+\indexentry{conversions}{13}
+\indexentry{promotions}{13}
+\indexentry{names}{13}
+\indexentry{packages}{13}
+\indexentry{Upper case convention}{13}
+\indexentry{places}{13}
+\indexentry{here}{13}
+\indexentry{root activity}{14}
+\indexentry{finish}{15}
+\indexentry{initial activity}{16}
+\indexentry{atomic blocks}{16}
+\indexentry{locality condition}{17}
+\indexentry{remote method invocation}{19}
+\indexentry{foreach@{\tt foreach}}{19}
+\indexentry{for@{\tt for}}{19}
+\indexentry{ateach@{\tt ateach}}{19}
+\indexentry{clocks}{20}
+\indexentry{clock!creation}{20}
+\indexentry{clock!clocked statements}{21}
+\indexentry{clock!resume}{21}
+\indexentry{clock!next}{21}
+\indexentry{clock!drop}{21}
+\indexentry{clock!now}{21}
+\indexentry{interfaces}{22}
+\indexentry{class}{22}
+\indexentry{class!reference class}{22}
+\indexentry{class!value class}{22}
+\indexentry{local!{\tt local}}{23}
+\indexentry{arrays}{24}
+\indexentry{arrays!distribution@\tt distribution}{24}
+\indexentry{region}{24}
+\indexentry{region!upperTriangular}{24}
+\indexentry{region!lowerTriangular}{24}
+\indexentry{region!banded}{24}
+\indexentry{region!convex}{24}
+\indexentry{region!sub-region}{25}
+\indexentry{region!intersection}{25}
+\indexentry{region!union}{25}
+\indexentry{region!set difference}{25}
+\indexentry{region!==}{25}
+\indexentry{distribution}{25}
+\indexentry{distribution!unique}{25}
+\indexentry{distribution!constant}{25}
+\indexentry{distribution!block}{25}
+\indexentry{distribution!cyclic}{25}
+\indexentry{distribution!block cyclic}{25}
+\indexentry{distribution!arbitrary}{25}
+\indexentry{distribution!restriction!domain}{25}
+\indexentry{distribution!restriction!range}{26}
+\indexentry{distribution!user-defined}{26}
+\indexentry{sub-distribution}{26}
+\indexentry{distribution!intersection}{26}
+\indexentry{distribution!union!asymmetric}{26}
+\indexentry{distribution!union!disjoint}{26}
+\indexentry{distribution!difference}{26}
+\indexentry{array!access}{27}
+\indexentry{arrays!constant promotion}{27}
+\indexentry{array!restriction}{27}
+\indexentry{array!union!disjoint}{27}
+\indexentry{array!union!asymmetric}{27}
+\indexentry{array!pointwise operations}{27}
+\indexentry{array!reductions}{27}
+\indexentry{array!scans}{27}
+\indexentry{statements}{28}
+\indexentry{assignment}{28}
+\indexentry{[] syntax}{28}
+\indexentry{variable declarator!exploded}{28}
+\indexentry{expressions}{28}
+\indexentry{classcast}{29}
+\indexentry{instanceof@{\tt instanceof}}{29}
+\indexentry{==}{29}
+\indexentry{!=}{29}
+\indexentry{extern}{29}
+\indexentry{X10 productions}{32}
