@@ -10,7 +10,7 @@ What you need:
    Java installation that you want to use to translate and run x10 
    programs. The 'java' and 'javac' command shall be found at 
    $JAVA_HOME/bin/ (Unix style).
- - set the PLATFORM environment variable according to your platform.
+ - set the X10_PLATFORM environment variable according to your platform.
    Currently this corresponds to the subdirectory under examples/lib where
    native libraries are kept.  For 32-bit Windows on x86 hardware,
    the string is win32_x86.  For AIX on PowerPC it is aix_ppc.
