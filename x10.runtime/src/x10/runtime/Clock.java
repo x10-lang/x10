@@ -1,10 +1,11 @@
 package x10.runtime;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.ArrayList;
 
+import x10.lang.ClockDroppedException;
 import x10.lang.Runtime;
 import x10.lang.clock;
 
@@ -95,7 +96,8 @@ public final class Clock extends clock {
      */
     public void doNow(Activity a) {
     	synchronized(this) {
-    		assert activities_.contains(aip_.getCurrentActivity());
+    		if (! activities_.contains(aip_.getCurrentActivity()))
+    			throw new ClockDroppedException("Cannot execute 'now' on clock on which the current activity is not registered with.");
     		nowSet_.add(a);
     		aip_.registerActivitySpawnListener(a, nowSpawnListener_);
     	}
