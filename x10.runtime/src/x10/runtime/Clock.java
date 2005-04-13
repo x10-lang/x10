@@ -102,7 +102,8 @@ public final class Clock extends clock {
      */
     public void doNow(Activity a) {
     	synchronized(this) {
-    		if (! activities_.contains(aip_.getCurrentActivity()))
+    		if ( (! activities_.contains(aip_.getCurrentActivity())) ||
+		     (resumed_.contains(aip_.getCurrentActivity())) )
     			throw new ClockUseException("Cannot execute 'now' on clock on which the current activity is not registered with.");
     		nowSet_.add(a);
     		aip_.registerActivitySpawnListener(a, nowSpawnListener_);
