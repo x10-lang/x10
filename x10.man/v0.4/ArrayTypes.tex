@@ -22,9 +22,9 @@ default is reference):
 444     | Type value [ DepParameterExpr ]
 \end{x10}
 
-The array type {\cf Type[ ] } is the type of all
-one-dimensional locally distributed arrays of basetype {\tt Type}
-whose underlying region is of the form {\tt 0:N}, for some {\tt N}.
+The array type {\cf Type[ ] } is the type of all arrays of base
+type {\tt Type} defined over the distribution {\tt 0:N -> here}
+for some positive integer {\tt N}.
 
 The qualifier {\tt value} ({\tt reference}) specifies that the array
 is a {\tt value}({\tt reference}) array. The array elements of a {\tt
