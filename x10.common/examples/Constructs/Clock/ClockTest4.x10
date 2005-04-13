@@ -5,22 +5,17 @@
  *
  * @author kemal 3/2005
  */
-//import x10.runtime.Clock; // workaround for registration bug
 public class ClockTest4 {
 
 	int val=0;
-	static final int N=32;
+	const int N=32;
 
 	public boolean run() {
       		final clock c = clock.factory.clock();
 		
-			foreach (point [i]: 1:(N-1)) clocked(c) {
-				// TODO: inner task must be auto-registered
-				//((Clock)c).register();
-				//delay(5000);
-				foreachBody(i,c);
-			}
-		//delay(5000); // everyone should be registered first
+		foreach (point [i]: 1:(N-1)) clocked(c) {
+			foreachBody(i,c);
+		}
 		foreachBody(0,c);
 		int temp2;
 		atomic {temp2=val;}
@@ -43,10 +38,6 @@ public class ClockTest4 {
 			next;
 	}
 
-	static void delay(int millis) {
-		try{Thread.sleep(millis);}
-		catch(InterruptedException e) {}
-	}
 
 	public static void main(String args[]) {
 		boolean b= (new ClockTest4()).run();

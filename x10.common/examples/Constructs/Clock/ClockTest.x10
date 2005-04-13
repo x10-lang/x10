@@ -1,5 +1,3 @@
-import x10.lang.*;
-
 /**
  * Minimal test for clock.  Does not do anything
  * interesting.  Only possible failure is to not

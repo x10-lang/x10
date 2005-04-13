@@ -1,7 +1,7 @@
 /**
- * Combination of finish and clocks, 
- * New rule: finish cannot pass any clock to a subactivity
- * should cause a run time error.
+ * Combination of finish and clocks. 
+ * New rule: finish cannot pass any clock to a subactivity.
+ * should cause a run time or compile time error.
  *
  * @author kemal 3/2005
  */
