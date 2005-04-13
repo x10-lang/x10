@@ -147,7 +147,15 @@ public abstract class Runtime {
     
     public static void doNext() {
         List clks = getCurrentActivityInformation().getRegisteredClocks();
+        // CG to CvP: without having a clock ordering, we MUST
+        // first do resume on all clocks before calling doNext!
+        // Otherwise the lack of order may lead to a deadlock!
         Iterator it = clks.iterator();
+        while (it.hasNext()) {
+            clock c = (clock) it.next();
+            c.resume();
+        }
+        it = clks.iterator();
         while (it.hasNext()) {
             clock c = (clock) it.next();
             c.doNext();

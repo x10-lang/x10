@@ -40,6 +40,12 @@ public final class Clock extends clock {
     private final Set pending_ = new HashSet(); // <Activity>
     
     /**
+     * Activities that called resume get a free pass the next
+     * time they call next (if we passed into the next cycle).
+     */
+    private final HashSet resumed_ = new HashSet(); // <Activity>
+    
+    /**
      * Activities spawned via 'now'.  All of these activities
      * must terminate before we can advance to the next phase.
      */
@@ -108,15 +114,19 @@ public final class Clock extends clock {
      * Notify the clock that this activity has completed its
      * clocked activities in this cycle, that is the current
      * activity will not issue any further calls to 'now' until
-     * it calls 'next'.
-     *
+     * it calls 'next'.    
      */
     public void resume() {
-        Activity a = aip_.getCurrentActivity();
+        Activity a = aip_.getCurrentActivity();        
         // do not lock earlier - see comment in doNext
         synchronized (this) {
             assert activities_.contains(a);
-            pending_.remove(a);
+            if (resumed_.contains(a))
+            	return; // ignore multiple-resume without next
+        	if (pending_.contains(a)) {
+        		pending_.remove(a);
+        		resumed_.add(a);
+        	}
         }
     }
      
@@ -181,7 +191,21 @@ public final class Clock extends clock {
         // because the lock used to protected aip_.getCurrentActivity
         // is also held when terminating activities drop locks ...
         synchronized (this) {
-            assert activities_.contains(a);
+        	assert activities_.contains(a);
+        	
+            if (resumed_.contains(a)) {
+            	resumed_.remove(a);
+            	// This is sublte: this activity called 'resume', but
+            	// are we already in the next phase?  If we are NOT,
+            	// we still have to block (for other activities).
+            	// This can be decided by checking if "a" is in pending:
+            	// advance would have added "a" back to pending.  If we're
+            	// IN pending, then the clock is in the next phase and we
+            	// do not have to block (can just continue).  Otherwise
+            	// we better block with everyone else.
+            	if (pending_.contains(a))
+            		return;
+            }        	
             pending_.remove(a); // this one is done! 
             if (tryAdvance_())
                 return; // we advanced, continue immediately!
