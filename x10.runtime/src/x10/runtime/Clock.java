@@ -93,10 +93,12 @@ public final class Clock extends clock {
      * 
      * @param a an activity to run
      */
-    public synchronized void doNow(Activity a) {
-        assert activities_.contains(aip_.getCurrentActivity());
-        nowSet_.add(a);
-        aip_.registerActivitySpawnListener(a, nowSpawnListener_);
+    public void doNow(Activity a) {
+    	synchronized(this) {
+    		assert activities_.contains(aip_.getCurrentActivity());
+    		nowSet_.add(a);
+    		aip_.registerActivitySpawnListener(a, nowSpawnListener_);
+    	}
         ((Place) Runtime.here()).runAsync(a, null);
     }
     

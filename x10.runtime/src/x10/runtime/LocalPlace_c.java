@@ -259,15 +259,17 @@ public class LocalPlace_c extends Place {
      * @param r the activity to run
      * @throws InterruptedException
      */
-    protected synchronized void execute(Runnable r, Activity act, ActivityInformation ai) {
+    protected void execute(Runnable r, Activity act, ActivityInformation ai) {
         PoolRunner t;
-        if (threadQueue_ == null) {
-            t = new PoolRunner(this);
-            reg_.registerThread(t, this);
-            t.start();
-        } else {
-            t = threadQueue_;
-            threadQueue_ = t.next;
+        synchronized(this) {
+        	if (threadQueue_ == null) {
+        		t = new PoolRunner(this);
+        		reg_.registerThread(t, this);
+        		t.start();
+        	} else {
+        		t = threadQueue_;
+        		threadQueue_ = t.next;
+        	}
         }
         t.run(r, act, ai);
     }
