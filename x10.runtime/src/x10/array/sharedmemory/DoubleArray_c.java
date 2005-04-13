@@ -138,7 +138,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      */
     public static DoubleArray_c DoubleArray_c( double[] a, boolean safe, boolean mutable ) {
     	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
-    	return new DoubleArray_c(d, a, safe, mutable );
+    	return 	new DoubleArray_c(d, a, safe, mutable );
     }
     
     public void keepItLive() {}
@@ -235,36 +235,39 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public double set(double v, int d0) {
     	assert this.region.rank == 1;
-        int[] pos = {d0};
-    	final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
+    	d0 -= region.rank(0).low();
+    	return arr_.setDouble(v,d0);
     }
     
     public double set(double v, int d0, int d1) {
     	assert this.region.rank == 2;
-    	if(false){
-    		int[] pos = {d0, d1};
-    		final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    		return set(v, p);
-    	}else {
-    		int theIndex= d1 + (d0 *region.rank(1).size());
-    		return arr_.setDouble(v,theIndex);
-    	}
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	int theIndex= d1 + (d0 *region.rank(1).size());
+    	return arr_.setDouble(v,theIndex);
     }
     
     public double set(double v, int d0, int d1, int d2) {
     	assert this.region.rank == 3;
-        int[] pos = {d0, d1, d2};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	int theIndex= d2 + (d1 * region.rank(2).size()) + (d0 * (region.rank(2).size()*region.rank(1).size())) ;
+    	return arr_.setDouble(v,theIndex);
     }
     
     public double set(double v, int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
-        int[] pos = {d0, d1, d2, d3};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
-        
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	d3 -= region.rank(3).low();
+    	
+    	int theIndex= d3+ (d2 * region.rank(3).size()) + 
+		(d1 * region.rank(2).size()* region.rank(3).size()) + 
+		(d0 *region.rank(1).size()* region.rank(2).size()* region.rank(3).size()) ;
+    	return arr_.setDouble(v,theIndex);
+    	
     }
 
     /* (non-Javadoc)
@@ -277,35 +280,42 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public double get(int d0) {
     	assert this.region.rank == 1;
-        int[] pos = {d0};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	d0 -= region.rank(0).low();
+    	return arr_.getDouble(d0);
     }
     public double get(int d0, int d1) {
     	assert this.region.rank == 2;
-    	if(false){
-    		int[] pos = {d0, d1};
-    		final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    		return get(p);
-    	}else {
-    		int theIndex= d1 + (d0 *region.rank(1).size());
-    		
-    		return arr_.getDouble(theIndex);
-    	}
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	int theIndex= d1 + (d0 *region.rank(1).size());
+    	
+    	return arr_.getDouble(theIndex);
     }
     
     public double get(int d0, int d1, int d2) {
     	assert this.region.rank == 3;
-        int[] pos = {d0, d1, d2};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
-    }
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	
+    	int theIndex= d2 + (d1 *region.rank(2).size()) +
+		(d0 *region.rank(1).size()*region.rank(2).size());
+    	return arr_.getDouble(theIndex);  	
+    } 
     
     public double get(int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
-        int[] pos = {d0, d1, d2, d3};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	d3 -= region.rank(3).low();
+    	
+    	int theIndex= d3 + (d2*region.rank(3).size()) + 
+		(d1 *region.rank(2).size()*region.rank(3).size()) + 
+		(d0 *region.rank(1).size()*region.rank(2).size()*region.rank(3).size());
+    	
+    	return arr_.getDouble(theIndex);
+    	
     }
     public double get(int[] pos) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
