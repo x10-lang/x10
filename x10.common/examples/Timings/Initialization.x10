@@ -1,4 +1,3 @@
-import x10.lang.*;
 import java.lang.reflect.*;
 /**
  * Synthetic benchmark to time arary accesses
@@ -7,17 +6,17 @@ import java.lang.reflect.*;
 public class Initialization {
 	String _tests[] = {"testDouble"};
 	static final int kArraySize=5000;
-	double[.] _doubleArray1D;
-	double[.] _doubleArray2D;
-	double[] _javaArray;
+	double[.] x_doubleArray1D;
+	double[.] x_doubleArray2D;
+	double[] x_javaArray;
 	
-	public Initialization(){
+	public boolean run(){
 		long start,stop;
 		int OneDSize = kArraySize * kArraySize;
 		
 		start = System.currentTimeMillis();
 		System.out.println("creating java array size "+OneDSize);
-		_javaArray = new double[OneDSize];
+		x_javaArray = new double[OneDSize];
 		stop = System.currentTimeMillis();
 		System.out.println("Created array in "+((double)(stop-start)/1000)+" seconds");
 		
@@ -25,7 +24,7 @@ public class Initialization {
 		System.out.println("creating array size "+OneDSize);
 		region r = [0:OneDSize];
 		distribution  D = distribution.factory.block(r);
-		_doubleArray1D = new double[D];
+		x_doubleArray1D = new double[D];
 		stop = System.currentTimeMillis();
 		System.out.println("Created array in "+((double)(stop-start)/1000)+" seconds");
 		
@@ -34,14 +33,17 @@ public class Initialization {
 		distribution  D2 = distribution.factory.block(r2);
 		System.out.println("Start allocation...");
 		start = System.currentTimeMillis();
-		_doubleArray2D = new double[D2];
+		x_doubleArray2D = new double[D2];
 		stop = System.currentTimeMillis();
 		System.out.println("Created array in "+((double)(stop-start)/1000)+" seconds");
 		System.out.println("finished allocating");
+		return true;
 	}
-	public static void  main(String a[]){
-		
-		Initialization test = new Initialization();
-		
+
+	public static void main(String args[]) {
+		boolean b= (new Initialization()).run();
+		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
+		System.exit(b?0:1);
 	}
+
 }
