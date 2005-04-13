@@ -235,25 +235,34 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public double set(double v, int d0) {
     	assert this.region.rank == 1;
+    	d0 -= region.rank(0).low();
     	return arr_.setDouble(v,d0);
     }
     
     public double set(double v, int d0, int d1) {
     	assert this.region.rank == 2;
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
     	int theIndex= d1 + (d0 *region.rank(1).size());
     	return arr_.setDouble(v,theIndex);
     }
     
     public double set(double v, int d0, int d1, int d2) {
     	assert this.region.rank == 3;
-    	
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
     	int theIndex= d2 + (d1 * region.rank(2).size()) + (d0 * (region.rank(2).size()*region.rank(1).size())) ;
     	return arr_.setDouble(v,theIndex);
     }
     
     public double set(double v, int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
-    	    	
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	d3 -= region.rank(3).low();
+    	
     	int theIndex= d3+ (d2 * region.rank(3).size()) + 
 		(d1 * region.rank(2).size()* region.rank(3).size()) + 
 		(d0 *region.rank(1).size()* region.rank(2).size()* region.rank(3).size()) ;
@@ -271,10 +280,13 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public double get(int d0) {
     	assert this.region.rank == 1;
+    	d0 -= region.rank(0).low();
     	return arr_.getDouble(d0);
     }
     public double get(int d0, int d1) {
     	assert this.region.rank == 2;
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
     	int theIndex= d1 + (d0 *region.rank(1).size());
     	
     	return arr_.getDouble(theIndex);
@@ -282,7 +294,10 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public double get(int d0, int d1, int d2) {
     	assert this.region.rank == 3;
-    	    	
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	
     	int theIndex= d2 + (d1 *region.rank(2).size()) +
 		(d0 *region.rank(1).size()*region.rank(2).size());
     	return arr_.getDouble(theIndex);  	
@@ -290,6 +305,10 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public double get(int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	d3 -= region.rank(3).low();
     	
     	int theIndex= d3 + (d2*region.rank(3).size()) + 
 		(d1 *region.rank(2).size()*region.rank(3).size()) + 
