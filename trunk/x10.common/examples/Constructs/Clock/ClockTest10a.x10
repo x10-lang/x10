@@ -76,7 +76,7 @@ public class ClockTest10a {
 	     varD[ph(k)]=varB[ph(k-1)]+varC[ph(k-1)]+10;
 	     System.out.println(k+" D consuming oldC producing "+varD[ph(k)]);
 	     int n=k-pipeDepth;
-	     chk(!(k==N) || varD[ph(k)]==n+n+n*n+10);
+	     chk(!(k>pipeDepth) || varD[ph(k)]==n+n+n*n+10);
              next;
           }
         }
@@ -85,7 +85,7 @@ public class ClockTest10a {
 	     varE[ph(k)]=varC[ph(k-1)]*7;
 	     System.out.println(k+" E consuming oldC producing "+varE[ph(k)]);
 	     int n=k-pipeDepth;
-	     chk(!(k==N) || varE[ph(k)]==n*n*7);
+	     chk(!(k>pipeDepth) || varE[ph(k)]==n*n*7);
              next;
           }
         }
