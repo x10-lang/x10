@@ -53,9 +53,7 @@ modifier {\cf value} before the keyword {\cf class} in a class
 declaration.  (A class not declared to be a value class will be called
 a {\em reference class}.)  Each instance field of a value class is
 treated as {\cf final}. It is legal (but neither required nor recommended)
-for fields in a value class to be declared final. It is a compile-time
-error for a value class to inherit from a stateful class or for a
-reference class to inherit from a value class. For brevity, the \Xten{}
+for fields in a value class to be declared final. For brevity, the \Xten{}
 compiler allows the programmer to omit the keyword {\tt class} after
 {\tt  value} in a value class declaration.
 
@@ -72,11 +70,14 @@ The {\cf nullable} type-constructor (\S~\ref{NullableTypeConstructor}) can
 be used to declare variables whose value may be {\cf null} or a value
 type.
 
-{}\Xten{} provides a built in {\tt final} definition for {\cf
-.equals()} for a value type, namely stable equality ({\tt ==},
-\S~\ref{StableEquality}). The programmer is free to override {\cf
-.equals} with his/her own definition. (The behavior of {\tt ==} cannot
-be overridden however.)
+\cbstart
+Stable equality for value types is defined through a deep walk,
+bottoming out in fields of reference types (\S~\ref{StableEquality}).
+\cbend
+
+\paragraph{Static semantics.}
+It is a compile-time error for a value class to inherit from a
+stateful class or for a reference class to inherit from a value class.
 
 \subsection{Representation}
 
@@ -112,6 +113,12 @@ idea of introducing a *-annotation. Need to make a decision on
 this. Could leave this for 0.7.}
 
 \subsection{Example}
+\cbstart
+
+A functional {\tt LinkedList} program may be written as follows:
+
+\cbend
+
 \begin{x10}
 value LinkedList  \{ 
   Object first;
@@ -135,13 +142,36 @@ value LinkedList  \{
     return rest;
   \} 
   public
-    void append(LinkedList l) \{
+    LinkedList append(LinkedList l) \{
     return (this.rest == null) 
         ? new LinkedList(this.first, l) 
         : this.rest.append(l);
   \}
 \}
 \end{x10}
+
+Similarly, a {\tt Complex} class may be implemented as follows:
+\begin{x10}
+value Complex  \{ 
+  double re;
+  double im;
+  public
+     Complex(double re, double im) \{
+     this.re=re;
+     this.im=im;
+  \}
+  public Complex add(Complex other) \{
+    return new Complex(this.re+other.re,
+                       this.im+other.im);
+  \}
+  public Complex mult(Complex other) \{
+    return new Complex(this.re^2-other.re^2,
+                       2*this.im*other.im);
+  \}
+  ...
+\}
+\end{x10}
+
 
 \section{Method annotations}
 

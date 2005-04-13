@@ -3,8 +3,8 @@
 Bigger computational problems need bigger computers capable of
 performing a larger number of operations per second. The era of
 increasing performance by simply increasing clocking frequency now
-seems to be behind us; faster chips run hotter and current cooling
-technology does not scale as rapidly as the clock. Instead, computer
+seems to be behind us. It is becoming increasingly difficult
+to mange chip power and heat.  Instead, computer
 designers are starting to look at {\em scale out} systems in which the
 system's computational capacity is increased by adding additional
 nodes of comparable power to existing nodes, and connecting nodes with
@@ -72,15 +72,15 @@ Some limited operator overloading is provided for a few ``built in''
 classes in the {\cf x10.lang} package.  Future versions of the
 language will support user-definable operator overloading.
 
-The major novel contribution of \Xten{} however is its flexible
-treatment of concurrency, distribution and locality, within an
-integrated type system. \Xten{} extends the GAS model to the {\em
-globally asynchronous, locally synchronous} (GALS) model originally
-developed in hardware and embedded software research.  {}\Xten{}
-introduces {\em places} as an abstraction for a locally synchronous
-computational context. An \Xten{} computation runs over a large
-collection of places.  Each place hosts some data and runs one or more
-{\em activities}. Activities are extremely lightweight threads of
+{}\Xten{} introduces a flexible treatment of concurrency, distribution
+and locality, within an integrated type system. \Xten{} extends the
+GAS model to the {\em globally asynchronous, locally synchronous}
+(GALS) model originally developed in hardware and embedded software
+research.  {}\Xten{} introduces {\em places} as an abstraction for a
+computational context with a locally synchronous view of shared
+memory. An \Xten{} computation runs over a large collection of places.
+Each place hosts some data and runs one or more {\em
+activities}. Activities are extremely lightweight threads of
 execution. An activity may synchronously (and {\em atomically}) use
 one or more memory locations in the place in which it resides,
 leveraging current symmetric multiprocessor (SMP) technology.  It {\em
@@ -95,9 +95,10 @@ order activities running in multiple places. (Multi-dimensional)
 Arrays may be distributed across multiple places. Arrays support
 parallel collective operations. A novel exception flow model ensures
 that exceptions thrown by asynchronous activities can be caught at a
-suitable parent activity.  The type system statically tracks which
-locations may reside at the same place.  Linking with native code is
-supported.
+suitable parent activity.  The type system tracks which memory
+accesses are local, and marks non-local accesses as compile time
+errors. The programmer may introduce placecasts which verify the
+access is local at runtime.  Linking with native code is supported.
 
 {}\Xten{} is an experimental language.  Several representative
 concurrent idioms have already found pleasant expression in \Xten. We

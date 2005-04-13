@@ -42,6 +42,11 @@ terminates. Thus \Xten{} does not permit the creation of so called
 activity. We say that an \Xten{} computation is {\em rooted}
 (\S~\ref{initial-computation}).
 
+\paragraph{Future extensions.} 
+We may permit the initial activity to be a daemon activity to permit
+reactive computations, such as webservers, that conceptually dont
+terminate.
+
 \section{The \Xten{} rooted exception model}
 \label{ExceptionModel}
 
@@ -125,13 +130,6 @@ designator; the compiler will throw an error if it cannot
 determine the unique designated place.\footnote{\XtenCurrVer{} does 
 not specify a particular algorithm; this will be fixed in future versions.}
 
-The statement is subject to the restriction that it must be acceptable
-as the body of a {\cf void} method for an anoymous inner class
-declared at that point in the code, which throws no checked
-exceptions. As such, it may reference variables in lexically enclosing
-scopes (including {\cf clock} variables, \S~\ref{XtenClocks}) provided
-that such variables are (implicitly or explicitly) {\cf final}.
-
 An activity $A$ executes the statement {\tt async (P) S} by launching
 a new activity $B$ at the designated place, to execute the specified
 statement. The statement terminates locally as soon as $B$ is
@@ -144,12 +142,24 @@ otherwise through $A$ to $A$'s root activity. Note that while an
 activity is running, exceptions thrown by activities it has already
 generated may propagate through it up to its root activity.
 
-Multiple activities launched by a single activity at another place
-are not ordered in any way. They are added to the pool of activities
-at the target place and will be executed in sequence or in parallel
-based on the local scheduler's decisions. If the programmer wishes
-to sequence their execution s/he must use \Xten{} constructs,
-such as clocks and {\tt finish} to obtain the desired effect.
+Multiple activities launched by a single activity at another place are
+not ordered in any way. They are added to the pool of activities at
+the target place and will be executed in sequence or in parallel based
+on the local scheduler's decisions. If the programmer wishes to
+sequence their execution s/he must use \Xten{} constructs, such as
+clocks and {\tt finish} to obtain the desired effect.  Further, the
+\Xten{} implementations are not required to have fair schedulers,
+though every implementation should make a best faith effort to ensure
+that every activity eventually gets a chance to make forward progress.
+
+\paragraph{Static semantics.}
+The statement in the body of an {\tt async} is subject to the
+restriction that it must be acceptable as the body of a {\cf void}
+method for an anoymous inner class declared at that point in the code,
+which throws no checked exceptions. As such, it may reference
+variables in lexically enclosing scopes (including {\cf clock}
+variables, \S~\ref{XtenClocks}) provided that such variables are
+(implicitly or explicitly) {\cf final}.
 
 \section{Finish}\index{finish}\label{finish}
 The statement {\tt finish S} converts global termination to local
@@ -163,25 +173,35 @@ termination and introduces a root activity.
       finish StatementNoShortIf
 \end{x10}
 
-An activity $A$ executes {\tt finish S} by executing {\tt S}.  The
-execution of {\tt S} may spawn other asynchronous activities (here or
+An activity $A$ executes {\tt finish s} by executing {\tt s}.  The
+execution of {\tt s} may spawn other asynchronous activities (here or
 at other places).  Uncaught exceptions thrown or propagated by any
-activity spawned by {\tt S} are accumulated at {\tt finish S}.  {\tt
-finish S} terminates locally when all activities spawned by {\tt S}
+activity spawned by {\tt s} are accumulated at {\tt finish s}.  {\tt
+finish s} terminates locally when all activities spawned by {\tt s}
 terminate globally (either abruptly or normally). If
-{\tt S} terminates normally, then {\tt finish S} terminates normally
-and $A$ continues execution with the next statement after {\tt finish S}.
-If {\tt S} terminates abruptly, then {\tt finish S}
+{\tt s} terminates normally, then {\tt finish s} terminates normally
+and $A$ continues execution with the next statement after {\tt finish s}.
+If {\tt s} terminates abruptly, then {\tt finish s}
 terminates abruptly and throws a single exception formed 
-from the collection of exceptions accumulated at {\tt finish S}.
+from the collection of exceptions accumulated at {\tt finish s}.
 
-Thus a {\tt finish S} statement serves as a collection point for
-uncaught exceptions generated during the execution of {\tt S}.
+Thus a {\tt finish s} statement serves as a collection point for
+uncaught exceptions generated during the execution of {\tt s}.
 
 Note that repeatedly {\tt finish}ing a statement has no effect after
-the first {\tt finish}: the behavior of {\tt finish finish S} is
-indistinguishable from {\tt finish S}.
+the first {\tt finish}: {\tt finish finish s} is indistinguishable
+from {\tt finish s}.
 
+\cbstart 
+\paragraph{Static semantics.} 
+{\tt finish s} interacts with clocks (\S~\ref{XtenClocks}). 
+
+To prevent deadlock from arising it is necessary that no async spawned
+by {\tt s} be registered on a clock. That is, the compiler should
+ensure that no {\tt async}, {\tt foreach} or {\tt ateach} statement in
+{\tt s} contains a non-empty {\tt clocked} clause.
+
+\cbend
 \paragraph{Future extensions.} 
 
 The semantics of {\tt finish S} is conjunctive; it terminates when all
@@ -202,11 +222,14 @@ presentation of a classname {\tt C}. The class must have a {\tt public
 static void main(String[] a)} method, otherwise an exception is thrown
 and the computation terminates.  The single statement
 \begin{x10}
-async (place.FIRST\_PLACE) { finish C.main(s); }
+async (place.FIRST\_PLACE) \{ 
+  finish C.main(s);
+\}
 \end{x10} 
 \noindent is executed where {\tt s} is an array of strings created
 from command line arguments. This single activity is the root activity
-for the entire computation.
+for the entire computation. (See \S~\ref{XtenPlaces} for a discussion of
+placs.)
 
 %% Say something about configuration information? 
 
@@ -276,19 +299,19 @@ Futures are provided in \Xten{} for convenience; they may be
 programmed using latches, {\tt async} and {\tt finish} as
 described in \S~\ref{future-imp}.
 
-\section{Atomic sections}\label{AtomicSections}\index{atomic sections}
+\section{Atomic blocks}\label{AtomicBlocks}\index{atomic blocks}
 Languages such as \java{} use low-level synchronization locks to allow
 multiple interacting threads to coordinate the mutation of shared
-data. \Xten{{ eschews locks in favor of a very simple high-level
-construct, the {\em atomic section}.
+data. \Xten{} eschews locks in favor of a very simple high-level
+construct, the {\em atomic block}.
 
-A programmer may use atomic sections to guarantee that invariants of
+A programmer may use atomic blocks to guarantee that invariants of
 shared data-structures are maintained even as they are being accessed
 simultaneously by multiple activities running in the same place.
 
-\subsection{Unconditional atomic sections}
-The simplest form of an atomic section is the {\em unconditional
-atomic section}:
+\subsection{Unconditional atomic blocks}
+The simplest form of an atomic block is the {\em unconditional
+atomic block}:
 
 \begin{x10}
 461 Statement ::= AtomicStatement
@@ -300,14 +323,8 @@ atomic section}:
 445 MethodModifier ::= atomic
 \end{x10}
 
-{\cf Statement} may include method calls, conditionals etc.  It may
-not include the construction of any {\tt async} activity.  It may not
-include any statement that may potentially block at runtime (e.g.{}
-{\tt when}, {\tt force} operations, {\tt next} operations on clocks,
-{\tt finish}).  
-
-Also for the sake of efficient implementation \XtenCurrVer{} requires
-that the atomic section be {\em analyzable}, that is, the set of
+For the sake of efficient implementation \XtenCurrVer{} requires
+that the atomic block be {\em analyzable}, that is, the set of
 locations that are read and written by the {\cf BlockStatement} are
 bounded and determined statically.\footnote{ A static bound is a constant
 that depends only on the program text, and is independent 
@@ -317,52 +334,60 @@ the compiler to perform this analysis will be specified in future
 versions of the language.
 %%% TBD
 
-All these locations must statically satisfy the {\em locality
-condition}: they must belong to the place of the current
-activity.\index{locality condition}\label{LocalityCondition}
-The compiler checks for this condition by checking whether
-the statement could be the body of a {\tt void} method annotated 
-with {\tt local} at that point in the code (\S~\ref{LocalAnnotation}).
-
 Such a statement is executed by an activity as if in a single step
 during which all other concurrent activities in the same place are
 suspended. If execution of the statement may throw an exception, it is
-the programmer's responsibility to wrap the atomic section within a
+the programmer's responsibility to wrap the atomic block within a
 {\cf try/finally} clause and include undo code in the finally
 clause. Thus the {\tt atomic} statement only guarantees atomicity on
 successful execution, not on a faulty execution.
 
-A compiler is allowed to reorder two atomic sections that have no
-data-dependency between them, just as it may reorder any two
-statements which have no data-dependencies between them. For the
-purposes of data dependency analysis, an atomic section is deemed to
-have read and written all data at a single program point, the
-beginning of the atomic section.
-
+%% A compiler is allowed to reorder two atomic blocks that have no
+%%data-dependency between them, just as it may reorder any two
+%%statements which have no data-dependencies between them. For the
+%%purposes of data dependency analysis, an atomic block is deemed to
+%%have read and written all data at a single program point, the
+%%beginning of the atomic block.
+%%%% I dont believe we need to say at some point in the atomic block.
+%%
 We allow methods of an object to be annotated with {\cf atomic}. Such
 a method is taken to stand for a method whose body is wrapped within an
 {\cf atomic} statement.
 
-Note an important property of an (unconditonal) atomic section:
+Note an important property of an (unconditonal) atomic block:
 
 \begin{eqnarray}
- {\cf atomic\ atomic}\ S &=& {\cf atomic}\ S
+ {\cf atomic\ \{s1\ atomic\ s2\}} &=& {\cf atomic\ \{s1\ s2\}}
 \end{eqnarray}
 
-Further, an atomic section will eventually terminate successfully or
+Further, an atomic block will eventually terminate successfully or
 thrown an exception; it may not introduce a deadlock.
 
-Atomic sections are closely related to non-blocking synchronization
+Atomic blocks are closely related to non-blocking synchronization
 constructs \cite{herlihy91waitfree}, and can be used to implement 
 non-blocking concurrent algorithms.
+
+\paragraph{Static semantics.}
+In {\cf atomic s}, {\cf s} may include method calls, conditionals etc.
+It may {\em not} include an {\tt async} activity.
+It may {\em not} include any statement that may potentially block at
+runtime (e.g.{} {\tt when}, {\tt force} operations, {\tt next}
+operations on clocks, {\tt finish}).
+
+All locations accessed in an atomic block must statically satisfy the
+{\em locality condition}: they must belong to the place of the current
+activity.\index{locality condition}\label{LocalityCondition} The
+compiler checks for this condition by checking whether the statement
+could be the body of a {\tt void} method annotated with {\tt local} at
+that point in the code (\S~\ref{LocalAnnotation}).
 
 \subsubsection{Example}
 
 The following class method implements a (generic) compare and swap (CAS) operation:
 
 \begin{x10}
-public atomic boolean CAS( Object target, 
-                           Object old, 
+// target defined in lexically enclosing environment.
+public atomic boolean CAS( Object old, 
                            Object new) \{
    if (target.equals(old)) \{
      target = new;
@@ -372,9 +397,9 @@ public atomic boolean CAS( Object target,
 \}
 \end{x10}
 
-\subsection{Conditional atomic sections}
+\subsection{Conditional atomic blocks}
 
-Conditional atomic sections are of the form:
+Conditional atomic blocks are of the form:
 \begin{x10}
 465 Statement ::= WhenStatement
 475 StatementNoShortIf ::= WhenStatementNoShortIf
@@ -401,40 +426,52 @@ We note two common abbreviations. The statement {\cf when (true) S} is
 behaviorally identical to {\cf atomic S}: it never suspends. Second,
 {\cf when (c) \{;\}} may be abbreviated to {\cf await(c);} -- it
 simply indicates that the thread must await the occurrence of a
-certain condition before proceeding.  
+certain condition before proceeding.  Finally note that a {\tt when}
+statement with multiple branches is behaviorally identical to a {\tt
+when} statement with a single branch that checks the disjunction of
+the condition of each branch, and whose body contains an {\cf
+if/then/else} checking each of the branch conditions.
 
-\paragraph{Conditions on {\tt when} clauses.} 
-
+\paragraph{Static semantics.}
 For the sake of efficient implementation certain restrictions are
 placed on the guards and statements in a conditional atomic
-section. First, guards are required not to have side-effects, not to
+block. First, guards are required not to have side-effects, not to
 spawn asynchronous activities and to have a statically determinable
 upper bound on their execution. These conditions are expected to
 be checked statically by the compiler.
 
-Second, as for unconditional atomic sections, the set of memory
+Second, as for unconditional atomic blocks, the set of memory
 locations accessed by a guarded statements are required to be bounded
 and statically anlayzable.
 
 Third, guarded statements are required to be {\em flat}, that is, they
-may not contain conditional atomic sections. (The implementation of
-nested conditional atomic sections may require sophisticated
+may not contain conditional atomic blocks. (The implementation of
+nested conditional atomic blocks may require sophisticated
 operational techniques such as rollbacks.)
 
-Fourth, \Xten{} guarantees only {\em weak fairness} when executing
-conditional atomic sections. Let $c$ be the guard of some conditional
-atomic section $A$. $A$ is required to make forward progress only if
-$c$ is {\em eventually stable}. That is, any execution $s_1, s_2,
-\ldots$ of the system is considered illegal only if there is a $j$
-such that $c$ holds in all states $s_k$ for $k > j$ and in which $A$
-does not execute. Specifically, if the system executes in such a way
-that $c$ holds only intermmitently (that is, for some state in which
-$c$ holds there is always a later state in which $c$ does not hold),
-$A$ is not required to be executed.
+Fourth, \Xten{} does not guarantee that a conditional atomic block
+will execute if its condition holds only intermmitently. For, based on
+the vagaries of the scheduler, the precise instant at which a
+condition holds may be missed. Therefore the programmer is advised to
+ensure that conditions being tested by conditional atomic blocks are
+eventually stable, i.e.{} they will continue to hold until the block
+executes (the action in the body of the block may cause the condition
+to not hold any more).
+
+%%Fourth, \Xten{} does not guarantees only {\em weak fairness} when executing
+%%conditional atomic blocks. Let $c$ be the guard of some conditional
+%%atomic block $A$. $A$ is required to make forward progress only if
+%%$c$ is {\em eventually stable}. That is, any execution $s_1, s_2,
+%%\ldots$ of the program is considered illegal only if there is a $j$
+%%such that $c$ holds in all states $s_k$ for $k > j$ and in which $A$
+%%does not execute. Specifically, if the system executes in such a way
+%%that $c$ holds only intermmitently (that is, for some state in which
+%%$c$ holds there is always a later state in which $c$ does not hold),
+%%$A$ is not required to be executed (though it may be executed).
 
 \begin{rationale}
 The guarantee provided by {\cf wait/notify} in \java{} is no
-stronger. Indeed conditional atomic sections may be thought of as a
+stronger. Indeed conditional atomic blocks may be thought of as a
 replacement for \java's wait/notify functionality.
 \end{rationale} 
 
@@ -480,17 +517,16 @@ class OneBuffer \{
 
 \paragraph{ Implementing a future with a latch.}\label{future-imp}
 The following class shows how to implement a {\em latch}. A latch is
-an object that is initially created in an {\em unlatched}
-state. During its lifetime it may transition once to a {\em forced}
-state. Once forced, it stays forced for its
-lifetime. The latch may be queried to determine if it is forced, and
-if so, an associated value may be retrieved. Below, we will consider a
-latch set when some activity invokes a {\tt setValue} method on
-it. This method provides two values, a normal value and an exceptional
-value. The method {\tt force} blocks until the latch is set. If an
-exceptional value was specified when the latch was set, that value is
-thrown on any attempt to read the latch. Otherwise the normal value is
-returned.
+an object that is initially created in a state called the {\em
+unlatched} state. During its lifetime it may transition once to a {\em
+forced} state. Once forced, it stays forced for its lifetime. The
+latch may be queried to determine if it is forced, and if so, an
+associated value may be retrieved. Below, we will consider a latch set
+when some activity invokes a {\tt setValue} method on it. This method
+provides two values, a normal value and an exceptional value. The
+method {\tt force} blocks until the latch is set. If an exceptional
+value was specified when the latch was set, that value is thrown on
+any attempt to read the latch. Otherwise the normal value is returned.
 
 \begin{x10}
 public interface future \{
@@ -498,9 +534,9 @@ public interface future \{
    Object force();
 \}
 public class Latch implements future \{
-  boolean forced = false;
-  nullable boxed result = null;
-  nullable exception z = null;
+  protected boolean forced = false;
+  protected nullable boxed result = null;
+  protected nullable exception z = null;
 
   public atomic 
    boolean setValue( nullable Object val ) \{
@@ -582,7 +618,7 @@ activities spawned by {\tt x=e}. The exception will be caught by the
 {\tt catch} clause and stored with the latch. 
 
 
-\todo{Conditional atomic sections should be powerful enough to implement clocks as well.}
+\todo{Conditional atomic blocks should be powerful enough to implement clocks as well.}
 
 \paragraph{A future to execute a statement.}
 Consider an expression {\tt onFinish \{S\}}. This should return a {\tt
@@ -698,7 +734,7 @@ In a similar fashion we introduce the syntax:\index{ateach@{\tt ateach}}
           StatementNoShortIf
 \end{x10}
 
-Here the expression is intendd to be of type {\tt distribution}.
+Here the expression is intended to be of type {\tt distribution}.
 Expressions {\tt e} of type {\tt array} are also accepted, and treated
 as if they were {\tt e.distribution}. The compiler throws a type error
 in all other cases. This statement differs from {\tt foreach} only in
