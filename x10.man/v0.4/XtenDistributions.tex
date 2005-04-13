@@ -58,8 +58,9 @@ The distribution {\cf R->P} maps every point in {\cf R} to {\cf P}.
 \paragraph{Block distributions.}\index{distribution!block}
 The distribution {\cf block(R, Q)} distributes the elements of {\cf R}
 (in order) over the set of places {\cf Q} in blocks  as
-follows. Let $p$ equal {\cf R div N} and $q$ equal {\cf R mod N},
-where {\cf N} is the size of {\cf Q}. The first $q$ places get
+follows. Let $p$ equal {\cf |R| div N} and $q$ equal {\cf |R| mod N},
+where {\cf N} is the size of {\cf Q}, and 
+{\cf |R|} is the size of {\tt R}.  The first $q$ places get
 successive blocks of size $(p+1)$ and the remaining places get blocks of
 size $p$.
 
@@ -103,10 +104,15 @@ If {\cf D} is a distribution and {\cf P} a place expression, the term
 {\cf D | P} denotes the sub-distribution of {\cf D} defined over all the
 points in the domain of {\cf D} mapped to {\cf P}.
 
-Note that {\cf D | here} does not necessarily contain adjacent
-points. For instance, if {\cf D} is a cyclic distribution, {\cf D |
-here} will typically contain points that are {\cf P} apart, where {\cf
-P} is the number of places.
+\cbstart
+Note that {\cf D | here} does not necessarily contain adjacent points
+in {\cf D.region}. For instance, if {\cf D} is a cyclic distribution,
+{\cf D | here} will typically contain points that are {\cf P} apart,
+where {\cf P} is the number of places. An implementation may find a
+way to still represent them in contiguous memory, e.g.{} using a
+complex arithmetic function to map from the region index to an index
+into the array.
+\cbend
 
 \subsection{User-defined distributions}\index{distribution!user-defined}
 
@@ -139,8 +145,8 @@ largest common sub-distribution of {\cf D1} and {\cf D2}.
 \paragraph{Asymmetric union of distributions.}\index{distribution!union!asymmetric}
 {\cf D1.overlay(D2}, the asymmetric union of {\cf D1} and {\cf D2}, is the
 distribution whose domain is the union of the regions of {\cf D1} and
-{\cf D2}, and whose value at each point {\cf p} in its domain is {\cf D1[p]}
-if {\cf p} lies in {\cf D.domain} otherwise it is {\cf D2[p]}.
+{\cf D2}, and whose value at each point {\cf p} in its domain is {\cf D2[p]}
+if {\cf p} lies in {\cf D.domain} otherwise it is {\cf D1[p]}. ({\tt D1} provides the defaults.)
 
 \paragraph{Disjoint union of distributions.}\index{distribution!union!disjoint}
 {\cf D1 || D2}, the disjoint union of {\cf D1} and {\cf D2}, is

@@ -138,6 +138,8 @@ otherwise. The value {\tt a1.overlay(a2)[p]} is {\tt a2[p]} if it is defined and
 
 This array is a reference (value) array if {\tt a1} is.
 
+The expression {\tt a1.update(a2)} updates the array {\tt a1} in place
+with the result of {\tt a1.overlay(a2)}.
 \todo{Define Flooding of arrays}
 
 \todo{Wrapping an array}
@@ -181,6 +183,5 @@ This operation involves communication between the places over which
 the array is distributed. The \Xten{} implementation will endeavour to
 minimize the communication between places to implement this operation.
 
-
-Other operations on arrays may be found in 
-{\tt x10.lang.intArray} and other related classes.
+Other operations on arrays may be found in {\tt x10.lang.intArray} and
+other related classes.
