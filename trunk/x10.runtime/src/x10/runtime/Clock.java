@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import x10.lang.ClockDroppedException;
+import x10.lang.ClockUseException;
 import x10.lang.Runtime;
 import x10.lang.clock;
 
@@ -103,7 +103,7 @@ public final class Clock extends clock {
     public void doNow(Activity a) {
     	synchronized(this) {
     		if (! activities_.contains(aip_.getCurrentActivity()))
-    			throw new ClockDroppedException("Cannot execute 'now' on clock on which the current activity is not registered with.");
+    			throw new ClockUseException("Cannot execute 'now' on clock on which the current activity is not registered with.");
     		nowSet_.add(a);
     		aip_.registerActivitySpawnListener(a, nowSpawnListener_);
     	}
