@@ -55,13 +55,9 @@ public class ClockTest10 {
 	void taskB(final clock a, final clock b) { 
           for(point [k]:1:N) {
 	     final boxedInt tmp=new boxedInt();
-	     finish{
-		now(a) {
-	                tmp.val=varA[ph(k-1)]+varA[ph(k-1)];
-			System.out.println(k+" B consuming oldA producing "+tmp.val);
-	        }
-                a.resume();
-	     }
+	     finish tmp.val=varA[ph(k-1)]+varA[ph(k-1)];
+	     System.out.println(k+" B consuming oldA producing "+tmp.val);
+             a.resume();
 	     varB[ph(k)]=tmp.val;
 	     System.out.println("B before next");
              next;
@@ -70,13 +66,9 @@ public class ClockTest10 {
 	void taskC(final clock a, final clock c) { 
           for(point [k]:1:N) {
 	     final boxedInt tmp=new boxedInt();
-	     finish{
-		now(a) {
-	                tmp.val=varA[ph(k-1)]*varA[ph(k-1)];
-			System.out.println(k+" C consuming oldA "+ tmp.val);
-	        }
-                a.resume();
-	     }
+	     finish tmp.val=varA[ph(k-1)]*varA[ph(k-1)];
+	     System.out.println(k+" C consuming oldA "+ tmp.val);
+             a.resume();
 	     varC[ph(k)]=tmp.val;
 	     System.out.println("C before next");
              next;
@@ -87,14 +79,10 @@ public class ClockTest10 {
 	     
           for(point [k]:1:N) {
 	     final boxedInt tmp=new boxedInt();
-	     finish{
-		now(c)now(b) {
-	                tmp.val=varB[ph(k-1)]+varC[ph(k-1)]+10;
-	                System.out.println(k+" D consuming oldB+oldC producing "+tmp.val);
-	        }
-                c.resume();
-		b.resume();
-	     }
+	     finish tmp.val=varB[ph(k-1)]+varC[ph(k-1)]+10;
+	     System.out.println(k+" D consuming oldB+oldC producing "+tmp.val);
+             c.resume();
+	     b.resume();
 	     varD[ph(k)]=tmp.val;
 	     System.out.println(k+" D before next");
 	     int n=k-pipeDepth;
@@ -105,13 +93,9 @@ public class ClockTest10 {
 	void taskE(final clock c) { 
           for(point [k]:1:N) {
 	     final boxedInt tmp=new boxedInt();
-	     finish{
-		now(c) {
-	                tmp.val=varC[ph(k-1)]*7;
-	                System.out.println(k+" E consuming oldC producing "+tmp.val);
-	        }
-                c.resume();
-	     }
+	     finish tmp.val=varC[ph(k-1)]*7;
+	     System.out.println(k+" E consuming oldC producing "+tmp.val);
+             c.resume();
 	     varE[ph(k)]=tmp.val;
 	     System.out.println(k+" E before next");
 	     int n=k-pipeDepth;
