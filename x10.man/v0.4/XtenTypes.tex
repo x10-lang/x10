@@ -175,21 +175,16 @@ specific analysis to statically guarantee the two properties above.
 
 \subsection{Initial values of variables}
 \label{NullaryConstructor}\index{nullary constructor}
+\cbstart 
 Every variable declared at a type must always contain a value of that type.
 
-Every class variable, instance variable or array component variable is
-initialized with a default value when it is created.  A variable
-declared at a nullary type is always initialized with {\cf null}. For
-a variable declared at a scalar class type it must be the case that a
-nullary constructor for that class is visible at the site of the
-declaration; the variable is initialized with the value returned by
-invoking this constructor. For a variable declared at an array type it
-must be the case that the base type is either nullable or a class type
-with a nullary constructor visible at the site of the declaration. The
-variable is then initialized with an array defined over the smallest
-region and default distribution consistent with its declaration and
-with each component of the array initialized to {\cf null} or the
-result of invoking the nullary constructor.
+Every class variable must be initialized before it is read, through
+the execution of an explicit initializer or a static block. Every
+instance variable must be initialized before it is read, through the
+execution of an explicit initializer or a constructor.  An instance
+variable declared at a nullable type (and not declared to be {\tt
+final}) is assumed to have an initializer which sets the value to {\tt
+null}.
 
 Each method and constructor parameter is initialized to the
 corresponding argument value provided by the invoker of the method. An
@@ -198,18 +193,7 @@ the exception. A local variable must be explicitly given a value by
 initialization or assignment, in a way that the compiler can verify
 using the rules for definite assignment \cite[\S~16]{jls2}.
 
-Each class {\cf C} has an explicitly or implicitly defined nullary
-constructor. If {\cf C} does not have an explicit nullary
-constructor, it is a compile-time error if the class has a field at (a)~a
-scalar type that is a {\cf class} whose nullary constructor is not
-visible in {\cf C} or is an {\cf interface}, or (b)~at an array type whose
-base type is a {\cf class} whose nullary constructor is not visible in
-{\cf C} or is an {\cf interface}.
-
-Otherwise a {\cf public} nullary constructor is created by
-default. This constructor initializes each field of the class (if any)
-as if it were a variable of the declared type of the field, as
-described above.
+\cbend
 
 \section{Objects}\label{XtenObjects}\index{Object}
 
@@ -240,16 +224,17 @@ collected.
 {}\Xten{} objects do not have any synchronization information (e.g.{}
 a lock) associated with them. Thus the methods on {\tt
 java.lang.Object} for waiting/synchronizing/notification etc are not
-available in \Xten. Instead the programmer should use atomic sections
-(\S~\ref{AtomicSections}) for mutual exclusion and clocks
+available in \Xten. Instead the programmer should use atomic blocks
+(\S~\ref{AtomicBlocks}) for mutual exclusion and clocks
 (\S~\ref{XtenClocks}) for sequencing multiple parallel operations.
 
 A reference object may have many references, stored in fields of
 objects or components of arrays. A change to an object made through
 one reference is visible through another reference. \Xten{} mandates
 that all accesses to mutable objects shared between multiple
-activities must occur in an atomic section (\S\ref{AtomicSections}).
+activities must occur in an atomic section (\S\ref{AtomicBlocks}).
 
+\cbstart 
 Note that the creation of a remote async activity
 (\S~\ref{AsyncActivity}) {\cf A} at {\cf P} may cause the automatic creation of
 references to remote objects at {\cf P}. (A reference to a remote
@@ -263,11 +248,13 @@ implementation should try to ensure that the creation of a second or
 subsequent reference to the same remote object at a given place does
 not incur any (additional) communication cost.
 
+\cbend 
+
 A reference to an object may carry with it the values of final fields
-of the object. The programmer is guaranteed that the implementation
-will not incur the cost of communicating the values of final fields of
-an object from the place where it is hosted to any other place more
-than once for each target place, even for reference objects.
+of the object. The implementation should try to ensure that the cost
+of communicating the values of final fields of an object from the
+place where it is hosted to any other place is not incurred more than
+once for each target place.
 
 {}\Xten{} does not have an operation (such as Pascal's ``dereference''
 operation) which returns an object given a reference to the
@@ -280,73 +267,108 @@ objects and object references include:
 reference to a reference object may perform this operation only if the
 object is local.  An activity holding a reference to a value object
 may perform this operation regardless of the location of the object
-(since value objects can be copied freely from place to place). In
-this case the cost of cost of copying the field from the place where
-the object was created to the referencing place will be incurred at
-most once per referencing place, according to the rule for final
-fields discussed above.
+(since value objects can be copied freely from place to place).  The
+implementation should try to ensure that the cost of copying the field
+from the place where the object was created to the referencing place
+will be incurred at most once per referencing place, according to the
+rule for final fields discussed above.
 
-\item Method invocation (\S~\ref{MethodInvocation}). 
-An activity holding a reference to a reference object may perform this
-operation only if the object is local.  An activity holding a
-reference to a value object may perform this operation regardless of
-the location of the object (since value objects can be copied
-freely). The \Xten{} implementation must guarantee that the cost of
-copying enough relevant state of the value object to enable this
-method invocation to succeed is incurred at most once for each value
-object per place.
+\item Method invocation (\S~\ref{MethodInvocation}).  An activity
+holding a reference to a reference object may perform this operation
+only if the object is local.  An activity holding a reference to a
+value object may perform this operation regardless of the location of
+the object (since value objects can be copied freely). The \Xten{}
+implementation must attempt to ensure that the cost of copying enough
+relevant state of the value object to enable this method invocation to
+succeed is incurred at most once for each value object per place.
 
 {}\item Casting (\S~\ref{ClassCast}).  An activity can perform this
-operation on local or remote objects, and does not incur any
-communication cost.
+operation on local or remote objects, and should not incur
+communication costs (to bring over type information) more than once
+per place.
 
-{}\item {\cf instanceof} operator (\S~\ref{instanceOf}). 
-An activity can perform this
-operation on local or remote objects, and does not incur any
-communication cost.
+{}\item {\cf instanceof} operator (\S~\ref{instanceOf}).  An activity
+can perform this operation on local or remote objects, and should not
+incur communication costs (to bring over type information) more than
+once per place.
 
-\item The stable equality operator {\cf ==} and {\cf !=} (\S~\ref{StableEquality}). An activity can perform these operations on local or remote objects,
-and does not incur any communication cost.
+\item The stable equality operator {\cf ==} and {\cf !=}
+(\S~\ref{StableEquality}). An activity can perform these operations on
+local or remote objects, and should not incur communication costs
+(to bring over relevant information) more than once per place.
 
 % \item The ternary conditional operator {\cf ?:}
 \end{itemize}
 
 \section{Built-in types}
+\cbstart 
+
 The package {\tt x10.lang} provides a number of built-in class and
 interface declarations that can be used to construct types.
- 
-For instance several value types are provided that encapsulate
+
+\subsection{The class {\tt Object}}\label{Object}\index{Object}
+The class {\cf x10.lang.Object} is a superclass of all other classes.
+A variable of this type can hold a reference to an instance of any
+scalar or array type.
+
+\begin{x10}
+package x10.lang;
+public class Object \{
+  public String toString() \{...\}
+  public boolean equals(Object o) \{...\}
+  public int hashCode() \{...\}
+\}
+\end{x10}
+
+The method {\tt equals} and {\tt hashCode} are useful in hashtables,
+and are defined as in \java. The default implementation of {\tt equals}
+is stable equality, \S~\ref{StableEquality}. This method may be overridden
+in a (value or reference) subclass.
+
+\subsection{The class {\tt String}}
+\Xten{} supports strings as in \java{}. A string object is immutable,
+and has a concatenation operator ({\tt +})  available on it.
+
+\subsection{Arithmetic classes}
+Several value types are provided that encapsulate
 abstractions (such as fixed point and floating point arithmetic)
-commonly implemented in hardware by modern computers.
-
-\begin{figure}
-Built-in interfaces:
+commonly implemented in hardware by modern computers:
 
 \begin{x10}
-Field            FixedPoint          FloatingPoint      
-SignedFixedPoint UnsignedFixedPoint
+boolean byte short char 
+int long 
+double float 
 \end{x10}
 
-Built-in reference types:
-\begin{x10}
-Object Reference
-\end{x10}
+\XtenCurrVer{} defines these data types in the same way as the 
+\java{} language. Specifically, a program may contain literals
+that stand for specific instances of these classes. The syntax
+for literals is the same as for \java{} (\S~ref{Literals}).
 
-Built-in value types:
-\begin{x10}
-boolean byte          char  complex<Field> 
-double  doubledouble  float int
-long    longlong      short string
-ubyte   ushort        value
+\paragraph{Future extensions.} 
+\Xten{} may provide mechansims in the future to permit the programmer
+to specify how a specific value class is to be mapped to special
+hardware operations (e.g.{} along the lines of
+\cite{kava}). Similarly, mechanisms may be provided to permit the user
+to specify new syntax for literals.
 
-place   distribution  region clock
-\end{x10}
-\caption{The contents of the {\tt x10.lang} package.}\label{XtenLangPackage}
-\end{figure}
-Please consult \cite{XtenLibrary} for more details.  \todo{Ensure that
-there are no language dependencies.}  
+\subsection{Places, distributions, regions, clocks}
+\Xten{} defines several other classes in the {\cf x10.lang}
+package. Please consult the API documentation for more details.
 
+\subsection{Java utility classes}
+\XtenCurrVer{} programmers may import and use \java{} packages such as
+{\tt java.util}, e.g.{} {\tt java.util.Set}, {\tt
+java.lang.System}. \Xten{} programs should not use the {\cf
+synchronized} method on such objects, or create new {\cf Thread}s, or
+invoke any {\tt wait/notify} methods on such objects.
 
+\paragraph{Future extensions.} 
+The above represents an {\em ad hoc} integration of \java{} libraries
+into \Xten{}. In the future a more principled and robust scheme will
+be worked out.
+
+\cbend
 \section{Conversions and Promotions}\label{XtenConversions}\label{XtenPromotions}\index{conversions}\index{promotions}
 
 {}\XtenCurrVer{} supports \java's conversions and promotions

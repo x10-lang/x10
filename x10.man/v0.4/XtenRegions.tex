@@ -14,18 +14,18 @@ Each region {\cf R} has a constant rank, {\cf R.rank}, which is a
 non-negative integer. The literal {\cf []} represents the {\em empty
 region} and has rank {\cf 0}.
 
-For instance:
+Here are several examples of region declarations:
 \begin{x10}
-region E = 1:100;
-region R = [0:99, -1:MAX\_HEIGHT];   
-region R = region.factory.upperTriangular(N);
-region R = region.factory.banded(N, K);
+region Null = [];  // Empty 0-dimensional region          
+region R1 = 1:100; // 1-dim region with extent 1..100.
+region R1 = [1:100]; // Same as above.
+region R2 = [0:99, -1:MAX\_HEIGHT];   
+region R3 = region.factory.upperTriangular(N);
+region R4 = region.factory.banded(N, K);
    // A square region.
-region R = [E, E];           
+region R5 = [E, E];           
    // Same region as above.
-region R = [100, 100];       
-   // Represents  the empty region
-region Null = [];            
+region R6 = [100, 100];       
    // Represents the intersection of two regions
 region AandB = A \&\& B;       
   // represents the union of two regions
@@ -70,12 +70,6 @@ smallest convex region enclosing {\cf R}.  For each integer {\cf i}
 less than {\cf R.rank}, the term {\cf R[i]} represents the enumeration
 in the {\cf i}th dimension of the convex closure of {\cf R}. It may be
 used in a type expression wherever an enumeration may be used.
-
-Region variables can be declared and used within user programs. They
-are implicitly {\tt final} since they can be used within type
-expressions (and hence must not take on different values at
-runtime). That is, \Xten{} does not permit the declaration of mutable
-{\tt region} variables.
 
 \subsection{Operations on Regions}
 Various non side-effecting operators (i.e.{} pure functions) are

@@ -14,18 +14,35 @@ destructure points.
 \subsection{Limitations}
 
 \begin{itemize}
-\item Exception propagation from an activity to its invoking activity is not
-yet implemented.
+\item All the static semantics rules are not yet implemented. 
+Thus if your program is already correct, it will execute correctly. If
+it is not correct, it may still execute and give a
+result. Specifically, the implementation does not yet check {\tt
+local} annotations.
 
-\item All the type checking rules are not implemented. Thus if your program
-is already correct, it will exeute correctly. If it is not correct, it
-may still execute and give a result.
+\item The implementation does not support a way to specify just the rank of
+an array in its type.
 
-\item The predicate {\tt ==} for value types is not yet implemented.
+\item Arrays of arrays (``jagged'' arrays) are not yet implemented.
 
-\item ``Jagged'' arrays are not yet implemented.
+\item Local, 1-d, 0-based arrays do not currently support all the
+functionality of more general arrays. (They are optimized through to
+\Java{} arrays.)
+
 \end{itemize}
-\todo{Update this list from Mantisa.}
+
+\XtenCurrVer{} does not formally define a model for interoperability with
+Java. The following guidelines may be used temporarily:
+
+\begin{itemize}
+  \item \Java{} classes may be imported.
+  \item Confine the use of \Java{} to system classes, e.g.{}
+{\tt  System.out} for I/O.
+  \item Do not use synchronized keyword, or create new {\tt java.lang.Threads}. 
+  \item \Java{} objects may be created. These are ``placeless''. Do not use
+     such an object as an argument to async, or wherever a placeful
+     value is expectd.
+\end{itemize}
 
 \subsection{Future work}
 

@@ -24,7 +24,7 @@ left-to-right).\label{FieldAccess}\label{ClassCreation}\label{MethodInvocation}
 We focus on the expressions in \Xten{} which have a different
 semantics.
 
-\paragraph{The classcast operator}\label{ClassCast}\index{classcast}
+\subsection{The classcast operator}\label{ClassCast}\index{classcast}
 The classcast operation may be used to cast an expression to a given type:
 \begin{x10}
 306 UnaryExpressionNotPlusMinus ::= 
@@ -47,7 +47,7 @@ those that seek to cast a value of a subtype to a supertype -- are
 known to succeed at compile-time. Such casts should not cause extra
 computational overhead at runtime.
 
-\paragraph{{\tt instanceof} operator}\label{instanceOf}\index{instanceof@{\tt instanceof}}
+\subsection{{\tt instanceof} operator}\label{instanceOf}\index{instanceof@{\tt instanceof}}
 
 This operator takes two arguments; the first should be a {\tt
 RelationalExpression} and the second a {\tt Type}. At run time, the
@@ -55,9 +55,11 @@ result of this operator is {\tt true} if the {\tt
 RelationalExpression} can be cast to {\tt Type} without a {\tt
 ClassCastException} being thrown. Otherwise the result is {\tt false}.
 
-\paragraph{Stable equality.}\label{StableEquality}\index{==}\index{!=}
+\subsection{Stable equality.}\label{StableEquality}\index{==}\index{!=}
+
+\cbstart
 Reference equality ({\tt ==}, {\tt !=}) is replaced in \Xten{} by the
-notion of stable equality so that it can apply uniformly to value and
+notion of {\em stable equality} so that it can apply uniformly to value and
 reference types.
 
 Two values may be compared with the infix predicate {\tt ==}. The call
@@ -78,3 +80,8 @@ other value is also {\tt null}.
 The predicate {\tt !=} returns {\tt true} ({\tt false}) on two
 arguments if and only if the predicate {\tt ==} returns {\tt false}
 ({\tt true}) on the same arguments.
+
+The predicates {\cf ==} and {\cf !=} may not be overridden by the
+programmer.
+
+\cbend
