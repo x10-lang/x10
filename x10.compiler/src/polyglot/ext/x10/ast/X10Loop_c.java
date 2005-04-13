@@ -83,14 +83,12 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		
-    	
 		Expr newDomain = domain;
 		X10Type domainType = (X10Type) domain.type();
 		if (domainType.isX10Array())
 			newDomain = (Expr) getDomain( domain ).typeCheck( tc );
 		
 		return domain( newDomain);
-    	
     }
     
     public Expr getDomain( Expr d ) {

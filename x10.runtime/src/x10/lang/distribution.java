@@ -21,6 +21,10 @@ implements Indexable {
 	 * distributions.
 	 */
 	/*parameter*/ public final /*nat*/ int rank;
+    
+    /* disrtibution is Indexable and as such regarded by the compiler as an X10array.
+     * Hence it must have a field 'distrubution' (see ateach construct) */
+    public final distribution distribution;
 	
 	/** places is the range of the distribution. Guranteed that if a
 	 * place P is in this set then for some point p in region,
@@ -31,6 +35,7 @@ implements Indexable {
 	protected distribution(region R) {
 		this.region = R;
 		this.rank = R.rank;
+        this.distribution = this;
 	}
 	
 	public static class MalformedError extends java.lang.Error {}
