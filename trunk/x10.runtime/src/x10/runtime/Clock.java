@@ -127,6 +127,7 @@ public final class Clock extends clock {
         	if (pending_.contains(a)) {
         		pending_.remove(a);
         		resumed_.add(a);
+        		tryAdvance_();
         	}
         }
     }
