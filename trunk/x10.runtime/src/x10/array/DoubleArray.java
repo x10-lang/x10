@@ -84,8 +84,8 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 		
 		int high = distribution.region.size();
 		for(int i=0;i < high;++i){
-			double arg1 = res.getRaw(i);
-			res.setRaw(op.apply(arg1),i);
+			double arg1 = res.getOrdinal(i);
+			res.setOrdinal(op.apply(arg1),i);
 		}
 	}
 	
@@ -112,7 +112,7 @@ public abstract class DoubleArray extends DoubleReferenceArray {
     /**
      * Generic flat access.
      */
-	public abstract double setRaw(double v, int i);
+	public abstract double setOrdinal(double v, int i);
 	
     public abstract double set(double v, point pos);
 
@@ -129,7 +129,7 @@ public abstract class DoubleArray extends DoubleReferenceArray {
      */
     public abstract double get(point pos);
 
-	public abstract double getRaw( int i);
+	public abstract double getOrdinal( int i);
 	
     public abstract double get(int d0);
 

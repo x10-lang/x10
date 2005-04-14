@@ -229,7 +229,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         distribution.checkAccess(pos);
         return arr_.setInt(v, distribution.region.ordinal(pos));
     }
-    public int setRaw(int v, int d0) {
+    public int setOrdinal(int v, int d0) {
     	return arr_.setInt(v, d0);
     }
     public int set(int v, int d0) {
@@ -272,7 +272,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * the cannonical index has already be calculated and adjusted.  
      * Can be used by any dimensioned array.
      */
-    public int getRaw(int rawIndex) {
+    public int getOrdinal(int rawIndex) {
     	
     	return arr_.getInt(rawIndex);
     }
