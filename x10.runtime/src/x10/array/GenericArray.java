@@ -107,6 +107,8 @@ public abstract class GenericArray extends x10.lang.GenericReferenceArray {
         assert res.distribution.equals(distribution);
 
         GenericArray res_t = (res == null) ? null : (GenericArray) res;
+        
+        if(false){
         for (Iterator it = distribution.region.iterator(); it.hasNext();) {
             point p = (point) it.next();
             Parameter1 arg1 = get(p);
@@ -114,6 +116,15 @@ public abstract class GenericArray extends x10.lang.GenericReferenceArray {
             if (res_t != null)
                 res_t.set(val, p);
         }
+        }
+        
+        int high = distribution.region.size();
+		for(int i=0;i < high;++i){
+			Parameter1 arg1 = res.getOrdinal(i);
+			Parameter1 val = op.apply(arg1);
+			if (res_t != null)
+				res_t.setOrdinal(op.apply(arg1),i);
+		}
     }
     
     public void scan( GenericArray res, GenericArray.pointwiseOp op ) {
@@ -140,6 +151,8 @@ public abstract class GenericArray extends x10.lang.GenericReferenceArray {
      */
     public abstract Parameter1 set(Parameter1 v, point pos);
 
+    public abstract Parameter1 setOrdinal(Parameter1 v, int i);
+    
     public abstract Parameter1 set(Parameter1 v, int d0);
 
     public abstract Parameter1 set(Parameter1 v, int d0, int d1);
@@ -153,6 +166,8 @@ public abstract class GenericArray extends x10.lang.GenericReferenceArray {
      */
     public abstract Parameter1 get(point pos);
 
+    public abstract Parameter1 getOrdinal(int i);
+    
     public abstract Parameter1 get(int d0);
 
     public abstract Parameter1 get(int d0, int d1);
