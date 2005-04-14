@@ -232,33 +232,48 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public int setOrdinal(int v, int d0) {
     	return arr_.setInt(v, d0);
     }
+  
+    
+  
+    
     public int set(int v, int d0) {
     	assert this.region.rank == 1;
-        int[] pos = {d0};
-    	final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
+    	d0 -= region.rank(0).low();
+    	return arr_.setInt(v,d0);
     }
+    
+    
+    
     
     public int set(int v, int d0, int d1) {
     	assert this.region.rank == 2;
-        int[] pos = {d0, d1};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	int theIndex= d1 + (d0 *region.rank(1).size());
+    	return arr_.setInt(v,theIndex);
     }
     
     public int set(int v, int d0, int d1, int d2) {
     	assert this.region.rank == 3;
-        int[] pos = {d0, d1, d2};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	int theIndex= d2 + (d1 * region.rank(2).size()) + (d0 * (region.rank(2).size()*region.rank(1).size())) ;
+    	return arr_.setInt(v,theIndex);
     }
     
     public int set(int v, int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
-        int[] pos = {d0, d1, d2, d3};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
-        
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	d3 -= region.rank(3).low();
+    	
+    	int theIndex= d3+ (d2 * region.rank(3).size()) + 
+		(d1 * region.rank(2).size()* region.rank(3).size()) + 
+		(d0 *region.rank(1).size()* region.rank(2).size()* region.rank(3).size()) ;
+    	return arr_.setInt(v,theIndex);
+    	
     }
 
     /* (non-Javadoc)
@@ -276,32 +291,47 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	
     	return arr_.getInt(rawIndex);
     }
+    
+    
+    
     public int get(int d0) {
     	assert this.region.rank == 1;
-        int[] pos = {d0};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	d0 -= region.rank(0).low();
+    	return arr_.getInt(d0);
     }
-    
     public int get(int d0, int d1) {
     	assert this.region.rank == 2;
-        int[] pos = {d0, d1};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	int theIndex= d1 + (d0 *region.rank(1).size());
+    	
+    	return arr_.getInt(theIndex);
     }
     
     public int get(int d0, int d1, int d2) {
     	assert this.region.rank == 3;
-        int[] pos = {d0, d1, d2};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
-    }
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	
+    	int theIndex= d2 + (d1 *region.rank(2).size()) +
+		(d0 *region.rank(1).size()*region.rank(2).size());
+    	return arr_.getInt(theIndex);  	
+    } 
     
     public int get(int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
-        int[] pos = {d0, d1, d2, d3};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	d3 -= region.rank(3).low();
+    	
+    	int theIndex= d3 + (d2*region.rank(3).size()) + 
+		(d1 *region.rank(2).size()*region.rank(3).size()) + 
+		(d0 *region.rank(1).size()*region.rank(2).size()*region.rank(3).size());
+    	
+    	return arr_.getInt(theIndex);
+    	
     }
     public int get(int[] pos) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
