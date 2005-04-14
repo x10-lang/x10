@@ -9,6 +9,7 @@ public class Initialization {
 	double[.] x_doubleArray1D;
 	double[.] x_doubleArray2D;
 	double[] x_javaArray;
+	int[.] x_intArray1D;
 	
 	public boolean run(){
 		long start,stop;
@@ -36,6 +37,12 @@ public class Initialization {
 		x_doubleArray2D = new double[D2];
 		stop = System.currentTimeMillis();
 		System.out.println("Created array in "+((double)(stop-start)/1000)+" seconds");
+		System.out.println("finished allocating");
+		
+		start = System.currentTimeMillis();
+		x_intArray1D = new int[D];
+		stop = System.currentTimeMillis();
+		System.out.println("Created int array in "+((double)(stop-start)/1000)+" seconds");
 		System.out.println("finished allocating");
 		return true;
 	}
