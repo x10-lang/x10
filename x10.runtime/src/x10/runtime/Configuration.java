@@ -3,6 +3,7 @@
  */
 package x10.runtime;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -172,7 +173,10 @@ public final class Configuration {
         if (cfg != null) {
             try {
                 Properties props = new Properties();
-                props.load(new FileInputStream(cfg));
+                FileInputStream fis = new FileInputStream(cfg);
+                byte[] data = new byte[fis.available()];
+                assert data.length == fis.read(data);
+                props.load(new ByteArrayInputStream(new String(data).replace('\\','/').getBytes()));
                 Iterator i = props.keySet().iterator();
                 while (i.hasNext()) {
                     String key = (String) i.next();
