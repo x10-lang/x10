@@ -158,50 +158,47 @@ public class ArrayIndexing {
 			if(verbose) System.out.println("init:"+p+"="+count);
 		}
 	}
-	public static void  main(String a[]){
-		
-		ArrayIndexing test = new ArrayIndexing();
-		System.out.println("Initiating tests....");
-		
-		test.runtests(1000,true);
-		System.out.println("Done.");
+	
+	public static void main(String args[]) {
+		boolean b= (new ArrayIndexing()).run();
+		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
+		System.exit(b?0:1);
 	}
 	
-	void runDoubleTests(boolean reportTime){
+	boolean runDoubleTests(){
 		System.out.println("Testing Doubles...");
 		long start = System.currentTimeMillis();
 		initialize(_doubleArray3D);
-		if(!verify3D(_doubleArray3D)) return;
+		if(!verify3D(_doubleArray3D)) return false;
 		
 		initialize(_doubleArray4D);
-		if(!verify4D(_doubleArray4D)) return;
+		if(!verify4D(_doubleArray4D)) return false;
 		long stop = System.currentTimeMillis();
-		if(reportTime) 
-			System.out.println("Testing of double arrays took "+((double)(stop-start)/1000));
+		System.out.println("Testing of double arrays took "+((double)(stop-start)/1000));
+		return true;
 	}
 	
-	void runIntTests(boolean reportTime){
+	boolean runIntTests(){
 		System.out.println("Testing Ints...");
 		long start = System.currentTimeMillis();
 		initialize(_intArray3D);
-		if(!verify3D(_intArray3D)) return;
+		if(!verify3D(_intArray3D)) return false;
 		
 		initialize(_intArray4D);
-		if(!verify4D(_intArray4D)) return;
+		if(!verify4D(_intArray4D)) return false;
 		
 		long stop = System.currentTimeMillis();
-		if(reportTime) 
-			System.out.println("Testing of int arrays took "+((double)(stop-start)/1000));
+		System.out.println("Testing of int arrays took "+((double)(stop-start)/1000));
+		return true;
 	}
 	
-	void runtests(int iterations,boolean reportTime){
+	boolean run(){
 		
-		runDoubleTests(reportTime);
-		runIntTests(reportTime);
-		
+		if(!runDoubleTests()) return false;
+		if(!runIntTests()) return false;
+		return true;
 	}
-	//testDouble1D(iterations,reportTime);
-	//testDouble2D(iterations,reportTime);
+	
 	
 	
 
