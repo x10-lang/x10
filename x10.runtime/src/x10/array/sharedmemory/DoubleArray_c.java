@@ -239,6 +239,16 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     	return arr_.setDouble(v,d0);
     }
     
+    
+    /**
+     * the cannonical index has already be calculated and adjusted.  
+     * Can be used by any dimensioned array.
+     */
+    public double setRaw(double v, int rawIndex) {
+    	
+    	return arr_.setDouble(v,rawIndex);
+    }
+    
     public double set(double v, int d0, int d1) {
     	assert this.region.rank == 2;
     	d0 -= region.rank(0).low();
@@ -276,6 +286,15 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     public double get(point pos) {
         distribution.checkAccess(pos);
         return arr_.getDouble((int) distribution.region.ordinal(pos));
+    }
+    
+    /**
+     * the cannonical index has already be calculated and adjusted.  
+     * Can be used by any dimensioned array.
+     */
+    public double getRaw(int rawIndex) {
+    	
+    	return arr_.getDouble(rawIndex);
     }
     
     public double get(int d0) {
