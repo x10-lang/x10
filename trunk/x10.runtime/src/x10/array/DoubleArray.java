@@ -80,26 +80,29 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 	}
 	
 	public void scan(DoubleArray res, Operator.Scan op) {
-	    assert res.distribution.equals(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			double arg1 = get(p);
-			res.set(op.apply(arg1), p);
+		assert res.distribution.equals(distribution);
+		
+		int high = distribution.region.size();
+		for(int i=0;i < high;++i){
+			double arg1 = res.getRaw(i);
+			res.setRaw(op.apply(arg1),i);
 		}
 	}
 	
-	  public void scan( DoubleArray res, pointwiseOp op ) {
-        assert res == null || res instanceof DoubleArray;
-        assert res.distribution.equals(distribution);
-
-        DoubleArray res_t = (res == null) ? null : (DoubleArray) res;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            double val = op.apply(p);
-            if (res_t != null)
-                res_t.set(val, p);
-        }
-    }
+	
+	public void scan( DoubleArray res, pointwiseOp op ) {
+		assert res == null || res instanceof DoubleArray;
+		assert res.distribution.equals(distribution);
+		
+		DoubleArray res_t = (res == null) ? null : (DoubleArray) res;
+		for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+			point p = (point) it.next();
+			double val = op.apply(p);
+			if (res_t != null)
+				res_t.set(val, p);
+		}
+		
+	}
     
 	
 	public void circshift (int[] args) {
@@ -109,6 +112,8 @@ public abstract class DoubleArray extends DoubleReferenceArray {
     /**
      * Generic flat access.
      */
+	public abstract double setRaw(double v, int i);
+	
     public abstract double set(double v, point pos);
 
     public abstract double set(double v, int d0);
@@ -124,6 +129,8 @@ public abstract class DoubleArray extends DoubleReferenceArray {
      */
     public abstract double get(point pos);
 
+	public abstract double getRaw( int i);
+	
     public abstract double get(int d0);
 
     public abstract double get(int d0, int d1);

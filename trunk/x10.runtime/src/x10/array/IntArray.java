@@ -102,17 +102,17 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
 
     /* operations are performed in canonical order */
     public void scan( IntArray res, Operator.Scan op ) {
-        assert res == null || res instanceof IntArray;
-        assert res.distribution.equals(distribution);
-
-        IntArray res_t = (res == null) ? null : (IntArray) res;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            int arg1 = get(p);
-            int val = op.apply(arg1);
-            if (res_t != null)
-                res_t.set(val, p);
-        }
+    	assert res == null || res instanceof IntArray;
+    	assert res.distribution.equals(distribution);
+    	
+    	IntArray res_t = (res == null) ? null : (IntArray) res;
+    	
+    	int high = distribution.region.size();
+    	for(int i=0;i < high;++i){
+    		int arg1 = res.getRaw(i);
+    		res.setRaw(op.apply(arg1),i);
+    		
+    	}
     }
     
     public void scan( IntArray res, IntArray.pointwiseOp op ) {
@@ -139,7 +139,9 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
      */
     public abstract int set(int v, point pos);
 
-    public abstract int set(int v, int d0);
+    public abstract int set(int v, int d0); 
+    
+    public abstract int setRaw(int v, int d0);
 
     public abstract int set(int v, int d0, int d1);
 
@@ -153,6 +155,8 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
     public abstract int get(point pos);
 
     public abstract int get(int d0);
+   
+    public abstract int getRaw(int d0);
 
     public abstract int get(int d0, int d1);
 
