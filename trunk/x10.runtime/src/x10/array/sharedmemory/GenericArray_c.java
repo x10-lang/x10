@@ -214,6 +214,9 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         return (Parameter1) arr_.set(v, (int) distribution.region.ordinal(pos));
     }
     
+    public Parameter1 setOrdinal(Parameter1 v, int rawIndex) {
+    	return (Parameter1) arr_.set(v,rawIndex);
+    }
     
     public Parameter1 set(Parameter1 v, int d0) {
     	assert this.region.rank == 1;
@@ -250,6 +253,11 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     public Parameter1 get(point pos) {
         distribution.checkAccess(pos);
         return (Parameter1)  arr_.get((int) distribution.region.ordinal(pos));
+    }
+    
+    public Parameter1 getOrdinal(int rawIndex) {
+    	
+    	return (Parameter1) arr_.get(rawIndex);
     }
     
     public Parameter1 get(int d0) {
