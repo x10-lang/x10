@@ -109,8 +109,8 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
     	
     	int high = distribution.region.size();
     	for(int i=0;i < high;++i){
-    		int arg1 = res.getRaw(i);
-    		res.setRaw(op.apply(arg1),i);
+    		int arg1 = res.getOrdinal(i);
+    		res.setOrdinal(op.apply(arg1),i);
     		
     	}
     }
@@ -141,7 +141,7 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
 
     public abstract int set(int v, int d0); 
     
-    public abstract int setRaw(int v, int d0);
+    public abstract int setOrdinal(int v, int d0);
 
     public abstract int set(int v, int d0, int d1);
 
@@ -156,7 +156,7 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
 
     public abstract int get(int d0);
    
-    public abstract int getRaw(int d0);
+    public abstract int getOrdinal(int d0);
 
     public abstract int get(int d0, int d1);
 
