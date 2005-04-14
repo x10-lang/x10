@@ -175,8 +175,10 @@ public final class Configuration {
                 Properties props = new Properties();
                 FileInputStream fis = new FileInputStream(cfg);
                 byte[] data = new byte[fis.available()];
-                assert data.length == fis.read(data);
-                props.load(new ByteArrayInputStream(new String(data).replace('\\','/').getBytes()));
+                if (data.length != fis.read(data))
+                	throw new Error();
+                String s = new String(data).replace('\\','/');
+                props.load(new ByteArrayInputStream(s.getBytes()));
                 Iterator i = props.keySet().iterator();
                 while (i.hasNext()) {
                     String key = (String) i.next();
