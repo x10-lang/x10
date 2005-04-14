@@ -1,0 +1,82 @@
+NEW Implementation of clocks (v 3)
+Thu Apr 14 02:44:23 2005
+
+Here is an outline of a provably correct implementation. 
+
+Let each activity A track the phase of every clock c it is registered
+with, call this variable A_C. 
+
+Let each clock c track its phase, call it Cp. 
+
+A clock is said to be in whole phase if A_C = Cp for every activity A. 
+
+It is in split phase if A_C = Cp-1 for some activities, and A_C = Cp
+for some others.
+
+In the algorithm we dont actually need to track Cp and A_C, though it
+is helpful to think as if we are.
+
+The clock tracks three sets of activities: activities_, resumed_, and
+nextResumed_. The clock also has a boolean variable, splitPhase, which
+is initialy false.
+
+Initially the clock starts out in whole phase (splitPhase=false).
+
+We will assume that activities always do a resume before doing a next.
+
+Invariant:
+    A clock is either in splitPhase or wholePhase.
+    activity_ superset resumed_ u nextResumed_
+    nextResumed_ and resumed_ are disjoint
+    An activity is not in resumed_ u nextResumed_ iff it has not yet
+    performed a resume in the current phase.
+    In wholePhase, nextResumed_ = empty.
+
+Transition from wholePhase to splitPhase: when |activity_| = |resumed_|
+Transition from splitPhase to wholePhase: when |resumed_| = 0
+
+When an activity does a resume:
+    nothing is done if the activity is already in resumed_ or nextResumed_. 
+
+    If not, and the clock is in splitPhase, the activity is added to
+    nextResumed_. 
+      {The fact that the activity is not in resumed_ means that it has
+       advanced to the next phase, so this resume is for the next phase.}
+
+    If the clock is in wholePhase, the activity is added to resumed_.
+    If this causes |resumed_| = |activity_|, the clock is moved to
+    splitPhase, and all suspended activities are woken up.
+
+When an activity does a next: {it is assumed to be in either resumed_ or nextResumed_}
+   If the clock is in splitPhase, 
+     If the activity is in resumed_, it continues at A: below.
+
+     If the activity is in nextResumed_, it blocks and on awakening
+     continues at A: below.,
+   
+   If the clock is in wholePhase, 
+     {activity must be in resumed_, because nextResumed_ = empty}
+     The activity blocks, and on awakening continues at A: below.
+
+   A: {It has now entered the next phase.} 
+      {The activity is guaranteed to be in resumed_.}
+      {The clock is guaranteed to be in splitPhase.}
+     It removes itself from resumed_. If this causes |resumed_| = 0,
+     the clock phase changes to wholePhase, and resumed_ is set to
+     nextResumed_, and nextResumed_ is set to empty.
+
+     {At this point, all activities have crossed over to the next phase.}
+
+When an activity terminates:
+
+   It removes itself from activity_, resumed_ and nextResumed_. 
+
+   If this causes |activity_| = 0, terminate, this clock will never be
+   used again.
+
+   Else, if this causes |activity_| = |resumed_|, and the clock is in
+   wholePhase, the clock is moved to splitPhase, and all suspended
+   activities are woken up.
+
+When an activity spawns another, giving it the clock c:
+   The new activity is added to activity_.
