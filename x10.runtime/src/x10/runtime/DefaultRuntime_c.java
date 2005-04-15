@@ -138,7 +138,6 @@ public class DefaultRuntime_c
                 return "DefaultRuntime_c boot activity";
             }
             public void run() {
-                
                 synchronized(signal) {
                     signal.value = true;
                     signal.notifyAll();
@@ -168,13 +167,13 @@ public class DefaultRuntime_c
         Future f = p0.runFuture(boot, null);
         // make sure we don't accidentially initialize Sampling by
         // being too fast with 'force'.
-        while (signal.value == false) {
-            try {
-                synchronized(signal) {
-                    signal.wait();
+        synchronized(signal) {
+	   while (signal.value == false) {
+                try {
+		    signal.wait();
+                } catch (InterruptedException ie) {            
                 }
-            } catch (InterruptedException ie) {            
-            }
+	   }
         }        
         f.force(); // use force to wait for termination!
         
