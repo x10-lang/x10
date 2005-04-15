@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 
 import x10.array.CharArray;
+import x10.array.MultiDimRegion;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
@@ -237,40 +238,23 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     }
     
     public char set(char v, int d0) {
-    	assert this.region.rank == 1;
-    	d0 -= region.rank(0).low();
+    	d0 = ((MultiDimRegion)region).ordinal(d0);
     	return arr_.setChar(v,d0);
     }
      
     public char set(char v, int d0, int d1) {
-    	assert this.region.rank == 2;
-    	d0 -= region.rank(0).low();
-    	d1 -= region.rank(1).low();
-    	int theIndex= d1 + (d0 *region.rank(1).size());
+    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1);
     	return arr_.setChar(v,theIndex);
     }
     
     public char set(char v, int d0, int d1, int d2) {
-    	assert this.region.rank == 3;
-    	d0 -= region.rank(0).low();
-    	d1 -= region.rank(1).low();
-    	d2 -= region.rank(2).low();
-    	int theIndex= d2 + (d1 * region.rank(2).size()) + (d0 * (region.rank(2).size()*region.rank(1).size())) ;
+    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2);
     	return arr_.setChar(v,theIndex);
     }
     
     public char set(char v, int d0, int d1, int d2, int d3) {
-    	assert this.region.rank == 4;
-    	d0 -= region.rank(0).low();
-    	d1 -= region.rank(1).low();
-    	d2 -= region.rank(2).low();
-    	d3 -= region.rank(3).low();
-    	
-    	int theIndex= d3+ (d2 * region.rank(3).size()) + 
-		(d1 * region.rank(2).size()* region.rank(3).size()) + 
-		(d0 *region.rank(1).size()* region.rank(2).size()* region.rank(3).size()) ;
-    	return arr_.setChar(v,theIndex);
-    	
+    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2,d3);
+    	return arr_.setChar(v,theIndex); 	
     }
 
     /* (non-Javadoc)
