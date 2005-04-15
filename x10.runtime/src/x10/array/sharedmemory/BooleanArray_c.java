@@ -235,22 +235,22 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     
     
     public boolean set(boolean v, int d0) {
-    	d0 = ((MultiDimRegion)region).ordinal(d0);
+    	d0 = Helper.ordinal(region,d0);
     	return arr_.setBoolean(v,d0);
     }
     
     public boolean set(boolean v, int d0, int d1) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1);
+    	int	theIndex = Helper.ordinal(region,d0,d1);
     	return arr_.setBoolean(v,theIndex);
     }
     
     public boolean set(boolean v, int d0, int d1, int d2) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2);
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2);
     	return arr_.setBoolean(v,theIndex);
     }
     
     public boolean set(boolean v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2,d3);
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);
     	return arr_.setBoolean(v,theIndex);
         
     }
@@ -264,21 +264,21 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     }
     
     public boolean get(int d0) {
-    	d0 = ((MultiDimRegion)region).ordinal(d0); 	
+    	d0 = Helper.ordinal(region,d0); 	
     	return arr_.getBoolean(d0);
     }
     public boolean get(int d0, int d1) {   	
-    	int theIndex = ((MultiDimRegion)region).ordinal(d0,d1);   	
+    	int theIndex = Helper.ordinal(region,d0,d1);   	
     	return arr_.getBoolean(theIndex);
     }
     
     public boolean get(int d0, int d1, int d2) {
-    	int theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2);
+    	int theIndex = Helper.ordinal(region,d0,d1,d2);
     	return arr_.getBoolean(theIndex); 
     }
     
     public boolean get(int d0, int d1, int d2, int d3) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2,d3);   	
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);   	
     	return arr_.getBoolean(theIndex);  
     }
     public boolean get(int[] pos) {

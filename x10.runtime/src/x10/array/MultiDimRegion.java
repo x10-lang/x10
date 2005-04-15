@@ -186,38 +186,7 @@ public class MultiDimRegion extends region  {
         return ret;
     }
     
-    final public int ordinal(int d0){
-    	assert (rank == 1);
-    	d0 -= rank(0).low();
-       	return d0;
-    }
     
-    final public int ordinal(int d0,int d1){
-    	assert (rank == 2);
-    	d0 -= rank(0).low();
-    	d1 -= rank(1).low();
-       	return d1+ d0*rank(1).size();
-    }
-    final public int ordinal(int d0,int d1, int d2){
-    	assert (rank == 3);
-    	d0 -= rank(0).low();
-    	d1 -= rank(1).low();
-    	d2 -= rank(2).low();
-    	int d1Size=rank(2).size();
-    	int d0Size=d1Size * rank(1).size();
-       	return d2+ d1*d1Size+ d0*d0Size;
-    }
-    final public int ordinal(int d0,int d1, int d2,int d3){
-    	assert (rank == 4);
-    	d0 -= rank(0).low();
-    	d1 -= rank(1).low();
-    	d2 -= rank(2).low();
-    	d3 -= rank(3).low();
-    	int d2Size=rank(3).size();
-    	int d1Size=d2Size * rank(2).size();
-    	int d0Size=d1Size * rank(1).size();
-       	return d3+ d2*d2Size + d1*d1Size + d0*d0Size;
-    }
     /**
      * @return Iterator that yields the individual points of a region
      * in lexicographical * order. Points are specified as arrays of

@@ -242,22 +242,22 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     }
     
     public double set(double v, int d0) {
-    	d0 = ((MultiDimRegion)region).ordinal(d0);
+    	d0 = Helper.ordinal(region,d0);
     	return arr_.setDouble(v,d0);
     }
      
     public double set(double v, int d0, int d1) {  	
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1);
+    	int	theIndex = Helper.ordinal(region,d0,d1);
     	return arr_.setDouble(v,theIndex);
     }
     
     public double set(double v, int d0, int d1, int d2) { 
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2);
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2);
     	return arr_.setDouble(v,theIndex);
     }
     
     public double set(double v, int d0, int d1, int d2, int d3) {  	
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2,d3);
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);
     	return arr_.setDouble(v,theIndex);  	
     }
 
@@ -278,22 +278,22 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     }
     
     public double get(int d0) {
-    	d0 = ((MultiDimRegion)region).ordinal(d0); 	
+    	d0 = Helper.ordinal(region,d0); 	
     	return arr_.getDouble(d0);
     }
     
     public double get(int d0, int d1) {   	
-    	int theIndex = ((MultiDimRegion)region).ordinal(d0,d1);   	
+    	int theIndex = Helper.ordinal(region,d0,d1);   	
     	return arr_.getDouble(theIndex);
     }
     
     public double get(int d0, int d1, int d2) {
-    	int theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2);
+    	int theIndex = Helper.ordinal(region,d0,d1,d2);
     	return arr_.getDouble(theIndex);  	
     } 
     
     public double get(int d0, int d1, int d2, int d3) {   	
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2,d3);   	
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);   	
     	return arr_.getDouble(theIndex);  	
     }
     public double get(int[] pos) {
