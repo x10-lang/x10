@@ -1,6 +1,8 @@
 import x10.lang.*;
 /**
  * N-queens problem
+ * 
+ * This version runs all activities in the same place
  *
  *
  * @author kemal, vj 12/2004
@@ -17,13 +19,13 @@ class loadBalancer {
 	 * find an appropriate place to ship a task
 	 */
 	public static place choosePlace() {
-		// not yet implemented 
+		// return same place
 		return here;
 	}
 }
 
 /**
- * Helper class. Generic boxed<int> does not seem to work. 
+ * Helper class. 
  */
 class BoxedInt {
 	public int val;
