@@ -220,22 +220,22 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     }
     
     public Parameter1 set(Parameter1 v, int d0) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0);   	  	 
+    	int	theIndex = Helper.ordinal(region,d0);   	  	 
         return (Parameter1) setOrdinal(v, d0);
     }
     
     public Parameter1 set(Parameter1 v, int d0, int d1) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1);
+    	int	theIndex = Helper.ordinal(region,d0,d1);
         return (Parameter1) setOrdinal(v, theIndex);
     }
     
     public Parameter1 set(Parameter1 v, int d0, int d1, int d2) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2);
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2);
         return (Parameter1) setOrdinal(v, theIndex);
     }
     
     public Parameter1 set(Parameter1 v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2,d3);
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);
         return (Parameter1)  setOrdinal(v, theIndex);
         
     }
@@ -254,21 +254,21 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     }
     
     public Parameter1 get(int d0) {
-    	d0 = ((MultiDimRegion)region).ordinal(d0);
+    	d0 = Helper.ordinal(region,d0);
     	return getOrdinal(d0);
     }
     public Parameter1 get(int d0, int d1) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1);
+    	int	theIndex = Helper.ordinal(region,d0,d1);
     	return getOrdinal(theIndex);
     }
     
     public Parameter1 get(int d0, int d1, int d2) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2);
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2);
     	return getOrdinal(theIndex);
     }
     
     public Parameter1 get(int d0, int d1, int d2, int d3) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2,d3);
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);
     	return getOrdinal(theIndex);
     }
     public Parameter1 get(int[] pos) {

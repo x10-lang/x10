@@ -239,22 +239,22 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     }
     
     public float set(float v, int d0) {
-    	d0 = ((MultiDimRegion)region).ordinal(d0);
+    	d0 = Helper.ordinal(region,d0);
     	return arr_.setFloat(v,d0);
     }
      
     public float set(float v, int d0, int d1) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1);
+    	int	theIndex = Helper.ordinal(region,d0,d1);
     	return arr_.setFloat(v,theIndex);
     }
     
     public float set(float v, int d0, int d1, int d2) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2);
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2);
     	return arr_.setFloat(v,theIndex);
     }
     
     public float set(float v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2,d3);
+    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);
     	return arr_.setFloat(v,theIndex);   	
     }
 
