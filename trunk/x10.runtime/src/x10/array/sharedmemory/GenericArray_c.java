@@ -6,6 +6,7 @@ package x10.array.sharedmemory;
 import java.util.Iterator;
 
 import x10.array.GenericArray;
+import x10.array.MultiDimRegion;
 import x10.array.Operator;
 import x10.array.IntArray.Assign;
 import x10.base.Allocator;
@@ -219,31 +220,23 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     }
     
     public Parameter1 set(Parameter1 v, int d0) {
-    	assert this.region.rank == 1;
-        int[] pos = {d0};
-    	final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return (Parameter1) set(v, p);
+    	int	theIndex = ((MultiDimRegion)region).ordinal(d0);   	  	 
+        return (Parameter1) setOrdinal(v, d0);
     }
     
     public Parameter1 set(Parameter1 v, int d0, int d1) {
-    	assert this.region.rank == 2;
-        int[] pos = {d0, d1};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return (Parameter1) set(v, p);
+    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1);
+        return (Parameter1) setOrdinal(v, theIndex);
     }
     
     public Parameter1 set(Parameter1 v, int d0, int d1, int d2) {
-    	assert this.region.rank == 3;
-        int[] pos = {d0, d1, d2};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return (Parameter1) set(v, p);
+    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2);
+        return (Parameter1) setOrdinal(v, theIndex);
     }
     
     public Parameter1 set(Parameter1 v, int d0, int d1, int d2, int d3) {
-    	assert this.region.rank == 4;
-        int[] pos = {d0, d1, d2, d3};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return (Parameter1)  set(v, p);
+    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2,d3);
+        return (Parameter1)  setOrdinal(v, theIndex);
         
     }
 
@@ -261,30 +254,22 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     }
     
     public Parameter1 get(int d0) {
-    	assert this.region.rank == 1;
-        int[] pos = {d0};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	d0 = ((MultiDimRegion)region).ordinal(d0);
+    	return getOrdinal(d0);
     }
     public Parameter1 get(int d0, int d1) {
-    	assert this.region.rank == 2;
-        int[] pos = {d0, d1};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1);
+    	return getOrdinal(theIndex);
     }
     
     public Parameter1 get(int d0, int d1, int d2) {
-    	assert this.region.rank == 3;
-        int[] pos = {d0, d1, d2};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2);
+    	return getOrdinal(theIndex);
     }
     
     public Parameter1 get(int d0, int d1, int d2, int d3) {
-    	assert this.region.rank == 4;
-        int[] pos = {d0, d1, d2, d3};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	int	theIndex = ((MultiDimRegion)region).ordinal(d0,d1,d2,d3);
+    	return getOrdinal(theIndex);
     }
     public Parameter1 get(int[] pos) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
