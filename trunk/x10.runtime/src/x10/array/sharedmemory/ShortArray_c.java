@@ -233,42 +233,47 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
         distribution.checkAccess(pos);
         return arr_.setShort(v, (int) distribution.region.ordinal(pos));
     }
-    
+    public short setOrdinal(short v, int rawIndex) {
+    	return arr_.setShort(v,rawIndex);
+    }
     
     public short set(short v, int d0) {
     	assert this.region.rank == 1;
-        int[] pos = {d0};
-    	final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
+    	d0 -= region.rank(0).low();
+    	return arr_.setShort(v,d0);
     }
-    
+     
     public short set(short v, int d0, int d1) {
     	assert this.region.rank == 2;
-    	if(false){
-    		int[] pos = {d0, d1};
-    		final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    		return set(v, p);
-    	}else {
-    		int theIndex= d1 + (d0 *region.rank(1).size());
-    		return arr_.setShort(v,theIndex);
-    	}
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	int theIndex= d1 + (d0 *region.rank(1).size());
+    	return arr_.setShort(v,theIndex);
     }
     
     public short set(short v, int d0, int d1, int d2) {
     	assert this.region.rank == 3;
-        int[] pos = {d0, d1, d2};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	int theIndex= d2 + (d1 * region.rank(2).size()) + (d0 * (region.rank(2).size()*region.rank(1).size())) ;
+    	return arr_.setShort(v,theIndex);
     }
     
     public short set(short v, int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
-        int[] pos = {d0, d1, d2, d3};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-        return set(v, p);
-        
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	d3 -= region.rank(3).low();
+    	
+    	int theIndex= d3+ (d2 * region.rank(3).size()) + 
+		(d1 * region.rank(2).size()* region.rank(3).size()) + 
+		(d0 *region.rank(1).size()* region.rank(2).size()* region.rank(3).size()) ;
+    	return arr_.setShort(v,theIndex);
+    	
     }
-
+    
     /* (non-Javadoc)
      * @see x10.lang.ShortArray#get(int[])
      */
@@ -276,38 +281,49 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
         distribution.checkAccess(pos);
         return arr_.getShort((int) distribution.region.ordinal(pos));
     }
+    public short getOrdinal(int rawIndex) {
+    	
+    	return arr_.getShort(rawIndex);
+    }
     
     public short get(int d0) {
     	assert this.region.rank == 1;
-        int[] pos = {d0};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	d0 -= region.rank(0).low();
+    	return arr_.getShort(d0);
     }
     public short get(int d0, int d1) {
     	assert this.region.rank == 2;
-    	if(false){
-    		int[] pos = {d0, d1};
-    		final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    		return get(p);
-    	}else {
-    		int theIndex= d1 + (d0 *region.rank(1).size());
-    		
-    		return arr_.getShort(theIndex);
-    	}
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	int theIndex= d1 + (d0 *region.rank(1).size());
+    	
+    	return arr_.getShort(theIndex);
     }
     
     public short get(int d0, int d1, int d2) {
     	assert this.region.rank == 3;
-        int[] pos = {d0, d1, d2};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
-    }
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	
+    	int theIndex= d2 + (d1 *region.rank(2).size()) +
+		(d0 *region.rank(1).size()*region.rank(2).size());
+    	return arr_.getShort(theIndex);  	
+    } 
     
     public short get(int d0, int d1, int d2, int d3) {
     	assert this.region.rank == 4;
-        int[] pos = {d0, d1, d2, d3};
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
+    	d0 -= region.rank(0).low();
+    	d1 -= region.rank(1).low();
+    	d2 -= region.rank(2).low();
+    	d3 -= region.rank(3).low();
+    	
+    	int theIndex= d3 + (d2*region.rank(3).size()) + 
+		(d1 *region.rank(2).size()*region.rank(3).size()) + 
+		(d0 *region.rank(1).size()*region.rank(2).size()*region.rank(3).size());
+    	
+    	return arr_.getShort(theIndex);
+    	
     }
     public short get(int[] pos) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
