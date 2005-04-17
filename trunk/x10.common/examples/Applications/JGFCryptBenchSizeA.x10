@@ -1,6 +1,6 @@
 /**************************************************************************
 *                                                                         *
-*         Java Grande Forum Benchmark Suite - Thread Version 1.0          *
+*             Java Grande Forum Benchmark Suite - MPJ Version 1.0         *
 *                                                                         *
 *                            produced by                                  *
 *                                                                         *
@@ -24,24 +24,28 @@ import jgfutil.*;
 
 public class JGFCryptBenchSizeA{ 
 
-  public static int nthreads;
+  public static int nprocess;
+  public static int rank;
 
-  public static void main(String argv[]){
+  public boolean run(){
 
-  if (argv.length > 1) {
-    nthreads = Integer.parseInt(argv[1]);
-  } else {
-    System.out.println("The no of threads has not been specified, defaulting to 4");
-    System.out.println("  ");
-    nthreads = 4;
-  }
-
-    JGFInstrumentor.printHeader(2,0,nthreads);
-
-    JGFCryptBench cb = new JGFCryptBench(nthreads); 
+    if(rank==0) {
+      JGFInstrumentor.printHeader(2,0, place.MAX_PLACES);
+    }
+    JGFCryptBench cb = new JGFCryptBench(place.MAX_PLACES,rank); 
     cb.JGFrun(0);
- 
+    return true;
   }
+   /**
+    * main method
+    */
+   public static void main(String args[]) {
+		boolean b= (new JGFCryptBenchSizeA()).run();
+		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
+		System.exit(b?0:1);
+   }
+
+
 }
 
 
