@@ -155,8 +155,9 @@ public final class Clock extends clock {
      */
     public boolean drop() {
         boolean b = drop(aip_.getCurrentActivity());
-        if (!b)
+        if (!b) {
             Runtime.getCurrentActivityInformation().getRegisteredClocks().remove(this);
+	}
         return b; 
     }
     
@@ -176,7 +177,7 @@ public final class Clock extends clock {
      *   clock (or if it never was registered).
      */
     synchronized boolean drop(Activity a) {
-        boolean ret = activities_.remove(a);
+        boolean ret = ! activities_.remove(a);
         pending_.remove(a);
         tryAdvance_(); 
         return ret;        
