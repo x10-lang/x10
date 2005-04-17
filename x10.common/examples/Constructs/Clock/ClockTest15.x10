@@ -3,13 +3,32 @@
  *
  * Testing behavior of multiple clock barriers without resume
  *
- * (need language clarification resulting from resume/next semantics).
+ * With multiple clocks per activity, next's are not guaranteed
+ * to be in lock step. 
  *
- * Is 'next' is the same as '(resume my registered clocks); next;'?
- * If yes, the following parallel execution order is legitimate 
- * (but intuitively not what we want).
+ * Given activities A1,A2,A3, which are registered with
+ * clocks a,b like this:
+ *
+ * <code>
+
+     a   b
+    / \ / \
+   A1  A2 A3
+
+ * </code>
+ *
+ * A1, A2, and A3 all increment a global counter x (initially 0), then
+ * pass a next, and then read the global counter x.
+ * While typically all will read x==3, it is possible for
+ * A1 to pass its next earlier than A2 and A3 and read x==2
+ * (before A3 has incremented x).
+ * Similarly A3 can pass its next earlier than A1,A2 and read x==2
+ * (before A1 has incremented x).
+ * 
+ * Thus the following parallel execution order is legitimate 
  * I.e. A1 reads x==2 by passing its next prematurely, 
  * but A2 and A3 read x==3
+ *
  *
  * <code>
     A0: spawns A1 (registers A1 with a first);
@@ -25,7 +44,7 @@
     A2: b.resume(); // part of next
     A2: next (wait until A2,A3 have both resumed b and A1,A2 have both resumed a)
     A1: next unblocks; // (since A2 resumed a) 
-    A1: read x (x==2)                         <=== bug here
+    A1: read x (x==2)  <===== A1 passes next earlier than A2 and A3
     A3: return from delay operation
     A3: x++ (x==3 now)
     A3: b.resume() // part of next 
@@ -36,8 +55,9 @@
     A2: read x (x==3)
  * </code>
  *
- * The behavior above is present in the current x10 
- * implementation as of 4/16/05
+ * This test case forces A1 to read x==2 deterministically, 
+ * by delaying the execution of A3
+ *
  */
 
 class ClockTest15
@@ -57,7 +77,7 @@ class ClockTest15
 	int tmp;
 	atomic tmp = x;
 	System.out.println("A1 advanced, x="+tmp);
-	chk (tmp == 3);
+	chk (tmp == 2);
 	next;
       }
       /*A2 */ async (here) clocked (a, b)
