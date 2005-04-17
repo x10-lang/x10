@@ -9,7 +9,8 @@
  *
  * 
  * For a clock c: I cannot advance to my next phase 
- * until all activities registered with me have executed next
+ * until all activities registered with me have executed 
+ * resume on me for the current phase,
  * and all activities scheduled for completion
  * in my current phase (with now(c)) have globally finished.
  *
@@ -20,6 +21,9 @@
  * that I am currently registered with have advanced to 
  * their next phase.
  *
+ * next will do an implicit resume first on each of the clocks
+ * I am registered with.
+ *
  * I get registered with a clock c by creating/declaring c,
  * or by being enclosed in a clocked(...,c,...) statement.
  *
@@ -27,11 +31,18 @@
  * I am already registered with by
  * async(P) clocked(c1,..,cn) S
  * 
- * I can post  a child activity for global completion during the
- * current phase of some of the clocks I am registered with, 
- * by now(c1) ... now(cn) S
- *
  * Expected result of this test: should not deadlock.
+ *
+ * Important: The next's do not go in lock step in this test case!
+ *
+ * For example  activities using (e) may pass their nexts
+ * as soon as all other activities using e  have arrived
+ * at their nexts: (c,e), (d,e) (c,d,e), although (c,d),(c),(d)
+ * have not yet arrived at their nexts.
+ *
+ * Also see ClockTest15.
+ * 
+
  * 
  *
  * @author kemal 4/2005
