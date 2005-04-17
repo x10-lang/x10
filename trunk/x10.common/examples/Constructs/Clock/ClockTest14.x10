@@ -1,6 +1,5 @@
 /**
  * Check if illegal uses of clock are raising exception.
- * Some language clarifications needed.
  * @author kemal 4/2005
  */
 public class ClockTest14 {
@@ -12,7 +11,7 @@ public class ClockTest14 {
 		c.resume();
   		c.drop();		
 		chk(c.dropped());
-		next; // empty clock set should be acceptable?
+		next; // empty clock set is acceptable, next is no-op
 		gotException=false;
 		try {
 		  c.resume();
