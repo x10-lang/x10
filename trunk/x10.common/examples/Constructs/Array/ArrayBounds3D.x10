@@ -46,7 +46,7 @@ private static boolean arrayAccess(int lb1, int ub1,
 
 //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+lb3+" "+ub3+" "+i+" "+j+" "+k);
 
-int[.] a =new int[distHere(rg(rg(lb1,ub1),rg(lb2,ub2),rg(lb3,ub3)))];
+int[.] a =new int[[lb1:ub1,lb2:ub2,lb3:ub3]->here];
 
 boolean withinBounds=true;
 try {
@@ -83,36 +83,6 @@ private static boolean iff(boolean x, boolean y) {
 	return x==y;
 }
 
-
-/**
- *  Create the region lb..ub
- */
-private static region rg(int lb, int ub) {
-	return region.factory.region(lb,ub);
-}
-
-/**
- * Create the region (r1 times r2)
- */
-
-private static region rg(region r1, region r2) {
-	return region.factory.region(new region[] {r1,r2});
-}
-
-/**
- * Create the region (r1 times r2 times r3)
- */
-
-private static region rg(region r1, region r2, region r3) {
-	return region.factory.region(new region[] {r1,r2,r3});
-}
-
-/**
- * create the constant-here distribution  for region r
- */
-private static distribution distHere(region r) {
-	return distribution.factory.constant(r, here);
-}
 
 private Random myRand=new Random(1L);
 
