@@ -156,11 +156,13 @@ public class LocalPlace_c extends Place {
                 public void run() {
                     PoolRunner t = (PoolRunner) Thread.currentThread();
                     reg_.registerActivityStart(t, a, i);
-                    Iterator it = t.myClocks_.iterator();
-                    while (it.hasNext()) {
-                        Clock c = (Clock) it.next();                    
-                        c.register();
-                    }
+		    if (t.myClocks_ != null) {
+                      Iterator it = t.myClocks_.iterator();
+                      while (it.hasNext()) {
+                          Clock c = (Clock) it.next();                    
+                          c.register();
+                      }
+		    }  
                     synchronized(startSignal) {
                         startSignal.go = true;
                         startSignal.notifyAll();
