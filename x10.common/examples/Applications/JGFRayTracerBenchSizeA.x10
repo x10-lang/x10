@@ -24,13 +24,24 @@ import jgfutil.*;
 
 public class JGFRayTracerBenchSizeA{ 
 
-  public static void main(String argv[]){
+  public boolean run() {
 
     JGFInstrumentor.printHeader(3,0);
 
     JGFRayTracerBench rtb = new JGFRayTracerBench(); 
     rtb.JGFrun(0);
+    return true;
  
   }
+   /**
+    * main method
+    */
+   public static void main(String args[]) {
+		boolean b= (new JGFRayTracerBenchSizeA()).run();
+		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
+		System.exit(b?0:1);
+   }
+
+
 }
  
