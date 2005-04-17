@@ -6,9 +6,9 @@
  * Clock test for  multiple clocks.
  * Testing semantics of next with multiple clocks. 
  *
- * 
  * For a clock c: I cannot advance to my next phase 
- * until all activities registered with me have executed next
+ * until all activities registered with me have executed 
+ * resume on me for the current phase,
  * and all activities scheduled for completion
  * in my current phase (with now(c)) have globally finished.
  *
@@ -17,7 +17,10 @@
  * For an activity a: My next cannot advance to the 
  * following statement, until all clocks
  * that I am currently registered with have advanced to 
- * their next phase.
+ * their next phase. 
+ *
+ * next will do an implicit resume first on each of the clocks
+ * I am registered with.
  *
  * I get registered with a clock c by creating/declaring c,
  * or by being enclosed in a clocked(...,c,...) statement.
@@ -28,7 +31,7 @@
  * 
  * I can post  a child activity for global completion during the
  * current phase of some of the clocks I am registered with, 
- * by now(c1) ... now(cn) S
+ * by now(c1,...,cn) S
  *
  * I can deregister with the clocks I am registered with, by terminating
  *
@@ -41,6 +44,11 @@
  * Children should be able to proceed with their next statements
  * after the parent terminates.
  *
+ * This test uses multiple clocks but also uses a common
+ * clock for all activities. The common clock forces
+ * the next to behave like ordinary lock-step barriers (not
+ * guaranteed in general, see ClockTest15).
+ * 
  *
  * @author kemal 4/2005
  */
@@ -48,7 +56,7 @@ public class ClockTest6 {
 
 	const int N_INSTANCES=8;//number of instances of each async activity kind
 	const int N_NEXTS=4;//number of next pairs in each async activity
-	const int N_KINDS=7;// number of kinds of async activities
+	const int N_KINDS=4;// number of kinds of async activities
 	int globalCounter=0;
 
 	public boolean run() {
@@ -57,7 +65,7 @@ public class ClockTest6 {
       		final clock c = clock.factory.clock();
       		final clock d = clock.factory.clock();
       		final clock e = clock.factory.clock();
-		// Spawn subactivities using each subset of the clocks
+		// Spawn subactivities using different subset of the clocks
 		// The subactivities will perform N_NEXTS next pairs each
 		for(point [i]:1:N_INSTANCES) {
 			
@@ -72,69 +80,36 @@ public class ClockTest6 {
 			next;//barrier
 		}
 			
-		/*Activity kind:2 clocks=(d)*/
-		async(here)clocked(d)
+		/*Activity kind:2 clocks=(c,d)*/
+		async(here)clocked(c,d)
 		for(point [tick]:0:(N_NEXTS)-1){
 			// do work
-			doWork("2_",i,"(d)",tick);
+			doWork("2_",i,"(c,d)",tick);
 			next;//barrier
 			// verify that work in prior phase is correct
 			verify("2_",i,tick); 
 			next;//barrier
 		}
 			
-		/*Activity kind:3 clocks=(e)*/
-		async(here)clocked(e)
+		/*Activity kind:3 clocks=(c,e)*/
+		async(here)clocked(c,e)
 		for(point [tick]:0:(N_NEXTS)-1){
 			// do work
-			doWork("3_",i,"(e)",tick);
+			doWork("3_",i,"(c,e)",tick);
 			next;//barrier
 			// verify that work in prior phase is correct
 			verify("3_",i,tick); 
 			next;//barrier
 		}
 			
-		/*Activity kind:4 clocks=(c,d)*/
-		async(here)clocked(c,d)
-		for(point [tick]:0:(N_NEXTS)-1){
-			// do work
-			doWork("4_",i,"(c,d)",tick);
-			next;//barrier
-			// verify that work in prior phase is correct
-			verify("4_",i,tick); 
-			next;//barrier
-		}
-			
-		/*Activity kind:5 clocks=(c,e)*/
-		async(here)clocked(c,e)
-		for(point [tick]:0:(N_NEXTS)-1){
-			// do work
-			doWork("5_",i,"(c,e)",tick);
-			next;//barrier
-			// verify that work in prior phase is correct
-			verify("5_",i,tick); 
-			next;//barrier
-		}
-			
-		/*Activity kind:6 clocks=(d,e)*/
-		async(here)clocked(d,e)
-		for(point [tick]:0:(N_NEXTS)-1){
-			// do work
-			doWork("6_",i,"(d,e)",tick);
-			next;//barrier
-			// verify that work in prior phase is correct
-			verify("6_",i,tick); 
-			next;//barrier
-		}
-			
-		/*Activity kind:7 clocks=(c,d,e)*/
+		/*Activity kind:4 clocks=(c,d,e)*/
 		async(here)clocked(c,d,e)
 		for(point [tick]:0:(N_NEXTS)-1){
 			// do work
-			doWork("7_",i,"(c,d,e)",tick);
+			doWork("4_",i,"(c,d,e)",tick);
 			next;//barrier
 			// verify that work in prior phase is correct
-			verify("7_",i,tick); 
+			verify("4_",i,tick); 
 			next;//barrier
 		}
 		}
@@ -151,7 +126,7 @@ public class ClockTest6 {
 	void doWork(String kind, int instance, String clocks,int tick) {
 		atomic globalCounter++;
 
-		System.out.println("Actitivity "+kind+instance+" in phase "+ tick+" of clocks " + clocks);
+		System.out.println("Activity "+kind+instance+" in phase "+ tick+" of clocks " + clocks);
 	}
 
 	/**

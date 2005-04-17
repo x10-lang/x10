@@ -17,9 +17,9 @@ define(`C',
  * Clock test for  multiple clocks.
  * Testing semantics of next with multiple clocks. 
  *
- * 
  * For a clock c: I cannot advance to my next phase 
- * until all activities registered with me have executed next
+ * until all activities registered with me have executed 
+ * resume on me for the current phase,
  * and all activities scheduled for completion
  * in my current phase (with now(c)) have globally finished.
  *
@@ -28,7 +28,10 @@ define(`C',
  * For an activity a: My next cannot advance to the 
  * following statement, until all clocks
  * that I am currently registered with have advanced to 
- * their next phase.
+ * their next phase. 
+ *
+ * next will do an implicit resume first on each of the clocks
+ * I am registered with.
  *
  * I get registered with a clock c by creating/declaring c,
  * or by being enclosed in a clocked(...,c,...) statement.
@@ -39,7 +42,7 @@ define(`C',
  * 
  * I can post  a child activity for global completion during the
  * current phase of some of the clocks I am registered with, 
- * by now(c1) ... now(cn) S
+ * by now(c1,...,cn) S
  *
  * I can deregister with the clocks I am registered with, by terminating
  *
@@ -52,6 +55,11 @@ define(`C',
  * Children should be able to proceed with their next statements
  * after the parent terminates.
  *
+ * This test uses multiple clocks but also uses a common
+ * clock for all activities. The common clock forces
+ * the next to behave like ordinary lock-step barriers (not
+ * guaranteed in general, see ClockTest15).
+ * 
  *
  * @author kemal 4/2005
  */
@@ -59,7 +67,7 @@ public class ClockTest6 {
 
 	const int N_INSTANCES=8;//number of instances of each async activity kind
 	const int N_NEXTS=4;//number of next pairs in each async activity
-	const int N_KINDS=7;// number of kinds of async activities
+	const int N_KINDS=4;// number of kinds of async activities
 	int globalCounter=0;
 
 	public boolean run() {
@@ -68,16 +76,13 @@ public class ClockTest6 {
       		final clock c = clock.factory.clock();
       		final clock d = clock.factory.clock();
       		final clock e = clock.factory.clock();
-		// Spawn subactivities using each subset of the clocks
+		// Spawn subactivities using different subset of the clocks
 		// The subactivities will perform N_NEXTS next pairs each
 		for(point [i]:1:N_INSTANCES) {
 			C(1,i,N_NEXTS,(c))
-			C(2,i,N_NEXTS,(d))
-			C(3,i,N_NEXTS,(e))
-			C(4,i,N_NEXTS,(c,d))
-			C(5,i,N_NEXTS,(c,e))
-			C(6,i,N_NEXTS,(d,e))
-			C(7,i,N_NEXTS,(c,d,e))
+			C(2,i,N_NEXTS,(c,d))
+			C(3,i,N_NEXTS,(c,e))
+			C(4,i,N_NEXTS,(c,d,e))
 		}
 		// Here all children have registered with
 		// their clocks, but have not advanced beyond their first next
@@ -92,7 +97,7 @@ public class ClockTest6 {
 	void doWork(String kind, int instance, String clocks,int tick) {
 		atomic globalCounter++;
 
-		System.out.println("Actitivity "+kind+instance+" in phase "+ tick+" of clocks " + clocks);
+		System.out.println("Activity "+kind+instance+" in phase "+ tick+" of clocks " + clocks);
 	}
 
 	/**
