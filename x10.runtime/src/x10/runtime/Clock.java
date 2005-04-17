@@ -121,7 +121,8 @@ public final class Clock extends clock {
         Activity a = aip_.getCurrentActivity();        
         // do not lock earlier - see comment in doNext
         synchronized (this) {
-            assert activities_.contains(a);
+            if (! activities_.contains(a))
+		throw new ClockUseException("Cannot execute 'resume' on clock on which the current activity is not registered with.");
             if (resumed_.contains(a))
             	return; // ignore multiple-resume without next
         	if (pending_.contains(a)) {
