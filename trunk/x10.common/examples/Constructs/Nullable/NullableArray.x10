@@ -26,9 +26,6 @@ public class NullableArray {
 		nullable mycomplex[.] ia5 = new mycomplex[(0:2)->here]
                  (point [i]) {return new mycomplex();};
 		 if (ia5[2].im!=0) return false;
-		nullable mycomplex[.] ia6 = new mycomplex[(0:2)->here];
-		// default initialization of non-nullable elements
-		if (ia6[2].im!=0) return false;
 		nullable mycomplex[.] ia7 = null;
 		if (ia7!=null) return false;
 
