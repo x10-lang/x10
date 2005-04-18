@@ -128,12 +128,26 @@ public class X10Binary_c extends Binary_c {
 			}
 			return type(ts.region());
 		}
-		if (op == COND_AND && l.isRegion()) { // region.intersection(region r)
+		if (op == COND_OR && l.isDistribution()) { // || distribution.union(distribution r)
+			if (! (r.isDistribution())) {
+				throw new SemanticException("This " + op +
+						" operator instance must have a distribution operand.", right.position());
+			}
+			return type(ts.distribution());
+		}
+		if (op == COND_AND && l.isRegion()) { // && region.intersection(region r)
 			if (! (r.isRegion())) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a region operand.", right.position());
 			}
 			return type(ts.region());
+		}
+		if (op == COND_AND && l.isDistribution()) { // && distribution.intersection(distribution r)
+			if (! (r.isDistribution())) {
+				throw new SemanticException("This " + op +
+						" operator instance must have a distribution operand.", right.position());
+			}
+			return type(ts.distribution());
 		}
 		
 		
@@ -211,13 +225,14 @@ public class X10Binary_c extends Binary_c {
 			w.write(")");
 			return;
 		}
-		if (op == COND_AND && l.isRegion()) {
+		if (op == COND_AND && (l.isRegion() || l.isDistribution())) {
 			printSubExpr(left, true, w, tr);
 			w.write(".intersection(");
 			printSubExpr(right, false, w, tr);
 			w.write(")");
 			return;
 		}
+		
 		
 		// New for X10.
 		if (op == BIT_OR && (l.isDistribution() || l.isDistributedArray())) {
