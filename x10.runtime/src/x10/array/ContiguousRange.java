@@ -130,8 +130,10 @@ public class ContiguousRange extends Range {
 		return  lo + ":" + hi ;
 	}
     
-    public region[] partition(int n) {
+    public region[] partition(int n, int dim) {
         assert n > 0;
+        assert dim == 0;
+        
         region[] ret = new region[n];  
         int all_size = size();
         int base = low();
