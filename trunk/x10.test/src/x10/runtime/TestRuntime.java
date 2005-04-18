@@ -20,6 +20,7 @@ import x10.runtime.Clock;
  * 
  * @author Christian Grothoff
  * @author Christoph von Praun
+ * @author vj
  */
 public class TestRuntime extends TestCase {
 
@@ -32,7 +33,12 @@ public class TestRuntime extends TestCase {
         return new TestSuite(TestRuntime.class);
     }
     
-    public static void main(String[] args) {
+   /*public void runTest() {
+    	TestCase test= new TestRuntime("main"); 
+    	test.run();
+    }*/
+    
+   public static void main(String[] args) {
         junit.textui.TestRunner.run(TestRuntime.class);
         Place[] pls = Place.places();
         for (int i=pls.length-1;i>=0;i--)
@@ -56,6 +62,7 @@ public class TestRuntime extends TestCase {
     public void setUp() {
         DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
         Place[] pls = Place.places();
+        assert (r instanceof ThreadRegistry);
         if (r instanceof ThreadRegistry) {
             Thread t = Thread.currentThread();
             ThreadRegistry tr = (ThreadRegistry) r;
@@ -105,114 +112,155 @@ public class TestRuntime extends TestCase {
         assertTrue(f.force().getClass() == x10.lang.Object.class);
     }
 
-    public void TestClockNext() {
+    public void testClockNext() {
         x = 0;
-        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
-        Activity b = new Activity() {
-            public void run() {
-                Runtime.doNext();
-                x = 1;
-                Runtime.doNext();
-                Runtime.doNext();
-                x = 2;
-                Runtime.doNext();
-            }
-        };
-        Runtime.here().runAsync(b, Runtime.getCurrentActivityInformation());
-        sleep(100); // wait for activity to hit first 'doNext'
-        assertTrue(x == 0);
-        Runtime.doNext();
-        Runtime.doNext();
-        assertTrue(x == 1);
-        Runtime.doNext();
-        Runtime.doNext();
-        assertTrue(x == 2);
+        Runtime.here().runAsync(new Activity() {
+        	public void run() {
+        		Runtime.here().runAsync(new Activity() {
+        			public void run() {
+        				final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
+        				Activity b = new Activity() {
+        					public void run() {
+        						Runtime.doNext();
+        						x = 1;
+        						Runtime.doNext();
+        						Runtime.doNext();
+        						x = 2;
+        						Runtime.doNext();
+        					}
+        				};
+        				Runtime.here().runAsync(b, Runtime.getCurrentActivityInformation());
+        				sleep(100); // wait for activity to hit first 'doNext'
+        				assertTrue(x == 0);
+        				Runtime.doNext();
+        				Runtime.doNext();
+        				assertTrue(x == 1);
+        				Runtime.doNext();
+        				Runtime.doNext();
+        				assertTrue( x == 2);
+        			}
+        		}, 
+				Runtime.getCurrentActivityInformation());
+        	}
+        }, null);
     }
     
     
-    public void TestClockContinue() {
-        x = 0;
-        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
-        Activity b = new Activity() {
-            public void run() {
-                Runtime.doNext();
-                x = 1;
-                c.resume();
-                sleep(100); // wait for activity to hit first 'doNext'
-                x = 2; // 'bad' coding style :-)
-            }
-        };
-        Runtime.here().runAsync(b, null);
-        assertTrue(x == 0);
-        Runtime.doNext();
-        Runtime.doNext();
-        assertTrue(x == 1);
-        sleep(200); // sleep longer than 'b'
-        assertTrue(x == 2);
+    public void testClockContinue() {
+    	x = 0;
+    	Runtime.here().runAsync(new Activity() {
+    		public void run() {
+    			Runtime.here().runAsync(new Activity() {
+    				public void run() {
+    					final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
+    					Activity b = new Activity() {
+    						public void run() {
+    							Runtime.doNext();
+    							x = 1;
+    							c.resume();
+    							sleep(100); // wait for activity to hit first 'doNext'
+    							x = 2; // 'bad' coding style :-)
+    						}
+    					};
+    					Runtime.here().runAsync(b, null);
+    					assertTrue(x == 0);
+    					Runtime.doNext();
+    					Runtime.doNext();
+    					assertTrue(x == 1);
+    					sleep(200); // sleep longer than 'b'
+    					assertTrue(x == 2);
+    				}
+    			}, Runtime.getCurrentActivityInformation());
+    		}
+    	}, null);
     }
     
-    public void TestClockDrop() {
-        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
-        Activity b = new Activity() {
-            public void run() {
-                c.drop();
-            }
-        };
-        Runtime.here().runAsync(b, null);
-        Runtime.doNext();
-        Runtime.doNext();
-        Runtime.doNext();
-        Runtime.doNext();
-        Runtime.doNext();
+    public void testClockDrop() {
+    	Runtime.here().runAsync(new Activity() {
+    		public void run() {
+    			Runtime.here().runAsync(new Activity() {
+    				public void run() {
+    					final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
+    					Activity b = new Activity() {
+    						public void run() {
+    							c.drop();
+    						}
+    					};
+    					Runtime.here().runAsync(b, null);
+    					Runtime.doNext();
+    					Runtime.doNext();
+    					Runtime.doNext();
+    					Runtime.doNext();
+    					Runtime.doNext();
+    				}
+    			}, Runtime.getCurrentActivityInformation());
+    		}
+    	}, null);
     }
     
-    public void TestClockedFinal() {
-        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
-        final ClockedFinalInt i = new ClockedFinalInt(c, 0);
-        Activity b = new Activity() {
-            public void run() {
-                i.next = 1;
-                Runtime.doNext();
-                i.next = 2;
-                Runtime.doNext();
-                i.next = 3;
-                Runtime.doNext();
-            }
-        };       
-        Runtime.here().runAsync(b, null);
-        assertTrue(i.current == 0);
-        Runtime.doNext();
-        assertTrue(i.current == 1);
-        Runtime.doNext();
-        assertTrue(i.current == 2);
-        Runtime.doNext();
-        assertTrue(i.current == 3);
-        Runtime.doNext();
+    public void testClockedFinal() {
+    	Runtime.here().runAsync(new Activity() {
+    		public void run() {
+    			Runtime.here().runAsync(new Activity() {
+    				public void run() {
+    					final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
+    					final ClockedFinalInt i = new ClockedFinalInt(c, 0);
+    					Activity b = new Activity() {
+    						public void run() {
+    							i.next = 1;
+    							Runtime.doNext();
+    							i.next = 2;
+    							Runtime.doNext();
+    							i.next = 3;
+    							Runtime.doNext();
+    						}
+    					};       
+    					Runtime.here().runAsync(b, null);
+    					assertTrue(i.current == 0);
+    					Runtime.doNext();
+    					assertTrue(i.current == 1);
+    					Runtime.doNext();
+    					assertTrue(i.current == 2);
+    					Runtime.doNext();
+    					assertTrue(i.current == 3);
+    					Runtime.doNext();
+    				}
+    			}, Runtime.getCurrentActivityInformation());
+    		}
+    	}, null);
     }
 
-    public void TestClockNow() {
-        Activity b = new Activity() {
-            public void run() {
-                sleep(100);
-                Activity c = new Activity() {
-                    public void run() {
-                        sleep(100);
-                        Activity d = new Activity() {
-                            public void run() {
-                                x = 1;
-                            }
-                        };                    
-                        Runtime.here().runAsync(d, Runtime.getCurrentActivityInformation());
-                    }
-                };
-                Runtime.here().runAsync(c, null);
-            }
-        };
-        x = 0;
-        final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
-        c.doNow(b);
-        Runtime.doNext();
-        assertTrue(x == 1);
+    public void testClockNow() {
+    	Runtime.here().runAsync(new Activity() {
+    		public void run() {
+    			Runtime.here().runAsync(new Activity() {
+    				public void run() {
+    					Activity b = new Activity() {
+    						public void run() {
+    							sleep(100);
+    							Activity c = new Activity() {
+    								public void run() {
+    									sleep(100);
+    									Activity d = new Activity() {
+    										public void run() {
+    											x = 1;
+    										}
+    									};                    
+    									Runtime.here().runAsync(d, Runtime.getCurrentActivityInformation());
+    								}
+    							};
+    							Runtime.here().runAsync(c, null);
+    						}
+    					};
+    					x = 0;
+    					final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
+    					c.doNow(b);
+    					Runtime.doNext();
+    					assertTrue(x == 1);
+    				}
+    			}, Runtime.getCurrentActivityInformation());
+    		}
+    	}, null);
     }
     
     /**

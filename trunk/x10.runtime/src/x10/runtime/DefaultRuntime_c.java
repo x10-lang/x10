@@ -378,6 +378,9 @@ public class DefaultRuntime_c
     				public clock clock() {
     					return new Clock(DefaultRuntime_c.this);
     				}
+    				public clock clock(String name) {
+    					return new Clock(DefaultRuntime_c.this, name);
+    				}
     			};
     		}
     		public booleanArray.factory getBooleanArrayFactory() {

@@ -148,48 +148,48 @@ public class LocalPlace_c extends Place {
      * Run the given activity asynchronously.
      */
     public void runAsync(final Activity a,
-                                      final ActivityInformation ai) {
-        final Activity i = aip_.getCurrentActivity();
-        assert i != a;
-        final StartSignal startSignal = new StartSignal();
-        this.execute(new Runnable() {
-                public void run() {
-                    PoolRunner t = (PoolRunner) Thread.currentThread();
-                    reg_.registerActivityStart(t, a, i);
+    		final ActivityInformation ai) {
+    	final Activity i = aip_.getCurrentActivity();
+    	assert i != a;
+    	final StartSignal startSignal = new StartSignal();
+    	this.execute(new Runnable() {
+    		public void run() {
+    			PoolRunner t = (PoolRunner) Thread.currentThread();
+    			reg_.registerActivityStart(t, a, i);
 		    if (t.myClocks_ != null) {
-                      Iterator it = t.myClocks_.iterator();
-                      while (it.hasNext()) {
-                          Clock c = (Clock) it.next();                    
-                          c.register();
-                      }
+    			Iterator it = t.myClocks_.iterator();
+    			while (it.hasNext()) {
+    				Clock c = (Clock) it.next();                    
+    				c.register(i);
+    			}
 		    }  
-                    synchronized(startSignal) {
-                        startSignal.go = true;
-                        startSignal.notifyAll();
-                    }
-                    try {
-                        a.run();
-                    } catch (RuntimeException re) {
-                        reg_.registerActivityException(a,
-                                re);
-                    } catch (Error et) {
-                        reg_.registerActivityException(a,
-                                                                      et);
-                    } 
-                }
-            }, a, ai);
-        // we now need to wait at least (!) until the 
-        // "reg_.registerActivityStart(...)" line has been
-        // reached.  Hence we wait on the start signal.
-        synchronized (startSignal) {
-            try {
-                while (! startSignal.go) {
-                    startSignal.wait();
-                }
-            } catch (InterruptedException ie) {
-                throw new Error(ie); // should never happen!
-            }
-        }
+    			synchronized(startSignal) {
+    				startSignal.go = true;
+    				startSignal.notifyAll();
+    			}
+    			try {
+    				a.run();
+    			} catch (RuntimeException re) {
+    				reg_.registerActivityException(a,
+    						re);
+    			} catch (Error et) {
+    				reg_.registerActivityException(a,
+    						et);
+    			} 
+    		}
+    	}, a, ai);
+    	// we now need to wait at least (!) until the 
+    	// "reg_.registerActivityStart(...)" line has been
+    	// reached.  Hence we wait on the start signal.
+    	synchronized (startSignal) {
+    		try {
+    			while (! startSignal.go) {
+    				startSignal.wait();
+    			}
+    		} catch (InterruptedException ie) {
+    			throw new Error(ie); // should never happen!
+    		}
+    	}
     }
 
     /**
@@ -197,47 +197,47 @@ public class LocalPlace_c extends Place {
      * can be used to force the future result.
      */
     public Future runFuture(final Activity.Expr a,
-                                         final ActivityInformation ai) {
-        final Future_c result = new Future_c(a);
-        final Activity i = aip_.getCurrentActivity();
-        assert i != a;
-        final StartSignal startSignal = new StartSignal();
-        this.execute(new Runnable() {
-                public void run() {
-                    PoolRunner t = (PoolRunner) Thread.currentThread();
-                    reg_.registerActivityStart(t, a, i);
-                    final x10.runtime.DefaultRuntime_c dr
-                       = (x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime;
-                    dr.startFinish(a);
-                    Iterator it = t.myClocks_.iterator();
-                    while (it.hasNext()) {
-                        Clock c = (Clock) it.next();                    
-                        c.register();
-                    }
-
-                    synchronized(startSignal) {
-                        startSignal.go = true;
-                        startSignal.notifyAll();
-                    }
-                    try {
-                        a.run();
-                        result.setResult(a.getResult());
-                    } catch (Error e) {
-                        dr.registerActivityException(a, e);
-                    } catch (RuntimeException re) {
-                        dr.registerActivityException(a, re);
-                    } finally {
-                        java.lang.Throwable tr                     
-                            = dr.getFinishExceptions(a);
-                        if (tr instanceof Error)
-                            result.setException((Error) tr);
-                        else if (tr instanceof RuntimeException)
-                            result.setException((RuntimeException) tr);
-                        else 
-                            assert tr == null;
-                    }
-                }        
-            }, a, ai);
+    		final ActivityInformation ai) {
+    	final Future_c result = new Future_c(a);
+    	final Activity i = aip_.getCurrentActivity();
+    	assert i != a;
+    	final StartSignal startSignal = new StartSignal();
+    	this.execute(new Runnable() {
+    		public void run() {
+    			PoolRunner t = (PoolRunner) Thread.currentThread();
+    			reg_.registerActivityStart(t, a, i);
+    			final x10.runtime.DefaultRuntime_c dr
+				= (x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime;
+    			dr.startFinish(a);
+    			Iterator it = t.myClocks_.iterator();
+    			while (it.hasNext()) {
+    				Clock c = (Clock) it.next();                    
+    				c.register(i);
+    			}
+    			
+    			synchronized(startSignal) {
+    				startSignal.go = true;
+    				startSignal.notifyAll();
+    			}
+    			try {
+    				a.run();
+    				result.setResult(a.getResult());
+    			} catch (Error e) {
+    				dr.registerActivityException(a, e);
+    			} catch (RuntimeException re) {
+    				dr.registerActivityException(a, re);
+    			} finally {
+    				java.lang.Throwable tr                     
+					= dr.getFinishExceptions(a);
+    				if (tr instanceof Error)
+    					result.setException((Error) tr);
+    				else if (tr instanceof RuntimeException)
+    					result.setException((RuntimeException) tr);
+    				else 
+    					assert tr == null;
+    			}
+    		}        
+    	}, a, ai);
         // we now need to wait at least (!) until the 
         // "reg_.registerActivityStart(...)" line has been
         // reached.  Hence we wait on the start signal.

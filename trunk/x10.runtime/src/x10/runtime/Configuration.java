@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.StringTokenizer;
+
+import polyglot.main.Report;
 
 /**
  * This class provides the configuration for the X10 runtime.
@@ -127,6 +130,22 @@ public final class Configuration {
         
         int pos = 0;
         while (args[pos].charAt(0) == '-') {
+        	// vj: added to allow the runtime to use Polyglot's report mechanism
+        	if (args[pos].equals("-report")) {
+                pos++;
+                StringTokenizer st = new StringTokenizer(args[pos], "=");
+                String topic = ""; int level = 0;
+                if (st.hasMoreTokens()) topic = st.nextToken();
+                if (st.hasMoreTokens()) {
+                    try {
+                        level = Integer.parseInt(st.nextToken());
+                    } 
+                    catch (NumberFormatException e) {}
+                }
+                Report.addTopic(topic, level);
+                pos++;
+                break;
+        	}
             int eq = args[pos].indexOf('=');
             String optionName;
             String optionValue = null;
@@ -136,7 +155,7 @@ public final class Configuration {
                 optionName = args[pos].substring(1, eq);
                 optionValue = args[pos].substring(eq+1);
             }
-            set(optionName, optionValue);
+            set(optionName, optionValue); 
             pos++;
         }        
         MAIN_CLASS_NAME = args[pos++];
