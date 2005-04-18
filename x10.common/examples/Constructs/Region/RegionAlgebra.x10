@@ -11,9 +11,9 @@ public class RegionAlgebra {
 		region R1 = [0:1,0:7];
 		region R2 = [4:5,0:7];
 		region R3 = [0:7,4:5];
-		region T1= R1 && R2 && R3;
+		region T1= (R1 || R2) && R3;
 		chk(T1.equals([0:1,4:5] || [4:5,4:5]));
-		chk(R1.contains(T1) && R2.contains(T1) && R3.contains(T1));
+		chk((R1||R2).contains(T1) && R3.contains(T1));
 		region T2= R1 || R2 || R3;
 		chk(T2.equals([0:1,0:7]||[4:5,0:7]||
 			[2:3,4:5] || [6:7,4:5]));
