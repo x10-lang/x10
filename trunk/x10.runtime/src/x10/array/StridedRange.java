@@ -7,6 +7,7 @@ package x10.array;
 import x10.lang.point;
 import x10.lang.region;
 import java.util.Iterator;
+import java.util.HashSet;
 
 /**
  * @author praun
@@ -37,15 +38,28 @@ public class StridedRange extends Range {
     }
 	
 	public region union(region r) {
-	    assert r instanceof StridedRange;
-	    
-	    throw new Error("TODO");
+	    assert r.rank == 1;
+        HashSet set = new HashSet();
+        for (Iterator it = iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            set.add(p);
+        }
+        for (Iterator it = r.iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            set.add(p);
+        }
+	    return new ArbitraryRegion(1, set);
 	}
 	
 	public region intersection( region r) {
-	    assert r instanceof StridedRange;
-	    
-	    throw new Error("TODO");
+	    assert r.rank == 1;
+	    HashSet set = new HashSet();
+        for (Iterator it = iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+            if (contains(p))
+                set.add(p);
+        }
+	    return new ArbitraryRegion(1, set);
 	}
 
 	/** returns this range less the points that are in r. If r is not 
@@ -71,10 +85,6 @@ public class StridedRange extends Range {
 	    return "[" + lo + ", " + hi + ": " + stride + "]";
 	}
 	
-
-	
-
-	
 	public boolean isConvex() {
 		return stride != 1;
 	}
@@ -83,8 +93,18 @@ public class StridedRange extends Range {
 			return this;
 		return new ContiguousRange(lo, hi);
 	}
+    
 	public boolean disjoint(region r) {
-		throw new Error("TODO");
+        boolean ret = false;
+        if (r.rank == 1) {
+            for (Iterator it = r.iterator(); ret && it.hasNext(); ) {
+                point p = (point) it.next();
+                if (contains(p))
+                    ret = false;
+            }
+                        
+        }
+        return ret;
 	}
 	
 	public boolean contains(region r) {
