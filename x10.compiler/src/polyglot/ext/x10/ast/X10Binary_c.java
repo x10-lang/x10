@@ -114,7 +114,7 @@ public class X10Binary_c extends Binary_c {
 		}
 		// TODO: Check that the underlying regions are disjoint.
 
-		if (op == COND_OR && l.isDistributedArray()) { // <T>array.union( <T>array right)
+		if (op == COND_OR && l.isDistributedArray()) { // || -- <T>array.union( <T>array right)
 			if (! (l.equals(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have distributed array operands of the same base type ", right.position());
@@ -137,8 +137,8 @@ public class X10Binary_c extends Binary_c {
 		}
 		
 		
-		if (op == BIT_OR && l.isDistributedArray()) { // distribution.union( distribution d)
-			if (! (r.isDistribution())) {
+		if (op == BIT_OR && l.isDistributedArray()) { // | array.restriction(distribution or region)
+			if (! (r.isDistribution() || r.isRegion())) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a distribution operand.", right.position());
 			}
