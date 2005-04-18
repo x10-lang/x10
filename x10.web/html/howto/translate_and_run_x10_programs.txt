@@ -53,9 +53,9 @@ Procedure:
  - right-click on the example to be executed:
  - choose "Run" from menu
    - main class: x10.lang.Runtime
-   - program arguments: Future1Boxed
-   - classpath - User Entries - Advanced: add path 
-     x10/examples/Constructs/Future
+   - program arguments: ${resource_name}
+   - classpath - User Entries - Advanced: add variable string 
+     ${container_loc}
    - click OK
 
 
