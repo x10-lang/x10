@@ -24,27 +24,28 @@ public class BlockDist {
 	final int COUNT=200;
 	final int L=5;
 	   for(point [tries]:1:COUNT) {
-		int lb1=ranInt(-L,L);
-		int lb2=ranInt(-L,L);
-		int ub1=ranInt(lb1,L); 
-		int ub2=ranInt(lb2,L);
+		final int lb1=ranInt(-L,L);
+		final int lb2=ranInt(-L,L);
+		final int ub1=ranInt(lb1,L); 
+		final int ub2=ranInt(lb2,L);
 		region R = [lb1:ub1,lb2:ub2];
 		distribution DBlock=distribution.factory.block(R);
 		final int totalPoints=(ub1-lb1+1)*(ub2-lb2+1);
 		final int p=totalPoints/np;
 		final int q=totalPoints%np;
-		int offs=0;
-		int block=0;
+		int offsWithinPlace=0;
+		int placeNum=0;
                 //System.out.println("lb1="+lb1+" ub1="+ub1+" lb2="+lb2+" ub2="+ub2+" totalPoints="+totalPoints+" p="+p+" q="+q);
 
 		for(point [i,j]:R) {
-			//System.out.println("block="+block+" offs="+offs+" i="+i+" j="+j+" P[block]=" +P[block].id+" DBlock[i,j]="+DBlock[i,j].id);
-  			chk(DBlock[i,j]==P[block]);
-			offs++;
-			if (offs==(p+((block<q)?1:0))) {
-				//time to go to next block
-				offs=0;
-				block++;
+			//System.out.println("placeNum="+placeNum+" offsWithinPlace="+offsWithinPlace+" i="+i+" j="+j+" DBlock[i,j]="+DBlock[i,j].id);
+  			chk(DBlock[i,j]==P[placeNum]);
+  			chk(P[placeNum].id==placeNum);
+			offsWithinPlace++;
+			if (offsWithinPlace==(p+((placeNum<q)?1:0))) {
+				//time to go to next place
+				offsWithinPlace=0;
+				placeNum++;
 			}
 		}
             }

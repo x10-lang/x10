@@ -22,25 +22,26 @@ public class CyclicDist {
 	final int COUNT=200;
 	final int L=5;
 	   for(point [tries]:1:COUNT) {
-		int lb1=ranInt(-L,L);
-		int lb2=ranInt(-L,L);
-		int ub1=ranInt(lb1,L); 
-		int ub2=ranInt(lb2,L);
+		final int lb1=ranInt(-L,L);
+		final int lb2=ranInt(-L,L);
+		final int ub1=ranInt(lb1,L); 
+		final int ub2=ranInt(lb2,L);
 		region R = [lb1:ub1,lb2:ub2];
 		distribution DCyclic=distribution.factory.cyclic(R);
 		final int totalPoints=(ub1-lb1+1)*(ub2-lb2+1);
-		int offs=0;
-		int block=0;
+		int offsWithinPlace=0;
+		int placeNum=0;
                 //System.out.println("lb1="+lb1+" ub1="+ub1+" lb2="+lb2+" ub2="+ub2+" totalPoints="+totalPoints);
 
 		for(point [i,j]:R) {
-			//System.out.println("block="+block+" offs="+offs+" i="+i+" j="+j+" P[block]=" +P[block].id+" DCyclic[i,j]="+DCyclic[i,j].id);
-  			chk(DCyclic[i,j]==P[block]);
-			block++;
-			if (block==np) {
+			//System.out.println("placeNum="+placeNum+" offsWithinPlace="+offsWithinPlace+" i="+i+" j="+j+" DCyclic[i,j]="+DCyclic[i,j].id);
+			chk(P[placeNum].id==placeNum);
+  			chk(DCyclic[i,j]==P[placeNum]);
+			placeNum++;
+			if (placeNum==np) {
 				//time to go to next offset
-				block=0;
-				offs++;
+				placeNum=0;
+				offsWithinPlace++;
 			}
 		}
             }
