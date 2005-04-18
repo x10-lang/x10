@@ -26,34 +26,24 @@ import x10.runtime.Place;
  * The harness helps invoke the compiler on an X10 testcase and
  * then tries to execute the resulting code in the JVM.
  * The X10 code can either consist of a 'run' method (which
- * is supposed to return 'false' on errors) or of a 
- * 'main' method (which is supposed to throw an exception on
- * errors).
+ * is supposed to return 'false' on errors, or throw an exception).
  * Naturally, if the compiler gives an exception, this is also
  * an error.
- * 
- * <h2>Adding tests</h2>
- * Adding testcases is typically a one-liner: add a testXXX
- * method which calls run or runMain, passing the path to the
- * X10 source and the name of the main class as arguments.
- * For the main case, you can also pass the arguments to the
- * main method of the X10 program (if any).  So most of the
- * work is to write the x10 code that does something interesting.
- * 
- * If you are addding new tests that are currently known to fail,
- * please <em>commit</em> them with a capital "T" in the "test" of the
- * method name.  This deactivates the test, allowing others to
- * quickly check that they did not break anything when running
- * the tests in regression.  
- * 
+ *
+ * <h2>Adding test cases</h2>
+ * The file TestCompiler.java contains the test cases.
+ * It is generated automatically by the makeTestCompiler script,
+ * from the current contents of the test directory, e.g.
+ * examples/
+
  * <h2>Running the tests</h2>
  * Running this testcase is easy, add it as just any JUnit
  * test to eclipse. Set the current directory to the test
- * directory, e.g. examples/testcases/feb2005/allTests  
+ * directory, e.g. examples/
  * 
  * If you are not using eclipse, compile the code using
- * "ant" and "ant x10rt" then run "junit"  at the 
- * test directory, e.g. examples/testcases/feb2005/allTests 
+ * "ant clobber all" then run "junit"  at the 
+ * test directory, e.g. examples/
  * 
  * <h2>Internals</h2>
  * The harness works by using a class loader to load the
@@ -63,6 +53,7 @@ import x10.runtime.Place;
  * 
  * @author Christian Grothoff <christian@grothoff.org>
  * @author vj -- Refactored to pull out the core code.
+ * @author kemal -- supporting new test hierarchy
  */
 
 /**
@@ -155,6 +146,7 @@ public class TestX10_Compiler extends TestCase {
 		}
 	}
 	
+// runMain is no longer supported
 /*
 	protected void runMain(String file, String main) {
 		runMain(file, main, null);
