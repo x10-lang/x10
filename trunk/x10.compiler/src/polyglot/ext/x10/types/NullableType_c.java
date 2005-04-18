@@ -66,6 +66,10 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
     	return true;
     }
     
+    public boolean isX10Array() {
+    	return base.isX10Array();
+    }
+    
     public boolean isFuture() {
     	return base.isFuture();
     }
@@ -89,7 +93,8 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 
 
     public String toString() {
-    	return  base().toString();
+    	return  "nullable<"+base().toString() + ">";
+    			
     }
 
     /** This needs to be changed so that the right boxed class is produced for 
@@ -105,11 +110,11 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
     }
 
     public List methods() {
-    	return this.methods;
+    	return base().methods();
     }
 
     public List fields() {
-    	return this.fields;
+    	return base().fields();
     }
 
     public FieldInstance fieldNamed( String name ) {
@@ -117,11 +122,11 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
     }
 
     public Type superType() {
-    	return ts.Object();
+    	return base().superType();
     }
 
     public List interfaces() {
-    	return this.interfaces;
+    	return base().interfaces();
     }
 
     // vj TODO: check if this is the right thing to do.

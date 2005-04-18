@@ -16,6 +16,7 @@ import polyglot.ext.jl.ast.ArrayAccess_c;
 import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Expr_c;
+import polyglot.ext.x10.types.NullableType_c;
 import polyglot.ext.x10.types.ParametricType_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -143,6 +144,9 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		}
 		List args = new LinkedList();
 		args.add( index);
+		if (type instanceof NullableType_c) {
+			type = ((NullableType_c)type).base();
+		}
 		if (type instanceof ParametricType_c) {
 		    ParametricType_c pt = (ParametricType_c) type;
 		    return
