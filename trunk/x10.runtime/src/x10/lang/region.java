@@ -212,7 +212,7 @@ public abstract /*value*/ class region extends Object implements TypeArgument {
      * @return a set of regions that are a partition of n consecutive chunks of the original     
      * region (this).    
      */      
-    public region[] partition(int n) {   
+    public region[] partition(int n, int dim) {   
         throw new Error(getClass().getName() + "::partition - not implemented.");    
     }
     public distribution/*(:region=this)*/ toDistribution() {

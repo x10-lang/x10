@@ -77,7 +77,7 @@ public class TestMultiDimRegion extends TestCase {
         MultiDimRegion reg = new MultiDimRegion(ranges);
         
         // region sub2 = reg.sub(5, 2); // => (100, 1000) x (20,1000)
-        region[] subs = reg.partition(5);
+        region[] subs = reg.partition(5, 0);
         region sub2 = subs[2];
         Range[] ranges2 = new Range[] { new ContiguousRange(50,69), new ContiguousRange(100, 1099) }; // 2x1
         assertTrue(new MultiDimRegion(ranges2).equals(sub2));

@@ -52,27 +52,30 @@ public class MultiDimRegion extends region  {
      * @return The new sub-region.
      * TODO: vj -- check the intended logic survived the rework.
      */
-    public region[] partition(int n) {   
+    public region[] partition(int n, int dim_to_split) {   
         assert (n > 0);
-        if (! (dims[0] instanceof ContiguousRange)) 
-            throw new Error("MultiDimRegion::partition can only block those arrays that have contiguos dimension 0.");
-        ContiguousRange cr = (ContiguousRange) dims[0];
-        // partition fails if the first dimension has size less than n
+        
+        if (! (dims[dim_to_split] instanceof ContiguousRange)) 
+            throw new Error("MultiDimRegion::partition can only block those arrays that have a contiguous dimension to split.");
+        ContiguousRange cr = (ContiguousRange) dims[dim_to_split];
+        // partition fails if the dim_to_split dimension has size less than n
         if (cr.size() < n) 
-            throw new Error("MultiDimRegion::partition can only block those arrays that have size of dimension 0 larger than number of partitions.");
+            throw new Error("MultiDimRegion::partition can only block those arrays that have size of dimension of the dimension to split larger than or equal to number of partitions.");
         region[] ret = new region[n];
         if (n == 1) {
             ret[0] = this;
         } else {
-            region[] new_first_dims = cr.partition(n);
+            region[] split_dim = cr.partition(n, 0);
             for (int i = 0; i < n; ++i) {
-                if (new_first_dims[i].size() == 0) 
+                if (split_dim[i].size() == 0) 
                     ret[i] = new EmptyRegion(rank);
                 else {
                     region[] new_dims = new region[rank];
-                    new_dims[0] = new_first_dims[i];
-                    for (int j = 1; j < rank; ++j) 
-                        new_dims[j] = dims[j];
+                    new_dims[dim_to_split] = split_dim[i];
+                    for (int j = 0; j < rank; ++j) {
+                        if (j != dim_to_split)
+                            new_dims[j] = dims[j];
+                    }
                     ret[i] = new MultiDimRegion(new_dims);
                 }
             }
@@ -185,7 +188,6 @@ public class MultiDimRegion extends region  {
         }
         return ret;
     }
-    
     
     /**
      * @return Iterator that yields the individual points of a region

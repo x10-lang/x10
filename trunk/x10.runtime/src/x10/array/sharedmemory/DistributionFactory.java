@@ -21,8 +21,14 @@ public class DistributionFactory extends distribution.factory {
      * @param r
      * @return
      */
-    public distribution cyclic(region r, Set/*<place>*/ q) {
-        return blockCyclic(r, 1, q);
+    public distribution cyclic(region r, Set/*<place>*/ qs) {
+        assert r.rank > 0;
+        final int dim_to_split = r.rank - 1;
+        int sz = r.rank(dim_to_split).size();
+        if (sz % qs.size() != 0)
+            throw new Error("DistributionFactory::cyclic - only supported if least significant dimension has a size that is a multiple of the number of places to cycle over");
+        else
+            return blockCyclic(r, 1, qs);
     }
     
     /**
@@ -38,22 +44,27 @@ public class DistributionFactory extends distribution.factory {
         assert n > 0;
         assert r.rank > 0;
         
-        int sz = r.rank(0).size();
-        if (sz == 0)
-            ret = new Distribution_c.Empty( r.rank );
-        else if (qs.size() == 1 || sz < n) {
-            place p = (place) qs.iterator().next();
+        final int dim_to_split = r.rank - 1;
+        int sz = r.rank(dim_to_split).size();
+        int qsize = qs.size();
+        
+        if (sz % (n * qsize) != 0)
+            throw new Error("DistributionFactory::blockCyclic - only supported if least significant dimension has a size that is a multiple of the number of places to cycle over");
+        
+        Object[] q = qs.toArray();    
+        if (qsize == 1) {
+            place p = (place) q[0];
             ret = new Distribution_c.Constant(r, p);
         } else {
-            // partitioning done along dimension 0
-            Object[] q = qs.toArray();
+            // partitioning done along dimension dim_to_split
             int chunks = (sz % n == 0 || sz < n) ? (sz / n) : ((sz / n) + 1);
             assert chunks > 0;
             
             Distribution_c[] dists = new Distribution_c[chunks];       
-            region[] sub = r.partition(chunks); 
-            for (int i=0; i < chunks; i++) 
+            region[] sub = r.partition(chunks, dim_to_split); 
+            for (int i=0; i < chunks; i++) {
                 dists[i] = new Distribution_c.Constant(sub[i], (place) q[i % q.length]);
+            }
             ret = new Distribution_c.Combined(r, dists);
         }
         return ret;
@@ -88,19 +99,20 @@ public class DistributionFactory extends distribution.factory {
         assert n <= qs.size();
         assert n > 0;
         
+        final int dim_to_split = 0; //r.rank - 1;
         distribution ret = null;
-        int sz = r.rank(0).size();
+        int sz = r.rank(dim_to_split).size();
         
-        // avoid all the hardwork if it is an empty region.
-        if (r.size() == 0)
-        	ret = new Distribution_c.Empty( r.rank );
-        else if (qs.size() == 1 || sz < n) {
-            place p = (place) qs.iterator().next();
+        if (sz < n)
+           throw new Error("DistributionFactory::block - blocking only supported along the most significant dimension and blocking factor must be lower than or equal to the size of that dimension.");
+        
+        Object[] q = qs.toArray();         
+        if (n == 1) { 
+            place p = (place) q[0];
             ret = new Distribution_c.Constant(r, p);
         } else {
-            // partition along dimension 0
-            Object[] q = qs.toArray();            
-            region sub[] = r.partition(n);
+            // partition along dimension dim_to_split           
+            region sub[] = r.partition(n, dim_to_split);
             Distribution_c[] dists = new Distribution_c[n];
             for (int i=0; i < n; i++) 
                 dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
