@@ -19,6 +19,7 @@ abstract public class clock extends Object {
 	
 	abstract static public class factory {
 		abstract public clock clock();
+		abstract public clock clock(String name);
 	}
 	
 	public static final factory factory = Runtime.factory.getClockFactory();
@@ -35,12 +36,13 @@ abstract public class clock extends Object {
 	 * considered de-registered from the clock after this method
 	 * returns.
 	 */
-	abstract public boolean drop();
+	abstract public void drop();
 	
 	
 	/** An activity may call this method to determine whether it is
 	 * registered with this clock or not.
 	 */
+	abstract public boolean registered();
 	abstract public boolean dropped();
     
 	/**
