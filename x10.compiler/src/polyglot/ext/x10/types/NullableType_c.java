@@ -41,6 +41,7 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
     public static NullableType makeNullable( TypeSystem ts, Position pos, ReferenceType base ) {
     	if ( base instanceof NullableType )
     		return (NullableType) base;
+    	//System.out.println("NullableType_c:makeNullable: base=" + base);
     	return new NullableType_c( ts, pos, (X10ReferenceType) base );
     }
     

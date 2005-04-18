@@ -138,6 +138,7 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
     }
 
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+    	System.out.println("X10ArrayTypeNode:  base=" + base);
         print(base, w, tr);
         w.write( (isValueType ? " value " : "") + "[." 
         		+ (distribution == null ? "" : distribution.toString()) + "]");
