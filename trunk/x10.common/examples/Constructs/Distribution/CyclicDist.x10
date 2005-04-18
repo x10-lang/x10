@@ -26,23 +26,29 @@ public class CyclicDist {
 		final int lb2=ranInt(-L,L);
 		final int ub1=ranInt(lb1,L); 
 		final int ub2=ranInt(lb2,L);
-		region R = [lb1:ub1,lb2:ub2];
-		distribution DCyclic=distribution.factory.cyclic(R);
-		final int totalPoints=(ub1-lb1+1)*(ub2-lb2+1);
-		int offsWithinPlace=0;
-		int placeNum=0;
-                //System.out.println("lb1="+lb1+" ub1="+ub1+" lb2="+lb2+" ub2="+ub2+" totalPoints="+totalPoints);
 
-		for(point [i,j]:R) {
-			//System.out.println("placeNum="+placeNum+" offsWithinPlace="+offsWithinPlace+" i="+i+" j="+j+" DCyclic[i,j]="+DCyclic[i,j].id);
+		if ((Math.abs(ub2-lb2) + 1) % np != 0) {
+		    // System.out.println("Current implementation allows cyclic distribution only if size of least significant dimension is a multiple of the number of places to cylse over.");
+		} else {
+
+		    region R = [lb1:ub1,lb2:ub2];
+		    distribution DCyclic=distribution.factory.cyclic(R);
+		    final int totalPoints=(ub1-lb1+1)*(ub2-lb2+1);
+		    int offsWithinPlace=0;
+		    int placeNum=0;
+		    // System.out.println("lb1="+lb1+" ub1="+ub1+" lb2="+lb2+" ub2="+ub2+" totalPoints="+totalPoints);
+		    
+		    for(point [i,j]:R) {
+			// System.out.println("placeNum="+placeNum+" offsWithinPlace="+offsWithinPlace+" i="+i+" j="+j+" DCyclic[i,j]="+DCyclic[i,j].id);
 			chk(P[placeNum].id==placeNum);
   			chk(DCyclic[i,j]==P[placeNum]);
 			placeNum++;
 			if (placeNum==np) {
-				//time to go to next offset
-				placeNum=0;
-				offsWithinPlace++;
+			    //time to go to next offset
+			    placeNum=0;
+			    offsWithinPlace++;
 			}
+		    }
 		}
             }
 	    return true;
