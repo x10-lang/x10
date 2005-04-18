@@ -184,7 +184,7 @@ public class ParametricType_c
      * @see polyglot.types.ReferenceType#fields()
      */
     public List fields() {
-        List il = base.toClass().constructors();
+        List il = base.toClass().fields();
         List lo = new LinkedList();
         Iterator it = il.iterator();
         while (it.hasNext()) {
@@ -315,13 +315,18 @@ public class ParametricType_c
 	    return base.translate(c);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Some code-generator uses toString() where it should not.
+	 * As a result, this toString() cannot print the full dependent
+	 * type signature since javac would not parse this.  FIXME 
+	 * (by finding & fixing caller!).
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return base.toString() 
+		return base.toString(); /* 
 		+ (typeparameters==null ? "" : typeparameters.toString()) 
-		+ (parameters == null ? "" : parameters.toString());
+		+ (parameters == null ? "" : parameters.toString());*/
 	}
 
     

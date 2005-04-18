@@ -5,10 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ext.jl.types.ArrayType_c;
 import polyglot.ext.jl.types.TypeSystem_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
+import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.LazyClassInitializer;
@@ -227,6 +229,14 @@ implements X10TypeSystem {
 			doubleArrayPointwiseOpType_ = load("x10.lang.doubleArray$pointwiseOp"); // java file
 		return doubleArrayPointwiseOpType_;
 	}
+
+	 /**
+     * Factory method for ArrayTypes.
+     */
+    protected ArrayType arrayType(Position pos, Type type) {
+    	return new X10ArrayType_c(this, pos, type);
+    }
+
 	
 	public ReferenceType array(Type type, boolean isValueType, Expr distribution) {
         if (type.isBoolean())
