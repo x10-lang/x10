@@ -12,9 +12,9 @@ public class DistAlgebra {
 		region R1 = [0:1,0:7];
 		region R2 = [4:5,0:7];
 		region R3 = [0:7,4:5];
-		region TR1= R1 && R2 && R3;
+		region TR1= (R1||R2) && R3;
 		chk(TR1.equals([0:1,4:5] || [4:5,4:5]));
-		chk(R1.contains(TR1) && R2.contains(TR1) && R3.contains(TR1));
+		chk((R1||R2).contains(TR1) && R3.contains(TR1));
 		region TR2= R1 || R2 || R3;
 		chk(TR2.equals([0:1,0:7]||[4:5,0:7]||
 			[2:3,4:5] || [6:7,4:5]));
