@@ -168,9 +168,9 @@ public class X10Binary_c extends Binary_c {
 		}
 		
 		if (op == SUB && l.isDistribution()) { //distribution.difference(region r)
-			if ( ! r.isRegion()) {
+			if ( ! (r.isRegion() || r.isDistribution())) {
 				throw new SemanticException("The " + op +
-						" operator must have a region operands.", right.position());
+						" operator must have a region or distribution operand.", right.position());
 			}
 			return type(ts.distribution());
 		}
