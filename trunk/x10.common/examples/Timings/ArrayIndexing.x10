@@ -45,8 +45,8 @@ public class ArrayIndexing {
 		// Note: cannot do anything fancy with starting index--assume 0 based
 		range1D = [0:kArraySize];
 		range2D = [0:kArraySize,0:kArraySize];
-		range3D = [1:40,3:4,1:20];
-		range4D = [0:20,0:4,2:10,1:20];
+		range3D = [1:4,3:4,1:20];
+		range4D = [0:2,0:4,2:10,1:20];
 		System.out.println("Testing double arrays...");
 		long start = System.currentTimeMillis();
 		_doubleArray1D = new double[distribution.factory.block(range1D)];
@@ -585,7 +585,7 @@ public class ArrayIndexing {
 			if(!verify4D(_longArray4D)) return false;
 		
 		long stop = System.currentTimeMillis();
-		System.out.println("Testing of byte arrays took "+((double)(stop-start)/1000));
+		System.out.println("Testing of long arrays took "+((double)(stop-start)/1000));
 		return true;
 	}
 	boolean runByteTests(int repeatCount){
@@ -614,7 +614,7 @@ public class ArrayIndexing {
 			if(!verify4D(_charArray4D)) return false;
 		
 		long stop = System.currentTimeMillis();
-		System.out.println("Testing of byte arrays took "+((double)(stop-start)/1000));
+		System.out.println("Testing of char arrays took "+((double)(stop-start)/1000));
 		return true;
 		}
 	boolean runBooleanTests(int repeatCount){
