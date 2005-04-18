@@ -228,7 +228,7 @@ implements ArrayConstructor {
 			}                     
 		}
 		Type t = ts.array( newBaseType, isValue );
-		
+		// System.out.println("ArrayConstructor_c: t=" + t);
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);
 		
 		return n1.distribution( newDistribution ).arrayBaseType( newBase );
