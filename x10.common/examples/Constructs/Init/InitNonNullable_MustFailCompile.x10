@@ -1,8 +1,13 @@
 /**
- * @author kemal 4/2005
- * This is to clarify and test default initialization of 
- * non-nullable array elements, fields, variables
+ *@author kemal 4/2005
+ *
+ *All non-nullable fields, array elements and local variables should
+ *be explicitly initialized. This test case should fail at compile
+ *time. This test case tests what would happen if implicit
+ *initializations were required.
+ *
  */
+
 class Node {
 	int data;
 	Node next;
@@ -24,10 +29,7 @@ public class InitNonNullable {
 		nullable BoxedNode bn=new BoxedNode(); 
 		chk(bn!=null);
 		Node tmp1=(Node)(bn.val);
-		// bn.val must have default initialization
 		chk(bn.val.data==19);
-		// bn.val.next should not be null either
-		// -- manual not clear here
 		Node tmp2=(Node)(bn.val.next);
 		chk(bn.val.next.data==19);
 		Node tmp3=(Node)(bn.val.next.next);
