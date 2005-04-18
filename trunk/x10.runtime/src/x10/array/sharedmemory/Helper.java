@@ -16,18 +16,29 @@ import x10.lang.region;
 public class Helper {
 	final public static int ordinal(region r,int d0){
 		assert (r.rank == 1);
+		final int index[] = {d0};
+		if(!r.contains(index)) throw new ArrayIndexOutOfBoundsException();
+
 		d0 -= r.rank(0).low();
 		return d0;
 	}
 	
 	final public static int ordinal(region r,int d0,int d1){
 		assert (r.rank == 2);
+		final int index[] = {d0,d1};
+		if(!r.contains(index)) 
+			throw new ArrayIndexOutOfBoundsException();
+		
 		d0 -= r.rank(0).low();
 		d1 -= r.rank(1).low();
 		return d1+ d0*r.rank(1).size();
 	}
 	final public static int ordinal(region r,int d0,int d1, int d2){
 		assert (r.rank == 3);
+		final int index[] = {d0,d1,d2};
+		if(!r.contains(index)) 
+			throw new ArrayIndexOutOfBoundsException();
+		
 		d0 -= r.rank(0).low();
 		d1 -= r.rank(1).low();
 		d2 -= r.rank(2).low();
@@ -37,6 +48,10 @@ public class Helper {
 	}
 	final public static int ordinal(region r,int d0,int d1, int d2,int d3){
 		assert (r.rank == 4);
+		final int index[] = {d0,d1,d2,d3};
+		if(!r.contains(index)) 
+			throw new ArrayIndexOutOfBoundsException();
+			
 		d0 -= r.rank(0).low();
 		d1 -= r.rank(1).low();
 		d2 -= r.rank(2).low();
