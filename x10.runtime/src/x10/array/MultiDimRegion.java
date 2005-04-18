@@ -20,7 +20,7 @@ import x10.lang.point;
  */
 
 public class MultiDimRegion extends region  {
-    private final Range[] dims;
+    private final region[] dims_;
     private final int[] base_; 
     final int card;
     
@@ -29,18 +29,16 @@ public class MultiDimRegion extends region  {
         super(d.length);
         assert d != null;
         // assert that all dims are actually Ranges
-        dims = new Range[d.length];
-        for (int i = 0; i < dims.length; ++i) {
-            assert (d[i] instanceof Range);
-            dims[i] = (Range) d[i];
-        }
+        dims_ = new region[d.length];
+        for (int i = 0; i < dims_.length; ++i)
+            dims_[i] = d[i];
         
         int tmp_card = 1;
-        base_ = new int[dims.length];
+        base_ = new int[dims_.length];
         // row major ordering (C conventions)
         for (int i = rank-1; i >= 0; --i) {
             base_[i] = tmp_card;
-            tmp_card *= dims[i].size;
+            tmp_card *= dims_[i].size();
         }
         card = tmp_card;
     }   
@@ -55,9 +53,9 @@ public class MultiDimRegion extends region  {
     public region[] partition(int n, int dim_to_split) {   
         assert (n > 0);
         
-        if (! (dims[dim_to_split] instanceof ContiguousRange)) 
+        if (! (dims_[dim_to_split] instanceof ContiguousRange)) 
             throw new Error("MultiDimRegion::partition can only block those arrays that have a contiguous dimension to split.");
-        ContiguousRange cr = (ContiguousRange) dims[dim_to_split];
+        ContiguousRange cr = (ContiguousRange) dims_[dim_to_split];
         // partition fails if the dim_to_split dimension has size less than n
         if (cr.size() < n) 
             throw new Error("MultiDimRegion::partition can only block those arrays that have size of dimension of the dimension to split larger than or equal to number of partitions.");
@@ -74,7 +72,7 @@ public class MultiDimRegion extends region  {
                     new_dims[dim_to_split] = split_dim[i];
                     for (int j = 0; j < rank; ++j) {
                         if (j != dim_to_split)
-                            new_dims[j] = dims[j];
+                            new_dims[j] = dims_[j];
                     }
                     ret[i] = new MultiDimRegion(new_dims);
                 }
@@ -87,13 +85,17 @@ public class MultiDimRegion extends region  {
         assert r != null;
         assert r.rank == rank;
     
-        region ret;
+        region ret = null;
         if (r instanceof MultiDimRegion) {
             MultiDimRegion rc = (MultiDimRegion) r;
             region[] d = new region[rank];
-            for (int i = 0; i < d.length; ++ i)
-                d[i] = dims[i].union(rc.dims[i]);
-            ret = new MultiDimRegion(d);
+            for (int i = 0; ret == null && i < d.length; ++ i) {
+                d[i] = dims_[i].union(rc.dims_[i]);
+                if (d[i].size() == 0)
+                    ret = new EmptyRegion(rank);
+            }
+            if (ret != null)
+                ret = new MultiDimRegion(d);
         } else {
             ret = ArbitraryRegion.union(this, r);
         }
@@ -103,14 +105,18 @@ public class MultiDimRegion extends region  {
     public region intersection(region r) {
         assert r != null;
         assert r.rank == rank;
-        region ret;
+        region ret = null;
         
         if (r instanceof MultiDimRegion) {
             MultiDimRegion rc = (MultiDimRegion) r;
             region[] d = new region[rank];
-            for (int i = 0; i < d.length; ++ i)
-                d[i] = dims[i].intersection(rc.dims[i]);
-            ret = new MultiDimRegion(d);
+            for (int i = 0; ret == null && i < d.length; ++ i) {
+                d[i] = dims_[i].intersection(rc.dims_[i]);
+                if (d[i].size() == 0)
+                    ret = new EmptyRegion(rank);
+            }
+            if (ret == null)
+                ret = new MultiDimRegion(d);
         } else {
             ret = ArbitraryRegion.intersection(this, r);
         }
@@ -129,10 +135,10 @@ public class MultiDimRegion extends region  {
      * @return range in the i-th dimension.
      */
     public region rank(/*nat*/int i) {
-        assert i < dims.length;
+        assert i < dims_.length;
         assert i >= 0;
         
-        return dims[i];
+        return dims_[i];
     }
     
     public boolean contains(region r) {
@@ -143,7 +149,7 @@ public class MultiDimRegion extends region  {
         if (r instanceof MultiDimRegion) {
             MultiDimRegion r_c = (MultiDimRegion) r;
             for (int i = 0; i < r_c.rank && ret; ++i)
-                ret = r_c.dims[i].contains(dims[i]);
+                ret = r_c.dims_[i].contains(dims_[i]);
         } else 
             ret = super.contains(r);
         return ret;
@@ -152,19 +158,21 @@ public class MultiDimRegion extends region  {
     public boolean contains(point p) {
         assert p.rank == rank;
         boolean ret = true;
-        for (int i = 0; ret && i < rank; ++i) 
-            ret = dims[i].contains(p.get(i));
-        return ret;
-    }
-    public boolean contains(int[] val) {
-        assert val.length == rank;
-        boolean ret = true;
         for (int i = 0; ret && i < rank; ++i) {
-            ret = ((Range) dims[i]).contains(val[i]);
+            int[] coord = {p.get(i)};
+            ret = dims_[i].contains(coord);
         }
         return ret;
     }
     
+    public boolean contains(int[] val) {
+        assert val.length == rank;
+        boolean ret = true;
+        for (int i = 0; ret && i < rank; ++i) {
+            ret = ((Range) dims_[i]).contains(val[i]);
+        }
+        return ret;
+    }
     
     public /*nat*/int size() {
        return card;
@@ -182,7 +190,7 @@ public class MultiDimRegion extends region  {
         /*nat*/int ret = 0;
         int base = 1;
         for (int i = p.rank -1 ; i >= 0; --i) {
-            Range r = (Range) dims[i];
+            Range r = (Range) dims_[i];
             ret += r.ordinal(p.get(i)) * base;
             base *= r.size;
         }
@@ -202,7 +210,7 @@ public class MultiDimRegion extends region  {
         StringBuffer sb = new StringBuffer();
         sb.append("{");
         for (int i = 0; i < rank; ++i) {
-            sb.append(dims[i].toString());
+            sb.append(dims_[i].toString());
             if (i < rank - 1)
                 sb.append(",");
         }
@@ -249,21 +257,21 @@ public class MultiDimRegion extends region  {
     /* TODO cvp -> vj: fix the exception, I do not think empty region excp. is meaningful */
     public int high() throws EmptyRegionError {
         if (rank > 0) 
-            return dims[0].high();
+            return dims_[0].high();
         throw new EmptyRegionError();
     }
     
     /* TODO cvp -> vj: fix the exception, I do not think empty region excp. is meaningful */
     public int low() throws EmptyRegionError {
         if (rank > 0) 
-            return dims[0].low();
+            return dims_[0].low();
         throw new EmptyRegionError();
     }
     
     public boolean isConvex() {
         boolean ret = true;	
         for (int i = 0; i < rank && ret; ++i) {
-            ret = dims[i].isConvex();
+            ret = dims_[i].isConvex();
         }
         return ret;
     }
@@ -275,7 +283,7 @@ public class MultiDimRegion extends region  {
         int rest = ordinal;
         int base = 0;
         for (int i = 0; i < rank ; ++i) {
-            Range r = dims[i];
+            region r = dims_[i];
             int tmp = rest / base_[i];
             rest = rest % base_[i];
             ret[i] = r.coord(tmp).get(0);

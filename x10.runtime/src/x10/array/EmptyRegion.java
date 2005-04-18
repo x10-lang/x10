@@ -178,9 +178,14 @@ public class EmptyRegion extends region {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(java.lang.Object o) {
-		assert o instanceof region;
-		region oe = (region) o;
-		return (oe.rank == this.rank) && oe.size() == 0;
+        boolean ret;
+        if (o == null || !(o instanceof region))
+            ret = false;
+        else {
+            region oe = (region) o;
+            ret = (oe.rank == this.rank) && oe.size() == 0;
+        }
+        return ret;
 	}
 
 
