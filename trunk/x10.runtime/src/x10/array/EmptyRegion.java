@@ -65,7 +65,8 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#union(x10.lang.region)
 	 */
 	public region union(region r) {
-		assert this.rank == r.rank;
+        assert r != null;
+        assert this.rank == r.rank;
 		return r;
 	}
 
@@ -73,7 +74,8 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#intersection(x10.lang.region)
 	 */
 	public region intersection(region r) {
-		assert this.rank == r.rank;
+        assert r != null;
+        assert this.rank == r.rank;
 		return this;
 	}
 
@@ -81,7 +83,8 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#difference(x10.lang.region)
 	 */
 	public region difference(region r) {
-		assert this.rank == r.rank;
+        assert r != null;
+        assert this.rank == r.rank;
 		return this;
 	}
 
