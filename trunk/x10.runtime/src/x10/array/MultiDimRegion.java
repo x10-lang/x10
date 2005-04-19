@@ -83,51 +83,26 @@ public class MultiDimRegion extends region  {
     
     public region union(region r) {
         assert r != null;
-        assert r.rank == rank;
-    
-        region ret = null;
-        if (r instanceof MultiDimRegion) {
-            MultiDimRegion rc = (MultiDimRegion) r;
-            region[] d = new region[rank];
-            for (int i = 0; ret == null && i < d.length; ++ i) {
-                d[i] = dims_[i].union(rc.dims_[i]);
-                if (d[i].size() == 0)
-                    ret = new EmptyRegion(rank);
-            }
-            if (ret == null)
-                ret = new MultiDimRegion(d);
-        } else {
-            ret = ArbitraryRegion.union(this, r);
-        }
+        assert r.rank == rank;    
+        region ret = ArbitraryRegion.union(this, r);
+        if (ret.size() == 0) 
+            new EmptyRegion(rank);
         return ret;
     }
     
     public region intersection(region r) {
         assert r != null;
         assert r.rank == rank;
-        region ret = null;
-        
-        if (r instanceof MultiDimRegion) {
-            MultiDimRegion rc = (MultiDimRegion) r;
-            region[] d = new region[rank];
-            for (int i = 0; ret == null && i < d.length; ++ i) {
-                d[i] = dims_[i].intersection(rc.dims_[i]);
-                if (d[i].size() == 0)
-                    ret = new EmptyRegion(rank);
-            }
-            if (ret == null)
-                ret = new MultiDimRegion(d);
-        } else {
-            ret = ArbitraryRegion.intersection(this, r);
-        }
+        region ret = ArbitraryRegion.intersection(this, r);
+        if (ret.size() == 0) 
+            ret = new EmptyRegion(rank);
         return ret;
     }
     
-    // This wont return a contiguous region.
+    // This won't return a contiguous region.
     public region difference(region d) {
         assert d != null;
         assert d.rank == rank;
-        
         return ArbitraryRegion.difference(this, d);
     }
     
