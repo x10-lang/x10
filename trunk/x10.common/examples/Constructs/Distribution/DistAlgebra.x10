@@ -26,6 +26,7 @@
         5     $$
         6     $$ 
         7     $$
+
           
         + region R1
         * region R2
@@ -39,48 +40,114 @@ public class DistAlgebra {
 	
 	public boolean run() {
 		distribution P=distribution.factory.unique();
-		region R1 = [0:1,0:7];
-		region R2 = [4:5,0:7];
-		region R3 = [0:7,4:5];
-		region TR1= (R1||R2) && R3;
-		chk(TR1.equals([0:1,4:5] || [4:5,4:5]));
-		chk((R1||R2).contains(TR1) && R3.contains(TR1));
-		region TR2= R1 || R2 || R3;
-		chk(TR2.equals([0:1,0:7]||[4:5,0:7]||
+		region R1 = [0:1,0:7]; // horizontal strip
+		region R2 = [4:5,0:7]; // horizontal strip
+		region R3 = [0:7,4:5]; // vertical strip
+		region R1orR2= (R1||R2);
+		region R1orR2andR3= R1orR2 && R3;
+		chk(R1orR2andR3.equals([0:1,4:5] || [4:5,4:5]));
+		chk(R1orR2.contains(R1orR2andR3) && R3.contains(R1orR2andR3));
+		region R1orR2orR3= R1 || R2 || R3;
+		chk(R1orR2orR3.equals([0:1,0:7]||[4:5,0:7]||
 			[2:3,4:5] || [6:7,4:5]));
-		chk(TR2.contains(R1) &&  TR2.contains(R2) &&
-			TR2.contains(R3));
-		region TR3 = (R1||R2)-R3;
-		chk(TR3.equals([0:1,0:3]||[0:1,6:7] ||
+		chk(R1orR2orR3.contains(R1) &&  R1orR2orR3.contains(R2) &&
+			R1orR2orR3.contains(R3));
+		region R1orR2minusR3 = R1orR2-R3;
+		chk(R1orR2minusR3.equals([0:1,0:3]||[0:1,6:7] ||
 		   [4:5,0:3]||[4:5,6:7]));
-		chk((R1||R2).contains(TR3) && TR3.disjoint(R3));
-		distribution TD2=distribution.factory.cyclic(TR2);
+		chk(R1orR2.contains(R1orR2minusR3) && R1orR2minusR3.disjoint(R3));
+
+		//Cyclic distribution of R1||R2||R3
+		distribution DR1orR2orR3=distribution.factory.cyclic(R1orR2orR3);
 		int placeNum=0;
 		int offsetWithinPlace=0;
 		final int np=place.MAX_PLACES;
-		for(point [i,j]:TD2) {
-			chk(TD2[i,j]==P[placeNum]);
+		for(point [i,j]:DR1orR2orR3) {
+			chk(DR1orR2orR3[i,j]==P[placeNum]);
 			placeNum++;
 			if (placeNum==np) {
 				placeNum=0;
 				offsetWithinPlace++;
 			}
 		}
-		distribution TD1=TD2|TR1;
-		distribution TD3=TD2|TR3;
-		distribution TD4=TD2-TD3;
-		distribution TD5=TD2|R3;
-		chk(TD4.equals(TD5));
-		distribution TD6=(TD3 && TD2);
-		chk(TD6.equals(TD3));
-		distribution TD7=(TD2.overlay(TD3));
-		chk(TD7.equals(TD2));
+
+		//Check range restriction to a place
+		for(point [k]:0:np-1) {
+			distribution DR1orR2orR3Here=(DR1orR2orR3|P[k]);
+			for (point [i,j]:DR1orR2orR3) {
+				chk(iff(DR1orR2orR3[i,j]==P[k],
+				        DR1orR2orR3Here.contains([i,j]) &&
+				        DR1orR2orR3Here[i,j]==P[k]));
+			}
+		}
+
+		//DR1orR2andR3 is restriction of DR1orR2orR3 to (R1||R2)&&R3
+		distribution DR1orR2andR3=DR1orR2orR3|R1orR2andR3;
+		//DR1orR2minusR3 is restr. of DR1orR2orR3 to (R1||R2)-R3
+		distribution DR1orR2minusR3=DR1orR2orR3|R1orR2minusR3;
+		distribution TD1=DR1orR2orR3-DR1orR2minusR3;
+		distribution DR3=DR1orR2orR3|R3;
+		chk(TD1.equals(DR3));
+
+ 		//intersection with common mapping
+		//on common points
+		distribution TD2=(DR1orR2minusR3 && DR1orR2orR3);
+		chk(TD2.equals(DR1orR2minusR3));
+
+		// testing overlay with common mapping on common points
+		distribution DR1orR2=DR1orR2orR3|R1orR2;
+		distribution TD3=(DR1orR2.overlay(DR3));
+		chk(TD3.equals(DR1orR2orR3));
+
+		//disjoint union
+		distribution TD4=DR1orR2andR3||DR1orR2minusR3;
+		chk(TD4.equals(DR1orR2));
+
+		// overlay with common points not 
+ 		// necessarily mapping to same place
+		distribution TD9=
+		     distribution.factory.constant(R1orR2andR3,P[0]);
+		distribution Dmixed1=DR1orR2orR3.overlay(TD9);
+		for(point [i,j]:Dmixed1) {
+			if(R1orR2andR3.contains([i,j])) {
+				chk(Dmixed1[i,j]==P[0] && TD9[i,j]==P[0]);
+			} else {
+				chk(Dmixed1[i,j]==DR1orR2orR3[i,j]);
+			}
+		}
+
+		// intersection with common points
+		// not necessarily mapping to same place
+
+		// if a point is common and maps to same place
+		// in both distributions,
+		// the point is included in the intersection
+		// with the same mapping.
+		// Otherwise, the point is not included in
+   		// intersection.
+		distribution Dmixed2= DR1orR2orR3&&Dmixed1;
+		for(point [i,j]:DR1orR2orR3) {
+			if (R1orR2andR3.contains([i,j])) {
+				chk(iff(DR1orR2orR3[i,j]==P[0],
+					Dmixed2.contains([i,j]) &&
+					Dmixed2[i,j]==P[0]));
+			} else {
+				chk(DR1orR2orR3[i,j]==Dmixed2[i,j]);
+			}
+		}
+
                 return true;
 		
 	}
+
+	static boolean iff(boolean x, boolean y) {
+		return ((x&&y)||(!x && !y));
+	}
+
 	static void chk(boolean b) {
 		if(!b) throw new Error();
  	}
+
 	public static void main(String args[]) {
 		boolean b= (new DistAlgebra()).run();
 		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
