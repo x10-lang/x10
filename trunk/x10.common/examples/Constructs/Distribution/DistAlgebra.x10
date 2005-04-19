@@ -2,7 +2,37 @@
 /**
  * @author kemal 4/2005
  *
- * Distribution+Region algebra test
+ *Given two horizontal strip regions R1 and R2 and a vertical strip
+ *region R3 going over R1 and R2 in an 8*8 grid, this test case tests
+ *algebraic operations on regions and distributions.
+ *
+ *<code>
+          01234567
+        0 ++++++++  
+        1 ++++++++
+        2
+        3
+        4 ********   
+        5 ********
+        6 
+        7
+
+          01234567
+        0     $$
+        1     $$ 
+        2     $$
+        3     $$
+        4     $$
+        5     $$
+        6     $$ 
+        7     $$
+          
+        + region R1
+        * region R2
+        $ region R3
+        
+ *</code>
+ *
  */
 
 public class DistAlgebra {
@@ -43,7 +73,7 @@ public class DistAlgebra {
 		chk(TD4.equals(TD5));
 		distribution TD6=(TD3 && TD2);
 		chk(TD6.equals(TD3));
-		distribution TD7=(TD3 || TD2);
+		distribution TD7=(TD2.overlay(TD3));
 		chk(TD7.equals(TD2));
                 return true;
 		
