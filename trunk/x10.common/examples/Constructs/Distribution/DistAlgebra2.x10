@@ -36,7 +36,7 @@
  *
  */
 
-public class DistAlgebra {
+public class DistAlgebra2 {
 	
 	public boolean run() {
 		distribution P=distribution.factory.unique();
@@ -64,22 +64,15 @@ public class DistAlgebra {
 		   [4:5,0:3]||[4:5,6:7]));
 		chk(R1orR2.contains(R1orR2minusR3) && R1orR2minusR3.disjoint(R3));
 
-		//Cyclic distribution of R1||R2||R3
-		distribution DR1orR2orR3=distribution.factory.cyclic(R1orR2orR3);
+		//Constant distribution of R1||R2||R3
+		distribution DR1orR2orR3=distribution.factory.constant(R1orR2orR3,P[3]);
 		pr("DR1orR2orR3",DR1orR2orR3);
-		int placeNum=0;
-		int offsetWithinPlace=0;
-		final int np=place.MAX_PLACES;
 		for(point [i,j]:DR1orR2orR3) {
-			chk(DR1orR2orR3[i,j]==P[placeNum]);
-			placeNum++;
-			if (placeNum==np) {
-				placeNum=0;
-				offsetWithinPlace++;
-			}
+			chk(DR1orR2orR3[i,j]==P[3]);
 		}
 
 		//Check range restriction to a place
+		final int np=place.MAX_PLACES;
 		for(point [k]:0:np-1) {
 			distribution DR1orR2orR3Here=(DR1orR2orR3|P[k]);
 			pr("DR1orR2orR3Here("+k+")",DR1orR2orR3Here);
@@ -140,11 +133,12 @@ public class DistAlgebra {
 
 		// if a point is common and maps to same place
 		// in both distributions,
-		// the point is included in the intersection
-		// with the same mapping.
+		// the point is included in the intersection,
+		// and also maps to the same place.
 		// Otherwise, the point is not included in
    		// intersection.
-		distribution Dintersect= DR1orR2orR3&&Doverlay;
+
+		distribution Dintersect= (DR1orR2orR3&&Doverlay);
 		pr("Dintersect",Dintersect);
 		for(point [i,j]:[0:7,0:7]) {
 		 chk(
@@ -166,12 +160,13 @@ public class DistAlgebra {
 	}
 
 	static boolean iff(boolean x, boolean y) {
-		return ((x&&y)||(!x && !y));
+		return (x==y);
 	}
 
 	static void chk(boolean b) {
 		if(!b) throw new Error();
  	}
+
 	static void pr(String s,distribution d) {
 		System.out.println();
 		System.out.println("printing distribution "+s);
@@ -180,7 +175,7 @@ public class DistAlgebra {
 		for(point [i,j]:[0:N-1,0:N-1]) {
 			
 			System.out.print(" "+(d.contains([i,j])?(""+d[i,j].id):"."));		
-			if((++k)%8 ==0) System.out.println();
+			if((++k)%N ==0) System.out.println();
 		}
 	}
 	static void pr(String s,region r) {
@@ -197,7 +192,7 @@ public class DistAlgebra {
 
 
 	public static void main(String args[]) {
-		boolean b= (new DistAlgebra()).run();
+		boolean b= (new DistAlgebra2()).run();
 		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
 		System.exit(b?0:1);
 	}
