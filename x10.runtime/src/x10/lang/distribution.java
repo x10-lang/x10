@@ -178,12 +178,15 @@ implements Indexable {
 	/*(region(rank) R)*/ distribution/*(region.difference(R))*/
 	difference( region/*(rank)*/ R);
 	
-    public 
-    /*(region(rank) R)*/ distribution/*(region.difference(R))*/
-    difference( distribution/*(rank)*/ D) {
-        return difference(D.region);
-    }
-    
+	/** Returns the restriction of this to the domain region.difference(D.region),
+	 where parameter D is a distribution with the same dimension.
+	 */
+public 
+	/*(region(rank) R)*/ distribution/*(region.difference(R))*/
+	difference( distribution /*(rank)*/ D) {
+		return difference(D.region);
+	}
+	
 	/** Takes as parameter a distribution D defined over a region
 	 disjoint from this. Returns a distribution defined over a
 	 region which is the union of this.region and D.region.
@@ -197,6 +200,10 @@ implements Indexable {
 	distribution/*(region.union(D.region))*/
 	union(distribution/*(:region.disjoint(this.region) &&
 	rank=this.rank)*/ D);
+	
+	public distribution/*(:rank=this.rank)*/ intersection( distribution /*(:rank=this.rank)*/D) {
+		return this.restriction(D.region);
+	}
 	
 	/** Returns a distribution defined on region.union(R): it
 	 takes on D.get(p) for all points p in R, and this.get(p) for
