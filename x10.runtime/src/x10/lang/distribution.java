@@ -155,7 +155,11 @@ implements Indexable {
 	/** Returns the region mapped by this distribution to the place P.
 	 The value returned is a subset of this.region.
 	 */
-	abstract public region/*(rank)*/ restriction( place P );
+	abstract public region/*(rank)*/ restrictToRegion( place P );
+	
+	public distribution restriction(place P) {
+		return distribution.factory.constant(restrictToRegion(P), P);
+	}
 	
 	/** Returns the distribution obtained by range-restricting this to Ps.
 	 The region of the distribution returned is contained in this.region.
