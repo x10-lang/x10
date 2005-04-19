@@ -58,7 +58,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         this.places = new HashSet();
     }
     
-    public region restriction(place pl) {
+    public region restrictToRegion(place pl) {
         return restriction(this, pl); 
     }
     
@@ -89,7 +89,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
        Set points = new HashSet();
        for (Iterator it = th.region.iterator(); it.hasNext(); ) {
            point p = (point) it.next();
-           place pl = (place) th.get(p);
+           place pl = th.get(p);
            if (Ps.contains(pl)) {
                points.add(p);
                hm.put(p, pl);
@@ -271,7 +271,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         /** Returns the region mapped by this distribution to the place P.
          The value returned is a subset of this.region.
          */
-        public region/*(rank)*/ restriction(place P ) {
+        public region/*(rank)*/ restrictToRegion(place P ) {
             return this.region;
         }
         
@@ -362,7 +362,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         /** Returns the region mapped by this distribution to the place P.
          The value returned is a subset of this.region.
          */
-        public region/*(rank)*/ restriction( place P ) {
+        public region/*(rank)*/ restrictToRegion( place P ) {
             if (P.equals(place_)) 
                 return this.region;
             return Runtime.factory.getRegionFactory().emptyRegion(this.rank);
@@ -487,7 +487,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         /** Returns the region mapped by this distribution to the place P.
          The value returned is a subset of this.region.
          */
-        public region/*(rank)*/ restriction( place P ) {
+        public region/*(rank)*/ restrictToRegion( place P ) {
             int index = -1;
             for (int i = 0; i < placeseq.length; ++ i) {
                 if (placeseq[i] == P) {

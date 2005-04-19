@@ -163,8 +163,7 @@ public class X10Binary_c extends Binary_c {
 			if ((! r.isPlace()) && (! r.isRegion() ))
 				throw new SemanticException("This " + op +
 						" operator instance must have a place or region operand.", right.position());
-			if (r.isPlace()) return type(ts.region());
-			if (r.isRegion()) return type(ts.distribution());
+			return type(ts.distribution());
 		}
 		
 		if (op == SUB && l.isDistribution()) { //distribution.difference(region r)
