@@ -148,6 +148,28 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
        return ret;
    }
    
+   public distribution intersection(region r) {
+       return intersection(this, r);
+   }
+   
+   /** Returns the restriction of this to the domain region.difference(R),
+    where parameter R is a region with the same dimension.
+    */
+   protected static
+   /*(region(rank) R)*/ distribution/*(region.difference(R))*/
+   intersection(distribution th, region/*(rank)*/ r) {
+       assert r.rank == th.rank;
+       region reg = th.region.difference(r);
+       HashMap hm = new HashMap();
+       for (Iterator it = reg.iterator(); it.hasNext(); ) {
+           point p = (point) it.next();
+           if (r.contains(p))
+               hm.put(p, th.get(p));
+       }
+       distribution ret = new Arbitrary(reg, hm); 
+       return ret;
+   }
+   
    
    public distribution union(distribution d) {
        return union(this, d);
