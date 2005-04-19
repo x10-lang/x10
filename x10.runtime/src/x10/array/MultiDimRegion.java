@@ -94,7 +94,7 @@ public class MultiDimRegion extends region  {
                 if (d[i].size() == 0)
                     ret = new EmptyRegion(rank);
             }
-            if (ret != null)
+            if (ret == null)
                 ret = new MultiDimRegion(d);
         } else {
             ret = ArbitraryRegion.union(this, r);
@@ -149,7 +149,7 @@ public class MultiDimRegion extends region  {
         if (r instanceof MultiDimRegion) {
             MultiDimRegion r_c = (MultiDimRegion) r;
             for (int i = 0; i < r_c.rank && ret; ++i)
-                ret = r_c.dims_[i].contains(dims_[i]);
+                ret = dims_[i].contains(r_c.dims_[i]);
         } else 
             ret = super.contains(r);
         return ret;
@@ -169,7 +169,8 @@ public class MultiDimRegion extends region  {
         assert val.length == rank;
         boolean ret = true;
         for (int i = 0; ret && i < rank; ++i) {
-            ret = ((Range) dims_[i]).contains(val[i]);
+            int[] coord = {val[i]};
+            ret = dims_[i].contains(coord);
         }
         return ret;
     }
