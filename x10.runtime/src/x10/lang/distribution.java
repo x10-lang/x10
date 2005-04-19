@@ -178,6 +178,25 @@ implements Indexable {
 	/*(region(rank) R)*/ distribution/*(region.difference(R))*/
 	difference( region/*(rank)*/ R);
 	
+    public 
+    /*(region(rank) R)*/ distribution/*(region.difference(R))*/
+    difference( distribution/*(rank)*/ D) {
+        return difference(D.region);
+    }
+    
+    /** Returns the intersection of this with R where parameter R 
+     *  is a region with the same dimension.
+     */
+    abstract public 
+    /*(region(rank) R)*/ distribution/*(region.intersection(R))*/
+    intersection( region/*(rank)*/ R);
+    
+    public 
+    /*(region(rank) R)*/ distribution/*(region.intersection(R))*/
+    intersection( distribution/*(rank)*/ D) {
+       return difference(D.region);
+    }
+    
 	/** Takes as parameter a distribution D defined over a region
 	 disjoint from this. Returns a distribution defined over a
 	 region which is the union of this.region and D.region.
