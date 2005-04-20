@@ -1,4 +1,6 @@
 /*
+ *@author kemal 3/2005
+ *
  * testing arrays that are nullable 
  * (causes exception as of 3/12/05)
  */
@@ -28,14 +30,6 @@ public class NullableArray {
 		 if (ia5[2].im!=0) return false;
 		nullable mycomplex[.] ia7 = null;
 		if (ia7!=null) return false;
-
-                // this should cause a compiler error
-		// int[] ia8 = null;
-
-		// how to define an array of nullable T's?
-		// this did not work
-		// (nullable int)[.] ia9=...
-
 		return true;
 	}
 
