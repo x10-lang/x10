@@ -5,7 +5,7 @@ import java.lang.reflect.*;
 
 public class Initialization {
 	String _tests[] = {"testDouble"};
-	static final int kArraySize=5000;
+	static final int kArraySize=500;
 	double[.] x_doubleArray1D;
 	double[.] x_doubleArray2D;
 	double[] x_javaArray;
