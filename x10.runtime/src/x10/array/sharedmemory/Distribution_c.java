@@ -599,7 +599,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         
         private final Map map_;
         
-        private Arbitrary(region r, Map m) {
+        Arbitrary(region r, Map m) {
             super(r);
             map_ = m;
             places.addAll(m.values());
