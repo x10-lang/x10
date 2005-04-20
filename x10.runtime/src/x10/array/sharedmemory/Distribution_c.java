@@ -181,7 +181,11 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
        return ret;
    }
    
-   public distribution overlay(region r, distribution d) {
+    public distribution intersection(distribution D) {
+        return intersection(this, D);
+    }
+    
+    public distribution overlay(region r, distribution d) {
        return overlay(this, r, d);
    }
    
@@ -214,6 +218,30 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
        distribution ret = new Arbitrary(reg, hm); 
        return ret;
    }
+   
+   /** Returns a the intersection of distributions th and d. The result contains  
+    *  all those points that are contained in the intersection of th.region and 
+    *  d.region that are mapped to the *same place* in both distributions.
+    */
+  protected static /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
+  intersection(distribution th, distribution/*(R)*/ d) {
+      assert (d.rank == th.rank);
+      
+      region reg = th.region.intersection(d.region);
+      HashMap hm = new HashMap();
+      Set points = new HashSet();
+      for (Iterator it = reg.iterator(); it.hasNext(); ) {
+          point p = (point) it.next();
+          place pl;
+          if ((pl = th.get(p)).equals(d.get(p))) {
+              hm.put(p, pl);
+              points.add(p);
+          }
+      }
+      region reg_new = new ArbitraryRegion(th.rank, points);
+      distribution ret = new Arbitrary(reg_new, hm); 
+      return ret;
+  }
    
    public boolean subDistribution(region r, distribution d) {
        return subDistribution(this, r, d);
