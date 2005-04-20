@@ -213,7 +213,12 @@ public abstract /*value*/ class region extends Object implements TypeArgument {
      * region (this).    
      */      
     public region[] partition(int n, int dim) {   
-        throw new Error(getClass().getName() + "::partition - not implemented.");    
+        // the runtime library should never call this. -- and is should also 
+        // not be in the public interface that is available to the X10 programmer
+        // (the reason is show here is because runtime implementation and 
+        // X10 standard library interface are the same in the current prototype)
+        assert (false); 
+        return null;
     }
     public distribution/*(:region=this)*/ toDistribution() {
     	return distribution.factory.local( this);
