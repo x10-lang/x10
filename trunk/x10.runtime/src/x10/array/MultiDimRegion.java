@@ -211,9 +211,21 @@ public class MultiDimRegion extends region  {
         }
     }
     
-    /* TODO cvp -> vj */
     public region convexHull() {
-        throw new Error("TODO");
+        region ret;
+        if (isConvex())
+            ret = this;
+        else {
+            region[] dims = new region[rank];
+            for (int i = 0; i < rank; ++i) {
+                if (dims_[i].isConvex()) 
+                    dims[i] = dims_[i];
+                else 
+                    dims[i] = dims_[i].convexHull();
+            }
+            ret = new MultiDimRegion(dims);
+        }
+        return ret;
     }
     
     public boolean disjoint(region r) {

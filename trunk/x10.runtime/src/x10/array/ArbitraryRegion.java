@@ -120,11 +120,13 @@ public class ArbitraryRegion extends region {
         return ret;
     }
 
-    /* 
-     * TODO cvp->vj
-     */
     public boolean isConvex() {
-        throw new Error("TODO");
+        boolean ret = true;
+        for (int i = 0; ret && i < rank; ++i) {
+            region r = rank(i);
+            ret &= r.isConvex();
+        }
+        return ret;
     }
 
     /* 
@@ -140,7 +142,7 @@ public class ArbitraryRegion extends region {
     }
 
     /* 
-     * method only menaingful for regions of one dimension (aka ranges)
+     * method only meaningful for regions of one dimension (aka ranges)
      */
     public int high() throws EmptyRegionError {
         assert rank == 1;
@@ -214,11 +216,20 @@ public class ArbitraryRegion extends region {
         return ret;
     }
 
-    /* 
-     * TODO cvp->vj
-     */
     public region convexHull() {
-        throw new Error("TODO");
+        int[] mins = new int[rank];
+        int[] maxs = new int[rank];
+        for (int i = 0; i < rank; ++i) {
+           region r = rank(i);
+           mins[i] = r.low();
+           maxs[i] = r.high();
+        }
+        
+        region[] dims = new region[rank];
+        for (int i = 0; i < rank; ++i) {
+           dims[i] = new ContiguousRange(mins[i], maxs[i]);
+        }
+        return new MultiDimRegion(dims);
     }
 
     /* (non-Javadoc)
