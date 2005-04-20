@@ -24,7 +24,12 @@ public class AtEach2 {
         return nplaces==place.MAX_PLACES;
     }
     public static void main(String args[]) {
-        boolean b= (new AtEach2()).run();
+	boolean b=false;
+	try {
+        	b= (new AtEach2()).run();
+	} catch(Throwable e) {
+		b=false;
+	}
         System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
         System.exit(b?0:1);
     }
