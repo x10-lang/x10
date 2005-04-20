@@ -27,8 +27,19 @@ public class NullableArray2 {
 		ia3 = new (nullable int)[(0:2)->here];
 		if (ia3[2]!=null) return false;
 
-		ia3 = new int[(0:2)->here];
-		if (ia3[2]!=0) return false;
+		if (X.trueFun()) {
+			ia3 = new int[(0:2)->here];
+			if (ia3[2]!=0) return false;
+		}
+
+		// cannot assign a nullable int y to an element
+		// of an array of int's, unless y is not null
+		nullable int y=null;
+		boolean gotException=false;
+		try {ia3[0]=y;} 
+		catch(NullPointerException e) {gotException=true;}
+		if(!gotException) return false;
+			
 
 		(nullable mycomplex)[.] ia4 =
 		 new (nullable mycomplex)[(0:2)->here]
@@ -51,6 +62,7 @@ public class NullableArray2 {
 		nullable (nullable mycomplex)[.] ia9 = 
 			new (nullable mycomplex)[(0:2)->here];
 		if (ia9[2]!=null) return false;
+		
 
 		return true;
 	}
@@ -61,4 +73,8 @@ public class NullableArray2 {
 		System.exit(b?0:1);
 	}
 
+}
+
+class X {
+	static boolean trueFun() {return true;}
 }
