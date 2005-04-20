@@ -39,14 +39,14 @@ public class ArrayIndexing {
 	Generic[.] _genericArray4D;
 	
 	public ArrayIndexing(){
-		final int kArraySize=5000;
+		final int kArraySize=30;
 		region range1D,range2D,range3D,range4D;
 		
 		// Note: cannot do anything fancy with starting index--assume 0 based
 		range1D = [0:kArraySize];
 		range2D = [0:kArraySize,0:kArraySize];
 		range3D = [1:4,3:4,1:20];
-		range4D = [0:2,0:4,2:10,1:20];
+		range4D = [0:2,0:4,2:10,1:10];
 		System.out.println("Testing double arrays...");
 		long start = System.currentTimeMillis();
 		_doubleArray1D = new double[distribution.factory.block(range1D)];
