@@ -86,7 +86,7 @@ public class StridedRange extends Range {
 	}
 	
 	public boolean isConvex() {
-		return stride != 1;
+		return stride == 1;
 	}
 	public region convexHull() {
 		if (stride == 1) 
