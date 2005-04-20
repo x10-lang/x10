@@ -205,10 +205,8 @@ public
 	union(distribution/*(:region.disjoint(this.region) &&
 	rank=this.rank)*/ D);
 	
-	public distribution/*(:rank=this.rank)*/ intersection( distribution /*(:rank=this.rank)*/D) {
-		return this.restriction(D.region);
-	}
-	
+	abstract public distribution/*(:rank=this.rank)*/ intersection( distribution /*(:rank=this.rank)*/D);
+    
 	/** Returns a distribution defined on region.union(R): it
 	 takes on D.get(p) for all points p in R, and this.get(p) for
 	 all remaining points.
