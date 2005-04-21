@@ -122,9 +122,16 @@ public class ArbitraryRegion extends region {
 
     public boolean isConvex() {
         boolean ret = true;
-        for (int i = 0; ret && i < rank; ++i) {
-            region r = rank(i);
-            ret &= r.isConvex();
+        if (rank == 1) {
+            ret = (high() - low() + 1 == size());
+        } else {
+            int conv_size = 1;
+            for (int i = 0; ret && i < rank; ++i) {
+                region r = rank(i);
+                ret &= r.isConvex();
+                conv_size *= r.size();
+            }
+            ret &= size() == conv_size;
         }
         return ret;
     }
@@ -217,19 +224,25 @@ public class ArbitraryRegion extends region {
     }
 
     public region convexHull() {
-        int[] mins = new int[rank];
-        int[] maxs = new int[rank];
-        for (int i = 0; i < rank; ++i) {
-           region r = rank(i);
-           mins[i] = r.low();
-           maxs[i] = r.high();
-        }
-        
-        region[] dims = new region[rank];
-        for (int i = 0; i < rank; ++i) {
-           dims[i] = new ContiguousRange(mins[i], maxs[i]);
-        }
-        return new MultiDimRegion(dims);
+        region ret;
+        if (rank == 1) {
+            ret = new ContiguousRange(low(), high());
+        } else {
+            int[] mins = new int[rank];
+            int[] maxs = new int[rank];
+            for (int i = 0; i < rank; ++i) {
+                region r = rank(i);
+                mins[i] = r.low();
+                maxs[i] = r.high();
+            }
+            
+            region[] dims = new region[rank];
+            for (int i = 0; i < rank; ++i) {
+                dims[i] = new ContiguousRange(mins[i], maxs[i]);
+            }
+            ret = new MultiDimRegion(dims);
+        } 
+        return ret;
     }
 
     /* (non-Javadoc)
