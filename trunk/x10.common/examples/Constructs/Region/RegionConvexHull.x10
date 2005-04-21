@@ -11,7 +11,7 @@
  * [min(i=1:N)(xi):max(i=1:N)(xi),
  *  min(i=1:N)(yi):max(i=1:N)(yi)]
  *
- * A region is convex if it is equal to its bounding box.
+ * A region is convex iff it is equal to its bounding box.
  *
  */
 
