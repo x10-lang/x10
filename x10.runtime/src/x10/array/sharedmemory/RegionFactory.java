@@ -50,7 +50,7 @@ public  class RegionFactory extends region.factory {
 	 */
 	public region/*(rank)*/ upperTriangular( /*nat*/ int rank, 
 			/*nat*/ int size ) {
-		throw new Error("TODO");
+		throw new Error("not implemented");
 	}
 	
 	/** Return a lowerTriangular Region_c for a rank-dimensional space of
@@ -58,7 +58,7 @@ public  class RegionFactory extends region.factory {
 	 */
 	public region/*(rank)*/ lowerTriangular( /*nat*/ int rank, 
 			/*nat*/ int size ) {
-		throw new Error("TODO");
+		throw new Error("not implemented");
 	}
 	
 	/** Return a banded Region_c of width {\code width} for a
@@ -67,6 +67,6 @@ public  class RegionFactory extends region.factory {
 	public region/*(rank)*/ banded( /*nat*/ int rank, 
 			/*nat*/ int size, 
 			/*nat*/ int width) {
-		throw new Error("TODO");	    
+		throw new Error("not implemented");	    
 	}
 }
