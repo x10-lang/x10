@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Value class test:
  *
@@ -8,13 +7,12 @@ import x10.lang.*;
  * @author kemal, 12/2004
  *
  */
-final value  class myval extends x10.lang.Object {
-    // DOES NOT WORK actually writing final causes a compiler error
-    /*final*/ int intval;
-    /*final*/ complex cval;
-    /*final*/ foo refval;
-    /*final*/ int value[.] arrayval; // really final (final int)[]
-    myval(int intval,complex cval,foo refval, nullable int value[.] arrayval) {
+final value  class myval {
+    int intval;
+    complex cval;
+    foo refval;
+    int value[.] arrayval; 
+    myval(int intval,complex cval,foo refval, int value[.] arrayval) {
         this.intval=intval;
         this.cval=cval;
         this.refval=refval;
@@ -26,9 +24,9 @@ class foo {
     int w=19;
 }
 
-final value  complex extends x10.lang.Object {
-    /*final*/ int re;
-    /*final*/ int im;
+final value  complex {
+    int re;
+    int im;
     complex(int re, int im) {
         this.re=re;
         this.im=im;
@@ -64,10 +62,7 @@ public class ValueClass  {
         System.out.println("3");
         if (x==y) return false;
         y=x;
-        // x.intval++ // should cause compiler error
-        // x.arrayval[0]++ // java will not object
-                          // x10 compiler should flag this
-        x.refval.w++; // no compiler error
+        x.refval.w++; 
         // ensure foo is treated as a reference object
         // so both x and y see the update
         System.out.println("4");
