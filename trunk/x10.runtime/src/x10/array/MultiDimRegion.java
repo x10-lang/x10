@@ -213,17 +213,21 @@ public class MultiDimRegion extends region  {
     
     public region convexHull() {
         region ret;
-        if (isConvex())
+        if (isConvex()) {
             ret = this;
-        else {
-            region[] dims = new region[rank];
-            for (int i = 0; i < rank; ++i) {
-                if (dims_[i].isConvex()) 
-                    dims[i] = dims_[i];
-                else 
-                    dims[i] = dims_[i].convexHull();
+        } else {
+            if (rank == 1) {
+                ret = new ContiguousRange(low(), high());
+            } else {
+                region[] dims = new region[rank];
+                for (int i = 0; i < rank; ++i) {
+                    if (dims_[i].isConvex()) 
+                        dims[i] = dims_[i];
+                    else 
+                        dims[i] = dims_[i].convexHull();
+                }
+                ret = new MultiDimRegion(dims);
             }
-            ret = new MultiDimRegion(dims);
         }
         return ret;
     }
@@ -258,8 +262,8 @@ public class MultiDimRegion extends region  {
     
     public boolean isConvex() {
         boolean ret = true;	
-        for (int i = 0; i < rank && ret; ++i) {
-            ret = dims_[i].isConvex();
+        for (int i = 0; ret & i < rank && ret; ++i) {
+            ret &= dims_[i].isConvex();
         }
         return ret;
     }
