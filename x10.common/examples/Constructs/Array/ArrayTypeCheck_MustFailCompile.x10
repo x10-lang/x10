@@ -11,18 +11,22 @@
 public class ArrayTypeCheck_MustFailCompile {
 
 	public boolean run() {
-		int [.] a1=new int[[0:2,0:3]->here];
+		int [.] a1=new int[[0:2,0:3]->here](point p[i]){ return i;};
+		System.out.println("1");
 		int [.] a2=(int[(-1:-2)->here])a1;
+		System.out.println("2");
 		int [.] a3=(int[distribution.factory.unique()])a2;
+		System.out.println("3");
 		int i=1;
 		int j=2;
 		int k=0;
 		point p=[i,j,k];
 		point q=[i,j];
+		point r=[i];
 		if (p==q) return false;
-		System.out.println("1");
-		if (a1[q]+a3[q]!=0) return false;
-		System.out.println("2");
+		System.out.println("4");
+		if (a1[q]+a3[q]!=2) return false;
+		System.out.println("5");
 		return a1[i]==a1[i,j,k];
 	}
 	public static void main(String args[]) {
