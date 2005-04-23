@@ -50,6 +50,7 @@ public class ValueClass6  {
         System.out.println("3");
         if (X3==Y3) return false;
 	// different reference arrays must never be ==
+	// even the arrays have the same contents
 	foo[.] X4=new foo[D](point p[i]){return new foo();};
 	foo[.] Y4=new foo[D](point p[i]){return X4[i];};
         System.out.println("4");
