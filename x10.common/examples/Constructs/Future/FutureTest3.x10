@@ -155,7 +155,13 @@ public class FutureTest3 {
 	 * main method
 	 */
 	public static void main(String args[]) {
-		boolean b= (new FutureTest3()).run();
+		boolean b=false;
+		try {
+			b= (new FutureTest3()).run();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			b=false;
+		}
 		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
 		System.exit(b?0:1);
 	}
