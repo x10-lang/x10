@@ -2,8 +2,7 @@
 
 /**
  * @author Kemal 4/2005
- * How is async with no place treated in 0.41?
- * I.e. implicit syntax?
+ * Async with no place-- implicit syntax
  * For now, assume it should cause a compile time error
  * 
  * 
@@ -15,7 +14,10 @@ public class AsyncTest3_MustFailCompile  {
 		int[.] A=new int[distribution.factory.unique()];
 		chk(place.FIRST_PLACE.next()!=place.FIRST_PLACE);
 		finish async {}
-		finish async {A[1]+=1;}
+		//==> Compiler error expected unless
+		//place inference is correctly done
+		finish async {A[1]+=1; chk(here==A.distribution[1]);}
+		//==> Compiler error definitely expected
 		finish async {A[0]+=A[1];}
 	  	return true;
 	}
