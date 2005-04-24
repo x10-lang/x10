@@ -75,6 +75,12 @@ public class RegionConvexHull {
 		pr("R4convexHull",R4convexHull);
 		// just bounding box
 		chk(R4convexHull.equals([0:5,2:6]));
+		region R1andR2=(R1 && R2);
+		// an empty region is convex and its
+		// bounding box is also the empty region
+		pr("R1andR2",R1andR2);
+		chk(R1andR2.isConvex());
+		chk(R1andR2.convexHull().equals(R1andR2));
  
 		return true;
 }
