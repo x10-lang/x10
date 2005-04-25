@@ -22,7 +22,7 @@ class BoxedNodeArray {
 	public Node[(0:9)->here] val;
 }
  
-public class InitNonNullable {
+public class InitNonNullable_MustFailCompile {
 
 
 	public boolean run() {
@@ -55,7 +55,7 @@ public class InitNonNullable {
 		if(!b) throw new Error();
 	}
 	public static void main(String args[]) {
-		boolean b= (new InitNonNullable()).run();
+		boolean b= (new InitNonNullable_MustFailCompile()).run();
 		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
 		System.exit(b?0:1);
 	}
