@@ -221,7 +221,8 @@ public class DefaultRuntime_c
     /**
      * X10 executes a 'finish'.  Collect all exceptions thrown
      * by all sub-activities.
-     * 
+     * vj: This doesnt actually start finish :-(. Rather it 
+     * simply installs a FinishASL activitySpawnListener on a.
      * @param a the activity of the finish (already started)
      */
     public void startFinish(final Activity a) {
