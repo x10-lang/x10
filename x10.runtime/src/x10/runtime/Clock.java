@@ -1,10 +1,7 @@
 package x10.runtime;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
-/*import polyglot.main.Report;*/
 
 import x10.lang.ClockUseException;
 import x10.lang.Runtime;
@@ -54,7 +51,7 @@ import x10.lang.clock;
  
  <p>Invariants on the state of the sytems:
  <ul>
- <li>   (1) A clock is either in splitPhase or wholePhase.
+ <li>  (1) A clock is either in splitPhase or wholePhase.
  <li>  (2) activity_ superset resumed_ u nextResumed_
  <li>  (3) nextResumed_ and resumed_ are disjoint
  <li>  (4) In wholePhase, nextResumed_ = empty.
@@ -187,9 +184,9 @@ public final class Clock extends clock {
 		Activity a = aip.getCurrentActivity();
 		activities_.add(a);
 		activityCount_++;
-		/*if (Report.should_report("clock", 3)) {
+		if (Report.should_report("clock",3)) {
 			Report.report(3, this + "created by " + a +".");
-			}*/
+			}
 		aip_.registerActivitySpawnListener(a, dropListener_);
 	}
 	
@@ -207,9 +204,9 @@ public final class Clock extends clock {
 	 */
 	synchronized void register(Activity authorizer) {
 		Activity a = aip_.getCurrentActivity();
-		/*if (Report.should_report("clock", 3)) {
+		if (Report.should_report("clock", 3)) {
 			Report.report(3, this + ".register:" + authorizer + " registering " + a);
-			}*/
+			}
 		synchronized (this) {
 			if (activities_.contains(a)) return;
 			if (inactive(authorizer))	
@@ -217,9 +214,9 @@ public final class Clock extends clock {
 			activities_.add(a);
 			activityCount_++;
 		}
-		/*if (Report.should_report("clock", 3)) {
+		if (Report.should_report("clock", 3)) {
 			Report.report(3, this + "...done.(activityCount_=" + activityCount_+").");
-			}*/
+			}
 		aip_.registerActivitySpawnListener(a, dropListener_);
 	}
 	
@@ -235,9 +232,9 @@ public final class Clock extends clock {
 		synchronized(this) {
 			if (inactive(authorizer))
 				throw new ClockUseException( authorizer + "is not active on " + this + "; cannot execute 'now'.");
-			/*if (Report.should_report("clock", 3)) {
+			if (Report.should_report("clock", 3)) {
 				Report.report(3, Clock.this+ ".doNow(" + a + ").");
-				}*/
+				}
 			nowSet_.add(a);
 			aip_.registerActivitySpawnListener(a, nowSpawnListener_);
 		}
@@ -255,32 +252,32 @@ public final class Clock extends clock {
 	public void resume() {
 		Activity a = aip_.getCurrentActivity();        
 		// do not lock earlier - see comment in doNext
-		/*if (Report.should_report("clock", 3)) {
+		if (Report.should_report("clock", 3)) {
 			Report.report(3, this + ".resume(" + a  +")");
-			}*/
+			}
 		synchronized (this) {
 			if (! activities_.contains(a))
 				throw new ClockUseException(a + "is not registered with " + this +"; cannot execute 'resume'.");
 			
 			if (quiescent(a)) {
-			    /*if (Report.should_report("clock", 3)) {
+			    if (Report.should_report("clock", 3)) {
 					Report.report(3, this + "...returned (noop).");
-					}*/
+					}
 				return; 
 			}
 			if (splitPhase_) {
 				nextResumed_.add(a);
 				nextResumedCount_++;
-				/*if (Report.should_report("clock", 3)) {
+				if (Report.should_report("clock", 3)) {
 					Report.report(3, this + "...added to nextResumed.");
-					}*/
+					}
 				return;
 			}
 			resumed_.add(a);
 			resumedCount_++;
-			/*if (Report.should_report("clock", 3)) {
+			if (Report.should_report("clock", 3)) {
 				Report.report(3, this + "...added to resumed.");
-				}*/
+				}
 			tryMoveToSplit_();
 		}
 	}
@@ -325,9 +322,9 @@ public final class Clock extends clock {
 	 *   clock (or if it never was registered).
 	 */
 	synchronized boolean drop(Activity a) {
-	    /*if (Report.should_report("clock", 3)) {
+	    if (Report.should_report("clock", 3)) {
 			Report.report(3, this + ".drop(" + a +").");
-			}*/
+			}
 		boolean ret = activities_.remove(a);
 		if (ret) activityCount_--;
 		if (resumed_.remove(a)) resumedCount_--;
@@ -342,19 +339,19 @@ public final class Clock extends clock {
 	 * that are waiting to get them going again.
 	 */
 	synchronized boolean tryMoveToSplit_() {
-	    /*if (Report.should_report("clock", 3)) {
+	    if (Report.should_report("clock", 3)) {
 			Report.report(3, this + ".tryMoveToSplit_()");
-			}*/
+			}
 		
 		if (! (activityCount_ == resumedCount_ && nowSet_.size() == 0)) {
-		    /*if (Report.should_report("clock", 3)) {
+		    if (Report.should_report("clock", 3)) {
 				Report.report(3, "...fails");
-				}*/
+				}
 			return false;
 		}
-		/*if (Report.should_report("clock", 3)) {
+		if (Report.should_report("clock", 3)) {
 			Report.report(3, "...succeeds");
-			}*/
+			}
 		splitPhase_ = true;
 		this.phase_++;
 		if (Sampling.SINGLETON != null)
@@ -373,18 +370,18 @@ public final class Clock extends clock {
 		
 	}
 	private synchronized boolean tryMoveToWhole_() {
-	    /*if (Report.should_report("clock", 3)) {
+	    if (Report.should_report("clock", 3)) {
 			Report.report(3, this+".tryMoveToWhole_()");
-			}*/
+			}
 		if (resumedCount_ != 0) {
-		    /*if (Report.should_report("clock", 3)) {
+		    if (Report.should_report("clock", 3)) {
 				Report.report(3, this+"...fails.");
-				}*/
+				}
 			return false;
 		}
-		/*if (Report.should_report("clock", 3)) {
+		if (Report.should_report("clock", 3)) {
 			Report.report(3, this+"...succeeds.");
-			}*/
+			}
 		splitPhase_ = false;
 		resumed_.addAll(nextResumed_);
 		nextResumed_.clear();
@@ -413,21 +410,21 @@ public final class Clock extends clock {
 		// do not acquire lock earlier - otherwise deadlock can happen
 		// because the lock used to protected aip_.getCurrentActivity
 		// is also held when terminating activities drop locks ...
-		/*if (Report.should_report("clock", 3)) {
+		if (Report.should_report("clock", 3)) {
 			Report.report(3, this+".doNext(" + a + ") called.");
-			}*/
+			}
 		synchronized (this) {
 			assert activities_.contains(a);
 			assert nextResumed_.contains(a) || resumed_.contains(a);
 			if (!splitPhase_ || nextResumed_.contains(a)){
-			    /*if (Report.should_report("clock", 3)) {
+			    if (Report.should_report("clock", 3)) {
 					Report.report(3, this+".doNext(" + a + ") blocks.");
-					}*/
+					}
 				block_();
 			}
-			/*if (Report.should_report("clock", 3)) {
+			if (Report.should_report("clock", 3)) {
 				Report.report(3, this+".doNext(" + a + ") continues.");
-				}*/
+				}
 			assert resumed_.contains(a);
 			resumed_.remove(a);
 			resumedCount_ --;
@@ -464,9 +461,9 @@ public final class Clock extends clock {
 				Activity i) {
 		}
 		public void notifyActivityTerminated(Activity a) {
-		    /*if (Report.should_report("clock", 3)) {
+		    if (Report.should_report("clock", 3)) {
 				Report.report(3, Clock.this+ ".dropListener(" + a + ") triggered.");
-				}*/
+				}
 			drop(a);
 		}
 	};
@@ -480,9 +477,9 @@ public final class Clock extends clock {
 		public void notifyActivitySpawn(Activity a,
 				Activity i) {
 			synchronized (Clock.this) {
-			    /*if (Report.should_report("clock", 3)) {
+			    if (Report.should_report("clock", 3)) {
 					Report.report(3, Clock.this+ ".notifyActivitySpawn(" + a + ") triggered.");
-					}*/
+					}
 				nowSet_.add(a);
 			}
 			// also register the spawned activity with this spawn listener
@@ -490,17 +487,10 @@ public final class Clock extends clock {
 			aip_.registerActivitySpawnListener(a, this);
 		}
 		public void notifyActivityTerminated(Activity a) {
-			// assertion not valid - the activity might already have
-			// been removed from the nowSet_ (this method might be 
-			// called several times for the same activity -- see also 
-			// DefaultRuntime_c::registerActivityStop) 
-			//
-			// observed that this assertion is violated 'sometimes' in 
-			// Jacobi_skewed.
-			// assert nowSet_.contains(a);
-		    /*if (Report.should_report("clock", 3)) {
+			assert nowSet_.contains(a);
+		    if (Report.should_report("clock", 3)) {
 				Report.report(3, Clock.this+ ".notifyActivityTerminated(" + a + ") triggered.");
-				}*/
+				}
 			synchronized (Clock.this) {
 				if (nowSet_.remove(a))               
 					tryMoveToSplit_(); // must occur inside synchronized
