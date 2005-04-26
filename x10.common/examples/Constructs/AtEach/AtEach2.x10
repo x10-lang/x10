@@ -16,7 +16,7 @@ public class AtEach2 {
             // remember if here and d[i] disagree
             // at any activity at any place
             if (here != d.get(p)) throw new Error("Test failed.");
-            async(here){atomic {this.nplaces++;}}             
+            async(this.location){atomic {this.nplaces++;}}             
         }
         // ensure that d[i] agreed with here in
         // all places
