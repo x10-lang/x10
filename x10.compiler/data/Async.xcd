@@ -1,7 +1,7 @@
 // async(0) clocked(1) 2
 ((x10.runtime.Place) #0).runAsync(new x10.runtime.Activity() {
   public void run() {
-     #2; 
+     #2
   } 
 }, new x10.runtime.ActivityInformation() {
   public java.util.List getRegisteredClocks() {
