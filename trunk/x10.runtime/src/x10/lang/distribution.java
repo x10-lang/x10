@@ -161,6 +161,16 @@ implements Indexable {
 		return distribution.factory.constant(restrictToRegion(P), P);
 	}
 	
+    /**
+     * This method is necessary because the compiler does not implement 
+     * the automatic conversions of distributions / regions to place and hence 
+     * a distribution is passed to the runtime where actually a place 
+     * is expected.
+     * */
+    public distribution restriction(distribution P) {
+        return restriction(P);
+    }
+    
 	/** Returns the distribution obtained by range-restricting this to Ps.
 	 The region of the distribution returned is contained in this.region.
 	 */
