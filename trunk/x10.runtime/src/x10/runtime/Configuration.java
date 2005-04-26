@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import polyglot.main.Report;
+
 
 /**
  * This class provides the configuration for the X10 runtime.
@@ -110,6 +110,11 @@ public final class Configuration {
      */
     public static String LOAD = null;
     
+    /** Level at which details of clock transitions should be 
+     *  printed out. Set to 3 to get a line per transition.
+     * See x10.runtime.Clock.
+     */
+    public static int CLOCK_REPORT_LEVEL = 0;
     private static boolean done_;
     /**
      * Parses the command line.  This allows the user to specify 
