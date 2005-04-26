@@ -1,4 +1,3 @@
-import java.lang.reflect.*;
 /**
  * Synthetic benchmark to time arary accesses
  */
