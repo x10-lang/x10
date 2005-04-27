@@ -63,7 +63,7 @@
  *
  */
 
-class ClockTest15WithResume
+public class ClockTest15WithResume
 {
   int x = 0; // global counter
   boolean advanced_A1=false; // signals that A1 executed next and read x==2
