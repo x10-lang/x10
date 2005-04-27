@@ -17,7 +17,7 @@ import java.util.Random;
 public class CyclicDist {
 	
 	public boolean run() {
-	distribution P=distribution.factory.unique();
+	final distribution P=distribution.factory.unique();
 	final int np=place.MAX_PLACES;
 	final int COUNT=200;
 	final int L=5;
@@ -27,8 +27,8 @@ public class CyclicDist {
 		final int ub1=ranInt(lb1,L); 
 		final int ub2=ranInt(lb2,L);
 
-		region R = [lb1:ub1,lb2:ub2];
-		distribution DCyclic=distribution.factory.cyclic(R);
+		final region R = [lb1:ub1,lb2:ub2];
+		final distribution DCyclic=distribution.factory.cyclic(R);
 		final int totalPoints=(ub1-lb1+1)*(ub2-lb2+1);
 		int offsWithinPlace=0;
 		int placeNum=0;

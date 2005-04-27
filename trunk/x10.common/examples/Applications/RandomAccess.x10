@@ -123,9 +123,9 @@ static value class ranNum extends x10.lang.Object {
    /**
     * find the sum of a ranNum array
     */
-   long ranNumSum(ranNum[.] A) {
-	int[.] P=new int[unique()];
-        long[.] S= new long[unique()];
+   long ranNumSum(final ranNum[.] A) {
+	final int[.] P=new int[unique()];
+        final long[.] S= new long[unique()];
 	finish ateach(point [i]: P) {
 	  long sum=0L;
 	  for(point [j]: (A.distribution|(P.distribution[i]))) {
@@ -160,14 +160,14 @@ static value class ranNum extends x10.lang.Object {
     */
    public boolean run() {  	
     // A small value Table that will be copied to all processors
-    ranNum value[.] SmallTable = 
+    final ranNum value[.] SmallTable = 
         new ranNum value[(0:S_TABLE_SIZE-1)->here]
           (point [i]) {return new ranNum(i*S_TABLE_INIT);};        
     // distributed histogram Table
-    ranNum[.] Table = new ranNum[block(TABLE_SIZE)]
+    final ranNum[.] Table = new ranNum[block(TABLE_SIZE)]
          (point [i]){return new ranNum(i);};
     // random number starting seeds for each place (calls C code)
-    ranNum[.] RanStarts = new ranNum[unique()]
+    final ranNum[.] RanStarts = new ranNum[unique()]
       (point [i]) {return new ranNum(C.starts(N_UPDATES_PER_PLACE*i));};
     // In all places in parallel,repeatedly generate random indices
     // and do remote atomic updates on corresponding Table elements
@@ -175,8 +175,8 @@ static value class ranNum extends x10.lang.Object {
         ranNum ran = RanStarts[i].nextRandom();
         for(point [count]: 1:N_UPDATES_PER_PLACE) {
             System.out.println("Place "+i+" iteration "+count);
-            int  J = ran.f();
-            ranNum K = SmallTable[ran.g()]; 
+            final int  J = ran.f();
+            final ranNum K = SmallTable[ran.g()]; 
             async(Table.distribution[J]) atomic Table[J]=Table[J].update(K);
             ran = ran.nextRandom();
         }

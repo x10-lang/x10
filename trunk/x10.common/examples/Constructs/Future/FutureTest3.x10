@@ -16,7 +16,7 @@ public class FutureTest3 {
 	/**
  	 * Spawns subactivities that cause delayed side-effects.
 	 */
-	int m1(int[.] A, int K) {
+	int m1(final int[.] A, final int K) {
 		foreach(point [i]:A) {
 			delay(3000); 
 			atomic A[i]+=1;
@@ -30,7 +30,7 @@ public class FutureTest3 {
  	 * Spawns subactivities that cause delayed side-effects
 	 * and exceptions.
 	 */
-	int m2(int[.] A, int K) {
+	int m2(final int[.] A, final int K) {
 		foreach(point p[i]:A) {
 			delay(3000); 
 			atomic A[i]+=1;
@@ -57,8 +57,8 @@ public class FutureTest3 {
 	 */
 	public boolean run() {
 
-		int[.] A = new int[[0:N-1]->here];
-		int K=3;
+		final int[.] A = new int[[0:N-1]->here];
+		final int K=3;
 		boolean gotException;
 
 

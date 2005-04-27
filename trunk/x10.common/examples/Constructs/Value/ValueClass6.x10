@@ -26,33 +26,33 @@ public class ValueClass6  {
 
         public boolean run() {
 
-        distribution D=[0:9]->here;
+        final distribution D=[0:9]->here;
 	// different value arrays whose elements are the same
 	// reference objects, must be equal
-	foo value[.] X1=new foo value[D](point p[i]){return new foo();};
-	foo value[.] Y1=new foo value[D](point p[i]){return X1[i];};
+	final foo value[.] X1=new foo value[D](point p[i]){return new foo();};
+	final foo value[.] Y1=new foo value[D](point p[i]){return X1[i];};
         System.out.println("1");
         if (X1!=Y1) return false;
 	// different value arrays whose elements are different
 	// value objects
 	// that have the same contents, must be ==
-	complex value[.] X2=
+	final complex value[.] X2=
           new complex value[D](point p[i]){ return new complex(i,i);};
-	complex value[.] Y2=
+	final complex value[.] Y2=
           new complex value[D](point p[i]){ return new complex(i,i);};
         System.out.println("2");
         if (X2!=Y2) return false;
 	// different value arrays whose elements are 
 	// different reference objects
 	// which have the same contents, must not be ==
-	foo value[.] X3=new foo value[D](point p[i]){return new foo();};
-	foo value[.] Y3=new foo value[D](point p[i]){return new foo();};
+	final foo value[.] X3=new foo value[D](point p[i]){return new foo();};
+	final foo value[.] Y3=new foo value[D](point p[i]){return new foo();};
         System.out.println("3");
         if (X3==Y3) return false;
 	// different reference arrays must never be ==
 	// even the arrays have the same contents
-	foo[.] X4=new foo[D](point p[i]){return new foo();};
-	foo[.] Y4=new foo[D](point p[i]){return X4[i];};
+	final foo[.] X4=new foo[D](point p[i]){return new foo();};
+	final foo[.] Y4=new foo[D](point p[i]){return X4[i];};
         System.out.println("4");
         if (X4==Y4) return false;
 	return true;

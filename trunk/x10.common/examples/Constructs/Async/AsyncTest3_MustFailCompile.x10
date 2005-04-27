@@ -11,7 +11,7 @@ public class AsyncTest3_MustFailCompile  {
 
 
 	public boolean run() {
-		int[.] A=new int[distribution.factory.unique()];
+		final int[.] A=new int[distribution.factory.unique()];
 		chk(place.FIRST_PLACE.next()!=place.FIRST_PLACE);
 		finish async {}
 		//==> Compiler error expected unless

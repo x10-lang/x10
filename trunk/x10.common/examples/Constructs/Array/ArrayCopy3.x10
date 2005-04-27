@@ -89,11 +89,11 @@ public class ArrayCopy3 {
 					atomic{accessed_a[i]=accessed_a[i]+1;}
 				}
 				// check if distribution ops are working
-				distribution D_notCommon= D.difference(D_common.region);
+				final distribution D_notCommon= D.difference(D_common.region);
 				//err_1[x] |= !(D_common.union(D_notCommon).equals(D));
 				if(!(D_common.union(D_notCommon).equals(D))) throw new Error("2");
-				distribution E_common= E.restriction(Common);
-				distribution E_notCommon= E.difference(E_common.region);
+				final distribution E_common= E.restriction(Common);
+				final distribution E_notCommon= E.difference(E_common.region);
 				//err_1[x] |= !(E_common.union(E_notCommon).equals(E));
 					
 				if(!(E_common.union(E_notCommon).equals(E))) throw new Error("3");

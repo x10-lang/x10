@@ -7,9 +7,9 @@
  */
 
 public class Unreachable {
- 	int N = 10;
-	region R = [0:N];
-	distribution D = distribution.factory.arbitrary(R);
+ 	final int N = 10;
+	final region R = [0:N];
+	final distribution D = distribution.factory.arbitrary(R);
 	
 	void test() {
 		async(D[0]) {	

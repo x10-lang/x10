@@ -8,8 +8,8 @@ public class AsyncTest2  {
 
 
 	public boolean run() {
-		int NP=place.MAX_PLACES;
-		int[.] A = new int[distribution.factory.unique()];
+		final int NP=place.MAX_PLACES;
+		final int[.] A = new int[distribution.factory.unique()];
 		finish
 		for(point [k]:0:NP-1)
 			async (A.distribution[k])

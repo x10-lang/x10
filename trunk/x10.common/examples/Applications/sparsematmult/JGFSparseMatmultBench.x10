@@ -184,9 +184,9 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 	JGFInstrumentor.printTimer("Section2:SparseMatmult:Kernel"); 
     }
 
-    private static double[.] RandomVector(distribution d, java.util.Random R)
+    private static double[.] RandomVector(distribution d, final java.util.Random R)
     {
-	double[.] A = new double[d] (point[i]) { return R.nextDouble() * 1e-6; };
+	final double[.] A = new double[d] (point[i]) { return R.nextDouble() * 1e-6; };
 	return A;
     }
 

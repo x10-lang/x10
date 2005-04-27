@@ -12,7 +12,7 @@ public class Initialization {
 	
 	public boolean run(){
 		long start,stop;
-		int OneDSize = kArraySize * kArraySize;
+		final int OneDSize = kArraySize * kArraySize;
 		
 		start = System.currentTimeMillis();
 		System.out.println("creating java array size "+OneDSize);
@@ -23,14 +23,14 @@ public class Initialization {
 		start = System.currentTimeMillis();
 		System.out.println("creating array size "+OneDSize);
 		region r = [0:OneDSize];
-		distribution  D = distribution.factory.block(r);
+		final distribution  D = distribution.factory.block(r);
 		x_doubleArray1D = new double[D];
 		stop = System.currentTimeMillis();
 		System.out.println("Created array in "+((double)(stop-start)/1000)+" seconds");
 		
 		System.out.println("creating array ["+kArraySize+","+kArraySize+"] ("+(kArraySize*kArraySize)+")");
 		region r2 = [0:kArraySize,0:kArraySize];
-		distribution  D2 = distribution.factory.block(r2);
+		final distribution  D2 = distribution.factory.block(r2);
 		System.out.println("Start allocation...");
 		start = System.currentTimeMillis();
 		x_doubleArray2D = new double[D2];

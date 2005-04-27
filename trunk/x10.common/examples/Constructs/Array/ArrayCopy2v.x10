@@ -72,7 +72,7 @@ public class ArrayCopy2v {
 			final place px= D_1.get(x);
 			//err_1[x] |= !(px==here);
 			if(px!=here) throw new Error();
-			distribution D_local= D.restriction(D.restriction(px));
+			final distribution D_local= D.restriction(D.restriction(px));
 			for (final point i : D_local ) { 
 				// assignment to a[i] may need to be atomic
 				// unless disambiguator has high level

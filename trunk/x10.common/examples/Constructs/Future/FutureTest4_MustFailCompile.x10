@@ -16,7 +16,7 @@ public class FutureTest4_MustFailCompile {
 	 */
 	public boolean run() {
 
-		int[.] A = new int[distribution.factory.block([0:N-1,0:N-1])]
+		final int[.] A = new int[distribution.factory.block([0:N-1,0:N-1])]
 		(point [i,j]) {return N*i+j;};
 		int x;
 		int s;
@@ -33,7 +33,7 @@ public class FutureTest4_MustFailCompile {
 		s=0;
 		for(int i=0;i<N;i++) {
 			s+=i;
-			{int I=i; int S=s;
+			{final int I=i; final int S=s;
 			 // no compiler error
 			 x+=future(A.distribution[I,S%N]) {A[I,S%N]}.force();
 			}

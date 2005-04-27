@@ -15,21 +15,21 @@
      const int N=10;
      const double epsilon = 0.1;
      const double epsilon2 = 0.00000001;
-     region R = [0:N+1];
-     region RInner= [1:N];
-     distribution D = createDist(R);
-     distribution DInner = D | RInner;
-     distribution DBoundary = D - RInner;
+     final region R = [0:N+1];
+     final region RInner= [1:N];
+     final distribution D = createDist(R);
+     final distribution DInner = D | RInner;
+     final distribution DBoundary = D - RInner;
      const int EXPECTED_ITERS=72;
      const double EXPECTED_ERR=0.0998058359189411;
      
-     double[.] B = new double[D] (point p[i])
+     final double[.] B = new double[D] (point p[i])
          {return DBoundary.contains(p) ? (N-1)/2 : i-1;};
      
      public boolean run() {
      	int iters = 0;
      	double err;
-     	double[.] Temp = new double[DInner];
+     	final double[.] Temp = new double[DInner];
      	while(true) {
      		finish ateach (point p[i]:DInner) 
      			{Temp[i]=(read(i-1)+read(i+1))/2.0;}     		
@@ -62,7 +62,7 @@
      * except for the last place, which gets
      * all the remaining elements
      */
-    static distribution createSkewedDist(int N, int K) {
+    static distribution createSkewedDist(final int N, final int K) {
 	  final distribution u=distribution.factory.unique(x10.lang.place.places);
 	  final int NP=x10.lang.place.MAX_PLACES;
 	  if (K*(NP-1)>N+1) throw new Error("Too few array elements");

@@ -8,7 +8,7 @@ public class AtEachLoopOnArray {
     boolean success = true;
 
 	public boolean run() {
-		double[.] A = new double[(0:10) -> here] (point [i]) { return i;};
+		final double[.] A = new double[(0:10) -> here] (point [i]) { return i;};
 		
 		finish ateach(point [i]: A) 
 			if (A[i] != i) 
