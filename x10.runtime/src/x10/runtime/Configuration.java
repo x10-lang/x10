@@ -80,6 +80,7 @@ public final class Configuration {
     
     public static int NUMBER_OF_LOCAL_PLACES = 4;
     
+    /** this check does not work -- it causes spurious warnings */
     public static boolean BAD_PLACE_RUNTIME_CHECK = false;
     
     /**
