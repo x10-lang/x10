@@ -34,7 +34,7 @@ class T {
 public class ConditionalAtomicQueue {
 	
 	final private int siz=3/*10*/;
-	private T[] Q;      // The circular buffer
+	private final T[] Q;      // The circular buffer
 	private int nelems; // number of items in buffer Q
 	private int tail; // next free slot to insert incoming items
 	// at tail of queue

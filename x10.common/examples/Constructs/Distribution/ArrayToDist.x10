@@ -13,10 +13,10 @@ public class ArrayToDist {
 	const int N=4;
 	public boolean run() {
 		
-		region R=[0:N-1,0:N-1];
-		distribution D= distribution.factory.block(R);
-		int[.] A1 =new int[D](point p[i,j]){return f(i,j);};
-		foo[.] A2 =new foo[D](point p[i,j]){return new foo(f(i,j));};
+		final region R=[0:N-1,0:N-1];
+		final distribution D= distribution.factory.block(R);
+		final int[.] A1 =new int[D](point p[i,j]){return f(i,j);};
+		final foo[.] A2 =new foo[D](point p[i,j]){return new foo(f(i,j));};
 		for(point p[i,j]: A1) 
 			chk(f(i,j)==future(A1.distribution[i,j]){A1[i,j]}.force(),"1");
 		finish foreach(point p[i,j]: A1) 

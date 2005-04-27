@@ -8,7 +8,7 @@ public class DistributionTest {
 	
 	public boolean run() {
 		region r = region.factory.region(0,100); //(low,high)
-		region R = region.factory.region(new region[] {r,r});
+		final region R = region.factory.region(new region[] {r,r});
 		distribution d = distribution.factory.constant(R,here);
 		return ((d.rank==2) && 
 				(R.rank==2) &&

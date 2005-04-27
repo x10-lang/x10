@@ -19,7 +19,7 @@ import java.util.Random;
 public class BlockDist {
 	
 	public boolean run() {
-	distribution P=distribution.factory.unique();
+	final distribution P=distribution.factory.unique();
 	final int np=place.MAX_PLACES;
 	final int COUNT=200;
 	final int L=5;
@@ -28,8 +28,8 @@ public class BlockDist {
 		final int lb2=ranInt(-L,L);
 		final int ub1=ranInt(lb1,L); 
 		final int ub2=ranInt(lb2,L);
-		region R = [lb1:ub1,lb2:ub2];
-		distribution DBlock=distribution.factory.block(R);
+		final region R = [lb1:ub1,lb2:ub2];
+		final distribution DBlock=distribution.factory.block(R);
 		final int totalPoints=(ub1-lb1+1)*(ub2-lb2+1);
 		final int p=totalPoints/np;
 		final int q=totalPoints%np;

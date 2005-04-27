@@ -15,13 +15,13 @@ public class ArrayAlgebra {
 
 	public boolean run() {
 		
-		distribution D=distribution.factory.blockcyclic([0:N-1],2);
-		distribution D01=D|[0:N/2-1];
-		distribution D23=D|[N/2:N-1];
-		distribution D0=D|[0:N/4-1];
-		distribution D1=D|[N/4:N/2-1];
-		distribution D2=D|[N/2:3*N/4-1];
-		distribution D3=D|[3*N/4:N-1];
+		final distribution D=distribution.factory.blockcyclic([0:N-1],2);
+		final distribution D01=D|[0:N/2-1];
+		final distribution D23=D|[N/2:N-1];
+		final distribution D0=D|[0:N/4-1];
+		final distribution D1=D|[N/4:N/2-1];
+		final distribution D2=D|[N/2:3*N/4-1];
+		final distribution D3=D|[3*N/4:N-1];
 		int[.] ia1=
 		 (D -99).overlay((D01 -1)||(D23 -2)).overlay(D3 3).overlay(D0 9);
 		arrEq(ia1|D0,(D0 9));

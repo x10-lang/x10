@@ -18,7 +18,7 @@ public class MpiExample2 {
 		// Distribution P just supplies a mapping from
 		// integer i to place i
 		
-		distribution P = unique();
+		final distribution P = unique();
 		
 		// The current place is place 0.  Spawn producer activities
 		// (producing an object of value type "T") in each of the other

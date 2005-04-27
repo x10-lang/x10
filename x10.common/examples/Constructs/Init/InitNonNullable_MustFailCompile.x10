@@ -44,7 +44,7 @@ public class InitNonNullable_MustFailCompile {
 		chk(bna.val[9].data==19);
 		Node tmp7= (Node)(bna.val[9].next);
 		chk(bna.val[9].next.data==19);
-		Node[.] A=new Node[(0:9)->here];
+		final Node[.] A=new Node[(0:9)->here];
 		Node tmp8= (Node)(A[2]);
 		chk(A[2].data==19);
 		Node tmp9= (Node)(A[2].next);

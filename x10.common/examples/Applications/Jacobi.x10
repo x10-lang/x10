@@ -24,14 +24,14 @@ import x10.lang.*;
      const int EXPECTED_ITERS=97;
      const double EXPECTED_ERR=0.0018673382039402497;
      
-     double[.] B = new double[D] (point p[i,j])
+     final double[.] B = new double[D] (point p[i,j])
          {return DBoundary.contains(p) ? (N-1)/2 : N*(i-1)+(j-1);};
      
      public boolean run() {
      	int iters = 0;
      	double err;
      	while(true) {
-     		double[.] Temp = new double[DInner] (point [i,j]) 
+     		final double[.] Temp = new double[DInner] (point [i,j]) 
      			{return (read(i+1,j)+read(i-1,j)+read(i,j+1)+read(i,j-1))/4.0;};     		
      		if((err=((B | DInner) - Temp).abs().sum()) < epsilon)break;     		
      		B.update(Temp);

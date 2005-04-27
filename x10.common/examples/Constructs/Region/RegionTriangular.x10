@@ -8,7 +8,7 @@
 public class RegionTriangular {
 	
 	public boolean run() {
-		region Universe=[0:7,0:7];
+		final region Universe=[0:7,0:7];
 		region upperT=region.factory.upperTriangular(8);
 		pr("upperT",upperT);
 		for(point [i,j]:Universe)
@@ -49,7 +49,7 @@ public class RegionTriangular {
 		System.out.println();
 		System.out.println("printing region "+s);
 		int k=0;
-		int N=8;
+		final int N=8;
 		for(point [i,j]:[0:N-1,0:N-1]) {
 			
 			System.out.print(" "+(r.contains([i,j])?"+":"."));		
