@@ -1,24 +1,26 @@
-import x10.lang.*;
-
 /**
- * Test for arrays, regions and distributions
- * Based on original arraycopy2
+ * Test for arrays, regions and distributions.
+ * Based on original arraycopy2 by vj.
+ *
  * @author kemal 1/2005
  *
- * Temporarily disabled boolean arrays
  */
 
 public class ArrayCopy2 {
 	
-	boolean errorsFound=false;
-	
+       /**
+        * Throws an error iff b is false.
+        */
+	static void chk(boolean b) {
+		if(!b) throw new Error();
+	}
+
 	/**
-	 * Returns true iff x is not in the domain of one dim
+	 * Returns true iff point x is not in the domain of 
 	 * distribution D
 	 */
 	static boolean outOfRange(final distribution D, final point x) {
 		boolean gotException=false;
-		// assert(D.dimension==1) 
 		try{
 			async(D[x]){}; // just to use place
 		} catch (Throwable e) {
@@ -28,154 +30,142 @@ public class ArrayCopy2 {
 	}
 	
 	/**
-	 * Returns true iff a[i]==b[i] for all i 
+	 * Does not throw an error iff A[i]==B[i] for all i 
 	 */
 	
-	public boolean arrayEqual(final int[.] a, final int[.] b) {
+	void arrayEqual(final int[.] A, final int[.] B) {
 		// Spawn an activity for each index to 
-		// fetch the b[i] value 
-		// Then compare it to the a[i] value
-		final distribution D=a.distribution;
-		final distribution E=b.distribution;
-		// boolean[D] err=new boolean[D];
+		// fetch the B[i] value 
+		// Then compare it to the A[i] value
+		final distribution D=A.distribution;
+		final distribution E=B.distribution;
 		finish
-		ateach (point i : D) { 
-			int t= future(E[i]){b[i]}.force();
-			//err[i]|= (a[i]!=t); 
-			if (a[i]!=t) throw new Error("1");
-		}
-		//return !err.reduce(boolean.or,false);
-		return true;
+		ateach(point i:D) chk(A[i]==future(E[i]){B[i]}.force());
 	}
 	
 	/**
-	 * Set a[i]=b[i] for all i
-	 * return false iff some assertion failed.
+	 * Set A[i]=B[i] for all points i.
+	 * Throws an error iff some assertion failed.
 	 */
 	
-	public boolean arrayCopy(final int[.] a, final int[.] b) {
-		final distribution D=a.distribution;
-		final distribution E=b.distribution;
+	public void arrayCopy(final int[.] A,final int[.] B) {
+		final distribution D=A.distribution;
+		final distribution E=B.distribution;
 		// Spawn one activity per place 
-		//boolean[D] err_a= new boolean[D];
-		//boolean[E] err_b= new boolean[E];
 		
 		final distribution D_1= distribution.factory.unique(D.places()); 
-		//boolean[D_1] err_1= new boolean[D_1];
-		// number of times elems of a are accessed
+		// number of times elems of A are accessed
 		final int[.] accessed_a = new int[D];
-		// number of times elems of b are accessed
+		// number of times elems of B are accessed
 		final int[.] accessed_b = new int[E];
 		
 		finish
 		ateach (point x:D_1)  {
-			final place px= D_1.get(x);
-			//err_1[x] |= !(px==here);
-			if(px!=here) throw new Error("2");
-			final distribution D_local= D.restriction(D.restriction(px));
+			final place px= D_1[x];
+			chk(px==here);
+			final distribution D_local= (D|px);
 			for (point i : D_local ) { 
-				// assignment to a[i] may need to be atomic
+				// assignment to A[i] may need to be atomic
 				// unless disambiguator has high level
 				// knowledge about distributions
 				async(E[i]) {
-					//atomic{err_b[i] |= !(E[i]==here);}
-					if (E[i]!=here) throw new Error("3");
-					atomic{accessed_b[i]=accessed_b[i]+1;}
+					chk(E[i]==here);
+					atomic accessed_b[i]+=1;
 				}
-				a[i] = future(E[i]){b[i]}.force();
-				atomic{accessed_a[i]=accessed_a[i]+1;};
+				A[i] = future(E[i]){B[i]}.force();
+				atomic accessed_a[i]+=1;
 			}
 			// check if distribution ops are working
 			
-			final distribution D_nonlocal= D.difference(D_local.region);
-			//err_1[x] |= !(D_local.union(D_nonlocal).equals(D));
-			if(!(D_local.union(D_nonlocal).equals(D))) throw new Error("4");
+			final distribution D_nonlocal= D-D_local;
+			chk((D_local||D_nonlocal).equals(D));
 			for(point k:D_local) {
-				//err_1[x]|= !outOfRange(D_nonlocal,k);
-				if (!outOfRange(D_nonlocal,k)) throw new Error("5");
-				//err_1[x]|= !(D_local[k]==px);
-				if (!(D_local[k] ==px)) throw new Error("6");
+				chk(outOfRange(D_nonlocal,k));
+				chk(D_local[k]==px);
 			}
 			for (point k: D_nonlocal) {
-				//err_1[x]|= !outOfRange(D_local,k);
-				if(!outOfRange(D_local,k)) throw new Error("7");
-				//err_1[x]|= !(D_nonlocal[k]!=px);
-				if(!(D_nonlocal[k]!=px)) throw new Error("8");
+				chk(outOfRange(D_local,k));
+				chk(D_nonlocal[k]!=px);
 			}
 			
 			
 		}
 		// ensure each a[i] was accessed exactly once
-		finish ateach(point i:D) {
-			//err_a[i] |= !(accessed_a[i]==1);
-			if(!(accessed_a[i]==1)) throw new Error("9");
-		}
+		finish ateach(point i:D) chk(accessed_a[i]==1);
 		// ensure each b[i] was accessed exactly once
-		finish ateach(point i:E) {
-			//err_b[i] |= !(accessed_b[i]==1);
-			if(!(accessed_b[i]==1)) throw new Error("10");
-		}
-		//return  !(err_1.reduce(boolean.or,false)
-		//		| err_a.reduce(boolean.or,false)
-		//		| err_b.reduce(boolean.or,false));
-		return true;
+		finish ateach(point i:E) chk(accessed_b[i]==1);
 	}
-	
-	final static int N=10;
-	
-	public boolean run() {
-		final region r= region.factory.region(0, N-1);
-		final region t1= region.factory.region(0, dist.N_DIST_TYPES-1);
-		final region testDists= region.factory.region(t1,t1);
-		for(point distP: testDists) {
-			final distribution D=dist.getDist(distP.get(0),r);
-			final distribution E=dist.getDist(distP.get(1),r);
-			if(!(D.region.equals(E.region)&&D.region.equals(r))) 
-				return false;
-			final int[.] a= new int[D];
-			final int[.] b= new int[E];
-			finish ateach(point p[i]:E) { b[p]= i*i+1;}
-			if (!arrayCopy(a,b)) return false;
-			if (!arrayEqual(a,b)) return false;
-		}
-		return true;
-	}
-	
+
+    const int N=3;
+
+    /**
+     * For all combinations of distributions of arrays B and A,
+     * do an array copy from B to A, and verify.
+     */
+    public boolean run() {
+         final region R= [0:N-1,0:N-1,0:N-1,0:N-1];
+         final region TestDists= [0:dist.N_DIST_TYPES-1,0:dist.N_DIST_TYPES-1];
+
+         for(point distP[dX,dY]: TestDists) {
+		
+             final distribution D=dist.getDist(dX,R);
+             final distribution E=dist.getDist(dY,R);
+             chk(D.region.equals(E.region)&&D.region.equals(R)); 
+             final int[.] A= new int[D];
+             final int[.] B= new int[E]
+	      (point p[i,j,k,l]){int x=((i*N+j)*N+k)*N+l; return x*x+1;};
+             arrayCopy(A,B);
+             arrayEqual(A,B);
+         }
+         return true;
+    }
+
+
+	/**
+	 * main method
+	 */
 	public static void main(String args[]) {
-		boolean b= (new ArrayCopy2()).run();
+		boolean b=false;
+		try {
+			b= (new ArrayCopy2()).run();
+		} catch(Throwable e) {
+			e.printStackTrace();
+			b=false;
+		}
 		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
 		System.exit(b?0:1);
 	}
-	
 }
 
 /**
  * utility for creating a distribution from a
- * a distribution type int value
+ * a distribution type int value and a region
  */
 class dist {
-	// Java has poor support for enum
-	public final static int BLOCK=0;
-	public final static int CYCLIC=1;
-	public final static int CONSTANT=2;
-	public final static int RANDOM=3;
-	public final static int ARBITRARY=4;
-	public final static int N_DIST_TYPES=5;
-	
-	/**
-	 * Return a distribution with region r, of type disttype
-	 *
-	 */
-	
-	public static distribution getDist(int distType, region r) {
-		switch(distType) {
-		case BLOCK: return distribution.factory.block(r);
-		case CYCLIC: return distribution.factory.cyclic(r);
-		case CONSTANT: return distribution.factory.constant(r, here);
-		case RANDOM: return distribution.factory.random(r);
-		case ARBITRARY: return distribution.factory.arbitrary(r);
-		default: throw new Error("TODO");
-		}
-		
-	} 
+   const int BLOCK=0;
+   const int CYCLIC=1;
+   const int BLOCKCYCLIC=2;
+   const int CONSTANT=3;
+   const int RANDOM=4;
+   const int ARBITRARY=5;
+   public const int N_DIST_TYPES=6;
+
+   /**
+    * Return a distribution with region r, of type disttype
+    *
+    */
+
+   public static distribution getDist(int distType, region r) {
+      switch(distType) {
+         case BLOCK: return distribution.factory.block(r);
+         case CYCLIC: return distribution.factory.cyclic(r);
+         case BLOCKCYCLIC: return distribution.factory.blockCyclic(r,3);
+         case CONSTANT: return distribution.factory.constant(r, here);
+         case RANDOM: return distribution.factory.random(r);
+         case ARBITRARY: return distribution.factory.arbitrary(r);
+         default: throw new Error();
+      }
+     
+   } 
 }
+	

@@ -1,92 +1,93 @@
-import x10.lang.*;
 /**
  * Test for arrays, regions and distributions
- * Based on original arraycopy1
+ * Based on original arraycopy1 by vj
+ *
  * @author kemal 1/2005
  * 
- * temporarily disabled boolean arrays
  */
 
 
 public class ArrayCopy1 {
+   /**
+    * Throws an error iff b is false.
+    */
+   static void chk(boolean b) {
+	if(!b) throw new Error();
+   }
     
 
    /**
-    * Returns true iff a[i]==b[i] for all i 
-    * a and b can have differing distributions
-    * whose regions are equal
+    * Does not throw an error iff A[i]==B[i] for all points i. 
+    * A and B can have differing distributions
+    * whose regions are equal.
     */
-	public boolean arrayEqual(final int[.] a, final int[.] b) {
-		final distribution D = a.distribution;
-		final distribution E = b.distribution;
+	void arrayEqual(final int[.] A,final int[.] B) {
+		distribution D = A.distribution;
+		distribution E = B.distribution;
 		// Spawn an activity for each index to 
 		// fetch the b[i] value 
 		// Then compare it to the a[i] value
-		// boolean[D] err=new boolean[D];
 		finish
-		ateach (point p : D) { 
-			int t= future(E[p]){b[p]}.force();
-			//err[p]|= (a[p]!=t); 
-			if (a[p]!=t) throw new Error(); 
-		}
-		//return !err.reduce(boolean.or,false);
-		return true;
+		ateach(point p:D) chk(A[p]==future(E[p]){B[p]}.force());
 	}
 
 	
     /**
-     * Set a[i]=b[i] for all i
-     * a and b can have different distributions whose
-     * regions are equal
-     * returns false iff some checking assertion failed
+     * Set A[i]=B[i] for all i.
+     * A and B can have different distributions whose
+     * regions are equal.
+     * Returns false iff some checking assertion failed
      */
-	public boolean arrayCopy(final int[.] a, final int[.] b) {
-		final distribution D = a.distribution;
-		final distribution E = b.distribution;
+	void arrayCopy(final int[.] A, final int[.] B) {
+		final distribution D = A.distribution;
+		final distribution E = B.distribution;
 		// Spawn an activity for each index to 
 		// fetch and copy the value
-		//boolean[D] err_a= new boolean[D];
-		//boolean[E] err_b= new boolean[E];
 		finish
-		ateach (point p : D) { 
-			//err_a[p] |= (D.get(p) !=here);
-			if (D[p]!=here) throw new Error();
-			async(E[p]){
-                           //err_b[p] |= (E.get(p)!=here);
-			   if(E[p] !=here) throw new Error();
-                           }
-			a[p] = future(E[p]){b[p]}.force();
+		ateach (point p:D) { 
+			chk(D[p]==here);
+			async(E[p]) chk(E[p]==here);
+			A[p] = future(E[p]){B[p]}.force();
 		}
-		//return  !(err_a.reduce(boolean.or,false)
-		//	|| err_b.reduce(boolean.or,false));
-		return true;
 	}
     
    
-    final static int N=2;
+    const int N=3;
 
+    /**
+     * For all combinations of distributions of arrays B and A,
+     * do an array copy from B to A, and verify.
+     */
     public boolean run() {
-         final region r= region.factory.region(0, N-1);
-         final region t1= region.factory.region(0, dist.N_DIST_TYPES-1);
-         final region testDists= region.factory.region(new region[]{t1,t1});
-         for(point distP: testDists) {
+         final region R= [0:N-1,0:N-1,0:N-1,0:N-1];
+         final region TestDists= [0:dist.N_DIST_TYPES-1,0:dist.N_DIST_TYPES-1];
+
+         for(point distP[dX,dY]: TestDists) {
 		
-             final distribution D=dist.getDist(distP.get(0),r);
-             final distribution E=dist.getDist(distP.get(1),r);
-             if(!(D.region.equals(E.region)&&D.region.equals(r))) 
-                  return false;
-             final int[.] a= new int[D];
-             final int[.] b= new int[E];
-             finish ateach(point p:E) {final int i=p.get(0); b[p]= i*i+1;}
-             if (!arrayCopy(a,b)) return false;
-             if (!arrayEqual(a,b)) return false;
+             final distribution D=dist.getDist(dX,R);
+             final distribution E=dist.getDist(dY,R);
+             chk(D.region.equals(E.region)&&D.region.equals(R)); 
+             final int[.] A= new int[D];
+             final int[.] B= new int[E]
+	      (point p[i,j,k,l]){int x=((i*N+j)*N+k)*N+l; return x*x+1;};
+             arrayCopy(A,B);
+             arrayEqual(A,B);
          }
          return true;
     }
 
 
+	/**
+	 * main method
+	 */
 	public static void main(String args[]) {
-		boolean b= (new ArrayCopy1()).run();
+		boolean b=false;
+		try {
+			b= (new ArrayCopy1()).run();
+		} catch(Throwable e) {
+			e.printStackTrace();
+			b=false;
+		}
 		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
 		System.exit(b?0:1);
 	}
@@ -94,16 +95,16 @@ public class ArrayCopy1 {
 
 /**
  * utility for creating a distribution from a
- * a distribution type int value
+ * a distribution type int value and a region
  */
 class dist {
-   // Java has poor support for enum
-   public final static int BLOCK=0;
-   public final static int CYCLIC=1;
-   public final static int CONSTANT=2;
-   public final static int RANDOM=3;
-   public final static int ARBITRARY=4;
-   public final static int N_DIST_TYPES=5;
+   const int BLOCK=0;
+   const int CYCLIC=1;
+   const int BLOCKCYCLIC=2;
+   const int CONSTANT=3;
+   const int RANDOM=4;
+   const int ARBITRARY=5;
+   public const int N_DIST_TYPES=6;
 
    /**
     * Return a distribution with region r, of type disttype
@@ -114,11 +115,11 @@ class dist {
       switch(distType) {
          case BLOCK: return distribution.factory.block(r);
          case CYCLIC: return distribution.factory.cyclic(r);
+         case BLOCKCYCLIC: return distribution.factory.blockCyclic(r,3);
          case CONSTANT: return distribution.factory.constant(r, here);
          case RANDOM: return distribution.factory.random(r);
          case ARBITRARY: return distribution.factory.arbitrary(r);
-         default: throw new Error("TODO");
-         // default: should throw exception
+         default: throw new Error();
       }
      
    } 
