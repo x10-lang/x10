@@ -29,22 +29,20 @@ public class ArrayAlgebra {
 		arrEq(ia1|D2,(D2 -2));
 		arrEq(ia1|D3,(D3 3));
 		chk(ia1.sum()==9*N/4);
-		arrEq(ia1.scan(intArray,0),
+		arrEq(ia1.scan(intArray.add,0),
 		      new int[D](point [i])
-		      {return (ia1|(0:i)).reduce(intArray,0);});
+		      {return (ia1|(0:i)).reduce(intArray.add,0);});
 		return true;
 	}
 
 	/**
-	 * Throw an error if x and y are not arrays with same
+	 * Throw an error iff x and y are not arrays with same
 	 * content and distribution
 	 */
 
-	static void arrEq(int[.] x,int[.] y) {
+	static void arrEq(final int[.] x,final int[.] y) {
 		chk(x.distribution.equals(y.distribution));
-		ateach(point p:x) {
-			chk(x[p]==y[p]);
-		}
+		finish ateach(point p:x) chk(x[p]==y[p]);
 	}	
 
  	/**
