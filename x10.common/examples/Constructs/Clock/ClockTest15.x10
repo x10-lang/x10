@@ -60,7 +60,7 @@
  *
  */
 
-class ClockTest15
+public class ClockTest15
 {
   int x = 0; // global counter
   public boolean run ()
