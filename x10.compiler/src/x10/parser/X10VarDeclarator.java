@@ -21,6 +21,7 @@ import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import x10.runtime.Configuration;
 
 /**
  * @author vj Jan 23, 2005
@@ -41,7 +42,7 @@ public class X10VarDeclarator extends VarDeclarator {
 	}
 	public void setFlag(Flags flags) {
 		String start = name.substring(0,1);
-		boolean capitalized =  start.equals(start.toUpperCase());
+		boolean capitalized = Configuration.UPPERCASE_IMPLIES_FINAL && start.equals(start.toUpperCase()); 
 		this.flags = (capitalized || hasExplodedVars()) ? flags.set(Flags.FINAL) : flags;
 	}
 	public boolean hasExplodedVars() {
@@ -57,7 +58,7 @@ public class X10VarDeclarator extends VarDeclarator {
 	 */
 	protected LocalDecl makeLocalDecl( TypeNode type, String name, Expr init ) {
 		String start = name.substring(0,1);
-		boolean capitalized = start.equals(start.toUpperCase());
+		boolean capitalized = Configuration.UPPERCASE_IMPLIES_FINAL && start.equals(start.toUpperCase());
 		Flags f = (capitalized ? flags.set(Flags.FINAL) : flags);
 		return nf.LocalDecl(pos, f, nf.array(type, pos, dims), name, init);
 	}
