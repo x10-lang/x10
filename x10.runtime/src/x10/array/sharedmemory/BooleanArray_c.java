@@ -229,27 +229,36 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
      * @see x10.lang.BooleanArray#set(int, int[])
      */
     public boolean set(boolean v, point pos) {
-        distribution.checkAccess(pos);
+        if (mutable_)
+            Runtime.checkHere(distribution.get(pos));
         return arr_.setBoolean(v, (int) distribution.region.ordinal(pos));
     }
     
     
     public boolean set(boolean v, int d0) {
-    	d0 = Helper.ordinal(region,d0);
+        if (mutable_)
+            Runtime.checkHere(distribution.get(d0));
+        d0 = Helper.ordinal(region,d0);
     	return arr_.setBoolean(v,d0);
     }
     
     public boolean set(boolean v, int d0, int d1) {
+        if (mutable_)
+            Runtime.checkHere(distribution.get(d0, d1));
     	int	theIndex = Helper.ordinal(region,d0,d1);
     	return arr_.setBoolean(v,theIndex);
     }
     
     public boolean set(boolean v, int d0, int d1, int d2) {
+        if (mutable_)
+            Runtime.checkHere(distribution.get(d0, d1, d2));
     	int	theIndex = Helper.ordinal(region,d0,d1,d2);
     	return arr_.setBoolean(v,theIndex);
     }
     
     public boolean set(boolean v, int d0, int d1, int d2, int d3) {
+        if (mutable_)
+            Runtime.checkHere(distribution.get(d0, d1, d2, d3));
     	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);
     	return arr_.setBoolean(v,theIndex);
         
@@ -259,29 +268,40 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
      * @see x10.lang.BooleanArray#get(int[])
      */
     public boolean get(point pos) {
-        distribution.checkAccess(pos);
+        if (mutable_)
+            Runtime.checkHere(distribution.get(pos));
         return arr_.getBoolean((int) distribution.region.ordinal(pos));
     }
     
     public boolean get(int d0) {
-    	d0 = Helper.ordinal(region,d0); 	
+        if (mutable_)
+            Runtime.checkHere(distribution.get(d0));
+        d0 = Helper.ordinal(region,d0);
     	return arr_.getBoolean(d0);
     }
     public boolean get(int d0, int d1) {   	
-    	int theIndex = Helper.ordinal(region,d0,d1);   	
+        if (mutable_)
+            Runtime.checkHere(distribution.get(d0, d1));
+        int theIndex = Helper.ordinal(region,d0,d1); 
     	return arr_.getBoolean(theIndex);
     }
     
     public boolean get(int d0, int d1, int d2) {
-    	int theIndex = Helper.ordinal(region,d0,d1,d2);
+        if (mutable_)
+            Runtime.checkHere(distribution.get(d0, d1, d2));
+        int theIndex = Helper.ordinal(region,d0,d1,d2);
     	return arr_.getBoolean(theIndex); 
     }
     
     public boolean get(int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);   	
+        if (mutable_)
+            Runtime.checkHere(distribution.get(d0, d1, d2, d3));
+        int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);   	
     	return arr_.getBoolean(theIndex);  
     }
     public boolean get(int[] pos) {
+        if (mutable_)
+            Runtime.checkHere(distribution.get(pos));        
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
