@@ -71,10 +71,10 @@ public class ArrayCopy3 {
 			
 			//err_1[x] |= !(here==px); // check
 			if(!(here==px)) throw new Error("1");
-			final region LocalD = (D.restriction(px));
+			final region LocalD = D.restriction(px).region;
 
 			for ( place py : E.restriction(E.restriction(LocalD).region).places() ) {
-				final region RemoteE = E.restriction(py);
+				final region RemoteE = E.restriction(py).region;
 				final region Common = LocalD.intersection(RemoteE);
 				final distribution D_common= D.restriction(D.restriction(Common).region);
 				// the future's can be aggregated
