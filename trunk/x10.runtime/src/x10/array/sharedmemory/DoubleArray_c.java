@@ -4,9 +4,6 @@
 package x10.array.sharedmemory;
 
 import java.util.Iterator;
-
-
-
 import x10.array.DoubleArray;
 import x10.array.Operator;
 import x10.base.Allocator;
@@ -18,7 +15,6 @@ import x10.lang.point;
 import x10.lang.distribution;
 import x10.lang.region;
 import x10.lang.DoubleReferenceArray;
-import x10.array.MultiDimRegion;
 
 
 /**
@@ -229,7 +225,6 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @see x10.lang.DoubleArray#set(int, int[])
      */
     public double set(double v, point pos) {
-        distribution.checkAccess(pos);
         return arr_.setDouble(v, (int) distribution.region.ordinal(pos));
     }
     /**
@@ -265,7 +260,6 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @see x10.lang.DoubleArray#get(int[])
      */
     public double get(point pos) {
-        distribution.checkAccess(pos);
         return arr_.getDouble((int) distribution.region.ordinal(pos));
     }
     

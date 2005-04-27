@@ -132,6 +132,11 @@ public abstract class Runtime {
     	return p;
     }
     
+    public static void checkHere(place p) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && !p.equals(here()))
+            throw new BadPlaceException();
+    }
+    
     /**
      * Method used to do dynamic Nullcheck when nullable is casted away.
      */

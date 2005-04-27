@@ -6,9 +6,7 @@ package x10.array.sharedmemory;
 import java.util.Iterator;
 
 import x10.array.GenericArray;
-import x10.array.MultiDimRegion;
 import x10.array.Operator;
-import x10.array.IntArray.Assign;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
@@ -211,7 +209,6 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
      * @see x10.lang.GenericArray#set(int, int[])
      */
     public Parameter1 set(Parameter1 v, point pos) {
-        distribution.checkAccess(pos);
         return (Parameter1) arr_.set(v, (int) distribution.region.ordinal(pos));
     }
     
@@ -244,7 +241,6 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
      * @see x10.lang.GenericArray#get(int[])
      */
     public Parameter1 get(point pos) {
-        distribution.checkAccess(pos);
         return (Parameter1)  arr_.get((int) distribution.region.ordinal(pos));
     }
     

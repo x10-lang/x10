@@ -8,7 +8,6 @@ import java.util.Iterator;
 
 
 import x10.array.CharArray;
-import x10.array.MultiDimRegion;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
@@ -229,7 +228,6 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
      * @see x10.lang.CharArray#set(int, int[])
      */
     public char set(char v, point pos) {
-        distribution.checkAccess(pos);
         return arr_.setChar(v, (int) distribution.region.ordinal(pos));
     }
     
@@ -261,7 +259,6 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
      * @see x10.lang.CharArray#get(int[])
      */
     public char get(point pos) {
-        distribution.checkAccess(pos);
         return arr_.getChar((int) distribution.region.ordinal(pos));
     }
     

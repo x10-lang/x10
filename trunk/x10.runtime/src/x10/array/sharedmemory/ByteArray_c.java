@@ -8,7 +8,6 @@ import java.util.Iterator;
 
 
 import x10.array.ByteArray;
-import x10.array.MultiDimRegion;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
@@ -229,7 +228,6 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
      * @see x10.lang.ByteArray#set(int, int[])
      */
     public byte set(byte v, point pos) {
-        distribution.checkAccess(pos);
         return arr_.setByte(v, (int) distribution.region.ordinal(pos));
     }
     
@@ -262,7 +260,6 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
      * @see x10.lang.ByteArray#get(int[])
      */
     public byte get(point pos) {
-        distribution.checkAccess(pos);
         return arr_.getByte((int) distribution.region.ordinal(pos));
     }
     
