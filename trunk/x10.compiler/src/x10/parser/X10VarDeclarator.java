@@ -42,8 +42,8 @@ public class X10VarDeclarator extends VarDeclarator {
 	}
 	public void setFlag(Flags flags) {
 		String start = name.substring(0,1);
-		boolean capitalized = start.equals(start.toUpperCase()); 
-		this.flags = (capitalized || hasExplodedVars()) ? flags.set(Flags.FINAL) : flags;
+		boolean allCapitals = name.equals(name.toUpperCase()); 
+		this.flags = (allCapitals || hasExplodedVars()) ? flags.set(Flags.FINAL) : flags;
 	}
 	public boolean hasExplodedVars() {
 	 return paramList != null;
@@ -58,8 +58,8 @@ public class X10VarDeclarator extends VarDeclarator {
 	 */
 	protected LocalDecl makeLocalDecl( TypeNode type, String name, Expr init ) {
 		String start = name.substring(0,1);
-		boolean capitalized = start.equals(start.toUpperCase());
-		Flags f = (capitalized ? flags.set(Flags.FINAL) : flags);
+		boolean allCapitals = name.equals(name.toUpperCase());
+		Flags f = (allCapitals ? flags.set(Flags.FINAL) : flags);
 		return nf.LocalDecl(pos, f, nf.array(type, pos, dims), name, init);
 	}
 	/** Given the flags for this variable declaration, return the initialization 
