@@ -115,6 +115,13 @@ public final class Configuration {
      * See x10.runtime.Clock.
      */
     public static int CLOCK_REPORT_LEVEL = 0;
+
+    /**
+     * It true, identifiers that begin with an upper-case letter
+     * are automatically declared final. 
+     */
+    public static boolean UPPERCASE_IMPLIES_FINAL = false;
+
     private static boolean done_;
     /**
      * Parses the command line.  This allows the user to specify 
