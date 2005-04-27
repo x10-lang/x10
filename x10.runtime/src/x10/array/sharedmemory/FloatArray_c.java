@@ -8,7 +8,6 @@ import java.util.Iterator;
 
 
 import x10.array.FloatArray;
-import x10.array.MultiDimRegion;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
@@ -229,7 +228,6 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
      * @see x10.lang.FloatArray#set(int, int[])
      */
     public float set(float v, point pos) {
-        distribution.checkAccess(pos);
         return arr_.setFloat(v, (int) distribution.region.ordinal(pos));
     }
     
@@ -263,7 +261,6 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
      * @see x10.lang.FloatArray#get(int[])
      */
     public float get(point pos) {
-        distribution.checkAccess(pos);
         return arr_.getFloat((int) distribution.region.ordinal(pos));
     }
     

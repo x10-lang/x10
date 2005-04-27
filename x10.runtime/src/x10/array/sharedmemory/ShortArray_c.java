@@ -4,10 +4,6 @@
 package x10.array.sharedmemory;
 
 import java.util.Iterator;
-
-
-
-import x10.array.MultiDimRegion;
 import x10.array.ShortArray;
 import x10.array.Operator;
 import x10.base.Allocator;
@@ -231,7 +227,6 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
      * @see x10.lang.ShortArray#set(int, int[])
      */
     public short set(short v, point pos) {
-        distribution.checkAccess(pos);
         return arr_.setShort(v, (int) distribution.region.ordinal(pos));
     }
     public short setOrdinal(short v, int rawIndex) {
@@ -262,7 +257,6 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
      * @see x10.lang.ShortArray#get(int[])
      */
     public short get(point pos) {
-        distribution.checkAccess(pos);
         return arr_.getShort((int) distribution.region.ordinal(pos));
     }
     public short getOrdinal(int rawIndex) {

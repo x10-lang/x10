@@ -80,7 +80,7 @@ public final class Configuration {
     
     public static int NUMBER_OF_LOCAL_PLACES = 4;
     
-    public static boolean BAD_PLACE_RUNTIME_CHECK = true;
+    public static boolean BAD_PLACE_RUNTIME_CHECK = false;
     
     /**
      * How often should the sampling instrumentations be run?
