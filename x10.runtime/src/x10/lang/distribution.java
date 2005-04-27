@@ -163,12 +163,12 @@ implements Indexable {
 	
     /**
      * This method is necessary because the compiler does not implement 
-     * the automatic conversions of distributions / regions to place and hence 
-     * a distribution is passed to the runtime where actually a place 
-     * is expected.
+     * the automatic conversions of distributions to regions is necessary 
+     * and hence a distribution is passed to the runtime where actually a  
+     * region is expected.
      * */
     public distribution restriction(distribution P) {
-        return restriction(P);
+        return restriction(P.region);
     }
     
 	/** Returns the distribution obtained by range-restricting this to Ps.
