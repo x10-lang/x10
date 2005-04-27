@@ -1,12 +1,13 @@
-import x10.lang.*;
 import java.util.Random;
 /**
  * Array bounds test - 1D
  *
- * randomly generate 1D arrays and indices,
+ * Randomly generate 1D arrays and indices.
  *
- * see if the array index out of bounds exception occurs 
- * in the right  conditions
+ * See if the array index out of bounds exception occurs 
+ * in the right  conditions.
+ *
+ * @author kemal 1/2005
  *
  */
 
@@ -86,10 +87,10 @@ private int ranInt(int lb,int ub) {
 }
 
 public static void main(String args[]) {
-	boolean b=true;
+	boolean b=false;
 	try {
 		b= (new ArrayBounds1D()).run();
-	} catch (Error e) {
+	} catch (Throwable e) {
 		e.printStackTrace();
 		b= false;
 	}
