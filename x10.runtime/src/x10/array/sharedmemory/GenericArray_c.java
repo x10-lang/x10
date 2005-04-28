@@ -86,8 +86,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     	int count =  d.region.size();
         this.safe_ = safe;
         this.arr_ = Allocator.allocSafe(count, Parameter1.class);
-    	scan(this, new Assign(c));
-    	
+        scan(this, new Assign(c));
     }
     public GenericArray_c( distribution d, GenericArray.pointwiseOp f) {
         this(d, f, true);
@@ -102,7 +101,8 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     	int count =  d.region.size();
         this.arr_ = Allocator.allocSafe(count, Parameter1.class);
     	this.safe_ = safe;
-        scan(this, f);
+        if (f != null)
+            scan(this, f);
     }
     
     private GenericArray_c( distribution d, Parameter1[] a, boolean safe, boolean mutable) {

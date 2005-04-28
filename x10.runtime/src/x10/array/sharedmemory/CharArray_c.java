@@ -90,7 +90,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
         } else {
             this.arr_ =Allocator.allocSafe(count, Character.TYPE);
         }
-    	scan(this, new Assign(c));
+        scan(this, new Assign(c));
     	
     }
     public CharArray_c( distribution d, CharArray.pointwiseOp f) {
@@ -113,7 +113,8 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
         } else {
             this.arr_ =Allocator.allocSafe(count, Character.TYPE);
         }
-        scan(this, f);
+        if (f != null)
+            scan(this, f);
     }
     
     private CharArray_c( distribution d, char[] a, boolean safe, boolean mutable) {

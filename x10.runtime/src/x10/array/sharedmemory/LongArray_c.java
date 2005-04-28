@@ -110,7 +110,8 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         } else {
             this.arr_ =Allocator.allocSafe(count, Long.TYPE);
         }
-        scan(this, f);
+        if (f != null)
+            scan(this, f);
     }
     
     private LongArray_c( distribution d, long[] a) {

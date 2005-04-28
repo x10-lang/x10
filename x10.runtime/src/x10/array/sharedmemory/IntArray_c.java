@@ -84,9 +84,11 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public IntArray_c( distribution d, IntArray.pointwiseOp f){
 	this(d, f, true, true);
     }
+    
     public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean mutable ){
     	this(d, f, true, mutable);
-        }
+    }
+    
     public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
@@ -101,9 +103,10 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         } else {
             this.arr_ =Allocator.allocSafe(count, Integer.TYPE);
         }
-    	scan(this, f);
-    	
+    	if (f != null)
+    	    scan(this, f);
     }
+    
     private IntArray_c( distribution d, int[] a, boolean safe, boolean mutable ) {
     	super(d);
         this.mutable_ = mutable;

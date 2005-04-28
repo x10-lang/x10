@@ -114,7 +114,8 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
         } else {
             this.arr_ =Allocator.allocSafe(count, Boolean.TYPE);
         }
-        scan(this, f);
+        if (f != null)
+            scan(this, f);
     }
     
     private BooleanArray_c( distribution d, boolean[] a, boolean safe, boolean mutable) {

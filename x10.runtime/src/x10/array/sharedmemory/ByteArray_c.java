@@ -90,7 +90,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
         } else {
             this.arr_ =Allocator.allocSafe(count, Byte.TYPE);
         }
-    	scan(this, new Assign(c));
+        scan(this, new Assign(c));
     	
     }
     public ByteArray_c( distribution d, ByteArray.pointwiseOp f) {
@@ -113,7 +113,8 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
         } else {
             this.arr_ =Allocator.allocSafe(count, Byte.TYPE);
         }
-        scan(this, f);
+        if (f != null)
+            scan(this, f);
     }
     
     private ByteArray_c( distribution d, byte[] a, boolean safe, boolean mutable) {

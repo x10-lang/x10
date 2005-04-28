@@ -87,7 +87,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         } else {
             this.arr_ =Allocator.allocSafe(count, Double.TYPE);
         }
-    	scan(this, new Assign(c));
+        scan(this, new Assign(c));
     	
     }
     public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f) {
@@ -110,7 +110,8 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         } else {
             this.arr_ =Allocator.allocSafe(count, Double.TYPE);
         }
-        scan(this, f);
+        if (f != null)
+            scan(this, f);
     }
     
     private DoubleArray_c( distribution d, double[] a, boolean safe, boolean mutable) {
