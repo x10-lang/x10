@@ -223,29 +223,31 @@ public final class Sampling extends Thread {
     /**
 	 * Sample output from Sampling.toString() at the end of the execution of a
 	 * single-threaded program: 
-	 * 		localActivityStart = [1, 0, 0, 0]
-	 * 		remoteActivityStart = [0, 0, 0, 0] 
-	 * 		activityStart = [1, 0, 0, 0]
-	 * 		activityEnd = [0, 0, 0, 0] 
-	 * 		atomicEntry = [0, 0, 0, 0] 
-	 * 		atomicExit = [0, 0, 0, 0] 
-	 * 		blockEntry = [1, 0, 0, 0] 
-	 * 		blockExit = [1, 0, 0, 0]
 	 * 
-	 * These events arise from X10 initialization and should be subtracted when looking at application-level statistics
+	 * activityStart[0:MAX_PLACES-1] = [1, 0, 0, 0]
+	 * localActivityStart[0:MAX_PLACES-1] = [1, 0, 0, 0]
+	 * remoteActivityStart[0:MAX_PLACES-1] = [0, 0, 0, 0]
+	 * atomicEntry[0:MAX_PLACES-1] = [0, 0, 0, 0] 
+	 * blockEntry[0:MAX_PLACES-1] = [1, 0, 0, 0] 
+	 * 
+	 * These events arise from X10 initialization and should be
+	 * subtracted when looking at application-level statistics
 	 */
 
-    public String toString() {
-    	return 
-			"localActivityStart = " + intArrayToString(localActivityStart) + 
-    		"remoteActivityStart = " + intArrayToString(remoteActivityStart) +
-			"activityStart = " + intArrayToString(activityStart) +
-			"activityEnd = " + intArrayToString(activityEnd) +
-			"atomicEntry = " + intArrayToString(atomicEntry) +
-			"atomicExit = " + intArrayToString(atomicExit) +
-			"blockEntry = " + intArrayToString(blockEntry) +
-			"blockExit = " + intArrayToString(blockExit);
-    }
+	public String toString() {
+		return 
+		"\n**** START OF X10 EXECUTION STATISTICS ****\n"
+		+ "activityStart[0:MAX_PLACES-1] = " + intArrayToString(activityStart)
+		+ "localActivityStart[0:MAX_PLACES-1] = " + intArrayToString(localActivityStart)
+		+ "remoteActivityStart[0:MAX_PLACES-1] = " + intArrayToString(remoteActivityStart)
+		// + "activityEnd = " + intArrayToString(activityEnd) +
+		+ "atomicEntry[0:MAX_PLACES-1] = " + intArrayToString(atomicEntry)
+		// + "atomicExit = " + intArrayToString(atomicExit)
+		// + "blockEntry[0:MAX_PLACES-1] = " + intArrayToString(blockEntry) 
+		// + "blockExit = " + intArrayToString(blockExit)
+		+ "**** END OF X10 EXECUTION STATISTICS ****\n"
+		;
+	}
 
     public void signalEvent(int event_id) {
         signalEvent(null, 
