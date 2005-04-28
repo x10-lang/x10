@@ -5,7 +5,7 @@
  * 
  * disjoint union and overlay of arrays
  *
- * array scan and reduce. 
+ * array lift, scan and reduce. 
  *
  *
  */
@@ -32,6 +32,11 @@ public class ArrayAlgebra {
 		arrEq(ia1.scan(intArray.add,0),
 		      new int[D](point [i])
 		      {return (ia1|(0:i)).reduce(intArray.add,0);});
+		arrEq((D01 1).lift(intArray.add,(D01 -4)),
+		      (D01 -3)); 
+		// are we still supporting +,-,... on arrays?
+		arrEq((D01 1)+(D01 -4),
+		      (D01 -3)*(D01 1)); 
 		return true;
 	}
 
