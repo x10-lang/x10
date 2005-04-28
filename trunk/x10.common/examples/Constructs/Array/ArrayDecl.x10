@@ -34,7 +34,7 @@ public boolean run() {
 	for(point [i]:data1) chk(data1[i]==(double)i);
 
 	final String myStr="abcdefghijklmnop";
-	final char[.] data2 = new char value [[1:2,1:3]->here]
+	final char value [.] data2 = new char value [[1:2,1:3]->here]
 	   (point p[i,j]){return myStr.charAt(i*j);};
 	chk(data2.distribution.equals([1:2,1:3]->here));
 	for(point [i,j]:data2) chk(data2[i,j]==myStr.charAt(i*j));
