@@ -58,7 +58,7 @@ public boolean run() {
 	chk(result1.distribution.equals(E));
 	finish ateach(point [i,j]:E) chk(result1[i,j]==(short)(i+j));
 
-	final complex[.] result2 = new complex[N->here]
+	final complex[.] result2 = new complex[[0:N-1]->here]
 	    (point [i]) {return new complex(i*N,-i);};
 	chk(result2.distribution.equals([0:N-1]->here));
 	finish ateach(point [i]:result2) chk(result2[i]==new complex(i*N,-i));
