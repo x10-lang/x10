@@ -26,9 +26,6 @@ public interface ArrayConstructor extends Expr {
 	ArrayConstructor distribution( Expr e);
 	ArrayConstructor initializer( Expr e);
 	boolean hasLocal1DimDistribution();
-	boolean isIntArray();
-	boolean isDoubleArray();
-	boolean isLongArray();
     boolean isSafe();
     boolean isValue();
 	//TODO: vj Determine if this needs a CodeInstance as well.
