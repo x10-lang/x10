@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Expr;
-import polyglot.ext.jl.types.ArrayType_c;
 import polyglot.ext.jl.types.TypeSystem_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.frontend.Source;
@@ -182,28 +181,28 @@ implements X10TypeSystem {
 	protected ClassType booleanArrayPointwiseOpType_;
     public ClassType BooleanArrayPointwiseOp() {
         if ( booleanArrayPointwiseOpType_ == null)
-            booleanArrayPointwiseOpType_ = load("x10.lang.longArray$pointwiseOp"); // java file
+            booleanArrayPointwiseOpType_ = load("x10.lang.booleanArray$pointwiseOp"); // java file
         return booleanArrayPointwiseOpType_;
     }
     
     protected ClassType charArrayPointwiseOpType_;
     public ClassType CharArrayPointwiseOp() {
         if ( charArrayPointwiseOpType_ == null)
-            charArrayPointwiseOpType_ = load("x10.lang.longArray$pointwiseOp"); // java file
+            charArrayPointwiseOpType_ = load("x10.lang.charArray$pointwiseOp"); // java file
         return charArrayPointwiseOpType_;
     }
     
     protected ClassType byteArrayPointwiseOpType_;
     public ClassType ByteArrayPointwiseOp() {
         if ( byteArrayPointwiseOpType_ == null)
-            byteArrayPointwiseOpType_ = load("x10.lang.longArray$pointwiseOp"); // java file
+            byteArrayPointwiseOpType_ = load("x10.lang.byteArray$pointwiseOp"); // java file
         return byteArrayPointwiseOpType_;
     }
     
     protected ClassType shortArrayPointwiseOpType_;
     public ClassType ShortArrayPointwiseOp() {
         if ( shortArrayPointwiseOpType_ == null)
-            shortArrayPointwiseOpType_ = load("x10.lang.longArray$pointwiseOp"); // java file
+            shortArrayPointwiseOpType_ = load("x10.lang.shortArray$pointwiseOp"); // java file
         return shortArrayPointwiseOpType_;
     }
     

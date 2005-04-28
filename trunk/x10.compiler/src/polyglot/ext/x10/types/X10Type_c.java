@@ -5,7 +5,6 @@
 package polyglot.ext.x10.types;
 
 import polyglot.ext.jl.types.Type_c;
-import polyglot.types.Resolver;
 import polyglot.types.Type;
 import polyglot.main.Report;
 
