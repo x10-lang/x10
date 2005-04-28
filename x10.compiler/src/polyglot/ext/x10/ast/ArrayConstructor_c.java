@@ -222,9 +222,9 @@ implements ArrayConstructor {
                     throw new SemanticException("Array initializer must be of type x10.lang.byteArray.pointwiseOp" 
                             + position());
             } else if ( newBaseType.isChar()) {
-                if (! ts.isImplicitCastValid(initType, ts.CharArrayPointwiseOp()))
+                if (! ts.isImplicitCastValid(initType, ts.CharArrayPointwiseOp())) {
                     throw new SemanticException("Array initializer must be of type x10.lang.charArray.pointwiseOp" 
-                            + position());
+                            + position()); }
             } else if ( newBaseType.isShort()) {
                 if (! ts.isImplicitCastValid(initType, ts.ShortArrayPointwiseOp()))
                     throw new SemanticException("Array initializer must be of type x10.lang.shortArray.pointwiseOp" 
