@@ -10,23 +10,24 @@ const int N=24;
 
 public boolean run() {
 		
-	final int[.] ia0 = new int[N];
-	chk(ia0.distribution.equals([0:N-1]->here));
-	chk(ia0.distribution.equals((0:N-1)->here));
+	final int[.] ia0 = new int[[0:N-1]->here];
+	final place p = here;
+	chk(ia0.distribution.equals([0:N-1]->p));
+	chk(ia0.distribution.equals((0:N-1)->p));
 	finish ateach(point [i]:ia0) chk(ia0[i]==0); 
 
-	final int value[.] v_ia2 = new int value[N->here]
+	final int value[.] v_ia2 = new int value[[0:N-1]->here]
 	      (point [i]){return i;};
 	chk(v_ia2.distribution.equals([0:N-1]->here));
 	for(point [i]:v_ia2) chk(v_ia2[i]==i); 
-
-	final byte[.] ia2 = new byte[N->(here.prev().prev())];
-	chk(ia2.distribution.equals([0:N-1]->here.prev().prev()));
+   
+	final byte[.] ia2 = new byte[[0:N-1]->(here)];
+	chk(ia2.distribution.equals([0:N-1]->p.prev().prev()));
 	finish ateach(point [i]:ia2) chk(ia2[i]==(byte)0);
 
 	//Examples similar to section 10.3 of X10 reference manual
 
-	final double[.] data1 = new double[17->here] 
+	final double[.] data1 = new double[[0:16]->here] 
 	  new doubleArray.pointwiseOp()
 	    {public double apply(point p[i]){return (double)i;}};
 	chk(data1.distribution.equals([0:16]->here));
