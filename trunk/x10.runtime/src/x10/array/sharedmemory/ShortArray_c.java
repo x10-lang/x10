@@ -110,7 +110,8 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
         } else {
             this.arr_ =Allocator.allocSafe(count, Short.TYPE);
         }
-        scan(this, f);
+        if (f != null)
+            scan(this, f);
     }
     
     private ShortArray_c( distribution d, short[] a, boolean safe, boolean mutable) {

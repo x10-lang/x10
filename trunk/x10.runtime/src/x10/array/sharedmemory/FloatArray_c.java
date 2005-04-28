@@ -90,7 +90,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
         } else {
             this.arr_ =Allocator.allocSafe(count, Float.TYPE);
         }
-    	scan(this, new Assign(c));
+        scan(this, new Assign(c));
     	
     }
     public FloatArray_c( distribution d, FloatArray.pointwiseOp f) {
@@ -113,7 +113,8 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
         } else {
             this.arr_ =Allocator.allocSafe(count, Float.TYPE);
         }
-        scan(this, f);
+        if (f != null)
+            scan(this, f);
     }
     
     private FloatArray_c( distribution d, float[] a, boolean safe, boolean mutable) {
