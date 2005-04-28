@@ -1,1 +1,1 @@
-new x10.array.sharedmemory.ShortArray_c(#0,(short)#1,#2, (! #3))
+new x10.array.sharedmemory.ShortArray_c(#0,#1,#2, (! #3))
