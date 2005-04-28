@@ -52,13 +52,19 @@ public boolean run() {
 	finish ateach(point [i]:d) chk(d[i]==(float)(10.0*i));
 
 	final distribution E=distribution.factory.random([1:7,0:1]);
-	final short[E] result = new short[E]
+	final short[E] result1 = new short[E]
 	    (point [i,j]) {return (short)(i+j);};
-	chk(result.distribution.equals(E));
-	finish ateach(point [i,j]:E) chk(result[i,j]==(short)(i+j));
+	chk(result1.distribution.equals(E));
+	finish ateach(point [i,j]:E) chk(result1[i,j]==(short)(i+j));
+
+	final complex[.] result2 = new complex[N->here]
+	    (point [i]) {return new complex(i*N,-i);};
+	chk(result2.distribution.equals([0:N-1]->here));
+	finish ateach(point [i]:result2) chk(result2[i]==new complex(i*N,-i));
 
 	return true;
 }
+
 
  	/**
 	 * Throw an error if b is false
@@ -83,4 +89,13 @@ public boolean run() {
 		System.exit(b?0:1);
 	}
 
+}
+
+final value  complex {
+    int re;
+    int im;
+    public complex(int re, int im) {
+        this.re=re;
+        this.im=im;
+    }
 }
