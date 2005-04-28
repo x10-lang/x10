@@ -139,15 +139,7 @@ implements ArrayConstructor {
 		return n;
 		
 	}
-	public boolean isIntArray() {
-		return base.type().isInt();
-	}
-	public boolean isDoubleArray() {
-		return base.type().isDouble();
-	}
-	public boolean isLongArray() {
-		return base.type().isLong();
-	}
+    
 	public boolean hasInitializer() {
 		return initializer != null && initializer instanceof ArrayInit;
 	}
