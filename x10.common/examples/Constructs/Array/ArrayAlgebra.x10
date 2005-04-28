@@ -12,31 +12,34 @@
 public class ArrayAlgebra {
 
 	const int N=24;
-
+     int[.] makeArray(distribution D, final int k)  {
+     	return new int[D] (point p) { return k;};
+     }
 	public boolean run() {
 		
-		final distribution D=distribution.factory.blockcyclic([0:N-1],2);
+		final distribution D=distribution.factory.blockCyclic([0:N-1],2);
 		final distribution D01=D|[0:N/2-1];
-		final distribution D23=D|[N/2:N-1];
+		final distribution D23=D|[(N/2):N-1];
 		final distribution D0=D|[0:N/4-1];
-		final distribution D1=D|[N/4:N/2-1];
-		final distribution D2=D|[N/2:3*N/4-1];
-		final distribution D3=D|[3*N/4:N-1];
-		int[.] ia1=
-		 (D -99).overlay((D01 -1)||(D23 -2)).overlay(D3 3).overlay(D0 9);
-		arrEq(ia1|D0,(D0 9));
-		arrEq(ia1|D1,(D1 -1));
-		arrEq(ia1|D2,(D2 -2));
-		arrEq(ia1|D3,(D3 3));
+		final distribution D1=D|[(N/4):N/2-1];
+		final distribution D2=D|[(N/2):3*N/4-1];
+		final distribution D3=D|[(3*N/4):N-1];
+		final int[.] ia1=
+		 makeArray(D, -99).overlay((makeArray(D01, -1) || makeArray(D23, -2))
+		 		.overlay(makeArray(D3, 3)).overlay(makeArray(D0, 9)));
+		arrEq(ia1|D0, makeArray(D0, 9));
+		arrEq(ia1|D1, makeArray(D1, -1));
+		arrEq(ia1|D2, makeArray(D2, -2));
+		arrEq(ia1|D3, makeArray(D3, 3));
 		chk(ia1.sum()==9*N/4);
 		arrEq(ia1.scan(intArray.add,0),
 		      new int[D](point [i])
 		      {return (ia1|(0:i)).reduce(intArray.add,0);});
-		arrEq((D01 1).lift(intArray.add,(D01 -4)),
-		      (D01 -3)); 
+		arrEq(makeArray(D01, 1).lift(intArray.add,makeArray(D01, -4)),
+		      makeArray(D01, -3)); 
 		// are we still supporting +,-,... on arrays?
-		arrEq((D01 1)+(D01 -4),
-		      (D01 -3)*(D01 1)); 
+		arrEq(makeArray(D01, 1)+ makeArray(D01, -4),
+		      makeArray(D01, -3)* makeArray(D01, 1)); 
 		return true;
 	}
 
