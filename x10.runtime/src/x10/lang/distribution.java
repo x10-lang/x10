@@ -249,4 +249,29 @@ public
 	public distribution toDistribution() {
 		return this;
 	}
+	
+	
+	/**
+	 * 
+	 * @return fraction of "non-idle slots" if we view this distribution as a load distribution
+	 */
+	public float distributionEfficiency() {
+		int maxPoints;
+		// 1) Compute number of points per place, and total number of points
+		int totalPoints = 0;
+		int pointCount[] = new int[place.MAX_PLACES];
+		for (Iterator it = iterator(); it.hasNext(); ) {
+            point p = (point) it.next();
+			place pl = get(p);
+            pointCount[pl.id]++;
+			totalPoints++;
+        }
+		// 2) Compute max of pointCount array
+		maxPoints = pointCount[0];
+		for (int i = 1; i < pointCount.length; i++)
+			if (pointCount[i] > maxPoints)
+				maxPoints = pointCount[i];
+		// 3) Return fraction of "non-idle" slots
+		return (float) totalPoints / ((float) maxPoints * (float) pointCount.length);
+	}
 }
