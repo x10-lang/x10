@@ -255,7 +255,11 @@ public
 	 * 
 	 * @return fraction of "non-idle slots" if we view this distribution as a load distribution
 	 */
+	private float distributionEfficiency = -1;
 	public float distributionEfficiency() {
+		if (distributionEfficiency >= 0) {
+			return distributionEfficiency;
+		}
 		int maxPoints;
 		// 1) Compute number of points per place, and total number of points
 		int totalPoints = 0;
@@ -272,6 +276,7 @@ public
 			if (pointCount[i] > maxPoints)
 				maxPoints = pointCount[i];
 		// 3) Return fraction of "non-idle" slots
-		return (float) totalPoints / ((float) maxPoints * (float) pointCount.length);
+			distributionEfficiency = (float) totalPoints / ((float) maxPoints * (float) pointCount.length);
+		return distributionEfficiency;
 	}
 }
