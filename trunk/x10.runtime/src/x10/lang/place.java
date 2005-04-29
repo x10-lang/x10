@@ -68,7 +68,7 @@ public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ implements TypeArgume
 	 */
 	public place/*(id+1 % MAX_PLACES)*/ next()  { 
 		final place result = next(1);
-		assert result.id == ((id+1) % MAX_PLACES);
+		System.out.println("place:" + this + ".next()=" + result);
 		return result; 
 	}
 	
@@ -76,9 +76,7 @@ public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ implements TypeArgume
 	 * previous place for the first place is the last place. 
 	 */
 	public place/*(i-1 % MAX_PLACES)*/ prev()  { 
-		final place result = next( -1 );
-		assert result.id == (id-1 % MAX_PLACES);
-		return result; 
+		return next(-1); 
 	}
 	
 	
@@ -86,8 +84,9 @@ public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ implements TypeArgume
 	 * be negative.
 	 */
 	public place/*(i+k % MAX_PLACES)*/ next( final int k ) {
-		final place result = factory.place( (id + k) % MAX_PLACES);
-		assert result.id == ((id+k) % MAX_PLACES);
+		int index = ( id + k);
+		while (index < 0) { index += MAX_PLACES; }
+		final place result = factory.place( index % MAX_PLACES);
 		return result; 
 	}
 	
