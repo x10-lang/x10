@@ -191,10 +191,6 @@ public TestCompiler(String name) {
         run("./ArrayCopy2.x10","ArrayCopy2","./Constructs/Array");
     }
 
-    public void test_Constructs_Array_ArrayCopy2v() {
-        run("./ArrayCopy2v.x10","ArrayCopy2v","./Constructs/Array");
-    }
-
     public void test_Constructs_Array_ArrayCopy3() {
         run("./ArrayCopy3.x10","ArrayCopy3","./Constructs/Array");
     }
