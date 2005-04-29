@@ -21,8 +21,8 @@ public boolean run() {
 	chk(v_ia2.distribution.equals([0:N-1]->here));
 	for(point [i]:v_ia2) chk(v_ia2[i]==i); 
    
-	final byte[.] ia2 = new byte[[0:N-1]->(here)];
-	chk(ia2.distribution.equals([0:N-1]->p.prev().prev()));
+	final byte[.] ia2 = new byte[[0:N-1]->(here).prev().prev()];
+	chk(ia2.distribution.equals([0:N-1]->(here).prev().prev()));
 	finish ateach(point [i]:ia2) chk(ia2[i]==(byte)0);
 
 	//Examples similar to section 10.3 of X10 reference manual
