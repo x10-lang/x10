@@ -1,5 +1,3 @@
-import x10.lang.*;
-
 /**
  * Minimal test for atomic method qualifier.  
  */
@@ -16,17 +14,17 @@ public class AtomicMethodTest  {
 	}
 	
 	public boolean run() {
-		boolean b; // temp
-		async(here) body();
+		async(this) body();
 		for (long i=0;i<N*100;i++) {
+			boolean b; // temp
 			atomic{this.val = i;b=(endCount!=0);}
 			if (b) break;
 		}
-		// need a memory fence here
+		// assuming atomics follow program order
+		boolean b; // temp;
 		atomic{b=(startCount + N == endCount);}
 		return b;
 	}
-	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {

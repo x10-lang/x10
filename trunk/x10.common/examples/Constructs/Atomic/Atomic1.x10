@@ -1,21 +1,20 @@
-import x10.lang.*;
-
 /**
- * Testing atomic vs. non atomic updates.
- * The compiler should actually flag 
- * the non atomic update to the shared variable 
- * cnt_broken as an error.
+ * Some updates of cnt_broken may be lost, 
+ * since the read and write are not
+ * inside the same atomic section.
+ * 
+ * 
  */
-public class Atomic1 extends x10.lang.Object {
-	int cnt;
-	int cnt_broken;
-        static final int N=100;
+public class Atomic1 {
+	int cnt=0;
+	int cnt_broken=0;
+        const int N=100;
 	int threadRun() {
 		for (int i=0;i<N;++i) {
-			atomic {
-				++cnt;
-			}
-			++cnt_broken;
+			int t;
+			atomic t=cnt_broken;
+			atomic ++cnt;
+			atomic cnt_broken=t+1;
 		}
 		return 0;
 	}
@@ -27,7 +26,7 @@ public class Atomic1 extends x10.lang.Object {
 		future<int> e=future(this){threadRun()};
 		future<int> f=future(this){threadRun()};
 		future<int> g=future(this){threadRun()};
-		future<int> h=future{threadRun()}; // compiler should infer location as this.location
+		future<int> h=future(this){threadRun()};
 		int i=a.force();
 		int j=b.force();
 		int k=c.force();
@@ -36,12 +35,13 @@ public class Atomic1 extends x10.lang.Object {
 		int n=f.force();
 		int o=g.force();
 		int p=h.force();
-		int temp;
-		atomic{temp=cnt;}
-		System.out.println("Atomic1: "+ temp + " =?= " + cnt_broken);
-		return temp == 8*N;
+		int t1;
+		int t2;
+		atomic t1=cnt; 
+		atomic t2=cnt_broken;
+		System.out.println("Atomic1: "+ t1 + " =?= " + t2);
+		return t1 == 8*N && t1>=t2;
 	}
-	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
