@@ -10,7 +10,7 @@ public class Atomic2 {
 	int x=0;
 
 	public boolean run() {
-		finish async(this) {x++;}
+		finish async(this) atomic x++;
 		atomic chk(x==1);
 
 		boolean gotException=false;
