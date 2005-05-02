@@ -61,10 +61,21 @@ import x10.lang.*;
      	System.out.println(iters);
      	return Math.abs(err-EXPECTED_ERR)<epsilon2 && iters==EXPECTED_ITERS;
      }
-     public static void main(String args[]) {
-     	boolean b= (new JacobiExtern()).run();
-     	System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
-     	System.exit(b?0:1);
-     }
+     
+    public static void main(String[] args) {
+        final boxedBoolean b=new boxedBoolean();
+        try {
+                finish b.val=(new JacobiExtern()).run();
+        } catch (Throwable e) {
+                e.printStackTrace();
+                b.val=false;
+        }
+        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
+        x10.lang.Runtime.setExitCode(b.val?0:1);
+    }
+    static class boxedBoolean {
+        boolean val=false;
+    }
+
      
  }

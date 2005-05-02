@@ -181,11 +181,22 @@ public class RandomAccess_long {
     return sum==EXPECTED_RESULT;
   }
 
-  public static void main(String args[]) {
-      boolean b= (new RandomAccess_long()).run();
-      System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
-      System.exit(b?0:1);
-  }
+  
+    public static void main(String[] args) {
+        final boxedBoolean b=new boxedBoolean();
+        try {
+                finish b.val=(new RandomAccess_long()).run();
+        } catch (Throwable e) {
+                e.printStackTrace();
+                b.val=false;
+        }
+        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
+        x10.lang.Runtime.setExitCode(b.val?0:1);
+    }
+    static class boxedBoolean {
+        boolean val=false;
+    }
+
   void msg(int i, int j) {
   	System.out.println("Place "+i+" updating table index "+j+" in place "+tableDist[j].id);
   }
