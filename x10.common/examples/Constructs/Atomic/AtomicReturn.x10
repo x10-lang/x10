@@ -1,5 +1,6 @@
-import x10.lang.*;
-
+/**
+ * Atomic return test
+ */
 public class AtomicReturn  {
 	int a = 0;
 	static final int N=100;

@@ -1,5 +1,3 @@
-import x10.lang.*;
-
 /**
  * Minimal test for atomic.  If the atomic code is not executed atomically
  * the other activity can check that the value difference is not N.
@@ -14,7 +12,7 @@ public class AtomicTest  {
 	
 	public boolean run() {
 		boolean b; // temp
-		async(here) { atomic { startCount = this.val; for (int i=0;i<N;i++) this.val++; endCount = this.val; } }
+		async(this) { atomic { startCount = this.val; for (int i=0;i<N;i++) this.val++; endCount = this.val; } }
 		for (long i=0;i<N*100;i++) {
 			atomic{this.val = i;b=(endCount!=0);}
 			if (b) break;

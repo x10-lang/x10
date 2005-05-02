@@ -1,4 +1,3 @@
-
 /**
  * @author kemal 4/2005
  *
@@ -11,7 +10,7 @@ public class Atomic2 {
 	int x=0;
 
 	public boolean run() {
-		finish async(here) {x++;}
+		finish async(this) {x++;}
 		atomic chk(x==1);
 
 		boolean gotException=false;

@@ -1,5 +1,3 @@
-import x10.lang.*;
-
 /**
  * When test
  * Using producer-consumer paradigm
@@ -11,7 +9,7 @@ import x10.lang.*;
  */
 class T {
 	
-	static final int N=/*3*/2;
+	const int N=2;
 	
 	int val; //  the id of the item
 	
@@ -33,11 +31,11 @@ class T {
 
 public class ConditionalAtomicQueue {
 	
-	final private int siz=3/*10*/;
+	final private int siz=3;
 	private final T[] Q;      // The circular buffer
 	private int nelems; // number of items in buffer Q
 	private int tail; // next free slot to insert incoming items
-	// at tail of queue
+		          // at tail of queue
 	private int head; // pointer to item to remove from the front
 	
 	public ConditionalAtomicQueue() {
@@ -90,7 +88,7 @@ public class ConditionalAtomicQueue {
 		return nelems>=siz;
 	}
 
-	void chk(boolean b) {
+	static void chk(boolean b) {
 		if(!b) throw new Error();
 	}
 	
@@ -103,37 +101,35 @@ public class ConditionalAtomicQueue {
 		
 		finish {
 			// spawn producer activities on each place
-			async( here )
+			async( this )
 			ateach(point [i]:Dist.unique()) {
-				for(point [j]: 0:(N-1)) { 
+				for(point [j]: 0:N-1) { 
 					final T t= new T(i,j); // produce a T
-					async(this.location) {
+					async(this) {
 						when(!full()) {insert(t);} 
 					} 
 				}
 			}
 			// spawn a single consumer activity in place P0
-			async( here ) {
+			async( this ) {
 				for(point p: D2) {
-					T t;
+					nullable T t;
 					when(!empty()) { t=remove(); }
-					final T t1=t;
-					async(t1.location) {t1.consume();}// consume the T
-					final int m=future( t1.location ){t1.getval()}.force();
+					final T t1=(T)t;
+					async(t1) {t1.consume();}// consume the T
+					final int m=future(t1){t1.getval()}.force();
 					received[m]+=1;
-                    // remember how many times 
+					// remember how many times 
 					// we received this item
 				}
 			}
 		}
 		
 		// Ensure all messages were received exactly once
-		for(point p: D2) {
-			if (received[p]!=1) return false;
-		}
+		for(point p: D2) chk(received[p]==1);
 		
 		// Ensure the FIFO queue is empty now
-		if (!empty()) return false;
+		chk(empty());
 		
 		return true;
 	}

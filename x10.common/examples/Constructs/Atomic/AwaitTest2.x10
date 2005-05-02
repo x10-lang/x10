@@ -1,8 +1,5 @@
-import x10.lang.*;
-
 /**
  * Minimal test for await.
- * This may need memory fences with weak consistency model
  */
 
 public class AwaitTest2  {
