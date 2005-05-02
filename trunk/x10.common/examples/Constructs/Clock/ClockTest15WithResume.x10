@@ -124,20 +124,20 @@ public class ClockTest15WithResume
     }
   }
 
-  public static void main (String args[])
-  {
-    final BoxedBoolean b=new BoxedBoolean();
-    try { 
-	finish b.val= (new ClockTest15WithResume()).run();
-    } catch (Throwable e) {
-	e.printStackTrace();
-	b.val=false;
+  
+    public static void main(String[] args) {
+        final boxedBoolean b=new boxedBoolean();
+        try {
+                finish b.val=(new ClockTest15WithResume()).run();
+        } catch (Throwable e) {
+                e.printStackTrace();
+                b.val=false;
+        }
+        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
+        x10.lang.Runtime.setExitCode(b.val?0:1);
     }
-    System.out.println ("++++++ " + (b.val ? "Test succeeded." : "Test failed."));
-    System.exit (b.val ? 0 : 1);
-  }
-}
+    static class boxedBoolean {
+        boolean val=false;
+    }
 
-class BoxedBoolean {
-	public boolean val;
 }

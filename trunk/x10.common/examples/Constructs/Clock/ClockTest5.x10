@@ -78,17 +78,22 @@ public class ClockTest5 {
 		System.out.println("Actitivity "+a+" in phase "+ phase+" of clocks " + clocks);
 	}
 	
-	public static void main(String args[]) {
-	   final boxedBoolean bb=new boxedBoolean(false);
-	   try {
-		finish bb.val= (new ClockTest5()).run();
-           } catch (Throwable e) {
-		bb.val=false;
-		e.printStackTrace();
-	   }
-           System.out.println("++++++ "+(bb.val?"Test succeeded.":"Test failed."));
-           System.exit(bb.val?0:1);
-	}
+	
+    public static void main(String[] args) {
+        final boxedBoolean b=new boxedBoolean();
+        try {
+                finish b.val=(new ClockTest5()).run();
+        } catch (Throwable e) {
+                e.printStackTrace();
+                b.val=false;
+        }
+        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
+        x10.lang.Runtime.setExitCode(b.val?0:1);
+    }
+    static class boxedBoolean {
+        boolean val=false;
+    }
+
 
 }
 
