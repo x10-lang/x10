@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import x10.lang.Future;
+import x10.lang.Runtime;
 
 /**
  * A LocalPlace_c is an implementation of a place
@@ -148,96 +149,53 @@ public class LocalPlace_c extends Place {
      * Run the given activity asynchronously.
      */
     public void runAsync(final Activity a,
-    		final ActivityInformation ai) {
-    	final Activity i = aip_.getCurrentActivity();
-    	assert i != a;
-    	final StartSignal startSignal = new StartSignal();
-    	this.execute(new Runnable() {
-    		public void run() {
-    			PoolRunner t = (PoolRunner) Thread.currentThread();
-    			reg_.registerActivityStart(t, a, i);
-		    if (t.myClocks_ != null) {
-    			Iterator it = t.myClocks_.iterator();
-    			while (it.hasNext()) {
-    				Clock c = (Clock) it.next();                    
-    				c.register(i);
-    			}
-		    }  
-    			synchronized(startSignal) {
-    				startSignal.go = true;
-    				startSignal.notifyAll();
-    			}
-    			try {
-    				a.run();
-    			} catch (RuntimeException re) {
-    				reg_.registerActivityException(a,
-    						re);
-    			} catch (Error et) {
-    				reg_.registerActivityException(a,
-    						et);
-    			} 
-    		}
-    	}, a, ai);
-    	// we now need to wait at least (!) until the 
-    	// "reg_.registerActivityStart(...)" line has been
-    	// reached.  Hence we wait on the start signal.
-    	synchronized (startSignal) {
-    		try {
-    			while (! startSignal.go) {
-    				startSignal.wait();
-    			}
-    		} catch (InterruptedException ie) {
-    			throw new Error(ie); // should never happen!
-    		}
-    	}
-    }
-
-    /**
-     * Run the given activity asynchronously.  Return a handle that
-     * can be used to force the future result.
-     */
-    public Future runFuture(final Activity.Expr a,
-    		final ActivityInformation ai) {
-    	final Future_c result = new Future_c(a);
-    	final Activity i = aip_.getCurrentActivity();
-    	assert i != a;
-    	final StartSignal startSignal = new StartSignal();
-    	this.execute(new Runnable() {
-    		public void run() {
-    			PoolRunner t = (PoolRunner) Thread.currentThread();
-    			reg_.registerActivityStart(t, a, i);
-    			final x10.runtime.DefaultRuntime_c dr
-				= (x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime;
-    			dr.startFinish(a);
-    			Iterator it = t.myClocks_.iterator();
-    			while (it.hasNext()) {
-    				Clock c = (Clock) it.next();                    
-    				c.register(i);
-    			}
-    			
-    			synchronized(startSignal) {
-    				startSignal.go = true;
-    				startSignal.notifyAll();
-    			}
-    			try {
-    				a.run();
-    				result.setResult(a.getResult());
-    			} catch (Error e) {
-    				dr.registerActivityException(a, e);
-    			} catch (RuntimeException re) {
-    				dr.registerActivityException(a, re);
-    			} finally {
-    				java.lang.Throwable tr                     
-					= dr.getFinishExceptions(a);
-    				if (tr instanceof Error)
-    					result.setException((Error) tr);
-    				else if (tr instanceof RuntimeException)
-    					result.setException((RuntimeException) tr);
-    				else 
-    					assert tr == null;
-    			}
-    		}        
-    	}, a, ai);
+            final ActivityInformation ai) {
+        final Activity i = aip_.getCurrentActivity();
+        assert i != a;
+        final StartSignal startSignal = new StartSignal();
+        this.execute(new Runnable() {
+            public void run() {
+                PoolRunner t = (PoolRunner) Thread.currentThread();
+                reg_.registerActivityStart(t, a, i);
+                if (t.myClocks_ != null) {
+                    Iterator it = t.myClocks_.iterator();
+                    while (it.hasNext()) {
+                        Clock c = (Clock) it.next();                    
+                        c.register(i);
+                    }
+                }  
+                synchronized(startSignal) {
+                    startSignal.go = true;
+                    startSignal.notifyAll();
+                }
+                try {
+                    a.run();
+                    if (a instanceof Activity.Expr) {
+                        Activity.Expr aexpr = (Activity.Expr) a;
+                        aexpr.future.setResult(aexpr.getResult());
+                    }
+                } catch (RuntimeException re) {
+                    reg_.registerActivityException(a, re);
+                    if (a instanceof Activity.Expr) {
+                        Activity.Expr aexpr = (Activity.Expr) a;
+                        aexpr.future.setException(re);
+                    }
+                } catch (Error et) {
+                    reg_.registerActivityException(a, et);
+                    if (a instanceof Activity.Expr) {
+                        Activity.Expr aexpr = (Activity.Expr) a;
+                        aexpr.future.setException(et);
+                    }
+                } catch (Throwable th) {
+                    th.printStackTrace();
+                    System.err.println("LocalPlace_c::runAsync - unexpected exception " + th);
+                    if (a instanceof Activity.Expr) {
+                        Activity.Expr aexpr = (Activity.Expr) a;
+                        aexpr.future.setException(new RuntimeException(th));
+                    }
+                }
+            }
+        }, a, ai);
         // we now need to wait at least (!) until the 
         // "reg_.registerActivityStart(...)" line has been
         // reached.  Hence we wait on the start signal.
@@ -247,9 +205,21 @@ public class LocalPlace_c extends Place {
                     startSignal.wait();
                 }
             } catch (InterruptedException ie) {
+                System.err.println("LocalPlace_c::runAsync - unexpected exception " + ie);
                 throw new Error(ie); // should never happen!
             }
         }
+    }
+    
+    /**
+     * Run the given activity asynchronously.  Return a handle that
+     * can be used to force the future result.
+     */
+    public Future runFuture(final Activity.Expr a, ActivityInformation ai) {
+        ((x10.runtime.DefaultRuntime_c) Runtime.runtime).startFinish(a);
+        Future_c result = new Future_c(a);
+        a.future = result;
+        result.getClock().doNow(a);
         return result;
     }
 
@@ -283,7 +253,7 @@ public class LocalPlace_c extends Place {
      * 
      * @param r
      */
-    synchronized final void repool(PoolRunner r) {
+    private synchronized final void repool(PoolRunner r) {
         r.next = threadQueue_;
         threadQueue_ = r;
     }
@@ -292,7 +262,7 @@ public class LocalPlace_c extends Place {
      * Change the 'running' status of a thread.
      * @param delta +1 for thread starts to run (unblocked), -1 for thread is blocked
      */
-    synchronized void changeRunningStatus(int delta) {
+    private synchronized void changeRunningStatus(int delta) {
         if (runningThreads == 0) {
             assert delta > 0;
             this.blockedTime += systemNow() - startBlock;
@@ -347,6 +317,7 @@ public class LocalPlace_c extends Place {
         }
         
         public List getRegisteredClocks() {
+            assert myClocks_ != null;
             return myClocks_;
         }
     
@@ -356,7 +327,7 @@ public class LocalPlace_c extends Place {
          * still link (!) and compile under other VMs.  
          * @return 0 on error
          */
-        long getThreadRunTime() {
+        private long getThreadRunTime() {
             if (ac == null)
                 return 0;
             try {

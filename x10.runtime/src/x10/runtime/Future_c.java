@@ -12,13 +12,13 @@ import x10.lang.Object;
  * async call (force future).
  * 
  * @author Christian Grothoff
- * @author Christoph von PRaun
+ * @author Christoph von Praun
  */
 final class Future_c extends Future {
 
     private boolean haveResult_;
     
-    private final Activity waitFor_;     
+    private final Activity.Expr waitFor_;     
 
     /**
      * Set if the activity terminated with an exception.
@@ -29,8 +29,15 @@ final class Future_c extends Future {
     
     private Object result_;
     
-    Future_c(Activity wf) {
+    private final Clock clock_;
+    
+    Future_c(Activity.Expr wf) {
         this.waitFor_ = wf;
+        this.clock_ = (x10.runtime.Clock) x10.lang.Runtime.factory.getClockFactory().clock();
+    }
+    
+    Clock getClock() {
+        return clock_;
     }
     
     /**
@@ -76,17 +83,32 @@ final class Future_c extends Future {
      * @see x10.runtime.Activity.Result#force()
      */
     public synchronized Object force() {
-        LoadMonitored.blocked(Sampling.CAUSE_FORCE, 0, waitFor_);
         try {
             while (! haveResult_) {
                 try {
                     this.wait();
                 } catch (InterruptedException ie) {
+                    System.out.println("Future_c::force - unexpected exception e" + ie);
                     throw new Error(ie); // this should never happen...
                 }
             }
         } finally {
-            LoadMonitored.unblocked(Sampling.CAUSE_FORCE, 0, waitFor_);
+            try {
+                x10.lang.Runtime.doNext();
+                clock_.drop();
+            } catch (java.lang.RuntimeException re) {
+                ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(waitFor_, re);
+            } catch (java.lang.Error er) {
+                ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(waitFor_, er);
+            } catch (Throwable t) {
+                exception_ = t;
+            } finally {
+                if (exception_ == null) {
+                    java.lang.Throwable t = ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).getFinishExceptions(waitFor_);
+                    if (t != null)
+                        exception_ = t;
+                }
+            }
         }
         if (exception_ != null) {
             if (exception_ instanceof Error)
@@ -94,7 +116,7 @@ final class Future_c extends Future {
             if (exception_ instanceof RuntimeException)
                 throw (RuntimeException) exception_;
             assert false;
-        }
+        } 
         return result_;
     }
 }
