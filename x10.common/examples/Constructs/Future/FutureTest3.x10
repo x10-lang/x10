@@ -107,8 +107,8 @@ public class FutureTest3 {
 		} catch(Throwable e) {
 			gotException=true;
 		}
-		System.out.println("4");
-		chk(r4==2 && gotException);
+		System.out.println("4" + gotException + " r4=" + r4);
+		chk(r4==-1 && gotException);
 		// must read new values of A here
 		for(point [i]:A) System.out.println("A["+i+"]="+A[i]);
 		atomic chk(A[K]==3);
@@ -128,7 +128,7 @@ public class FutureTest3 {
 		} catch(Throwable e) {
 			gotException=true;
 		}
-		chk(r5==3 && gotException);
+		chk(r5==-1 && gotException);
 		// must read new values of A here
 		for(point [i]:A) System.out.println("A["+i+"]="+A[i]);
 		atomic chk(A[K]==4);
