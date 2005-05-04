@@ -94,7 +94,9 @@ final class Future_c extends Future {
             }
         } finally {
             try {
-                x10.lang.Runtime.doNext();
+                // x10.lang.Runtime.doNext(); // CVP that will make ClocktTest10 fail
+                clock_.resume();
+                clock_.doNext();
                 clock_.drop();
             } catch (java.lang.RuntimeException re) {
                 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(waitFor_, re);
