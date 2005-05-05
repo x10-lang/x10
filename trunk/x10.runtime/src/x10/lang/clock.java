@@ -54,6 +54,6 @@ abstract public class clock extends Object {
          * should not be visible for clients.  Clients should use
          * Runtime.doNext().  
 	 */
-	abstract protected void doNext();
+	abstract public void doNext();
 	
 }

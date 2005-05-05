@@ -33,7 +33,7 @@ final class Future_c extends Future {
     
     Future_c(Activity.Expr wf) {
         this.waitFor_ = wf;
-        this.clock_ = (x10.runtime.Clock) x10.lang.Runtime.factory.getClockFactory().clock();
+        this.clock_ = new Clock((ActivityInformationProvider) x10.lang.Runtime.runtime, this);
     }
     
     Clock getClock() {
