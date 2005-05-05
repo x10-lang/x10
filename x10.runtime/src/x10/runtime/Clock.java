@@ -167,15 +167,24 @@ public final class Clock extends clock {
 	 */
 	private int phase_;
 	
+    public final boolean clockUsedForFuture;
+    
 	/**
 	 * Create a new Clock.  Registers the current activity with
 	 * the clock as a side-effect (see X10 Report).
 	 */
-	protected Clock(ActivityInformationProvider aip) {
-		this(aip, "");
+	protected Clock(ActivityInformationProvider aip, Future_c f) {
+        this(aip, "", true);
+    }
+    protected Clock(ActivityInformationProvider aip) {
+		this(aip, "", false);
 	}
-	protected Clock(ActivityInformationProvider aip, String name) {
+    protected Clock(ActivityInformationProvider aip, String name) {
+        this(aip, "", false);
+    }
+	private Clock(ActivityInformationProvider aip, String name, boolean for_future) {
 		this.name_ = name;
+        clockUsedForFuture = for_future;
 		synchronized (getClass()) {
 			id_ = nextId_++;
 		}
@@ -405,7 +414,7 @@ public final class Clock extends clock {
 		}
 	}
 	
-	protected void doNext() {
+	public void doNext() {
 		Activity a = aip_.getCurrentActivity();
 		// do not acquire lock earlier - otherwise deadlock can happen
 		// because the lock used to protected aip_.getCurrentActivity

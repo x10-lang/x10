@@ -8,6 +8,7 @@ import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
+import x10.runtime.Clock;
 
 /**
  * This is the central entrypoint to the X10 Runtime for the
@@ -183,13 +184,15 @@ public abstract class Runtime {
         // Otherwise the lack of order may lead to a deadlock!
         Iterator it = clks.iterator();
         while (it.hasNext()) {
-            clock c = (clock) it.next();
-            c.resume();
+            Clock c = (Clock) it.next();
+            if (!c.clockUsedForFuture)
+                c.resume();
         }
         it = clks.iterator();
         while (it.hasNext()) {
-            clock c = (clock) it.next();
-            c.doNext();
+            Clock c = (Clock) it.next();
+            if (!c.clockUsedForFuture)
+                c.doNext();
         }
     }
     
