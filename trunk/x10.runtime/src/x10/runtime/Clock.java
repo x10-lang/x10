@@ -250,6 +250,11 @@ public final class Clock extends clock {
 		Runtime.here().runAsync(a, null); //vj Check: why null?
 	}
 	
+    public void doNowSameThread(Activity a) { 
+        a.run();
+        resume();
+    }
+    
 	private boolean quiescent( Activity a) {
 		return resumed_.contains(a) || nextResumed_.contains(a);
 		
