@@ -88,8 +88,8 @@ public final class Sampling extends Thread {
     public static final int EVENT_ID_ACTIVITY_BLOCK = X10.Event_ActivityBlock;  
     public static final int EVENT_ID_ACTIVITY_UNBLOCK = X10.Event_ActivityUnblock;
     // events that are not (yet) signaled explicitly
-    public static final int EVENT_ID_ATOMIC_ENTRY = -1;
-    public static final int EVENT_ID_ATOMIC_EXIT = -2;
+    public static final int EVENT_ID_ATOMIC_ENTRY = 1001;
+    public static final int EVENT_ID_ATOMIC_EXIT = 1002;
     
     public static final int SAMPLER_DATA  = X10.Sampler_Data;
 
@@ -242,7 +242,7 @@ public final class Sampling extends Thread {
 		+ "remoteActivityStart[0:MAX_PLACES-1] = " + intArrayToString(remoteActivityStart)
 		// + "activityEnd = " + intArrayToString(activityEnd) +
 		+ "atomicEntry[0:MAX_PLACES-1] = " + intArrayToString(atomicEntry)
-		// + "atomicExit = " + intArrayToString(atomicExit)
+		+ "atomicExit = " + intArrayToString(atomicExit)
 		// + "blockEntry[0:MAX_PLACES-1] = " + intArrayToString(blockEntry) 
 		// + "blockExit = " + intArrayToString(blockExit)
 		+ "**** END OF X10 EXECUTION STATISTICS ****\n"
@@ -398,6 +398,16 @@ public final class Sampling extends Thread {
                         dos.writeInt(0);
                     else
                         dos.writeInt(getActivityId(ia)); // causeInfo2
+                    break;
+                case EVENT_ID_ATOMIC_ENTRY:
+                    if (i != -1)
+                        atomicEntry[i]++;
+                    // no support to wrtite this event in the trace file yet
+                    break;
+                case EVENT_ID_ATOMIC_EXIT:
+                    if (i != -1)
+                        atomicExit[i]++;
+                    // no support to wrtite this event in the trace file yet
                     break;
             }        
         } catch (IOException io) {
