@@ -115,7 +115,7 @@ public final class Sampling extends Thread {
     
     private boolean shutdown;
 
-    private DataOutputStream dos;
+    private final DataOutputStream dos_;
 
     /**
      * Create the sampler.
@@ -124,26 +124,37 @@ public final class Sampling extends Thread {
         // avoid cyclic initialization dependency
         // DefaultRuntime_c rt = (DefaultRuntime_c) x10.lang.Runtime.runtime;
         this.places  = rt.getPlaces();
-        this.activityCounts = new int[places.length+1];
-        try {
-            dos = new DataOutputStream
-                (new FileOutputStream(Configuration.PE_FILE));
-            dos.writeByte(PEM.BIG_ENDIAN); 
-            dos.writeByte(0);
-            dos.writeByte(0);
-            dos.writeByte(0);
-            dos.writeInt(PEM.PEM_TRACE_VERSION); // version
-            dos.writeInt((8+8+8+8+8+8)/8); // size
-            dos.writeInt(0);
-            dos.writeLong(0x4000000000000000L); // 'infinity'
-            dos.writeLong(1); // ticks per second
-            dos.writeLong(0); // physical processor
-            dos.writeLong(System.currentTimeMillis()); // initial timestamp = system time
-        } catch (IOException io) {
-            System.err.println(io);
-            io.printStackTrace();
-            throw new Error(io);
-        }
+        this.activityCounts = new int[places.length + 1];
+        
+        // do not generate PE-file if PE-file == null, "", or there are more than 8 places.
+        if (Configuration.PE_FILE != null && Configuration.PE_FILE.length() > 0) {
+            if (places.length > 8) {
+                System.err.println("x10.runtime.Sampling: no PE-trace file support for more than 8 places.");
+                dos_ = null;
+            } else {
+                try {
+                    dos_ = new DataOutputStream
+                    (new FileOutputStream(Configuration.PE_FILE));
+                    dos_.writeByte(PEM.BIG_ENDIAN); 
+                    dos_.writeByte(0);
+                    dos_.writeByte(0);
+                    dos_.writeByte(0);
+                    dos_.writeInt(PEM.PEM_TRACE_VERSION); // version
+                    dos_.writeInt((8+8+8+8+8+8)/8); // size
+                    dos_.writeInt(0);
+                    dos_.writeLong(0x4000000000000000L); // 'infinity'
+                    dos_.writeLong(1); // ticks per second
+                    dos_.writeLong(0); // physical processor
+                    dos_.writeLong(System.currentTimeMillis()); // initial timestamp = system time
+                } catch (IOException io) {
+                    System.err.println(io);
+                    io.printStackTrace();
+                    throw new Error(io);
+                }
+            }
+        } else 
+           dos_ = null;
+        
         this.atomicEntry = new int[places.length];
         this.atomicExit = new int[places.length];
         this.blockEntry = new int[places.length];
@@ -242,7 +253,7 @@ public final class Sampling extends Thread {
 		+ "remoteActivityStart[0:MAX_PLACES-1] = " + intArrayToString(remoteActivityStart)
 		// + "activityEnd = " + intArrayToString(activityEnd) +
 		+ "atomicEntry[0:MAX_PLACES-1] = " + intArrayToString(atomicEntry)
-		+ "atomicExit = " + intArrayToString(atomicExit)
+		+ "atomicExit[0:MAX_PLACES-1] = " + intArrayToString(atomicExit)
 		// + "blockEntry[0:MAX_PLACES-1] = " + intArrayToString(blockEntry) 
 		// + "blockExit = " + intArrayToString(blockExit)
 		+ "**** END OF X10 EXECUTION STATISTICS ****\n"
@@ -291,17 +302,15 @@ public final class Sampling extends Thread {
     }
     
     private void writeHeader(int size, int type, int id) {
-        // System.err.println("WH(" + size + "," +  type + "," + id + ")");
-               
         if (size + 8 + 16 >= 8 * 8 * 8)
             throw new Error("XML Event too large, fix PE trace format!");
         assert ((size % 8) == 0); // alignment
         try {
-            dos.writeInt((int) System.currentTimeMillis());
+            dos_.writeInt((int) System.currentTimeMillis());
             int larg = (((size+8+16)/8) << 24) | (PEM.Layer.X10 << 20) | (type << 14)| id; 
-            dos.writeInt(larg);
-            dos.writeLong(System.currentTimeMillis());
-            dos.writeLong(LocalPlace_c.systemNow());
+            dos_.writeInt(larg);
+            dos_.writeLong(System.currentTimeMillis());
+            dos_.writeLong(LocalPlace_c.systemNow());
         } catch (IOException io) {
             throw new Error(io);
         }
@@ -322,9 +331,11 @@ public final class Sampling extends Thread {
             int j = srcPlace == null ? -1 : srcPlace.id;
             switch (event_id) {
                 case EVENT_ID_CLOCK_ADVANCE:
-                    writeHeader(8, EVENT, event_id);
-                    dos.writeInt(i);
-                    dos.writeInt(event_info); // == clockId
+                    if (dos_ != null) {
+                        writeHeader(8, EVENT, event_id);
+                        dos_.writeInt(i);
+                        dos_.writeInt(event_info); // == clockId
+                    }
                     break;
                 case EVENT_ID_ACTIVITY_START:                       
                     if (i != -1) {
@@ -333,81 +344,93 @@ public final class Sampling extends Thread {
                         if (i == j) localActivityStart[i]++;
                         else remoteActivityStart[i]++;
                     }
-                    writeHeader(4+4+4+4+4+4, EVENT, event_id);                   
-                    dos.writeInt(getActivityId(ia));
-                    dos.writeInt(j); // src place
-                    dos.writeInt(getActivityId(a));
-                    dos.writeInt(i); // dst place
-                    if (ia == a)
-                        throw new Error("Activities match!?");
-                    if ( (getActivityId(ia) == getActivityId(a)) && (i == j))
-                        throw new Error("Activity ids match!?: " + 
-                                   getActivityId(ia) + "==" + getActivityId(a));
-                    if (dstPlace != null) {
-                        //System.out.println("START LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
-                        dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
-                    } else
-                        dos.writeInt(-1);
-                    dos.writeInt(event_info);
+                    if (dos_ != null) {
+                        writeHeader(4+4+4+4+4+4, EVENT, event_id);                   
+                        
+                        dos_.writeInt(getActivityId(ia));
+                        dos_.writeInt(j); // src place
+                        dos_.writeInt(getActivityId(a));
+                        dos_.writeInt(i); // dst place
+                        if (ia == a)
+                            throw new Error("Activities match!?");
+                        if ( (getActivityId(ia) == getActivityId(a)) && (i == j))
+                            throw new Error("Activity ids match!?: " + 
+                                    getActivityId(ia) + "==" + getActivityId(a));
+                        if (dstPlace != null) {
+                            //System.out.println("START LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
+                            dos_.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                        } else
+                            dos_.writeInt(-1);
+                        dos_.writeInt(event_info);
+                    }
                     break;
                 case EVENT_ID_ACTIVITY_END:
                     if (i != -1)
                         activityEnd[i]++;
-                    writeHeader(4+4+4+4, EVENT, event_id);
-                    dos.writeInt(getActivityId(a)); 
-                    dos.writeInt(i); // dst place
-                    if (dstPlace != null) {
-                        //System.out.println("END LOAD("+dstPlace+"): " + (((LocalPlace_c)dstPlace).runningThreads-1));
-                        dos.writeInt(((LocalPlace_c)dstPlace).runningThreads-1);
-                    } else
-                        dos.writeInt(-1);
-                    dos.writeInt(event_info);
+                    if (dos_ != null) {
+                        writeHeader(4+4+4+4, EVENT, event_id);
+                        
+                        dos_.writeInt(getActivityId(a)); 
+                        dos_.writeInt(i); // dst place
+                        if (dstPlace != null) {
+                            //System.out.println("END LOAD("+dstPlace+"): " + (((LocalPlace_c)dstPlace).runningThreads-1));
+                            dos_.writeInt(((LocalPlace_c)dstPlace).runningThreads-1);
+                        } else
+                            dos_.writeInt(-1);
+                        dos_.writeInt(event_info);
+                    }
                     break;
                 case EVENT_ID_ACTIVITY_BLOCK:
                     if (i != -1)
                         blockEntry[i]++;
-                    writeHeader(4+4+4+4+4+4, EVENT, event_id);
-                    dos.writeInt(getActivityId(a));
-                    dos.writeInt(i); // dst place
-                    if (dstPlace != null) {
-                        //System.out.println("BLOCK LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
-                        dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
-                    } else
-                        dos.writeInt(-1);
-                    dos.writeInt(cause);
-                    dos.writeInt(causeInfo);
-                    if (ia == null)
-                        dos.writeInt(0);
-                    else
-                        dos.writeInt(getActivityId(ia)); // causeInfoExtra
+                    if (dos_ != null) {
+                        writeHeader(4+4+4+4+4+4, EVENT, event_id);
+                        
+                        dos_.writeInt(getActivityId(a));
+                        dos_.writeInt(i); // dst place
+                        if (dstPlace != null) {
+                            //System.out.println("BLOCK LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
+                            dos_.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                        } else
+                            dos_.writeInt(-1);
+                        dos_.writeInt(cause);
+                        dos_.writeInt(causeInfo);
+                        if (ia == null)
+                            dos_.writeInt(0);
+                        else
+                            dos_.writeInt(getActivityId(ia)); // causeInfoExtra
+                    }
                     break;
                 case EVENT_ID_ACTIVITY_UNBLOCK:
                     if (i != -1)
                         blockExit[i]++;
-                    writeHeader(4+4+4+4+4+4, EVENT, event_id);
-                    dos.writeInt(getActivityId(a));
-                    dos.writeInt(i); // dst place
-                    if (dstPlace != null) {
-                        //System.out.println("UNBLOCK LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
-                        dos.writeInt(((LocalPlace_c)dstPlace).runningThreads);
-                    } else
-                        dos.writeInt(-1);
-                    dos.writeInt(cause);
-                    dos.writeInt(causeInfo);
-                    if (ia == null)
-                        dos.writeInt(0);
-                    else
-                        dos.writeInt(getActivityId(ia)); // causeInfo2
+                    if (dos_ != null) {
+                        writeHeader(4+4+4+4+4+4, EVENT, event_id);
+                        
+                        dos_.writeInt(getActivityId(a));
+                        dos_.writeInt(i); // dst place
+                        if (dstPlace != null) {
+                            //System.out.println("UNBLOCK LOAD("+dstPlace+"): " + ((LocalPlace_c)dstPlace).runningThreads);
+                            dos_.writeInt(((LocalPlace_c)dstPlace).runningThreads);
+                        } else
+                            dos_.writeInt(-1);
+                        dos_.writeInt(cause);
+                        dos_.writeInt(causeInfo);
+                        if (ia == null)
+                            dos_.writeInt(0);
+                        else
+                            dos_.writeInt(getActivityId(ia)); // causeInfo2
+                    }
                     break;
                 case EVENT_ID_ATOMIC_ENTRY:
                     if (i != -1)
                         atomicEntry[i]++;
-                    // no support to wrtite this event in the trace file yet
+                    // no support to write this event in the trace file yet
                     break;
                 case EVENT_ID_ATOMIC_EXIT:
                     if (i != -1)
                         atomicExit[i]++;
-                    // no support to wrtite this event in the trace file yet
+                    // no support to write this event in the trace file yet
                     break;
             }        
         } catch (IOException io) {
@@ -455,54 +478,57 @@ public final class Sampling extends Thread {
             delta(blockExit, lastBlockExitCount);
 
             // generate event
-            try {
-                writeHeader(4+4 + places.length * 8 * 7, SAMPLER, SAMPLER_DATA);
-                dos.writeInt(places.length);
-                dos.writeInt((int)delta);
-                for (int i=0;i<places.length;i++)
-                    if (this.threadQueueSize != null)
-                        dos.writeInt(this.threadQueueSize[i]);
-                    else
-                        dos.writeInt(0);
-                for (int i=0;i<places.length;i++)
-                    if (this.loadSamples != null)
-                        dos.writeInt(this.loadSamples[i]);
-                    else
-                        dos.writeInt(0);
-                
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(this.atomicEntry[i]);
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(this.atomicExit[i]);
-
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(this.blockEntry[i]);
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(this.blockExit[i]);
-
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(this.activityStart[i]);
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(this.activityEnd[i]);
-                
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(lastAtomicEntryCount[i]);
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(lastAtomicExitCount[i]);
-
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(lastActivityStartCount[i]);
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(lastActivityEndCount[i]);
-
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(lastBlockEntryCount[i]);
-                for (int i=0;i<places.length;i++) 
-                    dos.writeInt(lastBlockExitCount[i]);
-
-            } catch (IOException io) {
-                throw new Error(io);
+            if (dos_ != null) {
+                try {
+                    writeHeader(4+4 + places.length * 8 * 7, SAMPLER, SAMPLER_DATA);
+                    dos_.writeInt(places.length);
+                    dos_.writeInt((int)delta);
+                    for (int i=0;i<places.length;i++)
+                        if (this.threadQueueSize != null)
+                            dos_.writeInt(this.threadQueueSize[i]);
+                        else
+                            dos_.writeInt(0);
+                    for (int i=0;i<places.length;i++)
+                        if (this.loadSamples != null)
+                            dos_.writeInt(this.loadSamples[i]);
+                        else
+                            dos_.writeInt(0);
+                    
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(this.atomicEntry[i]);
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(this.atomicExit[i]);
+                    
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(this.blockEntry[i]);
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(this.blockExit[i]);
+                    
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(this.activityStart[i]);
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(this.activityEnd[i]);
+                    
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(lastAtomicEntryCount[i]);
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(lastAtomicExitCount[i]);
+                    
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(lastActivityStartCount[i]);
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(lastActivityEndCount[i]);
+                    
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(lastBlockEntryCount[i]);
+                    for (int i=0;i<places.length;i++) 
+                        dos_.writeInt(lastBlockExitCount[i]);
+                    
+                } catch (IOException io) {
+                    throw new Error(io);
+                }
             }
+            
             // copy values for next round
             copy(atomicEntry, lastAtomicEntryCount);
             copy(atomicExit, lastAtomicExitCount);
@@ -513,8 +539,7 @@ public final class Sampling extends Thread {
 
             try {
                 this.wait(Configuration.SAMPLING_FREQUENCY_MS);
-            } catch (InterruptedException ie) {               
-            }
+            } catch (InterruptedException ie) { }              
         }
     }
 
