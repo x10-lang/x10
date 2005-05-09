@@ -9,7 +9,7 @@
   	 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).startFinish(act);
   	 try {
      	 final x10.runtime.Clock c = (x10.runtime.Clock) x10.lang.Runtime.factory.getClockFactory().clock();
-	     c.doNow(act); 
+	     c.doNowSameThread(act);
     	 x10.lang.Runtime.doNext();
      } catch (java.lang.RuntimeException re) {
 	  	 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(act, re);
