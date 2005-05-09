@@ -139,11 +139,32 @@ public abstract class Runtime {
     }
     
     /**
-     * Method used to do dynamic Nullcheck when nullable is casted away.
+     * Method used to do dynamic nullcheck when nullable is casted away.
      */
     public static java.lang.Object nullCheck(java.lang.Object o) {
         if (o == null)
             throw new NullPointerException("Cast of value 'null' to non-nullable type failed.");
+        return o;
+    }
+    
+    /**
+     * Method used to do dynamic nullcheck when nullable is casted away.
+     */
+    public static java.lang.Object placeCheck(java.lang.Object o, x10.lang.place p) {
+        java.lang.Object ret = null;
+        if (o == null)
+            throw new NullPointerException("Place-cast of value 'null' failed.");
+        
+        if (! (o instanceof x10.lang.Object)) 
+            throw new Error("Place-cast currently not available for object of type " + o.getClass().getName());
+        
+        x10.lang.Object xo = (x10.lang.Object) o;
+        if (xo.location.equals(p)) 
+            ret = o;
+        else {
+            // place cast failed
+            throw new BadPlaceException();
+        }
         return o;
     }
     
