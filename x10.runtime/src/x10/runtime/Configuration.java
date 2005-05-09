@@ -76,7 +76,7 @@ public final class Configuration {
      * File name for generating PE files.  Use null to not generate
      * PE traces.
      */
-    public static String PE_FILE = "x10.pem"; 
+    public static String PE_FILE = null; 
     
     public static int NUMBER_OF_LOCAL_PLACES = 4;
     
@@ -87,7 +87,7 @@ public final class Configuration {
      * How often should the sampling instrumentations be run?
      * Use -1 for no sampling.
      */
-    public static int SAMPLING_FREQUENCY_MS = 50;
+    public static int SAMPLING_FREQUENCY_MS = 0;
     
     /**
      * Should statistics be dumped on exit?
