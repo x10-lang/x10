@@ -211,8 +211,9 @@ public class DefaultRuntime_c
      * @param a the activity that died
      * @param i the Error or RuntimeException encountered
      */
-    public void registerActivityException(Activity a,
-                        Throwable t) {
+    public void registerActivityException(Activity a, Throwable t) {
+        if (a == null)
+            a = getCurrentActivity();
         Stack fini = a.finish_;
         if (fini != null)
             fini.push(t);
@@ -225,11 +226,11 @@ public class DefaultRuntime_c
      * simply installs a FinishASL activitySpawnListener on a.
      * @param a the activity of the finish (already started)
      */
-    public void startFinish(final Activity a) {
-        final Stack fini = new Stack();
-        a.finish_ = fini;
-        registerActivitySpawnListener(a,
-             new FinishASL(a, fini));
+    public void startFinish(Activity a) {
+        final Activity a_final = (a == null) ? getCurrentActivity() : a;
+        if (a_final.finish_ == null) 
+            a_final.finish_ = new Stack();
+        registerActivitySpawnListener(a_final, new FinishASL(a_final, a_final.finish_));
     }
     class FinishASL implements ActivitySpawnListener {
         private final Activity root;
@@ -257,6 +258,8 @@ public class DefaultRuntime_c
      *   otherwise the collection of exceptions
      */
     public synchronized Throwable getFinishExceptions(Activity a) {
+        if (a == null)
+            a = getCurrentActivity();
         Stack f = a.finish_;
         // now, compute resulting exception and return it
         if (f.isEmpty())

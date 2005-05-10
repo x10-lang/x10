@@ -6,18 +6,18 @@
         	         #0; 
             	   } 
 	            };
-  	 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).startFinish(act);
+  	 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).startFinish(null);
   	 try {
      	 final x10.runtime.Clock c = (x10.runtime.Clock) x10.lang.Runtime.factory.getClockFactory().clock();
 	     c.doNowSameThread(act);
     	 x10.lang.Runtime.doNext();
      } catch (java.lang.RuntimeException re) {
-	  	 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(act, re);
+	  	 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(null, re);
      } catch (java.lang.Error er) {
-	  	 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(act, er);
+	  	 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(null, er);
      } finally {
 	     java.lang.Throwable t 
-    	     = ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).getFinishExceptions(act);
+    	     = ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).getFinishExceptions(null);
   	 	 if (t instanceof java.lang.Error)
      	   throw (Error) t;
 	     if (t instanceof java.lang.RuntimeException)
