@@ -29,10 +29,6 @@ import x10.runtime.Clock;
  */
 public abstract class Runtime {
 
-    /* 
-     * This field is intentionally private, obtain an instance through 
-     * method getRuntime();
-     */
     public static Runtime runtime;
     
     private static int returnValue;
