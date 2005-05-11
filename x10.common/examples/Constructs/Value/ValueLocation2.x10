@@ -2,7 +2,7 @@
  * Value class location test:
  *
  *
- * Verifying that the location of a value class instance (complex) is
+ * Verifying that the location of a value class instance (int) is
  * always 'here', regardless of where the query is made.
  *
  * For example, for the same value class instance x, 
@@ -17,23 +17,14 @@
  *
  */
 
-final value  complex {
-    int re;
-    int im;
-    complex(int re, int im) {
-        this.re=re;
-        this.im=im;
-    }
-}
-
-public class ValueLocation  {
+public class ValueLocation2  {
 
     public boolean run() {
 
         final distribution P=distribution.factory.unique();
         chk(P.region.equals([0:place.MAX_PLACES-1]));
         chk(P[0]==here);
-        final complex one=new complex(1,1);
+        final int one=1;
         ateach(point [i]:P) {
             //System.out.println("#1 "+i+" "+one.location+" "+P[i]+" "+here);
             chk(one.location==P[i] && P[i]==here);
@@ -54,11 +45,12 @@ public class ValueLocation  {
     static void chk(boolean b) {if(!b) throw new Error();}
 
     static boolean implies(boolean x, boolean y) {return (!x)|y;}
+
         
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ValueLocation()).run();
+                finish b.val=(new ValueLocation2()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
