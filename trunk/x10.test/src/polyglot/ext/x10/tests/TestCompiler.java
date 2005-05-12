@@ -23,6 +23,14 @@ public TestCompiler(String name) {
 	super(name);
 }
 
+    public void test_Applications_Edmiston() {
+        run("./Edmiston.x10","Edmiston","./Applications");
+    }
+
+    public void test_Applications_Edmiston_Sequential() {
+        run("./Edmiston_Sequential.x10","Edmiston_Sequential","./Applications");
+    }
+
     public void test_Applications_GameOfLife() {
         run("./GameOfLife.x10","GameOfLife","./Applications");
     }
@@ -199,6 +207,10 @@ public TestCompiler(String name) {
         run("./ArrayDecl.x10","ArrayDecl","./Constructs/Array");
     }
 
+    public void test_Constructs_Array_ArrayFuture() {
+        run("./ArrayFuture.x10","ArrayFuture","./Constructs/Array");
+    }
+
     public void test_Constructs_Array_ArrayInitializer() {
         run("./ArrayInitializer.x10","ArrayInitializer","./Constructs/Array");
     }
@@ -291,6 +303,10 @@ public TestCompiler(String name) {
         run("./AtomicMethodTest.x10","AtomicMethodTest","./Constructs/Atomic");
     }
 
+    public void test_Constructs_Atomic_AtomicOrdered() {
+        run("./AtomicOrdered.x10","AtomicOrdered","./Constructs/Atomic");
+    }
+
     public void test_Constructs_Atomic_AtomicReturn() {
         run("./AtomicReturn.x10","AtomicReturn","./Constructs/Atomic");
     }
@@ -325,6 +341,10 @@ public TestCompiler(String name) {
 
     public void test_Constructs_Boxing_Boxing2() {
         run("./Boxing2.x10","Boxing2","./Constructs/Boxing");
+    }
+
+    public void test_Constructs_Clock_ClockFuture() {
+        run("./ClockFuture.x10","ClockFuture","./Constructs/Clock");
     }
 
     public void test_Constructs_Clock_ClockTest() {
@@ -697,6 +717,14 @@ public TestCompiler(String name) {
 
     public void test_Constructs_Value_ValueEquality() {
         run("./ValueEquality.x10","ValueEquality","./Constructs/Value");
+    }
+
+    public void test_Constructs_Value_ValueLocation() {
+        run("./ValueLocation.x10","ValueLocation","./Constructs/Value");
+    }
+
+    public void test_Constructs_Value_ValueLocation2() {
+        run("./ValueLocation2.x10","ValueLocation2","./Constructs/Value");
     }
 
     public void test_Misc_CommentTest() {
