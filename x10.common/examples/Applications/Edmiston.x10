@@ -21,16 +21,12 @@ class istructInt {
     int val;
     boolean filled=false;
     int rd() {
-        int t; 
-        when(filled) {t=val;}
-        return t;
+        when(filled) {return val;}
     }
-    void wr(int v) {
-        atomic {
-            if (filled) throw new Error();
-            filled=true;
-            val=v;
-        }
+    atomic void wr(int v) {
+        if (filled) throw new Error();
+        filled=true;
+        val=v;
     }
 }
 
@@ -91,7 +87,7 @@ public class Edmiston {
      * Function to generate the i'th random character
      */
    
-    char randomChar(int i) {
+    static char randomChar(int i) {
         // Randomly select one of 'A', 'C', 'G', 'T' 
         int n=0;
         final Random  rand=new Random(1L);
@@ -111,7 +107,7 @@ public class Edmiston {
     /**
      * Find the sum of a istructInt array
      */
-    int arraySum(final istructInt[.] e) {
+    static int arraySum(final istructInt[.] e) {
         int sum=0;
         for(point p[i,j]:e) sum+=e[i,j]->rd();
         return sum;
