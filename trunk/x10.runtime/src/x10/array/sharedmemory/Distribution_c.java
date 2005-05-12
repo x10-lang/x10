@@ -25,7 +25,7 @@ import x10.lang.Runtime;
 
 /**
  * Implementation of Distributions.
- * vj: Changed class to extend x10.lang.distribution, not Region_c.
+ * vj: Changed class to extend x10.lang.dist, not Region_c.
  * vj: Added factory class to separate out factory methods.
  * @author Christoph von Praun
  * @author Christian Grothoff

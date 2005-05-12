@@ -139,7 +139,7 @@ implements X10TypeSystem {
     protected ClassType distributionType_;
     public ClassType distribution() {
         if ( distributionType_ == null)
-            distributionType_ = load("x10.lang.distribution"); // java file
+            distributionType_ = load("x10.lang.dist"); // java file
         return distributionType_;
     }
     

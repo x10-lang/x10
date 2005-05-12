@@ -106,7 +106,7 @@ public interface X10Type extends Type {
      */
     boolean isPlace();
     /**
-     * Succeeds if this type is a subtype of x10.lang.distribution.
+     * Succeeds if this type is a subtype of x10.lang.dist
      * @return
      */
     boolean isDistribution();
