@@ -4335,7 +4335,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name x10 = new Name(nf, ts, pos(), "x10");
                 Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
 
-                Name x10LangDistribution = new Name(nf, ts, pos(), x10Lang, "distribution");
+                Name x10LangDistribution = new Name(nf, ts, pos(), x10Lang, "dist");
                 Name x10LangDistributionFactory = new Name(nf, ts, pos(), x10LangDistribution, "factory");
                 Name x10LangDistributionFactoryConstant = new Name(nf, ts, pos(), x10LangDistributionFactory, "constant");
                 List l = new TypedList(new LinkedList(), Expr.class, false);
