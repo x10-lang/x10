@@ -13,11 +13,11 @@ import java.util.Iterator;
  */
 
 abstract public class longArray /*( distribution distribution )*/ implements Indexable, Unsafe {
-	public final distribution distribution;
+	public final dist distribution;
 	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
-	protected longArray( distribution D) {
+	protected longArray( dist D) {
 		this.distribution = D;
 		this.region = D.region;
 		this.rank = D.rank;
@@ -62,7 +62,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 		 * @return
 		 */
 		public longArray/*(:rank=1)*/  longValueArray(/*nat*/ int k, long initVal) { 
-			return longValueArray(x10.lang.distribution.factory.local(k), initVal);
+			return longValueArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique long value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -71,13 +71,13 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 		 * @return
 		 */
 		public longArray/*(:rank=1)*/ longValueArray(/*nat*/ int k, pointwiseOp init) {
-			return longValueArray( x10.lang.distribution.factory.local(k), init);
+			return longValueArray( x10.lang.dist.factory.local(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ longArray/*(D)*/ longValueArray(distribution D, long init);
+		/*(distribution D)*/ longArray/*(D)*/ longValueArray(dist D, long init);
 		abstract public 
-		/*(distribution D)*/ longArray/*(D)*/ longValueArray(distribution D, pointwiseOp/*(D.region)*/ init);
+		/*(distribution D)*/ longArray/*(D)*/ longValueArray(dist D, pointwiseOp/*(D.region)*/ init);
 		
 		
 		/** Return the unique long value array initialized with 0 
@@ -96,7 +96,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 		 * @return
 		 */
 		public LongReferenceArray/*(:rank=1)*/  LongReferenceArray(/*nat*/ int k, long initVal) { 
-			return LongReferenceArray(x10.lang.distribution.factory.local(k), initVal);
+			return LongReferenceArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique long value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -105,14 +105,14 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 		 * @return
 		 */
 		public LongReferenceArray/*(:rank=1)*/ LongReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return LongReferenceArray( x10.lang.distribution.factory.local(k), init);
+			return LongReferenceArray( x10.lang.dist.factory.local(k), init);
 		}
 		
 		
 		abstract public 
-		/*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(distribution D, long init);
+		/*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(dist D, long init);
 		abstract public 
-		/*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(distribution D, 
+		/*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(dist D, 
 				pointwiseOp/*(D.region)*/ init);
 		
 	}
@@ -218,7 +218,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	 the region underlying this and the parametric distribution.
 	 */    
 	abstract /*value*/ public  /*(distribution(:rank=this.rank) D)*/ 
-	LongReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D);
+	LongReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D);
 	
 	/** Take as parameter a distribution D of the same rank as *
 	 * this, and defined over a disjoint region. Take as argument an *
@@ -268,7 +268,7 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
-	public distribution toDistribution() {
+	public dist toDistribution() {
 		return this.distribution;
 	}
 }

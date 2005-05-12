@@ -13,7 +13,7 @@ import x10.array.Operator;
 import x10.array.Range;
 import x10.array.MultiDimRegion;
 import x10.lang.Runtime;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.point;
 import x10.runtime.Activity;
@@ -75,7 +75,7 @@ public class TestXXArray_c extends TestCase {
     	Runtime.Factory F = Runtime.factory;
         region.factory rf = F.getRegionFactory();
         region r = rf.region(new region[] {new ContiguousRange(3), new ContiguousRange(3)});
-        distribution d = Runtime.factory.getDistributionFactory().constant(r, x10.lang.place.FIRST_PLACE);
+        dist d = Runtime.factory.getDistributionFactory().constant(r, x10.lang.place.FIRST_PLACE);
         IntArray ia = (IntArray) Runtime.factory.getIntArrayFactory().IntReferenceArray(d, 12);
         
         Operator.Reduction red = new Operator.Reduction() {
@@ -99,7 +99,7 @@ public class TestXXArray_c extends TestCase {
         MultiDimRegion r = new MultiDimRegion(new Range[] {
                 new ContiguousRange(0, N - 1),
                 new ContiguousRange(0, N - 1) });
-        distribution d = Runtime.factory.getDistributionFactory().block(r);
+        dist d = Runtime.factory.getDistributionFactory().block(r);
         DoubleArray A = (DoubleArray) Runtime.factory.getDoubleArrayFactory().DoubleReferenceArray(d, 0);
 
         // initialize array A (this should happen in parallel, distributed

@@ -12,7 +12,7 @@ import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.point;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.LongReferenceArray;
 import x10.array.sharedmemory.Helper;
@@ -67,13 +67,13 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
      * @param c
      * @param safe
      */
-    public LongArray_c( distribution d, long c) {
+    public LongArray_c( dist d, long c) {
         this(d, c, true);
     }
-    public LongArray_c( distribution d, long c, boolean safe ) {
+    public LongArray_c( dist d, long c, boolean safe ) {
     	this(d, c, safe, true);
 }
-    public LongArray_c( distribution d, long c, boolean safe, boolean mutable ) {
+    public LongArray_c( dist d, long c, boolean safe, boolean mutable ) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -90,13 +90,13 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     	scan(this, new Assign(c));
     	
     }
-    public LongArray_c( distribution d, LongArray.pointwiseOp f) {
+    public LongArray_c( dist d, LongArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public LongArray_c( distribution d, LongArray.pointwiseOp f, boolean safe) {
+    public LongArray_c( dist d, LongArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public LongArray_c( distribution d, LongArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public LongArray_c( dist d, LongArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -114,7 +114,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
             scan(this, f);
     }
     
-    private LongArray_c( distribution d, long[] a) {
+    private LongArray_c( dist d, long[] a) {
     	super(d);
     	this.arr_ = Allocator.allocSafeLongArray( a);
         this.safe_ = true;
@@ -126,7 +126,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
      * @return
      */
     public static LongArray_c LongArray_c( long[] a) {
-    	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
+    	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new LongArray_c(d, a);
     }
     
@@ -161,13 +161,13 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     		super.assign(rhs);
     }
 
-	protected LongArray newInstance(distribution d) {
+	protected LongArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
 		return new LongArray_c((Distribution_c) d, safe_);	
 	}
 	
-	protected LongArray newInstance(distribution d, Operator.Pointwise c) {
+	protected LongArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
 		return new LongArray_c((Distribution_c) d, c, safe_);	
@@ -293,7 +293,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     	return get(p);
     }
     public LongReferenceArray overlay(x10.lang.longArray d) {
-    	distribution dist = distribution.overlay(d.distribution);
+    	dist dist = distribution.overlay(d.distribution);
         LongArray_c ret = new LongArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -314,7 +314,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     
     
     public LongReferenceArray union(x10.lang.longArray d) {
-        distribution dist = distribution.union(d.distribution);
+        dist dist = distribution.union(d.distribution);
         LongArray_c ret = new LongArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -324,12 +324,12 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         return ret;
     }
     
-    public LongReferenceArray restriction(distribution d) {
+    public LongReferenceArray restriction(dist d) {
         return restriction(d.region);
     }
     
     public LongReferenceArray restriction(region r) {
-        distribution dist = distribution.restriction(r);
+        dist dist = distribution.restriction(r);
         LongArray_c ret = new LongArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();

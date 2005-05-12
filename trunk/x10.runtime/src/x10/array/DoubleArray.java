@@ -4,7 +4,7 @@
 package x10.array;
 
 import java.util.Iterator;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.point;
 import x10.lang.DoubleReferenceArray;
 
@@ -14,7 +14,7 @@ import x10.lang.DoubleReferenceArray;
  * Double Arrays are currently not implemented.
  */
 public abstract class DoubleArray extends DoubleReferenceArray {
-    public DoubleArray(distribution d) {
+    public DoubleArray(dist d) {
         super(d);
     }
     

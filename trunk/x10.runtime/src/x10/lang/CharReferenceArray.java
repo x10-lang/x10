@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract class CharReferenceArray extends charArray {
 	
-	public CharReferenceArray( distribution D) {
+	public CharReferenceArray( dist D) {
 		super( D );
 	}
 

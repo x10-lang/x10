@@ -16,11 +16,11 @@ abstract public class genericArray /*( distribution distribution )*/
 /*implements Cloneable, Serializable */
 implements Indexable, Unsafe {
 
-	public final distribution distribution;
+	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
-	protected genericArray( distribution D) {
+	protected genericArray( dist D) {
 		this.distribution = D;
 		this.region = D.region;
 		this.rank = D.rank;
@@ -54,7 +54,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public genericArray/*(:rank=1)*/  GenericValueArray(/*nat*/ int k, Parameter1 initVal) { 
-			return GenericValueArray(x10.lang.distribution.factory.local(k), initVal);
+			return GenericValueArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -63,13 +63,13 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public genericArray/*(:rank=1)*/ GenericValueArray(/*nat*/ int k, pointwiseOp init) {
-			return GenericValueArray( x10.lang.distribution.factory.local(k), init);
+			return GenericValueArray( x10.lang.dist.factory.local(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ genericArray/*(D)*/ GenericValueArray(distribution D, Parameter1 init);
+		/*(distribution D)*/ genericArray/*(D)*/ GenericValueArray(dist D, Parameter1 init);
 		abstract public 
-		/*(distribution D)*/ genericArray/*(D)*/ GenericValueArray( distribution D, 
+		/*(distribution D)*/ genericArray/*(D)*/ GenericValueArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 		/** Return the unique int value array initialized with null 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -87,7 +87,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public GenericReferenceArray/*(:rank=1)*/  GenericReferenceArray(/*nat*/ int k, Parameter1 initVal) { 
-			return GenericReferenceArray(x10.lang.distribution.factory.local(k), initVal);
+			return GenericReferenceArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -96,16 +96,16 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public GenericReferenceArray/*(:rank=1)*/ GenericReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return GenericReferenceArray( x10.lang.distribution.factory.local(k), init);
+			return GenericReferenceArray( x10.lang.dist.factory.local(k), init);
 		}
 		
-		public GenericReferenceArray GenericReferenceArray( distribution D) {
+		public GenericReferenceArray GenericReferenceArray( dist D) {
 			return GenericReferenceArray( D, (Parameter1)null);
 		}
 		abstract public 
-		/*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericReferenceArray(distribution D, Parameter1 init);
+		/*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericReferenceArray(dist D, Parameter1 init);
 		abstract public 
-		/*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericReferenceArray( distribution D, 
+		/*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericReferenceArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 	}
 	public static final factory factory = Runtime.factory.getGenericArrayFactory();
@@ -141,7 +141,7 @@ implements Indexable, Unsafe {
 	 the region underlying this and the parametric distribution.
 	 */    
 	public  /*(distribution(:rank=this.rank) D)*/ 
-	GenericReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
+	GenericReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D) {
 	 return restriction(D.region);
 	}
 	
@@ -190,7 +190,7 @@ implements Indexable, Unsafe {
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
-	public distribution toDistribution() {
+	public dist toDistribution() {
 		return distribution;
 	}
 }

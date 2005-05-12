@@ -13,7 +13,7 @@ import x10.compilergenerated.Parameter1;
 
 public abstract class GenericReferenceArray extends genericArray {
 	
-	public GenericReferenceArray( distribution D) {
+	public GenericReferenceArray( dist D) {
 		super( D );
 	}
 

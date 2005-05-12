@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract class BooleanReferenceArray extends booleanArray {
 	
-	public BooleanReferenceArray( distribution D) {
+	public BooleanReferenceArray( dist D) {
 		super( D );
 	}
 

@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract /*value*/ class byteValueArray extends byteArray {
 	
-	public byteValueArray( distribution D) {
+	public byteValueArray( dist D) {
 		super( D );
 	}
 	

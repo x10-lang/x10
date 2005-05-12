@@ -15,11 +15,11 @@ abstract public class byteArray /*( distribution distribution )*/
 /*implements Cloneable, Serializable */
 implements Indexable, Unsafe {
 
-	public final distribution distribution;
+	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
-	protected byteArray( distribution D) {
+	protected byteArray( dist D) {
 		this.distribution = D;
 		this.region = D.region;
 		this.rank = D.rank;
@@ -59,7 +59,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public byteArray/*(:rank=1)*/  byteValueArray(/*nat*/ int k, byte initVal) { 
-			return byteValueArray(x10.lang.distribution.factory.local(k), initVal);
+			return byteValueArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -68,13 +68,13 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public byteArray/*(:rank=1)*/ byteValueArray(/*nat*/ int k, pointwiseOp init) {
-			return byteValueArray( x10.lang.distribution.factory.local(k), init);
+			return byteValueArray( x10.lang.dist.factory.local(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ byteArray/*(D)*/ byteValueArray(distribution D, byte init);
+		/*(distribution D)*/ byteArray/*(D)*/ byteValueArray(dist D, byte init);
 		abstract public 
-		/*(distribution D)*/ byteArray/*(D)*/ byteValueArray( distribution D, 
+		/*(distribution D)*/ byteArray/*(D)*/ byteValueArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 		/** Return the unique int value array initialized with 0 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -92,7 +92,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public ByteReferenceArray/*(:rank=1)*/  ByteReferenceArray(/*nat*/ int k, byte initVal) { 
-			return ByteReferenceArray(x10.lang.distribution.factory.local(k), initVal);
+			return ByteReferenceArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -101,16 +101,16 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public ByteReferenceArray/*(:rank=1)*/ ByteReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return ByteReferenceArray( x10.lang.distribution.factory.local(k), init);
+			return ByteReferenceArray( x10.lang.dist.factory.local(k), init);
 		}
 		
-		public ByteReferenceArray ByteReferenceArray( distribution D) {
+		public ByteReferenceArray ByteReferenceArray( dist D) {
 			return ByteReferenceArray( D, (byte) 0);
 		}
 		abstract public 
-		/*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray(distribution D, byte init);
+		/*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray(dist D, byte init);
 		abstract public 
-		/*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray( distribution D, 
+		/*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 	}
 	public static final factory factory = Runtime.factory.getByteArrayFactory();
@@ -212,7 +212,7 @@ implements Indexable, Unsafe {
 	 the region underlying this and the parametric distribution.
 	 */    
 	public  /*(distribution(:rank=this.rank) D)*/ 
-	ByteReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
+	ByteReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D) {
 	 return restriction(D.region);
 	}
 	
@@ -261,7 +261,7 @@ implements Indexable, Unsafe {
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
-	public distribution toDistribution() {
+	public dist toDistribution() {
 		return distribution;
 	}
 }

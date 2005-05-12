@@ -4,7 +4,7 @@
 package x10.array;
 
 import java.util.Iterator;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.point;
 import x10.lang.LongReferenceArray;
 
@@ -14,7 +14,7 @@ import x10.lang.LongReferenceArray;
  * Long Arrays are currently not implemented.
  */
 public abstract class LongArray extends LongReferenceArray {
-    public LongArray(distribution d) {
+    public LongArray(dist d) {
         super(d);
     }
     

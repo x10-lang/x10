@@ -220,7 +220,7 @@ public abstract /*value*/ class region extends Object implements TypeArgument {
         assert (false); 
         return null;
     }
-    public distribution/*(:region=this)*/ toDistribution() {
-    	return distribution.factory.local( this);
+    public dist/*(:region=this)*/ toDistribution() {
+    	return dist.factory.local( this);
     }
 }

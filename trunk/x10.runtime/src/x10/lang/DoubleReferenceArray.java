@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract class DoubleReferenceArray extends doubleArray {
 	
-	public DoubleReferenceArray( distribution D) {
+	public DoubleReferenceArray( dist D) {
 		super( D );
 	}
 

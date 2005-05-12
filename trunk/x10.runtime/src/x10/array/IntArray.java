@@ -5,7 +5,7 @@
 package x10.array;
 
 import java.util.Iterator;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.point;
 
 
@@ -29,7 +29,7 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
         }
     }
 
-    public IntArray(distribution d) {
+    public IntArray(dist d) {
         super(d);
     }
 
@@ -41,7 +41,7 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
      * @param c
      *            constant used to intialize all values of the array
      */
-    protected IntArray(distribution d, int c) {
+    protected IntArray(dist d, int c) {
         super(d);
         // initialize all array alements
         scan(this, new Assign(c));

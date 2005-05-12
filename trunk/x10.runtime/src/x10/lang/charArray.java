@@ -15,11 +15,11 @@ abstract public class charArray /*( distribution distribution )*/
 /*implements Cloneable, Serializable */
 implements Indexable, Unsafe {
 
-	public final distribution distribution;
+	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
-	protected charArray( distribution D) {
+	protected charArray( dist D) {
 		this.distribution = D;
 		this.region = D.region;
 		this.rank = D.rank;
@@ -55,7 +55,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public charArray/*(:rank=1)*/  charValueArray(/*nat*/ int k, char initVal) { 
-			return charValueArray(x10.lang.distribution.factory.local(k), initVal);
+			return charValueArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -64,13 +64,13 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public charArray/*(:rank=1)*/ charValueArray(/*nat*/ int k, pointwiseOp init) {
-			return charValueArray( x10.lang.distribution.factory.local(k), init);
+			return charValueArray( x10.lang.dist.factory.local(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ charArray/*(D)*/ charValueArray(distribution D, char init);
+		/*(distribution D)*/ charArray/*(D)*/ charValueArray(dist D, char init);
 		abstract public 
-		/*(distribution D)*/ charArray/*(D)*/ charValueArray( distribution D, 
+		/*(distribution D)*/ charArray/*(D)*/ charValueArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 		/** Return the unique char value array initialized with 0 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -88,7 +88,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public CharReferenceArray/*(:rank=1)*/  CharReferenceArray(/*nat*/ int k, char initVal) { 
-			return CharReferenceArray(x10.lang.distribution.factory.local(k), initVal);
+			return CharReferenceArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique char value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -97,16 +97,16 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public CharReferenceArray/*(:rank=1)*/ CharReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return CharReferenceArray( x10.lang.distribution.factory.local(k), init);
+			return CharReferenceArray( x10.lang.dist.factory.local(k), init);
 		}
 		
-		public CharReferenceArray CharReferenceArray( distribution D) {
+		public CharReferenceArray CharReferenceArray( dist D) {
 			return CharReferenceArray( D, (char) 0);
 		}
 		abstract public 
-		/*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray(distribution D, char init);
+		/*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray(dist D, char init);
 		abstract public 
-		/*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray( distribution D, 
+		/*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 	}
 	public static final factory factory = Runtime.factory.getCharArrayFactory();
@@ -142,7 +142,7 @@ implements Indexable, Unsafe {
 	 the region underlying this and the parametric distribution.
 	 */    
 	public  /*(distribution(:rank=this.rank) D)*/ 
-	CharReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
+	CharReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D) {
 	 return restriction(D.region);
 	}
 	
@@ -191,7 +191,7 @@ implements Indexable, Unsafe {
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
-	public distribution toDistribution() {
+	public dist toDistribution() {
 		return distribution;
 	}
 }

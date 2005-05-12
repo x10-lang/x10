@@ -15,7 +15,7 @@ import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.point;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.ByteReferenceArray;
 
@@ -70,13 +70,13 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
      * @param c
      * @param safe
      */
-    public ByteArray_c( distribution d, byte c) {
+    public ByteArray_c( dist d, byte c) {
         this(d, c, true);
     }
-    public ByteArray_c( distribution d, byte c, boolean safe ) {
+    public ByteArray_c( dist d, byte c, boolean safe ) {
     	this(d, c, safe, true);
 }
-    public ByteArray_c( distribution d, byte c, boolean safe, boolean mutable ) {
+    public ByteArray_c( dist d, byte c, boolean safe, boolean mutable ) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -93,13 +93,13 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
         scan(this, new Assign(c));
     	
     }
-    public ByteArray_c( distribution d, ByteArray.pointwiseOp f) {
+    public ByteArray_c( dist d, ByteArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public ByteArray_c( distribution d, ByteArray.pointwiseOp f, boolean safe) {
+    public ByteArray_c( dist d, ByteArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public ByteArray_c( distribution d, ByteArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public ByteArray_c( dist d, ByteArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -117,7 +117,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
             scan(this, f);
     }
     
-    private ByteArray_c( distribution d, byte[] a, boolean safe, boolean mutable) {
+    private ByteArray_c( dist d, byte[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -138,7 +138,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
      * @return
      */
     public static ByteArray_c ByteArray_c( byte[] a, boolean safe, boolean mutable ) {
-    	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
+    	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new ByteArray_c(d, a, safe, mutable );
     }
     
@@ -173,13 +173,13 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     		super.assign(rhs);
     }
 
-	protected ByteArray newInstance(distribution d) {
+	protected ByteArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
 		return new ByteArray_c((Distribution_c) d, safe_);	
 	}
 	
-	protected ByteArray newInstance(distribution d, Operator.Pointwise c) {
+	protected ByteArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
 		return new ByteArray_c((Distribution_c) d, c, safe_);	
@@ -294,7 +294,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     }
     
     public x10.lang.ByteReferenceArray overlay(x10.lang.byteArray d) {
-    	distribution dist = distribution.overlay(d.distribution);
+    	dist dist = distribution.overlay(d.distribution);
         ByteArray_c ret = new ByteArray_c(dist, (byte) 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -313,7 +313,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     }
     
     public ByteReferenceArray union(x10.lang.byteArray d) {
-        distribution dist = distribution.union(d.distribution);
+        dist dist = distribution.union(d.distribution);
         ByteArray_c ret = new ByteArray_c(dist, (byte) 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -323,12 +323,12 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
         return ret;
     }
     
-    public ByteReferenceArray restriction(distribution d) {
+    public ByteReferenceArray restriction(dist d) {
         return restriction(d.region);
     }
     
     public ByteReferenceArray restriction(region r) {
-        distribution dist = distribution.restriction(r);
+        dist dist = distribution.restriction(r);
         ByteArray_c ret = new ByteArray_c(dist, (byte) 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();

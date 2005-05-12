@@ -6,7 +6,7 @@ package x10.array;
 import junit.framework.TestCase;
 import x10.lang.Runtime;
 import x10.lang.region;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
@@ -64,8 +64,8 @@ public class TestArray extends TestCase {
             region.factory rf = F.getRegionFactory();
             region[] ranges = { rf.region(0, SIZE - 1), rf.region(0, SIZE-1)};
             region r = new ArbitraryRegion(ranges);// rf.region(ranges);
-            distribution.factory DF = F.getDistributionFactory();
-            distribution d = DF.constant(r, Runtime.here());
+            dist.factory DF = F.getDistributionFactory();
+            dist d = DF.constant(r, Runtime.here());
             IntArray.factory IF = Runtime.factory.getIntArrayFactory();
             x10.lang.intArray value = IF.IntReferenceArray(d, 12);
     

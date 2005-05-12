@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract /*value*/ class genericValueArray extends genericArray {
 	
-	public genericValueArray( distribution D) {
+	public genericValueArray( dist D) {
 		super( D );
 	}
 	

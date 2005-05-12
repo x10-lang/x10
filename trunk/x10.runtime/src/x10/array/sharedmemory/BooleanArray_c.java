@@ -16,7 +16,7 @@ import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.point;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.BooleanReferenceArray;
 
@@ -71,13 +71,13 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
      * @param c
      * @param safe
      */
-    public BooleanArray_c( distribution d, boolean c) {
+    public BooleanArray_c( dist d, boolean c) {
         this(d, c, true);
     }
-    public BooleanArray_c( distribution d, boolean c, boolean safe ) {
+    public BooleanArray_c( dist d, boolean c, boolean safe ) {
     	this(d, c, safe, true);
 }
-    public BooleanArray_c( distribution d, boolean c, boolean safe, boolean mutable ) {
+    public BooleanArray_c( dist d, boolean c, boolean safe, boolean mutable ) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -94,13 +94,13 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     	scan(this, new Assign(c));
     	
     }
-    public BooleanArray_c( distribution d, BooleanArray.pointwiseOp f) {
+    public BooleanArray_c( dist d, BooleanArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public BooleanArray_c( distribution d, BooleanArray.pointwiseOp f, boolean safe) {
+    public BooleanArray_c( dist d, BooleanArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public BooleanArray_c( distribution d, BooleanArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public BooleanArray_c( dist d, BooleanArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -118,7 +118,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
             scan(this, f);
     }
     
-    private BooleanArray_c( distribution d, boolean[] a, boolean safe, boolean mutable) {
+    private BooleanArray_c( dist d, boolean[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -139,7 +139,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
      * @return
      */
     public static BooleanArray_c BooleanArray_c( boolean[] a, boolean safe, boolean mutable ) {
-    	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
+    	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new BooleanArray_c(d, a, safe, mutable );
     }
     
@@ -174,13 +174,13 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     		super.assign(rhs);
     }
 
-	protected BooleanArray newInstance(distribution d) {
+	protected BooleanArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
 		return new BooleanArray_c((Distribution_c) d, safe_);	
 	}
 	
-	protected BooleanArray newInstance(distribution d, Operator.Pointwise c) {
+	protected BooleanArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
 		return new BooleanArray_c((Distribution_c) d, c, safe_);	
@@ -308,7 +308,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     }
     
     public x10.lang.BooleanReferenceArray overlay(x10.lang.booleanArray d) {
-    	distribution dist = distribution.overlay(d.distribution);
+    	dist dist = distribution.overlay(d.distribution);
         BooleanArray_c ret = new BooleanArray_c(dist, false, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -327,7 +327,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     }
     
     public BooleanReferenceArray union(x10.lang.booleanArray d) {
-        distribution dist = distribution.union(d.distribution);
+        dist dist = distribution.union(d.distribution);
         BooleanArray_c ret = new BooleanArray_c(dist, false, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -337,12 +337,12 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
         return ret;
     }
     
-    public BooleanReferenceArray restriction(distribution d) {
+    public BooleanReferenceArray restriction(dist d) {
         return restriction(d.region);
     }
     
     public BooleanReferenceArray restriction(region r) {
-        distribution dist = distribution.restriction(r);
+        dist dist = distribution.restriction(r);
         BooleanArray_c ret = new BooleanArray_c(dist, false, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();

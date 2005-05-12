@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract class ByteReferenceArray extends byteArray {
 	
-	public ByteReferenceArray( distribution D) {
+	public ByteReferenceArray( dist D) {
 		super( D );
 	}
 

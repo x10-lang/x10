@@ -4,7 +4,7 @@
 package x10.array;
 
 import java.util.Iterator;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.point;
 import x10.lang.BooleanReferenceArray;
 
@@ -14,7 +14,7 @@ import x10.lang.BooleanReferenceArray;
  * Boolean Arrays are currently not implemented.
  */
 public abstract class BooleanArray extends BooleanReferenceArray {
-    public BooleanArray(distribution d) {
+    public BooleanArray(dist d) {
         super(d);
     }
     

@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract /*value*/ class longValueArray extends longArray {
 	
-	public longValueArray( distribution D) {
+	public longValueArray( dist D) {
 		super( D );
 	}
 	

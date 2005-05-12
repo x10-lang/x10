@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract /*value*/ class intValueArray extends intArray {
 	
-	public intValueArray( distribution D) {
+	public intValueArray( dist D) {
 		super( D );
 	}
 	

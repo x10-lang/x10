@@ -93,7 +93,7 @@ public abstract class Runtime {
 
     public static abstract class Factory {
     	public abstract region.factory getRegionFactory();
-    	public abstract distribution.factory getDistributionFactory();
+    	public abstract dist.factory getDistributionFactory();
     	public abstract point.factory getPointFactory();
     	public abstract clock.factory getClockFactory();
         public abstract booleanArray.factory getBooleanArrayFactory();

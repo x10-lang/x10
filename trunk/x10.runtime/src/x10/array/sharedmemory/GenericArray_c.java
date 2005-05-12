@@ -14,7 +14,7 @@ import x10.compilergenerated.Parameter1;
 import x10.lang.GenericReferenceArray;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.point;
 import x10.lang.region;
 
@@ -70,16 +70,16 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
      * @param c
      * @param safe
      */
-    public GenericArray_c( distribution d, Parameter1 c) {
+    public GenericArray_c( dist d, Parameter1 c) {
         this(d, c, true);
     }
-    public GenericArray_c( distribution d, Parameter1 c, boolean safe ) {
+    public GenericArray_c( dist d, Parameter1 c, boolean safe ) {
     	this(d, c, safe, true);
 }
-    public GenericArray_c( distribution d, int c, boolean safe, boolean mutable ) {
+    public GenericArray_c( dist d, int c, boolean safe, boolean mutable ) {
         this(d, (Parameter1) null, safe, mutable);
     }
-        public GenericArray_c( distribution d, Parameter1 c, boolean safe, boolean mutable ) {
+        public GenericArray_c( dist d, Parameter1 c, boolean safe, boolean mutable ) {
     	super(d);
         assert (safe); // just to be GC-safe ;-)
     	this.mutable_ = mutable;
@@ -88,13 +88,13 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         this.arr_ = Allocator.allocSafe(count, Parameter1.class);
         scan(this, new Assign(c));
     }
-    public GenericArray_c( distribution d, GenericArray.pointwiseOp f) {
+    public GenericArray_c( dist d, GenericArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public GenericArray_c( distribution d, GenericArray.pointwiseOp f, boolean safe) {
+    public GenericArray_c( dist d, GenericArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public GenericArray_c( distribution d, GenericArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public GenericArray_c( dist d, GenericArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
         assert (safe); // just to be GC-safe ;-)
     	this.mutable_ = mutable;
@@ -105,7 +105,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
             scan(this, f);
     }
     
-    private GenericArray_c( distribution d, Parameter1[] a, boolean safe, boolean mutable) {
+    private GenericArray_c( dist d, Parameter1[] a, boolean safe, boolean mutable) {
     	super(d);
         assert (safe); // just to be GC-safe ;-)
     	this.arr_ = Allocator.allocSafeObjectArray( a);
@@ -118,7 +118,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
      * @return
      */
     public static GenericArray_c GenericArray_c( Parameter1[] a, boolean safe, boolean mutable ) {
-    	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
+    	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new GenericArray_c(d, a, safe, mutable );
     }
     
@@ -153,13 +153,13 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     		super.assign(rhs);
     }
 
-	protected GenericArray newInstance(distribution d) {
+	protected GenericArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
 		return new GenericArray_c((Distribution_c) d, safe_);	
 	}
 	
-	protected GenericArray newInstance(distribution d, Operator.Pointwise c) {
+	protected GenericArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
 		return new GenericArray_c((Distribution_c) d, c, safe_);	
@@ -273,7 +273,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     }
     
     public x10.lang.GenericReferenceArray overlay(x10.lang.genericArray d) {
-    	distribution dist = distribution.overlay(d.distribution);
+    	dist dist = distribution.overlay(d.distribution);
         GenericArray_c ret = new GenericArray_c(dist, (Parameter1)null, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -292,7 +292,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     }
     
     public GenericReferenceArray union(x10.lang.genericArray d) {
-        distribution dist = distribution.union(d.distribution);
+        dist dist = distribution.union(d.distribution);
         GenericArray_c ret = new GenericArray_c(dist, (Parameter1)null, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -302,12 +302,12 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         return ret;
     }
     
-    public GenericReferenceArray restriction(distribution d) {
+    public GenericReferenceArray restriction(dist d) {
         return restriction(d.region);
     }
     
     public GenericReferenceArray restriction(region r) {
-        distribution dist = distribution.restriction(r);
+        dist dist = distribution.restriction(r);
         GenericArray_c ret = new GenericArray_c(dist, (Parameter1)null, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();

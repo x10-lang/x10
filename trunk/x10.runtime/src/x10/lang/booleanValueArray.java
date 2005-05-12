@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract /*value*/ class booleanValueArray extends booleanArray {
 	
-	public booleanValueArray( distribution D) {
+	public booleanValueArray( dist D) {
 		super( D );
 	}
 	

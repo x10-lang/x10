@@ -6,14 +6,14 @@ import java.util.Set;
 import java.util.Arrays;
 import java.lang.Comparable;
 
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.region;
 import x10.lang.point;
 import x10.array.ContiguousRange;
 import x10.array.MultiDimRegion;
 
-public class DistributionFactory extends distribution.factory {
+public class DistributionFactory extends dist.factory {
 	
 	public DistributionFactory() {
 	 super();
@@ -26,7 +26,7 @@ public class DistributionFactory extends distribution.factory {
      * @param r
      * @return
      */
-    public distribution cyclic(region r, Set/*<place>*/ qs) {
+    public dist cyclic(region r, Set/*<place>*/ qs) {
         assert r.rank > 0;
         final int dim_to_split = r.rank - 1;
         int sz = r.rank(dim_to_split).size();
@@ -36,7 +36,7 @@ public class DistributionFactory extends distribution.factory {
             return blockCyclic(r, 1, qs);
     }
     
-    public distribution blockCyclic(region r, /*nat*/ int p) {
+    public dist blockCyclic(region r, /*nat*/ int p) {
         return blockCyclic(r, p, x10.lang.place.places);
     }
     
@@ -48,8 +48,8 @@ public class DistributionFactory extends distribution.factory {
      * @param r
      * @return
      */
-    public distribution blockCyclic(region r, /*nat*/int n, Set/*<place>*/ qs) {
-        distribution ret;
+    public dist blockCyclic(region r, /*nat*/int n, Set/*<place>*/ qs) {
+        dist ret;
         assert n > 0;
         assert r.rank > 0;
         
@@ -99,7 +99,7 @@ public class DistributionFactory extends distribution.factory {
     }
     
     
-    public distribution random(region r) {
+    public dist random(region r) {
     		return  cyclic(r);
     	
     }
@@ -111,7 +111,7 @@ public class DistributionFactory extends distribution.factory {
      * @param q The set of Places
      * @return
      */
-	public distribution block(region r, Set/*<place>*/ q) {
+	public dist block(region r, Set/*<place>*/ q) {
 	    return block(r, q.size(), q);
     }
     
@@ -121,13 +121,13 @@ public class DistributionFactory extends distribution.factory {
      * @param r
      * @return
      */
-	public distribution block(region r, int n, Set/*<place>*/ qs) {
+	public dist block(region r, int n, Set/*<place>*/ qs) {
         assert n <= qs.size();
         assert n > 0;
         
         final boolean dim_splittable = r instanceof ContiguousRange || r instanceof MultiDimRegion;
         final int dim_to_split = 0; //r.rank - 1;
-        distribution ret = null;
+        dist ret = null;
         int sz = r.rank(dim_to_split).size();
         
         //if (sz < n)
@@ -181,8 +181,8 @@ public class DistributionFactory extends distribution.factory {
      * @param r
      * @return
      */
-    public distribution arbitrary(region r) {
-        distribution ret;
+    public dist arbitrary(region r) {
+        dist ret;
         int blocksize = r.size() / x10.lang.place.places.size();
         if (blocksize == 0) 
             ret = constant(r, x10.lang.place.FIRST_PLACE);
@@ -198,7 +198,7 @@ public class DistributionFactory extends distribution.factory {
      * @param p specifically use the given place for all points
      * @return
      */
-    public distribution constant(region r, place p) {
+    public dist constant(region r, place p) {
         return new Distribution_c.Constant(r, p);
     }
     
@@ -209,7 +209,7 @@ public class DistributionFactory extends distribution.factory {
      * @param p the list of places (implicitly defines the Region_c)
      * @return
      */
-    public distribution unique(Set/*<place>*/ p) {
+    public dist unique(Set/*<place>*/ p) {
     	Object[] places = p.toArray();
     	place[] ps = new place[places.length];
     	for (int i=0;i<places.length;i++)

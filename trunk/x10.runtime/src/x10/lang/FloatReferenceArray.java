@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract class FloatReferenceArray extends floatArray {
 	
-	public FloatReferenceArray( distribution D) {
+	public FloatReferenceArray( dist D) {
 		super( D );
 	}
 

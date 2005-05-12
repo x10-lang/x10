@@ -7,7 +7,7 @@ package x10.array;
 import java.util.Iterator;
 
 import x10.compilergenerated.Parameter1;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.point;
 
 
@@ -30,7 +30,7 @@ public abstract class GenericArray extends x10.lang.GenericReferenceArray {
         }
     }
 
-    public GenericArray(distribution d) {
+    public GenericArray(dist d) {
         super(d);
     }
 
@@ -42,7 +42,7 @@ public abstract class GenericArray extends x10.lang.GenericReferenceArray {
      * @param c
      *            constant used to intialize all values of the array
      */
-    protected GenericArray(distribution d, Parameter1 c) {
+    protected GenericArray(dist d, Parameter1 c) {
         super(d);
         // initialize all array alements
         scan(this, new Assign(c));

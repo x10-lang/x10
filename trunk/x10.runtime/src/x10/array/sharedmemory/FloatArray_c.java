@@ -15,7 +15,7 @@ import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.point;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.FloatReferenceArray;
 
@@ -70,13 +70,13 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
      * @param c
      * @param safe
      */
-    public FloatArray_c( distribution d, float c) {
+    public FloatArray_c( dist d, float c) {
         this(d, c, true);
     }
-    public FloatArray_c( distribution d, float c, boolean safe ) {
+    public FloatArray_c( dist d, float c, boolean safe ) {
     	this(d, c, safe, true);
 }
-    public FloatArray_c( distribution d, float c, boolean safe, boolean mutable ) {
+    public FloatArray_c( dist d, float c, boolean safe, boolean mutable ) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -93,13 +93,13 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
         scan(this, new Assign(c));
     	
     }
-    public FloatArray_c( distribution d, FloatArray.pointwiseOp f) {
+    public FloatArray_c( dist d, FloatArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public FloatArray_c( distribution d, FloatArray.pointwiseOp f, boolean safe) {
+    public FloatArray_c( dist d, FloatArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public FloatArray_c( distribution d, FloatArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public FloatArray_c( dist d, FloatArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -117,7 +117,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
             scan(this, f);
     }
     
-    private FloatArray_c( distribution d, float[] a, boolean safe, boolean mutable) {
+    private FloatArray_c( dist d, float[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -138,7 +138,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
      * @return
      */
     public static FloatArray_c FloatArray_c( float[] a, boolean safe, boolean mutable ) {
-    	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
+    	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new FloatArray_c(d, a, safe, mutable );
     }
     
@@ -173,13 +173,13 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     		super.assign(rhs);
     }
 
-	protected FloatArray newInstance(distribution d) {
+	protected FloatArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
 		return new FloatArray_c((Distribution_c) d, safe_);	
 	}
 	
-	protected FloatArray newInstance(distribution d, Operator.Pointwise c) {
+	protected FloatArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
 		return new FloatArray_c((Distribution_c) d, c, safe_);	
@@ -317,7 +317,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     }
     
     public x10.lang.FloatReferenceArray overlay(x10.lang.floatArray d) {
-    	distribution dist = distribution.overlay(d.distribution);
+    	dist dist = distribution.overlay(d.distribution);
         FloatArray_c ret = new FloatArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -336,7 +336,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     }
     
     public FloatReferenceArray union(x10.lang.floatArray d) {
-        distribution dist = distribution.union(d.distribution);
+        dist dist = distribution.union(d.distribution);
         FloatArray_c ret = new FloatArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -346,12 +346,12 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
         return ret;
     }
     
-    public FloatReferenceArray restriction(distribution d) {
+    public FloatReferenceArray restriction(dist d) {
         return restriction(d.region);
     }
     
     public FloatReferenceArray restriction(region r) {
-        distribution dist = distribution.restriction(r);
+        dist dist = distribution.restriction(r);
         FloatArray_c ret = new FloatArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
