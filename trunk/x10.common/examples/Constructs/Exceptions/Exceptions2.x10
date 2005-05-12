@@ -35,7 +35,7 @@ public class Exceptions2 {
 	     final int MIN_MSG_SIZE=100;
 	     try {
 		finish {
-		 ateach(point [i]:distribution.factory.unique()) {
+		 ateach(point [i]:dist.factory.unique()) {
 			foreach(point [j]:1:M)
 				memoryHog();
 		 }

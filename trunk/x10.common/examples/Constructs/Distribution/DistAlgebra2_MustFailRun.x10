@@ -2,7 +2,7 @@
 /**
  * @author kemal 4/2005
  *
- * Testing that disjoint union of distributions
+ * Testing that disjoint union of dists
  * actually checks for disjointness.
  *
  *
@@ -13,12 +13,12 @@ public class DistAlgebra2_MustFailRun {
 	const int N=24;
 
 	public boolean run() {
-		final distribution D=distribution.factory.cyclic([0:N-1]);
-		final distribution D2=D|[0   : N/2-1];
-		final distribution D3=D|[N/2 : N-1  ];
-		final distribution D4= D2 || D3; // disjoint 
+		final dist D=dist.factory.cyclic([0:N-1]);
+		final dist D2=D|[0   : N/2-1];
+		final dist D3=D|[N/2 : N-1  ];
+		final dist D4= D2 || D3; // disjoint 
 		chk(D4.equals(D));
-		final distribution D5=D||D2; // not disjoint
+		final dist D5=D||D2; // not disjoint
                 return true;
 		
 	}

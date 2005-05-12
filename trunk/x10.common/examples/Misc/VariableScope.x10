@@ -11,7 +11,7 @@ public class VariableScope {
 		final int N=10;
 		region e= region.factory.region(1,N); //(low,high)
 		region r= region.factory.region(new region[]{e, e}); 
-		distribution d=distribution.factory.constant(r,here);
+		dist d=dist.factory.constant(r,here);
 		int n=0;
 		
 		for(point p: e)

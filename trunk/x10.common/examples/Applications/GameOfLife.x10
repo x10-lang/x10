@@ -46,16 +46,16 @@ final region R_inner=[1:N,1:N];
 // boundary rows and columns, as well as the inner 
 // region of the cell matrix.
 
-final distribution D=distribution.factory.block(R);
+final dist D=dist.factory.block(R);
 
 // Distribution D_inner implements the same index->place 
 // mapping as D, but does not include boundaries in its domain.
 
-final distribution D_inner = D | R_inner;
+final dist D_inner = D | R_inner;
 
 // D_boundary is (D-D_inner)
 
-final distribution D_boundary = D-R_inner;
+final dist D_boundary = D-R_inner;
 
 
 final int EXPECTED_ITER = 15;
@@ -120,7 +120,7 @@ init(isAlive, 1,1,new String[] {
  * as the upper left corner of the pattern
  */
 private static void init(final int[.] isAlive, final int x0,final int y0, final String[] s) {
-	final distribution d=isAlive.distribution;
+	final dist d=isAlive.dist;
     finish
 	for(point p[i]: 0:s.length-1) { 
 		for(point q[j]: 0:s[i].length()-1) {
@@ -136,7 +136,7 @@ private static void init(final int[.] isAlive, final int x0,final int y0, final 
  */
 private static void pr(String s, final int[.] y) {
 	System.out.println(s+":");
-	distribution d=y.distribution;
+	dist d=y.dist;
 	region r=d.region;
 	int nCol=r.rank(1).high()-r.rank(1).low()+1;
 	int n=0;

@@ -26,7 +26,7 @@ public class ValueClass6  {
 
         public boolean run() {
 
-        final distribution D=[0:9]->here;
+        final dist D=[0:9]->here;
 	// different value arrays whose elements are the same
 	// reference objects, must be equal
 	final foo value[.] X1=new foo value[D](point p[i]){return new foo();};

@@ -1,5 +1,5 @@
 /**
- * Test for arrays, regions and distributions.
+ * Test for arrays, regions and dists.
  * Based on original arraycopy3 by vj.
  *
  * @author kemal 1/2005
@@ -16,9 +16,9 @@ public class ArrayCopy3 {
 	
 	/**
 	 * Returns true iff point x is not in the domain of
-	 * distribution D
+	 * dist D
 	 */
-	static boolean outOfRange(final distribution D, final point x) {
+	static boolean outOfRange(final dist D, final point x) {
 		boolean gotException=false;
 		try{
 			async(D[x]){}; // dummy op just to use D[x]
@@ -33,8 +33,8 @@ public class ArrayCopy3 {
 	 */
 	
 	public void arrayEqual(final int[.] A, final int[.] B) {
-		final distribution D=A.distribution;
-		final distribution E=B.distribution;
+		final dist D=A.dist;
+		final dist E=B.dist;
 		// Spawn an activity for each index to 
 		// fetch the B[i] value 
 		// Then compare it to the A[i] value
@@ -48,12 +48,12 @@ public class ArrayCopy3 {
 	 */
 	
 	public void arrayCopy(final int[.] A, final int[.] B) {
-		final distribution D=A.distribution;
-		final distribution E=B.distribution;
+		final dist D=A.dist;
+		final dist E=B.dist;
 		// Allows message aggregation
 		
 
-		final distribution D_1=distribution.factory.unique(D.places()); 
+		final dist D_1=dist.factory.unique(D.places()); 
 		// number of times elems of a are accessed
 		final int[.] accessed_a = new int[D];
 		// number of times elems of b are accessed
@@ -69,7 +69,7 @@ public class ArrayCopy3 {
 			for ( place py : (E|LocalD).places() ) {
 				final region RemoteE = (E|py).region;
 				final region Common = LocalD&&RemoteE;
-				final distribution D_common= D|Common;
+				final dist D_common= D|Common;
 				// the future's can be aggregated
 				for(point i:D_common) {
 					async(py) atomic accessed_b[i]+=1;
@@ -77,15 +77,15 @@ public class ArrayCopy3 {
 						future(py){B[i]}.force();
 					// the following may need to be bracketed in
 					// atomic, unless the disambiguator
-					// knows about distributions
+					// knows about dists
 					A[i]=temp;
 					atomic accessed_a[i]+=1;
 				}
-				// check if distribution ops are working
-				final distribution D_notCommon= D-D_common;
+				// check if dist ops are working
+				final dist D_notCommon= D-D_common;
 				chk((D_common||D_notCommon).equals(D));
-				final distribution E_common= E|Common;
-				final distribution E_notCommon= E-E_common;
+				final dist E_common= E|Common;
+				final dist E_notCommon= E-E_common;
 					
 				chk((E_common||E_notCommon).equals(E));
 				for(point k:D_common) {
@@ -115,7 +115,7 @@ public class ArrayCopy3 {
     const int N=3;
 
     /**
-     * For all combinations of distributions of arrays B and A,
+     * For all combinations of dists of arrays B and A,
      * do an array copy from B to A, and verify.
      */
     public boolean run() {
@@ -123,8 +123,8 @@ public class ArrayCopy3 {
          final region TestDists= [0:dist.N_DIST_TYPES-1,0:dist.N_DIST_TYPES-1];
          for(point distP[dX,dY]: TestDists) {
 		
-             final distribution D=dist.getDist(dX,R);
-             final distribution E=dist.getDist(dY,R);
+             final dist D=dist.getDist(dX,R);
+             final dist E=dist.getDist(dY,R);
              chk(D.region.equals(E.region)&&D.region.equals(R)); 
              final int[.] A= new int[D];
              final int[.] B= new int[E]
@@ -157,8 +157,8 @@ public class ArrayCopy3 {
 }
 
 /**
- * utility for creating a distribution from a
- * a distribution type int value and a region
+ * utility for creating a dist from a
+ * a dist type int value and a region
  */
 class dist {
    const int BLOCK=0;
@@ -170,18 +170,18 @@ class dist {
    public const int N_DIST_TYPES=6;
 
    /**
-    * Return a distribution with region r, of type disttype
+    * Return a dist with region r, of type disttype
     *
     */
 
-   public static distribution getDist(int distType, region r) {
+   public static dist getDist(int distType, region r) {
       switch(distType) {
-         case BLOCK: return distribution.factory.block(r);
-         case CYCLIC: return distribution.factory.cyclic(r);
-         case BLOCKCYCLIC: return distribution.factory.blockCyclic(r,3);
-         case CONSTANT: return distribution.factory.constant(r, here);
-         case RANDOM: return distribution.factory.random(r);
-         case ARBITRARY: return distribution.factory.arbitrary(r);
+         case BLOCK: return dist.factory.block(r);
+         case CYCLIC: return dist.factory.cyclic(r);
+         case BLOCKCYCLIC: return dist.factory.blockCyclic(r,3);
+         case CONSTANT: return dist.factory.constant(r, here);
+         case RANDOM: return dist.factory.random(r);
+         case ARBITRARY: return dist.factory.arbitrary(r);
          default: throw new Error();
       }
      

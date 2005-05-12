@@ -2,12 +2,12 @@
 /**
  * @author kemal 4/2005
  *
- * Testing cyclic distribution
+ * Testing cyclic dist
  *
- * Randomly generate cyclic distributions and check 
+ * Randomly generate cyclic dists and check 
  * index-to-place mapping for conformance with x10 0.41 spec:
  *
- *The distribution cyclic(R, Q) distributes the points in R
+ *The dist cyclic(R, Q) distributes the points in R
  *cyclically across places in Q in order.
  *
  */
@@ -17,7 +17,7 @@ import java.util.Random;
 public class CyclicDist {
 	
 	public boolean run() {
-	final distribution P=distribution.factory.unique();
+	final dist P=dist.factory.unique();
 	final int np=place.MAX_PLACES;
 	final int COUNT=200;
 	final int L=5;
@@ -28,7 +28,7 @@ public class CyclicDist {
 		final int ub2=ranInt(lb2,L);
 
 		final region R = [lb1:ub1,lb2:ub2];
-		final distribution DCyclic=distribution.factory.cyclic(R);
+		final dist DCyclic=dist.factory.cyclic(R);
 		final int totalPoints=(ub1-lb1+1)*(ub2-lb2+1);
 		int offsWithinPlace=0;
 		int placeNum=0;

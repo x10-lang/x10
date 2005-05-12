@@ -9,7 +9,7 @@ public class ArrayInitializer {
 		
 		region e= region.factory.region(0,9); //(low,high)
 		region r = region.factory.region(new region[]{e, e, e}); 
-		distribution d=distribution.factory.constant(r,here);
+		dist d=dist.factory.constant(r,here);
 		
 		final int value [d] ia = 
 			new int value [d] 

@@ -18,7 +18,7 @@
 public class RegionConvexHull {
 	
 	public boolean run() {
-		final distribution P=distribution.factory.unique();
+		final dist P=dist.factory.unique();
 		final region R1 = [0:1,0:7]; // horizontal strip
 		pr("R1",R1);
 		chk(R1.isConvex());

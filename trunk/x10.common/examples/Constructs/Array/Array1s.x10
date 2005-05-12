@@ -5,7 +5,7 @@ import x10.lang.*;
 public class Array1s {
 	
 	public boolean run() {
-		distribution d =  [1:10, 1:10] -> here;
+		dist d =  [1:10, 1:10] -> here;
 		int[.] ia = new int[d];
 		
 		for(point p: 1:10)

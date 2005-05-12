@@ -7,7 +7,7 @@ public class Array3Float {
 		
 		region e= region.factory.region(1,10); //(low,high)
 		region r = region.factory.region(e, e); 
-		distribution d=distribution.factory.local(r);
+		dist d=dist.factory.local(r);
 		float[.] ia = new float[d];
 		ia[1,1] = 42.0F;
 		return (42.0F == ia[1,1]);

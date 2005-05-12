@@ -13,7 +13,7 @@ public class Foreach2 {
 		
 		final place P0=here; // save current place
 		final region r= region.factory.region(0,N-1);
-		final distribution d=distribution.factory.constant(r,P0);
+		final dist d=dist.factory.constant(r,P0);
 		
 		finish
 		foreach(point p:d) {

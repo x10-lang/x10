@@ -13,7 +13,7 @@ public class AsyncFieldAccess {
 	public boolean run() {
 		place Second = place.FIRST_PLACE.next();
 		region r = [0:0];
-		final distribution D = r->Second;
+		final dist D = r->Second;
 		finish ateach (point p: D) {
 			final T NewT = new T();
 			async ( this ) {

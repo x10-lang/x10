@@ -8,7 +8,7 @@ public class AtEach {
     int nplaces=0;
 
 	public boolean run() {         
-		final distribution d=distribution.factory.unique(place.places);
+		final dist d=dist.factory.unique(place.places);
 		final int[d] disagree = new int[d];
            finish
                 ateach(final point p:d) {

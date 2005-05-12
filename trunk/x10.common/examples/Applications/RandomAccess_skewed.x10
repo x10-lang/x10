@@ -134,26 +134,26 @@ public class RandomAccess_skewed {
 
 
 /*
- * Utility routines to create simple common distributions
+ * Utility routines to create simple common dists
  */
     /**
-     * create a simple 1D blocked distribution
+     * create a simple 1D blocked dist
      */
-    private static distribution block (int arraySize) {
-       return distribution.factory.block(0:(arraySize-1));
+    private static dist block (int arraySize) {
+       return dist.factory.block(0:(arraySize-1));
     }
     /*
-     * create a unique distribution (mapping each i to place i)
+     * create a unique dist (mapping each i to place i)
      */
     
-    private static distribution unique () {
-        return distribution.factory.unique(x10.lang.place.places);
+    private static dist unique () {
+        return dist.factory.unique(x10.lang.place.places);
     }
     
     /**
-     * create a constant-Here distribution 
+     * create a constant-Here dist 
      */
-    private static distribution value(int arraySize) {
+    private static dist value(int arraySize) {
         return  (0:(arraySize-1))->here;
     }
 
@@ -185,23 +185,23 @@ public class RandomAccess_skewed {
   public boolean run() {
 
     // initialize table
-    finish ateach(point p:table.distribution) {table[p]=p[0];}
+    finish ateach(point p:table.dist) {table[p]=p[0];}
 
     // initialize ranStarts
-    finish ateach(point p:ranStarts.distribution) 
+    finish ateach(point p:ranStarts.dist) 
          {ranStarts[p]=C.starts(N_UPDATES_PER_PLACE*p[0]);}
 
     // In all places in parallel,
     // repeatedly generate random table indices
     // and do remote atomic updates on corresponding table elements
-    finish ateach (point p : ranStarts.distribution) {
+    finish ateach (point p : ranStarts.dist) {
         long ran = nextRandom(ranStarts[p]);
         for(point count: 1:N_UPDATES_PER_PLACE ) {
             final int j = f(ran);
             final long k = smallTable[g(ran)];
 	    //final int dst=j/(TABLE_SIZE/MAX_PLACES);
 	    //System.out.println("src="+p[0]+" dst="+dst+" ran="+Long.toHexString(ran)+" j="+j+" k="+Long.toHexString(k));
-            async(table.distribution[j]){
+            async(table.dist[j]){
             	pause(50000);
             	atomic{table[j]=table[j]^k;}
             	}

@@ -60,15 +60,15 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 
     public void JGFinitialise(){
 
-	final distribution d_places = distribution.factory.unique(place.places);
+	final dist d_places = dist.factory.unique(place.places);
 	final region r_N = [0 : datasizes_N[size]-1]; 
 	final region r_M = [0 : datasizes_M[size]-1]; 
 	final region r_nz = [0 : datasizes_nz[size]-1]; 
 	final region r_nthreads = [0 : nthreads-1]; 
-	final distribution d_N = distribution.factory.block(r_N, place.places);
-	final distribution d_M = distribution.factory.block(r_M, place.places);
-	final distribution d_nz = distribution.factory.block(r_nz, place.places);
-	final distribution d_nthreads = distribution.factory.unique(place.places);
+	final dist d_N = dist.factory.block(r_N, place.places);
+	final dist d_M = dist.factory.block(r_M, place.places);
+	final dist d_nz = dist.factory.block(r_nz, place.places);
+	final dist d_nthreads = dist.factory.unique(place.places);
 
 	x = RandomVector(d_N, R); // distributed -- cvp
 	y = new double[d_M];      // distributed -- cvp
@@ -184,7 +184,7 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 	JGFInstrumentor.printTimer("Section2:SparseMatmult:Kernel"); 
     }
 
-    private static double[.] RandomVector(distribution d, final java.util.Random R)
+    private static double[.] RandomVector(dist d, final java.util.Random R)
     {
 	final double[.] A = new double[d] (point[i]) { return R.nextDouble() * 1e-6; };
 	return A;

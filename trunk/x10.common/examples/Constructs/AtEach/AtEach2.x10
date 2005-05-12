@@ -10,7 +10,7 @@ public class AtEach2 {
     int nplaces=0;
 
     public boolean run() {         
-        final distribution d=distribution.factory.unique(place.places);
+        final dist d=dist.factory.unique(place.places);
         int[d] disagree = new int[d];
         finish ateach(point p:d) {
             // remember if here and d[i] disagree

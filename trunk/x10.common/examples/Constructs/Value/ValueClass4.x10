@@ -40,7 +40,7 @@ public class ValueClass4  {
 
         public boolean run() {
 
-        distribution d=[0:9]->here;
+        dist d=[0:9]->here;
         final foo f= new foo();
         myval x= new myval(1,new complex(2,3),f, new int value[d]);
         myval y= new myval(1,new complex(2,3),f, new int value[d]);

@@ -12,7 +12,7 @@ public class ForLoop {
 	
                 region r=region.factory.region(0,N-1);
 		place P0=here;
-		distribution d=distribution.factory.constant(r,P0);
+		dist d=dist.factory.constant(r,P0);
 
 		if(!d.region.equals(r)) return false;
 		if(d.region.low()!=0) return false;

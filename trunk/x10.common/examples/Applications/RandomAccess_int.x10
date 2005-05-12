@@ -144,22 +144,22 @@ public class RandomAccess_int {
     }	
    
 /*
- * Utility routines to create simple common distributions
+ * Utility routines to create simple common dists
  * should be placed in a library class
  */
     /**
-     * create a simple 1D blocked distribution
+     * create a simple 1D blocked dist
      */
-    private static distribution block (int arraySize) {
+    private static dist block (int arraySize) {
     	final region r=region.factory.region(0,arraySize-1);
-    	return distribution.factory.block(r);
+    	return dist.factory.block(r);
     }
     /*
-     * create a unique distribution (mapping each i to place i)
+     * create a unique dist (mapping each i to place i)
      */
     
-    private static distribution unique () {
-        return distribution.factory.unique(x10.lang.place.places);
+    private static dist unique () {
+        return dist.factory.unique(x10.lang.place.places);
     }
     
 
@@ -170,18 +170,18 @@ public class RandomAccess_int {
 
   public boolean run() {
     // distributed histogram table
-    final distribution d=block(TABLE_SIZE);
+    final dist d=block(TABLE_SIZE);
     final int[d] table = new int[d];
     finish ateach(point p:d) {table[p]=p[0];}
 
     // random number starting seeds for each place
-    final distribution d2= unique(); 
+    final dist d2= unique(); 
     final int[d2] ranStarts = new int[d2];
     finish ateach(point p:d2) {ranStarts[p]=C.starts(N_UPDATES_PER_PLACE*p[0]);}
     
     // A small value table that will be copied to all processors
     // Used in generating the update value
-    final distribution d3= (0: (SMALL_TABLE_SIZE-1)) -> here;
+    final dist d3= (0: (SMALL_TABLE_SIZE-1)) -> here;
     final int /*value*/[d3] smallTable = new int /*value*/[d3] 
       new intArray.pointwiseOp() 
        { public int apply(point p) 
@@ -200,7 +200,7 @@ public class RandomAccess_int {
             final int j = f(ran);
             final int k = smallTable[g(ran)];
 	    final point q=Pt(j);
-            async(table.distribution[q]){atomic{table[q]=update(table[q],k);}}
+            async(table.dist[q]){atomic{table[q]=update(table[q],k);}}
             ran = nextRandom(ran);
         }
     }

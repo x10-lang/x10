@@ -126,24 +126,24 @@ public class RandomAccess_long {
 
 
    /*
-    * Utility routines to create simple common distributions
+    * Utility routines to create simple common dists
     */
     
     /**
-     * create a simple 1D blocked distribution
+     * create a simple 1D blocked dist
      */
-    distribution block (int arraySize) {
-       return distribution.factory.block(0:(arraySize-1));
+    dist block (int arraySize) {
+       return dist.factory.block(0:(arraySize-1));
     }
     
     /**
-     * create a unique distribution (mapping each i to place i)
+     * create a unique dist (mapping each i to place i)
      */
-    distribution unique () {
-        return distribution.factory.unique(x10.lang.place.places);
+    dist unique () {
+        return dist.factory.unique(x10.lang.place.places);
     }
     
-  final distribution tableDist=block(TABLE_SIZE); // same as table.distribution  
+  final dist tableDist=block(TABLE_SIZE); // same as table.dist  
   /**
    * main RandomAccess routine
    */
@@ -163,12 +163,12 @@ public class RandomAccess_long {
     
     // In all places in parallel,repeatedly generate random indices
     // and do remote atomic updates on corresponding table elements
-    finish ateach (point p[i]: ranStarts.distribution) {
+    finish ateach (point p[i]: ranStarts.dist) {
         long ran = nextRandom(ranStarts[i]);
         for(point count: 1:N_UPDATES_PER_PLACE) {
             final int  j = f(ran);
             final long k = smallTable[g(ran)];
-            async(table.distribution[j]) 
+            async(table.dist[j]) 
 			    atomic {
             	  table[j] = table[j] ^ k;
             }

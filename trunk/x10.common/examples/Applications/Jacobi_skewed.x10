@@ -17,9 +17,9 @@
      const double epsilon2 = 0.00000001;
      final region R = [0:N+1];
      final region RInner= [1:N];
-     final distribution D = createDist(R);
-     final distribution DInner = D | RInner;
-     final distribution DBoundary = D - RInner;
+     final dist D = createDist(R);
+     final dist DInner = D | RInner;
+     final dist DBoundary = D - RInner;
      const int EXPECTED_ITERS=72;
      const double EXPECTED_ERR=0.0998058359189411;
      
@@ -48,28 +48,28 @@
     const boolean SKEWED=true;
     
     /**
-     * Create either a blocked or a custom skewed distribution
+     * Create either a blocked or a custom skewed dist
      */
-    distribution createDist(region r) {
+    dist createDist(region r) {
     	return SKEWED? 
     	       createSkewedDist(r.rank(0).high()-1,2):
-    	       distribution.factory.block(r);
+    	       dist.factory.block(r);
     }
     
     /**
-     * This creates a custom skewed distribution
+     * This creates a custom skewed dist
      * where all places get K array elements each,
      * except for the last place, which gets
      * all the remaining elements
      */
-    static distribution createSkewedDist(final int N, final int K) {
-	  final distribution u=distribution.factory.unique(x10.lang.place.places);
+    static dist createSkewedDist(final int N, final int K) {
+	  final dist u=dist.factory.unique(x10.lang.place.places);
 	  final int NP=x10.lang.place.MAX_PLACES;
 	  if (K*(NP-1)>N+1) throw new Error("Too few array elements");
-	  distribution d0=((0:(K-1))->u[0]);
+	  dist d0=((0:(K-1))->u[0]);
 	  for(int i=1;i<NP-1;i++) {
 	    final int start=K*i;
-        final distribution d1=((start:(start+K-1))->u[i]);
+        final dist d1=((start:(start+K-1))->u[i]);
         d0=d0.union(d1);
 	  }
       return d0.union(((K*(NP-1)):(N+1))->u[NP-1]);	
