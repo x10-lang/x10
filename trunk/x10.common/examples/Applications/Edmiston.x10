@@ -53,9 +53,9 @@ public class Edmiston {
           (point[i]) {return (i==0)?'-':randomChar(i);};
         final char value[.] c2= new char value[(0:M)->here]
           (point[i]) {return (i==0)?'-':randomChar(N+i);};
-        final distribution D=distribution.factory.block([0:N,0:M]);
-        final distribution Dinner=D|[1:N,1:M];
-        final distribution Dboundary=D-Dinner;
+        final dist D=dist.factory.block([0:N,0:M]);
+        final dist Dinner=D|[1:N,1:M];
+        final dist Dboundary=D-Dinner;
         //  e is initialized to:
         //  0     1*gapPen     2*gapPen     3*gapPen ...
         //  1*gapPen ...
@@ -80,7 +80,7 @@ public class Edmiston {
     }
 
     static int read(final synchronizedInt[.] e, final int i, final int j) {
-	return future(e.distribution[i,j]){e[i,j].rd()}.force();
+	return future(e.dist[i,j]){e[i,j].rd()}.force();
     }
 
     /**
@@ -115,7 +115,7 @@ public class Edmiston {
     int arraySum(final synchronizedInt[.] e) {
 	int sum=0;
 	for(point p[i,j]:e) {
-		sum+=future(e.distribution[i,j]){e[i,j].rd()}.force();
+		sum+=future(e.dist[i,j]){e[i,j].rd()}.force();
 	}
 	return sum;
     }

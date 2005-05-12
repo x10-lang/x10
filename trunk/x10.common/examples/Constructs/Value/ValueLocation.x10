@@ -30,7 +30,7 @@ public class ValueLocation  {
 
     public boolean run() {
 
-        final distribution P=distribution.factory.unique();
+        final dist P=dist.factory.unique();
         chk(P.region.equals([0:place.MAX_PLACES-1]));
         chk(P[0]==here);
         final complex one=new complex(1,1);
