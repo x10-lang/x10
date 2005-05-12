@@ -22,8 +22,8 @@ public class ArrayCopy1 {
     * whose regions are equal.
     */
 	void arrayEqual(final int[.] A,final int[.] B) {
-		dist D = A.dist;
-		dist E = B.dist;
+		dist D = A.distribution;
+		dist E = B.distribution;
 		// Spawn an activity for each index to 
 		// fetch the b[i] value 
 		// Then compare it to the a[i] value
@@ -39,8 +39,8 @@ public class ArrayCopy1 {
      * Returns false iff some checking assertion failed
      */
 	void arrayCopy(final int[.] A, final int[.] B) {
-		final dist D = A.dist;
-		final dist E = B.dist;
+		final dist D = A.distribution;
+		final dist E = B.distribution;
 		// Spawn an activity for each index to 
 		// fetch and copy the value
 		finish

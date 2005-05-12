@@ -18,16 +18,16 @@ public class ArrayToDist {
 		final int[.] A1 =new int[D](point p[i,j]){return f(i,j);};
 		final foo[.] A2 =new foo[D](point p[i,j]){return new foo(f(i,j));};
 		for(point p[i,j]: A1) 
-			chk(f(i,j)==future(A1.dist[i,j]){A1[i,j]}.force(),"1");
+			chk(f(i,j)==future(A1.distribution[i,j]){A1[i,j]}.force(),"1");
 		finish foreach(point p[i,j]: A1) 
-			chk(f(i,j)==future(A1.dist[i,j]){A1[i,j]}.force(),"2");
+			chk(f(i,j)==future(A1.distribution[i,j]){A1[i,j]}.force(),"2");
 		finish ateach(point p[i,j]: A1) 
 			chk(f(i,j)==A1[i,j],"3");
 
 		for(point p[i,j]: A2) 
-			chk(f(i,j)==future(A2.dist[i,j]){A2[i,j].val}.force(),"4");
+			chk(f(i,j)==future(A2.distribution[i,j]){A2[i,j].val}.force(),"4");
 		finish foreach(point p[i,j]: A2) 
-			chk(f(i,j)==future(A2.dist[i,j]){A2[i,j].val}.force(),"5");
+			chk(f(i,j)==future(A2.distribution[i,j]){A2[i,j].val}.force(),"5");
 		finish ateach(point p[i,j]: A2) 
 			chk(f(i,j)==A2[i,j].val,"6");
 		

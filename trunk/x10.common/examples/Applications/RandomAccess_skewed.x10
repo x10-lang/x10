@@ -185,23 +185,23 @@ public class RandomAccess_skewed {
   public boolean run() {
 
     // initialize table
-    finish ateach(point p:table.dist) {table[p]=p[0];}
+    finish ateach(point p:table.distribution) {table[p]=p[0];}
 
     // initialize ranStarts
-    finish ateach(point p:ranStarts.dist) 
+    finish ateach(point p:ranStarts.distribution) 
          {ranStarts[p]=C.starts(N_UPDATES_PER_PLACE*p[0]);}
 
     // In all places in parallel,
     // repeatedly generate random table indices
     // and do remote atomic updates on corresponding table elements
-    finish ateach (point p : ranStarts.dist) {
+    finish ateach (point p : ranStarts.distribution) {
         long ran = nextRandom(ranStarts[p]);
         for(point count: 1:N_UPDATES_PER_PLACE ) {
             final int j = f(ran);
             final long k = smallTable[g(ran)];
 	    //final int dst=j/(TABLE_SIZE/MAX_PLACES);
 	    //System.out.println("src="+p[0]+" dst="+dst+" ran="+Long.toHexString(ran)+" j="+j+" k="+Long.toHexString(k));
-            async(table.dist[j]){
+            async(table.distribution[j]){
             	pause(50000);
             	atomic{table[j]=table[j]^k;}
             	}

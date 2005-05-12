@@ -16,7 +16,7 @@ public class AsyncTest3_MustFailCompile  {
 		finish async {}
 		//==> Compiler error expected unless
 		//place inference is correctly done
-		finish async {A[1]+=1; chk(here==A.dist[1]);}
+		finish async {A[1]+=1; chk(here==A.distribution[1]);}
 		//==> Compiler error definitely expected
 		finish async {A[0]+=A[1];}
 	  	return true;

@@ -49,7 +49,7 @@ public class ArrayAlgebra {
 	 */
 
 	static void arrEq(final int[.] x,final int[.] y) {
-		chk(x.dist.equals(y.dist));
+		chk(x.distribution.equals(y.distribution));
 		finish ateach(point p:x) chk(x[p]==y[p]);
 	}	
 

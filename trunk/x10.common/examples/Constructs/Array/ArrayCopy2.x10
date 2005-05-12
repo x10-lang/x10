@@ -37,8 +37,8 @@ public class ArrayCopy2 {
 		// Spawn an activity for each index to 
 		// fetch the B[i] value 
 		// Then compare it to the A[i] value
-		final dist D=A.dist;
-		final dist E=B.dist;
+		final dist D=A.distribution;
+		final dist E=B.distribution;
 		finish
 		ateach(point i:D) chk(A[i]==future(E[i]){B[i]}.force());
 	}
@@ -49,8 +49,8 @@ public class ArrayCopy2 {
 	 */
 	
 	public void arrayCopy(final int[.] A,final int[.] B) {
-		final dist D=A.dist;
-		final dist E=B.dist;
+		final dist D=A.distribution;
+		final dist E=B.distribution;
 		// Spawn one activity per place 
 		
 		final dist D_1= dist.factory.unique(D.places()); 

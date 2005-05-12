@@ -33,8 +33,8 @@ public class ArrayCopy3 {
 	 */
 	
 	public void arrayEqual(final int[.] A, final int[.] B) {
-		final dist D=A.dist;
-		final dist E=B.dist;
+		final dist D=A.distribution;
+		final dist E=B.distribution;
 		// Spawn an activity for each index to 
 		// fetch the B[i] value 
 		// Then compare it to the A[i] value
@@ -48,8 +48,8 @@ public class ArrayCopy3 {
 	 */
 	
 	public void arrayCopy(final int[.] A, final int[.] B) {
-		final dist D=A.dist;
-		final dist E=B.dist;
+		final dist D=A.distribution;
+		final dist E=B.distribution;
 		// Allows message aggregation
 		
 

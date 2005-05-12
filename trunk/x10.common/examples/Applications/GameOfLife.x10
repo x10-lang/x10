@@ -120,7 +120,7 @@ init(isAlive, 1,1,new String[] {
  * as the upper left corner of the pattern
  */
 private static void init(final int[.] isAlive, final int x0,final int y0, final String[] s) {
-	final dist d=isAlive.dist;
+	final dist d=isAlive.distribution;
     finish
 	for(point p[i]: 0:s.length-1) { 
 		for(point q[j]: 0:s[i].length()-1) {
@@ -136,7 +136,7 @@ private static void init(final int[.] isAlive, final int x0,final int y0, final 
  */
 private static void pr(String s, final int[.] y) {
 	System.out.println(s+":");
-	dist d=y.dist;
+	dist d=y.distribution;
 	region r=d.region;
 	int nCol=r.rank(1).high()-r.rank(1).low()+1;
 	int n=0;

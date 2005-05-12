@@ -200,7 +200,7 @@ public class RandomAccess_int {
             final int j = f(ran);
             final int k = smallTable[g(ran)];
 	    final point q=Pt(j);
-            async(table.dist[q]){atomic{table[q]=update(table[q],k);}}
+            async(table.distribution[q]){atomic{table[q]=update(table[q],k);}}
             ran = nextRandom(ran);
         }
     }
