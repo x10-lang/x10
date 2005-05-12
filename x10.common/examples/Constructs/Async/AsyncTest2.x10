@@ -9,10 +9,10 @@ public class AsyncTest2  {
 
 	public boolean run() {
 		final int NP=place.MAX_PLACES;
-		final int[.] A = new int[distribution.factory.unique()];
+		final int[.] A = new int[dist.factory.unique()];
 		finish
 		for(point [k]:0:NP-1)
-			async (A.distribution[k])
+			async (A.dist[k])
 				ateach(point [i]: A) atomic A[i]+=i; 
 		finish ateach(point [i]:A) {chk(A[i]==i*NP);}
 		

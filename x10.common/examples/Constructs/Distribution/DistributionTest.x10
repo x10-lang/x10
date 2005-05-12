@@ -1,7 +1,7 @@
 import x10.lang.*;
 
 /**
- * Minimal test for distributions.
+ * Minimal test for dists.
  */
 
 public class DistributionTest {
@@ -9,7 +9,7 @@ public class DistributionTest {
 	public boolean run() {
 		region r = region.factory.region(0,100); //(low,high)
 		final region R = region.factory.region(new region[] {r,r});
-		distribution d = distribution.factory.constant(R,here);
+		dist d = dist.factory.constant(R,here);
 		return ((d.rank==2) && 
 				(R.rank==2) &&
 				(R.rank(1).high()-R.rank(1).low()+1 == 101));

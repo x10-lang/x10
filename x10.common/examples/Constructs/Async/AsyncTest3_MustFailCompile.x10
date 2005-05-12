@@ -11,12 +11,12 @@ public class AsyncTest3_MustFailCompile  {
 
 
 	public boolean run() {
-		final int[.] A=new int[distribution.factory.unique()];
+		final int[.] A=new int[dist.factory.unique()];
 		chk(place.FIRST_PLACE.next()!=place.FIRST_PLACE);
 		finish async {}
 		//==> Compiler error expected unless
 		//place inference is correctly done
-		finish async {A[1]+=1; chk(here==A.distribution[1]);}
+		finish async {A[1]+=1; chk(here==A.dist[1]);}
 		//==> Compiler error definitely expected
 		finish async {A[0]+=A[1];}
 	  	return true;

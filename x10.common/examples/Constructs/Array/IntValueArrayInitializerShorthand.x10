@@ -5,7 +5,7 @@ import x10.lang.*;
 public class IntValueArrayInitializerShorthand {
 
 	public boolean run() {
-		distribution d =  [1:10, 1:10] -> here;
+		dist d =  [1:10, 1:10] -> here;
 		int value [.] ia = new int value[d] (point [i,j]) { return i+j; };
 		
 		for(point p[i,j]: [1:10,1:10]) 

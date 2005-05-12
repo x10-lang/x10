@@ -48,58 +48,58 @@ public class ArrayIndexing {
 		range4D = [0:2,0:4,2:10,1:10];
 		System.out.println("Testing double arrays...");
 		long start = System.currentTimeMillis();
-		_doubleArray1D = new double[distribution.factory.block(range1D)];
-		_doubleArray2D = new double[distribution.factory.block(range2D)];
-		_doubleArray3D = new double[distribution.factory.block(range3D)];
-		_doubleArray4D = new double[distribution.factory.block(range4D)];
+		_doubleArray1D = new double[dist.factory.block(range1D)];
+		_doubleArray2D = new double[dist.factory.block(range2D)];
+		_doubleArray3D = new double[dist.factory.block(range3D)];
+		_doubleArray4D = new double[dist.factory.block(range4D)];
 		long stop = System.currentTimeMillis();
 		System.out.println("Double arrays allocated in "+((double)(stop-start)/1000)+ "seconds");
 		
 		 start = System.currentTimeMillis();
-		_intArray1D = new int[distribution.factory.block(range1D)];
-		_intArray2D = new int[distribution.factory.block(range2D)];
-		_intArray3D = new int[distribution.factory.block(range3D)];
-		_intArray4D = new int[distribution.factory.block(range4D)];
+		_intArray1D = new int[dist.factory.block(range1D)];
+		_intArray2D = new int[dist.factory.block(range2D)];
+		_intArray3D = new int[dist.factory.block(range3D)];
+		_intArray4D = new int[dist.factory.block(range4D)];
 		 stop = System.currentTimeMillis();
 		System.out.println("int arrays allocated in "+((double)(stop-start)/1000)+ "seconds");
 	
 		start = System.currentTimeMillis();
-		_longArray3D = new long[distribution.factory.block(range3D)];
-		_longArray4D = new long[distribution.factory.block(range4D)];
+		_longArray3D = new long[dist.factory.block(range3D)];
+		_longArray4D = new long[dist.factory.block(range4D)];
 		stop = System.currentTimeMillis();
 		System.out.println("long arrays allocated in "+((double)(stop-start)/1000)+ "seconds");
 		
 		start = System.currentTimeMillis();
-		_floatArray3D = new float[distribution.factory.block(range3D)];
-		_floatArray4D = new float[distribution.factory.block(range4D)];
+		_floatArray3D = new float[dist.factory.block(range3D)];
+		_floatArray4D = new float[dist.factory.block(range4D)];
 		stop = System.currentTimeMillis();
 		System.out.println("float arrays allocated in "+((double)(stop-start)/1000)+ "seconds");
 		
 		start = System.currentTimeMillis();
-		_charArray3D = new char[distribution.factory.block(range3D)];
-		_charArray4D = new char[distribution.factory.block(range4D)];
+		_charArray3D = new char[dist.factory.block(range3D)];
+		_charArray4D = new char[dist.factory.block(range4D)];
 		stop = System.currentTimeMillis();
 		System.out.println("char arrays allocated in "+((double)(stop-start)/1000)+ "seconds");
 		
 
 		start = System.currentTimeMillis();
-		_byteArray3D = new byte[distribution.factory.block(range3D)];
-		_byteArray4D = new byte[distribution.factory.block(range4D)];
+		_byteArray3D = new byte[dist.factory.block(range3D)];
+		_byteArray4D = new byte[dist.factory.block(range4D)];
 		stop = System.currentTimeMillis();
 		System.out.println("byte arrays allocated in "+((double)(stop-start)/1000)+ "seconds");
 		 start = System.currentTimeMillis();
-			_genericArray1D = new Generic[distribution.factory.block(range1D)];
-			_genericArray2D = new Generic[distribution.factory.block(range2D)];
-			_genericArray3D = new Generic[distribution.factory.block(range3D)];
-			_genericArray4D = new Generic[distribution.factory.block(range4D)];
+			_genericArray1D = new Generic[dist.factory.block(range1D)];
+			_genericArray2D = new Generic[dist.factory.block(range2D)];
+			_genericArray3D = new Generic[dist.factory.block(range3D)];
+			_genericArray4D = new Generic[dist.factory.block(range4D)];
 			 stop = System.currentTimeMillis();
 			System.out.println("Generic arrays allocated in "+((double)(stop-start)/1000)+ "seconds");
 	}
 	
 	boolean verify1D(Generic [.] array){
-		int h1 = array.distribution.region.rank(0).high();
+		int h1 = array.dist.region.rank(0).high();
 		
-		int l1 =  array.distribution.region.rank(0).low();
+		int l1 =  array.dist.region.rank(0).low();
 		
 		
 		int count = 0;
@@ -117,10 +117,10 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify2D(Generic [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int l1 =  array.distribution.region.rank(0).low();
-		int l2 =  array.distribution.region.rank(1).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int l1 =  array.dist.region.rank(0).low();
+		int l2 =  array.dist.region.rank(1).low();
 		
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
@@ -137,12 +137,12 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify3D(Generic [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high() ;
-		int l1 =  array.distribution.region.rank(0).low();
-		int l2 =  array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high() ;
+		int l1 =  array.dist.region.rank(0).low();
+		int l2 =  array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -158,14 +158,14 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify4D(Generic [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high();
-		int h4 = array.distribution.region.rank(3).high();
-		int l1 = array.distribution.region.rank(0).low();
-		int l2 = array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
-		int l4 = array.distribution.region.rank(3).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high();
+		int h4 = array.dist.region.rank(3).high();
+		int l1 = array.dist.region.rank(0).low();
+		int l2 = array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
+		int l4 = array.dist.region.rank(3).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -182,12 +182,12 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify3D(double [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high() ;
-		int l1 =  array.distribution.region.rank(0).low();
-		int l2 =  array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high() ;
+		int l1 =  array.dist.region.rank(0).low();
+		int l2 =  array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -203,14 +203,14 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify4D(double [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high();
-		int h4 = array.distribution.region.rank(3).high();
-		int l1 = array.distribution.region.rank(0).low();
-		int l2 = array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
-		int l4 = array.distribution.region.rank(3).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high();
+		int h4 = array.dist.region.rank(3).high();
+		int l1 = array.dist.region.rank(0).low();
+		int l2 = array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
+		int l4 = array.dist.region.rank(3).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -227,12 +227,12 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify3D(long [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high() ;
-		int l1 =  array.distribution.region.rank(0).low();
-		int l2 =  array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high() ;
+		int l1 =  array.dist.region.rank(0).low();
+		int l2 =  array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -248,14 +248,14 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify4D(long [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high();
-		int h4 = array.distribution.region.rank(3).high();
-		int l1 = array.distribution.region.rank(0).low();
-		int l2 = array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
-		int l4 = array.distribution.region.rank(3).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high();
+		int h4 = array.dist.region.rank(3).high();
+		int l1 = array.dist.region.rank(0).low();
+		int l2 = array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
+		int l4 = array.dist.region.rank(3).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -273,12 +273,12 @@ public class ArrayIndexing {
 	}
 	
 	boolean verify3D(float [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high() ;
-		int l1 =  array.distribution.region.rank(0).low();
-		int l2 =  array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high() ;
+		int l1 =  array.dist.region.rank(0).low();
+		int l2 =  array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -294,14 +294,14 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify4D(float [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high();
-		int h4 = array.distribution.region.rank(3).high();
-		int l1 = array.distribution.region.rank(0).low();
-		int l2 = array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
-		int l4 = array.distribution.region.rank(3).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high();
+		int h4 = array.dist.region.rank(3).high();
+		int l1 = array.dist.region.rank(0).low();
+		int l2 = array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
+		int l4 = array.dist.region.rank(3).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -319,12 +319,12 @@ public class ArrayIndexing {
 	}
 	
 	boolean verify3D(char [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high() ;
-		int l1 =  array.distribution.region.rank(0).low();
-		int l2 =  array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high() ;
+		int l1 =  array.dist.region.rank(0).low();
+		int l2 =  array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -340,14 +340,14 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify4D(char [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high();
-		int h4 = array.distribution.region.rank(3).high();
-		int l1 = array.distribution.region.rank(0).low();
-		int l2 = array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
-		int l4 = array.distribution.region.rank(3).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high();
+		int h4 = array.dist.region.rank(3).high();
+		int l1 = array.dist.region.rank(0).low();
+		int l2 = array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
+		int l4 = array.dist.region.rank(3).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -364,12 +364,12 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify3D(byte [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high() ;
-		int l1 =  array.distribution.region.rank(0).low();
-		int l2 =  array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high() ;
+		int l1 =  array.dist.region.rank(0).low();
+		int l2 =  array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -385,14 +385,14 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify4D(byte [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high();
-		int h4 = array.distribution.region.rank(3).high();
-		int l1 = array.distribution.region.rank(0).low();
-		int l2 = array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
-		int l4 = array.distribution.region.rank(3).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high();
+		int h4 = array.dist.region.rank(3).high();
+		int l1 = array.dist.region.rank(0).low();
+		int l2 = array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
+		int l4 = array.dist.region.rank(3).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -411,13 +411,13 @@ public class ArrayIndexing {
 	
 	boolean verify3D(int [.] array){
 		
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high();
 		
-		int l1 = array.distribution.region.rank(0).low();
-		int l2 = array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
+		int l1 = array.dist.region.rank(0).low();
+		int l2 = array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
 	
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
@@ -435,14 +435,14 @@ public class ArrayIndexing {
 		return true;
 	}
 	boolean verify4D(int [.] array){
-		int h1 = array.distribution.region.rank(0).high();
-		int h2 = array.distribution.region.rank(1).high();
-		int h3 = array.distribution.region.rank(2).high();
-		int h4 = array.distribution.region.rank(3).high();
-		int l1 = array.distribution.region.rank(0).low();
-		int l2 = array.distribution.region.rank(1).low();
-		int l3 = array.distribution.region.rank(2).low();
-		int l4 = array.distribution.region.rank(3).low();
+		int h1 = array.dist.region.rank(0).high();
+		int h2 = array.dist.region.rank(1).high();
+		int h3 = array.dist.region.rank(2).high();
+		int h4 = array.dist.region.rank(3).high();
+		int l1 = array.dist.region.rank(0).low();
+		int l2 = array.dist.region.rank(1).low();
+		int l3 = array.dist.region.rank(2).low();
+		int l4 = array.dist.region.rank(3).low();
 		int count = 0;
 		for(int i = l1; i <= h1;++i)
 			for(int j = l2; j <= h2;++j)
@@ -459,66 +459,66 @@ public class ArrayIndexing {
 		return true;
 	}
 	void initialize(double [.] array){
-		distribution arrayDist = array.distribution;
+		dist arrayDist = array.dist;
 		int count=0;
-		for(point p:array.distribution.region) {
+		for(point p:array.dist.region) {
 			array[p] = count++;	
 			if(verbose) System.out.println("init:"+p+"="+count);
 		}
 	}
 	
 	void initialize(Generic [.] array){
-		distribution arrayDist = array.distribution;
+		dist arrayDist = array.dist;
 		int count=0;
-		for(point p:array.distribution.region) {
+		for(point p:array.dist.region) {
 			array[p].value = count++;	
 			if(verbose) System.out.println("init:"+p+"="+count);
 		}
 	}
 	void initialize(int [.] array){
-		distribution arrayDist = array.distribution;
+		dist arrayDist = array.dist;
 		int count=0;
-		for(point p:array.distribution.region) {
+		for(point p:array.dist.region) {
 			array[p] = count++;	
 			if(verbose) System.out.println("init:"+p+"="+count);
 		}
 	}
 	void initialize(long [.] array){
-		distribution arrayDist = array.distribution;
+		dist arrayDist = array.dist;
 		int count=0;
-		for(point p:array.distribution.region) {
+		for(point p:array.dist.region) {
 			array[p] = count++;	
 			if(verbose) System.out.println("init:"+p+"="+count);
 		}
 	}
 	void initialize(float [.] array){
-		distribution arrayDist = array.distribution;
+		dist arrayDist = array.dist;
 		int count=0;
-		for(point p:array.distribution.region) {
+		for(point p:array.dist.region) {
 			array[p] = count++;	
 			if(verbose) System.out.println("init:"+p+"="+count);
 		}
 	}
 	void initialize(byte [.] array){
-		distribution arrayDist = array.distribution;
+		dist arrayDist = array.dist;
 		int count=0;
-		for(point p:array.distribution.region) {
+		for(point p:array.dist.region) {
 			array[p] = (byte)(count++);	
 			if(verbose) System.out.println("init:"+p+"="+(byte)count);
 		}
 	}
 	void initialize(char [.] array){
-		distribution arrayDist = array.distribution;
+		dist arrayDist = array.dist;
 		int count=0;
-		for(point p:array.distribution.region) {
+		for(point p:array.dist.region) {
 			array[p] = (char)(count++);	
 			if(verbose) System.out.println("init:"+p+"="+(char)count);
 		}
 	}
 	void initialize(boolean [.] array){
-		distribution arrayDist = array.distribution;
+		dist arrayDist = array.dist;
 		int count=0;
-		for(point p:array.distribution.region) {
+		for(point p:array.dist.region) {
 			array[p] = 1==(count++)%2;	
 			if(verbose) System.out.println("init:"+p+"="+(1 ==count%2));
 		}

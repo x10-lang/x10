@@ -7,7 +7,7 @@ public class Array1Exploded {
 		return i+k;
 	}
 	public boolean run() {
-		distribution d =  [1:10, 1:10] -> here;
+		dist d =  [1:10, 1:10] -> here;
 		int[.] ia = new int[d];
 		
 		for(point p[i,j]: [1:10,1:10]) {

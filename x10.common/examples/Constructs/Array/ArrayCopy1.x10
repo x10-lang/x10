@@ -1,5 +1,5 @@
 /**
- * Test for arrays, regions and distributions
+ * Test for arrays, regions and dists
  * Based on original arraycopy1 by vj
  *
  * @author kemal 1/2005
@@ -18,12 +18,12 @@ public class ArrayCopy1 {
 
    /**
     * Does not throw an error iff A[i]==B[i] for all points i. 
-    * A and B can have differing distributions
+    * A and B can have differing dists
     * whose regions are equal.
     */
 	void arrayEqual(final int[.] A,final int[.] B) {
-		distribution D = A.distribution;
-		distribution E = B.distribution;
+		dist D = A.dist;
+		dist E = B.dist;
 		// Spawn an activity for each index to 
 		// fetch the b[i] value 
 		// Then compare it to the a[i] value
@@ -34,13 +34,13 @@ public class ArrayCopy1 {
 	
     /**
      * Set A[i]=B[i] for all i.
-     * A and B can have different distributions whose
+     * A and B can have different dists whose
      * regions are equal.
      * Returns false iff some checking assertion failed
      */
 	void arrayCopy(final int[.] A, final int[.] B) {
-		final distribution D = A.distribution;
-		final distribution E = B.distribution;
+		final dist D = A.dist;
+		final dist E = B.dist;
 		// Spawn an activity for each index to 
 		// fetch and copy the value
 		finish
@@ -55,7 +55,7 @@ public class ArrayCopy1 {
     const int N=3;
 
     /**
-     * For all combinations of distributions of arrays B and A,
+     * For all combinations of dists of arrays B and A,
      * do an array copy from B to A, and verify.
      */
     public boolean run() {
@@ -64,8 +64,8 @@ public class ArrayCopy1 {
 
          for(point distP[dX,dY]: TestDists) {
 		
-             final distribution D=dist.getDist(dX,R);
-             final distribution E=dist.getDist(dY,R);
+             final dist D=dist.getDist(dX,R);
+             final dist E=dist.getDist(dY,R);
              chk(D.region.equals(E.region)&&D.region.equals(R)); 
              final int[.] A= new int[D];
              final int[.] B= new int[E]
@@ -99,8 +99,8 @@ public class ArrayCopy1 {
 }
 
 /**
- * utility for creating a distribution from a
- * a distribution type int value and a region
+ * utility for creating a dist from a
+ * a dist type int value and a region
  */
 class dist {
    const int BLOCK=0;
@@ -112,18 +112,18 @@ class dist {
    public const int N_DIST_TYPES=6;
 
    /**
-    * Return a distribution with region r, of type disttype
+    * Return a dist with region r, of type disttype
     *
     */
 
-   public static distribution getDist(int distType, region r) {
+   public static dist getDist(int distType, region r) {
       switch(distType) {
-         case BLOCK: return distribution.factory.block(r);
-         case CYCLIC: return distribution.factory.cyclic(r);
-         case BLOCKCYCLIC: return distribution.factory.blockCyclic(r,3);
-         case CONSTANT: return distribution.factory.constant(r, here);
-         case RANDOM: return distribution.factory.random(r);
-         case ARBITRARY: return distribution.factory.arbitrary(r);
+         case BLOCK: return dist.factory.block(r);
+         case CYCLIC: return dist.factory.cyclic(r);
+         case BLOCKCYCLIC: return dist.factory.blockCyclic(r,3);
+         case CONSTANT: return dist.factory.constant(r, here);
+         case RANDOM: return dist.factory.random(r);
+         case ARBITRARY: return dist.factory.arbitrary(r);
          default: throw new Error();
       }
      

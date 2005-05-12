@@ -18,9 +18,9 @@ import x10.lang.*;
      const double epsilon2 = 0.000000001;
      const region R = [0:N+1, 0:N+1];
      const region RInner= [1:N, 1:N];
-     const distribution D = distribution.factory.block(R);
-     const distribution DInner = D | RInner;
-     const distribution DBoundary = D - RInner;
+     const dist D = dist.factory.block(R);
+     const dist DInner = D | RInner;
+     const dist DBoundary = D - RInner;
      const int EXPECTED_ITERS=97;
      const double EXPECTED_ERR=0.0018673382039402497;
      

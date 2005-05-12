@@ -96,7 +96,7 @@ public class ConditionalAtomicQueue {
 	public boolean run() {
 		final int N= T.N;
 		final int NP= place.MAX_PLACES;
-		final distribution D2= Dist.val(N*NP);
+		final dist D2= Dist.val(N*NP);
 		final int[.] received = new int[D2];
 		
 		finish {
@@ -152,27 +152,27 @@ public class ConditionalAtomicQueue {
 	
 }
 /**
- * Utility routines to create simple common distributions
+ * Utility routines to create simple common dists
  */
 class Dist {
     /**
-     * create a simple 1D blocked distribution
+     * create a simple 1D blocked dist
      */
-   static distribution block (int arraySize) {
-       return distribution.factory.block(0:(arraySize-1));
+   static dist block (int arraySize) {
+       return dist.factory.block(0:(arraySize-1));
     }
     /**
-     * create a unique distribution (mapping each i to place i)
+     * create a unique dist (mapping each i to place i)
      */
     
-    static distribution unique () {
-        return distribution.factory.unique(place.places);
+    static dist unique () {
+        return dist.factory.unique(place.places);
     }
     
     /**
-     * create a constant-Here distribution 
+     * create a constant-Here dist 
      */
-    static distribution val(int arraySize) {
+    static dist val(int arraySize) {
         return  (0:(arraySize-1))->here;
     }
 }

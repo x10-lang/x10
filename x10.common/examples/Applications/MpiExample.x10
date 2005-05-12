@@ -16,7 +16,7 @@ public class MpiExample {
 		// Distribution P just supplies a mapping from
 		// integer i to place i
 		
-		final distribution P = unique();
+		final dist P = unique();
 		
 		// The current place is place 0.  Spawn producer activities
 		// (producing an object of value type "T") in each of the other
@@ -36,10 +36,10 @@ public class MpiExample {
 	}
 	
 	/**
-	 * Utility function for creating a unique distribution
+	 * Utility function for creating a unique dist
 	 */
-	private static distribution unique() {
-		return distribution.factory.unique(place.places);
+	private static dist unique() {
+		return dist.factory.unique(place.places);
 	}
 	
 	

@@ -9,7 +9,7 @@ public class Array2v {
 		
 		region e= region.factory.region(0,9); //(low,high)
 		region r = region.factory.region(new region[]{e, e, e}); 
-		distribution d=distribution.factory.constant(r,here);
+		dist d=dist.factory.constant(r,here);
 		int[d] ia = new int[d];
 		
 		for(point p:d) {

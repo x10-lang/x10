@@ -18,9 +18,9 @@ import x10.lang.*;
      static final double epsilon2=0.000000001;
      final region R= [0:(N+1), 0:(N+1)];
      final region R_inner= [1:N, 1:N];
-     final distribution D = distribution.factory.block(R);
-     final distribution D_inner = D.restriction(R_inner);
-     final distribution D_Boundary = D.difference(D_inner.region);
+     final dist D = dist.factory.block(R);
+     final dist D_inner = D.restriction(R_inner);
+     final dist D_Boundary = D.difference(D_inner.region);
      static final int EXPECTED_ITERS=97;
      static final double EXPECTED_ERR=0.0018673382039402497;
 

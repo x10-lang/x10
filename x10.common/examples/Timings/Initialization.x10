@@ -23,14 +23,14 @@ public class Initialization {
 		start = System.currentTimeMillis();
 		System.out.println("creating array size "+OneDSize);
 		region r = [0:OneDSize];
-		final distribution  D = distribution.factory.block(r);
+		final dist  D = dist.factory.block(r);
 		x_doubleArray1D = new double[D];
 		stop = System.currentTimeMillis();
 		System.out.println("Created array in "+((double)(stop-start)/1000)+" seconds");
 		
 		System.out.println("creating array ["+kArraySize+","+kArraySize+"] ("+(kArraySize*kArraySize)+")");
 		region r2 = [0:kArraySize,0:kArraySize];
-		final distribution  D2 = distribution.factory.block(r2);
+		final dist  D2 = dist.factory.block(r2);
 		System.out.println("Start allocation...");
 		start = System.currentTimeMillis();
 		x_doubleArray2D = new double[D2];

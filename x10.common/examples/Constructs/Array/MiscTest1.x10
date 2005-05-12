@@ -1,6 +1,6 @@
 /**
  * Tests miscellaneous features together: async, future, atomic,
- * distributed array, distribution ops, reduction, scan, lift.
+ * distributed array, dist ops, reduction, scan, lift.
  * @author kemal 12/2004
  *
  */
@@ -18,13 +18,13 @@ public class MiscTest1   {
 		
 		final region R=[0:NP-1];
 		
-		// verify that a blocked distribution for
-		// (0..MAX_PLACES-1) is a unique distribution
-		// verify that a cyclic distribution for
+		// verify that a blocked dist for
+		// (0..MAX_PLACES-1) is a unique dist
+		// verify that a cyclic dist for
 		// (0..MAX_PLACES-1) is again the same
-		final distribution D=distribution.factory.block(R);
-		final distribution D2=distribution.factory.unique(place.places);
-		final distribution D3=distribution.factory.cyclic(R);
+		final dist D=dist.factory.block(R);
+		final dist D2=dist.factory.unique(place.places);
+		final dist D3=dist.factory.cyclic(R);
 		
 		chk(D.equals(D2));
 		chk(D.equals(D3));
@@ -49,8 +49,8 @@ public class MiscTest1   {
 		// test D|R restricton and also D-D1
 		
 		final region r_inner= [1:NP-2];
-		final distribution D_inner = D|r_inner;
-		final distribution D_boundary= D-r_inner;
+		final dist D_inner = D|r_inner;
+		final dist D_boundary= D-r_inner;
 		finish
 		ateach(point pi[i]:D_inner) {
 			chk(x[pi]==N*i);

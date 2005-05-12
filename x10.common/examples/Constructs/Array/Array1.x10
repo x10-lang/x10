@@ -8,7 +8,7 @@ public class Array1 {
 		
 		region e= region.factory.region(1,10); //(low,high)
 		region r = region.factory.region(new region[]{e, e}); 
-		distribution d=distribution.factory.constant(r,here);
+		dist d=dist.factory.constant(r,here);
 		int[.] ia = new int[d];
 		
 		for(point p: e)

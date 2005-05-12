@@ -8,7 +8,7 @@ public class Array31 {
 	public boolean run() {
 		
 		region e= region.factory.region(1,10); //(low,high)
-		distribution d=distribution.factory.local(e);
+		dist d=dist.factory.local(e);
 		int[.] ia = new int[d];
 		ia[1] = 42;
 		return 42 == ia[1];

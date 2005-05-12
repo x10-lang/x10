@@ -7,7 +7,7 @@ public class Array3Char {
 		
 		region e= region.factory.region(1,10); //(low,high)
 		region r = region.factory.region(e, e); 
-		distribution d=distribution.factory.local(r);
+		dist d=dist.factory.local(r);
 		char[.] ia = new char[d];
 		ia[1,1] = 'a';
 		return ('a' == ia[1,1]);

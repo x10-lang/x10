@@ -49,7 +49,7 @@ public class SparseMatmult
         JGFInstrumentor.startTimer("Section2:SparseMatmult:Kernel"); 
 
         final clock c = clock.factory.clock();
-	final distribution p = distribution.factory.unique(place.places);
+	final dist p = dist.factory.unique(place.places);
 	finish {
 	    foreach(point [i] : (0 : place.MAX_PLACES - 1)) {
 		async(p[i]) {

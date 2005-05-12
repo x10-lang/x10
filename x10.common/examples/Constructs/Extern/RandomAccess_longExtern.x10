@@ -42,20 +42,20 @@ public class RandomAccess_longExtern {
 
 
    /*
-    * Utility routines to create simple common distributions
+    * Utility routines to create simple common dists
     */
    /**
-    * create a simple 1D blocked distribution
+    * create a simple 1D blocked dist
     */
-   distribution block (int arraySize) {
-      return distribution.factory.block(0:(arraySize-1));
+   dist block (int arraySize) {
+      return dist.factory.block(0:(arraySize-1));
    }
     
    /**
-    * create a unique distribution (mapping each i to place i)
+    * create a unique dist (mapping each i to place i)
     */
-   distribution unique () {
-       return distribution.factory.unique(x10.lang.place.places);
+   dist unique () {
+       return dist.factory.unique(x10.lang.place.places);
    }
   
    /**
@@ -88,7 +88,7 @@ public class RandomAccess_longExtern {
         	System.out.println("Place "+i+ " iteration "+n);
             final int  j = f(ran);
             final long k = smallTable[g(ran)]; 
-            async(table.distribution[j]) atomic table[j]^=k;
+            async(table.dist[j]) atomic table[j]^=k;
             ran = nextRandom(ran);
         }
     }

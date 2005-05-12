@@ -42,7 +42,7 @@ public class ValueClass  {
         public boolean run() {
 
         region r=region.factory.region(0, 9);
-        distribution d=distribution.factory.constant(r,here);
+        dist d=dist.factory.constant(r,here);
         final foo f= new foo();
         myval x= new myval(1,new complex(2,3),f, new int value[d]);
         myval y= new myval(1,new complex(2,3),f, new int value[d]);

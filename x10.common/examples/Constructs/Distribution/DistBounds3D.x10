@@ -52,9 +52,9 @@ final int[.] a =new int[dist.getDist(distType,[lb1:ub1,lb2:ub2,lb3:ub3])];
 
 boolean withinBounds=true;
 try {
-	chk(a.distribution[i,j,k].id<x10.lang.place.MAX_PLACES &&
-            a.distribution[i,j,k].id>=0);
-        finish async(a.distribution[i,j,k]) {
+	chk(a.dist[i,j,k].id<x10.lang.place.MAX_PLACES &&
+            a.dist[i,j,k].id>=0);
+        finish async(a.dist[i,j,k]) {
 		a[i,j,k]=0xabcdef07;
 		chk(a[i,j,k]==0xabcdef07);
 	}
@@ -120,8 +120,8 @@ private int ranInt(int lb,int ub) {
 }
 
 /**
- * utility for creating a distribution from a
- * a distribution type int value
+ * utility for creating a dist from a
+ * a dist type int value
  */
 class dist {
    // Java has poor support for enum
@@ -133,17 +133,17 @@ class dist {
    public final static int N_DIST_TYPES=5;
 
    /**
-    * Return a distribution with region r, of type disttype
+    * Return a dist with region r, of type disttype
     *
     */
 
-   public static distribution getDist(int distType, region r) {
+   public static dist getDist(int distType, region r) {
       switch(distType) {
-         case BLOCK: return distribution.factory.block(r);
-         case CYCLIC: return distribution.factory.cyclic(r);
-         case CONSTANT: return distribution.factory.constant(r, here);
-         case RANDOM: return distribution.factory.random(r);
-         case ARBITRARY: return distribution.factory.arbitrary(r);
+         case BLOCK: return dist.factory.block(r);
+         case CYCLIC: return dist.factory.cyclic(r);
+         case CONSTANT: return dist.factory.constant(r, here);
+         case RANDOM: return dist.factory.random(r);
+         case ARBITRARY: return dist.factory.arbitrary(r);
          default: throw new Error("TODO");
       }
      

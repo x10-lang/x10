@@ -4,7 +4,7 @@ import x10.lang.*;
  */
 public class RemoteAccessCheck {
 	public static boolean run() {
-		distribution d = distribution.factory.unique(x10.lang.place.places);
+		dist d = dist.factory.unique(x10.lang.place.places);
 		if (d.region.size() < 2) {
 			System.out.println("RemoteAccessCheck requires 2 or more places.");
 			return false;

@@ -2,12 +2,12 @@
 /**
  * @author kemal 4/2005
  *
- * Testing block-cyclic distribution
+ * Testing block-cyclic dist
  *
- * Randomly generate block-cyclic distributions and check 
+ * Randomly generate block-cyclic dists and check 
  * index-to-place mapping for conformance with x10 0.41 spec:
  *
- *The distribution blockCyclic(R, N, Q) distributes the elements of
+ *The dist blockCyclic(R, N, Q) distributes the elements of
  *R cyclically over the set of places Q in blocks of size N.
  *
  */
@@ -17,7 +17,7 @@ import java.util.Random;
 public class BlockCyclicDist {
 	
 	public boolean run() {
-	final distribution P=distribution.factory.unique();
+	final dist P=dist.factory.unique();
 	final int np=place.MAX_PLACES;
 	final int COUNT=200;
 	final int L=5;
@@ -32,7 +32,7 @@ public class BlockCyclicDist {
 		final int p=totalPoints/np;
 		final int bSize=ranInt(1,totalPoints+1);
 		
-		final distribution DBlockCyclic=distribution.factory.blockCyclic(R,bSize);
+		final dist DBlockCyclic=dist.factory.blockCyclic(R,bSize);
 		int[] offsWithinPlace=new int[np];
 		int placeNum=0;
 		int offsWithinBlock=0;

@@ -4,7 +4,7 @@ import x10.lang.*;
  */
 public class UserDefinedArray {
     const region R = [0:1];
-    const distribution D = distribution.factory.block(R);
+    const dist D = dist.factory.block(R);
 	public static boolean run() {
 	    final E v1 = new E(1);
 	    final E v2 = new E(2);

@@ -26,7 +26,7 @@ class BoxedRandom {
  * Load balancer class.
  */
 class loadBalancer {
-	const distribution UniqueD=distribution.factory.unique();
+	const dist UniqueD=dist.factory.unique();
 	const int NP= place.MAX_PLACES;
 	// random number generators with different seeds
 	// in each place

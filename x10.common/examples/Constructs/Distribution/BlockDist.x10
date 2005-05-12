@@ -1,12 +1,12 @@
 
 /**
  * @author kemal 4/2005
- * Testing block distribution
+ * Testing block dist
  *
- * Randomly generate block distributions and check 
+ * Randomly generate block dists and check 
  * index-to-place mapping for conformance with x10 0.41 spec
  *
- *The distribution block(R, Q) distributes the elements of R (in
+ *The dist block(R, Q) distributes the elements of R (in
  *order) over the set of places Q in blocks as follows. Let p equal
  *|R| div N and q equal |R| mod N, where N is the size of Q. The first
  *q places get successive blocks of size (p + 1) and the remaining
@@ -19,7 +19,7 @@ import java.util.Random;
 public class BlockDist {
 	
 	public boolean run() {
-	final distribution P=distribution.factory.unique();
+	final dist P=dist.factory.unique();
 	final int np=place.MAX_PLACES;
 	final int COUNT=200;
 	final int L=5;
@@ -29,7 +29,7 @@ public class BlockDist {
 		final int ub1=ranInt(lb1,L); 
 		final int ub2=ranInt(lb2,L);
 		final region R = [lb1:ub1,lb2:ub2];
-		final distribution DBlock=distribution.factory.block(R);
+		final dist DBlock=dist.factory.block(R);
 		final int totalPoints=(ub1-lb1+1)*(ub2-lb2+1);
 		final int p=totalPoints/np;
 		final int q=totalPoints%np;

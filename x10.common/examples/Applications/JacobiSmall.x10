@@ -21,9 +21,9 @@ import x10.lang.*;
      final region R2 = region.factory.region(1, N);
      final region R= region.factory.region(R1,R1);
      final region R_inner=region.factory.region(R2, R2);
-     final distribution D = distribution.factory.block(R);
-     final distribution D_inner = D.restriction(R_inner);
-     final distribution D_Boundary = D.difference(D_inner.region);
+     final dist D = dist.factory.block(R);
+     final dist D_inner = D.restriction(R_inner);
+     final dist D_Boundary = D.difference(D_inner.region);
      static final int EXPECTED_ITERS=131;
      static final double EXPECTED_ERR=0.0019977310907846046;
 

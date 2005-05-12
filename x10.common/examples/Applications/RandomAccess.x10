@@ -128,7 +128,7 @@ static value class ranNum extends x10.lang.Object {
         final long[.] S= new long[unique()];
 	finish ateach(point [i]: P) {
 	  long sum=0L;
-	  for(point [j]: (A.distribution|(P.distribution[i]))) {
+	  for(point [j]: (A.dist|(P.dist[i]))) {
 		sum+= A[j].val;
           }
 	  S[i]=sum;
@@ -139,20 +139,20 @@ static value class ranNum extends x10.lang.Object {
 
 
    /*
-    * Utility routines to create simple common distributions
+    * Utility routines to create simple common dists
     */
    /**
-    * create a simple 1D blocked distribution
+    * create a simple 1D blocked dist
     */
-   distribution block (int arraySize) {
-      return distribution.factory.block(0:(arraySize-1));
+   dist block (int arraySize) {
+      return dist.factory.block(0:(arraySize-1));
    }
     
    /**
-    * create a unique distribution (mapping each i to place i)
+    * create a unique dist (mapping each i to place i)
     */
-   distribution unique () {
-       return distribution.factory.unique(place.places);
+   dist unique () {
+       return dist.factory.unique(place.places);
    }
   
    /**
@@ -177,7 +177,7 @@ static value class ranNum extends x10.lang.Object {
             System.out.println("Place "+i+" iteration "+count);
             final int  J = ran.f();
             final ranNum K = SmallTable[ran.g()]; 
-            async(Table.distribution[J]) atomic Table[J]=Table[J].update(K);
+            async(Table.dist[J]) atomic Table[J]=Table[J].update(K);
             ran = ran.nextRandom();
         }
     }
