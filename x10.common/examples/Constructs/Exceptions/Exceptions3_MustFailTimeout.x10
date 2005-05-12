@@ -29,7 +29,7 @@ public class Exceptions3_MustFailTimeout {
 	     final int M=4;
 	     try {
 		finish {
-		 ateach(point [i]:distribution.factory.unique()) {
+		 ateach(point [i]:dist.factory.unique()) {
 			foreach(point [j]:1:M)
 				memoryHog();
 		 }

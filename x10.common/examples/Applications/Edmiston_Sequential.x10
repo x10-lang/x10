@@ -27,9 +27,9 @@ public class Edmiston_Sequential {
           (point[i]) {return (i==0)?'-':randomChar(i);};
         final char[.] c2= new char[(0:M)->here]
           (point[i]) {return (i==0)?'-':randomChar(N+i);};
-        final distribution D=[0:N,0:M]->here;
-        final distribution Dinner=D|[1:N,1:M];
-        final distribution Dboundary=D-Dinner;
+        final dist D=[0:N,0:M]->here;
+        final dist Dinner=D|[1:N,1:M];
+        final dist Dboundary=D-Dinner;
         //  e is initialized to:
         //  0     1*gapPen     2*gapPen     3*gapPen ...
         //  1*gapPen ...
