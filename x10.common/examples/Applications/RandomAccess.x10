@@ -128,7 +128,7 @@ static value class ranNum extends x10.lang.Object {
         final long[.] S= new long[unique()];
 	finish ateach(point [i]: P) {
 	  long sum=0L;
-	  for(point [j]: (A.dist|(P.dist[i]))) {
+	  for(point [j]: (A.distribution|(P.distribution[i]))) {
 		sum+= A[j].val;
           }
 	  S[i]=sum;
@@ -177,7 +177,7 @@ static value class ranNum extends x10.lang.Object {
             System.out.println("Place "+i+" iteration "+count);
             final int  J = ran.f();
             final ranNum K = SmallTable[ran.g()]; 
-            async(Table.dist[J]) atomic Table[J]=Table[J].update(K);
+            async(Table.distribution[J]) atomic Table[J]=Table[J].update(K);
             ran = ran.nextRandom();
         }
     }

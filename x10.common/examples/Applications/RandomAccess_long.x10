@@ -143,7 +143,7 @@ public class RandomAccess_long {
         return dist.factory.unique(x10.lang.place.places);
     }
     
-  final dist tableDist=block(TABLE_SIZE); // same as table.dist  
+  final dist tableDist=block(TABLE_SIZE); // same as table.distribution  
   /**
    * main RandomAccess routine
    */
@@ -163,12 +163,12 @@ public class RandomAccess_long {
     
     // In all places in parallel,repeatedly generate random indices
     // and do remote atomic updates on corresponding table elements
-    finish ateach (point p[i]: ranStarts.dist) {
+    finish ateach (point p[i]: ranStarts.distribution) {
         long ran = nextRandom(ranStarts[i]);
         for(point count: 1:N_UPDATES_PER_PLACE) {
             final int  j = f(ran);
             final long k = smallTable[g(ran)];
-            async(table.dist[j]) 
+            async(table.distribution[j]) 
 			    atomic {
             	  table[j] = table[j] ^ k;
             }

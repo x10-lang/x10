@@ -48,9 +48,9 @@ final int[.] a =new int[dist.getDist(distType,[lb1:ub1,lb2:ub2])];
 
 boolean withinBounds=true;
 try {
-	chk(a.dist[i,j].id<x10.lang.place.MAX_PLACES &&
-            a.dist[i,j].id>=0);
-        finish async(a.dist[i,j]) {
+	chk(a.distribution[i,j].id<x10.lang.place.MAX_PLACES &&
+            a.distribution[i,j].id>=0);
+        finish async(a.distribution[i,j]) {
 		a[i,j]=0xabcdef07;
 		chk(a[i,j]==0xabcdef07);
 	}

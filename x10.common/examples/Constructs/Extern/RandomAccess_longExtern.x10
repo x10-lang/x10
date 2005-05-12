@@ -88,7 +88,7 @@ public class RandomAccess_longExtern {
         	System.out.println("Place "+i+ " iteration "+n);
             final int  j = f(ran);
             final long k = smallTable[g(ran)]; 
-            async(table.dist[j]) atomic table[j]^=k;
+            async(table.distribution[j]) atomic table[j]^=k;
             ran = nextRandom(ran);
         }
     }
