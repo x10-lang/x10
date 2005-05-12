@@ -12,7 +12,7 @@ import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.point;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.DoubleReferenceArray;
 
@@ -67,13 +67,13 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @param c
      * @param safe
      */
-    public DoubleArray_c( distribution d, double c) {
+    public DoubleArray_c( dist d, double c) {
         this(d, c, true);
     }
-    public DoubleArray_c( distribution d, double c, boolean safe ) {
+    public DoubleArray_c( dist d, double c, boolean safe ) {
     	this(d, c, safe, true);
 }
-    public DoubleArray_c( distribution d, double c, boolean safe, boolean mutable ) {
+    public DoubleArray_c( dist d, double c, boolean safe, boolean mutable ) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -90,13 +90,13 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         scan(this, new Assign(c));
     	
     }
-    public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f) {
+    public DoubleArray_c( dist d, DoubleArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f, boolean safe) {
+    public DoubleArray_c( dist d, DoubleArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public DoubleArray_c( distribution d, DoubleArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public DoubleArray_c( dist d, DoubleArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -114,7 +114,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
             scan(this, f);
     }
     
-    private DoubleArray_c( distribution d, double[] a, boolean safe, boolean mutable) {
+    private DoubleArray_c( dist d, double[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -135,7 +135,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @return
      */
     public static DoubleArray_c DoubleArray_c( double[] a, boolean safe, boolean mutable ) {
-    	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
+    	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return 	new DoubleArray_c(d, a, safe, mutable );
     }
     
@@ -170,13 +170,13 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     		super.assign(rhs);
     }
 
-	protected DoubleArray newInstance(distribution d) {
+	protected DoubleArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
 		return new DoubleArray_c((Distribution_c) d, safe_);	
 	}
 	
-	protected DoubleArray newInstance(distribution d, Operator.Pointwise c) {
+	protected DoubleArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
 		return new DoubleArray_c((Distribution_c) d, c, safe_);	
@@ -297,7 +297,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     }
     
     public x10.lang.DoubleReferenceArray overlay(x10.lang.doubleArray d) {
-    	distribution dist = distribution.overlay(d.distribution);
+    	dist dist = distribution.overlay(d.distribution);
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -316,7 +316,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     }
     
     public DoubleReferenceArray union(x10.lang.doubleArray d) {
-        distribution dist = distribution.union(d.distribution);
+        dist dist = distribution.union(d.distribution);
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -326,12 +326,12 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         return ret;
     }
     
-    public DoubleReferenceArray restriction(distribution d) {
+    public DoubleReferenceArray restriction(dist d) {
         return restriction(d.region);
     }
     
     public DoubleReferenceArray restriction(region r) {
-        distribution dist = distribution.restriction(r);
+        dist dist = distribution.restriction(r);
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();

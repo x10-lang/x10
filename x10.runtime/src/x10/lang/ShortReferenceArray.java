@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract class ShortReferenceArray extends shortArray {
 	
-	public ShortReferenceArray( distribution D) {
+	public ShortReferenceArray( dist D) {
 		super( D );
 	}
 

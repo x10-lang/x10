@@ -43,7 +43,7 @@ import x10.lang.MultipleExceptions;
 import x10.lang.Object;
 import x10.lang.Runtime;
 import x10.lang.clock;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.doubleArray;
 import x10.lang.floatArray;
 import x10.lang.booleanArray;
@@ -368,7 +368,7 @@ public class DefaultRuntime_c
     		public region.factory getRegionFactory() {
     			return new RegionFactory();
     		}
-    		public distribution.factory getDistributionFactory() {
+    		public dist.factory getDistributionFactory() {
     			return new DistributionFactory();
     		}
     		public point.factory getPointFactory() {    	
@@ -386,96 +386,96 @@ public class DefaultRuntime_c
     		}
     		public booleanArray.factory getBooleanArrayFactory() {
                 return new BooleanArray.factory() {
-                    public BooleanReferenceArray BooleanReferenceArray(distribution d, boolean c) {
+                    public BooleanReferenceArray BooleanReferenceArray(dist d, boolean c) {
                         return new BooleanArray_c( d, c, true);
                     }
-                    public BooleanReferenceArray BooleanReferenceArray(distribution d, booleanArray.pointwiseOp f) {
+                    public BooleanReferenceArray BooleanReferenceArray(dist d, booleanArray.pointwiseOp f) {
                         return new BooleanArray_c( d, f, true);
                     }
-                    public booleanArray booleanValueArray(distribution d, boolean c) {
+                    public booleanArray booleanValueArray(dist d, boolean c) {
                         return new BooleanArray_c(d, c, true, false);
                     }
-                    public booleanArray booleanValueArray(distribution d, booleanArray.pointwiseOp f) {
+                    public booleanArray booleanValueArray(dist d, booleanArray.pointwiseOp f) {
                         return new BooleanArray_c(d, f, true, false);
                     }
                 };
             }
             public charArray.factory getCharArrayFactory() {
                 return new CharArray.factory() {
-                    public CharReferenceArray CharReferenceArray(distribution d, char c) {
+                    public CharReferenceArray CharReferenceArray(dist d, char c) {
                         return new CharArray_c( d, c, true);
                     }
-                    public CharReferenceArray CharReferenceArray(distribution d, charArray.pointwiseOp f) {
+                    public CharReferenceArray CharReferenceArray(dist d, charArray.pointwiseOp f) {
                         return new CharArray_c( d, f, true);
                     }
-                    public charArray charValueArray(distribution d, char c) {
+                    public charArray charValueArray(dist d, char c) {
                         return new CharArray_c(d, c, true, false);
                     }
-                    public charArray charValueArray(distribution d, charArray.pointwiseOp f) {
+                    public charArray charValueArray(dist d, charArray.pointwiseOp f) {
                         return new CharArray_c(d, f, true, false);
                     }
                 };
             }
             public byteArray.factory getByteArrayFactory() {
                 return new ByteArray.factory() {
-                    public ByteReferenceArray ByteReferenceArray(distribution d, byte c) {
+                    public ByteReferenceArray ByteReferenceArray(dist d, byte c) {
                         return new ByteArray_c( d, c, true);
                     }
-                    public ByteReferenceArray ByteReferenceArray(distribution d, byteArray.pointwiseOp f) {
+                    public ByteReferenceArray ByteReferenceArray(dist d, byteArray.pointwiseOp f) {
                         return new ByteArray_c( d, f, true);
                     }
-                    public byteArray byteValueArray(distribution d, byte c) {
+                    public byteArray byteValueArray(dist d, byte c) {
                         return new ByteArray_c(d, c, true, false);
                     }
-                    public byteArray byteValueArray(distribution d, byteArray.pointwiseOp f) {
+                    public byteArray byteValueArray(dist d, byteArray.pointwiseOp f) {
                         return new ByteArray_c(d, f, true, false);
                     }
                 };
             }
             public shortArray.factory getShortArrayFactory() {
                 return new ShortArray.factory() {
-                    public ShortReferenceArray ShortReferenceArray(distribution d, short c) {
+                    public ShortReferenceArray ShortReferenceArray(dist d, short c) {
                         return new ShortArray_c( d, c, true);
                     }
-                    public ShortReferenceArray ShortReferenceArray(distribution d, shortArray.pointwiseOp f) {
+                    public ShortReferenceArray ShortReferenceArray(dist d, shortArray.pointwiseOp f) {
                         return new ShortArray_c( d, f, true);
                     }
-                    public shortArray shortValueArray(distribution d, short c) {
+                    public shortArray shortValueArray(dist d, short c) {
                         return new ShortArray_c(d, c, true, false);
                     }
-                    public shortArray shortValueArray(distribution d, shortArray.pointwiseOp f) {
+                    public shortArray shortValueArray(dist d, shortArray.pointwiseOp f) {
                         return new ShortArray_c(d, f, true, false);
                     }
                 };
             }
             public intArray.factory getIntArrayFactory() {
     			return new IntArray.factory() {
-    				public IntReferenceArray IntReferenceArray(distribution d, int c) {
+    				public IntReferenceArray IntReferenceArray(dist d, int c) {
     					return new IntArray_c( d, c, true);
     				}
-    				public IntReferenceArray IntReferenceArray(distribution d, intArray.pointwiseOp f) {
+    				public IntReferenceArray IntReferenceArray(dist d, intArray.pointwiseOp f) {
     					return new IntArray_c( d, f, true);
     				}
-    				public intArray intValueArray(distribution d, int c) {
+    				public intArray intValueArray(dist d, int c) {
     					return new IntArray_c(d, c, true, false);
     				}
-    				public intArray intValueArray(distribution d, intArray.pointwiseOp f) {
+    				public intArray intValueArray(dist d, intArray.pointwiseOp f) {
     					return new IntArray_c(d, f, true, false);
     				}
     			};
     		}
     		public longArray.factory getLongArrayFactory() {
     			return new longArray.factory() {
-    				public LongReferenceArray LongReferenceArray(distribution d, long c) {
+    				public LongReferenceArray LongReferenceArray(dist d, long c) {
     					return new LongArray_c( d, c, true);
     				}
-    				public LongReferenceArray LongReferenceArray(distribution d, longArray.pointwiseOp f) {
+    				public LongReferenceArray LongReferenceArray(dist d, longArray.pointwiseOp f) {
     					return new LongArray_c( d, f, true);
     				}
-    				public longArray longValueArray(distribution d, long c) {
+    				public longArray longValueArray(dist d, long c) {
     					return new LongArray_c(d, c, true, false);
     				}
-    				public longArray longValueArray(distribution d, longArray.pointwiseOp f) {
+    				public longArray longValueArray(dist d, longArray.pointwiseOp f) {
     					return new LongArray_c(d, f, true, false);
     				}
     			};
@@ -483,16 +483,16 @@ public class DefaultRuntime_c
     		
             public FloatArray.factory getFloatArrayFactory() {
                 return new floatArray.factory() {
-                    public FloatReferenceArray FloatReferenceArray(distribution d, float c) {
+                    public FloatReferenceArray FloatReferenceArray(dist d, float c) {
                         return new FloatArray_c( d, c, true);
                     }
-                    public FloatReferenceArray FloatReferenceArray(distribution d, floatArray.pointwiseOp f) {
+                    public FloatReferenceArray FloatReferenceArray(dist d, floatArray.pointwiseOp f) {
                         return new FloatArray_c( d, f, true);
                     }
-                    public floatArray floatValueArray(distribution d, float c) {
+                    public floatArray floatValueArray(dist d, float c) {
                         return new FloatArray_c(d, c, true, false);
                     }
-                    public floatArray floatValueArray(distribution d, floatArray.pointwiseOp f) {
+                    public floatArray floatValueArray(dist d, floatArray.pointwiseOp f) {
                         return new FloatArray_c(d, f, true, false);
                     }
                 };              
@@ -500,16 +500,16 @@ public class DefaultRuntime_c
             
             public DoubleArray.factory getDoubleArrayFactory() {
     			return new doubleArray.factory() {
-    				public DoubleReferenceArray DoubleReferenceArray(distribution d, double c) {
+    				public DoubleReferenceArray DoubleReferenceArray(dist d, double c) {
     					return new DoubleArray_c( d, c, true);
     				}
-    				public DoubleReferenceArray DoubleReferenceArray(distribution d, doubleArray.pointwiseOp f) {
+    				public DoubleReferenceArray DoubleReferenceArray(dist d, doubleArray.pointwiseOp f) {
     					return new DoubleArray_c( d, f, true);
     				}
-    				public doubleArray doubleValueArray(distribution d, double c) {
+    				public doubleArray doubleValueArray(dist d, double c) {
     					return new DoubleArray_c(d, c, true, false);
     				}
-    				public doubleArray doubleValueArray(distribution d, doubleArray.pointwiseOp f) {
+    				public doubleArray doubleValueArray(dist d, doubleArray.pointwiseOp f) {
     					return new DoubleArray_c(d, f, true, false);
     				}
     			};   			
@@ -517,16 +517,16 @@ public class DefaultRuntime_c
             
             public GenericArray.factory getGenericArrayFactory() {
             return new x10.lang.genericArray.factory() {
-                public GenericReferenceArray GenericReferenceArray(distribution d, Parameter1 c) {
+                public GenericReferenceArray GenericReferenceArray(dist d, Parameter1 c) {
                     return new GenericArray_c( d, c, true);
                 }
-                public GenericReferenceArray GenericReferenceArray(distribution d, x10.lang.genericArray.pointwiseOp f) {
+                public GenericReferenceArray GenericReferenceArray(dist d, x10.lang.genericArray.pointwiseOp f) {
                     return new GenericArray_c( d, f, true);
                 }
-                public x10.lang.genericArray GenericValueArray(distribution d, Parameter1 c) {
+                public x10.lang.genericArray GenericValueArray(dist d, Parameter1 c) {
                     return new GenericArray_c(d, c, true, false);
                 }
-                public x10.lang.genericArray GenericValueArray(distribution d, x10.lang.genericArray.pointwiseOp f) {
+                public x10.lang.genericArray GenericValueArray(dist d, x10.lang.genericArray.pointwiseOp f) {
                     return new GenericArray_c(d, f, true, false);
                 }
             };

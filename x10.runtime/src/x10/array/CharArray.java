@@ -4,7 +4,7 @@
 package x10.array;
 
 import java.util.Iterator;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.point;
 import x10.lang.CharReferenceArray;
 
@@ -14,7 +14,7 @@ import x10.lang.CharReferenceArray;
  * Char Arrays are currently not implemented.
  */
 public abstract class CharArray extends CharReferenceArray {
-    public CharArray(distribution d) {
+    public CharArray(dist d) {
         super(d);
     }
     

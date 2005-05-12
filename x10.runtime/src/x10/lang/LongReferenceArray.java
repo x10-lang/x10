@@ -13,7 +13,7 @@ package x10.lang;
 
 public abstract class LongReferenceArray extends longArray {
 	
-	public LongReferenceArray( distribution D) {
+	public LongReferenceArray( dist D) {
 		super( D );
 	}
 	abstract public long set( long v, point/*(region)*/ p );

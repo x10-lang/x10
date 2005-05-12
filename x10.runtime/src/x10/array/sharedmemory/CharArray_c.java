@@ -15,7 +15,7 @@ import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.point;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.CharReferenceArray;
 
@@ -70,13 +70,13 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
      * @param c
      * @param safe
      */
-    public CharArray_c( distribution d, char c) {
+    public CharArray_c( dist d, char c) {
         this(d, c, true);
     }
-    public CharArray_c( distribution d, char c, boolean safe ) {
+    public CharArray_c( dist d, char c, boolean safe ) {
     	this(d, c, safe, true);
 }
-    public CharArray_c( distribution d, char c, boolean safe, boolean mutable ) {
+    public CharArray_c( dist d, char c, boolean safe, boolean mutable ) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -93,13 +93,13 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
         scan(this, new Assign(c));
     	
     }
-    public CharArray_c( distribution d, CharArray.pointwiseOp f) {
+    public CharArray_c( dist d, CharArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public CharArray_c( distribution d, CharArray.pointwiseOp f, boolean safe) {
+    public CharArray_c( dist d, CharArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public CharArray_c( distribution d, CharArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public CharArray_c( dist d, CharArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -117,7 +117,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
             scan(this, f);
     }
     
-    private CharArray_c( distribution d, char[] a, boolean safe, boolean mutable) {
+    private CharArray_c( dist d, char[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -138,7 +138,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
      * @return
      */
     public static CharArray_c CharArray_c( char[] a, boolean safe, boolean mutable ) {
-    	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
+    	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new CharArray_c(d, a, safe, mutable );
     }
     
@@ -173,13 +173,13 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     		super.assign(rhs);
     }
 
-	protected CharArray newInstance(distribution d) {
+	protected CharArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
 		return new CharArray_c((Distribution_c) d, safe_);	
 	}
 	
-	protected CharArray newInstance(distribution d, Operator.Pointwise c) {
+	protected CharArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
 		return new CharArray_c((Distribution_c) d, c, safe_);	
@@ -293,7 +293,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     }
     
     public x10.lang.CharReferenceArray overlay(x10.lang.charArray d) {
-    	distribution dist = distribution.overlay(d.distribution);
+    	dist dist = distribution.overlay(d.distribution);
         CharArray_c ret = new CharArray_c(dist, (char) 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -312,7 +312,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     }
     
     public CharReferenceArray union(x10.lang.charArray d) {
-        distribution dist = distribution.union(d.distribution);
+        dist dist = distribution.union(d.distribution);
         CharArray_c ret = new CharArray_c(dist, (char) 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -322,12 +322,12 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
         return ret;
     }
     
-    public CharReferenceArray restriction(distribution d) {
+    public CharReferenceArray restriction(dist d) {
         return restriction(d.region);
     }
     
     public CharReferenceArray restriction(region r) {
-        distribution dist = distribution.restriction(r);
+        dist dist = distribution.restriction(r);
         CharArray_c ret = new CharArray_c(dist, (char) 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();

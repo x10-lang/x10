@@ -21,7 +21,7 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.region;
 import x10.lang.point;
@@ -60,9 +60,9 @@ public class X10Binary_c extends Binary_c {
 		
 		try {
 			if (lt.isDistribution()) {
-				distribution l = (distribution) lv;
+				dist l = (dist) lv;
 				if (lt.isDistribution()) {
-					if (op == COND_OR) return l.union((distribution) rv);
+					if (op == COND_OR) return l.union((dist) rv);
 				}
 				if (rt.isPlace()) {
 					if (op == BIT_OR ) return l.restriction( (place) rv);
@@ -193,7 +193,7 @@ public class X10Binary_c extends Binary_c {
 		return super.typeCheck(tc);
 	}
 	public List acceptCFG(CFGBuilder v, List succs) {
-		if ((op == COND_OR && (left instanceof distribution || left instanceof region))
+		if ((op == COND_OR && (left instanceof dist || left instanceof region))
 				|| (op == COND_AND && left instanceof region)) {
 			v.visitCFG(left, right.entry());
 			v.visitCFG(right, this);

@@ -15,11 +15,11 @@ abstract public class shortArray /*( distribution distribution )*/
 /*implements Cloneable, Serializable */
 implements Indexable, Unsafe {
 
-	public final distribution distribution;
+	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
-	protected shortArray( distribution D) {
+	protected shortArray( dist D) {
 		this.distribution = D;
 		this.region = D.region;
 		this.rank = D.rank;
@@ -59,7 +59,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public shortArray/*(:rank=1)*/  shortValueArray(/*nat*/ int k, short initVal) { 
-			return shortValueArray(x10.lang.distribution.factory.local(k), initVal);
+			return shortValueArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -68,13 +68,13 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public shortArray/*(:rank=1)*/ shortValueArray(/*nat*/ int k, pointwiseOp init) {
-			return shortValueArray( x10.lang.distribution.factory.local(k), init);
+			return shortValueArray( x10.lang.dist.factory.local(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ shortArray/*(D)*/ shortValueArray(distribution D, short init);
+		/*(distribution D)*/ shortArray/*(D)*/ shortValueArray(dist D, short init);
 		abstract public 
-		/*(distribution D)*/ shortArray/*(D)*/ shortValueArray( distribution D, 
+		/*(distribution D)*/ shortArray/*(D)*/ shortValueArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 		/** Return the unique int value array initialized with 0 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -92,7 +92,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public ShortReferenceArray/*(:rank=1)*/  ShortReferenceArray(/*nat*/ int k, short initVal) { 
-			return ShortReferenceArray(x10.lang.distribution.factory.local(k), initVal);
+			return ShortReferenceArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -101,16 +101,16 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public ShortReferenceArray/*(:rank=1)*/ ShortReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return ShortReferenceArray( x10.lang.distribution.factory.local(k), init);
+			return ShortReferenceArray( x10.lang.dist.factory.local(k), init);
 		}
 		
-		public ShortReferenceArray ShortReferenceArray( distribution D) {
+		public ShortReferenceArray ShortReferenceArray( dist D) {
 			return ShortReferenceArray( D, (short) 0);
 		}
 		abstract public 
-		/*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray(distribution D, short init);
+		/*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray(dist D, short init);
 		abstract public 
-		/*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray( distribution D, 
+		/*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 	}
 	public static final factory factory = Runtime.factory.getShortArrayFactory();
@@ -212,7 +212,7 @@ implements Indexable, Unsafe {
 	 the region underlying this and the parametric distribution.
 	 */    
 	public  /*(distribution(:rank=this.rank) D)*/ 
-	ShortReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
+	ShortReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D) {
 	 return restriction(D.region);
 	}
 	
@@ -261,7 +261,7 @@ implements Indexable, Unsafe {
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
-	public distribution toDistribution() {
+	public dist toDistribution() {
 		return distribution;
 	}
 }

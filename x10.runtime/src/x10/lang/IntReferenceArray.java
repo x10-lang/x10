@@ -13,7 +13,7 @@ package x10.lang;
 
 public abstract class IntReferenceArray extends intArray {
 	
-	public IntReferenceArray( distribution D) {
+	public IntReferenceArray( dist D) {
 		super( D );
 	}
 	abstract public int set( int v, point/*(region)*/ p );

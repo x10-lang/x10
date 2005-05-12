@@ -4,7 +4,7 @@
 package x10.array;
 
 import java.util.Iterator;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.point;
 import x10.lang.ShortReferenceArray;
 
@@ -14,7 +14,7 @@ import x10.lang.ShortReferenceArray;
  * Short Arrays are currently not implemented.
  */
 public abstract class ShortArray extends ShortReferenceArray {
-    public ShortArray(distribution d) {
+    public ShortArray(dist d) {
         super(d);
     }
     

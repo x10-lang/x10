@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract /*value*/ class shortValueArray extends shortArray {
 	
-	public shortValueArray( distribution D) {
+	public shortValueArray( dist D) {
 		super( D );
 	}
 	

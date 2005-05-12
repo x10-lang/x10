@@ -4,7 +4,7 @@
 package x10.array;
 
 import java.util.Iterator;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.point;
 import x10.lang.FloatReferenceArray;
 
@@ -14,7 +14,7 @@ import x10.lang.FloatReferenceArray;
  * Float Arrays are currently not implemented.
  */
 public abstract class FloatArray extends FloatReferenceArray {
-    public FloatArray(distribution d) {
+    public FloatArray(dist d) {
         super(d);
     }
     

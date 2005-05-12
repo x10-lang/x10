@@ -11,7 +11,7 @@ package x10.lang;
 
 public abstract /*value*/ class charValueArray extends charArray {
 	
-	public charValueArray( distribution D) {
+	public charValueArray( dist D) {
 		super( D );
 	}
 	

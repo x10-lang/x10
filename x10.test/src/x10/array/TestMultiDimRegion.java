@@ -4,7 +4,7 @@
 package x10.array;
 
 import x10.lang.Runtime;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.point;
 import x10.runtime.Activity;
@@ -86,11 +86,11 @@ public class TestMultiDimRegion extends TestCase {
     /* the X10 arrays should provide a row-major interface */
     public void testRegion_majorness() {
         Runtime.Factory F = Runtime.factory;
-        distribution.factory DF = F.getDistributionFactory();
+        dist.factory DF = F.getDistributionFactory();
         IntArray.factory IF = Runtime.factory.getIntArrayFactory();
         Range[] ranges = new Range[] { new ContiguousRange(0,2), new ContiguousRange(0,2) };          
         MultiDimRegion r = new MultiDimRegion(ranges);
-        distribution d = DF.constant(r, Runtime.here());
+        dist d = DF.constant(r, Runtime.here());
         x10.lang.IntReferenceArray arr = IF.IntReferenceArray(d, 0);
         int num = 1;
         for (int row = 0; row < 3; ++ row) {

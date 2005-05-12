@@ -13,11 +13,11 @@ import java.util.Iterator;
  */
 
 abstract public class intArray /*( distribution distribution )*/ implements Indexable, Unsafe {
-	public final distribution distribution;
+	public final dist distribution;
 	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
-	protected intArray( distribution D) {
+	protected intArray( dist D) {
 		this.distribution = D;
 		this.region = D.region;
 		this.rank = D.rank;
@@ -60,7 +60,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		 * @return
 		 */
 		public intArray/*(:rank=1)*/  intValueArray(/*nat*/ int k, int initVal) { 
-			return intValueArray(x10.lang.distribution.factory.local(k), initVal);
+			return intValueArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -69,13 +69,13 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		 * @return
 		 */
 		public intArray/*(:rank=1)*/ intValueArray(/*nat*/ int k, pointwiseOp init) {
-			return intValueArray( x10.lang.distribution.factory.local(k), init);
+			return intValueArray( x10.lang.dist.factory.local(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ intArray/*(D)*/ intValueArray(distribution D, int init);
+		/*(distribution D)*/ intArray/*(D)*/ intValueArray(dist D, int init);
 		abstract public 
-		/*(distribution D)*/ intArray/*(D)*/ intValueArray(distribution D, pointwiseOp/*(D.region)*/ init);
+		/*(distribution D)*/ intArray/*(D)*/ intValueArray(dist D, pointwiseOp/*(D.region)*/ init);
 		
 		
 		/** Return the unique int value array initialized with 0 
@@ -94,7 +94,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		 * @return
 		 */
 		public IntReferenceArray/*(:rank=1)*/  IntReferenceArray(/*nat*/ int k, int initVal) { 
-			return IntReferenceArray(x10.lang.distribution.factory.local(k), initVal);
+			return IntReferenceArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -103,14 +103,14 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 		 * @return
 		 */
 		public IntReferenceArray/*(:rank=1)*/ IntReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return IntReferenceArray( x10.lang.distribution.factory.local(k), init);
+			return IntReferenceArray( x10.lang.dist.factory.local(k), init);
 		}
 		
 		
 		abstract public 
-		/*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(distribution D, int init);
+		/*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(dist D, int init);
 		abstract public 
-		/*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(distribution D, 
+		/*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(dist D, 
 				pointwiseOp/*(D.region)*/ init);
 		
 	}
@@ -198,7 +198,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	 the region underlying this and the parametric distribution.
 	 */    
 	abstract /*value*/ public  /*(distribution(:rank=this.rank) D)*/ 
-	IntReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D);
+	IntReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D);
 	
 	/** Take as parameter a distribution D of the same rank as *
 	 * this, and defined over a disjoint region. Take as argument an *
@@ -253,7 +253,7 @@ abstract public class intArray /*( distribution distribution )*/ implements Inde
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
-	public distribution toDistribution() {
+	public dist toDistribution() {
 		return this.distribution;
 	}
 }

@@ -5,7 +5,7 @@ import x10.array.ContiguousRange;
 import x10.array.sharedmemory.Distribution_c;
 import x10.lang.Runtime;
 import x10.lang.place;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.region;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
@@ -61,8 +61,8 @@ public class TestDistribution_c extends TestCase {
         boolean assert1;
         int NP=x10.lang.place.MAX_PLACES;
         region R=region.factory.region(0,NP-1);
-        distribution D=distribution.factory.block(R);
-        distribution D3=distribution.factory.cyclic(R);
+        dist D=dist.factory.block(R);
+        dist D3=dist.factory.cyclic(R);
         assert1 = D.equals(D3);
         
         System.out.println(D);
@@ -76,10 +76,10 @@ public class TestDistribution_c extends TestCase {
         region r2 =region.factory.region(5,9);
         region r3 =region.factory.region(0,9);
         place p = Runtime.here();
-        distribution d1 = distribution.factory.constant(r1, p);
-        distribution d2 = distribution.factory.constant(r2, p);
-        distribution d3 = distribution.factory.constant(r3, p);
-        distribution d4 = new Distribution_c.Combined(r3, new Distribution_c[] {(Distribution_c) d1, (Distribution_c)d2});
+        dist d1 = dist.factory.constant(r1, p);
+        dist d2 = dist.factory.constant(r2, p);
+        dist d3 = dist.factory.constant(r3, p);
+        dist d4 = new Distribution_c.Combined(r3, new Distribution_c[] {(Distribution_c) d1, (Distribution_c)d2});
         
         System.out.println("d1=" + d1);
         System.out.println("d2=" + d2);
@@ -98,7 +98,7 @@ public class TestDistribution_c extends TestCase {
     public void testDistribution_block() {
         boolean assert1, assert2, assert3;
         region cont = new ContiguousRange(37);
-        distribution d = distribution.factory.block(cont);
+        dist d = dist.factory.block(cont);
         assert1 = d instanceof Distribution_c.Combined;
         System.out.println("assert1 = " + assert1);
         
@@ -118,11 +118,11 @@ public class TestDistribution_c extends TestCase {
         place p = Runtime.here();
         
         region R = region.factory.region(0, N);
-        distribution D = distribution.factory.constant(R, p); 
+        dist D = dist.factory.constant(R, p); 
         region R_local = region.factory.region(0, N);
-        distribution D_local = distribution.factory.constant(R, p);
+        dist D_local = dist.factory.constant(R, p);
         
-        distribution D_nonlocal = D.difference(D_local.region);
+        dist D_nonlocal = D.difference(D_local.region);
         
         System.out.println("D_local =" + D_local);
         System.out.println("D_nonlocal =" + D_nonlocal);
@@ -155,12 +155,12 @@ public class TestDistribution_c extends TestCase {
         System.out.println("assert4 = " + assert4);
         
         // test might fail for incorrect N.
-        distribution D = distribution.factory.block(R);        
-        distribution D_inner = D.restriction(R_inner);
+        dist D = dist.factory.block(R);        
+        dist D_inner = D.restriction(R_inner);
         assert5 = D_inner.region.size() == N * N;
         System.out.println("assert5 = " + assert5);
         
-        distribution D_Boundary = D.difference(D_inner.region);
+        dist D_Boundary = D.difference(D_inner.region);
         assert6 = D_Boundary.region.size() == ((N+2) * (N+2)) - (N*N);
         System.out.println("assert6 = " + assert6);
         

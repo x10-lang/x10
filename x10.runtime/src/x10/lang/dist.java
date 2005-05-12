@@ -12,7 +12,7 @@ package x10.lang;
 import /*x10*/java.util.Set;
 import java.util.Iterator;
 
-abstract public /*value*/ class distribution/*( region region )*/ extends Object 
+abstract public /*value*/ class dist/*( region region )*/ extends Object 
 implements Indexable {
 	public final region region;
 	/** The parameter dimension may be used in constructing types derived
@@ -24,7 +24,7 @@ implements Indexable {
     
     /* disrtibution is Indexable and as such regarded by the compiler as an X10array.
      * Hence it must have a field 'distrubution' (see ateach construct) */
-    public final distribution distribution;
+    public final dist distribution;
 	
 	/** places is the range of the distribution. Guranteed that if a
 	 * place P is in this set then for some point p in region,
@@ -32,7 +32,7 @@ implements Indexable {
 	 */
 	abstract public Set/*<place>*/ places(); // consider making this a parameter?
 
-	protected distribution(region R) {
+	protected dist(region R) {
 		this.region = R;
 		this.rank = R.rank;
         this.distribution = this;
@@ -49,11 +49,11 @@ implements Indexable {
 		 * i'th element in Q in canonical place-order.
 		 */
 		abstract public 
-		distribution/*(:rank=1)*/ unique( Set/*<place>*/ Q );
-		public distribution/*(:rank=1)*/ unique() {
+		dist/*(:rank=1)*/ unique( Set/*<place>*/ Q );
+		public dist/*(:rank=1)*/ unique() {
 			return unique( x10.lang.place.places );
 		}
-		public /*(region R)*/ distribution/*(R)*/ local( region R) {
+		public /*(region R)*/ dist/*(R)*/ local( region R) {
 			return constant( R, Runtime.here());
 		}
 		/** Return the distribution that maps the region 0..k-1 to here.
@@ -61,7 +61,7 @@ implements Indexable {
 		 * @param k -- the upper bound of the 1-dimensional region. k >= 0
 		 * @return the given distribution
 		 */
-		public distribution/*(:rank=1)*/ local( int k) {
+		public dist/*(:rank=1)*/ local( int k) {
 			return local(x10.lang.region.factory.region(k));
 		}
 		
@@ -69,14 +69,14 @@ implements Indexable {
 		 region to the given place P.
 		 */
 		abstract public 
-		/*(region R)*/ distribution/*(R)*/ constant( region R, place P );
+		/*(region R)*/ dist/*(R)*/ constant( region R, place P );
 		
 		/** Returns the block distribution over the given region, and over
 		 * place.MAX_PLACES places.
 		 */
 		public 
-		/*(region R)*/ distribution/*(R)*/ block( final region R ) {
-			final distribution/*(R)*/ result = this.block/*(R)*/(R, x10.lang.place.places);
+		/*(region R)*/ dist/*(R)*/ block( final region R ) {
+			final dist/*(R)*/ result = this.block/*(R)*/(R, x10.lang.place.places);
 			assert result.region.equals(R); 
 			return result;
 		}
@@ -86,32 +86,32 @@ implements Indexable {
 		 * s, in canonical order.
 		 */
 		abstract public  
-		/*(region R)*/ distribution/*(R)*/ block( region R, Set/*<place>*/ s);
+		/*(region R)*/ dist/*(R)*/ block( region R, Set/*<place>*/ s);
 		
 		
 		/** Returns the cyclic distribution over the given region, and over
 		 * all places.
 		 */
-		public /*(region R)*/ distribution/*(R)*/ cyclic( final region R ) {
-			final distribution result = this.cyclic/*(R)*/(R, x10.lang.place.places);
+		public /*(region R)*/ dist/*(R)*/ cyclic( final region R ) {
+			final dist result = this.cyclic/*(R)*/(R, x10.lang.place.places);
 			assert result.region.equals(R);
 			return result;
 		}
 		
-		abstract public /*(region R)*/ distribution/*(R)*/ cyclic( region R, Set/*<place>*/ s);
+		abstract public /*(region R)*/ dist/*(R)*/ cyclic( region R, Set/*<place>*/ s);
 		
 		/** Returns the block-cyclic distribution over the given region, and over
 		 * place.MAX_PLACES places. Exception thrown if blockSize < 1.
 		 */
 		abstract public  
-		/*(region R)*/ distribution/*(R)*/ blockCyclic( region R, /*nat*/int blockSize) 
+		/*(region R)*/ dist/*(R)*/ blockCyclic( region R, /*nat*/int blockSize) 
 		throws MalformedError;
 		
 		/** Returns a distribution which assigns a random place in the
 		 * given set of places to each point in the region.
 		 */
 		abstract public  
-		/*(region R)*/ distribution/*(R)*/ random( region R );
+		/*(region R)*/ dist/*(R)*/ random( region R );
 		
 		/** Returns a distribution which assigns some arbitrary place in
 		 * the given set of places to each point in the region. There are
@@ -119,7 +119,7 @@ implements Indexable {
 		 * assigned to the same place.
 		 */
 		abstract public 
-		/*(region R)*/ distribution/*(R)*/ arbitrary( region R );
+		/*(region R)*/ dist/*(R)*/ arbitrary( region R );
 		
 	}	
 	
@@ -152,7 +152,7 @@ implements Indexable {
 	 */
 	abstract public region/*(rank)*/ restrictToRegion( place P );
 	
-	public distribution restriction(place P) {
+	public dist restriction(place P) {
 		return distribution.factory.constant(restrictToRegion(P), P);
 	}
 	
@@ -162,14 +162,14 @@ implements Indexable {
      * and hence a distribution is passed to the runtime where actually a  
      * region is expected.
      * */
-    public distribution restriction(distribution P) {
+    public dist restriction(dist P) {
         return restriction(P.region);
     }
     
 	/** Returns the distribution obtained by range-restricting this to Ps.
 	 The region of the distribution returned is contained in this.region.
 	 */
-	abstract public distribution/*(:this.region.contains(region))*/
+	abstract public dist/*(:this.region.contains(region))*/
 	restriction( Set/*<place>*/Ps );
 	
 	/** Returns a new distribution obtained by restricting this to the
@@ -177,22 +177,22 @@ implements Indexable {
 	 * with the same dimension.
 	 */
 	abstract public 
-	/*(region(rank) R)*/ distribution/*(region.intersection(R))*/
+	/*(region(rank) R)*/ dist/*(region.intersection(R))*/
 	restriction( region/*(rank)*/ R);
 	
 	/** Returns the restriction of this to the domain region.difference(R),
 	 where parameter R is a region with the same dimension.
 	 */
 	abstract public 
-	/*(region(rank) R)*/ distribution/*(region.difference(R))*/
+	/*(region(rank) R)*/ dist/*(region.difference(R))*/
 	difference( region/*(rank)*/ R);
 	
 	/** Returns the restriction of this to the domain region.difference(D.region),
 	 where parameter D is a distribution with the same dimension.
 	 */
 public 
-	/*(region(rank) R)*/ distribution/*(region.difference(R))*/
-	difference( distribution /*(rank)*/ D) {
+	/*(region(rank) R)*/ dist/*(region.difference(R))*/
+	difference( dist /*(rank)*/ D) {
 		return difference(D.region);
 	}
 	
@@ -206,18 +206,18 @@ public
 	 */
 	abstract public /*(distribution(:region.disjoint(this.region) &&
 	rank=this.rank) D)*/ 
-	distribution/*(region.union(D.region))*/
-	union(distribution/*(:region.disjoint(this.region) &&
+	dist/*(region.union(D.region))*/
+	union(dist/*(:region.disjoint(this.region) &&
 	rank=this.rank)*/ D);
 	
-	abstract public distribution/*(:rank=this.rank)*/ intersection( distribution /*(:rank=this.rank)*/D);
+	abstract public dist/*(:rank=this.rank)*/ intersection( dist /*(:rank=this.rank)*/D);
     
 	/** Returns a distribution defined on region.union(R): it
 	 takes on D.get(p) for all points p in R, and this.get(p) for
 	 all remaining points.
 	 */
-	abstract public /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-	overlay(  distribution/*(R)*/ D);
+	abstract public /*(region(rank) R)*/ dist/*(region.union(R))*/ 
+	overlay(  dist/*(R)*/ D);
 	
 	
 	/** Return true iff the given distribution D, which must be over a
@@ -225,7 +225,7 @@ public
 	 * of this.region and agrees with it at each point.
 	 */
 	abstract public /*(region(rank) r)*/ 
-	boolean subDistribution( region/*(rank)*/ R, distribution/*(R)*/ D); 
+	boolean subDistribution( region/*(rank)*/ R, dist/*(R)*/ D); 
 	
 	public boolean contains( point p ) {
 		return this.region.contains(p);
@@ -235,8 +235,8 @@ public
 	 * domain to the same place.
 	 */
 	public boolean equals(java.lang.Object o) {
-		if (! (o instanceof distribution)) return false;
-		distribution ot = (distribution) o;
+		if (! (o instanceof dist)) return false;
+		dist ot = (dist) o;
 		if (! (ot.region.equals(this.region))) return false;
 		
 		return this.subDistribution(region,ot) 
@@ -246,7 +246,7 @@ public
 	 	return region.iterator();
 	 }
 	
-	public distribution toDistribution() {
+	public dist toDistribution() {
 		return this;
 	}
 	

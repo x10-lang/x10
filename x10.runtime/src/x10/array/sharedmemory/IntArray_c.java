@@ -13,7 +13,7 @@ import x10.array.IntArray;
 import x10.array.Operator;
 import x10.lang.Indexable;
 import x10.lang.point;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.Runtime;
 import x10.lang.IntReferenceArray;
@@ -58,13 +58,13 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * @param c
      * @param safe
      */
-    public IntArray_c( distribution d, int c) {
+    public IntArray_c( dist d, int c) {
 	this(d, c, true, true);
     }
-    public IntArray_c( distribution d, int c, boolean mutable ) {
+    public IntArray_c( dist d, int c, boolean mutable ) {
     	this( d, c, true, mutable);
     }
-    public IntArray_c( distribution d, int c, boolean safe, boolean mutable) {
+    public IntArray_c( dist d, int c, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
         this.safe_ = safe;
@@ -81,15 +81,15 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	scan(this, new Assign(c));
     	
     }
-    public IntArray_c( distribution d, IntArray.pointwiseOp f){
+    public IntArray_c( dist d, IntArray.pointwiseOp f){
 	this(d, f, true, true);
     }
     
-    public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean mutable ){
+    public IntArray_c( dist d, IntArray.pointwiseOp f, boolean mutable ){
     	this(d, f, true, mutable);
     }
     
-    public IntArray_c( distribution d, IntArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public IntArray_c( dist d, IntArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
         this.safe_ = safe;
@@ -107,7 +107,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	    scan(this, f);
     }
     
-    private IntArray_c( distribution d, int[] a, boolean safe, boolean mutable ) {
+    private IntArray_c( dist d, int[] a, boolean safe, boolean mutable ) {
     	super(d);
         this.mutable_ = mutable;
         this.safe_ = safe;
@@ -128,7 +128,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * @return
      */
     public static IntArray_c IntArray_c(int[] a, boolean safe, boolean mutable ) {
-    	distribution d = Runtime.factory.getDistributionFactory().local(a.length);
+    	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new IntArray_c(d, a, safe, mutable );
     }
     protected IntArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
@@ -211,13 +211,13 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     		super.assign(rhs);
     }
 
-	protected IntArray newInstance(distribution d) {
+	protected IntArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
 		return new IntArray_c((Distribution_c) d, safe_);	
 	}
 	
-	protected IntArray newInstance( distribution d, Operator.Pointwise p) {
+	protected IntArray newInstance( dist d, Operator.Pointwise p) {
 		assert d instanceof Distribution_c;
 		
 		return new IntArray_c((Distribution_c) d, p, safe_);	
@@ -298,7 +298,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     }
     
     public IntReferenceArray overlay(x10.lang.intArray d) {
-        distribution dist = distribution.overlay(d.distribution);
+        dist dist = distribution.overlay(d.distribution);
         IntArray_c ret = new IntArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -317,7 +317,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     }
     
     public IntReferenceArray union(x10.lang.intArray d) {
-        distribution dist = distribution.union(d.distribution);
+        dist dist = distribution.union(d.distribution);
         IntArray_c ret = new IntArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();
@@ -327,12 +327,12 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         return ret;
     }
     
-    public IntReferenceArray restriction( distribution d) {
+    public IntReferenceArray restriction( dist d) {
         return restriction(d.region);
     }
     
     public IntReferenceArray restriction(region d) {
-        distribution dist = distribution.restriction(d);
+        dist dist = distribution.restriction(d);
         IntArray_c ret = new IntArray_c(dist, 0, safe_);
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
             point p = (point) it.next();

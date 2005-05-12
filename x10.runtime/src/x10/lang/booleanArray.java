@@ -15,11 +15,11 @@ abstract public class booleanArray /*( distribution distribution )*/
 /*implements Cloneable, Serializable */
 implements Indexable, Unsafe {
 
-	public final distribution distribution;
+	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
-	protected booleanArray( distribution D) {
+	protected booleanArray( dist D) {
 		this.distribution = D;
 		this.region = D.region;
 		this.rank = D.rank;
@@ -54,7 +54,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public booleanArray/*(:rank=1)*/  booleanValueArray(/*nat*/ int k, boolean initVal) { 
-			return booleanValueArray(x10.lang.distribution.factory.local(k), initVal);
+			return booleanValueArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -63,13 +63,13 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public booleanArray/*(:rank=1)*/ booleanValueArray(/*nat*/ int k, pointwiseOp init) {
-			return booleanValueArray( x10.lang.distribution.factory.local(k), init);
+			return booleanValueArray( x10.lang.dist.factory.local(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ booleanArray/*(D)*/ booleanValueArray(distribution D, boolean init);
+		/*(distribution D)*/ booleanArray/*(D)*/ booleanValueArray(dist D, boolean init);
 		abstract public 
-		/*(distribution D)*/ booleanArray/*(D)*/ booleanValueArray( distribution D, 
+		/*(distribution D)*/ booleanArray/*(D)*/ booleanValueArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 		/** Return the unique boolean value array initialized with false 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -87,7 +87,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public BooleanReferenceArray/*(:rank=1)*/  BooleanReferenceArray(/*nat*/ int k, boolean initVal) { 
-			return BooleanReferenceArray(x10.lang.distribution.factory.local(k), initVal);
+			return BooleanReferenceArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -96,16 +96,16 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public BooleanReferenceArray/*(:rank=1)*/ BooleanReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return BooleanReferenceArray( x10.lang.distribution.factory.local(k), init);
+			return BooleanReferenceArray( x10.lang.dist.factory.local(k), init);
 		}
 		
-		public BooleanReferenceArray BooleanReferenceArray( distribution D) {
+		public BooleanReferenceArray BooleanReferenceArray( dist D) {
 			return BooleanReferenceArray( D, false);
 		}
 		abstract public 
-		/*(distribution D)*/ BooleanReferenceArray/*(D)*/ BooleanReferenceArray(distribution D, boolean init);
+		/*(distribution D)*/ BooleanReferenceArray/*(D)*/ BooleanReferenceArray(dist D, boolean init);
 		abstract public 
-		/*(distribution D)*/ BooleanReferenceArray/*(D)*/ BooleanReferenceArray( distribution D, 
+		/*(distribution D)*/ BooleanReferenceArray/*(D)*/ BooleanReferenceArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 	}
 	public static final factory factory = Runtime.factory.getBooleanArrayFactory();
@@ -143,7 +143,7 @@ implements Indexable, Unsafe {
 	 the region underlying this and the parametric distribution.
 	 */    
 	public  /*(distribution(:rank=this.rank) D)*/ 
-	BooleanReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
+	BooleanReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D) {
 	 return restriction(D.region);
 	}
 	
@@ -192,7 +192,7 @@ implements Indexable, Unsafe {
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
-	public distribution toDistribution() {
+	public dist toDistribution() {
 		return distribution;
 	}
 }

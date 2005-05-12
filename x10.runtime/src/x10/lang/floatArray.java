@@ -15,11 +15,11 @@ abstract public class floatArray /*( distribution distribution )*/
 /*implements Cloneable, Serializable */
 implements Indexable, Unsafe {
 
-	public final distribution distribution;
+	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
-	protected floatArray( distribution D) {
+	protected floatArray( dist D) {
 		this.distribution = D;
 		this.region = D.region;
 		this.rank = D.rank;
@@ -59,7 +59,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public floatArray/*(:rank=1)*/  floatValueArray(/*nat*/ int k, float initVal) { 
-			return floatValueArray(x10.lang.distribution.factory.local(k), initVal);
+			return floatValueArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -68,13 +68,13 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public floatArray/*(:rank=1)*/ floatValueArray(/*nat*/ int k, pointwiseOp init) {
-			return floatValueArray( x10.lang.distribution.factory.local(k), init);
+			return floatValueArray( x10.lang.dist.factory.local(k), init);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ floatArray/*(D)*/ floatValueArray(distribution D, float init);
+		/*(distribution D)*/ floatArray/*(D)*/ floatValueArray(dist D, float init);
 		abstract public 
-		/*(distribution D)*/ floatArray/*(D)*/ floatValueArray( distribution D, 
+		/*(distribution D)*/ floatArray/*(D)*/ floatValueArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 		/** Return the unique int value array initialized with 0 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -92,7 +92,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public FloatReferenceArray/*(:rank=1)*/  FloatReferenceArray(/*nat*/ int k, float initVal) { 
-			return FloatReferenceArray(x10.lang.distribution.factory.local(k), initVal);
+			return FloatReferenceArray(x10.lang.dist.factory.local(k), initVal);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -101,16 +101,16 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public FloatReferenceArray/*(:rank=1)*/ FloatReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return FloatReferenceArray( x10.lang.distribution.factory.local(k), init);
+			return FloatReferenceArray( x10.lang.dist.factory.local(k), init);
 		}
 		
-		public FloatReferenceArray FloatReferenceArray( distribution D) {
+		public FloatReferenceArray FloatReferenceArray( dist D) {
 			return FloatReferenceArray( D, 0);
 		}
 		abstract public 
-		/*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray(distribution D, float init);
+		/*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray(dist D, float init);
 		abstract public 
-		/*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray( distribution D, 
+		/*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 	}
 	public static final factory factory = Runtime.factory.getFloatArrayFactory();
@@ -212,7 +212,7 @@ implements Indexable, Unsafe {
 	 the region underlying this and the parametric distribution.
 	 */    
 	public  /*(distribution(:rank=this.rank) D)*/ 
-	FloatReferenceArray/*(distribution.restriction(D.region)())*/ restriction(distribution D) {
+	FloatReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D) {
 	 return restriction(D.region);
 	}
 	
@@ -261,7 +261,7 @@ implements Indexable, Unsafe {
 	public Iterator iterator() {
 	 	return region.iterator();
 	 }
-	public distribution toDistribution() {
+	public dist toDistribution() {
 		return distribution;
 	}
 }

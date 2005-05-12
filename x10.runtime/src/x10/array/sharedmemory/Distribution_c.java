@@ -16,7 +16,7 @@ import x10.array.MultiDimRegion;
 import x10.array.point_c;
 import x10.lang.Indexable;
 import x10.lang.region;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.Runtime;
@@ -31,7 +31,7 @@ import x10.lang.Runtime;
  * @author Christian Grothoff
  * @author vj
  */
-public abstract class Distribution_c extends /*Region_c*/distribution /*implements Distribution*/ {
+public abstract class Distribution_c extends /*Region_c*/dist /*implements Distribution*/ {
     
     public boolean isValue() {
         return true;
@@ -65,7 +65,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     /** Returns the region mapped by this distribution to the place P.
     The value returned is a subset of this.region.
     */
-    protected static region/*(rank)*/ restriction(distribution th, place pl) {
+    protected static region/*(rank)*/ restriction(dist th, place pl) {
        Set points = new HashSet();
        for (Iterator it = th.region.iterator(); it.hasNext(); ) {
            point p = (point) it.next();
@@ -76,15 +76,15 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
        return ret;
    }
    
-    public distribution restriction(Set Ps) {
+    public dist restriction(Set Ps) {
         return restriction(this, Ps); 
     }
     
     /** Returns the distribution obtained by range-restricting this to Ps.
     The region of the distribution returned is contained in this.region.
     */
-   protected static distribution/*(:this.region.contains(region))*/
-   restriction(distribution th, Set/*<place>*/Ps ) {
+   protected static dist/*(:this.region.contains(region))*/
+   restriction(dist th, Set/*<place>*/Ps ) {
        HashMap hm = new HashMap();
        Set points = new HashSet();
        for (Iterator it = th.region.iterator(); it.hasNext(); ) {
@@ -96,12 +96,12 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
            }
        }
        region reg = new ArbitraryRegion(th.rank, points);
-       distribution ret = new Arbitrary(reg, hm); 
+       dist ret = new Arbitrary(reg, hm); 
        return ret;
    }
    
    
-   public distribution restriction(region r) {
+   public dist restriction(region r) {
        return restriction(this, r);
    }
    /** Returns a new distribution obtained by restricting this to the
@@ -109,8 +109,8 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     * with the same dimension.
     */
    protected static
-   /*(region(rank) R)*/ distribution/*(region.intersection(R))*/
-   restriction(distribution th, region/*(rank)*/ r) {
+   /*(region(rank) R)*/ dist/*(region.intersection(R))*/
+   restriction(dist th, region/*(rank)*/ r) {
        assert r.rank == th.rank;
        
        HashMap hm = new HashMap();
@@ -123,11 +123,11 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
            }
        }
        region reg = new ArbitraryRegion(th.rank, points);
-       distribution ret = new Arbitrary(reg, hm); 
+       dist ret = new Arbitrary(reg, hm); 
        return ret;
    }
    
-   public distribution difference(region r) {
+   public dist difference(region r) {
        return difference(this, r);
    }
    
@@ -135,8 +135,8 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     * where parameter R is a region with the same dimension.
     */
    protected static
-   /*(region(rank) R)*/ distribution/*(region.difference(R))*/
-   difference(distribution th, region/*(rank)*/ r) {
+   /*(region(rank) R)*/ dist/*(region.difference(R))*/
+   difference(dist th, region/*(rank)*/ r) {
        assert r.rank == th.rank;
        region reg = th.region.difference(r);
        HashMap hm = new HashMap();
@@ -144,11 +144,11 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
            point p = (point) it.next();
            hm.put(p, th.get(p));
        }
-       distribution ret = new Arbitrary(reg, hm); 
+       dist ret = new Arbitrary(reg, hm); 
        return ret;
    }
    
-   public distribution union(distribution d) {
+   public dist union(dist d) {
        return union(this, d);
    }
    
@@ -162,8 +162,8 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     */
    protected static /*(distribution(:region.disjoint(this.region) &&
    rank=this.rank) D)*/ 
-   distribution/*(region.union(D.region))*/
-   union(distribution th, distribution/*(:region.disjoint(this.region) &&
+   dist/*(region.union(D.region))*/
+   union(dist th, dist/*(:region.disjoint(this.region) &&
    rank=this.rank)*/ d) {
        assert d.rank == th.rank && d.region.disjoint(th.region); // assume
        
@@ -177,19 +177,19 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
            point p = (point) it.next();
            hm.put(p, d.get(p));
        }
-       distribution ret = new Arbitrary(reg, hm); 
+       dist ret = new Arbitrary(reg, hm); 
        return ret;
    }
    
-    public distribution intersection(distribution D) {
+    public dist intersection(dist D) {
         return intersection(this, D);
     }
     
-    public distribution overlay(region r, distribution d) {
+    public dist overlay(region r, dist d) {
        return overlay(this, r, d);
    }
    
-   public distribution overlay(distribution d) {
+   public dist overlay(dist d) {
        return overlay(this, d.region, d);
    }
    
@@ -197,8 +197,8 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     this.get(p) for all points p in region, and D.get(p) for all
     points in R.difference(region).
     */
-   protected static /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-   overlay(distribution th, region/*(rank)*/ r, distribution/*(R)*/ d) {
+   protected static /*(region(rank) R)*/ dist/*(region.union(R))*/ 
+   overlay(dist th, region/*(rank)*/ r, dist/*(R)*/ d) {
        assert (d.region.rank == r.rank) &&  (r.rank == th.rank);
        
        region reg = r.union(th.region);
@@ -215,7 +215,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
            }
            hm.put(p, pl);
        }
-       distribution ret = new Arbitrary(reg, hm); 
+       dist ret = new Arbitrary(reg, hm); 
        return ret;
    }
    
@@ -223,8 +223,8 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     *  all those points that are contained in the intersection of th.region and 
     *  d.region that are mapped to the *same place* in both distributions.
     */
-  protected static /*(region(rank) R)*/ distribution/*(region.union(R))*/ 
-  intersection(distribution th, distribution/*(R)*/ d) {
+  protected static /*(region(rank) R)*/ dist/*(region.union(R))*/ 
+  intersection(dist th, dist/*(R)*/ d) {
       assert (d.rank == th.rank);
       
       region reg = th.region.intersection(d.region);
@@ -239,11 +239,11 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
           }
       }
       region reg_new = new ArbitraryRegion(th.rank, points);
-      distribution ret = new Arbitrary(reg_new, hm); 
+      dist ret = new Arbitrary(reg_new, hm); 
       return ret;
   }
    
-   public boolean subDistribution(region r, distribution d) {
+   public boolean subDistribution(region r, dist d) {
        return subDistribution(this, r, d);
    }
    
@@ -252,7 +252,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
     * of this.region and agrees with it at each point.
     */
    protected /*(region(rank) r)*/ 
-   static boolean subDistribution(distribution th, region/*(rank)*/ r, distribution/*(R)*/ d) {
+   static boolean subDistribution(dist th, region/*(rank)*/ r, dist/*(R)*/ d) {
        assert d.region.rank == th.rank;
        boolean ret = false;
        if (th.region.contains(d.region)) {
@@ -306,7 +306,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         /** Returns the distribution obtained by range-restricting this to Ps.
          The region of the distribution returned is contained in this.region.
          */
-        public distribution/*(:this.region.contains(region))*/
+        public dist/*(:this.region.contains(region))*/
         restriction( Set/*<place>*/Ps ) {
             return this;
         }
@@ -316,7 +316,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
          * with the same dimension.
          */
         public 
-        /*(region(rank) R)*/ distribution/*(region.intersection(R))*/
+        /*(region(rank) R)*/ dist/*(region.intersection(R))*/
         restriction( region/*(rank)*/ R) {
             assert this.region.rank == R.rank;
             return this;
@@ -326,7 +326,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
          where parameter R is a region with the same dimension.
          */
         public 
-        /*(region(rank) R)*/ distribution/*(region.difference(R))*/
+        /*(region(rank) R)*/ dist/*(region.difference(R))*/
         difference( region/*(rank)*/ R) {
             assert this.region.rank == R.rank;
             return this;
@@ -342,8 +342,8 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
          */
         public /*(distribution(:region.disjoint(this.region) &&
         rank=this.rank) D)*/ 
-        distribution/*(region.union(D.region))*/
-        union(distribution D) {
+        dist/*(region.union(D.region))*/
+        union(dist D) {
             assert this.region.rank == D.region.rank;
             return D;
         }
@@ -355,7 +355,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
          * of this.region and agrees with it at each point.
          */
         public /*(region(rank) r)*/ 
-        boolean subDistribution( region/*(rank)*/ R, distribution/*(R)*/ D) {
+        boolean subDistribution( region/*(rank)*/ R, dist/*(R)*/ D) {
             assert D.region.rank == this.region.rank;
             return (D instanceof Empty || D.region.size() == 0);
         }
@@ -399,7 +399,7 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
         /** Returns the distribution obtained by range-restricting this to Ps.
          The region of the distribution returned is contained in this.region.
          */
-        public distribution/*(:this.region.contains(region))*/
+        public dist/*(:this.region.contains(region))*/
         restriction( Set/*<place>*/Ps ) {
             if (Ps.contains(place_))
                 return this;
@@ -411,11 +411,11 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
          * with the same dimension.
          */
         public 
-        /*(region(rank) R)*/ distribution/*(region.intersection(R))*/
+        /*(region(rank) R)*/ dist/*(region.intersection(R))*/
         restriction( region/*(rank)*/ R) {
             assert R.rank == this.rank; //assume
             region r = this.region.intersection( R );
-            distribution ret;
+            dist ret;
             if (r.size() == 0) 
                 ret = new Empty(rank);
             else 
@@ -428,11 +428,11 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
          where parameter R is a region with the same dimension.
          */
         public 
-        /*(region(rank) R)*/ distribution/*(region.difference(R))*/
+        /*(region(rank) R)*/ dist/*(region.difference(R))*/
         difference( region/*(rank)*/ R) {
             assert R.rank == this.rank; //assume
             region r = this.region.difference( R );
-            distribution ret;
+            dist ret;
             if (r.size() == 0) 
                 ret = new Empty(rank);
             else 
@@ -450,12 +450,12 @@ public abstract class Distribution_c extends /*Region_c*/distribution /*implemen
          */
         public /*(distribution(:region.disjoint(this.region) &&
         rank=this.rank) D)*/ 
-        distribution/*(region.union(D.region))*/
-        union(distribution/*(:region.disjoint(this.region) &&
+        dist/*(region.union(D.region))*/
+        union(dist/*(:region.disjoint(this.region) &&
         rank=this.rank)*/ D) {
             assert D.rank == rank && D.region.disjoint(region); // assume
             assert D instanceof Distribution_c;
-            distribution ret;
+            dist ret;
             if (D.region.size() == 0)
                 ret = this;
             else {

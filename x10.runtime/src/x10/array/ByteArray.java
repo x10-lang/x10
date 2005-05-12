@@ -4,7 +4,7 @@
 package x10.array;
 
 import java.util.Iterator;
-import x10.lang.distribution;
+import x10.lang.dist;
 import x10.lang.point;
 import x10.lang.ByteReferenceArray;
 
@@ -14,7 +14,7 @@ import x10.lang.ByteReferenceArray;
  * Byte Arrays are currently not implemented.
  */
 public abstract class ByteArray extends ByteReferenceArray {
-    public ByteArray(distribution d) {
+    public ByteArray(dist d) {
         super(d);
     }
     
