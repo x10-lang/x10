@@ -142,12 +142,9 @@ public class DefaultRuntime_c
                     signal.value = true;
                     signal.notifyAll();
                 }
-                // now run the actual client app (wrapped in this
-                // Activity.Expr since we want to use a Clock to 
-                // wait for the main app to exit, but we can't use
-                // a clock directly without being a proper activity).
+                // now run the actual client app
                 Clock c = (Clock) factory.getClockFactory().clock();
-                c.doNow(appMain);
+                c.doNowSameThread(appMain);
                 Runtime.doNext();
 
                 if (Sampling.SINGLETON != null && Configuration.DUMP_STATS_ON_EXIT) {  
