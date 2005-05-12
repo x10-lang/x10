@@ -68,12 +68,14 @@ public class Edmiston {
 		return t;
 	};
 		
-        finish ateach(point [i,j]:Dinner) 
+        finish ateach(point [i,j]:Dinner) { 
            e[i,j].wr( 
              min3(read(e,i-1,j)+gapPen,
                   read(e,i,j-1)+gapPen,
                   read(e,i-1,j-1)+(c1[i]==c2[j]?match:misMatch)));
-        //pr(c1,c2,e,"Edit distance matrix:");
+	   System.out.println("Computed e["+i+","+j+"]="+e[i,j].rd());
+	}
+        pr(c1,c2,e,"Edit distance matrix:");
         return arraySum(e)==EXPECTED_RESULT;
     }
 
@@ -121,7 +123,7 @@ public class Edmiston {
     /* 
      * Print the Edit Distance Matrix 
      */
-    static void pr(final char[.] c1, final char[.] c2, final synchronizedInt[.] e, final String s)
+    static void pr(final char value[.] c1, final char value[.] c2, final synchronizedInt[.] e, final String s)
     {
         final int N=c1.region.high();
         final int M=c2.region.high();
