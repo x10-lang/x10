@@ -58,7 +58,7 @@ public class Edmiston_Sequential {
      * Function to generate the i'th random character
      */
    
-    char randomChar(int i) {
+    static char randomChar(int i) {
         // Randomly select one of 'A', 'C', 'G', 'T' 
         int n=0;
         final Random  rand=new Random(1L);
