@@ -21,7 +21,9 @@ class istructInt {
     int val;
     boolean filled=false;
     int rd() {
-        when(filled) {return val;}
+	int t;
+        when(filled) {t=val;}
+	return t;
     }
     atomic void wr(int v) {
         if (filled) throw new Error();
