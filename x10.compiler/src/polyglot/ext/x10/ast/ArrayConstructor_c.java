@@ -38,7 +38,7 @@ implements ArrayConstructor {
 	protected boolean isValue = false;
 	protected boolean isSafe = true;
 	
-	/** distribution must contain a value whose type is either int or x10.lang.distribution.
+	/** distribution must contain a value whose type is either int or x10.lang.dist.
 	 * If distribution == null, then init must be not null and in fact an Initializer.
 	 * The expr then is a constructed form of [0..init.length()-1]->here.
 	 * This can be implemented as a javaarray.
