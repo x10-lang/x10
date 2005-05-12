@@ -1,5 +1,5 @@
 /** 
- * Sequential version of Edmiston's algorithm for Sequence Alignment 
+ * Sequential version of Edmiston's algorithm for Sequence Alignment.
  * This code is an X10 port of the Edmiston_Sequential.c program written by 
  * Sirisha Muppavarapu (sirisham@cs.unm.edu), U. New Mexico.
  *
@@ -15,6 +15,7 @@ public class Edmiston_Sequential {
     const int match = 0;
     const int misMatch= -1;
     const int EXPECTED_RESULT= 549;
+    const char[] aminoAcids={'A','C','G','T'};
 
     /**
      * Edmiston's algorithm
@@ -30,7 +31,7 @@ public class Edmiston_Sequential {
         final dist D=[0:N,0:M]->here;
         final dist Dinner=D|[1:N,1:M];
         final dist Dboundary=D-Dinner;
-        //  e is initialized to:
+        //  Boundary of e is initialized to:
         //  0     1*gapPen     2*gapPen     3*gapPen ...
         //  1*gapPen ...
         //  2*gapPen ...
@@ -38,10 +39,9 @@ public class Edmiston_Sequential {
         //  ...
         final int[.] e=new int[D](point [i,j]){return Dboundary.contains([i,j])?gapPen*(i+j):0;};
         for(point [i,j]:Dinner) 
-          e[i,j]=
-            min3(e[i-1,j]+gapPen,
-                 e[i,j-1]+gapPen,
-                 e[i-1,j-1]+(c1[i]==c2[j]?match:misMatch));
+          e[i,j]=min(e[i-1,j]+gapPen,
+                     e[i,j-1]+gapPen,
+                     e[i-1,j-1]+(c1[i]==c2[j]?match:misMatch));
         pr(c1,c2,e,"Edit distance matrix:");
         return e.sum()==EXPECTED_RESULT;
     }
@@ -49,7 +49,7 @@ public class Edmiston_Sequential {
     /**
      * returns the minimum of x y and z.
      */
-    static int min3(int x, int y, int z) {
+    static int min(int x, int y, int z) {
         int t=(x<y)?x:y;
         return (t<z)?t:z;
     }
@@ -57,21 +57,23 @@ public class Edmiston_Sequential {
     /** 
      * Function to generate the i'th random character
      */
+   
     char randomChar(int i) {
         // Randomly select one of 'A', 'C', 'G', 'T' 
-        //
-        // find i'th random pair of booleans
-        // TODO: need parallel version of this
-        boolean bit1=false;
-        boolean bit2=false;
+        int n=0;
         final Random  rand=new Random(1L);
-        for(point [k]: 1:i) {
-            bit1 = rand.nextBoolean();
-            bit2 = rand.nextBoolean();
-        }
-        return bit1 ? (bit2 ? 'A' : 'C') : (bit2 ? 'G' : 'T');
+        // find i'th random number.
+        // TODO: need parallel version of this
+        for(point [k]: 1:i) n = nextChoice(rand);
+        return aminoAcids[n];
     }
 
+    static int nextChoice(Random rand) {
+        int k1=rand.nextBoolean()?0:1;
+        int k2=rand.nextBoolean()?0:1;
+        return k1*2+k2;
+    }
+    
     /* 
      * Print the Edit Distance Matrix 
      */
