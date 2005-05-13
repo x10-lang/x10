@@ -1,5 +1,3 @@
-import x10.lang.*;
-
 /**
  * Test that does nothing.  Useful to test the testing
  * harness.
@@ -24,6 +22,5 @@ public class NopTest {
     static class boxedBoolean {
         boolean val=false;
     }
-
 
 }
