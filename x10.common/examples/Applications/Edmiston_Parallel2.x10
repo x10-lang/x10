@@ -111,7 +111,7 @@ public class Edmiston_Parallel2 {
      */
     static int arraySum(final istructInt[.] e) {
         int sum=0;
-        for(point p[i,j]:e) sum+=e[i,j]->rd();
+        for(point [i,j]:e) sum+=e[i,j]->rd();
         return sum;
     }
 
