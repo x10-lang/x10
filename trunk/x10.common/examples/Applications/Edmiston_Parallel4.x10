@@ -6,33 +6,13 @@
  * @author Vivek Sarkar   (vsarkar@us.ibm.com)
  * @author Kemal Ebcioglu (kemal@us.ibm.com)
  * 
- * This version has more OO organization. 
+ * This version uses clocks for lockstep operation on successive waves.
  */
 
 
 import java.util.Random;
 
-/**
- * Single assignment synchronization buffer,
- * like an i-structure in a data flow machine.
- * All readers will wait until write occurs.
- */
-class istructInt {
-    int val;
-    boolean filled=false;
-    int rd() {
-	int t;
-        when(filled) {t=val;}
-	return t;
-    }
-    atomic void wr(int v) {
-        if (filled) throw new Error();
-        filled=true;
-        val=v;
-    }
-}
-
-public class Edmiston_Parallel3 {
+public class Edmiston_Parallel4 {
     const int N = 10;
     const int M = 10;
 
@@ -40,12 +20,12 @@ public class Edmiston_Parallel3 {
      * main run method
      */
     public boolean run() {
-	charStr c1= new charStr(N,0);
-	charStr c2= new charStr(M,N);
-	editDistMatrix m=new editDistMatrix(c1,c2);
-	m.pr("Edit distance matrix:");
+        charStr c1= new charStr(N,0);
+        charStr c2= new charStr(M,N);
+        editDistMatrix m=new editDistMatrix(c1,c2);
+        m.pr("Edit distance matrix:");
         m.verify();
-	return true;
+        return true;
     }
 
    /**
@@ -54,7 +34,7 @@ public class Edmiston_Parallel3 {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Edmiston_Parallel3()).run();
+                finish b.val=(new Edmiston_Parallel4()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
@@ -77,7 +57,7 @@ class editDistMatrix {
    const int misMatch= -1;
    const int EXPECTED_RESULT= 549;
 
-   final istructInt[.] e;
+   final int[.] e;
    final charStr c1;
    final charStr c2;
    final int N;
@@ -86,10 +66,10 @@ class editDistMatrix {
     * Create edit distance matrix with Edmiston's algorithm
     */
    public editDistMatrix(charStr cSeq1, charStr cSeq2) {
-	c1=cSeq1;
-	c2=cSeq2;
-	N=c1.s.region.high();
-	M=c2.s.region.high();
+        c1=cSeq1;
+        c2=cSeq2;
+        N=c1.s.region.high();
+        M=c2.s.region.high();
         final dist D=dist.factory.block([0:N,0:M]);
         final dist Dinner=D|[1:N,1:M];
         final dist Dboundary=D-Dinner;
@@ -99,16 +79,29 @@ class editDistMatrix {
         //  2*gapPen ...
         //  3*gapPen ...
         //  ...
-        e=new istructInt[D] (point [i,j]) {
-            final istructInt t=new istructInt();
-            if(Dboundary.contains([i,j])) t.wr(gapPen*(i+j));
-            return t;
-        };
-        finish ateach(point [i,j]:Dinner)
-           e[i,j].wr(min(e[i-1,j]->rd()+gapPen,
-                         e[i,j-1]->rd()+gapPen,
-                         e[i-1,j-1]->rd()
-                           +(c1.s[i]==c2.s[j]?match:misMatch)));
+        e=new int[D] (point [i,j])
+            {return Dboundary.contains([i,j])?gapPen*(i+j):0;};
+
+        // Now compute the edit distance matrix.
+        // The activity for each array element (i,j) waits for (i+j)-3
+        // clock ticks (for the wavefront to reach it),
+        // then consumes the data produced by previous wave(s) and 
+        // produces this wave's data.
+        // For example, the array elements (1,2),(2,1) will execute 1 next,
+        // and (1,3),(2,2),(3,1) will execute 2 nexts,
+        // before starting their actual computation.
+        finish {
+            final clock c=clock.factory.clock();
+            ateach(point [i,j]:Dinner) clocked(c) {
+               for(point [k]: [3:(i+j)]) next;//wait for my wave
+               e[i,j]=min(rd(i-1,j)+gapPen,
+                          rd(i,j-1)+gapPen,
+                          rd(i-1,j-1)
+                           +(c1.s[i]==c2.s[j]?match:misMatch));
+               c.drop();//immediately de-register with clock, so future
+                        //waves will not need to wait for me
+            }
+        }
    }
 
     /**
@@ -116,7 +109,7 @@ class editDistMatrix {
      */
     int checkSum() {
         int sum=0;
-        for(point [i,j]:e) sum+=e[i,j]->rd();
+        for(point [i,j]:e) sum+=rd(i,j);
         return sum;
     }
     /**
@@ -124,7 +117,7 @@ class editDistMatrix {
      * checksum.
      */
     public void verify() {
-	if(checkSum()!=EXPECTED_RESULT) throw new Error();
+        if(checkSum()!=EXPECTED_RESULT) throw new Error();
     }
 
     /* 
@@ -142,7 +135,7 @@ class editDistMatrix {
 
         for(point [i]:0:N){
             System.out.print(" "+pad(c1.s[i],K));
-            for(point [j]:0:M) System.out.print(" "+pad(e[i,j]->rd(),K));
+            for(point [j]:0:M) System.out.print(" "+pad(rd(i,j),K));
             System.out.println();
         }
     }
@@ -150,6 +143,13 @@ class editDistMatrix {
    /*
     * utility functions
     */
+
+    /**
+     * possibly remote read of e[i,j]
+     */
+    int rd(final int i, final int j) {
+        return future(e.distribution[i,j]){e[i,j]}.force();
+    }
     /**
      * returns the minimum of x y and z.
      */
@@ -184,10 +184,10 @@ value class charStr {
     final char value[.] s;
     const char[] aminoAcids={'A','C','G','T'};
     public charStr(final int siz, final int randomStart) {
-	s= new char value[[0:siz]->here] 
+        s= new char value[[0:siz]->here] 
          (point [i]) { return i==0?'-':randomChar(randomStart+i);};
     }
-	  
+          
     /** 
      * Function to generate the i'th random character
      */
