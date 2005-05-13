@@ -63,7 +63,7 @@ public class Edmiston_Sequential2 {
         int n=0;
         final Random  rand=new Random(1L);
         // find i'th random number.
-        // TODO: need parallel version of this
+        // TODO: need to pre-compute random numbers and re-use
         for(point [k]: 1:i) n = nextChoice(rand);
         return aminoAcids[n];
     }
