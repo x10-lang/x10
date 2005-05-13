@@ -1,44 +1,21 @@
 /** 
- * Parallel version of Edmiston's algorithm for Sequence Alignment.
- * This code is an X10 port of the Edmiston_Parallel.c program written by 
+ * Sequential version of Edmiston's algorithm for Sequence Alignment.
+ * This code is an X10 port of the Edmiston_Sequential.c program written by 
  * Sirisha Muppavarapu (sirisham@cs.unm.edu), U. New Mexico.
  *
- * @author Vivek Sarkar   (vsarkar@us.ibm.com)
+ * @author Vivek Sarkar (vsarkar@us.ibm.com)
  * @author Kemal Ebcioglu (kemal@us.ibm.com)
  * 
  */
 
-
 import java.util.Random;
 
-
-/**
- * Single assignment synchronization buffer,
- * like an i-structure in a data flow machine.
- * All readers will wait until write occurs.
- */
-class istructInt {
-    int val;
-    boolean filled=false;
-    int rd() {
-	int t;
-        when(filled) {t=val;}
-	return t;
-    }
-    atomic void wr(int v) {
-        if (filled) throw new Error();
-        filled=true;
-        val=v;
-    }
-}
-
-public class Edmiston {
+public class Edmiston_Sequential2 {
     const int gapPen = 2;
     const int match = 0;
     const int misMatch= -1;
     const int EXPECTED_RESULT= 549;
     const char[] aminoAcids={'A','C','G','T'};
-
 
     /**
      * Edmiston's algorithm
@@ -47,11 +24,11 @@ public class Edmiston {
 
         final int N = 10;
         final int M = 10;
-        final char value[.] c1=new char value[[0:N]->here]
+        final char[.] c1=new char[(0:N)->here]
           (point[i]) {return (i==0)?'-':randomChar(i);};
-        final char value[.] c2= new char value[[0:M]->here]
+        final char[.] c2= new char[(0:M)->here]
           (point[i]) {return (i==0)?'-':randomChar(N+i);};
-        final dist D=dist.factory.block([0:N,0:M]);
+        final dist D=[0:N,0:M]->here;
         final dist Dinner=D|[1:N,1:M];
         final dist Dboundary=D-Dinner;
         //  Boundary of e is initialized to:
@@ -60,21 +37,13 @@ public class Edmiston {
         //  2*gapPen ...
         //  3*gapPen ...
         //  ...
-        final istructInt[.] e=new istructInt[D] (point [i,j]) {
-            final istructInt t=new istructInt();
-            if(Dboundary.contains([i,j])) t.wr(gapPen*(i+j));
-            return t;
-        };
-        
-        finish ateach(point [i,j]:Dinner)
-           e[i,j].wr(min(e[i-1,j]->rd()+gapPen,
-                         e[i,j-1]->rd()+gapPen,
-                         e[i-1,j-1]->rd()
-                           +(c1[i]==c2[j]?match:misMatch)));
-
+        final int[.] e=new int[D](point [i,j]){return Dboundary.contains([i,j])?gapPen*(i+j):0;};
+        for(point [i,j]:Dinner) 
+          e[i,j]=min(e[i-1,j]+gapPen,
+                     e[i,j-1]+gapPen,
+                     e[i-1,j-1]+(c1[i]==c2[j]?match:misMatch));
         pr(c1,c2,e,"Edit distance matrix:");
-
-        return arraySum(e)==EXPECTED_RESULT;
+        return e.sum()==EXPECTED_RESULT;
     }
 
     /**
@@ -105,20 +74,10 @@ public class Edmiston {
         return k1*2+k2;
     }
     
-
-    /**
-     * Find the sum of a istructInt array
-     */
-    static int arraySum(final istructInt[.] e) {
-        int sum=0;
-        for(point p[i,j]:e) sum+=e[i,j]->rd();
-        return sum;
-    }
-
     /* 
      * Print the Edit Distance Matrix 
      */
-    static void pr(final char value[.] c1, final char value[.] c2, final istructInt[.] e, final String s)
+    static void pr(char[.] c1, char[.] c2, int[.] e, String s)
     {
         final int N=c1.region.high();
         final int M=c2.region.high();
@@ -132,7 +91,7 @@ public class Edmiston {
 
         for(point [i]:0:N){
             System.out.print(" "+pad(c1[i],K));
-            for(point [j]:0:M) System.out.print(" "+pad(e[i,j]->rd(),K));
+            for(point [j]:0:M) System.out.print(" "+pad(e[i,j],K));
             System.out.println();
         }
     }
@@ -160,7 +119,7 @@ public class Edmiston {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Edmiston()).run();
+                finish b.val=(new Edmiston_Sequential2()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
