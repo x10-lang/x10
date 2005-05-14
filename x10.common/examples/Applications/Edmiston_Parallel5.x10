@@ -98,8 +98,12 @@ class editDistMatrix {
 
         // Now compute the edit distance matrix.
         // This is done with a wavefront computation, where in each step
-        // each place computes a blockSize**2 submatrix.
-        // After computation of the block for this wave, 
+        // each place computes a blockSize**2 block (submatrix).
+        // I.e. in step 0, block (0,0) will be computed in place 0. 
+        // In step 1, blocks (0,1),(1,0) will be computed in places 0 and 1. 
+        // In step 2, blocks (0,2),(1,1),(2,0) will be computed 
+        // in places 0, 1 and 2, and so on.
+        // After computation of this wave, 
         // lockstep synchronization
         // occurs using a clock, so that the next wave can
         // correctly consume the results of this wave.
@@ -121,7 +125,7 @@ class editDistMatrix {
                // block my place from left to right, where
                // each block is computed using the blocks on its west, north
                // and northwest. Barrier synchronization occurs 
-               // after each block
+               // after each block computation (wave).
                for(point [j]: 0:blocksPerPlace-1) {
                    for(point [x,y]: getBlockDist(i,j))
                        e[x,y]=min(rd(x-1,y)+gapPen,
@@ -292,6 +296,9 @@ value class charStr {
         return aminoAcids[n];
     }
 
+    /**
+     * Helper function for random number generation
+     */
     private static int nextChoice(Random rand) {
         int k1=rand.nextBoolean()?0:1;
         int k2=rand.nextBoolean()?0:1;
