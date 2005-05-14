@@ -36,7 +36,7 @@ public class Edmiston_Parallel2 {
     const int gapPen = 2;
     const int match = 0;
     const int misMatch= -1;
-    const int EXPECTED_RESULT= 549;
+    const int EXPECTED_CHECKSUM = 549;
     const char[] aminoAcids={'A','C','G','T'};
 
 
@@ -74,7 +74,7 @@ public class Edmiston_Parallel2 {
 
         pr(c1,c2,e,"Edit distance matrix:");
 
-        return arraySum(e)==EXPECTED_RESULT;
+        return checkSum(e)==EXPECTED_CHECKSUM;
     }
 
     /**
@@ -109,7 +109,7 @@ public class Edmiston_Parallel2 {
     /**
      * Find the sum of a istructInt array
      */
-    static int arraySum(final istructInt[.] e) {
+    static int checkSum(final istructInt[.] e) {
         int sum=0;
         for(point [i,j]:e) sum+=e[i,j]->rd();
         return sum;

@@ -35,7 +35,7 @@ class istructInt {
 public class Edmiston_Parallel3 {
     const int N = 10;
     const int M = 10;
-    const int EXPECTED_CHECKSUM= 549;
+    const int EXPECTED_CHECKSUM = 549;
 
     /**
      * main run method
