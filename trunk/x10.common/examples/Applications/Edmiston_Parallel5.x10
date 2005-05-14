@@ -15,16 +15,21 @@ import java.util.Random;
 public class Edmiston_Parallel5 {
     const int N = 10;
     const int M = 10;
+    const int EXPECTED_CHECKSUM= 549;
 
     /**
      * main run method
      */
     public boolean run() {
+        // create two random character strings
         charStr c1= new charStr(N,0);
         charStr c2= new charStr(M,N);
+        //create and compute edit distance matrix
         editDistMatrix m=new editDistMatrix(c1,c2);
+        //print matrix
         m.pr("Edit distance matrix:");
-        m.verify();
+        //verify actual result against expected result
+        m.verify(EXPECTED_CHECKSUM);
         return true;
     }
 
@@ -52,18 +57,16 @@ public class Edmiston_Parallel5 {
  * an edit distance matrix
  */
 class editDistMatrix {
-   const int gapPen = 2;
+   const int gapPen = 2; 
    const int match = 0;
    const int misMatch= -1;
-   const int EXPECTED_RESULT= 549;
-   const dist emptyDist=[0:-1,0:-1]->here;
+   const dist P=dist.factory.unique();
 
-   final int[.] e;
+   final int[.] e; // the edit distance matrix
    final charStr c1;
    final charStr c2;
    final int N;
    final int M;
-   final dist P;
    final int blockSize;
    final int blocksPerPlace;
    final dist D;
@@ -77,23 +80,20 @@ class editDistMatrix {
         c2=cSeq2;
         N=c1.s.region.high();
         M=c2.s.region.high();
-	P=dist.factory.unique();
-        //blockSize=number of rows per place in (block,*) distribution. 
-        //Last place may have less rows than others
-        blockSize=(N+place.MAX_PLACES)/place.MAX_PLACES;
+        // make a (block,*) distribution from region [0:N,0:M]
+        // Each place will be assigned a set of contiguous rows
+        blockStarResult t=makeBlockStarDist(N,M);
+        blockSize=t.nRowsPerPlace;
+        D=t.dist;  
         //A block is a blockSize**2 submatrix.
         //Number of blocks in each place, last block may be partial
-	blocksPerPlace=(M+blockSize)/blockSize;
-	// Emulate the (block,*) distribution
-	dist d1=emptyDist;
-	for(point [i]:P) d1=(d1||([(blockSize*i):min(blockSize*i+blockSize-1,N),0:M]->P[i]));
-	D=d1;
+        blocksPerPlace=(M+blockSize)/blockSize;
         // Distribution of matrix not including row or column 0.
         Dinner=D|[1:N,1:M];
-        // Distribution of row and column 0.
+        // Distribution of row 0 and column 0.
         Dboundary=D-Dinner;
         
-	
+        // create initial matrix.       
         e=new int[D];
 
         // Now compute the edit distance matrix.
@@ -105,24 +105,31 @@ class editDistMatrix {
         // correctly consume the results of this wave.
         finish {
             final clock c=clock.factory.clock();
-	    //SPMD computation
+            //SPMD computation in each place i
             ateach(point [i]:P) clocked(c) {
-               // initialize boundary for this place
-	       for(point [x,y]:getBoundary(i)) e[x,y]=(x+y)*gapPen;
+               // Initialize boundary of e's section for this place i.
+               // Boundary of the entire e in all places is set to:
+               // 0     1*gapPen     2*gapPen     3*gapPen ...
+               // 1*gapPen ...
+               // 2*gapPen ...
+               // 3*gapPen ...
+               //  ...
+               for(point [x,y]:getBoundaryDist(i)) e[x,y]=(x+y)*gapPen;
                // wait for my wave by executing i next's
                for(point [k]: [1:i]) next;
-	       // Now do the real Edmiston computation for each
-               // block in this set of rows from left to right, where
+               // Now do the real Edmiston computation for each
+               // block my place from left to right, where
                // each block is computed using the blocks on its west, north
-               // and northwest.
-	       for(point [j]: 0:blocksPerPlace-1) {
-	           for(point [x,y]: getBlockDist(i,j))
+               // and northwest. Barrier synchronization occurs 
+               // after each block
+               for(point [j]: 0:blocksPerPlace-1) {
+                   for(point [x,y]: getBlockDist(i,j))
                        e[x,y]=min(rd(x-1,y)+gapPen,
                                   rd(x,y-1)+gapPen,
                                   rd(x-1,y-1)
                                    +(c1.s[x]==c2.s[y]?match:misMatch));
-	           next;
-	       }
+                   next;
+               }
                c.drop();//immediately de-register with clock, so future
                         //waves will not need to wait for me
             }
@@ -130,20 +137,56 @@ class editDistMatrix {
    }
 
     /**
-     * return the distribution/region for block numbered i,j.
+     * Result of makeBlockStarDist. Emulating multiple return values.
+     */
+    static class blockStarResult {
+        int nRowsPerPlace;
+        dist dist;
+        blockStarResult(int nRowsPerPlace, dist D) {
+                this.nRowsPerPlace=nRowsPerPlace;
+                this.dist=D;
+        }
+    }
+
+    const dist emptyDist=[0:-1,0:-1]->here;
+
+    /**
+     * Create a [0:N,0:M] (block,*) distribution.
+     * Returns  
+     * nRowsPerPlace=number of rows per place in the (block,*) distribution. 
+     * dist = the (block,*) distribution
+     */
+    blockStarResult makeBlockStarDist(int N, int M) {
+        //nRowsPerPlace=number of rows per place in (block,*) distribution. 
+        //Last place may have less rows than others
+        int nRowsPerPlace=(N+place.MAX_PLACES)/place.MAX_PLACES;
+        // Emulate the (block,*) distribution
+        dist d1=emptyDist;
+
+        for(point [i]:P) 
+          d1=d1||
+             ([(nRowsPerPlace*i):min(nRowsPerPlace*i+nRowsPerPlace-1,N),
+               0:M]
+              ->P[i]);
+
+        return new blockStarResult(nRowsPerPlace,d1);
+    }
+
+    /**
+     * return the distribution/region for block for place i, number j.
      */
     dist getBlockDist(int i, int j) {
-	return (Dinner|[0:N,(blockSize*j):min(blockSize*j+blockSize-1,M)])|P[i];
+        return (Dinner|[0:N,(blockSize*j):min(blockSize*j+blockSize-1,M)])|P[i];
     }
 
     /**
      *Return the boundary nodes in the entire place
      */
-    dist getBoundary(int i) {
-	return Dboundary|P[i];
+    dist getBoundaryDist(int i) {
+        return Dboundary|P[i];
     }
-	  
-	
+          
+        
 
     /**
      * Find the sum of the elements of the edit distance matrix
@@ -157,8 +200,8 @@ class editDistMatrix {
      * Verify that the edit distance matrix has the expected
      * checksum.
      */
-    public void verify() {
-        if(checkSum()!=EXPECTED_RESULT) throw new Error();
+    public void verify(int expectedChecksum) {
+        if(checkSum()!=expectedChecksum) throw new Error();
     }
 
     /* 
