@@ -23,12 +23,32 @@ public TestCompiler(String name) {
 	super(name);
 }
 
-    public void test_Applications_Edmiston() {
-        run("./Edmiston.x10","Edmiston","./Applications");
+    public void test_Applications_Edmiston_Parallel1() {
+        run("./Edmiston_Parallel1.x10","Edmiston_Parallel1","./Applications");
     }
 
-    public void test_Applications_Edmiston_Sequential() {
-        run("./Edmiston_Sequential.x10","Edmiston_Sequential","./Applications");
+    public void test_Applications_Edmiston_Parallel2() {
+        run("./Edmiston_Parallel2.x10","Edmiston_Parallel2","./Applications");
+    }
+
+    public void test_Applications_Edmiston_Parallel3() {
+        run("./Edmiston_Parallel3.x10","Edmiston_Parallel3","./Applications");
+    }
+
+    public void test_Applications_Edmiston_Parallel4() {
+        run("./Edmiston_Parallel4.x10","Edmiston_Parallel4","./Applications");
+    }
+
+    public void test_Applications_Edmiston_Parallel5() {
+        run("./Edmiston_Parallel5.x10","Edmiston_Parallel5","./Applications");
+    }
+
+    public void test_Applications_Edmiston_Sequential1() {
+        run("./Edmiston_Sequential1.x10","Edmiston_Sequential1","./Applications");
+    }
+
+    public void test_Applications_Edmiston_Sequential2() {
+        run("./Edmiston_Sequential2.x10","Edmiston_Sequential2","./Applications");
     }
 
     public void test_Applications_GameOfLife() {
@@ -765,6 +785,10 @@ public TestCompiler(String name) {
 
     public void test_Misc_Unreachable() {
         run("./Unreachable.x10","Unreachable","./Misc");
+    }
+
+    public void test_Misc_Unreachable2() {
+        run("./Unreachable2.x10","Unreachable2","./Misc");
     }
 
     public void test_Misc_VariableScope() {
