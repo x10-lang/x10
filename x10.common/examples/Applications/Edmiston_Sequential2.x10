@@ -14,7 +14,7 @@ public class Edmiston_Sequential2 {
     const int gapPen = 2;
     const int match = 0;
     const int misMatch= -1;
-    const int EXPECTED_RESULT= 549;
+    const int EXPECTED_CHECKSUM = 549;
     const char[] aminoAcids={'A','C','G','T'};
 
     /**
@@ -43,7 +43,7 @@ public class Edmiston_Sequential2 {
                      e[i,j-1]+gapPen,
                      e[i-1,j-1]+(c1[i]==c2[j]?match:misMatch));
         pr(c1,c2,e,"Edit distance matrix:");
-        return e.sum()==EXPECTED_RESULT;
+        return e.sum()==EXPECTED_CHECKSUM;
     }
 
     /**
