@@ -15,6 +15,7 @@ import java.util.Random;
 public class Edmiston_Parallel4 {
     const int N = 10;
     const int M = 10;
+    const int EXPECTED_CHECKSUM = 549;
 
     /**
      * main run method
@@ -24,7 +25,7 @@ public class Edmiston_Parallel4 {
         charStr c2= new charStr(M,N);
         editDistMatrix m=new editDistMatrix(c1,c2);
         m.pr("Edit distance matrix:");
-        m.verify();
+        m.verify(EXPECTED_CHECKSUM);
         return true;
     }
 
@@ -55,9 +56,8 @@ class editDistMatrix {
    const int gapPen = 2;
    const int match = 0;
    const int misMatch= -1;
-   const int EXPECTED_RESULT= 549;
 
-   final int[.] e;
+   final int[.] e; // the edit distance matrix
    final charStr c1;
    final charStr c2;
    final int N;
@@ -116,8 +116,8 @@ class editDistMatrix {
      * Verify that the edit distance matrix has the expected
      * checksum.
      */
-    public void verify() {
-        if(checkSum()!=EXPECTED_RESULT) throw new Error();
+    public void verify(int expectedChecksum) {
+        if(checkSum()!=expectedChecksum) throw new Error();
     }
 
     /* 
