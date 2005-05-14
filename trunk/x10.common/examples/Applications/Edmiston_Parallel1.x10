@@ -14,7 +14,7 @@ public class Edmiston_Parallel1 {
     const int iGapPen = 2;
     const int iMatch = 0;
     const int iMisMatch= -1;
-    const int EXPECTED_RESULT= 549;
+    const int EXPECTED_CHECKSUM = 549;
     static Random rand = new Random(1L);
     /**
      * Function which determines the minimum value among North, NorthWest
@@ -189,7 +189,7 @@ public class Edmiston_Parallel1 {
 
 	System.out.println("Inside main(): The Edit Distance Matrix After Computation is=");
 	printEditDistance(cSeq1,cSeq2,iEditDist);
-	return iEditDist.sum()==EXPECTED_RESULT;
+	return iEditDist.sum()==EXPECTED_CHECKSUM;
     }
 
     /*
