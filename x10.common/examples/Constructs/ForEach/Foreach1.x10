@@ -18,7 +18,7 @@ public class Foreach1 {
             // runs at P0
             // and that the hasbug array was
             // all false initially
-            hasbug[i] = hasbug[i] || !(P0==d[i] && here==P0); 
+            hasbug[i] |= !(P0==d[i] && here==P0); 
             atomic this.nActivities++;
         }
         return !hasbug.reduce(booleanArray.or,false) &&
