@@ -1,38 +1,45 @@
 /*
- * Simple array test #1
+ * Simple array test.
+ *
+ * Only uses the longhand forms such as ia.get(p) for ia[p]
  */
-import x10.lang.*;
 public class Array1 {
 
 	public boolean run() {
 		
-		region e= region.factory.region(1,10); //(low,high)
+		region e= region.factory.region(1,10);
 		region r = region.factory.region(new region[]{e, e}); 
 		dist d=dist.factory.constant(r,here);
 		int[.] ia = new int[d];
 		
 		for(point p: e)
 			for (point q:e) {
-				int i = i0(p);
-				int j = i0(q);
-				if(ia[i,j]!=0) return false;
-				ia[i, j] = i+j;
+				int i = p.get(0);
+				int j = q.get(0);
+				chk(ia.get(i,j)==0);
+				ia.set(i+j,i,j);
 			}
 		
 		for(point p: d) {
-			int i = p[0];
-			int j = p[1];
-			point q1 = Pt(i,j);
-			if (i !=i0(q1)) return false;
-			if ( j !=i1(q1)) return false;
-			if(ia[i,j]!= i+j) return false;
-			if(ia[i,j]!=ia[p]) return false;
-			if(ia[q1]!=ia[p]) return false;
+			int i = p.get(0);
+			int j = p.get(1);
+			point q1 =
+	                   point.factory.point(new int[]{i,j});
+			chk(i ==q1.get(0));
+			chk(j ==q1.get(1));
+			chk(ia.get(i,j)== i+j);
+			chk(ia.get(i,j)==ia.get(p));
+			chk(ia.get(q1)==ia.get(p));
+			ia.set(ia.get(p)-1,p);
+			chk(ia.get(p)==i+j-1);
+			chk(ia.get(q1)==ia.get(p));
 				
 		}
 		
 		return true;
 	}
+
+    void chk(boolean b) {if(!b) throw new Error(); }
 
 	
     public static void main(String[] args) {
@@ -49,31 +56,4 @@ public class Array1 {
     static class boxedBoolean {
         boolean val=false;
     }
-
-
-  // utility functions for points
-  /**
-   * Convert an integer to a 1D point
-   */
-  private static point Pt(int i) {
-	return point.factory.point(new int[]{i});
-  }	
-  /**
-   * Convert a pair of integers to a 2D point
-   */
-  private static point Pt(int i, int j) {
-	return point.factory.point(new int[]{i,j});
-  }	
-  /**
-   * Convert the first coordinate of a point to an integer
-   */
-  private static int i0(point p) {
-	return p.get(0);
-  }	
-  /**
-   * Convert the second coordinate of a point to an integer
-   */
-  private static int i1(point p) {
-	return p.get(1);
-  }	
 }
