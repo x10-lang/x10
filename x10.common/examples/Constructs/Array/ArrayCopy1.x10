@@ -60,12 +60,12 @@ public class ArrayCopy1 {
      */
     public boolean run() {
          final region R= [0:N-1,0:N-1,0:N-1,0:N-1];
-         final region TestDists= [0:dist.N_DIST_TYPES-1,0:dist.N_DIST_TYPES-1];
+         final region TestDists= [0:dist2.N_DIST_TYPES-1,0:dist2.N_DIST_TYPES-1];
 
          for(point distP[dX,dY]: TestDists) {
 		
-             final dist D=dist.getDist(dX,R);
-             final dist E=dist.getDist(dY,R);
+             final dist D=dist2.getDist(dX,R);
+             final dist E=dist2.getDist(dY,R);
              chk(D.region.equals(E.region)&&D.region.equals(R)); 
              final int[.] A= new int[D];
              final int[.] B= new int[E]
@@ -102,7 +102,7 @@ public class ArrayCopy1 {
  * utility for creating a dist from a
  * a dist type int value and a region
  */
-class dist {
+class dist2 {
    const int BLOCK=0;
    const int CYCLIC=1;
    const int BLOCKCYCLIC=2;
