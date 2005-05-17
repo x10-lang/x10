@@ -24,7 +24,7 @@ public boolean run() {
 		int i=ranInt(-L-K,L+K);
 		int lb1=ranInt(-L,L);
 		int ub1=ranInt(lb1-1,L); // include empty reg.
-		int d=ranInt(0,dist.N_DIST_TYPES-1);
+		int d=ranInt(0,dist2.N_DIST_TYPES-1);
 		boolean withinBounds=arrayAccess(lb1,ub1,i,d);
 		chk(iff(withinBounds,
 			    i>=lb1 && i<=ub1));
@@ -42,7 +42,7 @@ private static boolean arrayAccess(int lb1, int ub1, final int i, int distType) 
 
 //pr(lb1+" "+ub1+" "+i+" "+distType);
 
-final int[.] a =new int[dist.getDist(distType,(lb1:ub1))];
+final int[.] a =new int[dist2.getDist(distType,(lb1:ub1))];
 
 boolean withinBounds=true;
 try {
@@ -115,7 +115,7 @@ private int ranInt(int lb,int ub) {
  * utility for creating a dist from a
  * a dist type int value
  */
-class dist {
+class dist2 {
    // Java has poor support for enum
    public final static int BLOCK=0;
    public final static int CYCLIC=1;
