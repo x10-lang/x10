@@ -2,6 +2,9 @@
  * Create a "Pascal's triangle" matrix using a wavefront
  * computation with multiple clocks.
  *
+ * This is the same as ClockPascal but uses
+ * array elements as clocks (was failing as of 5/17)
+ *
  * Here is a sample computation with a 3*3 matrix:
  * <code>
 
