@@ -67,11 +67,17 @@ public boolean run() {
     final dist Dboundary=D-Dinner;
     final int[.] A=new int[D](point [i,j]){return Dboundary.contains([i,j])?1:0;};
     finish {
+        // (nullable clock)[.] N= does not work
+        // clock[.] N= new clock[D]; should not work
+        // This is a workaround
         clock[.] N= new clock[D];
         for(point [i,j]:D){N[i,j]=clock.factory.clock();}       
         clock[.] W= new clock[D];
         for(point [i,j]:D){W[i,j]=clock.factory.clock();}       
 
+        // foreach(point [i,j]:Dinner) 
+        //   clocked(N[i-1,j],W[i,j-1],N[i,j],W[i,j]) {...}
+        // does not work -- this is a workaround.
         for(point [i,j]:Dinner) { 
             final clock n01=N[i-1,j];
             final clock w10=W[i,j-1];
