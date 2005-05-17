@@ -36,6 +36,7 @@ public class Array1c {
 			chk(i==q1[0]);
 			chk(j==q1[1]);
 			chk(ia[i,j]==i+j);
+			//Class cast occurred at next line:
 			chk(ia[i,j]==ia[p]);
 			chk(ia[q1]==ia[p]);
 			ia[p]=ia[p]-1;
