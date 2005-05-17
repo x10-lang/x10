@@ -157,7 +157,7 @@ public class DefaultRuntime_c
             }
         };
         // initialize X10 runtime system
-        if (Configuration.SAMPLING_FREQUENCY_MS >= 0)
+        if (Configuration.SAMPLING_FREQUENCY_MS > 0)
             Sampling.boot(DefaultRuntime_c.this, boot);
 
         // run the main app
