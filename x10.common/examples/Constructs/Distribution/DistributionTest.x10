@@ -1,4 +1,3 @@
-import x10.lang.*;
 
 /**
  * Minimal test for dists.
