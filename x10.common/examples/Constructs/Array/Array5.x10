@@ -1,8 +1,6 @@
-import x10.lang.*;
-/* * This is a test, only a test...
+/**
  * 
- * Simple array test #5
- * Constructor called from main must have zero parameters. 
+ * Testing int[] method parameters and fields.
  */
 
 public class Array5 {

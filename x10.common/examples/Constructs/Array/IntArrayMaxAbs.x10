@@ -1,22 +1,17 @@
-import x10.lang.*;
 
 /**
- * Test for arrays, regions and dists
- * Based on original arraycopy2
- * @author kemal 1/2005
- *
- * Temporarily disabled boolean arrays
+ * Testing the maxAbs function on arrays.
  */
 
 public class IntArrayMaxAbs {
 	
 	public boolean run() {
-		region e= region.factory.region(1,10); //(low,high)
-		region r = region.factory.region(new region[]{e, e}); 
-		final dist D=dist.factory.constant(r,here);
+		region e= [1:10];
+		region r = [e,e];
+		final dist D=r->here;
 		final int[.] ia = new int[D];
 			
-		finish ateach(point p:D) { ia[p]= -p.get(0);}
+		finish ateach(point p[i,j]:D) { ia[p]= -i;}
 	
 		return ia.maxAbs()==10;
 	}

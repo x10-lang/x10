@@ -1,14 +1,16 @@
 /**
- * Simple array test #3. Tests declaration of arrays, storing in local variables, accessing and updating.
+ *Tests declaration of arrays, storing in local variables, accessing and
+ *updating for 2D arrays.
+ *
  */
-import x10.lang.*;
 public class Array3 {
 
 	public boolean run() {
 		
-		region e= region.factory.region(1,10); //(low,high)
-		region r = region.factory.region(e, e); 
-		dist d=dist.factory.local(r);
+		region e= [1:10];
+		region r = [e,e];
+		dist d=r->here;
+		chk(d.equals([1:10,1:10]->here));
 		int[.] ia = new int[d];
 		ia[1,1] = 42;
 		return 42 == ia[1,1];

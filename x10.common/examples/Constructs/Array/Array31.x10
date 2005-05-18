@@ -1,14 +1,15 @@
 /**
- * Simple array test #3. Tests declaration of arrays, storing in local variables, accessing and updating for
- * general 1-d arrays.
+ *Simple array test #3. Tests declaration of arrays, storing in local
+ *variables, accessing and updating for 1-d arrays.
+ *
  */
-import x10.lang.*;
 public class Array31 {
 
 	public boolean run() {
 		
-		region e= region.factory.region(1,10); //(low,high)
-		dist d=dist.factory.local(e);
+		region e= [1:10];
+		dist d=[e];
+		chk(d.equals([1:10]->here));
 		int[.] ia = new int[d];
 		ia[1] = 42;
 		return 42 == ia[1];

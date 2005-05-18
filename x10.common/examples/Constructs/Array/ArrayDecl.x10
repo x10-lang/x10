@@ -1,7 +1,7 @@
 /*
  * @author kemal 4/2005
  *
- * Array declarations using N instead of (0:N-1)
+ * Testing misc. array declarations and initializations.
  *
  */
 public class ArrayDecl {

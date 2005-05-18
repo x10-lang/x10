@@ -1,13 +1,15 @@
 /**
- * Simple array test #3
+ *
+ * Ensures float arrays are implemented.
  */
 public class Array3Float {
 
 	public boolean run() {
 		
-		region e= region.factory.region(1,10); //(low,high)
-		region r = region.factory.region(e, e); 
-		dist d=dist.factory.local(r);
+		region e= [1:10];
+		region r = [e,e];
+		dist d=r->here;
+		chk(d.equals([1:10,1:10]->here);
 		float[.] ia = new float[d];
 		ia[1,1] = 42.0F;
 		return (42.0F == ia[1,1]);

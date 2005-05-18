@@ -1,36 +1,30 @@
 /**
- * Simple array test #2
+ * Testing 3D arrays.
  */
-import x10.lang.*;
 
 public class Array2v {
 	
 	public boolean run() {
 		
-		region e= region.factory.region(0,9); //(low,high)
-		region r = region.factory.region(new region[]{e, e, e}); 
-		dist d=dist.factory.constant(r,here);
+		region e= [0:9];
+		region r = [e,e,e];
+		dist d=r->here;
+		chk(d.equals([0:9,0:9,0:9]->here));
 		int[d] ia = new int[d];
 		
-		for(point p:d) {
-			int i = p.get(0);
-			int j = p.get(1);
-			int k = p.get(2);
-			if (ia[i,j,k]!=0) return false;
+		for(point [i,j,k]:d) {
+			chk(ia[i,j,k]==0);
 			ia[i,j,k] = 100*i+10*j+k;
 		}
 		
-		for ( point p:d ) {
-			int i = p.get(0);
-			int j = p.get(1);
-			int k = p.get(2);
-		
-			if (ia[i,j,k] != 100*i+10*j+k)
-				return false;
+		for ( point [i,j,k]:d ) {
+			chk(ia[i,j,k] == 100*i+10*j+k);
 		}
 		
 		return true;
 	}
+
+    static void chk(boolean b) {if (!b) throw new Error();}
 	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
