@@ -1,13 +1,15 @@
 /**
- * Simple array test #3
+ *
+ * Ensures char arrays are implemented.
  */
 public class Array3Char {
 
 	public boolean run() {
 		
-		region e= region.factory.region(1,10); //(low,high)
-		region r = region.factory.region(e, e); 
-		dist d=dist.factory.local(r);
+		region e= [1:10];
+		region r = [e,e];
+		dist d=r->here;
+		chk(d.equals([1:10,1:10]->here);
 		char[.] ia = new char[d];
 		ia[1,1] = 'a';
 		return ('a' == ia[1,1]);

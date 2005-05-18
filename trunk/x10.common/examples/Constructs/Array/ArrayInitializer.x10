@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Array Initializer test.
  */
@@ -7,27 +6,25 @@ public class ArrayInitializer {
 	
 	public boolean run() {
 		
-		region e= region.factory.region(0,9); //(low,high)
-		region r = region.factory.region(new region[]{e, e, e}); 
-		dist d=dist.factory.constant(r,here);
+		region e= [0:9];
+		region r = [e, e, e];
+		dist d=r->here;
 		
 		final int value [d] ia = 
 			new int value [d] 
 				new intArray.pointwiseOp() {
-					public int apply(point p) {
-						return p.get(0);
+					public int apply(point [i,j,k]) {
+						return i;
 					}
 		};
-		for(point p:d) {
-			int i = p.get(0);
-			int j = p.get(1);
-			int k = p.get(2);
-			if (ia[i,j,k]!=i) return false;
-		}
+
+		for(point [i,j,k]:d) chk(ia[i,j,k]==i);
 		
 		return true;
 	}
 	
+    static void chk(boolean b) {if (!b) throw new Error();}
+
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {

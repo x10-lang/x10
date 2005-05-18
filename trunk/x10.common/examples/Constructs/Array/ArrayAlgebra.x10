@@ -12,9 +12,9 @@
 public class ArrayAlgebra {
 
 	const int N=24;
-     int[.] makeArray(dist D, final int k)  {
-     	return new int[D] (point p) { return k;};
-     }
+        int[.] makeArray(dist D, final int k)  {
+         	return new int[D] (point p) { return k;};
+        }
 	public boolean run() {
 		
 		final dist D=dist.factory.blockCyclic([0:N-1],2);

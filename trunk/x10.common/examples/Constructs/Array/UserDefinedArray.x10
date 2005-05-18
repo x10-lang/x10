@@ -1,6 +1,6 @@
-import x10.lang.*;
 /**
  * @author Christian Grothoff
+ * Testing arrays with user-defined element types.
  */
 public class UserDefinedArray {
     const region R = [0:1];

@@ -1,7 +1,6 @@
 /**
  * Simple test for operator assignment of array elements.  
  */
-import x10.lang.*;
 public class ArrayOpAssign {
 
 	public boolean run() {

@@ -1,3 +1,5 @@
+//LIMITATION: 
+//This test case will not meet expectations. It is a limitation of the current release.
 /**
  * Simple test for operator assignment of array elements.  
  * Tests post and pre increment/decrement;

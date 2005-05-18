@@ -1,14 +1,15 @@
 /**
- * Simple array test #3
+ *
+ * Ensures double arrays are implemented.
  */
-import x10.lang.*;
 public class Array3Double {
 
 	public boolean run() {
 		
-		region e= region.factory.region(1,10); //(low,high)
-		region r = region.factory.region(e, e); 
-		dist d=dist.factory.local(r);
+		region e= [1:10];
+		region r = [e,e];
+		dist d=r->here;
+		chk(d.equals([1:10,1:10]->here);
 		double[.] ia = new double[d];
 		ia[1,1] = 42.0D;
 		return 42.0D == ia[1,1];

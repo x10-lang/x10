@@ -1,7 +1,9 @@
 /*
  * Simple array test.
  *
- * Only uses the longhand forms such as ia.get(p) for ia[p]
+ * Only uses the longhand forms such as ia.get(p) for ia[p].
+ * Note: this a test only. It is not the recommended way to
+ * write x10 code.
  */
 public class Array1 {
 

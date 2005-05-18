@@ -1,9 +1,5 @@
-import x10.lang.*;
 /**
  * Test for X10 arrays -- tests arrays passed as parameters and stored in fields.
- *
- * removed extra constructor parameters from main method 
- * to comply with junit and script testers
  *
  */
 public class Array4 {
@@ -14,6 +10,7 @@ public class Array4 {
 	public Array4(int[.] ia) {
 		this.ia = ia;
 	}
+
 	private boolean runtest() {
 		ia[1,1] = 42;
 		return 42 == ia[1,1];
@@ -24,9 +21,10 @@ public class Array4 {
 	 *Run method for the array. Returns true iff the test succeeds.
 	 */
 	public boolean run() {
-		region e= region.factory.region(1,10); //(low,high)
-		region r = region.factory.region(e, e); 
-		dist d=dist.factory.local(r);
+		region e= [1:10];
+		region r = [e,e];
+		dist d=r->here;
+		chk(d.equals([1:10,1:10]->here);
 		return (new Array4(new int[d])).runtest();
 	}
 

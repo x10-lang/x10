@@ -1,18 +1,19 @@
 /**
-* Test the shorthand syntax for a value array initializer.
-*/
-import x10.lang.*;
+ * Test the shorthand syntax for a value array initializer.
+ */
 public class IntValueArrayInitializerShorthand {
 
 	public boolean run() {
 		dist d =  [1:10, 1:10] -> here;
 		int value [.] ia = new int value[d] (point [i,j]) { return i+j; };
 		
-		for(point p[i,j]: [1:10,1:10]) 
-			if(ia[p]!=i+j) return false;
+		for(point p[i,j]: [1:10,1:10]) chk(ia[p]==i+j);
+
 		return true;
 	}
 	
+    static void chk(boolean b) {if (!b) throw new Error();}
+
 	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
