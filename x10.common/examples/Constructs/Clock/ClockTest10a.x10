@@ -35,17 +35,17 @@ public class ClockTest10a {
 	static int ph(int x) { return x%2;}
 
 	public boolean run() {
-	     finish {	
-      		final clock a = clock.factory.clock();
-      		final clock b = clock.factory.clock();
-      		final clock c = clock.factory.clock();
-		async clocked(a) taskA(a); 
-		async clocked(a,b) taskB(a,b); 
-		async clocked(a,c) taskC(a,c); 
-		async clocked(b,c) taskD(b,c); 
-		async clocked(c) taskE(c); 
-             }
-	     return true;
+		finish async (here){	
+			final clock a = clock.factory.clock();
+			final clock b = clock.factory.clock();
+			final clock c = clock.factory.clock();
+			async clocked(a) taskA(a); 
+			async clocked(a,b) taskB(a,b); 
+			async clocked(a,c) taskC(a,c); 
+			async clocked(b,c) taskD(b,c); 
+			async clocked(c) taskE(c); 
+		}
+		return true;
 	}
 
 	void taskA(final clock a) { 
