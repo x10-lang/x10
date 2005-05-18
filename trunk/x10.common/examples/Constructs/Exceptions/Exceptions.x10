@@ -1,5 +1,6 @@
-import x10.lang.*;
-
+/**
+ * Test for x10 exceptions
+ */
 public class Exceptions {
     boolean ok;
 	public boolean run() {
