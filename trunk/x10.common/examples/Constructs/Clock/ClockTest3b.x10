@@ -9,32 +9,30 @@
  * @author kemal 3/2005
  */
 public class ClockTest3b {
-	
-	int val=0;
-	static final int N=32;
-	
-	public boolean run() {
-		
-                 finish async {
-		 final clock c = clock.factory.clock();
-		 foreach (point [i]: 0:(N-1)) clocked(c) {
-			async(here) clocked(c) finish async(here) {atomic val++;}
-			next;
-			if (val != N) {
-			    throw new Error();
-			}
-			next;
-			async(here) clocked(c) finish async(here) {atomic val++;}
-			next;
-		 }
-		}
-		if (val !=2*N) {
-			throw new Error();
-		}
-		return true;
-	}
-	
-	
+    
+    int val=0;
+    static final int N=32;
+    
+    public boolean run() {
+        
+        finish async {
+            final clock c = clock.factory.clock();
+            foreach (point [i]: 0:(N-1)) clocked(c) {
+                async(here) clocked(c) finish async(here) {atomic val++;}
+                next;
+                chk(val==N);
+                next;
+                async(here) clocked(c) finish async(here) {atomic val++;}
+                next;
+            }
+        }
+        chk(val==2*N);
+        return true;
+    }
+
+    static void chk(boolean b) {if (!b) throw new Error();}
+    
+    
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
@@ -50,5 +48,5 @@ public class ClockTest3b {
         boolean val=false;
     }
 
-	
+    
 }

@@ -3,10 +3,9 @@
  *
  * Testing if c.resume() declares quiescence of current activity on c
  * 
- * c.resume() without next can advance clock c?
- * TODO: Need to clarify definition.
+ * c.resume() without next can advance clock c.
  *
- * next advances when all clocks have advanced to their next phase 
+ * next waits until all clocks have advanced to their next phase 
  *
  *
  * @author kemal 4/2005

@@ -37,7 +37,7 @@ define(`Now',
  *
  * Important: The next's do not go in lock step in this test case!
  *
- * For example  activities using (e) may pass their nexts
+ * For example:  activities using (e) may pass their nexts
  * as soon as all other activities using e  have arrived
  * at their nexts: (c,e), (d,e) (c,d,e), although (c,d),(c),(d)
  * have not yet arrived at their nexts.
@@ -51,36 +51,35 @@ define(`Now',
  */
 public class ClockTest5 {
 
-
-	public boolean run() {
-      		final clock c = clock.factory.clock();
-      		final clock d = clock.factory.clock();
-      		final clock e = clock.factory.clock();
-		C(1A,(c))
-		C(1B,(c))
-		C(2A,(d))
-		C(2B,(d))
-		C(3A,(e))
-		C(3B,(e))
-		C(4A,(c,d))
-		C(4B,(c,d))
-		C(5A,(c,e))
-		C(5B,(c,e))
-		C(6A,(d,e))
-		C(6B,(d,e))
-		C(7A,(c,d,e))
-		C(7B,(c,d,e))
-		Now((c,d,e),`System.out.println("Parent activity in phase 0 of (c,d,e)");')
-		next; 
-		Now((e,c,d),`System.out.println("Parent activity in phase 1 of (c,d,e)");')
-		next;
-		return true;
-	}
-	static void m(String a,String clocks,int phase) {
-		System.out.println("Actitivity "+a+" in phase "+ phase+" of clocks " + clocks);
-	}
-	
-	
+    public boolean run() {
+        final clock c = clock.factory.clock();
+        final clock d = clock.factory.clock();
+        final clock e = clock.factory.clock();
+        C(1A,(c))
+        C(1B,(c))
+        C(2A,(d))
+        C(2B,(d))
+        C(3A,(e))
+        C(3B,(e))
+        C(4A,(c,d))
+        C(4B,(c,d))
+        C(5A,(c,e))
+        C(5B,(c,e))
+        C(6A,(d,e))
+        C(6B,(d,e))
+        C(7A,(c,d,e))
+        C(7B,(c,d,e))
+        Now((c,d,e),`System.out.println("Parent activity in phase 0 of (c,d,e)");')
+        next; 
+        Now((e,c,d),`System.out.println("Parent activity in phase 1 of (c,d,e)");')
+        next;
+        return true;
+    }
+    static void m(String a,String clocks,int phase) {
+        System.out.println("Actitivity "+a+" in phase "+ phase+" of clocks " + clocks);
+    }
+    
+    
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
@@ -95,12 +94,4 @@ public class ClockTest5 {
     static class boxedBoolean {
         boolean val=false;
     }
-
-
 }
-
-class boxedBoolean {
-	public boolean val;
-	public boxedBoolean(boolean val) { this.val=val;}
-}
-

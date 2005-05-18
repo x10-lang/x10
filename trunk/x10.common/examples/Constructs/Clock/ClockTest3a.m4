@@ -8,31 +8,31 @@ define(`Now',
  * @author kemal 3/2005
  */
 public class ClockTest3a {
-	
-	int val=0;
-	static final int N=32;
-	
-	public boolean run() {
-		final clock c = clock.factory.clock();
-		
-		foreach (point [i]: 0:(N-1)) clocked(c) {
-			Now((c),{atomic val++;})
-			next;
-			if (val != N) {
-			    throw new Error();
-			}
-			next;
-			Now((c),{atomic val++;})
-			next;
-		}
-		next; next; next;
-		if (val !=2*N) {
-			throw new Error();
-		}
-		return true;
-	}
-	
-	
+    
+    int val=0;
+    static final int N=32;
+    
+    public boolean run() {
+        final clock c = clock.factory.clock();
+        
+        foreach (point [i]: 0:(N-1)) clocked(c) {
+            Now((c),{atomic val++;})
+            next;
+            if (val != N) {
+                throw new Error();
+            }
+            next;
+            Now((c),{atomic val++;})
+            next;
+        }
+        next; next; next;
+        if (val !=2*N) {
+            throw new Error();
+        }
+        return true;
+    }
+    
+    
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
@@ -48,5 +48,5 @@ public class ClockTest3a {
         boolean val=false;
     }
 
-	
+    
 }

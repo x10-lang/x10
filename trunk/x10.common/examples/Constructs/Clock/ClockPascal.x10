@@ -52,13 +52,17 @@ One possible execution:
 3.506 sec: About to do next 3 of 3 (produce output): A[2,2]=6
 3.506 sec: Passed next 3 of 3 (produce output): A[2,2]=6
 
+Notice that out-of-phase execution is possible with multiple
+clocks. 
+
+
  * </code>
  *
  * @author kemal, 5/2005
  */
 
 public class ClockPascal {
-const int N=3;
+const int N=5;
 const int EXPECTED_CHECKSUM=251;
 const int DELAY=2000;
 public boolean run() {
@@ -68,8 +72,8 @@ public boolean run() {
     final int[.] A=new int[D](point [i,j]){return Dboundary.contains([i,j])?1:0;};
     finish {
         // (nullable clock)[.] N= does not work
-        // clock[.] N= new clock[D]; should not work
-        // This is a workaround
+        // clock[.] N= new clock[D]; should not work but does.
+        // This is a workaround for this bug.
         clock[.] N= new clock[D];
         for(point [i,j]:D){N[i,j]=clock.factory.clock();}       
         clock[.] W= new clock[D];
@@ -77,7 +81,7 @@ public boolean run() {
 
         // foreach(point [i,j]:Dinner) 
         //   clocked(N[i-1,j],W[i,j-1],N[i,j],W[i,j]) {...}
-        // does not work -- this is a workaround.
+        // does not work -- this is a workaround for this bug.
         for(point [i,j]:Dinner) { 
             final clock n01=N[i-1,j];
             final clock w10=W[i,j-1];
@@ -98,6 +102,7 @@ public boolean run() {
             }
         }
     }
+    System.out.println("sum="+A.sum());
     return A.sum()==EXPECTED_CHECKSUM;
 }
 
@@ -131,14 +136,28 @@ static void pr2(int i, int j, int n) {
     System.out.println(tim()+" sec: Passed next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
 }
 
+const boxedInt maxW=new boxedInt(-1);
+
 static void pr3(int i, int j, int[.] A) {
-    System.out.println(tim()+" sec: About to do next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"]="+A[i,j]);
+    int w=i+j-1; // wave number
+    boolean oo;
+    atomic {
+        oo=(w<maxW.val);
+        maxW.val=maxW.val<w?w:maxW.val;
+    }
+    final String s=oo?" Out of order!":"";
+
+    System.out.println(tim()+" sec: About to do next "+w+" of "+w+" (produce output): A["+i+","+j+"]="+A[i,j]+s);
 }
 
 static void pr4(int i, int j, int[.] A) {
-    System.out.println(tim()+" sec: Passed next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"]="+A[i,j]);
+    int w=i+j-1; // wave number
+    System.out.println(tim()+" sec: Passed next "+w+" of "+w+" (produce output): A["+i+","+j+"]="+A[i,j]);
 }
 
+/**
+ * compute the array element using its west and north neighbors as input.
+ */
 static int compute(int x,int y) {
     return x+y;
 }
@@ -159,4 +178,9 @@ static int compute(int x,int y) {
         boolean val=false;
     }
 
+}
+
+class boxedInt {
+   int val;
+   boxedInt (int x) {val=x;}
 }

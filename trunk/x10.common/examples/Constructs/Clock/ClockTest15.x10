@@ -56,7 +56,7 @@
  * </code>
  *
  * This test case forces A1 to read x==2 deterministically, 
- * by delaying the execution of A3
+ * by delaying the execution of A3.
  *
  */
 
@@ -114,8 +114,9 @@ public class ClockTest15
   static void delay (int millis)
   {
     try {
-      java.lang.Thread.sleep (millis);
+        java.lang.Thread.sleep (millis);
     } catch (InterruptedException e) {
+
     }
   }
 

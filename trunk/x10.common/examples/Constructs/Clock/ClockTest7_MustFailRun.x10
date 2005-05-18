@@ -10,34 +10,34 @@
  * @author kemal 3/2005
  */
 public class ClockTest7_MustFailRun {
-	
-	int val=0;
-	static final int N=32;
-	
-	public boolean run() {
-		final clock c = clock.factory.clock();
-		
-		finish foreach (point [i]: 0:(N-1)) clocked(c) {
-			async(here) clocked(c) finish async(here) {atomic val++;}
-			System.out.println("Activity "+i+" phase 0");
-			next;
-			if (val != N) {
-			    throw new Error();
-			}
-			System.out.println("Activity "+i+" phase 1");
-			next;
-			async(here) clocked(c) finish async(here) {atomic val++;}
-			System.out.println("Activity "+i+" phase 2");
-			next;
-		}
-		next; next; next;
-		if (val !=2*N) {
-			throw new Error();
-		}
-		return true;
-	}
-	
-	
+    
+    int val=0;
+    static final int N=32;
+    
+    public boolean run() {
+        final clock c = clock.factory.clock();
+        
+        finish foreach (point [i]: 0:(N-1)) clocked(c) {
+            async(here) clocked(c) finish async(here) {atomic val++;}
+            System.out.println("Activity "+i+" phase 0");
+            next;
+            chk(val == N);
+            System.out.println("Activity "+i+" phase 1");
+            next;
+            async(here) clocked(c) finish async(here) {atomic val++;}
+            System.out.println("Activity "+i+" phase 2");
+            next;
+        }
+
+        next; next; next;
+
+        chk(val ==2*N);
+
+        return true;
+    }
+
+    static void chk(boolean b) {if (!b) throw new Error();}
+    
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
@@ -52,6 +52,5 @@ public class ClockTest7_MustFailRun {
     static class boxedBoolean {
         boolean val=false;
     }
-
-	
+    
 }
