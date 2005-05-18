@@ -1,16 +1,14 @@
-import x10.lang.*;
-
 /**
  * Automatic boxing and unboxing of a final value class
  * during up-cast and down-cast
  */
 public class Boxing0 {
-	public boolean run() {
-		x10.lang.Object o=X.five();
-		int i= (int) o + 1;
-		return (i==6);
-	}
-	
+    public boolean run() {
+        x10.lang.Object o=X.five();
+        int i= (int) o + 1;
+        return (i==6);
+    }
+    
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
@@ -29,5 +27,5 @@ public class Boxing0 {
 }
 
 class X {
-	public static int five() { return 5;}
+    public static int five() { return 5;}
 }
