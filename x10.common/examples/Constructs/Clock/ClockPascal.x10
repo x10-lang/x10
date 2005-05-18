@@ -70,7 +70,7 @@ public boolean run() {
     final dist Dinner=D|[1:N-1,1:N-1];
     final dist Dboundary=D-Dinner;
     final int[.] A=new int[D](point [i,j]){return Dboundary.contains([i,j])?1:0;};
-    finish {
+    finish async {
         // (nullable clock)[.] N= does not work
         // clock[.] N= new clock[D]; should not work but does.
         // This is a workaround for this bug.
