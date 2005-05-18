@@ -39,8 +39,16 @@ public TestCompiler(String name) {
         run("./Edmiston_Parallel4.x10","Edmiston_Parallel4","./Applications");
     }
 
+    public void test_Applications_Edmiston_Parallel4b() {
+        run("./Edmiston_Parallel4b.x10","Edmiston_Parallel4b","./Applications");
+    }
+
     public void test_Applications_Edmiston_Parallel5() {
         run("./Edmiston_Parallel5.x10","Edmiston_Parallel5","./Applications");
+    }
+
+    public void test_Applications_Edmiston_Parallel6() {
+        run("./Edmiston_Parallel6.x10","Edmiston_Parallel6","./Applications");
     }
 
     public void test_Applications_Edmiston_Sequential1() {
@@ -139,12 +147,12 @@ public TestCompiler(String name) {
         run("./Array1Exploded.x10","Array1Exploded","./Constructs/Array");
     }
 
-    public void test_Constructs_Array_Array1Long() {
-        run("./Array1Long.x10","Array1Long","./Constructs/Array");
+    public void test_Constructs_Array_Array1b() {
+        run("./Array1b.x10","Array1b","./Constructs/Array");
     }
 
-    public void test_Constructs_Array_Array1s() {
-        run("./Array1s.x10","Array1s","./Constructs/Array");
+    public void test_Constructs_Array_Array1c() {
+        run("./Array1c.x10","Array1c","./Constructs/Array");
     }
 
     public void test_Constructs_Array_Array2v() {
@@ -197,6 +205,10 @@ public TestCompiler(String name) {
 
     public void test_Constructs_Array_ArrayAlgebra() {
         run("./ArrayAlgebra.x10","ArrayAlgebra","./Constructs/Array");
+    }
+
+    public void test_Constructs_Array_ArrayAlgebra2() {
+        run("./ArrayAlgebra2.x10","ArrayAlgebra2","./Constructs/Array");
     }
 
     public void test_Constructs_Array_ArrayBounds1D() {
@@ -299,6 +311,10 @@ public TestCompiler(String name) {
         run("./AsyncTest4_MustFailCompile.x10","AsyncTest4_MustFailCompile","./Constructs/Async");
     }
 
+    public void test_Constructs_Async_AsyncTest5() {
+        run("./AsyncTest5.x10","AsyncTest5","./Constructs/Async");
+    }
+
     public void test_Constructs_AtEach_AtEach() {
         run("./AtEach.x10","AtEach","./Constructs/AtEach");
     }
@@ -329,6 +345,10 @@ public TestCompiler(String name) {
 
     public void test_Constructs_Atomic_AtomicReturn() {
         run("./AtomicReturn.x10","AtomicReturn","./Constructs/Atomic");
+    }
+
+    public void test_Constructs_Atomic_AtomicShared_MustFailCompile() {
+        run("./AtomicShared_MustFailCompile.x10","AtomicShared_MustFailCompile","./Constructs/Atomic");
     }
 
     public void test_Constructs_Atomic_AtomicTest() {
@@ -365,6 +385,14 @@ public TestCompiler(String name) {
 
     public void test_Constructs_Clock_ClockFuture() {
         run("./ClockFuture.x10","ClockFuture","./Constructs/Clock");
+    }
+
+    public void test_Constructs_Clock_ClockPascal() {
+        run("./ClockPascal.x10","ClockPascal","./Constructs/Clock");
+    }
+
+    public void test_Constructs_Clock_ClockPascal2() {
+        run("./ClockPascal2.x10","ClockPascal2","./Constructs/Clock");
     }
 
     public void test_Constructs_Clock_ClockTest() {
@@ -471,8 +499,8 @@ public TestCompiler(String name) {
         run("./DistAlgebra2.x10","DistAlgebra2","./Constructs/Distribution");
     }
 
-    public void test_Constructs_Distribution_DistAlgebra2_MustFailRun() {
-        run("./DistAlgebra2_MustFailRun.x10","DistAlgebra2_MustFailRun","./Constructs/Distribution");
+    public void test_Constructs_Distribution_DistAlgebra3_MustFailRun() {
+        run("./DistAlgebra3_MustFailRun.x10","DistAlgebra3_MustFailRun","./Constructs/Distribution");
     }
 
     public void test_Constructs_Distribution_DistBounds1D() {
@@ -545,6 +573,10 @@ public TestCompiler(String name) {
 
     public void test_Constructs_For_ForLoopOnArray() {
         run("./ForLoopOnArray.x10","ForLoopOnArray","./Constructs/For");
+    }
+
+    public void test_Constructs_ForEach_Foreach1() {
+        run("./Foreach1.x10","Foreach1","./Constructs/ForEach");
     }
 
     public void test_Constructs_ForEach_Foreach2() {
