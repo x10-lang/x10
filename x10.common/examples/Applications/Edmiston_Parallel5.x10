@@ -107,7 +107,7 @@ class editDistMatrix {
         // lockstep synchronization
         // occurs using a clock, so that the next wave can
         // correctly consume the results of this wave.
-        finish {
+        finish async {
             final clock c=clock.factory.clock();
             //SPMD computation in each place i
             ateach(point [i]:P) clocked(c) {
