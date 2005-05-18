@@ -1,5 +1,3 @@
-import x10.lang.Object;
-
 /**
  * Complex value class, not a test by itself
  */
@@ -16,7 +14,7 @@ final value _complex extends _dummy {
        return new _complex(this.re+other.re, this.im+other.im);
    }
    
-   public boolean equals(Object o) {
+   public boolean equals(x10.lang.Object o) {
 	boolean ret = false;
    	if (o instanceof _complex) {
    		_complex c = (_complex) o;
