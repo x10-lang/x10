@@ -90,7 +90,7 @@ class editDistMatrix {
         // For example, the array elements (1,2),(2,1) will execute 1 next,
         // and (1,3),(2,2),(3,1) will execute 2 nexts,
         // before starting their actual computation.
-        finish {
+        finish async {
             // new clock[D](point p){return clock.factory.clock();};
             // should not work: {return..} is a child activity
             // (nullable clock)[.] N=... does not work.

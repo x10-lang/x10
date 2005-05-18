@@ -90,7 +90,7 @@ class editDistMatrix {
         // For example, the array elements (1,2),(2,1) will execute 1 next,
         // and (1,3),(2,2),(3,1) will execute 2 nexts,
         // before starting their actual computation.
-        finish {
+        finish async {
             final clock c=clock.factory.clock();
             ateach(point [i,j]:Dinner) clocked(c) {
                for(point [k]: [3:(i+j)]) next;//wait for my wave
