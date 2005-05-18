@@ -7,7 +7,7 @@
  * <code>
    (a[b[k]]).drop(); 
    async clocked(a[b[i]]) {
-     async cloked(a[b[j]]) S
+     async clocked(a[b[j]]) S
    }
    // Compiler does not know if b[k]==b[i] or b[i]==b[j]
  * </code>
@@ -23,15 +23,15 @@ class BoxedClock {
 public class ClockTest8_MustFailCompile {
 
 	public boolean run() {
-            finish {
+            finish async {
 		BoxedClock bc=new BoxedClock(clock.factory.clock());
-		clock[] ca = new clock[] {clock.factory.clock(), bc};
+		clock[] ca = new clock[] {clock.factory.clock(), bc.val};
 		final clock c1=ca[1];
 		final clock c2=c1;
 		final clock c3=ca[0];
 		bc.val.drop();
 		async clocked(ca[U.zero()]) {
-			async clocked[c2] {System.out.println("hello");}
+			async clocked(c2) {System.out.println("hello");}
 		}
             }
 	    return true;
