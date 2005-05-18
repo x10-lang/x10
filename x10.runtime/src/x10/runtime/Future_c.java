@@ -31,9 +31,12 @@ final class Future_c extends Future {
     
     private final Clock clock_;
     
+    private final Activity starter_;
+    
     Future_c(Activity.Expr wf) {
         this.waitFor_ = wf;
         this.clock_ = new Clock((ActivityInformationProvider) x10.lang.Runtime.runtime, this);
+        this.starter_ = ((ActivityInformationProvider) x10.lang.Runtime.runtime).getCurrentActivity();
     }
     
     Clock getClock() {
@@ -95,9 +98,9 @@ final class Future_c extends Future {
         } finally {
             try {
                 // x10.lang.Runtime.doNext(); // CVP that will make ClocktTest10 fail
-                clock_.resume();
-                clock_.doNext();
-                clock_.drop();
+                clock_.resume(starter_);
+                clock_.doNext(starter_);
+                clock_.drop(starter_);
             } catch (java.lang.RuntimeException re) {
                 ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(waitFor_, re);
             } catch (java.lang.Error er) {

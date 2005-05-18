@@ -195,7 +195,7 @@ public final class Clock extends clock {
 		activityCount_++;
 		if (Report.should_report("clock",3)) {
 			Report.report(3, this + "created by " + a +".");
-			}
+		}
 		aip_.registerActivitySpawnListener(a, dropListener_);
 	}
 	
@@ -259,24 +259,34 @@ public final class Clock extends clock {
 		return resumed_.contains(a) || nextResumed_.contains(a);
 		
 	}
-	/**
-	 * Notify the clock that this activity has completed its
-	 * work in this phase of the clock.
-	 */
-	public void resume() {
-		Activity a = aip_.getCurrentActivity();        
-		// do not lock earlier - see comment in doNext
-		if (Report.should_report("clock", 3)) {
+    
+    /**
+     * Notify the clock that this activity has completed its
+     * work in this phase of the clock.
+     */
+    public void resume() {
+        resume(aip_.getCurrentActivity());
+    }
+    
+	void resume(Activity a) {   
+        if (clockUsedForFuture && !activities_.contains(a)) {
+            // if clock is used to implement a future, then a might 
+            // have terminated and unregistered already
+            return;
+        }
+        
+        if (Report.should_report("clock", 3)) {
 			Report.report(3, this + ".resume(" + a  +")");
-			}
+		}
+		// do not lock earlier - see comment in doNext
 		synchronized (this) {
-			if (! activities_.contains(a))
+			if (! activities_.contains(a) && !clockUsedForFuture)
 				throw new ClockUseException(a + "is not registered with " + this +"; cannot execute 'resume'.");
 			
 			if (quiescent(a)) {
 			    if (Report.should_report("clock", 3)) {
 					Report.report(3, this + "...returned (noop).");
-					}
+				}
 				return; 
 			}
 			if (splitPhase_) {
@@ -291,7 +301,7 @@ public final class Clock extends clock {
 			resumedCount_++;
 			if (Report.should_report("clock", 3)) {
 				Report.report(3, this + "...added to resumed.");
-				}
+			}
 			tryMoveToSplit_();
 		}
 	}
@@ -338,7 +348,7 @@ public final class Clock extends clock {
 	synchronized boolean drop(Activity a) {
 	    if (Report.should_report("clock", 3)) {
 			Report.report(3, this + ".drop(" + a +").");
-			}
+		}
 		boolean ret = activities_.remove(a);
 		if (ret) activityCount_--;
 		if (resumed_.remove(a)) resumedCount_--;
@@ -352,20 +362,23 @@ public final class Clock extends clock {
 	 * calls all advance listeners and then signals the activities
 	 * that are waiting to get them going again.
 	 */
-	synchronized boolean tryMoveToSplit_() {
-	    if (Report.should_report("clock", 3)) {
+	private synchronized boolean tryMoveToSplit_() {
+	    //if (clockUsedForFuture)
+          //  return false;
+            
+        if (Report.should_report("clock", 3)) {
 			Report.report(3, this + ".tryMoveToSplit_()");
-			}
+		}
 		
 		if (! (activityCount_ == resumedCount_ && nowSet_.size() == 0)) {
 		    if (Report.should_report("clock", 3)) {
 				Report.report(3, "...fails");
-				}
+			}
 			return false;
 		}
 		if (Report.should_report("clock", 3)) {
 			Report.report(3, "...succeeds");
-			}
+		}
 		splitPhase_ = true;
 		this.phase_++;
 		if (Sampling.SINGLETON != null)
@@ -381,8 +394,8 @@ public final class Clock extends clock {
 		}
 		this.notifyAll();
 		return true;
-		
 	}
+    
 	private synchronized boolean tryMoveToWhole_() {
 	    if (Report.should_report("clock", 3)) {
 			Report.report(3, this+".tryMoveToWhole_()");
@@ -419,27 +432,30 @@ public final class Clock extends clock {
 		}
 	}
 	
-	public void doNext() {
-		Activity a = aip_.getCurrentActivity();
-		// do not acquire lock earlier - otherwise deadlock can happen
-		// because the lock used to protected aip_.getCurrentActivity
-		// is also held when terminating activities drop locks ...
+    public void doNext() {
+        doNext(aip_.getCurrentActivity());
+    }
+    
+	void doNext(Activity a) {
 		if (Report.should_report("clock", 3)) {
 			Report.report(3, this+".doNext(" + a + ") called.");
-			}
+		}
+        // do not acquire lock earlier - otherwise deadlock can happen
+        // because the lock used to protected aip_.getCurrentActivity
+        // is also held when terminating activities drop locks ...
 		synchronized (this) {
-			assert activities_.contains(a);
-			assert nextResumed_.contains(a) || resumed_.contains(a);
+			assert activities_.contains(a) || clockUsedForFuture;
+			assert nextResumed_.contains(a) || resumed_.contains(a) || clockUsedForFuture;
 			if (!splitPhase_ || nextResumed_.contains(a)){
 			    if (Report.should_report("clock", 3)) {
 					Report.report(3, this+".doNext(" + a + ") blocks.");
-					}
+				}
 				block_();
 			}
 			if (Report.should_report("clock", 3)) {
 				Report.report(3, this+".doNext(" + a + ") continues.");
-				}
-			assert resumed_.contains(a);
+			}
+			assert resumed_.contains(a) || clockUsedForFuture;
 			resumed_.remove(a);
 			resumedCount_ --;
 			tryMoveToWhole_();
