@@ -15,7 +15,7 @@ public class ClockTest12 {
 int phase=0;
 
 public boolean run() {
-   finish{
+   finish async {
 	final clock c = clock.factory.clock();
 	async clocked(c) taskA(1,c);
 	async clocked(c) taskA(2,c);
