@@ -9,7 +9,7 @@ public class Array3Boolean {
 		region e= [1:10];
 		region r = [e,e];
 		dist d=r->here;
-		chk(d.equals([1:10,1:10]->here);
+		chk(d.equals([1:10,1:10]->here));
 		boolean[.] ia = new boolean[d];
 		ia[1,1] = true;
 		return (true == ia[1,1]);

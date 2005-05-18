@@ -16,6 +16,9 @@ public class Array3 {
 		return 42 == ia[1,1];
 	
 	}
+
+    static void chk(boolean b) {if (!b) throw new Error();}
+	
 	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();

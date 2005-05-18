@@ -24,9 +24,12 @@ public class Array4 {
 		region e= [1:10];
 		region r = [e,e];
 		dist d=r->here;
-		chk(d.equals([1:10,1:10]->here);
+		chk(d.equals([1:10,1:10]->here));
 		return (new Array4(new int[d])).runtest();
 	}
+
+    static void chk(boolean b) {if (!b) throw new Error();}
+	
 
 	/** Harness for running the test.
 	 * 

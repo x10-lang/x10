@@ -9,12 +9,15 @@ public class Array3Double {
 		region e= [1:10];
 		region r = [e,e];
 		dist d=r->here;
-		chk(d.equals([1:10,1:10]->here);
+		chk(d.equals([1:10,1:10]->here));
 		double[.] ia = new double[d];
 		ia[1,1] = 42.0D;
 		return 42.0D == ia[1,1];
 	
 	}
+
+    static void chk(boolean b) {if (!b) throw new Error();}
+	
 	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();

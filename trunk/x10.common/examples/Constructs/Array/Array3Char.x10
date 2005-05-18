@@ -9,12 +9,15 @@ public class Array3Char {
 		region e= [1:10];
 		region r = [e,e];
 		dist d=r->here;
-		chk(d.equals([1:10,1:10]->here);
+		chk(d.equals([1:10,1:10]->here));
 		char[.] ia = new char[d];
 		ia[1,1] = 'a';
 		return ('a' == ia[1,1]);
 	
 	}
+
+    static void chk(boolean b) {if (!b) throw new Error();}
+	
 	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();

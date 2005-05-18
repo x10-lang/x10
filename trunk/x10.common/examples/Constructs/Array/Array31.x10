@@ -7,14 +7,14 @@ public class Array31 {
 
 	public boolean run() {
 		
-		region e= [1:10];
-		dist d=[e];
-		chk(d.equals([1:10]->here));
+		dist d=[1:10]->here;
 		int[.] ia = new int[d];
 		ia[1] = 42;
 		return 42 == ia[1];
 	
 	}
+	
+    static void chk(boolean b) {if (!b) throw new Error();}
 	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
