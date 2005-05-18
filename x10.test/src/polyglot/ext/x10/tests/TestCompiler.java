@@ -635,6 +635,10 @@ public TestCompiler(String name) {
         run("./FutureTest4_MustFailCompile.x10","FutureTest4_MustFailCompile","./Constructs/Future");
     }
 
+    public void test_Constructs_Future_FutureTest5() {
+        run("./FutureTest5.x10","FutureTest5","./Constructs/Future");
+    }
+
     public void test_Constructs_Import_ClasspathTest() {
         run("./ClasspathTest.x10","ClasspathTest","./Constructs/Import");
     }
