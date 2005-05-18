@@ -6,9 +6,7 @@
 public class IntArrayMaxAbs {
 	
 	public boolean run() {
-		region e= [1:10];
-		region r = [e,e];
-		final dist D=r->here;
+		final dist D=[1:10,1:10]->here;
 		final int[.] ia = new int[D];
 			
 		finish ateach(point p[i,j]:D) { ia[p]= -i;}

@@ -8,7 +8,9 @@ public class ArrayInitializer {
 		
 		region e= [0:9];
 		region r = [e, e, e];
-		dist d=r->here;
+                //TODO: next line causes runtime error
+		//dist d=r->here;
+		dist d=[0:9,0:9,0:9]->here;
 		
 		final int value [d] ia = 
 			new int value [d] 
