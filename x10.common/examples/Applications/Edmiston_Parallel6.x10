@@ -38,7 +38,7 @@ public class Edmiston_Parallel6 {
           (point[i]) {return (i==0)?'-':randomChar(i);};
         final char value[.] c2= new char value[(0:M)->here]
           (point[i]) {return (i==0)?'-':randomChar(N+i);};
-        final dist D=[0:N,0:M]->here;
+        final dist D=dist.factory.block([0:N,0:M]);
         final dist Dinner=D|[1:N,1:M];
         final dist Dboundary=D-Dinner;
         //  The boundary of e is initialized to:
@@ -46,29 +46,41 @@ public class Edmiston_Parallel6 {
         //  1*gapPen ...
         //  2*gapPen ...
         //  3*gapPen ...
-        //  ...
-
+        //  ...  
         // This is a workaround. Arrays of future<int>'s do not work
         
         final boxedFutureInt[.] e=new boxedFutureInt[D] (point [i,j]){return new boxedFutureInt();};
 	for(point [i,j]:Dboundary)
+	  finish async(e.distribution[i,j])
             e[i,j].val=future(here){gapPen*(i+j)};
 		
-        for(point [i,j]:Dinner) {
-           e[i,j].val = 
+        // There is a race condition in the sense that 
+        // e[i,j].val must be assigned with the correct future, before
+	// e[i+1,j+1].val's future computation 
+        // tries to do e[i,j].val.force() remotely.
+        // Hence the serial computation below.
+	// Once the "future linking" is done by the for loop below, 
+        // the actual computation will occur in parallel, 
+        // in data flow order.
+
+        for(point [i,j]:Dinner) 
+	 finish async(e.distribution[i,j]) 
+           e[i,j].val=
             future(here) {
              min(rd(e,i-1,j)+gapPen,
                  rd(e,i,j-1)+gapPen,
                  rd(e,i-1,j-1)+(c1[i]==c2[j]?match:misMatch))};
-	}
+
 	rd(e,N,M);// ensure all computations end.
+
         pr(c1,c2,e,"Edit distance matrix:");
+
         return checkSum(e)==EXPECTED_CHECKSUM;
     }
 
     static int rd(final boxedFutureInt[.] e, final int i, final int j) {
 	return
-	  e[i,j].val.force();
+	  future(e.distribution[i,j]){e[i,j].val.force()}.force();
     }
 
 
