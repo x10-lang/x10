@@ -9,17 +9,17 @@
  */
 public class ClockTest1  {
 
-	boolean flag;
-	
-	public boolean run() {
-		final clock c = clock.factory.clock();
-         	async(here) clocked(c) finish async(here) {atomic{flag=true;}}
-		next ;		
-		boolean b;
-		atomic{b=flag;}
-		return b;
-	}
-	
+    boolean flag;
+    
+    public boolean run() {
+        final clock c = clock.factory.clock();
+        async(here) clocked(c) finish async(here) {atomic{flag=true;}}
+        next ;      
+        boolean b;
+        atomic{b=flag;}
+        return b;
+    }
+    
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
@@ -35,5 +35,5 @@ public class ClockTest1  {
         boolean val=false;
     }
 
-	
+    
 }

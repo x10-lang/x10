@@ -131,6 +131,9 @@ static void pr4(int i, int j, int[.] A) {
     System.out.println(tim()+" sec: Passed next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"]="+A[i,j]);
 }
 
+/**
+ * Compute the array element using its west and north neighbors
+ */
 static int compute(int x,int y) {
     return x+y;
 }

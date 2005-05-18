@@ -9,34 +9,34 @@ define(`Now',
  */
 public class ClockTest3 {
 
-	int val=0;
-	static final int N=32;
+    int val=0;
+    static final int N=32;
 
-	public boolean run() {
-      		final clock c = clock.factory.clock();
-		
-		foreach (point [i]: 0:(N-1)) clocked(c) {
-			Now((c),{async(here) {atomic val++;}})
-			next;
-			int temp;
-			atomic {temp=val;}
-			if (temp != N) {
-				throw new Error();
-			}
-			next;
-			Now((c),{async(here) {atomic val++;}})
-			next;
-		}
-		next; next; next;
-		int temp2;
-		atomic {temp2=val;}
-		if (temp2!=2*N) {
-			throw new Error();
-		}
-		return true;
-	}
+    public boolean run() {
+        final clock c = clock.factory.clock();
+        
+        foreach (point [i]: 0:(N-1)) clocked(c) {
+            Now((c),{async(here) {atomic val++;}})
+            next;
+            int temp;
+            atomic {temp=val;}
+            if (temp != N) {
+                throw new Error();
+            }
+            next;
+            Now((c),{async(here) {atomic val++;}})
+            next;
+        }
+        next; next; next;
+        int temp2;
+        atomic {temp2=val;}
+        if (temp2!=2*N) {
+            throw new Error();
+        }
+        return true;
+    }
 
-	
+    
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {

@@ -54,96 +54,100 @@
  */
 public class ClockTest6 {
 
-	const int N_INSTANCES=8;//number of instances of each async activity kind
-	const int N_NEXTS=4;//number of next pairs in each async activity
-	const int N_KINDS=4;// number of kinds of async activities
-	int globalCounter=0;
+    const int N_INSTANCES=8;//number of instances of each async activity kind
+    const int N_NEXTS=4;//number of next pairs in each async activity
+    const int N_KINDS=4;// number of kinds of async activities
+    int globalCounter=0;
 
-	public boolean run() {
-          finish async(here) {
-		// create and register with multiple clocks
-      		final clock c = clock.factory.clock();
-      		final clock d = clock.factory.clock();
-      		final clock e = clock.factory.clock();
-		// Spawn subactivities using different subset of the clocks
-		// The subactivities will perform N_NEXTS next pairs each
-		for(point [i]:1:N_INSTANCES) {
-			
-		/*Activity kind:1 clocks=(c)*/
-		async(here)clocked(c)
-		for(point [tick]:0:(N_NEXTS)-1){
-			// do work
-			doWork("1_",i,"(c)",tick);
-			next;//barrier
-			// verify that work in prior phase is correct
-			verify("1_",i,tick); 
-			next;//barrier
-		}
-			
-		/*Activity kind:2 clocks=(c,d)*/
-		async(here)clocked(c,d)
-		for(point [tick]:0:(N_NEXTS)-1){
-			// do work
-			doWork("2_",i,"(c,d)",tick);
-			next;//barrier
-			// verify that work in prior phase is correct
-			verify("2_",i,tick); 
-			next;//barrier
-		}
-			
-		/*Activity kind:3 clocks=(c,e)*/
-		async(here)clocked(c,e)
-		for(point [tick]:0:(N_NEXTS)-1){
-			// do work
-			doWork("3_",i,"(c,e)",tick);
-			next;//barrier
-			// verify that work in prior phase is correct
-			verify("3_",i,tick); 
-			next;//barrier
-		}
-			
-		/*Activity kind:4 clocks=(c,d,e)*/
-		async(here)clocked(c,d,e)
-		for(point [tick]:0:(N_NEXTS)-1){
-			// do work
-			doWork("4_",i,"(c,d,e)",tick);
-			next;//barrier
-			// verify that work in prior phase is correct
-			verify("4_",i,tick); 
-			next;//barrier
-		}
-		}
-		// Here all children have registered with
-		// their clocks, but have not advanced beyond their first next
-		// Parent terminates so children can proceed.
-	  }
-	  // Wait until all activities are finished
-	  return true;
-	}
-	/**
-	 * Each activity increments a global counter and prints a message
-	 */
-	void doWork(String kind, int instance, String clocks,int tick) {
-		atomic globalCounter++;
+    public boolean run() {
+        finish async(here) {
+            // create and register with multiple clocks
+            final clock c = clock.factory.clock();
+            final clock d = clock.factory.clock();
+            final clock e = clock.factory.clock();
+            // Spawn subactivities using different subset of the clocks
+            // The subactivities will perform N_NEXTS next pairs each
+            for(point [i]:1:N_INSTANCES) {
+                
+        /*Activity kind:1 clocks=(c)*/
+        async(here)clocked(c)
+        for(point [tick]:0:(N_NEXTS)-1){
+            // do work
+            doWork("1_",i,"(c)",tick);
+            next;//barrier
+            // verify that work in prior phase is correct
+            verify("1_",i,tick); 
+            next;//barrier
+        }
+                
+        /*Activity kind:2 clocks=(c,d)*/
+        async(here)clocked(c,d)
+        for(point [tick]:0:(N_NEXTS)-1){
+            // do work
+            doWork("2_",i,"(c,d)",tick);
+            next;//barrier
+            // verify that work in prior phase is correct
+            verify("2_",i,tick); 
+            next;//barrier
+        }
+                
+        /*Activity kind:3 clocks=(c,e)*/
+        async(here)clocked(c,e)
+        for(point [tick]:0:(N_NEXTS)-1){
+            // do work
+            doWork("3_",i,"(c,e)",tick);
+            next;//barrier
+            // verify that work in prior phase is correct
+            verify("3_",i,tick); 
+            next;//barrier
+        }
+                
+        /*Activity kind:4 clocks=(c,d,e)*/
+        async(here)clocked(c,d,e)
+        for(point [tick]:0:(N_NEXTS)-1){
+            // do work
+            doWork("4_",i,"(c,d,e)",tick);
+            next;//barrier
+            // verify that work in prior phase is correct
+            verify("4_",i,tick); 
+            next;//barrier
+        }
+            }
+            // Here all children have registered with
+            // their clocks, but have not advanced beyond their first next
+            // Parent terminates so children can proceed.
+        }
+        // Wait until all activities are finished
+        return true;
+    }
+    /**
+     * Each activity increments a global counter and prints a message
+     */
+    void doWork(String kind, int instance, String clocks,int tick) {
+        atomic globalCounter++;
 
-		System.out.println("Activity "+kind+instance+" in phase "+ tick+" of clocks " + clocks);
-	}
+        System.out.println("Activity "+kind+instance+" in phase "+ tick+" of clocks " + clocks);
+    }
 
-	/**
-	 * This verifies that in the prior phase all
-	 * activities have incremented the counter
-	 */
-	void verify(String kind, int instance, int tick) {
-		int tmp;
-		atomic {tmp=globalCounter;}
-		if((tick+1)*N_KINDS*N_INSTANCES!=tmp) throw new Error(kind+instance+" "+tick);
-	}
-	
+    /**
+     * This verifies that in the prior phase all
+     * activities have incremented the counter
+     */
+    void verify(String kind, int instance, int tick) {
+        int tmp;
+        atomic {tmp=globalCounter;}
+        chk((tick+1)*N_KINDS*N_INSTANCES==tmp);
+    }
 
-	/**
-	 * main method
-	 */
-	
+    /**
+     * Throws an error iff b is false.
+     */
+    static void chk(boolean b) {if (!b) throw new Error();}
+
+    /**
+     * main method
+     */
+    
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {

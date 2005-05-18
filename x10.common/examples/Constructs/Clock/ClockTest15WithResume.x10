@@ -59,7 +59,7 @@
  * </code>
  *
  * This test case forces A1 to read x==2 deterministically, 
- * by delaying the execution of A3
+ * by delaying the execution of A3.
  *
  */
 

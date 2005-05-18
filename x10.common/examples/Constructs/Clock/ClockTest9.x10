@@ -14,60 +14,58 @@
  */
 public class ClockTest9 {
 
-	const int N=8;
-	const int M=8;
-	final int[.] val=new int[0:N-1];
+    const int N=8;
+    const int M=8;
+    final int[.] val=new int[0:N-1];
 
-	public boolean run() {
+    public boolean run() {
           
-          finish {
-      		final clock c = clock.factory.clock();
-		
-                // outer barrier loop
-		foreach (point [i]: 0:N-1) clocked(c) {
-				foreachBody(i,c);
-		}
-          }
-          return true;
-	}
-
-	void foreachBody(final int i, final clock c) {
-          async(here) clocked(c) finish async(here) {
-      		final clock d = clock.factory.clock();
-		
-                // inner barrier loop
-		foreach (point [j]: 0:M-1) clocked(d) {
-				foreachBodyInner(i,j,d);
-		}
-          }
-          System.out.println("#0a i="+i);
-	  next;
-	  // at this point each val[k] must be 0
-	  async(here) clocked(c) finish async(here) for(point [k]:val) chk(val[k]==0);
-          System.out.println("#0b i="+i);
-	  next;
-	}
-        void foreachBodyInner(final int i, final int j, final clock d) {
-          // activity i,j increments val[i] by j  
-	  async(here) clocked(d) finish async(here) {atomic val[i] += j;}
-          System.out.println("#1 i="+i+" j="+j);
-	  next;
-	  // val[i] must now be SUM(j=0 to M-1)(j)
- 	  async(here) clocked(d) finish async(here) {int tmp; atomic tmp=val[i];chk(tmp==M*(M-1)/2);}
-          System.out.println("#2 i="+i+" j="+j);
- 	  next;
-	  // async(here) clocked finish async(here)  decrement val[i] by the same amount
-	  async(here) clocked(d) finish async(here) {atomic val[i] -= j; }
-          System.out.println("#3 i="+i+" j="+j);
-	  next;
-	  // val[i] should be 0 by now
+        finish {
+            final clock c = clock.factory.clock();
+        
+            // outer barrier loop
+            foreach (point [i]: 0:N-1) clocked(c) {
+                foreachBody(i,c);
+            }
         }
+        return true;
+    }
 
-        static void chk(boolean b) { 
-	  if (!b) throw new Error();
+    void foreachBody(final int i, final clock c) {
+        async(here) clocked(c) finish async(here) {
+            final clock d = clock.factory.clock();
+        
+            // inner barrier loop
+            foreach (point [j]: 0:M-1) clocked(d) {
+                foreachBodyInner(i,j,d);
+            }
         }
+        System.out.println("#0a i="+i);
+        next;
+        // at this point each val[k] must be 0
+        async(here) clocked(c) finish async(here) for(point [k]:val) chk(val[k]==0);
+        System.out.println("#0b i="+i);
+        next;
+    }
+
+    void foreachBodyInner(final int i, final int j, final clock d) {
+        // activity i,j increments val[i] by j  
+        async(here) clocked(d) finish async(here) {atomic val[i] += j;}
+        System.out.println("#1 i="+i+" j="+j);
+        next;
+        // val[i] must now be SUM(j=0 to M-1)(j)
+        async(here) clocked(d) finish async(here) {int tmp; atomic tmp=val[i];chk(tmp==M*(M-1)/2);}
+        System.out.println("#2 i="+i+" j="+j);
+        next;
+        // async(here) clocked finish async(here)  decrement val[i] by the same amount
+        async(here) clocked(d) finish async(here) {atomic val[i] -= j; }
+        System.out.println("#3 i="+i+" j="+j);
+        next;
+        // val[i] should be 0 by now
+    }
+
+    static void chk(boolean b) {if (!b) throw new Error();}
          
-	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
@@ -82,6 +80,5 @@ public class ClockTest9 {
     static class boxedBoolean {
         boolean val=false;
     }
-
 
 }

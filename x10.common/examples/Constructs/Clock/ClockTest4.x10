@@ -11,39 +11,35 @@
  */
 public class ClockTest4 {
 
-	int val=0;
-	const int N=32;
+    int val=0;
+    const int N=32;
 
-	public boolean run() {
-      		final clock c = clock.factory.clock();
-		
-		foreach (point [i]: 1:(N-1)) clocked(c) {
-			foreachBody(i,c);
-		}
-		foreachBody(0,c);
-		int temp2;
-		atomic {temp2=val;}
-		if (temp2!=0) {
-			throw new Error();
-		}
-		return true;
-	}
+    public boolean run() {
+        final clock c = clock.factory.clock();
+        
+        foreach (point [i]: 1:(N-1)) clocked(c) {
+            foreachBody(i,c);
+        }
+        foreachBody(0,c);
+        int temp2;
+        atomic {temp2=val;}
+        chk(temp2==0);
+        return true;
+    }
 
-	void foreachBody(final int i, final clock c) {
-			async(here) clocked(c) finish async(here) {async(here) {atomic val+=i;}}
-			next;
-			int temp;
-			atomic {temp=val;}
-			if (temp != N*(N-1)/2) {
-				throw new Error();
-			}
-			next;
-			async(here) clocked(c) finish async(here) {async(here) {atomic val-=i;}}
-			next;
-	}
+    static void chk(boolean b) {if (!b) throw new Error();}
 
-
-	
+    void foreachBody(final int i, final clock c) {
+            async(here) clocked(c) finish async(here) {async(here) {atomic val+=i;}}
+            next;
+            int temp;
+            atomic {temp=val;}
+            chk(temp == N*(N-1)/2);
+            next;
+            async(here) clocked(c) finish async(here) {async(here) {atomic val-=i;}}
+            next;
+    }
+    
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
@@ -58,6 +54,4 @@ public class ClockTest4 {
     static class boxedBoolean {
         boolean val=false;
     }
-
-
 }
