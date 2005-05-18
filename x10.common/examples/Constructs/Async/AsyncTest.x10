@@ -1,4 +1,3 @@
-import x10.lang.*;
 
 /**
  * Minimal busy-waiting style test for async.

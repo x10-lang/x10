@@ -9,12 +9,12 @@ public class AsyncTest1  {
 	boolean flag;
 
 	public boolean run() {
-		async (here) { atomic{flag = true;} }
+		async (this) { atomic{flag = true;} }
                 boolean b;
                 do {
                    atomic{b=flag;}
 		} while(!b);
-	  	return flag;
+	  	return b;
 	}
 	
     public static void main(String[] args) {
