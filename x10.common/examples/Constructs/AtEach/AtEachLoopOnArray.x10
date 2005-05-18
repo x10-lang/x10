@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Test for an ateach loop on an array
  *
@@ -7,17 +6,17 @@ import x10.lang.*;
 public class AtEachLoopOnArray {
     boolean success = true;
 
-	public boolean run() {
-		final double[.] A = new double[(0:10) -> here] (point [i]) { return i;};
-		
-		finish ateach(point [i]: A) 
-			if (A[i] != i) 
-				async (this) atomic { success = false; }
-		
-		return success;
+    public boolean run() {
+        final double[.] A = new double[(0:10) -> here] (point [i]) { return i;};
+        
+        finish ateach(point [i]: A) 
+            if (A[i] != i) 
+                async (this) atomic { success = false; }
+        
+        return success;
 
-	}
-	
+    }
+    
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {

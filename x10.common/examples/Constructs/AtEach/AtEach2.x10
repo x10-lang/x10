@@ -1,7 +1,5 @@
-import x10.lang.*;
-
 /**
- * Test for ateach
+ * Slightly different test for ateach
  *
  * @author: kemal, 12/2004
  * @author vj
@@ -11,19 +9,18 @@ public class AtEach2 {
 
     public boolean run() {         
         final dist d=dist.factory.unique(place.places);
-        int[d] disagree = new int[d];
         finish ateach(point p:d) {
             // remember if here and d[i] disagree
             // at any activity at any place
-            if (here != d.get(p)) throw new Error("Test failed.");
-            async(this.location){atomic {this.nplaces++;}}             
+            chk(here == d[p]);
+            async(this){atomic {this.nplaces++;}}             
         }
-        // ensure that d[i] agreed with here in
-        // all places
-        // and that an activity ran in each place
+        // ensure that an activity ran in each place
         return nplaces==place.MAX_PLACES;
     }
     
+    static void chk(boolean b) {if(!b) throw new Error();}
+	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
