@@ -1,3 +1,5 @@
+//LIMITATION: 
+//This test case will not meet expectations. It is a limitation of the current release.
 
 /**
  * Testing if -classpath './ExtraClasses' is recognized
