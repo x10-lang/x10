@@ -22,7 +22,7 @@ public class PlaceCast2 {
 	        	}
 	        }
 	        System.out.println("nplaces==" + nplaces);
-	        return nplaces==0;
+	        return nplaces==place.places.size();
 	    }
 	        
 	    public static void main(String[] args) {
