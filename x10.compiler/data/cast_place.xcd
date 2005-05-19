@@ -1,1 +1,1 @@
-((#0) x10.lang.Runtime.placeCheck(#1.#2))
+((#2) x10.lang.Runtime.placeCheck(#0,#1))
