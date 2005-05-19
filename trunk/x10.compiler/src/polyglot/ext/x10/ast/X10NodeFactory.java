@@ -76,4 +76,5 @@ public interface X10NodeFactory extends NodeFactory {
     TypeNode array(TypeNode n, Position pos, int dims);
     Formal Formal( Position pos, TypeNode type, X10VarDeclarator v);
     ParExpr ParExpr( Position pos, Expr e);
+    PlaceCast PlaceCast( Position pos, Expr place, Expr target);
 }
