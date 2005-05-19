@@ -67,9 +67,9 @@ public abstract /*value*/ class region extends Object implements TypeArgument {
 	    }
 	    public  region/*1*/ region( region a) {
 	        region ret;
-            if (a == null)
-                ret = new EmptyRegion(1);
-            else 
+            //if (a == null)
+              //  ret = new EmptyRegion(1);
+            //else 
                 ret = a; // TODO: cvp --> vj why this: region(new region[] { a });
             return ret;
 	    }
