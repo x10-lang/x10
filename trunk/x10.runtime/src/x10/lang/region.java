@@ -2,6 +2,7 @@ package x10.lang;
 
 import /*x10*/java.util.Iterator;
 import x10.base.TypeArgument;
+import x10.array.EmptyRegion;
 
 
 /**
@@ -65,7 +66,12 @@ public abstract /*value*/ class region extends Object implements TypeArgument {
 		return region(new region[] { a, b });
 	    }
 	    public  region/*1*/ region( region a) {
-		return a; // TODO: cvp --> vj why this: region(new region[] { a });
+	        region ret;
+            if (a == null)
+                ret = new EmptyRegion(1);
+            else 
+                ret = a; // TODO: cvp --> vj why this: region(new region[] { a });
+            return ret;
 	    }
 	    public  region/*3*/ region( region a, region b, region c) {
 		return region(new region[] { a, b,c });
