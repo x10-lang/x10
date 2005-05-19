@@ -5,6 +5,7 @@ package x10.array;
 
 import java.util.Iterator;
 import x10.lang.dist;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.ByteReferenceArray;
 
@@ -47,57 +48,92 @@ public abstract class ByteArray extends ByteReferenceArray {
 	public void pointwise(ByteArray res, Operator.Pointwise op, ByteArray arg) {
 	    assert res.distribution.equals(distribution);
         assert arg.distribution.equals(distribution);
-		
+        
+        place here = x10.lang.Runtime.runtime.currentPlace();
 		ByteArray arg_t =  arg;
 		ByteArray res_t = res;
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			byte arg1 = get(p);
-			byte arg2 = arg_t.get(p);
-			byte val = op.apply(p, arg1, arg2);
-			res_t.set(val, p);
+		try {
+		    for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+		        point p = (point) it.next();
+		        place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                byte arg1 = get(p);
+		        byte arg2 = arg_t.get(p);
+		        byte val = op.apply(p, arg1, arg2);
+		        res_t.set(val, p);
+		    }
+		} finally {
+		    x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
 	}
 	
 	public void pointwise(ByteArray res, Operator.Pointwise op) {
 	    assert res == null || res.distribution.equals(distribution);
-        
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			byte arg1 = get(p);
-			byte val = op.apply(p, arg1);
-			if (res != null)
-			    res.set(val, p);
-		}
+	    
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            byte arg1 = get(p);
+	            byte val = op.apply(p, arg1);
+	            if (res != null)
+	                res.set(val, p);
+	        } 
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	public void reduction(Operator.Reduction op) {
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			byte arg1 = get(p);
-			op.apply(arg1);
-		}
+	    place here = x10.lang.Runtime.runtime.currentPlace();  
+        try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                byte arg1 = get(p);
+	            op.apply(arg1);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	public void scan(ByteArray res, Operator.Scan op) {
 	    assert res.distribution.equals(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			byte arg1 = get(p);
-			res.set(op.apply(arg1), p);
-		}
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            byte arg1 = get(p);
+	            res.set(op.apply(arg1), p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	  public void scan( ByteArray res, pointwiseOp op ) {
         assert res == null || res instanceof ByteArray;
         assert res.distribution.equals(distribution);
-
+        place here = x10.lang.Runtime.runtime.currentPlace();
         ByteArray res_t = (res == null) ? null : (ByteArray) res;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            byte val = op.apply(p);
-            if (res_t != null)
-                res_t.set(val, p);
+        
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                byte val = op.apply(p);
+                if (res_t != null)
+                    res_t.set(val, p);
+            } 
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
     

@@ -5,6 +5,7 @@ package x10.array;
 
 import java.util.Iterator;
 import x10.lang.dist;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.CharReferenceArray;
 
@@ -47,58 +48,94 @@ public abstract class CharArray extends CharReferenceArray {
 	public void pointwise(CharArray res, Operator.Pointwise op, CharArray arg) {
 	    assert res.distribution.equals(distribution);
         assert arg.distribution.equals(distribution);
-		
+        
+        place here = x10.lang.Runtime.runtime.currentPlace();
 		CharArray arg_t =  arg;
 		CharArray res_t = res;
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			char arg1 = get(p);
-			char arg2 = arg_t.get(p);
-			char val = op.apply(p, arg1, arg2);
-			res_t.set(val, p);
+		try {
+		    for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+		        point p = (point) it.next();
+		        place pl = distribution.get(p);
+		        x10.lang.Runtime.runtime.setCurrentPlace(pl);
+		        char arg1 = get(p);
+		        char arg2 = arg_t.get(p);
+		        char val = op.apply(p, arg1, arg2);
+		        res_t.set(val, p);
+		    }
+		} finally {
+		    x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
 	}
 	
 	public void pointwise(CharArray res, Operator.Pointwise op) {
 	    assert res == null || res.distribution.equals(distribution);
         
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			char arg1 = get(p);
-			char val = op.apply(p, arg1);
-			if (res != null)
-			    res.set(val, p);
-		}
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            char arg1 = get(p);
+	            char val = op.apply(p, arg1);
+	            if (res != null)
+	                res.set(val, p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	public void reduction(Operator.Reduction op) {
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			char arg1 = get(p);
-			op.apply(arg1);
-		}
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                char arg1 = get(p);
+	            op.apply(arg1);
+	        } 
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	public void scan(CharArray res, Operator.Scan op) {
 	    assert res.distribution.equals(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			char arg1 = get(p);
-			res.set(op.apply(arg1), p);
-		}
+	    
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            char arg1 = get(p);
+	            res.set(op.apply(arg1), p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
-	  public void scan( CharArray res, pointwiseOp op ) {
-        assert res == null || res instanceof CharArray;
-        assert res.distribution.equals(distribution);
-
-        CharArray res_t = (res == null) ? null : (CharArray) res;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            char val = op.apply(p);
-            if (res_t != null)
-                res_t.set(val, p);
-        }
+	public void scan( CharArray res, pointwiseOp op ) {
+	    assert res == null || res instanceof CharArray;
+	    assert res.distribution.equals(distribution);
+	    
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    CharArray res_t = (res == null) ? null : (CharArray) res;
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            char val = op.apply(p);
+	            if (res_t != null)
+	                res_t.set(val, p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
     }
     
 	

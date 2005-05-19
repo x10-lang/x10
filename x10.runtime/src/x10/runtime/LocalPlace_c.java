@@ -293,7 +293,7 @@ public class LocalPlace_c extends Place {
         private Object vmto;
         // FIXME: move myClocks_ into the Activity base class
         private List myClocks_;
-        final Place place;
+        Place place;
         
         PoolRunner(Place p) {
             place = p;

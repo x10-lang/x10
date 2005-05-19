@@ -5,6 +5,7 @@ package x10.array;
 
 import java.util.Iterator;
 import x10.lang.dist;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.LongReferenceArray;
 
@@ -50,56 +51,93 @@ public abstract class LongArray extends LongReferenceArray {
 		
 		LongArray arg_t =  arg;
 		LongArray res_t = res;
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			long arg1 = get(p);
-			long arg2 = arg_t.get(p);
-			long val = op.apply(p, arg1, arg2);
-			res_t.set(val, p);
-		}
+        place here = x10.lang.Runtime.runtime.currentPlace();
+         
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                long arg1 = get(p);
+                long arg2 = arg_t.get(p);
+                long val = op.apply(p, arg1, arg2);
+                res_t.set(val, p);
+            }        
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }
 	}
 	
 	public void pointwise(LongArray res, Operator.Pointwise op) {
 	    assert res == null || res.distribution.equals(distribution);
-
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			long arg1 = get(p);
-			long val = op.apply(p, arg1);
-			if (res != null)
-			    res.set(val, p);
-		}
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                long arg1 = get(p);
+                long val = op.apply(p, arg1);
+                if (res != null)
+                    res.set(val, p);
+            } 
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }
 	}
 	
 	public void reduction(Operator.Reduction op) {
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			long arg1 = get(p);
-			op.apply(arg1);
-		}
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    
+        try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            long arg1 = get(p);
+	            op.apply(arg1);
+	        } 
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	public void scan(LongArray res, Operator.Scan op) {
 	    assert res != null;
         assert res.distribution.equals(distribution);
+        place here = x10.lang.Runtime.runtime.currentPlace();
         
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			long arg1 = get(p);
-			res.set(op.apply(arg1), p);
-		}
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                long arg1 = get(p);
+                res.set(op.apply(arg1), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }
 	}
 	
 	  public void scan(LongArray res, pointwiseOp op ) {
         assert res == null || res instanceof LongArray;
         assert res.distribution.equals(distribution);
-
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        
         LongArray res_t = (res == null) ? null : (LongArray) res;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            long val = op.apply(p);
-            if (res_t != null)
-                res_t.set(val, p);
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                long val = op.apply(p);
+                if (res_t != null)
+                    res_t.set(val, p);
+            } 
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
     

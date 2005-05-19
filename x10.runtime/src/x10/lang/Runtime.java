@@ -115,7 +115,9 @@ public abstract class Runtime {
      */
     protected abstract void run(String[] args) throws Exception;
 
-    public abstract Place currentPlace();
+    public abstract void setCurrentPlace(place p);
+    
+    public abstract place currentPlace();
     
     public abstract Place[] getPlaces();
     
@@ -124,9 +126,9 @@ public abstract class Runtime {
      * ('here' in X10).
      */
     public static Place here() {
-        Place p = runtime.currentPlace();
+        place p = runtime.currentPlace();
         assert p != null;
-    	return p;
+    	return (Place) p;
     }
     
     public static void checkHere(place p) {

@@ -9,6 +9,7 @@ import java.util.Iterator;
 import x10.compilergenerated.Parameter1;
 import x10.lang.dist;
 import x10.lang.point;
+import x10.lang.place;
 
 
 /**
@@ -70,78 +71,107 @@ public abstract class GenericArray extends x10.lang.GenericReferenceArray {
 
         GenericArray res_t = (GenericArray) res;
         GenericArray arg_t = (GenericArray) arg;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            Parameter1 arg1 = get(p);
-            Parameter1 arg2 = arg_t.get(p);
-            Parameter1 val = op.apply(p, arg1, arg2);
-            if (res_t != null)
-                res_t.set(val, p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();               
+                // for the execution of this operation, set 
+                // the current place of the activity temprarily to the one 
+                // specified by the distribution
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                Parameter1 arg1 = get(p);
+                Parameter1 arg2 = arg_t.get(p);
+                Parameter1 val = op.apply(p, arg1, arg2);
+                if (res_t != null)
+                    res_t.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
 
     public void pointwise(GenericArray res, Operator.Pointwise op) {
         assert res == null || res.distribution.equals(distribution);
-        
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            Parameter1 arg1 = get(p);
-            Parameter1 val = op.apply(p, arg1);
-            if (res != null)
-                res.set(val, p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                // for the execution of this operation, set 
+                // the current place of the activity temprarily to the one 
+                // specified by the distribution
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                Parameter1 arg1 = get(p);
+                Parameter1 val = op.apply(p, arg1);
+                if (res != null)
+                    res.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
 
     /* operations can be performed in any order */
     public void reduction(Operator.Reduction op) {
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            Parameter1 arg1 = get(p);
-            op.apply(arg1);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                Parameter1 arg1 = get(p);
+                op.apply(arg1);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }    
     }
 
     /* operations are performed in canonical order */
     public void scan( GenericArray res, Operator.Scan op ) {
         assert res == null || res instanceof GenericArray;
         assert res.distribution.equals(distribution);
-
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        
         GenericArray res_t = (res == null) ? null : (GenericArray) res;
-        
-        if(false){
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            Parameter1 arg1 = get(p);
-            Parameter1 val = op.apply(arg1);
-            if (res_t != null)
-                res_t.set(val, p);
-        }
-        }
-        
-        int high = distribution.region.size();
-		for(int i=0;i < high;++i){
-			Parameter1 arg1 = res.getOrdinal(i);
-			Parameter1 val = op.apply(arg1);
-			if (res_t != null)
-				res_t.setOrdinal(op.apply(arg1),i);
-		}
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                Parameter1 arg1 = get(p);
+                Parameter1 val = op.apply(arg1);
+                if (res_t != null)
+                    res_t.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }    
     }
     
     public void scan( GenericArray res, GenericArray.pointwiseOp op ) {
         assert res == null || res instanceof GenericArray;
         assert res.distribution.equals(distribution);
-
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        
         GenericArray res_t = (res == null) ? null : (GenericArray) res;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            Parameter1 val = op.apply(p);
-            if (res_t != null)
-                res_t.set(val, p);
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                Parameter1 val = op.apply(p);
+                if (res_t != null)
+                    res_t.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
     
-    
-
     public void circshift(Parameter1[] args) {
         throw new RuntimeException("TODO");
     }
