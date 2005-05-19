@@ -707,6 +707,14 @@ public TestCompiler(String name) {
         run("./NullableObject3.x10","NullableObject3","./Constructs/Nullable");
     }
 
+    public void test_Constructs_PlaceCast_PlaceCast() {
+        run("./PlaceCast.x10","PlaceCast","./Constructs/PlaceCast");
+    }
+
+    public void test_Constructs_PlaceCast_PlaceCast2() {
+        run("./PlaceCast2.x10","PlaceCast2","./Constructs/PlaceCast");
+    }
+
     public void test_Constructs_Region_RegionAlgebra() {
         run("./RegionAlgebra.x10","RegionAlgebra","./Constructs/Region");
     }
