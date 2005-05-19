@@ -324,7 +324,18 @@ public class DefaultRuntime_c
         }
     }
 
-    public synchronized Place currentPlace() {
+    public synchronized void setCurrentPlace(place p) {
+        assert p != null;
+        Thread t = Thread.currentThread();
+        if (t instanceof LocalPlace_c.PoolRunner) {
+            LocalPlace_c.PoolRunner pr = (LocalPlace_c.PoolRunner) t;
+            pr.place = (Place) p;
+        } else {
+            thread2place_.put(t, p);
+        }
+    }
+    
+    public synchronized place currentPlace() {
         if (places_[0] == null) 
             initialize();
         if (places_.length == 1)

@@ -5,7 +5,9 @@
 package x10.array;
 
 import java.util.Iterator;
+
 import x10.lang.dist;
+import x10.lang.place;
 import x10.lang.point;
 
 
@@ -69,34 +71,56 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
 
         IntArray res_t = (IntArray) res;
         IntArray arg_t = (IntArray) arg;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            int arg1 = get(p);
-            int arg2 = arg_t.get(p);
-            int val = op.apply(p, arg1, arg2);
-            if (res_t != null)
-                res_t.set(val, p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                int arg1 = get(p);
+                int arg2 = arg_t.get(p);
+                int val = op.apply(p, arg1, arg2);
+                if (res_t != null)
+                    res_t.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
 
     public void pointwise(IntArray res, Operator.Pointwise op) {
         assert res == null || res.distribution.equals(distribution);
+        place here = x10.lang.Runtime.runtime.currentPlace();
         
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            int arg1 = get(p);
-            int val = op.apply(p, arg1);
-            if (res != null)
-                res.set(val, p);
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                int arg1 = get(p);
+                int val = op.apply(p, arg1);
+                if (res != null)
+                    res.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
 
     /* operations can be performed in any order */
     public void reduction(Operator.Reduction op) {
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            int arg1 = get(p);
-            op.apply(arg1);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl); 
+                int arg1 = get(p);
+                op.apply(arg1);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
 
@@ -104,32 +128,43 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
     public void scan( IntArray res, Operator.Scan op ) {
     	assert res == null || res instanceof IntArray;
     	assert res.distribution.equals(distribution);
-    	
+    	place here = x10.lang.Runtime.runtime.currentPlace();
     	IntArray res_t = (res == null) ? null : (IntArray) res;
     	
-    	int high = distribution.region.size();
-    	for(int i=0;i < high;++i){
-    		int arg1 = res.getOrdinal(i);
-    		res.setOrdinal(op.apply(arg1),i);
-    		
+    	try {
+    	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+    	        point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                int arg1 = get(p);
+                int val = op.apply(arg1);
+                if (res_t != null)
+                    res_t.set(val, p);
+            }
+    	} finally {
+    	    x10.lang.Runtime.runtime.setCurrentPlace(here);
     	}
     }
     
     public void scan( IntArray res, IntArray.pointwiseOp op ) {
         assert res == null || res instanceof IntArray;
         assert res.distribution.equals(distribution);
-
+        place here = x10.lang.Runtime.runtime.currentPlace();
         IntArray res_t = (res == null) ? null : (IntArray) res;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            int val = op.apply(p);
-            if (res_t != null)
-                res_t.set(val, p);
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl); 
+                int val = op.apply(p);
+                if (res_t != null)
+                    res_t.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
     
-    
-
     public void circshift(int[] args) {
         throw new RuntimeException("TODO");
     }

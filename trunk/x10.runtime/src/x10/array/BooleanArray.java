@@ -5,6 +5,7 @@ package x10.array;
 
 import java.util.Iterator;
 import x10.lang.dist;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.BooleanReferenceArray;
 
@@ -47,61 +48,95 @@ public abstract class BooleanArray extends BooleanReferenceArray {
 	public void pointwise(BooleanArray res, Operator.Pointwise op, BooleanArray arg) {
 	    assert res.distribution.equals(distribution);
         assert arg.distribution.equals(distribution);
-		
+
+        place here = x10.lang.Runtime.runtime.currentPlace();
 		BooleanArray arg_t =  arg;
 		BooleanArray res_t = res;
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			boolean arg1 = get(p);
-			boolean arg2 = arg_t.get(p);
-			boolean val = op.apply(p, arg1, arg2);
-			res_t.set(val, p);
+		try {
+		    for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {		        
+		        point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+		        boolean arg1 = get(p);
+		        boolean arg2 = arg_t.get(p);
+		        boolean val = op.apply(p, arg1, arg2);
+		        res_t.set(val, p);
+		    } 
+		} finally {
+		    x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
 	}
 	
 	public void pointwise(BooleanArray res, Operator.Pointwise op) {
 	    assert res == null || res.distribution.equals(distribution);
-        
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			boolean arg1 = get(p);
-			boolean val = op.apply(p, arg1);
-			if (res != null)
-			    res.set(val, p);
-		}
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            boolean arg1 = get(p);
+	            boolean val = op.apply(p, arg1);
+	            if (res != null)
+	                res.set(val, p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	public void reduction(Operator.Reduction op) {
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			boolean arg1 = get(p);
-			op.apply(arg1);
-		}
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            boolean arg1 = get(p);
+	            op.apply(arg1);
+	        } 
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	public void scan(BooleanArray res, Operator.Scan op) {
 	    assert res.distribution.equals(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			boolean arg1 = get(p);
-			res.set(op.apply(arg1), p);
-		}
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            boolean arg1 = get(p);
+	            res.set(op.apply(arg1), p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	  public void scan( BooleanArray res, pointwiseOp op ) {
         assert res == null || res instanceof BooleanArray;
         assert res.distribution.equals(distribution);
-
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        
         BooleanArray res_t = (res == null) ? null : (BooleanArray) res;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            boolean val = op.apply(p);
-            if (res_t != null)
-                res_t.set(val, p);
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                boolean val = op.apply(p);
+                if (res_t != null)
+                    res_t.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
-    
-	
+    	
 	public void circshift (int[] args) {
 		throw new RuntimeException("TODO");
 	}

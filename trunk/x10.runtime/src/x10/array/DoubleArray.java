@@ -5,6 +5,7 @@ package x10.array;
 
 import java.util.Iterator;
 import x10.lang.dist;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.DoubleReferenceArray;
 
@@ -47,46 +48,74 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 	public void pointwise(DoubleArray res, Operator.Pointwise op, DoubleArray arg) {
 	    assert res.distribution.equals(distribution);
         assert arg.distribution.equals(distribution);
-		
-		DoubleArray arg_t =  arg;
-		DoubleArray res_t = res;
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			double arg1 = get(p);
-			double arg2 = arg_t.get(p);
-			double val = op.apply(p, arg1, arg2);
-			res_t.set(val, p);
-		}
+        
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        DoubleArray arg_t =  arg;
+        DoubleArray res_t = res;
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                double arg1 = get(p);
+                double arg2 = arg_t.get(p);
+                double val = op.apply(p, arg1, arg2);
+                res_t.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        } 
 	}
 	
 	public void pointwise(DoubleArray res, Operator.Pointwise op) {
 	    assert res == null || res.distribution.equals(distribution);
         
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			double arg1 = get(p);
-			double val = op.apply(p, arg1);
-			if (res != null)
-			    res.set(val, p);
-		}
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                double arg1 = get(p);
+                double val = op.apply(p, arg1);
+                if (res != null)
+                    res.set(val, p);
+            }
+		} finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        } 
 	}
 	
 	public void reduction(Operator.Reduction op) {
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			double arg1 = get(p);
-			op.apply(arg1);
-		}
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            double arg1 = get(p);
+	            op.apply(arg1);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    } 
 	}
 	
 	public void scan(DoubleArray res, Operator.Scan op) {
 		assert res.distribution.equals(distribution);
-		
-		int high = distribution.region.size();
-		for(int i=0;i < high;++i){
-			double arg1 = res.getOrdinal(i);
-			res.setOrdinal(op.apply(arg1),i);
-		}
+		place here = x10.lang.Runtime.runtime.currentPlace();
+        
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                double arg1 = get(p);
+                res.set(op.apply(arg1), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }
 	}
 	
 	
@@ -94,13 +123,20 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 		assert res == null || res instanceof DoubleArray;
 		assert res.distribution.equals(distribution);
 		
+        place here = x10.lang.Runtime.runtime.currentPlace();
 		DoubleArray res_t = (res == null) ? null : (DoubleArray) res;
-		for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-			point p = (point) it.next();
-			double val = op.apply(p);
-			if (res_t != null)
-				res_t.set(val, p);
-		}
+		try {
+		    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+		        point p = (point) it.next();
+		        place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                double val = op.apply(p);
+		        if (res_t != null)
+		            res_t.set(val, p);
+		    }
+		} finally {
+		    x10.lang.Runtime.runtime.setCurrentPlace(here);
+		} 
 		
 	}
     

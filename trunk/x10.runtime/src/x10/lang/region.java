@@ -65,7 +65,7 @@ public abstract /*value*/ class region extends Object implements TypeArgument {
 		return region(new region[] { a, b });
 	    }
 	    public  region/*1*/ region( region a) {
-		return region(new region[] { a });
+		return a; // TODO: cvp --> vj why this: region(new region[] { a });
 	    }
 	    public  region/*3*/ region( region a, region b, region c) {
 		return region(new region[] { a, b,c });

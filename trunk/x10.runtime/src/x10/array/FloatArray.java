@@ -5,6 +5,7 @@ package x10.array;
 
 import java.util.Iterator;
 import x10.lang.dist;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.FloatReferenceArray;
 
@@ -44,62 +45,98 @@ public abstract class FloatArray extends FloatReferenceArray {
 	 * Generic implementation - an array with fixed, known number of dimensions
 	 * can of course do without the Iterator.
 	 */
-	public void pointwise(FloatArray res, Operator.Pointwise op, FloatArray arg) {
-	    assert res.distribution.equals(distribution);
+    public void pointwise(FloatArray res, Operator.Pointwise op, FloatArray arg) {
+        assert res.distribution.equals(distribution);
         assert arg.distribution.equals(distribution);
-		
-		FloatArray arg_t =  arg;
-		FloatArray res_t = res;
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			float arg1 = get(p);
-			float arg2 = arg_t.get(p);
-			float val = op.apply(p, arg1, arg2);
-			res_t.set(val, p);
-		}
-	}
+        
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        FloatArray arg_t =  arg;
+        FloatArray res_t = res;
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                float arg1 = get(p);
+                float arg2 = arg_t.get(p);
+                float val = op.apply(p, arg1, arg2);
+                res_t.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }
+    }
 	
 	public void pointwise(FloatArray res, Operator.Pointwise op) {
 	    assert res == null || res.distribution.equals(distribution);
-        
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			float arg1 = get(p);
-			float val = op.apply(p, arg1);
-			if (res != null)
-			    res.set(val, p);
-		}
+	    
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            float arg1 = get(p);
+	            float val = op.apply(p, arg1);
+	            if (res != null)
+	                res.set(val, p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	public void reduction(Operator.Reduction op) {
-		for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			float arg1 = get(p);
-			op.apply(arg1);
-		}
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            float arg1 = get(p);
+	            op.apply(arg1);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
 	public void scan(FloatArray res, Operator.Scan op) {
 	    assert res.distribution.equals(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			float arg1 = get(p);
-			res.set(op.apply(arg1), p);
-		}
+	    
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            float arg1 = get(p);
+	            res.set(op.apply(arg1), p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
 	}
 	
-	  public void scan( FloatArray res, pointwiseOp op ) {
-        assert res == null || res instanceof FloatArray;
-        assert res.distribution.equals(distribution);
-
-        FloatArray res_t = (res == null) ? null : (FloatArray) res;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            float val = op.apply(p);
-            if (res_t != null)
-                res_t.set(val, p);
-        }
-    }
+	public void scan( FloatArray res, pointwiseOp op ) {
+	    assert res == null || res instanceof FloatArray;
+	    assert res.distribution.equals(distribution);
+	    
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    FloatArray res_t = (res == null) ? null : (FloatArray) res;
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();	              
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            float val = op.apply(p);
+	            if (res_t != null)
+	                res_t.set(val, p);
+	        } 
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }
+	}
     
 	
 	public void circshift (int[] args) {
