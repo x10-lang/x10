@@ -551,6 +551,10 @@ public TestCompiler(String name) {
         run("./ImplicitFinal.x10","ImplicitFinal","./Constructs/Final");
     }
 
+    public void test_Constructs_Final_ImplicitFinal2() {
+        run("./ImplicitFinal2.x10","ImplicitFinal2","./Constructs/Final");
+    }
+
     public void test_Constructs_Finish_FinishTest1() {
         run("./FinishTest1.x10","FinishTest1","./Constructs/Finish");
     }
@@ -845,6 +849,10 @@ public TestCompiler(String name) {
 
     public void test_Timings_Initialization() {
         run("./Initialization.x10","Initialization","./Timings");
+    }
+
+    public void test_Timings_IntArrayIndexing() {
+        run("./IntArrayIndexing.x10","IntArrayIndexing","./Timings");
     }
 
     public static void main(String args[]) {
