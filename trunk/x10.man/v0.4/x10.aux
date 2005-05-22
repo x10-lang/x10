@@ -23,6 +23,8 @@
 \@writefile{toc}{\contentsline {section}{\numberline {1.8}Translating MPI programs to {\sf  X10}{}}{4}}
 \citation{zpl}
 \citation{jls2}
+\citation{jls2}
+\citation{jls2}
 \@writefile{toc}{\contentsline {section}{\numberline {1.9}Summary and future work}{5}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.9.1}Design for scalability}{5}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.9.2}Design for productivity}{5}}
@@ -32,11 +34,9 @@
 \@writefile{toc}{\contentsline {chapter}{\numberline {2}Lexical structure}{5}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\citation{jls2}
-\citation{jls2}
-\@writefile{toc}{\contentsline {paragraph}{Whitespace}{6}}
-\@writefile{toc}{\contentsline {paragraph}{Comments}{6}}
-\@writefile{toc}{\contentsline {paragraph}{Identifiers}{6}}
+\@writefile{toc}{\contentsline {paragraph}{Whitespace}{5}}
+\@writefile{toc}{\contentsline {paragraph}{Comments}{5}}
+\@writefile{toc}{\contentsline {paragraph}{Identifiers}{5}}
 \@writefile{toc}{\contentsline {paragraph}{Keywords}{6}}
 \newlabel{Literals}{{2}{6}}
 \@writefile{toc}{\contentsline {paragraph}{Literals}{6}}
@@ -48,18 +48,18 @@
 \newlabel{XtenTypes}{{3}{6}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.1}Type constructors}{6}}
 \newlabel{TypeConstructors}{{3.1}{6}}
+\newlabel{InterfaceTypes}{{3.1}{6}}
+\@writefile{toc}{\contentsline {paragraph}{Interface declarations.}{6}}
 \citation{jls2}
-\newlabel{InterfaceTypes}{{3.1}{7}}
-\@writefile{toc}{\contentsline {paragraph}{Interface declarations.}{7}}
 \newlabel{ReferenceTypes}{{3.1}{7}}
 \@writefile{toc}{\contentsline {paragraph}{Reference class declarations.}{7}}
 \@writefile{toc}{\contentsline {paragraph}{Value class declarations.}{7}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.2}The Nullable Type Constructor}{7}}
 \newlabel{NullableTypeConstructor}{{3.2}{7}}
 \@writefile{toc}{\contentsline {paragraph}{Conversions}{7}}
-\@writefile{toc}{\contentsline {paragraph}{Arrays of nullary type}{8}}
-\@writefile{toc}{\contentsline {paragraph}{Implementation notes}{8}}
-\@writefile{toc}{\contentsline {paragraph}{{\sf  Java}{} compatibility}{8}}
+\@writefile{toc}{\contentsline {paragraph}{Arrays of nullary type}{7}}
+\@writefile{toc}{\contentsline {paragraph}{Implementation notes}{7}}
+\@writefile{toc}{\contentsline {paragraph}{{\sf  Java}{} compatibility}{7}}
 \@writefile{toc}{\contentsline {paragraph}{Design rationale}{8}}
 \@writefile{toc}{\contentsline {paragraph}{Examples}{8}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.3}Future type constructor}{8}}
@@ -70,27 +70,28 @@
 \newlabel{anywhere}{{3.5}{9}}
 \@writefile{toc}{\contentsline {paragraph}{The anywhere place type}{9}}
 \@writefile{toc}{\contentsline {paragraph}{Place expression in place types.}{9}}
-\newlabel{SharedPlaces}{{3.5}{10}}
-\newlabel{ScopedPlaces}{{3.5}{10}}
-\@writefile{toc}{\contentsline {paragraph}{ Future work }{10}}
+\newlabel{SharedPlaces}{{3.5}{9}}
+\newlabel{ScopedPlaces}{{3.5}{9}}
+\@writefile{toc}{\contentsline {paragraph}{ Future work }{9}}
+\citation{jls2}
+\citation{jls2}
 \@writefile{toc}{\contentsline {paragraph}{{\tt  current}}{10}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.6}Variables}{10}}
 \newlabel{XtenVariables}{{3.6}{10}}
-\citation{jls2}
-\citation{jls2}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.1}Final variables}{11}}
-\newlabel{FinalVariable}{{3.6.1}{11}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.2}Initial values of variables}{11}}
-\newlabel{NullaryConstructor}{{3.6.2}{11}}
-\cb@barpoint{1}{22}{2.0pt}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.1}Final variables}{10}}
+\newlabel{FinalVariable}{{3.6.1}{10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.2}Initial values of variables}{10}}
+\newlabel{NullaryConstructor}{{3.6.2}{10}}
+\cb@barpoint{1}{20}{2.0pt}
 \cb@barpoint{4}{22}{2.0pt}
 \@writefile{toc}{\contentsline {section}{\numberline {3.7}Objects}{11}}
 \newlabel{XtenObjects}{{3.7}{11}}
 \cb@barpoint{5}{22}{2.0pt}
 \cb@barpoint{8}{22}{2.0pt}
+\@writefile{toc}{\contentsline {section}{\numberline {3.8}Built-in types}{11}}
+\cb@barpoint{9}{22}{2.0pt}
 \citation{kava}
-\@writefile{toc}{\contentsline {section}{\numberline {3.8}Built-in types}{12}}
-\cb@barpoint{9}{24}{2.0pt}
+\citation{jls2}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.8.1}The class {\tt  Object}}{12}}
 \newlabel{Object}{{3.8.1}{12}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.8.2}The class {\tt  String}}{12}}
@@ -100,190 +101,189 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.8.5}Java utility classes}{12}}
 \@writefile{toc}{\contentsline {paragraph}{Future extensions.}{12}}
 \cb@barpoint{12}{24}{2.0pt}
-\citation{jls2}
-\@writefile{toc}{\contentsline {section}{\numberline {3.9}Conversions and Promotions}{13}}
-\newlabel{XtenConversions}{{3.9}{13}}
-\newlabel{XtenPromotions}{{3.9}{13}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Names and packages}{13}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.9}Conversions and Promotions}{12}}
+\newlabel{XtenConversions}{{3.9}{12}}
+\newlabel{XtenPromotions}{{3.9}{12}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Names and packages}{12}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{packages}{{4}{13}}
-\newlabel{LexicalConventionForFinals}{{4}{13}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Places}{13}}
+\newlabel{packages}{{4}{12}}
+\newlabel{LexicalConventionForFinals}{{4}{12}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Places}{12}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{XtenPlaces}{{5}{13}}
-\cb@barpoint{13}{26}{2.0pt}
+\newlabel{XtenPlaces}{{5}{12}}
+\cb@barpoint{13}{24}{2.0pt}
 \@writefile{toc}{\contentsline {paragraph}{Static semantics.}{13}}
 \cb@barpoint{16}{26}{2.0pt}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.0.1}Place expressions}{13}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.0.2}{\tt  here}}{13}}
 \newlabel{Here}{{5.0.2}{13}}
 \@writefile{toc}{\contentsline {paragraph}{Example.}{13}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Activities}{14}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Activities}{13}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{XtenActivities}{{6}{14}}
-\@writefile{toc}{\contentsline {paragraph}{Future extensions.}{14}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.1}The {\sf  X10}{} rooted exception model}{14}}
-\newlabel{ExceptionModel}{{6.1}{14}}
+\newlabel{XtenActivities}{{6}{13}}
+\@writefile{toc}{\contentsline {paragraph}{Future extensions.}{13}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}The {\sf  X10}{} rooted exception model}{13}}
+\newlabel{ExceptionModel}{{6.1}{13}}
 \@writefile{toc}{\contentsline {section}{\numberline {6.2}Spawning an activity}{14}}
 \newlabel{AsynchronousActivity}{{6.2}{14}}
 \newlabel{AsyncActivity}{{6.2}{14}}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{15}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.3}Finish}{15}}
-\newlabel{finish}{{6.3}{15}}
+\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{14}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.3}Finish}{14}}
+\newlabel{finish}{{6.3}{14}}
 \cb@barpoint{17}{30}{2.0pt}
 \@writefile{toc}{\contentsline {paragraph}{Static semantics.}{15}}
 \cb@barpoint{20}{30}{2.0pt}
 \@writefile{toc}{\contentsline {paragraph}{Future extensions.}{15}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.4}Initial activity}{16}}
-\newlabel{initial-computation}{{6.4}{16}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.5}Asynchronous Expression and Futures}{16}}
-\newlabel{XtenFutures}{{6.5}{16}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.5.1}Implementation notes}{16}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.4}Initial activity}{15}}
+\newlabel{initial-computation}{{6.4}{15}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.5}Asynchronous Expression and Futures}{15}}
+\newlabel{XtenFutures}{{6.5}{15}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5.1}Implementation notes}{15}}
+\citation{herlihy91waitfree}
 \@writefile{toc}{\contentsline {section}{\numberline {6.6}Atomic blocks}{16}}
 \newlabel{AtomicBlocks}{{6.6}{16}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.6.1}Unconditional atomic blocks}{16}}
-\citation{herlihy91waitfree}
+\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{16}}
+\newlabel{LocalityCondition}{{6.6.1}{16}}
+\@writefile{toc}{\contentsline {subsubsection}{Example}{16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.6.2}Conditional atomic blocks}{16}}
 \@writefile{toc}{\contentsline {paragraph}{Static semantics.}{17}}
-\newlabel{LocalityCondition}{{6.6.1}{17}}
-\@writefile{toc}{\contentsline {subsubsection}{Example}{17}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.6.2}Conditional atomic blocks}{17}}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{17}}
-\@writefile{toc}{\contentsline {paragraph}{Sample usage.}{18}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.6.3}Examples}{18}}
-\@writefile{toc}{\contentsline {paragraph}{Bounded buffer.}{18}}
-\newlabel{future-imp}{{6.6.3}{18}}
-\@writefile{toc}{\contentsline {paragraph}{ Implementing a future with a latch.}{18}}
-\@writefile{toc}{\contentsline {paragraph}{A future to execute a statement.}{19}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.7}Remote Method Invocation}{19}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.8}Iteration}{19}}
-\newlabel{ForLoop}{{6.8}{19}}
-\newlabel{ForAllLoop}{{6.8}{19}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {7}Clocks}{20}}
+\@writefile{toc}{\contentsline {paragraph}{Sample usage.}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.6.3}Examples}{17}}
+\@writefile{toc}{\contentsline {paragraph}{Bounded buffer.}{17}}
+\newlabel{future-imp}{{6.6.3}{17}}
+\@writefile{toc}{\contentsline {paragraph}{ Implementing a future with a latch.}{17}}
+\@writefile{toc}{\contentsline {paragraph}{A future to execute a statement.}{18}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.7}Remote Method Invocation}{18}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.8}Iteration}{18}}
+\newlabel{ForLoop}{{6.8}{18}}
+\newlabel{ForAllLoop}{{6.8}{18}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Clocks}{19}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{XtenClocks}{{7}{20}}
-\cb@barpoint{21}{40}{2.0pt}
-\@writefile{toc}{\contentsline {section}{\numberline {7.1}Clock operations}{20}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.1}Creating new clocks}{20}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.2}Registering new activities on clocks}{21}}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{21}}
+\newlabel{XtenClocks}{{7}{19}}
+\cb@barpoint{21}{38}{2.0pt}
+\@writefile{toc}{\contentsline {section}{\numberline {7.1}Clock operations}{19}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.1}Creating new clocks}{19}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.2}Registering new activities on clocks}{20}}
+\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{20}}
+\@writefile{toc}{\contentsline {paragraph}{Note.}{20}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.3}Resuming clocks}{20}}
+\newlabel{resume}{{7.1.3}{20}}
+\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{20}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.4}Advancing clocks}{20}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.5}Dropping clocks}{20}}
+\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{20}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.6}Posting statements on a clock}{20}}
+\citation{jls2}
+\citation{jls2}
 \@writefile{toc}{\contentsline {paragraph}{Note.}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.3}Resuming clocks}{21}}
-\newlabel{resume}{{7.1.3}{21}}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.4}Advancing clocks}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.5}Dropping clocks}{21}}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.6}Posting statements on a clock}{21}}
-\citation{jls2}
-\citation{jls2}
-\@writefile{toc}{\contentsline {paragraph}{Note.}{22}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.7}Program equivalences}{22}}
-\cb@barpoint{24}{44}{2.0pt}
-\@writefile{toc}{\contentsline {chapter}{\numberline {8}Interfaces}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.7}Program equivalences}{21}}
+\cb@barpoint{24}{42}{2.0pt}
+\@writefile{toc}{\contentsline {chapter}{\numberline {8}Interfaces}{21}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{XtenInterfaces}{{8}{22}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {9}Classes}{22}}
+\newlabel{XtenInterfaces}{{8}{21}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {9}Classes}{21}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{XtenClasses}{{9}{22}}
-\@writefile{toc}{\contentsline {section}{\numberline {9.1}Reference classes}{22}}
-\newlabel{ReferenceClasses}{{9.1}{22}}
-\@writefile{toc}{\contentsline {section}{\numberline {9.2}Value classes}{22}}
-\newlabel{ValueClasses}{{9.2}{22}}
-\cb@barpoint{25}{44}{2.0pt}
-\cb@barpoint{28}{44}{2.0pt}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{23}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.2.1}Representation}{23}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.2.2}Example}{23}}
-\cb@barpoint{29}{46}{2.0pt}
-\cb@barpoint{32}{46}{2.0pt}
-\@writefile{toc}{\contentsline {section}{\numberline {9.3}Method annotations}{23}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.3.1}{\tt  atomic} annotation}{23}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.3.2}{\tt  local} annotation}{23}}
-\newlabel{LocalAnnotation}{{9.3.2}{23}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {10}Arrays}{24}}
+\newlabel{XtenClasses}{{9}{21}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.1}Reference classes}{21}}
+\newlabel{ReferenceClasses}{{9.1}{21}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.2}Value classes}{21}}
+\newlabel{ValueClasses}{{9.2}{21}}
+\cb@barpoint{25}{42}{2.0pt}
+\cb@barpoint{28}{42}{2.0pt}
+\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2.1}Representation}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2.2}Example}{22}}
+\cb@barpoint{29}{44}{2.0pt}
+\cb@barpoint{32}{44}{2.0pt}
+\@writefile{toc}{\contentsline {section}{\numberline {9.3}Method annotations}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.3.1}{\tt  atomic} annotation}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.3.2}{\tt  local} annotation}{22}}
+\newlabel{LocalAnnotation}{{9.3.2}{22}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {10}Arrays}{23}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{XtenArrays}{{10}{24}}
-\@writefile{toc}{\contentsline {section}{\numberline {10.1}Regions}{24}}
-\newlabel{XtenRegions}{{10.1}{24}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.1.1}Operations on Regions}{25}}
-\@writefile{toc}{\contentsline {section}{\numberline {10.2}Distributions}{25}}
-\newlabel{XtenDistributions}{{10.2}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.1}Operations returning distributions}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Unique distribution}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Constant distributions.}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Block distributions.}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Cyclic distributions.}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Block cyclic distributions.}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Arbitrary distributions.}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Domain Restriction.}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Range Restriction.}{26}}
-\cb@barpoint{33}{52}{2.0pt}
-\cb@barpoint{36}{52}{2.0pt}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.2}User-defined distributions}{26}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.3}Operations on Distributions}{26}}
-\@writefile{toc}{\contentsline {paragraph}{Intersection of distributions.}{26}}
-\@writefile{toc}{\contentsline {paragraph}{Asymmetric union of distributions.}{26}}
-\@writefile{toc}{\contentsline {paragraph}{Disjoint union of distributions.}{26}}
-\@writefile{toc}{\contentsline {paragraph}{Difference of distributions.}{26}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.4}Example}{26}}
-\@writefile{toc}{\contentsline {section}{\numberline {10.3}Array initializer}{26}}
-\newlabel{ArrayInitializer}{{10.3}{26}}
-\newlabel{array!creation}{{10.3}{26}}
-\@writefile{toc}{\contentsline {section}{\numberline {10.4}Operations on arrays}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.1}Element operations}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.2}Constant promotion}{27}}
-\newlabel{ConstantArray}{{10.4.2}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.3}Restriction of an array}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.4}Assembling an array}{27}}
-\@writefile{toc}{\contentsline {paragraph}{Assembling arrays over disjoint regions}{27}}
-\@writefile{toc}{\contentsline {paragraph}{Overlaying an array on another}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.5}Global operations }{27}}
-\newlabel{ArrayPointwise}{{10.4.5}{27}}
-\@writefile{toc}{\contentsline {paragraph}{Pointwise operations}{27}}
-\newlabel{ArrayReductions}{{10.4.5}{27}}
-\@writefile{toc}{\contentsline {paragraph}{Reductions}{27}}
-\newlabel{ArrayScans}{{10.4.5}{27}}
-\@writefile{toc}{\contentsline {paragraph}{Scans}{27}}
+\newlabel{XtenArrays}{{10}{23}}
+\@writefile{toc}{\contentsline {section}{\numberline {10.1}Regions}{23}}
+\newlabel{XtenRegions}{{10.1}{23}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.1.1}Operations on Regions}{24}}
+\@writefile{toc}{\contentsline {section}{\numberline {10.2}Distributions}{24}}
+\newlabel{XtenDistributions}{{10.2}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.1}Operations returning distributions}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Unique distribution}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Constant distributions.}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Block distributions.}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Cyclic distributions.}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Block cyclic distributions.}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Arbitrary distributions.}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Domain Restriction.}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Range Restriction.}{24}}
+\cb@barpoint{33}{48}{2.0pt}
+\cb@barpoint{36}{48}{2.0pt}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.2}User-defined distributions}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.3}Operations on Distributions}{25}}
+\@writefile{toc}{\contentsline {paragraph}{Intersection of distributions.}{25}}
+\@writefile{toc}{\contentsline {paragraph}{Asymmetric union of distributions.}{25}}
+\@writefile{toc}{\contentsline {paragraph}{Disjoint union of distributions.}{25}}
+\@writefile{toc}{\contentsline {paragraph}{Difference of distributions.}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.4}Example}{25}}
+\@writefile{toc}{\contentsline {section}{\numberline {10.3}Array initializer}{25}}
+\newlabel{ArrayInitializer}{{10.3}{25}}
+\newlabel{array!creation}{{10.3}{25}}
+\@writefile{toc}{\contentsline {section}{\numberline {10.4}Operations on arrays}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.1}Element operations}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.2}Constant promotion}{26}}
+\newlabel{ConstantArray}{{10.4.2}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.3}Restriction of an array}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.4}Assembling an array}{26}}
+\@writefile{toc}{\contentsline {paragraph}{Assembling arrays over disjoint regions}{26}}
+\@writefile{toc}{\contentsline {paragraph}{Overlaying an array on another}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.5}Global operations }{26}}
+\newlabel{ArrayPointwise}{{10.4.5}{26}}
+\@writefile{toc}{\contentsline {paragraph}{Pointwise operations}{26}}
+\newlabel{ArrayReductions}{{10.4.5}{26}}
+\@writefile{toc}{\contentsline {paragraph}{Reductions}{26}}
+\newlabel{ArrayScans}{{10.4.5}{26}}
+\@writefile{toc}{\contentsline {paragraph}{Scans}{26}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {11}Statements and Expressions}{26}}
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{XtenStatements}{{11}{26}}
 \citation{jls2}
 \citation{gjspec}
-\@writefile{toc}{\contentsline {chapter}{\numberline {11}Statements and Expressions}{28}}
-\@writefile{lof}{\addvspace {10\p@ }}
-\@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{XtenStatements}{{11}{28}}
-\@writefile{toc}{\contentsline {section}{\numberline {11.1}Assignment}{28}}
-\newlabel{AssignmentStatement}{{11.1}{28}}
-\@writefile{toc}{\contentsline {section}{\numberline {11.2}Point and region construction}{28}}
-\newlabel{point-syntax}{{11.2}{28}}
-\@writefile{toc}{\contentsline {section}{\numberline {11.3}Exploded variable declarations}{28}}
-\newlabel{exploded-syntax}{{11.3}{28}}
-\@writefile{toc}{\contentsline {paragraph}{Example.}{28}}
-\@writefile{toc}{\contentsline {section}{\numberline {11.4}Expressions}{28}}
-\newlabel{XtenExpressions}{{11.4}{28}}
+\@writefile{toc}{\contentsline {section}{\numberline {11.1}Assignment}{27}}
+\newlabel{AssignmentStatement}{{11.1}{27}}
+\@writefile{toc}{\contentsline {section}{\numberline {11.2}Point and region construction}{27}}
+\newlabel{point-syntax}{{11.2}{27}}
+\@writefile{toc}{\contentsline {section}{\numberline {11.3}Exploded variable declarations}{27}}
+\newlabel{exploded-syntax}{{11.3}{27}}
+\@writefile{toc}{\contentsline {paragraph}{Example.}{27}}
+\@writefile{toc}{\contentsline {section}{\numberline {11.4}Expressions}{27}}
+\newlabel{XtenExpressions}{{11.4}{27}}
+\newlabel{FieldAccess}{{11.4}{27}}
+\newlabel{ClassCreation}{{11.4}{27}}
+\newlabel{MethodInvocation}{{11.4}{27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.4.1}The classcast operator}{27}}
+\newlabel{ClassCast}{{11.4.1}{27}}
 \citation{jls2}
-\newlabel{FieldAccess}{{11.4}{29}}
-\newlabel{ClassCreation}{{11.4}{29}}
-\newlabel{MethodInvocation}{{11.4}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {11.4.1}The classcast operator}{29}}
-\newlabel{ClassCast}{{11.4.1}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {11.4.2}{\tt  instanceof} operator}{29}}
-\newlabel{instanceOf}{{11.4.2}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {11.4.3}Stable equality.}{29}}
-\newlabel{StableEquality}{{11.4.3}{29}}
-\cb@barpoint{37}{58}{2.0pt}
-\cb@barpoint{40}{58}{2.0pt}
-\@writefile{toc}{\contentsline {section}{\numberline {11.5}Linking with native code}{29}}
-\newlabel{extern}{{11.5}{29}}
-\@writefile{toc}{\contentsline {paragraph}{Example.}{30}}
-\@writefile{toc}{\contentsline {chapter}{Example}{30}}
-\@writefile{toc}{\contentsline {chapter}{{\sf  X10}{} syntax}{32}}
-\newlabel{X10 syntax}{{11.5}{32}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.4.2}{\tt  instanceof} operator}{28}}
+\newlabel{instanceOf}{{11.4.2}{28}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.4.3}Stable equality.}{28}}
+\newlabel{StableEquality}{{11.4.3}{28}}
+\cb@barpoint{37}{56}{2.0pt}
+\cb@barpoint{40}{56}{2.0pt}
+\@writefile{toc}{\contentsline {section}{\numberline {11.5}Linking with native code}{28}}
+\newlabel{extern}{{11.5}{28}}
+\@writefile{toc}{\contentsline {paragraph}{Example.}{29}}
+\@writefile{toc}{\contentsline {chapter}{Example}{29}}
+\@writefile{toc}{\contentsline {chapter}{{\sf  X10}{} syntax}{30}}
+\newlabel{X10 syntax}{{11.5}{30}}
 \bibstyle{plain}
 \bibdata{master}
 \bibcite{kava}{1}
@@ -296,8 +296,8 @@
 \bibcite{moreira00java}{8}
 \bibcite{mpi}{9}
 \bibcite{titanium}{10}
-\@writefile{toc}{\contentsline {chapter}{Changes from v0.32}{42}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {11.5.1}Limitations}{42}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {11.5.2}Future work}{42}}
-\@writefile{toc}{\contentsline {chapter}{References}{42}}
-\@writefile{toc}{\contentsline {chapter}{Alphabetic index of definitions of concepts,\hfil \penalty 0 \hbox {\hspace  *{2em} keywords, and procedures}}{43}}
+\@writefile{toc}{\contentsline {chapter}{Changes from v0.32}{38}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.5.1}Limitations}{38}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.5.2}Future work}{38}}
+\@writefile{toc}{\contentsline {chapter}{References}{38}}
+\@writefile{toc}{\contentsline {chapter}{Alphabetic index of definitions of concepts,\hfil \penalty 0 \hbox {\hspace  *{2em} keywords, and procedures}}{39}}

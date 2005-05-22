@@ -10,18 +10,18 @@
 \vskip 1ex
 $$
 \begin{tabular}{l@{\extracolsep{.5in}}lll}
-\multicolumn{4}{c}{\sc ***DRAFT v 0.408: Please do not cite.***}\\
+\multicolumn{4}{c}{\sc ***DRAFT v 0.409: Please do not distribute.***}\\
 \multicolumn{4}{c}{\sc Please send comments to 
 V\authorsc{IJAY} S\authorsc{ARASWAT} at 
 {\tt vsaraswa@us.ibm.com}}\\
-\multicolumn{4}{c}{({\sc IBM Confidential})}
+%\multicolumn{4}{c}{({\sc IBM Confidential})}
 
 %\ldots
 \end{tabular}
 $$
 \vskip 2ex
 % {\it Dedicated to the Memory of APL} % vj
-{\bf April 9, 2005}
+{\bf May 19, 2005}
 \vskip 2.6ex
 \end{center}
 
@@ -33,8 +33,8 @@ $$
 This draft report provides an initial description of the programming
 language \Xten. \Xten{} is a single-inheritance class-based object-oriented
 (OO) programming language designed for high-performance, high-productivity
-computing on high-end computers supporting $O(10^5)$ hardware threads
-and $O(10^{15})$ operations per second. 
+computing on high-end computers supporting $\approx 10^5$ hardware threads
+and $\approx 10^{15}$ operations per second. 
 
 {}\Xten{} is based on state-of-the-art object-oriented programming
 languages and deviates from them only as necessary to support its
@@ -46,9 +46,9 @@ idioms.
 %producer/consumer and divide and conquer.
 
 This document provides an initial description of the language and
-corresponds to the first implementation of the language.  We expect to
-revise this document in the light of experience gained in implementing
-and using this language.
+corresponds to the first implementation of the language.  
+%We expect to revise this document in the light of experience gained in implementing
+%and using this language.
 
 The \Xten{} design team consists of 
 D\authorsc{AVID} B\authorsc{ACON}, 
@@ -75,10 +75,10 @@ Cascaval, Elmootaz Elnozahy, John Field, Bob Fuhrer, Orren Krieger,
 John McCalpin, Paul McKenney, Ram Rajamony, Frank Tip and Mandana
 Vaziri.
 
-We also thank Jonathan Rhees and William Clinger with help in
+We thank Jonathan Rhees and William Clinger with help in
 obtaining the \LaTeX{} style file and macros used in producing the
-Scheme report, after which this document is based. We also acknowledge
-the influence of the Java Language Specification \cite{jls2} document,
+Scheme report, after which this document is based. We acknowledge
+the influence of the $\mbox{\Java}^{\mbox{TM}}$ Language Specification \cite{jls2} document,
 as evidenced by the numerous citations in the text.
 
 This document is a revision of the {\cf 0.32} version of the Report,
@@ -91,7 +91,9 @@ V\authorsc{IJAY} S\authorsc{ARASWAT},
 C\authorsc{HRISTOPH von} P\authorsc{RAUN}, and 
 K\authorsc{EMAL} E\authorsc{BCIO\u{G}LU}.
 
-
+The \Xten{} language has been developed as part of the IBM PERCS
+Project, which is supported in part by the Defense Advanced Research
+Projects Agency (DARPA) under contract No. NBCH30390004.
 
 %\vfill
 %\begin{center}
