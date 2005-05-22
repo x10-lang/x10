@@ -157,9 +157,13 @@ public class DefaultRuntime_c
             }
         };
         // initialize X10 runtime system
-        if (Configuration.SAMPLING_FREQUENCY_MS > 0)
+        // vj 05/22 ... fixed so that DUMP_STATS ON EXIT will override SAMPLING_FREQUENCY_MS.
+        if (Configuration.SAMPLING_FREQUENCY_MS > 0 || Configuration.DUMP_STATS_ON_EXIT) {
+        	if (Configuration.SAMPLING_FREQUENCY_MS <= 0) {
+        		Configuration.SAMPLING_FREQUENCY_MS = 50;
+        	}
             Sampling.boot(DefaultRuntime_c.this, boot);
-
+        }
         // run the main app
         Future f = p0.runFuture(boot, null);
         // make sure we don't accidentially initialize Sampling by
