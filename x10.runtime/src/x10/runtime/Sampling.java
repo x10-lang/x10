@@ -40,6 +40,7 @@ public final class Sampling extends Thread {
     static synchronized void boot(Runtime rt, Activity boot) { 
         assert (SINGLETON == null);
         SINGLETON = new Sampling(rt, boot);
+        
     }
 
     /**
@@ -218,17 +219,17 @@ public final class Sampling extends Thread {
     
     public static String intArrayToString(int a[]) {
     	if (a == null) return "NULL";
-    	else {
-    		StringBuffer sb = new StringBuffer("[");
-    		for (int i = 0; i < a.length; i++) {
-    			sb.append(a[i]);
-    			if (i == a.length - 1)
-    				break;
-    			sb.append(", ");
-    		}
-    		sb.append("]\n");
-    		return sb.toString();
+    	
+    	StringBuffer sb = new StringBuffer("[");
+    	for (int i = 0; i < a.length; i++) {
+    		sb.append(a[i]);
+    		if (i == a.length - 1)
+    			break;
+    		sb.append(", ");
     	}
+    	sb.append("]\n");
+    	return sb.toString();
+    	
     }
     
     /**
