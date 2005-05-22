@@ -87,7 +87,7 @@ public final class Configuration {
      * How often should the sampling instrumentations be run?
      * Use -1 for no sampling.
      */
-    public static int SAMPLING_FREQUENCY_MS = 0;
+    public static int SAMPLING_FREQUENCY_MS = 50;
     
     /**
      * Should statistics be dumped on exit?
