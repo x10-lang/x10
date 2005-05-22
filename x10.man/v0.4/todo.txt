@@ -1,3 +1,9 @@
+Mon Apr 25 10:27:47 2005
+
+* Need to define notion of hashCode for value classes. This cannot
+  depend on the storage representation of course. And must be
+  compatible with ==.
+
 Wed Apr 13 05:15:46 2005
 
 * Insert syntax statements for clock. XtenClocks.tex

@@ -68,7 +68,7 @@ user program can distinguish between the two values.  In more detail
 the rules are as follows.
 
 If the values have a reference type, then both must be references to
-the same object. 
+the same object (even if the object has no mutable fields). 
 
 If the values have a value type then they must be structurally equal,
 that is, they must be instances of the same value class or value array
