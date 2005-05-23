@@ -113,18 +113,6 @@ public final class Configuration {
      */
     public static String LOAD = null;
     
-    /** Level at which details of clock transitions should be 
-     *  printed out. Set to 3 to get a line per transition.
-     * See x10.runtime.Clock.
-     */
-    public static int CLOCK_REPORT_LEVEL = 0;
-
-    /**
-     * It true, identifiers that begin with an upper-case letter
-     * are automatically declared final. 
-     */
-    public static boolean UPPERCASE_IMPLIES_FINAL = false;
-
     private static boolean done_;
     /**
      * Parses the command line.  This allows the user to specify 
@@ -171,11 +159,23 @@ public final class Configuration {
                 optionValue = args[pos].substring(eq+1);
             }
             set(optionName, optionValue); 
+            
             pos++;
         }        
         MAIN_CLASS_NAME = args[pos++];
         // vj hack to let Eclipse x10 command run with ${resource_loc}
         
+        // Sanity checks for values.
+        if (NUMBER_OF_LOCAL_PLACES < 0) {
+        	System.err.println("Negative value |" + NUMBER_OF_LOCAL_PLACES 
+        			+ "| for NUMBER_OF_LOCAL_PLACES rejected. Set to 4." );
+        	NUMBER_OF_LOCAL_PLACES = 4;
+        }
+        if (SAMPLING_FREQUENCY_MS < 0) {
+        	SAMPLING_FREQUENCY_MS = 50;
+        	System.err.println("Negative value |" + SAMPLING_FREQUENCY_MS 
+        			+ "| for SAMPLING_FREQUENCY_MS rejected. Set to 4." );
+        }
        // get rid of prefix pathname.
        MAIN_CLASS_NAME = MAIN_CLASS_NAME.substring(MAIN_CLASS_NAME.lastIndexOf("\\")+1);
         if (MAIN_CLASS_NAME.endsWith(".java"))
@@ -253,13 +253,24 @@ public final class Configuration {
                                        " value >>" + val + "<<");
                 f.setChar(null, new Character(val.charAt('0')).charValue());
             } else if (t == Boolean.TYPE) {
-                f.setBoolean(null, new Boolean(val).booleanValue());
+            	if (val.equalsIgnoreCase("true")) {
+            		f.setBoolean(null, true);
+            	} else if (val.equalsIgnoreCase("false")) {
+            		f.setBoolean(null, false);
+            	} else {
+            		System.err.println("Parameter |" + key + "| expects a boolean, not |" 
+            				+ val + "|. Ignored.");
+            	}
+            		
+               
             }
         } catch (NoSuchFieldException nsfe) {
             System.err.println("Field " + key + " not found, configuration directive ignored.");
         } catch (IllegalAccessException iae) {
             System.err.println("Wrong permissions for field " + key + ": " + iae);
             throw new Error(iae);
+        } catch (NumberFormatException z) {
+        	System.err.println("Parameter |" + key + "| expects a number, not |" + val + "|. Ignored.");
         }
     }
 
