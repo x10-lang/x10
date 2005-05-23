@@ -1,0 +1,132 @@
+NEW Implementation of clocks (v 4)
+Thu Apr 14 02:44:23 2005 v3
+Thu Apr 14 09:52:31 2005 v4
+
+Here is an outline of a provably correct implementation. 
+
+Let each activity A track the phase of every clock c it is registered
+with, call this variable A_C. 
+
+Let each clock c track its phase, call it Cp. 
+
+A clock is said to be in whole phase if A_C = Cp for every activity A. 
+
+It is in split phase if A_C = Cp-1 for some activities, and A_C = Cp
+for some others.
+
+In the algorithm we dont actually need to track Cp and A_C, though it
+is helpful to think as if we are.
+
+The clock tracks three sets of activities: activities_, resumed_, and
+nextResumed_. The clock also has a boolean variable, splitPhase, which
+is initialy false.
+
+Initially the clock starts out in whole phase (splitPhase=false).
+
+We will assume that activities always do a resume before doing a next. 
+
+Say that an activity A in activities_ is 
+   activeNow: clock is in wholephase, A is not in resumed_.
+   quiescedNow: A is in resumed_.
+   activeNext: clock is in splitphase, A is not in resumed_ || nextResumed_.
+   quiescedNext: A is in nextResumed_.
+
+   active: activeNow or activeNext
+   quiesced: quiescedNow or quiescedNext
+   registered: active or quiesced
+   unregistered: not in activities_, resumed_ or nextResumed_
+
+Invariants on the state of the sytems:
+    (1) A clock is either in splitPhase or wholePhase.
+    (2) activity_ superset resumed_ u nextResumed_
+    (3) nextResumed_ and resumed_ are disjoint
+    (4) In wholePhase, nextResumed_ = empty.
+    (5) Whenever next is performed by an activity, activity is quiesced.
+    (6) An activity is either active or quiesced.
+
+Transition from wholePhase to splitPhase: when |activity_| = |resumed_|
+Transition from splitPhase to wholePhase: when |resumed_| = 0
+
+When an activity does a resume:
+   unregistered -> throw CUE
+   quiescedNow -> quiescedNow, return.    
+   quiescedNext -> quiescedNext, return.
+   activeNow -> quiescedNow, tryMoveToSplit, return.
+   activeNext -> quiescedNext, return.
+
+When an activity does a next: {assumed to be quiesced by (5)}
+   unregistered -> throw CUE
+   quiescedNow, splitPhase -> activeNext, tryMoveToWhole, return.
+   quiescedNow, wholePhase -> block until splitPhase, move to activeNow on wakeup.
+   quiescedNext, splitPhase -> block until next splitPhase, move to activeNow on wakeup
+   quiescedNext, wholePhase : impossible start state by (4).
+
+When an activity terminates:
+   unregistered -> throw CUE
+   registered -> unregistered, tryMoveToSplit, return.
+
+When an activity B spawns another A, giving it the clock c:
+   B quiesced  -> throw CUE
+   B unregistered -> throw CUE
+   A unregistered -> A registered, return.
+
+tryMoveToSplit: 
+  If |activities_| == |resumed_|, move clock to splitPhase, wake up all
+  suspended activities.
+
+tryMoveToWhole:
+  If |resumed_| == 0, move clock to wholePhase, move nextResumed_ to resumed_,
+  set nextResumed_ to empty. {This causes all activities in quiescedNext state
+  to move to the quiescedNow state.}
+
+========================================================
+In more detail...
+
+When an activity does a resume:
+    nothing is done if the activity is already in resumed_ or nextResumed_. 
+
+    If not, and the clock is in splitPhase, the activity is added to
+    nextResumed_. 
+      {The fact that the activity is not in resumed_ means that it has
+       advanced to the next phase, so this resume is for the next phase.}
+
+    If the clock is in wholePhase, the activity is added to resumed_.
+    If this causes |resumed_| = |activity_|, the clock is moved to
+    splitPhase, and all suspended activities are woken up.
+
+When an activity does a next: {it is assumed to be in either resumed_ or nextResumed_}
+   If the clock is in splitPhase, 
+     If the activity is in resumed_, it continues at A: below.
+
+     If the activity is in nextResumed_, it blocks and on awakening
+     continues at A: below.,
+   
+   If the clock is in wholePhase, 
+     {activity must be in resumed_, because nextResumed_ = empty}
+     The activity blocks, and on awakening continues at A: below.
+
+   A: {It has now entered the next phase.} 
+      {The activity is guaranteed to be in resumed_.}
+      {The clock is guaranteed to be in splitPhase.}
+     It removes itself from resumed_. If this causes |resumed_| = 0,
+     the clock phase changes to wholePhase, and resumed_ is set to
+     nextResumed_, and nextResumed_ is set to empty.
+
+     {At this point, all activities have crossed over to the next phase.}
+
+When an activity terminates:
+   Throw CUE if activity is not registered.
+   It removes itself from activity_, resumed_ and nextResumed_. 
+
+   If this causes |activity_| = 0, terminate, this clock will never be
+   used again.
+
+   Else, if this causes |activity_| = |resumed_|, and the clock is in
+   wholePhase, the clock is moved to splitPhase, and all suspended
+   activities are woken up.
+
+When an activity B spawns another A, giving it the clock c:
+   Throw CUE if B is not registered.
+   Throw CUE if B is quiesced.
+   B is added to activity_.
+

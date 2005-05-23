@@ -1,0 +1,255 @@
+% -*-LaTeX-*-
+
+\chapter{Implementation of Numeric Datatypes}
+
+(This appendix is not a part of P1178/D4, Draft Standard for the
+Scheme Programming Language, but is included for information only.)
+
+This appendix discusses several aspects of Scheme's numeric datatypes
+that are of interest to implementors.  We assume that the reader is
+familiar with the implementation of generic arithmetic in Lisp (or
+other languages like Lisp in this respect), and focus on those
+features that are both new and unusual (a good discussion of the
+basics of generic arithmetic can be found in section 2.4
+of~\cite{SICP}).  In this manner we hope to shed some light on common
+problems that Scheme implementors may encounter.
+
+\section{Exactness}
+
+Exactness is the one fundamentally new idea that is introduced by
+Scheme's arithmetic, and consequently it is the most important topic
+for implementors to consider.
+
+Exactness serves two basic purposes.  First, it can be used as an
+``alarm'' to inform the programmer when the Scheme system has caused
+precision to be lost; naively, if the result of a computation is
+exact, the programmer can trust that it is correct.  Conversely, if
+the result is inexact, the programmer is warned that the answer is
+only approximate and that numerical analysis is required to determine
+the error involved.
+
+The second purpose of exactness is abstraction, isolating programmers
+from the methods used to implement inexact arithmetic.  While it seems
+likely that floating-point arithmetic will be the most common
+representation, this abstraction permits implementors to experiment
+with other numerical methods and to take advantage of unusual
+hardware.  Provided that the implementor does a good job, many
+programmers won't need to know what methods are being used (the
+exception being programmers who need to guarantee tight bounds on the
+error of their computations).
+
+The property of exactness that serves these two purposes is a simple
+one: an output of a computation is inexact whenever any of its inputs
+is inexact.  This general rule holds in nearly all cases
+(see~\ref{exactly}), but some of its consequences may be surprising;
+we discuss three such consequences.
+
+First, the ``rounding operations'' (\ide{floor}, \ide{ceiling},
+\ide{truncate}, and \ide{round}) return inexact results when given
+inexact arguments.  Many programmers familiar with other Lisp
+implementations will expect these operations to return exact results,
+and may be confused when their programs don't work correctly.
+Implementors should be careful not to make the same mistake.  As a
+concrete example, Common Lisp supports two datatypes, floating-point
+numbers and integers, that respectively correspond to Scheme's inexact
+reals and exact integers.  Unlike Scheme, Common Lisp provides two
+sets of procedures for rounding (see~\cite{CLtL}, pp. 215-218).  The
+procedures {\cf floor}, {\cf ceiling}, {\cf truncate}, and {\cf round}
+convert floating-point numbers to integers, while the procedures {\cf
+ffloor}, {\cf fceiling}, {\cf ftruncate}, and {\cf fround} convert
+floating-point to floating-point.  Despite their names, it is the
+second set of procedures that corresponds to Scheme's rounding
+operations.
+
+The second surprising consequence is that \ide{max} and \ide{min},
+when given mixed exact and inexact arguments, return an inexact
+result.  This is true even in the following case, which demonstrates
+the surprising aspect:
+
+\begin{scheme}
+(max 3.9 4)            \ev  4.0%
+\end{scheme}
+
+Implementors must be careful to notice this, as the ``obvious'' way to
+implement these procedures is to compare the arguments and return the
+largest (smallest) one.  In Scheme, this ``obvious'' implementation is
+incorrect; the procedures must notice when one or more of the
+arguments is inexact and in that case guarantee that the result is
+inexact.
+
+\begin{note}
+A problem arises in this situation when an exact argument is to be
+coerced to an inexact result.  If there is no inexact number equal to
+the argument, the implementation must choose one that is close to the
+argument.  The implemention can choose the inexact number that is
+closest to the argument, or it can choose the closest inexact number
+that exceeds the argument in the appropriate direction.
+\end{note}
+
+Finally, and perhaps most surprising for implementors, is that
+operations defined on integers (\ide{quotient}, \ide{remainder},
+\ide{modulo}, \ide{gcd}, \ide{lcm}) and rationals (\ide{numerator},
+\ide{denominator}) must accept inexact arguments (producing, of
+course, inexact results).  This may not matter much to programmers,
+but is notable for implementors.  As an example, if floating-point is
+used to represent all inexact real numbers, this means that any
+floating-point number satisfying the predicate \ide{integer?} can be
+used as an argument to \ide{gcd}; furthermore, \ide{numerator} and
+\ide{denominator} must accept all floating-point numbers as arguments.
+Observe also, complex numbers with inexact zero imaginary part must
+satisfy the \ide{real?} predicate, and thus might also satisfy
+\ide{integer?} or \ide{rational?}.
+
+Extending the integer and rational operations to cover these cases is
+straightforward, especially if exact equivalents exist for every
+inexact number; in that case merely map the inexact arguments to exact,
+perform the operation, and apply \ide{exact->inexact} to the result
+(this is one of several reasons why it is desirable to implement
+unlimited-precision exact integers and rationals).  Otherwise, the
+implementation is somewhat more involved; small implementations may
+find it desirable to refuse such arguments as violations of an
+implementation restriction.
+
+\section{Transitivity of Order Predicates}
+
+Unlike most other dialects of Lisp, Scheme requires the numerical
+order predicates (\ide{=}, \ide{<}, \ide{<=}, \ide{>}, and \ide{>=})
+to be transitive.  In most cases this is easily accomplished by
+standard techniques; however, in the case of mixed exact and inexact
+arithmetic the standard techniques may fail to satisfy this
+requirement.  This problem arises specifically when floating-point is
+used to represent inexact numbers, although it may occur with other
+representations as well.
+
+A particular technique that does not satisfy Scheme's requirements is
+the \defining{floating-point contagion} rule of Common Lisp
+(see~\cite{CLtL}, p.~194; interestingly, \cite{CLtL2}, pp.~289-291
+explains that the rule was recently modified to be compatible with
+Scheme's requirements).  This rule specifies that when operating on a
+floating-point number and a rational number, the rational number is
+first converted to floating-point and the result of the conversion is
+operated on in place of the original rational.  In a Scheme system,
+this rule can be interpreted as applying to inexact reals (implemented
+as floating-point numbers) and exact rationals.  In the case of
+number-valued operators, such as \ide{+}, this contagion rule always
+generates a correct answer; not so for the order predicates.
+
+The reason that this rule fails has to do with precision.
+Floating-point numbers have a limited amount of precision, while exact
+rational numbers have effectively unlimited precision.  Thus, the
+conversion of an exact rational number to a floating-point number can
+result in a loss of precision.  In mathematical terms, the mapping
+from rational numbers to floating-point numbers is ``many-to-one'',
+which means that coercion of two distinct rational numbers may result
+in the same floating-point number.
+
+The simplest way to avoid this problem is analogous to the
+floating-point contagion rule: when comparing a floating-point number
+to an exact rational, convert the floating-point number to an exact
+rational and then compare the two rational numbers.  This works
+because the mapping from floating-point to rational numbers, if
+properly implemented, preserves all of the precision in the argument.
+However, this can only work if unlimited-precision rational numbers
+are available (another argument for implementing them).
+
+When unlimited-precision rationals are not available (i.e. when all
+exact real numbers are integers), a more complex method is required.
+A detailed description of this method is beyond the scope of this
+appendix, but we can sketch an outline.  Call the floating-point
+argument $\vri{x}$ and the exact integer argument $\vri{n}$.  Convert
+$\vri{n}$ to a floating-point number and call the result $\vrii{x}$.
+Then convert $\vrii{x}$ back to an integer, and call the result
+$\vrii{n}$.  Finally compare $\vri{x}$ to $\vrii{x}$, modifying the
+result of the comparison to account for the fact that $\vrii{x}$
+differs from $\vri{n}$ by $\vrii{n}-\vri{n}$.  (Note that this
+description ignores some limit cases, such as when $\vri{n}$ is too
+large to be converted to floating-point or $\vrii{x}$ is too large to
+be converted to an integer, but these cases are easily handled.)
+
+\section{External Representations}
+
+The difficulties inherent in converting a binary floating-point number
+to or from a decimal external representation have been known for some
+time (for example, see~\cite{Matula68}, \cite{Matula70}, and
+\cite{Heuristic}), but are still not widely appreciated.  This is of
+interest to the Scheme implementor when floating-point representations
+are used, and may also apply to other inexact representations.
+
+The definition of \ide{number->string} places strong constraints on
+that procedure when its argument is a floating-point number; it
+simultaneously places strong constraints on \ide{string->number}.  Two
+requirements from this definition deserve attention.  The first
+requirement is that the result of \ide{number->string}, if passed to
+\ide{string->number}, returns a number which is \ide{eqv?} to the
+original argument of \ide{number->string} (in~\cite{Heuristic} this is
+referred to as the ``internal identity requirement'').  The second
+requirement is that the number of digits produced for decimal-point
+notation is the minimum required to satisfy the first requirement.
+The combination of these requirements is sufficiently severe that most
+standard algorithms cannot be used (for example, the algorithms
+described in~\cite{Knuth}, section 4.4).
+
+Fortunately, when IEEE floating-point arithmetic is used, it is
+possible to implement these procedures in a straightforward manner:
+IEEE floating-point arithmetic specifies the implementation of
+binary-to-decimal and decimal-to-binary conversions that satisfy the
+internal identity requirement within certain ranges; it is desirable
+to take advantage of these conversions as they are typically
+implemented in hardware.  The binary-to-decimal conversion is not
+required to minimize the number of output digits, but a suitable
+conversion can be implemented by trimming its output and testing the
+trimmed output for equivalence.
+
+If IEEE floating-point arithmetic is unavailable these procedures will
+have to be implemented in software.  To our knowledge, the only
+correct algorithm for \ide{number->string} is that described
+in~\cite{Heuristic}; we know of two correct algorithms for
+\ide{string->number}, one of which is described in~\cite{readfloat}.
+
+\section{Rationalize}
+
+The procedure \ide{rationalize} is interesting because most
+programming languages do not provide anything analogous to it.  For
+simplicity, we present an algorithm which computes the correct result
+for exact arguments (provided the implementation supports exact
+rational numbers of unlimited precision), and produces a reasonable
+answer for inexact arguments when inexact arithmetic is implemented
+using floating-point.  Those interested in the theory of this
+algorithm should refer to~\cite{CFractions} (we thank Alan Bawden for
+contributing this algorithm).
+
+\begin{scheme}
+(define (rationalize x e)
+  (simplest-rational (- x e) (+ x e)))
+
+(define (simplest-rational x y)
+  (define (simplest-rational-internal x y)
+    ;; assumes 0 < X < Y
+    (let ((fx (floor x))        
+          (fy (floor y)))
+      (cond ((not (< fx x))
+             fx)
+            ((= fx fy)
+             (+ fx
+                (/ (simplest-rational-internal
+                    (/ (- y fy))
+                    (/ (- x fx))))))
+
+            (else
+             (+ 1 fx)))))
+  ;; do some juggling to satisfy preconditions
+  ;; of simplest-rational-internal.
+  (cond ((< y x)
+         (simplest-rational y x))
+        ((not (< x y))
+         (if (rational? x) x (error)))
+        ((positive? x)
+         (simplest-rational-internal x y))
+        ((negative? y)
+         (- (simplest-rational-internal (- y)
+                                        (- x))))
+        (else
+         (if (and (exact? x) (exact? y))
+             0
+             0.0))))%
+\end{scheme}

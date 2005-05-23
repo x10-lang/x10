@@ -1,0 +1,2 @@
+if (#0.dropped()) throw new ClockUseException("Cannot pass on dropped clock.");
+clocks.add(#0);
