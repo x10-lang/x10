@@ -14,7 +14,7 @@ import x10.lang.Object;
  * @author Christian Grothoff
  * @author Christoph von Praun
  */
-final class Future_c extends Future {
+final class Future_c extends Future  {
 
     private boolean haveResult_;
     
