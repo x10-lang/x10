@@ -122,6 +122,8 @@ implements X10TypeSystem {
 		return regionType_;
 	}
 	
+
+	
 	protected ClassType pointType_;
 	public ClassType point() {
 		if ( pointType_ == null)
@@ -231,6 +233,7 @@ implements X10TypeSystem {
 
 	 /**
      * Factory method for ArrayTypes.
+     * vj 05/23 -- I dont believe this is called anymore. Called only from jl.types.TypeSystem_c.
      */
     protected ArrayType arrayType(Position pos, Type type) {
     	return new X10ArrayType_c(this, pos, type);

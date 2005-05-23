@@ -9,7 +9,7 @@ package x10.lang;
  * @author vj 1/9/2005
  */
 
-public abstract /*value*/ class doubleValueArray extends doubleArray {
+public abstract /*value*/ class doubleValueArray extends doubleArray implements ValueType  {
 	
 	public doubleValueArray( dist D) {
 		super( D );

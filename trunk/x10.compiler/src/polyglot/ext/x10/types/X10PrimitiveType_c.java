@@ -128,5 +128,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
     }
 	// ----------------------------- end manual mixin code from X10Type_c
 	
-	
+	public boolean isValueType() {
+		return true;
+	}
 }

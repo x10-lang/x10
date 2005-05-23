@@ -9,7 +9,7 @@ package x10.lang;
  * @author vj 1/9/2005
  */
 
-public abstract /*value*/ class floatValueArray extends floatArray {
+public abstract /*value*/ class floatValueArray extends floatArray implements ValueType  {
 	
 	public floatValueArray( dist D) {
 		super( D );

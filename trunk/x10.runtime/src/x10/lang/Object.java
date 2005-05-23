@@ -38,10 +38,13 @@ public class Object implements Parameter1 {
 	 * 	                   If the class is not generic, the null is passed.  
 	 */
 	public Object(TypeArgument[] actual_type_args) {
-		location = Runtime.here();
+		location = (this instanceof ValueType) ? null : Runtime.here();
 		actualTypeArguments_ = actual_type_args;
 	}
 	
+	public place getLocation() {
+		return (this instanceof ValueType) ? Runtime.here() : location;
+	}
 	public TypeArgument getActualTypeArguments(int i) {
 		// must be a generic type
 		assert actualTypeArguments_ != null;

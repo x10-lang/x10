@@ -97,5 +97,7 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
     }
 	// ----------------------------- end manual mixin code from X10Type_c
 	
-	
+	public boolean isValueType() {
+		return false;
+	}
 }

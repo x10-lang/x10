@@ -170,4 +170,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ReferenceType {
 		return false;
 	}
 
+	public boolean isValueType() {
+		throw new RuntimeException("Internal compiler error: isValueType() on " + this);
+	}
 }

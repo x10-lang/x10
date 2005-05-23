@@ -129,6 +129,8 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     	return false;
     }
 	// ----------------------------- end manual mixin code from X10Type_c
-	
+	public boolean isValueType() {
+		return true;
+	}
 	
 }

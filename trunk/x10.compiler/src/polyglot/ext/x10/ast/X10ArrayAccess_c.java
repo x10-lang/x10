@@ -135,18 +135,18 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 		// we need to let X10ArrayAccessAssign have a chance to see an X10ArrayAccess object.
 		// Typechecking is a good time to do the rewriting.
 		
-        if (type instanceof ParametricType_c) {
-            ParametricType_c pt = (ParametricType_c) type;
-            return
-            new Cast_c(position(), 
-                                       X10NodeFactory_c.getFactory().CanonicalTypeNode(position(),
-                                            (Type) pt.getTypeParameters().get(0)).type((Type) pt.getTypeParameters().get(0)),
-                               (Expr) new Call_c(position(), array, "get", index).typeCheck(tc)).typeCheck(tc);
-            
-        } else {
-            return new Call_c(position(), array, "get", index).typeCheck(tc);
-        //      return type(((X10Type) type).toX10Array().base());
-                }
+		if (type instanceof ParametricType_c) {
+			ParametricType_c pt = (ParametricType_c) type;
+			return
+			new Cast_c(position(), 
+					X10NodeFactory_c.getFactory().CanonicalTypeNode(position(),
+							(Type) pt.getTypeParameters().get(0)).type((Type) pt.getTypeParameters().get(0)),
+							(Expr) new Call_c(position(), array, "get", index).typeCheck(tc)).typeCheck(tc);
+			
+		} else {
+			return new Call_c(position(), array, "get", index).typeCheck(tc);
+			//      return type(((X10Type) type).toX10Array().base());
+		}
 		/*
 		for (Iterator it = index.iterator(); it.hasNext();) {
 			Expr item = (Expr) it.next();

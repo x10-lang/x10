@@ -1,5 +1,6 @@
 package polyglot.ext.x10.ast;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,14 +10,18 @@ import polyglot.ast.Binary;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
+import polyglot.ast.Call;
 import polyglot.ast.ExtFactory;
 import polyglot.ast.Field;
 import polyglot.ast.Formal;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Local;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ext.jl.ast.Call_c;
+import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.jl.parse.Name;
@@ -24,7 +29,9 @@ import polyglot.ext.x10.extension.X10InstanceofDel_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.Flags;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import polyglot.util.TypedList;
 import x10.parser.X10VarDeclarator;
 
 /**
@@ -41,6 +48,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return factory;
 	}
 	public X10NodeFactory_c() {
+		
 		super(new X10ExtFactory_c(),
 				new X10DelFactory_c());
 		factory = this;
@@ -387,4 +395,11 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (PlaceCast) n.ext(extFactory().extExpr());
 		return (PlaceCast) n.del(delFactory().delExpr());
 	}
+    public Field Field(Position pos, Receiver target, String name) {
+        Field n = new X10Field_c(pos, target, name);
+        n = (Field)n.ext(extFactory().extField());
+        n = (Field)n.del(delFactory().delField());
+        return n;
+    }
+    
 }

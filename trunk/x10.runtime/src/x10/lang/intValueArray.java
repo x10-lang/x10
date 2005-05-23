@@ -9,7 +9,7 @@ package x10.lang;
  * @author vj 1/9/2005
  */
 
-public abstract /*value*/ class intValueArray extends intArray {
+public abstract /*value*/ class intValueArray extends intArray implements ValueType {
 	
 	public intValueArray( dist D) {
 		super( D );

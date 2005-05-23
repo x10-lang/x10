@@ -7,7 +7,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.Field_c;
+import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Stmt_c;
 import polyglot.ext.x10.types.FutureType_c;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -22,7 +22,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.types.Type;
 import java.util.LinkedList;
-
+import polyglot.util.TypedList;
+import java.util.ArrayList;
 
 /*
  * Created on Oct 5, 2004
@@ -114,7 +115,7 @@ public class Async_c extends Stmt_c
     	Expr newPlace = place;
     	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
 		if ( ! placeIsPlace ) {
-			newPlace = (Expr) (new Field_c(position(), place, "location")).typeCheck( tc );
+			newPlace = (Expr) new X10Field_c(position(), place, "location").typeCheck(tc);
 		}
     	
        	return (Async_c) place(newPlace);

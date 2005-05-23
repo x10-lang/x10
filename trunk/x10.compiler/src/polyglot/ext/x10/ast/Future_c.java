@@ -11,6 +11,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Field_c;
+import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.util.Position;
 import polyglot.util.CodeWriter;
@@ -24,6 +25,8 @@ import polyglot.visit.PrettyPrinter;
 
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.util.TypedList;
+import java.util.ArrayList;
 
 import polyglot.ext.x10.types.FutureType_c;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -113,7 +116,7 @@ public class Future_c extends Expr_c
     	Expr newPlace = place;
     	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
 		if ( ! placeIsPlace ) {
-			newPlace = (Expr) (new Field_c(position(), place, "location")).typeCheck( tc );
+			newPlace = (Expr) (new X10Field_c(position(), place, "location")).typeCheck( tc );
 		}
     	
        	return ((Future_c) place(newPlace)).type( new FutureType_c( tc.typeSystem(), position(), body.type() ));

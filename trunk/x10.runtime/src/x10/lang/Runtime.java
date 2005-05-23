@@ -157,7 +157,7 @@ public abstract class Runtime {
             throw new Error("Place-cast currently not available for object of type " + o.getClass().getName());
         
         x10.lang.Object xo = (x10.lang.Object) o;
-        if (xo.location.equals(p)) 
+        if (xo.getLocation().equals(p)) 
             ret = o;
         else {
             // place cast failed

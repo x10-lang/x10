@@ -9,7 +9,7 @@ package x10.lang;
  * @author vj 1/9/2005
  */
 
-public abstract /*value*/ class longValueArray extends longArray {
+public abstract /*value*/ class longValueArray extends longArray implements ValueType {
 	
 	public longValueArray( dist D) {
 		super( D );

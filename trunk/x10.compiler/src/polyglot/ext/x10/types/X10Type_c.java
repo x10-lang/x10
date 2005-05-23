@@ -140,5 +140,8 @@ public abstract class X10Type_c extends Type_c implements X10Type {
 		return false;
 	}
 	
-	
+	public boolean isValueType( Type t) {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return t.isCastValid( xts.value());
+	}
 }

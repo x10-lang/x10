@@ -67,6 +67,7 @@ public interface X10TypeSystem extends TypeSystem {
     ClassType FutureActivity();
     ClassType array();
     ClassType clock();
+    ClassType value();
     ClassType Runtime();
     ClassType BooleanArrayPointwiseOp();
     ClassType CharArrayPointwiseOp();

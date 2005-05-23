@@ -9,7 +9,7 @@ package x10.lang;
  * @author vj 1/9/2005
  */
 
-public abstract /*value*/ class shortValueArray extends shortArray {
+public abstract /*value*/ class shortValueArray extends shortArray implements ValueType {
 	
 	public shortValueArray( dist D) {
 		super( D );
