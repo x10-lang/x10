@@ -44,13 +44,13 @@ public class X10VarDeclarator extends VarDeclarator {
 		
 		boolean allCapitals = name.equals(name.toUpperCase());
 		// vj: disable until we have more support for declarative programming in X10.
-		this.flags = (false || allCapitals || hasExplodedVars()) ? flags.set(Flags.FINAL) : flags;
+		this.flags = (false && ( allCapitals || hasExplodedVars())) ? flags.set(Flags.FINAL) : flags;
 	}
 	public boolean hasExplodedVars() {
 	 return paramList != null;
 	}
 	/** Create a local variable declaration for an exploded var,
-	 *  at the given type, name and with the given initializer.
+	 *  at the given type, name and with the given initializer. The exploded variable is implicitly final.
 	 * @param flags
 	 * @param type
 	 * @param name
@@ -59,10 +59,11 @@ public class X10VarDeclarator extends VarDeclarator {
 	 */
 	protected LocalDecl makeLocalDecl( TypeNode type, String name, Expr init ) {
 	
-		boolean allCapitals = name.equals(name.toUpperCase());
+		/* boolean allCapitals = name.equals(name.toUpperCase());
 		// vj: disable until we have more support for declarative programming in X10.
 		Flags f = (false || allCapitals ? flags.set(Flags.FINAL) : flags);
-		return nf.LocalDecl(pos, f, nf.array(type, pos, dims), name, init);
+		*/
+		return nf.LocalDecl(pos, flags.set(Flags.FINAL), nf.array(type, pos, dims), name, init);
 	}
 	/** Given the flags for this variable declaration, return the initialization 
 	 * statements for the exploding variables, if any.
