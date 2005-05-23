@@ -91,7 +91,7 @@ public class ValueClassUserDefinedEquals  {
         // the "place" of a value class instance is here
         int n;
         {final myval y0=y;
-        n=future(y0.location){
+        n=future(y0){
         	( here != P0) ? -1 : y0.intval 
         }.force(); 
         }
