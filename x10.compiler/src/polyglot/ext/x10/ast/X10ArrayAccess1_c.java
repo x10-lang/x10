@@ -148,17 +148,17 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 			type = ((NullableType_c)type).base();
 		}
 		if (type instanceof ParametricType_c) {
-		    ParametricType_c pt = (ParametricType_c) type;
-		    return
-		    new Cast_c(position(), 
-                                       X10NodeFactory_c.getFactory().CanonicalTypeNode(position(),
-		                                    (Type) pt.getTypeParameters().get(0)).type((Type) pt.getTypeParameters().get(0)),
-		                       (Expr) new Call_c(position(), array, "get", args).typeCheck(tc)).typeCheck(tc);
-            
-		} else {
-		    return new Call_c(position(), array, "get", args).typeCheck(tc);
-		// 		return type(((X10Type) type).toX10Array().base());
-                }
+			ParametricType_c pt = (ParametricType_c) type;
+			return
+			new Cast_c(position(), 
+					X10NodeFactory_c.getFactory().CanonicalTypeNode(position(),
+							(Type) pt.getTypeParameters().get(0)).type((Type) pt.getTypeParameters().get(0)),
+							(Expr) new Call_c(position(), array, "get", args).typeCheck(tc)).typeCheck(tc);
+			
+		} 
+			return new Call_c(position(), array, "get", args).typeCheck(tc);
+			// 		return type(((X10Type) type).toX10Array().base());
+		
 	}
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {

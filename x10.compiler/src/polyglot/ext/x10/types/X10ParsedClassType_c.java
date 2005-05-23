@@ -121,6 +121,10 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
 		return xts.isSubtype( this, xts.intArray()); 
 	}
 	
+	public boolean isValueType() {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		return xts.isSubtype( this, xts.value()); 
+	}
 	/**
 	 * Returns true if this type is a subtype of longArray.
 	 * implies isX10Array().

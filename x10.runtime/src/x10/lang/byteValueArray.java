@@ -9,7 +9,7 @@ package x10.lang;
  * @author vj 1/9/2005
  */
 
-public abstract /*value*/ class byteValueArray extends byteArray {
+public abstract /*value*/ class byteValueArray extends byteArray implements ValueType {
 	
 	public byteValueArray( dist D) {
 		super( D );

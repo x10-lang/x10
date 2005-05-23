@@ -482,5 +482,9 @@ public class ParametricType_c
             return base.toClass().fullName() + "_GENERIC";
         }
 
+        public boolean isValueType() {
+        	// ugh
+        	throw new RuntimeException("isValueType() called on " + this);
+        }
         
 }

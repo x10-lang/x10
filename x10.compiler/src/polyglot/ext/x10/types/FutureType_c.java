@@ -187,5 +187,8 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 		return base().isCanonical();
 	    }
 
+	    public boolean isValueType() {
+	    	return true;
+	    }
 	 
 }

@@ -1,7 +1,7 @@
 package x10.lang;
 
 abstract public /*value*/ class point/*( region region )*/ extends Object 
-implements Indexable {
+implements Indexable, ValueType {
 	public final region region;
 	/*parameter*/ public final /*nat*/int rank;
 	

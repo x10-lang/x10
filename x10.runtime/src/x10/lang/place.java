@@ -23,7 +23,8 @@ package x10.lang;
 import x10.base.TypeArgument;
 import /*x10*/java.util.Set;
 
-public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ implements TypeArgument {
+public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
+implements TypeArgument, ValueType {
 	public final /*nat*/int id;
 	
 	/** The number of places in this run of the system. Set on

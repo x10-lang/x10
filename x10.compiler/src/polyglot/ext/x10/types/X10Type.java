@@ -121,5 +121,7 @@ public interface X10Type extends Type {
      */
     boolean isClock();
     
+    boolean isValueType();
+    
 
 }

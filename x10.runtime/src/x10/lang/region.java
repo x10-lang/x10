@@ -18,7 +18,8 @@ import x10.array.EmptyRegion;
  
  * @author vj
  */
-public abstract /*value*/ class region extends Object implements TypeArgument {
+public abstract /*value*/ class region extends Object 
+implements TypeArgument, ValueType {
 	// nat is translated to int for now.
 	public final /*nat*/ /*long*/ int rank;
 	
