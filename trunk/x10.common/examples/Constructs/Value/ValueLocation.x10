@@ -45,7 +45,7 @@ public class ValueLocation  {
                 //System.out.println("#3 "+i+" "+j+" "+P[i]+" "+P[j]);
                 chk(implies(P[i]==P[j],i==j));
             }
-            chk(P[0]==future(P[i]){one.getLocation()}.force());
+            chk(P[i]==future(P[i]){one.getLocation()}.force());
         }
 
         return true;
