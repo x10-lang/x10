@@ -105,18 +105,26 @@ class editDistMatrix {
             return t;
         };
         finish ateach(point [i,j]:Dinner)
-           e[i,j].wr(min(e[i-1,j]->rd()+gapPen,
-                         e[i,j-1]->rd()+gapPen,
-                         e[i-1,j-1]->rd()
+           e[i,j].wr(min(rdElem(e,i-1,j)+gapPen,
+                         rdElem(e,i,j-1)+gapPen,
+                         rdElem(e,i-1,j-1)
                            +(c1.s[i]==c2.s[j]?match:misMatch)));
    }
+
+    /**
+     * read e[i,j] remotely,
+     * after waiting for it to be written.
+     */
+    static int rdElem(final istructInt[.] e, final int i, final int j) {
+        return future(e.distribution[i,j]){e[i,j].rd()}.force();
+    }
 
     /**
      * Find the sum of the elements of the edit distance matrix
      */
     int checkSum() {
         int sum=0;
-        for(point [i,j]:e) sum+=e[i,j]->rd();
+        for(point [i,j]:e) sum+=rdElem(e,i,j);
         return sum;
     }
     /**
@@ -142,7 +150,7 @@ class editDistMatrix {
 
         for(point [i]:0:N){
             System.out.print(" "+pad(c1.s[i],K));
-            for(point [j]:0:M) System.out.print(" "+pad(e[i,j]->rd(),K));
+            for(point [j]:0:M) System.out.print(" "+pad(rdElem(e,i,j),K));
             System.out.println();
         }
     }
