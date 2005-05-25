@@ -67,9 +67,9 @@ public class Edmiston_Parallel2 {
         };
         
         finish ateach(point [i,j]:Dinner)
-           e[i,j].wr(min(rd(e,i-1,j)+gapPen,
-                         rd(e,i,j-1)+gapPen,
-                         rd(e,i-1,j-1)
+           e[i,j].wr(min(rdElem(e,i-1,j)+gapPen,
+                         rdElem(e,i,j-1)+gapPen,
+                         rdElem(e,i-1,j-1)
                            +(c1[i]==c2[j]?match:misMatch)));
 
         pr(c1,c2,e,"Edit distance matrix:");
@@ -80,7 +80,7 @@ public class Edmiston_Parallel2 {
      * read e[i,j] remotely,
      * after waiting for it to be written.
      */
-    static int rd(final istructInt[.] e, final int i, final int j) {
+    static int rdElem(final istructInt[.] e, final int i, final int j) {
         return future(e.distribution[i,j]){e[i,j].rd()}.force();
     }
 
@@ -118,7 +118,7 @@ public class Edmiston_Parallel2 {
      */
     static int checkSum(final istructInt[.] e) {
         int sum=0;
-        for(point [i,j]:e) sum+=rd(e,i,j);
+        for(point [i,j]:e) sum+=rdElem(e,i,j);
         return sum;
     }
 
@@ -139,7 +139,7 @@ public class Edmiston_Parallel2 {
 
         for(point [i]:0:N){
             System.out.print(" "+pad(c1[i],K));
-            for(point [j]:0:M) System.out.print(" "+pad(rd(e,i,j),K));
+            for(point [j]:0:M) System.out.print(" "+pad(rdElem(e,i,j),K));
             System.out.println();
         }
     }
