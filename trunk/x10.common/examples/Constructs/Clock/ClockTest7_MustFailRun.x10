@@ -17,7 +17,7 @@ public class ClockTest7_MustFailRun {
     public boolean run() {
         final clock c = clock.factory.clock();
         
-        finish foreach (point [i]: 0:(N-1)) clocked(c) {
+        finish async foreach (point [i]: 0:(N-1)) clocked(c) {
             async(here) clocked(c) finish async(here) {atomic val++;}
             System.out.println("Activity "+i+" phase 0");
             next;
