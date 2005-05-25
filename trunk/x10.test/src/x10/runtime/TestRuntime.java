@@ -10,6 +10,7 @@ import x10.lang.Future;
 import x10.lang.Object;
 import x10.lang.Runtime;
 import x10.runtime.Clock;
+import java.util.LinkedList;
 
 /**
  * Testcases for the X10 Runtime.  
@@ -58,7 +59,7 @@ public class TestRuntime extends TestCase {
      * Runtime class).  Hence we need a litte hack to register
      * the thread used to run the testcase as a 'local' thread
      * with the Runtime.
-     */
+   
     public void setUp() {
         DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
         Place[] pls = Place.places();
@@ -70,10 +71,10 @@ public class TestRuntime extends TestCase {
             tr.registerActivityStart(t, a, null);
         }
     }
-
+  */
     /**
      * Clean-up effects from setUp().
-     */
+  
     public void tearDown() {
         DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
         if (r instanceof ThreadRegistry) {
@@ -82,101 +83,106 @@ public class TestRuntime extends TestCase {
             tr.registerActivityStop(t, a);
         }
     }
-
+   */
     // testcases
 
     private static volatile int x;
     
     public void testPlaceRunAsync() {
-        x = 0;
-        Runtime.here().runAsync(new Activity() {
-            public void run() {
-                x = 1;
-            }
-        }, null);
-        sleep(100);
-        assertTrue(x == 1);
+    	
+    	x = 0;
+    	Runtime.runAsync(new Activity() {
+    		public void run() {
+    			x = 1;
+    		}
+    	});
+    	sleep(100);
+    	assertTrue(x == 1);
     }
 
     public void testPlaceRunFuture() {
-        x = 0;
-        Future f = Runtime.here().runFuture(new Activity.Expr() {
-            private x10.lang.Object val;
-            public void run() {
-                val = new x10.lang.Object();;
-            }
-            public Object getResult() {
-                return val;
-            }
-        }, null);
-        assertTrue(f.force().getClass() == x10.lang.Object.class);
+    	x = 0;
+    	Runtime.runAsync(new Activity() { 
+    		public void run() {
+    			Future f = Runtime.runFuture(new Activity.Expr() {
+    				private x10.lang.Object val;
+    				public void runSource() {
+    					val = new x10.lang.Object();;
+    				}
+    				public Object getResult() {
+    					return val;
+    				}
+    			});
+    			assertTrue(f.force().getClass() == x10.lang.Object.class);
+    		}
+    	}
+    	);
     }
 
     public void testClockNext() {
         x = 0;
-        Runtime.here().runAsync(new Activity() {
+        Runtime.runAsync(new Activity() {
         	public void run() {
         		Runtime.here().runAsync(new Activity() {
         			public void run() {
         				final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
-        				Activity b = new Activity() {
+        				final Activity b = new Activity() {
         					public void run() {
-        						Runtime.doNext();
+        						doNext();
         						x = 1;
-        						Runtime.doNext();
-        						Runtime.doNext();
+        						doNext();
+        						doNext();
         						x = 2;
-        						Runtime.doNext();
+        						doNext();
         					}
         				};
-        				Runtime.here().runAsync(b, Runtime.getCurrentActivityInformation());
+        				Runtime.here().runAsync(b);
         				sleep(100); // wait for activity to hit first 'doNext'
         				assertTrue(x == 0);
-        				Runtime.doNext();
-        				Runtime.doNext();
+        				doNext();
+        				doNext();
         				assertTrue(x == 1);
-        				Runtime.doNext();
-        				Runtime.doNext();
+        				doNext();
+        				doNext();
         				assertTrue( x == 2);
         			}
-        		}, 
-				Runtime.getCurrentActivityInformation());
+        		});
         	}
-        }, null);
+        });
     }
     
     
     public void testClockContinue() {
     	x = 0;
-    	Runtime.here().runAsync(new Activity() {
+    	Runtime.runAsync(new Activity() {
     		public void run() {
     			Runtime.here().runAsync(new Activity() {
     				public void run() {
     					final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
     					Activity b = new Activity() {
     						public void run() {
-    							Runtime.doNext();
+    							doNext();
     							x = 1;
     							c.resume();
     							sleep(100); // wait for activity to hit first 'doNext'
     							x = 2; // 'bad' coding style :-)
     						}
     					};
-    					Runtime.here().runAsync(b, null);
+    					Runtime.here().runAsync(b);
     					assertTrue(x == 0);
-    					Runtime.doNext();
-    					Runtime.doNext();
+    					doNext();
+    					doNext();
     					assertTrue(x == 1);
     					sleep(200); // sleep longer than 'b'
     					assertTrue(x == 2);
     				}
-    			}, Runtime.getCurrentActivityInformation());
+    			});
     		}
-    	}, null);
+    	});
     }
     
     public void testClockDrop() {
-    	Runtime.here().runAsync(new Activity() {
+    	Runtime.runAsync(new Activity() {
     		public void run() {
     			Runtime.here().runAsync(new Activity() {
     				public void run() {
@@ -186,20 +192,20 @@ public class TestRuntime extends TestCase {
     							c.drop();
     						}
     					};
-    					Runtime.here().runAsync(b, null);
-    					Runtime.doNext();
-    					Runtime.doNext();
-    					Runtime.doNext();
-    					Runtime.doNext();
-    					Runtime.doNext();
+    					Runtime.here().runAsync(b);
+    					doNext();
+    					doNext();
+    					doNext();
+    					doNext();
+    					doNext();
     				}
-    			}, Runtime.getCurrentActivityInformation());
+    			});
     		}
-    	}, null);
+    	});
     }
     
     public void testClockedFinal() {
-    	Runtime.here().runAsync(new Activity() {
+    	Runtime.runAsync(new Activity() {
     		public void run() {
     			Runtime.here().runAsync(new Activity() {
     				public void run() {
@@ -208,34 +214,34 @@ public class TestRuntime extends TestCase {
     					Activity b = new Activity() {
     						public void run() {
     							i.next = 1;
-    							Runtime.doNext();
+    							doNext();
     							i.next = 2;
-    							Runtime.doNext();
+    							doNext();
     							i.next = 3;
-    							Runtime.doNext();
+    							doNext();
     						}
     					};       
-    					Runtime.here().runAsync(b, null);
+    					Runtime.here().runAsync(b);
     					assertTrue(i.current == 0);
-    					Runtime.doNext();
+    					doNext();
     					assertTrue(i.current == 1);
-    					Runtime.doNext();
+    					doNext();
     					assertTrue(i.current == 2);
-    					Runtime.doNext();
+    					doNext();
     					assertTrue(i.current == 3);
-    					Runtime.doNext();
+    					doNext();
     				}
-    			}, Runtime.getCurrentActivityInformation());
+    			});
     		}
-    	}, null);
+    	});
     }
 
     public void testClockNow() {
-    	Runtime.here().runAsync(new Activity() {
+    	Runtime.runAsync(new Activity() {
     		public void run() {
     			Runtime.here().runAsync(new Activity() {
     				public void run() {
-    					Activity b = new Activity() {
+    					final Activity b = new Activity() {
     						public void run() {
     							sleep(100);
     							Activity c = new Activity() {
@@ -246,21 +252,29 @@ public class TestRuntime extends TestCase {
     											x = 1;
     										}
     									};                    
-    									Runtime.here().runAsync(d, Runtime.getCurrentActivityInformation());
+    									Runtime.here().runAsync(d);
     								}
     							};
-    							Runtime.here().runAsync(c, null);
+    							Runtime.here().runAsync(c);
     						}
     					};
     					x = 0;
     					final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
-    					c.doNow(b);
-    					Runtime.doNext();
+    					LinkedList l = new LinkedList();
+    					l.add(c);
+    					Runtime.here().runAsync(new Activity(l) {
+    						public void run() {
+    							b.finishRun();
+    						}
+    						
+    					});
+    					
+    					doNext();
     					assertTrue(x == 1);
     				}
-    			}, Runtime.getCurrentActivityInformation());
+    			});
     		}
-    	}, null);
+    	});
     }
     
     /**

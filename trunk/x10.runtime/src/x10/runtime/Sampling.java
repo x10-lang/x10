@@ -40,7 +40,11 @@ public final class Sampling extends Thread {
     static synchronized void boot(Runtime rt, Activity boot) { 
         assert (SINGLETON == null);
         SINGLETON = new Sampling(rt, boot);
-        
+        SINGLETON.setDaemon(true);
+        if (Report.should_report("activity", 3)) {
+    		Report.report(3, Thread.currentThread() + " starting Sampling Thread " + SINGLETON);
+    	}
+        SINGLETON.start();
     }
 
     /**
@@ -189,11 +193,7 @@ public final class Sampling extends Thread {
             }
         }
         
-        // sampling shall be done by a daemon thread - if nothing else 
-        // runs but daemon threads, then the JVM shall terminate.
-        setDaemon(true);
         
-        this.start(); // auto-start!
     }
 
     private synchronized void freshActivity(Activity a) {
@@ -219,7 +219,6 @@ public final class Sampling extends Thread {
     
     public static String intArrayToString(int a[]) {
     	if (a == null) return "NULL";
-    	
     	StringBuffer sb = new StringBuffer("[");
     	for (int i = 0; i < a.length; i++) {
     		sb.append(a[i]);
@@ -263,7 +262,7 @@ public final class Sampling extends Thread {
 
     public void signalEvent(int event_id) {
         signalEvent(null, 
-                          dr.getCurrentActivity(),
+                          Runtime.getCurrentActivity(),
                           event_id, 0,
                           0, 
                           0);        
@@ -278,7 +277,7 @@ public final class Sampling extends Thread {
             int event_id,
             int event_info) {
         signalEvent(related, 
-                dr.getCurrentActivity(),
+                Runtime.getCurrentActivity(),
                 event_id, event_info, 
                 0, 
                 0);        
@@ -296,7 +295,7 @@ public final class Sampling extends Thread {
                                           int cause,
                                           int causeInfo) {
         signalEvent(related, 
-                          dr.getCurrentActivity(),
+                          Runtime.getCurrentActivity(),
                           event_id, 0, 
                           cause, 
                           causeInfo);        
@@ -318,15 +317,15 @@ public final class Sampling extends Thread {
     }
     
     public synchronized void signalEvent(Activity ia,
-                                                                 Activity a, 
-                                                                 int event_id,
-                                                                 int event_info,
-                                                                 int cause,
-                                                                 int causeInfo) {                                                                   
-        Place srcPlace = (ia == null) ? null : dr.getPlaceOfActivity(ia);
-        Place dstPlace = (a == null) ? null : dr.getPlaceOfActivity(a);
-        //System.out.println("SRCP " + srcPlace + " of act " + ia);
-        //System.out.println("DSTP " + dstPlace + " of act " + a);
+    		Activity a, 
+			int event_id,
+			int event_info,
+			int cause,
+			int causeInfo) {                                                                   
+    	Place srcPlace = (ia == null) ? null : dr.getPlaceOfActivity(ia);
+    	Place dstPlace = (a == null) ? null : dr.getPlaceOfActivity(a);
+    	//System.out.println("SRCP " + srcPlace + " of act " + ia);
+    	//System.out.println("DSTP " + dstPlace + " of act " + a);
         try {
             int i = dstPlace == null ? -1 : dstPlace.id;
             int j = srcPlace == null ? -1 : srcPlace.id;
@@ -604,8 +603,8 @@ public final class Sampling extends Thread {
     public static class ActivityCounter extends Collector {
         public void activate(final DefaultRuntime_c dr,
                 Activity  boot) {
-            dr.registerActivitySpawnListener(boot,
-                                             new ActivitySpawnListener() {
+            boot.registerActivitySpawnListener(
+             new ActivitySpawnListener() {
                 public void notifyActivitySpawn(Activity a,
                                                 Activity i) {
                     assert a != i;
@@ -616,7 +615,7 @@ public final class Sampling extends Thread {
                                 0,
                                 0,
                                 0);
-                    dr.registerActivitySpawnListener(a, this);
+                    a.registerActivitySpawnListener(this);
                 }
                 public void notifyActivityTerminated(Activity a) {
                     if (SINGLETON != null)
@@ -640,20 +639,20 @@ public final class Sampling extends Thread {
      * @author Christian Grothoff
      */
     public static class InterPlaceCommunicationCounter extends Collector {
-        public void activate(final DefaultRuntime_c dr,
-                Activity  boot) {
-            dr.registerActivitySpawnListener(boot,
-                                             new ActivitySpawnListener() {
-                public void notifyActivitySpawn(Activity a,
-                                                Activity i) {
-                    assert a != i;
-                    dr.registerActivitySpawnListener(a, this);
-                }
-                public void notifyActivityTerminated(Activity a) {
-                    // we don't care.
-                }                
-            });
-        }
+    	public void activate(final DefaultRuntime_c dr, Activity  boot) {
+    		boot.registerActivitySpawnListener(
+    				new ActivitySpawnListener() {
+    					public void notifyActivitySpawn(Activity a, Activity i) {
+    						assert a != i;
+    						a.registerActivitySpawnListener(this);
+    					}
+    					public void notifyActivityTerminated(Activity a) {
+    						// we don't care.
+    					}                
+    				}
+    		);
+    		  
+    	}
     } // end of Sampling.ActivityCounter
     
     /**

@@ -4,12 +4,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import x10.lang.Future;
-import x10.lang.Runtime;
+
 
 /**
  * A LocalPlace_c is an implementation of a place
@@ -18,6 +15,7 @@ import x10.lang.Runtime;
  * Places on other machines.
  * 
  * @author Christian Grothoff
+ * @author vj
  */
 public class LocalPlace_c extends Place {
 
@@ -60,12 +58,8 @@ public class LocalPlace_c extends Place {
             lp.startBlock = max; 
         }
     }
-
     
-    private final ThreadRegistry reg_;
-    
-    private final ActivityInformationProvider aip_;
-
+   
     /**
      * Is this place shutdown?
      */
@@ -99,14 +93,8 @@ public class LocalPlace_c extends Place {
      */
     private long startBlock; 
     
-    LocalPlace_c(ThreadRegistry reg, ActivityInformationProvider aip) {
+    LocalPlace_c() {
         super();
-        this.reg_ = reg;
-        this.aip_ = aip;
-        // this is done in initAllPlaceTimes - 
-        // it must not be done at this point, because the
-        // runtime system is not initialized at this point
-        // startBlock = systemNow();
     }
     
     /**
@@ -133,73 +121,105 @@ public class LocalPlace_c extends Place {
      * that calls shutdown :-).
      */
     public synchronized void shutdown() {
-        shutdown = true;
+    	synchronized (this) {
+    		shutdown = true;
+    		if (Report.should_report("activity", 5)) {
+    			Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() 
+    					+" shutting down " + threadQueue_);
+    			PoolRunner list = threadQueue_;
+    			while (list != null) {
+    				if (Report.should_report("activity", 5)) {
+    					Report.report(5, Thread.currentThread() +  "@" + list.place + ":" + System.currentTimeMillis() 
+    						+"  threadpool contains " + list);
+    				}
+    				list = list.next;
+    			}
+    		}
+    	}
         while (this.threadQueue_ != null) {
+        	if (Report.should_report("activity", 5)) {
+        		Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() +" shutting down " + threadQueue_);
+        	}
+        	
             threadQueue_.shutdown();
+            
             try {
                 threadQueue_.join();
+            	if (Report.should_report("activity", 5)) {
+            		Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() + " " + threadQueue_ + " shut down.");
+            	}
             } catch (InterruptedException ie) {
                 throw new Error(ie); // should never happen...
             }
+            
             threadQueue_ = threadQueue_.next;
         }
     }
 
     /**
      * Run the given activity asynchronously.
+     * vj 5/17/05. This has been completely revamped,
+     * with Activity given much more responsibility for its execution.
      */
-    public void runAsync(final Activity a,
-            final ActivityInformation ai) {
-        final Activity i = aip_.getCurrentActivity();
-        assert i != a;
-        final StartSignal startSignal = new StartSignal();
+    public void runAsync(final Activity a) {
+    	runAsync( a, false);
+    }
+    /**
+     * Run this activity asynchronously, as if it is wrapped in a finish.
+     * That is, wait for its global termination.
+     * @param a
+     */
+    public void finishAsync( final Activity a) {
+    	runAsync( a, true);
+    }
+    protected void runAsync(final Activity a, final boolean finish) {
+   
+      //  final StartSignal startSignal = new StartSignal();
+        Thread currentThread = Thread.currentThread();
+        if (currentThread instanceof ActivityRunner) {
+        	Activity parent = ((ActivityRunner) currentThread).getActivity();
+        	parent.finalizeActivitySpawn(a);
+        }
+        a.initializeActivity();
         this.execute(new Runnable() {
             public void run() {
+            	// Get a thread to run this activity.
                 PoolRunner t = (PoolRunner) Thread.currentThread();
-                reg_.registerActivityStart(t, a, i);
-                if (t.myClocks_ != null) {
-                    Iterator it = t.myClocks_.iterator();
-                    while (it.hasNext()) {
-                        Clock c = (Clock) it.next();                    
-                        c.register(i);
-                    }
-                }  
-                synchronized(startSignal) {
+                if (Report.should_report("activity", 5)) {
+            		Report.report(5, t + " is running " + this);
+            	}
+ 
+                // Install the activity.
+                t.setActivity(a);
+                a.setPlace(LocalPlace_c.this);
+                
+            /*  synchronized(startSignal) {
                     startSignal.go = true;
                     startSignal.notifyAll();
-                }
+                }*/
+                
                 try {
-                    a.run();
-                    if (a instanceof Activity.Expr) {
-                        Activity.Expr aexpr = (Activity.Expr) a;
-                        aexpr.future.setResult(aexpr.getResult());
-                    }
-                } catch (RuntimeException re) {
-                    reg_.registerActivityException(a, re);
-                    if (a instanceof Activity.Expr) {
-                        Activity.Expr aexpr = (Activity.Expr) a;
-                        aexpr.future.setException(re);
-                    }
-                } catch (Error et) {
-                    reg_.registerActivityException(a, et);
-                    if (a instanceof Activity.Expr) {
-                        Activity.Expr aexpr = (Activity.Expr) a;
-                        aexpr.future.setException(et);
-                    }
-                } catch (Throwable th) {
-                    th.printStackTrace();
-                    System.err.println("LocalPlace_c::runAsync - unexpected exception " + th);
-                    if (a instanceof Activity.Expr) {
-                        Activity.Expr aexpr = (Activity.Expr) a;
-                        aexpr.future.setException(new RuntimeException(th));
-                    }
-                }
+                	if (finish) {
+                		a.finishRun();
+                	} else {
+                		a.run();
+                	}
+                	a.finalizeTermination();
+                } catch (Throwable e) {
+                	// e.printStackTrace();
+                	// System.err.println("LocalPlace_c::runAsync - unexpected exception " + e);
+                	// can never arrive here if finish=true
+                	a.finalizeAbruptTermination(e);
+                } 
             }
-        }, a, ai);
+            public String toString() { return "<Executor " + a+">";}
+            
+        });
+        // vj: 5/17 Check why this needs to be done.
         // we now need to wait at least (!) until the 
         // "reg_.registerActivityStart(...)" line has been
         // reached.  Hence we wait on the start signal.
-        synchronized (startSignal) {
+       /*synchronized (startSignal) {
             try {
                 while (! startSignal.go) {
                     startSignal.wait();
@@ -208,19 +228,17 @@ public class LocalPlace_c extends Place {
                 System.err.println("LocalPlace_c::runAsync - unexpected exception " + ie);
                 throw new Error(ie); // should never happen!
             }
-        }
+        }*/
     }
     
     /**
      * Run the given activity asynchronously.  Return a handle that
      * can be used to force the future result.
      */
-    public Future runFuture(final Activity.Expr a, ActivityInformation ai) {
-        ((x10.runtime.DefaultRuntime_c) Runtime.runtime).startFinish(a);
-        Future_c result = new Future_c(a);
-        a.future = result;
-        result.getClock().doNow(a);
-        return result;
+    public Future runFuture(final Activity.Expr a) {
+    	Future_c result = a.future = new Future_c(a);
+    	runAsync(a);
+    	return result;
     }
 
     /**
@@ -231,19 +249,26 @@ public class LocalPlace_c extends Place {
      * @param r the activity to run
      * @throws InterruptedException
      */
-    protected void execute(Runnable r, Activity act, ActivityInformation ai) {
+    protected void execute(Runnable r) {
         PoolRunner t;
         synchronized(this) {
         	if (threadQueue_ == null) {
         		t = new PoolRunner(this);
-        		reg_.registerThread(t, this);
+        		t.setDaemon(false);
         		t.start();
+        		if (Report.should_report("activity", 5)) {
+            		Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() +"LocalPlace starts " 
+            				+ (t.isDaemon() ? "" : "non") + "daemon thread " + t 
+							+ "in group " + Thread.currentThread().getThreadGroup() 
+							 +".");
+            	}
+        		
         	} else {
         		t = threadQueue_;
         		threadQueue_ = t.next;
         	}
         }
-        t.run(r, act, ai);
+        t.run(r);
     }
      
     /**
@@ -254,6 +279,10 @@ public class LocalPlace_c extends Place {
      * @param r
      */
     private synchronized final void repool(PoolRunner r) {
+    	if (Report.should_report("activity", 5)) {
+    		Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() +" repools (shutdown=" + shutdown + ").");
+    	}
+    	
         r.next = threadQueue_;
         threadQueue_ = r;
     }
@@ -280,8 +309,8 @@ public class LocalPlace_c extends Place {
      *
      * @author Christian Grothoff
      */
-    final class PoolRunner extends LoadMonitored
-        implements ActivityInformation { // if you do NOT want load monitoring, make 'extend Thread'
+    final class PoolRunner extends LoadMonitored 
+		implements ActivityRunner { // if you do NOT want load monitoring, make 'extend Thread'
         /**
          * For building a linked list of these.
          */
@@ -291,9 +320,7 @@ public class LocalPlace_c extends Place {
         private Activity act;
         private Method ac;
         private Object vmto;
-        // FIXME: move myClocks_ into the Activity base class
-        private List myClocks_;
-        Place place;
+        Place place; // not final, may be set by DefaultRuntime_c.setCurrentPlace(place p)
         
         PoolRunner(Place p) {
             place = p;
@@ -303,6 +330,7 @@ public class LocalPlace_c extends Place {
                 vmt.setAccessible(true);
                 this.vmto = vmt.get(this); // o is 'VM_Thread'
                 this.ac = vmto.getClass().getDeclaredMethod("accumulateCycles", new Class[0]);
+                setName("PoolRunner" + hashCode());
             } catch (SecurityException se) {
                 // System.out.println("GSPT: " + se);
             } catch (IllegalAccessException iae) {
@@ -315,10 +343,11 @@ public class LocalPlace_c extends Place {
                 // System.out.println("GSPT: " + ncfe);
             }
         }
-        
-        public List getRegisteredClocks() {
-            assert myClocks_ != null;
-            return myClocks_;
+        public Activity getActivity() {
+        	return act;
+        }
+        public void setActivity( Activity a) {
+        	this.act = a;
         }
     
         /**
@@ -358,17 +387,12 @@ public class LocalPlace_c extends Place {
             this.notifyAll();
         }
         /**
-         * Assign a new job to this runner and start running!
+         * Assign a new job to this runner and notify it of the change so it can start running again.
          * @param r
          */
-        synchronized void run(Runnable r, Activity a, ActivityInformation ai) {
+        synchronized void run(Runnable r) {
             assert job == null;
-            act = a;
-            job = r;
-            if (ai == null)
-                this.myClocks_ = new LinkedList();
-            else 
-                this.myClocks_ = new LinkedList(ai.getRegisteredClocks());            
+            job = r;       
             this.notifyAll();
         }
         /**
@@ -384,34 +408,59 @@ public class LocalPlace_c extends Place {
          */
         public synchronized void run() {
             while (active) {
+            	if (Report.should_report("activity", 5)) {
+            		Report.report(5, Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis() +" waiting for a job.");
+            	}
                 while (active && job == null) {
                     try {
                         wait();
                     } catch (InterruptedException ie) {
                         throw new Error(ie);
                     }
+                    if (Report.should_report("activity", 5)) {
+                		Report.report(5, Thread.currentThread() +  "@" + place + ":" 
+                				+ System.currentTimeMillis() +" awakes (shutdown=)" + shutdown + ".");
+                	}
                 }
                 if (job != null) {
                     Runnable j = job;
                     job = null;
                     try {
                         changeRunningStatus(1);
+                        if (Report.should_report("activity", 5)) {
+                    		Report.report(5, this + "@" + place + ":" + System.currentTimeMillis() + " starts running " + j +".");
+                    	}
                         j.run();
+                     	if (Report.should_report("activity", 5)) {
+                    		Report.report(5, this + "@" + place + ":" + System.currentTimeMillis() + " finished running " + j +".");
+                    	}
+                     
                     } finally {
                         changeRunningStatus(-1);
-                        reg_.registerActivityStop(Thread.currentThread(), 
-                                                              act);
+                        // act.finalizeTermination();
                     }
                     // notify the LocalPlace_c that we're again available
                     // for more work!
                     synchronized (LocalPlace_c.this) {
-                        if (LocalPlace_c.this.shutdown)
+                        if (LocalPlace_c.this.shutdown) {
+                        	if (Report.should_report("activity", 5)) {
+                        		Report.report(5, Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis() +" shuts down.");
+                        	}
+                        	
                             return;
-                        else
-                            repool(this);
+                        }
+                        repool(this);
                     }
                 }
             }
+            if (Report.should_report("activity", 5)) {
+        		Report.report(5, Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis() +" shuts down.");
+        	}
+        }
+        
+        public String toString() {
+        	return "<PoolRunner " + hashCode() + ">";
+        			
         }
     } // end of LocalPlace_c.PoolRunner
 

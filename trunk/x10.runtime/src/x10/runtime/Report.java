@@ -40,6 +40,7 @@ public class Report {
   /** Report topics understood by the runtime system. */
   
   public static String clock = "clock";
+  public static String activity = "activity";
   
   // This topic is the level of detail that should be in messages.
   public static String debug = "debug";  
@@ -47,6 +48,7 @@ public class Report {
   static {
     
     topics.add(clock);
+    topics.add(activity);
 
     should_report.push(verbose);
   }
@@ -115,7 +117,7 @@ public class Report {
    *
    */
   public static void report(int level, String message) {
-    for (int j = 1; j < level; j++) System.err.print("  ");
-    System.err.println(message);
+    for (int j = 1; j < level; j++) System.out.print("  ");
+    System.out.println(message);
   }
 }

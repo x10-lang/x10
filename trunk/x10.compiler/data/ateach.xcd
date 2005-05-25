@@ -4,15 +4,16 @@
        ) {
    #0 #1 #2 = (#1) #2__.next();
    ((x10.runtime.Place) #3.get(#2)).runAsync
-       (new x10.runtime.Activity() {
+       (new x10.runtime.Activity(new x10.runtime.List(){ 
+   public java.util.List run() {
+    java.util.LinkedList clocks = new java.util.LinkedList();
+     #5
+    return clocks;
+   }
+  }.run()
+       ) {
           public void run() {
              #4
           }
-       }, new x10.runtime.ActivityInformation() {
-         public java.util.List getRegisteredClocks() {
-           java.util.LinkedList clocks = new java.util.LinkedList();  	
-           #5
-           return clocks;
-         }
-       } );
-     }
+       });
+}

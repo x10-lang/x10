@@ -28,7 +28,10 @@ public class Helper {
 		else
 		{
 			final int index[] = {d0};
-			if(!r.contains(index)) throw new ArrayIndexOutOfBoundsException();
+			if(!r.contains(index)) {
+				System.out.println("IndexError=|" + d0 + "|, r = " + r);
+				throw new ArrayIndexOutOfBoundsException();
+			}
 		}
 		d0 -= r.rank(0).low();
 		return d0;

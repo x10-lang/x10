@@ -1,14 +1,15 @@
 // async(0) clocked(1) 2
-((x10.runtime.Place) #0).runAsync(new x10.runtime.Activity() {
+((x10.runtime.Place) #0).runAsync(
+  new x10.runtime.Activity(new x10.runtime.List(){ 
+   public java.util.List run() {
+    java.util.LinkedList clocks = new java.util.LinkedList();
+     #1
+    return clocks;
+   }
+  }.run()) {
   public void run() {
      #2
   } 
-}, new x10.runtime.ActivityInformation() {
-  public java.util.List getRegisteredClocks() {
-    java.util.LinkedList clocks = new java.util.LinkedList();  	
-    #1
-    return clocks;
-  }
 });
 
         

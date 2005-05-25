@@ -13,8 +13,9 @@ import x10.lang.Object;
  * 
  * @author Christian Grothoff
  * @author Christoph von Praun
+ * @author vj
  */
-final class Future_c extends Future  {
+final class Future_c extends Future {
 
     private boolean haveResult_;
     
@@ -29,19 +30,11 @@ final class Future_c extends Future  {
     
     private Object result_;
     
-    private final Clock clock_;
-    
-    private final Activity starter_;
-    
     Future_c(Activity.Expr wf) {
         this.waitFor_ = wf;
-        this.clock_ = new Clock((ActivityInformationProvider) x10.lang.Runtime.runtime, this);
-        this.starter_ = ((ActivityInformationProvider) x10.lang.Runtime.runtime).getCurrentActivity();
+       
     }
     
-    Clock getClock() {
-        return clock_;
-    }
     
     /**
      * Set the result value returned by this async call.
@@ -56,22 +49,13 @@ final class Future_c extends Future  {
     }
     
     /**
-     * Set the result value returned by this async call.
+     * Set the result value returned by this async call. 
+     * Caller must ensure that this is called only after the activity
+     * associated with the future has finish'ed.
      * 
      * @param result
      */
-    public synchronized void setException(RuntimeException t) {
-        if (haveResult_) {
-            t.printStackTrace();
-            // FIXME: what should happen here?
-        } else {
-            this.exception_ = t;
-            this.haveResult_ = true;
-            this.notifyAll(); // wake up 'force' if waiting
-        }
-    }
-
-    public synchronized void setException(Error t) {
+    public synchronized void setException(Throwable t) {
         if (haveResult_) {
             t.printStackTrace();
             // FIXME: what should happen here?
@@ -86,42 +70,23 @@ final class Future_c extends Future  {
      * @see x10.runtime.Activity.Result#force()
      */
     public synchronized Object force() {
-        try {
-            while (! haveResult_) {
-                try {
-                    this.wait();
-                } catch (InterruptedException ie) {
-                    System.out.println("Future_c::force - unexpected exception e" + ie);
-                    throw new Error(ie); // this should never happen...
-                }
-            }
-        } finally {
-            try {
-                // x10.lang.Runtime.doNext(); // CVP that will make ClocktTest10 fail
-                clock_.resume(starter_);
-                clock_.doNext(starter_);
-                clock_.drop(starter_);
-            } catch (java.lang.RuntimeException re) {
-                ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(waitFor_, re);
-            } catch (java.lang.Error er) {
-                ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).registerActivityException(waitFor_, er);
-            } catch (Throwable t) {
-                exception_ = t;
-            } finally {
-                if (exception_ == null) {
-                    java.lang.Throwable t = ((x10.runtime.DefaultRuntime_c)x10.lang.Runtime.runtime).getFinishExceptions(waitFor_);
-                    if (t != null)
-                        exception_ = t;
-                }
-            }
-        }
-        if (exception_ != null) {
-            if (exception_ instanceof Error)
-                throw (Error) exception_;
-            if (exception_ instanceof RuntimeException)
-                throw (RuntimeException) exception_;
-            assert false;
-        } 
-        return result_;
+    	while (! haveResult_) {
+    		try {
+    			this.wait();
+    		} catch (InterruptedException ie) {
+    			System.err.println("Future_c::force - unexpected exception e" + ie);
+    			throw new Error(ie); // this should never happen...
+    		}
+    	}
+  
+    	if (exception_ != null) {
+    		if (exception_ instanceof Error)
+    			throw (Error) exception_;
+    		if (exception_ instanceof RuntimeException)
+    			throw (RuntimeException) exception_;
+    		assert false;
+    	} 
+    
+    	return result_;
     }
 }

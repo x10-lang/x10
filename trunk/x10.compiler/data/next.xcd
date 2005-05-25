@@ -1,2 +1,2 @@
 // next;
-x10.lang.Runtime.doNext();
+x10.lang.Runtime.getCurrentActivity().doNext();
