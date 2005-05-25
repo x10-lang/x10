@@ -5,7 +5,7 @@ package x10.runtime;
 
 
 /**
- * This interface is implemented by threads that want a notification to be
+ * This abstract class is extended by threads that want a notification to be
  * emitted whenever the thread is blocked (on synchronization or wait).
  * This is useful for performance monitoring (to measure the load at a given
  * Place).

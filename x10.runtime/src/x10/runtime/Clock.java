@@ -111,10 +111,7 @@ public final class Clock extends clock {
 	private static int nextId_ = 0;
 	private int id_;
 	private final String name_;
-	/**
-	 * The activity information provider that this clock can use.
-	 */
-	private final ActivityInformationProvider aip_;
+
 	
 	/**
 	 * A Set of all activities registered with this clock.
@@ -143,12 +140,7 @@ public final class Clock extends clock {
 	private final Set nextResumed_ = new HashSet(); // <Activity>
 	private int nextResumedCount_ = 0;
 	
-	/**
-	 * Activities spawned via 'now'.  All of these activities
-	 * must terminate before we can advance to the next phase.
-	 */
-	private final Set nowSet_ = new HashSet(); // <Activity>
-	
+
 	/**
 	 * The first registered advance listener.  null if none is
 	 * registered.
@@ -167,36 +159,26 @@ public final class Clock extends clock {
 	 */
 	private int phase_;
 	
-    public final boolean clockUsedForFuture;
     
 	/**
 	 * Create a new Clock.  Registers the current activity with
 	 * the clock as a side-effect (see X10 Report).
 	 */
-	protected Clock(ActivityInformationProvider aip, Future_c f) {
-        this(aip, "", true);
-    }
-    protected Clock(ActivityInformationProvider aip) {
-		this(aip, "", false);
+	public Clock() {
+		this( "");
 	}
-    protected Clock(ActivityInformationProvider aip, String name) {
-        this(aip, "", false);
-    }
-	private Clock(ActivityInformationProvider aip, String name, boolean for_future) {
+	public Clock( String name) {
 		this.name_ = name;
-        clockUsedForFuture = for_future;
 		synchronized (getClass()) {
 			id_ = nextId_++;
 		}
-		this.aip_ = aip;
-		Runtime.getCurrentActivityInformation().getRegisteredClocks().add(this);
-		Activity a = aip.getCurrentActivity();
+		Activity a = Runtime.getCurrentActivity();
+		a.addClock(this);
 		activities_.add(a);
 		activityCount_++;
 		if (Report.should_report("clock",3)) {
-			Report.report(3, this + "created by " + a +".");
+			Report.report(3, Thread.currentThread() + " " + this + "created by " + a +".");
 		}
-		aip_.registerActivitySpawnListener(a, dropListener_);
 	}
 	
 	/**
@@ -211,90 +193,54 @@ public final class Clock extends clock {
 	/**
 	 * Register the current activity with this clock.
 	 */
-	synchronized void register(Activity authorizer) {
-		Activity a = aip_.getCurrentActivity();
-		if (Report.should_report("clock", 3)) {
-			Report.report(3, this + ".register:" + authorizer + " registering " + a);
-			}
+	synchronized void register(Activity a ) {
+		Activity authorizer = Runtime.getCurrentActivity();
+		if (Report.should_report("clock", 5)) {
+			Report.report(5, Thread.currentThread() + " " + this + ".register:" + authorizer + " registering " + a);
+		}
 		synchronized (this) {
-			if (activities_.contains(a)) return;
 			if (inactive(authorizer))	
 				throw new ClockUseException(authorizer + "is not active on " + this + "; cannot transmit.");
+			if (activities_.contains(a)) return;
 			activities_.add(a);
 			activityCount_++;
 		}
 		if (Report.should_report("clock", 3)) {
-			Report.report(3, this + "...done.(activityCount_=" + activityCount_+").");
-			}
-		aip_.registerActivitySpawnListener(a, dropListener_);
-	}
-	
-	/**
-	 * Execute the given activity.  The clock will not advance
-	 * into the next phase until the given activity and all
-	 * activities transitively started by a have completed.
-	 * 
-	 * @param a an activity to run
-	 */
-	public void doNow(Activity a) {
-		Activity authorizer = aip_.getCurrentActivity();
-		synchronized(this) {
-			if (inactive(authorizer))
-				throw new ClockUseException( authorizer + "is not active on " + this + "; cannot execute 'now'.");
-			if (Report.should_report("clock", 3)) {
-				Report.report(3, Clock.this+ ".doNow(" + a + ").");
-				}
-			nowSet_.add(a);
-			aip_.registerActivitySpawnListener(a, nowSpawnListener_);
+			Report.report(3, Thread.currentThread() + " " + this + "...done.(activityCount_=" + activityCount_+").");
 		}
-		Runtime.here().runAsync(a, null); //vj Check: why null?
 	}
 	
-    public void doNowSameThread(Activity a) { 
-        a.run();
-        resume();
-    }
-    
+	    
 	private boolean quiescent( Activity a) {
 		return resumed_.contains(a) || nextResumed_.contains(a);
 		
 	}
-    
-    /**
-     * Notify the clock that this activity has completed its
-     * work in this phase of the clock.
-     */
-    public void resume() {
-        resume(aip_.getCurrentActivity());
-    }
-    
-	void resume(Activity a) {   
-        if (clockUsedForFuture && !activities_.contains(a)) {
-            // if clock is used to implement a future, then a might 
-            // have terminated and unregistered already
-            return;
-        }
-        
-        if (Report.should_report("clock", 3)) {
-			Report.report(3, this + ".resume(" + a  +")");
-		}
+	/**
+	 * Notify the clock that this activity has completed its
+	 * work in this phase of the clock.
+	 */
+	public void resume() {
+		Activity a = Runtime.getCurrentActivity();        
 		// do not lock earlier - see comment in doNext
+		if (Report.should_report("clock", 5)) {
+			Report.report(5, Thread.currentThread() + " " + this + ".resume(" + a  +")");
+		}
 		synchronized (this) {
-			if (! activities_.contains(a) && !clockUsedForFuture)
+			if (! activities_.contains(a))
 				throw new ClockUseException(a + "is not registered with " + this +"; cannot execute 'resume'.");
 			
 			if (quiescent(a)) {
-			    if (Report.should_report("clock", 3)) {
-					Report.report(3, this + "...returned (noop).");
+				if (Report.should_report("clock", 5)) {
+					Report.report(5, Thread.currentThread() + " " + this + "...returned (noop).");
 				}
 				return; 
 			}
 			if (splitPhase_) {
 				nextResumed_.add(a);
 				nextResumedCount_++;
-				if (Report.should_report("clock", 3)) {
-					Report.report(3, this + "...added to nextResumed.");
-					}
+				if (Report.should_report("clock", 5)) {
+					Report.report(5, Thread.currentThread() + " " + this + "...added to nextResumed.");
+				}
 				return;
 			}
 			resumed_.add(a);
@@ -307,7 +253,7 @@ public final class Clock extends clock {
 	}
 	
 	public boolean registered() {
-		Activity a = aip_.getCurrentActivity();	
+		Activity a = Runtime.getCurrentActivity();	
 		// do not lock earlier - see comment in doNow       
 		synchronized (this) {
 			return activities_.contains(a);
@@ -325,9 +271,9 @@ public final class Clock extends clock {
 	 * 
 	 */
 	public void drop() {
-		if (drop(aip_.getCurrentActivity()))
-			Runtime.getCurrentActivityInformation().getRegisteredClocks().remove(this);
-		
+		Activity a = Runtime.getCurrentActivity();
+		if (drop(a))
+			a.dropClock( this );
 	}
 	
 	/**
@@ -346,14 +292,15 @@ public final class Clock extends clock {
 	 *   clock (or if it never was registered).
 	 */
 	synchronized boolean drop(Activity a) {
-	    if (Report.should_report("clock", 3)) {
-			Report.report(3, this + ".drop(" + a +").");
-		}
+	   
 		boolean ret = activities_.remove(a);
 		if (ret) activityCount_--;
 		if (resumed_.remove(a)) resumedCount_--;
 		if (nextResumed_.remove(a)) nextResumedCount_--;
 		tryMoveToSplit_();
+		 if (Report.should_report("clock", 3)) {
+			Report.report(3, this + " drops " + a +").");
+		 }
 		return ret;        
 	}
 	
@@ -362,23 +309,20 @@ public final class Clock extends clock {
 	 * calls all advance listeners and then signals the activities
 	 * that are waiting to get them going again.
 	 */
-	private synchronized boolean tryMoveToSplit_() {
-	    //if (clockUsedForFuture)
-          //  return false;
-            
-        if (Report.should_report("clock", 3)) {
-			Report.report(3, this + ".tryMoveToSplit_()");
-		}
+	synchronized boolean tryMoveToSplit_() {
+	    if (Report.should_report("clock", 3)) {
+			Report.report(3, Thread.currentThread() + " " + this + ".tryMoveToSplit_()");
+			}
 		
-		if (! (activityCount_ == resumedCount_ && nowSet_.size() == 0)) {
+		if (! (activityCount_ == resumedCount_ )) {
 		    if (Report.should_report("clock", 3)) {
 				Report.report(3, "...fails");
-			}
+				}
 			return false;
 		}
 		if (Report.should_report("clock", 3)) {
 			Report.report(3, "...succeeds");
-		}
+			}
 		splitPhase_ = true;
 		this.phase_++;
 		if (Sampling.SINGLETON != null)
@@ -394,11 +338,11 @@ public final class Clock extends clock {
 		}
 		this.notifyAll();
 		return true;
+		
 	}
-    
 	private synchronized boolean tryMoveToWhole_() {
 	    if (Report.should_report("clock", 3)) {
-			Report.report(3, this+".tryMoveToWhole_()");
+			Report.report(3, Thread.currentThread() + " " + this+".tryMoveToWhole_()");
 			}
 		if (resumedCount_ != 0) {
 		    if (Report.should_report("clock", 3)) {
@@ -432,30 +376,27 @@ public final class Clock extends clock {
 		}
 	}
 	
-    public void doNext() {
-        doNext(aip_.getCurrentActivity());
-    }
-    
-	void doNext(Activity a) {
-		if (Report.should_report("clock", 3)) {
-			Report.report(3, this+".doNext(" + a + ") called.");
+	public void doNext() {
+		Activity a = Runtime.getCurrentActivity();
+		// do not acquire lock earlier - otherwise deadlock can happen
+		// because the lock used to protected aip_.getCurrentActivity
+		// is also held when terminating activities drop locks ...
+		if (Report.should_report("clock", 5)) {
+			Report.report(5, Thread.currentThread() + " " + this+".doNext(" + a + ") called.");
 		}
-        // do not acquire lock earlier - otherwise deadlock can happen
-        // because the lock used to protected aip_.getCurrentActivity
-        // is also held when terminating activities drop locks ...
 		synchronized (this) {
-			assert activities_.contains(a) || clockUsedForFuture;
-			assert nextResumed_.contains(a) || resumed_.contains(a) || clockUsedForFuture;
+			assert activities_.contains(a);
+			assert nextResumed_.contains(a) || resumed_.contains(a);
 			if (!splitPhase_ || nextResumed_.contains(a)){
-			    if (Report.should_report("clock", 3)) {
-					Report.report(3, this+".doNext(" + a + ") blocks.");
+				if (Report.should_report("clock", 3)) {
+					Report.report(3, Thread.currentThread() + " " + this+".doNext(" + a + ") blocks.");
 				}
 				block_();
 			}
 			if (Report.should_report("clock", 3)) {
-				Report.report(3, this+".doNext(" + a + ") continues.");
+				Report.report(3, Thread.currentThread() + " " + this+".doNext(" + a + ") continues.");
 			}
-			assert resumed_.contains(a) || clockUsedForFuture;
+			assert resumed_.contains(a);
 			resumed_.remove(a);
 			resumedCount_ --;
 			tryMoveToWhole_();
@@ -480,55 +421,6 @@ public final class Clock extends clock {
 		}
 	}
 	
-	
-	/**
-	 * Listener that tracks activity exits to ensure
-	 * dropping at the end.
-	 */
-	private final ActivitySpawnListener dropListener_ = 
-		new ActivitySpawnListener() {
-		public void notifyActivitySpawn(Activity a,
-				Activity i) {
-		}
-		public void notifyActivityTerminated(Activity a) {
-		    if (Report.should_report("clock", 3)) {
-				Report.report(3, Clock.this+ ".dropListener(" + a + ") triggered.");
-				}
-			drop(a);
-		}
-	};
-	
-	/**
-	 * Listener that (transitively) adds all spawned activities to
-	 * the 'nowSet_'.    
-	 */
-	private final ActivitySpawnListener nowSpawnListener_ = 
-		new ActivitySpawnListener() {
-		public void notifyActivitySpawn(Activity a,
-				Activity i) {
-			synchronized (Clock.this) {
-			    if (Report.should_report("clock", 3)) {
-					Report.report(3, Clock.this+ ".notifyActivitySpawn(" + a + ") triggered.");
-					}
-				nowSet_.add(a);
-			}
-			// also register the spawned activity with this spawn listener
-			// don't do it in the scope if the above lock due to risk of deadlock
-			aip_.registerActivitySpawnListener(a, this);
-		}
-		public void notifyActivityTerminated(Activity a) {
-			//TODO: check why the following assert is sometimes violated.
-			// assert nowSet_.contains(a);
-		    if (Report.should_report("clock", 3)) {
-				Report.report(3, Clock.this+ ".notifyActivityTerminated(" + a + ") triggered.");
-				}
-			synchronized (Clock.this) {
-				if (nowSet_.remove(a))               
-					tryMoveToSplit_(); // must occur inside synchronized
-			}
-		}
-	};
-	
 	/**
 	 * Callback method used by the Clock to notify all listeners
 	 * that the Clock is advancing into the next phase.
@@ -544,7 +436,6 @@ public final class Clock extends clock {
 		+ ":" + activityCount_ 
 		+ "," + resumedCount_
 		+ "," + nextResumedCount_
-		+ "," + nowSet_.size()
 		+ ")";
 	}
 	

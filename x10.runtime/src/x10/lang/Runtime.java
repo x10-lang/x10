@@ -1,14 +1,11 @@
 package x10.lang;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.LinkedList;
-import x10.runtime.ActivityInformation;
+
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
-import x10.runtime.Clock;
+
 
 /**
  * This is the central entrypoint to the X10 Runtime for the
@@ -75,6 +72,7 @@ public abstract class Runtime {
     protected abstract void initialize();
     
     public static void main(String[] args) {
+    	//System.out.println(Thread.currentThread() + "starting main(String[]).");
     	try {
             String[] args_stripped = Configuration.parseCommandLine(args);
             init();
@@ -114,11 +112,12 @@ public abstract class Runtime {
      * Run the X10 application.
      */
     protected abstract void run(String[] args) throws Exception;
-
+    
     public abstract void setCurrentPlace(place p);
     
-    public abstract place currentPlace();
+    public abstract Place currentPlace();
     
+    public abstract Activity currentActivity();
     public abstract Place[] getPlaces();
     
     /**
@@ -166,53 +165,8 @@ public abstract class Runtime {
         return o;
     }
     
-    /* 
-     * The main thread is a java.lang.Thread --> not an X10 thread and hence 
-     * the Activity information has to be provided in a separate record.
-     */
-    private static ActivityInformation aiMainThread_;
-    
-    private static class MainActivityInformation implements ActivityInformation {
-        private final LinkedList registeredClocks_ = new LinkedList();
-        public List getRegisteredClocks() {
-            return registeredClocks_;
-        }
-    }
-    
-    public static ActivityInformation getCurrentActivityInformation() {
-        ActivityInformation ai;
-        Thread cur_thread = Thread.currentThread();
-        if (cur_thread instanceof ActivityInformation) 
-            ai = (ActivityInformation) cur_thread;
-        else {
-            if (aiMainThread_ == null) {
-                // there is no risk of a race here, because this initialization 
-                // happens early within the main thread before any other threads
-                // are created.
-                ai = aiMainThread_ = new MainActivityInformation();
-            } else
-                ai = aiMainThread_;
-        }
-        return ai;
-    }
-    
-    public static void doNext() {
-        List clks = getCurrentActivityInformation().getRegisteredClocks();
-        // Without having a clock ordering, we MUST
-        // first do resume on all clocks before calling doNext!
-        // Otherwise the lack of order may lead to a deadlock!
-        Iterator it = clks.iterator();
-        while (it.hasNext()) {
-            Clock c = (Clock) it.next();
-            if (!c.clockUsedForFuture)
-                c.resume();
-        }
-        it = clks.iterator();
-        while (it.hasNext()) {
-            Clock c = (Clock) it.next();
-            if (!c.clockUsedForFuture)
-                c.doNext();
-        }
+    public static Activity getCurrentActivity () {
+    	return runtime.currentActivity();
     }
     
     public static Place[] places() {
@@ -220,6 +174,12 @@ public abstract class Runtime {
         Place[] ret = new Place[pl.length];
         System.arraycopy(pl, 0, ret, 0, pl.length);
         return ret;
+    }
+    public static void runAsync( Activity a) {
+    	runtime.getPlaces()[0].runAsync(a);
+    }
+    public static Future runFuture( Activity.Expr a) {
+    	return runtime.getPlaces()[0].runFuture(a);
     }
    
 } // end of Runtime

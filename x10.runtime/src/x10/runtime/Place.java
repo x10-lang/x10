@@ -21,12 +21,8 @@ implements Comparable {
 		}
 		*/
 	}
-	/**
-	 * We allow passing Activity and Activity.Future to
-	 * be passed here.  For an Activity.Future the
-	 * result will be thrown away.
-	 */
-	public abstract void runAsync(Activity a, ActivityInformation ai);
+	
+	public abstract void runAsync(Activity a);
 	
 	/**
 	 * We return an Activity.Result here to force the programmer
@@ -47,7 +43,7 @@ implements Comparable {
 	 * @param a reference to the closure that encapsulates the code to run
 	 * @return the placeholder for the future result.
 	 */
-	public abstract Future runFuture(Activity.Expr a, ActivityInformation ai); 
+	public abstract Future runFuture(Activity.Expr a); 
 	
 	/**
 	 * Shutdown this place, the current X10 runtime will exit.

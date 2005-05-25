@@ -13,7 +13,7 @@ import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
-import x10.runtime.ThreadRegistry;
+
 
 /**
  * @author Christoph von Praun
@@ -34,7 +34,7 @@ public class TestRegion extends TestCase {
      * Runtime class).  Hence we need a litte hack to register
      * the thread used to run the testcase as a 'local' thread
      * with the Runtime.
-     */
+     
     public void setUp() {
         DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
         Place[] pls = Place.places();
@@ -45,10 +45,11 @@ public class TestRegion extends TestCase {
             tr.registerActivityStart(t, a, null);
         }
     }
+    */
     
     /**
      * Clean-up effects from setUp().
-     */
+     
     public void tearDown() {
         DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
         if (r instanceof ThreadRegistry) {
@@ -57,6 +58,7 @@ public class TestRegion extends TestCase {
             tr.registerActivityStop(t, a);
         }
     }
+    */
     
     public void testContiguous1() {
         try {

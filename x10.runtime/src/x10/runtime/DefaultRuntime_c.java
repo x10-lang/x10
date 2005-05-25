@@ -1,12 +1,9 @@
 package x10.runtime;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
+
 import java.util.TreeSet;
-import java.util.WeakHashMap;
+
 
 import x10.array.DoubleArray;
 import x10.array.FloatArray;
@@ -31,7 +28,7 @@ import x10.array.sharedmemory.RegionFactory;
 import x10.compilergenerated.Parameter1;
 import x10.lang.FloatReferenceArray;
 import x10.lang.DoubleReferenceArray;
-import x10.lang.Future;
+
 import x10.lang.GenericReferenceArray;
 import x10.lang.BooleanReferenceArray;
 import x10.lang.CharReferenceArray;
@@ -39,8 +36,7 @@ import x10.lang.ByteReferenceArray;
 import x10.lang.ShortReferenceArray;
 import x10.lang.IntReferenceArray;
 import x10.lang.LongReferenceArray;
-import x10.lang.MultipleExceptions;
-import x10.lang.Object;
+
 import x10.lang.Runtime;
 import x10.lang.clock;
 import x10.lang.dist;
@@ -61,28 +57,10 @@ import x10.lang.region;
  * Default implementation of Runtime.
  * 
  * @author Christian Grothoff, Christoph von Praun
+ * @author vj
  */
-public class DefaultRuntime_c 
-    extends Runtime
-    implements 
-        ThreadRegistry,
-        ActivityInformationProvider {
-
-    /**
-     * At what place is the given thread running (needed to support
-     * running multiple Places within the same VM). Note that we're
-     * using a weak hash map here since the threadpool code may decide
-     * to reduce the number of threads by just letting one exit, and
-     * we would in that case not want to hold on to the memory.
-     */
-    private final Map thread2place_ = new WeakHashMap(); // <Thread,Place>
-
-    /**
-     * Which activity is the current thread executing?  This one does
-     * not have to be a weak hash map since threads are explicitly 
-     * removed from the map once they complete a particular activity.
-     */
-    private final Map thread2activity_ = new HashMap(); // <Thread,Activity>
+public class DefaultRuntime_c extends Runtime {
+   
     
     /**
      * The places of this X10 Runtime (for now a constant set).
@@ -100,7 +78,8 @@ public class DefaultRuntime_c
             int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
             x10.lang.place.MAX_PLACES = pc;
     	    for (int i=0;i<pc;i++)
-    	        places_[i] = new LocalPlace_c(this, this);
+    	        places_[i] = new LocalPlace_c();
+    	    place.initialize();
         }
         LocalPlace_c.initAllPlaceTimes(getPlaces());
     }
@@ -108,253 +87,158 @@ public class DefaultRuntime_c
     /**
      * Run the X10 application.
      */
-    protected void run(String[] args) {
-        
-        // first: load libraries!
-        if (null != Configuration.LOAD) {
-            String[] libs = Configuration.LOAD.split(":");
-            for (int i=libs.length-1;i>=0;i--)
-                System.loadLibrary(libs[i]);
-        }
-        
-        java.lang.Object[] tmp = { args };
-        Activity atmp = null;
-        try {	
-            atmp = (Activity) Class.forName(Configuration.MAIN_CLASS_NAME+"$Main")
-                .getDeclaredConstructor(new Class[] { String[].class })
-                .newInstance(tmp);
-        } catch (Exception e) {
-            System.err.println("Could not find default constructor of main class '" + Configuration.MAIN_CLASS_NAME+ "$Main" + "'!");
-            throw new Error(e);
-        }
-        final Activity appMain = atmp;
-        // ok, some magic with the boot-thread here...
-        Place p0 = (Place) place.FIRST_PLACE;
-        bootThread = Thread.currentThread();
-        registerThread(bootThread, p0);
-        final Signal signal = new Signal();
-        Activity.Expr boot = new Activity.Expr() {
-            public String toString() {
-                return "DefaultRuntime_c boot activity";
+    protected void run(String[] args) {   
+    	if (Report.should_report("activity", 5)) {
+    		Thread t = Thread.currentThread();
+    		int tCount = Thread.activeCount();
+    		Report.report(5, t + "@"+System.currentTimeMillis()+" starts in group " + t.getThreadGroup() 
+    				+ " with " + tCount + " threads active.");
+    		Thread[] a = new Thread[tCount];
+    		int count = Thread.enumerate(a);
+    		
+    		for (int i = 0; i < count; i++) {
+    			
+    			Report.report(5, "Thread " + (a[i] == null ? "null" : a[i].getName()) + " is active.");
+    		}
+    	}
+    	// first: load libraries!
+    	if (null != Configuration.LOAD) {
+    		String[] libs = Configuration.LOAD.split(":");
+    		for (int i=libs.length-1;i>=0;i--)
+    			System.loadLibrary(libs[i]);
+    	}
+    	
+    	java.lang.Object[] tmp = { args };
+    	Activity atmp = null;
+    	try {	
+    		if (Report.should_report("activity", 5)) {
+    			Report.report(5, Thread.currentThread() + " " + this + " starting user class |" 
+    					+ Configuration.MAIN_CLASS_NAME+ "|.");
+    		}
+    		atmp = (Activity) Class.forName(Configuration.MAIN_CLASS_NAME+"$Main")
+			.getDeclaredConstructor(new Class[] { String[].class })
+			.newInstance(tmp);
+    	} catch (Exception e) {
+    		System.err.println("Could not find default constructor of main class '" 
+    				+ Configuration.MAIN_CLASS_NAME+ "$Main" + "'!");
+    		throw new Error(e);
+    	}
+    	final Activity appMain = atmp;
+    	final LocalPlace_c.StartSignal startSignal = new LocalPlace_c.StartSignal();
+    	Activity boot = new Activity() {
+            public String myName() {
+                return "Boot activity";
             }
             public void run() {
-                synchronized(signal) {
-                    signal.value = true;
-                    signal.notifyAll();
-                }
-                // now run the actual client app
-                Clock c = (Clock) factory.getClockFactory().clock();
-                c.doNowSameThread(appMain);
-                Runtime.doNext();
-
-                if (Sampling.SINGLETON != null && Configuration.DUMP_STATS_ON_EXIT) {  
-                    System.out.println(Sampling.SINGLETON.toString());
-                    Sampling.shutdown();
-                }
+            	Thread t = Thread.currentThread();
+             	if (Report.should_report("activity", 5)) {
+            		Report.report(5, t + "@" + System.currentTimeMillis() 
+            				+ " starts running the Boot Activity.");
+            	}
+            
+            	finishRun(appMain);
+            	
+            	if (Report.should_report("activity", 5)) {
+            		Report.report(5, t+ "@"+System.currentTimeMillis() 
+            				+ " finishes running the Boot Activity.");
+            				
+            	}
+            	
+            	if (Sampling.SINGLETON != null && Configuration.DUMP_STATS_ON_EXIT) {  
+            		System.out.println(Sampling.SINGLETON.toString());
+            		Sampling.shutdown();
+            	}
+            	// and now the shutdown sequence!
+            	// places_[] should have been initialized by now ... 
+            	for (int i=places_.length-1; i >= 0;i--) {
+            		if (Report.should_report("activity", 5)) {
+                		Report.report(5, t+ "@"+System.currentTimeMillis() 
+                				+ " shutting down " + places_[i]);
+                				
+                	}
+            		places_[i].shutdown();
+            	}
+            	
+            	synchronized(startSignal) {
+                    startSignal.go = true;
+                    startSignal.notifyAll();
+                } 
+            	if (Report.should_report("activity", 5)) {
+            		Report.report(5, t+ "@"+System.currentTimeMillis() 
+            				+ " terminates.");
+            				
+            	}
             }
-            public Object getResult() {
-                return null;
-            }
+            
         };
         // initialize X10 runtime system
-        // vj 05/22 ... fixed so that DUMP_STATS ON EXIT will override SAMPLING_FREQUENCY_MS.
-        if (Configuration.SAMPLING_FREQUENCY_MS > 0 || Configuration.DUMP_STATS_ON_EXIT) {
-        	if (Configuration.SAMPLING_FREQUENCY_MS <= 0) {
-        		Configuration.SAMPLING_FREQUENCY_MS = 50;
-        	}
+        if (false && Configuration.SAMPLING_FREQUENCY_MS >= 0)
             Sampling.boot(DefaultRuntime_c.this, boot);
-        }
-        // run the main app
-        Future f = p0.runFuture(boot, null);
-        // make sure we don't accidentially initialize Sampling by
-        // being too fast with 'force'.
-        synchronized(signal) {
-	   while (signal.value == false) {
-                try {
-		    signal.wait();
-                } catch (InterruptedException ie) {            
+
+        // run the main app.
+        Runtime.runAsync(boot);
+        
+        synchronized (startSignal) {
+            try {
+                while (! startSignal.go) {
+                    startSignal.wait();
                 }
-	   }
-        }        
-        f.force(); // use force to wait for termination!
-        
-        // and now the shutdown sequence!
-        // places_[] should have been initialized by now ... 
-        for (int i=places_.length-1;i>=0;i--)
-            places_[i].shutdown();
-    }
-    
-    public synchronized void registerThread(Thread t, Place p) {
-        // this method must be synchronized because thread2place_ is not thread-safe.
-        assert (t != null);
-        assert (p != null);
-		thread2place_.put(t, p);
-	}
-    
-    /**
-     * Notify the asl via a callback whenever the given activity starts another
-     * Activity (via async, future or now).
-     */
-    public synchronized void registerActivitySpawnListener(Activity i,
-                                                           ActivitySpawnListener asl) {
-        if (i.asl_ == null) 
-            i.asl_ = new ArrayList(2);
-        else
-            // each listener must only be registered once!
-            assert (!i.asl_.contains(asl));
-        i.asl_.add(asl);
-    }
-    
-    /**
-     * Notifiation that an activity terminated with an
-     * exception.
-     * 
-     * @param a the activity that died
-     * @param i the Error or RuntimeException encountered
-     */
-    public void registerActivityException(Activity a, Throwable t) {
-        if (a == null)
-            a = getCurrentActivity();
-        Stack fini = a.finish_;
-        if (fini != null)
-            fini.push(t);
-    }
-
-    /**
-     * X10 executes a 'finish'.  Collect all exceptions thrown
-     * by all sub-activities.
-     * vj: This doesnt actually start finish :-(. Rather it 
-     * simply installs a FinishASL activitySpawnListener on a.
-     * @param a the activity of the finish (already started)
-     */
-    public void startFinish(Activity a) {
-        final Activity a_final = (a == null) ? getCurrentActivity() : a;
-        if (a_final.finish_ == null) 
-            a_final.finish_ = new Stack();
-        registerActivitySpawnListener(a_final, new FinishASL(a_final, a_final.finish_));
-    }
-    class FinishASL implements ActivitySpawnListener {
-        private final Activity root;
-        private final Stack fini;
-        FinishASL(Activity r, Stack f) { this.root = r; this.fini = f; }
-        public void notifyActivitySpawn(Activity spawn,
-                Activity i) {
-            if ( (root.finish_ != fini) ||
-                  (spawn.finish_ != null) )
-                return; // YES, this line IS needed.  - CG
-            
-            registerActivitySpawnListener(spawn,
-                    new FinishASL(i, fini));
-            spawn.finish_ = fini;
-        }
-        public void notifyActivityTerminated(Activity a) {}
-    }
-    
-    /**
-     * An activity of a finish is done (clock has advanced).
-     * Gather the collected exceptions
-     * 
-     * @param a the activity (still running)
-     * @return null if no exceptios were thrown,
-     *   otherwise the collection of exceptions
-     */
-    public synchronized Throwable getFinishExceptions(Activity a) {
-        if (a == null)
-            a = getCurrentActivity();
-        Stack f = a.finish_;
-        // now, compute resulting exception and return it
-        if (f.isEmpty())
-            return null;
-        if (f.size() == 1)
-            return (Throwable) f.pop();
-        return new MultipleExceptions(f);
-    }
-    
-
-    /**
-     * Notification that an activity completed.
-     */
-    public void registerActivityStop(Thread t, Activity a) {
-        // this is called by the thread being stopped
-        assert (t == Thread.currentThread());
-        ArrayList v;
-        synchronized(this) {
-            v = a.asl_;
-            a.asl_ = null;
-        }
-        
-        // do not unnecessarily keep the lock for the following:
-        if (v != null) {
-            for (int i=0;i<v.size();i++) {
-                // tell other threads that this thread is about to terminate.
-                ActivitySpawnListener asl = (ActivitySpawnListener) v.get(i);
-                asl.notifyActivityTerminated(a);
+            } catch (InterruptedException ie) {
+                System.err.println("LocalPlace_c::runAsync - unexpected exception " + ie);
+                throw new Error(ie); // should never happen!
             }
-        }
+        } 
         
-        synchronized(this) {
-            thread2activity_.remove(t);
-        }
+        // Main thread terminates. bootActivity will now carry on.
+        int tCount = Thread.activeCount();
+     	if (Report.should_report("activity", 5)) {
+     		Thread t = Thread.currentThread();
+     		Report.report(5, t + "@"+System.currentTimeMillis()
+    				+ " terminates with " + tCount + " threads active.");
+    		Thread[] a = new Thread[tCount];
+    		int count = Thread.enumerate(a);
+    		
+    		for (int i = 0; i < count; i++) { 
+    			Report.report(5, 
+    					(a[i].isDaemon() ? "" : "Non") + "Daemon thread " 
+    					 + (a[i] == null ? "null" : a[i].getName()) + " is active.");
+    		}
+    	}
     }
     
-    /**
-     * Notifiation that an activity was started.
-     * 
-     * @param t the thread that runs the activity
-     * @param a the activity that is being run
-     * @param i the activity that started a (null for boot/main).
-     */
-    public void registerActivityStart(Thread t,
-            Activity a,
-            Activity i) {
-        // this is called by the started thread!
-        assert (t == Thread.currentThread());
-        assert a != i;
-        ArrayList v;    
-        synchronized(this) {
-            assert thread2place_.get(t) != null;
-            a.place_ = (Place) thread2place_.get(t);
-            thread2activity_.put(t,a);
-            if (i == null) 
-                return;        
-            v = i.asl_;
-        }
-        if (v != null) {
-            for (int j=0;j<v.size();j++) {
-                // tell other activities that want to know that a has been spawned
-                ActivitySpawnListener asl = (ActivitySpawnListener) v.get(j);
-                asl.notifyActivitySpawn(a, i);
-            }
-        }
-    }
-
     public synchronized void setCurrentPlace(place p) {
         assert p != null;
         Thread t = Thread.currentThread();
         if (t instanceof LocalPlace_c.PoolRunner) {
             LocalPlace_c.PoolRunner pr = (LocalPlace_c.PoolRunner) t;
             pr.place = (Place) p;
-        } else {
-            thread2place_.put(t, p);
-        }
+        } 
     }
-    
-    public synchronized place currentPlace() {
-        if (places_[0] == null) 
-            initialize();
-        if (places_.length == 1)
-            return places_[0]; // fast path for simple test environments!
+    public synchronized Place currentPlace() {
+    	if (places_[0] == null) 
+    		initialize();
+    	if (places_.length == 1)
+    		return places_[0]; // fast path for simple test environments!
     	Thread t = Thread.currentThread();
-        Place ret;
-        if (t instanceof LocalPlace_c.PoolRunner) {
-            LocalPlace_c.PoolRunner pr = (LocalPlace_c.PoolRunner) t;
-            ret = pr.place;
-        } else {
-            ret = (Place) thread2place_.get(t);
-        }
+    	Place ret = null;
+    	if (t instanceof LocalPlace_c.PoolRunner) {
+    		LocalPlace_c.PoolRunner pr = (LocalPlace_c.PoolRunner) t;
+    		ret = pr.place;
+    	}
     	if (ret == null)
     		throw new Error("This thread is not an X10 thread!");
     	return ret;
+    }
+    public Activity currentActivity() {
+    	Thread t = Thread.currentThread();
+    	Activity result = null;
+    	if (t instanceof ActivityRunner) {
+    		ActivityRunner pr = (ActivityRunner) t;
+    		result = pr.getActivity();
+    	} 
+    	if (result == null)
+    		throw new Error("This thread is not an X10 thread!");
+    	return result;
     }
 
     /**
@@ -392,10 +276,10 @@ public class DefaultRuntime_c
     		public clock.factory getClockFactory() {
     			return new clock.factory() {
     				public clock clock() {
-    					return new Clock(DefaultRuntime_c.this);
+    					return new Clock();
     				}
     				public clock clock(String name) {
-    					return new Clock(DefaultRuntime_c.this, name);
+    					return new Clock(name);
     				}
     			};
     		}
@@ -552,7 +436,9 @@ public class DefaultRuntime_c
             public place.factory getPlaceFactory() {
     			return new place.factory() {
     				public place place(int i ) {
+    					
     					int index =( i %  place.MAX_PLACES);
+    					//System.out.println("place(i), i= " + i + " index=" +  index + " place.MAX_PLACES" + place.MAX_PLACES);
     					if (places_[index] == null) initialize();
     					return places_[index];
     				}
@@ -575,41 +461,15 @@ public class DefaultRuntime_c
     	return f;
     	
     }
-    			      
-    /**
-     * Get the Activity object that is executing this 
-     * method.
-     * @return
-     */
-    public synchronized Activity getCurrentActivity() {
-        Activity a = (Activity) thread2activity_.get(Thread.currentThread());
-        if (a == null) {
-            if (Thread.currentThread() == bootThread)
-                return magic_boot; // magic 'boot' thread!
-            throw new Error("This thread is not an X10 Thread running X10 code!");
-        }
-        return a;
-    }
-    private static Activity magic_boot = new Activity() {
-        public String toString() {
-            return "MagicBoot Activity";
-        }
-        public void run() {};
-    };
 
     /**
-     * At which place is the given activity running?  Note that this particular
-     * implementation is not very efficient (since we do not have an explicit
-     * mapping in this direction).  The reason is that this method is currently
-     * only used for profiling and we thus do not want to have any overhead on 
-     * the common path.
+     * At which place is the given activity running?  
      * 
      * @param a 
      * @return null if the activity is not running anywhere
      */
     public synchronized Place getPlaceOfActivity(Activity a) {
-        // this method must be synchronized to protect the map activity2place_
-        return a.place_;
+           return a.place_;
     }    
 
     static class Signal { boolean value; }

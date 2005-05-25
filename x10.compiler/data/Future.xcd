@@ -1,16 +1,12 @@
 // future(0) 1
 ((x10.runtime.Place) (#0)).runFuture(new x10.runtime.Activity.Expr() {
   private x10.lang.Object x10_result_; 
-  public void run() {
+  public void runSource() {
      this.x10_result_ = (#1); 
   } 
   public x10.lang.Object getResult() { 
      return x10_result_; 
   } 
-}, new x10.runtime.ActivityInformation() {
-         public java.util.List getRegisteredClocks() {
-           return new java.util.LinkedList();
-         }
 })
 
         

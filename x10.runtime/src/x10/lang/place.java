@@ -55,13 +55,22 @@ implements TypeArgument, ValueType {
 	
 	/** The last place in this program execution.
 	 */
-	public static final place/*(MAX_PLACES)*/ LAST_PLACE = factory.place(MAX_PLACES);
+	public static /*final*/ place/*(MAX_PLACES)*/ LAST_PLACE /*= factory.place(MAX_PLACES-1)*/;
 	
 	/** The first place in this program execution.
 	 */
-	public static final place/*(0)*/ FIRST_PLACE = factory.place(0);
+	public static /*final*/ place/*(0)*/ FIRST_PLACE /*= factory.place(0)*/;
 	
-	public static final Set/*<place>*/ places = factory.places( MAX_PLACES-1 );	
+	public static /*final*/ Set/*<place>*/ places /*= factory.places( MAX_PLACES-1 )*/;	
+	/**
+	 * Needs to be called after MAX_PLACES has its final value.
+	 *
+	 */
+	public static void initialize() {
+		LAST_PLACE = factory.place(MAX_PLACES-1);
+		FIRST_PLACE = factory.place(0);
+		places = factory.places(MAX_PLACES-1);
+	}
 	
 	
 	/** Returns the next place, using modular arithmetic. Thus the

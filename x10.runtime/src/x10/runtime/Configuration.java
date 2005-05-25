@@ -134,6 +134,7 @@ public final class Configuration {
         int pos = 0;
         while (args[pos].charAt(0) == '-') {
         	// vj: added to allow the runtime to use Polyglot's report mechanism
+        	
         	if (args[pos].equals("-report")) {
                 pos++;
                 StringTokenizer st = new StringTokenizer(args[pos], "=");
@@ -145,9 +146,10 @@ public final class Configuration {
                     } 
                     catch (NumberFormatException e) {}
                 }
+             
                 Report.addTopic(topic, level);
                 pos++;
-                break;
+                continue;
         	}
             int eq = args[pos].indexOf('=');
             String optionName;
@@ -159,7 +161,6 @@ public final class Configuration {
                 optionValue = args[pos].substring(eq+1);
             }
             set(optionName, optionValue); 
-            
             pos++;
         }        
         MAIN_CLASS_NAME = args[pos++];
@@ -185,6 +186,10 @@ public final class Configuration {
         int aa = args.length-pos;
         String[] appArgs = new String[aa];
         System.arraycopy(args, pos, appArgs, 0, aa);
+        if (Report.should_report("activity", 3)) {
+    		Report.report(3, Thread.currentThread() +  " user class is |" 
+    				+ Configuration.MAIN_CLASS_NAME+ "|.");
+    	}
         return appArgs;
     }
     
@@ -248,7 +253,7 @@ public final class Configuration {
                 f.setByte(null, new Byte(val).byteValue());
             } else if (t == Character.TYPE) {
                 if (val.length() != 1)
-                    System.err.println("Field " + key + " only takes on character,"+
+                    System.err.println("Parameter" + key + " only takes on character,"+
                                        " using only the first character of configuration"+
                                        " value >>" + val + "<<");
                 f.setChar(null, new Character(val.charAt('0')).charValue());
@@ -260,12 +265,12 @@ public final class Configuration {
             	} else {
             		System.err.println("Parameter |" + key + "| expects a boolean, not |" 
             				+ val + "|. Ignored.");
-            	}
+            }
             		
                
             }
         } catch (NoSuchFieldException nsfe) {
-            System.err.println("Field " + key + " not found, configuration directive ignored.");
+            System.err.println("Parameter " + key + " not found, configuration directive ignored.");
         } catch (IllegalAccessException iae) {
             System.err.println("Wrong permissions for field " + key + ": " + iae);
             throw new Error(iae);
