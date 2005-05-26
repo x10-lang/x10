@@ -127,12 +127,11 @@ public class LocalPlace_c extends Place {
     	synchronized (this) {
     		shutdown = true;
     		if (Report.should_report("activity", 5)) {
-    			Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() 
-    					+" shutting down " + threadQueue_);
+    			Report.report(5, PoolRunner.logString() + " shutting down " + threadQueue_);
     			PoolRunner list = threadQueue_;
     			while (list != null) {
-    				if (Report.should_report("activity", 5)) {
-    					Report.report(5, Thread.currentThread() +  "@" + list.place + ":" + System.currentTimeMillis() 
+    				if (Report.should_report("activity", 7)) {
+    					Report.report(7, Thread.currentThread() +  "@" + list.place + ":" + System.currentTimeMillis() 
     						+"  threadpool contains " + list);
     				}
     				list = list.next;
@@ -141,7 +140,7 @@ public class LocalPlace_c extends Place {
     	}
         while (this.threadQueue_ != null) {
         	if (Report.should_report("activity", 5)) {
-        		Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() +" shutting down " + threadQueue_);
+        		Report.report(5, PoolRunner.logString() + " shutting down " + threadQueue_);
         	}
         	
             threadQueue_.shutdown();
@@ -149,7 +148,7 @@ public class LocalPlace_c extends Place {
             try {
                 threadQueue_.join();
             	if (Report.should_report("activity", 5)) {
-            		Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() + " " + threadQueue_ + " shut down.");
+            		Report.report(5, PoolRunner.logString() + " " + threadQueue_ + " shut down.");
             	}
             } catch (InterruptedException ie) {
                 throw new Error(ie); // should never happen...
@@ -158,7 +157,10 @@ public class LocalPlace_c extends Place {
             threadQueue_ = threadQueue_.next;
         }
     }
-boolean isShutdown() { return shutdown; }
+    
+    boolean isShutdown() { 
+    	return shutdown; 
+    }
     /**
      * Run the given activity asynchronously.
      * vj 5/17/05. This has been completely revamped,
@@ -177,9 +179,9 @@ boolean isShutdown() { return shutdown; }
     }
     protected void runAsync(final Activity a, final boolean finish) {
    
-      //  final StartSignal startSignal = new StartSignal();
         Thread currentThread = Thread.currentThread();
-        if (currentThread instanceof ActivityRunner) {
+        assert (currentThread instanceof ActivityRunner);
+        if (currentThread instanceof ActivityRunner) { 
         	Activity parent = ((ActivityRunner) currentThread).getActivity();
         	parent.finalizeActivitySpawn(a);
         }
@@ -196,42 +198,24 @@ boolean isShutdown() { return shutdown; }
                 t.setActivity(a);
                 a.setPlace(LocalPlace_c.this);
                 
-            /*  synchronized(startSignal) {
-                    startSignal.go = true;
-                    startSignal.notifyAll();
-                }*/
-                
                 try {
                 	if (finish) {
                 		a.finishRun();
                 	} else {
                 		a.run();
                 	}
-                	a.finalizeTermination();
                 } catch (Throwable e) {
                 	// e.printStackTrace();
                 	// System.err.println("LocalPlace_c::runAsync - unexpected exception " + e);
                 	// can never arrive here if finish=true
                 	a.finalizeAbruptTermination(e);
+                	return;
                 } 
+                a.finalizeTermination(); //should not throw an exception.
             }
             public String toString() { return "<Executor " + a+">";}
             
         });
-        // vj: 5/17 Check why this needs to be done.
-        // we now need to wait at least (!) until the 
-        // "reg_.registerActivityStart(...)" line has been
-        // reached.  Hence we wait on the start signal.
-       /*synchronized (startSignal) {
-            try {
-                while (! startSignal.go) {
-                    startSignal.wait();
-                }
-            } catch (InterruptedException ie) {
-                System.err.println("LocalPlace_c::runAsync - unexpected exception " + ie);
-                throw new Error(ie); // should never happen!
-            }
-        }*/
     }
     
     /**
@@ -260,7 +244,7 @@ boolean isShutdown() { return shutdown; }
         		t.setDaemon(false);
         		t.start();
         		if (Report.should_report("activity", 5)) {
-            		Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() +"LocalPlace starts " 
+            		Report.report(5, PoolRunner.logString() + "LocalPlace starts " 
             				+ (t.isDaemon() ? "" : "non") + "daemon thread " + t 
 							+ "in group " + Thread.currentThread().getThreadGroup() 
 							 +".");
@@ -281,9 +265,9 @@ boolean isShutdown() { return shutdown; }
      * 
      * @param r
      */
-    synchronized final void repool(PoolRunner r) {
+    /*package*/ synchronized final void repool(PoolRunner r) {
     	if (Report.should_report("activity", 5)) {
-    		Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() +" repools (shutdown=" + shutdown + ").");
+    		Report.report(5, PoolRunner.logString() + " repools (shutdown=" + shutdown + ").");
     	}
     	
         r.next = threadQueue_;
@@ -311,8 +295,6 @@ boolean isShutdown() { return shutdown; }
     	return this.toString() + "(shutdown="+shutdown+")";
     }
     
-    static class StartSignal {
-        boolean go;
-    }    
+ 
     
 } // end of LocalPlace_c

@@ -26,7 +26,6 @@ final  class PoolRunner extends Thread // LoadMonitored
    private Object vmto;
    LocalPlace_c place; // not final, may be set by DefaultRuntime_c.setCurrentPlace(place p)
    
-   PoolRunner() { super(); }
    PoolRunner(LocalPlace_c p) {
        place = p;
        p.addThread( this );
@@ -115,7 +114,7 @@ final  class PoolRunner extends Thread // LoadMonitored
    public synchronized void run() {
        while (active) {
        	if (Report.should_report("activity", 5)) {
-       		Report.report(5, Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis() +" waiting for a job.");
+       		Report.report(5, logString() + " waiting for a job.");
        	}
            while (active && job == null) {
                try {
@@ -124,8 +123,7 @@ final  class PoolRunner extends Thread // LoadMonitored
                    throw new Error(ie);
                }
                if (Report.should_report("activity", 5)) {
-           		Report.report(5, Thread.currentThread() +  "@" + place.longName() + ":" 
-           				+ System.currentTimeMillis() +" awakes.");
+           		Report.report(5, logString() +" awakes.");
            	}
            }
            if (job != null) {
@@ -134,11 +132,11 @@ final  class PoolRunner extends Thread // LoadMonitored
                try {
                    changeRunningStatus(1);
                    if (Report.should_report("activity", 5)) {
-               		Report.report(5, this + "@" + place + ":" + System.currentTimeMillis() + " starts running " + j +".");
+               		Report.report(5, logString() + " starts running " + j +".");
                	}
                    j.run();
                 	if (Report.should_report("activity", 5)) {
-               		Report.report(5, this + "@" + place + ":" + System.currentTimeMillis() + " finished running " + j +".");
+               		Report.report(5, logString() + " finished running " + j +".");
                	}
                 
                } finally {
@@ -150,7 +148,7 @@ final  class PoolRunner extends Thread // LoadMonitored
                synchronized (place) {
                    if (place.isShutdown()) {
                    	if (Report.should_report("activity", 5)) {
-                   		Report.report(5, Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis() +" shuts down.");
+                   		Report.report(5, logString() + " shuts down.");
                    	}
                    	
                        return;
@@ -160,8 +158,15 @@ final  class PoolRunner extends Thread // LoadMonitored
            }
        }
        if (Report.should_report("activity", 5)) {
-   		Report.report(5, Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis() +" shuts down.");
+   		Report.report(5, logString() + " shuts down.");
    	}
+   }
+   
+   public String thisThreadString() {
+   	return Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis();
+   }
+   public static String logString() {
+   	return ((PoolRunner) Thread.currentThread()).thisThreadString();
    }
    
    public String toString() {
