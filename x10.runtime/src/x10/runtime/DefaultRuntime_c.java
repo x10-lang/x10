@@ -94,7 +94,7 @@ public class DefaultRuntime_c extends Runtime {
     	if (Report.should_report("activity", 5)) {
     		Thread t = Thread.currentThread();
     		int tCount = Thread.activeCount();
-    		Report.report(5, t + "@"+System.currentTimeMillis()+" starts in group " + t.getThreadGroup() 
+    		Report.report(5, PoolRunner.logString() +" starts in group " + t.getThreadGroup() 
     				+ " with " + tCount + " threads active.");
     		Thread[] a = new Thread[tCount];
     		int count = Thread.enumerate(a);
@@ -116,7 +116,7 @@ public class DefaultRuntime_c extends Runtime {
     	Activity atmp = null;
     	try {	
     		if (Report.should_report("activity", 5)) {
-    			Report.report(5, Thread.currentThread() + " " + this + " starting user class |" 
+    			Report.report(5, PoolRunner.logString() + " " + this + " starting user class |" 
     					+ Configuration.MAIN_CLASS_NAME+ "|.");
     		}
     		atmp = (Activity) Class.forName(Configuration.MAIN_CLASS_NAME+"$Main")
@@ -137,15 +137,13 @@ public class DefaultRuntime_c extends Runtime {
             public void run() {
             	Thread t = Thread.currentThread();
              	if (Report.should_report("activity", 5)) {
-            		Report.report(5, t + "@" + System.currentTimeMillis() 
-            				+ " starts running the Boot Activity.");
+            		Report.report(5, PoolRunner.logString() + " starts running the Boot Activity.");
             	}
             
             	finishRun(appMain);
             	
             	if (Report.should_report("activity", 5)) {
-            		Report.report(5, t+ "@"+System.currentTimeMillis() 
-            				+ " finishes running the Boot Activity.");
+            		Report.report(5, PoolRunner.logString() + " finishes running the Boot Activity.");
             				
             	}
             	
@@ -157,16 +155,14 @@ public class DefaultRuntime_c extends Runtime {
             	// places_[] should have been initialized by now ... 
             	for (int i=places_.length-1; i >= 0;i--) {
             		if (Report.should_report("activity", 5)) {
-                		Report.report(5, t+ "@"+System.currentTimeMillis() 
-                				+ " shutting down " + places_[i]);
+                		Report.report(5, PoolRunner.logString() + " shutting down " + places_[i]);
                 				
                 	}
             		places_[i].shutdown();
             	}
             	
             	if (Report.should_report("activity", 5)) {
-            		Report.report(5, t+ "@"+System.currentTimeMillis() 
-            				+ " terminates.");
+            		Report.report(5, PoolRunner.logString() + " terminates.");
             				
             	}
             	// The VM goes bye bye.
@@ -185,9 +181,7 @@ public class DefaultRuntime_c extends Runtime {
         // VM terminates when bootActivity terminates.
         int tCount = Thread.activeCount();
      	if (Report.should_report("activity", 5)) {
-     		Thread t = Thread.currentThread();
-     		Report.report(5, t + "@"+System.currentTimeMillis()
-    				+ " terminates with " + tCount + " threads active.");
+     		Report.report(5, PoolRunner.logString() + " terminates with " + tCount + " threads active.");
     		Thread[] a = new Thread[tCount];
     		int count = Thread.enumerate(a);
     		
