@@ -12,7 +12,7 @@
 public class ClockTest11_MustFailCompile {
 
 	public boolean run() {
-            finish {
+            finish async {
       		final clock c = clock.factory.clock();
       		final clock d = clock.factory.clock();
 		async clocked(d) {
