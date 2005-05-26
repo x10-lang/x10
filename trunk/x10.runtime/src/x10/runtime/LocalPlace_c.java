@@ -113,6 +113,9 @@ public class LocalPlace_c extends Place {
         return ret;
     }
     
+    synchronized void addThread( PoolRunner p) {
+    	synchronized (myThreads) { myThreads.add(p); }
+    }
     /**
      * Shutdown this place, the current X10 runtime will exit.    Assumes
      * that all activities have already completed.  Threads beloging
@@ -155,7 +158,7 @@ public class LocalPlace_c extends Place {
             threadQueue_ = threadQueue_.next;
         }
     }
-
+boolean isShutdown() { return shutdown; }
     /**
      * Run the given activity asynchronously.
      * vj 5/17/05. This has been completely revamped,
@@ -278,7 +281,7 @@ public class LocalPlace_c extends Place {
      * 
      * @param r
      */
-    private synchronized final void repool(PoolRunner r) {
+    synchronized final void repool(PoolRunner r) {
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, Thread.currentThread() +  "@" + System.currentTimeMillis() +" repools (shutdown=" + shutdown + ").");
     	}
@@ -287,11 +290,12 @@ public class LocalPlace_c extends Place {
         threadQueue_ = r;
     }
     
+  
     /**
      * Change the 'running' status of a thread.
      * @param delta +1 for thread starts to run (unblocked), -1 for thread is blocked
      */
-    private synchronized void changeRunningStatus(int delta) {
+    /*package*/ synchronized void changeRunningStatus(int delta) {
         if (runningThreads == 0) {
             assert delta > 0;
             this.blockedTime += systemNow() - startBlock;
@@ -303,167 +307,9 @@ public class LocalPlace_c extends Place {
         }
     }
     
-    /**
-     * Thread in the thread pool that can be used to run multiple
-     * activities over time.
-     *
-     * @author Christian Grothoff
-     */
-    final class PoolRunner extends LoadMonitored 
-		implements ActivityRunner { // if you do NOT want load monitoring, make 'extend Thread'
-        /**
-         * For building a linked list of these.
-         */
-        PoolRunner next;
-        private boolean active = true;
-        private Runnable job;
-        private Activity act;
-        private Method ac;
-        private Object vmto;
-        Place place; // not final, may be set by DefaultRuntime_c.setCurrentPlace(place p)
-        
-        PoolRunner(Place p) {
-            place = p;
-            synchronized (myThreads) { myThreads.add(this); }
-            try {
-                Field vmt = java.lang.Thread.class.getDeclaredField("vmdata");
-                vmt.setAccessible(true);
-                this.vmto = vmt.get(this); // o is 'VM_Thread'
-                this.ac = vmto.getClass().getDeclaredMethod("accumulateCycles", new Class[0]);
-                setName("PoolRunner" + hashCode());
-            } catch (SecurityException se) {
-                // System.out.println("GSPT: " + se);
-            } catch (IllegalAccessException iae) {
-                // System.out.println("GSPT: " + iae);
-            } catch (NoClassDefFoundError ncfe) {
-                // System.out.println("GSPT: " + ncfe);
-            } catch (NoSuchMethodException ncme) {
-                // System.out.println("GSPT: " + ncfe);
-            } catch (NoSuchFieldException ncfe) {
-                // System.out.println("GSPT: " + ncfe);
-            }
-        }
-        public Activity getActivity() {
-        	return act;
-        }
-        public void setActivity( Activity a) {
-        	this.act = a;
-        }
-    
-        /**
-         * On JikesRVM, get the total number of CPU cycles spend in this
-         * thread.  We use reflection mostly because we want this to
-         * still link (!) and compile under other VMs.  
-         * @return 0 on error
-         */
-        private long getThreadRunTime() {
-            if (ac == null)
-                return 0;
-            try {
-                // Field vmt = java.lang.Thread.class.getDeclaredField("vmdata");
-                // vmt.setAccessible(true);
-                // Object o = vmt.get(this); // o is 'VM_Thread'
-                // Field trt = o.getClass().getDeclaredField("totalCycles");
-                // trt.setAccessible(true);
-                // return trt.getLong(o);                
-                return ((Long)ac.invoke(vmto, new Object[0])).longValue();                
-            } catch (SecurityException se) {
-                // System.out.println("GSPT: " + se);
-            } catch (IllegalAccessException iae) {
-                // System.out.println("GSPT: " + iae);
-            } catch (NoClassDefFoundError ncfe) {
-                // System.out.println("GSPT: " + ncfe);
-            } catch (InvocationTargetException ite) {
-                // System.out.println("GSPT: " + ncfe);
-            }/* catch (NoSuchFieldException nsfe) {
-                // System.out.println("GSPT: " + nsfe);
-                // not JikesRVM
-            }*/
-            return 0;   
-        }
-        
-        synchronized void shutdown() {
-            active = false;
-            this.notifyAll();
-        }
-        /**
-         * Assign a new job to this runner and notify it of the change so it can start running again.
-         * @param r
-         */
-        synchronized void run(Runnable r) {
-            assert job == null;
-            job = r;       
-            this.notifyAll();
-        }
-        /**
-         * Change the 'running' status of a thread.
-         * @param delta +1 for thread starts to run (unblocked), -1 for thread is blocked
-         */
-        public void changeRunningStatus(int delta) {
-            LocalPlace_c.this.changeRunningStatus(delta);
-        }
-        
-        /**
-         * Run jobs until shutdown is called.
-         */
-        public synchronized void run() {
-            while (active) {
-            	if (Report.should_report("activity", 5)) {
-            		Report.report(5, Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis() +" waiting for a job.");
-            	}
-                while (active && job == null) {
-                    try {
-                        wait();
-                    } catch (InterruptedException ie) {
-                        throw new Error(ie);
-                    }
-                    if (Report.should_report("activity", 5)) {
-                		Report.report(5, Thread.currentThread() +  "@" + place + ":" 
-                				+ System.currentTimeMillis() +" awakes (shutdown=)" + shutdown + ".");
-                	}
-                }
-                if (job != null) {
-                    Runnable j = job;
-                    job = null;
-                    try {
-                        changeRunningStatus(1);
-                        if (Report.should_report("activity", 5)) {
-                    		Report.report(5, this + "@" + place + ":" + System.currentTimeMillis() + " starts running " + j +".");
-                    	}
-                        j.run();
-                     	if (Report.should_report("activity", 5)) {
-                    		Report.report(5, this + "@" + place + ":" + System.currentTimeMillis() + " finished running " + j +".");
-                    	}
-                     
-                    } finally {
-                        changeRunningStatus(-1);
-                        // act.finalizeTermination();
-                    }
-                    // notify the LocalPlace_c that we're again available
-                    // for more work!
-                    synchronized (LocalPlace_c.this) {
-                        if (LocalPlace_c.this.shutdown) {
-                        	if (Report.should_report("activity", 5)) {
-                        		Report.report(5, Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis() +" shuts down.");
-                        	}
-                        	
-                            return;
-                        }
-                        repool(this);
-                    }
-                }
-            }
-            if (Report.should_report("activity", 5)) {
-        		Report.report(5, Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis() +" shuts down.");
-        	}
-        }
-        
-        public String toString() {
-        	return "<PoolRunner " + hashCode() + ">";
-        			
-        }
-    } // end of LocalPlace_c.PoolRunner
-
+    public String longName() {
+    	return this.toString() + "(shutdown="+shutdown+")";
+    }
     
     static class StartSignal {
         boolean go;

@@ -5,6 +5,7 @@ import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
+import x10.runtime.Report;
 
 
 /**
@@ -28,7 +29,7 @@ public abstract class Runtime {
 
     public static Runtime runtime;
     
-    private static int returnValue;
+  
     
     /**
      * This instance should be used only in the implementation of 
@@ -80,11 +81,21 @@ public abstract class Runtime {
     	} catch (Exception e) {
     		Runtime.java.error("Unexpected Exception in X10 Runtime.", e);
     	}
-    	System.exit(returnValue);
+    	// System.exit(returnValue);
     }
 
-    public static void setExitCode(int rv) {
-    	returnValue = rv;
+    static int exitCode;
+    public static void setExitCode(int code) {
+    	exitCode = code;
+    }
+    public static void x10Exit() {
+    	if (Report.should_report("activity", 3)) {
+    		Thread t = Thread.currentThread();
+    		Report.report(3, t+ "@"+System.currentTimeMillis() 
+    				+ " The XVM is now terminating.");
+    				
+    	}
+    	System.exit( exitCode );
     }
     
     protected Runtime() {}

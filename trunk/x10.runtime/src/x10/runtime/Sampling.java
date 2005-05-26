@@ -707,7 +707,7 @@ public final class Sampling extends Thread {
                 // we accept the risk to sample a stale/incorrect value due to a 
                 // data race.
                 //synchronized(p) {
-                    LocalPlace_c.PoolRunner head = p.threadQueue_;
+                    PoolRunner head = p.threadQueue_;
                     while (head != null) {
                         head = head.next;
                         ql++;

@@ -159,15 +159,13 @@ public class DefaultRuntime_c extends Runtime {
             		places_[i].shutdown();
             	}
             	
-            	synchronized(startSignal) {
-                    startSignal.go = true;
-                    startSignal.notifyAll();
-                } 
             	if (Report.should_report("activity", 5)) {
             		Report.report(5, t+ "@"+System.currentTimeMillis() 
             				+ " terminates.");
             				
             	}
+            	// The VM goes bye bye.
+            	Runtime.x10Exit();
             }
             
         };
@@ -178,7 +176,7 @@ public class DefaultRuntime_c extends Runtime {
         // run the main app.
         Runtime.runAsync(boot);
         
-        synchronized (startSignal) {
+        /*synchronized (startSignal) {
             try {
                 while (! startSignal.go) {
                     startSignal.wait();
@@ -187,9 +185,10 @@ public class DefaultRuntime_c extends Runtime {
                 System.err.println("LocalPlace_c::runAsync - unexpected exception " + ie);
                 throw new Error(ie); // should never happen!
             }
-        } 
+        } */
         
         // Main thread terminates. bootActivity will now carry on.
+        // VM terminates when bootActivity terminates.
         int tCount = Thread.activeCount();
      	if (Report.should_report("activity", 5)) {
      		Thread t = Thread.currentThread();
@@ -209,9 +208,9 @@ public class DefaultRuntime_c extends Runtime {
     public synchronized void setCurrentPlace(place p) {
         assert p != null;
         Thread t = Thread.currentThread();
-        if (t instanceof LocalPlace_c.PoolRunner) {
-            LocalPlace_c.PoolRunner pr = (LocalPlace_c.PoolRunner) t;
-            pr.place = (Place) p;
+        if (t instanceof PoolRunner) {
+            PoolRunner pr = (PoolRunner) t;
+            pr.place = (LocalPlace_c) p;
         } 
     }
     public synchronized Place currentPlace() {
@@ -221,8 +220,8 @@ public class DefaultRuntime_c extends Runtime {
     		return places_[0]; // fast path for simple test environments!
     	Thread t = Thread.currentThread();
     	Place ret = null;
-    	if (t instanceof LocalPlace_c.PoolRunner) {
-    		LocalPlace_c.PoolRunner pr = (LocalPlace_c.PoolRunner) t;
+    	if (t instanceof PoolRunner) {
+    		PoolRunner pr = (PoolRunner) t;
     		ret = pr.place;
     	}
     	if (ret == null)
