@@ -51,12 +51,24 @@ public TestCompiler(String name) {
         run("./Edmiston_Parallel6.x10","Edmiston_Parallel6","./Applications");
     }
 
+    public void test_Applications_Edmiston_Parallel7() {
+        run("./Edmiston_Parallel7.x10","Edmiston_Parallel7","./Applications");
+    }
+
+    public void test_Applications_Edmiston_Parallel8() {
+        run("./Edmiston_Parallel8.x10","Edmiston_Parallel8","./Applications");
+    }
+
     public void test_Applications_Edmiston_Sequential1() {
         run("./Edmiston_Sequential1.x10","Edmiston_Sequential1","./Applications");
     }
 
     public void test_Applications_Edmiston_Sequential2() {
         run("./Edmiston_Sequential2.x10","Edmiston_Sequential2","./Applications");
+    }
+
+    public void test_Applications_Edmiston_Sequential3() {
+        run("./Edmiston_Sequential3.x10","Edmiston_Sequential3","./Applications");
     }
 
     public void test_Applications_GameOfLife() {
@@ -559,6 +571,10 @@ public TestCompiler(String name) {
         run("./FinishTest1.x10","FinishTest1","./Constructs/Finish");
     }
 
+    public void test_Constructs_Finish_FinishTest2() {
+        run("./FinishTest2.x10","FinishTest2","./Constructs/Finish");
+    }
+
     public void test_Constructs_For_ForLoop() {
         run("./ForLoop.x10","ForLoop","./Constructs/For");
     }
@@ -617,6 +633,10 @@ public TestCompiler(String name) {
 
     public void test_Constructs_Future_Future4Boxed() {
         run("./Future4Boxed.x10","Future4Boxed","./Constructs/Future");
+    }
+
+    public void test_Constructs_Future_FutureForce() {
+        run("./FutureForce.x10","FutureForce","./Constructs/Future");
     }
 
     public void test_Constructs_Future_FutureNullable0() {
@@ -793,6 +813,10 @@ public TestCompiler(String name) {
 
     public void test_Constructs_Value_ValueLocation2() {
         run("./ValueLocation2.x10","ValueLocation2","./Constructs/Value");
+    }
+
+    public void test_Misc_BreakInForTest() {
+        run("./BreakInForTest.x10","BreakInForTest","./Misc");
     }
 
     public void test_Misc_CommentTest() {
