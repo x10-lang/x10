@@ -100,11 +100,13 @@ public class TestX10_Compiler extends TestCase {
 	 * with the Runtime.
 	 */
 	public void setUp() {
+		/*
         DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
 		Place[] pls = Place.places();
 		Thread t = Thread.currentThread();
 		r.registerThread(t, pls[0]);
 		r.registerActivityStart(t, a, null);
+		*/
 	}
 	
 	
@@ -113,37 +115,40 @@ public class TestX10_Compiler extends TestCase {
 		polyglot.main.Main.main( poargs ); // run compiler!
 	}
 	
-	protected void run(String file, String main,String dir) {
-		
-		try {
-			compile(dir, file);
-			String cwd=System.getProperty("user.dir")+
-                              dir.substring(1);
-			ClassLoader loader = new URLClassLoader
-                          (new URL[] {new URL("file://"+cwd+"/")}); 
-			Class c = loader.loadClass(main);
-			Object inst = c.newInstance();
-			Method m = c.getMethod("run", new Class[0]);
-			Boolean ret = (Boolean) m.invoke(inst, null);
-			assertTrue(ret.booleanValue());
-			System.out.println("Test "+main+" completed.");
-		} catch (IOException io) {
-			fail(io.toString());
-		} catch (InstantiationException ie) {
-			fail(ie.toString());
-		} catch (NoSuchMethodException nmse) {
-			fail(nmse.toString());
-		} catch (InvocationTargetException ite) {
-			fail(ite.getCause().getMessage());
-		} catch (ClassNotFoundException cnfe) { fail(cnfe.toString());
-		} catch (IllegalArgumentException iae) {
-			fail(iae.toString());
-		} catch (ClassFormatError cfe) {
-			fail(cfe.toString());
-		} catch (IllegalAccessException iae) {
-			iae.printStackTrace();
-                        fail(iae.toString());
-		}
+	protected void run(final String file, final String main, final String dir) {
+		Place.places()[0].runAsync(new Activity() {
+			public void run() {
+				try {
+					compile(dir, file);
+					String cwd=System.getProperty("user.dir")+
+					dir.substring(1);
+					ClassLoader loader = new URLClassLoader
+					(new URL[] {new URL("file://"+cwd+"/")}); 
+					Class c = loader.loadClass(main);
+					Object inst = c.newInstance();
+					Method m = c.getMethod("run", new Class[0]);
+					Boolean ret = (Boolean) m.invoke(inst, null);
+					assertTrue(ret.booleanValue());
+					System.out.println("Test "+main+" completed.");
+				} catch (IOException io) {
+					fail(io.toString());
+				} catch (InstantiationException ie) {
+					fail(ie.toString());
+				} catch (NoSuchMethodException nmse) {
+					fail(nmse.toString());
+				} catch (InvocationTargetException ite) {
+					fail(ite.getCause().getMessage());
+				} catch (ClassNotFoundException cnfe) { fail(cnfe.toString());
+				} catch (IllegalArgumentException iae) {
+					fail(iae.toString());
+				} catch (ClassFormatError cfe) {
+					fail(cfe.toString());
+				} catch (IllegalAccessException iae) {
+					iae.printStackTrace();
+					fail(iae.toString());
+				}
+			}
+		});
 	}
 	
 // runMain is no longer supported
