@@ -179,9 +179,9 @@ public class LocalPlace_c extends Place {
     }
     protected void runAsync(final Activity a, final boolean finish) {
    
-        Thread currentThread = Thread.currentThread();
-        assert (currentThread instanceof ActivityRunner);
+        Thread currentThread = Thread.currentThread();  
         if (currentThread instanceof ActivityRunner) { 
+        	// This will not be executed only for bootActivity.
         	Activity parent = ((ActivityRunner) currentThread).getActivity();
         	parent.finalizeActivitySpawn(a);
         }
