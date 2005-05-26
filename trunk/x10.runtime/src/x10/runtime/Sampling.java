@@ -197,8 +197,7 @@ public final class Sampling extends Thread {
     }
 
     private synchronized void freshActivity(Activity a) {
-        DefaultRuntime_c dr = (DefaultRuntime_c) Runtime.runtime;
-        Place p = dr.getPlaceOfActivity(a);
+        Place p = a.getPlace();
         if (p == null) {
             //System.out.println("*New AID for " + a + " is " + activityCounts[places.length]);
             activityToIdentifier.put(a, new Integer(activityCounts[places.length]++));
@@ -322,8 +321,8 @@ public final class Sampling extends Thread {
 			int event_info,
 			int cause,
 			int causeInfo) {                                                                   
-    	Place srcPlace = (ia == null) ? null : dr.getPlaceOfActivity(ia);
-    	Place dstPlace = (a == null) ? null : dr.getPlaceOfActivity(a);
+    	Place srcPlace = (ia == null) ? null : ia.getPlace();
+    	Place dstPlace = (a == null) ? null : a.getPlace();
     	//System.out.println("SRCP " + srcPlace + " of act " + ia);
     	//System.out.println("DSTP " + dstPlace + " of act " + a);
         try {

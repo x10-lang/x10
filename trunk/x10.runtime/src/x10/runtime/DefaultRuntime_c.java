@@ -66,12 +66,15 @@ public class DefaultRuntime_c extends Runtime {
      * The places of this X10 Runtime (for now a constant set).
      */
     private final Place[] places_;
-    private Thread bootThread;
+    //private Thread bootThread;
     
     public DefaultRuntime_c() {
     	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
      	this.places_ = new Place[pc];
     }
+    /**
+     * Initialize the places in the XVM.
+     */
     protected synchronized void initialize() {
         // do it only once
         if (places_[0] == null) {
@@ -108,6 +111,7 @@ public class DefaultRuntime_c extends Runtime {
     			System.loadLibrary(libs[i]);
     	}
     	
+    	// Find the applications main activity.
     	java.lang.Object[] tmp = { args };
     	Activity atmp = null;
     	try {	
@@ -124,7 +128,8 @@ public class DefaultRuntime_c extends Runtime {
     		throw new Error(e);
     	}
     	final Activity appMain = atmp;
-    	final LocalPlace_c.StartSignal startSignal = new LocalPlace_c.StartSignal();
+    	
+    	// Create the boot activity
     	Activity boot = new Activity() {
             public String myName() {
                 return "Boot activity";
@@ -169,23 +174,12 @@ public class DefaultRuntime_c extends Runtime {
             }
             
         };
-        // initialize X10 runtime system
+        // Initialize sampling.
         if (false && Configuration.SAMPLING_FREQUENCY_MS >= 0)
             Sampling.boot(DefaultRuntime_c.this, boot);
 
-        // run the main app.
+        // Run the boot activity.
         Runtime.runAsync(boot);
-        
-        /*synchronized (startSignal) {
-            try {
-                while (! startSignal.go) {
-                    startSignal.wait();
-                }
-            } catch (InterruptedException ie) {
-                System.err.println("LocalPlace_c::runAsync - unexpected exception " + ie);
-                throw new Error(ie); // should never happen!
-            }
-        } */
         
         // Main thread terminates. bootActivity will now carry on.
         // VM terminates when bootActivity terminates.
@@ -205,6 +199,12 @@ public class DefaultRuntime_c extends Runtime {
     	}
     }
     
+    /**
+     * Set the current place in the PoolRunner. Should only
+     * be used by the X10 runtime with care. In general
+     * the X10 runtime should use currentActivity().getPlace().
+     * @see currentPlace()
+     */
     public synchronized void setCurrentPlace(place p) {
         assert p != null;
         Thread t = Thread.currentThread();
@@ -213,6 +213,12 @@ public class DefaultRuntime_c extends Runtime {
             pr.place = (LocalPlace_c) p;
         } 
     }
+    /**
+     * The place at which the current Thread is running, as recorded in the PoolRunner.
+     * Is different from currentActivity().getPlace() only in very special circumstances,
+     * for instance during the execution of the body of an array initializer.
+     * @see setCurrentPlace(place)
+     */
     public synchronized Place currentPlace() {
     	if (places_[0] == null) 
     		initialize();
@@ -228,6 +234,10 @@ public class DefaultRuntime_c extends Runtime {
     		throw new Error("This thread is not an X10 thread!");
     	return ret;
     }
+    
+    /**
+     * Return the activity being executed by the current thread.
+     */
     public Activity currentActivity() {
     	Thread t = Thread.currentThread();
     	Activity result = null;
@@ -241,11 +251,9 @@ public class DefaultRuntime_c extends Runtime {
     }
 
     /**
-     * this method should not be exposed to x10.lang and 
-     * application programmers, because the X10 programming model 
-     * does not know such construct (Places are obtained indirectly 
-     * through distributions).
-     *  
+     * Should be used only internally to the XVM. Should not
+     * be exposed to the X10 programmer.
+     *  @see x10.lang.place
      * @return All places available in this VM.
      */
     public Place[] getPlaces() {
@@ -461,16 +469,7 @@ public class DefaultRuntime_c extends Runtime {
     	
     }
 
-    /**
-     * At which place is the given activity running?  
-     * 
-     * @param a 
-     * @return null if the activity is not running anywhere
-     */
-    public synchronized Place getPlaceOfActivity(Activity a) {
-           return a.place_;
-    }    
+    
 
-    static class Signal { boolean value; }
     
 } // end of DefaultRuntime_c
