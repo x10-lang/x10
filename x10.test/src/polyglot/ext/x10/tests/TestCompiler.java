@@ -535,6 +535,10 @@ public TestCompiler(String name) {
         run("./DistributionTest1.x10","DistributionTest1","./Constructs/Distribution");
     }
 
+    public void test_Constructs_Exceptions_ExceptionBug_MustFailRun() {
+        run("./ExceptionBug_MustFailRun.x10","ExceptionBug_MustFailRun","./Constructs/Exceptions");
+    }
+
     public void test_Constructs_Exceptions_Exceptions() {
         run("./Exceptions.x10","Exceptions","./Constructs/Exceptions");
     }
