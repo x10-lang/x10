@@ -54,7 +54,9 @@ import x10.lang.region;
 
 
 /**
- * Default implementation of Runtime.
+ * Default implementation of Runtime. Considerably revised 5/16 by vj
+ * to remove activity helper classes, and synchronization between
+ * main thread and the Boot Activity.
  * 
  * @author Christian Grothoff, Christoph von Praun
  * @author vj
@@ -99,8 +101,7 @@ public class DefaultRuntime_c extends Runtime {
     		Thread[] a = new Thread[tCount];
     		int count = Thread.enumerate(a);
     		
-    		for (int i = 0; i < count; i++) {
-    			
+    		for (int i = 0; i < count; i++) {		
     			Report.report(5, "Thread " + (a[i] == null ? "null" : a[i].getName()) + " is active.");
     		}
     	}
@@ -119,7 +120,7 @@ public class DefaultRuntime_c extends Runtime {
     			Report.report(5, PoolRunner.logString() + " " + this + " starting user class |" 
     					+ Configuration.MAIN_CLASS_NAME+ "|.");
     		}
-    		atmp = (Activity) Class.forName(Configuration.MAIN_CLASS_NAME+"$Main")
+    		atmp = (Activity) Class.forName(Configuration.MAIN_CLASS_NAME + "$Main")
 			.getDeclaredConstructor(new Class[] { String[].class })
 			.newInstance(tmp);
     	} catch (Exception e) {
@@ -135,12 +136,15 @@ public class DefaultRuntime_c extends Runtime {
                 return "Boot activity";
             }
             public void run() {
-            	Thread t = Thread.currentThread();
              	if (Report.should_report("activity", 5)) {
             		Report.report(5, PoolRunner.logString() + " starts running the Boot Activity.");
             	}
-            
-            	finishRun(appMain);
+             	try {
+             		finishRun(appMain);
+             	} catch (Throwable z) {
+             		// Exception thrown by the activity!
+             		z.printStackTrace();
+             	}
             	
             	if (Report.should_report("activity", 5)) {
             		Report.report(5, PoolRunner.logString() + " finishes running the Boot Activity.");
@@ -179,18 +183,7 @@ public class DefaultRuntime_c extends Runtime {
         
         // Main thread terminates. bootActivity will now carry on.
         // VM terminates when bootActivity terminates.
-        int tCount = Thread.activeCount();
-     	if (Report.should_report("activity", 5)) {
-     		Report.report(5, PoolRunner.logString() + " terminates with " + tCount + " threads active.");
-    		Thread[] a = new Thread[tCount];
-    		int count = Thread.enumerate(a);
-    		
-    		for (int i = 0; i < count; i++) { 
-    			Report.report(5, 
-    					(a[i].isDaemon() ? "" : "Non") + "Daemon thread " 
-    					 + (a[i] == null ? "null" : a[i].getName()) + " is active.");
-    		}
-    	}
+        return;
     }
     
     /**
@@ -416,30 +409,28 @@ public class DefaultRuntime_c extends Runtime {
     		}
             
             public GenericArray.factory getGenericArrayFactory() {
-            return new x10.lang.genericArray.factory() {
-                public GenericReferenceArray GenericReferenceArray(dist d, Parameter1 c) {
-                    return new GenericArray_c( d, c, true);
-                }
-                public GenericReferenceArray GenericReferenceArray(dist d, x10.lang.genericArray.pointwiseOp f) {
-                    return new GenericArray_c( d, f, true);
-                }
-                public x10.lang.genericArray GenericValueArray(dist d, Parameter1 c) {
-                    return new GenericArray_c(d, c, true, false);
-                }
-                public x10.lang.genericArray GenericValueArray(dist d, x10.lang.genericArray.pointwiseOp f) {
-                    return new GenericArray_c(d, f, true, false);
-                }
-            };
-            
+            	return new x10.lang.genericArray.factory() {
+            		public GenericReferenceArray GenericReferenceArray(dist d, Parameter1 c) {
+            			return new GenericArray_c( d, c, true);
+            		}
+            		public GenericReferenceArray GenericReferenceArray(dist d, x10.lang.genericArray.pointwiseOp f) {
+            			return new GenericArray_c( d, f, true);
+            		}
+            		public x10.lang.genericArray GenericValueArray(dist d, Parameter1 c) {
+            			return new GenericArray_c(d, c, true, false);
+            		}
+            		public x10.lang.genericArray GenericValueArray(dist d, x10.lang.genericArray.pointwiseOp f) {
+            			return new GenericArray_c(d, f, true, false);
+            		}
+            	};
+            	
         }
 
             
             public place.factory getPlaceFactory() {
     			return new place.factory() {
-    				public place place(int i ) {
-    					
+    				public place place(int i ) {	
     					int index =( i %  place.MAX_PLACES);
-    					//System.out.println("place(i), i= " + i + " index=" +  index + " place.MAX_PLACES" + place.MAX_PLACES);
     					if (places_[index] == null) initialize();
     					return places_[index];
     				}
