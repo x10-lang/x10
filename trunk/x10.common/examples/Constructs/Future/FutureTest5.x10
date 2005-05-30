@@ -1,12 +1,19 @@
-
-import x10.lang.*;
 /**
  * Checks if creation and force of Future in different activities work.
+ *
+ * @author Christoph von Praun, 5/2005
+ * @author kemal, 5/2005
+ *
  */
 
 public class FutureTest5 {
 
     nullable future<int> fut;
+
+    /**
+     * Create a future in one activity, and then 
+     * force it in a different activity.
+     */
     public boolean run() {
 	return 
 	    testUp_(false) && 
@@ -16,19 +23,27 @@ public class FutureTest5 {
 	    testSibling_(true);
     }
 
+    /**
+     * Create future in child, force it in parent.
+     */
     private boolean testUp_(final boolean del) {
-	fut = null;
+	atomic fut = null;
 	async (here) { 
-	    fut = future (here) { 42 } ;
+	    future<int> t1 = future (here) { 42 } ;
+            atomic fut=t1;
 	    if (del)
 		delay(500);
 	};
-	while (fut == null) ;
-	int@here fortytwo = fut.force();
+        nullable future<int> t2;
+	when (fut != null) {t2=fut;}
+        int@here fortytwo = t2.force();
 	System.out.println("up done");
 	return fortytwo == 42;
     }
     
+    /**
+     * Create future in parent, force it in child.
+     */
     private boolean testDown_() {
 	final future<int> fut_l = future (here) { 42 } ;
 	finish async (here) { 
@@ -38,16 +53,21 @@ public class FutureTest5 {
 	return true;
     }
     
+    /**
+     * Create future in child 1, force it in child 2.
+     */
     private boolean testSibling_(final boolean del) {
-	fut = null;
+	atomic fut = null;
 	async (here) { 
-	    fut = future (here) { 42 } ;
+	    future<int> t1= future (here) { 42 } ;
+            atomic fut=t1;
 	    if (del)
 		delay(500);
 	}
 	finish async (here) {
-	    while (fut == null) ;
-	    int@here fortytwo = fut.force();
+            nullable future<int> t2;
+	    when (fut != null) {t2=fut;}
+	    int@here fortytwo = t2.force();
 	    System.out.println("sibling done");
 	};
 	return true;
@@ -62,6 +82,9 @@ public class FutureTest5 {
 	} catch(InterruptedException e) {}
     }
 
+    /**
+     * main method
+     */
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
