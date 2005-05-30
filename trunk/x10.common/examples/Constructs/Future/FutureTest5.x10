@@ -17,6 +17,7 @@ public class FutureTest5 {
     }
 
     private boolean testUp_(final boolean del) {
+	fut = null;
 	async (here) { 
 	    fut = future (here) { 42 } ;
 	    if (del)
