@@ -3,36 +3,45 @@
 // m4 ClockTest7_MustFailRun.m4 > ClockTest7_MustFailRun.x10
 // Do not edit
 /**
- * Combination of finish and clocks. 
- * Finish cannot pass any clock to a subactivity.
- * Should cause a compile time error.
- * Currently causes a deadlock.
+ *Combination of finish and clocks. 
+ *Finish cannot pass any clock to a subactivity.
+ *
+ *Language clarification needed: 
+ *(what if async clocked(c) S occurs inside a library method 
+ *or is invoked via an indirect function? 
+ *Compiler analysis may be difficult).
+ *This test currently causes a deadlock at run time.
+ *How should it behave in the ultimate x10 definition?
+ *
+ *Temporarily declaring that this is an error that should be
+ *caught at compile time (this may not be possible).
  *
  * @author kemal 3/2005
  */
 public class ClockTest7_MustFailCompile {
     
     int val=0;
-    static final int N=32;
+    static final int N=16;
     
     public boolean run() {
-        final clock c = clock.factory.clock();
         
+        final clock c = clock.factory.clock();
+
         finish foreach (point [i]: 0:(N-1)) clocked(c) {
-            async(here) clocked(c) finish async(here) {atomic val++;}
+            atomic val++;
             System.out.println("Activity "+i+" phase 0");
             next;
-            chk(val == N);
+            atomic chk(val == N);
             System.out.println("Activity "+i+" phase 1");
             next;
-            async(here) clocked(c) finish async(here) {atomic val++;}
+            atomic val++;
             System.out.println("Activity "+i+" phase 2");
             next;
         }
 
         next; next; next;
 
-        chk(val ==2*N);
+        atomic chk(val ==2*N);
 
         return true;
     }
