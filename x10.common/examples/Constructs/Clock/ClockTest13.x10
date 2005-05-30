@@ -5,8 +5,8 @@
  *clocks as follows:
  *
  * <code>
- a   b   c   clocks
- / \ / \ / \
+   a   b   c   clocks
+  / \ / \ / \
   A  B   C   D activities
   * </code>
   *

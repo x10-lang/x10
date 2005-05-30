@@ -7,11 +7,11 @@
  * for the current clock period.
  *
  * <code>
- A   stage 0 A produces the stream 1,2,3,...
- / \
+   A   stage 0 A produces the stream 1,2,3,...
+  / \
   B  C  stage 1 B is "double", C is "square" function
   \ /|
-  D E  stage 2 D is \(x,y)(x+y+10), E is \(x)(x*7)
+   D E  stage 2 D is \(x,y)(x+y+10), E is \(x)(x*7)
   * </code>
   *
   * @author kemal 4/2005
