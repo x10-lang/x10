@@ -30,7 +30,12 @@ public class ClockTest8_MustFailCompile {
 		final clock c2=c1;
 		final clock c3=ca[0];
 		bc.val.drop();
-		async clocked(ca[U.zero()]) {
+                //TODO: the following line (arrays of clocks) does not parse
+
+		//async clocked(ca[U.zero()]) 
+                final clock c4=ca[U.zero()];
+		async clocked(c4) 
+                {
 			async clocked(c2) {System.out.println("hello");}
 		}
             }
