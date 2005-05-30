@@ -9,8 +9,24 @@
  *
  *Language clarification needed on disambiguation
  *algorithm to use.
+ *Compiler analysis may not be possible in many cases, such
+ *as async's invoked in library methods and indirectly called methods.
  *
  */
+
+/**
+ * A class to invoke a 'function pointer' that may do an async
+ */
+class Y {
+    static void test(final foo f) {
+	{
+          f.apply(); // it is hard to determine f does an async clocked(c) S,
+                     //where the current activity is not registered on c
+          next;
+	}
+    }
+}
+
 
 public class ClockTest16a_MustFailCompile {
 
@@ -44,6 +60,36 @@ public class ClockTest16a_MustFailCompile {
                     }
                 }
 
+                foo f0=new foo() {
+                   public void apply() {
+                      final clock cx=ca[x.zero()];
+		      async clocked(cx) { //clock use error
+                         next;
+                      }
+                   }
+                };
+
+                foo f1=new foo() {
+                   public void apply() {
+                      final clock cx=ca[x.one()];
+		      async clocked(cx) { //no clock use error
+                         next;
+                      }
+                   }
+                };
+
+	        final foo[] fooArray=new foo[] {f0,f1};
+
+                // Compiler: MAYBE, actual: NO
+                // must have a compiler error
+                Y.test(fooArray[x.one()]);
+                 
+                System.out.println("point #1");
+                // Compiler: MAYBE, actual: YES
+                // must have a compiler error
+                Y.test(fooArray[x.zero()]);
+                       
+                System.out.println("point #2");
                 // Compiler: MAYBE, actual: YES
                 // must have a compiler error
 	        {
@@ -53,6 +99,7 @@ public class ClockTest16a_MustFailCompile {
                     }
                 }
 
+                System.out.println("point #3");
                 // Compiler: YES, actual:YES
                 // must have a compiler error
 	        {
@@ -85,6 +132,24 @@ public class ClockTest16a_MustFailCompile {
 
 
 }
+
+/**
+ * An interface to use like a simple 'function pointer'
+ *
+ * foo f1=new foo(){public void apply() S1}; //assign body S1 to f1
+ *
+ * // values of free final variables of S1 are also captured in f1.
+ *
+ * f1.apply(); // invoke S1 indirectly using its captured
+ *
+ * // free variables 
+ *
+ */
+
+interface foo {
+    public void apply();
+}
+
 
 /** 
  * Dummy class to make static memory disambiguation difficult
