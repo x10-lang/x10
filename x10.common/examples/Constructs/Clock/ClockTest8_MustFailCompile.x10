@@ -2,16 +2,15 @@
  * @author kemal 4/2005
  * Tests if we can assign a clock to an array element or
  * field.
- * This could lead to static memory disambiguation difficulties
- * For example:
- * <code>
-   (a[b[k]]).drop(); 
-   async clocked(a[b[i]]) {
-     async clocked(a[b[j]]) S
-   }
-   // Compiler does not know if b[k]==b[i] or b[i]==b[j]
- * </code>
- * Definition needs to be cleared up here.
+ * Tests if clocks can be "aliased" per x10 manual terminology.
+ * E.g.: clock c1=clock.factory.clock(); clock c2=c1; 
+ * //clocks c1 and c2 are "aliased"
+ * ca[0]=c1; ca[1]=ca[0]; 
+ * // ca[0] and ca[1] are "aliased"
+ * The language definition needs to be cleared up, to define the behavior of this test.
+ *
+ * This test currently fails at run time since it tries to transmit a dropped clock.
+ * 
  */
 
 class BoxedClock {
@@ -27,7 +26,7 @@ public class ClockTest8_MustFailCompile {
 		BoxedClock bc=new BoxedClock(clock.factory.clock());
 		clock[] ca = new clock[] {clock.factory.clock(), bc.val};
 		final clock c1=ca[1];
-		final clock c2=c1;
+		final clock c2=c1; //aliased clocks c2 and c1
 		final clock c3=ca[0];
 		bc.val.drop();
                 //TODO: the following line (arrays of clocks) does not parse
