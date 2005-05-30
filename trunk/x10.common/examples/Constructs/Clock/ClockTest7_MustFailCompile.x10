@@ -4,12 +4,13 @@
 // Do not edit
 /**
  * Combination of finish and clocks. 
- * New rule: finish cannot pass any clock to a subactivity.
- * should cause a run time or compile time error.
+ * Finish cannot pass any clock to a subactivity.
+ * Should cause a compile time error.
+ * Currently causes a deadlock.
  *
  * @author kemal 3/2005
  */
-public class ClockTest7_MustFailRun {
+public class ClockTest7_MustFailCompile {
     
     int val=0;
     static final int N=32;
@@ -17,7 +18,7 @@ public class ClockTest7_MustFailRun {
     public boolean run() {
         final clock c = clock.factory.clock();
         
-        finish async foreach (point [i]: 0:(N-1)) clocked(c) {
+        finish foreach (point [i]: 0:(N-1)) clocked(c) {
             async(here) clocked(c) finish async(here) {atomic val++;}
             System.out.println("Activity "+i+" phase 0");
             next;
@@ -41,7 +42,7 @@ public class ClockTest7_MustFailRun {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ClockTest7_MustFailRun()).run();
+                finish b.val=(new ClockTest7_MustFailCompile()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
