@@ -1,5 +1,5 @@
 /**
- * @author kemal 4/2005
+ * @author kemal 5/2005
  *
  *The x10 compiler must conservatively check if an activity can 
  *potentially
@@ -10,7 +10,21 @@
  *Language clarification needed on disambiguation
  *algorithm to use.
  *
+ *Compile time analysis may not be possible in some cases.
+ *
  */
+/**
+ * A class to invoke a 'function pointer' inside of async
+ */
+class Y {
+    static void test(final foo f, final clock c) {
+        // Compiler error here
+	async clocked(c) {
+          f.apply(); // it is hard to determine f does an async clocked(c2) S, where c2!=c
+          next;
+	}
+    }
+}
 
 public class ClockTest16_MustFailCompile {
 
@@ -38,9 +52,9 @@ public class ClockTest16_MustFailCompile {
 
                 // Compiler: MAYBE, actual: NO
                 // must have a compiler error
-	        async(c1) {
-                    final clock cx=ca[x.zero()];
-		    async clocked(cx) { //clock use error
+	        async clocked(c1) {
+                    final clock cx=ca[x.one()];
+		    async clocked(cx) { //no clock use error
                        next;
                     }
                     next;
@@ -49,12 +63,41 @@ public class ClockTest16_MustFailCompile {
                 // Compiler: MAYBE, actual: YES
                 // must have a compiler error
 	        async clocked(c1) {
-                    final clock cx=ca[x.one()];
-		    async clocked(cx) { // no clock use error 
+                    final clock cx=ca[x.zero()];
+		    async clocked(cx) { // clock use error 
                        next;
                     }
                     next;
                 }
+
+                final foo f0= new foo() {
+                  public void apply() {
+                    final clock cx=ca[x.zero()];
+		    async clocked(cx) { // clock use error 
+                       next;
+                    }
+                  }
+                };
+
+                final foo f1= new foo() {
+                  public void apply() {
+                    final clock cx=ca[x.one()];
+		    async clocked(cx) { // no clock use error 
+                       next;
+                    }
+                  }
+                };
+
+                final foo[] fooArray=new foo[] {f0,f1};
+                    
+                 
+                // Compiler: YES, Actual: NO
+                // must have a compiler error
+                Y.test(fooArray[x.one()],c1);
+
+                // Compiler: YES, Actual: YES
+                // must have a compiler error
+                Y.test(fooArray[x.zero()],c1);
 
                 // Compiler: YES, actual:YES
                 // must have a compiler error
@@ -65,6 +108,7 @@ public class ClockTest16_MustFailCompile {
                     }
                     next;
                 }
+
                 next;
            }
                 
@@ -89,6 +133,22 @@ public class ClockTest16_MustFailCompile {
     }
 
 
+}
+
+/**
+ * An interface to use like a simple 'function pointer'
+ *
+ * foo f1=new foo(){public void apply() S1}; //assign body S1 to f1
+ *
+ * // values of free final variables of S1 are also captured in f1.
+ *
+ * f1.apply(); // invoke S1 indirectly using its captured
+ *
+ * // free variables 
+ *
+ */
+interface foo {
+    public void apply();
 }
 
 /** 
