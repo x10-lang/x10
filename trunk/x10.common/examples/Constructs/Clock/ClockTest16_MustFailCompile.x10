@@ -18,7 +18,7 @@
  */
 class Y {
     static void test(final foo f, final clock c) {
-        // Compiler error here
+        // Compiler analysis may not be possible here
 	async clocked(c) {
           f.apply(); // it is hard to determine f does an async clocked(c2) S, where c2!=c
           next;
@@ -91,11 +91,11 @@ public class ClockTest16_MustFailCompile {
                 final foo[] fooArray=new foo[] {f0,f1};
                     
                  
-                // Compiler: YES, Actual: NO
+                // Compiler: MAYBE, Actual: NO
                 // must have a compiler error
                 Y.test(fooArray[x.one()],c1);
 
-                // Compiler: YES, Actual: YES
+                // Compiler: MAYBE, Actual: YES
                 // must have a compiler error
                 Y.test(fooArray[x.zero()],c1);
 
