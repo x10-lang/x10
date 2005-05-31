@@ -6,6 +6,7 @@ import java.util.Stack;
 import java.util.LinkedList;
 import java.util.List;
 import x10.lang.MultipleExceptions;
+import x10.lang.ClockUseException;
 
 /** The representation of an X10 async activity.
  * @author Christian Grothoff, Christoph von Praun, vj
@@ -40,7 +41,7 @@ public abstract class Activity implements Runnable {
     public Activity( List clocks) {
     	if (! clocks.isEmpty()) {
     		if (Report.should_report("activity", 3)) {
-    			Report.report(3, Thread.currentThread() + " adding clocks " + clocks + " to " + this);
+    			Report.report(3, PoolRunner.logString() + " adding clocks " + clocks + " to " + this);
     		}
     	}
     	this.clocks_ = clocks;
@@ -64,16 +65,16 @@ public abstract class Activity implements Runnable {
     	}
     	finishState_=new FinishState(this);  
     	if (Report.should_report("activity", 3)) {
-    		Report.report(3, Thread.currentThread() + " " + this + " starts finish " + finishState_);
+    		Report.report(3, PoolRunner.logString() + " " + this + " starts finish " + finishState_);
     	}
     }
        
     public synchronized void pushException(Throwable t) {
     	if (Report.should_report("activity", 3)) {
-    		Report.report(3, Thread.currentThread() + " " + this + " pushing exception " + t + " onto " + finishState_);
+    		Report.report(3, PoolRunner.logString() + " " + this + " pushing exception " + t + " onto " + finishState_);
     	}
     	
-    	finishState_.finish_.push(t);
+    	finishState_.pushException(t);
     }
     /**
      * Suspend until all activities spawned during this finish 
@@ -83,17 +84,17 @@ public abstract class Activity implements Runnable {
      */
     public synchronized void stopFinish() {
     	if (Report.should_report("activity", 5)) {
-    		Report.report(5, Thread.currentThread() + " " + this + " enters stopfinish ");
+    		Report.report(5, PoolRunner.logString() + " " + this + " enters stopfinish ");
     	}
-    	while ( finishState_.finishCount != 0) {
-    		try {
+    	while ( finishState_.isActive()) {
+    		try { // triggered by parent.notifyAll() in FinishState.notifySubActivityTermination()
     			this.wait();
     		} catch (InterruptedException z) {
     			// What should be done here?
     		}
     	}
     	if (Report.should_report("activity", 5)) {
-    		Report.report(5, Thread.currentThread() + " " + this + " continues stopfinish ");
+    		Report.report(5, PoolRunner.logString() + " " + this + " continues stopfinish ");
     	}
     	FinishState state = finishState_;
     	// Update finishState_ before throwing an exception.
@@ -103,11 +104,12 @@ public abstract class Activity implements Runnable {
     		finishState_ = (FinishState) finishStack_.pop();
     	}
     	// Do not reference finishState_ below, instead reference state.
-    	if (! state.finish_.empty()) {
-    		if (state.finish_.size()==1) {
-    			Throwable t = (Throwable) state.finish_.pop();
+    	if (! state.terminatedNormally()) {
+    		Stack result = state.exceptions();
+    		if (result.size()==1) {
+    			Throwable t = (Throwable) result.pop();
     			if (Report.should_report("activity", 3)) {
-    	    		Report.report(3, Thread.currentThread() + " " + this + " throws  " +  t);
+    	    		Report.report(3, PoolRunner.logString() + " " + this + " throws  " +  t);
     	    	}
     			if (t instanceof java.lang.Error)
     				throw (Error) t;
@@ -117,7 +119,7 @@ public abstract class Activity implements Runnable {
     		throw new MultipleExceptions( state.finish_ );
     	}
     	if (Report.should_report("activity", 3)) {
-    		Report.report(3, Thread.currentThread() + " " + this + " exits from finish.");
+    		Report.report(3, PoolRunner.logString() + " " + this + " exits from finish.");
     	}
     	
     	
@@ -126,8 +128,20 @@ public abstract class Activity implements Runnable {
      * 
      * @return true iff the activity is executing a finish.
      */
-    public boolean inFinish() {
+    public synchronized boolean inFinish() {
     	return finishState_ != null;
+    }
+    
+    /** Check whether it is ok to use the given clock c (by spawning an async
+     * registered on the clock), throwing a ClockUseException if it is not.
+     * Checks that the clock has not been resumed or dropped, and that the 
+     * async is not being spawned inside a finish.
+     * @param c -- The clock being checked for.
+     */
+    public synchronized void checkClockUse(Clock c) {
+    	if (c.dropped()) throw new ClockUseException("Cannot transmit dropped clock.");
+    	if (c.quiescent()) throw new ClockUseException("Cannot transmit resumed clock.");
+    	if (inFinish()) throw new ClockUseException("Finish cannot spawn clocked async.");
     }
     /**
      * Execute this activity as if it is executed within a finish. 
@@ -138,7 +152,7 @@ public abstract class Activity implements Runnable {
      */
     public void finishRun() {
     	if (Report.should_report("activity", 5)) {
-    		Report.report(5, Thread.currentThread() + " " + this + ".finishRun() started." );
+    		Report.report(5, PoolRunner.logString() + " " + this + ".finishRun() started." );
     	}
     	finishRun( this );
     }
@@ -157,9 +171,9 @@ public abstract class Activity implements Runnable {
      * 
      * @param c
      */
-    public void addClock(Clock c) {
+    public synchronized void addClock(Clock c) {
     	if (Report.should_report("clock", 3)) {
-    		Report.report(3, Thread.currentThread() + " " + this + " adds " +  c + ".");
+    		Report.report(3, PoolRunner.logString() + " " + this + " adds " +  c + ".");
     	}
     	clocks_.add(c);
     }
@@ -167,9 +181,9 @@ public abstract class Activity implements Runnable {
      * Drop a clock from this activity's clock list.
      * @param c
      */
-    public void dropClock(Clock c) {
+    public synchronized void dropClock(Clock c) {
     	if (Report.should_report("clock", 3)) {
-    		Report.report(3, Thread.currentThread() + " " + this + " drops " +  c + ".");
+    		Report.report(3, PoolRunner.logString() + " " + this + " drops " +  c + ".");
     	}
     	clocks_.remove(c);
     }
@@ -178,13 +192,13 @@ public abstract class Activity implements Runnable {
      * activity from all these clocks.
      *
      */
-    protected void dropAllClocks() {
+    protected synchronized void dropAllClocks() {
     	for (Iterator it = clocks_.iterator(); it.hasNext();) {
     		Clock c = (Clock) it.next();
     		c.drop( this );
     	}
     	if (Report.should_report("clock", 3)) {
-    		Report.report(3, Thread.currentThread() + " " + this + " drops all clocks.");
+    		Report.report(3, PoolRunner.logString() + " " + this + " drops all clocks.");
     	}
     }
     /**
@@ -194,7 +208,7 @@ public abstract class Activity implements Runnable {
      */
     public void doNext() {
     	if (Report.should_report("activity", 3)) {
-    		Report.report(3, Thread.currentThread() + " " + this + ".doNext() on " +  clocks_);
+    		Report.report(3, PoolRunner.logString() + " " + this + ".doNext() on " +  clocks_);
     	}
     	Iterator it = clocks_.iterator();
     	while (it.hasNext()) {
@@ -207,7 +221,7 @@ public abstract class Activity implements Runnable {
     		c.doNext();
     	}
     }
-    public void setRootActivity (FinishState root ) {
+    public synchronized void setRootActivityFinishState (FinishState root ) {
     	this.rootNode_ = root;
     }
     
@@ -216,27 +230,13 @@ public abstract class Activity implements Runnable {
      * 
      * @param child -- the activity being spawned.
      */
-    public Activity finalizeActivitySpawn( Activity child ) {
+    public synchronized Activity finalizeActivitySpawn( Activity child ) {
     	if (Report.should_report("activity", 3)) {
-    		Report.report(3, Thread.currentThread() + " " + this + " spawns " + child);
+    		Report.report(3, PoolRunner.logString() + " " + this + " spawns " + child);
     	}
-    	if (finishState_!=null) {
-    		child.setRootActivity( finishState_ );
-    		synchronized (this ) {
-    			finishState_.finishCount++;
-    			if (Report.should_report("activity", 5)) {
-    	    		Report.report(5, " updating " + finishState_.toString());
-    	    	}
-    		}
-    	} else {
-    		child.setRootActivity( rootNode_ );
-    		synchronized (rootNode_) {
-    			rootNode_.finishCount++;
-    			if (Report.should_report("activity", 5)) {
-    	    		Report.report(5, " updating " + rootNode_.toString());
-    	    	}
-    		}
-    	}
+    	FinishState target = finishState_ == null ? rootNode_ : finishState_;
+    	child.setRootActivityFinishState( target );
+    	target.increment();
     	if (asl_ != null) {
     		for (int j=0;j< asl_.size();j++) {
     			// tell other activities that want to know that this has spawned child
@@ -269,13 +269,12 @@ public abstract class Activity implements Runnable {
     public void initializeActivity() {
     	// reg_.registerActivityStart(t, a, i);
     	if (Report.should_report("activity", 5)) {
-    		Report.report(5, Thread.currentThread() + " Activity: initializing " + this);
+    		Report.report(5, PoolRunner.logString() + " Activity: initializing " + this);
     	}
     	
     	Iterator it = clocks_.iterator();
     	while (it.hasNext()) {
     		Clock c = (Clock) it.next(); 
-    		
     		c.register( this );
     	}
     	
@@ -288,7 +287,7 @@ public abstract class Activity implements Runnable {
     */
     public void finalizeTermination() {
     	if (Report.should_report("activity", 5)) {
-    		Report.report(5, Thread.currentThread() + " " + this + "terminates.");
+    		Report.report(5, PoolRunner.logString() + " " + this + "terminates.");
     	}
     	dropAllClocks();
     	if (rootNode_ != null)

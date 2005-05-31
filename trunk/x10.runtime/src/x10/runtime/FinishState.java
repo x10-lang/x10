@@ -35,21 +35,35 @@ public class FinishState {
 	public synchronized void notifySubActivityTermination() {
 		finishCount--;
 		if (finishCount==0)
-			synchronized (parent) {
+			synchronized (parent) { // matches wait() in stopFinish.
 				parent.notifyAll();
 			}
 	}
 	
+	public synchronized void increment() {
+		finishCount++;
+		if (Report.should_report("activity", 5)) {
+			Report.report(5, " updating " + toString());
+		}
+	}
+	
+	public synchronized boolean isActive() {
+		return finishCount > 0;
+	}
     public synchronized void pushException( Throwable t) {
     	finish_.push(t);
     }
     
     public synchronized void notifySubActivityAbruptTermination(Throwable t) {
-    
     	finish_.push(t);
     	notifySubActivityTermination();
     }
-    
+    public synchronized boolean terminatedNormally() {
+    	return finish_.empty();
+    }
+    public synchronized Stack exceptions() {
+    	return finish_;
+    }
     public String toString() {
     	return "<FinishState " + hashCode() + " " + finishCount + "," 
 		+ parent.shortString()+"," + finish_ +">";

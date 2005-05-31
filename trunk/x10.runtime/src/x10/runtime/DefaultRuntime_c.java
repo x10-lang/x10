@@ -96,7 +96,7 @@ public class DefaultRuntime_c extends Runtime {
     	if (Report.should_report("activity", 5)) {
     		Thread t = Thread.currentThread();
     		int tCount = Thread.activeCount();
-    		Report.report(5, PoolRunner.logString() +" starts in group " + t.getThreadGroup() 
+    		Report.report(5, Thread.currentThread() + ":" + System.currentTimeMillis() +" starts in group " + t.getThreadGroup() 
     				+ " with " + tCount + " threads active.");
     		Thread[] a = new Thread[tCount];
     		int count = Thread.enumerate(a);
@@ -117,7 +117,7 @@ public class DefaultRuntime_c extends Runtime {
     	Activity atmp = null;
     	try {	
     		if (Report.should_report("activity", 5)) {
-    			Report.report(5, PoolRunner.logString() + " " + this + " starting user class |" 
+    			Report.report(5, Thread.currentThread()  + ":" + System.currentTimeMillis() + " " + this + " starting user class |" 
     					+ Configuration.MAIN_CLASS_NAME+ "|.");
     		}
     		atmp = (Activity) Class.forName(Configuration.MAIN_CLASS_NAME + "$Main")

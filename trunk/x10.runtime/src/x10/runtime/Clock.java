@@ -252,6 +252,8 @@ public final class Clock extends clock {
 		}
 	}
 	
+	
+	
 	public boolean registered() {
 		Activity a = Runtime.getCurrentActivity();	
 		// do not lock earlier - see comment in doNow       
@@ -263,6 +265,13 @@ public final class Clock extends clock {
 		return ! registered();
 	}
 	
+	public boolean quiescent() {
+		Activity a = Runtime.getCurrentActivity();
+		synchronized (this) {
+			return quiescent(a);
+		}
+		
+	}
 	/**
 	 * Drop this activity from the clock.  Afterwards the
 	 * activity may no longer use continue or now on this clock.
