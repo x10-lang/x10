@@ -6,7 +6,7 @@ package x10.compilergenerated;
 
 import x10.lang.Object;
 import x10.runtime.Clock;
-import x10.runtime.Clock.AdvanceListener;
+
 
 /**
  * Abstract parent class of all subclasses that implement clocked
@@ -99,11 +99,13 @@ import x10.runtime.Clock.AdvanceListener;
 abstract class ClockedFinal extends Object {
 
     ClockedFinal(Clock c) {
+    	/* vj: Needs to be implemented completely.
         c.registerAdvanceListener(new AdvanceListener() {
                 public void notifyAdvance() {
                     advance();
                 }
                });
+               */
     }
 
     /**
