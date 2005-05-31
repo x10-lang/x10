@@ -7,6 +7,7 @@ define(`Now',
  * @author Vivek Sarkar (vsarkar@us.ibm.com)
  * Minimal test for clock.
  * run() method returns true if successful, false otherwise.
+ * @author vj -- Fixed use of clocks and finish.
  */
 public class ClockTest1  {
 

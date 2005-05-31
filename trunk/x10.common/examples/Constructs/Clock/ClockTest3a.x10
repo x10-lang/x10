@@ -35,7 +35,7 @@ public class ClockTest3a {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ClockTest3a()).run();
+                finish async b.val=(new ClockTest3a()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
