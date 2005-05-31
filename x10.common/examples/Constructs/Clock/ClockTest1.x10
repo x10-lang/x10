@@ -6,6 +6,7 @@
  * @author Vivek Sarkar (vsarkar@us.ibm.com)
  * Minimal test for clock.
  * run() method returns true if successful, false otherwise.
+
  */
 public class ClockTest1  {
 
@@ -13,7 +14,7 @@ public class ClockTest1  {
     
     public boolean run() {
         final clock c = clock.factory.clock();
-        async(here) clocked(c) finish async(here) {atomic{flag=true;}}
+        async clocked(c) finish {atomic{flag=true;}}
         next ;      
         boolean b;
         atomic{b=flag;}
@@ -23,7 +24,7 @@ public class ClockTest1  {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ClockTest1()).run();
+                finish async b.val=(new ClockTest1()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
