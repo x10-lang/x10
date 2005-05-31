@@ -6,7 +6,7 @@
 package x10.runtime;
 
 
-/**
+/** Needed for simplicity of code generation.
  * @author vj May 17, 2005
  * 
  */

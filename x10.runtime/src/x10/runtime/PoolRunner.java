@@ -5,7 +5,9 @@
 *
 *Moved out of LocalPlace_c by vj.
 *Should be replaced by a standard thread pool.
+*
 * @author Christian Grothoff
+* @author vj
 */
 package x10.runtime;
 

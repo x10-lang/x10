@@ -1,6 +1,9 @@
 package x10.lang;
 
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
@@ -17,7 +20,7 @@ import x10.runtime.Report;
  * Runtime.  Conceptually Runtime is an Interface (!) for the X10
  * world (just like Clock/Region/Distribution/Array/Range/Activity).
  * It is implemented as an abstract class since we need to put some
- * code here, notably the static (!) "_" (or "getRuntime()") 
+ * code here, notably the static  "getRuntime()"
  * implementation.  Sadly, Java does not allow statics code in
  * interfaces, otherwise this would be an interface. 
  * 
@@ -28,8 +31,6 @@ import x10.runtime.Report;
 public abstract class Runtime {
 
     public static Runtime runtime;
-    
-  
     
     /**
      * This instance should be used only in the implementation of 
@@ -68,12 +69,11 @@ public abstract class Runtime {
             // ArrayFactory.init(r);
         }
     }
-    public static Factory factory; // = runtime.getFactory();
+    public static Factory factory; 
    
     protected abstract void initialize();
     
     public static void main(String[] args) {
-    	//System.out.println(Thread.currentThread() + "starting main(String[]).");
     	try {
             String[] args_stripped = Configuration.parseCommandLine(args);
             init();
@@ -81,7 +81,8 @@ public abstract class Runtime {
     	} catch (Exception e) {
     		Runtime.java.error("Unexpected Exception in X10 Runtime.", e);
     	}
-    	// System.exit(returnValue);
+        // vj: The return from this method does not signal termination of the VM
+    	// because a separate non-daemon thread has been spawned to execute Boot Activity.
     }
 
     static int exitCode;
@@ -132,7 +133,7 @@ public abstract class Runtime {
     public abstract Place[] getPlaces();
     
     /**
-     * @return The place where the current execution takes place 
+     * @return The place of the thread executing the current activity. 
      * ('here' in X10).
      */
     public static Place here() {
@@ -159,20 +160,13 @@ public abstract class Runtime {
      * Method used to do dynamic nullcheck when nullable is casted away.
      */
     public static java.lang.Object placeCheck(java.lang.Object o, x10.lang.place p) {
-        java.lang.Object ret = null;
         if (o == null)
             throw new NullPointerException("Place-cast of value 'null' failed.");
-        
         if (! (o instanceof x10.lang.Object)) 
             throw new Error("Place-cast currently not available for object of type " + o.getClass().getName());
-        
         x10.lang.Object xo = (x10.lang.Object) o;
-        if (xo.getLocation().equals(p)) 
-            ret = o;
-        else {
-            // place cast failed
+        if (! xo.getLocation().equals(p)) 
             throw new BadPlaceException();
-        }
         return o;
     }
     
@@ -192,5 +186,61 @@ public abstract class Runtime {
     public static Future runFuture( Activity.Expr a) {
     	return runtime.getPlaces()[0].runFuture(a);
     }
+
+	/**
+	 * Implementation of "==" for value types.
+	 * TODO: vj, implement for value arrays.
+	 * @param o1
+	 * @param o2
+	 * @return true iff the values are value-equals (all fields have
+	 *    the same value)
+	 */
+	public static boolean equalsequals(java.lang.Object o1, java.lang.Object o2) {
+	    if (o1 == o2)
+	        return true;
+	    if ( (o1 == null) || (o2 == null))
+	        return false;
+	    Class c = o1.getClass();
+	    if ( (o1 instanceof Indexable)) {
+	        Indexable i1 = (Indexable) o1;
+	        Indexable i2 = (Indexable) o2;
+	        if (! (i1.isValue() && i2.isValue()))
+	            return false;
+	        return i1.valueEquals(i2);
+	    }
+	    if (c != o2.getClass())
+	        return false;
+	    if ( !(o1 instanceof ValueType) )
+	        return false;        
+	    try {
+	        while (c != null) {
+	            Field[] fs = c.getDeclaredFields();
+	            for (int i=fs.length-1;i>=0;i--) {
+	                Field f = fs[i];
+	                if (Modifier.isStatic(f.getModifiers()))
+	                    continue;
+	                f.setAccessible(true);
+	                if (f.getType().isPrimitive()) {
+	                    if (! f.get(o1).equals(f.get(o2)))
+	                        return false;
+	                } else {
+	                    // I assume here that value types are immutable
+	                    // and can thus not contain mutually recursive
+	                    // structures.  If that is wrong, we would have to do
+	                    // more work here to avoid dying with a StackOverflow.
+	                    if (! equalsequals(f.get(o1), f.get(o2))) 
+	                        return false;
+	                }                    
+	            }
+	            c = c.getSuperclass();
+	            if ( (c == java.lang.Object.class) ||
+	                 (c == x10.lang.Object.class) )
+	                break; // otherwise we get problems with fields like 'place' in X10Object
+	        } 
+	    } catch (IllegalAccessException iae) {
+	        throw new Error(iae);  // fatal, should never happen
+	    }
+	    return true;
+	}
    
 } // end of Runtime
