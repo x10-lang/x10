@@ -15,8 +15,9 @@ import x10.lang.region;
 
 
 public class Helper {
-	
+	public final static boolean performBoundsCheck=true;
 	final static void checkBounds(region r,int d0){
+		
 		if(r instanceof MultiDimRegion){
 			MultiDimRegion mdr = (MultiDimRegion)r;
 			int lowd0 = mdr.rank(0).low();		
@@ -37,7 +38,7 @@ public class Helper {
 	
 	final public static int ordinal(region r,int d0){
 		assert (r.rank == 1);
-		checkBounds(r,d0);
+		if(performBoundsCheck) checkBounds(r,d0);
 		d0 -= r.rank(0).low();
 		return d0;
 	}
@@ -68,7 +69,7 @@ public class Helper {
 	}
 	final public static int ordinal(region r,int d0,int d1){
 		assert (r.rank == 2);
-		checkBounds(r,d0,d1);
+		if(performBoundsCheck) checkBounds(r,d0,d1);
 		
 		d0 -= r.rank(0).low();
 		d1 -= r.rank(1).low();
@@ -76,6 +77,7 @@ public class Helper {
 	}
 	
 	final static void checkBounds(region r,int d0,int d1, int d2){
+		
 		if(r instanceof MultiDimRegion){
 			MultiDimRegion mdr = (MultiDimRegion)r;
 			int lowd0 = mdr.rank(0).low();
@@ -97,10 +99,11 @@ public class Helper {
 			if(!r.contains(index)) 
 				throw new ArrayIndexOutOfBoundsException();
 		}
+		
 	}
 	final public static int ordinal(region r,int d0,int d1, int d2){
 		assert (r.rank == 3);
-		checkBounds(r,d0,d1,d2);
+		if(performBoundsCheck)checkBounds(r,d0,d1,d2);
 					
 		d0 -= r.rank(0).low();
 		d1 -= r.rank(1).low();
@@ -140,7 +143,7 @@ public class Helper {
 	final public static int ordinal(region r,int d0,int d1, int d2,int d3){
 		assert (r.rank == 4);
 		
-		checkBounds(r,d0,d1,d2,d3);
+		if(performBoundsCheck) checkBounds(r,d0,d1,d2,d3);
 		
 		d0 -= r.rank(0).low();
 		d1 -= r.rank(1).low();
