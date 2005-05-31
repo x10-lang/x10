@@ -1,2 +1,4 @@
 if (#0.dropped()) throw new ClockUseException("Cannot pass on dropped clock.");
+if (((x10.runtime.ActivityRunner) Thread.currentThread()).getActivity().inFinish()) 
+throw new ClockUseException("Finish cannot spawn clocked async.");
 clocks.add(#0);
