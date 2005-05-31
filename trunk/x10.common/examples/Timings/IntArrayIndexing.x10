@@ -25,8 +25,9 @@ public class IntArrayIndexing {
 		// Note: cannot do anything fancy with starting index--assume 0 based
 		range1D = [0:kArraySize];
 		range2D = [0:kArraySize,0:kArraySize];
-		range3D = [1:14,3:40,1:20];
+		//range3D = [1:14,3:40,1:20];
 		range4D = [0:2,0:4,2:10,1:10];
+		range3D = [0:13,0:37,0:19]; // make it zero based
 		
 		 long start = System.currentTimeMillis();
 		_intArray1D = new int[dist.factory.block(range1D)];
@@ -137,7 +138,7 @@ public class IntArrayIndexing {
 	
 	
 	boolean run(){
-		int repeatCount=1000;
+		int repeatCount=4000;
 		
 		if(!runIntTests(repeatCount)) return false;
 	
