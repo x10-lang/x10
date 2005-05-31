@@ -18,9 +18,7 @@ import x10.lang.Object;
 final class Future_c extends Future {
 
     private boolean haveResult_;
-    
-    private final Activity.Expr waitFor_;     
-
+       
     /**
      * Set if the activity terminated with an exception.
      * Can only be of type Error or RuntimeException
@@ -30,10 +28,7 @@ final class Future_c extends Future {
     
     private Object result_;
     
-    Future_c(Activity.Expr wf) {
-        this.waitFor_ = wf;
-       
-    }
+    Future_c() {}  
     
     
     /**

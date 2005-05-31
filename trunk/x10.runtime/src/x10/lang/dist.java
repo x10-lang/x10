@@ -153,7 +153,7 @@ implements Indexable, ValueType {
 	abstract public region/*(rank)*/ restrictToRegion( place P );
 	
 	public dist restriction(place P) {
-		return distribution.factory.constant(restrictToRegion(P), P);
+		return dist.factory.constant(restrictToRegion(P), P);
 	}
 	
     /**
@@ -276,7 +276,7 @@ public
 			if (pointCount[i] > maxPoints)
 				maxPoints = pointCount[i];
 		// 3) Return fraction of "non-idle" slots
-			distributionEfficiency = (float) totalPoints / ((float) maxPoints * (float) pointCount.length);
+			distributionEfficiency = totalPoints / ((float) maxPoints * (float) pointCount.length);
 		return distributionEfficiency;
 	}
 }

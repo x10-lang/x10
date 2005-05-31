@@ -1,8 +1,5 @@
 package x10.runtime;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import x10.lang.Future;
@@ -223,7 +220,7 @@ public class LocalPlace_c extends Place {
      * can be used to force the future result.
      */
     public Future runFuture(final Activity.Expr a) {
-    	Future_c result = a.future = new Future_c(a);
+    	Future_c result = a.future = new Future_c();
     	runAsync(a);
     	return result;
     }

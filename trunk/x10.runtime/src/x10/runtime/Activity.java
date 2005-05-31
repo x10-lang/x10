@@ -122,6 +122,13 @@ public abstract class Activity implements Runnable {
     	
     	
     }
+    /** Is this activity currently executing a finish?
+     * 
+     * @return true iff the activity is executing a finish.
+     */
+    public boolean inFinish() {
+    	return finishState_ != null;
+    }
     /**
      * Execute this activity as if it is executed within a finish. 
      * Thus it throws an exception iff this activity or some activity asynchronously
