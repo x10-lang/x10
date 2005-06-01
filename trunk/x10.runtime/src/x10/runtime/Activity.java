@@ -9,6 +9,27 @@ import x10.lang.MultipleExceptions;
 import x10.lang.ClockUseException;
 
 /** The representation of an X10 async activity.
+ * <p>The code below uses myThread/someThread annotations on methods. 
+ * <p>A thread is said to govern the Activity it is executing. An Activity governs
+ * every FinishState it creates to implement its finishes. (An Activity does
+ * not govern the FinishState it was created with -- that is governed by the parent
+ * activity under whose finish this async was spawned.)
+ * <p>An Activity governs itself.
+ * <p>An Activity may govern other objects as well. (Note that govern does not imply
+ * own; where own is taken in the graph-theoretical sense of being a dominator. That is,
+ * if A governs B it may be the case that objects C not governed by A reference B.)
+ * <p>A method on an object O is annotated myThread if the only thread that can invoke the method is one
+ * which is executing the activity that governs O. 
+ * <p> If a field is accessed only by methods labeled myThread, then the field is not used for
+ * inter-thread communication.
+ * <p> A method on an object O is annotated someThread if there is no constraint on the thread
+ * that may invoke it.
+ * <p> A method on an object O is annotated mySpawningThread if the only thread that can invoke
+ * the method is the one executing the activity, and the thread can inoke this method only before
+ * it has invoked the activity's run method, i.e. initiated the activity.
+ * <p> Note that an Activity object is created by a different thread than the one that executes it. 
+ * We require that the initiating thread not invoke any methods on the Activity object and merely
+ * pass it to the thread that executes the Activity.
  * @author Christian Grothoff, Christoph von Praun, vj
  */
 public abstract class Activity implements Runnable {
@@ -44,12 +65,39 @@ public abstract class Activity implements Runnable {
     	}
     	this.clocks_ = clocks;
     }
+    
     public Activity() {
     	this.clocks_ = new LinkedList();
     }
-    public synchronized void setPlace(Place p) {
+    
+    /**
+     * This activity is about to be executed. 
+     * Perform whatever initialization is necessary,
+     * informing whoever is interested. Must be performed by the thread
+     * that will spawn this activity onto another thread.
+     *
+     */
+    public /*mySpawningThread*/ void initializeActivity() {
+    	// reg_.registerActivityStart(t, a, i);
+    	if (Report.should_report("activity", 5)) {
+    		Report.report(5, PoolRunner.logString() + " Activity: initializing " + this);
+    	}
+    	
+    	Iterator it = clocks_.iterator();
+    	while (it.hasNext()) {
+    		Clock c = (Clock) it.next(); 
+    		c.register( this );
+    	}
+    	
+    }
+    public /*mySpawningThread*/ void setRootActivityFinishState (FinishState root ) {
+    	this.rootNode_ = root;
+    }
+    
+    public /*mySpawningThread*/ void setPlace(Place p) {
     	this.place_ = p;
     }
+    
     public Place getPlace() {
     	return place_;
     }
@@ -57,7 +105,7 @@ public abstract class Activity implements Runnable {
      * Start executing a finish operation.
      *
      */
-    public synchronized void startFinish() {
+    public /*myThread*/ void startFinish() {
     	if (finishState_ != null) {
     		finishStack_.push(finishState_);
     	}
@@ -67,7 +115,11 @@ public abstract class Activity implements Runnable {
     	}
     }
        
-    public synchronized void pushException(Throwable t) {
+    /** Push the exception thrown while executing s in a finish s, onto the finish state.
+     * 
+     * @param t
+     */
+    public /*myThread*/ void pushException(Throwable t) {
     	if (Report.should_report("activity", 3)) {
     		Report.report(3, PoolRunner.logString() + " " + this + " pushing exception " + t + " onto " + finishState_);
     	}
@@ -78,43 +130,42 @@ public abstract class Activity implements Runnable {
      * Suspend until all activities spawned during this finish 
      * operation have terminated. Throw an exception if any
      * async terminated abruptly. Otherwise continue normally.
-     *
+     * Should only be called by the thread executing the current activity.
      */
-    public synchronized void stopFinish() {
+    public void stopFinish() {
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, PoolRunner.logString() + " " + this + " enters stopfinish ");
     	}
-    	while ( finishState_.isActive()) {
-    		try { // triggered by parent.notifyAll() in FinishState.notifySubActivityTermination()
-    			this.wait();
-    		} catch (InterruptedException z) {
-    			// What should be done here?
-    		}
-    	}
+    	finishState_.waitForFinish();
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, PoolRunner.logString() + " " + this + " continues stopfinish ");
     	}
-    	FinishState state = finishState_;
-    	// Update finishState_ before throwing an exception.
-    	if (finishStack_.empty()) {
-    		finishState_ = null;
-    	} else {
-    		finishState_ = (FinishState) finishStack_.pop();
+    	FinishState state = null;
+    	
+    	synchronized (this ) {
+    		state = finishState_;
+    		// Update finishState_ before throwing an exception.
+    		if (finishStack_.empty()) {
+    			finishState_ = null;
+    		} else {
+    			finishState_ = (FinishState) finishStack_.pop();
+    		}
     	}
     	// Do not reference finishState_ below, instead reference state.
-    	if (! state.terminatedNormally()) {
-    		Stack result = state.exceptions();
+    	
+    	Stack result = state.exceptions();
+    	if (! result.empty()) {
     		if (result.size()==1) {
     			Throwable t = (Throwable) result.pop();
     			if (Report.should_report("activity", 3)) {
-    	    		Report.report(3, PoolRunner.logString() + " " + this + " throws  " +  t);
-    	    	}
+    				Report.report(3, PoolRunner.logString() + " " + this + " throws  " +  t);
+    			}
     			if (t instanceof java.lang.Error)
     				throw (Error) t;
     			if (t instanceof java.lang.RuntimeException)
     				throw (RuntimeException) t;
     		}
-    		throw new MultipleExceptions( state.finish_ );
+    		throw new MultipleExceptions( result );
     	}
     	if (Report.should_report("activity", 3)) {
     		Report.report(3, PoolRunner.logString() + " " + this + " exits from finish.");
@@ -126,7 +177,7 @@ public abstract class Activity implements Runnable {
      * 
      * @return true iff the activity is executing a finish.
      */
-    public synchronized boolean inFinish() {
+    public /*myThread*/ boolean inFinish() {
     	return finishState_ != null;
     }
     
@@ -134,9 +185,10 @@ public abstract class Activity implements Runnable {
      * registered on the clock), throwing a ClockUseException if it is not.
      * Checks that the clock has not been resumed or dropped, and that the 
      * async is not being spawned inside a finish.
+     * Invoked from code generated from the X10 source by the translator.
      * @param c -- The clock being checked for.
      */
-    public synchronized void checkClockUse(Clock c) {
+    public /*myThread*/ void checkClockUse(Clock c) {
     	if (c.dropped()) throw new ClockUseException("Cannot transmit dropped clock.");
     	if (c.quiescent()) throw new ClockUseException("Cannot transmit resumed clock.");
     	if (inFinish()) throw new ClockUseException("Finish cannot spawn clocked async.");
@@ -148,13 +200,13 @@ public abstract class Activity implements Runnable {
      * throws an exception.
      *
      */
-    public void finishRun() {
+    public /*myThread*/ void finishRun() {
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, PoolRunner.logString() + " " + this + ".finishRun() started." );
     	}
     	finishRun( this );
     }
-    public void finishRun( Runnable r) {
+    public /*myThread*/ void finishRun( Runnable r) {
     	try {
     		startFinish();
     		r.run();
@@ -162,14 +214,14 @@ public abstract class Activity implements Runnable {
     		pushException(t);
     	} 
     	stopFinish();
-    	
     }
+    
     /** Add a clock to this activity's clock list. (Called when
      * this activity creates a new clock.)
      * 
      * @param c
      */
-    public synchronized void addClock(Clock c) {
+    public /*myThread*/ void addClock(Clock c) {
     	if (Report.should_report("clock", 3)) {
     		Report.report(3, PoolRunner.logString() + " " + this + " adds " +  c + ".");
     	}
@@ -179,7 +231,7 @@ public abstract class Activity implements Runnable {
      * Drop a clock from this activity's clock list.
      * @param c
      */
-    public synchronized void dropClock(Clock c) {
+    public /*myThread*/ void dropClock(Clock c) {
     	if (Report.should_report("clock", 3)) {
     		Report.report(3, PoolRunner.logString() + " " + this + " drops " +  c + ".");
     	}
@@ -190,7 +242,7 @@ public abstract class Activity implements Runnable {
      * activity from all these clocks.
      *
      */
-    protected synchronized void dropAllClocks() {
+    protected /*myThread*/ void dropAllClocks() {
     	for (Iterator it = clocks_.iterator(); it.hasNext();) {
     		Clock c = (Clock) it.next();
     		c.drop( this );
@@ -200,11 +252,11 @@ public abstract class Activity implements Runnable {
     	}
     }
     /**
-     * Execute a next operation. Blocks until each clock 
+     * Implement next; for an activity. Blocks until each clock 
      * this activity is registered on has moved to the next phase.
      *
      */
-    public void doNext() {
+    public /*myThread*/ void doNext() {
     	if (Report.should_report("activity", 3)) {
     		Report.report(3, PoolRunner.logString() + " " + this + ".doNext() on " +  clocks_);
     	}
@@ -219,22 +271,21 @@ public abstract class Activity implements Runnable {
     		c.doNext();
     	}
     }
-    public synchronized void setRootActivityFinishState (FinishState root ) {
-    	this.rootNode_ = root;
-    }
+  
+    ArrayList asl_ = new ArrayList();
     
     /** This activity has spawned child. Properly link child
      * into the finish termination chain and notify all listeners.
      * 
      * @param child -- the activity being spawned.
      */
-    public  Activity finalizeActivitySpawn( final Activity child ) {
+    public  /*myThread*/ Activity finalizeActivitySpawn( final Activity child ) {
     	if (Report.should_report("activity", 3)) {
     		Report.report(3, PoolRunner.logString() + " " + this + " spawns " + child);
     	}
     	FinishState target = finishState_ == null ? rootNode_ : finishState_;
     	child.setRootActivityFinishState( target );
-    	target.increment();
+    	target.notifySubActivitySpawn();
     	ArrayList myASL = null;
     	synchronized (this) { myASL = asl_; }
     	if (myASL != null) {
@@ -246,46 +297,25 @@ public abstract class Activity implements Runnable {
     	}
     	return child;
     }
-    
-    ArrayList asl_ = new ArrayList();
 	
     /** Register an activity spawn listener for this activity.
      * 
      * @param a
      */
-	public synchronized void registerActivitySpawnListener(ActivitySpawnListener a) {
+	public  synchronized void registerActivitySpawnListener(ActivitySpawnListener a) {
 		if (asl_ == null) {
 			asl_ = new ArrayList(2);
 		}
 		asl_.add( a);
 	}
-    /**
-    * This activity is about to be executed. 
-    * Perform whatever initialization is necessary,
-    * informing whoever is interested. Must be performed by the thread
-    * that will spawn this activity onto another thread.
-    *
-    */
-    public void initializeActivity() {
-    	// reg_.registerActivityStart(t, a, i);
-    	if (Report.should_report("activity", 5)) {
-    		Report.report(5, PoolRunner.logString() + " Activity: initializing " + this);
-    	}
-    	
-    	Iterator it = clocks_.iterator();
-    	while (it.hasNext()) {
-    		Clock c = (Clock) it.next(); 
-    		c.register( this );
-    	}
-    	
-    }
+    
   
    /**
     * This activity has terminated normally. Now clean up. (Notify the finish ancestor,
     * if any, and any other listeners (e.g. Sample listeners).
     *
     */
-    public synchronized void finalizeTermination() {
+    public /*myThread*/ void finalizeTermination() {
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, PoolRunner.logString() + " " + this + "terminates.");
     	}
@@ -307,7 +337,7 @@ public abstract class Activity implements Runnable {
     * @param t -- the reason for the abrupt termination.
     */
   
-    public synchronized void finalizeAbruptTermination(Throwable t) {
+    public /*myThread*/ void finalizeTermination(Throwable t) {
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, Thread.currentThread() + " " + this + " terminates abruptly with " + t);
     	}
@@ -316,7 +346,7 @@ public abstract class Activity implements Runnable {
     		Report.report(5, Thread.currentThread() + " " + this + " drops clocks, has rootNode_ " + rootNode_);
     	}
     	if (rootNode_ != null)
-    		rootNode_.notifySubActivityAbruptTermination( t);
+    		rootNode_.notifySubActivityTermination( t);
     	if (asl_ != null) {
     		for (int j=0;j< asl_.size();j++) {
     			// tell other activities that want to know that this has spawned child
@@ -363,7 +393,7 @@ public abstract class Activity implements Runnable {
         			runSource();
         		} catch (Throwable t) {
         			try {
-        				pushException(t);
+        				pushException(t); 
         				stopFinish(); // must throw an exception.
         			} catch (Throwable t1) {
         				// Now nested asyncs have terminated.
@@ -380,9 +410,9 @@ public abstract class Activity implements Runnable {
         	}
         }
         
-        public void finalizeAbruptTermination(Throwable t) {
+        public void finalizeTermination(Throwable t) {
         	future.setException(t);
-        	super.finalizeAbruptTermination(t);
+        	super.finalizeTermination(t);
         }
         
     } // end of Activity.Expr
