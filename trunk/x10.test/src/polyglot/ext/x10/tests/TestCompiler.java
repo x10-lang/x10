@@ -27,6 +27,10 @@ public TestCompiler(String name) {
         run("./Edmiston_Parallel1.x10","Edmiston_Parallel1","./Applications");
     }
 
+    public void test_Applications_Edmiston_Parallel10() {
+        run("./Edmiston_Parallel10.x10","Edmiston_Parallel10","./Applications");
+    }
+
     public void test_Applications_Edmiston_Parallel2() {
         run("./Edmiston_Parallel2.x10","Edmiston_Parallel2","./Applications");
     }
@@ -57,6 +61,10 @@ public TestCompiler(String name) {
 
     public void test_Applications_Edmiston_Parallel8() {
         run("./Edmiston_Parallel8.x10","Edmiston_Parallel8","./Applications");
+    }
+
+    public void test_Applications_Edmiston_Parallel9() {
+        run("./Edmiston_Parallel9.x10","Edmiston_Parallel9","./Applications");
     }
 
     public void test_Applications_Edmiston_Sequential1() {
@@ -447,6 +455,18 @@ public TestCompiler(String name) {
         run("./ClockTest15WithResume.x10","ClockTest15WithResume","./Constructs/Clock");
     }
 
+    public void test_Constructs_Clock_ClockTest16_MustFailCompile() {
+        run("./ClockTest16_MustFailCompile.x10","ClockTest16_MustFailCompile","./Constructs/Clock");
+    }
+
+    public void test_Constructs_Clock_ClockTest16a_MustFailCompile() {
+        run("./ClockTest16a_MustFailCompile.x10","ClockTest16a_MustFailCompile","./Constructs/Clock");
+    }
+
+    public void test_Constructs_Clock_ClockTest17_MustFailCompile() {
+        run("./ClockTest17_MustFailCompile.x10","ClockTest17_MustFailCompile","./Constructs/Clock");
+    }
+
     public void test_Constructs_Clock_ClockTest2() {
         run("./ClockTest2.x10","ClockTest2","./Constructs/Clock");
     }
@@ -475,8 +495,8 @@ public TestCompiler(String name) {
         run("./ClockTest6.x10","ClockTest6","./Constructs/Clock");
     }
 
-    public void test_Constructs_Clock_ClockTest7_MustFailRun() {
-        run("./ClockTest7_MustFailRun.x10","ClockTest7_MustFailRun","./Constructs/Clock");
+    public void test_Constructs_Clock_ClockTest7_MustFailCompile() {
+        run("./ClockTest7_MustFailCompile.x10","ClockTest7_MustFailCompile","./Constructs/Clock");
     }
 
     public void test_Constructs_Clock_ClockTest8_MustFailCompile() {
@@ -495,12 +515,24 @@ public TestCompiler(String name) {
         run("./BlockCyclicDist.x10","BlockCyclicDist","./Constructs/Distribution");
     }
 
+    public void test_Constructs_Distribution_BlockCyclicDistWithPlaceSet() {
+        run("./BlockCyclicDistWithPlaceSet.x10","BlockCyclicDistWithPlaceSet","./Constructs/Distribution");
+    }
+
     public void test_Constructs_Distribution_BlockDist() {
         run("./BlockDist.x10","BlockDist","./Constructs/Distribution");
     }
 
+    public void test_Constructs_Distribution_BlockDistWithPlaceSet() {
+        run("./BlockDistWithPlaceSet.x10","BlockDistWithPlaceSet","./Constructs/Distribution");
+    }
+
     public void test_Constructs_Distribution_CyclicDist() {
         run("./CyclicDist.x10","CyclicDist","./Constructs/Distribution");
+    }
+
+    public void test_Constructs_Distribution_CyclicDistWithPlaceSet() {
+        run("./CyclicDistWithPlaceSet.x10","CyclicDistWithPlaceSet","./Constructs/Distribution");
     }
 
     public void test_Constructs_Distribution_DistAlgebra() {
@@ -683,6 +715,10 @@ public TestCompiler(String name) {
         run("./InitNonNullable_MustFailCompile.x10","InitNonNullable_MustFailCompile","./Constructs/Init");
     }
 
+    public void test_Constructs_NoStaticMutable_NoStaticMutable1_MustFailCompile() {
+        run("./NoStaticMutable1_MustFailCompile.x10","NoStaticMutable1_MustFailCompile","./Constructs/NoStaticMutable");
+    }
+
     public void test_Constructs_Nullable_Nullable0Ref() {
         run("./Nullable0Ref.x10","Nullable0Ref","./Constructs/Nullable");
     }
@@ -771,6 +807,10 @@ public TestCompiler(String name) {
         run("./RegionTriangular.x10","RegionTriangular","./Constructs/Region");
     }
 
+    public void test_Constructs_RemoteMethodCall_Arrow() {
+        run("./Arrow.x10","Arrow","./Constructs/RemoteMethodCall");
+    }
+
     public void test_Constructs_StorageClass_StorageClassesTest() {
         run("./StorageClassesTest.x10","StorageClassesTest","./Constructs/StorageClass");
     }
@@ -833,6 +873,10 @@ public TestCompiler(String name) {
 
     public void test_Misc_FinalInitializationTest() {
         run("./FinalInitializationTest.x10","FinalInitializationTest","./Misc");
+    }
+
+    public void test_Misc_HereParentheses() {
+        run("./HereParentheses.x10","HereParentheses","./Misc");
     }
 
     public void test_Misc_LiteralTest() {
