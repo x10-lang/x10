@@ -15,7 +15,7 @@ import x10.lang.region;
 
 
 public class Helper {
-	public final static boolean performBoundsCheck=true;
+	public final static boolean performBoundsCheck=false;
 	final static void checkBounds(region r,int d0){
 		
 		if(r instanceof MultiDimRegion){
@@ -43,6 +43,12 @@ public class Helper {
 		return d0;
 	}
 	
+	final public static int rawordinal(region r,int d0){
+		assert (r.rank == 1);
+		if(performBoundsCheck) checkBounds(r,d0);
+		return d0;
+	}
+	
 	final static void checkBounds(region r,int d0,int d1){
 		if(r instanceof MultiDimRegion){
 			MultiDimRegion mdr = (MultiDimRegion)r;
@@ -51,8 +57,7 @@ public class Helper {
 			
 			int highd0 = mdr.rank(0).high();
 			int highd1 = mdr.rank(1).high();
-			
-			
+					
 			if(d0 < lowd0 || d0 > highd0 ||
 					d1 < lowd1 || d1 > highd1){
 				throw new ArrayIndexOutOfBoundsException();
@@ -73,6 +78,13 @@ public class Helper {
 		
 		d0 -= r.rank(0).low();
 		d1 -= r.rank(1).low();
+		return d1+ d0*r.rank(1).size();
+	}
+	
+	final public static int rawordinal(region r,int d0,int d1){
+		assert (r.rank == 2);
+		if(performBoundsCheck) checkBounds(r,d0,d1);
+		
 		return d1+ d0*r.rank(1).size();
 	}
 	
@@ -104,14 +116,24 @@ public class Helper {
 	final public static int ordinal(region r,int d0,int d1, int d2){
 		assert (r.rank == 3);
 		if(performBoundsCheck)checkBounds(r,d0,d1,d2);
-					
+		
+		if(true){
 		d0 -= r.rank(0).low();
 		d1 -= r.rank(1).low();
 		d2 -= r.rank(2).low();
+		}
 		int d1Size=r.rank(2).size();
 		int d0Size=d1Size * r.rank(1).size();
 		return d2+ d1*d1Size+ d0*d0Size;
 		
+	}
+	final public static int rawordinal(region r,int d0,int d1, int d2){
+		assert (r.rank == 3);
+		//if(performBoundsCheck)checkBounds(r,d0,d1,d2);
+		
+		int d1Size=r.rank(2).size();
+		int d0Size=d1Size * r.rank(1).size();
+		return d2+ d1*d1Size+ d0*d0Size;
 	}
 	
 	final static void checkBounds(region r,int d0,int d1, int d2,int d3){
@@ -149,6 +171,18 @@ public class Helper {
 		d1 -= r.rank(1).low();
 		d2 -= r.rank(2).low();
 		d3 -= r.rank(3).low();
+		int d2Size=r.rank(3).size();
+		int d1Size=d2Size * r.rank(2).size();
+		int d0Size=d1Size * r.rank(1).size();
+		return d3+ d2*d2Size + d1*d1Size + d0*d0Size;
+		
+	}
+	
+	final public static int rawordinal(region r,int d0,int d1, int d2,int d3){
+		assert (r.rank == 4);
+		
+		if(performBoundsCheck) checkBounds(r,d0,d1,d2,d3);
+		
 		int d2Size=r.rank(3).size();
 		int d1Size=d2Size * r.rank(2).size();
 		int d0Size=d1Size * r.rank(1).size();

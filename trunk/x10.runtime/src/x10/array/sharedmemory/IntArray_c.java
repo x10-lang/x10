@@ -24,8 +24,8 @@ import x10.lang.IntReferenceArray;
  */
 public class IntArray_c extends IntArray implements UnsafeContainer {
 
-    private final boolean safe_;
-    private final MemoryBlock arr_;
+    protected final boolean safe_;
+    protected final MemoryBlock arr_;
     public final boolean mutable_;
     
     public boolean valueEquals(Indexable other) {
@@ -107,7 +107,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	    scan(this, f);
     }
     
-    private IntArray_c( dist d, int[] a, boolean safe, boolean mutable ) {
+    protected IntArray_c( dist d, int[] a, boolean safe, boolean mutable ) {
     	super(d);
         this.mutable_ = mutable;
         this.safe_ = safe;
