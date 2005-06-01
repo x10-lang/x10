@@ -166,7 +166,7 @@ static int compute(int x,int y) {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ClockPascal()).run();
+                finish async b.val=(new ClockPascal()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

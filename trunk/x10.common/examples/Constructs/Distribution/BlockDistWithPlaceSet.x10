@@ -112,7 +112,7 @@ public class BlockDistWithPlaceSet {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new BlockDistWithPlaceSet()).run();
+                finish async b.val=(new BlockDistWithPlaceSet()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

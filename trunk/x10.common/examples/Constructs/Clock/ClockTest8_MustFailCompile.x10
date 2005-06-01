@@ -44,7 +44,7 @@ public class ClockTest8_MustFailCompile {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ClockTest8_MustFailCompile()).run();
+                finish async b.val=(new ClockTest8_MustFailCompile()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

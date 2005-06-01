@@ -18,7 +18,7 @@ public class ArrayInitializerShorthand {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ArrayInitializerShorthand()).run();
+                finish async b.val=(new ArrayInitializerShorthand()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

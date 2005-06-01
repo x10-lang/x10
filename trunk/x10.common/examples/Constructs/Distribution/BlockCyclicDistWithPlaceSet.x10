@@ -114,7 +114,7 @@ public class BlockCyclicDistWithPlaceSet {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new BlockCyclicDistWithPlaceSet()).run();
+                finish async b.val=(new BlockCyclicDistWithPlaceSet()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

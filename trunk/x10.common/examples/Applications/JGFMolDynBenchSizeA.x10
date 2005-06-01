@@ -42,7 +42,7 @@ public class JGFMolDynBenchSizeA{
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new JGFMolDynBenchSizeA()).run();
+                finish async b.val=(new JGFMolDynBenchSizeA()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

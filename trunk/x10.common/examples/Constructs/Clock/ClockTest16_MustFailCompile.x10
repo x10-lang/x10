@@ -120,7 +120,7 @@ public class ClockTest16_MustFailCompile {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ClockTest16_MustFailCompile()).run();
+                finish async b.val=(new ClockTest16_MustFailCompile()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

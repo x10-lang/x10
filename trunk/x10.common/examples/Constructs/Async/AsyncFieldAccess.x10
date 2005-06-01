@@ -29,7 +29,7 @@ public class AsyncFieldAccess {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new AsyncFieldAccess()).run();
+                finish async b.val=(new AsyncFieldAccess()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

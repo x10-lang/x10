@@ -20,7 +20,7 @@ public class Nullable0Ref {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Nullable0Ref()).run();
+                finish async b.val=(new Nullable0Ref()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

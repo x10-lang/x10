@@ -53,7 +53,7 @@ public class Array1c {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Array1c()).run();
+                finish async b.val=(new Array1c()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

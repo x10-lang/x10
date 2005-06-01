@@ -20,7 +20,7 @@ public class Nullable2 {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Nullable2()).run();
+                finish async b.val=(new Nullable2()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

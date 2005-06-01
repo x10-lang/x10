@@ -46,7 +46,7 @@ public class ForLoop {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ForLoop()).run();
+                finish async b.val=(new ForLoop()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

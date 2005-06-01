@@ -38,7 +38,7 @@ public class JGFSparseMatmultBenchSizeA{
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new JGFSparseMatmultBenchSizeA()).run();
+                finish async b.val=(new JGFSparseMatmultBenchSizeA()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

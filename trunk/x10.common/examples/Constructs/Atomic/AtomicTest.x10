@@ -25,7 +25,7 @@ public class AtomicTest  {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new AtomicTest()).run();
+                finish async b.val=(new AtomicTest()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

@@ -11,7 +11,7 @@ public class Future0 {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Future0()).run();
+                finish async b.val=(new Future0()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

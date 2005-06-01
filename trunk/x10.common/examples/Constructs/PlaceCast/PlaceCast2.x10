@@ -28,7 +28,7 @@ public class PlaceCast2 {
 	    public static void main(String[] args) {
 	    	final BoxedBoolean b=new BoxedBoolean();
 	    	try {
-	    		finish b.val=(new PlaceCast2()).run();
+	    		finish async b.val=(new PlaceCast2()).run();
 	    	} catch (Throwable e) {
 	    		e.printStackTrace();
 	    		b.val=false;
