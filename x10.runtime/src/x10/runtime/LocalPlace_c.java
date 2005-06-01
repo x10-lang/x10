@@ -202,10 +202,7 @@ public class LocalPlace_c extends Place {
                 		a.run();
                 	}
                 } catch (Throwable e) {
-                	// e.printStackTrace();
-                	// System.err.println("LocalPlace_c::runAsync - unexpected exception " + e);
-                	// can never arrive here if finish=true
-                	a.finalizeAbruptTermination(e);
+                	a.finalizeTermination(e);
                 	return;
                 } 
                 a.finalizeTermination(); //should not throw an exception.
