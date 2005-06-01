@@ -228,17 +228,19 @@ public abstract class Activity implements Runnable {
      * 
      * @param child -- the activity being spawned.
      */
-    public synchronized Activity finalizeActivitySpawn( Activity child ) {
+    public  Activity finalizeActivitySpawn( final Activity child ) {
     	if (Report.should_report("activity", 3)) {
     		Report.report(3, PoolRunner.logString() + " " + this + " spawns " + child);
     	}
     	FinishState target = finishState_ == null ? rootNode_ : finishState_;
     	child.setRootActivityFinishState( target );
     	target.increment();
-    	if (asl_ != null) {
-    		for (int j=0;j< asl_.size();j++) {
+    	ArrayList myASL = null;
+    	synchronized (this) { myASL = asl_; }
+    	if (myASL != null) {
+    		for (int j=0;j< myASL.size();j++) {
     			// tell other activities that want to know that this has spawned child
-    			ActivitySpawnListener asl = (ActivitySpawnListener) asl_.get(j);
+    			ActivitySpawnListener asl = (ActivitySpawnListener) myASL.get(j);
     			asl.notifyActivitySpawn(child, this);
     		}
     	}
