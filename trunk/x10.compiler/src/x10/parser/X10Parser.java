@@ -1,5 +1,5 @@
 
-
+//
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -270,6 +270,21 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
       return n.pos;
     }
 
+    private void checkTypeName(polyglot.lex.Identifier identifier) {
+        String filename = file(),
+               idname = identifier.getIdentifier();
+        int dot = filename.lastIndexOf('.'),
+            slash = filename.lastIndexOf('/', dot);
+        if (slash == -1)
+            slash = filename.lastIndexOf('\\', dot);
+        String clean_filename = filename.substring(slash+1, dot);
+        if (clean_filename.equalsIgnoreCase(idname) && (! clean_filename.equals(idname)))
+            eq.enqueue(ErrorInfo.SYNTAX_ERROR,
+                       "This type name does not match the name of the containing file: " + filename.substring(slash+1),
+                       identifier.getPosition());
+    }
+                
+
     private polyglot.lex.Operator op(int i) {
         return new Operator(pos(i), prsStream.getName(i), prsStream.getKind(i));
     }
@@ -368,6 +383,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                              nf.ClassBody( pos, classDecl ) );
       return initializer;
     }
+
     /* Roll our own integer parser.  We can't use Long.parseLong because
      * it doesn't handle numbers greater than 0x7fffffffffffffff correctly.
      */
@@ -3435,6 +3451,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Superopt = (TypeNode) btParser.getSym(4);
                 List Interfacesopt = (List) btParser.getSym(5);
                 ClassBody ClassBody = (ClassBody) btParser.getSym(6);
+                checkTypeName(identifier);
                 btParser.setSym1(ClassModifiersopt.isValue()
                              ? nf.ValueClassDecl(pos(btParser.getFirstToken(), btParser.getLastToken()), 
                                                  ClassModifiersopt, identifier.getIdentifier(), Superopt, Interfacesopt, ClassBody) 
@@ -3530,6 +3547,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) btParser.getSym(3);
                 List ExtendsInterfacesopt = (List) btParser.getSym(4);
                 ClassBody InterfaceBody = (ClassBody) btParser.getSym(5);
+                checkTypeName(identifier);
                 btParser.setSym1(nf.ClassDecl(pos(),
                                     InterfaceModifiersopt.Interface(),
                                     identifier.getIdentifier(),
