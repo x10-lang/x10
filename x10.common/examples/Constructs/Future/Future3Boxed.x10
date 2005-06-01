@@ -8,7 +8,7 @@ public class Future3Boxed {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Future3Boxed()).run();
+                finish async b.val=(new Future3Boxed()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

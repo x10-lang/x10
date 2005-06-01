@@ -40,7 +40,7 @@ public class JGFSORBenchSizeA{
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new JGFSORBenchSizeA()).run();
+                finish async b.val=(new JGFSORBenchSizeA()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

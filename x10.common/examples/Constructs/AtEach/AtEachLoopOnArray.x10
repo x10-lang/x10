@@ -20,7 +20,7 @@ public class AtEachLoopOnArray {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new AtEachLoopOnArray()).run();
+                finish async b.val=(new AtEachLoopOnArray()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

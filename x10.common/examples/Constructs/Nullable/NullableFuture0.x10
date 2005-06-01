@@ -38,7 +38,7 @@ public class NullableFuture0 {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new NullableFuture0()).run();
+                finish async b.val=(new NullableFuture0()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

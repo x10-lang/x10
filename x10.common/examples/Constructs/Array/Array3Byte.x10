@@ -22,7 +22,7 @@ public class Array3Byte {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Array3Byte()).run();
+                finish async b.val=(new Array3Byte()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

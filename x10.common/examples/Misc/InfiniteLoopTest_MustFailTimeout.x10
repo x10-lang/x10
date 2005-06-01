@@ -14,7 +14,7 @@ public class InfiniteLoopTest_MustFailTimeout {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new InfiniteLoopTest_MustFailTimeout()).run();
+                finish async b.val=(new InfiniteLoopTest_MustFailTimeout()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

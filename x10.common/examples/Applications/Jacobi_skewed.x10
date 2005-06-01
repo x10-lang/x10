@@ -82,7 +82,7 @@
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Jacobi_skewed()).run();
+                finish async b.val=(new Jacobi_skewed()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

@@ -62,7 +62,7 @@ public class FutureDeadlock_MustFailTimeout {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new FutureDeadlock_MustFailTimeout()).run();
+                finish async b.val=(new FutureDeadlock_MustFailTimeout()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

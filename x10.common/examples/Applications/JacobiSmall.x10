@@ -63,7 +63,7 @@ import x10.lang.*;
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new JacobiSmall()).run();
+                finish async b.val=(new JacobiSmall()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

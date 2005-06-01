@@ -44,7 +44,7 @@ public class Exceptions3_MustFailTimeout {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Exceptions3_MustFailTimeout()).run();
+                finish async b.val=(new Exceptions3_MustFailTimeout()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

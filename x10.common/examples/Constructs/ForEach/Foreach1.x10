@@ -27,7 +27,7 @@ public class Foreach1 {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Foreach1()).run();
+                finish async b.val=(new Foreach1()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

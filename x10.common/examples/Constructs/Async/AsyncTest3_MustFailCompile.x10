@@ -66,7 +66,7 @@ public class AsyncTest3_MustFailCompile  {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new AsyncTest3_MustFailCompile()).run();
+                finish async b.val=(new AsyncTest3_MustFailCompile()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

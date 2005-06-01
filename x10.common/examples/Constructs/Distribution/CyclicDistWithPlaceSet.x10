@@ -106,7 +106,7 @@ public class CyclicDistWithPlaceSet {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new CyclicDistWithPlaceSet()).run();
+                finish async b.val=(new CyclicDistWithPlaceSet()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

@@ -17,7 +17,7 @@ public class DistributionTest {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new DistributionTest()).run();
+                finish async b.val=(new DistributionTest()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

@@ -54,7 +54,7 @@ public class Exceptions2 {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new Exceptions2()).run();
+                finish async b.val=(new Exceptions2()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

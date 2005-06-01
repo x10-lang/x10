@@ -88,7 +88,7 @@ public class FutureTest5 {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-	    finish b.val=(new FutureTest5()).run();
+	    finish async b.val=(new FutureTest5()).run();
         } catch (Throwable e) {
 	    e.printStackTrace();
 	    b.val=false;

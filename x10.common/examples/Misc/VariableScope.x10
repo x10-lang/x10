@@ -31,7 +31,7 @@ public class VariableScope {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new VariableScope()).run();
+                finish async b.val=(new VariableScope()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

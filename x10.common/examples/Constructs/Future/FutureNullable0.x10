@@ -13,7 +13,7 @@ public class FutureNullable0 extends x10.lang.Object {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new FutureNullable0()).run();
+                finish async b.val=(new FutureNullable0()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

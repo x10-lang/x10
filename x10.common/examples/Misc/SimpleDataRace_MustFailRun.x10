@@ -44,7 +44,7 @@ public class SimpleDataRace_MustFailRun {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new SimpleDataRace_MustFailRun()).run();
+                finish async b.val=(new SimpleDataRace_MustFailRun()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

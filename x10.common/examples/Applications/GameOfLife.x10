@@ -155,7 +155,7 @@ private static void pr(String s, final int[.] y) {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new GameOfLife()).run();
+                finish async b.val=(new GameOfLife()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

@@ -77,7 +77,7 @@ public class ArrayAlgebra2 {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ArrayAlgebra2()).run();
+                finish async b.val=(new ArrayAlgebra2()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

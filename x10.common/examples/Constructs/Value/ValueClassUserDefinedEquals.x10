@@ -102,7 +102,7 @@ public class ValueClassUserDefinedEquals  {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ValueClassUserDefinedEquals()).run();
+                finish async b.val=(new ValueClassUserDefinedEquals()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

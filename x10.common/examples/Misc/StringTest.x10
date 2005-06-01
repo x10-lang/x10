@@ -18,7 +18,7 @@ public class StringTest {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new StringTest()).run();
+                finish async b.val=(new StringTest()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;

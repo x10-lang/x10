@@ -128,7 +128,7 @@ public class ClockTest15WithResume
 	public static void main(String[] args) {
 		final boxedBoolean b=new boxedBoolean();
 		try {
-			finish b.val=(new ClockTest15WithResume()).run();
+			finish async b.val=(new ClockTest15WithResume()).run();
 		} catch (Throwable e) {
 			e.printStackTrace();
 			b.val=false;
