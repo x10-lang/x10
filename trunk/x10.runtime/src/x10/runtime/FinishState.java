@@ -64,7 +64,7 @@ public class FinishState {
     public synchronized Stack exceptions() {
     	return finish_;
     }
-    public String toString() {
+    public synchronized String toString() {
     	return "<FinishState " + hashCode() + " " + finishCount + "," 
 		+ parent.shortString()+"," + finish_ +">";
     }

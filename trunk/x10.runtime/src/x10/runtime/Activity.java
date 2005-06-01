@@ -18,9 +18,7 @@ public abstract class Activity implements Runnable {
      * 
      */
     protected Place place_ ;
-    
     protected List clocks_;
-    
     protected FinishState finishState_ = null;
     protected Stack finishStack_ = new Stack();
     /**
@@ -49,7 +47,7 @@ public abstract class Activity implements Runnable {
     public Activity() {
     	this.clocks_ = new LinkedList();
     }
-    public void setPlace(Place p) {
+    public synchronized void setPlace(Place p) {
     	this.place_ = p;
     }
     public Place getPlace() {
@@ -285,7 +283,7 @@ public abstract class Activity implements Runnable {
     * if any, and any other listeners (e.g. Sample listeners).
     *
     */
-    public void finalizeTermination() {
+    public synchronized void finalizeTermination() {
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, PoolRunner.logString() + " " + this + "terminates.");
     	}
@@ -307,7 +305,7 @@ public abstract class Activity implements Runnable {
     * @param t -- the reason for the abrupt termination.
     */
   
-    public void finalizeAbruptTermination(Throwable t) {
+    public synchronized void finalizeAbruptTermination(Throwable t) {
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, Thread.currentThread() + " " + this + " terminates abruptly with " + t);
     	}
