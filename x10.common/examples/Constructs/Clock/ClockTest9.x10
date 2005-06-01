@@ -20,7 +20,7 @@ public class ClockTest9 {
 
     public boolean run() {
           
-        finish  async {
+        finish async {
             final clock c = clock.factory.clock();
         
             // outer barrier loop

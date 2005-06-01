@@ -21,7 +21,7 @@ public class ClockTest9 {
 
     public boolean run() {
           
-        finish {
+        finish async {
             final clock c = clock.factory.clock();
         
             // outer barrier loop
@@ -70,7 +70,7 @@ public class ClockTest9 {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish b.val=(new ClockTest9()).run();
+                finish async b.val=(new ClockTest9()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
