@@ -1,6 +1,13 @@
 How to run on AIX (rios2.watson.ibm.com)
 =========================================
 
+Kemal says:
+
+If you submit a problem through the 'helpnow' sign on the top of the w3.ibm.com web page 
+(select operating systems/aix as the category of the problem) they are usually 
+pretty responsive on weekends. 
+
+
 Unfortunately, Eclipse doesnt run on AIX. (At least I dont know how to get it to :-(.)
 
 1. Make sure you have an Agora id.
