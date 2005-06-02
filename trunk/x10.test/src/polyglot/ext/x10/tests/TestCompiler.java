@@ -311,6 +311,10 @@ public TestCompiler(String name) {
         run("./AsyncFieldAccess.x10","AsyncFieldAccess","./Constructs/Async");
     }
 
+    public void test_Constructs_Async_AsyncReturn() {
+        run("./AsyncReturn.x10","AsyncReturn","./Constructs/Async");
+    }
+
     public void test_Constructs_Async_AsyncTest() {
         run("./AsyncTest.x10","AsyncTest","./Constructs/Async");
     }
@@ -465,6 +469,10 @@ public TestCompiler(String name) {
 
     public void test_Constructs_Clock_ClockTest17_MustFailCompile() {
         run("./ClockTest17_MustFailCompile.x10","ClockTest17_MustFailCompile","./Constructs/Clock");
+    }
+
+    public void test_Constructs_Clock_ClockTest18_MustFailRun() {
+        run("./ClockTest18_MustFailRun.x10","ClockTest18_MustFailRun","./Constructs/Clock");
     }
 
     public void test_Constructs_Clock_ClockTest2() {
