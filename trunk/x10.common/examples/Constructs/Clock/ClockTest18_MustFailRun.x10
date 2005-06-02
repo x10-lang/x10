@@ -12,9 +12,7 @@
  */
 class Y {
 	static void test(foo f) {
-		finish {
 			f.apply(); // it is hard to determine what f does at compile time
-		}
 	}
 }
 
