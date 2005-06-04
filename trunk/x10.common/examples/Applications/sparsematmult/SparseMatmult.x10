@@ -26,15 +26,13 @@ public class SparseMatmult
 {
 
     // final checksum -- cvp
-    public static double ytotal = 0.0;
+    public static final BoxedDouble ytotal = new BoxedDouble(0.0);
 
-    // this is the actul array where the result will be written to -- cvp
-    public  static double[.] yt;
 
     /* 10 iterations used to make kernel have roughly
        same granulairty as other Scimark kernels. */
 
-    public static void test( final double[.] y, 
+    public static void test( final double[.] yt, 
 			     final double[.] val, 
 			     final int[.] row,
 			     final int[.] col, 
@@ -44,7 +42,6 @@ public class SparseMatmult
 			     final int[.] highsum)
     {
         final int nz = val.region.size();
-        yt=y;
 
         JGFInstrumentor.startTimer("Section2:SparseMatmult:Kernel"); 
 
@@ -53,7 +50,7 @@ public class SparseMatmult
 	finish {
 	    foreach(point [i] : (0 : place.MAX_PLACES - 1)) {
 		async(p[i]) {
-		    new SparseRunner(i, val, row, col, x, NUM_ITERATIONS, nz, lowsum, highsum).run();
+		    new SparseRunner(i, val, row, col, x, NUM_ITERATIONS, nz, lowsum, highsum).run(yt);
 		}
 	    }
 	}
@@ -61,14 +58,14 @@ public class SparseMatmult
         JGFInstrumentor.stopTimer("Section2:SparseMatmult:Kernel"); 
 
 	for (int i=0; i < nz; i++) {
-            ytotal += yt[ row[i] ];
+            ytotal.val += yt[ row[i] ];
 	}
 
     }
 }
 
 
-class SparseRunner implements Runnable {
+class SparseRunner {
 
     int id;     // read-only -- cvp
     int nz;     // read-only -- cvp
@@ -100,11 +97,11 @@ class SparseRunner implements Runnable {
         this.highsum = highsum;
     }
 
-    public void run() {
+    public void run(final double[.] yt) {
 
 	for (int reps=0; reps<num_ITERATIONS; reps++) {
 	    for (int i=lowsum[id]; i<highsum[id]; i++) {
-		SparseMatmult.yt[ row[i] ] += x[ col[i] ] * val[i];
+		yt[ row[i] ] += x[ col[i] ] * val[i];
 	    }
 	}
 

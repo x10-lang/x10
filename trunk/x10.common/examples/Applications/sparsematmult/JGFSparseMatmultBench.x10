@@ -152,10 +152,10 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 
 	//double refval[] = {75.02484945753453,150.0130719633895,749.5245870753752};
 	double refval[] = {0.7379886692958086,150.0130719633895,749.5245870753752};
-	double dev = Math.abs(ytotal - refval[size]);
+	double dev = Math.abs(ytotal.val - refval[size]);
 	if (dev > 1.0e-10 ){
 	    System.out.println("Validation failed");
-	    System.out.println("ytotal = " + ytotal + "  " + dev + "  " + size);
+	    System.out.println("ytotal = " + ytotal.val + "  " + dev + "  " + size);
 	    throw new Error("Validation failed");
 	}
 
