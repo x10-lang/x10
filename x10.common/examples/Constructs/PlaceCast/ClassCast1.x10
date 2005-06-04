@@ -1,5 +1,8 @@
 import x10.lang.*;
-
+/** Checks whether a cast of null to a non-nullable type
+ *  throws a ClassCastException.
+ * @author vj 6/4/2005
+ */
 public value class ClassCast1 {
 
 	    public boolean run() {    
@@ -13,7 +16,7 @@ public value class ClassCast1 {
 	    	try {
 	    		finish b=(new ClassCast1()).run();
 	    	} catch (Throwable e) {
-	    		if (e instanceof ClassCastException)
+	    		if (e instanceof ClassCastException) // Per Sec 11.4.1, v 0.409 of the manual
 	    		  b = true;
 	    	}
 	        System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
