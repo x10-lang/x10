@@ -24,15 +24,10 @@ import jgfutil.*;
 
 public class JGFCryptBenchSizeA{ 
 
-  public static int nprocess;
-  public static int rank;
-
   public boolean run(){
 
-    if(rank==0) {
-      JGFInstrumentor.printHeader(2,0, place.MAX_PLACES);
-    }
-    JGFCryptBench cb = new JGFCryptBench(place.MAX_PLACES,rank); 
+    JGFInstrumentor.printHeader(2,0, place.MAX_PLACES);
+    JGFCryptBench cb = new JGFCryptBench(); 
     cb.JGFrun(0);
     return true;
   }

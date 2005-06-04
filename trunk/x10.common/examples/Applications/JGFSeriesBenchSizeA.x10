@@ -24,16 +24,11 @@ import jgfutil.*;
 
 public class JGFSeriesBenchSizeA{ 
 
-  public static int nprocess;
-  public static int rank;
-
   public boolean run(){
 
 
-    if(rank==0) {
-      JGFInstrumentor.printHeader(2,0,place.MAX_PLACES);
-    }
-    JGFSeriesBench se = new JGFSeriesBench(place.MAX_PLACES,rank); 
+    JGFInstrumentor.printHeader(2,0,place.MAX_PLACES);
+    JGFSeriesBench se = new JGFSeriesBench(); 
     se.JGFrun(0);
     return true;
  

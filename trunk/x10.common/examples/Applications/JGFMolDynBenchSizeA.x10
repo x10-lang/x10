@@ -1,11 +1,14 @@
 /**
- * Java Grande Forum MolDyn Benchmark 
- * Converted to an x10 test case
- * @author kemal
+ * Multi-place moldyn ported to x10.
+ *
+ * Uses the original MPI based algorithm but within a
+ * multi-place x10 ateach loop
+ *
+ * @author kemal 3/2005
  */
 /**************************************************************************
 *                                                                         *
-*             Java Grande Forum Benchmark Suite - Version 2.0             *
+*             Java Grande Forum Benchmark Suite - MPJ Version 1.0         *
 *                                                                         *
 *                            produced by                                  *
 *                                                                         *
@@ -18,7 +21,7 @@
 *                email: epcc-javagrande@epcc.ed.ac.uk                     *
 *                                                                         *
 *                                                                         *
-*      This version copyright (c) The University of Edinburgh, 1999.      *
+*      This version copyright (c) The University of Edinburgh, 2001.      *
 *                         All rights reserved.                            *
 *                                                                         *
 **************************************************************************/
@@ -29,29 +32,14 @@ import jgfutil.*;
 
 public class JGFMolDynBenchSizeA{ 
 
-  public boolean run(){
+  public static void main(String argv[]) {
 
-    JGFInstrumentor.printHeader(3,0);
-
+    final int nprocess=place.MAX_PLACES;
+    JGFInstrumentor.printHeader(3,0,nprocess);
     JGFMolDynBench mold = new JGFMolDynBench(); 
     mold.JGFrun(0);
-    return true;
  
   }
-  
-    public static void main(String[] args) {
-        final boxedBoolean b=new boxedBoolean();
-        try {
-                finish async b.val=(new JGFMolDynBenchSizeA()).run();
-        } catch (Throwable e) {
-                e.printStackTrace();
-                b.val=false;
-        }
-        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b.val?0:1);
-    }
-    static class boxedBoolean {
-        boolean val=false;
-    }
-
 }
+
+
