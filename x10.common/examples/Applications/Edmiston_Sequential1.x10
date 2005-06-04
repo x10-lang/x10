@@ -14,7 +14,7 @@ public class Edmiston_Sequential1 {
     const int iMatch = 0;
     const int iMisMatch= -1;
     const int EXPECTED_CHECKSUM = 549;
-    static Random rand = new Random(1L);
+    const Random rand = new Random(1L);
 
     /*
      * NOTE: the first two methods, findMin() and findEditDistance(), contain the core of the computation.

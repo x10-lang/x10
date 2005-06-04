@@ -15,7 +15,7 @@ public class Edmiston_Parallel1 {
 	const int iMatch = 0;
 	const int iMisMatch= -1;
 	const int EXPECTED_CHECKSUM = 549;
-	static Random rand = new Random(1L);
+	const Random rand = new Random(1L);
 	/**
 	 * Function which determines the minimum value among North, NorthWest
 	 * West elements of the EditDistance Matrix for the given values of 
