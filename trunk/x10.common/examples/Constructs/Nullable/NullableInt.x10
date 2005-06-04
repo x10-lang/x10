@@ -1,6 +1,6 @@
 import x10.lang.*;
 /** Check that nullable int can be recognized by the compiler.
- * 
+ * @author vj Added 6/4/2005
  */
 public class NullableInt {
 
