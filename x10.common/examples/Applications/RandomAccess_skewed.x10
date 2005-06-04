@@ -175,11 +175,10 @@ public class RandomAccess_skewed {
   /**
    * main GUPS routine
    */
-	static int use;
-	static void pause(int n) {
+	static int pause(int n) {
 		int s = 0;
 		for (int k=0;k<n;k++) { s = s+k;}
-		use += s;
+		return s;
 	}
 
   public boolean run() {
