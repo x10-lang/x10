@@ -16,6 +16,7 @@ import x10.lang.region;
 
 public class Helper {
 	public final static boolean performBoundsCheck=false;
+	public final static boolean simpleRangeCheck=true;
 	final static void checkBounds(region r,int d0){
 		
 		if(r instanceof MultiDimRegion){
@@ -35,17 +36,22 @@ public class Helper {
 			}
 		}
 	}
+	final private static void rangeCheck(region r,int index){
+		if(index < 0 || index >= r.size()) throw new ArrayIndexOutOfBoundsException();
+	}
 	
 	final public static int ordinal(region r,int d0){
 		assert (r.rank == 1);
 		if(performBoundsCheck) checkBounds(r,d0);
 		d0 -= r.rank(0).low();
+		if(simpleRangeCheck) rangeCheck(r,d0);
 		return d0;
 	}
 	
 	final public static int rawordinal(region r,int d0){
 		assert (r.rank == 1);
 		if(performBoundsCheck) checkBounds(r,d0);
+		if(simpleRangeCheck) rangeCheck(r,d0);
 		return d0;
 	}
 	
@@ -78,14 +84,19 @@ public class Helper {
 		
 		d0 -= r.rank(0).low();
 		d1 -= r.rank(1).low();
-		return d1+ d0*r.rank(1).size();
+		
+		int index = d1+ d0*r.rank(1).size();
+		if(simpleRangeCheck) rangeCheck(r,index);
+		return index;
 	}
 	
 	final public static int rawordinal(region r,int d0,int d1){
 		assert (r.rank == 2);
 		if(performBoundsCheck) checkBounds(r,d0,d1);
 		
-		return d1+ d0*r.rank(1).size();
+		int index = d1+ d0*r.rank(1).size();
+		if(simpleRangeCheck) rangeCheck(r,index);
+		return index;
 	}
 	
 	final static void checkBounds(region r,int d0,int d1, int d2){
@@ -124,8 +135,10 @@ public class Helper {
 		}
 		int d1Size=r.rank(2).size();
 		int d0Size=d1Size * r.rank(1).size();
-		return d2+ d1*d1Size+ d0*d0Size;
 		
+		int index = d2+ d1*d1Size+ d0*d0Size;
+		if(simpleRangeCheck) rangeCheck(r,index);
+		return index;
 	}
 	final public static int rawordinal(region r,int d0,int d1, int d2){
 		assert (r.rank == 3);
@@ -133,7 +146,10 @@ public class Helper {
 		
 		int d1Size=r.rank(2).size();
 		int d0Size=d1Size * r.rank(1).size();
-		return d2+ d1*d1Size+ d0*d0Size;
+		
+		int index = d2+ d1*d1Size+ d0*d0Size;
+		if(simpleRangeCheck) rangeCheck(r,index);
+		return index;
 	}
 	
 	final static void checkBounds(region r,int d0,int d1, int d2,int d3){
@@ -174,8 +190,10 @@ public class Helper {
 		int d2Size=r.rank(3).size();
 		int d1Size=d2Size * r.rank(2).size();
 		int d0Size=d1Size * r.rank(1).size();
-		return d3+ d2*d2Size + d1*d1Size + d0*d0Size;
 		
+		int index = d3+ d2*d2Size + d1*d1Size + d0*d0Size;
+		if(simpleRangeCheck) rangeCheck(r,index);
+		return index;
 	}
 	
 	final public static int rawordinal(region r,int d0,int d1, int d2,int d3){
@@ -186,7 +204,8 @@ public class Helper {
 		int d2Size=r.rank(3).size();
 		int d1Size=d2Size * r.rank(2).size();
 		int d0Size=d1Size * r.rank(1).size();
-		return d3+ d2*d2Size + d1*d1Size + d0*d0Size;
-		
+		int index = d3+ d2*d2Size + d1*d1Size + d0*d0Size;
+		if(simpleRangeCheck) rangeCheck(r,index);
+		return index;
 	}
 }
