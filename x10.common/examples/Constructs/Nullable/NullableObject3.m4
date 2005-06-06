@@ -16,7 +16,6 @@ define(`isCastable',
 			if (ifelse($3,`yes',`!',`')castable) throw new Error();
 		}')
 
-import x10.lang.*;
 /**
  *
  * class cast test for nullable types

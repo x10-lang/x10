@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * How will the future place be inferred?
  */

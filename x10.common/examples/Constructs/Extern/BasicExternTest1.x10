@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * test the 'extern' keyword
  */

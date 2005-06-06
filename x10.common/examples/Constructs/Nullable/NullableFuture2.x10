@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * converting nullable future int to future int causes
  * exception when value is null

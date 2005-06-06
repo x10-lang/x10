@@ -1,5 +1,4 @@
 
-import x10.lang.*;
 /**
  * Conway's game of life
  *

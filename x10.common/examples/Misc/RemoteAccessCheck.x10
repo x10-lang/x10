@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * @author Christian Grothoff
  */

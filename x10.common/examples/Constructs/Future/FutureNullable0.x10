@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Given: future nullable T x;
  * x.force() is of type nullable T and can be null 

@@ -1,4 +1,3 @@
-import x10.lang.*;
 /*
  * Testing quotes in strings
  */

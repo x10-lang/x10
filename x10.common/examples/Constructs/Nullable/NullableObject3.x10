@@ -3,7 +3,6 @@
 //Do not edit
 
 
-import x10.lang.*;
 /**
  *
  * class cast test for nullable types

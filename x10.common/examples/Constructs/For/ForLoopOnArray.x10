@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Test for for loop on an array
  *

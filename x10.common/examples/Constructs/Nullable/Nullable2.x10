@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Casting nullable String to String should not cause
  * exception when the value is not null

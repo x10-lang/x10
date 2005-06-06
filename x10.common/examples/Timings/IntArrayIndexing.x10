@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Synthetic benchmark to time arary accesses
  */

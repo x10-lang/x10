@@ -1,4 +1,3 @@
-import x10.lang.*;
 /** Checks whether a cast of null to a non-nullable type
  *  throws a ClassCastException.
  * @author vj 6/4/2005

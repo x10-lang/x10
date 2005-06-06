@@ -1,5 +1,4 @@
 import java.util.Iterator;
-import x10.lang.*;
 /**
  * Minimal test for regions.
  */

@@ -1,4 +1,3 @@
-import x10.lang.*;
 public class Future1Boxed {
 	public boolean run() {
 		future<x10.compilergenerated.BoxedInteger> x = future (here) {new x10.compilergenerated.BoxedInteger(42)};

@@ -1,4 +1,3 @@
-import x10.lang.*;
 
 public class PlaceCast {
 	   int nplaces=0;

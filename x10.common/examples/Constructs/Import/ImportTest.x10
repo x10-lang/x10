@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Minimal package and import test
  * @author kemal

@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Casting nullable T to T when the value is null
  * should not cause a null pointer exception

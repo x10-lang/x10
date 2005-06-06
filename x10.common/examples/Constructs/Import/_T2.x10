@@ -1,4 +1,3 @@
-import x10.lang.*;
 import ImportTestPackage1.SubPackage.T3;
 
 /**

@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Test for for loop with x10 for(point p:D) syntax
  *

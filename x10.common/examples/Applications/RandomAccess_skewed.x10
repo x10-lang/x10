@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * GUPS - RandomAccess_skewed benchmark
  *
