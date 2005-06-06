@@ -139,10 +139,10 @@ public class ArbitraryRegion extends region {
     /* 
      * method only menaingful for regions of one dimension (aka ranges)
      */
-    public int low() throws EmptyRegionError {
+    public int low() throws ArrayIndexOutOfBoundsException {
         assert rank == 1;
         if (points_.isEmpty())
-            throw new EmptyRegionError();
+            throw new ArrayIndexOutOfBoundsException();
         
         point p = (point) points_.first(); 
         return p.get(0);
@@ -151,10 +151,10 @@ public class ArbitraryRegion extends region {
     /* 
      * method only meaningful for regions of one dimension (aka ranges)
      */
-    public int high() throws EmptyRegionError {
+    public int high() throws ArrayIndexOutOfBoundsException {
         assert rank == 1;
         if (points_.isEmpty())
-            throw new EmptyRegionError();
+            throw new ArrayIndexOutOfBoundsException();
         
         point p = (point) points_.last(); 
         return p.get(0);
@@ -283,13 +283,13 @@ public class ArbitraryRegion extends region {
     /* (non-Javadoc)
      * @see x10.lang.region#ordinal(x10.lang.point)
      */
-    public int ordinal(point p) throws EmptyRegionError, ArrayIndexOutOfBoundsException {
+    public int ordinal(point p) throws ArrayIndexOutOfBoundsException, ArrayIndexOutOfBoundsException {
         assert p != null;
         assert p.rank == rank;
         
         int ret = 0;
         if (size() == 0)
-            throw new EmptyRegionError();
+            throw new ArrayIndexOutOfBoundsException();
         if (!contains(p))
             throw new ArrayIndexOutOfBoundsException();
         else {

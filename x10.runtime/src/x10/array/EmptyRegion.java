@@ -50,15 +50,15 @@ public class EmptyRegion extends region {
 	/* (non-Javadoc)
 	 * @see x10.lang.region#low()
 	 */
-	public int low() throws EmptyRegionError {
-		throw new EmptyRegionError();
+	public int low() throws ArrayIndexOutOfBoundsException {
+        throw new ArrayIndexOutOfBoundsException();
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.lang.region#high()
 	 */
-	public int high() throws EmptyRegionError {
-		throw new EmptyRegionError();
+	public int high() throws ArrayIndexOutOfBoundsException {
+		throw new ArrayIndexOutOfBoundsException();
 	}
 
 	/* (non-Javadoc)
@@ -126,7 +126,7 @@ public class EmptyRegion extends region {
 	/* (non-Javadoc)
 	 * @see x10.lang.region#ordinal(x10.lang.point)
 	 */
-	public int ordinal(point p) throws EmptyRegionError {
+	public int ordinal(point p) throws ArrayIndexOutOfBoundsException {
 		throw new ArrayIndexOutOfBoundsException();
 	}
 

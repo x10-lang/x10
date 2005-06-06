@@ -23,7 +23,6 @@ implements TypeArgument, ValueType {
 	// nat is translated to int for now.
 	public final /*nat*/ /*long*/ int rank;
 	
-	public static class EmptyRegionError extends Error {}
 	public static abstract /*value*/ class factory {
 		/** Create a region of zero ranks. This is an empty
 		 * region of size 0.
@@ -131,12 +130,12 @@ implements TypeArgument, ValueType {
 	/** Return the low bound for a 1-dimensional region. Can only be
 	 * invoked on 1-dimensional objects.
 	 */
-	abstract public /*(:rank==1)*/ int low() throws EmptyRegionError;
+	abstract public /*(:rank==1)*/ int low() throws ArrayIndexOutOfBoundsException;
 	
 	/** Return the high bound for a 1-dimensional region. Can only be
 	 * invoked on 1-dimensional objects.
 	 */
-	abstract public /*(:rank==1)*/ int high() throws EmptyRegionError;
+	abstract public /*(:rank==1)*/ int high() throws ArrayIndexOutOfBoundsException;
 	
 	abstract public region/*(rank)*/ union( region/*(rank)*/ r);
 	abstract public region/*(rank)*/ intersection( region/*(rank)*/ r);
@@ -175,7 +174,7 @@ implements TypeArgument, ValueType {
 	 * @param p a point in the coordinate space
 	 * @return the ordinal number of the point [0 ... size()[
 	 */
-	abstract public /*nat*/int ordinal(point/*(rank)*/ p) throws EmptyRegionError, ArrayIndexOutOfBoundsException;
+	abstract public /*nat*/int ordinal(point/*(rank)*/ p) throws ArrayIndexOutOfBoundsException;
 	
 	/**
 	 * @param ord the ordinal number, must be smaller than size()
