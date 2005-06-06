@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * when nullable future T x is not null at run time
  * ((future T)x) should not cause exception

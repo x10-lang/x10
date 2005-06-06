@@ -1,5 +1,4 @@
 
-import x10.lang.*;
 /**
  * Test to check that unsafe is being parsed correctly.
  */

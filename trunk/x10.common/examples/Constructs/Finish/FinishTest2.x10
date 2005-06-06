@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * @author Christoph von Praun
  * Checks if finish also consideres grand-children. 

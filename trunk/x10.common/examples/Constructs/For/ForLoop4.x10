@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Test for for loop with for(point p:[1:N,1:N,1:N]) syntax
  *

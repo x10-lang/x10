@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * nullable future test
  *

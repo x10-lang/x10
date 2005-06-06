@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Test that loops forever.  
  * Useful for testing the time limit feature

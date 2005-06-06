@@ -1,4 +1,3 @@
-import x10.lang.*;
 import java.util.Random;
 /**
  * Array bounds test - 1D

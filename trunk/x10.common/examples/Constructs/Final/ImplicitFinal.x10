@@ -1,7 +1,6 @@
 /*
  * Simple array test #1
  */
-import x10.lang.*;
 public class ImplicitFinal {
 	
 	public boolean run() {

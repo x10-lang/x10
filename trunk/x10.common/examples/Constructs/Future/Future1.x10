@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Future test;
  * Future activity will run in (41).place

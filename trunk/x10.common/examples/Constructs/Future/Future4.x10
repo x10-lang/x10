@@ -1,4 +1,3 @@
-import x10.lang.*;
 public class Future4 {
 	public boolean run() {
 		future<int> x = future{46};

@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  *
  * instanceof test for nullable types

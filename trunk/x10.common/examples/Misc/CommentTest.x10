@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Javadoc comments before a
  * constructor method caused an x10 compiler error (1/2005).

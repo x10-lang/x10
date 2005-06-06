@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Minimal test for future.
  * This test cannot really ever fail, the best it can

@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * @author Vivek Sarkar (vsarkar@us.ibm.com)
  * Minimal test for finish, using an async.

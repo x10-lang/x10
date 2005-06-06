@@ -1,4 +1,3 @@
-import x10.lang.*;
 /**
  * Casting nullable String to String when value is null
  * should cause a null pointer exception

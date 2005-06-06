@@ -3,7 +3,6 @@
  * Testing a variable scope problem 
  * The second q's scope does not overlap with the first q
  */
-import x10.lang.*;
 public class VariableScope {
 
 	public boolean run() {

@@ -5,7 +5,6 @@
  * (causes exception as of 3/12/05)
  */
 
-import x10.lang.*;
 class mycomplex {
 int re;
 int im;
