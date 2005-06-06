@@ -152,7 +152,7 @@ public abstract class Runtime {
      */
     public static java.lang.Object nullCheck(java.lang.Object o) {
         if (o == null)
-            throw new NullPointerException("Cast of value 'null' to non-nullable type failed.");
+            throw new ClassCastException("Cast of value 'null' to non-nullable type failed.");
         return o;
     }
     
@@ -161,7 +161,7 @@ public abstract class Runtime {
      */
     public static java.lang.Object placeCheck(java.lang.Object o, x10.lang.place p) {
         if (o == null)
-            throw new NullPointerException("Place-cast of value 'null' failed.");
+            throw new ClassCastException("Place-cast of value 'null' failed.");
         if (! (o instanceof x10.lang.Object)) 
             throw new Error("Place-cast currently not available for object of type " + o.getClass().getName());
         x10.lang.Object xo = (x10.lang.Object) o;
