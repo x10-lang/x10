@@ -15,12 +15,14 @@ Unfortunately, Eclipse doesnt run on AIX. (At least I dont know how to get it to
 3. ssh into rios2, then execute gsa_login to get ur GSA directory mounted.
 4. Execute (on bash): export CVSROOT=:ext:<yourid>@quillback.cs.purdue.edu:/home/ibmcvs
 5. Execute (on bash): export CVS_RSH=ssh
-6. Copy your ssh private key to .ssh, so that CVS will automatically log you into the Purdue server.
-7. Execute (on bash): cvs co x10, or cvs upd in the x10 directory (as appropriate).
-8. Now you need to build. Use ant to build it. Ensure you have ant on ur classpath, if necessary download it.
-9. Go to the x10 home directory and execute (bash): ant
-10. (This will use the information in build.xml to build x10.)
-11. Ensure that x10/bin is on your classpath, this gives you testScript, x10 and x10c commands.
+6. Copy your ssh private key to ~/.ssh/, so that CVS will automatically log you into the Purdue server.
+7. Execute (on bash): 'cvs co x10', or 'cvs upd -dPA' in the x10 directory (as appropriate).
+8. Now you need to build. Use ant to build it. Ensure you have ant on your classpath, if necessary download it from www.apache.org.
+9. Go to the x10 home directory and execute (bash): ant clobber all
+(This will use the information in build.xml to (re)build x10.)
+10. Ensure that x10/bin is on your classpath, this gives you testScript, x10 and x10c commands.
+11. Execute (on bash): export X10_PLATFORM=aix_ppc
+(this is used for setting -Djava.library.path by the x10 command)
 
 How to debug deadlocks in the X10 runtime.
 ============================================
