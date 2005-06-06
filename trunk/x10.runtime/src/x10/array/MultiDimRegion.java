@@ -246,18 +246,16 @@ public class MultiDimRegion extends region  {
         return ret;
     }
     
-    /* TODO cvp -> vj: fix the exception, I do not think empty region excp. is meaningful */
-    public int high() throws EmptyRegionError {
+    public int high() throws ArrayIndexOutOfBoundsException {
         if (rank > 0) 
             return dims_[0].high();
-        throw new EmptyRegionError();
+        throw new ArrayIndexOutOfBoundsException();
     }
     
-    /* TODO cvp -> vj: fix the exception, I do not think empty region excp. is meaningful */
-    public int low() throws EmptyRegionError {
+    public int low() throws ArrayIndexOutOfBoundsException {
         if (rank > 0) 
             return dims_[0].low();
-        throw new EmptyRegionError();
+        throw new ArrayIndexOutOfBoundsException();
     }
     
     public boolean isConvex() {
