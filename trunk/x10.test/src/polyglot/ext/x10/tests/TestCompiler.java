@@ -767,6 +767,10 @@ public TestCompiler(String name) {
         run("./NullableFuture2.x10","NullableFuture2","./Constructs/Nullable");
     }
 
+    public void test_Constructs_Nullable_NullableInt() {
+        run("./NullableInt.x10","NullableInt","./Constructs/Nullable");
+    }
+
     public void test_Constructs_Nullable_NullableObject() {
         run("./NullableObject.x10","NullableObject","./Constructs/Nullable");
     }
@@ -777,6 +781,10 @@ public TestCompiler(String name) {
 
     public void test_Constructs_Nullable_NullableObject3() {
         run("./NullableObject3.x10","NullableObject3","./Constructs/Nullable");
+    }
+
+    public void test_Constructs_PlaceCast_ClassCast1() {
+        run("./ClassCast1.x10","ClassCast1","./Constructs/PlaceCast");
     }
 
     public void test_Constructs_PlaceCast_PlaceCast() {
