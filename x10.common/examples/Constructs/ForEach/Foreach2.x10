@@ -22,7 +22,7 @@ public class Foreach2 {
 			// all false initially
 			if (P0 != d.get(p) || P0 != here)
 				throw new Error("Test failed.");
-			atomic{this.nActivities++;}
+			atomic{nActivities++;}
 		}
 		return nActivities==N;
 	}
