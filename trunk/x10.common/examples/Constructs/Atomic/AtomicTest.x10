@@ -12,9 +12,9 @@ public class AtomicTest  {
 	
 	public boolean run() {
 		boolean b; // temp
-		async(this) { atomic { startCount = this.val; for (int i=0;i<N;i++) this.val++; endCount = this.val; } }
+		async(this) { atomic { startCount = val; for (int i=0;i<N;i++) val++; endCount = val; } }
 		for (long i=0;i<N*100;i++) {
-			atomic{this.val = i;b=(endCount!=0);}
+			atomic{val = i;b=(endCount!=0);}
 			if (b) break;
 		}
 		// need a memory fence here
