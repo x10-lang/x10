@@ -13,7 +13,7 @@ public class NullableFuture2 {
 		}
 		try {
 			X.use(((future<int>)x).force());
-		} catch (NullPointerException e) {
+		} catch (ClassCastException e) {
 			gotNull=true;
 		}
                 return gotNull;

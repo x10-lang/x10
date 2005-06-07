@@ -10,7 +10,7 @@ public class Nullable0Ref {
 			nullable Nullable0Ref x = X.mynull();
 			Nullable0Ref y = (Nullable0Ref) x;
                         X.use(y);
-		} catch (NullPointerException e) {
+		} catch (ClassCastException e) {
 		        gotNull=true;	
 		}
                 return gotNull;
