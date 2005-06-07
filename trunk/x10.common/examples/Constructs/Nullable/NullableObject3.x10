@@ -1,5 +1,5 @@
 //Generated automatically by 
-//m4 NullableObject3.m4  NullableObject3.x10
+//m4 NullableObject3.m4 > NullableObject3.x10
 //Do not edit
 
 
@@ -30,7 +30,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -43,7 +43,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -56,7 +56,7 @@ public class NullableObject3 {
 		 	try{
 				boxedInt __y=(boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -69,7 +69,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -82,7 +82,7 @@ public class NullableObject3 {
 		 	try{
 				boxedLong __y=(boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -95,7 +95,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -112,7 +112,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -125,7 +125,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -138,7 +138,7 @@ public class NullableObject3 {
 		 	try{
 				boxedInt __y=(boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -151,7 +151,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -164,7 +164,7 @@ public class NullableObject3 {
 		 	try{
 				boxedLong __y=(boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -177,7 +177,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -194,7 +194,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -207,7 +207,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -220,7 +220,7 @@ public class NullableObject3 {
 		 	try{
 				boxedInt __y=(boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -233,7 +233,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -246,7 +246,7 @@ public class NullableObject3 {
 		 	try{
 				boxedLong __y=(boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -259,7 +259,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -276,7 +276,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -289,7 +289,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -302,7 +302,7 @@ public class NullableObject3 {
 		 	try{
 				boxedInt __y=(boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -315,7 +315,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -328,7 +328,7 @@ public class NullableObject3 {
 		 	try{
 				boxedLong __y=(boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -341,7 +341,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -358,7 +358,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -371,7 +371,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -384,7 +384,7 @@ public class NullableObject3 {
 		 	try{
 				boxedInt __y=(boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -397,7 +397,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -410,7 +410,7 @@ public class NullableObject3 {
 		 	try{
 				boxedLong __y=(boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -423,7 +423,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -440,7 +440,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -453,7 +453,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -466,7 +466,7 @@ public class NullableObject3 {
 		 	try{
 				boxedInt __y=(boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -479,7 +479,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -492,7 +492,7 @@ public class NullableObject3 {
 		 	try{
 				boxedLong __y=(boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -505,7 +505,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -522,7 +522,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -535,7 +535,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -548,7 +548,7 @@ public class NullableObject3 {
 		 	try{
 				boxedInt __y=(boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -561,7 +561,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -574,7 +574,7 @@ public class NullableObject3 {
 		 	try{
 				boxedLong __y=(boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -587,7 +587,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -605,7 +605,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -618,7 +618,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -631,7 +631,7 @@ public class NullableObject3 {
 		 	try{
 				boxedInt __y=(boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -644,7 +644,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -661,7 +661,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -674,7 +674,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -687,7 +687,7 @@ public class NullableObject3 {
 		 	try{
 				boxedInt __y=(boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -700,7 +700,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -713,7 +713,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -731,7 +731,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -744,7 +744,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -757,7 +757,7 @@ public class NullableObject3 {
 		 	try{
 				boxedInt __y=(boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -770,7 +770,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -788,7 +788,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -801,7 +801,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -814,7 +814,7 @@ public class NullableObject3 {
 		 	try{
 				boxedLong __y=(boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -827,7 +827,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -844,7 +844,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -857,7 +857,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -870,7 +870,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedInt __y=(nullable boxedInt)(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -883,7 +883,7 @@ public class NullableObject3 {
 		 	try{
 				boxedLong __y=(boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (castable) throw new Error();
@@ -896,7 +896,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -913,7 +913,7 @@ public class NullableObject3 {
 		 	try{
 				x10.lang.Object __y=(x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -926,7 +926,7 @@ public class NullableObject3 {
 		 	try{
 				nullable x10.lang.Object __y=(nullable x10.lang.Object)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -939,7 +939,7 @@ public class NullableObject3 {
 		 	try{
 				boxedLong __y=(boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();
@@ -952,7 +952,7 @@ public class NullableObject3 {
 		 	try{
 				nullable boxedLong __y=(nullable boxedLong)x;
 				X.use(__y);
-			} catch(java.lang.Exception e) {
+			} catch(ClassCastException e) {
 				castable=false;
 			}
 			if (!castable) throw new Error();

@@ -17,7 +17,7 @@ public class Nullable5 {
                         if (x==y) X.use(y); 
                         // y and use2 argument are of the same type
                         X.use2(y);
-		} catch (NullPointerException e) {
+		} catch (ClassCastException e) {
 		        gotNull=true;	
 		}
                 return !gotNull;

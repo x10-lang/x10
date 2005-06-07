@@ -10,7 +10,7 @@ public class Nullable2 {
 			nullable String x = "May the force be with you!";
 			String y = X.chkForNull(x);
 			X.use(y);
-		} catch (NullPointerException e) {
+		} catch (ClassCastException e) {
 			gotNull=true;
 		}
                 return !gotNull;

@@ -12,7 +12,7 @@ public class NullableObject {
 			nullable x10.lang.Object x = X.mynull();
 			x10.lang.Object y = (x10.lang.Object) x;
                         X.use(y);
-		} catch (NullPointerException e) {
+		} catch (ClassCastException e) {
 		        gotNull=true;	
 		}
                 return gotNull;

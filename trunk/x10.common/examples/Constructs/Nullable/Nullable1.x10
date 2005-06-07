@@ -9,7 +9,7 @@ public class Nullable1 {
 			nullable String x = null;
 			String y = (String)x;
 		        X.use(y);	
-		} catch (NullPointerException e) {
+		} catch (ClassCastException e) {
 			gotNull=true;
 		}
                 return gotNull;
