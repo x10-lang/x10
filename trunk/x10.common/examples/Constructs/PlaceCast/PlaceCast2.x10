@@ -15,7 +15,7 @@ public class PlaceCast2 {
 	            // at any activity at any place
 	        	try {
 	        		BoxedBoolean@here x = (@d[p]) disagree[p];
-	        		async(this){atomic {this.nplaces++;}}
+	        		async(this){atomic {nplaces++;}}
 	        	} catch (BadPlaceException x)  {
 	        		System.out.println("Caught bad place exception for " + p);
 	        	}
