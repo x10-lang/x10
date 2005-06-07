@@ -17,7 +17,7 @@ public class AsyncFieldAccess {
 		finish ateach (point p: D) {
 			final T NewT = new T();
 			async ( this ) {
-				this.t = NewT;
+				t = NewT;
 			}
 		}
 		finish async ( t ) {
