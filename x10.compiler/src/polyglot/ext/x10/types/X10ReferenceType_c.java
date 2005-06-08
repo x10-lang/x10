@@ -3,12 +3,8 @@
  */
 package polyglot.ext.x10.types;
 
-import java.util.List;
-
 import polyglot.ext.jl.types.ReferenceType_c;
 import polyglot.main.Report;
-import polyglot.types.FieldInstance;
-import polyglot.types.Resolver;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
