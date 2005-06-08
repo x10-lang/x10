@@ -94,9 +94,11 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         // incorrect because remote accesses may 'look like' local access in the 
         // program.
         //
-        beforePass(passes, Pass.PRE_OUTPUT_ALL,
-                new VisitorPass(ASYNC_ELIMINATION,
-                        job, new AsyncElimination()));
+        // Moreover, it will mislead the BAD_PLACE_RUNTIME_CHECK - hence we 
+        // disable it.
+        // beforePass(passes, Pass.PRE_OUTPUT_ALL,
+        //      new VisitorPass(ASYNC_ELIMINATION,
+        //                 job, new AsyncElimination()));
         
         beforePass(passes, Pass.PRE_OUTPUT_ALL,
                 new VisitorPass(CAST_REWRITE,
