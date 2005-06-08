@@ -142,9 +142,14 @@ public abstract class Runtime {
     	return (Place) p;
     }
     
-    public static void checkHere(place p) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && !p.equals(here()))
-            throw new BadPlaceException();
+    /* this is called from the code snippet for field and array access */
+    public static java.lang.Object hereCheck(java.lang.Object o) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && o instanceof x10.lang.Object) {
+            x10.lang.Object x10o = (x10.lang.Object) o;
+            if (!x10o.location.equals(here()))
+                throw new BadPlaceException();
+        }
+        return o;
     }
     
     /**
