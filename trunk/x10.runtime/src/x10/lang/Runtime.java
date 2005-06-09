@@ -153,7 +153,8 @@ public abstract class Runtime {
     public static java.lang.Object hereCheck(java.lang.Object o) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK &&
                 o != null &&
-                o instanceof x10.lang.Object) {
+                o instanceof x10.lang.Object &&
+                ! (o instanceof ValueType)) {
             x10.lang.Object x10o = (x10.lang.Object) o;
             if (!x10o.getLocation().equals(here()))
                 throw new BadPlaceException();
