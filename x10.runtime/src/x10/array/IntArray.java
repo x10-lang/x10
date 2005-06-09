@@ -52,11 +52,18 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
     protected void assign(IntArray rhs) {
         assert rhs instanceof IntArray;
         assert rhs.distribution.equals(distribution);
-
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        
         IntArray rhs_t = (IntArray) rhs;
-        for (Iterator it = rhs_t.distribution.region.iterator(); it.hasNext();) {
-            point pos = (point) it.next();
-            set(rhs_t.get(pos), pos);
+        try {
+            for (Iterator it = rhs_t.distribution.region.iterator(); it.hasNext();) {
+                point pos = (point) it.next();
+                place pl = distribution.get(pos);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                set(rhs_t.get(pos), pos);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
 

@@ -12,6 +12,7 @@ import x10.base.UnsafeContainer;
 import x10.array.IntArray;
 import x10.array.Operator;
 import x10.lang.Indexable;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
@@ -152,9 +153,13 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     
     /* Overrides the superclass method - this implementation is more efficient */
     public void reduction(Operator.Reduction op) {
-        int count = arr_.count();
-        for (int i  = 0; i < count; ++i) 
-            op.apply(arr_.getInt(i));
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK) {
+            super.reduction(op);
+        } else {
+            int count = arr_.count();
+            for (int i  = 0; i < count; ++i) 
+                op.apply(arr_.getInt(i));
+        }
     }
     
   
@@ -162,17 +167,31 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public IntReferenceArray lift( IntArray.binaryOp op, x10.lang.intArray arg ) {
         assert arg.distribution.equals(distribution);
         IntReferenceArray result = newInstance(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-             result.set(op.apply(this.get(p), arg.get(p)),p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                result.set(op.apply(this.get(p), arg.get(p)),p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
         return result;
     }
     public IntReferenceArray lift( IntArray.unaryOp op ) {
         IntReferenceArray result = newInstance(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-             result.set(op.apply(this.get(p)),p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                result.set(op.apply(this.get(p)),p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
         return result;
     }
@@ -180,9 +199,16 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 
     public int reduce( IntArray.binaryOp op, int unit ) {
         int result = unit;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-             result = op.apply(this.get(p), result);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                result = op.apply(this.get(p), result);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
         return result;
     }
@@ -190,10 +216,17 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public IntReferenceArray scan( IntArray.binaryOp op, int unit ) {
         int temp = unit;
         x10.lang.IntReferenceArray result = newInstance(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            temp = op.apply(this.get(p), temp);
-             result.set(temp, p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                temp = op.apply(this.get(p), temp);
+                result.set(temp, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
         return result;
     }
@@ -203,7 +236,8 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	assert rhs.getClass() == this.getClass();
     	
     	IntArray_c rhs_t = (IntArray_c) rhs;
-    	if (rhs.distribution.equals(distribution)) {
+    	if (!Configuration.BAD_PLACE_RUNTIME_CHECK &&
+                rhs.distribution.equals(distribution)) {
     	    int count = arr_.count();
     		for (int i  = 0; i < count; ++i) 
     			arr_.setInt(rhs_t.arr_.getInt(i), i);
@@ -213,14 +247,12 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     }
 
 	protected IntArray newInstance(dist d) {
-		assert d instanceof Distribution_c;
-		
+		assert d instanceof Distribution_c;		
 		return new IntArray_c((Distribution_c) d, safe_);	
 	}
 	
 	protected IntArray newInstance( dist d, Operator.Pointwise p) {
-		assert d instanceof Distribution_c;
-		
+		assert d instanceof Distribution_c;		
 		return new IntArray_c((Distribution_c) d, p, safe_);	
 	}
     
@@ -354,10 +386,17 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public IntReferenceArray union(x10.lang.intArray d) {
         dist dist = distribution.union(d.distribution);
         IntArray_c ret = new IntArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            int val = (distribution.region.contains(p)) ? get(p) : d.get(p);
-            ret.set(val, p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                int val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
         return ret;
     }
@@ -369,17 +408,27 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public IntReferenceArray restriction(region d) {
         dist dist = distribution.restriction(d);
         IntArray_c ret = new IntArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            ret.set(get(p), p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                ret.set(get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
         return ret;
     }
+    
     public x10.lang.intArray toValueArray() {
     	if (! mutable_) return this;
     	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
     	
     }
+    
     public boolean isValue() {
         return ! this.mutable_;
     }
