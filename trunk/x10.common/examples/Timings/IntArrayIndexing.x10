@@ -29,10 +29,10 @@ public class IntArrayIndexing {
 		range3D = [0:13,0:37,0:19]; // make it zero based
 		
 		 long start = System.currentTimeMillis();
-		_intArray1D = new int[dist.factory.block(range1D)];
-		_intArray2D = new int[dist.factory.block(range2D)];
-		_intArray3D = new int[dist.factory.block(range3D)];
-		_intArray4D = new int[dist.factory.block(range4D)];
+		_intArray1D = new int[dist.factory.constant(range1D,here)];
+		_intArray2D = new int[dist.factory.constant(range2D,here)];
+		_intArray3D = new int[dist.factory.constant(range3D,here)];
+		_intArray4D = new int[dist.factory.constant(range4D,here)];
 		 long stop = System.currentTimeMillis();
 		System.out.println("int arrays allocated in "+((double)(stop-start)/1000)+ "seconds");
 		}
