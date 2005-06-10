@@ -115,6 +115,7 @@ public abstract class Runtime {
         public abstract floatArray.factory getFloatArrayFactory();
         public abstract doubleArray.factory getDoubleArrayFactory();
         public abstract genericArray.factory getGenericArrayFactory();
+        public abstract structureArray.factory getStructureArrayFactory();
     	public abstract place.factory getPlaceFactory();
     }
 
