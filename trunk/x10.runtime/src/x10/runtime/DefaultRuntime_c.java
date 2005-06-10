@@ -9,6 +9,7 @@ import x10.array.DoubleArray;
 import x10.array.FloatArray;
 import x10.array.GenericArray;
 import x10.array.IntArray;
+import x10.array.StructureArray;
 import x10.array.BooleanArray;
 import x10.array.CharArray;
 import x10.array.ByteArray;
@@ -24,6 +25,7 @@ import x10.array.sharedmemory.ByteArray_c;
 import x10.array.sharedmemory.ShortArray_c;
 import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.LongArray_c;
+import x10.array.sharedmemory.StructureArray_c;
 import x10.array.sharedmemory.RegionFactory;
 import x10.compilergenerated.Parameter1;
 import x10.lang.FloatReferenceArray;
@@ -36,6 +38,7 @@ import x10.lang.ByteReferenceArray;
 import x10.lang.ShortReferenceArray;
 import x10.lang.IntReferenceArray;
 import x10.lang.LongReferenceArray;
+import x10.lang.StructureReferenceArray;
 
 import x10.lang.Runtime;
 import x10.lang.clock;
@@ -48,6 +51,7 @@ import x10.lang.byteArray;
 import x10.lang.shortArray;
 import x10.lang.intArray;
 import x10.lang.longArray;
+import x10.lang.structureArray;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
@@ -354,6 +358,22 @@ public class DefaultRuntime_c extends Runtime {
     				}
     				public intArray intValueArray(dist d, intArray.pointwiseOp f) {
     					return new IntArray_c(d, f, true, false);
+    				}
+    			};
+    		}  
+            public StructureArray.factory getStructureArrayFactory() {
+    			return new StructureArray.factory() {
+    				public StructureReferenceArray StructureReferenceArray(dist d, int c,int elSize) {
+    					return new StructureArray_c( d, c, true,elSize); 
+    				}
+    				public StructureReferenceArray StructureReferenceArray(dist d, structureArray.pointwiseOp f,int elSize) {
+    					return new StructureArray_c( d, f, true,elSize);
+    				}
+    				public structureArray structureValueArray(dist d, int c,int elSize) {
+    					return new StructureArray_c(d, c, true, false,elSize);
+    				}
+    				public structureArray structureValueArray(dist d, structureArray.pointwiseOp f,int elSize) {
+    					return new StructureArray_c(d, f, true, false,elSize);
     				}
     			};
     		}
