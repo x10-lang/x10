@@ -97,7 +97,7 @@ public class MiscTest1   {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish async b.val=(new MiscTest1()).run();
+                finish async (b) b.val=(new MiscTest1()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
