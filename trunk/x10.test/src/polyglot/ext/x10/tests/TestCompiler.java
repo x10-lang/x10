@@ -795,6 +795,10 @@ public TestCompiler(String name) {
         run("./PlaceCast2.x10","PlaceCast2","./Constructs/PlaceCast");
     }
 
+    public void test_Constructs_PlaceCast_PlaceCheck1() {
+        run("./PlaceCheck1.x10","PlaceCheck1","./Constructs/PlaceCast");
+    }
+
     public void test_Constructs_Region_RegionAlgebra() {
         run("./RegionAlgebra.x10","RegionAlgebra","./Constructs/Region");
     }
@@ -897,6 +901,10 @@ public TestCompiler(String name) {
 
     public void test_Misc_LiteralTest() {
         run("./LiteralTest.x10","LiteralTest","./Misc");
+    }
+
+    public void test_Misc_NonX10Constructs2_MustFailCompile() {
+        run("./NonX10Constructs2_MustFailCompile.x10","NonX10Constructs2_MustFailCompile","./Misc");
     }
 
     public void test_Misc_NonX10Constructs_MustFailCompile() {
