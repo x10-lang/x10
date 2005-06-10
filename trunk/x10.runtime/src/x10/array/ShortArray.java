@@ -33,11 +33,17 @@ public abstract class ShortArray extends ShortReferenceArray {
 
     protected void assign(ShortArray rhs) {
         assert rhs instanceof ShortArray;
-
+        place here = x10.lang.Runtime.runtime.currentPlace();
         ShortArray rhs_t =  rhs;
-        for (Iterator it = rhs_t.distribution.region.iterator(); it.hasNext();) {
-            point pos = (point) it.next();
-            set(rhs_t.get(pos), pos);
+        try {
+            for (Iterator it = rhs_t.distribution.region.iterator(); it.hasNext();) {
+                point pos = (point) it.next();
+                place pl = distribution.get(pos);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                set(rhs_t.get(pos), pos);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
 

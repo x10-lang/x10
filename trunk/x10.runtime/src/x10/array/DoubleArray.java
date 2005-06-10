@@ -33,12 +33,20 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 
     protected void assign(DoubleArray rhs) {
         assert rhs instanceof DoubleArray;
-
+        
+        place here = x10.lang.Runtime.runtime.currentPlace();
         DoubleArray rhs_t =  rhs;
-        for (Iterator it = rhs_t.distribution.region.iterator(); it.hasNext();) {
-            point pos = (point) it.next();
-            set(rhs_t.get(pos), pos);
-        }
+        try {
+            for (Iterator it = rhs_t.distribution.region.iterator(); it.hasNext();) {
+                
+                point pos = (point) it.next();
+                place pl = distribution.get(pos);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                set(rhs_t.get(pos), pos);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        } 
     }
 
 	/*
