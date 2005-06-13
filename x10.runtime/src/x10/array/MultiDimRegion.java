@@ -247,15 +247,17 @@ public class MultiDimRegion extends region  {
     }
     
     public int high() throws ArrayIndexOutOfBoundsException {
-        if (rank > 0) 
+        if (rank != 1)
+            throw new UnsupportedOperationException();
+        else
             return dims_[0].high();
-        throw new ArrayIndexOutOfBoundsException();
     }
     
     public int low() throws ArrayIndexOutOfBoundsException {
-        if (rank > 0) 
+        if (rank != 1)
+            throw new UnsupportedOperationException();
+        else
             return dims_[0].low();
-        throw new ArrayIndexOutOfBoundsException();
     }
     
     public boolean isConvex() {
