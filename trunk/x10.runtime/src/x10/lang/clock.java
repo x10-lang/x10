@@ -13,11 +13,11 @@
  
 package x10.lang;
 
-abstract public class clock extends Object {
+abstract public class clock extends Object implements ValueType {
 	
 	protected clock() {}
 	
-	abstract static public class factory {
+	abstract static public class factory implements ValueType {
 		abstract public clock clock();
 		abstract public clock clock(String name);
 	}

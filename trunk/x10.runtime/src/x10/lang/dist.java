@@ -40,7 +40,7 @@ implements Indexable, ValueType {
 	
 	public static class MalformedError extends java.lang.Error {}
 	
-	abstract public static /*value*/ class factory extends Object {
+	abstract public static /*value*/ class factory extends Object implements ValueType {
 		
 		public factory() {}
 		

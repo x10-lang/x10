@@ -9,7 +9,7 @@ package x10.lang;
  * @author vj Jan 1, 2005
  * 
  */
-public /*valu*/ class nat extends Object {
+public /*valu*/ class nat extends Object implements ValueType {
 	public static final nat one = new nat(1);
 	public static final nat zero = new nat(0);
 	public final long data;
