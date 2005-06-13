@@ -38,7 +38,7 @@ implements TypeArgument, ValueType {
 		this.id = id;
 	}
 	
-	public static abstract /*value*/ class factory {
+	public static abstract /*value*/ class factory implements ValueType {
 		/**  Return the place numbered i, using modulo MAX_PLACES
 		 *  arithmetic.
 		 */

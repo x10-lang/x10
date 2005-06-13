@@ -23,7 +23,7 @@ implements TypeArgument, ValueType {
 	// nat is translated to int for now.
 	public final /*nat*/ /*long*/ int rank;
 	
-	public static abstract /*value*/ class factory {
+	public static abstract /*value*/ class factory implements ValueType {
 		/** Create a region of zero ranks. This is an empty
 		 * region of size 0.
 		 */

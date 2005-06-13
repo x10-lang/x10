@@ -6,7 +6,7 @@ implements Indexable, ValueType {
 	/*parameter*/ public final /*nat*/int rank;
 	
 	
-	abstract public static /*value*/ class factory {
+	abstract public static /*value*/ class factory implements ValueType {
 		/** Create a point with the given coordinates in the given region.
 		 * Throws an error if the point is not in the region.
 		 * @param r
