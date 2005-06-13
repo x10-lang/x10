@@ -140,7 +140,8 @@ public class ArbitraryRegion extends region {
      * method only menaingful for regions of one dimension (aka ranges)
      */
     public int low() throws ArrayIndexOutOfBoundsException {
-        assert rank == 1;
+        if (rank != 1)
+            throw new UnsupportedOperationException();
         if (points_.isEmpty())
             throw new ArrayIndexOutOfBoundsException();
         
@@ -152,7 +153,8 @@ public class ArbitraryRegion extends region {
      * method only meaningful for regions of one dimension (aka ranges)
      */
     public int high() throws ArrayIndexOutOfBoundsException {
-        assert rank == 1;
+        if (rank != 1)
+            throw new UnsupportedOperationException();
         if (points_.isEmpty())
             throw new ArrayIndexOutOfBoundsException();
         
