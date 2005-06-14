@@ -101,9 +101,9 @@ public class point_c extends point implements Comparable {
 		return region.rank(i).low() == get(i);
 	}
 	
-        public boolean isValue() {
-            return true; // points are values!
-        }
+	public boolean isValue() {
+	    return true; // points are values!
+	}
     
 	/* 
 	 * This method overrideds superclass implementation - the argument 

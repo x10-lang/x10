@@ -266,44 +266,63 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     }
     
     public short get(int d0) {
-    	assert this.region.rank == 1;
-    	d0 -= region.rank(0).low();
-    	return arr_.getShort(d0);
+        assert this.region.rank == 1;
+        try {
+            d0 -= region.rank(0).low();
+        } catch (UnsupportedOperationException e) {
+            throw new ArrayIndexOutOfBoundsException();
+        }    
+        return arr_.getShort(d0);
     }
+    
     public short get(int d0, int d1) {
-    	assert this.region.rank == 2;
-    	d0 -= region.rank(0).low();
-    	d1 -= region.rank(1).low();
-    	int theIndex= d1 + (d0 *region.rank(1).size());
-    	
-    	return arr_.getShort(theIndex);
+        int theIndex;
+        assert this.region.rank == 2;
+        try {
+            d0 -= region.rank(0).low();
+            d1 -= region.rank(1).low();
+            theIndex = d1 + (d0 *region.rank(1).size());
+        } catch (UnsupportedOperationException e) {
+            throw new ArrayIndexOutOfBoundsException();
+        }    
+        return arr_.getShort(theIndex);
     }
     
     public short get(int d0, int d1, int d2) {
-    	assert this.region.rank == 3;
-    	d0 -= region.rank(0).low();
-    	d1 -= region.rank(1).low();
-    	d2 -= region.rank(2).low();
-    	
-    	int theIndex= d2 + (d1 *region.rank(2).size()) +
-		(d0 *region.rank(1).size()*region.rank(2).size());
-    	return arr_.getShort(theIndex);  	
+        assert this.region.rank == 3;
+        int theIndex;
+        try {
+            d0 -= region.rank(0).low();        
+            d1 -= region.rank(1).low();
+            d2 -= region.rank(2).low();
+            
+            theIndex = d2 + (d1 *region.rank(2).size()) +
+            (d0 *region.rank(1).size()*region.rank(2).size());
+        } catch (UnsupportedOperationException e) {
+            throw new ArrayIndexOutOfBoundsException();
+        }    
+        return arr_.getShort(theIndex);  	
     } 
     
     public short get(int d0, int d1, int d2, int d3) {
-    	assert this.region.rank == 4;
-    	d0 -= region.rank(0).low();
-    	d1 -= region.rank(1).low();
-    	d2 -= region.rank(2).low();
-    	d3 -= region.rank(3).low();
-    	
-    	int theIndex= d3 + (d2*region.rank(3).size()) + 
-		(d1 *region.rank(2).size()*region.rank(3).size()) + 
-		(d0 *region.rank(1).size()*region.rank(2).size()*region.rank(3).size());
-    	
-    	return arr_.getShort(theIndex);
-    	
+        assert this.region.rank == 4;
+        int theIndex;
+        try {
+            d0 -= region.rank(0).low();
+            d1 -= region.rank(1).low();
+            d2 -= region.rank(2).low();
+            d3 -= region.rank(3).low();
+            
+            theIndex = d3 + (d2*region.rank(3).size()) + 
+            (d1 *region.rank(2).size()*region.rank(3).size()) + 
+            (d0 *region.rank(1).size()*region.rank(2).size()*region.rank(3).size());
+        } catch (UnsupportedOperationException e) {
+            throw new ArrayIndexOutOfBoundsException();
+        }    	
+        return arr_.getShort(theIndex);
+        
     }
+    
     public short get(int[] pos) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);

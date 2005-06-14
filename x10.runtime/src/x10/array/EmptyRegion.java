@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 
 import x10.lang.point;
 import x10.lang.region;
+import x10.lang.EmptyRegionException;
 
 
 /** The empty region of rank k. There is only one unique object in each such type.
@@ -50,15 +51,15 @@ public class EmptyRegion extends region {
 	/* (non-Javadoc)
 	 * @see x10.lang.region#low()
 	 */
-	public int low() throws ArrayIndexOutOfBoundsException {
-        throw new ArrayIndexOutOfBoundsException();
+	public int low() {
+	    throw new UnsupportedOperationException();
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.lang.region#high()
 	 */
-	public int high() throws ArrayIndexOutOfBoundsException {
-		throw new ArrayIndexOutOfBoundsException();
+	public int high() {
+	    throw new UnsupportedOperationException();
 	}
 
 	/* (non-Javadoc)

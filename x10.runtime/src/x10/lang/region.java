@@ -130,12 +130,12 @@ implements TypeArgument, ValueType {
 	/** Return the low bound for a 1-dimensional region. Can only be
 	 * invoked on 1-dimensional objects.
 	 */
-	abstract public /*(:rank==1)*/ int low() throws ArrayIndexOutOfBoundsException;
+	abstract public /*(:rank==1)*/ int low();
 	
 	/** Return the high bound for a 1-dimensional region. Can only be
 	 * invoked on 1-dimensional objects.
 	 */
-	abstract public /*(:rank==1)*/ int high() throws ArrayIndexOutOfBoundsException;
+	abstract public /*(:rank==1)*/ int high();
 	
 	abstract public region/*(rank)*/ union( region/*(rank)*/ r);
 	abstract public region/*(rank)*/ intersection( region/*(rank)*/ r);

@@ -4,9 +4,6 @@
 package x10.array.sharedmemory;
 
 import java.util.Iterator;
-
-
-
 import x10.array.FloatArray;
 import x10.array.Operator;
 import x10.base.Allocator;
@@ -18,6 +15,7 @@ import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.FloatReferenceArray;
+import x10.lang.EmptyRegionException;
 
 
 /**
@@ -272,43 +270,58 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     }
     
     public float get(int d0) {
-    	assert this.region.rank == 1;
-    	d0 -= region.rank(0).low();
+        assert this.region.rank == 1;
+        try {
+            d0 -= region.rank(0).low();
+        } catch (UnsupportedOperationException e) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
     	return arr_.getFloat(d0);
     }
+    
     public float get(int d0, int d1) {
-    	assert this.region.rank == 2;
-    	d0 -= region.rank(0).low();
-    	d1 -= region.rank(1).low();
-    	int theIndex= d1 + (d0 *region.rank(1).size());
-    	
+    	int theIndex;
+        assert this.region.rank == 2;
+    	try {
+            d0 -= region.rank(0).low();        
+            d1 -= region.rank(1).low();
+            theIndex= d1 + (d0 *region.rank(1).size());
+        } catch (UnsupportedOperationException e) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
     	return arr_.getFloat(theIndex);
     }
     
     public float get(int d0, int d1, int d2) {
-    	assert this.region.rank == 3;
-    	d0 -= region.rank(0).low();
-    	d1 -= region.rank(1).low();
-    	d2 -= region.rank(2).low();
-    	
-    	int theIndex= d2 + (d1 *region.rank(2).size()) +
-		(d0 *region.rank(1).size()*region.rank(2).size());
+        int theIndex;
+        assert this.region.rank == 3;
+        try {
+            d0 -= region.rank(0).low();
+            d1 -= region.rank(1).low();
+            d2 -= region.rank(2).low();
+            theIndex= d2 + (d1 *region.rank(2).size()) +
+            (d0 *region.rank(1).size()*region.rank(2).size());
+        } catch (UnsupportedOperationException e) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
     	return arr_.getFloat(theIndex);  	
     } 
     
     public float get(int d0, int d1, int d2, int d3) {
-    	assert this.region.rank == 4;
-    	d0 -= region.rank(0).low();
-    	d1 -= region.rank(1).low();
-    	d2 -= region.rank(2).low();
-    	d3 -= region.rank(3).low();
-    	
-    	int theIndex= d3 + (d2*region.rank(3).size()) + 
-		(d1 *region.rank(2).size()*region.rank(3).size()) + 
-		(d0 *region.rank(1).size()*region.rank(2).size()*region.rank(3).size());
-    	
-    	return arr_.getFloat(theIndex);
-    	
+        int theIndex;
+        assert this.region.rank == 4;
+    	try {
+    	    d0 -= region.rank(0).low();
+    	    d1 -= region.rank(1).low();
+    	    d2 -= region.rank(2).low();
+    	    d3 -= region.rank(3).low();    	
+    	    theIndex = d3 + (d2*region.rank(3).size()) + 
+    	    (d1 *region.rank(2).size()*region.rank(3).size()) + 
+    	    (d0 *region.rank(1).size()*region.rank(2).size()*region.rank(3).size());
+        } catch (UnsupportedOperationException e) {
+            throw new ArrayIndexOutOfBoundsException();
+        }    	
+    	return arr_.getFloat(theIndex);    	
     }
     
     public float get(int[] pos) {
