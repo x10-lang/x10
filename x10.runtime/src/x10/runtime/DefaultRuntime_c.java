@@ -26,6 +26,7 @@ import x10.array.sharedmemory.ShortArray_c;
 import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.LongArray_c;
 import x10.array.sharedmemory.StructureArray_c;
+import x10.array.sharedmemory.Complex4Array_c;
 import x10.array.sharedmemory.RegionFactory;
 import x10.compilergenerated.Parameter1;
 import x10.lang.FloatReferenceArray;
@@ -39,7 +40,7 @@ import x10.lang.ShortReferenceArray;
 import x10.lang.IntReferenceArray;
 import x10.lang.LongReferenceArray;
 import x10.lang.StructureReferenceArray;
-
+import x10.lang.Complex4ReferenceArray;
 import x10.lang.Runtime;
 import x10.lang.clock;
 import x10.lang.dist;
@@ -52,6 +53,7 @@ import x10.lang.shortArray;
 import x10.lang.intArray;
 import x10.lang.longArray;
 import x10.lang.structureArray;
+import x10.lang.complex4Array;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
@@ -377,6 +379,24 @@ public class DefaultRuntime_c extends Runtime {
     				}
     			};
     		}
+            
+           
+            public complex4Array.factory getComplex4ArrayFactory() {
+                return new complex4Array.factory() {
+                    public Complex4ReferenceArray Complex4ReferenceArray(dist d, float c) {
+                        return new Complex4Array_c( d, c, true);
+                    }
+                    public Complex4ReferenceArray Complex4ReferenceArray(dist d, complex4Array.pointwiseOp f) {
+                        return new Complex4Array_c( d, f, true);
+                    }
+                    public complex4Array complex4ValueArray(dist d, float c) {
+                        return new Complex4Array_c(d, c, true, false);
+                    }
+                    public complex4Array complex4ValueArray(dist d, complex4Array.pointwiseOp f) {
+                        return new Complex4Array_c(d, f, true, false);
+                    }
+                };              
+            }
     		public longArray.factory getLongArrayFactory() {
     			return new longArray.factory() {
     				public LongReferenceArray LongReferenceArray(dist d, long c) {
