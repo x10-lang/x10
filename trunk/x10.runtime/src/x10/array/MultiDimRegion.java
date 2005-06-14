@@ -246,14 +246,14 @@ public class MultiDimRegion extends region  {
         return ret;
     }
     
-    public int high() throws ArrayIndexOutOfBoundsException {
+    public int high() {
         if (rank != 1)
             throw new UnsupportedOperationException();
         else
             return dims_[0].high();
     }
     
-    public int low() throws ArrayIndexOutOfBoundsException {
+    public int low() {
         if (rank != 1)
             throw new UnsupportedOperationException();
         else

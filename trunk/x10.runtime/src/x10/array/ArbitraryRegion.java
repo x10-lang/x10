@@ -139,11 +139,15 @@ public class ArbitraryRegion extends region {
     /* 
      * method only menaingful for regions of one dimension (aka ranges)
      */
-    public int low() throws ArrayIndexOutOfBoundsException {
+    public int low() {
         if (rank != 1)
             throw new UnsupportedOperationException();
-        if (points_.isEmpty())
+        if (points_.isEmpty()) {
+            // this should never happen, beause an empty region 
+            // should have been constructed instead
+            assert(false);
             throw new ArrayIndexOutOfBoundsException();
+        }
         
         point p = (point) points_.first(); 
         return p.get(0);
@@ -152,7 +156,7 @@ public class ArbitraryRegion extends region {
     /* 
      * method only meaningful for regions of one dimension (aka ranges)
      */
-    public int high() throws ArrayIndexOutOfBoundsException {
+    public int high() {
         if (rank != 1)
             throw new UnsupportedOperationException();
         if (points_.isEmpty())
