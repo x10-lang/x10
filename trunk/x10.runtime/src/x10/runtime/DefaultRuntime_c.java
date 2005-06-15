@@ -58,7 +58,6 @@ import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
 
-
 /**
  * Default implementation of Runtime. Considerably revised 5/16 by vj
  * to remove activity helper classes, and synchronization between
@@ -283,7 +282,7 @@ public class DefaultRuntime_c extends Runtime {
         }
         /* TODO:  when entering from LAPI (another VM) there may
            not be a "currentPlace"  Find a better test than this one. */
-        if (Configuaration.VM_ == null && ret == null)
+        if (Configuration.VM_ == null && ret == null)
            throw new Error("This thread is not an X10 thread!");
         return ret;
     }
@@ -300,7 +299,7 @@ public class DefaultRuntime_c extends Runtime {
         } 
         /* TODO:  when entering from LAPI (another VM) there may
            not be a "currentActivity"  Find a better test than this one. */
-        if (Configuaration.VM_ == null && ret == null)
+        if (Configuration.VM_ == null && result == null)
            throw new Error("This thread is not an X10 thread!");
         return result;
     }
