@@ -9,7 +9,22 @@
  * // ca[0] and ca[1] are "aliased"
  * The language definition needs to be cleared up, to define the behavior of this test.
  *
- * This test currently fails at run time since it tries to transmit a dropped clock.
+
+ * NEW SEMANTICS: Clock Use Exception such as
+ *
+ * 'Transmission of c (to a child) requires that I am registered with c'
+ *
+ * 'Transmission of c requires that I am not between c.resume() and a next'
+ *
+ * 'The immediate body of finish  can never transmit any clocks'
+ *
+ * are now caught at run time. The compiler
+ * can remove the run time checks using static techniques,
+ * and can issue warnings when it is statically detected that
+ * clock use exceptions will
+ * definitely occur, or will likely occur.
+ * 
+ * Hence this file is renamed as *MustFailRun.x10
  * 
  */
 
@@ -19,7 +34,7 @@ class BoxedClock {
 		val=x;
 	}
 }
-public class ClockTest8_MustFailCompile {
+public class ClockTest8_MustFailRun {
 
 	public boolean run() {
             finish async {
@@ -44,7 +59,7 @@ public class ClockTest8_MustFailCompile {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish async b.val=(new ClockTest8_MustFailCompile()).run();
+                finish async b.val=(new ClockTest8_MustFailRun()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
