@@ -1,12 +1,19 @@
-//LIMITATION: 
-//This test case will not meet expectations. It is a limitation of the current release.
-
 /**
  * @author Kemal 4/2005
  * Remote accesses must be flagged by the compiler.
+ *
+ * NEW SEMANTICS: non-local accesses cause a BadPlaceException
+ * to be thrown at run time.
+ * Compiler techniques can be used to reduce or remove
+ * the run time checks.
+ * Compiler can issue a warning when it detects that
+ * a BadPlaceException will always occur or will likely
+ * occur, but the error is still caught at run time.
+ * Accordingly, this test is being renamed
+ * *_MustFailRun
  * 
  */
-public class AsyncTest3_MustFailCompile  {
+public class AsyncTest3_MustFailRun  {
 
 
 	public boolean run() {
@@ -19,18 +26,12 @@ public class AsyncTest3_MustFailCompile  {
 		// Compiler can give one of the answers:
                 // YES, NO, MAYBE for each	
 		// question: is this lvalue expression ever nonlocal?
-		// (x10 Language definition question needing clarification:
-		// Which 'compiler algorithm' should be used?)
 
 		// When the compiler answer is YES or NO
 		// the actual answer at run time matches
 		// the compiler answer on every execution.	.
 		// When the compiler answer is MAYBE, the actual
 		// answer may be either YES or NO.
-		// X10 requirement: when the compiler
-		// answer is YES or MAYBE, the lvalue
-		// must be enclosed in an async or a future,
-		// and should be run at the correct place of the lvalue.
 
 		// Compiler: NO: Actual: NO
 		// no compiler error on next lines
@@ -66,7 +67,7 @@ public class AsyncTest3_MustFailCompile  {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish async b.val=(new AsyncTest3_MustFailCompile()).run();
+                finish async b.val=(new AsyncTest3_MustFailRun()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
