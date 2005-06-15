@@ -77,7 +77,7 @@ public abstract class Runtime {
     	try {
             String[] args_stripped = Configuration.parseCommandLine(args);
             init();
-    		runtime.run(args_stripped);
+            runtime.run(args_stripped);
     	} catch (Exception e) {
     		Runtime.java.error("Unexpected Exception in X10 Runtime.", e);
     	}
@@ -133,6 +133,11 @@ public abstract class Runtime {
     
     public abstract Activity currentActivity();
     public abstract Place[] getPlaces();
+    /**
+     * perhaps getLocalPlaces doesn't belong in lang.Runtime...it's
+     * convenient for now.
+     */
+    public abstract Place[] getLocalPlaces();
     
     /**
      * @return The place of the thread executing the current activity. 
@@ -140,7 +145,8 @@ public abstract class Runtime {
      */
     public static Place here() {
         place p = runtime.currentPlace();
-        assert p != null;
+        /** TODO (ahk) ... a better assert for multi-VM case **/
+        assert Configuration.VM_ == null || p != null;
     	return (Place) p;
     }
     
