@@ -106,7 +106,10 @@ import x10.lang.clock;
  * @author Christian Grothoff, Christoph von Praun
  * @author vj
  */
-public final class Clock extends clock {
+
+/* This really should be a final class.  However, for the time being,
+   I allow RemoteClock to extend this class. */
+public /* final */ class Clock extends clock {
 	
 	private static int nextId_ = 0;
 	private int id_;
@@ -116,8 +119,9 @@ public final class Clock extends clock {
 	/**
 	 * A Set of all activities registered with this clock.
 	 */
-	private final Set activities_ = new HashSet(); // <Activity>
-	private int activityCount_ = 0;
+	protected final Set activities_ = new HashSet(); // <Activity>
+	protected int activityCount_ = 0;
+        public int activityCount() { return activityCount_; }
 	
 	/** A clock is split iff all activities have resumed, the clock has advanced,
 	 * and there is at least one activity that has resumed that has not yet performed
@@ -172,13 +176,17 @@ public final class Clock extends clock {
 		synchronized (getClass()) {
 			id_ = nextId_++;
 		}
-		Activity a = Runtime.getCurrentActivity();
-		a.addClock(this);
-		activities_.add(a);
-		activityCount_++;
-		if (Report.should_report("clock",3)) {
+                if (this instanceof RemoteClock) {
+                   // arrrgg... have to create activity first!
+                } else {
+                    Activity a = Runtime.getCurrentActivity();
+                    a.addClock(this);
+                    activities_.add(a);
+                    activityCount_++;
+                    if (Report.should_report("clock",3)) {
 			Report.report(3, PoolRunner.logString() + " " + this + " created by " + a +".");
-		}
+                    }
+                }
 	}
 	
 	/**
@@ -194,12 +202,16 @@ public final class Clock extends clock {
 	 * Register the current activity with this clock.
 	 */
 	synchronized void register(Activity a ) {
-		Activity authorizer = Runtime.getCurrentActivity();
-		if (Report.should_report("clock", 5)) {
+                /* TODO ... a better authorizer for multi-VM case */
+		Activity authorizer =
+                   a.activityAsSeenByInvokingVM==Activity.thisActivityIsLocal ?
+                   Runtime.getCurrentActivity() : null;
+                if (authorizer != null)
+                    if (Report.should_report("clock", 5)) {
 			Report.report(5, PoolRunner.logString() + " " + this + ".register:" + authorizer + " registering " + a);
-		}
+                    }
 		synchronized (this) {
-			if (inactive(authorizer))	
+                   if (authorizer != null && inactive(authorizer))	
 				throw new ClockUseException(authorizer + "is not active on " + this + "; cannot transmit.");
 			if (activities_.contains(a)) return;
 			activities_.add(a);
@@ -220,7 +232,9 @@ public final class Clock extends clock {
 	 * work in this phase of the clock.
 	 */
 	public void resume() {
-		Activity a = Runtime.getCurrentActivity();        
+           resume(Runtime.getCurrentActivity());
+        }
+	public void resume(Activity a) {
 		// do not lock earlier - see comment in doNext
 		if (Report.should_report("clock", 5)) {
 			Report.report(5, PoolRunner.logString() + " " + this + ".resume(" + a  +")");
@@ -386,7 +400,21 @@ public final class Clock extends clock {
 	}
 	
 	public void doNext() {
-		Activity a = Runtime.getCurrentActivity();
+            doNext(Runtime.getCurrentActivity());
+        };
+
+        /* An activity on a remote VM has done a next on this clock */
+        public void doNextForRemoteClock(final Activity a, final long lapi_target, final long lapi_target_addr) {
+            // do not stall LAPI threads
+            new Thread() {
+                public void run() {
+                    doNext(a);
+                    RemoteClock.completeClockOp(lapi_target, lapi_target_addr);
+                }
+            }.start();
+        }
+    
+	public void doNext(Activity a) {
 		// do not acquire lock earlier - otherwise deadlock can happen
 		// because the lock used to protected aip_.getCurrentActivity
 		// is also held when terminating activities drop locks ...
