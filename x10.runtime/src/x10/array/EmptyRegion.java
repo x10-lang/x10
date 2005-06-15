@@ -10,7 +10,6 @@ import java.util.NoSuchElementException;
 
 import x10.lang.point;
 import x10.lang.region;
-import x10.lang.EmptyRegionException;
 
 
 /** The empty region of rank k. There is only one unique object in each such type.
