@@ -327,8 +327,8 @@ public TestCompiler(String name) {
         run("./AsyncTest2.x10","AsyncTest2","./Constructs/Async");
     }
 
-    public void test_Constructs_Async_AsyncTest3_MustFailCompile() {
-        run("./AsyncTest3_MustFailCompile.x10","AsyncTest3_MustFailCompile","./Constructs/Async");
+    public void test_Constructs_Async_AsyncTest3_MustFailRun() {
+        run("./AsyncTest3_MustFailRun.x10","AsyncTest3_MustFailRun","./Constructs/Async");
     }
 
     public void test_Constructs_Async_AsyncTest4_MustFailCompile() {
@@ -435,8 +435,8 @@ public TestCompiler(String name) {
         run("./ClockTest10a.x10","ClockTest10a","./Constructs/Clock");
     }
 
-    public void test_Constructs_Clock_ClockTest11_MustFailCompile() {
-        run("./ClockTest11_MustFailCompile.x10","ClockTest11_MustFailCompile","./Constructs/Clock");
+    public void test_Constructs_Clock_ClockTest11_MustFailRun() {
+        run("./ClockTest11_MustFailRun.x10","ClockTest11_MustFailRun","./Constructs/Clock");
     }
 
     public void test_Constructs_Clock_ClockTest12() {
@@ -459,16 +459,16 @@ public TestCompiler(String name) {
         run("./ClockTest15WithResume.x10","ClockTest15WithResume","./Constructs/Clock");
     }
 
-    public void test_Constructs_Clock_ClockTest16_MustFailCompile() {
-        run("./ClockTest16_MustFailCompile.x10","ClockTest16_MustFailCompile","./Constructs/Clock");
+    public void test_Constructs_Clock_ClockTest16_MustFailRun() {
+        run("./ClockTest16_MustFailRun.x10","ClockTest16_MustFailRun","./Constructs/Clock");
     }
 
-    public void test_Constructs_Clock_ClockTest16a_MustFailCompile() {
-        run("./ClockTest16a_MustFailCompile.x10","ClockTest16a_MustFailCompile","./Constructs/Clock");
+    public void test_Constructs_Clock_ClockTest16a_MustFailRun() {
+        run("./ClockTest16a_MustFailRun.x10","ClockTest16a_MustFailRun","./Constructs/Clock");
     }
 
-    public void test_Constructs_Clock_ClockTest17_MustFailCompile() {
-        run("./ClockTest17_MustFailCompile.x10","ClockTest17_MustFailCompile","./Constructs/Clock");
+    public void test_Constructs_Clock_ClockTest17_MustFailRun() {
+        run("./ClockTest17_MustFailRun.x10","ClockTest17_MustFailRun","./Constructs/Clock");
     }
 
     public void test_Constructs_Clock_ClockTest18_MustFailRun() {
@@ -503,12 +503,12 @@ public TestCompiler(String name) {
         run("./ClockTest6.x10","ClockTest6","./Constructs/Clock");
     }
 
-    public void test_Constructs_Clock_ClockTest7_MustFailCompile() {
-        run("./ClockTest7_MustFailCompile.x10","ClockTest7_MustFailCompile","./Constructs/Clock");
+    public void test_Constructs_Clock_ClockTest7_MustFailRun() {
+        run("./ClockTest7_MustFailRun.x10","ClockTest7_MustFailRun","./Constructs/Clock");
     }
 
-    public void test_Constructs_Clock_ClockTest8_MustFailCompile() {
-        run("./ClockTest8_MustFailCompile.x10","ClockTest8_MustFailCompile","./Constructs/Clock");
+    public void test_Constructs_Clock_ClockTest8_MustFailRun() {
+        run("./ClockTest8_MustFailRun.x10","ClockTest8_MustFailRun","./Constructs/Clock");
     }
 
     public void test_Constructs_Clock_ClockTest9() {
@@ -707,8 +707,8 @@ public TestCompiler(String name) {
         run("./FutureTest5.x10","FutureTest5","./Constructs/Future");
     }
 
-    public void test_Constructs_Import_ClasspathTest() {
-        run("./ClasspathTest.x10","ClasspathTest","./Constructs/Import");
+    public void test_Constructs_Import_ClassPathTest() {
+        run("./ClassPathTest.x10","ClassPathTest","./Constructs/Import");
     }
 
     public void test_Constructs_Import_ImportTest() {
@@ -915,8 +915,16 @@ public TestCompiler(String name) {
         run("./NopTest.x10","NopTest","./Misc");
     }
 
+    public void test_Misc_PolyglotTypeCheckError() {
+        run("./PolyglotTypeCheckError.x10","PolyglotTypeCheckError","./Misc");
+    }
+
     public void test_Misc_RemoteAccessCheck() {
         run("./RemoteAccessCheck.x10","RemoteAccessCheck","./Misc");
+    }
+
+    public void test_Misc_SevereError_MustFailRun() {
+        run("./SevereError_MustFailRun.x10","SevereError_MustFailRun","./Misc");
     }
 
     public void test_Misc_SimpleDataRace_MustFailRun() {
