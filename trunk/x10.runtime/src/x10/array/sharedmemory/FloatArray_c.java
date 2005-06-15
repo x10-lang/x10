@@ -15,7 +15,6 @@ import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.FloatReferenceArray;
-import x10.lang.EmptyRegionException;
 
 
 /**
