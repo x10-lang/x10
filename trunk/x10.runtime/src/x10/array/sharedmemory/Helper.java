@@ -43,6 +43,10 @@ public class Helper {
 		if(index < 0 || index >= r.size()) throw new ArrayIndexOutOfBoundsException();
 	}
 	
+	final private static int mapToActualStorageIndex(region r,int virtualIndex){
+		return virtualIndex = r.virtualIndexAdjustment(virtualIndex);
+	}
+	
 	final public static int ordinal(region r,int d0){
 		assert (r.rank == 1);
 		if(performBoundsCheck) checkBounds(r,d0);
