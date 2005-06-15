@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -79,6 +80,8 @@ public final class Configuration {
     public static String PE_FILE = null; 
     
     public static int NUMBER_OF_LOCAL_PLACES = 4;
+    public static int NUMBER_OF_VMS = 1;
+    public static VMInfo[] VM_;
     
     /** this check does not work -- it causes spurious warnings */
     public static boolean BAD_PLACE_RUNTIME_CHECK = true;
@@ -132,10 +135,9 @@ public final class Configuration {
             return new String[0];
         
         int pos = 0;
-        while (args[pos].charAt(0) == '-') {
+        while (pos < args.length && args[pos].length() > 0 && args[pos].charAt(0) == '-') {
         	// vj: added to allow the runtime to use Polyglot's report mechanism
-        	
-        	if (args[pos].equals("-report")) {
+            if (args[pos].equals("-report")) {
                 pos++;
                 StringTokenizer st = new StringTokenizer(args[pos], "=");
                 String topic = ""; int level = 0;
@@ -150,7 +152,18 @@ public final class Configuration {
                 Report.addTopic(topic, level);
                 pos++;
                 continue;
-        	}
+            }
+            if (args[pos].equals("-vm")) {
+                pos++;
+                VMInfo.THIS_IS_VM = Integer.parseInt(args[pos]);
+                if (VMInfo.THIS_IS_VM >= NUMBER_OF_VMS) {
+                    System.err.println("vm # " + VMInfo.THIS_IS_VM +
+                                       " >= " + NUMBER_OF_VMS);
+                    throw new Error();
+                }
+                pos++;
+                break;
+            }
             int eq = args[pos].indexOf('=');
             String optionName;
             String optionValue = null;
@@ -218,7 +231,18 @@ public final class Configuration {
                 	throw new Error();
                 String s = new String(data).replace('\\','/');
                 props.load(new ByteArrayInputStream(s.getBytes()));
+                // arrg... the Iterator isn't always in order of text
                 Iterator i = props.keySet().iterator();
+                while (i.hasNext()) {
+                    String key = (String) i.next();
+                    if (key.equals("NUMBER_OF_VMS")) {
+                        String val = props.getProperty(key);
+                        set(key, val);
+                        VM_ = new VMInfo[NUMBER_OF_VMS];
+                    }
+                }
+                
+                i = props.keySet().iterator();
                 while (i.hasNext()) {
                     String key = (String) i.next();
                     String val = props.getProperty(key);
@@ -227,36 +251,59 @@ public final class Configuration {
             } catch (IOException io) {
                 System.err.println("Failed to read configuration file " + cfg + ": " + io);
                 throw new Error(io);
-            } 
+            }
         } // end of 'have configuration file'       
     } // end of static initializer
     
 
     private static void set(String key, String val) {
         Class c = Configuration.class;
+        int idx=0;
+        String fld = null;
         try {
+            if (key.indexOf('[') > 0) {
+                idx = Integer.parseInt(key.substring(key.indexOf('[')+1,key.indexOf(']')));
+                fld = key.substring(key.indexOf('.')+1);
+                key = key.substring(0, key.indexOf('['));
+            }
             Field f = c.getField(key);
             Class t = f.getType();
+            Object o = null;
+            if (fld != null) {
+                if (t.isArray()) {
+                    if (t.getComponentType().isPrimitive()) {
+                    } else {
+                        o = Array.get(f.get(null), idx);
+                        if (o == null) {
+                            Array.set(f.get(null), idx, o = t.getComponentType().newInstance());
+                        }
+                        f = o.getClass().getField(fld);
+                        t = f.getType();
+                    }
+                } else {
+                    System.err.println(key + " is not an array");
+                }
+            }
             if (t == String.class) {
-                f.set(null, val);
+                f.set(o, val);
             } else if (t == Integer.TYPE) {
-                f.setInt(null, new Integer(val).intValue());
+                f.setInt(o, new Integer(val).intValue());
             } else if (t == Float.TYPE) {
-                f.setFloat(null, new Float(val).floatValue());
+                f.setFloat(o, new Float(val).floatValue());
             } else if (t == Double.TYPE) {
-                f.setDouble(null, new Double(val).doubleValue());
+                f.setDouble(o, new Double(val).doubleValue());
             } else if (t == Long.TYPE) {
-                f.setLong(null, new Long(val).longValue());
+                f.setLong(o, new Long(val).longValue());
             } else if (t == Short.TYPE) {
-                f.setShort(null, new Short(val).shortValue());
+                f.setShort(o, new Short(val).shortValue());
             } else if (t == Byte.TYPE) {
-                f.setByte(null, new Byte(val).byteValue());
+                f.setByte(o, new Byte(val).byteValue());
             } else if (t == Character.TYPE) {
                 if (val.length() != 1)
                     System.err.println("Parameter" + key + " only takes on character,"+
                                        " using only the first character of configuration"+
                                        " value >>" + val + "<<");
-                f.setChar(null, new Character(val.charAt('0')).charValue());
+                f.setChar(o, new Character(val.charAt('0')).charValue());
             } else if (t == Boolean.TYPE) {
             	if (val.equalsIgnoreCase("true")) {
             		f.setBoolean(null, true);
@@ -265,12 +312,13 @@ public final class Configuration {
             	} else {
             		System.err.println("Parameter |" + key + "| expects a boolean, not |" 
             				+ val + "|. Ignored.");
-            }
-            		
-               
+            	}
             }
         } catch (NoSuchFieldException nsfe) {
             System.err.println("Parameter " + key + " not found, configuration directive ignored.");
+        } catch (InstantiationException ie) {
+            System.err.println("Failed to create object for " + key);
+            throw new Error(ie);
         } catch (IllegalAccessException iae) {
             System.err.println("Wrong permissions for field " + key + ": " + iae);
             throw new Error(iae);
