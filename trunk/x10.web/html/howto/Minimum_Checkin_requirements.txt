@@ -4,4 +4,4 @@ x10/examples/sanity.lst
 
 To run, use the testScript script as in:
 
-testScript -testlist sanity.lst
+testScript -testList sanity.lst
