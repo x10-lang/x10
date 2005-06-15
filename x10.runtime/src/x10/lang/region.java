@@ -23,6 +23,18 @@ implements TypeArgument, ValueType {
 	// nat is translated to int for now.
 	public final /*nat*/ /*long*/ int rank;
 	
+	public final void setVirtualIndexAdjustment(int x){ _indexAdjustment = x;}
+	
+	private int _indexAdjustment;
+	/** map virtualIndex of shared array onto actual index used
+	 * by underlying storage.  Currenlty only works for block
+	 * distributions
+	 * @param virtualIndex
+	 * @return adjusted virtualIndex
+	 */
+	public final int virtualIndexAdjustment(int virtualIndex){
+		return virtualIndex - _indexAdjustment;
+	}
 	public static abstract /*value*/ class factory implements ValueType {
 		/** Create a region of zero ranks. This is an empty
 		 * region of size 0.
@@ -110,6 +122,7 @@ implements TypeArgument, ValueType {
 	protected region( /*nat long*/ int rank ) {
 		assert rank >= 1;
         this.rank = rank;
+        _indexAdjustment=0;
 	}
 	
 	
