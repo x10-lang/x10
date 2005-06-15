@@ -12,14 +12,20 @@ public abstract class Place extends place
 implements Comparable {
 	
 	private static int count_ = 0;
+        public final int vm_;       // index into VMInfo.VM_
+        public final int place_no_; // index into runtime.getLocalPlaces()
+                                    //    when evaluated on VM identified
+                                    //    by vm_
 
-	protected Place() {
+	protected Place(int vm_, int place_no_) {
 		super(count_++);
 		/*
 		synchronized (Place.class) {
 			id = count_++;
 		}
 		*/
+                this.vm_ = vm_;
+                this.place_no_ = place_no_;
 	}
 	
 	public abstract void runAsync(Activity a);
