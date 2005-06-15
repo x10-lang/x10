@@ -308,8 +308,14 @@ public abstract class Activity implements Runnable {
 		}
 		asl_.add( a);
 	}
+
+    /**
+     * An Activity running on this VM has terminated.  Go tell the VM
+     * that actually invoked it the news.  While you're at it, tell
+     * that VM about any clocks of his that you no longer reference.
+     **/
+    public native void finalizeTerminationOfSurrogate(int invokingVM, long activityAsSeenByInvokingVM, long[] clks);
     
-  
    /**
     * This activity has terminated normally. Now clean up. (Notify the finish ancestor,
     * if any, and any other listeners (e.g. Sample listeners).
@@ -320,15 +326,24 @@ public abstract class Activity implements Runnable {
     		Report.report(5, PoolRunner.logString() + " " + this + "terminates.");
     	}
     	dropAllClocks();
-    	if (rootNode_ != null)
+        if (activityAsSeenByInvokingVM == thisActivityIsLocal ||
+            activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
+            if (rootNode_ != null)
     		rootNode_.notifySubActivityTermination();
-    	if (asl_ != null) {
-      		 for (int j=0;j< asl_.size();j++) {
-                  // tell other activities that want to know that this has spawned child
-                  ActivitySpawnListener asl = (ActivitySpawnListener) asl_.get(j);
-                  asl.notifyActivityTerminated(this);
-              }
-    	}
+            if (asl_ != null) {
+                for (int j=0;j< asl_.size();j++) {
+                    // tell other activities that want to know that this has spawned child
+                    ActivitySpawnListener asl = (ActivitySpawnListener) asl_.get(j);
+                    asl.notifyActivityTerminated(this);
+                }
+            }
+    	} else {
+            // Ready to finalize termination on surrogate (remote) Activity.
+            // First, let's get a list of no longer used clocks on the
+            // same VM as the surrogate.
+            long clks[] = RemoteObjectMap.deleteClockEntries(invokingVM);
+            finalizeTerminationOfSurrogate(invokingVM, activityAsSeenByInvokingVM, clks);
+        }
     }
    
    /**
@@ -357,16 +372,35 @@ public abstract class Activity implements Runnable {
     }
 	/** The short name for the activity. Used in logging.
 	 * 
-	 * @return -- the short name for hte activity.
+	 * @return -- the short name for the activity.
 	 */
     public String myName() {
-    	return "Activity " + hashCode();
+        if (hardAddr == 0) {
+            return "Activity " + Long.toHexString(hashCode());
+        } else {
+            return "Activity* " + Long.toHexString(hardAddr);
+        }
     }
     /** A long descriptor for the activity. By default displays the finishState_ and the rootNode_.
      * 
      */
     public String toString() {
-    	return "<" + myName() + " " + finishState_ + "," + rootNode_ + ">";
+        String rv = "<" + myName();
+        if (Configuration.VM_ != null &&
+            activityAsSeenByInvokingVM != 0) {
+            rv = rv + " on " + VMInfo.THIS_IS_VM;
+        }
+        rv = rv + " " + finishState_ + "," + rootNode_;
+        if (activityAsSeenByInvokingVM != thisActivityIsLocal) {
+            if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
+                rv = rv + ", Surrogate for vm " + placeWhereRealActivityIsRunning.vm_;
+            } else {
+                rv = rv + "," + Long.toHexString(activityAsSeenByInvokingVM) +
+                    " on " + invokingVM;
+            }
+        }
+        rv = rv + ">";
+        return rv;
     }
     /* A short descriptor for the activity.
      * 
@@ -374,6 +408,22 @@ public abstract class Activity implements Runnable {
     public String shortString() {
     	return "<" + myName() + ">";
     }
+
+    public static final int thisActivityIsLocal = 0;
+    public static final int thisActivityIsASurrogate = -1;
+    /**
+     * the following field has a value passed in from a remote VM
+     * or one of the above two values
+     **/
+    public long activityAsSeenByInvokingVM;
+    public int  invokingVM;
+    public Place placeWhereRealActivityIsRunning;
+    /**
+     * if this Activity is a surrogate, the RemotePlace.runAsync will
+     * cause it to be pinned and set hardAddr to its now fixed address.
+     **/
+    public long hardAddr;
+    
     /**
      * An activity used to implement an X10 future.
      */
