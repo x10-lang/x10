@@ -90,8 +90,8 @@ public class LocalPlace_c extends Place {
      */
     private long startBlock; 
     
-    LocalPlace_c() {
-        super();
+    LocalPlace_c(int vm_, int place_no_) {
+        super(vm_, place_no_);
     }
     
     /**
@@ -164,7 +164,12 @@ public class LocalPlace_c extends Place {
      * with Activity given much more responsibility for its execution.
      */
     public void runAsync(final Activity a) {
-    	runAsync( a, false);
+        if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
+            a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
+            runAsync( a, false);
+        } else {
+            runAsync( a, true);
+        }
     }
     /**
      * Run this activity asynchronously, as if it is wrapped in a finish.
@@ -175,13 +180,14 @@ public class LocalPlace_c extends Place {
     	runAsync( a, true);
     }
     protected void runAsync(final Activity a, final boolean finish) {
-   
+
         Thread currentThread = Thread.currentThread();  
-        if (currentThread instanceof ActivityRunner) { 
+        if (currentThread instanceof ActivityRunner && a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal) {
         	// This will not be executed only for bootActivity.
         	Activity parent = ((ActivityRunner) currentThread).getActivity();
         	parent.finalizeActivitySpawn(a);
         }
+        
         a.initializeActivity();
         this.execute(new Runnable() {
             public void run() {
@@ -190,7 +196,7 @@ public class LocalPlace_c extends Place {
                 if (Report.should_report("activity", 5)) {
             		Report.report(5, t + " is running " + this);
             	}
- 
+
                 // Install the activity.
                 t.setActivity(a);
                 a.setPlace(LocalPlace_c.this);
@@ -204,7 +210,7 @@ public class LocalPlace_c extends Place {
                 } catch (Throwable e) {
                 	a.finalizeTermination(e);
                 	return;
-                } 
+                }
                 a.finalizeTermination(); //should not throw an exception.
             }
             public String toString() { return "<Executor " + a+">";}
@@ -289,7 +295,14 @@ public class LocalPlace_c extends Place {
     	return this.toString() + "(shutdown="+shutdown+")";
     }
     
- 
+    public static void shutdownAll() {
+        Place[] places = x10.lang.Runtime.places();
+        for (int i=places.length-1;i>=0;i--) {
+            if (places[i] instanceof LocalPlace_c) {
+                ((LocalPlace_c) places[i]).shutdown();
+            }
+        }
+    }
     
 } // end of LocalPlace_c
 
