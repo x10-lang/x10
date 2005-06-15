@@ -106,6 +106,10 @@ implements Indexable, ValueType {
 		abstract public  
 		/*(region R)*/ dist/*(R)*/ blockCyclic( region R, /*nat*/int blockSize) 
 		throws MalformedError;
+        
+        abstract public  
+        /*(region R)*/ dist/*(R)*/ blockCyclic( region R, /*nat*/int blockSize, Set/*<place>*/ s) 
+        throws MalformedError;
 		
 		/** Returns a distribution which assigns a random place in the
 		 * given set of places to each point in the region.
