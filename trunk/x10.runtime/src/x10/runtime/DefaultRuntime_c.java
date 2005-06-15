@@ -74,11 +74,24 @@ public class DefaultRuntime_c extends Runtime {
      * The places of this X10 Runtime (for now a constant set).
      */
     private final Place[] places_;
-    //private Thread bootThread;
+    /**
+     * localPlaces_ is a subset of places_
+     */
+    private final Place[] localPlaces_;
     
     public DefaultRuntime_c() {
-    	int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
-     	this.places_ = new Place[pc];
+        int pc = 0;
+        int lp = 0;
+        if (Configuration.VM_ == null) {
+            lp = pc = Configuration.NUMBER_OF_LOCAL_PLACES;
+        } else {
+            for (int i = 0; i < Configuration.VM_.length; ++i) {
+                pc += Configuration.VM_[i].numberOfPlaces;
+            }
+            lp = Configuration.VM_[VMInfo.THIS_IS_VM].numberOfPlaces;
+        }
+        this.places_ = new Place[pc];
+        this.localPlaces_ = new Place[lp];
     }
     /**
      * Initialize the places in the XVM.
@@ -86,13 +99,32 @@ public class DefaultRuntime_c extends Runtime {
     protected synchronized void initialize() {
         // do it only once
         if (places_[0] == null) {
-            int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
-            x10.lang.place.MAX_PLACES = pc;
-    	    for (int i=0;i<pc;i++)
-    	        places_[i] = new LocalPlace_c();
-    	    place.initialize();
+            if (Configuration.VM_ == null) {
+                int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
+                x10.lang.place.MAX_PLACES = pc;
+                for (int i=0;i<pc;i++)
+                    places_[i] = new LocalPlace_c(0, i);
+            } else {
+                x10.lang.place.MAX_PLACES= places_.length;
+                int p = 0;
+                // Here is where places are created.  The way this loop
+                // executes, places 0..N1 are in VM 0, places N1+1..N2
+                // are in VM 1, etc.  However, there is no particular reason
+                // that this must be the case.
+                for (int i = 0; i < Configuration.VM_.length; ++i) {
+                    for (int j = 0; j < Configuration.VM_[i].numberOfPlaces; ++j, ++p) {
+                        if (i == VMInfo.THIS_IS_VM) {
+                            places_[p] = new LocalPlace_c(i, j);
+                            localPlaces_[j] = places_[p];
+                        } else {
+                            places_[p] = new RemotePlace(i, j);
+                        }
+                    }
+                }
+            }
+            place.initialize();
         }
-        LocalPlace_c.initAllPlaceTimes(getPlaces());
+        LocalPlace_c.initAllPlaceTimes(getLocalPlaces());
     }
 
     /**
@@ -117,7 +149,12 @@ public class DefaultRuntime_c extends Runtime {
     		for (int i=libs.length-1;i>=0;i--)
     			System.loadLibrary(libs[i]);
     	}
-    	
+
+        // in multi-VM configuration, start up LAPI support
+        if (Configuration.VM_ != null) {
+           VMInfo.init(Configuration.VM_, this);
+        }
+        
     	// Find the applications main activity.
     	java.lang.Object[] tmp = { args };
     	Activity atmp = null;
@@ -176,7 +213,10 @@ public class DefaultRuntime_c extends Runtime {
             				
             	}
             	// The VM goes bye bye.
-            	Runtime.x10Exit();
+            	if (Configuration.VM_ != null) {
+                   VMInfo.term();
+                }
+                Runtime.x10Exit();
             }
             
         };
@@ -185,8 +225,26 @@ public class DefaultRuntime_c extends Runtime {
             Sampling.boot(DefaultRuntime_c.this, boot);
 
         // Run the boot activity.
-        Runtime.runAsync(boot);
-        
+        if (Configuration.VM_ == null || getPlaces()[0].vm_ == VMInfo.THIS_IS_VM) {
+            Runtime.runAsync(boot);
+        } else {
+           int localPlacesShutdown;
+           do {
+              try {
+                 Thread.sleep(50);
+              } catch (InterruptedException ie) {
+              }
+              localPlacesShutdown = 0;
+              for (int i = 0; i < getLocalPlaces().length; ++i) {
+                 if (((LocalPlace_c) getLocalPlaces()[i]).isShutdown()) {
+                    ++localPlacesShutdown;
+                 }
+              }
+           } while (localPlacesShutdown != getLocalPlaces().length);
+           VMInfo.term();
+           Runtime.x10Exit();
+        }
+
         // Main thread terminates. bootActivity will now carry on.
         // VM terminates when bootActivity terminates.
         return;
@@ -213,34 +271,38 @@ public class DefaultRuntime_c extends Runtime {
      * @see setCurrentPlace(place)
      */
     public synchronized Place currentPlace() {
-    	if (places_[0] == null) 
-    		initialize();
-    	if (places_.length == 1)
-    		return places_[0]; // fast path for simple test environments!
-    	Thread t = Thread.currentThread();
-    	Place ret = null;
-    	if (t instanceof PoolRunner) {
-    		PoolRunner pr = (PoolRunner) t;
-    		ret = pr.place;
-    	}
-    	if (ret == null)
-    		throw new Error("This thread is not an X10 thread!");
-    	return ret;
+        if (places_[0] == null) 
+                initialize();
+        if (places_.length == 1)
+                return places_[0]; // fast path for simple test environments!
+        Thread t = Thread.currentThread();
+        Place ret = null;
+        if (t instanceof PoolRunner) {
+                PoolRunner pr = (PoolRunner) t;
+                ret = pr.place;
+        }
+        /* TODO:  when entering from LAPI (another VM) there may
+           not be a "currentPlace"  Find a better test than this one. */
+        if (Configuaration.VM_ == null && ret == null)
+           throw new Error("This thread is not an X10 thread!");
+        return ret;
     }
     
     /**
      * Return the activity being executed by the current thread.
      */
     public Activity currentActivity() {
-    	Thread t = Thread.currentThread();
-    	Activity result = null;
-    	if (t instanceof ActivityRunner) {
-    		ActivityRunner pr = (ActivityRunner) t;
-    		result = pr.getActivity();
-    	} 
-    	if (result == null)
-    		throw new Error("This thread is not an X10 thread!");
-    	return result;
+        Thread t = Thread.currentThread();
+        Activity result = null;
+        if (t instanceof ActivityRunner) {
+                ActivityRunner pr = (ActivityRunner) t;
+                result = pr.getActivity();
+        } 
+        /* TODO:  when entering from LAPI (another VM) there may
+           not be a "currentActivity"  Find a better test than this one. */
+        if (Configuaration.VM_ == null && ret == null)
+           throw new Error("This thread is not an X10 thread!");
+        return result;
     }
 
     /**
@@ -255,35 +317,44 @@ public class DefaultRuntime_c extends Runtime {
         // return defensive copy
         Place[] p = new Place[places_.length];
         System.arraycopy(places_, 0, p, 0, places_.length);
-    	
+        
         // the following does not work on the IBM JDK 1.4.2
         // return (Place[]) places_.clone();
         
         return places_;
     }
+
+    public Place[] getLocalPlaces() {
+        if (Configuration.VM_ == null)
+            return getPlaces();
+        if (places_[0] == null) 
+            initialize();
+        assert localPlaces_[0] != null;
+        return localPlaces_;
+    }
     
     public Factory getFactory() {
-    	Factory f = new Factory() {
-    		public region.factory getRegionFactory() {
-    			return new RegionFactory();
-    		}
-    		public dist.factory getDistributionFactory() {
-    			return new DistributionFactory();
-    		}
-    		public point.factory getPointFactory() {    	
-    			return new point_c.factory();
-    		}
-    		public clock.factory getClockFactory() {
-    			return new clock.factory() {
-    				public clock clock() {
-    					return new Clock();
-    				}
-    				public clock clock(String name) {
-    					return new Clock(name);
-    				}
-    			};
-    		}
-    		public booleanArray.factory getBooleanArrayFactory() {
+        Factory f = new Factory() {
+                public region.factory getRegionFactory() {
+                        return new RegionFactory();
+                }
+                public dist.factory getDistributionFactory() {
+                        return new DistributionFactory();
+                }
+                public point.factory getPointFactory() {        
+                        return new point_c.factory();
+                }
+                public clock.factory getClockFactory() {
+                        return new clock.factory() {
+                                public clock clock() {
+                                        return new Clock();
+                                }
+                                public clock clock(String name) {
+                                        return new Clock(name);
+                                }
+                        };
+                }
+                public booleanArray.factory getBooleanArrayFactory() {
                 return new BooleanArray.factory() {
                     public BooleanReferenceArray BooleanReferenceArray(dist d, boolean c) {
                         return new BooleanArray_c( d, c, true);
@@ -348,21 +419,21 @@ public class DefaultRuntime_c extends Runtime {
                 };
             }
             public intArray.factory getIntArrayFactory() {
-    			return new IntArray.factory() {
-    				public IntReferenceArray IntReferenceArray(dist d, int c) {
-    					return new IntArray_c( d, c, true);
-    				}
-    				public IntReferenceArray IntReferenceArray(dist d, intArray.pointwiseOp f) {
-    					return new IntArray_c( d, f, true);
-    				}
-    				public intArray intValueArray(dist d, int c) {
-    					return new IntArray_c(d, c, true, false);
-    				}
-    				public intArray intValueArray(dist d, intArray.pointwiseOp f) {
-    					return new IntArray_c(d, f, true, false);
-    				}
-    			};
-    		}  
+                        return new IntArray.factory() {
+                                public IntReferenceArray IntReferenceArray(dist d, int c) {
+                                        return new IntArray_c( d, c, true);
+                                }
+                                public IntReferenceArray IntReferenceArray(dist d, intArray.pointwiseOp f) {
+                                        return new IntArray_c( d, f, true);
+                                }
+                                public intArray intValueArray(dist d, int c) {
+                                        return new IntArray_c(d, c, true, false);
+                                }
+                                public intArray intValueArray(dist d, intArray.pointwiseOp f) {
+                                        return new IntArray_c(d, f, true, false);
+                                }
+                        };
+                }
             public StructureArray.factory getStructureArrayFactory() {
     			return new StructureArray.factory() {
     				public StructureReferenceArray StructureReferenceArray(dist d, int c,int elSize) {
@@ -397,23 +468,23 @@ public class DefaultRuntime_c extends Runtime {
                     }
                 };              
             }
-    		public longArray.factory getLongArrayFactory() {
-    			return new longArray.factory() {
-    				public LongReferenceArray LongReferenceArray(dist d, long c) {
-    					return new LongArray_c( d, c, true);
-    				}
-    				public LongReferenceArray LongReferenceArray(dist d, longArray.pointwiseOp f) {
-    					return new LongArray_c( d, f, true);
-    				}
-    				public longArray longValueArray(dist d, long c) {
-    					return new LongArray_c(d, c, true, false);
-    				}
-    				public longArray longValueArray(dist d, longArray.pointwiseOp f) {
-    					return new LongArray_c(d, f, true, false);
-    				}
-    			};
-    		}
-    		
+                public longArray.factory getLongArrayFactory() {
+                        return new longArray.factory() {
+                                public LongReferenceArray LongReferenceArray(dist d, long c) {
+                                        return new LongArray_c( d, c, true);
+                                }
+                                public LongReferenceArray LongReferenceArray(dist d, longArray.pointwiseOp f) {
+                                        return new LongArray_c( d, f, true);
+                                }
+                                public longArray longValueArray(dist d, long c) {
+                                        return new LongArray_c(d, c, true, false);
+                                }
+                                public longArray longValueArray(dist d, longArray.pointwiseOp f) {
+                                        return new LongArray_c(d, f, true, false);
+                                }
+                        };
+                }
+                
             public FloatArray.factory getFloatArrayFactory() {
                 return new floatArray.factory() {
                     public FloatReferenceArray FloatReferenceArray(dist d, float c) {
@@ -432,21 +503,21 @@ public class DefaultRuntime_c extends Runtime {
             }
             
             public DoubleArray.factory getDoubleArrayFactory() {
-    			return new doubleArray.factory() {
-    				public DoubleReferenceArray DoubleReferenceArray(dist d, double c) {
-    					return new DoubleArray_c( d, c, true);
-    				}
-    				public DoubleReferenceArray DoubleReferenceArray(dist d, doubleArray.pointwiseOp f) {
-    					return new DoubleArray_c( d, f, true);
-    				}
-    				public doubleArray doubleValueArray(dist d, double c) {
-    					return new DoubleArray_c(d, c, true, false);
-    				}
-    				public doubleArray doubleValueArray(dist d, doubleArray.pointwiseOp f) {
-    					return new DoubleArray_c(d, f, true, false);
-    				}
-    			};   			
-    		}
+                        return new doubleArray.factory() {
+                                public DoubleReferenceArray DoubleReferenceArray(dist d, double c) {
+                                        return new DoubleArray_c( d, c, true);
+                                }
+                                public DoubleReferenceArray DoubleReferenceArray(dist d, doubleArray.pointwiseOp f) {
+                                        return new DoubleArray_c( d, f, true);
+                                }
+                                public doubleArray doubleValueArray(dist d, double c) {
+                                        return new DoubleArray_c(d, c, true, false);
+                                }
+                                public doubleArray doubleValueArray(dist d, doubleArray.pointwiseOp f) {
+                                        return new DoubleArray_c(d, f, true, false);
+                                }
+                        };                      
+                }
             
             public GenericArray.factory getGenericArrayFactory() {
             	return new x10.lang.genericArray.factory() {
@@ -491,10 +562,8 @@ public class DefaultRuntime_c extends Runtime {
     		}
     	};
     	return f;
-    	
     }
 
-    
 
     
 } // end of DefaultRuntime_c
