@@ -1,20 +1,18 @@
 import java.util.Iterator;
 /**
- * Minimal test for regions.
+ * Testing the standard region iterator.
  */
 public class RegionTestIterator {
 
 	public boolean run() {
 		region r = region.factory.region(0,100); // (low,high)
 		region[] r2 = new region[] {r,r};
-		// reg[0]=r;
-		// reg[1]=r;
 		region reg = region.factory.region(r2);
 		
 		int sum = 0;
 		for (Iterator it = reg.iterator(); it.hasNext();) {
 			point p = (point) it.next();
-			sum  += p.get(1) - p.get(2);
+			sum  += p[0]-p[1];
 		}
 		// for(point [i,j]:reg) sum += i - j;
 		return sum == 0;
