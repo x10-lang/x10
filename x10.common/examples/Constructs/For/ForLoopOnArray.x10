@@ -4,7 +4,7 @@
  * @author: vj
  */
 public class ForLoopOnArray {
-        static final int N=3;
+        const int N=3;
 
 	public boolean run() {
 		double[.] a = new double[0:10] (point [i]) { return i;};

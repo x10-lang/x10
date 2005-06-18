@@ -4,14 +4,14 @@
  * @author: kemal, 1/2005
  */
 public class ForLoop2 {
-	static final int N=3;
+	const int N=3;
 	
 	public boolean run() {
 		
-		region r=region.factory.region(0,N-1);
-		region r3=region.factory.region(new region[]{r,r,r});
+		region r=[0:N-1];
+		region r3=[r,r,r];
 		place P0=here;
-		dist d3=dist.factory.constant(r3,P0);
+		dist d3=r3->P0;
 		
 		if(!d3.region.equals(r3)) return false;
 		
@@ -22,7 +22,7 @@ public class ForLoop2 {
 		for(point p:d3) {
 			if (!successor(prev,p)) return false;
 			prev=p;
-			if (P0!=d3.get(p)) return false;
+			if (P0!=d3[p]) return false;
 			n++;
 		}
 		if (n != N*N*N) return false;
@@ -37,11 +37,11 @@ public class ForLoop2 {
 	 */
 	static boolean successor(nullable point prev,point p) {
 		if (prev==null) return true;
-		int i=prev.get(0);
-		int j=prev.get(1);
-		int k=prev.get(2);
+		int i=prev[0];
+		int j=prev[1];
+		int k=prev[2];
 		//System.out.println("Prev:"+i+" "+j+" "+k);
-		//System.out.println("Actual:"+ p.get(0)+" "+p.get(1)+" "+p.get(2));
+		//System.out.println("Actual:"+ p[0]+" "+p[1]+" "+p[2]);
 		k++;
 		if (k==N) {
 			k=0;
@@ -52,9 +52,9 @@ public class ForLoop2 {
 			}
 		}
 		//System.out.println("Expected:"+i+" "+j+" "+k);
-		if (i!=p.get(0)) return false;
-		if (j!=p.get(1)) return false;
-		if (k!=p.get(2)) return false;
+		if (i!=p[0]) return false;
+		if (j!=p[1]) return false;
+		if (k!=p[2]) return false;
 		return true;
 	}
 	
