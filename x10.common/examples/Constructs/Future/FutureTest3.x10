@@ -7,6 +7,9 @@
  * Checks that future{e}.force() acts as a global finish
  * on e, and throws e's  exceptions
  *
+ * Events are choreographed using a sleep timer with
+ * second granularity.:w
+ *
  */
 
 public class FutureTest3 {

@@ -20,6 +20,9 @@
  *
  *Expected result: must deadlock.
  *
+ *NB: This test case uses a sleep timer to
+ *choreograph events on second granularily. 
+ *
  */
 
 public class FutureDeadlock_MustFailTimeout {

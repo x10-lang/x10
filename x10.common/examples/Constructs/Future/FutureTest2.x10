@@ -1,7 +1,5 @@
 /**
  * Minimal test for future.
- * This test cannot really ever fail, the best it can
- * do is not compile or not terminate.
  */
 public class FutureTest2 {
 

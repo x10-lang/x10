@@ -1,6 +1,5 @@
 /**
  * Future test;
- * Future activity will run in (41).place
  */
 public class Future1 {
 	public boolean run() {

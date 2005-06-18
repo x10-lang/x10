@@ -1,3 +1,6 @@
+/**
+ * A future test
+ */
 public class Future3Boxed {
 	public boolean run() {
 		future<x10.compilergenerated.BoxedInteger> x = future { new x10.compilergenerated.BoxedInteger(42)};

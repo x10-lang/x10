@@ -2,8 +2,7 @@
  * Given: future nullable T x;
  * x.force() is of type nullable T and can be null 
  */
-//TODO: is the "extends x10.lang.Object" necessary?
-public class FutureNullable0 extends x10.lang.Object {
+public class FutureNullable0 {
 	public boolean run() {
 		future<nullable FutureNullable0> x = future(here) { null };
 		return (x.force())==null;
@@ -25,4 +24,3 @@ public class FutureNullable0 extends x10.lang.Object {
     }
 
 }
-
