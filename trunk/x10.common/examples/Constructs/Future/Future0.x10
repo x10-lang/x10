@@ -1,6 +1,6 @@
 /**
  * Future test
- * Implied place: Future activity will run in (42).place 
+ *
  */
 public class Future0 {
 	public static boolean run() {

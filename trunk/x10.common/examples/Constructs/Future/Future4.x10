@@ -1,3 +1,6 @@
+/**
+ * A future test
+ */
 public class Future4 {
 	public boolean run() {
 		future<int> x = future{46};

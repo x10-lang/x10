@@ -1,5 +1,5 @@
 /**
- * How will the future place be inferred?
+ * A nullable future test.
  */
 
 public class FutureNullable1Boxed  {

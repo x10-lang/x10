@@ -1,3 +1,7 @@
+/**
+ * Testing future of x10.compilergenerated.BoxedInteger
+ * This should not be visible to user.
+ */
 public class Future1Boxed {
 	public boolean run() {
 		future<x10.compilergenerated.BoxedInteger> x = future (here) {new x10.compilergenerated.BoxedInteger(42)};
