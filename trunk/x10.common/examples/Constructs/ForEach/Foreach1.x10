@@ -4,7 +4,7 @@
  */
 
 public class Foreach1 {
-    static final int N=100;
+    const int N=100;
     int nActivities=0;
     
     public boolean run() {
