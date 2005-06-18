@@ -11,7 +11,7 @@ public class FutureForce  {
 	System.out.print("waiting ...");
 	delay(2000);
 	System.out.println("done.");
-	flag = true;
+	atomic flag = true;
 	return 42;
     }
 
@@ -21,11 +21,13 @@ public class FutureForce  {
     }
     
     public boolean run() {
-	flag = false;
+	atomic flag = false;
 	future<int> r1 = future(here) { foo() };
 	r1.force();
-	System.out.println("The flag is b=" + flag + " (should be true).");
-	return (flag == true);
+        boolean b;
+        atomic b=flag;
+	System.out.println("The flag is b=" + b + " (should be true).");
+	return (b == true);
     }
 	
     /**
