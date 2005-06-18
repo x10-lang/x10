@@ -4,7 +4,7 @@
  * @author: kemal, 1/2005
  */
 public class ForLoop4 {
-        static final int N=3;
+        const int N=3;
 
 	public boolean run() {
 
