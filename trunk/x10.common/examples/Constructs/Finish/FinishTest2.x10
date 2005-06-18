@@ -8,21 +8,23 @@ public class FinishTest2  {
     int foo;
     
     public boolean run() {
-	flag = false;
+	atomic flag = false;
 	finish {
 	    async (here) { 
-		foo = 123;
+		atomic foo = 123;
 		async (here) {
-		    foo = 42;
+		    atomic foo = 42;
 		    System.out.print("waiting ...");
 		    delay(2000);
 		    System.out.println("done.");
-		    flag = true;
+		    atomic flag = true;
 		}
 	    }
 	}
-	System.out.println("The flag is b=" + flag + " (should be true).");
-	return (flag == true);
+	boolean b;
+	atomic b=flag;
+	System.out.println("The flag is b=" + b + " (should be true).");
+	return (b == true);
     }
 	
     /**
