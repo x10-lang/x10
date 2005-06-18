@@ -799,16 +799,16 @@ public TestCompiler(String name) {
         run("./PlaceCheck1.x10","PlaceCheck1","./Constructs/PlaceCast");
     }
 
+    public void test_Constructs_Point_PointIndex() {
+        run("./PointIndex.x10","PointIndex","./Constructs/Point");
+    }
+
     public void test_Constructs_Region_RegionAlgebra() {
         run("./RegionAlgebra.x10","RegionAlgebra","./Constructs/Region");
     }
 
     public void test_Constructs_Region_RegionConvexHull() {
         run("./RegionConvexHull.x10","RegionConvexHull","./Constructs/Region");
-    }
-
-    public void test_Constructs_Region_RegionTest01() {
-        run("./RegionTest01.x10","RegionTest01","./Constructs/Region");
     }
 
     public void test_Constructs_Region_RegionTest1() {
@@ -861,10 +861,6 @@ public TestCompiler(String name) {
 
     public void test_Constructs_Value_ValueClass6() {
         run("./ValueClass6.x10","ValueClass6","./Constructs/Value");
-    }
-
-    public void test_Constructs_Value_ValueClassUserDefinedEquals() {
-        run("./ValueClassUserDefinedEquals.x10","ValueClassUserDefinedEquals","./Constructs/Value");
     }
 
     public void test_Constructs_Value_ValueEquality() {
