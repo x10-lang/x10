@@ -1,0 +1,7 @@
+LAPI is supported on AIX only, and so in essence should be ignored in Eclipse.  By default Eclipse
+attempts to compile everything in it's directories unless you exclude that directory.  To do this,
+select 'Project' from the menu, and Properites.  Note that you must be focused on the x10 project for this to
+apply.
+
+Select 'Java Build Path'.  There should be two choices on the right: "Included (All)" and "Excluded...".
+Select "Excluded...".  Click Edit and add "lapi_support/**".  Click Ok and rebuild.
