@@ -124,7 +124,7 @@ public class DistributionFactory extends dist.factory {
 	public dist block(region r, int n, Set/*<place>*/ qs) {
         assert n <= qs.size();
         assert n > 0;
-        
+       
         final boolean dim_splittable = r instanceof ContiguousRange || r instanceof MultiDimRegion;
         final int dim_to_split = 0; //r.rank - 1;
         dist ret = null;
@@ -144,10 +144,21 @@ public class DistributionFactory extends dist.factory {
         } else if (sz >= n && sz % n == 0 && dim_splittable) {
             // partition along dimension dim_to_split           
             region sub[] = r.partition(n, dim_to_split);
+           
             Distribution_c[] dists = new Distribution_c[n];
-            for (int i=0; i < n; i++) 
+            int adjustment=0;
+            int adjustmentOffset[] = new int[n];
+            for (int i=0; i < n; i++) {
+            	int placeId = ((place)q[i]).id;
+            	adjustmentOffset[placeId] = adjustment;
+            
+            	//System.out.println("set adjustment to:"+adjustment);
+            	adjustment+= sub[i].size();
                 dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
+            }
             ret =  new Distribution_c.Combined(r, dists);
+            ret.setVirtualIndexAdjustments(adjustmentOffset);
+          //  System.out.println("set distribution:"+ret);
         } else {
             ret = blockHelper_(r, n, q);
         }
