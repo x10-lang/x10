@@ -25,6 +25,27 @@ implements Indexable, ValueType {
     /* disrtibution is Indexable and as such regarded by the compiler as an X10array.
      * Hence it must have a field 'distrubution' (see ateach construct) */
     public final dist distribution;
+
+    /**
+     * Determine offset adjustment to devirtualize shared array
+     * Based on place id.  In multi-node vm version, no need
+     * to maintain an indexed array
+     * @return
+     */
+    public final int getVirtualIndexAdjustment(int origIndex) {
+    	int placeId = x10.lang.Runtime.runtime.currentPlace().id;
+    	return origIndex - _indexAdjustment[placeId];
+    }
+    public final void initializeVirtualIndexAdjustments(int numPlaces){
+    	_indexAdjustment = new int[numPlaces];
+    }
+    public final void setVirtualIndexAdjustments(int offsets[]){
+    	_indexAdjustment = offsets;
+    }
+    public final void setIndexAdjustment(int placeId,int offset){
+    	_indexAdjustment[placeId] = offset;
+    }
+	protected int _indexAdjustment[];
 	
 	/** places is the range of the distribution. Guranteed that if a
 	 * place P is in this set then for some point p in region,
