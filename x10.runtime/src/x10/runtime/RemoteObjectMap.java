@@ -69,7 +69,7 @@ class RemoteObjectMapForVM {
      * registered and (a) delete them from the map and (b) return the
      * corresponding keys in an array.
      **/
-    long[] deleteClockEntries() {
+    synchronized long[] deleteClockEntries() {
         int c = 0;
         keyValuePair deleteKeys = null;
         for (int i = 0; i < currentNumberOfChains_; ++i) {
@@ -79,17 +79,20 @@ class RemoteObjectMapForVM {
             if (keyBeforeDelete != null) {
                 while (keyBeforeDelete != null &&
                        keyBeforeDelete.value_ instanceof RemoteClock &&
-                       ((RemoteClock) keyBeforeDelete.value_).activityCount() == 0) {
+                       ((RemoteClock) keyBeforeDelete.value_).activityCount() == 0 &&
+                       ((RemoteClock) keyBeforeDelete.value_).wasActivated()) {
                     ++c;
+                    prev = keyBeforeDelete;
                     if (keyBeforeDelete.next_ == null) {
                         // we've wiped out this entire chain
                         keyBeforeDelete.next_ = deleteKeys;
                         deleteKeys = chains_[i];
                         chains_[i] = null;
                         --currentChainsInUse_;
+                        keyBeforeDelete = null;
+                    } else {
+                       keyBeforeDelete = keyBeforeDelete.next_;
                     }
-                    prev = keyBeforeDelete;
-                    keyBeforeDelete = keyBeforeDelete.next_;
                 }
                 if (keyBeforeDelete != null) {
                     chains_[i] = keyBeforeDelete;
@@ -101,7 +104,8 @@ class RemoteObjectMapForVM {
                         // keyBeforeDelete points to a value we need to keep
                         while (keyBeforeDelete.next_ != null &&
                                (!(keyBeforeDelete.next_.value_ instanceof RemoteClock) ||
-                                ((RemoteClock) keyBeforeDelete.value_).activityCount() != 0)) {
+                                ((RemoteClock) keyBeforeDelete.value_).activityCount() != 0 ||
+                                !((RemoteClock) keyBeforeDelete.value_).wasActivated())) {
                             keyBeforeDelete = keyBeforeDelete.next_;
                         }
                         // keyBeforeDelete.next_ is either null or something
@@ -112,15 +116,18 @@ class RemoteObjectMapForVM {
                             keyValuePair c2 = keyBeforeDelete.next_;
                             while (c2 != null &&
                                    c2.value_ instanceof RemoteClock &&
-                                   ((RemoteClock) c2.value_).activityCount() == 0) {
+                                   ((RemoteClock) c2.value_).activityCount() == 0 &&
+                                   ((RemoteClock) c2.value_).wasActivated()) {
                                 ++c;
+                                prev = c2;
                                 if (c2.next_ == null) {
                                     c2.next_ = deleteKeys;
                                     deleteKeys = keyBeforeDelete.next_;
                                     keyBeforeDelete.next_ = null;
+                                    c2 = null;
+                                } else {
+                                   c2 = c2.next_;
                                 }
-                                prev = c2;
-                                c2 = c2.next_;
                             }
                             if (c2 != null) {
                                 prev.next_ = deleteKeys;
@@ -148,7 +155,7 @@ class RemoteObjectMapForVM {
         }
     }
     
-    public Object put(long key, Object val) {
+    synchronized public Object put(long key, Object val) {
         Object rv = null;
         int chainNumber = (int) ((key >> 4) & (currentNumberOfChains_ - 1));
 
@@ -182,7 +189,7 @@ class RemoteObjectMapForVM {
         return null;
     }
     
-    public Object remove(long key) {
+    synchronized public Object remove(long key) {
         int chainNumber = (int) ((key >> 4) & (currentNumberOfChains_ - 1));
 
         keyValuePair keyBeforeDelete = chains_[chainNumber];
