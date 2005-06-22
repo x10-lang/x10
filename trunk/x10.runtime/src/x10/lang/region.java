@@ -22,19 +22,7 @@ public abstract /*value*/ class region extends Object
 implements TypeArgument, ValueType {
 	// nat is translated to int for now.
 	public final /*nat*/ /*long*/ int rank;
-	
-	public final void setVirtualIndexAdjustment(int x){ _indexAdjustment = x;}
-	
-	private int _indexAdjustment;
-	/** map virtualIndex of shared array onto actual index used
-	 * by underlying storage.  Currenlty only works for block
-	 * distributions
-	 * @param virtualIndex
-	 * @return adjusted virtualIndex
-	 */
-	public final int virtualIndexAdjustment(int virtualIndex){
-		return virtualIndex - _indexAdjustment;
-	}
+
 	public static abstract /*value*/ class factory implements ValueType {
 		/** Create a region of zero ranks. This is an empty
 		 * region of size 0.
@@ -122,7 +110,6 @@ implements TypeArgument, ValueType {
 	protected region( /*nat long*/ int rank ) {
 		assert rank >= 1;
         this.rank = rank;
-        _indexAdjustment=0;
 	}
 	
 	
@@ -231,7 +218,8 @@ implements TypeArgument, ValueType {
      * @return a set of regions that are a partition of n consecutive chunks of the original     
      * region (this).    
      */      
-    public region[] partition(int n, int dim) {   
+    public region[] partition(int n, int dim) {  
+    	System.out.println("this should not be called");
         // the runtime library should never call this. -- and is should also 
         // not be in the public interface that is available to the X10 programmer
         // (the reason is show here is because runtime implementation and 
