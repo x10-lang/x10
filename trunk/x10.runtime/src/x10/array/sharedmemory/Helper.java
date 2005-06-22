@@ -12,10 +12,11 @@ package x10.array.sharedmemory;
 
 import x10.array.MultiDimRegion;
 import x10.lang.region;
+import x10.lang.dist;
 
 
 public class Helper {
-	public final static boolean performBoundsCheck=false;
+	public final static boolean performBoundsCheck=true;
 	public final static boolean simpleRangeCheck=true;
 
     final static void checkBounds(region r,int d0){
@@ -43,11 +44,10 @@ public class Helper {
 		if(index < 0 || index >= r.size()) throw new ArrayIndexOutOfBoundsException();
 	}
 	
-	final private static int mapToActualStorageIndex(region r,int virtualIndex){
-		return virtualIndex = r.virtualIndexAdjustment(virtualIndex);
-	}
 	
-	final public static int ordinal(region r,int d0){
+	
+	final public static int ordinal(dist d,int d0){
+		region r = d.region;
 		assert (r.rank == 1);
 		if(performBoundsCheck) checkBounds(r,d0);
 		try {
@@ -56,7 +56,7 @@ public class Helper {
         } catch (UnsupportedOperationException e) {
             throw new ArrayIndexOutOfBoundsException();
         }
-		return d0;
+     	return d0;
 	}
 	
 	final public static int rawordinal(region r,int d0){
@@ -89,8 +89,9 @@ public class Helper {
 	    }       	   
 	}
     
-	final public static int ordinal(region r,int d0,int d1){
+	final public static int ordinal(dist d,int d0,int d1){
 	    int index;
+	    region r = d.region;
 	    assert (r.rank == 2);
 	    if (performBoundsCheck) checkBounds(r,d0,d1);
 	    try {
@@ -102,6 +103,7 @@ public class Helper {
 	    } catch (UnsupportedOperationException e) {
 	        throw new ArrayIndexOutOfBoundsException();
 	    }
+	   
 	    return index;
 	}
 	
@@ -140,8 +142,9 @@ public class Helper {
 	    }		
 	}
     
-	final public static int ordinal(region r,int d0,int d1, int d2){
+	final public static int ordinal(dist d,int d0,int d1, int d2){
 	    int index;
+	    region r = d.region;
 	    assert (r.rank == 3);
 	    if (performBoundsCheck) checkBounds(r,d0,d1,d2);
 	    
@@ -203,8 +206,9 @@ public class Helper {
 	    }
 	}
     
-	final public static int ordinal(region r,int d0,int d1, int d2,int d3){
+	final public static int ordinal(dist d,int d0,int d1, int d2,int d3){
 	    int index;
+	    region r = d.region;
 	    assert (r.rank == 4);	    
 	    if (performBoundsCheck) checkBounds(r,d0,d1,d2,d3);
 	    
