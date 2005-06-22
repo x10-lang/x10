@@ -24,6 +24,7 @@ public class RemoteClock extends Clock {
         super(s);
         this.vm_ = vm_;
         this.vm_clock_no_ = vm_clock_no_;
+        hasBeenActivated = false;
     }
 
     public static RemoteClock getMyVersionOfClock(String s, int vm, long vm_clock_obj) {
@@ -32,7 +33,7 @@ public class RemoteClock extends Clock {
             r = new RemoteClock(s, vm, vm_clock_obj);
             RemoteObjectMap.put(vm, vm_clock_obj, r);
         }
-        //        RemoteObjectMap.dump(); // ahk
+        //                RemoteObjectMap.dump(); // ahk
         return r;
     }
     
@@ -98,9 +99,13 @@ public class RemoteClock extends Clock {
 
     synchronized void register(Activity a ) {
         if (activities_.contains(a)) return;
+        hasBeenActivated = true;
         activities_.add(a);
         activityCount_++;
     }
+
+    // at least once.
+    public boolean wasActivated() { return hasBeenActivated; }
 
     public static native void completeClockOp(long lapi_target, long lapi_target_addr);
     private final Set resumed_ = new HashSet();     // <Activity>
@@ -110,4 +115,5 @@ public class RemoteClock extends Clock {
      */
     private final int vm_;
     private final long vm_clock_no_;
+    private boolean hasBeenActivated;
 }
