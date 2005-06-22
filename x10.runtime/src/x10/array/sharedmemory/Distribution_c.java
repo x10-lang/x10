@@ -590,14 +590,17 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
             StringBuffer s = new StringBuffer("CombinedDistribution_c<");
             for (int i=0; i < members_.length;i++) 
                 s.append(members_[i]);
-            s.append(" virtural index map::[");
-            for(int j=0;j<_indexAdjustment.length;++j){
-            	s.append(_indexAdjustment[j]);
-            	s.append(" ");
+        
+            if(x10.runtime.Configuration.isMultiNodeVM()){
+            	s.append(" virtural index map::[");
+            	for(int j=0;j<_indexAdjustment.length;++j){
+            		s.append(_indexAdjustment[j]);
+            		s.append(" ");
+            	}
+            	s.append("]");
             }
-            s.append("]");
-            return s.append(">").toString();
             
+            return s.append(">").toString();
         }
     } // end of Distribution_c.Combined
     
