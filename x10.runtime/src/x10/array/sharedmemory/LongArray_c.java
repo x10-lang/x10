@@ -229,23 +229,23 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     }
     
     public long set(long v, int d0) {
-    	d0 = Helper.ordinal(region,d0);
+    	d0 = Helper.ordinal(distribution,d0);
     	return arr_.setLong(v,d0);
     }
     
      
     public long set(long v, int d0, int d1) {
-    	int	theIndex = Helper.ordinal(region,d0,d1);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setLong(v,theIndex);
     }
     
     public long set(long v, int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(region,d0,d1,d2);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.setLong(v,theIndex);
     }
     
     public long set(long v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.setLong(v,theIndex); 	
     }
     
@@ -269,21 +269,21 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     }
     
     public long get(int d0) {
-    	d0 = Helper.ordinal(region,d0);
+    	d0 = Helper.ordinal(distribution,d0);
     	return arr_.getLong(d0);
     }
     public long get(int d0, int d1) {
-    	int	theIndex = Helper.ordinal(region,d0,d1);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.getLong(theIndex);
     }
     
     public long get(int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(region,d0,d1,d2);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getLong(theIndex);  	
     } 
     
     public long get(int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3); 	
+    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3); 	
     	return arr_.getLong(theIndex);
     	
     }

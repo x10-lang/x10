@@ -237,22 +237,22 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     }
     
     public byte set(byte v, int d0) {
-    	d0 = Helper.ordinal(region,d0);
+    	d0 = Helper.ordinal(distribution,d0);
     	return arr_.setByte(v,d0);
     }
      
     public byte set(byte v, int d0, int d1) {
-    	int	theIndex = Helper.ordinal(region,d0,d1);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setByte(v,theIndex);
     }
     
     public byte set(byte v, int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(region,d0,d1,d2);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.setByte(v,theIndex);
     }
     
     public byte set(byte v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.setByte(v,theIndex);    	
     }
 
@@ -270,21 +270,21 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     }
     
     public byte get(int d0) {
-    	d0 = Helper.ordinal(region,d0);
+    	d0 = Helper.ordinal(distribution,d0);
     	return arr_.getByte(d0);
     }
     public byte get(int d0, int d1) {
-    	int	theIndex = Helper.ordinal(region,d0,d1);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.getByte(theIndex);
     }
     
     public byte get(int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(region,d0,d1,d2);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getByte(theIndex);  	
     } 
     
     public byte get(int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(region,d0,d1,d2,d3);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.getByte(theIndex);
     	
     }
