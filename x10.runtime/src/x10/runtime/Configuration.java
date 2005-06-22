@@ -117,6 +117,9 @@ public final class Configuration {
     public static String LOAD = null;
     
     private static boolean done_;
+    
+    public static boolean isMultiNodeVM() { return NUMBER_OF_VMS > 1;}
+    
     /**
      * Parses the command line.  This allows the user to specify 
      * options also on the command line (in addition to the
