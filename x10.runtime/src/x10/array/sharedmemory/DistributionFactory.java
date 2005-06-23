@@ -12,6 +12,7 @@ import x10.lang.region;
 import x10.lang.point;
 import x10.array.ContiguousRange;
 import x10.array.MultiDimRegion;
+import x10.lang.Runtime;
 
 public class DistributionFactory extends dist.factory {
 	
@@ -149,7 +150,7 @@ public class DistributionFactory extends dist.factory {
             int adjustment=0;
 	    // FIXME n should be == num of places, but if x10c config differs from x10
 	    // then it won't be
-            int adjustmentOffset[] = new int[x10.lang.Runtime.runtime.places().length];
+            int adjustmentOffset[] = new int[Runtime.places().length];
             for (int i=0; i < n; i++) {
             	int placeId = ((place)q[i]).id;
             	adjustmentOffset[placeId] = adjustment;
@@ -172,6 +173,10 @@ public class DistributionFactory extends dist.factory {
         int total_points = r.size();
         int p = total_points / nb;
         int q = total_points % nb;
+        
+        int adjustment=0;
+        int adjustmentOffset[] = new int[Runtime.places().length];
+        
         HashMap hm = new HashMap();
         int offsWithinPlace = 0;
         int blockNum = 0;
@@ -179,12 +184,16 @@ public class DistributionFactory extends dist.factory {
             point pt = (point) it.next();
             hm.put(pt, places[blockNum]);
             offsWithinPlace++;
+            ++adjustment;
             if (offsWithinPlace == (p + ((blockNum < q) ? 1 : 0))) {
                 offsWithinPlace=0; // start next block
                 blockNum++;
-            }
+                if(blockNum < places.length)
+                	adjustmentOffset[blockNum]=adjustment;
+            }           
         }
         Distribution_c.Arbitrary ret = new Distribution_c.Arbitrary(r, hm); 
+        ret.setVirtualIndexAdjustments(adjustmentOffset);
         return ret;
     }
     
@@ -212,7 +221,12 @@ public class DistributionFactory extends dist.factory {
      * @return
      */
     public dist constant(region r, place p) {
-        return new Distribution_c.Constant(r, p);
+    	// initialized to zero
+    	int adjustmentOffset[] = new int[Runtime.places().length];
+      
+        dist newDist = new Distribution_c.Constant(r, p);
+        newDist.setVirtualIndexAdjustments(adjustmentOffset);
+        return newDist;
     }
     
     /**
