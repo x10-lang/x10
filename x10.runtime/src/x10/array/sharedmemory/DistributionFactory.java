@@ -147,7 +147,9 @@ public class DistributionFactory extends dist.factory {
            
             Distribution_c[] dists = new Distribution_c[n];
             int adjustment=0;
-            int adjustmentOffset[] = new int[n];
+	    // FIXME n should be == num of places, but if x10c config differs from x10
+	    // then it won't be
+            int adjustmentOffset[] = new int[x10.lang.Runtime.runtime.places().length];
             for (int i=0; i < n; i++) {
             	int placeId = ((place)q[i]).id;
             	adjustmentOffset[placeId] = adjustment;
