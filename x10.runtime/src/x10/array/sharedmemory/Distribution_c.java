@@ -478,7 +478,16 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
             s.append(region.toString());
             s.append("|, place=|");
             s.append(place_);
-            s.append("|>");
+            s.append("|");
+            if(x10.runtime.Configuration.isMultiNodeVM()){
+            	s.append(" virtural index map::[");
+            	for(int j=0;j<_indexAdjustment.length;++j){
+            		s.append(_indexAdjustment[j]);
+            		s.append(" ");
+            	}
+            	s.append("]");
+            }
+            s.append(">");
             return s.toString();
         }
         
@@ -635,6 +644,14 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
                 if (it.hasNext()) 
                     s.append(",\n");
                 
+            }
+            if(x10.runtime.Configuration.isMultiNodeVM()){
+            	s.append(" virtural index map::[");
+            	for(int j=0;j<_indexAdjustment.length;++j){
+            		s.append(_indexAdjustment[j]);
+            		s.append(" ");
+            	}
+            	s.append("]");
             }
             s.append(">");
             return s.toString();
