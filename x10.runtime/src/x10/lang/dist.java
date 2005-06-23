@@ -33,7 +33,14 @@ implements Indexable, ValueType {
      * @return
      */
     public final int getVirtualIndexAdjustment(int origIndex) {
+    	if(!x10.runtime.Configuration.isMultiNodeVM()) return origIndex;
     	int placeId = x10.lang.Runtime.runtime.currentPlace().id;
+    	
+    	if(null == _indexAdjustment)System.out.println("Missing index adjustment for:"+this);
+    	if(true){
+    		//System.out.println("Remap["+placeId+"] "+origIndex+"->"+(origIndex - _indexAdjustment[placeId]));
+    		return origIndex;
+    	}
     	return origIndex - _indexAdjustment[placeId];
     }
     public final void initializeVirtualIndexAdjustments(int numPlaces){
