@@ -1,0 +1,72 @@
+Running x10/bin/testScript in command line mode, without
+Eclipse, on  cygwin/Windows, AIX, or Linux:
+=========================
+
+For cygwin/windows only (tested on a Windows XP laptop):
+
+(1) Refresh your cygwin installation from www.cygwin.com. In
+particular: bash, /usr/bin/kill,  perl are needed by the scripts.
+You can use the mirror mirror.mcs.anl.gov since it is
+fast.
+(2) download and install java 1,4.2 (IBM'ers should use
+http://w3.hursley.ibm.com/java/jim/).  Ensure that JAVA_HOME is
+set correctly and that javac and java already work on cygwin.
+ 
+
+For linux only (tested on samwise.watson.ibm.com):
+
+(1) To log in to samwise.watson.ibm.com, you must have a gsa id.
+(2) Ensure that JAVA_HOME is set correctly and javac and java
+already work.
+
+For AIX only (tested on rios2.watson.ibm.com)
+
+(1) Ensure you have a gsa id, and an agora id, be sure you are
+logged into gsa if the passwords are not already synchronized
+and your home directory is on gsa.
+
+(2) Ensure that JAVA_HOME is already set correctly and javac and
+java already work.
+
+
+The following apply to all platforms, unless indicated
+otherwise: 
+
+Download the latest ant binary distribution from www.apache.org and install
+in ~/apache-ant-1.6.4 
+
+Place your private key and public key for  ssh (*id* files) under ~/.ssh
+
+Use bash as your shell, and add these to the end of your ~/.bashrc file:
+
+
+#QUILLBACK_USER=yourUserid 
+export ANT_HOME=~/apache-ant-1.6.4
+export X10=~/x10
+export X10_PLATFORM=win32_x86 #for cygwin/windows only
+#export X10_PLATFORM=linux_x86 #for Linux only
+#export X10_PLATFORM=aix_ppc #for AIX only
+export PATH=.:$JAVA_HOME/bin:$ANT_HOME/bin:$X10/bin:$PATH
+export CVSROOT=:ext:$QUILLBACK_USER@quillback.cs.purdue.edu:/home/ibmcvs
+export CVS_RSH=ssh
+export CVSUMASK=770
+ 
+Enter the commands (in your home directory):
+
+cvs checkout x10 #one time only, initially
+
+cd $X10
+cvs -q update -dPA
+ant --noconfig clobber all
+cd examples
+testScript
+
+(the --noconfig option is needed only on Linux, 
+in order not to conflict with old ant that may be
+installed)
+
+
+To run a quick version of the test script that runs a subset
+of the tests, use (in the examples directory):
+
+testScript -testList sanity.lst
