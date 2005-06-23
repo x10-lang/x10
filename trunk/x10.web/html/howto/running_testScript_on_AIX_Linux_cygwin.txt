@@ -66,7 +66,7 @@ in order not to conflict with old ant that may be
 installed)
 
 
-To run a quick version of the test script that runs a subset
-of the tests, use (in the examples directory):
+To execute a quick version of the test script that runs only a
+subset of the tests, use (in the examples/ directory):
 
 testScript -testList sanity.lst
