@@ -13,12 +13,14 @@ package x10.array.sharedmemory;
 import x10.array.MultiDimRegion;
 import x10.lang.region;
 import x10.lang.dist;
+import x10.runtime.Configuration;
+
 
 
 public class Helper {
 	public final static boolean performBoundsCheck=true;
 	public final static boolean simpleRangeCheck=true;
-
+	
     final static void checkBounds(region r,int d0){
 	    try {
 	        if (r instanceof MultiDimRegion) {
@@ -56,6 +58,8 @@ public class Helper {
         } catch (UnsupportedOperationException e) {
             throw new ArrayIndexOutOfBoundsException();
         }
+ 
+        d0 = d.getVirtualIndexAdjustment(d0);
      	return d0;
 	}
 	
@@ -104,6 +108,7 @@ public class Helper {
 	        throw new ArrayIndexOutOfBoundsException();
 	    }
 	   
+	    index = d.getVirtualIndexAdjustment(index);
 	    return index;
 	}
 	
@@ -162,6 +167,7 @@ public class Helper {
 	    } catch (UnsupportedOperationException e) {
 	        throw new ArrayIndexOutOfBoundsException();
 	    }
+	    index = d.getVirtualIndexAdjustment(index);
 	    return index;
 	}
     
@@ -226,6 +232,7 @@ public class Helper {
 	    } catch (UnsupportedOperationException e) {
 	        throw new ArrayIndexOutOfBoundsException();
 	    }
+	    index = d.getVirtualIndexAdjustment(index);
 	    return index;
 	}
 	
