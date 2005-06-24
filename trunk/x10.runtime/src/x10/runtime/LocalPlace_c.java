@@ -168,6 +168,7 @@ public class LocalPlace_c extends Place {
             a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
             runAsync( a, false);
         } else {
+            a.pseudoDeSerialize();
             runAsync( a, true);
         }
     }

@@ -113,7 +113,7 @@ public class RemoteClock extends Clock {
     /* The VM hosting the real Clock and the Clock object on
      * that VM.
      */
-    private final int vm_;
-    private final long vm_clock_no_;
+    final int vm_;
+    final long vm_clock_no_;
     private boolean hasBeenActivated;
 }

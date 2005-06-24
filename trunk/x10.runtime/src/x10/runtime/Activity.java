@@ -5,8 +5,10 @@ import java.util.Iterator;
 import java.util.Stack;
 import java.util.LinkedList;
 import java.util.List;
+import java.lang.reflect.*;
 import x10.lang.MultipleExceptions;
 import x10.lang.ClockUseException;
+import x10.lang.clock;
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -375,10 +377,10 @@ public abstract class Activity implements Runnable {
 	 * @return -- the short name for the activity.
 	 */
     public String myName() {
-        if (hardAddr == 0) {
+        if (globalRefAddr == 0) {
             return "Activity " + Long.toHexString(hashCode());
         } else {
-            return "Activity* " + Long.toHexString(hardAddr);
+            return "Activity* " + Long.toHexString(globalRefAddr);
         }
     }
     /** A long descriptor for the activity. By default displays the finishState_ and the rootNode_.
@@ -420,9 +422,160 @@ public abstract class Activity implements Runnable {
     public Place placeWhereRealActivityIsRunning;
     /**
      * if this Activity is a surrogate, the RemotePlace.runAsync will
-     * cause it to be pinned and set hardAddr to its now fixed address.
+     * cause it to be pinned and set globalRefAddr to its now fixed address.
      **/
-    public long hardAddr;
+    public long globalRefAddr;
+
+    void pseudoSerialize() {
+        clocksMappedToGlobalAddresses = new long[clocks_.size() << 1];
+        for (int i = 0; i < clocks_.size(); ++i) {
+            Clock c = ((Clock) clocks_.get(i));
+            if (c instanceof RemoteClock) {
+                clocksMappedToGlobalAddresses[i<<1] = ((RemoteClock) c).vm_;
+                clocksMappedToGlobalAddresses[(i<<1)+1] = ((RemoteClock) c).vm_clock_no_;
+            } else {
+                clocksMappedToGlobalAddresses[i<<1] = VMInfo.THIS_IS_VM;
+                if (c.getGlobalRefAddr() == 0) {
+                    c.establishGlobalRefAddr();
+                }
+                clocksMappedToGlobalAddresses[(i<<1)+1] = c.getGlobalRefAddr();
+            }
+        }
+        int count = 0;
+        Field f[] = getClass().getDeclaredFields();
+        for (int i = 0; i < f.length; ++i) {
+            if (f[i].getName().indexOf("this$") == -1) {
+                if (f[i].getType() == x10.lang.clock.class) {
+                    count += 2;
+                } else {
+                    if (f[i].getType().isPrimitive()) {
+                        ++count;
+                    } else {
+                        // hmmm: what to do about references???
+                        // TODO ... ahk ... fix this
+                        ++count;
+                    }
+                }
+            }
+        }
+        pseudoSerializedLongArray = new long[count];
+        count = 0;
+        try {
+            for (int i = 0; i < f.length; ++i) {
+                f[i].setAccessible(true);
+                if (f[i].getName().indexOf("this$") == -1) {
+                    if (f[i].getType() == x10.lang.clock.class) {
+                        if (f[i].get(this) instanceof RemoteClock) {
+                            RemoteClock rc = (RemoteClock) f[i].get(this);
+                            pseudoSerializedLongArray[count++] = rc.vm_;
+                            pseudoSerializedLongArray[count++] = rc.vm_clock_no_;
+                        } else {
+                            assert f[i].get(this) instanceof Clock;
+                            Clock c = (Clock) f[i].get(this);
+                            pseudoSerializedLongArray[count++] = VMInfo.THIS_IS_VM;
+                            assert c.getGlobalRefAddr() != 0;
+                            pseudoSerializedLongArray[count++] = c.getGlobalRefAddr();
+                        }
+                    } else {
+                        if (f[i].getType().isPrimitive()) {
+                            String nm = f[i].getType().getName();
+                            if (nm.equals("int")) {
+                                pseudoSerializedLongArray[count++] = f[i].getInt(this);
+                            } else if (nm.equals("long")) {
+                                pseudoSerializedLongArray[count++] = f[i].getLong(this);
+                            } else {
+                                System.err.println("ahk fix this!");
+                                pseudoSerializedLongArray[count++] = 0;
+                            }
+                        } else {
+                            // hmmm: wat to do about references???
+                            // TODO ... ahk ... fix this
+                            pseudoSerializedLongArray[count++] = 0;
+                        }
+                    }
+                }
+            }
+        } catch(IllegalAccessException iae) {
+            System.err.println("Got exception pseudoSerializing " + iae);
+        }
+        assert this.getClass().getDeclaredConstructors().length == 1;
+        numArgsInConstructor = this.getClass().getDeclaredConstructors()[0].getParameterTypes().length;
+        constructorSignature="(";
+        for (int i = 0; i < numArgsInConstructor; ++i) {
+            Class ac = this.getClass().getDeclaredConstructors()[0].getParameterTypes()[i];
+            if (ac.isPrimitive()) {
+                if (ac.toString().equals("int")) {
+                    constructorSignature += "I";
+                } else if (ac.toString().equals("long")) {
+                    constructorSignature += "J";
+                } else {
+                    System.err.println("ahk fix this!!");
+                }
+            } else {
+                if (ac.isArray()) {
+                    System.err.println("ahk fix this!");
+                } else {
+                    constructorSignature += ac.toString().replaceFirst("class ", "L").replaceFirst("interface ", "L").replaceAll("\\.", "/") + ";";
+                }
+            }
+            if (ac == java.util.List.class) {
+                listOfClocksIsArgNum = i;
+            }
+        }
+        constructorSignature += ")V";
+    }
+
+    void pseudoDeSerialize() {
+        assert clocks_.isEmpty();
+        assert (clocksMappedToGlobalAddresses.length & 1) == 0;
+        for (int i = 0; i < clocksMappedToGlobalAddresses.length; i += 2) {
+            if ((int) clocksMappedToGlobalAddresses[i] == VMInfo.THIS_IS_VM) {
+                System.err.println("ahk fix this...a clock has come all the way back to this machine!");
+                throw new Error();
+            } else {
+                clocks_.add(RemoteClock.getMyVersionOfClock("remoteClock", (int) clocksMappedToGlobalAddresses[i], clocksMappedToGlobalAddresses[i+1]));
+            }
+        }
+        int count = 0;
+        Field f[] = getClass().getDeclaredFields();
+        try {
+            for (int i = 0; i < f.length; ++i) {
+                if (f[i].getName().indexOf("this$") == -1) {
+                    f[i].setAccessible(true);
+                    if (f[i].getType() == x10.lang.clock.class) {
+                        RemoteClock r = RemoteClock.getMyVersionOfClock("remoteClock", (int) pseudoSerializedLongArray[count], (int) pseudoSerializedLongArray[count+1]);
+                        f[i].set(this, r);
+                        count += 2;
+                    } else {
+                        if (f[i].getType().isPrimitive()) {
+                            String nm = f[i].getType().getName();
+                            if (nm.equals("int")) {
+                                f[i].setInt(this, (int) pseudoSerializedLongArray[count++]);
+                            } else if (nm.equals("long")) {
+                                f[i].setLong(this, pseudoSerializedLongArray[count++]);
+                            } else {
+                                System.err.println("ahk fix this!");
+                                count++;
+                            }
+                        } else {
+                            // hmmm: wat to do about references???
+                            // TODO ... ahk ... fix this
+                            count++;
+                        }
+                    }
+                }
+            }
+        } catch(IllegalAccessException iae) {
+            System.err.println("Got exception pseudoDeSerializing " + iae);
+        }
+        assert count == pseudoSerializedLongArray.length;
+    }
+
+    String      constructorSignature;
+    long[]      clocksMappedToGlobalAddresses;
+    long[]      pseudoSerializedLongArray;
+    int         numArgsInConstructor;
+    int         listOfClocksIsArgNum;
     
     /**
      * An activity used to implement an X10 future.
