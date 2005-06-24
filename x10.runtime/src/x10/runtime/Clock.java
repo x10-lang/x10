@@ -440,8 +440,16 @@ public /* final */ class Clock extends clock {
 			return;
 		}
 	}
-	
-	
+
+        public native long establishGlobalRefAddr_();
+        public void establishGlobalRefAddr() {
+            globalRefAddr_ = establishGlobalRefAddr_();
+        }
+        public void clearGlobalRefAddr() {
+            globalRefAddr_ = 0;
+        }
+        public long getGlobalRefAddr() { return globalRefAddr_; }
+        private long globalRefAddr_;
 	/**
 	 * Register a callback that is to be called whenever the clock
 	 * advances into the next phase.
@@ -473,6 +481,7 @@ public /* final */ class Clock extends clock {
 		+ ":" + activityCount_ 
 		+ "," + resumedCount_
 		+ "," + nextResumedCount_
+                + ((globalRefAddr_ == 0) ? "" : ("," + Long.toHexString(globalRefAddr_)))
 		+ ")";
 	}
 	

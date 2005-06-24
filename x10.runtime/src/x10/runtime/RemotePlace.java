@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.io.*;
+import java.lang.reflect.*;
 
 import x10.lang.Future;
 
@@ -22,15 +24,8 @@ import x10.lang.Future;
 // this file is under construction....note that runFuture has not been
 // started
 public class RemotePlace extends Place {
-   // firstInitArg is a HACK
-   public native long runAsync_(final Activity a, String firstInitArg);
+   public native long runAsync_(final Activity a);
    public void runAsync(final Activity a) {
-       assert a.getClass().getDeclaredConstructors().length == 1;
-       String firstInitArg = 
-          ((a.getClass().getDeclaredConstructors()[0].getParameterTypes().length > 0) &&
-           (a.getClass().getDeclaredConstructors()[0].getParameterTypes()[0].toString().indexOf('$') >= 0)) ?
-          (a.getClass().getDeclaredConstructors()[0].getParameterTypes()[0].toString().replaceFirst("class ","L") + ";") : "";
-       
        Thread currentThread = Thread.currentThread();  
        if (currentThread instanceof ActivityRunner) {
            Activity parent = ((ActivityRunner) currentThread).getActivity();
@@ -43,7 +38,8 @@ public class RemotePlace extends Place {
        // this is now a surrogate for the remote activity
        a.activityAsSeenByInvokingVM = Activity.thisActivityIsASurrogate;
        a.placeWhereRealActivityIsRunning = this;
-       a.hardAddr = runAsync_(a, firstInitArg);
+       a.pseudoSerialize();
+       a.globalRefAddr = runAsync_(a);
 
    }
    RemotePlace(int vm_, int place_no_) {
