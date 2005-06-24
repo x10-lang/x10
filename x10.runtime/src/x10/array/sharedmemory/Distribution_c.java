@@ -479,7 +479,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
             s.append("|, place=|");
             s.append(place_);
             s.append("|");
-            if(x10.runtime.Configuration.isMultiNodeVM()){
+            if(x10.runtime.Configuration.isMultiNodeVM() && (null != _indexAdjustment)){
             	s.append(" virtural index map::[");
             	for(int j=0;j<_indexAdjustment.length;++j){
             		s.append(_indexAdjustment[j]);
@@ -600,7 +600,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
             for (int i=0; i < members_.length;i++) 
                 s.append(members_[i]);
         
-            if(x10.runtime.Configuration.isMultiNodeVM()){
+            if(x10.runtime.Configuration.isMultiNodeVM()&& (null != _indexAdjustment)){
             	s.append(" virtural index map::[");
             	for(int j=0;j<_indexAdjustment.length;++j){
             		s.append(_indexAdjustment[j]);
@@ -645,7 +645,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
                     s.append(",\n");
                 
             }
-            if(x10.runtime.Configuration.isMultiNodeVM()){
+            if(x10.runtime.Configuration.isMultiNodeVM()&& (null != _indexAdjustment)){
             	s.append(" virtural index map::[");
             	for(int j=0;j<_indexAdjustment.length;++j){
             		s.append(_indexAdjustment[j]);
