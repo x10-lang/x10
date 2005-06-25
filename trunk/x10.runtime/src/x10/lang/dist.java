@@ -14,6 +14,16 @@ import java.util.Iterator;
 
 abstract public /*value*/ class dist/*( region region )*/ extends Object 
 implements Indexable, ValueType {
+	
+	/* used to create distributions remotely */
+	public final static int BLOCK_CYCLIC=1;
+	public final static int BLOCK=2;
+	public final static int CONSTANT=3;
+	public final static int CYCLIC=4;
+	public final static int UNIQUE=5;
+	public int distributionType;
+	public int cyclicValue;
+	
 	public final region region;
 	/** The parameter dimension may be used in constructing types derived
 	 * from the class distribution. For instance,
