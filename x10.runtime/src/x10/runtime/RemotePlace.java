@@ -10,7 +10,21 @@ import java.util.List;
 import java.io.*;
 import java.lang.reflect.*;
 
+import x10.array.sharedmemory.Distribution_c;
+import x10.base.MemoryBlockSafeBooleanArray;
+import x10.base.MemoryBlockSafeByteArray;
+import x10.base.MemoryBlockSafeCharArray;
+import x10.base.MemoryBlockSafeDoubleArray;
+import x10.base.MemoryBlockSafeFloatArray;
+import x10.base.MemoryBlockSafeIntArray;
+import x10.base.MemoryBlockSafeLongArray;
+import x10.base.MemoryBlockSafeObjectArray;
+import x10.base.MemoryBlockSafeShortArray;
+import x10.lang.dist;
+import x10.lang.region;
 import x10.lang.Future;
+import x10.runtime.ElementType;
+
 
 /**
  * A RemotePlace (no _c because different javah programs tend
@@ -41,6 +55,47 @@ public class RemotePlace extends Place {
        a.pseudoSerialize();
        a.globalRefAddr = runAsync_(a);
 
+   }
+   
+   /**
+    * @author donawa
+    * Create an array of the specified type at the remote place
+    *
+    */
+   // FIXME: this is a work in progress--had to make static because typecast from Place->RemotePlace
+   // fails since not all pieces are coordinated
+  
+   public /*REMOVE static */static void runArrayConstructor(FatPointer owningObject,int elementType,
+   		int elementSize,dist d,boolean safe,boolean mutable,
+		/*FIXME: remove once not static */int placeId){
+   	int i;
+   	region theRegion = d.region;
+   	
+   	System.out.println("Creating storage at place "+placeId);
+   	
+   	final int numberDimensions = theRegion.rank;
+   
+   	
+   	region theRegions[] = ((Distribution_c)d).getAllocatedRegions();
+	
+   	System.out.println("Size of local storage for "+theRegions[placeId]+" :"+elementSize+"*"+theRegions[placeId].size());
+	System.out.println("Need to create a distribution:");
+   	// Need to create an array of ranges
+   	for(i=0;i < numberDimensions;++i){
+   		System.out.println("Dim["+i+"] range:"+theRegion.rank(i).low()+".."+theRegion.rank(i).high());
+   	}
+   	String distType="unknown";
+   	switch(d.distributionType){
+   	case dist.BLOCK: distType="Block";break;
+   	case dist.BLOCK_CYCLIC: distType = "BlockCyclic";break;
+   	case dist.CONSTANT: distType = "Constant";break;
+   	case dist.CYCLIC: distType = "Cyclic";break;
+   	case dist.UNIQUE: distType = "Unique";break;
+   	}
+   System.out.println("Distrbution type:"+distType+" cyclicValue:"+d.cyclicValue);
+   
+    
+    System.out.println(" ----------------");
    }
    RemotePlace(int vm_, int place_no_) {
       super(vm_, place_no_);
