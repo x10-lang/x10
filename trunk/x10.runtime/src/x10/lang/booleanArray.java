@@ -11,6 +11,8 @@ package x10.lang;
 
 import java.util.Iterator;
 
+import x10.lang.intArray.binaryOp;
+
 abstract public class booleanArray /*( distribution distribution )*/ 
 /*implements Cloneable, Serializable */
 implements Indexable, Unsafe {
@@ -29,9 +31,15 @@ implements Indexable, Unsafe {
 		boolean apply(boolean r, boolean s);
 	}
 	
+    public static final binaryOp xor = new binaryOp() { public boolean apply(boolean r, boolean s) { return r ^ s;}};
+    public static final binaryOp or = new binaryOp() { public boolean apply(boolean r, boolean s) { return r | s;}};
+    public static final binaryOp and = new binaryOp() { public boolean apply(boolean r, boolean s) { return r & s;}};
+    
     public static interface unaryOp {
         boolean apply(boolean r);
     }
+    
+    public static final unaryOp neg = new unaryOp() { public boolean apply(boolean r) { return !r;}};
     
 	public static interface pointwiseOp/*(region r)*/ {
 		boolean apply(point/*(r)*/ p);
