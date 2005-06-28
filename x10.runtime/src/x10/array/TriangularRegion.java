@@ -33,7 +33,7 @@ public class TriangularRegion extends region {
             assert (dims[i].size() == size);
         }
         size_ = gauss_(size);
-        isLower_ = upper;
+        isLower_ = is_lower;
         dims_ = dims;
     }
 

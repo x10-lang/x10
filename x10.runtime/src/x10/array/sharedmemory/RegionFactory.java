@@ -56,7 +56,7 @@ public  class RegionFactory extends region.factory {
         else {
             ContiguousRange cr =  new ContiguousRange(0, size-1);
             region[] r = new region[] {cr, cr};
-            ret = new TriangularRegion(r, true);
+            ret = new TriangularRegion(r, false);
         }
         return ret;
 	}
@@ -71,7 +71,7 @@ public  class RegionFactory extends region.factory {
         else {
             ContiguousRange cr =  new ContiguousRange(0, size-1);
             region[] r = new region[] {cr, cr};
-            ret = new TriangularRegion(r, false);
+            ret = new TriangularRegion(r, true);
         }
         return ret;
 	}
