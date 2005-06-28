@@ -19,7 +19,6 @@ public class TestTriangularRegion extends TestCase {
     }
     
     public void testRegion_iterator1() {
-        Runtime.runAsync( new Activity() { public void run() {
         Range[] ranges = new Range[] { new ContiguousRange(0,3), new ContiguousRange(1, 4) }; // 6x4         
         TriangularRegion reg = new TriangularRegion(ranges, true);
         
@@ -37,7 +36,6 @@ public class TestTriangularRegion extends TestCase {
         boolean tmp_b = reg.contains(tmp_p);
         System.out.println("reg=" + reg + " should not contain" + tmp_p + " (" + tmp_b + ")");
         assertTrue(tmp_b);
-        }});
     }
 
 }
