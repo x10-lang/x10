@@ -16,13 +16,13 @@ import x10.lang.region;
  */
 public class TriangularRegion extends region {
 
-    private final boolean isUpper_;
+    private final boolean isLower_;
     private final region[] dims_;
     private int size_;
     /**
      * @param rank
      */
-    public TriangularRegion(region[] dims, boolean upper) {
+    public TriangularRegion(region[] dims, boolean is_lower) {
         super(2); // rank must be == 2
         // all regions must be one dimensional and have the same size > 0
         assert (dims != null && dims.length == rank);
@@ -33,7 +33,7 @@ public class TriangularRegion extends region {
             assert (dims[i].size() == size);
         }
         size_ = gauss_(size);
-        isUpper_ = upper;
+        isLower_ = upper;
         dims_ = dims;
     }
 
@@ -116,7 +116,7 @@ public class TriangularRegion extends region {
     private boolean contains_(int a, int b) {
         int a_normal = a - dims_[0].low();
         int b_normal = b - dims_[1].low();
-        boolean ul_criterion = (isUpper_) ? (a_normal >= b_normal) : (a_normal <= b_normal);
+        boolean ul_criterion = (isLower_) ? (a_normal >= b_normal) : (a_normal <= b_normal);
         boolean size_criterion = 
             dims_[0].contains(new int[] {a}) && 
             dims_[1].contains(new int[] {b});
@@ -144,7 +144,7 @@ public class TriangularRegion extends region {
     
     private int ordinal_(int a, int b) {
         int a_normal, b_normal;
-        if (!isUpper_) {
+        if (!isLower_) {
             a_normal = dims_[0].high() - a;
             b_normal = dims_[1].high() - b;
         } else {
@@ -164,7 +164,7 @@ public class TriangularRegion extends region {
         else {
             x_normal = inv_gauss_(ord);
             y_normal = ord - gauss_(x_normal);
-            if (isUpper_)
+            if (isLower_)
                 tmp = new int[] {x_normal + dims_[0].low(), y_normal + dims_[1].low()};                
             else              
                 tmp = new int[] {dims_[0].high() - x_normal, dims_[1].high() - y_normal}; 
@@ -196,7 +196,7 @@ public class TriangularRegion extends region {
 
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(isUpper_ ? "upper" : "lower");
+        sb.append(isLower_ ? "upper" : "lower");
         sb.append("-triangular(");
         sb.append(dims_[0].toString());
         sb.append(", ");
