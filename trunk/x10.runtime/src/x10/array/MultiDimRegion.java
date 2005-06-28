@@ -179,7 +179,7 @@ public class MultiDimRegion extends region  {
      * int.
      */
     public Iterator iterator() {
-        return new RegionIterator();
+        return new MultiDimRegionIterator_();
     }
     
     public String toString() {
@@ -194,7 +194,7 @@ public class MultiDimRegion extends region  {
         return sb.toString();
     }
     
-    private class RegionIterator implements Iterator {
+    private class MultiDimRegionIterator_ implements Iterator {
         private int nextOrd_ = 0;
         
         public boolean hasNext() {

@@ -1,6 +1,7 @@
 package x10.array.sharedmemory;
 
 import x10.array.ContiguousRange;
+import x10.array.TriangularRegion;
 import x10.array.EmptyRegion;
 import x10.array.MultiDimRegion;
 import x10.array.StridedRange;
@@ -48,17 +49,31 @@ public  class RegionFactory extends region.factory {
 	/** Return an \code{upperTriangular} Region_c for a dim-rankal
 	 * space of size \code{size} in each dimension.
 	 */
-	public region/*(rank)*/ upperTriangular( /*nat*/ int rank, 
-			/*nat*/ int size ) {
-		throw new Error("not implemented");
+	public region/*(rank)*/ upperTriangular( /*nat*/ int rank, /*nat*/ int size ) {
+        region ret;
+        if (rank != 2)
+            throw new Error("Triangular regsion of dimension != 2 not supported.");
+        else {
+            ContiguousRange cr =  new ContiguousRange(0, size-1);
+            region[] r = new region[] {cr, cr};
+            ret = new TriangularRegion(r, true);
+        }
+        return ret;
 	}
 	
 	/** Return a lowerTriangular Region_c for a rank-dimensional space of
-	 * size \code{size} in each rankension.
+	 * size \code{size} in each dimension.
 	 */
-	public region/*(rank)*/ lowerTriangular( /*nat*/ int rank, 
-			/*nat*/ int size ) {
-		throw new Error("not implemented");
+	public region/*(rank)*/ lowerTriangular( /*nat*/ int rank, /*nat*/ int size ) {
+		region ret;
+        if (rank != 2)
+            throw new Error("Triangular regsion of dimension != 2 not supported.");
+        else {
+            ContiguousRange cr =  new ContiguousRange(0, size-1);
+            region[] r = new region[] {cr, cr};
+            ret = new TriangularRegion(r, false);
+        }
+        return ret;
 	}
 	
 	/** Return a banded Region_c of width {\code width} for a
