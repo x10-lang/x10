@@ -7,9 +7,20 @@ public class MemoryBlockSafeObjectArray extends MemoryBlockSafe {
     
     private Object[] arr_;
     
+    public boolean deepEquals(MemoryBlock other) {
+        MemoryBlockSafeObjectArray m = (MemoryBlockSafeObjectArray) other;
+        if (m.arr_.length == arr_.length) {            
+            for (int i=arr_.length-1;i>=0;i--) 
+                if (!x10.lang.Runtime.equalsequals(arr_[i], m.arr_[i]))
+                    return false;
+            return true;
+        } else
+            return false;
+    }
+    
     public boolean valueEquals(MemoryBlock other) {
         MemoryBlockSafeObjectArray m = (MemoryBlockSafeObjectArray) other;
-        if (m.arr_.length == arr_.length) {
+        if (m.arr_.length == arr_.length) {            
             for (int i=arr_.length-1;i>=0;i--) 
                 if (arr_[i] != m.arr_[i])
                     return false;
@@ -17,8 +28,6 @@ public class MemoryBlockSafeObjectArray extends MemoryBlockSafe {
         } else
             return false;
     }
-    
-
     
     MemoryBlockSafeObjectArray(int count) {
         arr_ = new Object[count];

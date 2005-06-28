@@ -224,7 +224,7 @@ public abstract class Runtime {
 	    if ( (o1 == null) || (o2 == null))
 	        return false;
 	    Class c = o1.getClass();
-	    if ( (o1 instanceof Indexable)) {
+	    if ( (o1 instanceof Indexable) && (o2 instanceof Indexable)) {
 	        Indexable i1 = (Indexable) o1;
 	        Indexable i2 = (Indexable) o2;
 	        if (! (i1.isValue() && i2.isValue()))

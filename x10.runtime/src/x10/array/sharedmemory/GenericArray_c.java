@@ -26,10 +26,16 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 
     private final boolean safe_;
     private final MemoryBlock arr_;
-    public final boolean mutable_;
+    private final boolean mutable_;
+    private final boolean refsToValues_;
     
     public boolean valueEquals(Indexable other) {
-        return arr_.valueEquals(((GenericArray_c)other).arr_);
+        boolean ret;
+        if (refsToValues_)
+            ret = arr_.deepEquals(((GenericArray_c)other).arr_);
+        else
+            ret = arr_.valueEquals(((GenericArray_c)other).arr_);
+        return ret;
     }
 
     
@@ -43,11 +49,12 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     }
     
     protected GenericArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
-    	this( d, c, safe, true);
+    	this( d, c, safe, true, false);
     }
-    protected GenericArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+    protected GenericArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ref_to_values) {
         super(d);
         this.mutable_ = mutable;
+        this.refsToValues_ = ref_to_values;
         safe = true; // just to be GC-safe ;-)
         this.safe_ = safe;
         int count =  d.region.size();
@@ -56,7 +63,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
             int ranks[] = new int[rank];
             for (int i = 0; i < rank; ++i) 
                 ranks[i] = d.region.rank(i).size();
-            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_PTR);
         } else {
             this.arr_ = Allocator.allocSafe(count, Parameter1.class);
         }
@@ -74,16 +81,17 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         this(d, c, true);
     }
     public GenericArray_c( dist d, Parameter1 c, boolean safe ) {
-    	this(d, c, safe, true);
+    	this(d, c, safe, true, false);
 }
-    public GenericArray_c( dist d, int c, boolean safe, boolean mutable ) {
-        this(d, (Parameter1) null, safe, mutable);
+    public GenericArray_c( dist d, int c, boolean safe, boolean mutable, boolean ref_to_values) {
+        this(d, (Parameter1) null, safe, mutable, ref_to_values);
     }
-        public GenericArray_c( dist d, Parameter1 c, boolean safe, boolean mutable ) {
-    	super(d);
+    public GenericArray_c( dist d, Parameter1 c, boolean safe, boolean mutable, boolean ref_to_values) {
+        super(d);
         assert (safe); // just to be GC-safe ;-)
-    	this.mutable_ = mutable;
-    	int count =  d.region.size();
+        this.mutable_ = mutable;
+        this.refsToValues_ = ref_to_values;
+        int count =  d.region.size();
         this.safe_ = safe;
         this.arr_ = Allocator.allocSafe(count, Parameter1.class);
         scan(this, new Assign(c));
@@ -92,34 +100,36 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         this(d, f, true);
     }
     public GenericArray_c( dist d, GenericArray.pointwiseOp f, boolean safe) {
-    	this(d, f, safe, true);
+    	this(d, f, safe, true, false);
     }
-    public GenericArray_c( dist d, GenericArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public GenericArray_c( dist d, GenericArray.pointwiseOp f, boolean safe, boolean mutable, boolean ref_to_values) {
     	super(d);
         assert (safe); // just to be GC-safe ;-)
     	this.mutable_ = mutable;
-    	int count =  d.region.size();
+    	this.refsToValues_ = ref_to_values;
+        int count =  d.region.size();
         this.arr_ = Allocator.allocSafe(count, Parameter1.class);
     	this.safe_ = safe;
         if (f != null)
             scan(this, f);
     }
     
-    private GenericArray_c( dist d, Parameter1[] a, boolean safe, boolean mutable) {
+    private GenericArray_c( dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
     	super(d);
         assert (safe); // just to be GC-safe ;-)
     	this.arr_ = Allocator.allocSafeObjectArray( a);
         this.safe_ = safe;
         this.mutable_ = mutable;
+        this.refsToValues_ = ref_to_values;
     }
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a
      * @return
      */
-    public static GenericArray_c GenericArray_c( Parameter1[] a, boolean safe, boolean mutable ) {
+    public static GenericArray_c GenericArray_c( Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
-    	return new GenericArray_c(d, a, safe, mutable );
+    	return new GenericArray_c(d, a, safe, mutable, ref_to_values);
     }
     
     public void keepItLive() {}

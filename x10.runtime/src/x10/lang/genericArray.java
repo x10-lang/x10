@@ -54,7 +54,7 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public genericArray/*(:rank=1)*/  GenericValueArray(/*nat*/ int k, Parameter1 initVal) { 
-			return GenericValueArray(x10.lang.dist.factory.local(k), initVal);
+			return GenericValueArray(x10.lang.dist.factory.local(k), initVal, false);
 		}
 		/** Return the unique int value array initialized with init 
 		 * and defined over the distribution 0..k-1 -> here.
@@ -63,14 +63,14 @@ implements Indexable, Unsafe {
 		 * @return
 		 */
 		public genericArray/*(:rank=1)*/ GenericValueArray(/*nat*/ int k, pointwiseOp init) {
-			return GenericValueArray( x10.lang.dist.factory.local(k), init);
+			return GenericValueArray( x10.lang.dist.factory.local(k), init, false);
 		}
 		
 		abstract public 
-		/*(distribution D)*/ genericArray/*(D)*/ GenericValueArray(dist D, Parameter1 init);
+		/*(distribution D)*/ genericArray/*(D)*/ GenericValueArray(dist D, Parameter1 init, boolean refs_to_values);
 		abstract public 
 		/*(distribution D)*/ genericArray/*(D)*/ GenericValueArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
+				pointwiseOp/*(D.region)*/ init, boolean refs_to_values);
 		/** Return the unique int value array initialized with null 
 		 * and defined over the distribution 0..k-1 -> here.
 		 * 
@@ -100,7 +100,7 @@ implements Indexable, Unsafe {
 		}
 		
 		public GenericReferenceArray GenericReferenceArray( dist D) {
-			return GenericReferenceArray( D, (Parameter1)null);
+			return GenericReferenceArray( D, (Parameter1) null);
 		}
 		abstract public 
 		/*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericReferenceArray(dist D, Parameter1 init);
