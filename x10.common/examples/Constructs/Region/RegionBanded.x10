@@ -7,18 +7,28 @@
  *
  */
 
-public class RegionTriangular {
+public class RegionBanded {
 	
 	public boolean run() {
 		final region Universe=[0:7,0:7];
-		region upperT=region.factory.upperTriangular(8);
-		pr("upperT",upperT);
-		for(point [i,j]:Universe)
-		  chk(iff(i<=j,upperT.contains([i,j])));
-		region lowerT=region.factory.lowerTriangular(8);
-		pr("lowerT",lowerT);
+		region banded1=region.factory.banded(8,1);
+		pr("banded1",banded1);
 		for(point [i,j]:Universe) 
-		  chk(iff(i>=j,lowerT.contains([i,j])));
+		  chk(iff(i==j,banded1.contains([i,j])));
+		region banded2=region.factory.banded(8,2);
+		pr("banded2",banded2);
+		// not sure if 2nd band is to north or south of diagonal
+		for(point [i,j]:Universe) 
+		  chk(iff(j==i||j==i+1,banded2.contains([i,j])));
+		region banded3=region.factory.banded(8,3);
+		pr("banded3",banded3);
+		for(point [i,j]:Universe) 
+		  chk(iff(j==i-1||j==i||j==i+1,banded3.contains([i,j])));
+		region banded4=region.factory.banded(8,4);
+		pr("banded4",banded4);
+		for(point [i,j]:Universe) 
+		  chk(iff((j==i-1||j==i||j==i+1||j==i+2),
+		          banded4.contains([i,j])));
 		return true;
         }
 
@@ -46,7 +56,7 @@ public class RegionTriangular {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish async b.val=(new RegionTriangular()).run();
+                finish async b.val=(new RegionBanded()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
