@@ -38,7 +38,7 @@ import x10.runtime.ElementType;
 // this file is under construction....note that runFuture has not been
 // started
 public class RemotePlace extends Place {
-   public native long runAsync_(final Activity a);
+   public native long runAsync_(final Activity a, boolean isAFuture);
    public void runAsync(final Activity a) {
        Thread currentThread = Thread.currentThread();  
        if (currentThread instanceof ActivityRunner) {
@@ -53,7 +53,9 @@ public class RemotePlace extends Place {
        a.activityAsSeenByInvokingVM = Activity.thisActivityIsASurrogate;
        a.placeWhereRealActivityIsRunning = this;
        a.pseudoSerialize();
-       a.globalRefAddr = runAsync_(a);
+       // Yes, it would be better OO style to have runAync_ check
+       // the instanceof.  But that would mean even more JNI
+       a.globalRefAddr = runAsync_(a, a instanceof Activity.Expr);
 
    }
    
@@ -97,11 +99,14 @@ public class RemotePlace extends Place {
     
     System.out.println(" ----------------");
    }
+   
    RemotePlace(int vm_, int place_no_) {
       super(vm_, place_no_);
    }
    public Future runFuture(final Activity.Expr a) {
-      return new Future_c();
+      Future_c result = a.future = new Future_c();
+      runAsync(a);
+      return result;
    }
    public native void shutdown_();
    public void shutdown() {

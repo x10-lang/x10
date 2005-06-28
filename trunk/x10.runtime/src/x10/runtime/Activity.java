@@ -6,6 +6,7 @@ import java.util.Stack;
 import java.util.LinkedList;
 import java.util.List;
 import java.lang.reflect.*;
+import java.io.*;
 import x10.lang.MultipleExceptions;
 import x10.lang.ClockUseException;
 import x10.lang.clock;
@@ -316,7 +317,7 @@ public abstract class Activity implements Runnable {
      * that actually invoked it the news.  While you're at it, tell
      * that VM about any clocks of his that you no longer reference.
      **/
-    public native void finalizeTerminationOfSurrogate(int invokingVM, long activityAsSeenByInvokingVM, long[] clks);
+    public native void finalizeTerminationOfSurrogate(int invokingVM, long activityAsSeenByInvokingVM, long[] clks, byte[] serializedX10Result);
     
    /**
     * This activity has terminated normally. Now clean up. (Notify the finish ancestor,
@@ -343,8 +344,22 @@ public abstract class Activity implements Runnable {
             // Ready to finalize termination on surrogate (remote) Activity.
             // First, let's get a list of no longer used clocks on the
             // same VM as the surrogate.
-            long clks[] = RemoteObjectMap.deleteClockEntries(invokingVM);
-            finalizeTerminationOfSurrogate(invokingVM, activityAsSeenByInvokingVM, clks);
+            long[] clks = RemoteObjectMap.deleteClockEntries(invokingVM);
+            byte[] serializedX10Result = null;
+            if (this instanceof Expr) {
+               try {
+                  Field f = this.getClass().getDeclaredField("x10_result_");
+                  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                  ObjectOutputStream oos = new ObjectOutputStream(baos);
+                  f.setAccessible(true);
+                  oos.writeObject(f.get(this));
+                  serializedX10Result = baos.toByteArray();
+               } catch (Exception e) {
+                  System.err.println("Could not serialize the future's return");
+                  throw new Error(e);
+               }
+            }
+            finalizeTerminationOfSurrogate(invokingVM, activityAsSeenByInvokingVM, clks, serializedX10Result);
         }
     }
    
@@ -444,7 +459,7 @@ public abstract class Activity implements Runnable {
         int count = 0;
         Field f[] = getClass().getDeclaredFields();
         for (int i = 0; i < f.length; ++i) {
-            if (f[i].getName().indexOf("this$") == -1) {
+            if (f[i].getName().indexOf("this$") == -1 && f[i].getName().indexOf("x10_result_") == -1) {
                 if (f[i].getType() == x10.lang.clock.class) {
                     count += 2;
                 } else {
@@ -463,7 +478,7 @@ public abstract class Activity implements Runnable {
         try {
             for (int i = 0; i < f.length; ++i) {
                 f[i].setAccessible(true);
-                if (f[i].getName().indexOf("this$") == -1) {
+                if (f[i].getName().indexOf("this$") == -1 && f[i].getName().indexOf("x10_result_") == -1) {
                     if (f[i].getType() == x10.lang.clock.class) {
                         if (f[i].get(this) instanceof RemoteClock) {
                             RemoteClock rc = (RemoteClock) f[i].get(this);
@@ -484,7 +499,7 @@ public abstract class Activity implements Runnable {
                             } else if (nm.equals("long")) {
                                 pseudoSerializedLongArray[count++] = f[i].getLong(this);
                             } else {
-                                System.err.println("ahk fix this!");
+                                System.err.println("ahk fix this1! " + f[i].getName());
                                 pseudoSerializedLongArray[count++] = 0;
                             }
                         } else {
@@ -513,7 +528,7 @@ public abstract class Activity implements Runnable {
                 }
             } else {
                 if (ac.isArray()) {
-                    System.err.println("ahk fix this!");
+                    System.err.println("ahk fix this array!" + this.getClass().getDeclaredConstructors()[0]);
                 } else {
                     constructorSignature += ac.toString().replaceFirst("class ", "L").replaceFirst("interface ", "L").replaceAll("\\.", "/") + ";";
                 }
@@ -540,7 +555,7 @@ public abstract class Activity implements Runnable {
         Field f[] = getClass().getDeclaredFields();
         try {
             for (int i = 0; i < f.length; ++i) {
-                if (f[i].getName().indexOf("this$") == -1) {
+                if (f[i].getName().indexOf("this$") == -1 && f[i].getName().indexOf("x10_result_") == -1) {
                     f[i].setAccessible(true);
                     if (f[i].getType() == x10.lang.clock.class) {
                         RemoteClock r = RemoteClock.getMyVersionOfClock("remoteClock", (int) pseudoSerializedLongArray[count], (int) pseudoSerializedLongArray[count+1]);
@@ -554,7 +569,7 @@ public abstract class Activity implements Runnable {
                             } else if (nm.equals("long")) {
                                 f[i].setLong(this, pseudoSerializedLongArray[count++]);
                             } else {
-                                System.err.println("ahk fix this!");
+                                System.err.println("ahk fix this2! " + f[i].getName());
                                 count++;
                             }
                         } else {
@@ -589,6 +604,7 @@ public abstract class Activity implements Runnable {
          */
         public abstract x10.lang.Object getResult();
         public abstract void runSource();
+        byte[]  serializedX10Result;
         public void run() {
         	try {
         		try {
@@ -606,16 +622,51 @@ public abstract class Activity implements Runnable {
         		} 
         		stopFinish(); // this may throw an exception if a nested async did.
         		// Normal termination.
-        		future.setResult(getResult());
+                        if (activityAsSeenByInvokingVM == thisActivityIsLocal ||
+                            activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
+                            future.setResult(getResult());
+                        }
         	} catch (Throwable t) {
         		// Now nested asyncs have terminated.
         		future.setException(t);
         	}
         }
+
+        public void finalizeTermination() {
+            if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
+                try {
+                    Field f = this.getClass().getDeclaredField("x10_result_");
+                    ByteArrayInputStream bais = new ByteArrayInputStream(serializedX10Result);
+                    ObjectInputStream ois = new ObjectInputStream(bais);
+                    f.setAccessible(true);
+                    f.set(this, ois.readObject());
+                    future.setResult(getResult());
+                } catch (Exception e) {
+                    System.err.println("Could not deserialize the future's return " +e);
+                    throw new Error(e);
+                }
+            }
+            super.finalizeTermination();
+        }
         
         public void finalizeTermination(Throwable t) {
+            if (activityAsSeenByInvokingVM == thisActivityIsLocal) {
         	future.setException(t);
-        	super.finalizeTermination(t);
+            }
+            if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
+                try {
+                    Field f = this.getClass().getDeclaredField("x10_result_");
+                    ByteArrayInputStream bais = new ByteArrayInputStream(serializedX10Result);
+                    ObjectInputStream ois = new ObjectInputStream(bais);
+                    f.setAccessible(true);
+                    f.set(this, ois.readObject());
+                    future.setResult(getResult());
+                } catch (Exception e) {
+                    System.err.println("Could not deserialize the future's return");
+                    throw new Error(e);
+                }
+            }
+            super.finalizeTermination(t);
         }
         
     } // end of Activity.Expr
