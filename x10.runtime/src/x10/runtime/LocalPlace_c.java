@@ -188,7 +188,7 @@ public class LocalPlace_c extends Place {
         	Activity parent = ((ActivityRunner) currentThread).getActivity();
         	parent.finalizeActivitySpawn(a);
         }
-        
+
         a.initializeActivity();
         this.execute(new Runnable() {
             public void run() {
