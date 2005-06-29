@@ -390,7 +390,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         try {
             for (Iterator it = dist.iterator(); it.hasNext(); ) {
                 point p = (point) it.next();
-                place pl = distribution.get(p);
+                place pl = dist.get(p);
                 x10.lang.Runtime.runtime.setCurrentPlace(pl);
                 int val = (distribution.region.contains(p)) ? get(p) : d.get(p);
                 ret.set(val, p);
@@ -413,7 +413,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
             for (Iterator it = dist.iterator(); it.hasNext(); ) {
                 
                 point p = (point) it.next();
-                place pl = distribution.get(p);
+                place pl = dist.get(p);
                 x10.lang.Runtime.runtime.setCurrentPlace(pl);
                 ret.set(get(p), p);
             }
