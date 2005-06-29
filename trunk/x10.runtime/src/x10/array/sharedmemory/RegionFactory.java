@@ -2,6 +2,7 @@ package x10.array.sharedmemory;
 
 import x10.array.ContiguousRange;
 import x10.array.TriangularRegion;
+import x10.array.BandedRegion;
 import x10.array.EmptyRegion;
 import x10.array.MultiDimRegion;
 import x10.array.StridedRange;
@@ -52,7 +53,7 @@ public  class RegionFactory extends region.factory {
 	public region/*(rank)*/ upperTriangular( /*nat*/ int rank, /*nat*/ int size ) {
         region ret;
         if (rank != 2)
-            throw new Error("Triangular regsion of dimension != 2 not supported.");
+            throw new Error("Triangular region of dimension != 2 not supported.");
         else {
             ContiguousRange cr =  new ContiguousRange(0, size-1);
             region[] r = new region[] {cr, cr};
@@ -67,7 +68,7 @@ public  class RegionFactory extends region.factory {
 	public region/*(rank)*/ lowerTriangular( /*nat*/ int rank, /*nat*/ int size ) {
 		region ret;
         if (rank != 2)
-            throw new Error("Triangular regsion of dimension != 2 not supported.");
+            throw new Error("Triangular region of dimension != 2 not supported.");
         else {
             ContiguousRange cr =  new ContiguousRange(0, size-1);
             region[] r = new region[] {cr, cr};
@@ -82,6 +83,14 @@ public  class RegionFactory extends region.factory {
 	public region/*(rank)*/ banded( /*nat*/ int rank, 
 			/*nat*/ int size, 
 			/*nat*/ int width) {
-		throw new Error("not implemented");	    
+        region ret;
+        if (rank != 2)
+            throw new Error("Banded region of dimension != 2 not supported.");
+        else {
+            ContiguousRange cr =  new ContiguousRange(0, size-1);
+            region[] r = new region[] {cr, cr};
+            ret = new BandedRegion(r, width);
+        }
+        return ret;
 	}
 }

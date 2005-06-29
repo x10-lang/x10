@@ -1,3 +1,4 @@
+
 package x10.array;
 
 import java.util.Iterator;
@@ -8,44 +9,47 @@ import x10.lang.region;
 /**
  * @author Christoph von Praun
  */
-public class TriangularRegion extends region {
+public class BandedRegion extends region {
 
-    private final boolean isLower_;
+    private final int bands_;
     private final region[] dims_;
     private final int size_;
+    /* this is the number of vars that are not in the matrix (shadow cells) */
+    private final int offset_;
     /**
      * @param rank
      */
-    public TriangularRegion(region[] dims, boolean is_lower) {
+    public BandedRegion(region[] dims, int bands) {
         super(2); // rank must be == 2
-        // all regions must be one dimensional and have the same size > 0
-        assert (dims != null && dims.length == rank);
-        int size = dims[0].size();
-        assert (size > 0);
+        // all regions must be one dimensional and have the same size > 0        
+        assert (dims != null && dims.length == rank);      
+        int size, tmp_offset, tmp_size = dims[0].size();
+        assert (tmp_size > 0);
+        
         for (int i = 0; i < dims.length; ++i) {
             assert (dims[i] instanceof ContiguousRange);
-            assert (dims[i].size() == size);
+            assert (dims[i].size() == tmp_size);
         }
-        size_ = gauss_(size);
-        isLower_ = is_lower;
+        
+        // number of bands must be odd
+        assert (bands >= 1 && bands % 2 == 1);       
+        assert (bands <= tmp_size);
+        bands_ = bands;
         dims_ = dims;
+        // calculate the size
+        size = tmp_size;
+        for (int i = bands_ - 1; i > 0; i-=2) {
+            tmp_size += 2 * (size - 1);
+            size --;
+        }
+        size_ = tmp_size;
+        int tmp = (bands_ - 1) / 2;
+        offset_ = (tmp * (tmp + 1)) / 2;       
+        System.out.println(this);
     }
-
+    
     public int size() {
         return size_;
-    }
-    
-    private int gauss_(int n) {
-        int ret = (n <= 0) ? 0 : ((n * (n + 1)) / 2);
-        // System.out.println("gauss_(" + n +")=" + ret);
-        return ret;
-    }
-    
-    private int inv_gauss_(int x) {
-        assert (x >= 0);
-        int ret = (int) ((Math.sqrt(8 * x + 1.0) - 1.0) / 2.0);
-        // System.out.println("inv_gauss_(" + x +")=" + ret);
-        return ret;
     }
     
     public region rank(int index) {
@@ -59,11 +63,11 @@ public class TriangularRegion extends region {
     }
 
     public int low() {
-        throw new UnsupportedOperationException("TriangularRegion::low");
+        throw new UnsupportedOperationException("BandedRegion::low");
     }
 
     public int high() {
-        throw new UnsupportedOperationException("TriangularRegion::high");
+        throw new UnsupportedOperationException("BandedRegion::high");
     }
 
     public region union(region r) {
@@ -107,14 +111,14 @@ public class TriangularRegion extends region {
         return contains_(p[0], p[1]);
     }
 
-    private boolean contains_(int a, int b) {
-        int a_normal = a - dims_[0].low();
-        int b_normal = b - dims_[1].low();
-        boolean ul_criterion = (isLower_) ? (a_normal >= b_normal) : (a_normal <= b_normal);
+    private boolean contains_(int a, int b) {        
+        int a_ordinal = a - dims_[0].low();
+        int b_ordinal = b - dims_[1].low();
         boolean size_criterion = 
             dims_[0].contains(new int[] {a}) && 
             dims_[1].contains(new int[] {b});
-        return ul_criterion && size_criterion;
+        boolean band_criterion = Math.abs(a_ordinal - b_ordinal) <= (bands_ - 1) / 2;
+        return band_criterion && size_criterion;
     }
     
     public boolean disjoint(region r) {
@@ -136,38 +140,34 @@ public class TriangularRegion extends region {
         return ret;
     }
     
-    private int ordinal_(int a, int b) {
-        int a_normal, b_normal;
-        if (!isLower_) {
-            a_normal = dims_[0].high() - a;
-            b_normal = dims_[1].high() - b;
-        } else {
-            a_normal = a - dims_[0].low();
-            b_normal = b - dims_[1].low();
-        }
-        return gauss_(a_normal) + b_normal;
+    private int ordinal_(int x, int y) {
+        int x_ordinal = x - dims_[0].low();
+        int y_ordinal = y - dims_[1].low();
+        int ret = x_ordinal * bands_;
+        ret += (y_ordinal - x_ordinal) + ((bands_ - 1) / 2);
+        ret -= offset_;
+        return ret;
     }
-    
+        
     public point coord(int ord) throws ArrayIndexOutOfBoundsException {
         assert ord >= 0;        
         point ret;
-        int x_normal, y_normal;
+        int x_ordinal, y_ordinal;
         int[] tmp;
         if (ord >= size())
             throw new ArrayIndexOutOfBoundsException();
-        else {
-            x_normal = inv_gauss_(ord);
-            y_normal = ord - gauss_(x_normal);
-            if (isLower_)
-                tmp = new int[] {x_normal + dims_[0].low(), y_normal + dims_[1].low()};                
-            else              
-                tmp = new int[] {dims_[0].high() - x_normal, dims_[1].high() - y_normal}; 
+        else {          
+            ord = ord + offset_;
+            x_ordinal = ord / bands_;
+            y_ordinal = (ord % bands_) + x_ordinal - ((bands_ - 1) / 2);           
+            tmp = new int[] {x_ordinal + dims_[0].low(), y_ordinal + dims_[1].low()};
             ret = point.factory.point(this, tmp);
         }
+        System.out.println("coord (" + ord + ") = " + ret);
         return ret;
     }
 
-    private class TriangularRegionIterator_ implements Iterator {
+    private class BandedRegionIterator_ implements Iterator {
         private int nextOrd_ = 0;
         
         public boolean hasNext() {
@@ -175,7 +175,7 @@ public class TriangularRegion extends region {
         }
         
         public void remove() {
-            throw new UnsupportedOperationException("TriangularRegionIterator_::remove - not implemented");
+            throw new UnsupportedOperationException("BandedRegionIterator_::remove - not implemented");
         }
         
         public java.lang.Object next() {
@@ -185,13 +185,12 @@ public class TriangularRegion extends region {
     }
     
     public Iterator iterator() {
-        return new TriangularRegionIterator_();
+        return new BandedRegionIterator_();
     }
 
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(isLower_ ? "upper" : "lower");
-        sb.append("-triangular(");
+        sb.append("banded-region(bands=" + bands_ + ", size=" + size_ + ", offset=" + offset_ + ", ");
         sb.append(dims_[0].toString());
         sb.append(", ");
         sb.append(dims_[1].toString());
