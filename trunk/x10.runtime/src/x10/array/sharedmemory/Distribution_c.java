@@ -386,8 +386,8 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
             super(r);
             this.places.add(p);
             place_ = p;
-            
         }
+        
         /** Returns the place to which the point p in region is mapped.
          */
         public place get(point/*(region)*/ p) {
