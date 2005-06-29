@@ -53,8 +53,7 @@ extends region/*(1)*/ {
 	public boolean contains( int[] p) {
 	    return contains(point.factory.point(Range.this, p));
 	}
-	
-	
+		
 	public int high() {
 		return hi;
 	}

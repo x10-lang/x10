@@ -103,15 +103,23 @@ public class ContiguousRange extends Range {
 	}
 	
 	public boolean contains(point p) {
-		assert p.rank == 1;
-		int val = p.get(0);
-		return lo <= val && val <= hi; 
+        boolean ret;
+        if (p.rank == 1) {
+            int val = p.get(0);
+            ret = lo <= val && val <= hi;
+        } else
+            ret = false;
+        return ret;
 	}
 	
 	public boolean contains(int[] p) {
-		assert p.length == 1;
-		int val = p[0];
-		return lo <= val && val <= hi; 
+		boolean ret;
+        if (p.length == 1) {
+		    int val = p[0];
+		    ret = p.length == 1 && lo <= val && val <= hi;
+        } else
+            ret = false;
+        return ret;
 	}
 	
 	public boolean contains(region r) {

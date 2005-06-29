@@ -98,13 +98,24 @@ public class TriangularRegion extends region {
     }
 
     public boolean contains(point p) {
-        assert (p.rank == 2);
-        return contains_(p.get(0), p.get(1));
+        assert (p != null);
+        boolean ret;
+        if (p.rank == 2) 
+            ret = contains_(p.get(0), p.get(1));
+        else
+            ret = false;
+        return ret;
+            
     }
 
     public boolean contains(int[] p) {
-        assert (p != null && p.length == 2);
-        return contains_(p[0], p[1]);
+        assert (p != null);
+        boolean ret;
+        if (p.length == 2)
+            ret = contains_(p[0], p[1]);
+        else
+            ret = false;
+        return ret;
     }
 
     private boolean contains_(int a, int b) {
