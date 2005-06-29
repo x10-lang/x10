@@ -1,5 +1,5 @@
 /**
- * @author Christian Grothoff
+ * @author Christoph von Praun, Christian Grothoff
  */
 public class RemoteAccessCheck {
 	public static boolean run() {
@@ -9,10 +9,13 @@ public class RemoteAccessCheck {
 			return false;
 		}
 		final A a = future(d[0]) { new A() }.force();
-	    int error = future(d[1]) { check(a) }.force();
+	    int error = future(d[1]) { checkField(a) }.force();
 	    if (error != 0)
 	        System.out.println(error);
-	    return error == 0;
+	    int error2 = future(d[1]) { checkMethod(a) }.force();
+	    if (error2 != 0)
+	        System.out.println(error2);
+	    return error == 0 && error2 == 0;
 	}
 	
     public static void main(String[] args) {
@@ -30,24 +33,22 @@ public class RemoteAccessCheck {
         boolean val=false;
     }
 
-	static int check(A a) {
-		try {
-			a.a[1] = 42;
-			return 1;
-		} catch (java.lang.AssertionError ae) {
-		}
-		/*
+	static int checkField(A a) {
 		try {
 		    a.f.a = a;
 		    return 2;
 		} catch (BadPlaceException bpe) {
 		}
+		return 0;
+		
+	}
+        static int checkMethod(A a) {
 		try {
 		    a.f.m();
 		    return 3;
 		} catch (BadPlaceException bpe) {
 		}
-		*/
+		
 		return 0;
 		
 	}
