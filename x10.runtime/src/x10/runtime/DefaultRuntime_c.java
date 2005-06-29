@@ -74,11 +74,11 @@ public class DefaultRuntime_c extends Runtime {
     /**
      * The places of this X10 Runtime (for now a constant set).
      */
-    private final Place[] places_;
+    protected final Place[] places_;
     /**
      * localPlaces_ is a subset of places_
      */
-    private final Place[] localPlaces_;
+    protected final Place[] localPlaces_;
     
     public DefaultRuntime_c() {
         int pc = 0;
@@ -94,6 +94,7 @@ public class DefaultRuntime_c extends Runtime {
         this.places_ = new Place[pc];
         this.localPlaces_ = new Place[lp];
     }
+    
     /**
      * Initialize the places in the XVM.
      */
