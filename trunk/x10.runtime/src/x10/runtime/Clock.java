@@ -6,6 +6,7 @@ import java.util.Set;
 import x10.lang.ClockUseException;
 import x10.lang.Runtime;
 import x10.lang.clock;
+import x10.runtime.distributed.RemoteClock;
 
 /**
  * Implementation of Clock.  Technically the spec says that this is
@@ -201,7 +202,7 @@ public /* final */ class Clock extends clock {
 	/**
 	 * Register the current activity with this clock.
 	 */
-	synchronized void register(Activity a ) {
+	public synchronized void register(Activity a ) {
                 /* TODO ... a better authorizer for multi-VM case */
 		Activity authorizer =
                    a.activityAsSeenByInvokingVM==Activity.thisActivityIsLocal ?
@@ -314,7 +315,7 @@ public /* final */ class Clock extends clock {
 	 * @return true if the activity has already dropped this
 	 *   clock (or if it never was registered).
 	 */
-	synchronized boolean drop(Activity a) {
+	public synchronized boolean drop(Activity a) {
 	   
 		boolean ret = activities_.remove(a);
 		if (ret) activityCount_--;

@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import x10.runtime.distributed.VMInfo;
+
 
 
 /**

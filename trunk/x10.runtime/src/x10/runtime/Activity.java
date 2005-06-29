@@ -9,7 +9,9 @@ import java.lang.reflect.*;
 import java.io.*;
 import x10.lang.MultipleExceptions;
 import x10.lang.ClockUseException;
-import x10.lang.clock;
+import x10.runtime.distributed.RemoteClock;
+import x10.runtime.distributed.RemoteObjectMap;
+import x10.runtime.distributed.VMInfo;
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -441,7 +443,7 @@ public abstract class Activity implements Runnable {
      **/
     public long globalRefAddr;
 
-    void pseudoSerialize() {
+    public void pseudoSerialize() {
         clocksMappedToGlobalAddresses = new long[clocks_.size() << 1];
         for (int i = 0; i < clocks_.size(); ++i) {
             Clock c = ((Clock) clocks_.get(i));
@@ -540,7 +542,7 @@ public abstract class Activity implements Runnable {
         constructorSignature += ")V";
     }
 
-    void pseudoDeSerialize() {
+    public void pseudoDeSerialize() {
         assert clocks_.isEmpty();
         assert (clocksMappedToGlobalAddresses.length & 1) == 0;
         for (int i = 0; i < clocksMappedToGlobalAddresses.length; i += 2) {
