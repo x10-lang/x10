@@ -60,8 +60,8 @@ public class X10Boxer extends AscriptionVisitor
             	    ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
         	    } else {
         	        ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
-        	    }
-        	    return ret_notype.type(target_t);
+        	    }        	    
+                return ret_notype.type(fromType);
         	}
         }
                 
