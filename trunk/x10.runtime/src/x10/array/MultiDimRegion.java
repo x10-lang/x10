@@ -131,22 +131,28 @@ public class MultiDimRegion extends region  {
     }
     
     public boolean contains(point p) {
-        assert p.rank == rank;
-        boolean ret = true;
-        for (int i = 0; ret && i < rank; ++i) {
-            int[] coord = {p.get(i)};
-            ret = dims_[i].contains(coord);
-        }
+        boolean ret;
+        if (p.rank == rank) {
+            ret = true;
+            for (int i = 0; ret && i < rank; ++i) {
+                int[] coord = {p.get(i)};
+                ret = dims_[i].contains(coord);
+            }
+        } else
+            ret = false;
         return ret;
     }
     
     public boolean contains(int[] val) {
-        assert val.length == rank;
-        boolean ret = true;
-        for (int i = 0; ret && i < rank; ++i) {
-            int[] coord = {val[i]};
-            ret = dims_[i].contains(coord);
-        }
+        boolean ret;
+        if (val.length == rank) {
+            ret = true;
+            for (int i = 0; ret && i < rank; ++i) {
+                int[] coord = {val[i]};
+                ret = dims_[i].contains(coord);
+            }
+        } else 
+            ret = false;
         return ret;
     }
     

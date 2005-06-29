@@ -107,8 +107,8 @@ public class BandedRegion extends region {
     }
 
     public boolean contains(int[] p) {
-        assert (p != null && p.length == 2);
-        return contains_(p[0], p[1]);
+        assert (p != null);
+        return (p.length == 2) && contains_(p[0], p[1]);
     }
 
     private boolean contains_(int a, int b) {        

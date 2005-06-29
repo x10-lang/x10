@@ -256,7 +256,6 @@ public class ArbitraryRegion extends region {
      */
     public boolean contains(point p) {
         assert p != null;
-        assert p.rank == rank;
         
         return points_.contains(p);
     }
@@ -266,7 +265,6 @@ public class ArbitraryRegion extends region {
      */
     public boolean contains(int[] p) {
         assert p != null;
-        assert p.length == rank;
         
         boolean ret;
         if (p.length == rank) {
