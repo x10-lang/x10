@@ -807,6 +807,10 @@ public TestCompiler(String name) {
         run("./RegionAlgebra.x10","RegionAlgebra","./Constructs/Region");
     }
 
+    public void test_Constructs_Region_RegionBanded() {
+        run("./RegionBanded.x10","RegionBanded","./Constructs/Region");
+    }
+
     public void test_Constructs_Region_RegionConvexHull() {
         run("./RegionConvexHull.x10","RegionConvexHull","./Constructs/Region");
     }
