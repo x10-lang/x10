@@ -367,10 +367,17 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public IntReferenceArray overlay(x10.lang.intArray d) {
         dist dist = distribution.overlay(d.distribution);
         IntArray_c ret = new IntArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            int val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
-            ret.set(val, p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {                
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                int val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
         return ret;
     }
