@@ -57,6 +57,8 @@ import x10.lang.complex4Array;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
+import x10.runtime.distributed.RemotePlace;
+import x10.runtime.distributed.VMInfo;
 
 /**
  * Default implementation of Runtime. Considerably revised 5/16 by vj

@@ -11,15 +11,15 @@ import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
-import x10.runtime.RemotePlace;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.FloatReferenceArray;
 import x10.runtime.Configuration;
-import x10.runtime.FatPointer;
 import x10.runtime.ElementType;
+import x10.runtime.distributed.FatPointer;
+import x10.runtime.distributed.RemotePlace;
 
 
 /**

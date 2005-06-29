@@ -15,7 +15,7 @@ import x10.lang.Object;
  * @author Christoph von Praun
  * @author vj
  */
-final class Future_c extends Future {
+public final class Future_c extends Future {
 
     private boolean haveResult_;
        
@@ -28,8 +28,7 @@ final class Future_c extends Future {
     
     private Object result_;
     
-    Future_c() {}  
-    
+    public Future_c() {}  
     
     /**
      * Set the result value returned by this async call.
