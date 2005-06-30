@@ -75,9 +75,9 @@ public boolean run() {
         (nullable clock)[.] W= new (nullable clock)[D];
         for(point [i,j]:D){W[i,j]=clock.factory.clock();}       
 
-        foreach(point [i,j]:Dinner) 
+        foreach(point [i,j] : Dinner)
             clocked(N[i-1,j],W[i,j-1],N[i,j],W[i,j]) {
-                for(point [n]:3:(i+j)) {
+                for(point [n]: [3:(i+j)]) {
                     randDelay(DELAY);
                     pr1(i,j,n);
                     next;
