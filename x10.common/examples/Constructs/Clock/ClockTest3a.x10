@@ -14,7 +14,7 @@ public class ClockTest3a {
     public boolean run() {
         final clock c = clock.factory.clock();
         
-        foreach (point [i]: 0:(N-1)) clocked(c) {
+        foreach (point [i]: [0:(N-1)]) clocked(c) {
             async(here) clocked(c) finish async(here) {atomic val++;}
             next;
             if (val != N) {

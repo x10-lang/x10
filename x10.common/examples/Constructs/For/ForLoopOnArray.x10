@@ -7,7 +7,7 @@ public class ForLoopOnArray {
         const int N=3;
 
 	public boolean run() {
-		double[.] a = new double[0:10] (point [i]) { return i;};
+		double[.] a = new double[[0:10]] (point [i]) { return i;};
 		
 		for(point [i]: a) {
 			if (a[i] != i) return false;

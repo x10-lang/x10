@@ -40,7 +40,7 @@ public class ArrayAlgebra2 {
 		//TODO: scan does not need a unit operand
 		arrEq(ia1.scan(booleanArray.or,false),
 		      new boolean[D](point [i])
-		      {return (ia1|(0:i)).reduce(booleanArray.or,false);});
+		      {return (ia1|[0:i]).reduce(booleanArray.or,false);});
 		arrEq((makeArray(D0, true)||makeArray(D1,false)).lift(booleanArray.xor,makeArray(D01, true)),
 		      (makeArray(D0, false)||makeArray(D1,true))); 
 

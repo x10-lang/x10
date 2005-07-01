@@ -17,7 +17,7 @@ public class NullableArray3_MustFailCompile {
 		
 		int[] ia1 = new int[2];
 		if (ia1==null) return false;
-		mycomplex[.] ia2 = new mycomplex[(0:2)->here]
+		mycomplex[.] ia2 = new mycomplex[[0:2]->here]
                  (point [i]) {return new mycomplex();};
 		if (ia2==null) return false;
 		if (ia2[2]==null) return false;

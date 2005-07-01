@@ -30,7 +30,7 @@ public class Exceptions3_MustFailTimeout {
 	     try {
 		finish {
 		 ateach(point [i]:dist.factory.unique()) {
-			foreach(point [j]:1:M)
+			foreach(point [j]: [1:M])
 				memoryHog();
 		 }
 		 async(here) await(!X.t());

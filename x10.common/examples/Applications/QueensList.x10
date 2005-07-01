@@ -47,7 +47,7 @@ public value class QueensList {
     * nullary constructor: create an empty value array
     */
    public QueensList() {
-       q= new int value[(0:-1)->here];
+       q= new int value[[0:-1]->here];
    }
 
    /**
@@ -55,7 +55,7 @@ public value class QueensList {
     */
    public QueensList(final int value [.] oldList, final int newItem) {
        final int n= length(oldList);
-       q= new int value[(0:n)->here] 
+       q= new int value[[0:n]->here] 
           (point [j]) {return j<n? oldList[j]: newItem;};
    }
 
@@ -86,7 +86,7 @@ public value class QueensList {
    //Exists(row k:0..n-1)(sameColumn(j,q[k])||sameDiagonal(<n,j>,<k,q[k]>))
 
        int n= length(q); // the next row to place a queen
-       for(point [k]: 0:(n-1)) {
+       for(point [k]: [0:(n-1)]) {
          if (j==q[k] ||                       // same column
              Math.abs(n-k)==Math.abs(j-q[k])) // same diagonal 
              return true; 
@@ -116,7 +116,7 @@ public value class QueensList {
    public void Q() {
        if (length(q)==N) {async(nSolutions.location) atomic nSolutions.val++; return;}
            
-       foreach (point p[k]: 0:(N-1)) {//try all columns of next row
+       foreach (point p[k]: [0:(N-1)]) {//try all columns of next row
 	       if (!attacks(k)) {
                async(loadBalancer.choosePlace())
                      {(new QueensList(q,k)).Q();};

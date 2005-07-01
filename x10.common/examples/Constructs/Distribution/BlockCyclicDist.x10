@@ -22,7 +22,7 @@ public class BlockCyclicDist {
 	final int COUNT=200;
 	final int L=5;
 	final int K=1;
-	   for(point [tries]:1:COUNT) {
+	   for(point [tries]: [1:COUNT]) {
 		final int lb1=ranInt(-L,L);
 		final int lb2=ranInt(-L,L);
 		final int ub1=ranInt(lb1,L); 

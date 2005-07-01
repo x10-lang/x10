@@ -49,21 +49,21 @@ public class ClockTest10a {
 	}
 
 	void taskA(final clock a) { 
-          for(point [k]:1:N) {
+          for(point [k]: [1:N]) {
  	     varA[ph(k)]=k;
 	     System.out.println(k+" A producing "+varA[ph(k)]);
              next;
           }
         }
 	void taskB(final clock a, final clock b) { 
-          for(point [k]:1:N) {
+          for(point [k]: [1:N]) {
 	     varB[ph(k)]=varA[ph(k-1)]+varA[ph(k-1)];
              System.out.println(k+" B consuming oldA producing "+varB[ph(k)]);
              next;
            }
         }
 	void taskC(final clock a, final clock c) { 
-          for(point [k]:1:N) {
+          for(point [k]: [1:N]) {
 	     varC[ph(k)]=varA[ph(k-1)]*varA[ph(k-1)];
 	     System.out.println(k+" C consuming oldA producing "+ varC[ph(k)]);
              next;
@@ -72,7 +72,7 @@ public class ClockTest10a {
         
 	void taskD(final clock b, final clock c) { 
 	     
-          for(point [k]:1:N) {
+          for(point [k]: [1:N]) {
 	     varD[ph(k)]=varB[ph(k-1)]+varC[ph(k-1)]+10;
 	     System.out.println(k+" D consuming oldC producing "+varD[ph(k)]);
 	     int n=k-pipeDepth;
@@ -81,7 +81,7 @@ public class ClockTest10a {
           }
         }
 	void taskE(final clock c) { 
-          for(point [k]:1:N) {
+          for(point [k]: [1:N]) {
 	     varE[ph(k)]=varC[ph(k-1)]*7;
 	     System.out.println(k+" E consuming oldC producing "+varE[ph(k)]);
 	     int n=k-pipeDepth;

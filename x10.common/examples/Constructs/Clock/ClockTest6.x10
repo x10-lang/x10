@@ -67,11 +67,11 @@ public class ClockTest6 {
             final clock e = clock.factory.clock();
             // Spawn subactivities using different subset of the clocks
             // The subactivities will perform N_NEXTS next pairs each
-            for(point [i]:1:N_INSTANCES) {
+            for(point [i]: [1:N_INSTANCES]) {
                 
         /*Activity kind:1 clocks=(c)*/
         async(here)clocked(c)
-        for(point [tick]:0:(N_NEXTS)-1){
+        for(point [tick]: [0:(N_NEXTS)-1]){
             // do work
             doWork("1_",i,"(c)",tick);
             next;//barrier
@@ -82,7 +82,7 @@ public class ClockTest6 {
                 
         /*Activity kind:2 clocks=(c,d)*/
         async(here)clocked(c,d)
-        for(point [tick]:0:(N_NEXTS)-1){
+        for(point [tick]: [0:(N_NEXTS)-1]){
             // do work
             doWork("2_",i,"(c,d)",tick);
             next;//barrier
@@ -93,7 +93,7 @@ public class ClockTest6 {
                 
         /*Activity kind:3 clocks=(c,e)*/
         async(here)clocked(c,e)
-        for(point [tick]:0:(N_NEXTS)-1){
+        for(point [tick]: [0:(N_NEXTS)-1]){
             // do work
             doWork("3_",i,"(c,e)",tick);
             next;//barrier
@@ -104,7 +104,7 @@ public class ClockTest6 {
                 
         /*Activity kind:4 clocks=(c,d,e)*/
         async(here)clocked(c,d,e)
-        for(point [tick]:0:(N_NEXTS)-1){
+        for(point [tick]: [0:(N_NEXTS)-1]){
             // do work
             doWork("4_",i,"(c,d,e)",tick);
             next;//barrier

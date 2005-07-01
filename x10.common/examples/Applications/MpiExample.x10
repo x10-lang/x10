@@ -27,7 +27,7 @@ public class MpiExample {
 		// a random time, and results will arrive from the producers
 		// in an arbitrary order.
 		
-		finish ateach(point [k] : (0:place.MAX_PLACES-1)->here) {
+		finish ateach(point [k] : [0:place.MAX_PLACES-1]->here) {
 			future(P[k]){new T(k)}.force().consume();
 		} 
 		System.out.println("Total items consumed="+T.nConsumed.value);

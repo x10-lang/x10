@@ -24,7 +24,7 @@ public class IntArrayExternUnsafe {
 	public boolean run(){
 		int high = 10;
 		boolean verified=false;
-		dist d= (0:high) -> here;
+		dist d= [0:high] -> here;
 		int [.] y = new int unsafe[d]; 
 		
 		for(int j=0;j < 10;++j){

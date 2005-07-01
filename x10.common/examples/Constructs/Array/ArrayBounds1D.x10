@@ -39,7 +39,7 @@ private static boolean arrayAccess(int lb1, int ub1, int i) {
 
 //pr(lb1+" "+ub1+" "+i);
 
-int[.] a =new int[(lb1:ub1)->here];
+int[.] a =new int[[lb1:ub1]->here];
 
 boolean withinBounds=true;
 try {

@@ -90,7 +90,7 @@ public class ClockTest13 {
 	}
 	
 	void taskA(final clock a) { 
-		for(point [k]:1:N) {
+		for(point [k]: [1:N]) {
 			System.out.println(k+" A new phase");
 			atomic phaseA++;
 			System.out.println(k+" A resuming a");
@@ -107,7 +107,7 @@ public class ClockTest13 {
 		}
 	}
 	void taskB(final clock a, final clock b) { 
-		for(point [k]:1:N) {
+		for(point [k]: [1:N]) {
 			System.out.println(k+" B new phase");
 			atomic phaseB++;
 			System.out.println(k+" B resuming a");
@@ -119,7 +119,7 @@ public class ClockTest13 {
 		}
 	}
 	void taskC(final clock b, final clock c) { 
-		for(point [k]:1:N) {
+		for(point [k]: [1:N]) {
 			System.out.println(k+" C new phase");
 			atomic phaseC++;
 			System.out.println(k+" C resuming b");
@@ -133,7 +133,7 @@ public class ClockTest13 {
 	
 	void taskD(final clock c) { 
 		
-		for(point [k]:1:N) {
+		for(point [k]: [1:N]) {
 			System.out.println(k+" D new phase");
 			atomic phaseD++;
 			System.out.println(k+" D resuming c");

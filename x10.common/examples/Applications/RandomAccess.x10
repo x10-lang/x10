@@ -145,7 +145,7 @@ static value class ranNum extends x10.lang.Object {
     * create a simple 1D blocked dist
     */
    dist block (int arraySize) {
-      return dist.factory.block(0:(arraySize-1));
+      return dist.factory.block([0:(arraySize-1)]);
    }
     
    /**
@@ -161,7 +161,7 @@ static value class ranNum extends x10.lang.Object {
    public boolean run() {  	
     // A small value Table that will be copied to all processors
     final ranNum value[.] SmallTable = 
-        new ranNum value[(0:S_TABLE_SIZE-1)->here]
+        new ranNum value[[0:S_TABLE_SIZE-1]->here]
           (point [i]) {return new ranNum(i*S_TABLE_INIT);};        
     // distributed histogram Table
     final ranNum[.] Table = new ranNum[block(TABLE_SIZE)]
@@ -173,7 +173,7 @@ static value class ranNum extends x10.lang.Object {
     // and do remote atomic updates on corresponding Table elements
     finish ateach (point [i]: RanStarts) {
         ranNum ran = RanStarts[i].nextRandom();
-        for(point [count]: 1:N_UPDATES_PER_PLACE) {
+        for(point [count]: [1:N_UPDATES_PER_PLACE]) {
             System.out.println("Place "+i+" iteration "+count);
             final int  J = ran.f();
             final ranNum K = SmallTable[ran.g()]; 

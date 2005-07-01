@@ -88,7 +88,7 @@ public boolean run() {
             final clock n11=N[i,j];
             final clock w11=W[i,j];
             async clocked(n01,w10,n11,w11) {
-                for(point [n]:3:(i+j)) {
+                for(point [n]: [3:(i+j)]) {
                     randDelay(DELAY);
                     pr1(i,j,n);
                     next;

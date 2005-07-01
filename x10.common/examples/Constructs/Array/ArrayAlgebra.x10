@@ -34,7 +34,7 @@ public class ArrayAlgebra {
 		chk(ia1.sum()==9*N/4);
 		arrEq(ia1.scan(intArray.add,0),
 		      new int[D](point [i])
-		      {return (ia1|(0:i)).reduce(intArray.add,0);});
+		      {return (ia1|[0:i]).reduce(intArray.add,0);});
 		arrEq(makeArray(D01, 1).lift(intArray.add,makeArray(D01, -4)),
 		      makeArray(D01, -3)); 
 		// are we still supporting +,-,... on arrays?

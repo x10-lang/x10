@@ -24,11 +24,11 @@ public class NullableArray2 {
 		nullable (nullable int)[.] ia3 = null;
 		if (ia3!=null) return false;
 
-		ia3 = new (nullable int)[(0:2)->here];
+		ia3 = new (nullable int)[[0:2]->here];
 		if (ia3[2]!=null) return false;
 
 		if (X.trueFun()) {
-			ia3 = new int[(0:2)->here];
+			ia3 = new int[[0:2]->here];
 			if (ia3[2]!=0) return false;
 		}
 
@@ -42,12 +42,12 @@ public class NullableArray2 {
 			
 
 		(nullable mycomplex)[.] ia4 =
-		 new (nullable mycomplex)[(0:2)->here]
+		 new (nullable mycomplex)[[0:2]->here]
                  (point [i]) {return new mycomplex();};
 		if (ia4[2].im!=0) return false;
 
 		nullable (nullable mycomplex)[.] ia5 = 
-		  new (nullable mycomplex)[(0:2)->here]
+		  new (nullable mycomplex)[[0:2]->here]
                   (point [i]) {return new mycomplex();};
 		if (ia5[2].im!=0) return false;
 
@@ -55,12 +55,12 @@ public class NullableArray2 {
 		if (ia7!=null) return false;
 
 		nullable (nullable mycomplex)[.] ia8 = 
-			new mycomplex[(0:2)->here]
+			new mycomplex[[0:2]->here]
                  	(point [i]) {return new mycomplex();};
 		if (ia8[2].im!=0) return false;
 
 		nullable (nullable mycomplex)[.] ia9 = 
-			new (nullable mycomplex)[(0:2)->here];
+			new (nullable mycomplex)[[0:2]->here];
 		if (ia9[2]!=null) return false;
 		
 
