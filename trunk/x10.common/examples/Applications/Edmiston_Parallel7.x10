@@ -138,12 +138,12 @@ class EditDistMatrix {
         System.out.println("Matrix EditDistance is:");
 
         System.out.print(pad(' '));
-        for(point [j]:0:M) System.out.print(pad(c2.s[j]));
+        for(point [j]: [0:M]) System.out.print(pad(c2.s[j]));
         System.out.println();
 
-        for(point [i]:0:N){
+        for(point [i]: [0:N]){
             System.out.print(pad(c1.s[i]));
-            for(point [j]:0:M) System.out.print(pad(readElem(i,j)));
+            for(point [j]: [0:M]) System.out.print(pad(readElem(i,j)));
             System.out.println();
         }
     }
