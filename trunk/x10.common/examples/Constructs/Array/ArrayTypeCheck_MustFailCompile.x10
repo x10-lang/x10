@@ -15,7 +15,7 @@ public class ArrayTypeCheck_MustFailCompile {
 	public boolean run() {
 		int [.] a1=new int[[0:2,0:3]->here](point p[i]){ return i;};
 		System.out.println("1");
-		int [.] a2=(int[(-1:-2)->here])a1;
+		int [.] a2=(int[[-1:-2]->here])a1;
 		System.out.println("2");
 		int [.] a3=(int[dist.factory.unique()])a2;
 		System.out.println("3");

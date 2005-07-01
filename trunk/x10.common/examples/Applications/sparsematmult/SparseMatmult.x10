@@ -48,7 +48,7 @@ public class SparseMatmult
         final clock c = clock.factory.clock();
 	final dist p = dist.factory.unique(place.places);
 	finish {
-	    foreach(point [i] : [(0 : place.MAX_PLACES - 1)]) {
+	    foreach(point [i] : [0 : place.MAX_PLACES - 1]) {
 		async(p[i]) {
 		    new SparseRunner(i, val, row, col, x, NUM_ITERATIONS, nz, lowsum, highsum).run(yt);
 		}
