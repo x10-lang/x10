@@ -139,7 +139,7 @@ public class RandomAccess_skewed {
      * create a simple 1D blocked dist
      */
     private static dist block (int arraySize) {
-       return dist.factory.block(0:(arraySize-1));
+       return dist.factory.block([0:(arraySize-1)]);
     }
     /*
      * create a unique dist (mapping each i to place i)
@@ -153,7 +153,7 @@ public class RandomAccess_skewed {
      * create a constant-Here dist 
      */
     private static dist value(int arraySize) {
-        return  (0:(arraySize-1))->here;
+        return  [0:(arraySize-1)]->here;
     }
 
     // distributed histogram table
@@ -194,7 +194,7 @@ public class RandomAccess_skewed {
     // and do remote atomic updates on corresponding table elements
     finish ateach (point p : ranStarts.distribution) {
         long ran = nextRandom(ranStarts[p]);
-        for(point count: 1:N_UPDATES_PER_PLACE ) {
+        for(point count: [1:N_UPDATES_PER_PLACE] ) {
             final int j = f(ran);
             final long k = smallTable[g(ran)];
 	    //final int dst=j/(TABLE_SIZE/MAX_PLACES);

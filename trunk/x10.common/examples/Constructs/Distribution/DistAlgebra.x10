@@ -80,7 +80,7 @@ public class DistAlgebra {
 		}
 
 		//Check range restriction to a place
-		for(point [k]:0:np-1) {
+		for(point [k]: [0:np-1]) {
 			final dist DR1orR2orR3Here=(DR1orR2orR3|P[k]);
 			pr("DR1orR2orR3Here("+k+")",DR1orR2orR3Here);
 			for (point [i,j]:DR1orR2orR3) {

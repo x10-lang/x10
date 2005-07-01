@@ -73,7 +73,7 @@ public class DistAlgebra2 {
 
 		//Check range restriction to a place
 		final int np=place.MAX_PLACES;
-		for(point [k]:0:np-1) {
+		for(point [k]: [0:np-1]) {
 			final dist DR1orR2orR3Here=(DR1orR2orR3|P[k]);
 			pr("DR1orR2orR3Here("+k+")",DR1orR2orR3Here);
 			for (point [i,j]:DR1orR2orR3) {

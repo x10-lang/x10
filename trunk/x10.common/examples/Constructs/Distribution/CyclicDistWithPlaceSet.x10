@@ -24,7 +24,7 @@ public class CyclicDistWithPlaceSet {
 	const int L=5;
 	
 	public boolean run() {
-	for(point [tries]:1:COUNT) {
+	for(point [tries]: [1:COUNT]) {
 	    final int lb1=ranInt(-L,L);
 	    final int lb2=ranInt(-L,L);
 	    final int ub1=ranInt(lb1,L); 

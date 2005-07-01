@@ -180,7 +180,7 @@ public class RandomAccess_int {
     
     // A small value table that will be copied to all processors
     // Used in generating the update value
-    final dist d3= (0: (SMALL_TABLE_SIZE-1)) -> here;
+    final dist d3= [0: (SMALL_TABLE_SIZE-1)] -> here;
     final int /*value*/[d3] smallTable = new int /*value*/[d3] 
       new intArray.pointwiseOp() 
        { public int apply(point p) 

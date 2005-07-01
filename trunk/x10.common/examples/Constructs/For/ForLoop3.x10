@@ -11,7 +11,7 @@ public class ForLoop3 {
 		//Ensure iterator works in lexicographic order
 		int n = 0;
 		int prev = -1;
-                for(point p:(0:N-1)->here) {
+                for(point p : [0:N-1]->here) {
 			n += p[0];
 			if (prev+1!=p[0]) return false;
 			prev=p[0];
@@ -21,7 +21,7 @@ public class ForLoop3 {
 		// now iterate over a region
 		n=0;
 		prev = -1;
-                for(point p: 0:N-1) {
+                for(point p: [0:N-1]) {
 			n += p[0];
 			if (prev+1!=p[0]) return false;
 			prev=p[0];

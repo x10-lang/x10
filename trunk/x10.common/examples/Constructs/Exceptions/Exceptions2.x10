@@ -36,7 +36,7 @@ public class Exceptions2 {
 	     try {
 		finish {
 		 ateach(point [i]:dist.factory.unique()) {
-			foreach(point [j]:1:M)
+			foreach(point [j]: [1:M])
 				memoryHog();
 		 }
 		 async(here) {for(long i=0;i<N;i++) {Node2 x=new Node2();X.use(x);}}

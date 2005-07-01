@@ -13,7 +13,7 @@ public boolean run() {
 	final int[.] ia0 = new int[[0:N-1]->here];
 	final place p = here;
 	chk(ia0.distribution.equals([0:N-1]->p));
-	chk(ia0.distribution.equals((0:N-1)->p));
+	chk(ia0.distribution.equals([0:N-1]->p));
 	finish ateach(point [i]:ia0) chk(ia0[i]==0); 
 
 	final int value[.] v_ia2 = new int value[[0:N-1]->here]
@@ -41,7 +41,7 @@ public boolean run() {
 
 	// is a region R converted to R->here in a dist context? 
 	//final long[.] data3 = new long[1:11] 
-	final long[.] data3 = new long[(1:11)->here] 
+	final long[.] data3 = new long[[1:11]->here] 
 	  (point [i]){return (long)i*i;};
 	chk(data3.distribution.equals([1:11]->here));
 	for(point [i]:data3) chk(data3[i]==(long)i*i);

@@ -48,7 +48,7 @@ public class RandomAccess_longExtern {
     * create a simple 1D blocked dist
     */
    dist block (int arraySize) {
-      return dist.factory.block(0:(arraySize-1));
+      return dist.factory.block([0:(arraySize-1)]);
    }
     
    /**
@@ -71,7 +71,7 @@ public class RandomAccess_longExtern {
   	
     // A small value table that will be copied to all processors
     final long value[.] smallTable = 
-        new long value[(0:S_TABLE_SIZE-1)->here] 
+        new long value[[0:S_TABLE_SIZE-1]->here] 
           (point p[i]) {return i*S_TABLE_INIT;};        
     // distributed histogram table
     final long[.] table = new long[block(TABLE_SIZE)]
@@ -84,7 +84,7 @@ public class RandomAccess_longExtern {
     // and do remote atomic updates on corresponding table elements
     finish ateach (point p[i]: ranStarts) {
         long ran = nextRandom(ranStarts[i]);
-        for(point q[n]: 1:N_UPDATES_PER_PLACE) {
+        for(point q[n]: [1:N_UPDATES_PER_PLACE]) {
         	System.out.println("Place "+i+ " iteration "+n);
             final int  j = f(ran);
             final long k = smallTable[g(ran)]; 

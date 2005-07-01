@@ -16,7 +16,7 @@ public class ClockTest9 {
 
     const int N=8;
     const int M=8;
-    final int[.] val=new int[0:N-1];
+    final int[.] val=new int[[0:N-1]];
 
     public boolean run() {
           
@@ -24,7 +24,7 @@ public class ClockTest9 {
             final clock c = clock.factory.clock();
         
             // outer barrier loop
-            foreach (point [i]: 0:N-1) clocked(c) {
+            foreach (point [i]: [0:N-1]) clocked(c) {
                 foreachBody(i,c);
             }
         }
@@ -36,7 +36,7 @@ public class ClockTest9 {
             final clock d = clock.factory.clock();
         
             // inner barrier loop
-            foreach (point [j]: 0:M-1) clocked(d) {
+            foreach (point [j]: [0:M-1]) clocked(d) {
                 foreachBodyInner(i,j,d);
             }
         }

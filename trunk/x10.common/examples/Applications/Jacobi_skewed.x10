@@ -66,13 +66,13 @@
 	  final dist u=dist.factory.unique(x10.lang.place.places);
 	  final int NP=x10.lang.place.MAX_PLACES;
 	  if (K*(NP-1)>N+1) throw new Error("Too few array elements");
-	  dist d0=((0:(K-1))->u[0]);
+	  dist d0 =([0:(K-1)]->u[0]);
 	  for(int i=1;i<NP-1;i++) {
 	    final int start=K*i;
-        final dist d1=((start:(start+K-1))->u[i]);
+        final dist d1=([start:(start+K-1)]->u[i]);
         d0=d0.union(d1);
 	  }
-      return d0.union(((K*(NP-1)):(N+1))->u[NP-1]);	
+      return d0.union([(K*(NP-1)):(N+1)]->u[NP-1]);	
     }
 	
      /**

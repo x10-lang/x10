@@ -41,7 +41,7 @@ private static boolean arrayAccess(int lb1, int ub1, final int i, int distType) 
 
 //pr(lb1+" "+ub1+" "+i+" "+distType);
 
-final int[.] a =new int[dist2.getDist(distType,(lb1:ub1))];
+final int[.] a =new int[dist2.getDist(distType, [lb1:ub1])];
 
 boolean withinBounds=true;
 try {

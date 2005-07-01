@@ -17,7 +17,7 @@ public class ClockTest4 {
     public boolean run() {
         final clock c = clock.factory.clock();
         
-        foreach (point [i]: 1:(N-1)) clocked(c) {
+        foreach (point [i]: [1:(N-1)]) clocked(c) {
             foreachBody(i,c);
         }
         foreachBody(0,c);
