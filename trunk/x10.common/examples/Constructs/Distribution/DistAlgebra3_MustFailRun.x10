@@ -14,7 +14,7 @@ public class DistAlgebra3_MustFailRun {
 
 	public boolean run() {
 		final dist D=dist.factory.cyclic([0:N-1]);
-		final dist D2=D|[0   : N/2-1];
+		final dist D2=D|[0 : N/2-1];
 		final dist D3=D|[N/2 : N-1  ];
 		final dist D4= D2 || D3; // disjoint 
 		chk(D4.equals(D));
