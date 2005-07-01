@@ -103,7 +103,7 @@ public class ConditionalAtomicQueue {
 			// spawn producer activities on each place
 			async( this )
 			ateach(point [i]:Dist.unique()) {
-				for(point [j]: 0:N-1) { 
+				for(point [j]: [0:N-1]) { 
 					final T t= new T(i,j); // produce a T
 					async(this) {
 						when(!full()) {insert(t);} 
@@ -159,7 +159,7 @@ class Dist {
      * create a simple 1D blocked dist
      */
    static dist block (int arraySize) {
-       return dist.factory.block(0:(arraySize-1));
+       return dist.factory.block([0:(arraySize-1)]);
     }
     /**
      * create a unique dist (mapping each i to place i)
@@ -173,6 +173,6 @@ class Dist {
      * create a constant-Here dist 
      */
     static dist val(int arraySize) {
-        return  (0:(arraySize-1))->here;
+        return  [0:(arraySize-1)]->here;
     }
 }

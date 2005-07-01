@@ -46,14 +46,14 @@ public class ClockTest10 {
 	}
 	
 	void taskA(final clock a) { 
-		for(point [k]:1:N) {
+		for(point [k]: [1:N]) {
 			varA[ph(k)]=k;
 			System.out.println(Thread.currentThread() + " " + k+" A producing "+varA[ph(k)]);
 			next;
 		}
 	}
 	void taskB(final clock a, final clock b) { 
-		for(point [k]:1:N) {
+		for(point [k]: [1:N]) {
 			final boxedInt tmp=new boxedInt();
 			finish tmp.val=varA[ph(k-1)]+varA[ph(k-1)];
 			System.out.println(Thread.currentThread() + " " + k+" B consuming oldA producing "+tmp.val);
@@ -64,7 +64,7 @@ public class ClockTest10 {
 		}
 	}
 	void taskC(final clock a, final clock c) { 
-		for(point [k]:1:N) {
+		for(point [k]: [1:N]) {
 			final boxedInt tmp=new boxedInt();
 			finish tmp.val=varA[ph(k-1)]*varA[ph(k-1)];
 			System.out.println(Thread.currentThread() + " " + k+" C consuming oldA "+ tmp.val);
@@ -77,7 +77,7 @@ public class ClockTest10 {
 	
 	void taskD(final clock b, final clock c) { 
 		
-		for(point [k]:1:N) {
+		for(point [k]: [1:N]) {
 			final boxedInt tmp=new boxedInt();
 			finish tmp.val=varB[ph(k-1)]+varC[ph(k-1)]+10;
 			System.out.println(Thread.currentThread() + " " + k +" D consuming oldB+oldC producing "+tmp.val);
@@ -91,7 +91,7 @@ public class ClockTest10 {
 		}
 	}
 	void taskE(final clock c) { 
-		for(point [k]:1:N) {
+		for(point [k]: [1:N]) {
 			final boxedInt tmp=new boxedInt();
 			finish tmp.val=varC[ph(k-1)]*7;
 			System.out.println(Thread.currentThread() + " " + k+" E consuming oldC producing "+tmp.val);
