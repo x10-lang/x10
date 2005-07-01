@@ -126,7 +126,7 @@ class editDistMatrix {
                // each block is computed using the blocks on its west, north
                // and northwest. Barrier synchronization occurs 
                // after each block computation (wave).
-               for(point [j]: 0:blocksPerPlace-1) {
+               for(point [j]: [0:blocksPerPlace-1]) {
                    for(point [x,y]: getBlockDist(i,j))
                        e[x,y]=min(rd(x-1,y)+gapPen,
                                   rd(x,y-1)+gapPen,
@@ -218,12 +218,12 @@ class editDistMatrix {
         System.out.println(s);
 
         System.out.print(" "+pad(' ',K));
-        for(point [j]:0:M) System.out.print(" "+pad(c2.s[j],K));
+        for(point [j]: [0:M]) System.out.print(" "+pad(c2.s[j],K));
         System.out.println();
 
-        for(point [i]:0:N){
+        for(point [i]: [0:N]){
             System.out.print(" "+pad(c1.s[i],K));
-            for(point [j]:0:M) System.out.print(" "+pad(rd(i,j),K));
+            for(point [j]: [0:M]) System.out.print(" "+pad(rd(i,j),K));
             System.out.println();
         }
     }
@@ -292,7 +292,7 @@ value class charStr {
         final Random  rand=new Random(1L);
         // find i'th random number.
         // TODO: need to pre-compute random numbers and re-use
-        for(point [k]: 1:i) n = nextChoice(rand);
+        for(point [k]: [1:i]) n = nextChoice(rand);
         return aminoAcids[n];
     }
 

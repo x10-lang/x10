@@ -34,9 +34,9 @@ public class Edmiston_Parallel6 {
 
         final int N = 10;
         final int M = 10;
-        final char value[.] c1=new char value[(0:N)->here]
+        final char value[.] c1=new char value[[0:N]->here]
           (point[i]) {return (i==0)?'-':randomChar(i);};
-        final char value[.] c2= new char value[(0:M)->here]
+        final char value[.] c2= new char value[[0:M]->here]
           (point[i]) {return (i==0)?'-':randomChar(N+i);};
         final dist D=dist.factory.block([0:N,0:M]);
         final dist Dinner=D|[1:N,1:M];
@@ -102,7 +102,7 @@ public class Edmiston_Parallel6 {
         final Random  rand=new Random(1L);
         // find i'th random number.
         // TODO: need parallel version of this
-        for(point [k]: 1:i) n = nextChoice(rand);
+        for(point [k]: [1:i]) n = nextChoice(rand);
         return aminoAcids[n];
     }
 
@@ -139,9 +139,9 @@ public class Edmiston_Parallel6 {
         for(point [j]:c2) System.out.print(" "+pad(c2[j],K));
         System.out.println();
 
-        for(point [i]:0:N){
+        for(point [i]: [0:N]){
             System.out.print(" "+pad(c1[i],K));
-            for(point [j]:0:M) System.out.print(" "+pad(rd(e,i,j),K));
+            for(point [j]: [0:M]) System.out.print(" "+pad(rd(e,i,j),K));
             System.out.println();
         }
     }

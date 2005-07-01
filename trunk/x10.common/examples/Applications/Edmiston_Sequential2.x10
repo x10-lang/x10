@@ -24,9 +24,9 @@ public class Edmiston_Sequential2 {
 
         final int N = 10;
         final int M = 10;
-        final char[.] c1=new char[(0:N)->here]
+        final char[.] c1=new char[[0:N]->here]
           (point[i]) {return (i==0)?'-':randomChar(i);};
-        final char[.] c2= new char[(0:M)->here]
+        final char[.] c2= new char[[0:M]->here]
           (point[i]) {return (i==0)?'-':randomChar(N+i);};
         final dist D=[0:N,0:M]->here;
         final dist Dinner=D|[1:N,1:M];
@@ -64,7 +64,7 @@ public class Edmiston_Sequential2 {
         final Random  rand=new Random(1L);
         // find i'th random number.
         // TODO: need to pre-compute random numbers and re-use
-        for(point [k]: 1:i) n = nextChoice(rand);
+        for(point [k]: [1:i]) n = nextChoice(rand);
         return aminoAcids[n];
     }
 
@@ -89,9 +89,9 @@ public class Edmiston_Sequential2 {
         for(point [j]:c2) System.out.print(" "+pad(c2[j],K));
         System.out.println();
 
-        for(point [i]:0:N){
+        for(point [i]:[0:N]){
             System.out.print(" "+pad(c1[i],K));
-            for(point [j]:0:M) System.out.print(" "+pad(e[i,j],K));
+            for(point [j]: [0:M]) System.out.print(" "+pad(e[i,j],K));
             System.out.println();
         }
     }
