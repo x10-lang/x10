@@ -121,8 +121,8 @@ init(isAlive, 1,1,new String[] {
 private static void init(final int[.] isAlive, final int x0,final int y0, final String[] s) {
 	final dist d=isAlive.distribution;
     finish
-	for(point p[i]: 0:s.length-1) { 
-		for(point q[j]: 0:s[i].length()-1) {
+	for(point p[i]: [0:s.length-1]) { 
+		for(point q[j]: [0:s[i].length()-1]) {
 			if (s[i].charAt(j)!='0') {
 				async(d[i+x0,j+y0]){isAlive[i+x0,j+y0]=1;}
 			}

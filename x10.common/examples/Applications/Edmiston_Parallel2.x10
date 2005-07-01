@@ -102,7 +102,7 @@ public class Edmiston_Parallel2 {
         final Random  rand=new Random(1L);
         // find i'th random number.
         // TODO: need to pre-compute random numbers and re-use
-        for(point [k]: 1:i) n = nextChoice(rand);
+        for(point [k]: [1:i]) n = nextChoice(rand);
         return aminoAcids[n];
     }
 
@@ -137,9 +137,9 @@ public class Edmiston_Parallel2 {
         for(point [j]:c2) System.out.print(" "+pad(c2[j],K));
         System.out.println();
 
-        for(point [i]:0:N){
+        for(point [i]: [0:N]){
             System.out.print(" "+pad(c1[i],K));
-            for(point [j]:0:M) System.out.print(" "+pad(rdElem(e,i,j),K));
+            for(point [j]: [0:M]) System.out.print(" "+pad(rdElem(e,i,j),K));
             System.out.println();
         }
     }

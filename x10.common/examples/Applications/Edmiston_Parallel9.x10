@@ -113,8 +113,8 @@ class EditDistMatrix {
 	    int endColumn=myExtendedD.region.rank(1).high();
             int startRow=myExtendedD.region.rank(0).low()+1;
             int startColumn=myExtendedD.region.rank(1).low()+1;
-	    for(point [ijSum]:(startRow+startColumn):(endRow+endColumn)) 
-	      finish foreach(point [j]:Math.max(startColumn,ijSum-endRow):Math.min(endColumn,ijSum-startRow)) {
+	    for(point [ijSum]: [(startRow+startColumn):(endRow+endColumn)]) 
+	      finish foreach(point [j]: [Math.max(startColumn,ijSum-endRow):Math.min(endColumn,ijSum-startRow)]) {
                 int i=ijSum-j;
 	        B[i,j] = min4(0, B[i-1,j]+iGapPen, B[i,j-1]+iGapPen, 
 			  B[i-1,j-1] + (c1.s[i]==c2.s[j] ? iMatch : iMisMatch));
@@ -160,12 +160,12 @@ class EditDistMatrix {
         System.out.println("Minimum Matrix EditDistance is: " + rdElem(N,M));
         System.out.println("Matrix EditDistance is:");
         System.out.print(pad(' '));
-        for(point [j]:0:M) System.out.print(pad(c2.s[j]));
+        for(point [j]: [0:M]) System.out.print(pad(c2.s[j]));
         System.out.println();
 
-        for(point [i]:0:N){
+        for(point [i]: [0:N]){
             System.out.print(pad(c1.s[i]));
-            for(point [j]:0:M) System.out.print(pad(rdElem(i,j)));
+            for(point [j]: [0:M]) System.out.print(pad(rdElem(i,j)));
             System.out.println();
         }
     }
