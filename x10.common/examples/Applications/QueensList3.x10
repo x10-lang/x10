@@ -134,7 +134,7 @@ public value class QueensList3 {
    */
   
    public void Q() {
-       if (length(q)==N) {async(nSolutions.location) atomic nSolutions.val++; return;}
+       if (length(q)==N) {async(nSolutions) atomic nSolutions.val++; return;}
            
        foreach (point p[k]: [0:(N-1)]) {//try all columns of next row
 	       if (!attacks(k)) {
