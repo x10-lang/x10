@@ -89,8 +89,7 @@ public class RandomAccess_int {
   // Set places.MAX_PLACES to 128 to match original
   // Set LOG2_TABLE_SIZE to 25 to match original
 
-  // place.MAX_PLACES no longer works?
-  private  static final int MAX_PLACES= x10.lang.place.MAX_PLACES;
+  private  static final int MAX_PLACES= place.MAX_PLACES;
   private  static final int LOG2_TABLE_SIZE=5;
   private  static final int LOG2_SMALL_TABLE_SIZE=4;
   private  static final int TABLE_SIZE=(1 << LOG2_TABLE_SIZE);
@@ -158,7 +157,7 @@ public class RandomAccess_int {
      */
     
     private static dist unique () {
-        return dist.factory.unique(x10.lang.place.places);
+        return dist.factory.unique(place.places);
     }
     
 
@@ -181,11 +180,8 @@ public class RandomAccess_int {
     // A small value table that will be copied to all processors
     // Used in generating the update value
     final dist d3= [0: (SMALL_TABLE_SIZE-1)] -> here;
-    final int /*value*/[d3] smallTable = new int /*value*/[d3] 
-      new intArray.pointwiseOp() 
-       { public int apply(point p) 
-            {return p[0]*SMALL_TABLE_INIT;}
-       }     ;
+    final int value[d3] smallTable = new int value[d3] 
+      (point p){return p[0]*SMALL_TABLE_INIT;};
     // for(point p:d3) {smallTable[p]=i0(p)*SMALL_TABLE_INIT;}
     
 
