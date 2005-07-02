@@ -26,7 +26,7 @@ public class ValueLocation2  {
 		final int one=1;
 		ateach(point [i]:P) {
 			//System.out.println("#1 "+i+" "+one.getLocation()+" "+P[i]+" "+here);
-			chk(one.location ==P[i] && P[i]==here);
+			chk(one.getLocation() ==P[i] && P[i]==here);
 			chk(here==future(one){here}.force());
 		}
 		foreach(point[i]:P) {
@@ -35,7 +35,7 @@ public class ValueLocation2  {
 				//System.out.println("#3 "+i+" "+j+" "+P[i]+" "+P[j]);
 				chk(implies(P[i]==P[j],i==j));
 			}
-			chk(P[i]==future(P[i]){one.location}.force());
+			chk(P[i]==future(P[i]){one.getLocation()}.force());
 		}
 		
 		return true;

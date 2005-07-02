@@ -98,7 +98,7 @@ value class T extends x10.lang.Object {
 	public void consume() { 
 		System.out.println("Start consuming #"+this.val);
 		atomic delayLoop(1000000);
-		async(nConsumed.location) atomic nConsumed.value++;
+		async(nConsumed) atomic nConsumed.value++;
 		System.out.println("End consuming #"+this.val);
 	}
 	/**
