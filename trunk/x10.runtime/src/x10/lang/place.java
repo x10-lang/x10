@@ -25,7 +25,8 @@ import /*x10*/java.util.Set;
 
 public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
 implements TypeArgument, ValueType {
-	public final /*nat*/int id;
+    private static int count_ = 0;
+    public final /*nat*/int id;
 	
 	/** The number of places in this run of the system. Set on
 	 * initialization, through the command line/init parameters file.
@@ -34,8 +35,10 @@ implements TypeArgument, ValueType {
 	/*config*/ public static /*final*/ /*nat*/ int MAX_PLACES = 10;
 	
 	
-	protected place( /*nat*/ int id) {
-		this.id = id;
+	protected place() {
+        synchronized (place.class) {
+            id = count_++;
+        } 
 	}
 	
 	public static abstract /*value*/ class factory implements ValueType {
@@ -72,7 +75,15 @@ implements TypeArgument, ValueType {
 		places = factory.places(MAX_PLACES-1);
 	}
 	
-	
+	public boolean equals(java.lang.Object o) {
+        boolean ret = false;
+        if (o != null && o instanceof x10.lang.place) {
+            x10.lang.place op = (x10.lang.place) o;
+            ret = op.id == id;
+        }
+        return ret;
+    }
+    
 	/** Returns the next place, using modular arithmetic. Thus the
 	 * next place for the last place is the first place. 
 	 */
