@@ -224,7 +224,7 @@ class EditDistMatrix {
      */
     int min4(int w, int x, int y, int z) {
         final place myP=here;
-	finish async(this) atomic min4Count[(myP).id]+=1;
+	finish async(myP) atomic min4Count[(myP).id]+=1;
 	return Math.min(Math.min(w,x), Math.min(y,z));
     }
 
