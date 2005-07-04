@@ -154,7 +154,7 @@ public abstract class Runtime {
     public static void hereCheckPlace(place p) {          
         assert (p != null);
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && !p.equals(here()))   
-            throw new BadPlaceException();
+            throw new BadPlaceException(p);
     }
 
     /* this is called from the code snippet for field and array access */
@@ -165,7 +165,7 @@ public abstract class Runtime {
                 ! (o instanceof ValueType)) {
             x10.lang.Object x10o = (x10.lang.Object) o;
             if (!x10o.getLocation().equals(here()))
-                throw new BadPlaceException();
+                throw new BadPlaceException(x10o);
         }
         return o;
     }
@@ -189,7 +189,7 @@ public abstract class Runtime {
             throw new Error("Place-cast currently not available for object of type " + o.getClass().getName());
         x10.lang.Object xo = (x10.lang.Object) o;
         if (! xo.getLocation().equals(p)) 
-            throw new BadPlaceException();
+            throw new BadPlaceException(xo);
         return o;
     }
     
