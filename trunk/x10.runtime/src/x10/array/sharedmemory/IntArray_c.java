@@ -384,9 +384,17 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 
     public void update(x10.lang.intArray d) {
         assert (region.contains(d.region));
-        for (Iterator it = d.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            set(d.get(p), p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = d.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);                
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);                
+                // the place of d[p] and this[p] must be the same! 
+                set(d.get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
     
@@ -399,6 +407,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
                 point p = (point) it.next();
                 place pl = dist.get(p);
                 x10.lang.Runtime.runtime.setCurrentPlace(pl);
+//              the place of d[p] and this[p] must be the same! 
                 int val = (distribution.region.contains(p)) ? get(p) : d.get(p);
                 ret.set(val, p);
             }
