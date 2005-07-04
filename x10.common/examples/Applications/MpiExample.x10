@@ -30,8 +30,9 @@ public class MpiExample {
 		finish ateach(point [k] : [0:place.MAX_PLACES-1]->here) {
 			future(P[k]){new T(k)}.force().consume();
 		} 
-		System.out.println("Total items consumed="+T.nConsumed.value);
-		return T.nConsumed.value==place.MAX_PLACES;
+		int nConsumed_value = (future (T.nConsumed.location) { T.nConsumed.value }).force();
+		System.out.println("Total items consumed=" + nConsumed_value);
+		return nConsumed_value == place.MAX_PLACES;
 		
 	}
 	
