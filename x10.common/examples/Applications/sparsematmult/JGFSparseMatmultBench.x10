@@ -72,25 +72,9 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 
 	x = RandomVector(d_N, R); // distributed -- cvp
 	y = new double[d_M];      // distributed -- cvp
-	row = new int[d_nz]       // distributed -- cvp
-	    new intArray.pointwiseOp() {
-		public int apply(point [i]) {
-		    return Math.abs(R.nextInt()) % datasizes_M[size];
-		}
-	    };
-	col = new int[d_nz]      // distributed -- cvp
-	    new intArray.pointwiseOp() {
-		public int apply(point [i]) {
-		    return Math.abs(R.nextInt()) % datasizes_N[size];
-		}
-	    };
-	val = new double[d_nz]   // distributed -- cvp
-	    new doubleArray.pointwiseOp() {
-		public double apply(point [i]) {
-		    return R.nextDouble();
-		}
-	    };
-	
+	row = new int[d_nz];      // distributed -- cvp
+	col = new int[d_nz];      // distributed -- cvp
+	val = new double[d_nz];   // distributed -- cvp
 	lowsum = new int[d_nthreads];       // distributed -- cvp
 	highsum = new int[d_nthreads];      // distributed -- cvp
 
@@ -102,21 +86,25 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 	double [] valt = new double[datasizes_nz[size]]; // local temporary -- cvp
 	int sect = (datasizes_M[size] + nthreads-1)/nthreads;
 
-	//for (int i=0; i<datasizes_nz[size]; i++) {
+	// the initialization of the arrays low, col val cannot be don in array initializers, because 
+	// of the random number generation and the final validation check. Consecutive random numbers 
+	// are cyclically assigned to the arrays low, col and val.
 
-	    // generate random row index (0, M-1)
-	    // row[i] = Math.abs(R.nextInt()) % datasizes_M[size];
+	for (int i=0; i < datasizes_nz[size]; i++) {
+	    final int ds_M = datasizes_M[size];
+	    final int random_1 = R.nextInt();	// generate random row index (0, M-1)
+	    final int random_2 = R.nextInt(); // generate random column index (0, N-1)
+	    final double random_3 = R.nextDouble();
+	    final int i_final = i;
 
-	    // generate random column index (0, N-1)
-	    // col[i] = Math.abs(R.nextInt()) % datasizes_N[size];
-
-	    //val[i] = R.nextDouble();
-
-	//}
+	    finish async (d_nz.distribution[i]) {
+		row[i_final] = Math.abs(random_1) % ds_M;
+		col[i_final] = Math.abs(random_2) % ds_M;
+		val[i_final] = random_3;
+	    }
+	}
 
 	// reorder arrays for parallel decomposition
-
-	// sect = (datasizes_M[size] + nthreads-1)/nthreads;
 
 	for (int i=0; i < nthreads; i++) {
 	    ilow[i] = i*sect;
@@ -167,12 +155,12 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 	    }
 	}
 
-	finish for (int i=0; i < datasizes_nz[size]; i++) {
+	for (int i=0; i < datasizes_nz[size]; i++) {
 	    final int rowt_i = rowt[i];
 	    final int colt_i = colt[i];
 	    final double valt_i = valt[i];
 	    final int i_final = i;
-	    async (d_nz.distribution[i]) {
+	    finish async (d_nz.distribution[i]) {
 		row[i_final] = rowt_i;
 		col[i_final] = colt_i;
 		val[i_final] = valt_i;
