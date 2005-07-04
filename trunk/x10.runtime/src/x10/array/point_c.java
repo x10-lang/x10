@@ -83,7 +83,9 @@ public class point_c extends point implements Comparable {
 	/** Return the value of this point on the i'th dimension.
 	 */    
 	public int get( /*nat*/int i ) {
-		return val[((int) i) % val.length];
+        if (i < 0 || i >= rank)
+            throw new ArrayIndexOutOfBoundsException();
+		return val[i];
 	}
 	
 	/** Return true iff the point is on the upper boundary of the i'th
