@@ -72,9 +72,25 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 
 	x = RandomVector(d_N, R); // distributed -- cvp
 	y = new double[d_M];      // distributed -- cvp
-	val = new double[d_nz];   // distributed -- cvp
-	col = new int[d_nz];      // distributed -- cvp
-	row = new int[d_nz];      // distributed -- cvp
+	row = new int[d_nz]       // distributed -- cvp
+	    new intArray.pointwiseOp() {
+		public int apply(point [i]) {
+		    return Math.abs(R.nextInt()) % datasizes_M[size];
+		}
+	    };
+	col = new int[d_nz]      // distributed -- cvp
+	    new intArray.pointwiseOp() {
+		public int apply(point [i]) {
+		    return Math.abs(R.nextInt()) % datasizes_N[size];
+		}
+	    };
+	val = new double[d_nz]   // distributed -- cvp
+	    new doubleArray.pointwiseOp() {
+		public double apply(point [i]) {
+		    return R.nextDouble();
+		}
+	    };
+	
 	lowsum = new int[d_nthreads];       // distributed -- cvp
 	highsum = new int[d_nthreads];      // distributed -- cvp
 
@@ -84,60 +100,83 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 	int [] rowt = new int[datasizes_nz[size]];       // local temporary -- cvp
 	int [] colt = new int[datasizes_nz[size]];       // local temporary -- cvp
 	double [] valt = new double[datasizes_nz[size]]; // local temporary -- cvp
-	int sect;
+	int sect = (datasizes_M[size] + nthreads-1)/nthreads;
 
-	for (int i=0; i<datasizes_nz[size]; i++) {
+	//for (int i=0; i<datasizes_nz[size]; i++) {
 
 	    // generate random row index (0, M-1)
-	    row[i] = Math.abs(R.nextInt()) % datasizes_M[size];
+	    // row[i] = Math.abs(R.nextInt()) % datasizes_M[size];
 
 	    // generate random column index (0, N-1)
-	    col[i] = Math.abs(R.nextInt()) % datasizes_N[size];
+	    // col[i] = Math.abs(R.nextInt()) % datasizes_N[size];
 
-	    val[i] = R.nextDouble();
+	    //val[i] = R.nextDouble();
 
-	}
+	//}
 
 	// reorder arrays for parallel decomposition
 
-	sect = (datasizes_M[size] + nthreads-1)/nthreads;
+	// sect = (datasizes_M[size] + nthreads-1)/nthreads;
 
-	for (int i=0; i<nthreads; i++) {
+	for (int i=0; i < nthreads; i++) {
 	    ilow[i] = i*sect;
 	    iup[i] = ((i+1)*sect)-1;
 	    if(iup[i] > datasizes_M[size]) iup[i] = datasizes_M[size];
 	}
 
-	for (int i=0; i<datasizes_nz[size]; i++) {
+	for (int i=0; i < datasizes_nz[size]; i++) {
+	    final int i_final = i;
+	    int row_i = (future (row.distribution[i_final]) { row[i_final] }).force();
 	    for (int j=0; j<nthreads; j++) {
-		if((row[i] >= ilow[j]) && (row[i] <= iup[j])) { 
+		if((row_i >= ilow[j]) && (row_i <= iup[j])) { 
 		    sum[j+1]++; 
 		}
 	    }         
 	}
 
+	// cvp - the sum array is place local and completely initialized 
+	// at this point and I would like to make it available on all 
+	// places ... but I cannot find a construct to do that in X10.
+	// in that loop, hnec, the async is in the innermost iteration.
 	for (int j=0; j<nthreads; j++) {
 	    for (int i=0; i<=j; i++) {
-		lowsum[j] = lowsum[j] + sum[j-i];
-		highsum[j] = highsum[j] + sum[j-i];
+		final int sum_ij = sum[j-i];
+		final int j_final = j;
+		finish async (d_nthreads[j_final]) {
+		    lowsum[j_final] = lowsum[j_final] + sum_ij;
+		    highsum[j_final] = highsum[j_final] + sum_ij;
+		}
 	    }
 	}
-
+	
 	for (int i=0; i<datasizes_nz[size]; i++) {
+	    final int i_final = i;
 	    for (int j=0; j<nthreads; j++) {
-		if((row[i] >= ilow[j]) && (row[i] <= iup[j])) {
-		    rowt[highsum[j]] = row[i];
-		    colt[highsum[j]] = col[i];
-		    valt[highsum[j]] = val[i];
-		    highsum[j] = highsum[j] + 1; // ++ postfix operator did not work -- cvp
+		final int j_final = j;
+		final int highsum_j = (future (highsum.distribution[j]) { highsum[j_final] }).force();
+		int row_i = (future (d_nz.distribution[i]) { row[i_final] }).force();
+		
+		if((row_i >= ilow[j]) && (row_i <= iup[j])) {
+		    // cvp would like to aggregate these 3 communications - but there seems to be no 
+		    // easy way to do that.
+		    rowt[highsum_j] = row_i;
+		    colt[highsum_j] = (future (d_nz.distribution[i]) { col[i_final] }).force();
+		    valt[highsum_j] = (future (d_nz.distribution[i]) { val[i_final] }).force();
+		    finish async (highsum.distribution[j]) { highsum[j_final] += 1; };  // ++ postfix operator did not work -- cvp
 		}
 	    }
 	}
 
-	for (int i=0; i<datasizes_nz[size]; i++) {
-	    row[i] = rowt[i];
-	    col[i] = colt[i];
-	    val[i] = valt[i];
+	finish for (int i=0; i < datasizes_nz[size]; i++) {
+	    final int rowt_i = rowt[i];
+	    final int colt_i = colt[i];
+	    final double valt_i = valt[i];
+	    final int i_final = i;
+	    async (d_nz.distribution[i]) {
+		row[i_final] = rowt_i;
+		col[i_final] = colt_i;
+		val[i_final] = valt_i;
+	    }
 	}
 
     }

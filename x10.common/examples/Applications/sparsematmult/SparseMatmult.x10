@@ -58,7 +58,9 @@ public class SparseMatmult
         JGFInstrumentor.stopTimer("Section2:SparseMatmult:Kernel"); 
 
 	for (int i=0; i < nz; i++) {
-            ytotal.val += yt[ row[i] ];
+	    final int i_final = i;
+	    final int row_i = (future (row.distribution[i]) { row[i_final] }).force();
+            ytotal.val += (future (yt.distribution[row_i]) { yt[row_i] }).force();
 	}
 
     }
@@ -101,7 +103,16 @@ class SparseRunner {
 
 	for (int reps=0; reps<num_ITERATIONS; reps++) {
 	    for (int i=lowsum[id]; i<highsum[id]; i++) {
-		yt[ row[i] ] += x[ col[i] ] * val[i];
+		// cvp: row, col an val are values arrays at this point -
+		// it would be good if they could be distributed ...
+		final int i_final = i;
+		place pl_i = row.distribution[i];
+		final int row_i = (future (pl_i) { row[i_final] }).force();
+		final int col_i = (future (pl_i) { col[i_final] }).force();
+		final double val_i = (future (pl_i) { val[i_final] }).force();
+		
+		final double rhs = (future (x.distribution[col_i]) { x[col_i] * val_i }).force();
+		finish async (yt.distribution[row_i]) { yt[row_i] += rhs; }
 	    }
 	}
 
