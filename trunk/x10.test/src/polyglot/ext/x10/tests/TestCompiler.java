@@ -159,6 +159,10 @@ public TestCompiler(String name) {
         run("./RandomAccess_skewed.x10","RandomAccess_skewed","./Applications");
     }
 
+    public void test_Applications_montecarlo-2_JGFMonteCarloBenchSizeA() {
+        run("./montecarlo-2/JGFMonteCarloBenchSizeA.x10","montecarlo-2.JGFMonteCarloBenchSizeA","./Applications");
+    }
+
     public void test_Constructs_Array_Array1() {
         run("./Array1.x10","Array1","./Constructs/Array");
     }
