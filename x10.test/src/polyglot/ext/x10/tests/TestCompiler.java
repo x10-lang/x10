@@ -95,6 +95,10 @@ public TestCompiler(String name) {
         run("./JGFMolDynBenchSizeA.x10","JGFMolDynBenchSizeA","./Applications");
     }
 
+    public void test_Applications_JGFMonteCarlo2BenchSizeA() {
+        run("./JGFMonteCarlo2BenchSizeA.x10","JGFMonteCarlo2BenchSizeA","./Applications");
+    }
+
     public void test_Applications_JGFMonteCarloBenchSizeA() {
         run("./JGFMonteCarloBenchSizeA.x10","JGFMonteCarloBenchSizeA","./Applications");
     }
@@ -157,10 +161,6 @@ public TestCompiler(String name) {
 
     public void test_Applications_RandomAccess_skewed() {
         run("./RandomAccess_skewed.x10","RandomAccess_skewed","./Applications");
-    }
-
-    public void test_Applications_montecarlo-2_JGFMonteCarloBenchSizeA() {
-        run("./montecarlo-2/JGFMonteCarloBenchSizeA.x10","montecarlo-2.JGFMonteCarloBenchSizeA","./Applications");
     }
 
     public void test_Constructs_Array_Array1() {
