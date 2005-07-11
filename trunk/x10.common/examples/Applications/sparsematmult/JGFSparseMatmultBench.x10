@@ -122,10 +122,6 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 	    }         
 	}
 
-	// cvp - the sum array is place local and completely initialized 
-	// at this point and I would like to make it available on all 
-	// places ... but I cannot find a construct to do that in X10.
-	// in that loop, hnec, the async is in the innermost iteration.
 	for (int j=0; j<nthreads; j++) {
 	    for (int i=0; i<=j; i++) {
 		final int sum_ij = sum[j-i];
@@ -136,7 +132,12 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 		}
 	    }
 	}
-	
+
+	// cvp - the sum array is completely initialized 
+	// at this point and I would like to make it available on all 
+	// places ... but I cannot find a construct to do that in X10.
+	// in that loop, hnec, the async is in the innermost iteration.
+
 	for (int i=0; i<datasizes_nz[size]; i++) {
 	    final int i_final = i;
 	    for (int j=0; j<nthreads; j++) {
