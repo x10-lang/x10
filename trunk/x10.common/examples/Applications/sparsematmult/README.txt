@@ -1,3 +1,6 @@
+[ This description of the benchmark is taken from 
+  http://www.epcc.ed.ac.uk/javagrande/threads/s2contents.html ]
+
 SparseMatmult 
 
 This uses an unstructured sparse matrix stored in
