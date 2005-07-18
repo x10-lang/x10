@@ -15,7 +15,7 @@ import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.LongReferenceArray;
-import x10.array.sharedmemory.Helper;
+import x10.array.Helper;
 
 
 /**
