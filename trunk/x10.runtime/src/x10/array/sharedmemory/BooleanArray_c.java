@@ -10,6 +10,7 @@ import java.util.Iterator;
 import x10.array.BooleanArray;
 import x10.array.MultiDimRegion;
 import x10.array.Operator;
+import x10.array.Helper;
 import x10.base.Allocator; 
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;

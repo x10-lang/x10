@@ -3,7 +3,7 @@
  */
 package x10.array.sharedmemory;
 
-
+import x10.array.Helper;
 import x10.lang.dist;
 
 /**

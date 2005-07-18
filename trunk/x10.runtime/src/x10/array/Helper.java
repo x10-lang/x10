@@ -1,7 +1,7 @@
 /*
  * Created on Oct 20, 2004
  */
-package x10.array.sharedmemory;
+package x10.array;
 
 /**
  * @author: cmd
