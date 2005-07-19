@@ -5,7 +5,7 @@ package x10.array.sharedmemory;
 
 import java.util.Iterator;
 import x10.array.FloatArray;
-import x10.array.Helper;
+import x10.array.sharedmemory.Helper;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
@@ -103,45 +103,11 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     	this(d, f, safe, true);
     }
     
-    public FloatArray_c(/*TODO: add FatPointer containingObject*/
-    		dist d, FloatArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public FloatArray_c(dist d, FloatArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
         this.safe_ = safe;
-        
-        if(Configuration.isMultiNodeVM()){
-        	System.out.println("In float constructor C");
-        	System.out.println("distribution:"+d);
-        	System.out.println("region:"+d.region);
-        	// find the region applicable to this place
-        	place myPlace = Runtime.here();
-        	int currentPlaceId = myPlace.id;
-        	System.out.println("current place:"+currentPlaceId);
-        	region theRegions[] = ((Distribution_c)d).getAllocatedRegions();
-        	for(int i=0;i <theRegions.length;++i){
-        		System.out.println("place:"+i+"::"+theRegions[i]+" size:"+theRegions[i].size());
-        	}
-        	place placeCursor = place.FIRST_PLACE;
-        	do {
-        		if(placeCursor.id != myPlace.id){ 
-        			// FIXME RemotePlace remoteP = (RemotePlace)placeCursor;
-        			
-        			FatPointer tempHandle = new FatPointer(); // TODO remove once it's a parm
-        			tempHandle.setObject((Object)this);// bogus
-        			
-        			RemotePlace.runArrayConstructor(tempHandle,ElementType.FLOAT,4,d,safe,mutable,placeCursor.id);
-        		}
-        		else {// could do this but perhaps better to optimize and call directly
-        			// TODO: create array locally
-        	    	System.out.println("Need to create local storage (place="+myPlace.id+") size:4*"
-        	    			+theRegions[currentPlaceId].size()+"("+theRegions[currentPlaceId]+")");
-        	        
-        		}
-        		placeCursor = placeCursor.next();
-        	}while (placeCursor != place.FIRST_PLACE);
-        
-        }
         
         if (!safe) {
             int rank = d.region.rank;
