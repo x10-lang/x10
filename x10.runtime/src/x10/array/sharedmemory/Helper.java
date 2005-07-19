@@ -1,7 +1,7 @@
 /*
  * Created on Oct 20, 2004
  */
-package x10.array;
+package x10.array.sharedmemory;
 
 /**
  * @author: cmd
@@ -59,8 +59,7 @@ public class Helper {
             throw new ArrayIndexOutOfBoundsException();
         }
  
-        d0 = d.getVirtualIndexAdjustment(d0);
-     	return d0;
+        return d0;
 	}
 	
 	final public static int rawordinal(region r,int d0){
@@ -108,7 +107,6 @@ public class Helper {
 	        throw new ArrayIndexOutOfBoundsException();
 	    }
 	   
-	    index = d.getVirtualIndexAdjustment(index);
 	    return index;
 	}
 	
@@ -167,7 +165,7 @@ public class Helper {
 	    } catch (UnsupportedOperationException e) {
 	        throw new ArrayIndexOutOfBoundsException();
 	    }
-	    index = d.getVirtualIndexAdjustment(index);
+	   
 	    return index;
 	}
     
@@ -232,7 +230,7 @@ public class Helper {
 	    } catch (UnsupportedOperationException e) {
 	        throw new ArrayIndexOutOfBoundsException();
 	    }
-	    index = d.getVirtualIndexAdjustment(index);
+	  
 	    return index;
 	}
 	
