@@ -1,0 +1,96 @@
+\indexentry{whitespace}{5}
+\indexentry{comments}{5}
+\indexentry{identifier}{5}
+\indexentry{keyword}{6}
+\indexentry{literals}{6}
+\indexentry{types}{6}
+\indexentry{Upper-case Convention}{6}
+\indexentry{type constructors}{6}
+\indexentry{nullable@{\tt nullable}}{7}
+\indexentry{null@{\tt null}}{7}
+\indexentry{array types}{8}
+\indexentry{place types}{9}
+\indexentry{? place type}{9}
+\indexentry{places!shared}{9}
+\indexentry{places!scoped}{9}
+\indexentry{variables}{10}
+\indexentry{variable!final}{10}
+\indexentry{final variable}{10}
+\indexentry{nullary constructor}{10}
+\indexentry{Object}{11}
+\indexentry{place.location}{11}
+\indexentry{Object}{12}
+\indexentry{conversions}{12}
+\indexentry{promotions}{12}
+\indexentry{names}{12}
+\indexentry{packages}{12}
+\indexentry{Upper case convention}{12}
+\indexentry{places}{12}
+\indexentry{here}{13}
+\indexentry{root activity}{13}
+\indexentry{finish}{14}
+\indexentry{initial activity}{15}
+\indexentry{atomic blocks}{16}
+\indexentry{locality condition}{16}
+\indexentry{remote method invocation}{18}
+\indexentry{foreach@{\tt foreach}}{18}
+\indexentry{for@{\tt for}}{18}
+\indexentry{ateach@{\tt ateach}}{19}
+\indexentry{clocks}{19}
+\indexentry{clock!creation}{19}
+\indexentry{clock!clocked statements}{20}
+\indexentry{clock!resume}{20}
+\indexentry{clock!next}{20}
+\indexentry{clock!drop}{20}
+\indexentry{clock!now}{20}
+\indexentry{interfaces}{21}
+\indexentry{class}{21}
+\indexentry{class!reference class}{21}
+\indexentry{class!value class}{21}
+\indexentry{local!{\tt local}}{22}
+\indexentry{arrays}{23}
+\indexentry{arrays!distribution@\tt distribution}{23}
+\indexentry{region}{23}
+\indexentry{region!upperTriangular}{23}
+\indexentry{region!lowerTriangular}{23}
+\indexentry{region!banded}{23}
+\indexentry{region!convex}{23}
+\indexentry{region!sub-region}{24}
+\indexentry{region!intersection}{24}
+\indexentry{region!union}{24}
+\indexentry{region!set difference}{24}
+\indexentry{region!==}{24}
+\indexentry{distribution}{24}
+\indexentry{distribution!unique}{24}
+\indexentry{distribution!constant}{24}
+\indexentry{distribution!block}{24}
+\indexentry{distribution!cyclic}{24}
+\indexentry{distribution!block cyclic}{24}
+\indexentry{distribution!arbitrary}{24}
+\indexentry{distribution!restriction!domain}{24}
+\indexentry{distribution!restriction!range}{24}
+\indexentry{distribution!user-defined}{25}
+\indexentry{sub-distribution}{25}
+\indexentry{distribution!intersection}{25}
+\indexentry{distribution!union!asymmetric}{25}
+\indexentry{distribution!union!disjoint}{25}
+\indexentry{distribution!difference}{25}
+\indexentry{array!access}{26}
+\indexentry{arrays!constant promotion}{26}
+\indexentry{array!restriction}{26}
+\indexentry{array!union!disjoint}{26}
+\indexentry{array!union!asymmetric}{26}
+\indexentry{array!pointwise operations}{26}
+\indexentry{array!reductions}{26}
+\indexentry{array!scans}{26}
+\indexentry{statements}{26}
+\indexentry{assignment}{27}
+\indexentry{[] syntax}{27}
+\indexentry{variable declarator!exploded}{27}
+\indexentry{expressions}{27}
+\indexentry{classcast}{27}
+\indexentry{instanceof@{\tt instanceof}}{28}
+\indexentry{==}{28}
+\indexentry{!=}{28}
+\indexentry{extern}{28}
+\indexentry{X10 productions}{30}

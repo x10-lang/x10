@@ -1,0 +1,66 @@
+\documentclass{article}
+\input{commands.tex}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\lstloadlanguages{X10}
+\begin{document}
+\def\smallcf{\small\cf}
+\lstset{language=X10,basicstyle=\small\cf,fancyvrb=true}
+
+Ok this is just a test to see if Igor's command works.
+
+Here is a listing from \S 1: \markmod{0.4in}
+
+\begin{lstlisting}
+/* lstlisting style */
+ package x10.examples;
+
+ public 
+    class Matrix<T implements Field> {
+
+        <distribution D> public static
+            T norm(T a[D]) {
+            return (new T[D.places] (j) {
+                return (new T[D | here] (i) {
+                    return a[i]*a[i];
+                }) >> (+);
+            } >> (+)).sqrt();
+        }
+\end{lstlisting}
+
+\begin{lstlisting}[fontadjust]
+/* lstlisting style */
+ package x10.examples;
+
+ public 
+    class Matrix<T implements Field> {
+
+        <distribution D> public static
+            T norm(T a[D]) {
+            return (new T[D.places] (j) {
+                return (new T[D | here] (i) {
+                    return a[i]*a[i];
+                }) >> (+);
+            } >> (+)).sqrt();
+        }
+\end{lstlisting}
+
+And here is the old code...
+
+\begin{x10noindent}
+ package x10.examples;
+
+ public
+  class Matrix<T implements Field< {
+        <distribution D> public static
+            T norm(T a[D]) {
+            return (new T[D.places] (j) {
+                return (new T[D | here] (i){
+                    return a[i]*a[i];
+                }) >> (+);
+            } >> (+)).sqrt();
+        }%
+}
+\end{x10noindent}
+\end{document}
+
