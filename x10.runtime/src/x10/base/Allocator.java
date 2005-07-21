@@ -15,6 +15,13 @@ public final class Allocator {
         return new MemoryBlockUnsafe(count, ranks, size); 
     }
     
+    
+    public static final MemoryBlock allocPinned(int count, long size) {
+        assert (size > 0);
+        assert (count >= 0);
+        return new MemoryBlockPinned(count, size); 
+    }
+    
     public static final MemoryBlock allocSafe(long size, Class cl) {
         assert (cl != null);
         assert (size >= 0);
