@@ -36,6 +36,8 @@ implements Indexable, ValueType {
      * Hence it must have a field 'distrubution' (see ateach construct) */
     public final dist distribution;
 
+    abstract public region[] getAllocatedRegions();
+    
     /**
      * Determine offset adjustment to devirtualize shared array
      * Based on place id.  In multi-node vm version, no need
