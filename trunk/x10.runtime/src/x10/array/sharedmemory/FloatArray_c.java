@@ -19,8 +19,7 @@ import x10.lang.region;
 import x10.lang.FloatReferenceArray;
 import x10.runtime.Configuration;
 import x10.runtime.ElementType;
-import x10.runtime.distributed.FatPointer;
-import x10.runtime.distributed.RemotePlace;
+
 
 
 /**
