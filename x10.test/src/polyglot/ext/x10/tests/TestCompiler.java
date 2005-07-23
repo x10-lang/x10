@@ -31,6 +31,10 @@ public TestCompiler(String name) {
         run("./Edmiston_Parallel10.x10","Edmiston_Parallel10","./Applications");
     }
 
+    public void test_Applications_Edmiston_Parallel11() {
+        run("./Edmiston_Parallel11.x10","Edmiston_Parallel11","./Applications");
+    }
+
     public void test_Applications_Edmiston_Parallel2() {
         run("./Edmiston_Parallel2.x10","Edmiston_Parallel2","./Applications");
     }
