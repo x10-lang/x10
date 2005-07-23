@@ -20,7 +20,11 @@
 package x10.lang;
 
 
+import x10.array.IntArray;
 import x10.base.TypeArgument;
+import x10.runtime.distributed.AsyncResult;
+import x10.runtime.distributed.FatPointer;
+
 import /*x10*/java.util.Set;
 
 public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
@@ -125,5 +129,35 @@ implements TypeArgument, ValueType {
     
 	public String toString() {
 	    return "place(id=" + id +")"; 
+	}
+	
+	// routines to access global data at a particular place from a different place
+	public  void runArrayConstructor(FatPointer owningObject,int elementType,
+			int elSize,dist d,IntArray.pointwiseOp op, boolean safe,boolean mutable){
+		throw new RuntimeException("unimplemented");//TODO: implement
+	}
+	
+	public  void runArrayConstructor(FatPointer owningObject,int elementType,
+			int elementSize,dist d,long initValue,boolean safe,boolean mutable){
+		throw new RuntimeException("unimplemented");//TODO: implement
+	}
+	public void remoteScan(FatPointer dest,FatPointer src,AsyncResult syncPoint,x10.lang.intArray.binaryOp op){
+		
+		throw new RuntimeException("unimplemented");//TODO: implement
+	}
+	
+	public int remoteReadInt(FatPointer fp,point p){
+		return 0;
+	}
+	public void remoteReductionInt(AsyncResult syncPoint,int unit){
+		throw new RuntimeException("unimplemented");//TODO: implement
+	}
+	public void remoteWriteInt(FatPointer fp,point p,int val){
+		throw new RuntimeException("unimplemented");//TODO: implement
+	}
+	public void remoteCopy(FatPointer dest,FatPointer src,AsyncResult syncPoint){
+		//copy all points from src to dest--make sure to check the distribution.  This is called
+		//from restriction, so  dest can have a dist which is a subset of src
+		throw new RuntimeException("unimplemented");//TODO: implement
 	}
 }
