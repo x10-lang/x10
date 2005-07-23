@@ -48,7 +48,10 @@ public abstract class Runtime {
             if (rt != null)
                 r = (Runtime) Class.forName(rt).newInstance();
             else
-                r = new DefaultRuntime_c();
+            	if(x10.runtime.Configuration.isMultiNodeVM())
+            		r = new x10.runtime.distributed.DistributedRuntime();
+            	else
+            		r = new DefaultRuntime_c();
         } catch (ClassNotFoundException cnfe) {
             System.err.println("Runtime::<clinit> did not find runtime " + rt);
             throw new Error(cnfe);
