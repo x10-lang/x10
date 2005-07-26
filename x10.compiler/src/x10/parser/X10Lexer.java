@@ -114,7 +114,54 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
     //
     //
     //
-    private static boolean differ_tokens = false;
+    public static class DifferSemicolons extends DifferLines implements X10Parsersym
+    {
+        public DifferSemicolons(PrsStream newStream, PrsStream oldStream)
+        {
+            super(newStream, oldStream);
+        }
+
+        public ILine[] getBuffer(PrsStream stream)
+        {
+            IntTuple line_start = new IntTuple();
+
+            line_start.add(0); // skip 0th element
+            int token = 1;
+            while (token < stream.getSize())
+            {
+                line_start.add(token);
+                if (stream.getKind(token) == TK_LBRACE || stream.getKind(token) == TK_RBRACE)
+                    token++;
+                else
+                {
+                    for (; token < stream.getSize(); token++)
+                    {
+                        if (stream.getKind(token) == TK_SEMICOLON)
+                        {
+                            token++;
+                            break;
+                        }
+                        if (stream.getKind(token) == TK_LBRACE || stream.getKind(token) == TK_RBRACE)
+                            break;
+                    }
+                }
+            }
+
+            Line buffer[] = new Line[line_start.size()];
+System.out.println("Number of lines: " + buffer.length);
+            line_start.add(stream.getSize()); // add a fence for the last line
+            for (int line_no = 1; line_no < buffer.length; line_no++)
+                buffer[line_no] = new Line(stream, line_start.get(line_no), line_start.get(line_no + 1) - 1);
+
+            return buffer;
+        }
+    }
+
+    private static int LINES = 0,
+                       TOKENS = 1,
+                       SEMICOLONS = 2,
+                       differ_mode = LINES;
+
     private static int changeCount = 0,
                        insertCount = 0,
                        deleteCount = 0,
@@ -134,8 +181,12 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             PrsStream new_stream = new PrsStream(new_lexer);
             new_lexer.lexer(new_stream);
 
-            Differ diff = (differ_tokens ? (Differ) new DifferTokens(old_stream, new_stream)
-                                         : (Differ) new DifferLines(old_stream, new_stream));
+            Differ diff = (differ_mode == LINES
+                                    ? (Differ) new DifferLines(old_stream, new_stream)
+                                    : differ_mode == TOKENS
+                                                   ? (Differ) new DifferTokens(old_stream, new_stream)
+                                                   : (Differ) new DifferSemicolons(old_stream, new_stream));
+
             diff.compare();
 
             if (diff.getChangeCount() > 0)
@@ -205,10 +256,12 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         {
             if (args[i].charAt(0) == '-')
             {
-                if (args[i].equals("-t"))
-                    differ_tokens = true;
-                else if (args[i].equals("-l"))
-                    differ_tokens = false;
+                if (args[i].equals("-l"))
+                     differ_mode = LINES;
+                else if (args[i].equals("-s"))
+                     differ_mode = SEMICOLONS;
+                else if (args[i].equals("-t"))
+                     differ_mode = TOKENS;
             }
             else break;
         }
@@ -233,10 +286,10 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                                changeCount +
                                " different " +
                                (changeCount == 1 ? "section" : "sections") + " *****");
-            System.out.println("    " + insertCount  + (differ_tokens ? " tokens" : " lines") + " inserted");
-            System.out.println("    " + deleteCount  + (differ_tokens ? " tokens" : " lines") + " deleted");
-            System.out.println("    " + replaceCount + (differ_tokens ? " tokens" : " lines") + " replaced");
-            System.out.println("    " + moveCount    + (differ_tokens ? " tokens" : " lines") + " moved");
+            System.out.println("    " + insertCount  + " lines inserted");
+            System.out.println("    " + deleteCount  + " lines deleted");
+            System.out.println("    " + replaceCount + " lines replaced");
+            System.out.println("    " + moveCount    + " lines moved");
         }
 
         return;
