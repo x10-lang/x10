@@ -19,16 +19,17 @@ Bradford~L.{} Chamberlain, Sung-Eun Choi, Steven~J. Deitz, and Lawrence Snyder.
 \newblock In {\em Proceedings of the IEEE International Workshop on
   Productivity and Performance in High-End Computing}, 2004.
 
+\bibitem{xten}
+P.~Charles, C.~Grothoff, C.~Donawa, K.~Ebcioglu, A.~Kielstra, C.~von Praun,
+  V.~Saraswat, and V.~Sarkar.
+\newblock X10: An object-oriented approach to non-uniform cluster computing.
+\newblock In {\em Proceedings of OOPSLA}, 2005.
+\newblock To appear.
+
 \bibitem{gjspec}
 Gilad~Bracha et~al.
 \newblock {A}dding {G}enerics to the {J}ava {P}rogramming {L}anguage, 2001.
 \newblock JSR 014, http://www.jcp.org/en/jsr/detail?id=014.
-
-\bibitem{XtenLibrary}
-Vijay~Saraswat et~al.
-\newblock The {\ccfont x10} {S}tandard {C}lass {L}ibrary.
-\newblock Technical report, IBM TJ Watson Research Center, New York, 2004.
-\newblock Forthcoming.
 
 \bibitem{jls2}
 J.~Gosling, W.~Joy, G.~Steele, and G.~Bracha.
@@ -47,16 +48,20 @@ Jose~E. Moreira, Samuel~P. Midkiff, Manish Gupta, Pedro~V. Artigas, Marc Snir,
 \newblock Java programming for high-performance numerical computing.
 \newblock {\em IBM Systems Journal}, 39(1):21--, 2000.
 
+\bibitem{X10-concur05}
+V.~Saraswat and R.~Jagadeesan.
+\newblock Concurrent clustered programming.
+\newblock In {\em Concur '05, to appear}, 2005.
+
 \bibitem{mpi}
-Anthony Skjellum, Ewing Lusk, and William Gropp.
+A.~Skjellum, E.~Lusk, and W.~Gropp.
 \newblock {\em {U}sing {MPI}: {P}ortable {P}arallel {P}rogramming with the
   {M}essage {P}assing {I}interface}.
 \newblock MIT Press, 1999.
 
 \bibitem{titanium}
-Katherine~A. Yelick, Luigi Semenzato, Geoff Pike, Carleton Miyamoto, Ben
-  Liblit, Arvind Krishnamurthy, Paul~N. Hilfinger, Susan~L. Graham, David Gay,
-  Phillip Colella, and Alexander Aiken.
+K.~A. Yelick, L.~Semenzato, G.~Pike, C.~Miyamoto, B.~Liblit, A.~Krishnamurthy,
+  P.~N. Hilfinger, S.~L. Graham, D.~Gay, P.~Colella, and A.~Aiken.
 \newblock Titanium: A high-performance java dialect.
 \newblock {\em Concurrency - Practice and Experience}, 10(11-13):825--836,
   1998.

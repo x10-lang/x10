@@ -25,66 +25,67 @@
 \indexentry{here}{11}
 \indexentry{root activity}{12}
 \indexentry{finish}{13}
+\indexentry{clock!ClockUseException}{13}
 \indexentry{initial activity}{14}
 \indexentry{atomic blocks}{14}
-\indexentry{locality condition}{15}
+\indexentry{place!BadPlaceException}{15}
 \indexentry{foreach@{\tt foreach}}{17}
 \indexentry{for@{\tt for}}{17}
 \indexentry{ateach@{\tt ateach}}{17}
 \indexentry{clocks}{17}
 \indexentry{clock!creation}{18}
 \indexentry{clock!clocked statements}{18}
-\indexentry{clock!resume}{18}
+\indexentry{clock!ClockUseException}{18}
+\indexentry{clock!resume}{19}
+\indexentry{clock!ClockUseException}{19}
 \indexentry{clock!next}{19}
 \indexentry{clock!drop}{19}
 \indexentry{interfaces}{19}
 \indexentry{class}{19}
-\indexentry{class!reference class}{20}
+\indexentry{class!reference class}{19}
 \indexentry{class!value class}{20}
-\indexentry{local!{\tt local}}{21}
 \indexentry{arrays}{21}
 \indexentry{arrays!distribution@\tt distribution}{21}
 \indexentry{region}{21}
-\indexentry{region!upperTriangular}{22}
-\indexentry{region!lowerTriangular}{22}
-\indexentry{region!banded}{22}
-\indexentry{region!convex}{22}
-\indexentry{region!sub-region}{22}
-\indexentry{region!intersection}{22}
-\indexentry{region!union}{22}
-\indexentry{region!set difference}{22}
-\indexentry{region!==}{22}
+\indexentry{region!upperTriangular}{21}
+\indexentry{region!lowerTriangular}{21}
+\indexentry{region!banded}{21}
+\indexentry{region!convex}{21}
+\indexentry{region!sub-region}{21}
+\indexentry{region!intersection}{21}
+\indexentry{region!union}{21}
+\indexentry{region!set difference}{21}
+\indexentry{region!==}{21}
 \indexentry{distribution}{22}
 \indexentry{distribution!unique}{22}
 \indexentry{distribution!constant}{22}
-\indexentry{distribution!block}{23}
-\indexentry{distribution!cyclic}{23}
-\indexentry{distribution!block cyclic}{23}
-\indexentry{distribution!arbitrary}{23}
-\indexentry{distribution!restriction!domain}{23}
-\indexentry{distribution!restriction!range}{23}
-\indexentry{distribution!user-defined}{23}
-\indexentry{sub-distribution}{23}
-\indexentry{distribution!intersection}{23}
+\indexentry{distribution!block}{22}
+\indexentry{distribution!cyclic}{22}
+\indexentry{distribution!block cyclic}{22}
+\indexentry{distribution!arbitrary}{22}
+\indexentry{distribution!restriction!domain}{22}
+\indexentry{distribution!restriction!range}{22}
+\indexentry{distribution!user-defined}{22}
+\indexentry{sub-distribution}{22}
+\indexentry{distribution!intersection}{22}
 \indexentry{distribution!union!asymmetric}{23}
 \indexentry{distribution!union!disjoint}{23}
 \indexentry{distribution!difference}{23}
-\indexentry{array!access}{24}
+\indexentry{array!access}{23}
 \indexentry{arrays!constant promotion}{24}
 \indexentry{array!restriction}{24}
 \indexentry{array!union!disjoint}{24}
 \indexentry{array!union!asymmetric}{24}
-\indexentry{array!pointwise operations}{25}
-\indexentry{array!reductions}{25}
-\indexentry{array!scans}{25}
-\indexentry{statements}{25}
-\indexentry{assignment}{25}
-\indexentry{[] syntax}{25}
+\indexentry{array!pointwise operations}{24}
+\indexentry{array!reductions}{24}
+\indexentry{array!scans}{24}
+\indexentry{statements}{24}
+\indexentry{assignment}{24}
+\indexentry{[] syntax}{24}
 \indexentry{variable declarator!exploded}{25}
-\indexentry{expressions}{26}
-\indexentry{classcast}{26}
-\indexentry{instanceof@{\tt instanceof}}{26}
+\indexentry{expressions}{25}
+\indexentry{classcast}{25}
+\indexentry{instanceof@{\tt instanceof}}{25}
 \indexentry{==}{26}
 \indexentry{!=}{26}
 \indexentry{extern}{26}
-\indexentry{X10 productions}{29}

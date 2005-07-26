@@ -14,7 +14,7 @@ its lifetime.  An activity may be {\em running}, {\em blocked} on some
 condition or {\em terminated}. When the statement associated with an
 activity terminates normally, the activity terminates normally; when
 it terminates abruptly with some reason $R$, the activity terminates
-with the same reason (\S~\label{ExceptionModel}).
+with the same reason (\S~\ref{ExceptionModel}).
 
 An activity may be long-running and may invoke recursive methods (thus
 may have a stack associated with it). On the other hand, an activity
@@ -275,7 +275,7 @@ not define generic classes. This is reserved for future extensions to the
 language.)
 
 Evaluation of {\tt future (Q){e}} terminates locally with the creation
-of a value {\tt f} of type {\tt future<T@P>}.  This value may be
+of a value {\tt f} of type {\tt future<T>}.  This value may be
 stored in objects, passed as arguments to methods, returned from
 method invocation etc. 
 
@@ -295,9 +295,9 @@ evaluation are stored in the future {\tt f} and used to respond to all
 {\tt force} queries.
 
 \begin{x10}
-future<T@P> promise 
+future<T> promise 
      = future (a.distribution[3]) \{ a[3] \};
-T@P value = promise.force();
+T value = promise.force();
 \end{x10}
 
 \subsection{Implementation notes}
@@ -370,7 +370,8 @@ It may {\em not} include an {\tt async} activity.
 It may {\em not} include any statement that may potentially block at
 runtime (e.g.{} {\tt when}, {\tt force} operations, {\tt next}
 operations on clocks, {\tt finish}).
-\limitation{Not checked currently.}
+
+\limitation{Not checked in the current implementation.}
 
 All locations accessed in an atomic block must reside {\tt here}
 (\S~\ref{Here}). A {\tt
@@ -667,25 +668,7 @@ Such an expression can be written as:
     \}.run()
 \end{x10}
 
-\notfouro{\section{Remote Method Invocation}\index{remote method invocation}
- We introduce shorthand for remote method invocation:
- 
- \begin{x10}
- 507   MethodInvocation ::= 
-         Primary -> identifier ( ArgumentListopt )
- \end{x10}
- 
- If the method named is {\tt void} the expression {\tt o -> m(a1,...,ak)}
- is equivalent to:
- \begin{x10}
-  finish async (o) \{o.m(a1,...,ak);\}
- \end{x10}
- 
- Otherwise the expression is equivalent to
- \begin{x10}
-  future (o)\{o.m(a1, ..., ak)\}.force()
- \end{x10}
-}
+\notinfouro{\input{rmi.tex}}
 
 \section{Iteration}\index{foreach@{\tt foreach}}\label{ForLoop}
 \index{for@{\tt for}}\label{ForAllLoop}

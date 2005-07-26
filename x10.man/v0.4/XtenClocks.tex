@@ -55,8 +55,8 @@ clocks will have been resumed. But this implies that all activities
 blocked on {\cf next} may continue and the configuration is not stuck.
 The only other possibility is that an activity may be stuck on {\tt
 finish}. But the interaction rule between {\tt finish} and clocks
-(\S~\ref{sec:finish:clock-rule} guarantees that this cannot cause a cycle
-in the wait-for graph. A more rigorous proof may be found in \cite{Xten-concur05}.
+(\S~\ref{sec:finish:clock-rule}) guarantees that this cannot cause a cycle
+in the wait-for graph. A more rigorous proof may be found in \cite{X10-concur05}.
 
 \section{Clock operations}\label{sec:clock}
 The special statements introduced for clock operations are listed below.
@@ -138,21 +138,16 @@ invocation:
   c.resume();
 \end{x10}
 
-An activity may invoke this method only on a clock it is registered 
+An activity may invoke this method only on a clock it is registered
 with, and has not yet dropped (\S~\ref{sec:clock:drop}). A {\tt
-ClockUseException}\index{clock!ClockUseException} is thrown if (and when) 
-this condition is violated.
-\noindent A {\tt ClockUseException
-\noindent on a clock {\tt c} it is registered with, and   
-
-Nothing happens if the activity invokes this method on a clock it is
-not registered with, or if it has already invoked a {\tt resume} on
-this clock in the current phase.  Otherwise execution of this
-statement indicates that the activity will not transmit {\cf c} to an
-{\tt async} (through a {\tt clocked} clause), 
+ClockUseException}\index{clock!ClockUseException} is thrown if (and
+when) this condition is violated.  Nothing happens if the activity has
+already invoked a {\tt resume} on this clock in the current phase.
+Otherwise execution of this statement indicates that the activity will
+not transmit {\cf c} to an {\tt async} (through a {\tt clocked}
+clause),
 % or invoke {\cf now} 
 until it terminates, drops {\cf c} or executes a {\tt next}. 
-A {\tt ClockUseException} is thrown if (and when) this condition is violated. 
 
 \notinfouro{\paragraph{Static semantics.} 
 The compiler should issue an error if any activity has a potentially
