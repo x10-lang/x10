@@ -1,4 +1,4 @@
-This is pdfeTeX, Version 3.141592-1.21a-2.2 (MiKTeX 2.4) (preloaded format=latex 2005.4.10)  25 JUL 2005 22:35
+This is pdfeTeX, Version 3.141592-1.21a-2.2 (MiKTeX 2.4) (preloaded format=latex 2005.4.10)  26 JUL 2005 16:30
 entering extended mode
 **x10
 (x10.tex
@@ -65,11 +65,7 @@ Writing index file x10.idx
 LaTeX Warning: Unused global option(s):
     [orivec].
 
-(x10.aux
-
-LaTeX Warning: Label `ExceptionModel' multiply defined.
-
-)
+(x10.aux)
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 40.
 LaTeX Font Info:    ... okay on input line 40.
 LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 40.
@@ -115,12 +111,12 @@ NAWA\OT1/ptm/m/n/10 ,
 \hbox(6.81989+1.40991)x254.0, glue set 3.19788 []
 
 
-Underfull \hbox (badness 1178) in paragraph at lines 53--73
-\OT1/ptm/m/n/10 A\OT1/ptm/m/sc/7 RMANDO \OT1/ptm/m/n/10 B\OT1/ptm/m/sc/7 SOLAR-
-LEZAMA\OT1/ptm/m/n/10 , C\OT1/ptm/m/sc/7 HRISTOPH von \OT1/ptm/m/n/10 P\OT1/ptm
-/m/sc/7 RAUN \OT1/ptm/m/n/10 and J\OT1/ptm/m/sc/7 AN
+Underfull \hbox (badness 2443) in paragraph at lines 53--73
+\OT1/ptm/m/n/10 A\OT1/ptm/m/sc/7 RMANDO \OT1/ptm/m/n/10 S\OT1/ptm/m/sc/7 OLAR-L
+EZAMA\OT1/ptm/m/n/10 , C\OT1/ptm/m/sc/7 HRISTOPH von \OT1/ptm/m/n/10 P\OT1/ptm/
+m/sc/7 RAUN \OT1/ptm/m/n/10 and J\OT1/ptm/m/sc/7 AN
 
-\hbox(6.81989+1.40991)x254.0, glue set 2.27719 []
+\hbox(6.81989+1.40991)x254.0, glue set 2.90346 []
 
 (x10.toc
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -190,6 +186,12 @@ ows a
 \hbox(6.81989+2.16492)x254.0, glue set 17.73698 []
 
 [7]) (FutureTypes.tex) (ArrayTypes.tex) [8]
+Underfull \hbox (badness 3396) in paragraph at lines 137--140
+[]\OT1/ptm/m/n/10 A vari-able of a nullary (ref-er-ence or value) data type
+
+\hbox(6.81989+2.16492)x254.0, glue set 3.24129 []
+
+
 Underfull \hbox (badness 6825) in paragraph at lines 170--173
 []\OT1/phv/m/n/10 X10 \OT1/ptm/m/n/10 fol-lows \OT1/phv/m/n/10 Java \OT1/ptm/m/
 n/10 lan-guage rules in this re-spect [[],
@@ -259,9 +261,6 @@ Non-PDF special ignored!]) (XtenPackages.tex
  4.
 ) (XtenPlaces.tex
  5.
-
-LaTeX Warning: Reference `PlaceTypes' on page 11 undefined on input line 54.
-
 [11
 Non-PDF special ignored!
 Non-PDF special ignored!
@@ -280,34 +279,34 @@ Non-PDF special ignored!
 Non-PDF special ignored!]) (XtenActivities.tex
  6.
 [12]
-Underfull \hbox (badness 1286) in paragraph at lines 120--126
+Underfull \hbox (badness 1286) in paragraph at lines 119--125
 \OT1/ptm/m/n/10 ap-pro-pri-ate for the state-ment. Ac-cesses to \OT1/pcr/m/n/10
  a[i] \OT1/ptm/m/n/10 within
 
 \hbox(6.81989+2.16492)x254.0, glue set 2.3454 []
 
 
-Underfull \hbox (badness 1577) in paragraph at lines 136--147
+Underfull \hbox (badness 1577) in paragraph at lines 135--146
 []\OT1/ptm/m/n/10 An ac-tiv-ity $\OML/cmm/m/it/10 A$ \OT1/ptm/m/n/10 ex-e-cutes
  the state-ment \OT1/pcr/m/n/10 async (P) S \OT1/ptm/m/n/10 by
 
 \hbox(6.83331+2.16492)x254.0, glue set 2.51007 []
-
-
-Underfull \hbox (badness 1325) in paragraph at lines 226--230
-\OT1/ptm/m/n/10 An \OT1/phv/m/n/10 X10 \OT1/ptm/m/n/10 com-pu-ta-tion is ini-ti
--ated from the com-mand line
-
-\hbox(7.2249+2.16492)x254.0, glue set 2.37024 []
 
 [13
 Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!
-Non-PDF special ignored!] [14]
+Non-PDF special ignored!]
+Underfull \hbox (badness 1325) in paragraph at lines 226--230
+\OT1/ptm/m/n/10 An \OT1/phv/m/n/10 X10 \OT1/ptm/m/n/10 com-pu-ta-tion is ini-ti
+-ated from the com-mand line
+
+\hbox(7.2249+2.16492)x254.0, glue set 2.37024 []
+
+[14]
 LaTeX Font Info:    Font shape `OMS/pcr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 460.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 469.
  [15] [16]) (XtenClocks.tex
  7.
 [17
@@ -316,10 +315,23 @@ Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!]
-Underfull \hbox (badness 10000) in paragraph at lines 77--79
+Underfull \hbox (badness 10000) in paragraph at lines 81--83
 \OT1/ptm/m/n/10 Clocks are cre-ated us-ing the nullary con-struc-tor for
 
 \hbox(6.81989+2.16492)x254.0, glue set 4.64502 []
+
+
+Underfull \hbox (badness 2134) in paragraph at lines 109--113
+[]\OT1/ptm/m/n/10 An ac-tiv-ity may trans-mit only those clocks that is reg-
+
+\hbox(6.81989+2.16492)x254.0, glue set 2.77577 []
+
+
+Underfull \hbox (badness 4819) in paragraph at lines 109--113
+\OT1/ptm/m/n/10 is-tered with and has not qui-esced on (\OMS/cmsy/m/n/10 x \OT1
+/ptm/m/n/10 7.1.3[]). A
+
+\hbox(6.94444+2.16492)x254.0, glue set 3.64229 []
 
 [18
 Non-PDF special ignored!
@@ -332,11 +344,10 @@ Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!]
-Underfull \hbox (badness 1189) in paragraph at lines 149--155
-\OT1/ptm/m/n/10 state-ment on a clock \OT1/pcr/m/n/10 c \OT1/ptm/m/n/10 to a \O
-T1/pcr/m/n/10 now \OT1/ptm/m/n/10 or async spawn state-
+Underfull \hbox (badness 1810) in paragraph at lines 141--151
+[]\OT1/ptm/m/n/10 An ac-tiv-ity may in-voke this method only on a clock it
 
-\hbox(6.81989+2.16492)x254.0, glue set 2.2844 []
+\hbox(6.81989+2.16492)x254.0, glue set 2.62683 []
 
 ) (XtenInterfaces.tex
  8.
@@ -377,7 +388,7 @@ Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!]) (XtenArrays.tex
  10.
-(XtenRegions.tex [21]
+(XtenRegions.tex
 Underfull \hbox (badness 5578) in paragraph at lines 45--47
 []\OT1/pcr/m/n/10 region.factory.upperTriangular(N) \OT1/ptm/m/n/10 re-turns
 
@@ -389,61 +400,61 @@ Underfull \hbox (badness 5578) in paragraph at lines 47--49
 
 \hbox(6.62994+1.56995)x233.99997, glue set 3.82411 []
 
-) (XtenDistributions.tex [22]
-Underfull \hbox (badness 3199) in paragraph at lines 67--69
+) (XtenDistributions.tex [21]
+Underfull \hbox (badness 3199) in paragraph at lines 69--71
 []\OT1/ptm/m/n/10 The dis-tri-b-u-tion \OT1/pcr/m/n/10 block(R) \OT1/ptm/m/n/10
  is the same dis-tri-b-u-tion as
 
 \hbox(6.81989+1.09998)x254.0, glue set 3.17593 []
 
 
-Underfull \hbox (badness 1762) in paragraph at lines 75--77
+Underfull \hbox (badness 1762) in paragraph at lines 77--79
 []\OT1/ptm/m/n/10 The dis-tri-b-u-tion \OT1/pcr/m/n/10 cyclic(R) \OT1/ptm/m/n/1
 0 is the same dis-tri-b-u-tion as
 
 \hbox(6.81989+1.56995)x254.0, glue set 2.60443 []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 83--86
+Underfull \hbox (badness 10000) in paragraph at lines 85--88
  \OT1/ptm/b/n/10 Block cyclic dis-tri-b-u-tions.[] \OT1/ptm/m/n/10 The dis-tri-
 b-u-tion
 
 \hbox(6.88995+2.03491)x254.0, glue set 15.5429 []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 83--86
+Underfull \hbox (badness 10000) in paragraph at lines 85--88
 \OT1/pcr/m/n/10 blockCyclic(R, N, Q) \OT1/ptm/m/n/10 dis-trib-utes the el-e-men
 ts of
 
 \hbox(6.81989+1.56995)x254.0, glue set 4.4064 []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 88--91
+Underfull \hbox (badness 10000) in paragraph at lines 90--93
  \OT1/ptm/b/n/10 Ar-bi-trary dis-tri-b-u-tions.[] \OT1/ptm/m/n/10 The dis-tri-b
 -u-tion
 
 \hbox(6.88995+2.03491)x254.0, glue set 26.1876 []
 
 
-Underfull \hbox (badness 1052) in paragraph at lines 88--91
+Underfull \hbox (badness 1052) in paragraph at lines 90--93
 \OT1/pcr/m/n/10 arbitrary(R,Q) \OT1/ptm/m/n/10 ar-bi-trar-ily al-lo-cates point
 s in \OT1/pcr/m/n/10 R \OT1/ptm/m/n/10 to \OT1/pcr/m/n/10 Q\OT1/ptm/m/n/10 .
 
 \hbox(6.81989+2.16492)x254.0, glue set 2.19226 []
 
 
-Underfull \hbox (badness 2951) in paragraph at lines 88--91
+Underfull \hbox (badness 2951) in paragraph at lines 90--93
 \OT1/ptm/m/n/10 As above, \OT1/pcr/m/n/10 arbitrary(R) \OT1/ptm/m/n/10 is the s
 ame dis-tri-b-u-tion as
 
 \hbox(6.81989+1.56995)x254.0, glue set 3.0921 []
 
-) [23
+[22
 Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!
-Non-PDF special ignored!]
+Non-PDF special ignored!]) [23]
 Underfull \hbox (badness 10000) in paragraph at lines 133--139
  \OT1/ptm/b/n/10 Over-lay-ing an ar-ray on an-other[] \OT1/ptm/m/n/10 The ex-pr
 es-sion
@@ -457,7 +468,7 @@ Underfull \hbox (badness 3977) in paragraph at lines 133--139
 
 \hbox(6.8449+2.16492)x254.0, glue set 3.4154 []
 
-[24])
+)
 Underfull \hbox (badness 10000) in paragraph at lines 187--60
 []\OT1/ptm/m/n/10 Other op-er-a-tions on ar-rays may be found in
 
@@ -465,14 +476,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 187--60
 
 (XtenStatements.tex
  11.
-
+[24]
 Underfull \hbox (badness 5878) in paragraph at lines 80--81
  \OT1/ptm/b/n/10 Ex-am-ple.[] \OT1/ptm/m/n/10 The fol-low-ing ex-am-ple suc-cee
 ds when ex-e-
 
 \hbox(6.81989+2.16492)x254.0, glue set 3.89226 []
 
-[25] (XtenExpressions.tex
+(XtenExpressions.tex
 Underfull \hbox (badness 2941) in paragraph at lines 52--57
 \OT1/ptm/m/n/10 This op-er-a-tor takes two ar-gu-ments; the first should be
 
@@ -492,48 +503,12 @@ Underfull \hbox (badness 1694) in paragraph at lines 52--57
 
 \hbox(6.81989+2.16492)x254.0, glue set 2.56906 []
 
-)) (extern.tex [26
+[25])) (extern.tex [26
 Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!
-Non-PDF special ignored!]) (example.tex [27]) (x10-syntax.tex [28
-
-] [29
-
-]
-Underfull \vbox (badness 10000) has occurred while \output is active
-\vbox(663.0+0.0)x523.0 []
-
- [30]
-Overfull \hbox (24.20035pt too wide) in paragraph at lines 548--548
-[]\OT1/pcr/m/n/8 143   NormalInterfaceDeclaration ::= InterfaceModifiersopt int
-erface identifier ExtendsInterfacesopt InterfaceBody[] 
-
-\hbox(5.30396+1.25595)x523.0 []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active
-\vbox(663.0+0.0)x523.0 []
-
- [31]
-Underfull \vbox (badness 10000) has occurred while \output is active
-\vbox(663.0+0.0)x523.0 []
-
- [32]
-Underfull \vbox (badness 10000) has occurred while \output is active
-\vbox(663.0+0.0)x523.0 []
-
- [33]
-Underfull \vbox (badness 10000) has occurred while \output is active
-\vbox(663.0+0.0)x523.0 []
-
- [34]
-Underfull \vbox (badness 10000) has occurred while \output is active
-\vbox(663.0+0.0)x523.0 []
-
- [35]
-[36]) (x10-changes.tex
+Non-PDF special ignored!]) (example.tex) [27] (x10-changes.tex
 Underfull \hbox (badness 5726) in paragraph at lines 42--44
 []\OT1/ptm/m/n/10 Confine the use of \OT1/phv/m/n/10 Java \OT1/ptm/m/n/10 to sy
 s-tem classes, e.g.
@@ -547,65 +522,44 @@ Underfull \hbox (badness 4634) in paragraph at lines 44--45
 \hbox(6.81989+2.16492)x233.99997, glue set 3.59555 []
 
 ) (x10.bbl
-Underfull \hbox (badness 10000) in paragraph at lines 23--26
+Underfull \hbox (badness 10000) in paragraph at lines 30--33
 []\OT1/ptm/m/n/10 Gilad Bracha et al.  Adding Gener-ics to the
 
 \hbox(6.81989+2.16492)x232.34009, glue set 4.40016 []
 
 
-Underfull \hbox (badness 8094) in paragraph at lines 23--26
+Underfull \hbox (badness 8094) in paragraph at lines 30--33
 \OT1/ptm/m/n/10 Java Pro-gram-ming Lan-guage, 2001.  JSR 014,
 
 \hbox(6.81989+2.16492)x232.34009, glue set 4.32913 []
 
 
-Underfull \hbox (badness 1314) in paragraph at lines 39--43
+Underfull \hbox (badness 1314) in paragraph at lines 40--44
 []\OT1/ptm/m/n/10 Maurice Her-lihy.  Wait-free syn-chro-niza-tion.  \OT1/ptm/m/
 it/10 ACM
 
 \hbox(6.81989+2.16492)x232.34009, glue set 2.36285 []
 
+) [28] (x10.ind [29
 
-Underfull \hbox (badness 2503) in paragraph at lines 57--63
-\OT1/ptm/m/n/10 leton Miyamoto, Ben Li-b-lit, Arvind Kr-ish-na-murthy,
-
-\hbox(6.81989+2.16492)x232.34009, glue set 2.92757 []
-
-
-Underfull \hbox (badness 1383) in paragraph at lines 57--63
-\OT1/ptm/m/n/10 Colella, and Alexan-der Aiken.  Ti-ta-nium: A high-
-
-\hbox(6.81989+2.16492)x232.34009, glue set 2.40182 []
-
-) [37
-
-] (x10.ind [38
-
-]) [39] (x10.aux)
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: There were multiply-defined labels.
-
- ) 
+]) [30] (x10.aux) ) 
 Here is how much of TeX's memory you used:
- 1000 strings out of 95512
- 10517 string characters out of 1189448
- 78948 words of memory out of 1068388
- 3965 multiletter control sequences out of 60000
+ 1003 strings out of 95512
+ 10561 string characters out of 1189448
+ 66435 words of memory out of 1055875
+ 3972 multiletter control sequences out of 60000
  36415 words of font info for 65 fonts, out of 500000 for 1000
  14 hyphenation exceptions out of 607
  25i,8n,19p,238b,302s stack positions out of 1500i,500n,5000p,200000b,32768s
 PDF statistics:
- 160 PDF objects out of 300000
+ 131 PDF objects out of 300000
  0 named destinations out of 300000
  1 words of extra memory for PDF output out of 65536
-<C:\texmf\fonts\type1\bluesky\cm\cmtt10.pfb><C:\texmf\fonts\type1\bluesky\cm\
-cmmi10.pfb><C:\texmf\fonts\type1\bluesky\cm\cmsy8.pfb><C:\texmf\fonts\type1\blu
-esky\cm\cmmi7.pfb>{8r.enc}<C:\texmf\fonts\type1\urw\urwstd\utmri8a.pfb><C:\texm
-f\fonts\type1\bluesky\cm\cmr7.pfb><C:\texmf\fonts\type1\bluesky\cm\cmr10.pfb><C
-:\texmf\fonts\type1\bluesky\cm\cmsy10.pfb><C:\texmf\fonts\type1\urw\urwstd\ucrr
-8a.pfb><C:\texmf\fonts\type1\urw\urwstd\utmr8a.pfb><C:\texmf\fonts\type1\urw\ur
-wstd\uhvr8a.pfb><C:\texmf\fonts\type1\urw\urwstd\utmb8a.pfb>
-Output written on x10.pdf (39 pages, 256717 bytes).
+<C:\texmf\fonts\type1\bluesky\cm\cmtt10.pfb><C:\texmf\fonts\
+type1\bluesky\cm\cmmi10.pfb><C:\texmf\fonts\type1\bluesky\cm\cmsy8.pfb><C:\texm
+f\fonts\type1\bluesky\cm\cmmi7.pfb>{8r.enc}<C:\texmf\fonts\type1\urw\urwstd\utm
+ri8a.pfb><C:\texmf\fonts\type1\bluesky\cm\cmr7.pfb><C:\texmf\fonts\type1\bluesk
+y\cm\cmr10.pfb><C:\texmf\fonts\type1\bluesky\cm\cmsy10.pfb><C:\texmf\fonts\type
+1\urw\urwstd\ucrr8a.pfb><C:\texmf\fonts\type1\urw\urwstd\utmr8a.pfb><C:\texmf\f
+onts\type1\urw\urwstd\uhvr8a.pfb><C:\texmf\fonts\type1\urw\urwstd\utmb8a.pfb>
+Output written on x10.pdf (30 pages, 241454 bytes).

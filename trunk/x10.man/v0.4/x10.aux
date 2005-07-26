@@ -6,6 +6,8 @@
 \citation{moreira00java}
 \citation{kava}
 \citation{zpl}
+\citation{X10-concur05}
+\citation{xten}
 \@writefile{toc}{\contentsline {chapter}{Introduction}{2}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {1}Overview of {\sf  X10}}{3}}
 \@writefile{lof}{\addvspace {10\p@ }}
@@ -86,11 +88,11 @@
 \newlabel{Object}{{3.7.1}{10}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.7.2}The class {\tt  String}}{10}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.7.3}Arithmetic classes}{10}}
-\@writefile{toc}{\contentsline {paragraph}{Future extensions.}{10}}
+\@writefile{toc}{\contentsline {paragraph}{Future Extensions.}{10}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.7.4}Places, distributions, regions, clocks}{10}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.7.5}Java utility classes}{10}}
 \citation{jls2}
-\@writefile{toc}{\contentsline {paragraph}{Future extensions.}{11}}
+\@writefile{toc}{\contentsline {paragraph}{Future Extensions.}{11}}
 \cb@barpoint{12}{22}{2.0pt}
 \@writefile{toc}{\contentsline {section}{\numberline {3.8}Conversions and Promotions}{11}}
 \newlabel{XtenConversions}{{3.8}{11}}
@@ -115,8 +117,7 @@
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \newlabel{XtenActivities}{{6}{12}}
-\newlabel{ExceptionModel}{{6}{12}}
-\@writefile{toc}{\contentsline {paragraph}{Future extensions.}{12}}
+\@writefile{toc}{\contentsline {paragraph}{Future Extensions.}{12}}
 \@writefile{toc}{\contentsline {section}{\numberline {6.1}The {\sf  X10}{} rooted exception model}{12}}
 \newlabel{ExceptionModel}{{6.1}{12}}
 \@writefile{toc}{\contentsline {section}{\numberline {6.2}Spawning an activity}{12}}
@@ -126,9 +127,10 @@
 \@writefile{toc}{\contentsline {section}{\numberline {6.3}Finish}{13}}
 \newlabel{finish}{{6.3}{13}}
 \cb@barpoint{17}{26}{2.0pt}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{13}}
+\newlabel{sec:finish:clock-rule}{{6.3}{13}}
+\@writefile{toc}{\contentsline {paragraph}{Interaction with clocks.}{13}}
 \cb@barpoint{20}{26}{2.0pt}
-\@writefile{toc}{\contentsline {paragraph}{Future extensions.}{13}}
+\@writefile{toc}{\contentsline {paragraph}{Future Extensions.}{13}}
 \@writefile{toc}{\contentsline {section}{\numberline {6.4}Initial activity}{14}}
 \newlabel{initial-computation}{{6.4}{14}}
 \@writefile{toc}{\contentsline {section}{\numberline {6.5}Asynchronous Expression and Futures}{14}}
@@ -138,12 +140,12 @@
 \newlabel{AtomicBlocks}{{6.6}{14}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.6.1}Unconditional atomic blocks}{14}}
 \citation{herlihy91waitfree}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{15}}
-\newlabel{LocalityCondition}{{6.6.1}{15}}
+\@writefile{toc}{\contentsline {paragraph}{Static semantics and dynamic checks.}{15}}
+\@writefile{toc}{\contentsline {paragraph}{Consequences.}{15}}
 \@writefile{toc}{\contentsline {subsubsection}{Example}{15}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.6.2}Conditional atomic blocks}{15}}
 \@writefile{toc}{\contentsline {paragraph}{Static semantics.}{15}}
-\@writefile{toc}{\contentsline {paragraph}{Sample usage.}{15}}
+\@writefile{toc}{\contentsline {paragraph}{Sample usage.}{16}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.6.3}Examples}{16}}
 \@writefile{toc}{\contentsline {paragraph}{Bounded buffer.}{16}}
 \newlabel{future-imp}{{6.6.3}{16}}
@@ -157,19 +159,23 @@
 \@writefile{lot}{\addvspace {10\p@ }}
 \newlabel{XtenClocks}{{7}{17}}
 \cb@barpoint{21}{34}{2.0pt}
+\citation{X10-concur05}
 \@writefile{toc}{\contentsline {section}{\numberline {7.1}Clock operations}{18}}
+\newlabel{sec:clock}{{7.1}{18}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.1.1}Creating new clocks}{18}}
+\newlabel{sec:clock:create}{{7.1.1}{18}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.1.2}Registering new activities on clocks}{18}}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{18}}
+\newlabel{sec:clock:register}{{7.1.2}{18}}
 \@writefile{toc}{\contentsline {paragraph}{Note.}{18}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.3}Resuming clocks}{18}}
-\newlabel{resume}{{7.1.3}{18}}
 \citation{jls2}
 \citation{jls2}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{19}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.3}Resuming clocks}{19}}
+\newlabel{resume}{{7.1.3}{19}}
+\newlabel{sec:clock:resume}{{7.1.3}{19}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.1.4}Advancing clocks}{19}}
+\newlabel{sec:clock:next}{{7.1.4}{19}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.1.5}Dropping clocks}{19}}
-\@writefile{toc}{\contentsline {paragraph}{Static semantics.}{19}}
+\newlabel{sec:clock:drop}{{7.1.5}{19}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.1.6}Program equivalences}{19}}
 \cb@barpoint{24}{38}{2.0pt}
 \@writefile{toc}{\contentsline {chapter}{\numberline {8}Interfaces}{19}}
@@ -180,8 +186,8 @@
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \newlabel{XtenClasses}{{9}{19}}
-\@writefile{toc}{\contentsline {section}{\numberline {9.1}Reference classes}{20}}
-\newlabel{ReferenceClasses}{{9.1}{20}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.1}Reference classes}{19}}
+\newlabel{ReferenceClasses}{{9.1}{19}}
 \@writefile{toc}{\contentsline {section}{\numberline {9.2}Value classes}{20}}
 \newlabel{ValueClasses}{{9.2}{20}}
 \cb@barpoint{25}{40}{2.0pt}
@@ -193,31 +199,29 @@
 \cb@barpoint{32}{40}{2.0pt}
 \@writefile{toc}{\contentsline {section}{\numberline {9.3}Method annotations}{21}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {9.3.1}{\tt  atomic} annotation}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.3.2}{\tt  local} annotation}{21}}
-\newlabel{LocalAnnotation}{{9.3.2}{21}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {10}Arrays}{21}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \newlabel{XtenArrays}{{10}{21}}
 \@writefile{toc}{\contentsline {section}{\numberline {10.1}Regions}{21}}
 \newlabel{XtenRegions}{{10.1}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.1.1}Operations on Regions}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.1.1}Operations on Regions}{21}}
 \@writefile{toc}{\contentsline {section}{\numberline {10.2}Distributions}{22}}
 \newlabel{XtenDistributions}{{10.2}{22}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {10.2.1}Operations returning distributions}{22}}
 \@writefile{toc}{\contentsline {paragraph}{Unique distribution}{22}}
 \@writefile{toc}{\contentsline {paragraph}{Constant distributions.}{22}}
-\@writefile{toc}{\contentsline {paragraph}{Block distributions.}{23}}
-\@writefile{toc}{\contentsline {paragraph}{Cyclic distributions.}{23}}
-\@writefile{toc}{\contentsline {paragraph}{Block cyclic distributions.}{23}}
-\@writefile{toc}{\contentsline {paragraph}{Arbitrary distributions.}{23}}
-\@writefile{toc}{\contentsline {paragraph}{Domain Restriction.}{23}}
-\@writefile{toc}{\contentsline {paragraph}{Range Restriction.}{23}}
-\cb@barpoint{33}{46}{2.0pt}
-\cb@barpoint{36}{46}{2.0pt}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.2}User-defined distributions}{23}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.3}Operations on Distributions}{23}}
-\@writefile{toc}{\contentsline {paragraph}{Intersection of distributions.}{23}}
+\@writefile{toc}{\contentsline {paragraph}{Block distributions.}{22}}
+\@writefile{toc}{\contentsline {paragraph}{Cyclic distributions.}{22}}
+\@writefile{toc}{\contentsline {paragraph}{Block cyclic distributions.}{22}}
+\@writefile{toc}{\contentsline {paragraph}{Arbitrary distributions.}{22}}
+\@writefile{toc}{\contentsline {paragraph}{Domain Restriction.}{22}}
+\@writefile{toc}{\contentsline {paragraph}{Range Restriction.}{22}}
+\cb@barpoint{33}{44}{2.0pt}
+\cb@barpoint{36}{44}{2.0pt}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.2}User-defined distributions}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2.3}Operations on Distributions}{22}}
+\@writefile{toc}{\contentsline {paragraph}{Intersection of distributions.}{22}}
 \@writefile{toc}{\contentsline {paragraph}{Asymmetric union of distributions.}{23}}
 \@writefile{toc}{\contentsline {paragraph}{Disjoint union of distributions.}{23}}
 \@writefile{toc}{\contentsline {paragraph}{Difference of distributions.}{23}}
@@ -225,68 +229,67 @@
 \@writefile{toc}{\contentsline {section}{\numberline {10.3}Array initializer}{23}}
 \newlabel{ArrayInitializer}{{10.3}{23}}
 \newlabel{array!creation}{{10.3}{23}}
-\@writefile{toc}{\contentsline {section}{\numberline {10.4}Operations on arrays}{24}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.1}Element operations}{24}}
+\@writefile{toc}{\contentsline {section}{\numberline {10.4}Operations on arrays}{23}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.1}Element operations}{23}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {10.4.2}Constant promotion}{24}}
 \newlabel{ConstantArray}{{10.4.2}{24}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {10.4.3}Restriction of an array}{24}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {10.4.4}Assembling an array}{24}}
 \@writefile{toc}{\contentsline {paragraph}{Assembling arrays over disjoint regions}{24}}
 \@writefile{toc}{\contentsline {paragraph}{Overlaying an array on another}{24}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.5}Global operations }{25}}
-\newlabel{ArrayPointwise}{{10.4.5}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Pointwise operations}{25}}
-\newlabel{ArrayReductions}{{10.4.5}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Reductions}{25}}
-\newlabel{ArrayScans}{{10.4.5}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Scans}{25}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {11}Statements and Expressions}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.4.5}Global operations }{24}}
+\newlabel{ArrayPointwise}{{10.4.5}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Pointwise operations}{24}}
+\newlabel{ArrayReductions}{{10.4.5}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Reductions}{24}}
+\newlabel{ArrayScans}{{10.4.5}{24}}
+\@writefile{toc}{\contentsline {paragraph}{Scans}{24}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {11}Statements and Expressions}{24}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{XtenStatements}{{11}{25}}
-\@writefile{toc}{\contentsline {section}{\numberline {11.1}Assignment}{25}}
-\newlabel{AssignmentStatement}{{11.1}{25}}
-\@writefile{toc}{\contentsline {section}{\numberline {11.2}Point and region construction}{25}}
-\newlabel{point-syntax}{{11.2}{25}}
-\@writefile{toc}{\contentsline {section}{\numberline {11.3}Exploded variable declarations}{25}}
-\newlabel{exploded-syntax}{{11.3}{25}}
-\@writefile{toc}{\contentsline {paragraph}{Example.}{25}}
+\newlabel{XtenStatements}{{11}{24}}
+\@writefile{toc}{\contentsline {section}{\numberline {11.1}Assignment}{24}}
+\newlabel{AssignmentStatement}{{11.1}{24}}
+\@writefile{toc}{\contentsline {section}{\numberline {11.2}Point and region construction}{24}}
+\newlabel{point-syntax}{{11.2}{24}}
 \citation{jls2}
 \citation{gjspec}
 \citation{jls2}
-\@writefile{toc}{\contentsline {section}{\numberline {11.4}Expressions}{26}}
-\newlabel{XtenExpressions}{{11.4}{26}}
-\newlabel{FieldAccess}{{11.4}{26}}
-\newlabel{ClassCreation}{{11.4}{26}}
-\newlabel{MethodInvocation}{{11.4}{26}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {11.4.1}The classcast operator}{26}}
-\newlabel{ClassCast}{{11.4.1}{26}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {11.4.2}{\tt  instanceof} operator}{26}}
-\newlabel{instanceOf}{{11.4.2}{26}}
+\@writefile{toc}{\contentsline {section}{\numberline {11.3}Exploded variable declarations}{25}}
+\newlabel{exploded-syntax}{{11.3}{25}}
+\@writefile{toc}{\contentsline {paragraph}{Example.}{25}}
+\@writefile{toc}{\contentsline {section}{\numberline {11.4}Expressions}{25}}
+\newlabel{XtenExpressions}{{11.4}{25}}
+\newlabel{FieldAccess}{{11.4}{25}}
+\newlabel{ClassCreation}{{11.4}{25}}
+\newlabel{MethodInvocation}{{11.4}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.4.1}The classcast operator}{25}}
+\newlabel{ClassCast}{{11.4.1}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.4.2}{\tt  instanceof} operator}{25}}
+\newlabel{instanceOf}{{11.4.2}{25}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {11.4.3}Stable equality.}{26}}
 \newlabel{StableEquality}{{11.4.3}{26}}
 \cb@barpoint{37}{52}{2.0pt}
 \cb@barpoint{40}{52}{2.0pt}
 \@writefile{toc}{\contentsline {section}{\numberline {11.5}Linking with native code}{26}}
 \newlabel{extern}{{11.5}{26}}
-\@writefile{toc}{\contentsline {paragraph}{Example.}{27}}
+\@writefile{toc}{\contentsline {paragraph}{Example.}{26}}
 \@writefile{toc}{\contentsline {chapter}{Example}{27}}
-\@writefile{toc}{\contentsline {chapter}{{\sf  X10}{} syntax}{29}}
-\newlabel{X10 syntax}{{11.5}{29}}
 \bibstyle{plain}
 \bibdata{master}
 \bibcite{kava}{1}
 \bibcite{pgas}{2}
 \bibcite{zpl}{3}
-\bibcite{gjspec}{4}
-\bibcite{XtenLibrary}{5}
+\bibcite{xten}{4}
+\bibcite{gjspec}{5}
 \bibcite{jls2}{6}
 \bibcite{herlihy91waitfree}{7}
 \bibcite{moreira00java}{8}
-\bibcite{mpi}{9}
-\bibcite{titanium}{10}
-\@writefile{toc}{\contentsline {chapter}{Changes from v0.32}{37}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {11.5.1}Limitations}{37}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {11.5.2}Future work}{37}}
-\@writefile{toc}{\contentsline {chapter}{References}{37}}
-\@writefile{toc}{\contentsline {chapter}{Alphabetic index of definitions of concepts,\hfil \penalty 0 \hbox {\hspace  *{2em} keywords, and procedures}}{38}}
+\bibcite{X10-concur05}{9}
+\bibcite{mpi}{10}
+\bibcite{titanium}{11}
+\@writefile{toc}{\contentsline {chapter}{Changes from v0.32}{28}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.5.1}Limitations}{28}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.5.2}Future work}{28}}
+\@writefile{toc}{\contentsline {chapter}{References}{28}}
+\@writefile{toc}{\contentsline {chapter}{Alphabetic index of definitions of concepts,\hfil \penalty 0 \hbox {\hspace  *{2em} keywords, and procedures}}{29}}
