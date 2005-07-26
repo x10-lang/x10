@@ -29,8 +29,10 @@ distribution D = distribution.factory.random(R);
 Let {\cf D} be a distribution. {\cf D.region} denotes the underlying
 region. {\cf D.places} is the set of places constituting the range of
 {\cf D} (viewed as a function). Given a point {\cf p}, the expression
-{\cf D[p]} represents the application of {\cf D} to {\cf p}, that is, the
-place that {\tt p} is mapped to by {\tt D}.
+{\cf D[p]} represents the application of {\cf D} to {\cf p}, that is,
+the place that {\tt p} is mapped to by {\tt D}. The evaluation of the
+expression {\tt D[p]} throws an {\tt ArrayIndexOutofBoundsException}
+if {\tt p} does not lie in the underlying region.
 
 When operated on as a distribution, a region {\cf R} implicitly
 behaves as the distribution mapping each item in {\cf R} to {\cf here}

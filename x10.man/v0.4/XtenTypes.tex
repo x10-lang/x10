@@ -98,7 +98,7 @@ declaration introduces a data type.
 \end{x10}
 
 \paragraph{Reference class declarations.}\label{ReferenceTypes}
-The {\em reference class declaration} (\S~\ref{ReferenceClasses} takes
+The {\em reference class declaration} (\S~\ref{ReferenceClasses}) takes
 as argument a reference class (the {\em extended class}), one or more
 interfaces (the {\em implemented interfaces}), the definition of
 fields, methods and inner types, and returns a class of the named type
@@ -116,7 +116,7 @@ reference class declaration can be used to construct a reference type.
 \input{NullableTypeConstructor.tex}
 \input{FutureTypes}
 \input{ArrayTypes}
-\input{PlaceTypes}
+\notfouro{\input{PlaceTypes}}
 
 \section{Variables}\label{XtenVariables}\index{variables}
 
@@ -345,13 +345,13 @@ double float
 that stand for specific instances of these classes. The syntax
 for literals is the same as for \java{} (\S~ref{Literals}).
 
-\paragraph{Future extensions.} 
+\futureext{
 \Xten{} may provide mechansims in the future to permit the programmer
 to specify how a specific value class is to be mapped to special
 hardware operations (e.g.{} along the lines of
 \cite{kava}). Similarly, mechanisms may be provided to permit the user
 to specify new syntax for literals.
-
+}
 \subsection{Places, distributions, regions, clocks}
 \Xten{} defines several other classes in the {\cf x10.lang}
 package. Please consult the API documentation for more details.
@@ -359,14 +359,22 @@ package. Please consult the API documentation for more details.
 \subsection{Java utility classes}
 \XtenCurrVer{} programmers may import and use \java{} packages such as
 {\tt java.util}, e.g.{} {\tt java.util.Set}, {\tt
-java.lang.System}. \Xten{} programs should not use the {\cf
-synchronized} method on such objects, or create new {\cf Thread}s, or
-invoke any {\tt wait/notify} methods on such objects.
+java.lang.System}. \Xten{} programs should not invoke methods
+that use the {\tt wait/notify/notifyAll} methods on such objects,
+since this may interfere with \Xten{} synchronization. The
+implementation does not make imported \java{} classes
+automatically extend {\tt x10.lang.Object}. 
 
-\paragraph{Future extensions.} 
+\futureext{
 The above represents an {\em ad hoc} integration of \java{} libraries
-into \Xten{}. In the future a more principled and robust scheme will
-be worked out.
+into \Xten{}. It has the unfortunate consequence that not every run-time
+value in an \Xten{} program execution is an instance of a subclass of
+{\tt x10.lang.Object}. }
+
+In the future a more principled and robust scheme will be worked
+out. Such a scheme will need to attend to the integration of the
+\java{} and \Xten{} type systems, and develop a notion of place for 
+\java{} objects.
 
 \cbend
 \section{Conversions and Promotions}\label{XtenConversions}\label{XtenPromotions}\index{conversions}\index{promotions}

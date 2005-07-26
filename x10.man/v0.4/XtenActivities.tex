@@ -5,24 +5,27 @@ flight'' at any give time. We use the term activity to denote a
 dynamic execution instance of a piece of code (with references to
 data). An activity is intended to execute in parallel with other
 activities. An activity may be thought of as a very light-weight
-thread.  In \XtenCurrVer{}, activities may not be interrupted,
-suspended or resumed from outside. 
+thread.  In \XtenCurrVer{}, an activity may not be interrupted,
+suspended or resumed as the result of actions taken by any other
+activity.
 
-An activity may asynchronously and in parallel launch activities at
-other places. An activity is spawned in a given place and stays in
-that place for its lifetime.  An activity may be {\em running}, {\em
-blocked} on some condition or {\em terminated}. When the statement
-associated with an activity terminates normally, the activity
-terminates normally; when it terminates abruptly with some reason $R$,
-the activity terminates with the same reason.
+An activity is spawned in a given place and stays in that place for
+its lifetime.  An activity may be {\em running}, {\em blocked} on some
+condition or {\em terminated}. When the statement associated with an
+activity terminates normally, the activity terminates normally; when
+it terminates abruptly with some reason $R$, the activity terminates
+with the same reason (\S~\label{ExceptionModel}).
 
 An activity may be long-running and may invoke recursive methods (thus
 may have a stack associated with it). On the other hand, an activity
-may be short-running, involving a fine-grained
-operation such as a single read or write.
+may be short-running, involving a fine-grained operation such as a
+single read or write.
 
 An activity may have an {\em activitylocal} heap accessible only
 to the activity. 
+
+An activity may asynchronously and in parallel launch activities at
+other places.
 
 \Xten{} distinguishes between {\em local} termination and {\em global}
 termination of a statement. The execution of a statement by an
@@ -42,10 +45,9 @@ terminates. Thus \Xten{} does not permit the creation of so called
 activity. We say that an \Xten{} computation is {\em rooted}
 (\S~\ref{initial-computation}).
 
-\paragraph{Future extensions.} 
-We may permit the initial activity to be a daemon activity to permit
-reactive computations, such as webservers, that conceptually dont
-terminate.
+\futureext{ We may permit the initial activity to be a daemon activity
+to permit reactive computations, such as webservers, that may not
+terminate.}
 
 \section{The \Xten{} rooted exception model}
 \label{ExceptionModel}
@@ -193,17 +195,21 @@ the first {\tt finish}: {\tt finish finish s} is indistinguishable
 from {\tt finish s}.
 
 \cbstart 
-\paragraph{Static semantics.} 
+\paragraph{Interaction with clocks.}\label{sec:finish:clock-rule}
 {\tt finish s} interacts with clocks (\S~\ref{XtenClocks}). 
 
-To prevent deadlock from arising it is necessary that no async spawned
-by {\tt s} be registered on a clock. That is, the compiler should
-ensure that no {\tt async}, {\tt foreach} or {\tt ateach} statement in
-{\tt s} contains a non-empty {\tt clocked} clause.
+While executing {\tt s}, an activity must not spawn any {\tt clocked}
+asyncs. (Asyncs spawned during the execution of {\tt s} may spawn
+clocked asyncs.) A {\tt
+ClockUseException}\index{clock!ClockUseException} is thrown if (and
+when) this condition is violated.
+
+In \XtenCurrVer{} this condition is checked dynamically; future
+versions of the language will introduce type qualifiers which permit
+this condition to be checked statically.
 
 \cbend
-\paragraph{Future extensions.} 
-
+\futureext{
 The semantics of {\tt finish S} is conjunctive; it terminates when all
 the activities created during the execution of {\tt S} (recursively)
 terminate. In many situations (e.g.{} nondeterministic search) it is
@@ -212,7 +218,7 @@ activities it has spawned succeeds. The other activities may then be
 safely aborted. Future versions of the language may introduce a {\tt
 finishone S} construct to support such speculative or nondeterministic
 computation.
-
+}
 %% Need an example here.
 
 \section{Initial activity}\label{initial-computation}\index{initial activity}
@@ -222,8 +228,8 @@ presentation of a classname {\tt C}. The class must have a {\tt public
 static void main(String[] a)} method, otherwise an exception is thrown
 and the computation terminates.  The single statement
 \begin{x10}
-async (place.FIRST\_PLACE) \{ 
-  finish C.main(s);
+finish async (place.FIRST\_PLACE) \{ 
+   C.main(s);
 \}
 \end{x10} 
 \noindent is executed where {\tt s} is an array of strings created
@@ -253,12 +259,12 @@ is an expression of some type {\tt T}. {\tt e} may reference only
 those variables in the enclosing lexical environment which are
 declared to be {\tt final}.
 
-If the type of {\cf e} is {\tt T@P} then the type of
-{\tt future (Q){e}} is {\tt future<T@P>}.  This 
-type {\tt future<T@P>} is defined as if by:
+If the type of {\cf e} is {\tt T} then the type of
+{\tt future (Q){e}} is {\tt future<T>}.  This 
+type {\tt future<T>} is defined as if by:
 \begin{x10}
-public interface future<T@P> \{
-  T@P force();
+public interface future<T> \{
+  T force();
   boolean forced();
 \}
 \end{x10}
@@ -332,7 +338,7 @@ of any runtime parameters. }
 The exact algorithm to be used by
 the compiler to perform this analysis will be specified in future
 versions of the language.
-%%% TBD
+\tbd{}
 
 Such a statement is executed by an activity as if in a single step
 during which all other concurrent activities in the same place are
@@ -354,6 +360,31 @@ We allow methods of an object to be annotated with {\cf atomic}. Such
 a method is taken to stand for a method whose body is wrapped within an
 {\cf atomic} statement.
 
+Atomic blocks are closely related to non-blocking synchronization
+constructs \cite{herlihy91waitfree}, and can be used to implement 
+non-blocking concurrent algorithms.
+
+\paragraph{Static semantics and dynamic checks.}
+In {\cf atomic s}, {\cf s} may include method calls, conditionals etc.
+It may {\em not} include an {\tt async} activity.
+It may {\em not} include any statement that may potentially block at
+runtime (e.g.{} {\tt when}, {\tt force} operations, {\tt next}
+operations on clocks, {\tt finish}).
+\limitation{Not checked currently.}
+
+All locations accessed in an atomic block must reside {\tt here}
+(\S~\ref{Here}). A {\tt
+BadPlaceException}\index{place!BadPlaceException} is thrown if (and
+when) this condition is violated.
+
+\notfouro{All locations accessed in an atomic block must statically satisfy the
+{\em locality condition}: they must belong to the place of the current
+activity.\index{locality condition}\label{LocalityCondition} The
+compiler checks for this condition by checking whether the statement
+could be the body of a {\tt void} method annotated with {\tt local} at
+that point in the code (\S~\ref{LocalAnnotation}).}
+
+\paragraph{Consequences.}
 Note an important property of an (unconditonal) atomic block:
 
 \begin{eqnarray}
@@ -363,23 +394,6 @@ Note an important property of an (unconditonal) atomic block:
 Further, an atomic block will eventually terminate successfully or
 thrown an exception; it may not introduce a deadlock.
 
-Atomic blocks are closely related to non-blocking synchronization
-constructs \cite{herlihy91waitfree}, and can be used to implement 
-non-blocking concurrent algorithms.
-
-\paragraph{Static semantics.}
-In {\cf atomic s}, {\cf s} may include method calls, conditionals etc.
-It may {\em not} include an {\tt async} activity.
-It may {\em not} include any statement that may potentially block at
-runtime (e.g.{} {\tt when}, {\tt force} operations, {\tt next}
-operations on clocks, {\tt finish}).
-
-All locations accessed in an atomic block must statically satisfy the
-{\em locality condition}: they must belong to the place of the current
-activity.\index{locality condition}\label{LocalityCondition} The
-compiler checks for this condition by checking whether the statement
-could be the body of a {\tt void} method annotated with {\tt local} at
-that point in the code (\S~\ref{LocalAnnotation}).
 
 \subsubsection{Example}
 
@@ -422,34 +436,8 @@ statement corresponding to the first guard that is true is executed.
 The checking of the guards and the execution of the corresponding
 guarded statement is done atomically. 
 
-We note two common abbreviations. The statement {\cf when (true) S} is
-behaviorally identical to {\cf atomic S}: it never suspends. Second,
-{\cf when (c) \{;\}} may be abbreviated to {\cf await(c);} -- it
-simply indicates that the thread must await the occurrence of a
-certain condition before proceeding.  Finally note that a {\tt when}
-statement with multiple branches is behaviorally identical to a {\tt
-when} statement with a single branch that checks the disjunction of
-the condition of each branch, and whose body contains an {\cf
-if/then/else} checking each of the branch conditions.
 
-\paragraph{Static semantics.}
-For the sake of efficient implementation certain restrictions are
-placed on the guards and statements in a conditional atomic
-block. First, guards are required not to have side-effects, not to
-spawn asynchronous activities and to have a statically determinable
-upper bound on their execution. These conditions are expected to
-be checked statically by the compiler.
-
-Second, as for unconditional atomic blocks, the set of memory
-locations accessed by a guarded statements are required to be bounded
-and statically anlayzable.
-
-Third, guarded statements are required to be {\em flat}, that is, they
-may not contain conditional atomic blocks. (The implementation of
-nested conditional atomic blocks may require sophisticated
-operational techniques such as rollbacks.)
-
-Fourth, \Xten{} does not guarantee that a conditional atomic block
+\Xten{} does not guarantee that a conditional atomic block
 will execute if its condition holds only intermmitently. For, based on
 the vagaries of the scheduler, the precise instant at which a
 condition holds may be missed. Therefore the programmer is advised to
@@ -474,6 +462,37 @@ The guarantee provided by {\cf wait/notify} in \java{} is no
 stronger. Indeed conditional atomic blocks may be thought of as a
 replacement for \java's wait/notify functionality.
 \end{rationale} 
+
+We note two common abbreviations. The statement {\cf when (true) S} is
+behaviorally identical to {\cf atomic S}: it never suspends. Second,
+{\cf when (c) \{;\}} may be abbreviated to {\cf await(c);} -- it
+simply indicates that the thread must await the occurrence of a
+certain condition before proceeding.  Finally note that a {\tt when}
+statement with multiple branches is behaviorally identical to a {\tt
+when} statement with a single branch that checks the disjunction of
+the condition of each branch, and whose body contains an {\cf
+if/then/else} checking each of the branch conditions.
+
+\paragraph{Static semantics.}
+For the sake of efficient implementation certain restrictions are
+placed on the guards and statements in a conditional atomic
+block. 
+
+Guards are required not to have side-effects, not to spawn
+asynchronous activities and to have a statically determinable upper
+bound on their execution. These conditions are expected to be checked
+statically by the compiler.
+
+The body of a {\tt when} statement must satisfy the conditions
+for the body of an {\tt atomic} block.
+%Second, as for unconditional atomic blocks, the set of memory
+%locations accessed by a guarded statements are required to be bounded
+%and statically anlayzable.
+
+Note that this implies that guarded statements are required to be {\em
+flat}, that is, they may not contain conditional atomic blocks. (The
+implementation of nested conditional atomic blocks may require
+sophisticated operational techniques such as rollbacks.)
 
 \paragraph{Sample usage.} 
 There are many ways to ensure that a guard is eventually
@@ -648,24 +667,25 @@ Such an expression can be written as:
     \}.run()
 \end{x10}
 
-\section{Remote Method Invocation}\index{remote method invocation}
-We introduce shorthand for remote method invocation:
-
-\begin{x10}
-507   MethodInvocation ::= 
-        Primary -> identifier ( ArgumentListopt )
-\end{x10}
-
-If the method named is {\tt void} the expression {\tt o -> m(a1,...,ak)}
-is equivalent to:
-\begin{x10}
- finish async (o) \{o.m(a1,...,ak);\}
-\end{x10}
-
-Otherwise the expression is equivalent to
-\begin{x10}
- future (o)\{o.m(a1, ..., ak)\}.force()
-\end{x10}
+\notfouro{\section{Remote Method Invocation}\index{remote method invocation}
+ We introduce shorthand for remote method invocation:
+ 
+ \begin{x10}
+ 507   MethodInvocation ::= 
+         Primary -> identifier ( ArgumentListopt )
+ \end{x10}
+ 
+ If the method named is {\tt void} the expression {\tt o -> m(a1,...,ak)}
+ is equivalent to:
+ \begin{x10}
+  finish async (o) \{o.m(a1,...,ak);\}
+ \end{x10}
+ 
+ Otherwise the expression is equivalent to
+ \begin{x10}
+  future (o)\{o.m(a1, ..., ak)\}.force()
+ \end{x10}
+}
 
 \section{Iteration}\index{foreach@{\tt foreach}}\label{ForLoop}
 \index{for@{\tt for}}\label{ForAllLoop}

@@ -43,12 +43,13 @@ allocated in an unmanaged region (e.g.{} for communication with native
 code). A {\tt value} array is an immutable array. An array creation
 must take either an int as an argument or a distribution. In the first
 case an array is created over the distribution {\tt [0:N-1]-> here};
-in the second over the given distribution. An array creation operation
-may also specify an initializer using functional syntax or the
-abbreviated formalparameter/methodbody syntax. The formal parameter
-may contain exploded parameters
-(Section~\ref{exploded-syntax}). The function is applied in
-parallel at all points in the domain of the distribution. The array
+in the second over the given distribution. 
+
+An array creation operation may also specify an initializer using the
+abbreviated formalparameter/methodbody functional syntax. The formal
+parameter may contain exploded parameters
+(Section~\ref{exploded-syntax}). The function is applied in parallel
+at all points in the domain of the distribution. The array
 construction operation terminates locally only when the array has been
 fully created and initialized (at all places in the range of the
 distribution).

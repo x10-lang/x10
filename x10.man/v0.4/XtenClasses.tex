@@ -77,7 +77,9 @@ bottoming out in fields of reference types (\S~\ref{StableEquality}).
 
 \paragraph{Static semantics.}
 It is a compile-time error for a value class to inherit from a
-stateful class or for a reference class to inherit from a value class.
+stateful class or for a reference class to inherit from a value
+class. All fields of a value class are implicitly declared {\tt
+final}.
 
 \subsection{Representation}
 
@@ -184,18 +186,17 @@ A method may be declared {\tt atomic}.
 Such a method is treated as if the statement in its body is wrapped 
 implicitly in an {\tt atomic} statement.
 
+\notfouro{
 \subsection{{\tt local} annotation}\label{LocalAnnotation}\index{local!{\tt local}}
 A method may be declared {\tt local}.
 \begin{x10}
 445   MethodModifier ::= local
 \end{x10}
 
-By declaring a method {\tt local} the programmer asserts that the
-execution of this method results only in local memory accesses, that
-is reads/writes to locations in the place of the current activity.
+By declaring a method {\tt local} the programmer asserts that while
+executing this method an activity will only access local memory.
 
-The compiler implements the following rules to guarantee that a method
-declared {\tt local} is in fact local.
+The compiler implements the following rules to guarantee this property.
 
 Let {\tt o} be any expression occurring in the body of the
 method. Assume its static datatype is {\tt F}. 
@@ -241,3 +242,4 @@ conditions.
 
 A method declared {\tt atomic} is automatically declared
 to be {\tt local}.
+}
