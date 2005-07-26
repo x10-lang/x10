@@ -1,0 +1,2 @@
+// == (for values, also works for reference == operations)
+(!x10.lang.Runtime.equalsequals(#0,#1))

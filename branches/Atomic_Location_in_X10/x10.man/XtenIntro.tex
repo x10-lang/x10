@@ -1,0 +1,94 @@
+\clearextrapart{Introduction}
+
+\subsection*{Background}
+
+Bigger computational problems need bigger computers capable of
+performing a larger number of operations per second. The era of
+increasing performance by simply increasing clocking frequency now
+seems to be behind us; faster chips run hotter and current cooling
+technology does not scale as rapidly as the clock. Instead, computer
+designers are starting to look at ``scale out'' systems in which the
+system's computational capacity is increased by adding additional
+nodes of comparable power to existing nodes, and connecting nodes with
+a high-speed communication network.
+
+A central problem with scale out systems is a definition of the {\em
+memory model}, that is, a model of the interaction between shared
+memory and  simultaneous (read, write) operations on that
+memory by multiple processors. The traditional ``one operation at a
+time, to completion'' model that underlies Lamport's notion of {\em
+sequential consistency} (SC) proves too expensive to implement in
+hardware, at scale. Various models of {\em relaxed consistency} have
+proven too difficult for programmers to work with.  
+
+One response to this problem has been to move to a {\em fragmented
+memory model}. Multiple processors -- each sequentially consistent
+internally -- are made to interact via a relatively language-neutral
+message-passing format such as MPI \cite{mpi}. This model has enjoyed
+some success: several high-performance applications have been written
+in this style. Unfortunately, this model leads to a {\em loss of
+programmer productivity}: the mesage-passing format is integrated into
+the host language by means of an application-programming interface
+(API), the programmer must explicitly represent and manage the
+interaction between multiple processes and choreograph their data
+exchange; large data-structures (such as distributed arrays, graphs,
+hash-tables) that are conceptually unitary must be thought of as
+fragmented across different nodes; all processors must generally
+execute the same code (in an SPMD fashion) etc.
+
+One response to this problem has been the advent of the {\em
+partitioned global address space} (PGAS) model underlying languages such as
+UPC, Titanium and Co-Array Fortran \cite{pgas}. These languages permit
+the programmer to think of a single computation running across the
+multiple processors, sharing a common address space. All data resides
+at some processors, which is said to have {\em affinity} to the
+data. Each processor may operate directly on the data it contains but
+must use some indirect mechanism to access or update data at other
+processors. Some kind of global {\em barriers} are used to ensure that
+processors remain roughly in lock-step.
+
+\Xten{} is a modern object-oriented programming language
+in the PGAS family. The fundamental goal of \Xten{} is to enable
+high-performance, high-productivity programming for high-end
+(scale-out) computers -- for traditional numerical computation
+workloads (such as weather simulation, molecular dynamics, particle
+transport problems etc) as well as commercial server
+workloads. \Xten{} is based on state-of-the-art object-oriented
+programming ideas primarily to take advantage of their proven
+flexibility and ease-of-use for a wide spectrum of programming
+problems. \Xten{} takes advantage of several years of research (e.g.{}
+in the context of the Java Grande forum,
+\cite{moreira00java,kava}) on how to adapt such languages to the context of
+high-performance numerical computing. Thus \Xten{} provides support
+for user-defined {\em value types} (such as {\tt int}, {\tt float},
+{\tt complex} etc), including operator overloading, supports a very
+flexible form of multi-dimensional arrays (based on ideas in ZPL
+\cite{zpl}) and supports IEEE-standard floating point arithmetic.
+
+The major novel contribution of \Xten{} however is its flexible
+treatment of concurrency, distribution and locality, within an
+integrated type system. \Xten{} introduces {\em places} as an
+abstraction for a {\em virtual shared-memory multi-processor}; a
+computation runs over a large collection of places. Each place hosts
+some data and runs one or more {\em activities}. Activities are
+extremely lightweight threads of execution and may dynamically spawn
+new activities locally or at remote places. {\em Clocks} are used to
+ensure that a programmer-specified, data-dependent set of activities
+has quiesced before another action is initiated. Arrays may be
+distributed across multiple places. A static type system allows the
+programmer to keep track of the location of objects and ensures
+statically that an activity does not synchronously attempt to
+read/write remote data.
+
+%% say something about native.
+
+\Xten{} is an experimental language. This document lays out an initial set 
+of ideas which we expect to be the basis of an initial
+implementation. Several representative concurrent idioms have found
+pleasant expression in \Xten. We intend to develop several full-scale
+applications to get better experience with the language, and revisit
+the design in the light of this experience. Future versions of the
+language are expected to support user-definable operators and permit
+the specification of generic classes and methods. 
+
+

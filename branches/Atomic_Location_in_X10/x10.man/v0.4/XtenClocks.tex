@@ -1,0 +1,215 @@
+\chapter{Clocks}\label{XtenClocks}\index{clocks}
+\cbstart
+The standard library for \Xten{}, {\cf x10.lang} defines a {\cf final
+value class}, {\tt clock} intended for repeated quiescence detection
+of arbitrary, data-dependent collection of activities. Clocks are a
+generalization of {\em barriers}. They permit dynamically created
+activities to register and deregister. An activity may be registered
+with multiple clocks at the same time. In particular, nested clocks
+are permitted: an activity may create a nested clock and within one
+phase of the outer clock schedule activities to run to completion on
+the nested clock.  Neverthless the design of clocks ensures that
+deadlock cannot be introduced by using clock operations, and that
+clock operations do not introduce any races.
+
+This chapter describes the syntax and semantics of clocks and
+statements in the language that have parameters of type {\cf clock}. 
+
+The key invariants associated with clocks are as follows.  At any
+stage of the computation, a clock has zero or more {\em registered}
+activities. An activity may perform operations only on those clocks it
+is registered with (these clocks constitute its {\em clock set}).  An
+activity is registered with one or more clocks when it is created.
+During its lifetime the only additional clocks it is registered with
+are exactly those that it creates. In particular it is not possible
+for an activity to register itself with a clock it discovers by
+reading a data-structure.
+
+An activity may perform the following operations on a clock {\cf
+c}. It may {\em unregister} with {\cf c} by executing {\cf
+c.drop();}. After this, it may perform no further actions on {\cf c}
+for its lifetime. It may {\em check} to see if it is unregistered on a
+clock. It may {\em register} a newly forked activity with {\cf c}.
+%% It may {\em post} a statement {\cf S} for completion in the current phase
+%% of {\cf c} by executing the statement {\cf now(c) S}. 
+It may {\em resume} the clock by executing {\cf c.resume();}. This
+indicates to {\cf c} that it has finished posting all statements it
+wishes to perform in the current phase. Finally, it may {\em block}
+(by executing {\cf next;}) on all the clocks that it is registered
+with. (This operation implicitly {\cf resume}'s all clocks for the
+activity.) It will resume from this statement only when all these
+clocks are ready to advance to the next phase.
+
+A clock becomes ready to advance to the next phase when every activity
+registered with the clock has executed at least one {\cf resume}
+operation on that clock and all statements posted for completion in
+the current phase have been completed.
+
+Though clocks introduce a blocking statement ({\cf next}) an important
+property of \Xten{} is that clocks cannot introduce deadlocks. That
+is, the system cannot reach a quiescent state (in which no activity is
+progressing) from which it is unable to progress. For, before blocking
+each activity resumes all clocks it is registered with. Thus if a
+configuration were to be stuck (that is, no activity can progress) all
+clocks will have been resumed. But this implies that all activities
+blocked on {\cf next} may continue and the configuration is not stuck.
+The only other possibility is that an activity may be stuck on {\tt
+finish}. But the interaction rule between {\tt finish} and clocks
+(\S~\ref{sec:finish:clock-rule}) guarantees that this cannot cause a cycle
+in the wait-for graph. A more rigorous proof may be found in \cite{X10-concur05}.
+
+\section{Clock operations}\label{sec:clock}
+The special statements introduced for clock operations are listed below.
+%%479 NowStatement ::= 
+%%      now ( Clock ) Statement
+\begin{x10}
+462 Statement ::= ClockedStatement
+472 StatementNoShortIf ::= 
+      ClockedStatementNoShortIf
+480 ClockedStatement ::= 
+      clocked ( ClockList ) Statement
+490 ClockedStatementNoShortIf ::= 
+      clocked ( ClockList ) 
+         StatementNoShortIf
+501 NextStatement ::= next ;
+\end{x10}
+
+Note that {\tt x10.lang.clock} provides several useful methods on
+clocks (e.g. {\tt drop}).
+
+\subsection{Creating new clocks}\index{clock!creation}\label{sec:clock:create}
+Clocks are created using the nullary constructor for {\cf
+x10.lang.clock} via a factory method:
+
+\begin{x10}
+clock timeSynchronizer = clock.factory.clock();
+\end{x10}
+
+All clocked variables are implicitly final. The initializer for a
+local variable declaration of type {\tt clock} must be a new clock
+expression. Thus \Xten{} does not permit aliasing of clocks.
+Clocks are created in the place global heap and hence outlive the
+lifetime of the creating activity.  Clocks are instances of value
+classes, hence may be freely copied from place to
+place. (Clock instances typically contain references to mutable state
+that maintains the current state of the clock.)
+
+The current activity is automatically registered with the newly
+created clock.  It may deregister using the {\tt drop} method on
+clocks (see the documentation of {\tt x10.lang.clock}). All activities
+are automatically deregistered from all clocks they are registered
+with on termination (normal or abrupt).
+
+\subsection{Registering new activities on clocks}
+\index{clock!clocked statements}\label{sec:clock:register}
+
+The programmer may specify which clocks a new activity is to be
+registered with using the {\tt clocked} clause.
+
+An activity may transmit only those clocks that is registered with and
+has not quiesced on (\S~\ref{resume}). 
+A {\tt ClockUseException}\index{clock!ClockUseException} is thrown if (and when) 
+this condition is violated.
+
+An activity may check that it is registered on a clock {\tt c} by
+executing:
+\begin{x10}
+c.registered()
+\end{x10}
+\noindent This call returns the {\cf boolean} value {\cf true} iff the
+activity is registered on {\cf c}; otherwise it returns {\tt false}.
+
+\paragraph{Note.} 
+\Xten{} does not contain a ``register'' statement that would allow an
+activity to discover a clock in a datastructure and register itself on
+it. Therefore, while clocks may be stored in a datastructure by one
+activity and read from that by another, the new activity cannot
+``use'' the clock unless it is already registered with it.
+
+\todo{Add text on arrays of clocks.}
+
+\subsection{Resuming clocks}\index{clock!resume}\label{resume}\label{sec:clock:resume}
+\Xten{} permits {\em split phase} clocks. An activity may wish
+to indicate that it has completed whatever work it wishes to perform
+in the current phase of a  clock {\tt c} it is registered with, without
+suspending all activity. It may do so  by executing the method
+invocation:
+\begin{x10}
+  c.resume();
+\end{x10}
+
+An activity may invoke this method only on a clock it is registered
+with, and has not yet dropped (\S~\ref{sec:clock:drop}). A {\tt
+ClockUseException}\index{clock!ClockUseException} is thrown if (and
+when) this condition is violated.  Nothing happens if the activity has
+already invoked a {\tt resume} on this clock in the current phase.
+Otherwise execution of this statement indicates that the activity will
+not transmit {\cf c} to an {\tt async} (through a {\tt clocked}
+clause),
+% or invoke {\cf now} 
+until it terminates, drops {\cf c} or executes a {\tt next}. 
+
+\notinfouro{\paragraph{Static semantics.} 
+The compiler should issue an error if any activity has a potentially
+live execution path from a {\cf resume} statement on a clock {\tt c}
+to a {\cf now} or async spawn statement (which registers the new
+activity on {\cf c}) unless the path goes through a {\cf next}
+statement. (A {\cf c.drop()} following a {\cf c.resume()} is legal,
+as is {\cf c.resume()} following a {\cf c.resume()}.)}
+
+\subsection{Advancing clocks}\index{clock!next}\label{sec:clock:next}
+An activity may execute the statement
+\begin{x10}
+  next;
+\end{x10}
+
+\noindent 
+Execution of this statement blocks until all the clocks that the
+activity is registered with (if any) have advanced. (The activity
+implicitly issues a {\cf resume} on all clocks it is registered
+with before suspending.)
+
+An \Xten{} computation is said to be {\em quiescent} on a clock {\cf
+c} if each activity registered with {\cf c} has resumed {\cf c}.
+Note that once a computation is quiescent on {\cf c}, it will remain
+quiescent on {\cf c} forever (unless the system takes some action),
+since no other activity can become registered with {\cf c}.  That is,
+quiescence on a clock is a {\em stable property}.
+
+Once the implementation has detected quiecence on {\cf c}, the system
+marks all activities registered with {\cf c} as being able to progress
+on {\cf c}. An activity blocked on {\cf next} resumes execution once
+it is marked for progress by all the clocks it is registered with.
+
+\subsection{Dropping clocks}\index{clock!drop}\label{sec:clock:drop}
+An activity may drop a clock by executing:
+\begin{x10}
+c.drop();
+\end{x10}
+
+\noindent{} The activity is no longer considered registered with this
+clock.  A {\tt ClockUseException} is thrown if the activity has
+already dropped {\cf c}.
+
+
+\notinfouro{\input{clock/now.tex}}
+
+\subsection{Program equivalences}
+From the discussion above it should be clear that the following
+equivalences hold:
+
+\begin{eqnarray}
+ {\cf c.resume(); next;}       &=& {\cf next;}\\
+ {\cf c.resume(); d.resume();} &=& {\cf d.resume(); c.resume();}\\
+ {\cf c.resume(); c.resume();} &=&  {\cf c.resume();}
+\end{eqnarray}
+
+Note that {\cf next; next;} is not the same as {\cf next;}. The
+first will wait for clocks to advance twice, and the second
+once.  
+
+\cbend
+\notinfouro{\input{clock/imp-notes.tex}}
+\notinfouro{\input{clock/clocked-types.tex}}
+\notinfouro{\input{clock/examples.tex}}
+
