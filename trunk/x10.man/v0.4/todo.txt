@@ -1,3 +1,16 @@
+Mon Jul 25 22:45:50 2005
+* Check the latest changes to the syntax in mantis.
+* Add a section about things that are yet to be worked out at the end,
+  and work-arounds for them.
+* Remote place types.
+* Remove local annotation.
+* Insert text about dynamic place checks, and place casts.
+* Consider adding atomic expressions. Current work around is place the
+  expression in an assignment. 
+
+* Later date:
+  * Add functions to the syntax.
+
 Mon Apr 25 10:27:47 2005
 
 * Need to define notion of hashCode for value classes. This cannot
@@ -57,6 +70,7 @@ Wed Apr 13 05:15:46 2005
 
 * Fix the X10 clock spec so that clocked statements are correctly
   dealt with.
+
 
 Grammar
 
