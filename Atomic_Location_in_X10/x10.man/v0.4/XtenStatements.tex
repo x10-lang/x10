@@ -1,0 +1,118 @@
+\chapter{Statements and Expressions}\label{XtenStatements}\index{statements}
+
+\Xten{} inherits all the standard statements of \Java{}, with the expected semantics:
+
+\begin{x10}
+\em\tt EmptyStatement      LabeledStatement  
+\em\tt ExpressionStatement IfStatement
+\em\tt SwitchStatement     WhileDo
+\em\tt DoWhile             ForLoop           
+\em\tt BreakStatement      ContinueStatement  
+\em\tt ReturnStatement   ThrowStatement
+\em\tt TryStatement
+\end{x10}
+
+We focus on the new statements in \Xten. 
+
+\section{Assignment}\index{assignment}\label{AssignmentStatement}
+
+%It is often the case that an \Xten{} variable is assigned to only
+%once. The user may declare such variables as {\cf final}. However,
+%this is sometimes syntactically cumbersome.
+%
+%{}\Xten{} supports the syntax {\cf l := r} for assignment to mutable
+%variables.  The user is strongly enouraged to use this syntax to
+%assign variables that are intended to be assigned to more than
+%once. The \Xten{} compiler may issue a warning if it detects code 
+%that uses {\cf =} assignment statements on {\cf mutable} variables.
+
+{}\Xten{} supports assignment {\tt l = r} to array variables. In this
+case {\tt r} must have the same distribution {\tt D} as {\tt l}. This
+statement involves control communication between the sites hosting
+{\tt D}. Each site performs the assignment(s) of array components
+locally. The assignment terminates when assignment has terminated at
+all sites hosting {\tt D}.
+
+%% TODO: Sectional assignment??
+
+\section{Point and region construction}\label{point-syntax}\index{[] syntax}
+\Xten{} specifies a simple syntax for the construction of points and regions.
+\begin{x10}
+281   ArgumentList ::= Expression
+282      | ArgumentList , Expression
+512   Primary ::= [ ArgumentList ]
+\end{x10}
+Each element in the argument list must be either of type {\tt int} or 
+of type {\tt region}. In the former case the expression 
+{\tt [ a1,..., ak ] } is treated as syntactic shorthand for
+\begin{x10}
+  point.factory.point(a1,..., ak)
+\end{x10}
+\noindent and in the latter case as shorthand for
+\begin{x10}
+  region.factory.region(a1,..., ak)
+\end{x10}
+
+\section{Exploded variable declarations}\label{exploded-syntax}\index{variable declarator!exploded}
+
+\Xten{} permits a richer form of specification for variable
+declarators in method arguments, local variables and loop variables
+(the ``exploded'' or {\em destructuring} syntax).
+\begin{x10}
+81    VariableDeclaratorId ::= 
+           identifier [ IdentifierList ]
+82       | [ IdentifierList ]
+\end{x10}
+In \XtenCurrVer{} the {\tt VariableDeclaratorId} must be declared at
+type {\tt x10.lang.point}. Intuitively, this syntax allows a
+point to be ``destructured'' into its corresponding {\tt int} 
+indices in a pattern-matching style.
+The $k$th identifier in the {\tt
+IdentifierList} is treated as a {\tt final} variable of type {\tt int}
+that is initialized with the value of the $k$th index of the point. 
+The second form of the syntax (Rule 82) permits the specification of only
+the index variables.
+
+Future versions of the language may allow destructuring syntax for all
+value classes.
+
+\paragraph{Example.}
+The following example succeeds when executed.
+\begin{x10}
+public class Array1Exploded \{
+  public int select(point p[i,j], point [k,l]) \{
+      return i+k;
+  \}
+  public boolean run() \{
+    distribution d =  [1:10, 1:10] -> here;
+    int[.] ia = new int[d];
+    for(point p[i,j]: [1:10,1:10]) \{
+        if(ia[p]!=0) return false;
+        ia[p] = i+j;
+    \}
+    for(point p[i,j]: d) \{
+      point q1 = [i,j];
+      if (i != q1[0]) return false;
+      if ( j != q1[1]) return false;
+      if(ia[i,j]!= i+j) return false;
+      if(ia[i,j]!=ia[p]) return false;
+      if(ia[q1]!=ia[p]) return false;
+   \}
+    if (! (4 == select([1,2],[3,4]))) return false;
+     return true;
+   \}
+        
+  public static void main(String args[]) \{
+     boolean b= (new Array1Exploded()).run();
+     System.out.println("++++++ "
+                        + (b? "Test succeeded."
+                           :"Test failed."));
+     System.exit(b?0:1);
+ \}
+\}
+\end{x10}
+
+\input{XtenExpressions} \par  % empty
+
+
+
