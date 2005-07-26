@@ -1,0 +1,194 @@
+\section{Place types}\label{PlaceTypes}\index{place types}
+Recall that an \Xten{} computation spans multiple places
+(\S~\ref{XtenPlaces}). Each place constains data and activities that
+operate on that data.  \XtenCurrVer{} does not permit the dynamic
+creation of a place. Each \Xten{} computation is initiated with a
+fixed number of places, as determined by a configuration parameter.
+In this section we discuss how the programmer may supply place type
+information, thereby allowing the compiler to check data locality,
+i.e.{} that data items being accessed in an atomic section are local.
+
+\begin{x10}
+422   Type ::= DataType PlaceTypeSpecifieropt
+428   PlaceTypeSpecifier ::= AT PlaceType
+429   PlaceType ::= ?
+431     | current
+432     | PlaceExpression
+\end{x10}
+
+\paragraph{The anywhere place type}\label{anywhere}\index{? place type}
+The simplest piece of place information that a programmer can specify
+is no information at all. The type {\tt F@?} expresses this: it is
+satisfied by an object of datatype {\tt F} located at any place.  This
+type is particularly useful in specifying collections of objects at
+heterogenous places. For intance the type {\tt F@?[.]} is the type of
+all distributed arrays whose elements can contain references to
+objects of datatype {\tt F} located at any place. Thus this type specifies
+no static relationship between the places of two different array elements.
+
+A datatype {\tt F} occurring in a place where a type is expected is
+always taken as shorthand for {\tt F@?}. This is compatible with the
+Principle of Least Disclosure: the programmer may quickly get his code
+running without specifying where objects are located. The compiler
+will insert dynamic runtime checks to ensure that locality conditions
+are satisfied within atomic sections. As the programmer discovers more
+information about the locality of data elements s/he may supply more
+refined place type information.
+
+\paragraph{Place expression in place types.}
+The programmer may use the indexical place expression {\tt here} as a
+place type. Recall that in any runtime context, {\tt here} stands for
+the place of the current activity (\S~\ref{Here}). {\tt here} cannot
+be used to specify the placetype of any object field because the
+type of a field cannot vary with the activity accessing the field.
+
+Consider the example:
+\begin{x10}
+public class F \{
+  int datum;
+  int m(F@here a, F@here b) \{
+    return a.datum + b.datum;
+ \}
+\}
+\end{x10}
+This code satisfies \Xten{}'s typing rules. Recall that 
+an object's fields can be accessed only if the object is located in 
+the same place as the activity. Hence in the body of the method
+{\tt m}, the compiler must check that {\tt a} and {\tt b} are statically
+known to be local. But this follows from the type declarations
+of the method parameters. 
+
+The programmer may also specify the place information {\tt P} for any
+final variable {\tt P} of type place. This may allow the compiler to
+check locality conditions for remote activities at place {\tt P}. For
+example:
+\begin{x10}
+public class F \{
+  int datum;
+  place P;
+  public F(place P) \{
+    this.P = P;
+  \}
+  future<int> m(final F@P a, final F@P b) \{
+    return future(P) {a.datum + b.datum;}
+  \}
+\}
+\end{x10}
+In this class the constructor for {\tt F} takes a place argument and
+stores it in a final field. This field may be used in types in the
+body of the class, e.g.{} to specify the types of method parameters,
+as stated above. The body of the method {\tt m} typechecks because the
+compiler can verify that at the place {\tt P} the values contained in
+the variables {\tt a} and {\tt b} are local, hence it is legal to 
+access their fields. 
+
+
+In many circumstances it becomes necessary to use final variables of type
+{\tt place} as 
+\Xten{} distinguishes two kinds of places: {\em shared
+places}\index{places!shared}\label{SharedPlaces}, which correspond to
+the memory of individual processors which is shared across multiple
+activities, and {\em scoped
+places}\index{places!scoped}\label{ScopedPlaces} such as threadlocal
+memory and method memory which is available only in limited
+scope. \XtenCurrVer{} supports only {\tt threadlocal} scoped memory,
+i.e.{} memory accessible only to the current activity.  Future
+versions may support {\tt methodlocal} and {\tt blocklocal} memory.
+
+\paragraph{ Future work }
+
+In future versions, \Xten{} will support value and type parameters for
+classes, interfaces and methods. This will permit code of the form:
+
+\begin{x10}
+public class F \{
+  int datum;
+  <P instance place> future<int> m(F@P a, F@P b) \{
+    return future(P) {a.datum + b.datum;}
+  \}
+\}
+\end{x10}
+The class {\tt F} specifies a generic method {\tt m} which requires that 
+its two arguments must be of data type {\tt F} and must both reside
+at the same unknown place {\tt P}. Now the body of the {\cf future} expression
+can be type-checked by the compiler, without knowing the identity 
+of the place {\tt P}.
+
+Similarly in the body of a generic class with a place parameter {\tt
+P} one may construct the type {\tt F@P[.]} to represent the type of
+distributed arrays each of whose elements must contain a reference to
+an object of datatype {\tt F} located at the place {\tt P}.
+
+
+An object can be cast to a particular place. If the object is not at
+the right place, a {\tt BadPlaceException} is thrown:
+
+\begin{x10}
+m(Object obj) \{ // accept an object at any place
+     // Cast it to here. This may throw
+     // an exception if the object is not local.
+     Object@here h = (Object@here)obj;
+     // The object is local, invoke a
+     // method on it synchronously.
+     h.m1();
+ \}
+\end{x10}
+
+Places can be checked for equality. One can view this as the analog of
+the {\tt instanceof} operator for places.
+
+\begin{x10}
+m(Object obj) \{
+    if (here == obj.location) \{
+       // will never throw an exception
+      Object@here h = (Object@here)obj;
+      h.m();
+   \}
+\}
+\end{x10}
+
+
+\paragraph{{\tt current}}
+Similarly the object reference type {\tt current} can be used in
+%%(i)~constructing a distribution for a reference array or (ii)
+specifying the location of the base type of a reference array. 
+%% In the first case points mapped to {\tt current} by the distribution will
+%% reside in the same place as the array object itself, and in the second
+%% case 
+The value of the array at a particular point is an object in the
+same place as that array component. Example:
+\begin{x10}
+    Object@current[] objects;
+\end{x10}
+
+\Xten{} permits user-definable place constants (= final variables =
+variables that must be assigned before use, and can be assigned only
+once). Place constants may be used in type expressions after the {\cf @}
+sign. For instance, consider the following class definition:
+
+\begin{x10}
+ public class Cell \{
+  Object@P value;
+
+  public Cell( Object@P value ) \{  
+     this.value = value;
+  \}
+
+  public Object@P getValue() \{
+     return this.value;
+  \}
+
+  public void setValue( Object@P value ) \{
+     this.value = value;
+  \}
+ \}
+\end{x10}
+
+This class may be used thus:
+
+\begin{x10}
+Cell cell = 
+   new Cell(new Point@Q());
+\end{x10}
+
+

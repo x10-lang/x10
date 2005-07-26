@@ -1,0 +1,7 @@
+'''Places'''
+
+An X10 place is a repository for data and activities. Each place is to be thought of as a locality boundary: the activities running in a place may access data items located at that place with the efficiency of on-chip access. Accesses to remote places may take orders of magnitude longer.
+
+In X10 v0.5, the set of places available to a computation is determined at the time that the program is run and remains fixed through the run of the program. The number of places available to a computation may be determined by querying a run-time constant (place.MAX_PLACES).
+
+All scalar objects created during program execution are located in one place, though they may be accessed from other places. Aggregate objects (arrays) may be distributed across multiple places. 

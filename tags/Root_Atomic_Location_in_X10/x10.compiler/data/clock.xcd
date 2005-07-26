@@ -1,0 +1,1 @@
+(Runtime.factory.getClockFactory().clock())
