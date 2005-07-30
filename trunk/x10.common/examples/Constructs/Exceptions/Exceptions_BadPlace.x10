@@ -39,7 +39,9 @@ public class Exceptions_BadPlace {
 		gotException=true;
         }
         System.out.println("3");
-	if(gotException) return false;
+	if(gotException) return false; 
+	// CVP -- fails if the boxedBoolean class is a reference, no value class
+	// hence a BadPlaceException occurs on access.
 
 	final double value[.] VA=new double value[dist.factory.block([0:M-1])];
         gotException=false;
@@ -66,7 +68,7 @@ public class Exceptions_BadPlace {
         System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
         x10.lang.Runtime.setExitCode(b.val?0:1);
     }
-    static class boxedBoolean {
+    static value class boxedBoolean { // CVP -- if this class is declared as value class, the 3 succeeds.
         boolean val=false;
     }
 
