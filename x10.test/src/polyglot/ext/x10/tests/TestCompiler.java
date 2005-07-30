@@ -595,6 +595,10 @@ public TestCompiler(String name) {
         run("./Exceptions2.x10","Exceptions2","./Constructs/Exceptions");
     }
 
+    public void test_Constructs_Exceptions_Exceptions_BadPlace() {
+        run("./Exceptions_BadPlace.x10","Exceptions_BadPlace","./Constructs/Exceptions");
+    }
+
     public void test_Constructs_Extern_BasicExternTest1() {
         run("./BasicExternTest1.x10","BasicExternTest1","./Constructs/Extern");
     }
