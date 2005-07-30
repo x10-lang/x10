@@ -12,10 +12,12 @@ import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.DoubleReferenceArray;
+import x10.runtime.Configuration;
 
 
 /**
@@ -188,37 +190,65 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
 	    assert arg.distribution.equals(distribution); 
 	    DoubleArray arg1 = (DoubleArray)arg;
 	    DoubleArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set(op.apply(this.get(p), arg1.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                result.set(op.apply(this.get(p), arg1.get(p)),p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }
 	    return result;
 	}
 	public DoubleReferenceArray lift( DoubleArray.unaryOp op ) {
 	    DoubleArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set(op.apply(this.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                result.set(op.apply(this.get(p)),p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
 	    return result;
 	}
     public double reduce( DoubleArray.binaryOp op, double unit ) {
         double result = unit;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-             result = op.apply(this.get(p), result);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                result = op.apply(this.get(p), result);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }    
         return result;
     }
 
     public DoubleReferenceArray scan( binaryOp op, double unit ) {
         double temp = unit;
         DoubleArray result = newInstance(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            temp = op.apply(this.get(p), temp);
-             result.set(temp, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                temp = op.apply(this.get(p), temp);
+                result.set(temp, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }    
         return result;
     }
     
@@ -227,6 +257,8 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @see x10.lang.DoubleArray#set(int, int[])
      */
     public double set(double v, point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));
         return arr_.setDouble(v, (int) distribution.region.ordinal(pos));
     }
     /**
@@ -239,22 +271,34 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     }
     
     public double set(double v, int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));
+        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.setDouble(v,d0);
     }
      
     public double set(double v, int d0, int d1) {  	
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));
+        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setDouble(v,theIndex);
     }
     
-    public double set(double v, int d0, int d1, int d2) { 
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
-    	return arr_.setDouble(v,theIndex);
+    public double set(double v, int d0, int d1, int d2) {     	
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+        
+        int theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        return arr_.setDouble(v,theIndex);
     }
     
     public double set(double v, int d0, int d1, int d2, int d3) {  	
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.setDouble(v,theIndex);  	
     }
 
@@ -262,6 +306,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @see x10.lang.DoubleArray#get(int[])
      */
     public double get(point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));
+        
         return arr_.getDouble((int) distribution.region.ordinal(pos));
     }
     
@@ -274,22 +321,34 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     }
     
     public double get(int d0) {
-    	d0 = Helper.ordinal(distribution,d0); 	
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));
+
+        d0 = Helper.ordinal(distribution,d0); 	
     	return arr_.getDouble(d0);
     }
     
-    public double get(int d0, int d1) {   	
+    public double get(int d0, int d1) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));
+
     	int theIndex = Helper.ordinal(distribution,d0,d1);   	
     	return arr_.getDouble(theIndex);
     }
     
     public double get(int d0, int d1, int d2) {
-    	int theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+
+        int theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getDouble(theIndex);  	
     } 
     
     public double get(int d0, int d1, int d2, int d3) {   	
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);   	
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);   	
     	return arr_.getDouble(theIndex);  	
     }
     public double get(int[] pos) {
@@ -300,29 +359,50 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     public x10.lang.DoubleReferenceArray overlay(x10.lang.doubleArray d) {
     	dist dist = distribution.overlay(d.distribution);
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            double val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
-            ret.set(val, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                double val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }    
         return ret;
     }
     
     public void update(x10.lang.doubleArray d) {
         assert (region.contains(d.region));
-        for (Iterator it = d.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            set(d.get(p), p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = d.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                set(d.get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
     }
     
     public DoubleReferenceArray union(x10.lang.doubleArray d) {
         dist dist = distribution.union(d.distribution);
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            double val = (distribution.region.contains(p)) ? get(p) : d.get(p);
-            ret.set(val, p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                double val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
         return ret;
     }
@@ -334,9 +414,16 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     public DoubleReferenceArray restriction(region r) {
         dist dist = distribution.restriction(r);
         DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            ret.set(get(p), p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                ret.set(get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
         return ret;
     }
@@ -345,6 +432,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     	if (! mutable_) return this;
     	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");   
     }
+    
     public boolean isValue() {
         return ! this.mutable_;
     }
