@@ -16,6 +16,7 @@ import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.StructureReferenceArray;
+import x10.runtime.Configuration;
 
 
 /**
@@ -36,7 +37,8 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	
 	public StructureReferenceArray lift( StructureArray.binaryOp op, x10.lang.structureArray arg ) {
 		assert arg.distribution.equals(distribution);
-		if(true)throw new RuntimeException("unimplemented");
+		if (true)
+            throw new RuntimeException("unimplemented");
 		
 		StructureReferenceArray result = newInstance(distribution,arg.getElementSize());
 		
@@ -51,7 +53,8 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 		
 	}
 	public StructureReferenceArray overlay(x10.lang.structureArray d) {
-		if(true)throw new RuntimeException("unimplemented");
+		if (true)
+            throw new RuntimeException("unimplemented");
 		
 		dist dist = distribution.overlay(d.distribution);
 		StructureArray_c ret = new StructureArray_c(dist, 0, false,false,d.getElementSize());        /*
@@ -80,7 +83,8 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	}
 	
 	public StructureReferenceArray union(x10.lang.structureArray d) {
-		if(true)throw new RuntimeException("unimplemented");
+		if (true)
+            throw new RuntimeException("unimplemented");
 		dist dist = distribution.union(d.distribution);
 		StructureArray_c ret = new StructureArray_c(dist, 0, safe_,false,d.getElementSize());
 		/*
@@ -106,10 +110,11 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 			int elSize) {
 		this( d, c, safe, true,elSize);
 	}
+    
 	protected StructureArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable,
 			int elSize) {
 		super(d,elSize);
-		assert(this._elementSize == elSize);
+		assert (this._elementSize == elSize);
 		this.mutable_ = mutable;
 		this.safe_ = safe;
 		int count =  d.region.size() * elSize;
@@ -139,9 +144,11 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	public StructureArray_c( dist d, int c,int elSize) {
 		this(d, c, true,elSize);
 	}
+    
 	public StructureArray_c( dist d, int c, boolean safe,int elSize ) {
 		this(d, c, safe, true,elSize);
 	}
+    
 	public StructureArray_c( dist d, int c, boolean safe, boolean mutable,int elSize ) {
 		super(d,elSize);
 		assert(this._elementSize == elSize);
@@ -162,12 +169,15 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 		scan(this, new Assign(c));
 		
 	}
+    
 	public StructureArray_c( dist d, StructureArray.pointwiseOp f,int elSize) {
 		this(d, f, true,elSize);
 	}
+    
 	public StructureArray_c( dist d, StructureArray.pointwiseOp f, boolean safe,int elSize) {
 		this(d, f, safe, true,elSize);
 	}
+    
 	public StructureArray_c( dist d, StructureArray.pointwiseOp f, boolean safe, boolean mutable,
 			int elSize) {
 		super(d,elSize);
@@ -296,7 +306,8 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	public StructureReferenceArray scan( binaryOp op, int unit ) {
 		int temp = unit;
 		StructureArray result = newInstance(distribution,0);//FIXME
-		if(true)throw new RuntimeException("unimplemented");
+		if (true)
+            throw new RuntimeException("unimplemented");
 		/*
 		 for (Iterator it = distribution.region.iterator(); it.hasNext();) {
 		 point p = (point) it.next();
@@ -322,9 +333,12 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	
 	
 	public byte    setByte( byte v,int d0,int offset){ 
-		d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution, d0);
 		return setNormalizedByte(v,d0,offset);
 	}
+    
 	protected byte    setNormalizedByte( byte v,int d0,int offset){ 
 		assert( offset>0);
 		d0 =  getStartingElementIndex(d0);
@@ -352,10 +366,14 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 		arr_.setInt(rawData,d0);
 		return v;
 	}
+    
 	public char    setChar( char v,int d0, int offset){
-		d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
 		return setNormalizedChar(v,d0,offset);
 	}
+    
 	public char    setNormalizedChar( char v,int d0, int offset){ 
 		assert( offset>0 );
 		
@@ -389,7 +407,9 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	}
 	
 	public short   setShort( short v,int d0, int offset){ 
-		d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
 		return setNormalizedShort(v,d0,offset);
 	}
 	public short   setNormalizedShort( short v,int d0, int offset){ 
@@ -414,8 +434,10 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 		return v;
 	}
 	
-	public int     setInt( int v,int d0,int offset){ 
-		d0 = Helper.ordinal(distribution,d0);
+	public int setInt (int v, int d0, int offset){ 
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
 		return setNormalizedInt(v,d0,offset);
 	}
 	
@@ -428,7 +450,9 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	}
 	
 	public long    setLong( long v,int d0,int offset){
-		d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
 		return setNormalizedLong(v,d0,offset);
 	}
 	public long    setNormalizedLong( long v,int d0,int offset){
@@ -442,7 +466,9 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	}
 	
 	public float   setFloat( float v,int d0, int offset){ 
-		d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
 		return setNormalizedFloat(v,d0,offset);
 	}
 	public float   setNormalizedFloat( float v,int d0, int offset){ 
@@ -454,7 +480,9 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	
 	
 	public double  setDouble( double v,int d0,int offset){ 
-		d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
 		return setNormalizedDouble(v,d0,offset);
 	}
 	public double  setNormalizedDouble( double v,int d0,int offset){ 
@@ -467,11 +495,15 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	
 	
 	public byte    setByte( byte v,int d0,int d1,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        d0 = Helper.ordinal(distribution,d0,d1);
 		return setNormalizedByte(v,d0,offset);
 	}
 	public char    setChar( char v,int d0,int d1, int offset){
-		d0 = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        d0 = Helper.ordinal(distribution,d0,d1);
 		return setNormalizedChar(v,d0,offset);
 	}	
 	
@@ -481,33 +513,51 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 		setByte(value,d0,d1,offset);
 		return v;
 	}
+    
 	public short   setShort( short v,int d0,int d1, int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        d0 = Helper.ordinal(distribution,d0,d1);
 		return setNormalizedShort(v,d0,offset);
 	}
+    
 	public int     setInt( int v,int d0,int d1,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        d0 = Helper.ordinal(distribution,d0,d1);
 		return setNormalizedInt(v,d0,offset);
 	}
+    
 	public long    setLong( long v,int d0,int d1,int offset){
-		d0 = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));
+        d0 = Helper.ordinal(distribution,d0,d1);
 		return setNormalizedLong(v,d0,offset);
 	}
+    
 	public float   setFloat( float v,int d0, int d1,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));
+        d0 = Helper.ordinal(distribution,d0,d1);
 		return setNormalizedFloat(v,d0,offset);
 	}
 	public double  setDouble( double v,int d0,int d1,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));
+        d0 = Helper.ordinal(distribution,d0,d1);
 		return setNormalizedDouble(v,d0,offset);
 	}
 	
 	public byte    setByte( byte v,int d0,int d1,int d2,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return setNormalizedByte(v,d0,offset);
 	}
 	public char    setChar( char v,int d0,int d1,int d2, int offset){
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return setNormalizedChar(v,d0,offset);
 	}	
 	
@@ -518,34 +568,46 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 		return v;
 	}
 	public short   setShort( short v,int d0,int d1,int d2, int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return setNormalizedShort(v,d0,offset);
 	}
 	public int     setInt( int v,int d0,int d1,int d2,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return setNormalizedInt(v,d0,offset);
 	}
 	public long    setLong( long v,int d0,int d1,int d2,int offset){
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return setNormalizedLong(v,d0,offset);
 	}
 	public float   setFloat( float v,int d0, int d1,int d2,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return setNormalizedFloat(v,d0,offset);
 	}
 	public double  setDouble( double v,int d0,int d1,int d2,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return setNormalizedDouble(v,d0,offset);
 	}
-	
-	
-	
+		
 	public byte    setByte( byte v,int d0,int d1,int d2,int d3,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return setNormalizedByte(v,d0,offset);
 	}
 	public char    setChar( char v,int d0,int d1,int d2,int d3, int offset){
-		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return setNormalizedChar(v,d0,offset);
 	}	
 	
@@ -556,37 +618,43 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 		return v;
 	}
 	public short   setShort( short v,int d0,int d1,int d2,int d3, int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return setNormalizedShort(v,d0,offset);
 	}
 	public int     setInt( int v,int d0,int d1,int d2,int d3,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return setNormalizedInt(v,d0,offset);
 	}
 	public long    setLong( long v,int d0,int d1,int d2,int d3,int offset){
-		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return setNormalizedLong(v,d0,offset);
 	}
 	public float   setFloat( float v,int d0, int d1,int d2,int d3,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return setNormalizedFloat(v,d0,offset);
 	}
 	public double  setDouble( double v,int d0,int d1,int d2,int d3,int offset){ 
-		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return setNormalizedDouble(v,d0,offset);
 	}
-	
-	
+		
 	/* (non-Javadoc)
 	 * @see x10.lang.StructureArray#get(int[])
-	 */
-	
-	
+	 */	
 	public byte getByte( point/*(region)*/ p,int offset){
 		int d0 = (int) distribution.region.ordinal(p);
 		return getNormalizedByte(d0,offset);
-	}
-	
+	}	
 	
 	public char getChar( point/*(region)*/ p,int offset){
 		assert( offset>0 && offset < 2);
@@ -603,33 +671,39 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 		int d0 = (int) distribution.region.ordinal(p);
 		return getNormalizedShort(d0,offset);
 	}
+    
 	public int getInt( point/*(region)*/ p,int offset){
 		
 		int d0 = (int) distribution.region.ordinal(p);
 		return getNormalizedInt(d0,offset);
 	}
+    
 	public long getLong( point/*(region)*/ p,int offset){
 		
 		int d0 = (int) distribution.region.ordinal(p);
 		return getNormalizedLong(d0,offset);
 	}
+    
 	public float getFloat( point/*(region)*/ p,int offset){
 		int d0 = (int) distribution.region.ordinal(p);
 		return getNormalizedFloat(d0,offset);
 	}
+    
 	public double getDouble( point/*(region)*/ p,int offset){
 		long rawLong = getLong(p,offset);
 		return Double.longBitsToDouble(rawLong);
 	}
-	
-	
+		
 	/****************************************************/
 	
 	public byte    getByte( int d0,int offset){
-		d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));
+        d0 = Helper.ordinal(distribution,d0);
 		d0 = d0 + offset/4;
 		return getNormalizedByte(d0,offset);
 	}
+    
 	// offset is 0 to 3, 3 is rightmost byte
 	protected byte    getNormalizedByte( int d0,int offset){
 		assert( offset>0 && offset < 4);
@@ -640,7 +714,9 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 		return returnVal;
 	}
 	public char getChar(int d0,int offset){
-		d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
 		d0 = d0 + offset/4;
 		return getNormalizedChar(d0,offset);
 	}
@@ -656,16 +732,20 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	
 	
 	public boolean getBoolean(int d0,int offset){
-		d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
 		return getNormalizedBoolean(d0,offset);
 	}
+    
 	public boolean getNormalizedBoolean(int d0,int offset){
 		return 0 != getNormalizedByte(d0,offset);
 	}
 	
 	public short   getShort(int d0,int offset){
-		d0 = Helper.ordinal(distribution,d0);
-		
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);		
 		return getNormalizedShort(d0,offset);
 	}
 	protected short   getNormalizedShort(int d0,int offset){
@@ -679,8 +759,9 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	}
 	
 	public int     getInt(int d0,int offset){
-		d0 = Helper.ordinal(distribution,d0);
-		
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);		
 		return getNormalizedInt(d0,offset);
 	}
 	protected int     getNormalizedInt(int d0,int offset){
@@ -691,7 +772,9 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	}
 	
 	public long    getLong(int d0,int offset){
-		d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
 		return getNormalizedLong(d0,offset);
 	}
 	
@@ -707,8 +790,9 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	}
 	
 	public float   getFloat(int d0,int offset){
-		d0 = Helper.ordinal(distribution,d0);
-		
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution, d0);		
 		return getNormalizedFloat(d0,offset);
 	}
 	protected float   getNormalizedFloat(int d0,int offset){
@@ -727,15 +811,17 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	
 	public byte    getByte( int d0,int d1,int offset){
 		assert( offset>0 && offset < 4);
-		d0 = Helper.ordinal(distribution,d0,d1);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        d0 = Helper.ordinal(distribution,d0, d1);
 		return getNormalizedByte(d0,offset);
 	}
 	public char getChar(int d0,int d1,int offset){
-		
-		d0 = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));
+		d0 = Helper.ordinal(distribution,d0, d1);
 		return getNormalizedChar(d0,offset);
-	}
-	
+	}	
 	
 	public boolean getBoolean(int d0,int d1,int offset){
 		return 0 != getByte(d0,d1,offset);
@@ -743,13 +829,17 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	
 	public short   getShort(int d0,int d1,int offset){
 		assert( offset>0 && offset < 2);
-		d0 = Helper.ordinal(distribution,d0,d1);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        d0 = Helper.ordinal(distribution,d0, d1);
 		return getNormalizedShort(d0,offset);
 	}
 	
 	public int     getInt(int d0,int d1,int offset){
-		if(offset != 0) throw new RuntimeException("Invalid structure offset "+offset);
-		
+		if (offset != 0) 
+            throw new RuntimeException("Invalid structure offset "+offset);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));                
 		d0 = Helper.ordinal(distribution,d0,d1);
 		return getNormalizedInt(d0,0);
 	}
@@ -760,26 +850,33 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	}
 	
 	public float   getFloat(int d0,int d1,int offset){
-		
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));
 		d0 = Helper.ordinal(distribution,d0,d1);
 		return getNormalizedFloat(d0,offset);
 	}
 	
 	
 	public double  getDouble(int d0,int d1,int offset){
-		long rawLong = getLong(d0,d1,offset);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));   
+        long rawLong = getLong(d0,d1,offset);
 		return Double.longBitsToDouble(rawLong);
 	}
 	
 	
 	public byte    getByte( int d0,int d1,int d2,int offset){
 		assert( offset>0 && offset < 4);
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));   
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return getNormalizedByte(d0,offset);
 	}
 	public char getChar(int d0,int d1,int d2,int offset){
 		assert( offset>0 && offset < 2);
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));  
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return getNormalizedChar(d0,offset);
 	}
 	
@@ -790,37 +887,43 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	
 	public short   getShort(int d0,int d1,int d2,int offset){
 		assert( offset>0 && offset < 2);
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));  
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return getNormalizedShort(d0,offset);
 	}
 	
 	public int     getInt(int d0,int d1,int d2,int offset){
-		
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));  
 		d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return getNormalizedInt(d0,offset);
 	}
 	
 	public long    getLong(int d0,int d1,int d2,int offset){
-		d0 = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));  
+        d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return getNormalizedLong(d0,offset);
 	}
 	
 	public float   getFloat(int d0,int d1,int d2,int offset){
-		
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));  
 		d0 = Helper.ordinal(distribution,d0,d1,d2);
 		return getNormalizedFloat(d0,offset);
 	}
-	
-	
+		
 	public double  getDouble(int d0,int d1,int d2,int offset){
 		long rawLong = getLong(d0,d1,d2,offset);
 		return Double.longBitsToDouble(rawLong);
-	}
-	
+	}	
 	
 	public byte    getByte( int d0,int d1,int d2,int d3,int offset){
 		assert( offset>0 && offset < 4);
-		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));  
+        d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return getNormalizedByte(d0,offset);
 	}
 	public char getChar(int d0,int d1,int d2,int d3,int offset){
@@ -836,26 +939,35 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	
 	public short   getShort(int d0,int d1,int d2,int d3,int offset){
 		assert( offset>0 && offset < 2);
-		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));  
+        d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return getNormalizedShort(d0,offset);
 	}
 	
 	public int     getInt(int d0,int d1,int d2,int d3,int offset){
-		if(offset != 0) throw new RuntimeException("Invalid structure offset "+offset);
-		
+		if (offset != 0) 
+            throw new RuntimeException("Invalid structure offset "+offset);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));  
 		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return getNormalizedInt(d0,offset);
 	}
 	
 	public long    getLong(int d0,int d1,int d2,int d3,int offset){
-		if(offset != 0) throw new RuntimeException("Invalid structure offset "+offset);
-		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
+		if (offset != 0) 
+            throw new RuntimeException("Invalid structure offset "+offset);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));  
+        d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return getNormalizedLong(d0,offset);
 	}
 	
 	public float   getFloat(int d0,int d1,int d2,int d3,int offset){
-		if(offset != 0) throw new RuntimeException("Invalid structure offset "+offset);
-		
+		if(offset != 0) 
+            throw new RuntimeException("Invalid structure offset "+offset);
+		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
 		d0 = Helper.ordinal(distribution,d0,d1,d2,d3);
 		return getNormalizedFloat(d0,offset);
 	}
@@ -866,13 +978,10 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 		return Double.longBitsToDouble(rawLong);
 	}
 	
-	
-	
-	
-	
 	public int get(int[] pos) {
 		final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-		if(true)throw new RuntimeException("unimplemented");
+		if (true)
+            throw new RuntimeException("unimplemented");
 		return 1;//get(p);
 	}
 	
@@ -885,7 +994,8 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	public StructureReferenceArray restriction(region r) {
 		dist dist = distribution.restriction(r);
 		StructureArray_c ret = new StructureArray_c(dist, (int) 0, safe_,0);// FIXME
-		if(true)throw new RuntimeException("unimplemented");
+		if (true)
+            throw new RuntimeException("unimplemented");
 		/*
 		 for (Iterator it = dist.iterator(); it.hasNext(); ) {
 		 point p = (point) it.next();

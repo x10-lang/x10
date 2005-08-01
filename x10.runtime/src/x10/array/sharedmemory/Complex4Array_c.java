@@ -14,10 +14,12 @@ import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.Complex4ReferenceArray;
+import x10.runtime.Configuration;
 
 
 /**
@@ -198,60 +200,93 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
 	    assert arg.distribution.equals(distribution); 
 	    Complex4Array arg1 = (Complex4Array)arg;
 	    Complex4Array result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        throw new RuntimeException("unimplemented");
-	        //result.set(op.apply(this.get(p), arg1.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            throw new RuntimeException("unimplemented");
+	            //result.set(op.apply(this.get(p), arg1.get(p)),p);
+	        } 
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
 	    return result;
 	}
 	
 	public Complex4ReferenceArray lift( Complex4Array.unaryOp op ) {
 	    Complex4Array result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.setReal(op.apply(this.getReal(p)),p);
-	        result.setImag(op.apply(this.getImag(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.setReal(op.apply(this.getReal(p)),p);
+	            result.setImag(op.apply(this.getImag(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
 	    return result;
 	}
 	
-    public float reduce( Complex4Array.binaryOp op, float unit ) {
-        float result = unit;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            throw new RuntimeException("unimplemented");
-            // result = op.apply(this.get(p), result);
-        }
-        return result;
-    }
-    
-
-	
-	
-    public Complex4ReferenceArray scan( binaryOp op, float unit ) {
-        float temp = unit;
-        Complex4Array result = newInstance(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-           if(true)throw new RuntimeException("unimplemented");
-          /*  temp = op.apply(this.getReal(p), temp);
-             result.setReal(temp, p);
-             */
-        }
-        return result;
-    }
+	public float reduce( Complex4Array.binaryOp op, float unit ) {
+	    float result = unit;
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            throw new RuntimeException("unimplemented");
+	            // result = op.apply(this.get(p), result);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
+	    return result;
+	}
+    	
+	public Complex4ReferenceArray scan( binaryOp op, float unit ) {
+	    float temp = unit;
+	    Complex4Array result = newInstance(distribution);
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            if(true)throw new RuntimeException("unimplemented");
+	            /*  temp = op.apply(this.getReal(p), temp);
+	             result.setReal(temp, p);
+	             */
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }  
+	    return result;
+	}
     
 	
     /* (non-Javadoc)
      * @see x10.lang.Complex4Array#set(int, int[])
      */
     public float setReal(float v, point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));
+        
         return arr_.setFloat(v,2*(int) distribution.region.ordinal(pos));
     }
+    
     public float setImag(float v, point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));
+        
         return arr_.setFloat(v,1+ 2*(int) distribution.region.ordinal(pos));
     }
+    
     public float setOrdinalReal(float v, int rawIndex) {
     	
     	return arr_.setFloat(v,rawIndex*2);
@@ -262,42 +297,58 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
     }
     
     public float setReal(float v, int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.setFloat(v,d0*2);
     }
      
     public float setReal(float v, int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setFloat(v,theIndex*2);
     }
     
     public float setReal(float v, int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.setFloat(v,theIndex*2);
     }
     
     public float setReal(float v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.setFloat(v,theIndex*2);   	
     }
 
     public float setImag(float v, int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.setFloat(v,d0*2 + 1);
     }
      
     public float setImag(float v, int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setFloat(v,theIndex*2 + 1);
     }
     
     public float setImag(float v, int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.setFloat(v,theIndex*2 + 1);
     }
     
     public float setImag(float v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.setFloat(v,theIndex*2 + 1);   	
     }
 
@@ -305,9 +356,13 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
      * @see x10.lang.FloatArray#get(int[])
      */
     public float getReal(point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));        
         return arr_.getFloat(2*(int) distribution.region.ordinal(pos));
     }
     public float getImag(point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));        
         return arr_.getFloat(1 + 2*(int) distribution.region.ordinal(pos));
     }
      public float getOrdinalReal( int rawIndex) {
@@ -320,42 +375,58 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
     }
     
     public float getReal( int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.getFloat(d0*2);
     }
      
     public float getReal( int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.getFloat(theIndex*2);
     }
     
     public float getReal( int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getFloat(theIndex*2);
     }
     
     public float getReal( int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.getFloat(theIndex*2);   	
     }
 
     public float getImag( int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.getFloat(d0*2 + 1);
     }
      
     public float getImag( int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.getFloat(theIndex*2 + 1);
     }
     
     public float getImag( int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getFloat(theIndex*2 + 1);
     }
     
     public float getImag( int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.getFloat(theIndex*2 + 1);   	
     }
     
@@ -363,56 +434,77 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return getReal(p);
     }
+    
     public float getImag(int[] pos) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return getImag(p);
     }
     
     public x10.lang.Complex4ReferenceArray overlay(x10.lang.complex4Array d) {
-    	dist dist = distribution.overlay(d.distribution);
+        dist dist = distribution.overlay(d.distribution);
         Complex4Array_c ret = new Complex4Array_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            float real,imag;
-            if(d.distribution.region.contains(p)){
-            	real= d.getReal(p);
-            	imag= d.getImag(p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                float real,imag;
+                if (d.distribution.region.contains(p)){
+                    real= d.getReal(p);
+                    imag= d.getImag(p);
+                } else {
+                    real = getReal(p);
+                    imag = getImag(p);
+                }
+                ret.setReal(real, p);
+                ret.setImag(real, p);
             }
-            else{
-            	real = getReal(p);
-            	imag = getImag(p);
-            }
-              ret.setReal(real, p);
-              ret.setImag(real, p);
-        }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }   
         return ret;
     }
     
     public void update(x10.lang.complex4Array d) {
         assert (region.contains(d.region));
-        for (Iterator it = d.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            setReal(d.getReal(p), p);
-            setImag(d.getImag(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = d.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                setReal(d.getReal(p), p);
+                setImag(d.getImag(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }   
     }
     
     public Complex4ReferenceArray union(x10.lang.complex4Array d) {
         dist dist = distribution.union(d.distribution);
         Complex4Array_c ret = new Complex4Array_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            float real,imag;
-            if (distribution.region.contains(p)){
-            	real = getReal(p);
-            	imag = getImag(p);
-            }else {
-            	real = d.getReal(p);
-            	imag = d.getImag(p);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                float real,imag;
+                if (distribution.region.contains(p)){
+                    real = getReal(p);
+                    imag = getImag(p);
+                }else {
+                    real = d.getReal(p);
+                    imag = d.getImag(p);
+                }
+                ret.setReal(real, p);
+                ret.setImag(imag,p);
             }
-             ret.setReal(real, p);
-             ret.setImag(imag,p);
-        }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
         return ret;
     }
     
@@ -423,11 +515,18 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
     public Complex4ReferenceArray restriction(region r) {
         dist dist = distribution.restriction(r);
         Complex4Array_c ret = new Complex4Array_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            ret.setReal(getReal(p), p);
-            ret.setImag(getImag(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                ret.setReal(getReal(p), p);
+                ret.setImag(getImag(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
         return ret;
     }
     
@@ -435,9 +534,8 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
     	if (! mutable_) return this;
     	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");   
     }
+    
     public boolean isValue() {
         return ! this.mutable_;
-    }
-
-    
+    }    
 }

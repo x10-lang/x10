@@ -14,10 +14,12 @@ import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.CharReferenceArray;
+import x10.runtime.Configuration;
 
 
 /**
@@ -32,7 +34,6 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     public boolean valueEquals(Indexable other) {
         return arr_.valueEquals(((CharArray_c)other).arr_);
     }
-
     
     /**
      *  This constructor must not be used directly by an application programmer.
@@ -186,49 +187,82 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
 	}
 	
 
-	public CharReferenceArray lift( CharArray.binaryOp op, x10.lang.charArray arg ) {
+	public CharReferenceArray lift (CharArray.binaryOp op, x10.lang.charArray arg ) {
 	    assert arg.distribution.equals(distribution); 
 	    CharArray arg1 = (CharArray)arg;
 	    CharArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set(op.apply(this.get(p), arg1.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.set(op.apply(this.get(p), arg1.get(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
 	    return result;
 	}
-	public CharReferenceArray lift( CharArray.unaryOp op ) {
+    
+	public CharReferenceArray lift (CharArray.unaryOp op ) {
 	    CharArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set(op.apply(this.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.set(op.apply(this.get(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
 	    return result;
 	}
-    public char reduce( CharArray.binaryOp op, char unit ) {
-        char result = unit;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-             result = op.apply(this.get(p), result);
-        }
-        return result;
-    }
+    
+	public char reduce (CharArray.binaryOp op, char unit ) {
+	    char result = unit;
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result = op.apply(this.get(p), result);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
+	    return result;
+	}
 
-    public CharReferenceArray scan( binaryOp op, char unit ) {
-        char temp = unit;
-        CharArray result = newInstance(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            temp = op.apply(this.get(p), temp);
-             result.set(temp, p);
-        }
-        return result;
-    }
+	public CharReferenceArray scan( binaryOp op, char unit ) {
+	    char temp = unit;
+	    CharArray result = newInstance(distribution);
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            temp = op.apply(this.get(p), temp);
+	            result.set(temp, p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
+	    return result;
+	}
     
 	
     /* (non-Javadoc)
      * @see x10.lang.CharArray#set(int, int[])
      */
     public char set(char v, point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));
+        
         return arr_.setChar(v, (int) distribution.region.ordinal(pos));
     }
     
@@ -242,17 +276,23 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     }
      
     public char set(char v, int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setChar(v,theIndex);
     }
     
     public char set(char v, int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.setChar(v,theIndex);
     }
     
     public char set(char v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.setChar(v,theIndex); 	
     }
 
@@ -260,30 +300,40 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
      * @see x10.lang.CharArray#get(int[])
      */
     public char get(point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));
+        
         return arr_.getChar((int) distribution.region.ordinal(pos));
     }
     
-    public char getOrdinal(int rawIndex) {
-    	
+    public char getOrdinal(int rawIndex) {    	
     	return arr_.getChar(rawIndex);
     }
     
     public char get(int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.getChar(d0);
     }
     public char get(int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.getChar(theIndex);
     }
     
     public char get(int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getChar(theIndex);  	
     } 
     
     public char get(int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.getChar(theIndex);
     	
     }
@@ -293,32 +343,53 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     }
     
     public x10.lang.CharReferenceArray overlay(x10.lang.charArray d) {
-    	dist dist = distribution.overlay(d.distribution);
+        dist dist = distribution.overlay(d.distribution);
         CharArray_c ret = new CharArray_c(dist, (char) 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            char val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
-            ret.set(val, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                char val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }   
         return ret;
     }
     
     public void update(x10.lang.charArray d) {
         assert (region.contains(d.region));
-        for (Iterator it = d.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            set(d.get(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = d.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                set(d.get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }   
     }
     
     public CharReferenceArray union(x10.lang.charArray d) {
         dist dist = distribution.union(d.distribution);
         CharArray_c ret = new CharArray_c(dist, (char) 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            char val = (distribution.region.contains(p)) ? get(p) : d.get(p);
-            ret.set(val, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                char val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }   
         return ret;
     }
     
@@ -329,10 +400,17 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     public CharReferenceArray restriction(region r) {
         dist dist = distribution.restriction(r);
         CharArray_c ret = new CharArray_c(dist, (char) 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            ret.set(get(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                ret.set(get(p), p);
+            } 
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }   
         return ret;
     }
     

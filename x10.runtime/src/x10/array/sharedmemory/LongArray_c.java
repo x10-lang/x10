@@ -11,10 +11,12 @@ import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.LongReferenceArray;
+import x10.runtime.Configuration;
 import x10.array.sharedmemory.Helper;
 
 
@@ -32,7 +34,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     }
 
     /**
-     *  This constructor must not be used directly by an application programmer.
+     * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
@@ -177,49 +179,80 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 	    assert arg.distribution.equals(distribution); 
 	    LongArray arg1 = (LongArray)arg;
 	    LongArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set(op.apply(this.get(p), arg1.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try { 
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.set(op.apply(this.get(p), arg1.get(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }  
 	    return result;
 	}
+    
 	public LongReferenceArray lift( LongArray.unaryOp op ) {
 	    LongArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set(op.apply(this.get(p)),p);
-	    }
-	    return result;
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try { 
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.set(op.apply(this.get(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    } 
+        return result;
 	}
-    public long reduce( LongArray.binaryOp op, long unit ) {
-        long result = unit;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-             result = op.apply(this.get(p), result);
-        }
+    
+	public long reduce( LongArray.binaryOp op, long unit ) {
+	    long result = unit;
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try { 
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result = op.apply(this.get(p), result);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    } 
         return result;
     }
 
-    public LongReferenceArray scan( binaryOp op, long unit ) {
-        long temp = unit;
-        LongArray result = newInstance(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            temp = op.apply(this.get(p), temp);
-             result.set(temp, p);
-        }
-        return result;
-    }
-    
+	public LongReferenceArray scan( binaryOp op, long unit ) {
+	    long temp = unit;
+	    LongArray result = newInstance(distribution);
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try { 
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            temp = op.apply(this.get(p), temp);
+	            result.set(temp, p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    } 
+	    return result;
+	}    
 	
     /* (non-Javadoc)
      * @see x10.lang.LongArray#set(int, int[])
      */
     public long set(long v, point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));
+        
         return arr_.setLong(v, (int) distribution.region.ordinal(pos));
     }
-    
-   
+       
     /**
      * the cannonical index has already be calculated and adjusted.  
      * Can be used by any dimensioned array.
@@ -229,32 +262,40 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     }
     
     public long set(long v, int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.setLong(v,d0);
     }
     
      
     public long set(long v, int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setLong(v,theIndex);
     }
     
     public long set(long v, int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.setLong(v,theIndex);
     }
     
     public long set(long v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.setLong(v,theIndex); 	
     }
-    
-    
-    
+        
     /* (non-Javadoc)
      * @see x10.lang.LongArray#get(int[])
      */
     public long get(point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));        
         return arr_.getLong((int) distribution.region.ordinal(pos));
     }
     
@@ -263,27 +304,35 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
      * the cannonical index has already be calculated and adjusted.  
      * Can be used by any dimensioned array.
      */
-    public long getOrdinal(int rawIndex) {
-    	
+    public long getOrdinal(int rawIndex) {    	
     	return arr_.getLong(rawIndex);
     }
     
     public long get(int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.getLong(d0);
     }
+    
     public long get(int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.getLong(theIndex);
     }
     
     public long get(int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getLong(theIndex);  	
     } 
     
     public long get(int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3); 	
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3); 	
     	return arr_.getLong(theIndex);
     	
     }
@@ -292,35 +341,56 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
-    public LongReferenceArray overlay(x10.lang.longArray d) {
-    	dist dist = distribution.overlay(d.distribution);
-        LongArray_c ret = new LongArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            long val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
-            ret.set(val, p);
-        }
-        return ret;
-    }
     
+    public LongReferenceArray overlay(x10.lang.longArray d) {
+        dist dist = distribution.overlay(d.distribution);
+        LongArray_c ret = new LongArray_c(dist, 0, safe_);
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try { 
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                long val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        } 
+        return ret;
+    }    
 
     public void update(x10.lang.longArray d) {
         assert (region.contains(d.region));
-        for (Iterator it = d.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            set(d.get(p), p);
-        }
-    }
-    
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try { 
+            for (Iterator it = d.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                long val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+                set(d.get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        } 
+    }    
     
     public LongReferenceArray union(x10.lang.longArray d) {
         dist dist = distribution.union(d.distribution);
         LongArray_c ret = new LongArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            long val = (distribution.region.contains(p)) ? get(p) : d.get(p);
-            ret.set(val, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try { 
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                long val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        } 
         return ret;
     }
     
@@ -331,12 +401,20 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     public LongReferenceArray restriction(region r) {
         dist dist = distribution.restriction(r);
         LongArray_c ret = new LongArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            ret.set(get(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try { 
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                ret.set(get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        } 
         return ret;
     }
+    
     public x10.lang.longArray toValueArray() {
     	if (! mutable_) return this;
     	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");

@@ -34,7 +34,6 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     public boolean valueEquals(Indexable other) {
         return arr_.valueEquals(((FloatArray_c)other).arr_);
     }
-
     
     /**
      *  This constructor must not be used directly by an application programmer.
@@ -194,99 +193,136 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
 	    assert arg.distribution.equals(distribution); 
 	    FloatArray arg1 = (FloatArray)arg;
 	    FloatArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set(op.apply(this.get(p), arg1.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.set(op.apply(this.get(p), arg1.get(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }  
 	    return result;
 	}
+    
 	public FloatReferenceArray lift( FloatArray.unaryOp op ) {
 	    FloatArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set(op.apply(this.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.set(op.apply(this.get(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }  
 	    return result;
 	}
-    public float reduce( FloatArray.binaryOp op, float unit ) {
-        float result = unit;
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-             result = op.apply(this.get(p), result);
-        }
-        return result;
-    }
-
-    public FloatReferenceArray scan( binaryOp op, float unit ) {
-        float temp = unit;
-        FloatArray result = newInstance(distribution);
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-            point p = (point) it.next();
-            temp = op.apply(this.get(p), temp);
-             result.set(temp, p);
-        }
-        return result;
-    }
     
+	public float reduce( FloatArray.binaryOp op, float unit ) {
+	    float result = unit;
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result = op.apply(this.get(p), result);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }  
+	    return result;
+	}
+
+	public FloatReferenceArray scan( binaryOp op, float unit ) {
+	    float temp = unit;
+	    FloatArray result = newInstance(distribution);
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            temp = op.apply(this.get(p), temp);
+	            result.set(temp, p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }  
+	    return result;
+	}   
 	
     /* (non-Javadoc)
      * @see x10.lang.FloatArray#set(int, int[])
      */
     public float set(float v, point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));        
         return arr_.setFloat(v, (int) distribution.region.ordinal(pos));
     }
     
-    public float setOrdinal(float v, int rawIndex) {
-    	
+    public float setOrdinal(float v, int rawIndex) {    	
     	return arr_.setFloat(v,rawIndex);
     }
     
     public float set(float v, int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.setFloat(v,d0);
     }
      
     public float set(float v, int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setFloat(v,theIndex);
     }
     
     public float set(float v, int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.setFloat(v,theIndex);
     }
     
     public float set(float v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.setFloat(v,theIndex);   	
     }
-
 
     /* (non-Javadoc)
      * @see x10.lang.FloatArray#get(int[])
      */
     public float get(point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));        
         return arr_.getFloat((int) distribution.region.ordinal(pos));
-    }
+    }    
     
-    
-    public float getOrdinal(int rawIndex) {
-    	
+    public float getOrdinal(int rawIndex) {    	
     	return arr_.getFloat(rawIndex);
     }
     
     public float get(int d0) {
-    	 if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0));
-        
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
         d0 = Helper.ordinal(distribution,d0);
     	return arr_.getFloat(d0);
     }
     
     public float get(int d0, int d1) {
-    	int theIndex = Helper.ordinal(distribution,d0,d1);
-        
-    
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int theIndex = Helper.ordinal(distribution,d0,d1);
+            
     	//int placeId = Runtime.here().id;
     	//System.out.println("convert "+theIndex+"->"+distribution.getVirtualIndexAdjustment(theIndex));
     	
@@ -294,12 +330,16 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     }
     
     public float get(int d0, int d1, int d2) {
-    	int theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getFloat(theIndex);  	
     } 
     
     public float get(int d0, int d1, int d2, int d3) {
-    	int theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);	
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int theIndex = Helper.ordinal(distribution,d0, d1, d2, d3);	
     	return arr_.getFloat(theIndex);    	
     }
     
@@ -309,32 +349,53 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     }
     
     public x10.lang.FloatReferenceArray overlay(x10.lang.floatArray d) {
-    	dist dist = distribution.overlay(d.distribution);
+        dist dist = distribution.overlay(d.distribution);
         FloatArray_c ret = new FloatArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            float val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
-            ret.set(val, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                float val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+                ret.set(val, p);
+            } 
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
         return ret;
     }
     
     public void update(x10.lang.floatArray d) {
         assert (region.contains(d.region));
-        for (Iterator it = d.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            set(d.get(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = d.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                set(d.get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
     }
     
     public FloatReferenceArray union(x10.lang.floatArray d) {
         dist dist = distribution.union(d.distribution);
         FloatArray_c ret = new FloatArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            float val = (distribution.region.contains(p)) ? get(p) : d.get(p);
-            ret.set(val, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                float val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
         return ret;
     }
     
@@ -345,10 +406,17 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     public FloatReferenceArray restriction(region r) {
         dist dist = distribution.restriction(r);
         FloatArray_c ret = new FloatArray_c(dist, 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            ret.set(get(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                ret.set(get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
         return ret;
     }
     

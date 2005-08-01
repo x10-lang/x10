@@ -15,10 +15,12 @@ import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.ByteReferenceArray;
+import x10.runtime.Configuration;
 
 
 /**
@@ -184,48 +186,76 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
 		assert d instanceof Distribution_c;
 		
 		return new ByteArray_c((Distribution_c) d, c, safe_);	
-	}
-	
+	}	
 
 	public ByteReferenceArray lift( ByteArray.binaryOp op, x10.lang.byteArray arg ) {
 	    assert arg.distribution.equals(distribution); 
 	    ByteArray arg1 = (ByteArray)arg;
 	    ByteArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set((byte) op.apply(this.get(p), arg1.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.set((byte) op.apply(this.get(p), arg1.get(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
 	    return result;
 	}
+    
 	public ByteReferenceArray lift( ByteArray.unaryOp op ) {
 	    ByteArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set((byte) op.apply(this.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.set((byte) op.apply(this.get(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
 	    return result;
 	}
+    
 	public int reduce( ByteArray.binaryOp op, byte unit ) {
 	    byte result = unit;
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result = (byte) op.apply(this.get(p), result);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result = (byte) op.apply(this.get(p), result);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
 	    return result;
 	}
 	
 	public ByteReferenceArray scan( binaryOp op, byte unit ) {
 	    byte temp = unit;
 	    ByteArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        temp = (byte) op.apply(this.get(p), temp);
-	        result.set(temp, p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try {
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            temp = (byte) op.apply(this.get(p), temp);
+	            result.set(temp, p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }   
 	    return result;
 	}
-    
-	
+    	
     /* (non-Javadoc)
      * @see x10.lang.ByteArray#set(int, int[])
      */
@@ -238,22 +268,30 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     }
     
     public byte set(byte v, int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.setByte(v,d0);
     }
      
     public byte set(byte v, int d0, int d1) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
     	int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setByte(v,theIndex);
     }
     
     public byte set(byte v, int d0, int d1, int d2) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
     	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.setByte(v,theIndex);
     }
     
     public byte set(byte v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.setByte(v,theIndex);    	
     }
 
@@ -262,65 +300,95 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
      * @see x10.lang.ByteArray#get(int[])
      */
     public byte get(point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));        
         return arr_.getByte((int) distribution.region.ordinal(pos));
     }
     
-    public byte getOrdinal(int rawIndex) {
-    	
+    public byte getOrdinal(int rawIndex) {    	
     	return arr_.getByte(rawIndex);
     }
     
     public byte get(int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.getByte(d0);
     }
     public byte get(int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.getByte(theIndex);
     }
     
     public byte get(int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getByte(theIndex);  	
     } 
     
     public byte get(int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.getByte(theIndex);
     	
     }
-    public byte get(int[] pos) {
+    public byte get(int[] pos) {        
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
     
     public x10.lang.ByteReferenceArray overlay(x10.lang.byteArray d) {
-    	dist dist = distribution.overlay(d.distribution);
+        dist dist = distribution.overlay(d.distribution);
         ByteArray_c ret = new ByteArray_c(dist, (byte) 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            byte val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
-            ret.set(val, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                byte val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }   
         return ret;
     }
     
     public void update(x10.lang.byteArray d) {
         assert (region.contains(d.region));
-        for (Iterator it = d.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            set(d.get(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = d.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                set(d.get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }   
     }
     
     public ByteReferenceArray union(x10.lang.byteArray d) {
         dist dist = distribution.union(d.distribution);
         ByteArray_c ret = new ByteArray_c(dist, (byte) 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            byte val = (distribution.region.contains(p)) ? get(p) : d.get(p);
-            ret.set(val, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                byte val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }   
         return ret;
     }
     
@@ -331,10 +399,17 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public ByteReferenceArray restriction(region r) {
         dist dist = distribution.restriction(r);
         ByteArray_c ret = new ByteArray_c(dist, (byte) 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            ret.set(get(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try {
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                ret.set(get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }   
         return ret;
     }
     
@@ -342,6 +417,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     	if (! mutable_) return this;
     	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");   
     }
+    
     public boolean isValue() {
         return ! this.mutable_;
     }

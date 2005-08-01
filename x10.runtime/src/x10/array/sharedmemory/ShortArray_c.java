@@ -12,10 +12,12 @@ import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.ShortReferenceArray;
+import x10.runtime.Configuration;
 
 
 /**
@@ -30,7 +32,6 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     public boolean valueEquals(Indexable other) {
         return arr_.valueEquals(((ShortArray_c)other).arr_);
     }
-
     
     /**
      *  This constructor must not be used directly by an application programmer.
@@ -44,6 +45,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     protected ShortArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
     	this( d, c, safe, true);
     }
+    
     protected ShortArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
         this.mutable_ = mutable;
@@ -71,9 +73,11 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     public ShortArray_c( dist d, short c) {
         this(d, c, true);
     }
+    
     public ShortArray_c( dist d, short c, boolean safe ) {
     	this(d, c, safe, true);
-}
+    }
+    
     public ShortArray_c( dist d, short c, boolean safe, boolean mutable ) {
     	super(d);
     	this.mutable_ = mutable;
@@ -86,17 +90,20 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
                 ranks[i] = d.region.rank(i).size();
             this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_SHORT);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Short.TYPE);
+            this.arr_ = Allocator.allocSafe(count, Short.TYPE);
         }
     	scan(this, new Assign(c));
     	
     }
+    
     public ShortArray_c( dist d, ShortArray.pointwiseOp f) {
         this(d, f, true);
     }
+    
     public ShortArray_c( dist d, ShortArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
+    
     public ShortArray_c( dist d, ShortArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
@@ -109,7 +116,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
                 ranks[i] = d.region.rank(i).size();
             this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_SHORT);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Short.TYPE);
+            this.arr_ = Allocator.allocSafe(count, Short.TYPE);
         }
         if (f != null)
             scan(this, f);
@@ -126,10 +133,11 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
                 ranks[i] = d.region.rank(i).size();
             this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_SHORT);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Short.TYPE);
+            this.arr_ = Allocator.allocSafe(count, Short.TYPE);
         }
         this.mutable_ = mutable;
     }
+    
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a
@@ -137,7 +145,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
      */
     public static ShortArray_c ShortArray_c( short[] a, boolean safe, boolean mutable ) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
-    	return new ShortArray_c(d, a, safe, mutable );
+    	return new ShortArray_c(d, a, safe, mutable);
     }
     
     public void keepItLive() {}
@@ -183,44 +191,71 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
 		return new ShortArray_c((Distribution_c) d, c, safe_);	
 	}
 	
-
 	public ShortReferenceArray lift( ShortArray.binaryOp op, x10.lang.shortArray arg ) {
 	    assert arg.distribution.equals(distribution); 
 	    ShortArray arg1 = (ShortArray)arg;
 	    ShortArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set((short) op.apply(this.get(p), arg1.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try { 
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.set((short) op.apply(this.get(p), arg1.get(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }  
 	    return result;
 	}
     
 	public ShortReferenceArray lift( ShortArray.unaryOp op ) {
 	    ShortArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result.set((short) op.apply(this.get(p)),p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try { 
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result.set((short) op.apply(this.get(p)),p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }  
 	    return result;
 	}
     
 	public int reduce( ShortArray.binaryOp op, short unit ) {
 	    int result = unit;
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        result = op.apply(this.get(p), (short) result);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try { 
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            result = op.apply(this.get(p), (short) result);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }  
 	    return result;
 	}
 
 	public ShortReferenceArray scan( binaryOp op, short unit ) {
 	    short temp = unit;
 	    ShortArray result = newInstance(distribution);
-	    for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	        point p = (point) it.next();
-	        temp = (short) op.apply(this.get(p), temp);
-	        result.set(temp, p);
-	    }
+	    place here = x10.lang.Runtime.runtime.currentPlace();
+	    try { 
+	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+	            point p = (point) it.next();
+	            place pl = distribution.get(p);
+	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
+	            temp = (short) op.apply(this.get(p), temp);
+	            result.set(temp, p);
+	        }
+	    } finally {
+	        x10.lang.Runtime.runtime.setCurrentPlace(here);
+	    }  
 	    return result;
 	}
     
@@ -229,6 +264,9 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
      * @see x10.lang.ShortArray#set(int, int[])
      */
     public short set(short v, point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));
+        
         return arr_.setShort(v, (int) distribution.region.ordinal(pos));
     }
     public short setOrdinal(short v, int rawIndex) {
@@ -236,22 +274,30 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     }
     
     public short set(short v, int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
     	return arr_.setShort(v,d0);
     }
      
     public short set(short v, int d0, int d1) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setShort(v,theIndex);
     }
     
     public short set(short v, int d0, int d1, int d2) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.setShort(v,theIndex);
     }
     
     public short set(short v, int d0, int d1, int d2, int d3) {
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.setShort(v,theIndex);  	
     }
     
@@ -259,67 +305,41 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
      * @see x10.lang.ShortArray#get(int[])
      */
     public short get(point pos) {
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(pos));
+        
         return arr_.getShort((int) distribution.region.ordinal(pos));
     }
-    public short getOrdinal(int rawIndex) {
-    	
+    
+    public short getOrdinal(int rawIndex) {    	
     	return arr_.getShort(rawIndex);
     }
     
     public short get(int d0) {
-        assert this.region.rank == 1;
-        try {
-            d0 -= region.rank(0).low();
-        } catch (UnsupportedOperationException e) {
-            throw new ArrayIndexOutOfBoundsException();
-        }    
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0));        
+        d0 = Helper.ordinal(distribution,d0);
         return arr_.getShort(d0);
     }
     
     public short get(int d0, int d1) {
-        int theIndex;
-        assert this.region.rank == 2;
-        try {
-            d0 -= region.rank(0).low();
-            d1 -= region.rank(1).low();
-            theIndex = d1 + (d0 *region.rank(1).size());
-        } catch (UnsupportedOperationException e) {
-            throw new ArrayIndexOutOfBoundsException();
-        }    
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+        int theIndex = Helper.ordinal(distribution,d0, d1);
         return arr_.getShort(theIndex);
     }
     
     public short get(int d0, int d1, int d2) {
-        assert this.region.rank == 3;
-        int theIndex;
-        try {
-            d0 -= region.rank(0).low();        
-            d1 -= region.rank(1).low();
-            d2 -= region.rank(2).low();
-            
-            theIndex = d2 + (d1 *region.rank(2).size()) +
-            (d0 *region.rank(1).size()*region.rank(2).size());
-        } catch (UnsupportedOperationException e) {
-            throw new ArrayIndexOutOfBoundsException();
-        }    
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int theIndex = Helper.ordinal(distribution, d0, d1, d2);
         return arr_.getShort(theIndex);  	
     } 
     
     public short get(int d0, int d1, int d2, int d3) {
-        assert this.region.rank == 4;
-        int theIndex;
-        try {
-            d0 -= region.rank(0).low();
-            d1 -= region.rank(1).low();
-            d2 -= region.rank(2).low();
-            d3 -= region.rank(3).low();
-            
-            theIndex = d3 + (d2*region.rank(3).size()) + 
-            (d1 *region.rank(2).size()*region.rank(3).size()) + 
-            (d0 *region.rank(1).size()*region.rank(2).size()*region.rank(3).size());
-        } catch (UnsupportedOperationException e) {
-            throw new ArrayIndexOutOfBoundsException();
-        }    	
+        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+        int theIndex = Helper.ordinal(distribution,d0,d1,d2,d3); 
         return arr_.getShort(theIndex);
         
     }
@@ -330,32 +350,53 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     }
     
     public x10.lang.ShortReferenceArray overlay(x10.lang.shortArray d) {
-    	dist dist = distribution.overlay(d.distribution);
+        dist dist = distribution.overlay(d.distribution);
         ShortArray_c ret = new ShortArray_c(dist, (short) 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            short val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
-            ret.set(val, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try { 
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                short val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
         return ret;
     }
     
     public void update(x10.lang.shortArray d) {
         assert (region.contains(d.region));
-        for (Iterator it = d.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            set(d.get(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try { 
+            for (Iterator it = d.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                set(d.get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
     }
     
     public ShortReferenceArray union(x10.lang.shortArray d) {
         dist dist = distribution.union(d.distribution);
         ShortArray_c ret = new ShortArray_c(dist, (short) 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            short val = (distribution.region.contains(p)) ? get(p) : d.get(p);
-            ret.set(val, p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try { 
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                short val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+                ret.set(val, p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
         return ret;
     }
     
@@ -366,10 +407,17 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     public ShortReferenceArray restriction(region r) {
         dist dist = distribution.restriction(r);
         ShortArray_c ret = new ShortArray_c(dist, (short) 0, safe_);
-        for (Iterator it = dist.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            ret.set(get(p), p);
-        }
+        place here = x10.lang.Runtime.runtime.currentPlace();
+        try { 
+            for (Iterator it = dist.iterator(); it.hasNext(); ) {
+                point p = (point) it.next();
+                place pl = dist.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                ret.set(get(p), p);
+            }
+        } finally {
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
+        }  
         return ret;
     }
     
@@ -377,6 +425,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     	if (! mutable_) return this;
     	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");   
     }
+    
     public boolean isValue() {
         return ! this.mutable_;
     }
