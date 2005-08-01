@@ -10,8 +10,13 @@ public class UserDefinedArray {
 	    final E v2 = new E(2);
 	    final E[.] a = new E[D] (point [i]) 
      			{return (i==0) ? v1 : v2; };     		
-	    return future(a[0]) { a[0].v }.force() + 1 
-	        == future(a[0]) { a[1].v }.force();
+
+	    // CVP: the following fails with a BadPlaceException because the object 
+	    // v1 is not located in the same place as the array variable a[0].
+	    int i0 = future(a[0]) { a[0].v }.force();
+	    int i1 = future(a[1]) { a[1].v }.force();
+	    
+	    return i0 + 1 == i1;
 	}
 	
     public static void main(String[] args) {
