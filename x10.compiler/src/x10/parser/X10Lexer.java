@@ -111,56 +111,10 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         System.out.print(s);
     }
 
-    //
-    //
-    //
-    public static class DifferSemicolons extends DifferLines implements X10Parsersym
-    {
-        public DifferSemicolons(PrsStream newStream, PrsStream oldStream)
-        {
-            super(newStream, oldStream);
-        }
-
-        public ILine[] getBuffer(PrsStream stream)
-        {
-            IntTuple line_start = new IntTuple();
-
-            line_start.add(0); // skip 0th element
-            int token = 1;
-            while (token < stream.getSize())
-            {
-                line_start.add(token);
-                if (stream.getKind(token) == TK_LBRACE || stream.getKind(token) == TK_RBRACE)
-                    token++;
-                else
-                {
-                    for (; token < stream.getSize(); token++)
-                    {
-                        if (stream.getKind(token) == TK_SEMICOLON)
-                        {
-                            token++;
-                            break;
-                        }
-                        if (stream.getKind(token) == TK_LBRACE || stream.getKind(token) == TK_RBRACE)
-                            break;
-                    }
-                }
-            }
-
-            Line buffer[] = new Line[line_start.size()];
-System.out.println("Number of lines: " + buffer.length);
-            line_start.add(stream.getSize()); // add a fence for the last line
-            for (int line_no = 1; line_no < buffer.length; line_no++)
-                buffer[line_no] = new Line(stream, line_start.get(line_no), line_start.get(line_no + 1) - 1);
-
-            return buffer;
-        }
-    }
-
     private static int LINES = 0,
                        TOKENS = 1,
-                       SEMICOLONS = 2,
-                       differ_mode = LINES;
+                       STATEMENTS = 2,
+                       differ_mode = STATEMENTS;
 
     private static int changeCount = 0,
                        insertCount = 0,
@@ -206,7 +160,6 @@ System.out.println("Number of lines: " + buffer.length);
             e.printStackTrace();
         }
     }
-
 
     private static void compareDirectories(File old_dir, File new_dir)
     {
@@ -259,7 +212,7 @@ System.out.println("Number of lines: " + buffer.length);
                 if (args[i].equals("-l"))
                      differ_mode = LINES;
                 else if (args[i].equals("-s"))
-                     differ_mode = SEMICOLONS;
+                     differ_mode = STATEMENTS;
                 else if (args[i].equals("-t"))
                      differ_mode = TOKENS;
             }
@@ -268,7 +221,8 @@ System.out.println("Number of lines: " + buffer.length);
         if (i < args.length) 
             new_file = args[i++];
         if (i < args.length) 
-            old_file = args[i++];
+             old_file = args[i++];
+        else old_file = new_file;
         for (; i < args.length; i++)
             System.err.println("Invalid argument: " + args[i]);
 
@@ -439,6 +393,131 @@ System.out.println("Number of lines: " + buffer.length);
                   : c == '\uffff'
                        ? Char_EOF
                        : Char_AfterASCII);
+    }
+    static public class DifferSemicolons extends DifferLines implements X10Parsersym
+    {
+        public DifferSemicolons(PrsStream newStream, PrsStream oldStream)
+        {
+            super(newStream, oldStream);
+        }
+        
+        public int balanceParentheses(PrsStream stream, int token)
+        {
+            int count = 0;
+            if (stream.getKind(token) == TK_LPAREN)
+            {
+                count++;
+                for (token++; token < stream.getSize(); token++)
+                {
+                    if (stream.getKind(token) == TK_LPAREN)
+                        count++;
+                    else if (stream.getKind(token) == TK_RPAREN)
+                    {
+                        if (--count == 0)
+                        {
+                            token++;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return token;
+        }
+
+        public ILine[] getBuffer(PrsStream stream)
+        {
+            IntTuple line_start = new IntTuple();
+
+            int left_brace_count = 0,
+                right_brace_count = 0,
+                class_count = 0,
+                interface_count = 0;
+
+            line_start.add(0); // skip 0th element
+            int token = 1;
+            while (token < stream.getSize())
+            {
+                line_start.add(token);
+                if (stream.getKind(token) == TK_LBRACE)
+                {
+                    left_brace_count++;
+                    token++;
+                }
+                else if (stream.getKind(token) == TK_RBRACE)
+                {
+                    right_brace_count++;
+                    token++;
+                }
+                else
+                {
+                    if (stream.getKind(token) == TK_while ||
+                        stream.getKind(token) == TK_for ||
+                        stream.getKind(token) == TK_ateach ||
+                        stream.getKind(token) == TK_if ||
+                        stream.getKind(token) == TK_switch)
+                    {
+                        token = balanceParentheses(stream, token + 1);
+                    }
+                    
+                    else if (stream.getKind(token) == TK_foreach ||
+                             stream.getKind(token) == TK_ateach)
+                    {
+                        token = balanceParentheses(stream, token + 1);
+                        token = balanceParentheses(stream, token);
+                    }
+                    else if (stream.getKind(token) == TK_case)
+                    {
+                        for (; token < stream.getSize(); token++)
+                        {
+                            if (stream.getKind(token) == TK_COLON)
+                            {
+                                token++;
+                                break;
+                            }
+                            if (stream.getKind(token) == TK_LBRACE || stream.getKind(token) == TK_RBRACE)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        for (; token < stream.getSize(); token++)
+                        {
+                            try
+                            {
+                                if (stream.getKind(token) == TK_class && stream.getKind(token+1) == TK_IDENTIFIER)
+                                    class_count++;
+                                else if (stream.getKind(token) == TK_interface  && stream.getKind(token+1) == TK_IDENTIFIER)
+                                    interface_count++;
+                            }
+                            catch(ArrayIndexOutOfBoundsException e)
+                            {
+                            }
+
+                            if (stream.getKind(token) == TK_SEMICOLON)
+                            {
+                                token++;
+                                break;
+                            }
+                            if (stream.getKind(token) == TK_LBRACE || stream.getKind(token) == TK_RBRACE)
+                                break;
+                        }
+                    }
+                }
+            }
+
+            Line buffer[] = new Line[line_start.size()];
+            line_start.add(stream.getSize()); // add a fence for the last line
+            for (int line_no = 1; line_no < buffer.length; line_no++)
+                buffer[line_no] = new Line(stream, line_start.get(line_no), line_start.get(line_no + 1));
+
+            System.out.println("Stats for " + stream.getFileName() + ":");
+            System.out.println("    Number of classes: " + class_count);
+            System.out.println("    Number of interfaces: " + interface_count);
+            System.out.println("    Number of statements: " + (buffer.length - left_brace_count - right_brace_count));
+
+            return buffer;
+        }
     }
 
     public void ruleAction( int ruleNumber)
