@@ -76,12 +76,12 @@ public class ContiguousRange extends Range {
 		return ret;
 	}
 	
-	public region difference(region r ) {
+	public region difference(region r ) {	
 		assert r != null;
 		region ret = null;
 		if (r instanceof ContiguousRange) {
-		    ContiguousRange cr = (ContiguousRange) r;
-		    if (lo == cr.lo || hi == cr.hi) {
+		    ContiguousRange cr = (ContiguousRange) r;	
+		    if (lo >= cr.lo && hi <= cr.hi){
 		        ret = new EmptyRegion(rank);
 		    }
 		}
