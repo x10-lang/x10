@@ -9,6 +9,9 @@ import java.util.Iterator;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
+import x10.lang.region;
+import x10.lang.x10Array;
+import x10.lang.Runtime;
 
 
 /**
@@ -131,6 +134,28 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
         }
     }
 
+
+    /* operations are performed in canonical order */
+    public void scan(region targetRegion, IntArray res, Operator.Scan op ) {
+    	assert res == null || res instanceof IntArray;
+    	assert res.distribution.equals(distribution);
+    	place here = x10.lang.Runtime.runtime.currentPlace();
+    	IntArray res_t = (res == null) ? null : (IntArray) res;
+    	
+    	try {
+    	    for (Iterator it = targetRegion.iterator(); it.hasNext();) {
+    	        point p = (point) it.next();
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                int arg1 = get(p);
+                int val = op.apply(arg1);
+                if (res_t != null)
+                    res_t.set(val, p);
+            }
+    	} finally {
+    	    x10.lang.Runtime.runtime.setCurrentPlace(here);
+    	}
+    }
     /* operations are performed in canonical order */
     public void scan( IntArray res, Operator.Scan op ) {
     	assert res == null || res instanceof IntArray;
@@ -172,9 +197,55 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
         }
     }
     
+  
     public void circshift(int[] args) {
         throw new RuntimeException("TODO");
     }
+    
+
+    /**
+     * copy any non-intersecting points between dest and src to
+     * dest for all the povided region, which is on a particular place
+     * This code must be executed at this place.
+     * We assume that destArray and baseArray have the same
+     * distribution
+     * @param dest
+     * @param src
+     * @param localRegion
+     */
+    public void copyDisjoint(x10Array dest,x10Array src,region localRegion){
+    	IntArray destArray = (IntArray)dest;
+    	IntArray srcArray = (IntArray)src;
+    	
+    	dist destDist=destArray.distribution;
+		for(Iterator it = localRegion.iterator();it.hasNext();){
+			point p = (point) it.next();
+			assert(Runtime.here() == destArray.distribution.get(p));
+			if(!destDist.contains(p)){
+				destArray.set(destArray.get(p),p);
+			}
+		}
+    }
+    
+  /**
+   * Copy src to dest over region localRegion, which is assumed to be on here for
+   * both src and dest
+   * @param dest
+   * @param src
+   * @param localRegion
+   */
+    public void copyLocalSection(x10Array dest,x10Array src,region localRegion){
+    	IntArray destArray = (IntArray)dest;
+    	IntArray srcArray = (IntArray)src;
+		for(Iterator it = localRegion.iterator();it.hasNext();)	{
+			point p = (point)it.next();
+			assert srcArray.region.contains(p);
+			assert destArray.region.contains(p);
+			destArray.set(srcArray.get(p),p);
+		}
+    }
+		
+    
 
     /**
      * Generic flat access.
