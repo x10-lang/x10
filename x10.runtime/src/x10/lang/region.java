@@ -142,6 +142,7 @@ implements TypeArgument, ValueType {
 	abstract public region/*(rank)*/ difference( region/*(rank)*/ r);
 	abstract public region/*(rank)*/ convexHull();
 	
+	
 	/**
 	 Returns true iff this is a superset of r.
 	 */

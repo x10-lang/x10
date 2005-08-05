@@ -324,7 +324,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     
     public long get(int d0, int d1, int d2) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0));        
+            Runtime.hereCheckPlace(distribution.get(d0,d1,d2));        
         int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getLong(theIndex);  	
     } 

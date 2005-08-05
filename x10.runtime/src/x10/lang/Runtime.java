@@ -9,6 +9,7 @@ import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
 import x10.runtime.Report;
+import x10.runtime.distributed.FatPointer;
 
 
 /**
@@ -268,5 +269,11 @@ public abstract class Runtime {
 	    }
 	    return true;
 	}
+	
+	// Support the separate namespace for global objects at each place
+	 public static FatPointer registerGlobalObject(java.lang.Object o){
+		//TODO check if o is a global object
+	 	return here().registerGlobalObject(o);
+	 }
    
 } // end of Runtime
