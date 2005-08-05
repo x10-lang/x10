@@ -130,7 +130,8 @@ implements TypeArgument, ValueType {
 	public String toString() {
 	    return "place(id=" + id +")"; 
 	}
-	
+
+		
 	// routines to access global data at a particular place from a different place
 	public  void runArrayConstructor(FatPointer owningObject,int elementType,
 			int elSize,dist d,IntArray.pointwiseOp op, boolean safe,boolean mutable){
@@ -143,21 +144,43 @@ implements TypeArgument, ValueType {
 	}
 	public void remoteScan(FatPointer dest,FatPointer src,AsyncResult syncPoint,x10.lang.intArray.binaryOp op){
 		
-		throw new RuntimeException("unimplemented");//TODO: implement
+		throw new RuntimeException("unimplemented");
 	}
 	
 	public int remoteReadInt(FatPointer fp,point p){
+		if (true) throw new RuntimeException("unimplemented");
 		return 0;
 	}
 	public void remoteReductionInt(AsyncResult syncPoint,int unit){
-		throw new RuntimeException("unimplemented");//TODO: implement
+		throw new RuntimeException("unimplemented");
 	}
+	
+	/**
+	 * Perform an element by element copy on the local place from src1 to dest
+	 * @param dest
+	 * @param src1
+	 */
+	public void remoteSectionCopy(FatPointer dest,FatPointer src1){
+		throw new RuntimeException("unimplemented");
+	}
+	
+	/**
+	 * Intersect dest and source, and if a point in source is not in the dest region,
+	 * copy it from source
+	 * @param dest
+	 * @param source
+	 */
+	public void remoteUnion(FatPointer dest,FatPointer source){
+		throw new RuntimeException("unimplemented");
+	}
+	
 	public void remoteWriteInt(FatPointer fp,point p,int val){
-		throw new RuntimeException("unimplemented");//TODO: implement
+		throw new RuntimeException("unimplemented");
 	}
 	public void remoteCopy(FatPointer dest,FatPointer src,AsyncResult syncPoint){
 		//copy all points from src to dest--make sure to check the distribution.  This is called
 		//from restriction, so  dest can have a dist which is a subset of src
-		throw new RuntimeException("unimplemented");//TODO: implement
+		throw new RuntimeException("unimplemented");
 	}
+    
 }

@@ -12,10 +12,14 @@ import java.util.Iterator;
  * @author vj 12/24/2004
  */
 
-abstract public class intArray /*( distribution distribution )*/ implements Indexable, Unsafe {
+
+abstract public class intArray extends x10Array{
+//abstract public class intArray /*( distribution distribution )*/ implements Indexable, Unsafe {
 	public final dist distribution;
 	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
+	
+	public dist getDistribution() { return distribution;}
 	
 	protected intArray( dist D) {
 		this.distribution = D;

@@ -42,10 +42,9 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
      * particular locations
      * @return array of regions indexed by placeid
      */
-    public region[] getAllocatedRegions(){
-    region theRegions[] = new region[place.MAX_PLACES];
-    if(true) throw new RuntimeException("Unimplemented");
-    return theRegions;
+    public region[] getPerPlaceRegions(){
+    	if(true) throw new RuntimeException("Should not be called for shared memory type");
+    	return null;
     }
     /**
      * Is this indexable value-equals to the other indexable?
@@ -562,24 +561,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
     static class Combined extends Distribution_c {
         private final Distribution_c[] members_;
         
-        final public region[] getAllocatedRegions(){
-        	region theRegions[]= new region[place.MAX_PLACES];
-        	int count=0;
-        	for(int i=0;i < members_.length;++i){
-        		Distribution_c currentDist = members_[i];
-        		if(currentDist instanceof Constant){
-        			Constant constDist = (Constant)currentDist;
-        			theRegions[constDist.place_.id] = constDist.region;
-        			System.out.println("assigning "+constDist.place_.id+":"+constDist.region);
-        		}
-        		else System.out.println("need to add support for other distribution types");// FIXME
-        		 
-        		++count;
-        	}
-        	assert(count == place.MAX_PLACES);
-        	
-        	return theRegions;
-        }
+       
         /**
          * @param r
          */

@@ -1,8 +1,14 @@
 package x10.runtime;
 
+import x10.array.IntArray;
 import x10.lang.Future;
+import x10.lang.Object;
 import x10.lang.Runtime;
+import x10.lang.dist;
 import x10.lang.place;
+import x10.lang.point;
+import x10.runtime.distributed.AsyncResult;
+import x10.runtime.distributed.FatPointer;
 
 
 /**
@@ -84,5 +90,9 @@ implements Comparable {
         return this == o;
     }
     
+    
+    public abstract FatPointer registerGlobalObject(java.lang.Object o);
+    public abstract FatPointer shadowRemoteEntry(java.lang.Object o,int key);
+    public abstract FatPointer findGlobalObject(java.lang.Object o);
 } // end of Place
 
