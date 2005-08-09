@@ -42,7 +42,7 @@
      		finish ateach( point p: D_inner ) {
      			int i = p[0];
      			int j = p[1];
-     			temp[p]=(b[i+1,j]+b[i-1,j]+b[i,j-1]+b[i,j+1])/4.0;
+     			temp[p]=(read(b,i+1,j)+read(b,i-1,j)+read(b,i,j-1)+read(b,i,j+1))/4.0;
      		}
  					
  			if((err = computeError(b,temp)) < epsilon)
@@ -60,6 +60,10 @@
      	System.out.println(iters);
      	return Math.abs(err-EXPECTED_ERR)<epsilon2 && iters==EXPECTED_ITERS;
      }
+   
+    static double read(final double[.] b, final int i, final int j) {
+	 return future(b.distribution[i,j]) {b[i,j]}.force();
+    }
      
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
