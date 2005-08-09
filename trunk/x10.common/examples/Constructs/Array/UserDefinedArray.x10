@@ -1,23 +1,39 @@
 /**
  * @author Christian Grothoff
+ * @author Kemal Ebcioglu
  * Testing arrays with user-defined element types.
  */
 public class UserDefinedArray {
     const region R = [0:1];
     const dist D = dist.factory.block(R);
 	public static boolean run() {
-	    final E v1 = new E(1);
-	    final E v2 = new E(2);
+	    chk(place.MAX_PLACES<=1 || D[0]!=D[1]);
+            // create an array a such that 
+            // a[0] is in D[0] but points to an object in D[1]
+            // and a[1] is in D[1] but points to an object in D[0] 
+	    final E v1 = future(D[1]){new E(1)}.force();
+	    final E v2 = future(D[0]){new E(2)}.force();
 	    final E[.] a = new E[D] (point [i]) 
      			{return (i==0) ? v1 : v2; };     		
 
-	    // CVP: the following fails with a BadPlaceException because the object 
-	    // v1 is not located in the same place as the array variable a[0].
-	    int i0 = future(a[0]) { a[0].v }.force();
-	    int i1 = future(a[1]) { a[1].v }.force();
+            chk(a.distribution[0]==D[0] && 
+                future(a.distribution[0]){a[0]}.force()==v1 &&
+                  v1.getLocation()==D[1] && 
+                  future(v1){v1.v}.force()==1);
+            chk(a.distribution[1]==D[1] && 
+                future(a.distribution[1]){a[1]}.force()==v2 &&
+                  v2.getLocation()==D[0] &&
+                  future(v2){v2.v}.force()==2);
+            //this top level future runs in D[1] since a[0]==v1 && v1.getLocation()==D[1]
+	    int i0 = future(future(a.distribution[0]){a[0]}.force().getLocation())
+                 { future(a.distribution[0]){a[0]}.force().v }.force();
+            //this top level future runs in D[0] since a[1]==v2 && v2.getLocation()==D[0]
+	    int i1 = future(future(a.distribution[1]){a[1]}.force())
+                 { future(a.distribution[1]){a[1]}.force().v }.force();
 	    
 	    return i0 + 1 == i1;
 	}
+	static void chk(boolean b) {if(!b) throw new Error();}
 	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
