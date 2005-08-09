@@ -139,7 +139,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                                     ? (Differ) new DifferLines(old_stream, new_stream)
                                     : differ_mode == TOKENS
                                                    ? (Differ) new DifferTokens(old_stream, new_stream)
-                                                   : (Differ) new DifferSemicolons(old_stream, new_stream));
+                                                   : (Differ) new DifferStatements(old_stream, new_stream));
 
             diff.compare();
 
@@ -394,9 +394,9 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                        ? Char_EOF
                        : Char_AfterASCII);
     }
-    static public class DifferSemicolons extends DifferLines implements X10Parsersym
+    static public class DifferStatements extends DifferLines implements X10Parsersym
     {
-        public DifferSemicolons(PrsStream newStream, PrsStream oldStream)
+        public DifferStatements(PrsStream newStream, PrsStream oldStream)
         {
             super(newStream, oldStream);
         }
