@@ -42,7 +42,8 @@
      		finish ateach(final point p:D_inner) {
      			int i = p.get(0);
      			int j = p.get(1);
-     			temp[i,j]=(b[i+1,j]+b[i-1,j]+b[i,j-1]+b[i,j+1])/4.0;}
+     			temp[i,j]=(read(b,i+1,j)+read(b,i-1,j)+read(b,i,j-1)+read(b,i,j+1))/4.0;
+                }
      		
      		if((err=(b.restriction(D_inner)
      				.lift(doubleArray.sub,temp)
@@ -58,6 +59,10 @@
 
      	return Math.abs(err-EXPECTED_ERR)<epsilon2 && iters==EXPECTED_ITERS;
      }
+
+    static double read(final double[.] b, final int i, final int j) {
+	 return future(b.distribution[i,j]) {b[i,j]}.force();
+    }
 	
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
