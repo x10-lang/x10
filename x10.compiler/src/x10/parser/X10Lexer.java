@@ -426,11 +426,9 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             System.out.println("Stats for " + old_file + ":");
             System.out.println("    Number of files: " + file_count);
             System.out.println("    Number of lines: " + line_count);
-            System.out.println("    Number of classes: " + class_count);
-            System.out.println("    Number of interfaces: " + interface_count);
+            System.out.println("    Number of classes/interfaces: " + class_count + "/" + interface_count);
             System.out.println("    Number of statements: " + statement_count);
-            System.out.println("    Number of left braces: " + left_brace_count);
-            System.out.println("    Number of right braces: " + right_brace_count);
+            System.out.println("    Number of braces (left/right): (" + left_brace_count + "/" + right_brace_count + ")");
         }
         else
         {
