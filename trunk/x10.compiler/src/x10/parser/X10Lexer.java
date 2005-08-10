@@ -618,11 +618,6 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         {
             IntTuple line_start = new IntTuple();
 
-            int left_brace_count = 0,
-                right_brace_count = 0,
-                class_count = 0,
-                interface_count = 0;
-
             line_start.add(0); // skip 0th element
             int token = 1;
             while (token < stream.getSize())
