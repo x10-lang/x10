@@ -510,7 +510,6 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             line_start.add(stream.getSize()); // add a fence for the last line
             for (int line_no = 1; line_no < buffer.length; line_no++)
                 buffer[line_no] = new Line(stream, line_start.get(line_no), line_start.get(line_no + 1));
-
             System.out.println("Stats for " + stream.getFileName() + ":");
             System.out.println("    Number of classes: " + class_count);
             System.out.println("    Number of interfaces: " + interface_count);
