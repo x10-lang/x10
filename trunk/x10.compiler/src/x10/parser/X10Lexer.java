@@ -711,6 +711,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             rightBraceCount += right_brace_count;
             classCount += class_count;
             interfaceCount += interface_count;
+            statementCount += buffer.length;
 
             return buffer;
         }
