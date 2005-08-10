@@ -5,3 +5,6 @@
 *.txt
 tmp
 x10diff.bat
+test1.java
+test2.java
+.cvsignore
