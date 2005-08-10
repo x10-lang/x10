@@ -114,7 +114,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
     private static int LINES = 0,
                        TOKENS = 1,
                        JAVA = 2,
-                       X10 = 2,
+                       X10 = 3,
                        differ_mode = X10;
 
     private static int changeCount = 0,
@@ -698,7 +698,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             Line buffer[] = new Line[line_start.size() - left_brace_count - right_brace_count];
             line_start.add(stream.getSize()); // add a fence for the last line
             int index = 1;
-            for (int line_no = 1; line_no < line_start.size(); line_no++)
+            for (int line_no = 1; line_no < line_start.size() - 1; line_no++)
             {
                 if (stream.getKind(line_start.get(line_no)) == TK_LBRACE ||
                     stream.getKind(line_start.get(line_no)) == TK_RBRACE)
