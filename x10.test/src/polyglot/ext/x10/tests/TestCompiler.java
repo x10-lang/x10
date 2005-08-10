@@ -23,148 +23,148 @@ public TestCompiler(String name) {
 	super(name);
 }
 
-    public void test_Applications_Edmiston_Parallel1() {
-        run("./Edmiston_Parallel1.x10","Edmiston_Parallel1","./Applications");
+    public void test_Applications_JavaGrande_JGFCryptBenchSizeA() {
+        run("./JGFCryptBenchSizeA.x10","JGFCryptBenchSizeA","./Applications/JavaGrande");
     }
 
-    public void test_Applications_Edmiston_Parallel10() {
-        run("./Edmiston_Parallel10.x10","Edmiston_Parallel10","./Applications");
+    public void test_Applications_JavaGrande_JGFLUFactBenchSizeA() {
+        run("./JGFLUFactBenchSizeA.x10","JGFLUFactBenchSizeA","./Applications/JavaGrande");
     }
 
-    public void test_Applications_Edmiston_Parallel11() {
-        run("./Edmiston_Parallel11.x10","Edmiston_Parallel11","./Applications");
+    public void test_Applications_JavaGrande_JGFMolDynBenchSizeA() {
+        run("./JGFMolDynBenchSizeA.x10","JGFMolDynBenchSizeA","./Applications/JavaGrande");
     }
 
-    public void test_Applications_Edmiston_Parallel2() {
-        run("./Edmiston_Parallel2.x10","Edmiston_Parallel2","./Applications");
+    public void test_Applications_JavaGrande_JGFMonteCarlo2BenchSizeA() {
+        run("./JGFMonteCarlo2BenchSizeA.x10","JGFMonteCarlo2BenchSizeA","./Applications/JavaGrande");
     }
 
-    public void test_Applications_Edmiston_Parallel3() {
-        run("./Edmiston_Parallel3.x10","Edmiston_Parallel3","./Applications");
+    public void test_Applications_JavaGrande_JGFMonteCarloBenchSizeA() {
+        run("./JGFMonteCarloBenchSizeA.x10","JGFMonteCarloBenchSizeA","./Applications/JavaGrande");
     }
 
-    public void test_Applications_Edmiston_Parallel4() {
-        run("./Edmiston_Parallel4.x10","Edmiston_Parallel4","./Applications");
+    public void test_Applications_JavaGrande_JGFRayTracerBenchSizeA() {
+        run("./JGFRayTracerBenchSizeA.x10","JGFRayTracerBenchSizeA","./Applications/JavaGrande");
     }
 
-    public void test_Applications_Edmiston_Parallel4b() {
-        run("./Edmiston_Parallel4b.x10","Edmiston_Parallel4b","./Applications");
+    public void test_Applications_JavaGrande_JGFSORBenchSizeA() {
+        run("./JGFSORBenchSizeA.x10","JGFSORBenchSizeA","./Applications/JavaGrande");
     }
 
-    public void test_Applications_Edmiston_Parallel5() {
-        run("./Edmiston_Parallel5.x10","Edmiston_Parallel5","./Applications");
+    public void test_Applications_JavaGrande_JGFSeriesBenchSizeA() {
+        run("./JGFSeriesBenchSizeA.x10","JGFSeriesBenchSizeA","./Applications/JavaGrande");
     }
 
-    public void test_Applications_Edmiston_Parallel6() {
-        run("./Edmiston_Parallel6.x10","Edmiston_Parallel6","./Applications");
+    public void test_Applications_JavaGrande_JGFSparseMatmultBenchSizeA() {
+        run("./JGFSparseMatmultBenchSizeA.x10","JGFSparseMatmultBenchSizeA","./Applications/JavaGrande");
     }
 
-    public void test_Applications_Edmiston_Parallel7() {
-        run("./Edmiston_Parallel7.x10","Edmiston_Parallel7","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel1() {
+        run("./Edmiston_Parallel1.x10","Edmiston_Parallel1","./Applications/OtherApps");
     }
 
-    public void test_Applications_Edmiston_Parallel8() {
-        run("./Edmiston_Parallel8.x10","Edmiston_Parallel8","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel10() {
+        run("./Edmiston_Parallel10.x10","Edmiston_Parallel10","./Applications/OtherApps");
     }
 
-    public void test_Applications_Edmiston_Parallel9() {
-        run("./Edmiston_Parallel9.x10","Edmiston_Parallel9","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel11() {
+        run("./Edmiston_Parallel11.x10","Edmiston_Parallel11","./Applications/OtherApps");
     }
 
-    public void test_Applications_Edmiston_Sequential1() {
-        run("./Edmiston_Sequential1.x10","Edmiston_Sequential1","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel2() {
+        run("./Edmiston_Parallel2.x10","Edmiston_Parallel2","./Applications/OtherApps");
     }
 
-    public void test_Applications_Edmiston_Sequential2() {
-        run("./Edmiston_Sequential2.x10","Edmiston_Sequential2","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel3() {
+        run("./Edmiston_Parallel3.x10","Edmiston_Parallel3","./Applications/OtherApps");
     }
 
-    public void test_Applications_Edmiston_Sequential3() {
-        run("./Edmiston_Sequential3.x10","Edmiston_Sequential3","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel4() {
+        run("./Edmiston_Parallel4.x10","Edmiston_Parallel4","./Applications/OtherApps");
     }
 
-    public void test_Applications_GameOfLife() {
-        run("./GameOfLife.x10","GameOfLife","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel4b() {
+        run("./Edmiston_Parallel4b.x10","Edmiston_Parallel4b","./Applications/OtherApps");
     }
 
-    public void test_Applications_JGFCryptBenchSizeA() {
-        run("./JGFCryptBenchSizeA.x10","JGFCryptBenchSizeA","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel5() {
+        run("./Edmiston_Parallel5.x10","Edmiston_Parallel5","./Applications/OtherApps");
     }
 
-    public void test_Applications_JGFLUFactBenchSizeA() {
-        run("./JGFLUFactBenchSizeA.x10","JGFLUFactBenchSizeA","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel6() {
+        run("./Edmiston_Parallel6.x10","Edmiston_Parallel6","./Applications/OtherApps");
     }
 
-    public void test_Applications_JGFMolDynBenchSizeA() {
-        run("./JGFMolDynBenchSizeA.x10","JGFMolDynBenchSizeA","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel7() {
+        run("./Edmiston_Parallel7.x10","Edmiston_Parallel7","./Applications/OtherApps");
     }
 
-    public void test_Applications_JGFMonteCarlo2BenchSizeA() {
-        run("./JGFMonteCarlo2BenchSizeA.x10","JGFMonteCarlo2BenchSizeA","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel8() {
+        run("./Edmiston_Parallel8.x10","Edmiston_Parallel8","./Applications/OtherApps");
     }
 
-    public void test_Applications_JGFMonteCarloBenchSizeA() {
-        run("./JGFMonteCarloBenchSizeA.x10","JGFMonteCarloBenchSizeA","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Parallel9() {
+        run("./Edmiston_Parallel9.x10","Edmiston_Parallel9","./Applications/OtherApps");
     }
 
-    public void test_Applications_JGFRayTracerBenchSizeA() {
-        run("./JGFRayTracerBenchSizeA.x10","JGFRayTracerBenchSizeA","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Sequential1() {
+        run("./Edmiston_Sequential1.x10","Edmiston_Sequential1","./Applications/OtherApps");
     }
 
-    public void test_Applications_JGFSORBenchSizeA() {
-        run("./JGFSORBenchSizeA.x10","JGFSORBenchSizeA","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Sequential2() {
+        run("./Edmiston_Sequential2.x10","Edmiston_Sequential2","./Applications/OtherApps");
     }
 
-    public void test_Applications_JGFSeriesBenchSizeA() {
-        run("./JGFSeriesBenchSizeA.x10","JGFSeriesBenchSizeA","./Applications");
+    public void test_Applications_OtherApps_Edmiston_Sequential3() {
+        run("./Edmiston_Sequential3.x10","Edmiston_Sequential3","./Applications/OtherApps");
     }
 
-    public void test_Applications_JGFSparseMatmultBenchSizeA() {
-        run("./JGFSparseMatmultBenchSizeA.x10","JGFSparseMatmultBenchSizeA","./Applications");
+    public void test_Applications_OtherApps_GameOfLife() {
+        run("./GameOfLife.x10","GameOfLife","./Applications/OtherApps");
     }
 
-    public void test_Applications_Jacobi() {
-        run("./Jacobi.x10","Jacobi","./Applications");
+    public void test_Applications_OtherApps_Jacobi() {
+        run("./Jacobi.x10","Jacobi","./Applications/OtherApps");
     }
 
-    public void test_Applications_JacobiSmall() {
-        run("./JacobiSmall.x10","JacobiSmall","./Applications");
+    public void test_Applications_OtherApps_JacobiSmall() {
+        run("./JacobiSmall.x10","JacobiSmall","./Applications/OtherApps");
     }
 
-    public void test_Applications_Jacobi_skewed() {
-        run("./Jacobi_skewed.x10","Jacobi_skewed","./Applications");
+    public void test_Applications_OtherApps_Jacobi_skewed() {
+        run("./Jacobi_skewed.x10","Jacobi_skewed","./Applications/OtherApps");
     }
 
-    public void test_Applications_MpiExample() {
-        run("./MpiExample.x10","MpiExample","./Applications");
+    public void test_Applications_OtherApps_MpiExample() {
+        run("./MpiExample.x10","MpiExample","./Applications/OtherApps");
     }
 
-    public void test_Applications_MpiExample2() {
-        run("./MpiExample2.x10","MpiExample2","./Applications");
+    public void test_Applications_OtherApps_MpiExample2() {
+        run("./MpiExample2.x10","MpiExample2","./Applications/OtherApps");
     }
 
-    public void test_Applications_QueensList() {
-        run("./QueensList.x10","QueensList","./Applications");
+    public void test_Applications_OtherApps_QueensList() {
+        run("./QueensList.x10","QueensList","./Applications/OtherApps");
     }
 
-    public void test_Applications_QueensList3() {
-        run("./QueensList3.x10","QueensList3","./Applications");
+    public void test_Applications_OtherApps_QueensList3() {
+        run("./QueensList3.x10","QueensList3","./Applications/OtherApps");
     }
 
-    public void test_Applications_RandomAccess() {
-        run("./RandomAccess.x10","RandomAccess","./Applications");
+    public void test_Applications_OtherApps_RandomAccess() {
+        run("./RandomAccess.x10","RandomAccess","./Applications/OtherApps");
     }
 
-    public void test_Applications_RandomAccess_int() {
-        run("./RandomAccess_int.x10","RandomAccess_int","./Applications");
+    public void test_Applications_OtherApps_RandomAccess_int() {
+        run("./RandomAccess_int.x10","RandomAccess_int","./Applications/OtherApps");
     }
 
-    public void test_Applications_RandomAccess_long() {
-        run("./RandomAccess_long.x10","RandomAccess_long","./Applications");
+    public void test_Applications_OtherApps_RandomAccess_long() {
+        run("./RandomAccess_long.x10","RandomAccess_long","./Applications/OtherApps");
     }
 
-    public void test_Applications_RandomAccess_skewed() {
-        run("./RandomAccess_skewed.x10","RandomAccess_skewed","./Applications");
+    public void test_Applications_OtherApps_RandomAccess_skewed() {
+        run("./RandomAccess_skewed.x10","RandomAccess_skewed","./Applications/OtherApps");
     }
 
     public void test_Constructs_Array_Array1() {
