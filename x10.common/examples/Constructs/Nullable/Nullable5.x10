@@ -1,6 +1,6 @@
 /**
  * Casting nullable T to T when the value is null
- * should not cause a null pointer exception
+ * should not cause a class cast  exception
  * if T is itself nullable S
  *
  * nullable nullable T should be treated as identical to nullable T

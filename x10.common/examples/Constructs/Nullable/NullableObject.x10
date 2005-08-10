@@ -1,6 +1,6 @@
 /**
  * Casting nullable T to T when the value is null
- * should cause a null pointer exception.
+ * should cause a class cast exception.
  * (unless T is itself nullable S)
  * This is also true for T==Object
  * 

@@ -1,6 +1,6 @@
 /**
  * Casting nullable String to String when value is null
- * should cause a null pointer exception
+ * should cause a class cast exception
  */
 public class Nullable1 {
 	public boolean run() {
