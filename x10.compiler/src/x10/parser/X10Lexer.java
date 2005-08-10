@@ -179,7 +179,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
 
             line_start.add(0); // skip 0th element
             int token = 1;
-            while (token < stream.getSize())
+            while (stream.getKind(token) != TK_EOF_TOKEN && token < stream.getSize())
             {
                 line_start.add(token);
                 if (stream.getKind(token) == TK_LBRACE)
@@ -246,7 +246,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             for (int line_no = 1; line_no < buffer.length; line_no++)
                 buffer[line_no] = new Line(stream, line_start.get(line_no), line_start.get(line_no + 1));
 
-            elementCount = buffer.length - 1;
+            elementCount += (buffer.length - 1); // the oth element is not used.
             
             return buffer;
         }
@@ -625,7 +625,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
 
             line_start.add(0); // skip 0th element
             int token = 1;
-            while (token < stream.getSize())
+            while (stream.getKind(token) != TK_EOF_TOKEN && token < stream.getSize())
             {
                 line_start.add(token);
                 if (stream.getKind(token) == TK_LBRACE)
@@ -711,7 +711,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             rightBraceCount += right_brace_count;
             classCount += class_count;
             interfaceCount += interface_count;
-            statementCount += buffer.length;
+            statementCount += buffer.length - 1; // recall that buffer[0] is not used
 
             return buffer;
         }
