@@ -37,7 +37,7 @@ public class NullableArray2 {
 		nullable int y=null;
 		boolean gotException=false;
 		try {ia3[0]=y;} 
-		catch(NullPointerException e) {gotException=true;}
+		catch(ClassCastException e) {gotException=true;}
 		if(!gotException) return false;
 			
 
@@ -53,11 +53,6 @@ public class NullableArray2 {
 
 		nullable (nullable mycomplex)[.] ia7 = null;
 		if (ia7!=null) return false;
-
-		nullable (nullable mycomplex)[.] ia8 = 
-			new mycomplex[[0:2]->here]
-                 	(point [i]) {return new mycomplex();};
-		if (ia8[2].im!=0) return false;
 
 		nullable (nullable mycomplex)[.] ia9 = 
 			new (nullable mycomplex)[[0:2]->here];
