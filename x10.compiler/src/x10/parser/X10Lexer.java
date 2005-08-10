@@ -113,14 +113,200 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
 
     private static int LINES = 0,
                        TOKENS = 1,
-                       STATEMENTS = 2,
-                       differ_mode = STATEMENTS;
+                       JAVA = 2,
+                       X10 = 2,
+                       differ_mode = X10;
 
     private static int changeCount = 0,
                        insertCount = 0,
                        deleteCount = 0,
                        replaceCount = 0,
                        moveCount = 0;
+
+    static public class DifferJava extends DifferLines implements X10Parsersym
+    {
+        protected DifferJava() {}
+        
+        public DifferJava(PrsStream newStream, PrsStream oldStream)
+        {
+            super(newStream, oldStream);
+        }
+        
+        public DifferJava(PrsStream stream)
+        {
+            ILine [] lines = getBuffer(stream);
+        }
+        
+        private int left_brace_count = 0,
+                    right_brace_count = 0,
+                    class_count = 0,
+                    interface_count = 0,
+                    element_count;
+
+        public int getLeftBraceCount() { return left_brace_count; }
+        public int getRightBraceCount() { return right_brace_count; }
+        public int getClassCount() { return class_count; }
+        public int getInterfaceCount() { return interface_count; }
+        public int getElementCount() { return element_count; }
+
+        public int balanceParentheses(PrsStream stream, int token)
+        {
+            int count = 0;
+            if (stream.getKind(token) == TK_LPAREN)
+            {
+                count++;
+                for (token++; token < stream.getSize(); token++)
+                {
+                    if (stream.getKind(token) == TK_LPAREN)
+                        count++;
+                    else if (stream.getKind(token) == TK_RPAREN)
+                    {
+                        if (--count == 0)
+                        {
+                            token++;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return token;
+        }
+
+        public ILine[] getBuffer(PrsStream stream)
+        {
+            IntTuple line_start = new IntTuple();
+
+            line_start.add(0); // skip 0th element
+            int token = 1;
+            while (token < stream.getSize())
+            {
+                line_start.add(token);
+                if (stream.getKind(token) == TK_LBRACE)
+                {
+                    left_brace_count++;
+                    token++;
+                }
+                else if (stream.getKind(token) == TK_RBRACE)
+                {
+                    right_brace_count++;
+                    token++;
+                }
+                else
+                {
+                    if (stream.getKind(token) == TK_while ||
+                        stream.getKind(token) == TK_for ||
+                        stream.getKind(token) == TK_if ||
+                        stream.getKind(token) == TK_switch)
+                    {
+                        token = balanceParentheses(stream, token + 1);
+                    }
+                    else if (stream.getKind(token) == TK_case)
+                    {
+                        for (; token < stream.getSize(); token++)
+                        {
+                            if (stream.getKind(token) == TK_COLON)
+                            {
+                                token++;
+                                break;
+                            }
+                            if (stream.getKind(token) == TK_LBRACE || stream.getKind(token) == TK_RBRACE)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        for (; token < stream.getSize(); token++)
+                        {
+                            try
+                            {
+                                if (stream.getKind(token) == TK_class && stream.getKind(token+1) == TK_IDENTIFIER)
+                                    class_count++;
+                                else if (stream.getKind(token) == TK_interface  && stream.getKind(token+1) == TK_IDENTIFIER)
+                                    interface_count++;
+                            }
+                            catch(ArrayIndexOutOfBoundsException e)
+                            {
+                            }
+
+                            if (stream.getKind(token) == TK_SEMICOLON)
+                            {
+                                token++;
+                                break;
+                            }
+                            if (stream.getKind(token) == TK_LBRACE || stream.getKind(token) == TK_RBRACE)
+                                break;
+                        }
+                    }
+                }
+            }
+
+            Line buffer[] = new Line[line_start.size()];
+            line_start.add(stream.getSize()); // add a fence for the last line
+            for (int line_no = 1; line_no < buffer.length; line_no++)
+                buffer[line_no] = new Line(stream, line_start.get(line_no), line_start.get(line_no + 1));
+
+            element_count = buffer.length - 1;
+            
+            return buffer;
+        }
+    }
+
+    private static int file_count = 0,
+                       line_count = 0,
+                       left_brace_count = 0,
+                       right_brace_count = 0,
+                       class_count = 0,
+                       interface_count = 0,
+                       statement_count;
+
+    private static void computeStats(String file)
+    {
+        try
+        {
+            file_count++;
+
+            X10Lexer lexer = new X10Lexer(file);
+
+            PrsStream stream = new PrsStream(lexer);
+            lexer.lexer(stream);
+
+            DifferJava diff = (DifferJava) (differ_mode == JAVA
+                                                ? new DifferJava(stream)
+                                                : new DifferX10(stream));
+
+            line_count += (stream.getLexStream().getLineCount());
+            class_count += diff.getClassCount();
+            interface_count += diff.getInterfaceCount();
+            statement_count += (diff.getElementCount() - diff.getLeftBraceCount() - diff.getRightBraceCount());
+            left_brace_count += diff.getLeftBraceCount();
+            right_brace_count += diff.getRightBraceCount();
+        }
+        catch (Exception e)
+        {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static void computeStats(File dir)
+    {
+        try
+        {
+            File file[] = dir.listFiles();
+            for (int i = 0; i < file.length; i++)
+            {
+                if (file[i].isDirectory())
+                     computeStats(file[i]);
+                else computeStats(file[i].getPath());
+            }
+        }
+        catch (Exception e)
+        {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     private static void compareFiles(String old_file, String new_file)
     {
@@ -136,10 +322,12 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             new_lexer.lexer(new_stream);
 
             Differ diff = (differ_mode == LINES
-                                    ? (Differ) new DifferLines(old_stream, new_stream)
-                                    : differ_mode == TOKENS
-                                                   ? (Differ) new DifferTokens(old_stream, new_stream)
-                                                   : (Differ) new DifferStatements(old_stream, new_stream));
+                               ? (Differ) new DifferLines(old_stream, new_stream)
+                               : differ_mode == TOKENS
+                                     ? (Differ) new DifferTokens(old_stream, new_stream)
+                                     : differ_mode == JAVA
+                                           ? (Differ) new DifferJava(old_stream, new_stream)
+                                           : (Differ) new DifferX10(old_stream, new_stream));
 
             diff.compare();
 
@@ -209,12 +397,14 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         {
             if (args[i].charAt(0) == '-')
             {
-                if (args[i].equals("-l"))
+                if (args[i].equals("-j"))
+                     differ_mode = JAVA;
+                else if (args[i].equals("-l"))
                      differ_mode = LINES;
-                else if (args[i].equals("-s"))
-                     differ_mode = STATEMENTS;
                 else if (args[i].equals("-t"))
                      differ_mode = TOKENS;
+                else if (args[i].equals("-x"))
+                     differ_mode = X10;
             }
             else break;
         }
@@ -226,26 +416,44 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         for (; i < args.length; i++)
             System.err.println("Invalid argument: " + args[i]);
 
-        File old_dir = new File(old_file),
-             new_dir = new File(new_file);
-        if (old_dir.isDirectory() && new_dir.isDirectory())
-             compareDirectories(old_dir, new_dir);
-        else compareFiles(old_file, new_file);
+        if (old_file.equals(new_file))
+        {
+            File old_dir = new File(old_file);
+            if (old_dir.isDirectory())
+                 computeStats(old_dir);
+            else computeStats(old_file);
 
-        if (changeCount == 0)
-            System.out.println("***** No difference *****");
+            System.out.println("Stats for " + old_file + ":");
+            System.out.println("    Number of files: " + file_count);
+            System.out.println("    Number of lines: " + line_count);
+            System.out.println("    Number of classes: " + class_count);
+            System.out.println("    Number of interfaces: " + interface_count);
+            System.out.println("    Number of statements: " + statement_count);
+            System.out.println("    Number of left braces: " + left_brace_count);
+            System.out.println("    Number of right braces: " + right_brace_count);
+        }
         else
         {
-            System.out.println("***** " +
-                               changeCount +
-                               " different " +
-                               (changeCount == 1 ? "section" : "sections") + " *****");
-            System.out.println("    " + insertCount  + " lines inserted");
-            System.out.println("    " + deleteCount  + " lines deleted");
-            System.out.println("    " + replaceCount + " lines replaced");
-            System.out.println("    " + moveCount    + " lines moved");
-        }
+            File old_dir = new File(old_file),
+                 new_dir = new File(new_file);
+            if (old_dir.isDirectory() && new_dir.isDirectory())
+                 compareDirectories(old_dir, new_dir);
+            else compareFiles(old_file, new_file);
 
+            if (changeCount == 0)
+                System.out.println("***** No difference *****");
+            else
+            {
+                System.out.println("***** " +
+                                   changeCount +
+                                   " different " +
+                                   (changeCount == 1 ? "section" : "sections") + " *****");
+                System.out.println("    " + insertCount  + " lines inserted");
+                System.out.println("    " + deleteCount  + " lines deleted");
+                System.out.println("    " + replaceCount + " lines replaced");
+                System.out.println("    " + moveCount    + " lines moved");
+            }
+        }
         return;
     }
 
@@ -394,37 +602,20 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                        ? Char_EOF
                        : Char_AfterASCII);
     }
-    static public class DifferStatements extends DifferLines implements X10Parsersym
+    static public class DifferX10 extends DifferJava
     {
-        public DifferStatements(PrsStream newStream, PrsStream oldStream)
+        protected DifferX10() {}
+
+        public DifferX10(PrsStream newStream, PrsStream oldStream)
         {
             super(newStream, oldStream);
         }
         
-        public int balanceParentheses(PrsStream stream, int token)
+        public DifferX10(PrsStream stream)
         {
-            int count = 0;
-            if (stream.getKind(token) == TK_LPAREN)
-            {
-                count++;
-                for (token++; token < stream.getSize(); token++)
-                {
-                    if (stream.getKind(token) == TK_LPAREN)
-                        count++;
-                    else if (stream.getKind(token) == TK_RPAREN)
-                    {
-                        if (--count == 0)
-                        {
-                            token++;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return token;
+            ILine [] lines = getBuffer(stream);
         }
-
+        
         public ILine[] getBuffer(PrsStream stream)
         {
             IntTuple line_start = new IntTuple();
@@ -510,12 +701,6 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             line_start.add(stream.getSize()); // add a fence for the last line
             for (int line_no = 1; line_no < buffer.length; line_no++)
                 buffer[line_no] = new Line(stream, line_start.get(line_no), line_start.get(line_no + 1));
-            System.out.println("Stats for " + stream.getFileName() + ":");
-            System.out.println("    Number of classes: " + class_count);
-            System.out.println("    Number of interfaces: " + interface_count);
-            System.out.println("    Number of statements: " + (buffer.length - left_brace_count - right_brace_count));
-            System.out.println("    Number of left braces: " + left_brace_count);
-            System.out.println("    Number of right braces: " + right_brace_count);
 
             return buffer;
         }
