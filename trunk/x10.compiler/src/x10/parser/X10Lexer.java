@@ -201,7 +201,14 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                     {
                         token = balanceParentheses(stream, token + 1);
                     }
-                    else if (stream.getKind(token) == TK_case)
+                    else if (stream.getKind(token) == TK_else &&
+                             token + 1 < stream.getSize() &&
+                             stream.getKind(token + 1) == TK_if)
+                    {
+                        token = balanceParentheses(stream, token + 2);
+                    }
+                    else if (stream.getKind(token) == TK_case ||
+                             stream.getKind(token) == TK_default)
                     {
                         for (; token < stream.getSize(); token++)
                         {
@@ -247,6 +254,8 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                 buffer[line_no] = new Line(stream, line_start.get(line_no), line_start.get(line_no + 1));
 
             elementCount += (buffer.length - 1); // the oth element is not used.
+            for (int i = 1; i < buffer.length; i++)
+                    System.out.println(i + " " + buffer[i].toString());
             
             return buffer;
         }
@@ -648,14 +657,20 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                     {
                         token = balanceParentheses(stream, token + 1);
                     }
-                    
+                    else if (stream.getKind(token) == TK_else &&
+                             token + 1 < stream.getSize() &&
+                             stream.getKind(token + 1) == TK_if)
+                    {
+                        token = balanceParentheses(stream, token + 2);
+                    }
                     else if (stream.getKind(token) == TK_foreach ||
                              stream.getKind(token) == TK_ateach)
                     {
                         token = balanceParentheses(stream, token + 1);
                         token = balanceParentheses(stream, token);
                     }
-                    else if (stream.getKind(token) == TK_case)
+                    else if (stream.getKind(token) == TK_case ||
+                             stream.getKind(token) == TK_default)
                     {
                         for (; token < stream.getSize(); token++)
                         {
@@ -706,6 +721,8 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                 buffer[index++] = new Line(stream, line_start.get(line_no), line_start.get(line_no + 1));
             }
             assert (buffer.length == index);
+            for (int i = 1; i < buffer.length; i++)
+                    System.out.println(i + " " + buffer[i].toString());
 
             leftBraceCount += left_brace_count;
             rightBraceCount += right_brace_count;
