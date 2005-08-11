@@ -194,18 +194,16 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                 }
                 else
                 {
+                    if (stream.getKind(token) == TK_else &&
+                        token + 1 < stream.getSize())
+                        token++;
+                        
                     if (stream.getKind(token) == TK_while ||
                         stream.getKind(token) == TK_for ||
                         stream.getKind(token) == TK_if ||
                         stream.getKind(token) == TK_switch)
                     {
                         token = balanceParentheses(stream, token + 1);
-                    }
-                    else if (stream.getKind(token) == TK_else &&
-                             token + 1 < stream.getSize() &&
-                             stream.getKind(token + 1) == TK_if)
-                    {
-                        token = balanceParentheses(stream, token + 2);
                     }
                     else if (stream.getKind(token) == TK_case ||
                              stream.getKind(token) == TK_default)
@@ -647,6 +645,10 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                 }
                 else
                 {
+                    if (stream.getKind(token) == TK_else &&
+                        token + 1 < stream.getSize())
+                        token++;
+                        
                     if (stream.getKind(token) == TK_while ||
                         stream.getKind(token) == TK_for ||
                         stream.getKind(token) == TK_ateach ||
@@ -654,12 +656,6 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                         stream.getKind(token) == TK_switch)
                     {
                         token = balanceParentheses(stream, token + 1);
-                    }
-                    else if (stream.getKind(token) == TK_else &&
-                             token + 1 < stream.getSize() &&
-                             stream.getKind(token + 1) == TK_if)
-                    {
-                        token = balanceParentheses(stream, token + 2);
                     }
                     else if (stream.getKind(token) == TK_foreach ||
                              stream.getKind(token) == TK_ateach)
