@@ -451,10 +451,10 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                                    changeCount +
                                    " different " +
                                    (changeCount == 1 ? "section" : "sections") + " *****");
-                System.out.println("    " + insertCount  + " lines inserted");
-                System.out.println("    " + deleteCount  + " lines deleted");
                 System.out.println("    " + replaceCount + " lines replaced");
                 System.out.println("    " + moveCount    + " lines moved");
+                System.out.println("    " + insertCount  + " lines inserted");
+                System.out.println("    " + deleteCount  + " lines deleted");
             }
         }
         return;
