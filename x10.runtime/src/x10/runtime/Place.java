@@ -86,7 +86,7 @@ implements Comparable {
         return this == o;
     }
     
-    public abstract void mapGlobalObjectFields(java.lang.Object o,boolean b);
+    public abstract void mapToCorrectPlace(java.lang.Object o);
     public abstract FatPointer registerGlobalObject(java.lang.Object o);
     public abstract FatPointer shadowRemoteEntry(java.lang.Object o,long key);
     public abstract FatPointer findGlobalObject(java.lang.Object o);
