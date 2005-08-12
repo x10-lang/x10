@@ -1,18 +1,18 @@
 package x10.runtime;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 import x10.array.IntArray;
 import x10.lang.Future;
 import x10.lang.dist;
+import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
 import x10.lang.x10Array;
 import x10.runtime.distributed.AsyncResult;
 import x10.runtime.distributed.FatPointer;
-
-
+import java.util.Hashtable;
 /**
  * A LocalPlace_c is an implementation of a place
  * that runs on this Java Virtual Machine.  In the
@@ -98,10 +98,27 @@ public class LocalPlace_c extends Place {
 	 * activities at this place were blocked).
 	 */
 	private long startBlock; 
-	private static Hashtable _fatPointerMap;
+	
+	/* 
+	 * keep track of all locally created copies of place-specific instances
+	 * This is a map from place-specific allocation to a canonical id.
+	 * The canonical id is then used to find the appropriate version
+	 * at that place.  Used in the context where one place asyncs to
+	 * another--we must swap the instance at the current place for the 
+	 * instance associated with the target place.
+	 */
+	private static Hashtable _localToGlobalObjectMap = new Hashtable();
+	/* keep track of global objects allocated locally */
+	private static GlobalObjectMap _fatPointerMapTable[] = new GlobalObjectMap[place.MAX_PLACES];
+	static {
+		for(int i = 0;i < place.MAX_PLACES;++i)
+			_fatPointerMapTable[i] = new GlobalObjectMap();
+	}
+	private GlobalObjectMap _fatPointerMap;
 	LocalPlace_c(int vm_, int place_no_) {
 		super(vm_, place_no_);
-		_fatPointerMap = new Hashtable();
+				
+		_fatPointerMap = _fatPointerMapTable[place_no_];
 	}
 	
 	/**
@@ -176,7 +193,8 @@ public class LocalPlace_c extends Place {
 	public void runAsync(final Activity a) {
 		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
 				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
-			runAsync( a, false);
+			mapGlobalObjectFields(a,true);
+			runAsync( a, false);	
 		} else {
 			a.pseudoDeSerialize();
 			runAsync( a, true);
@@ -319,23 +337,26 @@ public class LocalPlace_c extends Place {
 	public  void runArrayConstructor(FatPointer owningObject,int elementType,
 			int elSize,dist d,IntArray.pointwiseOp op, boolean safe,boolean mutable){
 		
-		x10.lang.place owningPlace = here();
-		
+			
 		//Find/create corresponding fatpointer at current place (this)
 		FatPointer localHandle = findGlobalObject(owningObject);
 		if(localHandle != null){
-			throw new RuntimeException("Multiple array constructor calls for "+owningObject+" at place "+this);
+			//throw new RuntimeException("Multiple array constructor calls for "+owningObject+" at place "+this);
 		}
 		
 		localHandle = registerGlobalObject(owningObject);
-		System.out.println("in run array constructor... owner:"+owningObject);
+		System.out.println("in run array constructor...place:"+id+" owner:"+owningObject);
 			System.out.println("creating:"+localHandle);
 		java.lang.Object arrayObject=null;
-		region myRegion = d.restrictToRegion(x10.lang.Runtime.here());
+		region myRegion = d.restrictToRegion(this);
 		int arraySize = myRegion.size();
 		
+		place here = x10.lang.Runtime.runtime.currentPlace(); // foil the place runtime checks
+		try {
+			x10.lang.Runtime.runtime.setCurrentPlace(this); 
 		switch(elementType){
 		case ElementType.INT:
+			System.out.println("LOCALPLACE: in INT allocation");
 			x10.array.distributed.IntArray_c localArray= new x10.array.distributed.IntArray_c (d, safe, mutable,false,arraySize);
 		    arrayObject = (java.lang.Object)localArray;
 		    localArray.localPointwise(myRegion,localArray,op);
@@ -344,9 +365,13 @@ public class LocalPlace_c extends Place {
 		default:
 			throw new RuntimeException("need to support alloc of "+elementType);
 		}
+		}
+		finally {
+			 x10.lang.Runtime.runtime.setCurrentPlace(here);// restore real value
+		}
 		localHandle.setObject(arrayObject);
 		
-		System.out.println("completed init size:"+arraySize+" new handle:"+arrayObject);
+		System.out.println("completed init size:"+arraySize+" new handle:"+localHandle+" at place:"+id);
 	}
 
 		
@@ -365,18 +390,26 @@ public class LocalPlace_c extends Place {
 				System.out.println("creating:"+localHandle);
 			java.lang.Object arrayObject=null;
 			
-			region myRegion = d.restrictToRegion(x10.lang.Runtime.here());
+			region myRegion = d.restrictToRegion(this);
 			int arraySize = myRegion.size();
 			
-			switch(elementType){
-			case ElementType.INT:
-				x10.array.distributed.IntArray_c localArray= new x10.array.distributed.IntArray_c (d, safe, mutable, false, arraySize);
-			arrayObject = (java.lang.Object)localArray;
-			   localArray.scan(myRegion,localArray,new IntArray.Assign((int)initValue));
-			
-			break;
-			default:
-				throw new RuntimeException("need to support alloc of "+elementType);
+			place here = x10.lang.Runtime.runtime.currentPlace(); // foil the place runtime checks
+			try {
+				x10.lang.Runtime.runtime.setCurrentPlace(this); 
+				
+				switch(elementType){
+				case ElementType.INT:
+					x10.array.distributed.IntArray_c localArray= new x10.array.distributed.IntArray_c (d, safe, mutable, false, arraySize);
+				arrayObject = (java.lang.Object)localArray;
+				localArray.scan(myRegion,localArray,new IntArray.Assign((int)initValue));
+				
+				break;
+				default:
+					throw new RuntimeException("need to support alloc of "+elementType);
+				}
+			}
+			finally{
+				 x10.lang.Runtime.runtime.setCurrentPlace(here);// restore real value
 			}
 			localHandle.setObject(arrayObject);
 			
@@ -404,69 +437,56 @@ public class LocalPlace_c extends Place {
 		
 		
 		final public FatPointer registerGlobalObject(java.lang.Object o){
-			java.lang.Object searchObject;
+			
 			int owningVM;
-			int theKey=0;
+			long theKey=0;
 			if(o instanceof FatPointer) {
-				searchObject=((FatPointer)o).getObject();
 				owningVM = ((FatPointer)o).getOwningVM();
 				theKey = ((FatPointer)o).getKey();
 			}
 			else {
-				searchObject = o;
 				owningVM = FatPointer.UNASSIGNED;
-				theKey = o.hashCode();
+				theKey = (long)o.hashCode();//FIXME: later use JNI GetGlobalRef
 			}
+			java.lang.Object searchObject = new Long(theKey);
 			
-			//    	TODO check if o is a global object
-			if(_fatPointerMap.contains(searchObject)){
-				return (FatPointer)_fatPointerMap.get(searchObject);
-			}
+			FatPointer existingEntry = (FatPointer)_fatPointerMap.get(theKey);
+			if(null != existingEntry) return existingEntry;
+			
 			FatPointer newEntry = new FatPointer(o);
 			newEntry.setOwningVM(owningVM);
 			newEntry.setKey(theKey);
-			_fatPointerMap.put(o,newEntry);
+			_fatPointerMap.put(theKey,newEntry);
+			
 			return newEntry;
 		}
 		
-		final public FatPointer shadowRemoteEntry(java.lang.Object o,int key){
-			java.lang.Object searchObject;
+		final public FatPointer shadowRemoteEntry(java.lang.Object o,long key){
 			int owningVM;
+			Object theObject = o;
 			if(o instanceof FatPointer) {
-				searchObject=((FatPointer)o).getObject();
 				owningVM = ((FatPointer)o).getOwningVM();
+				theObject = ((FatPointer)o).getObject();
 			}
 			else {
-				searchObject = o;
 				owningVM = FatPointer.UNASSIGNED;
 			}
 			
-			if(_fatPointerMap.contains(searchObject)){
+			if(null != _fatPointerMap.get(key)){
 				throw new RuntimeException("Object already entred in Global map:"+o);
 			}
 			int vmId=0;
-			FatPointer newEntry = new FatPointer(searchObject);
+			FatPointer newEntry = new FatPointer(theObject);
 			newEntry.setKey(key);
 			newEntry.setOwningVM(owningVM);
-			_fatPointerMap.put(searchObject,newEntry);
+			_fatPointerMap.put(key,newEntry);
 			return newEntry;
 		}
 		final public FatPointer findGlobalObject(java.lang.Object o){
-			java.lang.Object searchObject;
-			int owningVM;
-			if(o instanceof FatPointer) {
-				searchObject=((FatPointer)o).getObject();
-				owningVM = ((FatPointer)o).getOwningVM();
-			}
-			else {
-				searchObject = o;
-				owningVM = FatPointer.UNASSIGNED;
-			}
-			if(_fatPointerMap.contains(searchObject)){
-				return (FatPointer)_fatPointerMap.get(searchObject);
-			}
+			long theKey = o.hashCode();// FIXME: use JNI addr in future
 			
-			return null;
+			FatPointer rs = (FatPointer)_fatPointerMap.get(theKey);
+			return rs;
 		}
 		
 		
@@ -494,6 +514,198 @@ public class LocalPlace_c extends Place {
 			destArray.copyDisjoint(destArray,srcArray,localRegion);
 			
 			
+		}
+		
+		/**
+		 * map global objects to locally allocated storage.
+		 * Run through object to find all mutable fields and map/set to
+		 * appropriate value.  
+		 */
+		public  void mapGlobalObjectFields(java.lang.Object o,boolean calledDirectlyFromAsync){
+			if(!x10.runtime.Configuration.isMultiNodeVM()) return;
+			
+			final boolean trace = false;
+			
+			if(trace)System.out.println("::::::::::>mapping class "+o.getClass().getName()+"("+o.hashCode()+") at place:"+id);
+			Field f[] = o.getClass().getDeclaredFields();
+			
+			{
+				for (int i = 0; i < f.length; ++i) {
+					Field currentField = f[i];
+					if(trace) System.out.println("  field "+i+": "+currentField.getName());
+					{
+						if(currentField.getName().indexOf("this$")> -1){
+							java.lang.Object oldObj=null;
+							try{
+								currentField.setAccessible(true);
+								oldObj = currentField.get(o);
+								//System.out.println(id+": this is:"+oldObj.hashCode()+" "+oldObj.getClass().getName());
+								//	dumpFields(oldObj);
+							}
+							catch(IllegalAccessException iae){
+								throw new RuntimeException("Problem accessing field "+o.getClass().getName()+":"+iae);
+							}
+							
+							/* 
+							 * If we're not called directly from async, then this is a recursive call and
+							 * we would have already created a copy of the object for the current place and
+							 * entered it into the hash table.  Recursive call means we're traversing up
+							 * the chain of this pointers replacing global objects as encountered.
+							 */
+							/*if(!calledDirectlyFromAsync){
+								mapGlobalObjectFields(oldObj,false);
+								return;
+							}*/
+							
+							boolean fieldsAlreadyReplaced=false;
+							// Must create an instance of this object for each local place on this VM
+							Object newCopy=null;
+							try{
+									Long canonicalID = (Long)_localToGlobalObjectMap.get(oldObj);
+									if(null == canonicalID){
+									long theKey = oldObj.hashCode();//FIXME use JNI
+									canonicalID =new Long(theKey);
+									if(trace)	System.out.println("not found--create new key:"+canonicalID+" for object:"+oldObj.getClass().getName()+" "+oldObj);
+								}
+								
+								FatPointer localCopy = (FatPointer)this._fatPointerMap.get(canonicalID.longValue());
+								if(null == localCopy){
+									//	System.out.println("here="+here().id+" vs id:"+id);
+									if(here().id == id)
+										newCopy =oldObj;// no need to copy
+									else
+										newCopy = oldObj.getClass().newInstance();
+									
+									if(trace)System.out.println("newCopy:"+newCopy+"("+newCopy.hashCode()+") id:"+id);
+									_fatPointerMap.put(canonicalID.longValue(),new FatPointer(newCopy,this.vm_,canonicalID.longValue()));
+									//_fatPointerMap.dump();
+									_localToGlobalObjectMap.put(newCopy,canonicalID);
+								}
+								else {
+									newCopy = localCopy.getObject();
+									//fieldsAlreadyReplaced = true;
+									if(trace)	System.out.println("reuse newCopy:"+newCopy+"("+newCopy.hashCode()+")");								
+								}
+							}
+							catch (Throwable ie){
+								/* if async is used for implementing internal actions, then very possible that no
+								 * zero-argument default constructor will exist.
+								 */
+								
+								 if(trace)System.out.println("No constructor for  "+oldObj.getClass().getName()+"--check it's fields id:"+id);
+									mapGlobalObjectFields(oldObj,false);
+								 // FIXME: We assume that all user objects will have a zero-argument default constructor.
+								 // if this is invalid, then we won't be able to create a copy at each place--the object will
+								 // be shared and we'll overwrite the fields
+								 return;
+							}
+							
+							Class currentClass = oldObj.getClass();
+										
+							// We're using the cached object which will have already gone through this proceedure
+							if(!fieldsAlreadyReplaced){
+								while(currentClass.getName().compareTo("x10.lang.Object") != 0){
+									replaceGlobalFields(currentClass,newCopy,oldObj);	
+									//	System.out.println("looking for "+currentClass.getName());
+									
+									if(currentClass.getName().compareTo("java.lang.Object") == 0) return;	
+									currentClass = currentClass.getSuperclass();				
+								}
+							}
+							
+							try {
+								currentField.set(o,newCopy);
+							}
+							catch (IllegalAccessException iae){
+								throw new RuntimeException("Could not set field "+currentField.getName()+":"+iae);
+							}
+						}
+					}	
+				}
+			}
+			
+		}
+		
+		/**
+		 * traverse this object and all of it's superclasses (and their sub classes) and remap any global object
+		 * fields to local storage for this place
+		 * @param originalObj
+		 */
+	
+		private void replaceGlobalFields(Class cl,java.lang.Object newObj,java.lang.Object oldObj){
+			Field f[] = cl.getDeclaredFields();
+			final boolean trace = false;
+			if(trace)dumpFields(oldObj);
+			for(int i = 0; i < f.length;++i){
+				Field field = f[i];
+				Class theType = field.getType();
+				
+				
+				if(theType.isPrimitive()) continue;
+				if(theType.getName().indexOf("x10.lang.")< 0) continue;
+				if(trace)	System.out.println(" replace global field "+i+":"+field.getName()+" type:"+theType.getName());
+				field.setAccessible(true);
+				try{
+				//System.out.println("getting field from "+oldObj);
+					Object globalObject = field.get(oldObj);
+					if(!(globalObject instanceof x10Array))continue;
+					if(trace)System.out.println("looking at array "+globalObject.hashCode()+" "+globalObject);
+					FatPointer replacement = this.findGlobalObject(globalObject);
+					
+					Object replacementObj;
+					
+					if(null == replacement){
+						if(trace)	System.out.println("couldn't find copy:"+globalObject.hashCode()+" "+globalObject);
+						//this._fatPointerMap.dump();
+						replacementObj = globalObject;
+					}
+					else{
+						assert(replacement != null);
+						
+						replacementObj = replacement.getObject();
+						
+						if(trace)System.out.println("replacing array "+globalObject.hashCode()+" with "+replacementObj.hashCode());
+						
+						field.set(newObj,replacementObj);
+					}
+					
+				}
+				catch (IllegalAccessException iae){
+					throw new RuntimeException("Problem with setting "+field.getName()+ " "+oldObj.getClass().getName()+":"+iae);
+				}
+			}
+		}
+		 public void dumpFields(java.lang.Object o){
+			Class c = o.getClass();
+		 	Field f3[] = c.getDeclaredFields();
+		 	System.out.println("Dumping fields for "+c.getName()+" ("+o.hashCode()+")");
+		 	try{	 		
+		 		for (int i = 0; i < f3.length; ++i) {
+		 			Field currentField = f3[i];
+		 			currentField.setAccessible(true);
+		 			
+		 			System.out.println("  ["+id+"]==>field "+i+": "+f3[i].getName()+"("+currentField.get(o).hashCode()+")");
+		 		}
+		 	}
+		 	catch(IllegalAccessException iae){
+		 		throw new RuntimeException("Problem accessing field "+o.getClass().getName()+":"+iae);
+		 	}
+		 }
+		 
+		 void dumpMethods(Class c){
+			java.lang.reflect.Method m[] = c.getDeclaredMethods();
+			for(int i=0;i < m.length;++i){
+				System.out.println(" ["+id+"]++>method "+i+" "+m[i].getName());
+			}
+		}
+		  public void dumpHierarchy(java.lang.Object o){
+			System.out.println("=============this=========");
+			Class superclass = o.getClass();
+			while(superclass != null){
+				System.out.println(" classname::"+superclass.getName());
+				dumpFields(superclass);
+				superclass = superclass.getSuperclass();
+			}
 		}
 } // end of LocalPlace_c
 
