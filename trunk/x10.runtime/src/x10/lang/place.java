@@ -182,6 +182,6 @@ implements TypeArgument, ValueType {
 		//from restriction, so  dest can have a dist which is a subset of src
 		throw new RuntimeException("unimplemented");
 	}
-	public  void mapGlobalObjectFields(java.lang.Object o){}
+	public  void mapToCorrectPlace(java.lang.Object o){throw new RuntimeException("should not be called");}
 	  
 }
