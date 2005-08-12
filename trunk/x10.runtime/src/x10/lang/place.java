@@ -167,7 +167,7 @@ implements TypeArgument, ValueType {
 	/**
 	 * Intersect dest and source, and if a point in source is not in the dest region,
 	 * copy it from source
-	 * @param dest
+	 * @param dest 
 	 * @param source
 	 */
 	public void remoteUnion(FatPointer dest,FatPointer source){
@@ -182,5 +182,6 @@ implements TypeArgument, ValueType {
 		//from restriction, so  dest can have a dist which is a subset of src
 		throw new RuntimeException("unimplemented");
 	}
-    
+	public  void mapGlobalObjectFields(java.lang.Object o){}
+	  
 }
