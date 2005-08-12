@@ -546,17 +546,13 @@ public class LocalPlace_c extends Place {
 					 * Check the back pointer to the parent object.  This is usually
 					 * the user's object, but in the case of nested asyncs, it could be an
 					 * inner anonymous class.  We want to create one copy of the user's object
-					 * per place.  It is difficult to distinguish these two cases--currently
-					 * relying on a zero argument default constructor existing for the user case 
-					 * to be the distinguishing factor--need to find a more elegant way.
+					 * per place. 
 					 */
 					if(currentField.getName().indexOf("this$")> -1){
 						java.lang.Object oldObj=null;
 						try{
 							currentField.setAccessible(true);
 							oldObj = currentField.get(o);
-							//System.out.println(id+": this is:"+oldObj.hashCode()+" "+oldObj.getClass().getName());
-							//	dumpFields(oldObj);
 						}
 						catch(IllegalAccessException iae){
 							throw new RuntimeException("Problem accessing field "+o.getClass().getName()+" at place "+id+":"+iae);
@@ -567,6 +563,13 @@ public class LocalPlace_c extends Place {
 							mapToCorrectPlace(oldObj);
 							return;
 						}
+						
+						// asyncs can be used by x10 runtime with non-X10 objects--don't waste time remapping them
+						if(!(oldObj instanceof x10.lang.Object)){
+							if(trace) System.out.println(oldObj.getClass().getName()+" is not an x10 object--do not remap");
+							return;
+						}
+						
 						boolean fieldsAlreadyReplaced=false;
 						Object newCopy=null;
 						try{
@@ -599,10 +602,9 @@ public class LocalPlace_c extends Place {
 						catch (Throwable ie){
 							// We assume that all user objects will have a zero-argument default constructor, and
 							// that an inner anonmyous class can be determined by it's name
-							// asyncs can be called by runtime for internal operations--no remapping required for them
+							throw new RuntimeException("["+id+"] No constructor for  "+oldObj.getClass().getName()+"--check it's fields id:"+id);						
 							
-							if(trace) System.out.println("["+id+"] No constructor for  "+oldObj.getClass().getName()+"--check it's fields id:"+id);						
-							return;
+							//return;
 						}
 						
 						Class currentClass = oldObj.getClass();
