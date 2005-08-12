@@ -193,7 +193,7 @@ public class LocalPlace_c extends Place {
 	public void runAsync(final Activity a) {
 		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
 				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
-			mapGlobalObjectFields(a,true);
+			mapToCorrectPlace(a);
 			runAsync( a, false);	
 		} else {
 			a.pseudoDeSerialize();
@@ -511,117 +511,108 @@ public class LocalPlace_c extends Place {
 			x10Array srcArray = (x10Array)(dest.getObject());
 			region localRegion = destArray.getDistribution().restrictToRegion(here());
 			
-			destArray.copyDisjoint(destArray,srcArray,localRegion);
-			
-			
+			destArray.copyDisjoint(destArray,srcArray,localRegion);			
 		}
 		
 		/**
-		 * map global objects to locally allocated storage.
-		 * Run through object to find all mutable fields and map/set to
-		 * appropriate value.  
+		 * Ensure this object refers to the appropriate place--ensure there
+		 * is one copy per place and we are pointing to that copy.  1st time
+		 * through we will have to create copies and remap any global object fields  
 		 */
-		public  void mapGlobalObjectFields(java.lang.Object o,boolean calledDirectlyFromAsync){
+		public  void mapToCorrectPlace(java.lang.Object o){
 			if(!x10.runtime.Configuration.isMultiNodeVM()) return;
 			
-			final boolean trace = false;
+			final boolean trace = false; 
 			
-			if(trace)System.out.println("::::::::::>mapping class "+o.getClass().getName()+"("+o.hashCode()+") at place:"+id);
+			if(trace)System.out.println("::::::::::>[pl="+id+"] mapping class "+o.getClass().getName()+"("+o.hashCode()+")");
 			Field f[] = o.getClass().getDeclaredFields();
-			
-			{
-				for (int i = 0; i < f.length; ++i) {
-					Field currentField = f[i];
-					if(trace) System.out.println("  field "+i+": "+currentField.getName());
-					{
-						if(currentField.getName().indexOf("this$")> -1){
-							java.lang.Object oldObj=null;
-							try{
-								currentField.setAccessible(true);
-								oldObj = currentField.get(o);
-								//System.out.println(id+": this is:"+oldObj.hashCode()+" "+oldObj.getClass().getName());
-								//	dumpFields(oldObj);
-							}
-							catch(IllegalAccessException iae){
-								throw new RuntimeException("Problem accessing field "+o.getClass().getName()+":"+iae);
+					
+			for (int i = 0; i < f.length; ++i) {
+				Field currentField = f[i];
+				if(trace) System.out.println("  ["+id+"]field "+i+": "+currentField.getName());
+				{
+					/*
+					 * Check the back pointer to the parent object.  This is usually
+					 * the user's object, but in the case of nested asyncs, it could be an
+					 * inner anonymous class.  We want to create one copy of the user's object
+					 * per place.  It is difficult to distinguish these two cases--currently
+					 * relying on a zero argument default constructor existing for the user case 
+					 * to be the distinguishing factor--need to find a more elegant way.
+					 */
+					if(currentField.getName().indexOf("this$")> -1){
+						java.lang.Object oldObj=null;
+						try{
+							currentField.setAccessible(true);
+							oldObj = currentField.get(o);
+							//System.out.println(id+": this is:"+oldObj.hashCode()+" "+oldObj.getClass().getName());
+							//	dumpFields(oldObj);
+						}
+						catch(IllegalAccessException iae){
+							throw new RuntimeException("Problem accessing field "+o.getClass().getName()+" at place "+id+":"+iae);
+						}
+						
+						boolean fieldsAlreadyReplaced=false;
+						Object newCopy=null;
+						try{
+							Long canonicalID = (Long)_localToGlobalObjectMap.get(oldObj);
+							if(null == canonicalID){
+								long theKey = oldObj.hashCode();//FIXME use JNI for pinned (unique) address
+								canonicalID =new Long(theKey);
+								if(trace)System.out.println("[pl="+id+"] not found--create new key:"+canonicalID+" for object:"+oldObj.getClass().getName()+" "+oldObj);
 							}
 							
-							/* 
-							 * If we're not called directly from async, then this is a recursive call and
-							 * we would have already created a copy of the object for the current place and
-							 * entered it into the hash table.  Recursive call means we're traversing up
-							 * the chain of this pointers replacing global objects as encountered.
-							 */
-							/*if(!calledDirectlyFromAsync){
-								mapGlobalObjectFields(oldObj,false);
-								return;
-							}*/
-							
-							boolean fieldsAlreadyReplaced=false;
-							// Must create an instance of this object for each local place on this VM
-							Object newCopy=null;
-							try{
-									Long canonicalID = (Long)_localToGlobalObjectMap.get(oldObj);
-									if(null == canonicalID){
-									long theKey = oldObj.hashCode();//FIXME use JNI
-									canonicalID =new Long(theKey);
-									if(trace)	System.out.println("not found--create new key:"+canonicalID+" for object:"+oldObj.getClass().getName()+" "+oldObj);
-								}
+							FatPointer localCopy = (FatPointer)this._fatPointerMap.get(canonicalID.longValue());
+							if(null == localCopy){
+								//	System.out.println("here="+here().id+" vs id:"+id);
+								if(here().id == id)
+									newCopy =oldObj;// no need to copy
+								else
+									newCopy = oldObj.getClass().newInstance();
 								
-								FatPointer localCopy = (FatPointer)this._fatPointerMap.get(canonicalID.longValue());
-								if(null == localCopy){
-									//	System.out.println("here="+here().id+" vs id:"+id);
-									if(here().id == id)
-										newCopy =oldObj;// no need to copy
-									else
-										newCopy = oldObj.getClass().newInstance();
-									
-									if(trace)System.out.println("newCopy:"+newCopy+"("+newCopy.hashCode()+") id:"+id);
-									_fatPointerMap.put(canonicalID.longValue(),new FatPointer(newCopy,this.vm_,canonicalID.longValue()));
-									//_fatPointerMap.dump();
-									_localToGlobalObjectMap.put(newCopy,canonicalID);
-								}
-								else {
-									newCopy = localCopy.getObject();
-									//fieldsAlreadyReplaced = true;
-									if(trace)	System.out.println("reuse newCopy:"+newCopy+"("+newCopy.hashCode()+")");								
-								}
+								if(trace)System.out.println("["+id+"] newCopy:"+newCopy+"("+newCopy.hashCode()+") id:"+id);
+								_fatPointerMap.put(canonicalID.longValue(),new FatPointer(newCopy,this.vm_,canonicalID.longValue()));
+								//_fatPointerMap.dump();
+								_localToGlobalObjectMap.put(newCopy,canonicalID);
 							}
-							catch (Throwable ie){
-								/* if async is used for implementing internal actions, then very possible that no
-								 * zero-argument default constructor will exist.
-								 */
-								
-								 if(trace)System.out.println("No constructor for  "+oldObj.getClass().getName()+"--check it's fields id:"+id);
-									mapGlobalObjectFields(oldObj,false);
-								 // FIXME: We assume that all user objects will have a zero-argument default constructor.
-								 // if this is invalid, then we won't be able to create a copy at each place--the object will
-								 // be shared and we'll overwrite the fields
-								 return;
-							}
-							
-							Class currentClass = oldObj.getClass();
-										
-							// We're using the cached object which will have already gone through this proceedure
-							if(!fieldsAlreadyReplaced){
-								while(currentClass.getName().compareTo("x10.lang.Object") != 0){
-									replaceGlobalFields(currentClass,newCopy,oldObj);	
-									//	System.out.println("looking for "+currentClass.getName());
-									
-									if(currentClass.getName().compareTo("java.lang.Object") == 0) return;	
-									currentClass = currentClass.getSuperclass();				
-								}
-							}
-							
-							try {
-								currentField.set(o,newCopy);
-							}
-							catch (IllegalAccessException iae){
-								throw new RuntimeException("Could not set field "+currentField.getName()+":"+iae);
+							else {
+								newCopy = localCopy.getObject();
+								fieldsAlreadyReplaced = true;
+								if(trace)	System.out.println("["+id+"] reuse newCopy:"+newCopy+"("+newCopy.hashCode()+")");								
 							}
 						}
-					}	
-				}
+						catch (Throwable ie){
+							// FIXME: We assume that all user objects will have a zero-argument default constructor.
+							// Assume that inner anonymous classes will not have such a constructor, in which case this is the key
+							// to go remap any of it's fields to point to the appropriate place-specific object
+							
+							if(trace)System.out.println("["+id+"] No constructor for  "+oldObj.getClass().getName()+"--check it's fields id:"+id);
+							mapToCorrectPlace(oldObj);
+							
+							return;
+						}
+						
+						Class currentClass = oldObj.getClass();
+						
+						// We're using the cached object which will have already gone through this proceedure
+						if(!fieldsAlreadyReplaced){
+							while(currentClass.getName().compareTo("x10.lang.Object") != 0){
+								replaceGlobalFields(currentClass,newCopy,oldObj);	
+								//	System.out.println("looking for "+currentClass.getName());
+								
+								if(currentClass.getName().compareTo("java.lang.Object") == 0) return;	
+								currentClass = currentClass.getSuperclass();				
+							}
+						}
+						
+						try {
+							currentField.set(o,newCopy);
+						}
+						catch (IllegalAccessException iae){
+							throw new RuntimeException("Could not set field "+currentField.getName()+":"+iae);
+						}
+					}
+				}	
+				
 			}
 			
 		}
@@ -639,8 +630,7 @@ public class LocalPlace_c extends Place {
 			for(int i = 0; i < f.length;++i){
 				Field field = f[i];
 				Class theType = field.getType();
-				
-				
+							
 				if(theType.isPrimitive()) continue;
 				if(theType.getName().indexOf("x10.lang.")< 0) continue;
 				if(trace)	System.out.println(" replace global field "+i+":"+field.getName()+" type:"+theType.getName());
@@ -652,29 +642,20 @@ public class LocalPlace_c extends Place {
 					if(trace)System.out.println("looking at array "+globalObject.hashCode()+" "+globalObject);
 					FatPointer replacement = this.findGlobalObject(globalObject);
 					
-					Object replacementObj;
+					assert(replacement != null);
 					
-					if(null == replacement){
-						if(trace)	System.out.println("couldn't find copy:"+globalObject.hashCode()+" "+globalObject);
-						//this._fatPointerMap.dump();
-						replacementObj = globalObject;
-					}
-					else{
-						assert(replacement != null);
-						
-						replacementObj = replacement.getObject();
-						
-						if(trace)System.out.println("replacing array "+globalObject.hashCode()+" with "+replacementObj.hashCode());
-						
-						field.set(newObj,replacementObj);
-					}
+					Object replacementObj = replacement.getObject();
 					
+					if(trace)System.out.println("replacing array "+globalObject.hashCode()+" with "+replacementObj.hashCode());
+					
+					field.set(newObj,replacementObj);		
 				}
 				catch (IllegalAccessException iae){
 					throw new RuntimeException("Problem with setting "+field.getName()+ " "+oldObj.getClass().getName()+":"+iae);
 				}
 			}
 		}
+		
 		 public void dumpFields(java.lang.Object o){
 			Class c = o.getClass();
 		 	Field f3[] = c.getDeclaredFields();
