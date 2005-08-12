@@ -514,6 +514,17 @@ public class LocalPlace_c extends Place {
 			destArray.copyDisjoint(destArray,srcArray,localRegion);			
 		}
 		
+		// Assume bytecode name of class is <name>'$'<number> ie 
+		// the suffix is a '$' followed by a number.
+		private boolean isAnonymousInnerClass(Class c){
+			String name = c.getName();
+			for(int i=name.length() -1;i>0;--i){
+				char curChar = name.charAt(i);
+				if(curChar == '$' && i < name.length()-1) return true;
+				if(!Character.isDigit(curChar))return false;
+			}
+			return false;
+		}
 		/**
 		 * Ensure this object refers to the appropriate place--ensure there
 		 * is one copy per place and we are pointing to that copy.  1st time
@@ -551,6 +562,11 @@ public class LocalPlace_c extends Place {
 							throw new RuntimeException("Problem accessing field "+o.getClass().getName()+" at place "+id+":"+iae);
 						}
 						
+						if(isAnonymousInnerClass(oldObj.getClass())){
+							if(trace) System.out.println("  Detected anonmyous inner class "+oldObj.getClass().getName()+"--don't clone");
+							mapToCorrectPlace(oldObj);
+							return;
+						}
 						boolean fieldsAlreadyReplaced=false;
 						Object newCopy=null;
 						try{
@@ -581,13 +597,11 @@ public class LocalPlace_c extends Place {
 							}
 						}
 						catch (Throwable ie){
-							// FIXME: We assume that all user objects will have a zero-argument default constructor.
-							// Assume that inner anonymous classes will not have such a constructor, in which case this is the key
-							// to go remap any of it's fields to point to the appropriate place-specific object
+							// We assume that all user objects will have a zero-argument default constructor, and
+							// that an inner anonmyous class can be determined by it's name
+							// asyncs can be called by runtime for internal operations--no remapping required for them
 							
-							if(trace)System.out.println("["+id+"] No constructor for  "+oldObj.getClass().getName()+"--check it's fields id:"+id);
-							mapToCorrectPlace(oldObj);
-							
+							if(trace) System.out.println("["+id+"] No constructor for  "+oldObj.getClass().getName()+"--check it's fields id:"+id);						
 							return;
 						}
 						
