@@ -117,6 +117,8 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                        X10 = 3,
                        differ_mode = X10;
 
+    private static boolean dump_input = false;
+
     private static int changeCount = 0,
                        insertCount = 0,
                        deleteCount = 0,
@@ -127,13 +129,16 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
     {
         protected DifferJava() {}
         
+        boolean dump_input = false;
+
         public DifferJava(PrsStream newStream, PrsStream oldStream)
         {
             super(newStream, oldStream);
         }
         
-        public DifferJava(PrsStream stream)
+        public DifferJava(boolean dump_input, PrsStream stream)
         {
+            this.dump_input = dump_input;
             ILine [] lines = getBuffer(stream);
         }
         
@@ -247,11 +252,20 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             }
 
             Line buffer[] = new Line[line_start.size()];
+            buffer[0] = new Line(stream, 0, 0); // always add the starting gate line consisting only of token 0
             line_start.add(stream.getSize()); // add a fence for the last line
             for (int line_no = 1; line_no < buffer.length; line_no++)
                 buffer[line_no] = new Line(stream, line_start.get(line_no), line_start.get(line_no + 1));
 
             elementCount += (buffer.length - 1); // the oth element is not used.
+            
+            if (dump_input)
+            {
+                System.out.println();
+                System.out.println("Dumping file " + stream.getFileName());
+                for (int i = 1; i < buffer.length; i++)
+                    System.out.println("    " + i + " " + buffer[i].toString());
+            }
             
             return buffer;
         }
@@ -277,8 +291,8 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             lexer.lexer(stream);
 
             DifferJava diff = (DifferJava) (differ_mode == JAVA
-                                                ? new DifferJava(stream)
-                                                : new DifferX10(stream));
+                                                ? new DifferJava(dump_input, stream)
+                                                : new DifferX10(dump_input, stream));
 
             lineCount += (stream.getLexStream().getLineCount());
             classCount += diff.getClassCount();
@@ -317,8 +331,21 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
     {
         try
         {
-            X10Lexer old_lexer = new X10Lexer(old_file),
-                                      new_lexer = new X10Lexer(new_file);
+            X10Lexer old_lexer, new_lexer;
+            
+            if (old_file.equals(""))
+            {
+                char[] input_chars = new char[0];
+                old_lexer = new X10Lexer(input_chars, "null_file");
+            }
+            else old_lexer = new X10Lexer(old_file);
+
+            if (new_file.equals(""))
+            {
+                char[] input_chars = new char[0];
+                new_lexer = new X10Lexer(input_chars, "null_file");
+            }
+            else new_lexer = new X10Lexer(new_file);
 
             PrsStream old_stream = new PrsStream(old_lexer);
             old_lexer.lexer(old_stream);
@@ -375,19 +402,38 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                          compareDirectories(file, new_file[i]);
                     else compareFiles(file.getPath(), new_file[i].getPath());
                 }
-                else ; /* TODO: file is a new file */ 
+                else
+                {
+                    String s = new_file[i].getName() +
+                               " found in directory " +
+                               new_dir.getPath() +
+                               " does not exist in directory " +
+                               old_dir.getPath();
+                    System.err.println("*Warning: " + s);
+
+                    if (! new_file[i].isDirectory())
+                        compareFiles("", new_file[i].getPath());
+                } 
             }
 
             for (Iterator i = old_map.entrySet().iterator(); i.hasNext(); )
             {
                 Map.Entry e = (Map.Entry) i.next();
                 File file = (File) e.getValue();
-                // TODO: file was deleted
+
+                String s = file.getName() +
+                           " found in directory " +
+                           old_dir.getPath() +
+                           " does not exist in directory " +
+                           new_dir.getPath();
+                System.err.println("*Warning: " + s);
+
+                if (! file.isDirectory())
+                    compareFiles(file.getPath(), "");
             }
         }
         catch (Exception e)
         {
-            System.err.println(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -402,7 +448,9 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         {
             if (args[i].charAt(0) == '-')
             {
-                if (args[i].equals("-j"))
+                if (args[i].equals("-d"))
+                     dump_input = true;
+                else if (args[i].equals("-j"))
                      differ_mode = JAVA;
                 else if (args[i].equals("-l"))
                      differ_mode = LINES;
@@ -614,8 +662,9 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             super(newStream, oldStream);
         }
         
-        public DifferX10(PrsStream stream)
+        public DifferX10(boolean dump_input, PrsStream stream)
         {
+            super.dump_input = dump_input;
             ILine [] lines = getBuffer(stream);
         }
         
@@ -705,6 +754,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             }
 
             Line buffer[] = new Line[line_start.size() - left_brace_count - right_brace_count];
+            buffer[0] = new Line(stream, 0, 0); // always add the starting gate line consisting only of token 0
             line_start.add(stream.getSize()); // add a fence for the last line
             int index = 1;
             for (int line_no = 1; line_no < line_start.size() - 1; line_no++)
@@ -722,6 +772,14 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             interfaceCount += interface_count;
             statementCount += buffer.length - 1; // recall that buffer[0] is not used
 
+            if (dump_input)
+            {
+                System.out.println();
+                System.out.println("Dumping file " + stream.getFileName());
+                for (int i = 1; i < buffer.length; i++)
+                    System.out.println("    " + i + " " + buffer[i].toString());
+            }
+            
             return buffer;
         }
     }
