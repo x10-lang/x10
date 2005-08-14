@@ -122,7 +122,6 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
     private static int changeCount = 0,
                        insertCount = 0,
                        deleteCount = 0,
-                       replaceCount = 0,
                        moveCount = 0;
 
     static public class DifferJava extends DifferLines implements X10Parsersym
@@ -368,9 +367,8 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                 diff.outputChanges();
 
                 changeCount += diff.getChangeCount();
-                insertCount += diff.getInsertCount();
-                deleteCount += diff.getDeleteCount();
-                replaceCount += diff.getReplaceCount();
+                insertCount += (diff.getInsertCount() + diff.getReplaceInsertCount());
+                deleteCount += (diff.getDeleteCount() + diff.getReplaceDeleteCount());
                 moveCount += diff.getMoveCount();
             }
         }
@@ -499,7 +497,6 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                                    changeCount +
                                    " different " +
                                    (changeCount == 1 ? "section" : "sections") + " *****");
-                System.out.println("    " + replaceCount + " lines replaced");
                 System.out.println("    " + moveCount    + " lines moved");
                 System.out.println("    " + insertCount  + " lines inserted");
                 System.out.println("    " + deleteCount  + " lines deleted");
