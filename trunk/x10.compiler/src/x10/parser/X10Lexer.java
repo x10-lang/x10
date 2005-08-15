@@ -118,6 +118,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                        differ_mode = X10;
 
     private static boolean dump_input = false;
+    private static String extension = "";
 
     private static int changeCount = 0,
                        insertCount = 0,
@@ -183,7 +184,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
 
             line_start.add(0); // skip 0th element
             int token = 1;
-            while (stream.getKind(token) != TK_EOF_TOKEN && token < stream.getSize())
+            while (token < stream.getSize() && stream.getKind(token) != TK_EOF_TOKEN)
             {
                 line_start.add(token);
                 if (stream.getKind(token) == TK_LBRACE)
@@ -387,7 +388,11 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                  new_file[] = new_dir.listFiles();
             HashMap old_map = new HashMap();
             for (int i = 0; i < old_file.length; i++)
-                old_map.put(old_file[i].getName(), old_file[i]);
+            {
+                String name = old_file[i].getName();
+                if (old_file[i].isDirectory() || name.endsWith(extension))
+                    old_map.put(name, old_file[i]);
+            }
 
             for (int i = 0; i < new_file.length; i++)
             {
@@ -400,7 +405,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
                          compareDirectories(file, new_file[i]);
                     else compareFiles(file.getPath(), new_file[i].getPath());
                 }
-                else
+                else if (new_file[i].isDirectory() || new_file[i].getName().endsWith(extension))
                 {
                     String s = new_file[i].getName() +
                                " found in directory " +
@@ -448,6 +453,8 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             {
                 if (args[i].equals("-d"))
                      dump_input = true;
+                else if (args[i].equals("-ext"))
+                     extension = (i + 1 < args.length ? args[++i] : "");
                 else if (args[i].equals("-j"))
                      differ_mode = JAVA;
                 else if (args[i].equals("-l"))
@@ -676,7 +683,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
 
             line_start.add(0); // skip 0th element
             int token = 1;
-            while (stream.getKind(token) != TK_EOF_TOKEN && token < stream.getSize())
+            while (token < stream.getSize() && stream.getKind(token) != TK_EOF_TOKEN)
             {
                 line_start.add(token);
                 if (stream.getKind(token) == TK_LBRACE)
