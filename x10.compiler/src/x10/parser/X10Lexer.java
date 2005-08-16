@@ -274,8 +274,13 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
             rightBraceCount += right_brace_count;
             classCount += class_count;
             interfaceCount += interface_count;
-            elementCount += (buffer.length - 1); // the oth element is not used.
-            
+            //
+            // recall that buffer[0] is not used and the last statement
+            // consists only of the EOF character. It is important
+            // to treat the EOF as a statement in case the user
+            // specifies a null file.
+            //
+            elementCount += (buffer.length - 2);
             if (dump_input)
             {
                 System.out.println();
@@ -820,7 +825,13 @@ assert(new_file != null);
             rightBraceCount += right_brace_count;
             classCount += class_count;
             interfaceCount += interface_count;
-            statementCount += (buffer.length - 1); // recall that buffer[0] is not used
+            //
+            // recall that buffer[0] is not used and the last statement
+            // consists only of the EOF character. It is important
+            // to treat the EOF as a statement in case the user
+            // specifies a null file.
+            //
+            statementCount += (buffer.length - 2);
 
             if (dump_input)
             {
