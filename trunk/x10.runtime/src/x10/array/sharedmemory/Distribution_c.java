@@ -3,23 +3,20 @@
  */
 package x10.array.sharedmemory;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import x10.array.Range;
-import x10.array.ContiguousRange;
 import x10.array.ArbitraryRegion;
-import x10.array.MultiDimRegion;
-import x10.array.point_c;
+import x10.array.ContiguousRange;
 import x10.lang.Indexable;
-import x10.lang.region;
+import x10.lang.Runtime;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
-import x10.lang.Runtime;
+import x10.lang.region;
 
 
 
@@ -487,17 +484,8 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
             s.append(region.toString());
             s.append("|, place=|");
             s.append(place_);
-            s.append("|");
-            if(x10.runtime.Configuration.isMultiNodeVM() && (null != _indexAdjustment)){
-            	s.append(" virtural index map::[");
-            	for(int j=0;j<_indexAdjustment.length;++j){
-            		s.append(_indexAdjustment[j]);
-            		s.append(" ");
-            	}
-            	s.append("]");
-            }
-            s.append(">");
-            return s.toString();
+            s.append("|>");
+           return s.toString();
         }
         
     } // end of Distribution_c.Constant
@@ -609,16 +597,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
             StringBuffer s = new StringBuffer("CombinedDistribution_c<");
             for (int i=0; i < members_.length;i++) 
                 s.append(members_[i]);
-        
-            if(x10.runtime.Configuration.isMultiNodeVM()&& (null != _indexAdjustment)){
-            	s.append(" virtural index map::[");
-            	for(int j=0;j<_indexAdjustment.length;++j){
-            		s.append(_indexAdjustment[j]);
-            		s.append(" ");
-            	}
-            	s.append("]");
-            }
-            
+                  
             return s.append(">").toString();
         }
     } // end of Distribution_c.Combined
@@ -655,14 +634,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
                     s.append(",\n");
                 
             }
-            if(x10.runtime.Configuration.isMultiNodeVM()&& (null != _indexAdjustment)){
-            	s.append(" virtural index map::[");
-            	for(int j=0;j<_indexAdjustment.length;++j){
-            		s.append(_indexAdjustment[j]);
-            		s.append(" ");
-            	}
-            	s.append("]");
-            }
+         
             s.append(">");
             return s.toString();
         }
