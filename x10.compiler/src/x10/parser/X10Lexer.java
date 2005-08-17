@@ -748,20 +748,24 @@ assert(new_file != null);
                 }
                 else
                 {
-                    if (stream.getKind(token) == TK_else &&
-                        token + 1 < stream.getSize())
+                    if ((stream.getKind(token) == TK_else ||
+                         stream.getKind(token) == TK_finish) && token + 1 < stream.getSize())
                         token++;
-                        
+                    
                     if (stream.getKind(token) == TK_while ||
                         stream.getKind(token) == TK_for ||
                         stream.getKind(token) == TK_ateach ||
                         stream.getKind(token) == TK_if ||
-                        stream.getKind(token) == TK_switch)
+                        stream.getKind(token) == TK_when ||
+                        stream.getKind(token) == TK_or ||
+                        stream.getKind(token) == TK_now ||
+                        stream.getKind(token) == TK_atomic)
                     {
                         token = balanceParentheses(stream, token + 1);
                     }
                     else if (stream.getKind(token) == TK_foreach ||
-                             stream.getKind(token) == TK_ateach)
+                             stream.getKind(token) == TK_ateach  ||
+                             stream.getKind(token) == TK_async)
                     {
                         token = balanceParentheses(stream, token + 1);
                         token = balanceParentheses(stream, token);
