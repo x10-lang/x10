@@ -1,0 +1,76 @@
+
+X10 singles out a certain set of classes for additional support. A (scalar or array) class is said to be ''stateless'' if all of its fields are declared to be  final, otherwise it is ''stateful''. (X10 has syntax for specifying an array class with  final fields, unlike JavaLanguage.) A ''stateless (stateful) object'' is an instance of a stateless (stateful) class.
+
+A final variable satisfies two conditions: 
+*it can be assigned to at most once, 
+*it must be assigned to before use. 
+
+X10 follows JavaLanguage rules in this respect [Sections 4.5.4,8.3.1.2,Chapter 16] of JavaLanguageSpec. Briefly, the compiler must undertake a specific analysis to statically guarantee the two properties above.
+
+	Todo: Check if this analysis needs to be revisited.
+
+X10 allows the programmer to signify that a class (and all its descendents) are stateless. Such a class is called a ''value class''.  The programmer specifies a value class by prefixing the modifier  value before the keyword  class in a class declaration.  (A class not declared to be a value class will be called a ''reference class''.)  Each instance field of a value class is treated as final. It is legal (but neither required nor recommended) for fields in a value class to be declared final. It is a compile-time error for a value class to inherit from a
+stateful class or for a reference class to inherit from a value class. For brevity, the X10 compiler allows the programmer to omit the keyword class after value in a value class declaration.
+
+The NullTypeConstructor can be used to declare variables whose value may be null or a variable type.
+
+Each type has a nullary constructor. If the programmer does not
+supply one, one is provided by default. This default constructor
+automatically initializes each field (if any) as follows. If the field
+has a nullable type, it is initliazed to ''null''. If the field has
+a value type, it is initialized with the value returned by invoking
+the nullary constructor of that type.  If the field is an aggregate
+type with a dynamically determined region, the region is chosen to be
+the smallest region of the given type. If the region is non-empty then
+each variable in that region is intialized with the value returned by
+calling the nullary constructor of the declared base type of the
+aggregate.  
+
+* Todo: Need to determine what to do if the type is an interface.
+
+X10 provides a built in definition for .equals() for a value type, namely structural equality, with the recursion bottoming out with reference types. This may be overridden by the programmer.
+
+
+Variables declared at any type can never be observed in an uninitialized state.
+
+Value types also support OperatorsAndConstructors.
+
+'''Representation'''
+
+Since value objects do not contain any updatable locations, they can
+be freely copied from place to place. An implementation may use
+copying techniques even within a place to implement value types,
+rather than references. This is transparent to the programmer.
+
+More explicitly, X10 guarantees that an implementation must always
+behave as if a variable of a reference type takes up as much space as
+needed to store a reference that is either null or is bound to an
+object allocated on the (appropriate) heap. However, X10 makes no
+such guarantees about the representation of a variable of value
+type. The implementation is free to behave as if the value is stored
+``inline'', allocated on the heap (and a reference stored in the
+variable) or use any other scheme (such as structure-sharing) it may
+deem appropriate. Indeed, an implementation may even dynamically
+change the representation of an object of a value type, or dynamically
+use different representations for different instances (that is,
+implement automatic box/unboxing of values).
+
+Implementations are strongly encouraged to implement value types as
+space-efficiently as possible (e.g.{} inlining them or passing them in
+registers, as appropriate).  Implementations are expected to cache
+values of remote final value variables by default. If a value is
+large, the programmer may wish to consider spawning a remote activity
+(at the place the value was created) rather than referencing the
+containing variable (thus forcing it to be cached).
+
+*Todo vj: Need to figure out whether we should let the programmer be
+aware of lazy pull vs full-value push of value objects. This is the
+idea of introducing a *-annotation. Need to make a decision on
+this. Could leave this for 0.7.
+
+'''Example'''
+
+ See LinkedList example.
+
+
+

@@ -1,0 +1,37 @@
+
+(Generics are merged in situ into class definitions.)
+
+Basic concepts
+
+  Static typing (generics, place types).
+
+  Places and distributions
+  Asynchronous activities, futures
+  Atomic sections
+  Scalar and aggregate objects
+  Clocks to tie them together
+
+Places
+
+Interfaces
+ 
+Reference classes
+
+Type parameters, generic classes
+
+Value classes
+
+Arrays
+ Regions
+ Distribution
+
+ Initialization
+Statements 
+
+ Exceptions
+
+Expressions
+ 
+(Packages, names)
+
+(Coercions)
