@@ -767,6 +767,10 @@ public TestCompiler(String name) {
         run("./NullableArray3_MustFailCompile.x10","NullableArray3_MustFailCompile","./Constructs/Nullable");
     }
 
+    public void test_Constructs_Nullable_NullableArray4() {
+        run("./NullableArray4.x10","NullableArray4","./Constructs/Nullable");
+    }
+
     public void test_Constructs_Nullable_NullableFuture0() {
         run("./NullableFuture0.x10","NullableFuture0","./Constructs/Nullable");
     }
