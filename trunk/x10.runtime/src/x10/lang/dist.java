@@ -11,6 +11,7 @@ package x10.lang;
  */
 import /*x10*/java.util.Set;
 import java.util.Iterator;
+import x10.lang.GlobalIndexMap;
 
 abstract public /*value*/ class dist/*( region region )*/ extends Object 
 implements Indexable, ValueType {
@@ -48,25 +49,21 @@ implements Indexable, ValueType {
     	if(!x10.runtime.Configuration.isMultiNodeVM()) return origIndex;
     	int placeId = x10.lang.Runtime.runtime.currentPlace().id;
     	final boolean trace=false;
-    	
-    	if(null == _indexAdjustment)System.out.println("Missing index adjustment for:"+this);
-    	if(!x10.runtime.Configuration.isMultiNodeVM()){
-    		return origIndex;
-    	}
-    	if(trace)System.out.println("Remap{p="+placeId+"} "+origIndex+"->"+(origIndex - _indexAdjustment[placeId]));
-		
-    	return origIndex - _indexAdjustment[placeId];
+    	if(trace) System.out.println("block index "+origIndex+"->"+(_indexMap[placeId].getDevirtualizedIndex(origIndex)));
+    	return _indexMap[placeId].getDevirtualizedIndex(origIndex);
     }
-    public final void initializeVirtualIndexAdjustments(int numPlaces){
-    	_indexAdjustment = new int[numPlaces];
-    }
+    
     public final void setVirtualIndexAdjustments(int offsets[]){
-    	_indexAdjustment = offsets;
+    
+    	for(int i = 0;i < offsets.length;++i){
+    		BlockIndexMap map= new BlockIndexMap();
+    		map.setAdjustment(offsets[i]);
+    		_indexMap[i] = map;
+    		System.out.println("created map:"+map);
+    	}
     }
-    public final void setIndexAdjustment(int placeId,int offset){
-    	_indexAdjustment[placeId] = offset;
-    }
-	protected int _indexAdjustment[];
+   
+	protected GlobalIndexMap _indexMap[]; 
 	
 	/** places is the range of the distribution. Guranteed that if a
 	 * place P is in this set then for some point p in region,
@@ -78,6 +75,7 @@ implements Indexable, ValueType {
 		this.region = R;
 		this.rank = R.rank;
         this.distribution = this;
+        _indexMap = new GlobalIndexMap[place.MAX_PLACES];
 	}
 	
 	public static class MalformedError extends java.lang.Error {}
