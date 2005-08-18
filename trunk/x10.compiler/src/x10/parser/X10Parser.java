@@ -76,6 +76,7 @@ import polyglot.lex.StringLiteral;
 import polyglot.main.Report;
 import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorInfo;
@@ -1345,11 +1346,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                     MethodBody = MethodBody.statements(s);
                 }
                 Flags f = MethodHeader.flags();
-                if (f.contains(Flags.ATOMIC)) {
+                if (f.contains(X10Flags.ATOMIC)) {
                      List ss = new TypedList(new LinkedList(), Stmt.class, false);
                      ss.add(nf.Atomic(pos(), nf.Here(pos()), MethodBody));
                      MethodBody = MethodBody.statements(ss);
-                     MethodHeader = MethodHeader.flags(f.clear(Flags.ATOMIC));
+                     MethodHeader = MethodHeader.flags(f.clear(X10Flags.ATOMIC));
                 }
                 btParser.setSym1(MethodHeader.body(MethodBody));
                 break;
@@ -3439,7 +3440,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List Interfacesopt = (List) btParser.getSym(5);
                 ClassBody ClassBody = (ClassBody) btParser.getSym(6);
                 checkTypeName(identifier);
-                btParser.setSym1(ClassModifiersopt.isValue()
+                btParser.setSym1(X10Flags.isValue(ClassModifiersopt)
                              ? nf.ValueClassDecl(pos(btParser.getFirstToken(), btParser.getLastToken()), 
                                                  ClassModifiersopt, identifier.getIdentifier(), Superopt, Interfacesopt, ClassBody) 
                              : nf.ClassDecl(pos(btParser.getFirstToken(), btParser.getLastToken()), 
@@ -3811,7 +3812,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 451: {
                 
-                btParser.setSym1(Flags.ATOMIC);
+                btParser.setSym1(X10Flags.ATOMIC);
                 break;
             }
      
@@ -4468,7 +4469,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 527: {
                 
-                btParser.setSym1(Flags.MUTABLE);
+                btParser.setSym1(X10Flags.MUTABLE);
                 break;
             }
      
