@@ -34,6 +34,12 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         Topics t = new Topics();
     }
     
+    public static String clock = "clock";
+
+    static {
+        Report.topics.add(clock);
+    }
+
     public polyglot.main.Version version() {
     	return new Version();
     }

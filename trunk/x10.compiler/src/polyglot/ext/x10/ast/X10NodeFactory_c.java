@@ -7,7 +7,9 @@ import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
+import polyglot.ast.Block;
 import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.Cast;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
 import polyglot.ast.Call;
@@ -17,11 +19,13 @@ import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Local;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Call_c;
+import polyglot.ext.jl.ast.CanonicalTypeNode_c;
 import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
@@ -31,6 +35,7 @@ import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.parser.X10VarDeclarator;
@@ -425,4 +430,24 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
             n = (FieldDecl) n.del(delFactory().delFieldDecl());
             return n;
         }
+        public Cast Cast(Position pos, TypeNode type, Expr expr) {
+            Cast n = new X10Cast_c(pos, type, expr);
+            n = (Cast)n.ext(extFactory().extCast());
+            n = (Cast)n.del(delFactory().delCast());
+            return n;
+        }
+        public MethodDecl MethodDecl(Position pos, Flags flags, TypeNode returnType, String name, List formals, List throwTypes, Block body) {
+            return new X10MethodDecl_c(pos, flags, returnType, name, formals, throwTypes, body);
+        }
+        public CanonicalTypeNode CanonicalTypeNode(Position pos, Type type) {
+                if (! type.isCanonical()) {
+                    throw new InternalCompilerError("Cannot construct a canonical " +
+                        "type node for a non-canonical type: "+type);
+                }
+
+                CanonicalTypeNode n = new CanonicalTypeNode_c(pos, type);
+                n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
+                n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
+                return n;
+            }
 }
