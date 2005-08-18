@@ -39,6 +39,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 
     /** Return true if this type can be assigned to <code>toType</code>. */
     public boolean isImplicitCastValidImpl(Type toType) {
+        // System.out.println( "[PrimitiveType_c] isImplicitCastValid |" + this + "| to |" + toType + "|?");
     	X10TypeSystem xts = (X10TypeSystem) ts;
         return ts.equals(toType, xts.X10Object()) ||
                super.isImplicitCastValidImpl(toType);

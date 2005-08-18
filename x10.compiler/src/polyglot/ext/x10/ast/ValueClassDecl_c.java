@@ -9,6 +9,7 @@ import java.util.List;
 
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
+import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.ClassDecl_c;
@@ -17,6 +18,7 @@ import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.NodeVisitor;
 
 /**
  * We must preserve information about value classes at runtime.
@@ -59,4 +61,10 @@ public class ValueClassDecl_c extends ClassDecl_c implements ValueClassDecl {
             return elist;
         }
     
+        public Node visitChildren(NodeVisitor v) {
+            TypeNode superClass = (TypeNode) visitChild(this.superClass, v);
+            List interfaces = visitList(interfaces(), v);
+            ClassBody body = (ClassBody) visitChild(this.body, v);
+            return reconstruct(superClass, interfaces, body);
+        }
 }
