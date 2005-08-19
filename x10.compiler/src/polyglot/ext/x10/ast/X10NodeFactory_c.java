@@ -437,7 +437,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
             return n;
         }
         public MethodDecl MethodDecl(Position pos, Flags flags, TypeNode returnType, String name, List formals, List throwTypes, Block body) {
-            return new X10MethodDecl_c(pos, flags, returnType, name, formals, throwTypes, body);
+            MethodDecl n= new X10MethodDecl_c(pos, flags, returnType, name, formals, throwTypes, body);
+            n = (MethodDecl)n.ext(extFactory().extMethodDecl());
+            n = (MethodDecl)n.del(delFactory().delMethodDecl());
+            return n;
         }
         public CanonicalTypeNode CanonicalTypeNode(Position pos, Type type) {
                 if (! type.isCanonical()) {
