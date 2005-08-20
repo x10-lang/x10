@@ -1,5 +1,6 @@
 package polyglot.ext.x10;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 
@@ -58,11 +59,17 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 //    }
     
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
-    	Option option = new Option(source.name());
-        X10Lexer x10_lexer = new X10Lexer(option); // Create the lexer
-        X10Parser x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
-        x10_lexer.lexer(x10_parser);
-        return x10_parser; // Parse the token stream to produce an AST
+        X10Lexer x10_lexer;
+        try {
+            x10_lexer = new X10Lexer(reader, source.name());
+            X10Parser x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
+            x10_lexer.lexer(x10_parser);
+            return x10_parser; // Parse the token stream to produce an AST
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } // Create the lexer
+        throw new IllegalStateException("Bad Parser");
     }
 
     protected NodeFactory createNodeFactory() {
