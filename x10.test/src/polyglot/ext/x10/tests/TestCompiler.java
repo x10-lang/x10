@@ -167,6 +167,14 @@ public TestCompiler(String name) {
         run("./RandomAccess_skewed.x10","RandomAccess_skewed","./Applications/OtherApps");
     }
 
+    public void test_Applications_sparsematmult_SparseMatmultAllValues() {
+        run("./SparseMatmultAllValues.x10","SparseMatmultAllValues","./Applications/sparsematmult");
+    }
+
+    public void test_Applications_sparsematmult_SparseMatmultAllValuesClean() {
+        run("./SparseMatmultAllValuesClean.x10","SparseMatmultAllValuesClean","./Applications/sparsematmult");
+    }
+
     public void test_Constructs_Array_Array1() {
         run("./Array1.x10","Array1","./Constructs/Array");
     }
