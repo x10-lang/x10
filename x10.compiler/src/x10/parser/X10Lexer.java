@@ -68,6 +68,17 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
     }
     
+    public X10Lexer(java.io.Reader reader, String filename) throws java.io.IOException
+    {
+        char buffer[]= new char[2000000];
+        int n = reader.read(buffer, 0, 2000000);
+        char real_buffer[] = new char[n];
+        System.arraycopy(buffer, 0, real_buffer, 0, n);
+
+        initialize(real_buffer, filename);
+        kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
+    }
+    
     public X10Lexer(Option option)
     {
         this(option.getInputChars(), option.getFileName(), ECLIPSE_TAB_VALUE);
