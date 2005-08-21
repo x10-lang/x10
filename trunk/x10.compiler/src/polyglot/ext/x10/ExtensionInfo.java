@@ -52,24 +52,44 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         return "x10c";
     }
 
-//    public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
-//        Lexer lexer = new Lexer_c(reader, source.name(), eq);
-//        Grm grm = new Grm(lexer, ts, nf, eq);
-//        return new CupParser(grm, source, eq);
-//    }
+    //
+    // Replace the Flex/Cup parser with a JikesPG parser
+    //
+    //    public Parser parser(Reader reader, FileSource source, ErrorQueue eq) { 
+    //        Lexer lexer = new Lexer_c(reader, source.name(), eq);
+    //        Grm grm = new Grm(lexer, ts, nf, eq);
+    //        return new CupParser(grm, source, eq);
+    //    }
+    //
     
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
-        X10Lexer x10_lexer;
         try {
-            x10_lexer = new X10Lexer(reader, source.name());
+            //
+            // X10Lexer may be invoked using one of two constructors.
+            // One constructor takes as argument a string representing
+            // a (fully-qualified) filename; the other constructor takes
+            // as arguments a (file) Reader and a string representing the
+            // name of the file in question. Invoking the first
+            // constructor is more efficient because a buffered File is created
+            // from that string and read with one (read) operation. However,
+            // we depend on Polyglot to provide us with a fully qualified
+            // name for the file. In Version 1.3.0, source.name() yielded a
+            // fully-qualied name. In 1.3.2, source.path() yields a fully-
+            // qualified name. If this assumption still holds then the 
+            // first constructor will work.
+            // The advantage of using the Reader constructor is that it
+            // will always work, though not as efficiently.
+            //
+            // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
+            //
+            X10Lexer x10_lexer = new X10Lexer(source.path());
             X10Parser x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
             x10_lexer.lexer(x10_parser);
             return x10_parser; // Parse the token stream to produce an AST
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
-        } // Create the lexer
-        throw new IllegalStateException("Bad Parser");
+        }
+        throw new IllegalStateException("Could not parse " + source.path());
     }
 
     protected NodeFactory createNodeFactory() {

@@ -19,6 +19,7 @@ import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Local;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
@@ -440,6 +441,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
             MethodDecl n= new X10MethodDecl_c(pos, flags, returnType, name, formals, throwTypes, body);
             n = (MethodDecl)n.ext(extFactory().extMethodDecl());
             n = (MethodDecl)n.del(delFactory().delMethodDecl());
+            return n;
+        }
+        public LocalDecl LocalDecl(Position pos, Flags flags, TypeNode type, String name, Expr init) {
+            LocalDecl n = new X10LocalDecl_c(pos, flags, type, name, init);
+            n = (LocalDecl)n.ext(extFactory().extLocalDecl());
+            n = (LocalDecl)n.del(delFactory().delLocalDecl());
             return n;
         }
         public CanonicalTypeNode CanonicalTypeNode(Position pos, Type type) {

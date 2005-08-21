@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.io.File;
+import java.util.ArrayList;
 
 import com.ibm.lpg.*;
 
@@ -57,7 +58,6 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
     // A driver creates the action class, "Lexer", passing an Option object to the constructor.
     // The Option object gives access to the input character arrary, the file name and other options.
     //
-    Option option;
     X10KWLexer kwLexer;
     boolean printTokens;
     private final static int ECLIPSE_TAB_VALUE = 4;
@@ -70,23 +70,32 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
     
     public X10Lexer(java.io.Reader reader, String filename) throws java.io.IOException
     {
-        char buffer[]= new char[2000000];
-        int n = reader.read(buffer, 0, 2000000);
-        char real_buffer[] = new char[n];
-        System.arraycopy(buffer, 0, real_buffer, 0, n);
+        ArrayList buffers = new ArrayList();
+        int size = 0;
+        while (true)
+        {
+            char block[]= new char[10];
+            int n = reader.read(block, 0, block.length);
+            if (n < 0)
+                break;
+            size += n;
+            buffers.add((Object) block);
+        }
 
-        initialize(real_buffer, filename);
+        char buffer[] = new char[size];
+        for (int i = 0; i < buffers.size(); i++)
+        {
+            char block[] = (char []) buffers.get(i);
+            int blocksize = (size / block.length > 0 ? block.length : size);
+            size -= blocksize;
+            System.arraycopy(block, 0, buffer, i * block.length, blocksize);
+        }
+        assert(size == 0);
+    
+        initialize(buffer, filename);
         kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
     }
     
-    public X10Lexer(Option option)
-    {
-        this(option.getInputChars(), option.getFileName(), ECLIPSE_TAB_VALUE);
-        this.option = option;
-        printTokens = option.printTokens();
-        kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
-    }
-
     final void makeDocComment()
     {
         int startOffset = lexParser.getToken(1),
