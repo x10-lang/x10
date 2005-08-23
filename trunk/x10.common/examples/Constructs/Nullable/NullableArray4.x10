@@ -15,50 +15,58 @@ public class NullableArray4 {
     class Sub extends Sup {}
     
     public boolean run() {
-		 Sup[.] suparr;
-		 (nullable Sup)[.] suparr2;
-		 nullable (Sup[.]) suparr3;
-		 nullable ((nullable Sup)[.]) suparr4;
 		 		 
-		 Sub[.] subarr = new Sub[[0:3]->here];
-		 (nullable Sub)[.] subarr2 = new (nullable Sub)[[0:3]->here];
-		 nullable (Sub[.]) subarr3 = null;
-		 nullable ((nullable Sub)[.]) subarr4 = null;
+		 Sub[.] subarr00 = new Sub[[0:3]];
+		 (nullable Sub)[.] subarr01 = new (nullable Sub)[[0:3]];
+		 nullable Sub[.] subarr10 = null;
+		 nullable (nullable Sub)[.] subarr11 = null;
 		 
-		 suparr = subarr;
+		 Sup[.] suparr00 = subarr00;
 		 
 	         boolean gotException=false;
 		 try {
 		     //cast exception should be thrown here
-		     suparr[0] = new Sup();		 		 
+		     suparr00[0] = new Sup();		 		 
 		 } catch(ClassCastException e) {
 			gotException=true;
 		 }
 		 if (!gotException) return false;
 		 
-		 suparr2 = subarr;
-		 suparr3 = subarr;
-		 suparr4 = subarr;
+		 (nullable Sup)[.] suparr01= subarr00;
+		 suparr01 = subarr01;
+		 suparr01= suparr00;
+
+		 nullable Sup[.] suparr10=subarr00;
 		 
-		 suparr2 = subarr2;
-		 //suparr3 = subarr2; //illegal
-		 suparr4 = subarr2;
+		 //suparr10 = subarr01; //illegal
+		 suparr10 = subarr10;
+		 suparr10 = suparr00;
+		 //suparr10 = suparr01; //illegal
+
+		 nullable (nullable Sup)[.] suparr11=subarr00;
+		 suparr11 = subarr01;
 		 
-		 suparr3 = subarr3;
-		 suparr4 = subarr3;
+		 suparr11 = subarr10;
 		 
-		 suparr4 = subarr4;
+		 suparr11 = subarr11;
+		 suparr11 = suparr00;
+		 suparr11 = suparr01;
+		 suparr11 = suparr10;
 		 
 
-		 //how about java class
-		 String[] sa = new String[3];
-		 (nullable String)[] sa2 = new (nullable String)[3];
-		 nullable (String[]) sa3 = null;
-		 nullable ((nullable String)[]) sa4 = null;
+		 //what about java classes?
+
+		 String[] sa00 = new String[3];
+		 (nullable String)[] sa01 = new (nullable String)[3];
+		 nullable String[] sa10 = null;
+		 nullable (((nullable String)[])) sa11 = null;
 		 
-		 sa2 = sa;
-		 sa3 = sa;
-		 sa4 = sa;
+		 sa01 = sa00;
+		 sa10 = sa00;
+		 // sa10 = sa01; //illegal
+		 sa11 = sa00;
+		 sa11 = sa10;
+		 sa11 = sa01;
 		 
 		 return true;
     }
