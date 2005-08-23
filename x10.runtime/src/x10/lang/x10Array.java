@@ -7,4 +7,6 @@ abstract public class x10Array implements Indexable, Unsafe {
 	abstract public dist getDistribution();
 	
 	abstract public void copyDisjoint(x10Array include,x10Array exclude,region localRegion);
+	
+	
 }

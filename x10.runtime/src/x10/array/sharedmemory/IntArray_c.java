@@ -197,6 +197,30 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     }
 
 
+
+    
+    public int reduce(binaryOp op,region localRegion){
+    	int result=0;
+    	place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			Iterator it = localRegion.iterator();
+			point p = (point) it.next();
+			place pl = distribution.get(p);
+			x10.lang.Runtime.runtime.setCurrentPlace(pl);
+			result = this.get(p);
+			
+			while(it.hasNext()) {
+				p = (point) it.next();
+				pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				result = op.apply(this.get(p), result);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return result;
+    }	
+		
     public int reduce( IntArray.binaryOp op, int unit ) {
         int result = unit;
         place here = x10.lang.Runtime.runtime.currentPlace();

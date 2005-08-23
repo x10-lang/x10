@@ -442,11 +442,20 @@ public class LocalPlace_c extends Place {
 		return val;
 	}
 	
-	
-	public void remoteReductionInt(AsyncResult syncPoint,int unit){
-		throw new RuntimeException("unimplemented");//TODO: implement
+
+	//TODO spawn off threads and do in parallel--maybe check array length
+	// and determine which mode is best?
+	//	 Have the array perform a reduction over the region specified 
+	// the region = all elements at this place
+	public void reduceInt(AsyncResult syncPoint,FatPointer remoteFp,IntArray.binaryOp op){
+		FatPointer fp = findGlobalObject(remoteFp);
+		assert(fp!=null);
+		IntArray array = (IntArray)fp.getObject();
+		region localRegion = array.getDistribution().restrictToRegion(this);
+		
+		Object result = new Integer(array.reduce(op,localRegion));
+		syncPoint.setResult(id,result);
 	}
-	
 	/* find the corresponding global object to remoteFp at this place and write val at point p*/
 	public void writeInt(FatPointer remoteFp,point p,int val){
 	//	if(true)System.out.println("Writing "+val+" p:"+p+" at "+this);
