@@ -147,7 +147,7 @@ implements TypeArgument, ValueType {
 		throw new RuntimeException("unimplemented");
 	}
 	
-	public int remoteReadInt(FatPointer fp,point p){
+	public int readInt(FatPointer fp,point p){
 		if (true) throw new RuntimeException("unimplemented");
 		return 0;
 	}
@@ -174,7 +174,7 @@ implements TypeArgument, ValueType {
 		throw new RuntimeException("unimplemented");
 	}
 	
-	public void remoteWriteInt(FatPointer fp,point p,int val){
+	public void writeInt(FatPointer fp,point p,int val){
 		throw new RuntimeException("unimplemented");
 	}
 	public void remoteCopy(FatPointer dest,FatPointer src,AsyncResult syncPoint){
