@@ -315,6 +315,10 @@ public TestCompiler(String name) {
         run("./IntValueArrayInitializerShorthand.x10","IntValueArrayInitializerShorthand","./Constructs/Array");
     }
 
+    public void test_Constructs_Array_JavaArrayInitializer() {
+        run("./JavaArrayInitializer.x10","JavaArrayInitializer","./Constructs/Array");
+    }
+
     public void test_Constructs_Array_MiscTest1() {
         run("./MiscTest1.x10","MiscTest1","./Constructs/Array");
     }
@@ -909,6 +913,10 @@ public TestCompiler(String name) {
 
     public void test_Misc_CommentTest() {
         run("./CommentTest.x10","CommentTest","./Misc");
+    }
+
+    public void test_Misc_CompilerNullPointerException() {
+        run("./CompilerNullPointerException.x10","CompilerNullPointerException","./Misc");
     }
 
     public void test_Misc_ExpressionParentheses() {
