@@ -49,33 +49,93 @@ implements Indexable, ValueType {
     	if(!x10.runtime.Configuration.isMultiNodeVM()) return origIndex;
     	int placeId = x10.lang.Runtime.runtime.currentPlace().id;
     	final boolean trace=false;
+    	assert(_indexMap != null);
+    	
     	if(trace) System.out.println("block index "+origIndex+"->"+(_indexMap[placeId].getDevirtualizedIndex(origIndex)));
     	return _indexMap[placeId].getDevirtualizedIndex(origIndex);
     }
     
     public final void setVirtualIndexAdjustments(int offsets[]){
-    
+    	final boolean trace=false;
+    if(trace)System.out.println("this:"+this.hashCode());
+    if(null == _indexMap)_indexMap = new GlobalIndexMap[place.MAX_PLACES];
     	for(int i = 0;i < offsets.length;++i){
     		BlockIndexMap map= new BlockIndexMap();
     		map.setAdjustment(offsets[i]);
     		_indexMap[i] = map;
-    		System.out.println("created map:"+map);
+    		if(trace)System.out.println("created map:"+map+" for block:"+i);
     	}
     }
    
 	protected GlobalIndexMap _indexMap[]; 
 	
+	
+	/* analyse the region distributed as described in the map, and determine
+	 * how points are devirtualized
+	 */
+	public GlobalIndexMap[] generateIndexMap(region r,java.util.Map m){
+		final int NOT_SET=-1;
+		final boolean trace=false;
+		GlobalIndexMap localIndexMap[] = new GlobalIndexMap[place.MAX_PLACES];
+		int lowestIndex[] = new int[place.MAX_PLACES];
+		int lastIndex[] = new int[place.MAX_PLACES];
+		int i;
+		for(i=0;i < place.MAX_PLACES;++i){
+			lowestIndex[i] = NOT_SET;
+			lastIndex[i] = NOT_SET;
+		}
+		
+			// traverse the region in order, and note the lowest index for each place, and if all points
+		// are contiguous within a place.
+		int currentOrdValue=0;
+		boolean contiguousRegions=true;
+		//System.out.println("traversing...");
+		for(Iterator it = r.iterator(); it.hasNext();){
+		
+			 point p = (point) it.next();
+			 
+			 int ordinalValue = r.ordinal(p);
+			 int placeId = ((place)m.get(p)).id;
+			 
+			// System.out.println(p+" pl:"+placeId+" ordval:"+currentOrdValue);
+			 if(NOT_SET == lastIndex[placeId]){// first time through
+			 	if(NOT_SET == lowestIndex[placeId]){
+			 		lowestIndex[placeId] =currentOrdValue;
+			 		//System.out.println("lowest index on "+placeId+" is "+currentOrdValue);
+			 	}
+			 }
+			 else if(currentOrdValue != lastIndex[placeId] + 1){
+			 	System.out.println("Problems: non-contiguous region: ord="+currentOrdValue+" lastIndex["+placeId+"]="
+			 			+lastIndex[placeId]);
+			 	contiguousRegions = false;
+			 	// TODO implement
+			 		throw new RuntimeException("not yet handled");
+			 	}
+			 lastIndex[placeId] = currentOrdValue;
+			 
+			 ++currentOrdValue;
+		}
+		for(i =0;i < place.MAX_PLACES;++i){
+			BlockIndexMap bim = new BlockIndexMap();
+			bim.setAdjustment(lowestIndex[i]);
+			localIndexMap[i] = bim;
+			if(trace)System.out.println("setting map["+i+"] to "+lastIndex[i]+"::"+bim);
+		}
+		return localIndexMap;
+	}
 	/** places is the range of the distribution. Guranteed that if a
 	 * place P is in this set then for some point p in region,
 	 * this.valueAt(p)==P.
 	 */
 	abstract public Set/*<place>*/ places(); // consider making this a parameter?
 
+	
 	protected dist(region R) {
 		this.region = R;
 		this.rank = R.rank;
         this.distribution = this;
-        _indexMap = new GlobalIndexMap[place.MAX_PLACES];
+        _indexMap = null;
+    	   	
 	}
 	
 	public static class MalformedError extends java.lang.Error {}
