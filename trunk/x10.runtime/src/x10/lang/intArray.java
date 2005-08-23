@@ -27,6 +27,7 @@ abstract public class intArray extends x10Array{
 		this.rank = D.rank;
 	}
 	
+	
 	public static interface binaryOp {
 		int apply(int r, int s);
 	}
@@ -186,6 +187,7 @@ abstract public class intArray extends x10Array{
 	 commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).
 	 */
 	abstract /*value*/ public int reduce(binaryOp fun, int unit);
+	abstract /*value*/ public int reduce(binaryOp fun, region r);
 	
 	/** Return an IntArray with the same distribution as this, by 
 	 scanning this with the function fun, and unit unit.

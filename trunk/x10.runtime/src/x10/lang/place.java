@@ -151,10 +151,14 @@ implements TypeArgument, ValueType {
 		if (true) throw new RuntimeException("unimplemented");
 		return 0;
 	}
-	public void remoteReductionInt(AsyncResult syncPoint,int unit){
-		throw new RuntimeException("unimplemented");
-	}
 	
+	
+	public void reduce(AsyncResult syncPoint,FatPointer remotefp,IntArray.binaryOp op){
+		if(true)throw new RuntimeException("unimplemented");
+	}
+	public void reduceInt(AsyncResult syncPoint,FatPointer remoteFp,IntArray.binaryOp op){
+		if(true)throw new RuntimeException("unimplemented");
+	}
 	/**
 	 * Perform an element by element copy on the local place from src1 to dest
 	 * @param dest
