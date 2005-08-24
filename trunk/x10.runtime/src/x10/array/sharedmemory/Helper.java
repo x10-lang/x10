@@ -28,12 +28,13 @@ public class Helper {
 	            int lowd0 = mdr.rank(0).low();		
 	            int highd0 = mdr.rank(0).high();				
 	            if (d0 < lowd0 || d0 > highd0) {
+	            	   System.out.println("IndexError. d0=|" + d0 + "|, lowd0 = " + lowd0 + "|, highd0=|" + highd0 + r);
 	                throw new ArrayIndexOutOfBoundsException();
 	            }
 	        } else {
 	            final int index[] = {d0};
 	            if(!r.contains(index)) {
-	                // System.out.println("IndexError=|" + d0 + "|, r = " + r);
+	                System.out.println("IndexError=|" + d0 + "|, r = " + r);
 	                throw new ArrayIndexOutOfBoundsException();
 	            }
 	        }
