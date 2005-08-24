@@ -215,6 +215,9 @@ implements Indexable, Unsafe {
 	FloatReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D) {
 	 return restriction(D.region);
 	}
+	public FloatReferenceArray restriction(place P) {
+		return restriction(distribution.restriction(P));
+	}
 	
 	/** Take as parameter a distribution D of the same rank as *
 	 * this, and defined over a disjoint region. Take as argument an *

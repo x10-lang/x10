@@ -220,6 +220,10 @@ abstract public class longArray /*( distribution distribution )*/ implements Ind
 	abstract /*value*/ public  /*(distribution(:rank=this.rank) D)*/ 
 	LongReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D);
 	
+	public LongReferenceArray restriction(place P) {
+		return restriction(distribution.restriction(P));
+	}
+	
 	/** Take as parameter a distribution D of the same rank as *
 	 * this, and defined over a disjoint region. Take as argument an *
 	 * array other over D. Return an array whose distribution is the
