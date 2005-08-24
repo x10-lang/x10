@@ -39,6 +39,7 @@ implements Indexable, ValueType {
 
     abstract public region[] getPerPlaceRegions();
     
+    
     /**
      * Determine offset adjustment to devirtualize shared array
      * Based on place id.  In multi-node vm version, no need
@@ -129,7 +130,6 @@ implements Indexable, ValueType {
 	 */
 	abstract public Set/*<place>*/ places(); // consider making this a parameter?
 
-	
 	protected dist(region R) {
 		this.region = R;
 		this.rank = R.rank;
@@ -162,7 +162,7 @@ implements Indexable, ValueType {
 		 * @return the given distribution
 		 */
 		public dist/*(:rank=1)*/ local( int k) {
-			return local(x10.lang.region.factory.region(k));
+			return local(x10.lang.region.factory.region(0, k-1));
 		}
 		
 		/** Returns the constant distribution which maps every point in its
@@ -170,6 +170,11 @@ implements Indexable, ValueType {
 		 */
 		abstract public 
 		/*(region R)*/ dist/*(R)*/ constant( region R, place P );
+		
+		public 
+		/*(region R)*/ dist/*(R)*/block() {
+			return this.block(x10.lang.region.factory.region(0, place.MAX_PLACES-1));
+		}
 		
 		/** Returns the block distribution over the given region, and over
 		 * place.MAX_PLACES places.

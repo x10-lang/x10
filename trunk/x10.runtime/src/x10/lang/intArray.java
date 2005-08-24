@@ -27,7 +27,6 @@ abstract public class intArray extends x10Array{
 		this.rank = D.rank;
 	}
 	
-	
 	public static interface binaryOp {
 		int apply(int r, int s);
 	}
@@ -41,10 +40,10 @@ abstract public class intArray extends x10Array{
 	public static interface pointwiseOp/*(region r)*/ { 
 		int apply(point/*(r)*/ p);
 	}
-    
-    public static interface unaryOp {
-        int apply(int r);
-    }
+	
+	public static interface unaryOp {
+		int apply(int r);
+	}
 	
 	abstract public static /*value*/ class factory {
 		
@@ -81,6 +80,12 @@ abstract public class intArray extends x10Array{
 		/*(distribution D)*/ intArray/*(D)*/ intValueArray(dist D, int init);
 		abstract public 
 		/*(distribution D)*/ intArray/*(D)*/ intValueArray(dist D, pointwiseOp/*(D.region)*/ init);
+		/**
+		 * Return a double value array initialized with the given 1-d 0:n-1 array.
+		 * @param a
+		 * @return
+		 */
+		abstract public intArray intValueArray(int[] a);
 		
 		
 		/** Return the unique int value array initialized with 0 
@@ -132,11 +137,11 @@ abstract public class intArray extends x10Array{
 	abstract /*value*/ public int get(int p, int q, int r);
 	abstract /*value*/ public int get(int p, int q, int r, int s);
 	abstract public int get(int[] p);
-   
-    
-    /** Convenience method for returning the sum of the array.
-     * @return sum of the array.
-     */
+	
+	
+	/** Convenience method for returning the sum of the array.
+	 * @return sum of the array.
+	 */
 	public int sum() {
 		return reduce(add, 0);
 	}
@@ -169,7 +174,7 @@ abstract public class intArray extends x10Array{
 	public int maxAbs() {
 		return max(abs);
 	}
-
+	
 	public IntReferenceArray add( intArray other) {
 		return lift(add, other);
 	}
@@ -182,7 +187,10 @@ abstract public class intArray extends x10Array{
 	public IntReferenceArray div( intArray other) {
 		return lift(div, other);
 	}
-    /** Return the value obtained by reducing the given array with the
+	public IntReferenceArray scale(final int k) {
+		return lift( new unaryOp() { public int apply(int r) { return r*k; }});
+	}
+	/** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and
 	 commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).
 	 */
@@ -205,6 +213,10 @@ abstract public class intArray extends x10Array{
 	 */    
 	abstract /*value*/ public  /*(distribution(:rank=this.rank) D)*/ 
 	IntReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D);
+	
+	public IntReferenceArray restriction(place P) {
+		return restriction(distribution.restriction(P));
+	}
 	
 	/** Take as parameter a distribution D of the same rank as *
 	 * this, and defined over a disjoint region. Take as argument an *
@@ -229,7 +241,7 @@ abstract public class intArray extends x10Array{
 	 * of the input array must be a subdistribution of D.
 	 * TODO: update the description of the parametric type.
 	 */
-    abstract public void update( intArray/*(D)*/ other);
+	abstract public void update( intArray/*(D)*/ other);
 	
 	/** Assume given an intArray a over the given distribution.
 	 * Assume given a function fun: int -> int -> int.
@@ -257,8 +269,8 @@ abstract public class intArray extends x10Array{
 	abstract public intArray toValueArray();
 	
 	public Iterator iterator() {
-	 	return region.iterator();
-	 }
+		return region.iterator();
+	}
 	public dist toDistribution() {
 		return this.distribution;
 	}

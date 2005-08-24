@@ -37,6 +37,7 @@ implements Indexable, Unsafe {
 		double apply(double r);
 	}
 	public static final unaryOp abs = new unaryOp() { public double apply(double r) { return Math.abs(r);}};
+	public static final unaryOp id = new unaryOp() { public double apply(double r) { return r;}};
 	
 	public static interface pointwiseOp/*(region r)*/ {
 		double apply(point/*(r)*/ p);
@@ -73,6 +74,12 @@ implements Indexable, Unsafe {
 		
 		abstract public 
 		/*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray(dist D, double init);
+		/**
+		 * Return a double value array initialized with the given 1-d 0:n-1 array.
+		 * @param a
+		 * @return
+		 */
+		abstract public doubleArray doubleValueArray(double[] a);
 		abstract public 
 		/*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
@@ -175,12 +182,24 @@ implements Indexable, Unsafe {
 	public DoubleReferenceArray mul( doubleArray s) {
 		return lift(mul, s);
 	}
+	/*
+	 * Given an array A, return A^k.
+	 */
+	public DoubleReferenceArray pow( int k) {
+		return k <= 0 ? lift(id) : mul(pow(k-1) );
+	}
 	/**
 	 * Convenience method for subtracting another array pointwise.
 	 * @return
 	 */
 	public DoubleReferenceArray div( doubleArray s) {
 		return lift(div, s);
+	}
+	/*
+	 * Given an array A, return k*A, where k is a scalar.
+	 */
+	public DoubleReferenceArray scale(final int k) {
+		return lift(new unaryOp() { public double apply(double r) { return r*k;}});
 	}
 	
 	/**
@@ -214,6 +233,10 @@ implements Indexable, Unsafe {
 	public  /*(distribution(:rank=this.rank) D)*/ 
 	DoubleReferenceArray/*(distribution.restriction(D.region)())*/ restriction(dist D) {
 	 return restriction(D.region);
+	}
+	
+	public DoubleReferenceArray restriction(place P) {
+		return restriction(distribution.restriction(P));
 	}
 	
 	/** Take as parameter a distribution D of the same rank as *
