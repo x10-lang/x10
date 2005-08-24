@@ -3,7 +3,7 @@ How to become an X10 developer
 
 * Read the howto pages on http://delhi.watson.ibm.com/howto. 
 * Send mail to Jan Vitek <jv@cs.purdue.edu> (copy Bin Xin<xinb@cs.purdue.edu
-  and Vijay Saraswat <vsaraswa@us.ibm.com> asking for a CVS account.
+  and Vijay Saraswat <vsaraswa@us.ibm.com>) asking for a CVS account.
   Please include ur proposed userids (a few choices would be good),
   and also ur public ssh keys. (See ssh_keygen.txt.) 
   
@@ -40,7 +40,7 @@ How to become an X10 developer
   X10 singleVM reference runtime  -- Christoph von Praun, Christian Grothoff, Vijay Saraswat, Christopher Donawa
   X10 multiVM LAPI runtime -- Allan Kielstra, Christopher Donawa
   X10 multiVM reference runtime -- Bin Xin, Vijay Saraswat
-  Testing scripts -- Kemal Ebcgioglu
+  Testing scripts -- Kemal Ebcioglu
 
   Please feel free to talk to these folks as you need to. 
   
@@ -55,7 +55,7 @@ How to become an X10 developer
 * Building X10.
   Do use Eclipse if at all possible. Just checking out x10 as an Eclipse
   project should result in your Eclipse client being set up to compile,
-  link and run X10 code.
+  link and run X10 code, and to automatically rebuild the x10 implementation.
   
   We also use the ant script in x10/build.xml, primarily to create
   x10/bin/x10 and x10/bin/x10c command line arguments, and to build x10 for
