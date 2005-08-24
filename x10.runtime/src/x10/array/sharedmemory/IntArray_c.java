@@ -7,6 +7,7 @@ package x10.array.sharedmemory;
 import java.util.Iterator;
 import x10.array.sharedmemory.Helper;
 import x10.base.MemoryBlock;
+import x10.base.MemoryBlockSafeIntArray;
 import x10.base.Allocator;
 import x10.base.UnsafeContainer;
 import x10.array.IntArray;
@@ -121,9 +122,12 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
                 ranks[i] = d.region.rank(i).size();
             this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Integer.TYPE);
+            this.arr_ =Allocator.allocSafeIntArray(a); // Allocator.allocSafe(count, Integer.TYPE);
         }
     }
+    public int[] getBackingArray() { return (arr_ instanceof MemoryBlockSafeIntArray) ?
+    		((MemoryBlockSafeIntArray) arr_).getBackingArray()
+			: null; }
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a
@@ -285,47 +289,56 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      */
     public int set(int v, point pos) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(pos));        
+            Runtime.hereCheckPlace(distribution.get(pos));
+        
         return arr_.setInt(v, distribution.region.ordinal(pos));
     }    
     
     public int setOrdinal(int v, int d0) {
         return arr_.setInt(v, d0);
-    }    
+    }
+    
     
     public int set(int v, int d0) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0));        
+            Runtime.hereCheckPlace(distribution.get(d0));
+        
         d0 = Helper.ordinal(distribution,d0);
     	return arr_.setInt(v,d0);
-    }     
+    }
+     
     
     public int set(int v, int d0, int d1) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+            Runtime.hereCheckPlace(distribution.get(d0, d1));
+        
     	int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.setInt(v,theIndex);
     }
     
     public int set(int v, int d0, int d1, int d2) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+        
     	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.setInt(v,theIndex);
     }
     
     public int set(int v, int d0, int d1, int d2, int d3) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        
         int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
-    	return arr_.setInt(v,theIndex);    	
+    	return arr_.setInt(v,theIndex);
+    	
     }
 
     /**
      * the cannonical index has already be calculated and adjusted.  
      * Can be used by any dimensioned array.
      */
-    public int getOrdinal(int rawIndex) {        
+    public int getOrdinal(int rawIndex) {
+        
         return arr_.getInt(rawIndex);
     }
     
@@ -334,40 +347,44 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      */
     public int get(point pos) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(pos));        
+            Runtime.hereCheckPlace(distribution.get(pos));
+        
         return arr_.getInt((int) distribution.region.ordinal(pos));
     }   
     
     public int get(int d0) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0));        
+            Runtime.hereCheckPlace(distribution.get(d0));
+        
         d0 = Helper.ordinal(distribution,d0);
         return arr_.getInt(d0);
     }
     
     public int get(int d0, int d1) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1));        
+            Runtime.hereCheckPlace(distribution.get(d0, d1));
+        
         int	theIndex = Helper.ordinal(distribution,d0,d1);
     	return arr_.getInt(theIndex);
     }
     
     public int get(int d0, int d1, int d2) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+        
         int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
     	return arr_.getInt(theIndex);  	
     } 
     
     public int get(int d0, int d1, int d2, int d3) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+        
         int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
     	return arr_.getInt(theIndex);
     	
     }
-    
-    public int get(int[] pos) {       
+    public int get(int[] pos) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }
@@ -378,7 +395,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         place here = x10.lang.Runtime.runtime.currentPlace();
         try {
             for (Iterator it = dist.iterator(); it.hasNext(); ) {                
-                point p = (point) it.next();                
+                point p = (point) it.next();
                 place pl = dist.get(p);
                 x10.lang.Runtime.runtime.setCurrentPlace(pl);
                 int val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);

@@ -434,6 +434,9 @@ public class DefaultRuntime_c extends Runtime {
                     public intArray intValueArray(dist d, intArray.pointwiseOp f) {
                         return new IntArray_c(d, f, true, false);
                     }
+                    public intArray intValueArray(int[] a) {
+                    	return IntArray_c.IntArray_c(a, true, false);
+                    }
                 };
             }
             public StructureArray.factory getStructureArrayFactory() {
@@ -505,6 +508,7 @@ public class DefaultRuntime_c extends Runtime {
                     public DoubleReferenceArray DoubleReferenceArray(dist d, double c) {
                         return new DoubleArray_c( d, c, true);
                     }
+                  
                     public DoubleReferenceArray DoubleReferenceArray(dist d, doubleArray.pointwiseOp f) {
                         return new DoubleArray_c( d, f, true);
                     }
@@ -513,6 +517,9 @@ public class DefaultRuntime_c extends Runtime {
                     }
                     public doubleArray doubleValueArray(dist d, doubleArray.pointwiseOp f) {
                         return new DoubleArray_c(d, f, true, false);
+                    }
+                    public doubleArray doubleValueArray(double[] a) {
+                    	return DoubleArray_c.DoubleArray_c(a, true, false);
                     }
                 };                      
             }            
