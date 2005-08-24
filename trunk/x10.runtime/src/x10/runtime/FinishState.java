@@ -24,9 +24,10 @@ public class FinishState {
 	protected Stack/* <Throwable> */ finish_ = new Stack();
 
 	protected int finishCount = 0;
-	protected Activity parent;
-	protected boolean parentWaiting = false;
-	/**
+	protected Activity parent; // not really needed, used in toString().
+	protected boolean parentWaiting = false; // optimization.
+	
+	/** Create a new finish state for the given activity.
 	 * 
 	 */
 	public FinishState( Activity activity ) {
@@ -47,7 +48,7 @@ public class FinishState {
 		parentWaiting = false;
 	}
 	
-	public /*myThread*/ synchronized void notifySubActivitySpawn() {
+	public /*someThread*/ synchronized void notifySubActivitySpawn() {
 		finishCount++;
 		if (Report.should_report("activity", 5)) {
 			Report.report(5, " updating " + toString());
@@ -63,24 +64,35 @@ public class FinishState {
     	finish_.push(t);
     }
     
-    /** Called by an activity that has terminated.
-     * 
-     *
+    /** An activity created under this finish has terminated. Decrement the count
+     * associated with the finish and notify the parent activity if it is waiting.
      */
     public /*someThread*/ synchronized void notifySubActivityTermination() {
 		finishCount--;
 		if (parentWaiting && finishCount==0)
 			this.notifyAll();
-			
 	}
+    /** An activity created under this finish has terminated abruptly. 
+     * Record the exception, decrement the count associated with the finish
+     * and notify the parent activity if it is waiting.
+     * 
+     * @param t -- The exception thrown by the activity that terminated abruptly.
+     */
     public /*someThread*/ synchronized void notifySubActivityTermination(Throwable t) {
     	finish_.push(t);
     	notifySubActivityTermination();
     }
    
+    /** Return the stack of exceptions, if any, recorded for this finish.
+     * 
+     * @return -- stack of exceptions recorded for this finish.
+     */
     public /*myThread*/ synchronized Stack exceptions() {
     	return finish_;
     }
+    
+    /** Return a string to be used in Report messages.
+     */
     public synchronized String toString() {
     	return "<FinishState " + hashCode() + " " + finishCount + "," 
 		+ parent.shortString()+"," + finish_ +">";
