@@ -151,8 +151,8 @@ public class X10Binary_c extends Binary_c {
 		}
 		
 		
-		if (op == BIT_OR && l.isDistributedArray()) { // | array.restriction(distribution or region)
-			if (! (r.isDistribution() || r.isRegion())) {
+		if (op == BIT_OR && l.isDistributedArray()) { // | array.restriction(distribution or region or place)
+			if (! (r.isDistribution() || r.isRegion() || r.isPlace())) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a distribution operand.", right.position());
 			}
@@ -234,7 +234,7 @@ public class X10Binary_c extends Binary_c {
 		
 		
 		// New for X10.
-		if (op == BIT_OR && (l.isDistribution() || l.isDistributedArray())) {
+		if (op == BIT_OR && (l.isDistribution() || l.isDistributedArray() || l.isPlace())) {
 			printSubExpr(left, true, w, tr);
 			w.write(".restriction(");
 			printSubExpr(right, false, w, tr);
