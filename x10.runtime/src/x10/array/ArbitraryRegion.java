@@ -1,8 +1,6 @@
 /*
  * Created on Jan 13, 2005
  *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package x10.array;
 
@@ -96,6 +94,7 @@ public class ArbitraryRegion extends region {
      * @returns a one-dimenasional region (formerly called range)
      */
     public region rank(int index) {
+    	//System.out.println("ArbitraryRegion vj index=" + index + "rank = " + rank);
         assert index >= 0;
         assert index < rank;
         ArbitraryRegion ret;
