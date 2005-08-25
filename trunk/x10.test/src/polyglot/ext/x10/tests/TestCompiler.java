@@ -331,6 +331,10 @@ public TestCompiler(String name) {
         run("./AsyncFieldAccess.x10","AsyncFieldAccess","./Constructs/Async");
     }
 
+    public void test_Constructs_Async_AsyncNext() {
+        run("./AsyncNext.x10","AsyncNext","./Constructs/Async");
+    }
+
     public void test_Constructs_Async_AsyncReturn() {
         run("./AsyncReturn.x10","AsyncReturn","./Constructs/Async");
     }
