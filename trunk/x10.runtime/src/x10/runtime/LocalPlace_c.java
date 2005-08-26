@@ -3,6 +3,7 @@ package x10.runtime;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import x10.array.IntArray;
 import x10.lang.Future;
@@ -430,8 +431,7 @@ public class LocalPlace_c extends Place {
 		IntArray array = (IntArray)fp.getObject();
 		int val;
 		try{
-			x10.lang.Runtime.runtime.setCurrentPlace(this);
-			
+			x10.lang.Runtime.runtime.setCurrentPlace(this);		
 			val =array.get(p);
 		}
 		finally {
@@ -472,10 +472,25 @@ public class LocalPlace_c extends Place {
 			x10.lang.Runtime.runtime.setCurrentPlace(here());
 		}			
 	}
-	public void remoteCopy(FatPointer dest,FatPointer src,AsyncResult syncPoint){
-		//copy all points from src to dest--make sure to check the distribution.  This is called
-		//from restriction, so  dest can have a dist which is a subset of src
-		throw new RuntimeException("unimplemented");//TODO: implement
+	
+	// asynchronously copy all points in subregion from src to dest--syncPoint will communicate
+	// back to the caller when we're all done.  It is assumed that region is entirely within
+	// current place
+	public void placeArrayCopy(FatPointer remoteDest,FatPointer remoteSrc,AsyncResult syncPoint){
+		FatPointer dest = findGlobalObject(remoteDest);
+		FatPointer src = findGlobalObject(remoteSrc);
+		x10Array srcArray = (x10Array)src.getObject();
+		x10Array destArray = (x10Array)dest.getObject();
+		dist srcDist = srcArray.getDistribution();
+		dist destDist = destArray.getDistribution();
+		region localRegion = srcDist.restrictToRegion(this);
+		//TODO destArray.localCopy(srcArray);
+		if(true)throw new RuntimeException("unimplemented");
+		for (Iterator it = localRegion.iterator(); it.hasNext(); ) {
+			
+			point p = (point) it.next();
+			place pl = destDist.get(p);
+		}
 	}
 	
 	
@@ -604,8 +619,10 @@ public class LocalPlace_c extends Place {
 						throw new RuntimeException("Problem accessing field "+o.getClass().getName()+" at place "+id+":"+iae);
 					}
 					
-					if(isAnonymousInnerClass(oldObj.getClass())){
-						if(trace) System.out.println("  Detected anonmyous inner class "+oldObj.getClass().getName()+"--don't clone");
+					// Anonymous classes & x10 arrays (which call runAsync themselves) won't have per-place
+					// copies but their fields must be inpsected looking for final values passed in.
+					if(isAnonymousInnerClass(oldObj.getClass())/*|| (oldObj instanceof x10.lang.x10Array)*/){
+						if(trace) System.out.println("\tDetected anonmyous inner class/x10 array "+oldObj.getClass().getName()+"--don't clone");
 						mapToCorrectPlace(oldObj);
 						continue;
 					}
@@ -622,8 +639,8 @@ public class LocalPlace_c extends Place {
 					}
 					
 					// asyncs can be used by x10 runtime with non-X10 objects--don't waste time remapping them
-					if(!((oldObj instanceof x10.lang.Object) || (oldObj instanceof x10.lang.x10Array))){
-						if(trace) System.out.println(oldObj.getClass().getName()+" is not an x10 object--do not remap");
+					if(!((oldObj instanceof x10.lang.Object)|| (oldObj instanceof x10.lang.x10Array) )){
+						if(trace) System.out.println("\t"+oldObj.getClass().getName()+" is not an x10 object--do not remap");
 						continue;
 					}
 					
@@ -634,18 +651,22 @@ public class LocalPlace_c extends Place {
 						if(null == canonicalID){
 							long theKey = oldObj.hashCode();//FIXME use JNI for pinned (unique) address
 							canonicalID =new Long(theKey);
-							if(trace)System.out.println("[pl="+id+"] not found--create new key:"+canonicalID+" for object:"+oldObj.getClass().getName()+" "+oldObj);
+							if(trace)System.out.println("\t[pl="+id+"] not found--create new key:"+canonicalID+" for object:"+oldObj.getClass().getName()+" "+oldObj);
 						}
 						
 						FatPointer localCopy = (FatPointer)this._fatPointerMap.get(canonicalID.longValue());
 						if(null == localCopy){
+							if(oldObj instanceof x10.lang.x10Array){
+								if(trace) System.out.println("\tProcessing an x10array operation--no need for constructor");
+								continue;
+							}
 							//	System.out.println("here="+here().id+" vs id:"+id);
 							if(here().id == id)
 								newCopy =oldObj;// no need to copy
 							else
 								newCopy = oldObj.getClass().newInstance();
 							
-							if(trace)System.out.println("["+id+"] newCopy:"+newCopy+"("+newCopy.hashCode()+") id:"+id);
+							if(trace)System.out.println("\t["+id+"] newCopy:"+newCopy+"("+newCopy.hashCode()+") id:"+id);
 							_fatPointerMap.put(canonicalID.longValue(),new FatPointer(newCopy,this.vm_,canonicalID.longValue()));
 							//_fatPointerMap.dump();
 							_localToGlobalObjectMap.put(newCopy,canonicalID);
@@ -664,11 +685,8 @@ public class LocalPlace_c extends Place {
 						}
 						else {
 							System.out.println("["+id+"] No constructor for  "+oldObj.getClass().getName()+"--check it's fields id:"+id);						
-							
 							continue;	
 						}
-						
-						//return;
 					}
 					
 					Class currentClass = oldObj.getClass();
