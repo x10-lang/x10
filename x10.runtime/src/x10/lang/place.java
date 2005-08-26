@@ -20,15 +20,15 @@
 package x10.lang;
 
 
+import java.util.Set;
+
 import x10.array.IntArray;
 import x10.base.TypeArgument;
 import x10.runtime.distributed.AsyncResult;
 import x10.runtime.distributed.FatPointer;
 
-import /*x10*/java.util.Set;
-
 public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
-implements TypeArgument, ValueType {
+implements TypeArgument, ValueType{
     private static int count_ = 0;
     public final /*nat*/int id;
 	
@@ -181,11 +181,13 @@ implements TypeArgument, ValueType {
 	public void writeInt(FatPointer fp,point p,int val){
 		throw new RuntimeException("unimplemented");
 	}
-	public void remoteCopy(FatPointer dest,FatPointer src,AsyncResult syncPoint){
+	public void arrayCopy(FatPointer dest,FatPointer src,region localRegion,AsyncResult syncPoint){
 		//copy all points from src to dest--make sure to check the distribution.  This is called
 		//from restriction, so  dest can have a dist which is a subset of src
 		throw new RuntimeException("unimplemented");
 	}
 	public  void mapToCorrectPlace(java.lang.Object o){throw new RuntimeException("should not be called");}
 	  
+	public void runAsync(x10.runtime.Activity a){throw new RuntimeException("Should never be called");}
+	public FatPointer findGlobalObject(java.lang.Object o){if(true) throw new RuntimeException("Should never be called"); return null;}
 }
