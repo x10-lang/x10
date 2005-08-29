@@ -863,6 +863,10 @@ public TestCompiler(String name) {
         run("./RegionTriangular.x10","RegionTriangular","./Constructs/Region");
     }
 
+    public void test_Constructs_Region_RegionWithWholes() {
+        run("./RegionWithWholes.x10","RegionWithWholes","./Constructs/Region");
+    }
+
     public void test_Constructs_RemoteMethodCall_Arrow() {
         run("./Arrow.x10","Arrow","./Constructs/RemoteMethodCall");
     }
