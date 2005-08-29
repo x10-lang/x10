@@ -4,21 +4,21 @@
 package x10.array.sharedmemory;
 
 import java.util.Iterator;
+
 import x10.array.FloatArray;
-import x10.array.sharedmemory.Helper;
+import x10.array.Helper;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
+import x10.lang.FloatReferenceArray;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
+import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
-import x10.lang.dist;
 import x10.lang.region;
-import x10.lang.FloatReferenceArray;
 import x10.runtime.Configuration;
-import x10.runtime.ElementType;
 
 
 

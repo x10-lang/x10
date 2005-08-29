@@ -1,7 +1,7 @@
 /*
  * Created on Oct 20, 2004
  */
-package x10.array.sharedmemory;
+package x10.array;
 
 /**
  * @author: cmd
@@ -11,19 +11,18 @@ package x10.array.sharedmemory;
  */
 
 import x10.array.MultiDimRegion;
-import x10.lang.region;
 import x10.lang.dist;
-import x10.runtime.Configuration;
+import x10.lang.region;
 
 
 
 public class Helper {
 	public final static boolean performBoundsCheck=true;
-	public final static boolean simpleRangeCheck=true;
+	public final static boolean simpleRangeCheck=false;
 	
     final static void checkBounds(region r,int d0){
 	    try {
-	        if (r instanceof MultiDimRegion) {
+	        if (r instanceof MultiDimRegion && r.isConvex()) {
 	            MultiDimRegion mdr = (MultiDimRegion)r;
 	            int lowd0 = mdr.rank(0).low();		
 	            int highd0 = mdr.rank(0).high();				
@@ -45,25 +44,32 @@ public class Helper {
     
 	final private static void rangeCheck(region r,int index){
 		if(index < 0 || index >= r.size()) throw new ArrayIndexOutOfBoundsException();
+		
 	}
 	
-	
-	
-	final public static int ordinal(dist d,int d0){
+		
+	 public static int ordinal(dist d,int d0){
 		region r = d.region;
+		int index;
 		assert (r.rank == 1);
 		if(performBoundsCheck) checkBounds(r,d0);
 		try {
-            d0 -= r.rank(0).low();
-            if (simpleRangeCheck) rangeCheck(r,d0);
-        } catch (UnsupportedOperationException e) {
+			if(!r.isConvex()){
+				index = r.ordinal(x10.array.point_c.factory.point(d0));
+			}
+			else {
+				index = d0 - r.rank(0).low();
+				if (simpleRangeCheck) rangeCheck(r,index);
+			}          
+		} catch (UnsupportedOperationException e) {
             throw new ArrayIndexOutOfBoundsException();
         }
  
-        return d0;
+		System.out.println("ordinal="+index+"<-"+d0);
+        return index;
 	}
 	
-	final public static int rawordinal(region r,int d0){
+	 public static int rawordinal(region r,int d0){
 		assert (r.rank == 1);
 		if(performBoundsCheck) checkBounds(r,d0);
 		if(simpleRangeCheck) rangeCheck(r,d0);
@@ -72,7 +78,7 @@ public class Helper {
 	
 	final static void checkBounds(region r,int d0,int d1){
 	    try {
-	        if (r instanceof MultiDimRegion) {	           
+	        if (r instanceof MultiDimRegion && r.isConvex()) {	           
 	            MultiDimRegion mdr = (MultiDimRegion) r;
 	            int lowd0 = mdr.rank(0).low();
 	            int lowd1 = mdr.rank(1).low();	            
@@ -93,17 +99,22 @@ public class Helper {
 	    }       	   
 	}
     
-	final public static int ordinal(dist d,int d0,int d1){
+	 public static int ordinal(dist d,int d0,int d1){
 	    int index;
 	    region r = d.region;
 	    assert (r.rank == 2);
 	    if (performBoundsCheck) checkBounds(r,d0,d1);
 	    try {
-	        d0 -= r.rank(0).low();
-	        d1 -= r.rank(1).low();
-	        
-	        index = d1+ d0*r.rank(1).size();
-	        if(simpleRangeCheck) rangeCheck(r,index);
+	    	if(!r.isConvex()){
+	    		index = r.ordinal(x10.array.point_c.factory.point(d0,d1));
+	    	}
+	    	else {
+	    		d0 -= r.rank(0).low();
+	    		d1 -= r.rank(1).low();
+	    		
+	    		index = d1+ d0*r.rank(1).size();
+	    		if(simpleRangeCheck) rangeCheck(r,index);
+	    	}
 	    } catch (UnsupportedOperationException e) {
 	        throw new ArrayIndexOutOfBoundsException();
 	    }
@@ -122,7 +133,8 @@ public class Helper {
 	
 	final static void checkBounds(region r,int d0,int d1, int d2){
 	    try {
-	        if (r instanceof MultiDimRegion) {
+	        if (r instanceof MultiDimRegion && r.isConvex()) {
+	        	
 	            MultiDimRegion mdr = (MultiDimRegion)r;
 	            int lowd0 = mdr.rank(0).low();
 	            int lowd1 = mdr.rank(1).low();
@@ -135,6 +147,7 @@ public class Helper {
 	                    d1 < lowd1 || d1 > highd1 ||
 	                    d2 < lowd2 || d2 > highd2){
 	                throw new ArrayIndexOutOfBoundsException();
+	                
 	            }
 	        } else {
 	            final int index[] = {d0,d1,d2};
@@ -146,23 +159,28 @@ public class Helper {
 	    }		
 	}
     
-	final public static int ordinal(dist d,int d0,int d1, int d2){
+	 public static int ordinal(dist d,int d0,int d1, int d2){
 	    int index;
 	    region r = d.region;
 	    assert (r.rank == 3);
 	    if (performBoundsCheck) checkBounds(r,d0,d1,d2);
 	    
 	    try {
-	        if(true){
-	            d0 -= r.rank(0).low();
-	            d1 -= r.rank(1).low();
-	            d2 -= r.rank(2).low();
-	        }
-	        int d1Size=r.rank(2).size();
-	        int d0Size=d1Size * r.rank(1).size();
-	        
-	        index = d2+ d1*d1Size+ d0*d0Size;
-	        if(simpleRangeCheck) rangeCheck(r,index);
+	    	if(!r.isConvex()){
+	    		index = r.ordinal(x10.array.point_c.factory.point(d0,d1,d2));
+	    	}
+	    	else {
+	    		
+	    		d0 -= r.rank(0).low();
+	    		d1 -= r.rank(1).low();
+	    		d2 -= r.rank(2).low();
+	    		
+	    		int d1Size=r.rank(2).size();
+	    		int d0Size=d1Size * r.rank(1).size();
+	    		
+	    		index = d2+ d1*d1Size+ d0*d0Size;
+	    		if(simpleRangeCheck) rangeCheck(r,index);
+	    	}
 	    } catch (UnsupportedOperationException e) {
 	        throw new ArrayIndexOutOfBoundsException();
 	    }
@@ -184,7 +202,7 @@ public class Helper {
 	
 	final static void checkBounds(region r,int d0,int d1, int d2,int d3){
 	    try {
-	        if (r instanceof MultiDimRegion) {
+	        if (r instanceof MultiDimRegion && r.isConvex()) {
 	            MultiDimRegion mdr = (MultiDimRegion)r;
 	            int lowd0 = mdr.rank(0).low();
 	            int lowd1 = mdr.rank(1).low();
@@ -211,23 +229,28 @@ public class Helper {
 	    }
 	}
     
-	final public static int ordinal(dist d,int d0,int d1, int d2,int d3){
+	 public static int ordinal(dist d,int d0,int d1, int d2,int d3){
 	    int index;
 	    region r = d.region;
 	    assert (r.rank == 4);	    
 	    if (performBoundsCheck) checkBounds(r,d0,d1,d2,d3);
 	    
         try {
-	        d0 -= r.rank(0).low();
-	        d1 -= r.rank(1).low();
-	        d2 -= r.rank(2).low();
-	        d3 -= r.rank(3).low();
-	        int d2Size=r.rank(3).size();
-	        int d1Size=d2Size * r.rank(2).size();
-	        int d0Size=d1Size * r.rank(1).size();
-	        
-	        index = d3+ d2*d2Size + d1*d1Size + d0*d0Size;
-	        if(simpleRangeCheck) rangeCheck(r,index);
+        	if(!r.isConvex()){
+        		index = r.ordinal(x10.array.point_c.factory.point(d0,d1,d2,d3));
+        	}
+        	else {
+        		d0 -= r.rank(0).low();
+        		d1 -= r.rank(1).low();
+        		d2 -= r.rank(2).low();
+        		d3 -= r.rank(3).low();
+        		int d2Size=r.rank(3).size();
+        		int d1Size=d2Size * r.rank(2).size();
+        		int d0Size=d1Size * r.rank(1).size();
+        		
+        		index = d3+ d2*d2Size + d1*d1Size + d0*d0Size;
+        		if(simpleRangeCheck) rangeCheck(r,index);
+        	}
 	    } catch (UnsupportedOperationException e) {
 	        throw new ArrayIndexOutOfBoundsException();
 	    }
