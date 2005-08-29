@@ -65,8 +65,7 @@ public class Helper {
             throw new ArrayIndexOutOfBoundsException();
         }
  
-		System.out.println("ordinal="+index+"<-"+d0);
-        return index;
+		return index;
 	}
 	
 	 public static int rawordinal(region r,int d0){
