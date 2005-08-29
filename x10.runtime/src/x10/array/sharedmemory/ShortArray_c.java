@@ -5,7 +5,7 @@ package x10.array.sharedmemory;
 
 import java.util.Iterator;
 import x10.array.ShortArray;
-import x10.array.sharedmemory.Helper;
+import x10.array.Helper;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
@@ -338,7 +338,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     
     public short get(int d0, int d1, int d2, int d3) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
+            Runtime.hereCheckPlace(distribution.get(d0, d1, d2,d3));        
         int theIndex = Helper.ordinal(distribution,d0,d1,d2,d3); 
         return arr_.getShort(theIndex);
         
