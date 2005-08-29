@@ -17,7 +17,7 @@ class RegionWithWholes {
 	// check if r is convex - it should not!
 	boolean cv =  r.isConvex();
 	System.out.println("convex: " + cv + " (should be false)");
-	chk(cv);
+	chk(!cv);
 	
 	System.out.print("indexes: ");
 	for (point[i] : r) {
