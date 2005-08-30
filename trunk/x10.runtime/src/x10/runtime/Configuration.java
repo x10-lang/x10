@@ -74,7 +74,7 @@ public final class Configuration {
      * can be found in.
      */
     public static String COMPILER_FRAGMENT_DATA_DIRECTORY = "data/";
-
+    public static String COMPILER_FRAGMENT_DATA_EXT_DIRECTORY = "dataext/";
     /**
      * File name for generating PE files.  Use null to not generate
      * PE traces.
