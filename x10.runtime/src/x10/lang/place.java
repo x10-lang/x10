@@ -22,9 +22,7 @@ package x10.lang;
 
 import java.util.Set;
 
-import x10.array.IntArray;
 import x10.base.TypeArgument;
-import x10.runtime.distributed.AsyncResult;
 import x10.runtime.distributed.FatPointer;
 
 public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
@@ -131,63 +129,15 @@ implements TypeArgument, ValueType{
 	    return "place(id=" + id +")"; 
 	}
 
-		
-	// routines to access global data at a particular place from a different place
-	public  void runArrayConstructor(FatPointer owningObject,int elementType,
-			int elSize,dist d,IntArray.pointwiseOp op, boolean safe,boolean mutable){
-		throw new RuntimeException("unimplemented");//TODO: implement
-	}
 	
-	public  void runArrayConstructor(FatPointer owningObject,int elementType,
-			int elementSize,dist d,long initValue,boolean safe,boolean mutable){
-		throw new RuntimeException("unimplemented");//TODO: implement
-	}
-	public void remoteScan(FatPointer dest,FatPointer src,AsyncResult syncPoint,x10.lang.intArray.binaryOp op){
-		
-		throw new RuntimeException("unimplemented");
-	}
-	
-	public int readInt(FatPointer fp,point p){
-		if (true) throw new RuntimeException("unimplemented");
-		return 0;
-	}
-	
-	
-	public void reduce(AsyncResult syncPoint,FatPointer remotefp,IntArray.binaryOp op){
-		if(true)throw new RuntimeException("unimplemented");
-	}
-	public void reduceInt(AsyncResult syncPoint,FatPointer remoteFp,IntArray.binaryOp op){
-		if(true)throw new RuntimeException("unimplemented");
-	}
-	/**
-	 * Perform an element by element copy on the local place from src1 to dest
-	 * @param dest
-	 * @param src1
-	 */
-	public void remoteSectionCopy(FatPointer dest,FatPointer src1){
-		throw new RuntimeException("unimplemented");
-	}
-	
-	/**
-	 * Intersect dest and source, and if a point in source is not in the dest region,
-	 * copy it from source
-	 * @param dest 
-	 * @param source
-	 */
-	public void remoteUnion(FatPointer dest,FatPointer source){
-		throw new RuntimeException("unimplemented");
-	}
-	
-	public void writeInt(FatPointer fp,point p,int val){
-		throw new RuntimeException("unimplemented");
-	}
-	public void arrayCopy(FatPointer dest,FatPointer src,region localRegion,AsyncResult syncPoint){
-		//copy all points from src to dest--make sure to check the distribution.  This is called
-		//from restriction, so  dest can have a dist which is a subset of src
-		throw new RuntimeException("unimplemented");
-	}
 	public  void mapToCorrectPlace(java.lang.Object o){throw new RuntimeException("should not be called");}
 	  
+	public void runAsyncNoRemapping(x10.runtime.Activity a){throw new RuntimeException("Should never be called");}
+	
 	public void runAsync(x10.runtime.Activity a){throw new RuntimeException("Should never be called");}
+	public FatPointer registerGlobalObject(java.lang.Object o){if(true) throw new RuntimeException("Should never be called"); return null;}
 	public FatPointer findGlobalObject(java.lang.Object o){if(true) throw new RuntimeException("Should never be called"); return null;}
+	public  FatPointer shadowRemoteGlobalObject(java.lang.Object o,long key){if(true) throw new RuntimeException("Should never be called"); return null;}
+	  
+	  
 }
