@@ -1,6 +1,6 @@
 
 
-class RegionWithWholes {
+class RegionWithHoles2 {
 
     public boolean run() {
 	// all of those are contiguous
@@ -38,7 +38,7 @@ class RegionWithWholes {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish async b.val=(new RegionWithWholes()).run();
+                finish async b.val=(new RegionWithHoles2()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
