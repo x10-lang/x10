@@ -3,16 +3,10 @@ package x10.runtime;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 
-import x10.array.IntArray;
 import x10.lang.Future;
-import x10.lang.dist;
 import x10.lang.place;
-import x10.lang.point;
-import x10.lang.region;
 import x10.lang.x10Array;
-import x10.runtime.distributed.AsyncResult;
 import x10.runtime.distributed.FatPointer;
 /**
  * A LocalPlace_c is an implementation of a place
@@ -201,6 +195,16 @@ public class LocalPlace_c extends Place {
 			runAsync( a, true);
 		}
 	}
+	public void runAsyncNoRemapping(final Activity a) {
+		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
+				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
+			
+			runAsync( a, false);	
+		} else {
+			a.pseudoDeSerialize();
+			runAsync( a, true);
+		}
+	}
 	/**
 	 * Run this activity asynchronously, as if it is wrapped in a finish.
 	 * That is, wait for its global termination.
@@ -335,164 +339,6 @@ public class LocalPlace_c extends Place {
 	}
 	
 	
-	public  void runArrayConstructor(FatPointer owningObject,int elementType,
-			int elSize,dist d,IntArray.pointwiseOp op, boolean safe,boolean mutable){
-		
-		final boolean trace=false;
-		//Find/create corresponding fatpointer at current place (this)
-		FatPointer localHandle = findGlobalObject(owningObject);
-		if(localHandle != null){
-			//throw new RuntimeException("Multiple array constructor calls for "+owningObject+" at place "+this);
-		}
-		
-		localHandle = registerGlobalObject(owningObject);
-		if(trace){
-			System.out.println("in run array constructor...place:"+id+" owner:"+owningObject);
-			System.out.println("creating:"+localHandle);
-		}
-		java.lang.Object arrayObject=null;
-		region myRegion = d.restrictToRegion(this);
-		int arraySize = myRegion.size();
-		
-		place here = x10.lang.Runtime.runtime.currentPlace(); // foil the place runtime checks
-		try {
-			x10.lang.Runtime.runtime.setCurrentPlace(this); 
-			switch(elementType){
-			case ElementType.INT:
-				if(trace)System.out.println("LOCALPLACE: in INT allocation");
-			x10.array.distributed.IntArray_c localArray= new x10.array.distributed.IntArray_c (d, safe, mutable,false,arraySize);
-			arrayObject = (java.lang.Object)localArray;
-			localArray.localPointwise(myRegion,localArray,op);
-			
-			break;
-			default:
-				throw new RuntimeException("need to support alloc of "+elementType);
-			}
-		}
-		finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here);// restore real value
-		}
-		localHandle.setObject(arrayObject);
-		
-		if(trace)System.out.println("completed init size:"+arraySize+" new handle:"+localHandle+" at place:"+id);
-	}
-	
-	
-	public  void runArrayConstructor(FatPointer owningObject,int elementType,
-			int elementSize,dist d,long initValue,boolean safe,boolean mutable){
-		x10.lang.place owningPlace = here();
-		
-		final boolean trace=false;
-		//Find/create corresponding fatpointer at current place (this)
-		FatPointer localHandle = findGlobalObject(owningObject);
-		if(localHandle != null){
-			throw new RuntimeException("Multiple array constructor calls for "+owningObject+" at place "+this);
-		}
-		if(trace)System.out.println("dist:"+d.hashCode());
-		
-		localHandle = registerGlobalObject(owningObject);
-		if(trace){
-			System.out.println("in run array constructor C ... owner:"+owningObject);
-			System.out.println("creating:"+localHandle);
-		}
-		java.lang.Object arrayObject=null;
-		
-		region myRegion = d.restrictToRegion(this);
-		int arraySize = myRegion.size();
-		
-		place here = x10.lang.Runtime.runtime.currentPlace(); // foil the place runtime checks
-		try {
-			x10.lang.Runtime.runtime.setCurrentPlace(this); 
-			
-			switch(elementType){
-			case ElementType.INT:
-				x10.array.distributed.IntArray_c localArray= new x10.array.distributed.IntArray_c (d, safe, mutable, false, arraySize);
-			arrayObject = (java.lang.Object)localArray;
-			localArray.scan(myRegion,localArray,new IntArray.Assign((int)initValue));
-			
-			break;
-			default:
-				throw new RuntimeException("need to support alloc of "+elementType);
-			}
-		}
-		finally{
-			x10.lang.Runtime.runtime.setCurrentPlace(here);// restore real value
-		}
-		localHandle.setObject(arrayObject);
-		
-	if(trace)	System.out.println("completed init size:"+arraySize+" new handle:"+arrayObject);
-	}
-	
-	
-	
-	public int readInt(FatPointer remoteFp,point p){
-		FatPointer fp = findGlobalObject(remoteFp);
-		assert(fp!=null);
-		IntArray array = (IntArray)fp.getObject();
-		int val;
-		try{
-			x10.lang.Runtime.runtime.setCurrentPlace(this);		
-			val =array.get(p);
-		}
-		finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here());
-		}
-		if(false)System.out.println("Read "+val+" p:"+p+" at "+array+" from "+here());
-		
-		return val;
-	}
-	
-
-	//TODO spawn off threads and do in parallel--maybe check array length
-	// and determine which mode is best?
-	//	 Have the array perform a reduction over the region specified 
-	// the region = all elements at this place
-	public void reduceInt(AsyncResult syncPoint,FatPointer remoteFp,IntArray.binaryOp op){
-		FatPointer fp = findGlobalObject(remoteFp);
-		assert(fp!=null);
-		IntArray array = (IntArray)fp.getObject();
-		region localRegion = array.getDistribution().restrictToRegion(this);
-		
-		Object result = new Integer(array.reduce(op,localRegion));
-		syncPoint.setResult(id,result);
-	}
-	/* find the corresponding global object to remoteFp at this place and write val at point p*/
-	public void writeInt(FatPointer remoteFp,point p,int val){
-	//	if(true)System.out.println("Writing "+val+" p:"+p+" at "+this);
-		FatPointer fp = findGlobalObject(remoteFp);
-		assert(fp!=null);
-		IntArray array = (IntArray)fp.getObject();
-		
-		try{
-			x10.lang.Runtime.runtime.setCurrentPlace(this);
-			
-			array.set(val,p);
-		}
-		finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here());
-		}			
-	}
-	
-	// asynchronously copy all points in subregion from src to dest--syncPoint will communicate
-	// back to the caller when we're all done.  It is assumed that region is entirely within
-	// current place
-	public void placeArrayCopy(FatPointer remoteDest,FatPointer remoteSrc,AsyncResult syncPoint){
-		FatPointer dest = findGlobalObject(remoteDest);
-		FatPointer src = findGlobalObject(remoteSrc);
-		x10Array srcArray = (x10Array)src.getObject();
-		x10Array destArray = (x10Array)dest.getObject();
-		dist srcDist = srcArray.getDistribution();
-		dist destDist = destArray.getDistribution();
-		region localRegion = srcDist.restrictToRegion(this);
-		//TODO destArray.localCopy(srcArray);
-		if(true)throw new RuntimeException("unimplemented");
-		for (Iterator it = localRegion.iterator(); it.hasNext(); ) {
-			
-			point p = (point) it.next();
-			place pl = destDist.get(p);
-		}
-	}
-	
 	
 	final public FatPointer registerGlobalObject(java.lang.Object o){
 		
@@ -519,7 +365,7 @@ public class LocalPlace_c extends Place {
 		return newEntry;
 	}
 	
-	final public FatPointer shadowRemoteEntry(java.lang.Object o,long key){
+	final public FatPointer shadowRemoteGlobalObject(java.lang.Object o,long key){
 		int owningVM;
 		Object theObject = o;
 		if(o instanceof FatPointer) {
@@ -542,35 +388,12 @@ public class LocalPlace_c extends Place {
 	}
 	final public FatPointer findGlobalObject(java.lang.Object o){
 		long theKey = o.hashCode();// FIXME: use JNI addr in future
-		
 		FatPointer rs = (FatPointer)_fatPointerMap.get(theKey);
+		
 		return rs;
 	}
 	
 	
-	/**
-	 * Copy src to dest array over the region at this particular place
-	 */
-	public void remoteSectionCopy(FatPointer dest,FatPointer src){
-		x10Array srcArray = (x10Array)(src.getObject());
-		x10Array destArray = (x10Array)(dest.getObject());
-		region localRegion = srcArray.getDistribution().restrictToRegion(here());
-		destArray.copyLocalSection(destArray,srcArray,localRegion);
-	}
-	
-	/**
-	 * Intersect dest and source, and if a point in source is not in the dest region,
-	 * copy it from source
-	 * @param dest
-	 * @param source
-	 */
-	public void remoteUnion(FatPointer dest,FatPointer src){
-		x10Array destArray = (x10Array)(dest.getObject());
-		x10Array srcArray = (x10Array)(dest.getObject());
-		region localRegion = destArray.getDistribution().restrictToRegion(here());
-		
-		destArray.copyDisjoint(destArray,srcArray,localRegion);			
-	}
 	
 	// Assume bytecode name of class is <name>'$'<number> ie 
 	// the suffix is a '$' followed by a number.
@@ -731,20 +554,21 @@ public class LocalPlace_c extends Place {
 			
 			if(theType.isPrimitive()) continue;
 			if(theType.getName().indexOf("x10.lang.")< 0) continue;
-			if(trace)	System.out.println(" replace global field "+i+":"+field.getName()+" type:"+theType.getName());
+			if(trace)	System.out.println("["+id+"] replace global field "+i+":"+field.getName()+" type:"+theType.getName());
 			field.setAccessible(true);
 			try{
 				//System.out.println("getting field from "+oldObj);
 				Object globalObject = field.get(oldObj);
+				assert(globalObject != null);
 				if(!(globalObject instanceof x10Array))continue;
-				if(trace)System.out.println("looking at array "+globalObject.hashCode()+" "+globalObject);
+				if(trace)System.out.println("["+id+"]looking at array "+globalObject.hashCode()+" "+globalObject);
 				FatPointer replacement = this.findGlobalObject(globalObject);
-				
+				if(null == replacement)System.out.println("null at "+this+" for "+globalObject);
 				assert(replacement != null);
 				
 				Object replacementObj = replacement.getObject();
 				
-				if(trace)System.out.println("replacing array "+globalObject.hashCode()+" with "+replacementObj.hashCode());
+				if(trace)System.out.println("["+id+"]replacing array "+globalObject.hashCode()+" with "+replacementObj.hashCode());
 				
 				field.set(newObj,replacementObj);		
 			}
@@ -762,8 +586,8 @@ public class LocalPlace_c extends Place {
 			for (int i = 0; i < f3.length; ++i) {
 				Field currentField = f3[i];
 				currentField.setAccessible(true);
-				
-				System.out.println("  ["+id+"]==>field "+i+": "+f3[i].getName()+"("+currentField.get(o).hashCode()+")");
+				int hc = (currentField.get(o) == null)?-1:currentField.get(o).hashCode();
+				System.out.println("  ["+id+"]==>field "+i+": "+f3[i].getName()+"("+hc+")");
 			}
 		}
 		catch(IllegalAccessException iae){
