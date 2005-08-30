@@ -39,7 +39,6 @@ public class SyncDrive extends NodeVisitor {
 						ht.put(val, label);
 				}			
 			}
-			System.out.println("hashtable = " + ht);
 			if(ht.size() != 0){
 				n = child.visitChildren(this);
 			}
