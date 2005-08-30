@@ -1,8 +1,8 @@
 package x10.lang;
 
-import /*x10*/java.util.Iterator;
+import java.util.Iterator;
+
 import x10.base.TypeArgument;
-import x10.array.EmptyRegion;
 
 
 /**
