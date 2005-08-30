@@ -12,6 +12,8 @@ import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Qualifier;
 import polyglot.ext.x10.visit.AsyncElimination;
 import polyglot.ext.x10.visit.AtomicElimination;
+import polyglot.ext.x10.visit.SyncDrive;
+import polyglot.ext.x10.visit.SyncDriveStack;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
@@ -22,7 +24,9 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.CodeWriter;
 import polyglot.main.Options;
 import polyglot.main.Report;
+import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.DumpAst;
+import polyglot.ext.x10.visit.AtomicSection;
 
 /**
  * Extension information for x10 extension.
@@ -71,7 +75,10 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     public static final Pass.ID SPECIAL_QUALIFIER = new Pass.ID("this/super-qualifier");
     public static final Pass.ID ASYNC_ELIMINATION = new Pass.ID("async-elimination");
     public static final Pass.ID ATOMIC_ELIMINATION = new Pass.ID("atomic-elimination");
-    
+	public static final Pass.ID ATOMIC_SECTION = new Pass.ID("atomic-section");
+	public static final Pass.ID SYNC_GENERATION = new Pass.ID("sync-generation");
+	public static final Pass.ID AMB_REMOVER = new Pass.ID("amb-remover");
+	
     public List passes(Job job) {
         List passes = super.passes(job);
         
@@ -99,7 +106,11 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         // beforePass(passes, Pass.PRE_OUTPUT_ALL,
         //      new VisitorPass(ASYNC_ELIMINATION,
         //                 job, new AsyncElimination()));
-        
+
+		beforePass(passes, Pass.CLEAN_SUPER, 
+				new VisitorPass(ATOMIC_SECTION,
+						job, new AtomicSection(nf, this)));
+		   		
         beforePass(passes, Pass.PRE_OUTPUT_ALL,
                 new VisitorPass(CAST_REWRITE,
                         job, new X10Boxer(job, ts, nf)));
@@ -107,11 +118,21 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         beforePass(passes, Pass.PRE_OUTPUT_ALL,
                 new VisitorPass(SPECIAL_QUALIFIER,
                         job, new X10Qualifier(job, ts, nf)));
-        
+      
+		beforePass(passes, Pass.PRE_OUTPUT_ALL,
+				new VisitorPass(SYNC_GENERATION,
+						job, new SyncDrive(nf)));
+		
+		beforePass(passes, Pass.PRE_OUTPUT_ALL,
+				new VisitorPass(AMB_REMOVER,
+						job, new AmbiguityRemover(job, ts, nf, 
+						     AmbiguityRemover.ALL)));
+		
         if (Report.should_report("debug", 6)) {
 			beforePass(passes, Pass.PRE_OUTPUT_ALL, new VisitorPass(Pass.DUMP, job,
 					new DumpAst(new CodeWriter(System.out, 1))));
         }
+        
         return passes;
     }
     
