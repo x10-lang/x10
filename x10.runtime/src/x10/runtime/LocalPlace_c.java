@@ -561,6 +561,10 @@ public class LocalPlace_c extends Place {
 			try{
 				//System.out.println("getting field from "+oldObj);
 				Object globalObject = field.get(oldObj);
+				if(null == globalObject){
+					// can happen with unused members that are global objects
+					continue;
+				}
 				assert(globalObject != null);
 				if(!(globalObject instanceof x10Array))continue;
 				if(trace)System.out.println("["+id+"]looking at array "+globalObject.hashCode()+" "+globalObject);
