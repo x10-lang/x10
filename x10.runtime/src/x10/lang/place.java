@@ -23,6 +23,7 @@ package x10.lang;
 import java.util.Set;
 
 import x10.base.TypeArgument;
+import x10.runtime.Activity;
 import x10.runtime.distributed.FatPointer;
 
 public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
@@ -138,6 +139,8 @@ implements TypeArgument, ValueType{
 	public FatPointer registerGlobalObject(java.lang.Object o){if(true) throw new RuntimeException("Should never be called"); return null;}
 	public FatPointer findGlobalObject(java.lang.Object o){if(true) throw new RuntimeException("Should never be called"); return null;}
 	public  FatPointer shadowRemoteGlobalObject(java.lang.Object o,long key){if(true) throw new RuntimeException("Should never be called"); return null;}
-	  
+	public  Future runFuture(Activity.Expr a) {if(true) throw new RuntimeException("Should never be called"); return null;}
+	public FatPointer findGlobalObject(long key){if(true) throw new RuntimeException("Should never be called"); return null;}
+	
 	  
 }
