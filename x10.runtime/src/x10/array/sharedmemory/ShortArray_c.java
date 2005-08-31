@@ -263,8 +263,10 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     /* (non-Javadoc)
      * @see x10.lang.ShortArray#set(int, int[])
      */
-    public short set(short v, point pos) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+	public short set(short v, point pos) {return set(v,pos,true,true);}
+	    
+    public short set(short v, point pos,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));
         
         return arr_.setShort(v, (int) distribution.region.ordinal(pos));
@@ -273,39 +275,47 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     	return arr_.setShort(v,rawIndex);
     }
     
-    public short set(short v, int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public short set(short v, int d0) {return set(v,d0,true,true);}
+	
+    public short set(short v, int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,chkAOB);
     	return arr_.setShort(v,d0);
     }
      
-    public short set(short v, int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public short set(short v, int d0,int d1) {return set(v,d0,d1,true,true);}
+	
+    public short set(short v, int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
     	return arr_.setShort(v,theIndex);
     }
     
-    public short set(short v, int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public short set(short v, int d0,int d1,int d2) {return set(v,d0,d1,d2,true,true);}
+    public short set(short v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
     	return arr_.setShort(v,theIndex);
     }
     
-    public short set(short v, int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public short set(short v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
+    
+    public short set(short v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
     	return arr_.setShort(v,theIndex);  	
     }
     
     /* (non-Javadoc)
      * @see x10.lang.ShortArray#get(int[])
      */
-    public short get(point pos) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public short get(point pos) {return get(pos,true,true);}
+    public short get(point pos,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));
         
         return arr_.getShort((int) distribution.region.ordinal(pos));
@@ -315,36 +325,42 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     	return arr_.getShort(rawIndex);
     }
     
-    public short get(int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public short get(int d0) {return get(d0,true,true);}
+    
+    public short get(int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,chkAOB);
         return arr_.getShort(d0);
     }
     
-    public short get(int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public short get(int d0,int d1) {return get(d0,d1,true,true);}
+    public short get(int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int theIndex = Helper.ordinal(distribution,d0, d1);
+        int theIndex = Helper.ordinal(distribution,d0, d1,chkAOB);
         return arr_.getShort(theIndex);
     }
     
-    public short get(int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public short get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
+    public short get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int theIndex = Helper.ordinal(distribution, d0, d1, d2);
+        int theIndex = Helper.ordinal(distribution, d0, d1, d2,chkAOB);
         return arr_.getShort(theIndex);  	
     } 
     
-    public short get(int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public short get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
+    public short get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2,d3));        
-        int theIndex = Helper.ordinal(distribution,d0,d1,d2,d3); 
+        int theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB); 
         return arr_.getShort(theIndex);
         
     }
     
-    public short get(int[] pos) {
+    public short get(int[] pos) {return get(pos,true,true);}
+    public short get(int[] pos,boolean chkPl,boolean chkAOB) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }

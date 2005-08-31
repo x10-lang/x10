@@ -162,7 +162,16 @@ public abstract class FloatArray extends FloatReferenceArray {
     public abstract float set(float v, int d0, int d1, int d2);
 
     public abstract float set(float v, int d0, int d1, int d2, int d3);
+    
+    public abstract float set(float v, point pos,boolean chkPl,boolean chkAOB);
 
+    public abstract float set(float v, int d0,boolean chkPl,boolean chkAOB);
+
+    public abstract float set(float v, int d0, int d1,boolean chkPl,boolean chkAOB);
+
+    public abstract float set(float v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB);
+
+    public abstract float set(float v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
     /**
      * Generic flat access.
      */
@@ -176,6 +185,17 @@ public abstract class FloatArray extends FloatReferenceArray {
 
     public abstract float get(int d0, int d1, int d2, int d3);
     public abstract float get(int[] p);
+    
+    public abstract float get(point pos,boolean chkPl,boolean chkAOB);
+
+    public abstract float get(int d0,boolean chkPl,boolean chkAOB);
+
+    public abstract float get(int d0, int d1,boolean chkPl,boolean chkAOB);
+
+    public abstract float get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB);
+
+    public abstract float get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
+    public abstract float get(int[] p,boolean chkPl,boolean chkAOB);
     
     public Object toJava() {        
         final int[] dims_tmp = new int[distribution.rank];       

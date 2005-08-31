@@ -259,8 +259,9 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     /* (non-Javadoc)
      * @see x10.lang.CharArray#set(int, int[])
      */
-    public char set(char v, point pos) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+	 public char set(char v, point pos) {return set(v,pos, true,true);}
+    public char set(char v, point pos,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));
         
         return arr_.setChar(v, (int) distribution.region.ordinal(pos));
@@ -270,37 +271,43 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     	return arr_.setChar(v,rawIndex);
     }
     
-    public char set(char v, int d0) {
-    	d0 = Helper.ordinal(distribution,d0);
+    
+    public char set(char v, int d0) {return set(v,d0,true,true);}
+    public char set(char v, int d0,boolean chkPl,boolean chkAOB) {
+    	d0 = Helper.ordinal(distribution,d0,chkAOB);
     	return arr_.setChar(v,d0);
     }
      
-    public char set(char v, int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public char set(char v, int d0,int d1) {return set(v,d0,d1,true,true);}
+    public char set(char v, int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
     	return arr_.setChar(v,theIndex);
     }
     
-    public char set(char v, int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public char set(char v, int d0,int d1,int d2) {return set(v,d0,d1,d2,true,true);}
+    public char set(char v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
     	return arr_.setChar(v,theIndex);
     }
     
-    public char set(char v, int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public char set(char v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
+    public char set(char v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
     	return arr_.setChar(v,theIndex); 	
     }
 
     /* (non-Javadoc)
      * @see x10.lang.CharArray#get(int[])
      */
-    public char get(point pos) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public char get(point pos) {return get(pos,true,true);}
+    public char get(point pos,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));
         
         return arr_.getChar((int) distribution.region.ordinal(pos));
@@ -310,34 +317,42 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     	return arr_.getChar(rawIndex);
     }
     
-    public char get(int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    
+    public char get(int d0) {return get(d0,true,true);}
+    public char get(int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,chkAOB);
     	return arr_.getChar(d0);
     }
-    public char get(int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    
+    public char get(int d0,int d1) {return get(d0,d1,true,true);}
+    public char get(int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
     	return arr_.getChar(theIndex);
     }
     
-    public char get(int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public char get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
+    public char get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
     	return arr_.getChar(theIndex);  	
     } 
     
-    public char get(int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public char get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
+    public char get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
     	return arr_.getChar(theIndex);
     	
     }
-    public char get(int[] pos) {
+    
+    public char get(int[] pos) {return get(pos,true,true);}
+    public char get(int[] pos,boolean chkPl,boolean chkAOB) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }

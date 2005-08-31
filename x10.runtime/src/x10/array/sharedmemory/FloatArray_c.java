@@ -260,8 +260,9 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     /* (non-Javadoc)
      * @see x10.lang.FloatArray#set(int, int[])
      */
-    public float set(float v, point pos) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+	 public float set(float v, point pos) {return set(v,pos,true,true);}
+    public float set(float v, point pos,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));        
         return arr_.setFloat(v, (int) distribution.region.ordinal(pos));
     }
@@ -270,39 +271,47 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     	return arr_.setFloat(v,rawIndex);
     }
     
-    public float set(float v, int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public float set(float v, int d0) {return set(v,d0,true,true);}
+    public float set(float v, int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,chkAOB);
     	return arr_.setFloat(v,d0);
     }
      
-    public float set(float v, int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    
+    public float set(float v, int d0,int d1) {return set(v,d0,d1,true,true);}
+    public float set(float v, int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
     	return arr_.setFloat(v,theIndex);
     }
     
-    public float set(float v, int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public float set(float v, int d0,int d1,int d2) {return set(v,d0,d1,d2,true,true);}
+    public float set(float v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
     	return arr_.setFloat(v,theIndex);
     }
     
-    public float set(float v, int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public float set(float v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
+    
+    public float set(float v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
     	return arr_.setFloat(v,theIndex);   	
     }
 
     /* (non-Javadoc)
      * @see x10.lang.FloatArray#get(int[])
      */
-    public float get(point pos) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public float get(point pos) {return get(pos,true,true);}
+    	   
+    public float get(point pos,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));        
         return arr_.getFloat((int) distribution.region.ordinal(pos));
     }    
@@ -311,17 +320,20 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     	return arr_.getFloat(rawIndex);
     }
     
-    public float get(int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public float get(int d0) {return get(d0,true,true);}
+    
+    public float get(int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,chkAOB);
     	return arr_.getFloat(d0);
     }
     
-    public float get(int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public float get(int d0,int d1) {return get(d0,d1,true,true);}
+    public float get(int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int theIndex = Helper.ordinal(distribution,d0,d1);
+        int theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
             
     	//int placeId = Runtime.here().id;
     	//System.out.println("convert "+theIndex+"->"+distribution.getVirtualIndexAdjustment(theIndex));
@@ -329,21 +341,27 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     	return arr_.getFloat(theIndex);
     }
     
-    public float get(int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public float get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
+    
+    public float get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
     	return arr_.getFloat(theIndex);  	
     } 
     
-    public float get(int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public float get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
+     public float get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int theIndex = Helper.ordinal(distribution,d0, d1, d2, d3);	
+        int theIndex = Helper.ordinal(distribution,d0, d1, d2, d3,chkAOB);	
     	return arr_.getFloat(theIndex);    	
     }
     
-    public float get(int[] pos) {
+     
+     public float get(int[] pos) {return get(pos,true,true);}
+        
+    public float get(int[] pos,boolean chkPl,boolean chkAOB) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }

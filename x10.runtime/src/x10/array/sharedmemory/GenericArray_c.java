@@ -248,7 +248,8 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     /* (non-Javadoc)
      * @see x10.lang.GenericArray#set(int, int[])
      */
-    public Parameter1 set(Parameter1 v, point pos) {
+	  public Parameter1 set(Parameter1 v, point pos) {return set(v,pos,true,true);}
+    public Parameter1 set(Parameter1 v, point pos,boolean chkPl,boolean chkAOB) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));        
         return (Parameter1) arr_.set(v, (int) distribution.region.ordinal(pos));
@@ -258,33 +259,38 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     	return (Parameter1) arr_.set(v,rawIndex);
     }
     
-    public Parameter1 set(Parameter1 v, int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public Parameter1 set(Parameter1 v, int d0) {return set(v,d0,true,true);}
+    
+    public Parameter1 set(Parameter1 v, int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        int	theIndex = Helper.ordinal(distribution,d0);   	  	 
+        int	theIndex = Helper.ordinal(distribution,d0,chkAOB);   	  	 
         return (Parameter1) setOrdinal(v, d0);
     }
     
-    public Parameter1 set(Parameter1 v, int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public Parameter1 set(Parameter1 v, int d0,int d1) {return set(v,d0,d1,true,true);}
+    public Parameter1 set(Parameter1 v, int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
         return (Parameter1) setOrdinal(v, theIndex);
     }
-    
-    public Parameter1 set(Parameter1 v, int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public Parameter1 set(Parameter1 v, int d0,int d1,int d2) {return set(v,d0,d1,d2,true,true);}
+    public Parameter1 set(Parameter1 v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
         
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
         return (Parameter1) setOrdinal(v, theIndex);
     }
     
-    public Parameter1 set(Parameter1 v, int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public Parameter1 set(Parameter1 v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
+    
+    public Parameter1 set(Parameter1 v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
         
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
         return (Parameter1)  setOrdinal(v, theIndex);
         
     }
@@ -292,7 +298,8 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     /* (non-Javadoc)
      * @see x10.lang.GenericArray#get(int[])
      */
-    public Parameter1 get(point pos) {
+    public Parameter1 get(point pos) {return get(pos,true,true);}
+    public Parameter1 get(point pos,boolean chkPl,boolean chkAOB) {
         return (Parameter1)  arr_.get((int) distribution.region.ordinal(pos));
     }
     
@@ -300,35 +307,43 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     	return (Parameter1) arr_.get(rawIndex);
     }
     
-    public Parameter1 get(int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public Parameter1 get(int d0) {return get(d0,true,true);}
+    public Parameter1 get(int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-    	d0 = Helper.ordinal(distribution,d0);
+    	d0 = Helper.ordinal(distribution,d0,chkAOB);
     	return getOrdinal(d0);
     }
     
-    public Parameter1 get(int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public Parameter1 get(int d0,int d1) {return get(d0,d1,true,true);}
+    public Parameter1 get(int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
     	return getOrdinal(theIndex);
     }
     
-    public Parameter1 get(int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public Parameter1 get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
+    
+    public Parameter1 get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
         
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
     	return getOrdinal(theIndex);
     }
     
-    public Parameter1 get(int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public Parameter1 get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
+    
+    public Parameter1 get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0, d1, d2, d3);
+        int	theIndex = Helper.ordinal(distribution,d0, d1, d2, d3,chkAOB);
     	return getOrdinal(theIndex);
     }
-    public Parameter1 get(int[] pos) {
+    
+    public Parameter1 get(int[] pos) {return get(pos,true,true);}
+    public Parameter1 get(int[] pos,boolean chkPl,boolean chkAOB) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }

@@ -12,6 +12,7 @@ package x10.array;
 
 import x10.array.MultiDimRegion;
 import x10.lang.dist;
+import x10.lang.point;
 import x10.lang.region;
 
 
@@ -47,12 +48,16 @@ public class Helper {
 		
 	}
 	
+	public static int ordinal(dist d,point p,boolean chkAOB){
+		int theIndex = d.region.ordinal(p);
+		return theIndex;
+	}
 		
-	 public static int ordinal(dist d,int d0){
+	 public static int ordinal(dist d,int d0,boolean chkAOB){
 		region r = d.region;
 		int index;
 		assert (r.rank == 1);
-		if(performBoundsCheck) checkBounds(r,d0);
+		if(chkAOB && performBoundsCheck) checkBounds(r,d0);
 		try {
 			if(!r.isConvex()){
 				index = r.ordinal(x10.array.point_c.factory.point(d0));
@@ -68,10 +73,10 @@ public class Helper {
 		return index;
 	}
 	
-	 public static int rawordinal(region r,int d0){
+	 public static int rawordinal(region r,int d0,boolean chkAOB){
 		assert (r.rank == 1);
-		if(performBoundsCheck) checkBounds(r,d0);
-		if(simpleRangeCheck) rangeCheck(r,d0);
+		if(chkAOB && performBoundsCheck) checkBounds(r,d0);
+		else if(chkAOB && simpleRangeCheck) rangeCheck(r,d0);
 		return d0;
 	}
 	
@@ -98,11 +103,11 @@ public class Helper {
 	    }       	   
 	}
     
-	 public static int ordinal(dist d,int d0,int d1){
+	 public static int ordinal(dist d,int d0,int d1,boolean chkAOB){
 	    int index;
 	    region r = d.region;
 	    assert (r.rank == 2);
-	    if (performBoundsCheck) checkBounds(r,d0,d1);
+	    if (chkAOB && performBoundsCheck) checkBounds(r,d0,d1);
 	    try {
 	    	if(!r.isConvex()){
 	    		index = r.ordinal(x10.array.point_c.factory.point(d0,d1));
@@ -121,12 +126,12 @@ public class Helper {
 	    return index;
 	}
 	
-	final public static int rawordinal(region r,int d0,int d1){
+	final public static int rawordinal(region r,int d0,int d1,boolean chkAOB){
 		assert (r.rank == 2);
 		if (performBoundsCheck) checkBounds(r,d0,d1);
 		
 		int index = d1+ d0 * r.rank(1).size();
-		if(simpleRangeCheck) rangeCheck(r,index);
+		if(chkAOB && simpleRangeCheck) rangeCheck(r,index);
 		return index;
 	}
 	
@@ -158,11 +163,11 @@ public class Helper {
 	    }		
 	}
     
-	 public static int ordinal(dist d,int d0,int d1, int d2){
+	 public static int ordinal(dist d,int d0,int d1, int d2,boolean chkAOB){
 	    int index;
 	    region r = d.region;
 	    assert (r.rank == 3);
-	    if (performBoundsCheck) checkBounds(r,d0,d1,d2);
+	    if (chkAOB && performBoundsCheck) checkBounds(r,d0,d1,d2);
 	    
 	    try {
 	    	if(!r.isConvex()){
@@ -187,7 +192,7 @@ public class Helper {
 	    return index;
 	}
     
-	final public static int rawordinal(region r,int d0,int d1, int d2){
+	final public static int rawordinal(region r,int d0,int d1, int d2,boolean chkAOB){
 		assert (r.rank == 3);
 		//if(performBoundsCheck)checkBounds(r,d0,d1,d2);
 		
@@ -195,7 +200,7 @@ public class Helper {
 		int d0Size=d1Size * r.rank(1).size();
 		
 		int index = d2+ d1*d1Size+ d0*d0Size;
-		if(simpleRangeCheck) rangeCheck(r,index);
+		if(chkAOB && simpleRangeCheck) rangeCheck(r,index);
 		return index;
 	}
 	
@@ -228,7 +233,7 @@ public class Helper {
 	    }
 	}
     
-	 public static int ordinal(dist d,int d0,int d1, int d2,int d3){
+	 public static int ordinal(dist d,int d0,int d1, int d2,int d3,boolean chkAOB){
 	    int index;
 	    region r = d.region;
 	    assert (r.rank == 4);	    
@@ -257,10 +262,10 @@ public class Helper {
 	    return index;
 	}
 	
-	final public static int rawordinal(region r,int d0,int d1, int d2,int d3){
+	final public static int rawordinal(region r,int d0,int d1, int d2,int d3,boolean chkAOB){
 		assert (r.rank == 4);
 		
-		if(performBoundsCheck) checkBounds(r,d0,d1,d2,d3);
+		if(chkAOB && performBoundsCheck) checkBounds(r,d0,d1,d2,d3);
 		
 		int d2Size=r.rank(3).size();
 		int d1Size=d2Size * r.rank(2).size();
