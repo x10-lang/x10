@@ -388,11 +388,13 @@ public class LocalPlace_c extends Place {
 	}
 	final public FatPointer findGlobalObject(java.lang.Object o){
 		long theKey = o.hashCode();// FIXME: use JNI addr in future
-		FatPointer rs = (FatPointer)_fatPointerMap.get(theKey);
-		
+		FatPointer rs = (FatPointer)_fatPointerMap.get(theKey);	
 		return rs;
 	}
-	
+	final public FatPointer findGlobalObject(long theKey){
+		FatPointer rs = (FatPointer)_fatPointerMap.get(theKey);	
+		return rs;
+	}
 	
 	
 	// Assume bytecode name of class is <name>'$'<number> ie 
