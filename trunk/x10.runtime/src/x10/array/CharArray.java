@@ -161,6 +161,15 @@ public abstract class CharArray extends CharReferenceArray {
     public abstract char set(char v, int d0, int d1, int d2);
 
     public abstract char set(char v, int d0, int d1, int d2, int d3);
+    public abstract char set(char v, point pos,boolean cPl,boolean chkAOB);
+
+    public abstract char set(char v, int d0,boolean cPl,boolean chkAOB);
+
+    public abstract char set(char v, int d0, int d1,boolean cPl,boolean chkAOB);
+
+    public abstract char set(char v, int d0, int d1, int d2,boolean cPl,boolean chkAOB);
+
+    public abstract char set(char v, int d0, int d1, int d2, int d3,boolean cPl,boolean chkAOB);
 
     /**
      * Generic flat access.
@@ -175,6 +184,16 @@ public abstract class CharArray extends CharReferenceArray {
 
     public abstract char get(int d0, int d1, int d2, int d3);
     public abstract char get(int[] p);
+    public abstract char get(point pos,boolean cPl,boolean chkAOB);
+
+    public abstract char get(int d0,boolean cPl,boolean chkAOB);
+
+    public abstract char get(int d0, int d1,boolean cPl,boolean chkAOB);
+
+    public abstract char get(int d0, int d1, int d2,boolean cPl,boolean chkAOB);
+
+    public abstract char get(int d0, int d1, int d2, int d3,boolean cPl,boolean chkAOB);
+    public abstract char get(int[] p,boolean cPl,boolean chkAOB);
     
     public Object toJava() {        
         final int[] dims_tmp = new int[distribution.rank];       

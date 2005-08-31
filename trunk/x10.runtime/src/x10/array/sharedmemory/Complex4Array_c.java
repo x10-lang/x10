@@ -299,56 +299,56 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
     public float setReal(float v, int d0) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,true);
     	return arr_.setFloat(v,d0*2);
     }
      
     public float setReal(float v, int d0, int d1) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,true);
     	return arr_.setFloat(v,theIndex*2);
     }
     
     public float setReal(float v, int d0, int d1, int d2) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,true);
     	return arr_.setFloat(v,theIndex*2);
     }
     
     public float setReal(float v, int d0, int d1, int d2, int d3) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,true);
     	return arr_.setFloat(v,theIndex*2);   	
     }
 
     public float setImag(float v, int d0) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,true);
     	return arr_.setFloat(v,d0*2 + 1);
     }
      
     public float setImag(float v, int d0, int d1) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,true);
     	return arr_.setFloat(v,theIndex*2 + 1);
     }
     
     public float setImag(float v, int d0, int d1, int d2) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,true);
     	return arr_.setFloat(v,theIndex*2 + 1);
     }
     
     public float setImag(float v, int d0, int d1, int d2, int d3) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,true);
     	return arr_.setFloat(v,theIndex*2 + 1);   	
     }
 
@@ -377,56 +377,56 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
     public float getReal( int d0) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,true);
     	return arr_.getFloat(d0*2);
     }
      
     public float getReal( int d0, int d1) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,true);
     	return arr_.getFloat(theIndex*2);
     }
     
     public float getReal( int d0, int d1, int d2) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,true);
     	return arr_.getFloat(theIndex*2);
     }
     
     public float getReal( int d0, int d1, int d2, int d3) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,true);
     	return arr_.getFloat(theIndex*2);   	
     }
 
     public float getImag( int d0) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,true);
     	return arr_.getFloat(d0*2 + 1);
     }
      
     public float getImag( int d0, int d1) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,true);
     	return arr_.getFloat(theIndex*2 + 1);
     }
     
     public float getImag( int d0, int d1, int d2) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,true);
     	return arr_.getFloat(theIndex*2 + 1);
     }
     
     public float getImag( int d0, int d1, int d2, int d3) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,true);
     	return arr_.getFloat(theIndex*2 + 1);   	
     }
     

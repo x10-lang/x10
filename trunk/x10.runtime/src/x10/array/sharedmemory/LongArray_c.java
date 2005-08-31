@@ -246,7 +246,8 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     /* (non-Javadoc)
      * @see x10.lang.LongArray#set(int, int[])
      */
-    public long set(long v, point pos) {
+	public long set(long v, point pos) { return set(v,pos,true,true);}
+    public long set(long v, point pos,boolean chkPl,boolean chkAOB) {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));
         
@@ -261,40 +262,45 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     	return arr_.setLong(v,rawIndex);
     }
     
-    public long set(long v, int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public long set(long v, int d0) {return set(v,d0,true,true);}
+    public long set(long v, int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,chkAOB);
     	return arr_.setLong(v,d0);
     }
     
      
-    public long set(long v, int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public long set(long v, int d0,int d1) {return set(v,d0,d1,true,true);}
+    public long set(long v, int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
     	return arr_.setLong(v,theIndex);
     }
     
-    public long set(long v, int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public long set(long v, int d0,int d1,int d2) {return set(v,d0,d1,d2,true,true);}
+    public long set(long v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
     	return arr_.setLong(v,theIndex);
     }
     
-    public long set(long v, int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public long set(long v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
+    public long set(long v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
     	return arr_.setLong(v,theIndex); 	
     }
         
     /* (non-Javadoc)
      * @see x10.lang.LongArray#get(int[])
      */
-    public long get(point pos) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public long get(point pos) {return get(pos,true,true);}
+    public long get(point pos,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));        
         return arr_.getLong((int) distribution.region.ordinal(pos));
     }
@@ -308,36 +314,41 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     	return arr_.getLong(rawIndex);
     }
     
-    public long get(int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public long get(int d0) {return get(d0,true,true);}
+    public long get(int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,chkAOB);
     	return arr_.getLong(d0);
     }
     
-    public long get(int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public long get(int d0,int d1) {return get(d0,d1,true,true);}
+    public long get(int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
     	return arr_.getLong(theIndex);
     }
     
-    public long get(int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public long get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
+    public long get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0,d1,d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
     	return arr_.getLong(theIndex);  	
     } 
     
-    public long get(int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public long get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
+    public long get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3); 	
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB); 	
     	return arr_.getLong(theIndex);
     	
     }
     
-    public long get(int[] pos) {
+    public long get(int[] pos) {return get(pos,true,true);}
+    public long get(int[] pos,boolean chkPl,boolean chkAOB) {
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }

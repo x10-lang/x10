@@ -251,31 +251,40 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
      * Generic flat access.
      */
     public abstract int set(int v, point pos);
+    public abstract int set(int v, point pos,boolean cPl,boolean chkAOB);
 
     public abstract int set(int v, int d0); 
+    public abstract int set(int v, int d0,boolean cPl,boolean chkAOB);
     
     public abstract int setOrdinal(int v, int d0);
-
+   
     public abstract int set(int v, int d0, int d1);
+    public abstract int set(int v, int d0, int d1,boolean cPl,boolean chkAOB);
 
     public abstract int set(int v, int d0, int d1, int d2);
-
+    public abstract int set(int v, int d0, int d1, int d2,boolean cPl,boolean chkAOB);
+    
     public abstract int set(int v, int d0, int d1, int d2, int d3);
-
+    public abstract int set(int v, int d0, int d1, int d2, int d3,boolean cPl,boolean chkAOB);
     /**
      * Generic flat access. the leas significant dimension is pos[0].
      */
+    public abstract int get(point pos,boolean cPl,boolean chkAOB);
     public abstract int get(point pos);
 
     public abstract int get(int d0);
-   
+    public abstract int get(int d0,boolean cPl,boolean chkAOB);
+    
     public abstract int getOrdinal(int d0);
-
+   
     public abstract int get(int d0, int d1);
+    public abstract int get(int d0, int d1,boolean cPl,boolean chkAOB);
 
     public abstract int get(int d0, int d1, int d2);
+    public abstract int get(int d0, int d1, int d2,boolean cPl,boolean chkAOB);
 
     public abstract int get(int d0, int d1, int d2, int d3);
+    public abstract int get(int d0, int d1, int d2, int d3,boolean cPl,boolean chkAOB);
 
     public Object toJava() {        
 

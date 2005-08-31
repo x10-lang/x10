@@ -162,6 +162,16 @@ public abstract class ShortArray extends ShortReferenceArray {
 
     public abstract short set(short v, int d0, int d1, int d2, int d3);
 
+    public abstract short set(short v, point pos,boolean chkPl,boolean chkAOB);
+
+    public abstract short set(short v, int d0,boolean chkPl,boolean chkAOB);
+
+    public abstract short set(short v, int d0, int d1,boolean chkPl,boolean chkAOB);
+
+    public abstract short set(short v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB);
+
+    public abstract short set(short v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
+
     /**
      * Generic flat access.
      */
@@ -175,6 +185,17 @@ public abstract class ShortArray extends ShortReferenceArray {
 
     public abstract short get(int d0, int d1, int d2, int d3);
     public abstract short get(int[] p);
+  
+    public abstract short get(point pos,boolean chkPl,boolean chkAOB);
+
+    public abstract short get(int d0,boolean chkPl,boolean chkAOB);
+
+    public abstract short get(int d0, int d1,boolean chkPl,boolean chkAOB);
+
+    public abstract short get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB);
+
+    public abstract short get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
+    public abstract short get(int[] p,boolean chkPl,boolean chkAOB);
     
     public Object toJava() {        
         final int[] dims_tmp = new int[distribution.rank];       

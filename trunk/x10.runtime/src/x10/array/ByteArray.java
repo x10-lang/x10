@@ -151,15 +151,16 @@ public abstract class ByteArray extends ByteReferenceArray {
     /**
      * Generic flat access.
      */
-    public abstract byte set(byte v, point pos);
-
-    public abstract byte set(byte v, int d0);
-
-    public abstract byte set(byte v, int d0, int d1);
-
-    public abstract byte set(byte v, int d0, int d1, int d2);
-
-    public abstract byte set(byte v, int d0, int d1, int d2, int d3);
+    public abstract byte set(byte v, point pos,boolean cPl,boolean chkAOB);
+  
+    public abstract byte set(byte v, int d0,boolean cPl,boolean chkAOB);
+   
+    public abstract byte set(byte v, int d0, int d1,boolean cPl,boolean chkAOB);
+  
+    public abstract byte set(byte v, int d0, int d1, int d2,boolean cPl,boolean chkAOB);
+ 
+    public abstract byte set(byte v, int d0, int d1, int d2, int d3,boolean cPl,boolean chkAOB);
+    
 
     /**
      * Generic flat access.
@@ -174,6 +175,17 @@ public abstract class ByteArray extends ByteReferenceArray {
 
     public abstract byte get(int d0, int d1, int d2, int d3);
     public abstract byte get(int[] p);
+    
+    public abstract byte get(point pos,boolean cPl,boolean chkAOB);
+
+    public abstract byte get(int d0,boolean cPl,boolean chkAOB);
+
+    public abstract byte get(int d0, int d1,boolean cPl,boolean chkAOB);
+
+    public abstract byte get(int d0, int d1, int d2,boolean cPl,boolean chkAOB);
+
+    public abstract byte get(int d0, int d1, int d2, int d3,boolean cPl,boolean chkAOB);
+    public abstract byte get(int[] p,boolean cPl,boolean chkAOB);
     
     public Object toJava() {        
         final int[] dims_tmp = new int[distribution.rank];       

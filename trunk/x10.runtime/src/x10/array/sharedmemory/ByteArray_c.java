@@ -259,7 +259,8 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     /* (non-Javadoc)
      * @see x10.lang.ByteArray#set(int, int[])
      */
-    public byte set(byte v, point pos) {
+	public byte set(byte v, point pos) {return set(v,pos,true,true);}
+    public byte set(byte v, point pos,boolean chkPl,boolean chkAOB) {
         return arr_.setByte(v, (int) distribution.region.ordinal(pos));
     }
     
@@ -267,31 +268,35 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     	return arr_.setByte(v,rawIndex);
     }
     
-    public byte set(byte v, int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+	public byte set(byte v, int d0) {return set(v,d0,true,true);}
+    public byte set(byte v, int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,chkAOB);
     	return arr_.setByte(v,d0);
     }
      
-    public byte set(byte v, int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public byte set(byte v, int d0,int d1) {return set(v,d0,d1,true,true);}
+    public byte set(byte v, int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
     	return arr_.setByte(v,theIndex);
     }
     
-    public byte set(byte v, int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public byte set(byte v, int d0,int d1,int d2) {return set(v,d0,d1,d2,true,true);}
+    public byte set(byte v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
     	return arr_.setByte(v,theIndex);
     }
     
-    public byte set(byte v, int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public byte set(byte v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
+    public byte set(byte v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
     	return arr_.setByte(v,theIndex);    	
     }
 
@@ -299,8 +304,10 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     /* (non-Javadoc)
      * @see x10.lang.ByteArray#get(int[])
      */
-    public byte get(point pos) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public byte get(point pos) {return get(pos,true,true);}
+    
+    public byte get(point pos,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));        
         return arr_.getByte((int) distribution.region.ordinal(pos));
     }
@@ -309,34 +316,42 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     	return arr_.getByte(rawIndex);
     }
     
-    public byte get(int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public byte get(int d0) {return get(d0,true,true);}
+    public byte get(int d0,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0);
+        d0 = Helper.ordinal(distribution,d0,chkAOB);
     	return arr_.getByte(d0);
     }
-    public byte get(int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    
+    public byte get(int d0,int d1) {return get(d0,d1,true,true);}
+    public byte get(int d0, int d1,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
     	return arr_.getByte(theIndex);
     }
     
-    public byte get(int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public byte get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
+    public byte get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
     	return arr_.getByte(theIndex);  	
     } 
     
-    public byte get(int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+    public byte get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
+    public byte get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
+        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
     	return arr_.getByte(theIndex);
     	
     }
-    public byte get(int[] pos) {        
+    
+    public byte get(int[] pos) {return get(pos,true,true);}
+    
+    public byte get(int[] pos,boolean chkPl,boolean chkAOB) {        
         final point p = Runtime.factory.getPointFactory().point(this.region, pos);
     	return get(p);
     }

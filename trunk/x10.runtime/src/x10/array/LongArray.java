@@ -164,6 +164,16 @@ public abstract class LongArray extends LongReferenceArray {
     public abstract long set(long v, int d0, int d1, int d2);
 
     public abstract long set(long v, int d0, int d1, int d2, int d3);
+    
+    public abstract long set(long v, point pos,boolean chkPl,boolean chkAOB);
+
+    public abstract long set(long v, int d0,boolean chkPl,boolean chkAOB);
+
+    public abstract long set(long v, int d0, int d1,boolean chkPl,boolean chkAOB);
+
+    public abstract long set(long v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB);
+
+    public abstract long set(long v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
 
     /**
      * Generic flat access.
@@ -177,6 +187,16 @@ public abstract class LongArray extends LongReferenceArray {
     public abstract long get(int d0, int d1, int d2);
 
     public abstract long get(int d0, int d1, int d2, int d3);
+    
+    public abstract long get(point pos,boolean chkPl,boolean chkAOB);
+
+    public abstract long get(int d0,boolean chkPl,boolean chkAOB);
+
+    public abstract long get(int d0, int d1,boolean chkPl,boolean chkAOB);
+
+    public abstract long get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB);
+
+    public abstract long get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
     
     public Object toJava() {        
         final int[] dims_tmp = new int[distribution.rank];       

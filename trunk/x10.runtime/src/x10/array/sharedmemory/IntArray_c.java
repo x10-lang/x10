@@ -284,111 +284,132 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		return new IntArray_c((Distribution_c) d, p, safe_);	
 	}
     
-    /* (non-Javadoc)
-     * @see x10.lang.IntArray#set(int, int[])
-     */
-    public int set(int v, point pos) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(pos));
-        
-        return arr_.setInt(v, distribution.region.ordinal(pos));
-    }    
-    
-    public int setOrdinal(int v, int d0) {
-        return arr_.setInt(v, d0);
-    }
-    
-    
-    public int set(int v, int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0));
-        
-        d0 = Helper.ordinal(distribution,d0);
-    	return arr_.setInt(v,d0);
-    }
-     
-    
-    public int set(int v, int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1));
-        
-    	int	theIndex = Helper.ordinal(distribution,d0,d1);
-    	return arr_.setInt(v,theIndex);
-    }
-    
-    public int set(int v, int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
-        
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
-    	return arr_.setInt(v,theIndex);
-    }
-    
-    public int set(int v, int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
-        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
-    	return arr_.setInt(v,theIndex);
-    	
-    }
-
-    /**
-     * the cannonical index has already be calculated and adjusted.  
-     * Can be used by any dimensioned array.
-     */
-    public int getOrdinal(int rawIndex) {
-        
-        return arr_.getInt(rawIndex);
-    }
-    
-    /* (non-Javadoc)
-     * @see x10.lang.IntArray#get(int[])
-     */
-    public int get(point pos) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(pos));
-        
-        return arr_.getInt((int) distribution.region.ordinal(pos));
-    }   
-    
-    public int get(int d0) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0));
-        
-        d0 = Helper.ordinal(distribution,d0);
-        return arr_.getInt(d0);
-    }
-    
-    public int get(int d0, int d1) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1));
-        
-        int	theIndex = Helper.ordinal(distribution,d0,d1);
-    	return arr_.getInt(theIndex);
-    }
-    
-    public int get(int d0, int d1, int d2) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
-        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2);
-    	return arr_.getInt(theIndex);  	
-    } 
-    
-    public int get(int d0, int d1, int d2, int d3) {
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-            Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
-        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3);
-    	return arr_.getInt(theIndex);
-    	
-    }
-    public int get(int[] pos) {
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
-    	return get(p);
-    }
-    
+	public int set(int v, point pos) {
+		return set(v,pos,true,true);
+	}
+	public int set(int v, point pos,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(pos));
+		
+		int theIndex = Helper.ordinal(distribution,pos,chkAOB);
+		//  System.out.println("about the set "+pos+"=>"+theIndex+" at "+Runtime.here());
+		
+		return arr_.setInt(v, theIndex);
+	}    
+	
+	public int setOrdinal(int v, int d0) {
+		return arr_.setInt(v, d0);
+	}
+	
+	public int set(int v, int d0) {return set(v,d0,true,true);}
+	
+	public int set(int v, int d0,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0));
+		
+		d0 = Helper.ordinal(distribution,d0,chkAOB);
+		return arr_.setInt(v,d0);
+	}
+	
+	public int set(int v, int d0,int d1) {return set(v,d0,d1,true,true);}
+	public int set(int v, int d0, int d1,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1));
+		
+		int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+		
+		return arr_.setInt(v,theIndex);
+	}
+	
+	public int set(int v, int d0,int d1,int d2) {return set(v,d0,d1,d2,true,true);}
+	public int set(int v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+		
+		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+		return arr_.setInt(v,theIndex);
+	}
+	
+	public int set(int v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
+	public int set(int v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+		
+		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+		return arr_.setInt(v,theIndex);
+		
+	}
+	
+	/**
+	 * the cannonical index has already be calculated and adjusted.  
+	 * Can be used by any dimensioned array.
+	 */
+	public int getOrdinal(int rawIndex) {
+		
+		return arr_.getInt(rawIndex);
+	}
+	
+	public int get(point pos) {return get(pos,true,true);}
+	/* (non-Javadoc)
+	 * @see x10.lang.IntArray#get(int[])
+	 */
+	public int get(point pos,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(pos));
+		int theIndex = Helper.ordinal(distribution,pos,chkAOB);
+		
+		return arr_.getInt(theIndex);
+	}   
+	
+	public int get(int d0) {return get(d0,true,true);}
+	public int get(int d0,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0));
+		
+		d0 = Helper.ordinal(distribution,d0,chkAOB);
+		return arr_.getInt(d0);
+	}
+	
+	public int get(int d0,int d1) {return get(d0,d1,true,true);}
+	public int get(int d0, int d1,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1));
+		
+		int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+		return arr_.getInt(theIndex);
+	}
+	
+	public int get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
+	public int get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+		
+		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+		return arr_.getInt(theIndex);  	
+	} 
+	
+	public int get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
+	public int get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+		
+		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+		return arr_.getInt(theIndex);
+		
+	}
+	
+	public int get(int[] pos) {return get(pos, true,true);}
+	
+	public int get(int[] pos,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(pos));
+		
+		final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+		return get(p);
+	}
+	
+	
+	
     public IntReferenceArray overlay(x10.lang.intArray d) {
         dist dist = distribution.overlay(d.distribution);
         IntArray_c ret = new IntArray_c(dist, 0, safe_);
