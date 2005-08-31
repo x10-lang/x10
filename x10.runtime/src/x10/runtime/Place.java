@@ -90,5 +90,6 @@ implements Comparable {
     public abstract FatPointer registerGlobalObject(java.lang.Object o);
     public abstract FatPointer shadowRemoteGlobalObject(java.lang.Object o,long key);
     public abstract FatPointer findGlobalObject(java.lang.Object o);
+    public abstract FatPointer findGlobalObject(long key);
 } // end of Place
 
