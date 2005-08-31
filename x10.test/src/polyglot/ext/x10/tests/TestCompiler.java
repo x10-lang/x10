@@ -867,8 +867,8 @@ public TestCompiler(String name) {
         run("./RegionWithHoles.x10","RegionWithHoles","./Constructs/Region");
     }
 
-    public void test_Constructs_Region_RegionWithWholes() {
-        run("./RegionWithWholes.x10","RegionWithWholes","./Constructs/Region");
+    public void test_Constructs_Region_RegionWithHoles2() {
+        run("./RegionWithHoles2.x10","RegionWithHoles2","./Constructs/Region");
     }
 
     public void test_Constructs_RemoteMethodCall_Arrow() {
