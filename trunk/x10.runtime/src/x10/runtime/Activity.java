@@ -542,13 +542,16 @@ public abstract class Activity implements Runnable {
         constructorSignature += ")V";
     }
 
-// we cannot modify final fields using reflection, so must use JNI calls
-   public native void  setClockNative(final String fieldName,
-                                       Object targetObj,Object value);
-   public native void  setIntNative(final String fieldName,
-                                       Object targetObj,int value);
-   public native void  setLongNative(final String fieldName,
-                                       Object targetObj,long value);
+    // we cannot modify final fields using reflection, so must use JNI calls
+    public static native void  setObjectNative(final String fieldName,
+    		final String typeName,
+			Object targetObj,Object value);
+    public static native void  setClockNative(final String fieldName,
+    		Object targetObj,Object value);
+    public static native void  setIntNative(final String fieldName,
+    		Object targetObj,int value);
+    public static native void  setLongNative(final String fieldName,
+    		Object targetObj,long value);
     public void pseudoDeSerialize() {
     final boolean trace = false;
 
