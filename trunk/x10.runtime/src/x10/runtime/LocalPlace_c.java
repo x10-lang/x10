@@ -527,12 +527,22 @@ public class LocalPlace_c extends Place {
 						}
 					}
 					
-					try {
-						currentField.set(o,newCopy);
+				       
+                                        if(java.lang.reflect.Modifier.isFinal(currentField.getModifiers())) {
+                                        
+                                           x10.runtime.Activity.setObjectNative(currentField.getName(),
+                                                                                currentField.getType().getName(),
+                                                                                o,newCopy);
+                                                                            }
+                                        else try { // reflection cannot change final fields
+                                           currentField.setAccessible(true);
+                                           currentField.set(o,newCopy);
+                                        }
+                                        catch (IllegalAccessException iae){
+                                           throw new RuntimeException("Could not set field "+currentField.getName()+":"+iae);
 					}
-					catch (IllegalAccessException iae){
-						throw new RuntimeException("Could not set field "+currentField.getName()+":"+iae);
-					}
+				
+					
 				}
 			}	
 			
