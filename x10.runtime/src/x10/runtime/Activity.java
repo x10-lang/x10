@@ -542,7 +542,17 @@ public abstract class Activity implements Runnable {
         constructorSignature += ")V";
     }
 
+// we cannot modify final fields using reflection, so must use JNI calls
+   public native void  setClockNative(final String fieldName,
+                                       Object targetObj,Object value);
+   public native void  setIntNative(final String fieldName,
+                                       Object targetObj,int value);
+   public native void  setLongNative(final String fieldName,
+                                       Object targetObj,long value);
     public void pseudoDeSerialize() {
+    final boolean trace = false;
+
+    if(false) System.out.println("Deserializing "+this.getClass().getName());
         assert clocks_.isEmpty();
         assert (clocksMappedToGlobalAddresses.length & 1) == 0;
         for (int i = 0; i < clocksMappedToGlobalAddresses.length; i += 2) {
@@ -560,16 +570,19 @@ public abstract class Activity implements Runnable {
                 if (f[i].getName().indexOf("this$") == -1 && f[i].getName().indexOf("x10_result_") == -1) {
                     f[i].setAccessible(true);
                     if (f[i].getType() == x10.lang.clock.class) {
-                        RemoteClock r = RemoteClock.getMyVersionOfClock("remoteClock", (int) pseudoSerializedLongArray[count], (int) pseudoSerializedLongArray[count+1]);
-                        f[i].set(this, r);
+                    RemoteClock r = RemoteClock.getMyVersionOfClock("remoteClock", (int) pseudoSerializedLongArray[count], (int) pseudoSerializedLongArray[count+1]);
+                    
+                        setClockNative(f[i].getName(),this,r);
+                        
                         count += 2;
                     } else {
                         if (f[i].getType().isPrimitive()) {
                             String nm = f[i].getType().getName();
+			
                             if (nm.equals("int")) {
-                                f[i].setInt(this, (int) pseudoSerializedLongArray[count++]);
+                                setIntNative(f[i].getName(),this, (int) pseudoSerializedLongArray[count++]);
                             } else if (nm.equals("long")) {
-                                f[i].setLong(this, pseudoSerializedLongArray[count++]);
+                                setLongNative(f[i].getName(),this, pseudoSerializedLongArray[count++]);
                             } else {
                                 System.err.println("ahk fix this2! " + f[i].getName());
                                 count++;
@@ -582,7 +595,7 @@ public abstract class Activity implements Runnable {
                     }
                 }
             }
-        } catch(IllegalAccessException iae) {
+    } catch(Exception  iae) {
             System.err.println("Got exception pseudoDeSerializing " + iae);
         }
         assert count == pseudoSerializedLongArray.length;
