@@ -7,11 +7,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.lang.reflect.*;
 import java.io.*;
+import x10.lang.x10Array;
 import x10.lang.MultipleExceptions;
 import x10.lang.ClockUseException;
 import x10.runtime.distributed.RemoteClock;
 import x10.runtime.distributed.RemoteObjectMap;
 import x10.runtime.distributed.VMInfo;
+import x10.runtime.distributed.Serializer;
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -444,114 +446,38 @@ public abstract class Activity implements Runnable {
     public long globalRefAddr;
 
     public void pseudoSerialize() {
+
+       x10.runtime.distributed.Serializer serializer = new Serializer(this);
+    
+    
         clocksMappedToGlobalAddresses = new long[clocks_.size() << 1];
-        for (int i = 0; i < clocks_.size(); ++i) {
-            Clock c = ((Clock) clocks_.get(i));
-            if (c instanceof RemoteClock) {
-                clocksMappedToGlobalAddresses[i<<1] = ((RemoteClock) c).vm_;
-                clocksMappedToGlobalAddresses[(i<<1)+1] = ((RemoteClock) c).vm_clock_no_;
-            } else {
-                clocksMappedToGlobalAddresses[i<<1] = VMInfo.THIS_IS_VM;
-                if (c.getGlobalRefAddr() == 0) {
-                    c.establishGlobalRefAddr();
-                }
-                clocksMappedToGlobalAddresses[(i<<1)+1] = c.getGlobalRefAddr();
-            }
-        }
+
+        serializer.serializeClocks(clocksMappedToGlobalAddresses,clocks_);
+     
         int count = 0;
-        Field f[] = getClass().getDeclaredFields();
-        for (int i = 0; i < f.length; ++i) {
-            if (f[i].getName().indexOf("this$") == -1 && f[i].getName().indexOf("x10_result_") == -1) {
-                if (f[i].getType() == x10.lang.clock.class) {
-                    count += 2;
-                } else {
-                    if (f[i].getType().isPrimitive()) {
-                        ++count;
-                    } else {
-                        // hmmm: what to do about references???
-                        // TODO ... ahk ... fix this
-                        ++count;
-                    }
-                }
-            }
-        }
+        
+        count = serializer.calculateSize();
+        
         pseudoSerializedLongArray = new long[count];
-        count = 0;
-        try {
-            for (int i = 0; i < f.length; ++i) {
-                f[i].setAccessible(true);
-                if (f[i].getName().indexOf("this$") == -1 && f[i].getName().indexOf("x10_result_") == -1) {
-                    if (f[i].getType() == x10.lang.clock.class) {
-                        if (f[i].get(this) instanceof RemoteClock) {
-                            RemoteClock rc = (RemoteClock) f[i].get(this);
-                            pseudoSerializedLongArray[count++] = rc.vm_;
-                            pseudoSerializedLongArray[count++] = rc.vm_clock_no_;
-                        } else {
-                            assert f[i].get(this) instanceof Clock;
-                            Clock c = (Clock) f[i].get(this);
-                            pseudoSerializedLongArray[count++] = VMInfo.THIS_IS_VM;
-                            assert c.getGlobalRefAddr() != 0;
-                            pseudoSerializedLongArray[count++] = c.getGlobalRefAddr();
-                        }
-                    } else {
-                        if (f[i].getType().isPrimitive()) {
-                            String nm = f[i].getType().getName();
-                            if (nm.equals("int")) {
-                                pseudoSerializedLongArray[count++] = f[i].getInt(this);
-                            } else if (nm.equals("long")) {
-                                pseudoSerializedLongArray[count++] = f[i].getLong(this);
-                            } else {
-                                System.err.println("ahk fix this1! " + f[i].getName());
-                                pseudoSerializedLongArray[count++] = 0;
-                            }
-                        } else {
-                            // hmmm: wat to do about references???
-                            // TODO ... ahk ... fix this
-                            pseudoSerializedLongArray[count++] = 0;
-                        }
-                    }
-                }
-            }
-        } catch(IllegalAccessException iae) {
-            System.err.println("Got exception pseudoSerializing " + iae);
-        }
-        assert this.getClass().getDeclaredConstructors().length == 1;
-        numArgsInConstructor = this.getClass().getDeclaredConstructors()[0].getParameterTypes().length;
-        constructorSignature="(";
-        for (int i = 0; i < numArgsInConstructor; ++i) {
-            Class ac = this.getClass().getDeclaredConstructors()[0].getParameterTypes()[i];
-            if (ac.isPrimitive()) {
-                if (ac.toString().equals("int")) {
-                    constructorSignature += "I";
-                } else if (ac.toString().equals("long")) {
-                    constructorSignature += "J";
-                } else {
-                    System.err.println("ahk fix this!!");
-                }
-            } else {
-                if (ac.isArray()) {
-                    System.err.println("ahk fix this array!" + this.getClass().getDeclaredConstructors()[0]);
-                } else {
-                    constructorSignature += ac.toString().replaceFirst("class ", "L").replaceFirst("interface ", "L").replaceAll("\\.", "/") + ";";
-                }
-            }
-            if (ac == java.util.List.class) {
-                listOfClocksIsArgNum = i;
-            }
-        }
-        constructorSignature += ")V";
+
+        serializer.serialize(pseudoSerializedLongArray);
+
+        constructorSignature = serializer.generateConstructorSignature();
+        
+        numArgsInConstructor = serializer.getNumArgsInConstructor();
+        listOfClocksIsArgNum = serializer.getClockListPosition();
+       
     }
 
-    // we cannot modify final fields using reflection, so must use JNI calls
-    public static native void  setObjectNative(final String fieldName,
-    		final String typeName,
-			Object targetObj,Object value);
-    public static native void  setClockNative(final String fieldName,
-    		Object targetObj,Object value);
-    public static native void  setIntNative(final String fieldName,
-    		Object targetObj,int value);
-    public static native void  setLongNative(final String fieldName,
-    		Object targetObj,long value);
+// we cannot modify final fields using reflection, so must use JNI calls
+   public static native void  setObjectNative(final String fieldName,final String typeName,
+                                       Object targetObj,Object value);
+   public static native void  setClockNative(final String fieldName,
+                                       Object targetObj,Object value);
+   public static native void  setIntNative(final String fieldName,
+                                       Object targetObj,int value);
+   public static native void  setLongNative(final String fieldName,
+                                       Object targetObj,long value);
     public void pseudoDeSerialize() {
     final boolean trace = false;
 
