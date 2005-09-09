@@ -59,7 +59,7 @@ public abstract class Activity implements Runnable {
      * this activity is being executed.
      */
     protected FinishState rootNode_;
-    
+     
     /** Create an activity with the given set of clocks.  
      * 
      * @param clocks
@@ -469,65 +469,16 @@ public abstract class Activity implements Runnable {
        
     }
 
-// we cannot modify final fields using reflection, so must use JNI calls
-   public static native void  setObjectNative(final String fieldName,final String typeName,
-                                       Object targetObj,Object value);
-   public static native void  setClockNative(final String fieldName,
-                                       Object targetObj,Object value);
-   public static native void  setIntNative(final String fieldName,
-                                       Object targetObj,int value);
-   public static native void  setLongNative(final String fieldName,
-                                       Object targetObj,long value);
-    public void pseudoDeSerialize() {
-    final boolean trace = false;
 
-    if(false) System.out.println("Deserializing "+this.getClass().getName());
-        assert clocks_.isEmpty();
-        assert (clocksMappedToGlobalAddresses.length & 1) == 0;
-        for (int i = 0; i < clocksMappedToGlobalAddresses.length; i += 2) {
-            if ((int) clocksMappedToGlobalAddresses[i] == VMInfo.THIS_IS_VM) {
-                System.err.println("ahk fix this...a clock has come all the way back to this machine!");
-                throw new Error();
-            } else {
-                clocks_.add(RemoteClock.getMyVersionOfClock("remoteClock", (int) clocksMappedToGlobalAddresses[i], clocksMappedToGlobalAddresses[i+1]));
-            }
-        }
-        int count = 0;
-        Field f[] = getClass().getDeclaredFields();
-        try {
-            for (int i = 0; i < f.length; ++i) {
-                if (f[i].getName().indexOf("this$") == -1 && f[i].getName().indexOf("x10_result_") == -1) {
-                    f[i].setAccessible(true);
-                    if (f[i].getType() == x10.lang.clock.class) {
-                    RemoteClock r = RemoteClock.getMyVersionOfClock("remoteClock", (int) pseudoSerializedLongArray[count], (int) pseudoSerializedLongArray[count+1]);
-                    
-                        setClockNative(f[i].getName(),this,r);
-                        
-                        count += 2;
-                    } else {
-                        if (f[i].getType().isPrimitive()) {
-                            String nm = f[i].getType().getName();
-			
-                            if (nm.equals("int")) {
-                                setIntNative(f[i].getName(),this, (int) pseudoSerializedLongArray[count++]);
-                            } else if (nm.equals("long")) {
-                                setLongNative(f[i].getName(),this, pseudoSerializedLongArray[count++]);
-                            } else {
-                                System.err.println("ahk fix this2! " + f[i].getName());
-                                count++;
-                            }
-                        } else {
-                            // hmmm: wat to do about references???
-                            // TODO ... ahk ... fix this
-                            count++;
-                        }
-                    }
-                }
-            }
-    } catch(Exception  iae) {
-            System.err.println("Got exception pseudoDeSerializing " + iae);
-        }
-        assert count == pseudoSerializedLongArray.length;
+    public void pseudoDeSerialize() {
+       final boolean trace = false;
+
+       if(false) System.out.println("Deserializing "+this.getClass().getName());
+       x10.runtime.distributed.Deserializer deserializer = new x10.runtime.distributed.Deserializer(this);
+       deserializer.deserializeClocks(clocks_,clocksMappedToGlobalAddresses);
+
+       deserializer.deserialize(pseudoSerializedLongArray);
+  
     }
 
     String      constructorSignature;

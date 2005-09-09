@@ -8,6 +8,7 @@ import x10.lang.Future;
 import x10.lang.place;
 import x10.lang.x10Array;
 import x10.runtime.distributed.FatPointer;
+import x10.runtime.distributed.Deserializer;
 /**
  * A LocalPlace_c is an implementation of a place
  * that runs on this Java Virtual Machine.  In the
@@ -530,7 +531,7 @@ public class LocalPlace_c extends Place {
 				       
                                         if(java.lang.reflect.Modifier.isFinal(currentField.getModifiers())) {
                                         
-                                           x10.runtime.Activity.setObjectNative(currentField.getName(),
+                                           x10.runtime.distributed.Deserializer.setObjectNative(currentField.getName(),
                                                                                 currentField.getType().getName(),
                                                                                 o,newCopy);
                                                                             }
