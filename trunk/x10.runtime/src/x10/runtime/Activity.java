@@ -462,7 +462,7 @@ public abstract class Activity implements Runnable {
 
         serializer.serialize(pseudoSerializedLongArray);
 
-        constructorSignature = serializer.generateConstructorSignature();
+        constructorSignature = serializer.getConstructorSignature();
         
         numArgsInConstructor = serializer.getNumArgsInConstructor();
         listOfClocksIsArgNum = serializer.getClockListPosition();
