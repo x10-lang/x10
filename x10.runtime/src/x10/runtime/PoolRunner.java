@@ -115,9 +115,9 @@ final  class PoolRunner extends Thread // LoadMonitored
     */
    public synchronized void run() {
        while (active) {
-       	if (Report.should_report("activity", 5)) {
-       		Report.report(5, logString() + " waiting for a job.");
-       	}
+           if (Report.should_report("activity", 5)) {
+               Report.report(5, logString() + " waiting for a job.");
+           }
            while (active && job == null) {
                try {
                    wait();
@@ -125,8 +125,8 @@ final  class PoolRunner extends Thread // LoadMonitored
                    throw new Error(ie);
                }
                if (Report.should_report("activity", 5)) {
-           		Report.report(5, logString() +" awakes.");
-           	}
+                   Report.report(5, logString() +" awakes.");
+               }
            }
            if (job != null) {
                Runnable j = job;
@@ -134,13 +134,13 @@ final  class PoolRunner extends Thread // LoadMonitored
                try {
                    changeRunningStatus(1);
                    if (Report.should_report("activity", 5)) {
-               		Report.report(5, logString() + " starts running " + j +".");
-               	}
+                       Report.report(5, logString() + " starts running " + j +".");
+                   }
                    j.run();
-                	if (Report.should_report("activity", 5)) {
-               		Report.report(5, logString() + " finished running " + j +".");
-               	}
-                
+                   if (Report.should_report("activity", 5)) {
+                       Report.report(5, logString() + " finished running " + j +".");
+                   }
+                   
                } finally {
                    changeRunningStatus(-1);
                    // act.finalizeTermination();
@@ -149,19 +149,21 @@ final  class PoolRunner extends Thread // LoadMonitored
                // for more work!
                synchronized (place) {
                    if (place.isShutdown()) {
-                   	if (Report.should_report("activity", 5)) {
-                   		Report.report(5, logString() + " shuts down.");
-                   	}
-                   	
+                       if (Report.should_report("activity", 5)) {
+                           Report.report(5, logString() + " shuts down.");
+                       }                       
                        return;
                    }
-                   place.repool(this);
+                   if (place.shouldRunnerTerminate())
+                       active = false;
+                   else
+                       place.repool(this);
                }
            }
        }
        if (Report.should_report("activity", 5)) {
-   		Report.report(5, logString() + " shuts down.");
-   	}
+           Report.report(5, logString() + " shuts down.");
+       }
    }
    
    public String thisThreadString() {
