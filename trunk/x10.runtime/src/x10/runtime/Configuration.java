@@ -83,6 +83,7 @@ public final class Configuration {
     
     public static int NUMBER_OF_LOCAL_PLACES = 4;
     public static int NUMBER_OF_VMS = 1;
+    public static int NUMBER_OF_ACTIVITIES_PER_PLACE = 5;
     public static VMInfo[] VM_;
     
     /** this check does not work -- it causes spurious warnings */
