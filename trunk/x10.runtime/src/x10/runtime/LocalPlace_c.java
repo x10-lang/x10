@@ -193,7 +193,7 @@ public class LocalPlace_c extends Place {
 			mapToCorrectPlace(a);
 			runAsync( a, false);	
 		} else {
-			a.pseudoDeSerialize();
+			a.pseudoDeSerialize(this);
 			runAsync( a, true);
 		}
 	}
@@ -202,7 +202,7 @@ public class LocalPlace_c extends Place {
 				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {			
 			runAsync( a, false);	
 		} else {
-			a.pseudoDeSerialize();
+			a.pseudoDeSerialize(this);
 			runAsync( a, true);
 		}
 	}
@@ -234,7 +234,7 @@ public class LocalPlace_c extends Place {
 				
 				// Install the activity.
 				t.setActivity(a);
-				a.setPlace(LocalPlace_c.this);
+                                a.setPlace(LocalPlace_c.this);
 				
 				try {
 					if (finish) {
