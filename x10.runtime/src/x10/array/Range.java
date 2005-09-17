@@ -5,7 +5,7 @@ package x10.array;
 
 import x10.lang.point;
 import x10.lang.region;
-
+import x10.runtime.distributed.SerializerBuffer;
 /**
  * Ranges are a collection of points in the int space.
  * Currently, only contiguous sets of points are supported.
@@ -89,4 +89,56 @@ extends region/*(1)*/ {
 	    assert i == 0;
 		return this;
 	}
+
+// store in an array of longs
+// [<unique id> <type>,<low>,<high>,<size>]
+        public int serialize(SerializerBuffer outputBuffer){
+          if(outputBuffer == null){
+            return 5;
+          }
+          Integer originalIndex = outputBuffer.findOriginalRef(this);
+          boolean isOriginalRef = true;
+          if(originalIndex == null){
+            isOriginalRef = false;
+            originalIndex = new Integer(outputBuffer.getOffset());
+            outputBuffer.recordRef(this,originalIndex);
+          }
+          else {
+          System.out.println("need to handle multiple refs");
+          }
+
+          outputBuffer.writeLong(originalIndex.intValue());
+          outputBuffer.writeLong(RANGE);
+          outputBuffer.writeLong(low());  
+          outputBuffer.writeLong(high());        
+          outputBuffer.writeLong(size());
+       
+          return 5;
+        }
+
+
+public static region deserialize(SerializerBuffer inputBuffer){
+          
+          int low,high,size;
+          int thisIndex = inputBuffer.getOffset();
+          int owningIndex = (int)inputBuffer.readLong();
+
+          if(thisIndex != owningIndex){
+            System.out.println("found a second reference "+thisIndex+" to "+owningIndex);
+          }
+          
+          int type = (int)inputBuffer.readLong();
+          assert(type == RANGE);
+          low = (int)inputBuffer.readLong();
+           high = (int)inputBuffer.readLong();
+           size = (int)inputBuffer.readLong();
+                      
+           int stepSize;
+           if(size>0)
+              stepSize = (1+high-low)/size;
+           else
+              stepSize=1;
+           return factory.region(low,high,stepSize);
+        }
+
 }
