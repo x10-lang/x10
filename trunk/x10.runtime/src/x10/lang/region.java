@@ -20,6 +20,14 @@ import x10.base.TypeArgument;
  */
 public abstract /*value*/ class region extends Object 
 implements TypeArgument, ValueType {
+
+        public static final int UNKNOWN=0;
+        public static final int RANGE=1;
+        public static final int ARBITRARY=2;
+        public static final int BANDED=3;
+        public static final int MULTIDIM=4;
+        public static final int TRIANGULAR=5;
+
 	// nat is translated to int for now.
 	public final /*nat*/ /*long*/ int rank;
 

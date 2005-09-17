@@ -12,18 +12,22 @@ package x10.lang;
 import /*x10*/java.util.Set;
 import java.util.Iterator;
 import x10.lang.GlobalIndexMap;
+import x10.runtime.distributed.SerializerBuffer;
 
 abstract public /*value*/ class dist/*( region region )*/ extends Object 
 implements Indexable, ValueType {
 	
 	/* used to create distributions remotely */
+        public final static int UNKNOWN=0;
 	public final static int BLOCK_CYCLIC=1;
 	public final static int BLOCK=2;
 	public final static int CONSTANT=3;
 	public final static int CYCLIC=4;
 	public final static int UNIQUE=5;
-	public int distributionType;
-	public int cyclicValue;
+	public int _distributionType=UNKNOWN;
+	public int _cyclicValue;
+        public int getDistributionType() {return _distributionType;}
+        public int getCyclicValue() {return _cyclicValue;}
 	
 	public final region region;
 	/** The parameter dimension may be used in constructing types derived
@@ -37,9 +41,9 @@ implements Indexable, ValueType {
      * Hence it must have a field 'distrubution' (see ateach construct) */
     public final dist distribution;
 
-    abstract public region[] getPerPlaceRegions();
-    
-    
+    // Used for multi-vm
+    public abstract void serialize(SerializerBuffer b);
+
     /**
      * Determine offset adjustment to devirtualize shared array
      * Based on place id.  In multi-node vm version, no need
@@ -192,7 +196,9 @@ implements Indexable, ValueType {
 		
 		public 
 		/*(region R)*/ dist/*(R)*/block() {
-			return this.block(x10.lang.region.factory.region(0, place.MAX_PLACES-1));
+                        dist result = this.block(x10.lang.region.factory.region(0, place.MAX_PLACES-1));
+                        result._distributionType=BLOCK;
+			return result;
 		}
 		
 		/** Returns the block distribution over the given region, and over
@@ -217,8 +223,10 @@ implements Indexable, ValueType {
 		 * all places.
 		 */
 		public /*(region R)*/ dist/*(R)*/ cyclic( final region R ) {
-			final dist result = this.cyclic/*(R)*/(R, x10.lang.place.places);
+                      
+			/*final*/ dist result = this.cyclic/*(R)*/(R, x10.lang.place.places);
 			assert result.region.equals(R);
+                          result._distributionType = CYCLIC;
 			return result;
 		}
 		
