@@ -14,6 +14,8 @@ import x10.runtime.distributed.RemoteClock;
 import x10.runtime.distributed.RemoteObjectMap;
 import x10.runtime.distributed.VMInfo;
 import x10.runtime.distributed.Serializer;
+import x10.runtime.distributed.Deserializer;
+import x10.runtime.distributed.SerializerBuffer;
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -450,34 +452,34 @@ public abstract class Activity implements Runnable {
        x10.runtime.distributed.Serializer serializer = new Serializer(this);
     
     
-        clocksMappedToGlobalAddresses = new long[clocks_.size() << 1];
+       clocksMappedToGlobalAddresses = new long[clocks_.size() << 1];
+       SerializerBuffer clockBuffer = new SerializerBuffer(clocksMappedToGlobalAddresses);
 
-        serializer.serializeClocks(clocksMappedToGlobalAddresses,clocks_);
+       serializer.serializeClocks(clockBuffer,clocks_);
      
-        int count = 0;
+       int count = 0;
         
-        count = serializer.calculateSize();
+       count = serializer.calculateSize();
         
-        pseudoSerializedLongArray = new long[count];
+       pseudoSerializedLongArray = new long[count];
 
-        serializer.serialize(pseudoSerializedLongArray);
-
-        constructorSignature = serializer.getConstructorSignature();
-        
-        numArgsInConstructor = serializer.getNumArgsInConstructor();
-        listOfClocksIsArgNum = serializer.getClockListPosition();
+       serializer.serialize(new SerializerBuffer(pseudoSerializedLongArray));
        
+       constructorSignature = serializer.getConstructorSignature();
+        
+       numArgsInConstructor = serializer.getNumArgsInConstructor();
+       listOfClocksIsArgNum = serializer.getClockListPosition();
     }
 
 
-    public void pseudoDeSerialize() {
+    public void pseudoDeSerialize(LocalPlace_c pl) {
        final boolean trace = false;
 
-       if(false) System.out.println("Deserializing "+this.getClass().getName());
-       x10.runtime.distributed.Deserializer deserializer = new x10.runtime.distributed.Deserializer(this);
-       deserializer.deserializeClocks(clocks_,clocksMappedToGlobalAddresses);
+       if(trace) System.out.println("Deserializing "+this.getClass().getName());
+       Deserializer deserializer = new Deserializer(this);
+       deserializer.deserializeClocks(clocks_,new SerializerBuffer(clocksMappedToGlobalAddresses));
 
-       deserializer.deserialize(pseudoSerializedLongArray);
+       deserializer.deserialize(pl,new SerializerBuffer(pseudoSerializedLongArray));
   
     }
 
