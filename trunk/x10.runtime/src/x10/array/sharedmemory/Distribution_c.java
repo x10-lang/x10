@@ -17,7 +17,7 @@ import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
-
+import x10.runtime.distributed.SerializerBuffer;
 
 
 /**
@@ -29,20 +29,16 @@ import x10.lang.region;
  * @author vj
  */
 public abstract class Distribution_c extends /*Region_c*/dist /*implements Distribution*/ {
-    
+
+    public void serialize(SerializerBuffer buf) { throw new RuntimeException("Should not be called");}
+    public static dist deserialize(SerializerBuffer buf)
+      { if(true)throw new RuntimeException("Should not be called"); return null;}
+
+
     public boolean isValue() {
         return true;
     }
 
-    /**
-     * Return the region that is to be allocated at a 
-     * particular locations
-     * @return array of regions indexed by placeid
-     */
-    public region[] getPerPlaceRegions(){
-    	if(true) throw new RuntimeException("Should not be called for shared memory type");
-    	return null;
-    }
     /**
      * Is this indexable value-equals to the other indexable?
      * @param other
