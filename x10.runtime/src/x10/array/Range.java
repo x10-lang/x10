@@ -96,15 +96,14 @@ extends region/*(1)*/ {
         public void serialize(SerializerBuffer outputBuffer){
         //System.out.println("serializing
           Integer originalIndex = outputBuffer.findOriginalRef(this);
-        System.out.println("serializing range:"+this+" ("+this.hashCode()+") origid:"+originalIndex);
+
           if(originalIndex == null){
             originalIndex = new Integer(outputBuffer.getOffset());
             outputBuffer.recordRef(this,originalIndex);
           }
           else {
-          outputBuffer.writeLong(originalIndex.intValue());
-          System.out.println("reuse entry at "+originalIndex.intValue());
-          return;
+             outputBuffer.writeLong(originalIndex.intValue());
+             return;
           }
 
           outputBuffer.writeLong(originalIndex.intValue());
@@ -116,33 +115,24 @@ extends region/*(1)*/ {
         }
 
 
-public static region deserialize(DeserializerBuffer inputBuffer){
+/* to be called from region */
+// assume the ref(<unique id>) slot and type slot have already been read
+    public static region deserializeRange(DeserializerBuffer inputBuffer){
           
           int low,high,size;
-          int thisIndex = inputBuffer.getOffset();
-          int owningIndex = (int)inputBuffer.readLong();
-
-          if(thisIndex != owningIndex){
-         
-            System.out.println("found a second reference "+thisIndex+" to "+owningIndex);
-            return (region)inputBuffer.getCachedRef(owningIndex);
-          }
-          
-          int type = (int)inputBuffer.readLong();
-          assert(type == RANGE);
+        
           low = (int)inputBuffer.readLong();
-           high = (int)inputBuffer.readLong();
-           size = (int)inputBuffer.readLong();
+          high = (int)inputBuffer.readLong();
+          size = (int)inputBuffer.readLong();
                       
-           int stepSize;
-           if(size>0)
-              stepSize = (1+high-low)/size;
-           else
-              stepSize=1;
+          int stepSize;
+          if(size>0)
+             stepSize = (1+high-low)/size;
+          else
+             stepSize=1;
 
-           region result = factory.region(low,high,stepSize);
-           inputBuffer.cacheRef(owningIndex,result);
-           return result;
+          region result = factory.region(low,high,stepSize);
+          return result;
         }
 
 }
