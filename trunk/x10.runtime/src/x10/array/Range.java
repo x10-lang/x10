@@ -5,6 +5,7 @@ package x10.array;
 
 import x10.lang.point;
 import x10.lang.region;
+import x10.runtime.distributed.DeserializerBuffer;
 import x10.runtime.distributed.SerializerBuffer;
 /**
  * Ranges are a collection of points in the int space.
@@ -92,19 +93,18 @@ extends region/*(1)*/ {
 
 // store in an array of longs
 // [<unique id> <type>,<low>,<high>,<size>]
-        public int serialize(SerializerBuffer outputBuffer){
-          if(outputBuffer == null){
-            return 5;
-          }
+        public void serialize(SerializerBuffer outputBuffer){
+        //System.out.println("serializing
           Integer originalIndex = outputBuffer.findOriginalRef(this);
-          boolean isOriginalRef = true;
+        System.out.println("serializing range:"+this+" ("+this.hashCode()+") origid:"+originalIndex);
           if(originalIndex == null){
-            isOriginalRef = false;
             originalIndex = new Integer(outputBuffer.getOffset());
             outputBuffer.recordRef(this,originalIndex);
           }
           else {
-          System.out.println("need to handle multiple refs");
+          outputBuffer.writeLong(originalIndex.intValue());
+          System.out.println("reuse entry at "+originalIndex.intValue());
+          return;
           }
 
           outputBuffer.writeLong(originalIndex.intValue());
@@ -113,18 +113,19 @@ extends region/*(1)*/ {
           outputBuffer.writeLong(high());        
           outputBuffer.writeLong(size());
        
-          return 5;
         }
 
 
-public static region deserialize(SerializerBuffer inputBuffer){
+public static region deserialize(DeserializerBuffer inputBuffer){
           
           int low,high,size;
           int thisIndex = inputBuffer.getOffset();
           int owningIndex = (int)inputBuffer.readLong();
 
           if(thisIndex != owningIndex){
+         
             System.out.println("found a second reference "+thisIndex+" to "+owningIndex);
+            return (region)inputBuffer.getCachedRef(owningIndex);
           }
           
           int type = (int)inputBuffer.readLong();
@@ -138,7 +139,10 @@ public static region deserialize(SerializerBuffer inputBuffer){
               stepSize = (1+high-low)/size;
            else
               stepSize=1;
-           return factory.region(low,high,stepSize);
+
+           region result = factory.region(low,high,stepSize);
+           inputBuffer.cacheRef(owningIndex,result);
+           return result;
         }
 
 }
