@@ -285,7 +285,7 @@ ext=""
 	</target>
 
 	<!-- compile the base compiler -->
-	<target name="all" depends="compile" description="compile the source"/>
+	<target name="all" depends="base" description="compile the source"/>
 	<!-- to use ant to also build LAPI support, comment out the line -->
 	<!-- above and uncomment the line below -->
 	<!-- target name="all" depends="compile,lapi-support" description="compile the source"/ -->
@@ -367,7 +367,7 @@ ext=""
 		</javac>
 	</target>
 
-	<target name="base" depends="bin,etc,compile-base">
+	<target name="base" depends="bin,etc">
 	</target>
 
 	<!-- the following lines have only ever been tested on AIX -->
