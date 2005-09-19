@@ -1,0 +1,66 @@
+time="" 
+help=""
+numargs=$#
+
+while true; do
+    case "$1" in
+        "") break;;
+        -v) verbose="1"; shift;;
+        -verbose) verbose="1"; shift;;
+	-t) time="time "; shift;;
+        -time) time="time "; shift;;
+	-h) help="1"; shift;;
+	-help) help="1"; shift;;
+	-classpath) shift; extra_cp=$1; shift;;
+        -profile) profile="-Xrunhprof:cpu=samples"; shift;;
+        -config) shift; config="-Dx10.configuration=${TOP}/etc/$1.cfg"; shift;;
+        -ext) shift; ext=$1; shift;;
+        *) args="$args '$1'"; shift;;
+    esac
+done
+
+if [ -n "$help" -o $numargs = 0 ]
+then
+    echo "Usage: x10c [options] <source-file>.x10 ..."
+    echo "where [options] includes:"
+    echo "    -sourcepath <path>       source path"
+    echo "    -classpath <path>        search path for class files"
+    echo "    -config <conf>           read configuration <conf> from etc/<conf>.cfg"
+    echo "    -version                 print version info"
+    echo "    -t -time                 display execution time"
+    echo "    -v -verbose              print verbose debugging information"
+    echo "    -h -help                 print this message"
+    echo "    -disable <pass>          disable compiler pass <pass>"
+    echo "                             valid passes are: async-elimination"
+    exit 1
+fi
+
+if [ -z "$config" ]
+then
+    config="-Dx10.configuration=${TOP}${FILE_SEP}etc${FILE_SEP}standard.cfg"
+fi
+
+if [ -n "$extra_cp" ]
+then
+    extra_cp="${PATH_SEP}${extra_cp}"
+fi
+
+if [ -z "$ext" ]
+then
+    ext="x10"
+fi
+ext_cp="${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${ext}.jar"
+extargs="-ext ${ext}"
+
+classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}lpg${FILE_SEP}lib${FILE_SEP}lpg.jar${ext_cp}${extra_cp}"
+command="\"$JAVA\" \"$config\" $profile -classpath \"$classpath\" polyglot.main.Main $extargs $args"
+
+
+if [ -n "$verbose" ]
+then
+  echo "$command"
+fi
+
+
+eval "$time$command"
+exit $?

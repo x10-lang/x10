@@ -1,0 +1,67 @@
+#!/bin/bash -xve
+usage() {
+echo "
+
+cvsCopy src dst
+
+will copy src to dst and also commit dst to cvs.
+
+src must exist in the local file system and must exist also in
+cvs, and dst must not exist in the local file system or cvs before
+invoking this command.
+
+When src and dst are directories, dst is created and subdirectories
+of src are recursively copied to dst and committed to cvs.
+
+The log message for each new file is the result of \"cvs log
+-r\" for the old file, so that the old history can be retraced
+if needed.
+
+Be sure to clean all files not in cvs, before invoking this
+command. This command first executes a \"cvs -q up -dPA\" on src,
+before starting the copying process.
+
+"
+
+exit 1
+}
+
+cvsCopy() {
+#copy srcFile to dstFile and also commit dstFile to cvs
+
+local srcFile="$1"
+local dstFile="$2"
+
+if [[ -f $srcFile ]]; then # just copy a regular file
+  echo "Copying $srcFile to $dstFile. Last cvs log -r $srcFile:" > logTmp
+  cvs log -r "$srcFile" |sed -e 's/^/  /' >> logTmp
+  cp "$srcFile" "$dstFile"
+  cvs add "$dstFile"
+  cvs commit -F logTmp "$dstFile"
+elif [[ -d "$srcFile" ]]; then #recursively process directories
+  mkdir "$dstFile"
+  cvs add "$dstFile"
+  for f in $srcFile/* ; do 
+    local tail=${f##*/}
+    if [[ "$tail" != CVS ]]; then cvsCopy "$f" "$dstFile/$tail"; fi
+  done
+fi
+}
+
+main() {
+# main method
+
+#check parameters
+if [[ ! ( $# -eq 2 && -e "$1" && ! -e "$2" ) || "$1" == "-help" || "$1" == "--help" ]]; then 
+  usage
+fi
+shopt -s dotglob # also consider files beginning with .
+local srcFile="$1"
+local dstFile="$2"
+cvs -q update -dPA "$srcFile" 
+cvsCopy "$srcFile" "$dstFile" 
+rm -f logTmp
+}
+
+main $*
+exit 0
