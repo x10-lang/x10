@@ -16,6 +16,7 @@ import x10.runtime.distributed.VMInfo;
 import x10.runtime.distributed.Serializer;
 import x10.runtime.distributed.Deserializer;
 import x10.runtime.distributed.SerializerBuffer;
+import x10.runtime.distributed.DeserializerBuffer;
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -477,9 +478,9 @@ public abstract class Activity implements Runnable {
 
        if(trace) System.out.println("Deserializing "+this.getClass().getName());
        Deserializer deserializer = new Deserializer(this);
-       deserializer.deserializeClocks(clocks_,new SerializerBuffer(clocksMappedToGlobalAddresses));
+       deserializer.deserializeClocks(clocks_,new DeserializerBuffer(clocksMappedToGlobalAddresses));
 
-       deserializer.deserialize(pl,new SerializerBuffer(pseudoSerializedLongArray));
+       deserializer.deserialize(pl,new DeserializerBuffer(pseudoSerializedLongArray));
   
     }
 
