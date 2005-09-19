@@ -1,0 +1,9 @@
+#!/bin/sh
+# DO NOT EDIT - This file was automatically generated.
+
+JAVA='/home/praun/sw/java/bin/java'
+FILE_SEP='/'
+PATH_SEP=':'
+TOP='/home/praun/workspace_x10/x10.examples'
+X10_PLATFORM='${env.X10_PLATFORM}'
+    

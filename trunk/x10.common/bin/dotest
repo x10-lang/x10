@@ -1,0 +1,32 @@
+#!/bin/sh
+# DO NOT EDIT - This file was automatically generated.
+
+JAVA='/home/praun/sw/java/bin/java'
+FILE_SEP='/'
+PATH_SEP=':'
+TOP='/home/praun/workspace_x10/x10.examples'
+X10_PLATFORM='linux_x86'
+    
+ext=""
+
+
+#
+# $Id: dotest.in,v 1.2 2004/09/15 23:16:22 praun Exp $
+#
+# Copyright (C) 2004 by IBM
+# All rights reserved
+#
+# Purpose:
+#      Script to invoke the testcases for the jl and the x10 compiler.
+#
+# 09/15/04  cvp
+#
+
+testdir="${TOP}${FILE_SEP}src${FILE_SEP}polyglot${FILE_SEP}ext${FILE_SEP}"
+bindir="${TOP}${FILE_SEP}bin"
+ 
+(cd $testdir${FILE_SEP}jl${FILE_SEP}tests && \
+ $bindir${FILE_SEP}pth pthScript) || exit 1
+
+(cd $testdir${FILE_SEP}x10${FILE_SEP}tests && \
+ $bindir${FILE_SEP}pth pthScript) || exit 1
