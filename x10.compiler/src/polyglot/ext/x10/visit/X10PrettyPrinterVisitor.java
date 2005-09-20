@@ -25,6 +25,7 @@ import polyglot.ext.jl.ast.CanonicalTypeNode_c;
 import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.MethodDecl_c;
+import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.ArrayConstructor_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
