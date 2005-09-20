@@ -19,23 +19,26 @@ public class TestTriangularRegion extends TestCase {
     }
     
     public void testRegion_iterator1() {
-        Range[] ranges = new Range[] { new ContiguousRange(0,3), new ContiguousRange(1, 4) }; // 6x4         
-        TriangularRegion reg = new TriangularRegion(ranges, true);
-        
-        // check ordinal and iterator and contains method
-        int cnt = 0;
-        for (Iterator it = reg.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            System.out.println("cnt = " + cnt + " ord=" + reg.ordinal(p) + " point=" + p + " contains=" + reg.contains(p));
-            cnt++;
-        }
-        assertTrue(cnt == 10);
-        
-        // check contains method
-        point tmp_p = point.factory.point(new int[] {2,4});
-        boolean tmp_b = reg.contains(tmp_p);
-        System.out.println("reg=" + reg + " should not contain" + tmp_p + " (" + tmp_b + ")");
-        assertTrue(tmp_b);
+    	Runtime.runAsync( new Activity() { public void run() {
+    		Range[] ranges = new Range[] { new ContiguousRange(0,3), new ContiguousRange(1, 4) }; // 6x4         
+    		
+    		TriangularRegion reg = new TriangularRegion(ranges, true);
+    		
+    		// check ordinal and iterator and contains method
+    		int cnt = 0;
+    		for (Iterator it = reg.iterator(); it.hasNext(); ) {
+    			point p = (point) it.next();
+    			System.out.println("cnt = " + cnt + " ord=" + reg.ordinal(p) + " point=" + p + " contains=" + reg.contains(p));
+    			cnt++;
+    		}
+    		assertTrue(cnt == 10);
+    		
+    		// check contains method
+    		point tmp_p = point.factory.point(new int[] {2,4});
+    		boolean tmp_b = reg.contains(tmp_p);
+    		System.out.println("reg=" + reg + " should not contain" + tmp_p + " (" + tmp_b + ")");
+    		assertTrue(tmp_b);
+    	}});
     }
 
 }

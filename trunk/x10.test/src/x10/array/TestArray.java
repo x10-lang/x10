@@ -26,61 +26,34 @@ public class TestArray extends TestCase {
     private final Activity a
     = new Activity() { public void run() {} }; // dummy
     
-    /**
-     * Junit may use additional threads to run the testcases
-     * (other than the main one used to initialize the
-     * Runtime class).  Hence we need a litte hack to register
-     * the thread used to run the testcase as a 'local' thread
-     * with the Runtime.
-     
-    public void setUp() {
-        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
-        Place[] pls = Place.places();
-        if (r instanceof ThreadRegistry) {
-            Thread t = Thread.currentThread();
-            ThreadRegistry tr = (ThreadRegistry) r;
-            tr.registerThread(t, pls[0]);
-            tr.registerActivityStart(t, a, null);
-        }
-    }
-    */
-    
-    /**
-     * Clean-up effects from setUp().
-     
-    public void tearDown() {
-        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
-        if (r instanceof ThreadRegistry) {
-            Thread t = Thread.currentThread();
-            ThreadRegistry tr = (ThreadRegistry) r;
-            tr.registerActivityStop(t, a);
-        }
-    }
-    */
     public void testToJava() {
-        // ArrayFactory.init(ArrayRuntime.getRuntime());
-        try {
-            final int SIZE = 3;
-            Runtime.Factory F = Runtime.factory;
-            region.factory rf = F.getRegionFactory();
-            region[] ranges = { rf.region(0, SIZE - 1), rf.region(0, SIZE-1)};
-            region r = new ArbitraryRegion(ranges);// rf.region(ranges);
-            dist.factory DF = F.getDistributionFactory();
-            dist d = DF.constant(r, Runtime.here());
-            IntArray.factory IF = Runtime.factory.getIntArrayFactory();
-            x10.lang.intArray value = IF.IntReferenceArray(d, 12);
-    
-            int[][] a1 = (int[][]) ((IntArray) value).toJava();
-            int[][] a2 = new int[][] { { 12, 12, 12 }, { 12, 12, 12 },
-                    { 12, 12, 12 } };
-            IntArray.printArray("a1 = ", a1);
-            IntArray.printArray("a2 = ", a2);
-            assertTrue(equalArrays_(a1, a2));
-        } catch (Exception e) {
-            System.err.println("Exception" + e);
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+    	Runtime.runAsync(new Activity() {
+    		public void run() {
+    			
+    			try {
+    				final int SIZE = 3;
+    				Runtime.Factory F = Runtime.factory;
+    				region.factory rf = F.getRegionFactory();
+    				region[] ranges = { rf.region(0, SIZE - 1), rf.region(0, SIZE-1)};
+    				region r = new ArbitraryRegion(ranges);// rf.region(ranges);
+    				dist.factory DF = F.getDistributionFactory();
+    				dist d = DF.constant(r, Runtime.here());
+    				IntArray.factory IF = Runtime.factory.getIntArrayFactory();
+    				x10.lang.intArray value = IF.IntReferenceArray(d, 12);
+    				
+    				int[][] a1 = (int[][]) ((IntArray) value).toJava();
+    				int[][] a2 = new int[][] { { 12, 12, 12 }, { 12, 12, 12 },
+    						{ 12, 12, 12 } };
+    				IntArray.printArray("a1 = ", a1);
+    				IntArray.printArray("a2 = ", a2);
+    				assertTrue(equalArrays_(a1, a2));
+    			} catch (Exception e) {
+    				System.err.println("Exception" + e);
+    				e.printStackTrace();
+    				throw new RuntimeException(e);
+    			}
+    		}
+    	});
     }
        
     private static boolean equalArrays_(int[][] a1, int[][] a2) {
