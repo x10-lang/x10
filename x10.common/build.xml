@@ -7,6 +7,8 @@
 
 	<!-- source directory -->
 	<property name="src" location="${basedir}/src"/>
+	<property name="examplesrc" location="${basedir}/examples"/>
+
 	<!-- vj: get the environment variables. -->
 	<!-- vj: This works on Windows/cygwin. -->
 	<property environment="env" />
@@ -24,7 +26,7 @@
 	<property name="etc"  location="${basedir}/etc"/>
 
 	<!-- test cases directory -->
-	<property name="testdir"  location="${basedir}/src"/>
+	<property name="testdir"  location="${basedir}/examples"/>
 	<path id="standard.classpath">
 		<pathelement location="${classes}"/>
 		<pathelement location="${lib}/junit.jar"/>
@@ -298,7 +300,7 @@ ext=""
 	</target>
 
 	<target name="clobber" depends="clean">
-		<delete>
+<!--		<delete>
 			<fileset dir="${src}">
 				<include name="**/Grm.java"/>
 				<include name="**/sym.java"/>
@@ -308,6 +310,7 @@ ext=""
 				<include name="${src}/ppg/parse/Grm.java"/>
 			</fileset>
 		</delete>
+-->
 		<delete>
 			<fileset dir="${etc}">
 				<include name="standard.cfg"/>
