@@ -70,7 +70,6 @@
 		<antcall target="junit"/>
 		<antcall target="dotest"/>
 		<antcall target="dounittest"/>
-		<antcall target="miscexec"/>
 	</target>
 
 	<target name="etc" 
