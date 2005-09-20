@@ -26,52 +26,20 @@ public class TestMultiDimRegion extends TestCase {
         Runtime.init();
     }
     
-    private final Activity a
-    = new Activity() { public void run() {} }; // dummy
-    
-    /**
-     * Junit may use additional threads to run the testcases
-     * (other than the main one used to initialize the
-     * Runtime class).  Hence we need a litte hack to register
-     * the thread used to run the testcase as a 'local' thread
-     * with the Runtime.
- 
-    public void setUp() {
-        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
-        Place[] pls = Place.places();
-        if (r instanceof ThreadRegistry) {
-            Thread t = Thread.currentThread();
-            ThreadRegistry tr = (ThreadRegistry) r;
-            tr.registerThread(t, pls[0]);
-            tr.registerActivityStart(t, a, null);
-        }
-    }
-        */
-    /**
-     * Clean-up effects from setUp().
-  
-    public void tearDown() {
-        DefaultRuntime_c r = (DefaultRuntime_c) Runtime.runtime;
-        if (r instanceof ThreadRegistry) {
-            Thread t = Thread.currentThread();
-            ThreadRegistry tr = (ThreadRegistry) r;
-            tr.registerActivityStop(t, a);
-        }
-    }
-       */
-    public void testRegion_iterator1() {
+    public void testRegion_iterator1() {    	
     	Runtime.runAsync( new Activity() { public void run() {
-        Range[] ranges = new Range[] { new ContiguousRange(1,3), new ContiguousRange(2, 4) }; // 6x4         
-        MultiDimRegion reg = new MultiDimRegion(ranges);
-        
-        int cnt = 0;
-        for (Iterator it = reg.iterator(); it.hasNext(); ) {
-            point p = (point) it.next();
-            System.out.println(p);
-            cnt++;
-        }
-        assertTrue(cnt == 9);
-    	}});
+    		Range[] ranges = new Range[] { new ContiguousRange(1,3), new ContiguousRange(2, 4) }; // 6x4         
+    		MultiDimRegion reg = new MultiDimRegion(ranges);
+    		
+    		int cnt = 0;
+    		for (Iterator it = reg.iterator(); it.hasNext(); ) {
+    			point p = (point) it.next();
+    			System.out.println(p);
+    			cnt++;
+    		}
+    		assertTrue(cnt == 9);
+    		}
+    	});
     }
     
     public void testRegion_sub() {
