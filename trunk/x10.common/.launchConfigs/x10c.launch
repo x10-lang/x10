@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="polyglot.main.Main"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-ext x10  ${resource_loc}  -sourcepath ${workspace_loc:x10.examples}/src/Applications -report cfg=1  -assert -post &quot;javac -source 1.4&quot; -noserial"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-ext x10  ${resource_loc}  -sourcepath ${workspace_loc:x10.common}/src/Applications -report cfg=1  -assert -post &quot;javac -source 1.4&quot; -noserial"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="x10.compiler"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Dx10.configuration=${workspace_loc:x10.examples}/etc/standard.cfg"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Dx10.configuration=${workspace_loc:x10.common}/etc/standard.cfg"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
