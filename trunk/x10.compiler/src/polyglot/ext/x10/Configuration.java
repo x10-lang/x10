@@ -1,7 +1,7 @@
 /*
  * Created on Sep 28, 2004
  */
-package polyglot.ext.x10.visit;
+package polyglot.ext.x10;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
