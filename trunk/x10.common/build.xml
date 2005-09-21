@@ -11,6 +11,9 @@
 	<property name="etc"  location="${basedir}/etc"/>
 	<property name="testdir"  location="${basedir}/examples"/>	
     <path id="project.classpath"/>
+	<!-- vj: get the environment variables. -->
+	<!-- vj: This works on Windows/cygwin. -->
+	<property environment="env" />
 	
     <target name="init"/>
 	
