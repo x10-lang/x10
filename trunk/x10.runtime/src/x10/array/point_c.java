@@ -34,9 +34,49 @@ public class point_c extends point implements Comparable {
 		public point point( int i, int j, int k , int l, int m) {
 			return point(new int[] { i, j, k, l, m});
 		}
-		
+
+        
 	}
-	
+
+        public void serialize(x10.runtime.distributed.SerializerBuffer outputBuffer){
+          Integer originalIndex = outputBuffer.findOriginalRef(this);
+
+          if(originalIndex == null){
+            originalIndex = new Integer(outputBuffer.getOffset());
+            outputBuffer.recordRef(this,originalIndex);
+          }
+          else {
+             outputBuffer.writeLong(originalIndex.intValue());
+             return;
+          }
+          outputBuffer.writeLong(originalIndex.intValue());
+          int arraySize = val.length;
+          outputBuffer.writeLong(arraySize);
+          
+          for(int i=0;i < arraySize;++i){
+             outputBuffer.writeLong(val[i]);
+          }
+        }
+
+     public static point_c deserialize(x10.runtime.distributed.DeserializerBuffer inputBuffer){
+       int thisIndex = inputBuffer.getOffset();
+       int owningIndex = (int)inputBuffer.readLong();
+       
+       if(thisIndex != owningIndex){
+        point_c p = (point_c)inputBuffer.getCachedRef(owningIndex);
+         return p;
+       }
+       int arraySize = (int)inputBuffer.readLong();
+       
+       int array[] = new int[arraySize];
+       for(int i=0;i < arraySize;++i)
+          array[i] = (int)inputBuffer.readLong();
+
+       point_c result = (point_c)factory.point(array);
+       inputBuffer.cacheRef(owningIndex,result);
+       return result;
+     }  
+
 	private final int[] val;
 	private final int hash_;
 	
