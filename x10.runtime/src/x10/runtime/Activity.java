@@ -417,7 +417,7 @@ public abstract class Activity implements Runnable {
         rv = rv + " " + finishState_ + "," + rootNode_;
         if (activityAsSeenByInvokingVM != thisActivityIsLocal) {
             if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-                rv = rv + ", Surrogate for vm " + placeWhereRealActivityIsRunning.vm_;
+                rv = rv + ", Surrogate for vm " + placeWhereRealActivityIsRunning;//.vm_;
             } else {
                 rv = rv + "," + Long.toHexString(activityAsSeenByInvokingVM) +
                     " on " + invokingVM;

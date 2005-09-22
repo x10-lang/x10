@@ -204,50 +204,6 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
     
 
     /**
-     * copy any non-intersecting points between dest and src to
-     * dest for all the povided region, which is on a particular place
-     * This code must be executed at this place.
-     * We assume that destArray and baseArray have the same
-     * distribution
-     * @param dest
-     * @param src
-     * @param localRegion
-     */
-    public void copyDisjoint(x10Array dest,x10Array src,region localRegion){
-    	IntArray destArray = (IntArray)dest;
-    	IntArray srcArray = (IntArray)src;
-    	
-    	dist destDist=destArray.distribution;
-		for(Iterator it = localRegion.iterator();it.hasNext();){
-			point p = (point) it.next();
-			assert(Runtime.here() == destArray.distribution.get(p));
-			if(!destDist.contains(p)){
-				destArray.set(destArray.get(p),p);
-			}
-		}
-    }
-    
-  /**
-   * Copy src to dest over region localRegion, which is assumed to be on here for
-   * both src and dest
-   * @param dest
-   * @param src
-   * @param localRegion
-   */
-    public void copyLocalSection(x10Array dest,x10Array src,region localRegion){
-    	IntArray destArray = (IntArray)dest;
-    	IntArray srcArray = (IntArray)src;
-		for(Iterator it = localRegion.iterator();it.hasNext();)	{
-			point p = (point)it.next();
-			assert srcArray.region.contains(p);
-			assert destArray.region.contains(p);
-			destArray.set(srcArray.get(p),p);
-		}
-    }
-		
-    
-
-    /**
      * Generic flat access.
      */
     public abstract int set(int v, point pos);

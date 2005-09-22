@@ -122,6 +122,7 @@ public final class Configuration {
     private static boolean done_;
     
     public static boolean isMultiNodeVM() { return NUMBER_OF_VMS > 1;}
+    public static boolean runBootHere = true;
     
     /**
      * Parses the command line.  This allows the user to specify 

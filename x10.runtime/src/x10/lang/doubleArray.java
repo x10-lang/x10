@@ -11,13 +11,13 @@ package x10.lang;
 
 import java.util.Iterator;
 
-abstract public class doubleArray /*( distribution distribution )*/ 
-/*implements Cloneable, Serializable */
-implements Indexable, Unsafe {
+abstract public class doubleArray extends x10Array{
 
 	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
+
+	public dist getDistribution() { return distribution;}
 	
 	protected doubleArray( dist D) {
 		this.distribution = D;

@@ -13,17 +13,6 @@ import x10.runtime.distributed.FatPointer;
 public abstract class Place extends place 
 implements Comparable {
 	
-        public final int vm_;       // index into VMInfo.VM_
-        public final int place_no_; // index into runtime.getLocalPlaces()
-                                    //    when evaluated on VM identified
-                                    //    by vm_
-
-	protected Place(int vm_, int place_no_) {
-		super();
-                this.vm_ = vm_;
-                this.place_no_ = place_no_;
-	}
-	
 	public abstract void runAsync(Activity a);
 	
 	/**
@@ -85,11 +74,6 @@ implements Comparable {
         // works because every place has unique id
         return this == o;
     }
-    
-    public abstract void mapToCorrectPlace(java.lang.Object o);
-    public abstract FatPointer registerGlobalObject(java.lang.Object o);
-    public abstract FatPointer shadowRemoteGlobalObject(java.lang.Object o,long key);
-    public abstract FatPointer findGlobalObject(java.lang.Object o);
-    public abstract FatPointer findGlobalObject(long key);
+
 } // end of Place
 
