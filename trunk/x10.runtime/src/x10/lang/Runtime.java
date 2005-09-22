@@ -9,7 +9,6 @@ import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
 import x10.runtime.Report;
-import x10.runtime.distributed.FatPointer;
 
 
 /**
@@ -137,11 +136,6 @@ public abstract class Runtime {
     
     public abstract Activity currentActivity();
     public abstract Place[] getPlaces();
-    /**
-     * perhaps getLocalPlaces doesn't belong in lang.Runtime...it's
-     * convenient for now.
-     */
-    public abstract Place[] getLocalPlaces();
     
     /**
      * @return The place of the thread executing the current activity. 
@@ -270,10 +264,4 @@ public abstract class Runtime {
 	    return true;
 	}
 	
-	// Support the separate namespace for global objects at each place
-	 public static FatPointer registerGlobalObject(java.lang.Object o){
-		//TODO check if o is a global object
-	 	return here().registerGlobalObject(o);
-	 }
-   
 } // end of Runtime

@@ -58,7 +58,6 @@ import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
 import x10.runtime.distributed.RemotePlace;
-import x10.runtime.distributed.VMInfo;
 
 /**
  * Default implementation of Runtime. Considerably revised 5/16 by vj
@@ -75,60 +74,40 @@ public class DefaultRuntime_c extends Runtime {
      * The places of this X10 Runtime (for now a constant set).
      */
     protected final Place[] places_;
-    /**
-     * localPlaces_ is a subset of places_
-     */
-    protected final Place[] localPlaces_;
-    
+
     public DefaultRuntime_c() {
-        int pc = 0;
-        int lp = 0;
-        if (Configuration.VM_ == null) {
-            lp = pc = Configuration.NUMBER_OF_LOCAL_PLACES;
-        } else {
-            for (int i = 0; i < Configuration.VM_.length; ++i) {
-                pc += Configuration.VM_[i].numberOfPlaces;
-            }
-            lp = Configuration.VM_[VMInfo.THIS_IS_VM].numberOfPlaces;
-        }
-        this.places_ = new Place[pc];
-        this.localPlaces_ = new Place[lp];
+        this.places_ = new Place[Configuration.NUMBER_OF_LOCAL_PLACES];
     }
     
     /**
      * Initialize the places in the XVM.
      */
+    protected void createPlaces() {
+        int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
+        x10.lang.place.MAX_PLACES = pc;
+        for (int i=0;i<pc;i++)
+            places_[i] = new LocalPlace_c();
+        place.initialize();
+    }
     protected synchronized void initialize() {
         // do it only once
         if (places_[0] == null) {
-            if (Configuration.VM_ == null) {
-                int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
-                x10.lang.place.MAX_PLACES = pc;
-                for (int i=0;i<pc;i++)
-                    places_[i] = new LocalPlace_c(0, i);
-            } else {
-                x10.lang.place.MAX_PLACES= places_.length;
-                int p = 0;
-                // Here is where places are created.  The way this loop
-                // executes, places 0..N1 are in VM 0, places N1+1..N2
-                // are in VM 1, etc.  However, there is no particular reason
-                // that this must be the case.
-                for (int i = 0; i < Configuration.VM_.length; ++i) {
-                    for (int j = 0; j < Configuration.VM_[i].numberOfPlaces; ++j, ++p) {
-                        if (i == VMInfo.THIS_IS_VM) {
-                            places_[p] = new LocalPlace_c(i, j);
-                            localPlaces_[j] = places_[p];
-                        } else {
-                            places_[p] = new RemotePlace(i, j);
-                        }
-                    }
-                }
-            }
-            place.initialize();
+            createPlaces();
         }
         LocalPlace_c.initAllPlaceTimes(getLocalPlaces());
     }
 
+    protected synchronized void loadAndInitLibs() {
+    	if (null != Configuration.LOAD) {
+    		String[] libs = Configuration.LOAD.split(":");
+    		for (int i=libs.length-1;i>=0;i--)
+    			System.loadLibrary(libs[i]);
+    	}
+    }
+   
+    protected synchronized void finalizeAndTermLibs() {
+    }
+   
     /**
      * Run the X10 application.
      */
@@ -146,17 +125,8 @@ public class DefaultRuntime_c extends Runtime {
     		}
     	}
     	// first: load libraries!
-    	if (null != Configuration.LOAD) {
-    		String[] libs = Configuration.LOAD.split(":");
-    		for (int i=libs.length-1;i>=0;i--)
-    			System.loadLibrary(libs[i]);
-    	}
+        loadAndInitLibs();
 
-        // in multi-VM configuration, start up LAPI support
-        if (Configuration.VM_ != null) {
-           VMInfo.init(Configuration.VM_, this);
-        }
-        
     	// Find the applications main activity.
     	java.lang.Object[] tmp = { args };
     	Activity atmp = null;
@@ -201,13 +171,13 @@ public class DefaultRuntime_c extends Runtime {
             		Sampling.shutdown();
             	}
             	// and now the shutdown sequence!
-            	// places_[] should have been initialized by now ... 
-            	for (int i=places_.length-1; i >= 0;i--) {
+            	// places_[] should have been initialized by now ...
+            	for (int i=getPlaces().length-1; i >= 0;i--) {
             		if (Report.should_report("activity", 5)) {
-                		Report.report(5, PoolRunner.logString() + " shutting down " + places_[i]);
+                		Report.report(5, PoolRunner.logString() + " shutting down " + getPlaces()[i]);
                 				
                 	}
-            		places_[i].shutdown();
+            		getPlaces()[i].shutdown();
             	}
             	
             	if (Report.should_report("activity", 5)) {
@@ -215,9 +185,7 @@ public class DefaultRuntime_c extends Runtime {
             				
             	}
             	// The VM goes bye bye.
-            	if (Configuration.VM_ != null) {
-                   VMInfo.term();
-                }
+                finalizeAndTermLibs();
                 Runtime.x10Exit();
             }
             
@@ -227,25 +195,11 @@ public class DefaultRuntime_c extends Runtime {
             Sampling.boot(DefaultRuntime_c.this, boot);
 
         // Run the boot activity.
-        if (Configuration.VM_ == null || getPlaces()[0].vm_ == VMInfo.THIS_IS_VM) {
+        if (Configuration.runBootHere) {
             Runtime.runAsync(boot);
-        } else {
-           int localPlacesShutdown;
-           do {
-              try {
-                 Thread.sleep(50);
-              } catch (InterruptedException ie) {
-              }
-              localPlacesShutdown = 0;
-              for (int i = 0; i < getLocalPlaces().length; ++i) {
-                 if (((LocalPlace_c) getLocalPlaces()[i]).isShutdown()) {
-                    ++localPlacesShutdown;
-                 }
-              }
-           } while (localPlacesShutdown != getLocalPlaces().length);
-           VMInfo.term();
-           Runtime.x10Exit();
         }
+
+        finalizeAndTermLibs();
 
         // Main thread terminates. bootActivity will now carry on.
         // VM terminates when bootActivity terminates.
@@ -326,13 +280,8 @@ public class DefaultRuntime_c extends Runtime {
         return places_;
     }
 
-    public Place[] getLocalPlaces() {
-        if (Configuration.VM_ == null)
-            return getPlaces();
-        if (places_[0] == null) 
-            initialize();
-        assert localPlaces_[0] != null;
-        return localPlaces_;
+    protected Place[] getLocalPlaces() {
+       return getPlaces();
     }
     
     public Factory getFactory() {
