@@ -73,7 +73,7 @@ public class DefaultRuntime_c extends Runtime {
     /**
      * The places of this X10 Runtime (for now a constant set).
      */
-    protected final Place[] places_;
+    protected /*final*/ Place[] places_;
 
     public DefaultRuntime_c() {
         this.places_ = new Place[Configuration.NUMBER_OF_LOCAL_PLACES];
