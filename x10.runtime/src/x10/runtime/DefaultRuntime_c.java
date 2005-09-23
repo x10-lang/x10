@@ -82,7 +82,7 @@ public class DefaultRuntime_c extends Runtime {
     /**
      * Initialize the places in the XVM.
      */
-    protected void createPlaces() {
+    protected synchronized void createPlaces() {
         int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
         x10.lang.place.MAX_PLACES = pc;
         for (int i=0;i<pc;i++)
@@ -91,7 +91,7 @@ public class DefaultRuntime_c extends Runtime {
     }
     protected synchronized void initialize() {
         // do it only once
-        if (places_[0] == null) {
+        if (getPlaces()[0] == null) {
             createPlaces();
         }
         LocalPlace_c.initAllPlaceTimes(getLocalPlaces());
@@ -105,7 +105,7 @@ public class DefaultRuntime_c extends Runtime {
     	}
     }
    
-    protected synchronized void finalizeAndTermLibs() {
+    protected void finalizeAndTermLibs() {
     }
    
     /**
@@ -227,10 +227,10 @@ public class DefaultRuntime_c extends Runtime {
      * @see setCurrentPlace(place)
      */
     public synchronized Place currentPlace() {
-        if (places_[0] == null) 
+        if (getPlaces()[0] == null) 
                 initialize();
-        if (places_.length == 1)
-                return places_[0]; // fast path for simple test environments!
+        if (getPlaces().length == 1)
+                return getPlaces()[0]; // fast path for simple test environments!
         Thread t = Thread.currentThread();
         Place ret = null;
         if (t instanceof PoolRunner) {
