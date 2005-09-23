@@ -42,7 +42,7 @@
     </target>
     <!-- the following lines have only ever been tested on AIX -->
     <!-- they build the LAPI support library -->
-    <target name="lapi-support" depends="declareLAPISupportTask">
+    <target name="lapi-support">
 	<exec dir="lapi_support" executable="/usr/bin/ksh">
 	   <arg line="buildLAPISupport.ksh"/>
 	</exec>
