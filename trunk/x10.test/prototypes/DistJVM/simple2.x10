@@ -14,7 +14,7 @@ public class simple2 {
 	finish for(point p[i]: e){
 	  async(array.distribution[p]){ 
 	    array[p] = i;
-	    System.out.println("a["+p+"] "+array[p]);
+	    System.out.println(here+":a["+p+"] "+array[p]+" i:"+i);
 	  }
 	}
 	finish async(array.distribution[index]){ array[index] = 99;System.out.println("set a");}
