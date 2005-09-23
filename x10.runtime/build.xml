@@ -29,6 +29,8 @@
     <target name="clean">
         <delete dir="classes"/>
     </target>
+    <!-- uncomment the following line (and comment out the next one) to build LAPI -->
+    <!-- target name="build" depends="init,lapi-support" -->
     <target name="build" depends="init">
         <ant antfile="${pe.location}/build.xml" inheritAll="false"/>
         <ant antfile="${x10.common.location}/build.xml" inheritAll="false"/>
@@ -38,4 +40,12 @@
             <classpath refid="project.classpath"/>
         </javac>
     </target>
+    <!-- the following lines have only ever been tested on AIX -->
+    <!-- they build the LAPI support library -->
+    <target name="lapi-support" depends="declareLAPISupportTask">
+	<exec dir="lapi_support" executable="/usr/bin/ksh">
+	   <arg line="buildLAPISupport.ksh"/>
+	</exec>
+    </target>
+    <!-- the preceding lines have only ever been tested on AIX -->
 </project>
