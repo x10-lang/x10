@@ -11,7 +11,9 @@ public class simple {
 	final region copy_e = e;
 	final dist d=dist.factory.block(e);
 	final int[.] array = new int[d];
+	System.out.println("after init");
 	finish async(array.distribution[index]){array[index] = 99;System.out.println("set a");}
+	System.out.println("after init2");
 	async(array.distribution[index]){
 	  System.out.println("a["+index+"] is:"+array[index]);
 	  System.out.println("region e:"+e);
