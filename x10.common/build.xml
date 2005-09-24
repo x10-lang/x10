@@ -107,6 +107,8 @@
 		<echo file="${etc}/standard.cfg" append="no"># This file was automatically generated during the configure process of this x10 installation.
 
 COMPILER_FRAGMENT_DATA_DIRECTORY=${basedir}${file.separator}..${file.separator}x10.compiler${file.separator}data${file.separator}
+#Uncomment to compile for multi-VM mode
+#COMPILER_FRAGMENT_DATA_EXT_DIRECTORY=${basedir}${file.separator}..${file.separator}x10.compiler${file.separator}dataext${file.separator}
 SAMPLING_FREQUENCY_MS=50
 STATISTICS_DISABLE=none</echo>
 	</target>
