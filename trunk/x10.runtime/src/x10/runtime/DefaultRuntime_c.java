@@ -91,7 +91,7 @@ public class DefaultRuntime_c extends Runtime {
     }
     protected synchronized void initialize() {
         // do it only once
-        if (getPlaces()[0] == null) {
+        if (places_[0] == null) {
             createPlaces();
         }
         LocalPlace_c.initAllPlaceTimes(getLocalPlaces());
@@ -220,6 +220,7 @@ public class DefaultRuntime_c extends Runtime {
             pr.place = (LocalPlace_c) p;
         } 
     }
+
     /**
      * The place at which the current Thread is running, as recorded in the PoolRunner.
      * Is different from currentActivity().getPlace() only in very special circumstances,
