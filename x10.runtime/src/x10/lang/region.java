@@ -242,9 +242,7 @@ implements TypeArgument, ValueType {
     	return dist.factory.local( this);
     }
 
-    public void serialize(x10.runtime.distributed.SerializerBuffer b){
-       throw new RuntimeException("Should never be called");
-    }
+    abstract public void serialize(x10.runtime.distributed.SerializerBuffer b);
 
     public static region deserialize(DeserializerBuffer inputBuffer){
           int thisIndex = inputBuffer.getOffset();
@@ -255,10 +253,14 @@ implements TypeArgument, ValueType {
           }
           
           int type = (int)inputBuffer.readLong();
+	  if(false)System.out.println("region: serialize:"+type);
           region result=null;
           switch(type){
           case RANGE:
              result = x10.array.Range.deserializeRange(inputBuffer);
+             break;
+        case MULTIDIM:
+             result = x10.array.MultiDimRegion.deserializeMultiDim(inputBuffer);
              break;
 
              //TODO: implement deserialization of other region types
@@ -266,11 +268,10 @@ implements TypeArgument, ValueType {
            //break;
         case BANDED:
            // break;
-        case MULTIDIM:
-           // break;
            case TRIANGULAR:
               //break;
           default:
+	  System.out.println ("Unexpected range type "+type);
              throw new RuntimeException("Unexpected range type "+type);
           }
         
