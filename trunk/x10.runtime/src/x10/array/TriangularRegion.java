@@ -210,4 +210,8 @@ public class TriangularRegion extends region {
         return sb.toString();
     }
 
+    public void serialize(x10.runtime.distributed.SerializerBuffer b){
+       System.out.println("No support yet for "+this.getClass().getName());
+       throw new RuntimeException("No support yet for "+this.getClass().getName());
+    }
 }
