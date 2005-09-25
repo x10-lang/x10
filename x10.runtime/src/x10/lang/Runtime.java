@@ -161,9 +161,7 @@ public abstract class Runtime {
                 o != null &&
                 o instanceof x10.lang.Object &&
                 ! (o instanceof ValueType)) {
-            x10.lang.Object x10o = (x10.lang.Object) o;
-            if (!x10o.getLocation().equals(here()))
-                throw new BadPlaceException(x10o, here());
+            return hereCheckPlace(((x10.lang.Object) o).getLocation());
         }
         return o;
     }
