@@ -161,7 +161,7 @@ public abstract class Runtime {
                 o != null &&
                 o instanceof x10.lang.Object &&
                 ! (o instanceof ValueType)) {
-            return hereCheckPlace(((x10.lang.Object) o).getLocation());
+            hereCheckPlace(((x10.lang.Object) o).getLocation());
         }
         return o;
     }
