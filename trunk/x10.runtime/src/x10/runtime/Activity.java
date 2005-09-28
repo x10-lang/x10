@@ -477,10 +477,10 @@ public abstract class Activity implements Runnable {
        final boolean trace = false;
 
        if(trace) System.out.println("Deserializing "+this.getClass().getName());
-       Deserializer deserializer = new Deserializer(this);
+       Deserializer deserializer = new Deserializer(this,pl);
        deserializer.deserializeClocks(clocks_,new DeserializerBuffer(clocksMappedToGlobalAddresses));
 
-       deserializer.deserialize(pl,new DeserializerBuffer(pseudoSerializedLongArray));
+       deserializer.deserialize(new DeserializerBuffer(pseudoSerializedLongArray));
   
     }
 
