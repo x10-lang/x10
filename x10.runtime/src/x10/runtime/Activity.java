@@ -221,6 +221,7 @@ public abstract class Activity implements Runnable {
     		startFinish();
     		r.run();
     	} catch (Throwable t) {
+	   System.out.println(x10.lang.Runtime.here()+":in finish run exception:"+t);
     		pushException(t);
     	} 
     	stopFinish();

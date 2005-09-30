@@ -170,9 +170,9 @@ public class LocalPlace_c extends Place {
 		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
 				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
 			mapToCorrectPlace(a);
-			runAsync( a, false);	
+			runAsync( a, false);
 		} else {
-			a.pseudoDeSerialize(this);
+		        if(false)a.pseudoDeSerialize(this);
 			runAsync( a, true);
 		}
 	}
@@ -180,9 +180,9 @@ public class LocalPlace_c extends Place {
 	public void runAsyncNoRemapping(final Activity a) {
 		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
 				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {			
-			runAsync( a, false);	
+			runAsync( a, false);
 		} else {
-			a.pseudoDeSerialize(this);
+		        if(false)a.pseudoDeSerialize(this);
 			runAsync( a, true);
 		}
 	}
@@ -193,9 +193,10 @@ public class LocalPlace_c extends Place {
 	 * @param a
 	 */
 	public void finishAsync( final Activity a) {
+	//System.out.println("X X X X X X X  finishAsync");
 		runAsync( a, true);
 	}
-	protected void runAsync(final Activity a, final boolean finish) {
+	protected void runAsync(final Activity a, final boolean finish){
 		
 		Thread currentThread = Thread.currentThread();  
 		if (currentThread instanceof ActivityRunner && a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal) {
@@ -203,6 +204,8 @@ public class LocalPlace_c extends Place {
 			Activity parent = ((ActivityRunner) currentThread).getActivity();
 			parent.finalizeActivitySpawn(a);
 		}
+		final boolean performDeserialization = true && !(a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
+				                        a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate);
 		
 		a.initializeActivity();
 		this.execute(new Runnable() {
@@ -217,6 +220,11 @@ public class LocalPlace_c extends Place {
 				t.setActivity(a);
                                 a.setPlace(LocalPlace_c.this);
 				
+				// need to perform deserialization after runtime
+				// for this place is setup so we can create x10 objects
+			        if(performDeserialization){
+				  a.pseudoDeSerialize(LocalPlace_c.this);
+				}
 				try {
 					if (finish) {
 						a.finishRun();
