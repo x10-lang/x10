@@ -207,6 +207,7 @@ implements Indexable, ValueType {
 		public 
 		/*(region R)*/ dist/*(R)*/ block( final region R ) {
 			final dist/*(R)*/ result = this.block/*(R)*/(R, x10.lang.place.places);
+                        result._distributionType = BLOCK;
 			assert result.region.equals(R); 
 			return result;
 		}
@@ -226,7 +227,7 @@ implements Indexable, ValueType {
                       
 			/*final*/ dist result = this.cyclic/*(R)*/(R, x10.lang.place.places);
 			assert result.region.equals(R);
-                          result._distributionType = CYCLIC;
+                        result._distributionType = CYCLIC;
 			return result;
 		}
 		
