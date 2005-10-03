@@ -5,7 +5,7 @@
        #2__.hasNext();
        ) {
    #0 #1 #2 = (#1) #2__.next();
-   ((x10.runtime.Place) #2__distCopy.get(#2)).runAsync
+   ((x10.runtime.Place) #2__distCopy.get(#2)).runAsyncLater
        (new x10.runtime.Activity(new x10.runtime.List(){ 
    public java.util.List run() {
     java.util.LinkedList clocks = new java.util.LinkedList();

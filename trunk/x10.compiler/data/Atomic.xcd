@@ -1,11 +1,10 @@
 // atomic 0
 try {
-	if (x10.runtime.Sampling.SINGLETON != null) 
-	    x10.runtime.LoadMonitored.blocked(x10.runtime.Sampling.CAUSE_ATOMIC, 0, null);
+	x10.runtime.LoadMonitored.blocked(x10.runtime.Sampling.CAUSE_ATOMIC, 0, null);
 	synchronized (x10.lang.Runtime.here()) {
-  	    if (x10.runtime.Sampling.SINGLETON != null) {
-  	        x10.runtime.LoadMonitored.unblocked(x10.runtime.Sampling.CAUSE_ATOMIC, 0, null);
-	        x10.runtime.Sampling.SINGLETON.signalEvent(x10.runtime.Sampling.EVENT_ID_ATOMIC_ENTRY);
+  	    x10.runtime.LoadMonitored.unblocked(x10.runtime.Sampling.CAUSE_ATOMIC, 0, null);
+	    if (x10.runtime.Sampling.SINGLETON != null) {
+  	        x10.runtime.Sampling.SINGLETON.signalEvent(x10.runtime.Sampling.EVENT_ID_ATOMIC_ENTRY);
 	    }
 		try {
 			#0

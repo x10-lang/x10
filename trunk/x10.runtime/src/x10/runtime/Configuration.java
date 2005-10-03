@@ -113,6 +113,12 @@ public final class Configuration {
     public static String STATISTICS_DISABLE = "none";
 
     /**
+     * Enables new (experimental) ateach and foreach optimization (code by C. Grothoff
+     * and R. Barik).  Default to off until that code is sufficiently tested...
+     */
+    public static boolean OPTIMIZE_FOREACH = false;
+    
+    /**
      * Which shared libraries should be loaded?  The format
      * is libraryname[:libraryname]*.  Null or "" are valid
      * entries (for not loading any libraries).   

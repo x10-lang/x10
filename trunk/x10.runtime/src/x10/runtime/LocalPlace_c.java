@@ -1,13 +1,9 @@
 package x10.runtime;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.LinkedList;
+import java.util.Stack;
 
 import x10.lang.Future;
-import x10.lang.place;
-import x10.lang.x10Array;
 /**
  * A LocalPlace_c is an implementation of a place
  * that runs on this Java Virtual Machine.  In the
@@ -95,6 +91,12 @@ public class LocalPlace_c extends Place {
 	private long startBlock; 
 	
 	/**
+	 * List of activities that are waiting for a thread, to be
+	 * launched when the local place becomes idle.
+	 */
+	private final Stack waitingActivities = new Stack();
+	
+	/**
 	 * Get how many cycles were spent in computation or blocked at this 
 	 * place so far.  Only (sort of) works on JikesRVM where we can get
 	 * per-thread cycle counts.
@@ -170,14 +172,17 @@ public class LocalPlace_c extends Place {
 		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
 				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
 			mapToCorrectPlace(a);
-			runAsync( a, false);
+			prepareAsync(a);
+			runAsync( a, false);	
 		} else {
-		        if(false)a.pseudoDeSerialize(this);
+			if (false) a.pseudoDeSerialize(this);
+			prepareAsync(a);
 			runAsync( a, true);
 		}
 	}
    
 	public void runAsyncNoRemapping(final Activity a) {
+		prepareAsync(a);
 		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
 				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {			
 			runAsync( a, false);
@@ -186,6 +191,35 @@ public class LocalPlace_c extends Place {
 			runAsync( a, true);
 		}
 	}
+
+	public void runAsyncLater(Activity a) {
+		if (Configuration.OPTIMIZE_FOREACH) {
+			if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
+					a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
+				mapToCorrectPlace(a);
+				prepareAsync(a);
+				waitingActivities.push(a);
+				changeRunningStatus(0);
+			} else {
+				a.pseudoDeSerialize(this);
+				prepareAsync(a);
+				waitingActivities.push(a);
+				changeRunningStatus(0);
+			}
+		} else {
+			runAsync(a);
+		}
+	}	
+	
+	private void prepareAsync(Activity a) {
+		Thread currentThread = Thread.currentThread();  
+		if (currentThread instanceof ActivityRunner && a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal) {
+			// This will not be executed only for bootActivity.
+			Activity parent = ((ActivityRunner) currentThread).getActivity();
+			parent.finalizeActivitySpawn(a);
+		}
+		a.initializeActivity();
+	}
     
 	/**
 	 * Run this activity asynchronously, as if it is wrapped in a finish.
@@ -193,21 +227,15 @@ public class LocalPlace_c extends Place {
 	 * @param a
 	 */
 	public void finishAsync( final Activity a) {
-	//System.out.println("X X X X X X X  finishAsync");
+		//System.out.println("X X X X X X X  finishAsync");
+		prepareAsync(a);
 		runAsync( a, true);
 	}
-	protected void runAsync(final Activity a, final boolean finish){
-		
-		Thread currentThread = Thread.currentThread();  
-		if (currentThread instanceof ActivityRunner && a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal) {
-			// This will not be executed only for bootActivity.
-			Activity parent = ((ActivityRunner) currentThread).getActivity();
-			parent.finalizeActivitySpawn(a);
-		}
+	
+	protected void runAsync(final Activity a, final boolean finish) {
 		final boolean performDeserialization = true && !(a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-				                        a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate);
-		
-		a.initializeActivity();
+                a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate);
+
 		this.execute(new Runnable() {
 			public void run() {
 				// Get a thread to run this activity.
@@ -218,7 +246,7 @@ public class LocalPlace_c extends Place {
 				
 				// Install the activity.
 				t.setActivity(a);
-                                a.setPlace(LocalPlace_c.this);
+                a.setPlace(LocalPlace_c.this);
 				
 				// need to perform deserialization after runtime
 				// for this place is setup so we can create x10 objects
@@ -343,13 +371,19 @@ public class LocalPlace_c extends Place {
 	 */
 	/*package*/ synchronized void changeRunningStatus(int delta) {
 		if (runningThreads == 0) {
-			assert delta > 0;
+			assert delta >= 0;
 			this.blockedTime += systemNow() - startBlock;
 		}
 		runningThreads += delta;
 		if (runningThreads == 0) {
-			assert delta < 0;
+			assert delta <= 0;
 			startBlock = systemNow();
+			if (! waitingActivities.isEmpty()) {
+				Activity a = (Activity) waitingActivities.pop();
+				runAsync(a,
+						 ! ((a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
+						     a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate)));				
+			}
 		}
 	}
 	
