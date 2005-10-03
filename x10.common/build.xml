@@ -43,6 +43,7 @@
 				<include name="**/*.pem"/>
 				<include name="**/*_x10stub.c"/>
 				<include name="**/log*"/>
+				<include name="**/TMP_*"/>
 				<include name="**/javacore*"/>
 				<include name="**/heapdump*"/>
 				<include name="**/ErrorsLog"/>
