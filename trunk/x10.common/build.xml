@@ -21,14 +21,17 @@
 		<delete>
 			<fileset dir="${etc}">
 				<include name="standard.cfg"/>
+				<include name="multivm.cfg"/>
 			</fileset>
 		</delete>
 		<delete>
 			<fileset dir="${bin}">
 				<include name="x10"/>
 				<include name="x10c"/>
+				<include name="mvmx10c"/>
 				<include name="junit"/>
 				<include name="defs"/>
+				<include name="multivm-defs"/>
 				<include name="dotest"/>
 				<include name="dounittest"/>
 			</fileset>
@@ -57,6 +60,7 @@
           unless="bin.up-to-date">
 		<antcall target="x10"/>
 		<antcall target="x10c"/>
+		<antcall target="mvmx10c"/>
 		<antcall target="junit"/>
 		<antcall target="dotest"/>
 		<antcall target="dounittest"/>
@@ -73,6 +77,7 @@
 		<condition property="etc.up-to-date">
 			<and>
 				<available file="${etc}/standard.cfg"/>
+				<available file="${etc}/multivm.cfg"/>
 			</and>
 		</condition>
 	</target>
@@ -81,12 +86,15 @@
 		<dependset>
 			<srcfileset dir="${bin}" includes="x10c.in"/>
 			<targetfileset dir="${bin}" includes="x10c"/>
+			<targetfileset dir="${bin}" includes="mvmx10c"/>
 		</dependset>
 		<condition property="bin.up-to-date">
 			<and>
 				<available file="${bin}/standard.cfg"/>
+				<available file="${bin}/multivm.cfg"/>
 				<available file="${bin}/x10"/>
 				<available file="${bin}/x10c"/>
+				<available file="${bin}/mvmx10c"/>
 				<available file="${bin}/junit"/>
 				<available file="${bin}/dotest"/>
 				<available file="${bin}/dounittest"/>
@@ -102,13 +110,20 @@
 
 
 	<target name="config" depends="config-deps" unless="config.up-to-date"
-	          description="creates the default config file">
+	          description="creates the default and multi-vm config files">
 		<echo message="Creating ${etc}/standard.cfg"/>
 		<echo file="${etc}/standard.cfg" append="no"># This file was automatically generated during the configure process of this x10 installation.
 
 COMPILER_FRAGMENT_DATA_DIRECTORY=${basedir}${file.separator}..${file.separator}x10.compiler${file.separator}data${file.separator}
-#Uncomment to compile for multi-VM mode
-#COMPILER_FRAGMENT_DATA_EXT_DIRECTORY=${basedir}${file.separator}..${file.separator}x10.compiler${file.separator}dataext${file.separator}
+SAMPLING_FREQUENCY_MS=50
+STATISTICS_DISABLE=none</echo>
+
+		<echo message="Creating ${etc}/multivm.cfg"/>
+		<echo file="${etc}/multivm.cfg" append="no"># This file was automatically generated during the configure process of this x10 installation.
+
+COMPILER_FRAGMENT_DATA_DIRECTORY=${basedir}${file.separator}..${file.separator}x10.compiler${file.separator}data${file.separator}
+#Comment to compile for single node(reference) VM
+COMPILER_FRAGMENT_DATA_EXT_DIRECTORY=${basedir}${file.separator}..${file.separator}x10.compiler${file.separator}dataext${file.separator}
 SAMPLING_FREQUENCY_MS=50
 STATISTICS_DISABLE=none</echo>
 	</target>
@@ -135,7 +150,38 @@ FILE_SEP='${file.separator}'
 PATH_SEP='${path.separator}'
 TOP='${basedir}'
 X10_PLATFORM='${env.X10_PLATFORM}'
+CONFIG_FILE='standard.cfg'
     </echo>
+		<echo file="${bin}/multivm-defs" append="no">#!/bin/sh
+# DO NOT EDIT - This file was automatically generated.
+
+JAVA='${env.JAVA_HOME}${file.separator}bin${file.separator}java'
+FILE_SEP='${file.separator}'
+PATH_SEP='${path.separator}'
+TOP='${basedir}'
+X10_PLATFORM='${env.X10_PLATFORM}'
+CONFIG_FILE='multivm.cfg'
+    </echo>
+	</target>
+
+	<target name="mvmx10c" 
+          depends="executable-defs" 
+          description="creates the executable script mvmx10c">
+		<echo message="Creating ${bin}/mvmx10c"/>
+		<concat destfile="${bin}/mvmx10c" append="no">
+			<filelist dir="${bin}" files="multivm-defs"/>
+		</concat>
+		<echo file="${bin}/mvmx10c" append="yes">
+ext=""
+
+</echo>
+		<concat destfile="${bin}/mvmx10c" append="yes">
+			<filelist dir="${bin}" files="x10c.in"/>
+		</concat>
+
+		<chmod perm="+x" file="${bin}/mvmx10c"/>
+
+		<delete file="${bin}/multivm-defs"/>
 	</target>
 
 	<target name="x10c" 
@@ -176,6 +222,7 @@ ext=""
 		<chmod perm="+x" file="${bin}/x10"/>
 
 		<delete file="${bin}/defs"/>
+		<delete file="${bin}/multivm-defs"/>
 	</target>
 	
 	<target name="miscexec"
