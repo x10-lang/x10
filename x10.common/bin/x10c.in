@@ -37,7 +37,7 @@ fi
 
 if [ -z "$config" ]
 then
-    config="-Dx10.configuration=${TOP}${FILE_SEP}etc${FILE_SEP}standard.cfg"
+    config="-Dx10.configuration=${TOP}${FILE_SEP}etc${FILE_SEP}${CONFIG_FILE}"
 fi
 
 if [ -n "$extra_cp" ]
