@@ -15,8 +15,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-final  class PoolRunner extends Thread // LoadMonitored 
-	implements ActivityRunner { // if you do NOT want load monitoring, make 'extend Thread'
+final  class PoolRunner extends LoadMonitored 
+	implements ActivityRunner {
    /**
     * For building a linked list of these.
     */

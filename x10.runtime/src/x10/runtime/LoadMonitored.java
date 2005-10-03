@@ -14,8 +14,6 @@ package x10.runtime;
  */
 public abstract class LoadMonitored extends Thread {
 
-    public static final boolean ON = true;
-    
     /**
      * @param reason why are we blocking (see Sampling class
      *    for possible values)
@@ -23,16 +21,14 @@ public abstract class LoadMonitored extends Thread {
      *    the reason, i.e. clock ID; 0 otherwise)
      */
     public static void blocked(int reason, int info, Activity related) {
-        if (ON) {
-            Thread t = Thread.currentThread();
-            if (t instanceof LoadMonitored)
-                ((LoadMonitored)t).changeRunningStatus(-1);
-            if (Sampling.SINGLETON != null)
-                Sampling.SINGLETON.signalEvent(related,
-                        Sampling.EVENT_ID_ACTIVITY_BLOCK,
-                        reason,
-                        info);
-        }
+    	Thread t = Thread.currentThread();
+    	if (t instanceof LoadMonitored)
+    		((LoadMonitored)t).changeRunningStatus(-1);
+    	if (Sampling.SINGLETON != null)
+    		Sampling.SINGLETON.signalEvent(related,
+    				Sampling.EVENT_ID_ACTIVITY_BLOCK,
+    				reason,
+    				info);        
     }
     
     /**
@@ -42,16 +38,14 @@ public abstract class LoadMonitored extends Thread {
      *    the reason, i.e. clock ID; 0 otherwise)
      */
     public static void unblocked(int reason, int info, Activity related) {
-        if (ON) {
-            Thread t = Thread.currentThread();
-            if (t instanceof LoadMonitored)
-                ((LoadMonitored)t).changeRunningStatus(1);
-            if (Sampling.SINGLETON != null)
-                Sampling.SINGLETON.signalEvent(related,
-                        Sampling.EVENT_ID_ACTIVITY_UNBLOCK,
-                        reason,
-                        info);
-        }
+    	Thread t = Thread.currentThread();
+    	if (t instanceof LoadMonitored)
+    		((LoadMonitored)t).changeRunningStatus(1);
+    	if (Sampling.SINGLETON != null)
+    		Sampling.SINGLETON.signalEvent(related,
+    				Sampling.EVENT_ID_ACTIVITY_UNBLOCK,
+    				reason,
+    				info);
     }
     
     /**

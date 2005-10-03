@@ -14,6 +14,7 @@ public abstract class Place extends place
 implements Comparable {
 	
 	public abstract void runAsync(Activity a);
+	public abstract void runAsyncLater(Activity a);
 	
 	/**
 	 * We return an Activity.Result here to force the programmer

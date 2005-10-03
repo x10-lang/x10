@@ -102,8 +102,9 @@ public final class Sampling extends Thread {
      * List of causes for blocking.
      */
     public static final int CAUSE_ATOMIC = 0;
-    public static final int CAUSE_FORCE = 1;
-    public static final int CAUSE_CLOCK = 2;
+    public static final int CAUSE_FORCE  = 1;
+    public static final int CAUSE_CLOCK  = 2;
+    public static final int CAUSE_FINISH = 3;
    
     private final int[] atomicEntry;
     private final int[] atomicExit;
