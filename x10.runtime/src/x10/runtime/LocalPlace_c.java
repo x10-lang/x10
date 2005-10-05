@@ -312,22 +312,20 @@ public class LocalPlace_c extends Place {
                      (long) Math.pow(1.15, (double) threadInPool_));
                 long start = -1;
                 long next_turn = time_to_wait;
-                int cc = 0;
             
                 while ( threadQueue_ == null &&
                         threadInPool_ >= Configuration.NUMBER_OF_ACTIVITIES_PER_PLACE) {
                     try {
                         if (start == -1)                         
-                            start = System.currentTimeMillis();                    
+                            start = System.currentTimeMillis();
                         wait(next_turn);
                     } catch (Exception e) {
                         // should not happen 
                         assert (false);
                     }
                     next_turn = (start + time_to_wait) - System.currentTimeMillis();
-                    if (next_turn < 0)                     
+                    if (next_turn <= 0)                     
                         break;
-                    if (++cc > 10) break;       // we really can't wait forever!
                 }
             
                 if (threadQueue_ == null) {
