@@ -35,9 +35,8 @@ How to become an X10 developer
 * The current X10 implementation can roughly be broken into the components listed below.
   I also list developers working on the code (as of 8/24/2005). 
 
-  X10 parser -- Philippe Charles
-  X10 front-end -- Vijay Saraswat, Christoph von Praun, Christian Grothoff, Philippe Charles
-  X10 singleVM reference runtime  -- Christoph von Praun, Christian Grothoff, Vijay Saraswat, Christopher Donawa
+  X10.compiler Philippe Charles, Vijay Saraswat, Christoph von Praun, Christian Grothoff, 
+  X10.runtime  Allan Kielstra, Christopher Donawa, Christoph von Praun, Christian Grothoff, Vijay Saraswat, Christopher Donawa
   X10 multiVM LAPI runtime -- Allan Kielstra, Christopher Donawa
   X10 multiVM reference runtime -- Bin Xin, Vijay Saraswat
   Testing scripts -- Kemal Ebcioglu
@@ -46,20 +45,32 @@ How to become an X10 developer
   
 * The current packages of interest on the CVS repository at Purdue:
 
-  x10          -- the X10 implementation.
-  x10apps      -- applications in X10
-  x10web       -- pages mapped to http://delhi.watson.ibm.com/
-  NPB3.0-JAV   -- The Java implementation of the NAS Parallel Benchmarks.
-  NPB3.0-X10   -- The X10 implementation of the NAS Parallel Benchmarks.
+  polyglot      -- polyglot 1.3
+  lpg           -- parser generator
+  pe            -- performance explorer
+  junit         -- junit testing 
+  x10.compiler  -- x10 translator
+  x10.runtime   -- x10 runtime
+  x10.common    -- scripts and config files common to runtime and compiler
+  x10.lib       -- x10 std library
+  x10.test      -- unit tests for compiler and runtime
+  x10.vm        -- vm interface
+  x10.man       -- x10 related documentations 
+  x10.installer -- x10 installer package
+  x10.design    -- paper that influenced the x10 design
+  x10apps       -- applications in X10
+  x10web        -- pages mapped to http://delhi.watson.ibm.com/
+  NPB3.0-JAV    -- The Java implementation of the NAS Parallel Benchmarks.
+  NPB3.0-X10    -- The X10 implementation of the NAS Parallel Benchmarks.
 
 * Building X10.
   Do use Eclipse if at all possible. Just checking out x10 as an Eclipse
   project should result in your Eclipse client being set up to compile,
   link and run X10 code, and to automatically rebuild the x10 implementation.
   
-  We also use the ant script in x10/build.xml, primarily to create
-  x10/bin/x10 and x10/bin/x10c command line arguments, and to build x10 for
-  use with x10/bin/testScript. (These scripts need to be drastically revamped.
+  We also use the ant script in x10.common/build.xml, primarily to create
+  x10.common/bin/x10 and x10.common/bin/x10c command line arguments, and to build x10 for
+  use with x10.common/bin/testScript. (These scripts need to be drastically revamped.
   Currently they are a small modification of the original Polyglot ant scripts
   and use CUP for building a parser for jl that we dont need. So there are a 
   lot of annoying things it does that need to be taken care of.)
