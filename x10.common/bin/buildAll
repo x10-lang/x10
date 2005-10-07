@@ -1,0 +1,32 @@
+#!/bin/bash
+
+chkRc() {
+local rc="$1"
+local msg="$2"
+if [[ $rc  -ne 0 ]]; then echo "$msg"; exit $rc; fi
+}
+
+main() {
+
+#verify directory
+if [[ ! -d x10.common ]]; then 
+  echo "Must be in parent directory of x10.common"
+  exit 1 
+fi
+
+#cvs update all projects
+cvs -q up -dPA `cat x10.common/projectList.txt`
+chkRc $? "+++ cvs update failed"
+
+#build all projects
+for p in `cat x10.common/projectList.txt` ; do
+  if [[ ! -e $p/build.xml ]] ; then continue; fi
+  cd $p
+  echo "+++ building $p"
+  ant
+  chkRc $? "+++ building $p failed"
+  cd ..
+done
+}
+
+main "$@"
