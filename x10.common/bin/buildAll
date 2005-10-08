@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xv
 
 chkRc() {
 local rc="$1"
@@ -8,11 +8,19 @@ if [[ $rc  -ne 0 ]]; then echo "$msg"; exit $rc; fi
 
 main() {
 
-#verify directory
+#verify directory and environment vars
 if [[ ! -d x10.common ]]; then 
-  echo "Must be in parent directory of x10.common"
+  echo "+++ Issue this command in the parent directory of x10.common"
   exit 1 
 fi
+
+if [[ -z "$JAVA_HOME" ]]; then echo "+++ JAVA_HOME must be defined"; exit 1; fi 
+if [[ -z "$X10_PLATFORM" ]]; then echo "+++ X10_PLATFORM must be defined"; exit 1; fi 
+
+# ensure all projects are already checked out
+for p in `cat x10.common/projectList.txt` ; do
+    if [[ ! -d $p ]]; then echo "+++ cvs checkout $p first"; exit 1; fi
+done
 
 #cvs update all projects
 cvs -q up -dPA `cat x10.common/projectList.txt`
