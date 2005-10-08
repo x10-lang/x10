@@ -653,7 +653,7 @@ generateFinalLog() {
   makeTempFile "logTemp0"
   local logTemp0="$RESULT"
   sort -t "	" -r +1 -2 logSummary0 |  \
-   sed -e 's/\.	\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\)_\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\)/ (\2\/\3\/\1 \4:\5:\6)./' > $logTemp0
+   sed -e 's/\.	\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\)_\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\)/ (\1\/\2\/\3 \4:\5:\6)./' > $logTemp0
   cut -f1 logSummary0 > logSummary
   rm -f logSummary0
   # report only the failing tests
@@ -680,7 +680,7 @@ makeReadableDate() {
   local time=${arg##*_}
   local yyyy=${date%%.*}
   local mmdd=${date#*.}
-  date="$mmdd.$yyyy"
+  date="$yyyy.$mmdd"
   #date=${date//./\/}
   date=`echo "$date" | sed -e 's/\./\//g' `
   #time=${time//./\:}
@@ -708,6 +708,10 @@ mailDiffFromLastRun() {
     local date1="$RESULT"
     makeReadableDate "$startDate"
     local date2="$RESULT"
+    echo "" >> $logDiff
+    echo "" >> $logDiff
+    echo "+++ CVS changes between $date1 ET and $date2 ET (times below are in UTC):" >> $logDiff
+    (cd ../..; cvs -q log -d "${date1}<${date2}" -S `cat x10.common/projectList.txt`|grep -v "^?") >> $logDiff
     mail -s "X10: differences between test runs started on $date1 vs. $date2" "$mailDest" < $logDiff
     rm -f $logDiff
   fi
