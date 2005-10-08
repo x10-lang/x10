@@ -1,4 +1,4 @@
-#!/bin/bash -xv
+#!/bin/bash
 
 chkRc() {
 local rc="$1"
