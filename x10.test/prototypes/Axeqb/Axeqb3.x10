@@ -1,4 +1,4 @@
-class Axeqb3 {
+public class Axeqb3 {
     public static void main(String[] args) {
         int N = 3;
         boolean debug = false;
@@ -35,6 +35,12 @@ class Axeqb3 {
         System.out.println("Number of milliseconds: " + (finish_time-start_time));
     }
 
+    /* required for serialization */
+    public Axeqb3(){ 
+      N=0;
+      debug=false;
+      column_dist = [0:1]->here;
+    }
     void setup() {
         finish {
             int init = 1325;
@@ -45,7 +51,9 @@ class Axeqb3 {
                     final int row = xrow;
                     init = 3125 * init % 65535;
                     final double value = (init - 32768.0)/16384.0;
-                    async(A.distribution[col,0]) A[col,row] = value;
+                    async(A.distribution[col,0]){
+		    A[col,row] = value;
+		    }
                     bv += value;
                 }
                 final double fbv = bv;
@@ -65,10 +73,10 @@ class Axeqb3 {
     }
     final int N;
     final dist column_dist;   // each column is at a separate place
-    final double[.] A;        // A is an NxN matrix
-    final double[.] b;        // b is a column vector of length N
-    final double[.] y;
-    final double[.] x;
+    /*final*/ double[.] A;        // A is an NxN matrix
+    /*final*/ double[.] b;        // b is a column vector of length N
+    /*final*/ double[.] y;
+    /*final*/ double[.] x;
     final boolean debug;
     static final boolean computeYDirectly = true;
 
