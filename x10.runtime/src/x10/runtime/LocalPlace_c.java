@@ -175,7 +175,6 @@ public class LocalPlace_c extends Place {
 			prepareAsync(a);
 			runAsync( a, false);	
 		} else {
-			if (false) a.pseudoDeSerialize(this);
 			prepareAsync(a);
 			runAsync( a, true);
 		}
@@ -187,7 +186,6 @@ public class LocalPlace_c extends Place {
 				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {			
 			runAsync( a, false);
 		} else {
-		        if(false)a.pseudoDeSerialize(this);
 			runAsync( a, true);
 		}
 	}
@@ -201,7 +199,6 @@ public class LocalPlace_c extends Place {
 				waitingActivities.push(a);
 				changeRunningStatus(0);
 			} else {
-				a.pseudoDeSerialize(this);
 				prepareAsync(a);
 				waitingActivities.push(a);
 				changeRunningStatus(0);
@@ -233,7 +230,7 @@ public class LocalPlace_c extends Place {
 	}
 	
 	protected void runAsync(final Activity a, final boolean finish) {
-		final boolean performDeserialization = true && !(a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
+		final boolean performDeserialization = !(a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
                 a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate);
 
 		this.execute(new Runnable() {
@@ -246,7 +243,7 @@ public class LocalPlace_c extends Place {
 				
 				// Install the activity.
 				t.setActivity(a);
-                a.setPlace(LocalPlace_c.this);
+                                a.setPlace(LocalPlace_c.this);
 				
 				// need to perform deserialization after runtime
 				// for this place is setup so we can create x10 objects
@@ -260,9 +257,11 @@ public class LocalPlace_c extends Place {
 						a.run();
 					}
 				} catch (Throwable e) {
+				System.out.println("exception thrown:"+e);
 					a.finalizeTermination(e);
 					return;
 				}
+				//System.out.println("finish async");
 				a.finalizeTermination(); //should not throw an exception.
 			}
 			public String toString() { return "<Executor " + a + ">";}
@@ -299,6 +298,7 @@ public class LocalPlace_c extends Place {
 	 */
 	protected void execute(Runnable r) {
             PoolRunner t;
+	    //System.out.println("starting execute for "+r);
             synchronized(this) {
             
                 // if threadQueue_ is empty, we do create a new thread right away if 
@@ -344,7 +344,9 @@ public class LocalPlace_c extends Place {
                     threadQueue_ = t.next;
                 }
             }
+	    //System.out.println("starting run for "+r);
             t.run(r);
+	    //System.out.println("finished run for "+r);
 	}
 	
 	/**
