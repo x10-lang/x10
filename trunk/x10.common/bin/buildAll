@@ -28,7 +28,7 @@ for p in `cat x10.common/projectList.txt` ; do
   if [[ ! -e $p/build.xml ]] ; then continue; fi
   cd $p
   echo "+++ building $p"
-  ant
+  ant --noconfig
   chkRc $? "+++ building $p failed"
   cd ..
 done
