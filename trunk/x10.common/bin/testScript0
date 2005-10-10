@@ -568,17 +568,14 @@ doTest() {
   changeSlashToDot "$testDir"
   local tdir="$RESULT"
 
-  echo ""                         >  logDetail.$tdir.$className
-  echo "****** $tdir $className ******" >> logDetail.$tdir.$className
-  echo ""                         >> logDetail.$tdir.$className
+  echo -e "\n****** $tdir $className ******\n" > logDetail.$tdir.$className
 
   let "nTotal = (( $nTotal + 1 ))"
 
   runWithTimeLimit "$tdir" "$className" "x10c -t -v -sourcepath $x10lib -sourcepath $testDir -d $testDir $x10FileName" "" ""
 
   if [[ $? != 0 ]]; then
-    echo ""                                        >> logDetail.$tdir.$className
-    echo "****** $tdir $className failed: compile" >> logDetail.$tdir.$className
+    echo -e "\n****** $tdir $className failed: compile" >> logDetail.$tdir.$className
     recordTestResult "FailCompile" "$tdir" "$className" "$x10FileName"
     return
   else
@@ -591,15 +588,14 @@ doTest() {
   runWithTimeLimit "$tdir" "$className" "x10 -t -v -classpath $testDir $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   local runRc=$?
 
-  echo ""                                    >> logDetail.$tdir.$className
   if [[ $runRc -ge 128 ]]; then
-    echo "****** $tdir $className failed: timeout" >> logDetail.$tdir.$className
+    echo -e "\n****** $tdir $className failed: timeout" >> logDetail.$tdir.$className
     recordTestResult "FailTimeout" "$tdir" "$className" "$x10FileName"
   elif [[ $runRc -ne 0 ]]; then
-    echo "****** $tdir $className failed: run" >> logDetail.$tdir.$className
+    echo -e "\n****** $tdir $className failed: run" >> logDetail.$tdir.$className
     recordTestResult "FailRun" "$tdir" "$className" "$x10FileName"
   else 
-    echo "****** $tdir $className succeeded." >> logDetail.$tdir.$className
+    echo -e "\n****** $tdir $className succeeded." >> logDetail.$tdir.$className
     recordTestResult "Success" "$tdir" "$className" "$x10FileName"
   fi
 
@@ -644,9 +640,7 @@ generateFinalLog() {
   local date2="$RESULT"
   echo "X10 tests started on $date2" >> log
   echo "$nPass tests out of $nTotal met expectations. $nFail (including $nLimitation implementation limitations) did not meet expectations." >> log
-  echo "" >> log
-  echo "The dates after each error message below show the earliest test run since which the same error message kept occurring continuously." >> log
-  echo "" >> log
+  echo -e "\nThe dates after each error message below show the earliest test run since which the same error message kept occurring continuously.\n" >> log
   if [[ $nTotal -eq 0 ]] ; then
 	msgBoth log "Warning: No applicable test was found"
   fi
@@ -708,10 +702,8 @@ mailDiffFromLastRun() {
     local date1="$RESULT"
     makeReadableDate "$startDate"
     local date2="$RESULT"
-    echo "" >> $logDiff
-    echo "" >> $logDiff
-    echo "+++ CVS changes between $date1 ET and $date2 ET (times below are in UTC):" >> $logDiff
-    (cd ../..; cvs -q log -d "${date1}<${date2}" -S -b -N `cat x10.common/projectList.txt`|sed -n -e "/^RCS file:/p;/^date:/p;/^=/p" ) >> $logDiff
+    echo -e "\n\n+++ CVS changes between $date1 ET and $date2 ET (times below are in UTC):" >> $logDiff
+    (cd ../..; cvs -q log -d "${date1}<${date2}" -S -b -N `cat x10.common/projectList.txt`|sed -n -e "/^RCS file:/p;/^date:/p;/^=/p"|awk '{print}; END {if(NR==0) print "No changes."}' ) >> $logDiff
     mail -s "X10: differences between test runs started on $date1 vs. $date2" "$mailDest" < $logDiff
     rm -f $logDiff
   fi
