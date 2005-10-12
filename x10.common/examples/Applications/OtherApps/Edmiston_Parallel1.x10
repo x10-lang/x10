@@ -9,6 +9,7 @@
  */
 
 import java.util.Random;
+import java.lang.Integer;
 
 public class Edmiston_Parallel1 {
 	const int iGapPen = 2;
