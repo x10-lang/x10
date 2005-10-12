@@ -8,6 +8,7 @@ import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
+import x10.runtime.PoolRunner;
 import x10.runtime.Report;
 
 
@@ -149,9 +150,8 @@ public abstract class Runtime {
     }
     
     /* this is called from inside the array library */
-    public static void hereCheckPlace(place p) {          
-        assert (p != null);
-        if (Configuration.BAD_PLACE_RUNTIME_CHECK && !p.equals(here()))   
+    public static void hereCheckPlace(place p) {        
+        if (p != ((PoolRunner)Thread.currentThread()).place)   
             throw new BadPlaceException(p, here());
     }
 
