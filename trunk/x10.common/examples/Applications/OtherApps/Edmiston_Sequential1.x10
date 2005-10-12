@@ -8,6 +8,7 @@
  */
 
 import java.util.Random;
+import java.lang.Integer;
 
 public class Edmiston_Sequential1 {
     const int iGapPen = 2;
