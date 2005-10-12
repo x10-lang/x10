@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-final  class PoolRunner extends LoadMonitored 
+public final  class PoolRunner extends LoadMonitored 
 	implements ActivityRunner {
    /**
     * For building a linked list of these.
@@ -26,7 +26,7 @@ final  class PoolRunner extends LoadMonitored
    private Activity act;
    private Method ac;
    private Object vmto;
-   LocalPlace_c place; // not final, may be set by DefaultRuntime_c.setCurrentPlace(place p)
+   public LocalPlace_c place; // not final, may be set by DefaultRuntime_c.setCurrentPlace(place p)
    
    PoolRunner(LocalPlace_c p) {
        place = p;
