@@ -257,22 +257,23 @@ implements TypeArgument, ValueType {
           region result=null;
           switch(type){
           case RANGE:
-             result = x10.array.Range.deserializeRange(inputBuffer);
-             break;
-        case MULTIDIM:
-             result = x10.array.MultiDimRegion.deserializeMultiDim(inputBuffer);
-             break;
-
+	      result = x10.array.Range.deserializeRange(inputBuffer);
+	      break;
+	  case MULTIDIM:
+	      result = x10.array.MultiDimRegion.deserializeMultiDim(inputBuffer);
+	      break;
+	  case ARBITRARY:
+	      result = x10.array.ArbitraryRegion.deserializeArbitrary(inputBuffer);
+	      break;
+           
              //TODO: implement deserialization of other region types
-        case ARBITRARY:
-           //break;
-        case BANDED:
-           // break;
-           case TRIANGULAR:
+	  case BANDED:
+	      // break;
+	  case TRIANGULAR:
               //break;
           default:
-	  System.out.println ("Unexpected range type "+type);
-             throw new RuntimeException("Unexpected range type "+type);
+	      System.out.println ("Unexpected range type "+type);
+	      throw new RuntimeException("Unexpected range type "+type);
           }
         
            inputBuffer.cacheRef(owningIndex,result);
