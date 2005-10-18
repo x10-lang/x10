@@ -74,7 +74,7 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         int size = 0;
         while (true)
         {
-            char block[]= new char[10];
+            char block[]= new char[8192];
             int n = reader.read(block, 0, block.length);
             if (n < 0)
                 break;
