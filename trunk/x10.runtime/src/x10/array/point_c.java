@@ -40,7 +40,7 @@ public class point_c extends point implements Comparable {
 
         public void serialize(x10.runtime.distributed.SerializerBuffer outputBuffer){
           Integer originalIndex = outputBuffer.findOriginalRef(this);
-	  final boolean disableHashing=true;// bad interaction with hashtable and hashCode
+	  final boolean disableHashing=true;// bad interaction with hashtable and point's hashCode
 
           if(originalIndex == null){
             originalIndex = new Integer(outputBuffer.getOffset());
@@ -170,7 +170,6 @@ public class point_c extends point implements Comparable {
 		}
 		return ret;
 	}
-	
 	public int hashCode() {
 	    return hash_;
 	}
