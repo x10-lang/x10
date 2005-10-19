@@ -18,6 +18,17 @@ public class Object implements Parameter1 {
 	 * the place where this object was allocated.
 	 */
 	public final place location;
+
+	private long _uniqueTag;// Used in distributed mode
+
+	// create a (hopefully) unique id using hashcode
+	// and place id.  hashcode might not work in extrodinary
+	// situations--should find something more robust for
+	// production implementation
+	// TODO: cmd find more robust implementation
+	public long setUniqueTag(){return _uniqueTag = (location.id << 32) | hashCode(); }
+	public long getUniqueTag(){ return _uniqueTag;}
+	public long setUniqueTag(long t){ return _uniqueTag=t;}
 	
 	/**
 	 * The actual type parameters with which this type was instanced.
