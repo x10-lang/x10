@@ -68,6 +68,7 @@ public abstract class Activity implements Runnable {
      * @param clocks
      */
     public Activity( List clocks) {
+	assert(clocks!=null);
     	if (! clocks.isEmpty()) {
     		if (Report.should_report("activity", 3)) {
     			Report.report(3, PoolRunner.logString() + " adding clocks " + clocks + " to " + this);
@@ -219,9 +220,10 @@ public abstract class Activity implements Runnable {
     public /*myThread*/ void finishRun( Runnable r) {
     	try {
     		startFinish();
+		assert(r!=null);
     		r.run();
     	} catch (Throwable t) {
-	   System.out.println(x10.lang.Runtime.here()+":in finish run exception:"+t);
+	   //System.out.println(x10.lang.Runtime.here()+":in finish run exception:"+t);
     		pushException(t);
     	} 
     	stopFinish();
@@ -273,9 +275,11 @@ public abstract class Activity implements Runnable {
     	}
     	Iterator it = clocks_.iterator();
     	while (it.hasNext()) {
+
     		Clock c = (Clock) it.next();
     		c.resume();
     	}
+
     	it = clocks_.iterator();
     	while (it.hasNext()) {
     		Clock c = (Clock) it.next();
@@ -363,7 +367,6 @@ public abstract class Activity implements Runnable {
                   oos.writeObject(f.get(this));
                   serializedX10Result = baos.toByteArray();
                } catch (Exception e) {
-                  System.err.println("Could not serialize the future's return");
                   throw new Error(e);
                }
             }
@@ -453,7 +456,6 @@ public abstract class Activity implements Runnable {
 
        x10.runtime.distributed.Serializer serializer = new Serializer(this);
     
-    
        clocksMappedToGlobalAddresses = new long[clocks_.size() << 1];
        SerializerBuffer clockBuffer = new SerializerBuffer(clocksMappedToGlobalAddresses);
 
@@ -477,7 +479,6 @@ public abstract class Activity implements Runnable {
     public void pseudoDeSerialize(LocalPlace_c pl) {
        final boolean trace = false;
 
-       if(trace) System.out.println("Deserializing "+this.getClass().getName());
        Deserializer deserializer = new Deserializer(this,pl);
        deserializer.deserializeClocks(clocks_,new DeserializerBuffer(clocksMappedToGlobalAddresses));
 
