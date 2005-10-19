@@ -13,4 +13,8 @@ abstract public class x10Array implements Indexable, Unsafe {
 	// copy src onto dest over regions on the this place
 	abstract public dist getDistribution();
 
+	// For distributed arrays, return vm-unique long to identify
+	// it.  Used to create fatpointer for global objects
+	public long generateUniqueId(){ return -1;}
+
 }
