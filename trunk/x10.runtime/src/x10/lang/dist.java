@@ -24,6 +24,7 @@ implements Indexable, ValueType {
 	public final static int CONSTANT=3;
 	public final static int CYCLIC=4;
 	public final static int UNIQUE=5;
+        public final static int ARBITRARY=6; 
 	public int _distributionType=UNKNOWN;
 	public int _cyclicValue;
         public int getDistributionType() {return _distributionType;}
