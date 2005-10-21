@@ -131,7 +131,7 @@ public class BasicTest4 {
 		System.out.println("Starting Basic multi-node test with futures: two arrays");
 		try {
 			if(args.length> 0){
-				arraySize = Integer.parseInt(args[0]);
+				arraySize = java.lang.Integer.parseInt(args[0]);
 			}
 			
 			if(place.MAX_PLACES %2 == 1){
