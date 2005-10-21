@@ -21,7 +21,7 @@ public class BasicTest3 {
 		long stop = System.currentTimeMillis();
 		System.out.println("Initialization takes:"+((double)(stop-start)/1000)+" seconds");
 		
-		System.out.println("sumarray distribution:"+_sumarray.distribution);
+	
 	}
 	
 	
@@ -30,30 +30,21 @@ public class BasicTest3 {
 	 */
 	private float sumRegion(region my_region,float [.] theArray,int placeId,
 			boolean trace,boolean verboseTrace){
-				
+
 		System.out.println("summing region over "+my_region+" for place "+placeId);
 		float tempSum=0;
-		int outer_lo = my_region.rank(0).low();
-		int outer_hi = my_region.rank(0).high();
-		System.out.println("low:"+outer_lo+" outerhi:"+outer_hi);
-		for(int outerIndex=outer_lo;outerIndex<= outer_hi;++outerIndex){
-			
-			int lo = my_region.rank(1).low();
-			int hi = my_region.rank(1).high();
-			
-			if(verboseTrace)System.out.println("place:"+placeId+" range:"+lo+".."+hi);
-			for(int index = lo; index <= hi;++index){
-				tempSum += theArray[outerIndex,index];
-				if(verboseTrace)System.out.println(placeId+":"+tempSum+"<-"+theArray[outerIndex,index]+" for ["+outerIndex+","+index+"]");
-			}
+           	for(point p:my_region){
+                   tempSum += theArray[p];
+	           if(verboseTrace)System.out.println(placeId+":"+tempSum+"<-"+theArray[p]+" for "+p);
+	
 		}
 		if(trace)System.out.println("sum is:"+tempSum);
 		return tempSum; // this will be returned and stored in partialSums[i]
 	}
 	
 	private void run(){
-		final boolean trace = true;
-		final boolean verboseTrace=true;
+		final boolean trace = false;
+		final boolean verboseTrace=false;
 		System.out.println("Starting run with "+_sumarray.region.size()+" array elements");
 		
 		long start = System.currentTimeMillis();
@@ -62,6 +53,7 @@ public class BasicTest3 {
 		
 		place my_place = place.FIRST_PLACE;
 		int count=0;
+
 		do{
 			region tempRegion = (_sumarray.distribution | my_place).region;
 			precomputedRegions[my_place.id] = tempRegion;
@@ -75,7 +67,7 @@ public class BasicTest3 {
 		
 		do{
 			
-			if(trace)System.out.println("Spawning work for place:"+i);
+			if(trace)System.out.println("Spawning work for place:"+i+" p1:"+p1+"::"+p1.id);
 			final int placeId = i;
 			final region my_region = precomputedRegions[placeId];
 			partialSums[i] = future(p1) {sumRegion(my_region,_sumarray,placeId,trace,verboseTrace)};
@@ -112,7 +104,7 @@ public class BasicTest3 {
 		System.out.println("Starting Basic multi-node test with futures");
 		try {
 			if(args.length> 0){
-				arraySize = Integer.parseInt(args[0]);
+				arraySize = java.lang.Integer.parseInt(args[0]);
 			}
 			
 			BasicTest3 x = new BasicTest3();
