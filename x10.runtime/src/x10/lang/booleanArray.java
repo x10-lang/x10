@@ -13,9 +13,9 @@ import java.util.Iterator;
 
 import x10.lang.intArray.binaryOp;
 
-abstract public class booleanArray /*( distribution distribution )*/ 
-/*implements Cloneable, Serializable */
-implements Indexable, Unsafe {
+abstract public class booleanArray extends x10Array{
+
+	public dist getDistribution() { return distribution;}
 
 	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
