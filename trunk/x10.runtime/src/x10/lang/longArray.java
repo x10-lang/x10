@@ -12,11 +12,11 @@ import java.util.Iterator;
  * @author vj 12/24/2004
  */
 
-abstract public class longArray /*( distribution distribution )*/ implements Indexable, Unsafe {
+abstract public class longArray extends x10Array {
 	public final dist distribution;
 	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
-	
+	  public dist getDistribution() { return distribution;}	
 	protected longArray( dist D) {
 		this.distribution = D;
 		this.region = D.region;
