@@ -11,9 +11,9 @@ package x10.lang;
 
 import java.util.Iterator;
 
-abstract public class shortArray /*( distribution distribution )*/ 
-/*implements Cloneable, Serializable */
-implements Indexable, Unsafe {
+abstract public class shortArray extends x10Array{
+
+	public dist getDistribution() { return distribution;}
 
 	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
