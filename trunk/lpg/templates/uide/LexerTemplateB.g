@@ -14,7 +14,7 @@
 --
 -- B E G I N N I N G   O F   T E M P L A T E
 --
-%Options escape=$,table=java,margin=4
+%Options programming_language=java,margin=4
 %options action=("*.java", "/.", "./")
 %options ParseTable=com.ibm.lpg.ParseTable
 
@@ -51,12 +51,6 @@ $Define
     $EndAction
     /.          break;
                 }./
-
-    $BeginJava
-    /.$BeginAction
-                    $symbol_declarations./
-
-    $EndJava /.$EndAction./
 
     $NoAction
     /. $Header
@@ -107,14 +101,13 @@ $Headers
         public $action_class() {}
 
         public String[] orderedExportedSymbols() { return $exp_type.orderedTerminalSymbols; }
-
         public LexStream getLexStream() { return this; }
  
         public void lexer($prs_stream_class prsStream)
         {
             lexer(prsStream, null);
         }
-        
+
         public void lexer($prs_stream_class prsStream, Monitor monitor)
         {
             try
