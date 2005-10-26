@@ -5,9 +5,6 @@
 -- B E G I N N I N G   O F   T E M P L A T E
 --
 -- In a parser using this template, define the following macros:
---
---     $package_declaration
---     $import_classes
 --     $action_class
 --     $ast_class
 --
@@ -59,6 +56,9 @@ $Define
     /.
         public void ruleAction(int ruleNumber)
         {
+            if (bad_rule != 0)
+                return;
+
             switch (ruleNumber)
             {./
 
@@ -88,13 +88,15 @@ $Headers
     /.
     import com.ibm.lpg.*;
 
-    public class $action_class extends PrsStream implements RuleAction$additional_interfaces
+    public class $action_class extends PrsStream implements RuleAction, Parser$additional_interfaces
     {
+        LexStream lexStream;
         BacktrackingParser btParser;
 
         public $action_class(LexStream lexStream)
         {
             super(lexStream);
+            this.lexStream = lexStream;
 
             try
             {
@@ -119,7 +121,7 @@ $Headers
             {
                 System.out.println("The Lexer does not implement the Eof symbol " +
                                    $sym_type.orderedTerminalSymbols[$prs_type.EOFT_SYMBOL]);
-                System.exit(12);
+                throw new Error(e);
             } 
         }
 
@@ -127,79 +129,43 @@ $Headers
         public final static String getTokenKindName(int kind) { return $sym_type.orderedTerminalSymbols[kind]; }            
         public PrsStream getParseStream() { return (PrsStream) this; }
         public int getEOFTokenKind() { return $prs_type.EOFT_SYMBOL; }
-
-        //
-        // Report error message for given error_token.
-        //
-        public final void reportErrorTokenMessage(int error_token, String msg)
-        {
-            int firsttok = super.getFirstErrorToken(error_token),
-                lasttok = super.getLastErrorToken(error_token);
-            String location = super.getFileName() + ':' +
-                              (firsttok > lasttok
-                                        ? (super.getEndLine(lasttok) + ":" + super.getEndColumn(lasttok))
-                                        : (super.getLine(error_token) + ":" +
-                                           super.getColumn(error_token) + ":" +
-                                           super.getEndLine(error_token) + ":" +
-                                           super.getEndColumn(error_token)))
-                              + ": ";
-            super.reportError((firsttok > lasttok ? ParseErrorCodes.INSERTION_CODE : ParseErrorCodes.SUBSTITUTION_CODE), location, msg);
-        }
-
-        //
-        // TODO: add the error to a list for the functions hasErrors and getErrors.
-        //
-        // public void reportError(int errorCode, String locationInfo, int leftToken, int rightToken, String tokenText)
-        // {
-        //    if (errorCode == DELETION_CODE ||
-        //        errorCode == MISPLACED_CODE) tokenText = "";
-        //    if (!tokenText.equals("")) tokenText += ' ';
-        //        lexStream.reportError(errorCode, locationInfo, leftToken, rightToken, tokenText);
-        // }
-
+            
         public $ast_class parser()
         {
-            return parser(0, null);
-        }
-        
-        public $ast_class parser(int error_repair_count)
-        {
-            return parser(error_repair_count, null);
+            return parser(null);
         }
 
         public $ast_class parser(Monitor monitor)
-        {
-            return parser(0, monitor);
-        }
-        
-        public $ast_class parser(int error_repair_count, Monitor monitor)
         {
             ParseTable prs = new $prs_type();
 
             try
             {
-                btParser = new BacktrackingParser(monitor, (TokenStream) this, prs, (RuleAction)this);
+                btParser = new BacktrackingParser(monitor, this, prs, this);
             }
             catch (NotBacktrackParseTableException e)
             {
                 System.out.println("****Error: Regenerate $prs_type.java with -BACKTRACK option");
-                System.exit(1);
+                throw new Error(e);
             }
             catch (BadParseSymFileException e)
             {
                 System.out.println("****Error: Bad Parser Symbol File -- $sym_type.java");
-                System.exit(1);
+                throw new Error(e);
             }
 
             try
             {
-                return ($ast_class) btParser.parse(error_repair_count);
+                return ($ast_class) btParser.parse();
             }
             catch (BadParseException e)
             {
-                reset(e.error_token); // point to error token
-                DiagnoseParser diagnoseParser = new DiagnoseParser(this, prs);
-                diagnoseParser.diagnose(e.error_token);
+                if (monitor == null || !monitor.isCancelled())
+                {
+                    reset(e.error_token); // point to error token
+                    DiagnoseParser diagnoseParser = new DiagnoseParser(this, prs);
+                    diagnoseParser.diagnose(e.error_token);
+                }
             }
 
             return null;
