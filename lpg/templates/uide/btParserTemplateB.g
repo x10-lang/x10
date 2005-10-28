@@ -126,22 +126,32 @@ $Headers
         }
 
         public String[] orderedTerminalSymbols() { return $sym_type.orderedTerminalSymbols; }
-        public final static String getTokenKindName(int kind) { return $sym_type.orderedTerminalSymbols[kind]; }            
-        public PrsStream getParseStream() { return (PrsStream) this; }
+        public String getTokenKindName(int kind) { return $sym_type.orderedTerminalSymbols[kind]; }            
         public int getEOFTokenKind() { return $prs_type.EOFT_SYMBOL; }
-            
+        public PrsStream getParseStream() { return (PrsStream) this; }
+
         public $ast_class parser()
         {
-            return parser(null);
+            return parser(null, 0);
+        }
+        
+        public $ast_class parser(Monitor monitor)
+        {
+            return parser(monitor, 0);
         }
 
-        public $ast_class parser(Monitor monitor)
+        public $ast_class parser(int error_repair_count)
+        {
+            return parser(null, error_repair_count);
+        }
+
+        public $ast_class parser(Monitor monitor, int error_repair_count)
         {
             ParseTable prs = new $prs_type();
 
             try
             {
-                btParser = new BacktrackingParser(monitor, this, prs, this);
+                btParser = new BacktrackingParser(monitor, (TokenStream)this, prs, (RuleAction)this);
             }
             catch (NotBacktrackParseTableException e)
             {
@@ -156,7 +166,7 @@ $Headers
 
             try
             {
-                return ($ast_class) btParser.parse();
+                return ($ast_class) btParser.parse(error_repair_count);
             }
             catch (BadParseException e)
             {
