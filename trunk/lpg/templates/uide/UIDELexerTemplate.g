@@ -14,7 +14,8 @@
 --
 -- B E G I N N I N G   O F   T E M P L A T E
 --
-%Options escape=$,table=java,margin=4
+%Options programming_language=java,margin=4
+%Options table
 %options action=("*.java", "/.", "./")
 %options ParseTable=com.ibm.lpg.ParseTable
 
@@ -107,26 +108,17 @@ $Headers
         public $action_class() {}
 
         public String[] orderedExportedSymbols() { return $exp_type.orderedTerminalSymbols; }
+        public LexStream getLexStream() { return (LexStream) this; }
 
-        public LexStream getLexStream() { return this; }
- 
         public void lexer($prs_stream_class prsStream)
         {
-            lexer(prsStream, null);
+            lexer(null, prsStream);
         }
-        
-        public void lexer($prs_stream_class prsStream, Monitor monitor)
+
+        public void lexer(Monitor monitor, $prs_stream_class prsStream)
         {
-            try
-            {
-                if (getInputChars() == null)
-                    throw new NullPointerException();
-            }
-            catch (NullPointerException e)
-            {
-                System.out.println("****Error: LexStream was not set. See UIDELexerTemplate.g");
-                System.exit(1);
-            }
+            if (getInputChars() == null)
+                throw new NullPointerException("LexStream was not initialized");
 
             this.prsStream = prsStream;
 
