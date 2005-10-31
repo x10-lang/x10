@@ -34,6 +34,13 @@ $Headers
             if (printTokens) printValue(startOffset, endOffset);
         }
 
+        final void makeComment(int kind)
+        {
+            int startOffset = $getToken(1),
+                endOffset = $getRightSpan();
+            $prs_stream.makeAdjunct(startOffset, endOffset, kind);
+        }
+
         final void skipToken()
         {
             if (printTokens) printValue($getToken(1), $getRightSpan());
