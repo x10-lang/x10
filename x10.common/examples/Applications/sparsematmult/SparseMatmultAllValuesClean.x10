@@ -20,15 +20,32 @@ public class SparseMatmultAllValuesClean {
     static final int[] datasizes_nz = {2500,500000,2500000};
     static final Random R = new Random(RANDOM_SEED);
 
+    public SparseMatmultAllValuesClean() { }
+
+   /**
+    * main method
+    */
+   
     public static void main(String[] args) {
-        new SparseMatmultAllValuesClean().run();
+        final boxedBoolean b=new boxedBoolean();
+        try {
+                finish async b.val=(new SparseMatmultAllValuesClean()).run();
+        } catch (Throwable e) {
+                e.printStackTrace();
+                b.val=false;
+        }
+        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
+        x10.lang.Runtime.setExitCode(b.val?0:1);
     }
 
-    public SparseMatmultAllValuesClean() { }
+    static class boxedBoolean {
+        boolean val=false;
+    }
+
 
     int pos; // X10 hack (local variable of run that must be modified in inner class)
 
-    public void run() {
+    public boolean run() {
         final int nthreads  = place.MAX_PLACES;
 	final dist d_places = dist.factory.unique(place.places);
 	final region r_N  = [0 : datasizes_N[size]-1]; 
@@ -81,7 +98,10 @@ public class SparseMatmultAllValuesClean {
 	   pos = high + 1;
            return [low:high];
 	};
-	assert (pos == datasizes_nz[size]);
+	//assert (pos == datasizes_nz[size]);
+
+	if(pos != datasizes_nz[size]) throw new Error();
+	
 
 	// convert to values
 	final int value[.] Vrow 
@@ -122,6 +142,7 @@ public class SparseMatmultAllValuesClean {
 	} else {
 	    System.out.println("Validation succeeded");
         }
+	return true;
     }
  
     private static void mul(double value[.] val, 

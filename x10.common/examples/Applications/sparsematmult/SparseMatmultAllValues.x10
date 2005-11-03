@@ -18,15 +18,30 @@ public class SparseMatmultAllValues {
     static final int SPARSE_NUM_ITER = 200;
     static final Random R = new Random(RANDOM_SEED);
 
+   /**
+    * main method
+    */
+   
     public static void main(String[] args) {
-        new SparseMatmultAllValues().run();
+        final boxedBoolean b=new boxedBoolean();
+        try {
+                finish async b.val=(new SparseMatmultAllValues()).run();
+        } catch (Throwable e) {
+                e.printStackTrace();
+                b.val=false;
+        }
+        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
+        x10.lang.Runtime.setExitCode(b.val?0:1);
+    }
+    static class boxedBoolean {
+        boolean val=false;
     }
 
     public SparseMatmultAllValues() { }
 
     int pos; // hack
 
-    public void run() {
+    public boolean run() {
         final int nthreads  = place.MAX_PLACES;
 	final dist d_places = dist.factory.unique(place.places);
 	final region r_N  = [0 : datasizes_N[size]-1]; 
@@ -100,7 +115,8 @@ public class SparseMatmultAllValues {
 	   pos = high + 1;
            return [low:high];
 	};
-	assert (pos == datasizes_nz[size]);
+	//assert (pos == datasizes_nz[size]);
+	if(pos != datasizes_nz[size]) throw new Error();
 
 	// convert to values
 	final int value[.] Vrow 
@@ -143,6 +159,7 @@ public class SparseMatmultAllValues {
 	} else {
 	    System.out.println("Validation succeeded");
         }
+	return true;
     }
  
     private static void mul(double value[.] val, 
