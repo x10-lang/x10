@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
+<booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.ibm.domo.ast.x10.tests.X10IRTests"/>
+<stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="com.ibm.domo.ast.x10.tests"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512m -Dcom.ibm.domo.tracefile=${project_loc}/domo-trace.txt"/>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value=""/>
+<booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
+</launchConfiguration>
