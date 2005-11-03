@@ -24,6 +24,7 @@ import com.ibm.capa.ast.CAstNodeTypeMap;
 import com.ibm.capa.ast.CAstSourcePositionMap;
 import com.ibm.capa.ast.CAstType;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotJava2CAstTranslator;
+import com.ibm.domo.ast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.domo.ast.java.translator.polyglot.TranslatingVisitor;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.domo.ast.x10.translator.X10CastNode;
@@ -36,6 +37,10 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
     protected TranslatingVisitor createTranslator() {
         return new X10TranslatingVisitorImpl();
+    }
+
+    protected PolyglotTypeDictionary createTypeDict() {
+	return new X10TypeDictionary(fTypeSystem, this);
     }
 
     protected CAstEntity walkEntity(final Node rootNode, final WalkContext context) {
@@ -68,7 +73,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstType getReturnType() {
-	    return fTypeDict.getCAstTypeFor(
+	    return getTypeDict().getCAstTypeFor(
 		    (fNode instanceof Async) ?
 			    fTypeSystem.Void() :
 	    		    ((Future) fNode).type());
@@ -92,11 +97,11 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public Collection getSupertypes() {
-	    return Collections.singleton(fTypeDict.getCAstTypeFor(fTypeSystem.Object()));
+	    return Collections.singleton(getTypeDict().getCAstTypeFor(fTypeSystem.Object()));
 	}
 
 	public CAstType getDeclaringType() {
-	    return fTypeDict.getCAstTypeFor(fContext.getEnclosingMethod().container());
+	    return getTypeDict().getCAstTypeFor(fContext.getEnclosingMethod().container());
 	}
     }
 
