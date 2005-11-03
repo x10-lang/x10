@@ -14,3 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  polyglot2,
  x10.compiler
 Eclipse-AutoStart: true
+Export-Package: com.ibm.domo.ast.x10,
+ com.ibm.domo.ast.x10.ssa,
+ com.ibm.domo.ast.x10.translator,
+ com.ibm.domo.ast.x10.translator.polyglot
