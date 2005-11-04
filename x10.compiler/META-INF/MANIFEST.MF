@@ -4,13 +4,15 @@ Bundle-Name: X10 compiler
 Bundle-SymbolicName: x10.compiler
 Bundle-Version: 1.0.0
 Bundle-Localization: plugin
-Require-Bundle: polyglot,
- lpg,
+Require-Bundle: lpg,
  x10.runtime,
- x10.common
-Export-Package: polyglot.ext.x10,
+ x10.common,
+ polyglot2
+Export-Package: org.ovmj.util,
+ polyglot.ext.x10,
  polyglot.ext.x10.ast,
  polyglot.ext.x10.extension,
  polyglot.ext.x10.types,
  polyglot.ext.x10.visit,
- polyglot.ext.x10.visit.mrcanalysis
+ polyglot.ext.x10.visit.mrcanalysis,
+ x10.parser
