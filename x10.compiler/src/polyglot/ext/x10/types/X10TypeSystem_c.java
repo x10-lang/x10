@@ -9,18 +9,7 @@ import polyglot.ext.jl.types.TypeSystem_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
-import polyglot.types.ArrayType;
-import polyglot.types.ClassType;
-import polyglot.types.ConstructorInstance;
-import polyglot.types.LazyClassInitializer;
-import polyglot.types.MethodInstance;
-import polyglot.types.NullType;
-import polyglot.types.ParsedClassType;
-import polyglot.types.PrimitiveType;
-import polyglot.types.ReferenceType;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.UnknownType;
+import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
@@ -778,6 +767,14 @@ implements X10TypeSystem {
 		
 		throw new InternalCompilerError("Could not find constructor for " + t);
 	}
-	
+
+	// RMF 11/1/2005 - Not having the "static" qualifier on interfaces causes problems,
+	// e.g. for New_c.disambiguate(AmbiguityRemover), which assumes that instantiating
+	// non-static types requires a "this" qualifier expression.
+	public Flags flagsForBits(int bits) {
+	    Flags sf= super.flagsForBits(bits);
+	    if (sf.isInterface()) return sf.Static();
+	    return sf;
+	}
 	
 } // end of X10TypeSystem_c
