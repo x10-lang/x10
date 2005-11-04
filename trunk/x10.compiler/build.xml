@@ -33,7 +33,7 @@
         <pathelement location="${pe.location}/lib/PE.jar"/>
     </path>
     <path id="polyglot.classpath">
-        <pathelement location="${polyglot.location}/classes"/>
+        <pathelement location="${polyglot.location}/bin"/>
     </path>
     <path id="x10.common.classpath"/>
     <path id="x10.runtime.classpath">
