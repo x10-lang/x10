@@ -1,7 +1,7 @@
 junit
 lpg
 pe
-polyglot
+polyglot2
 x10.common
 x10.compiler
 x10.design
