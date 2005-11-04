@@ -19,6 +19,9 @@ if [[ -z "$JAVA_HOME" ]]; then echo "+++ JAVA_HOME must be defined"; exit 1; fi
 if [[ -z "$X10_PLATFORM" ]]; then echo "+++ X10_PLATFORM must be defined"; exit 1; fi 
 
 
+#first refresh the project list
+cvs -q update -dPA x10.common/projectList.txt
+
 #cvs checkout or update all projects
 cvs -q checkout -PA `cat x10.common/projectList.txt`
 chkRc $? "+++ cvs update failed"
