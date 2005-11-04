@@ -62,6 +62,10 @@ public class GenParameterExpr_c extends Expr_c implements GenParameterExpr {
 	 */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		// HACK RMF 11/1/2005 - some people actually care about whether an expression's type is resolved :-)
+		// Not sure what the type should be, but it ought not to be Unknown :-(.
+		if (!this.type.isCanonical())
+		    return this.type(ts.Object());
 		// TypeNode tn = null;
 		// tn.typeCheck(tc);
 		return this;
