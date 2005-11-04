@@ -1,8 +1,6 @@
-
-
 package x10.parser;
 
-interface X10Lexersym {
+public interface X10Lexersym {
     public final static int
       Char_CtlCharNotWS = 102,
       Char_LF = 100,

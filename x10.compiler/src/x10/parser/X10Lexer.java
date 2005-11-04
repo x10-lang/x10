@@ -1,8 +1,5 @@
-
-
-
 package x10.parser;
-
+import java.util.*;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -12,7 +9,7 @@ import java.util.ArrayList;
 
 import com.ibm.lpg.*;
 
-public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, X10Lexersym
+public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym, RuleAction
 {
     private PrsStream prsStream;
     private ParseTable prs = new X10Lexerprs();
@@ -33,22 +30,34 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         this(input_chars, filename, 1);
     }
 
+    public X10Lexer() {}
+
     public String[] orderedExportedSymbols() { return X10Parsersym.orderedTerminalSymbols; }
+    public LexStream getLexStream() { return (LexStream) this; }
 
     public void lexer(PrsStream prsStream)
     {
+        lexer(null, prsStream);
+    }
+
+    public void lexer(Monitor monitor, PrsStream prsStream)
+    {
+        if (getInputChars() == null)
+            throw new NullPointerException("LexStream was not initialized");
+
         this.prsStream = prsStream;
 
         prsStream.makeToken(0, 0, 0); // Token list must start with a bad token
             
-        lexParser.parseCharacters();  // Lex the input characters
+        lexParser.parseCharacters(monitor);  // Lex the input characters
             
         int i = getStreamIndex();
         prsStream.makeToken(i, i, TK_EOF_TOKEN); // and end with the end of file token
-        prsStream.setSize();
+        prsStream.setStreamLength(prsStream.getSize());
             
         return;
     }
+
     //
     // The Lexer contains an array of characters as the input stream to be parsed.
     // There are methods to retrieve and classify characters.
@@ -56,18 +65,201 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
     // The Lexer extends the abstract class LpgLexStream with an implementation of the abstract
     // method getKind.  The template defines the Lexer class and the lexer() method.
     // A driver creates the action class, "Lexer", passing an Option object to the constructor.
-    // The Option object gives access to the input character arrary, the file name and other options.
     //
     X10KWLexer kwLexer;
     boolean printTokens;
     private final static int ECLIPSE_TAB_VALUE = 4;
 
+    public int [] getKeywordKinds() { return kwLexer.getKeywordKinds(); }
+
     public X10Lexer(String filename) throws java.io.IOException
     {
         this(filename, ECLIPSE_TAB_VALUE);
-        kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
+        this.kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
+    }
+
+    public void initialize(char [] content, String filename)
+    {
+        super.initialize(content, filename);
+        if (this.kwLexer == null)
+             this.kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
+        else this.kwLexer.setInputChars(getInputChars());
     }
     
+    final void makeToken(int kind)
+    {
+        int startOffset = lexParser.getToken(1),
+            endOffset = lexParser.getLastToken();
+        makeToken(startOffset, endOffset, kind);
+        if (printTokens) printValue(startOffset, endOffset);
+    }
+
+    final void skipToken()
+    {
+        if (printTokens) printValue(lexParser.getToken(1), lexParser.getLastToken());
+    }
+    
+    final void checkForKeyWord()
+    {
+        int startOffset = lexParser.getToken(1),
+            endOffset = lexParser.getLastToken(),
+        kwKind = kwLexer.lexer(startOffset, endOffset);
+        makeToken(startOffset, endOffset, kwKind);
+        if (printTokens) printValue(startOffset, endOffset);
+    }
+    
+    final void printValue(int startOffset, int endOffset)
+    {
+        String s = new String(getInputChars(), startOffset, endOffset - startOffset + 1);
+        System.out.print(s);
+    }
+
+    //
+    //
+    //
+    public final static int tokenKind[] =
+    {
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_HT,
+        Char_LF,
+        Char_CtlCharNotWS,
+        Char_FF,
+        Char_CR,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_CtlCharNotWS,
+        Char_Space,
+        Char_Exclamation,
+        Char_DoubleQuote,
+        Char_Sharp,
+        Char_DollarSign,
+        Char_Percent,
+        Char_Ampersand,
+        Char_SingleQuote,
+        Char_LeftParen,
+        Char_RightParen,
+        Char_Star,
+        Char_Plus,
+        Char_Comma,
+        Char_Minus,
+        Char_Dot,
+        Char_Slash,
+        Char_0,
+        Char_1,
+        Char_2,
+        Char_3,
+        Char_4,
+        Char_5,
+        Char_6,
+        Char_7,
+        Char_8,
+        Char_9,
+        Char_Colon,
+        Char_SemiColon,
+        Char_LessThan,
+        Char_Equal,
+        Char_GreaterThan,
+        Char_QuestionMark,
+        Char_AtSign,
+        Char_A,
+        Char_B,
+        Char_C,
+        Char_D,
+        Char_E,
+        Char_F,
+        Char_G,
+        Char_H,
+        Char_I,
+        Char_J,
+        Char_K,
+        Char_L,
+        Char_M,
+        Char_N,
+        Char_O,
+        Char_P,
+        Char_Q,
+        Char_R,
+        Char_S,
+        Char_T,
+        Char_U,
+        Char_V,
+        Char_W,
+        Char_X,
+        Char_Y,
+        Char_Z,
+        Char_LeftBracket,
+        Char_BackSlash,
+        Char_RightBracket,
+        Char_Caret,
+        Char__,
+        Char_BackQuote,
+        Char_a,
+        Char_b,
+        Char_c,
+        Char_d,
+        Char_e,
+        Char_f,
+        Char_g,
+        Char_h,
+        Char_i,
+        Char_j,
+        Char_k,
+        Char_l,
+        Char_m,
+        Char_n,
+        Char_o,
+        Char_p,
+        Char_q,
+        Char_r,
+        Char_s,
+        Char_t,
+        Char_u,
+        Char_v,
+        Char_w,
+        Char_x,
+        Char_y,
+        Char_z,
+        Char_LeftBrace,
+        Char_VerticalBar,
+        Char_RightBrace,
+        Char_Tilde,
+        Char_AfterASCII, // for all chars in range 128..65534
+        Char_EOF         // for '\uffff' or 65535 
+    };
+            
+    public final int getKind(int i)  // Classify character at ith location
+    {
+        char c = (i >= getStreamLength() ? '\uffff' : getCharValue(i));
+        return (c < 128 // ASCII Character
+                  ? tokenKind[c]
+                  : c == '\uffff'
+                       ? Char_EOF
+                       : Char_AfterASCII);
+    }
+
     public X10Lexer(java.io.Reader reader, String filename) throws java.io.IOException
     {
         ArrayList buffers = new ArrayList();
@@ -96,49 +288,41 @@ public class X10Lexer extends LpgLexStream implements RuleAction, X10Parsersym, 
         kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
     }
     
-    final void makeDocComment()
+    public class DebugToken extends Token
+    {
+        char [] inputChars;
+        
+        DebugToken(int startOffset, int endOffset, int kind)
+        {
+            super(startOffset, endOffset, kind);
+            this.inputChars = getInputChars();
+        }
+
+        public String toString() { return getValue(inputChars); }
+    }
+    
+    public final void makeToken(int startOffset, int endOffset, int kind)
+    {
+        //prsStream.makeToken(startOffset, endOffset, kind);
+        prsStream.addToken(new DebugToken(startOffset, endOffset, kind));
+    }
+    
+    final void makeComment(int kind)
     {
         int startOffset = lexParser.getToken(1),
             endOffset = lexParser.getLastToken();
-        skipToken();
-    }
-
-    final void makeToken(int kind)
-    {
-        int startOffset = lexParser.getToken(1),
-            endOffset = lexParser.getLastToken();
-        prsStream.makeToken(startOffset, endOffset, kind);
-        if (printTokens) printValue(startOffset, endOffset);
-    }
-
-    final void skipToken()
-    {
-        if (printTokens) printValue(lexParser.getToken(1), lexParser.getLastToken());
-    }
-    
-    final void checkForKeyWord()
-    {
-        int startOffset = lexParser.getToken(1),
-            endOffset = lexParser.getLastToken(),
-        kwKind = kwLexer.lexer(startOffset, endOffset);
-        prsStream.makeToken(startOffset, endOffset, kwKind);
-        if(printTokens) printValue(startOffset, endOffset);
-    }
-    
-    final void printValue(int startOffset, int endOffset)
-    {
-        String s = new String(getInputChars(), startOffset, endOffset - startOffset + 1);
-        System.out.print(s);
+        prsStream.makeAdjunct(startOffset, endOffset, kind);
     }
 
     private static int LINES = 0,
                        TOKENS = 1,
                        JAVA = 2,
-                       X10 = 3,
-                       differ_mode = X10;
+                       X10 = 3;
+    private static int differ_mode = X10; // default
 
     private static boolean ignore_braces = true,
                            dump_input = false;
+
     private static String extension = "";
 
     private static int changeCount = 0,
@@ -582,151 +766,6 @@ assert(new_file != null);
         return;
     }
 
-    //
-    //
-    //
-    public final static int tokenKind[] =
-    {
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_HT,
-        Char_LF,
-        Char_CtlCharNotWS,
-        Char_FF,
-        Char_CR,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_CtlCharNotWS,
-        Char_Space,
-        Char_Exclamation,
-        Char_DoubleQuote,
-        Char_Sharp,
-        Char_DollarSign,
-        Char_Percent,
-        Char_Ampersand,
-        Char_SingleQuote,
-        Char_LeftParen,
-        Char_RightParen,
-        Char_Star,
-        Char_Plus,
-        Char_Comma,
-        Char_Minus,
-        Char_Dot,
-        Char_Slash,
-        Char_0,
-        Char_1,
-        Char_2,
-        Char_3,
-        Char_4,
-        Char_5,
-        Char_6,
-        Char_7,
-        Char_8,
-        Char_9,
-        Char_Colon,
-        Char_SemiColon,
-        Char_LessThan,
-        Char_Equal,
-        Char_GreaterThan,
-        Char_QuestionMark,
-        Char_AtSign,
-        Char_A,
-        Char_B,
-        Char_C,
-        Char_D,
-        Char_E,
-        Char_F,
-        Char_G,
-        Char_H,
-        Char_I,
-        Char_J,
-        Char_K,
-        Char_L,
-        Char_M,
-        Char_N,
-        Char_O,
-        Char_P,
-        Char_Q,
-        Char_R,
-        Char_S,
-        Char_T,
-        Char_U,
-        Char_V,
-        Char_W,
-        Char_X,
-        Char_Y,
-        Char_Z,
-        Char_LeftBracket,
-        Char_BackSlash,
-        Char_RightBracket,
-        Char_Caret,
-        Char__,
-        Char_BackQuote,
-        Char_a,
-        Char_b,
-        Char_c,
-        Char_d,
-        Char_e,
-        Char_f,
-        Char_g,
-        Char_h,
-        Char_i,
-        Char_j,
-        Char_k,
-        Char_l,
-        Char_m,
-        Char_n,
-        Char_o,
-        Char_p,
-        Char_q,
-        Char_r,
-        Char_s,
-        Char_t,
-        Char_u,
-        Char_v,
-        Char_w,
-        Char_x,
-        Char_y,
-        Char_z,
-        Char_LeftBrace,
-        Char_VerticalBar,
-        Char_RightBrace,
-        Char_Tilde,
-        Char_AfterASCII, // for all chars in range 128..65534
-        Char_EOF         // for '\uffff' or 65535 
-    };
-            
-    public final int getKind(int i)  // Classify character at ith location
-    {
-        char c = (i >= getStreamLength() ? '\uffff' : getCharValue(i));
-        return (c < 128 // ASCII Character
-                  ? tokenKind[c]
-                  : c == '\uffff'
-                       ? Char_EOF
-                       : Char_AfterASCII);
-    }
     static public class DifferX10 extends DifferJava
     {
         protected DifferX10() {}
@@ -935,7 +974,8 @@ assert(new_file != null);
             //
             case 8: { 
                 if (getKind(lexParser.getFirstToken(3)) == Char_Star && getKind(getNext(lexParser.getFirstToken(3))) != Char_Star)
-                    makeDocComment();
+                     makeComment(TK_DocComment);
+                else makeComment(TK_MlComment);
                 break;
             }
      
@@ -943,7 +983,7 @@ assert(new_file != null);
             // Rule 9:  Token ::= SLC
             //
             case 9: { 
-                skipToken();
+                makeComment(TK_SlComment);
                 break;
             }
      
@@ -1323,7 +1363,8 @@ assert(new_file != null);
                 makeToken(lexParser.getToken(2), lexParser.getToken(3), TK_RANGE);
                 break;
             }
-        
+    
+    
             default:
                 break;
         }

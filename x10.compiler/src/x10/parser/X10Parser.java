@@ -1,5 +1,11 @@
 
 //
+// 12/25/2004
+// This is the basic X10 grammar specification without support for generic types.
+// Intended for the Feb 2005 X10 release.
+//
+
+//
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -7,10 +13,7 @@
 // (2) Removed TypeParameters from types.
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
-// 12/28/2004// 12/25/2004
-// This is the basic X10 grammar specification without support for generic types.
-// Intended for the Feb 2005 X10 release.
-//
+// 12/28/2004
 
 package x10.parser;
 
@@ -102,21 +105,17 @@ import com.ibm.lpg.*;
 
 public class X10Parser extends PrsStream implements RuleAction, Parser
 {
-    X10Parser prsStream;
     LexStream lexStream;
-    ParseTable prs;
     BacktrackingParser btParser;
 
     public X10Parser(LexStream lexStream)
     {
         super(lexStream);
         this.lexStream = lexStream;
-        this.prsStream = this;
-        this.prs = new X10Parserprs();
 
         try
         {
-            prsStream.remapTerminalSymbols(orderedTerminalSymbols(), X10Parserprs.EOFT_SYMBOL);
+            super.remapTerminalSymbols(orderedTerminalSymbols(), X10Parserprs.EOFT_SYMBOL);
         }
         catch(NullExportedSymbolsException e) {
         }
@@ -141,29 +140,33 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         } 
     }
 
-    public class JPGPosition extends Position {
-	private int fStartOffset, fEndOffset;
-
-	public JPGPosition(String path, String file, int line, int column, int endLine, int endColumn, int startOffset, int endOffset) {
-	    super(path, file, line, column, endLine, endColumn);
-	    fStartOffset= startOffset;
-	    fEndOffset= endOffset;
-	}
-	public int getEndOffset() {
-	    return fEndOffset;
-	}
-	public int getStartOffset() {
-	    return fStartOffset;
-	}
-    }
-
     public String[] orderedTerminalSymbols() { return X10Parsersym.orderedTerminalSymbols; }
-        
+    public String getTokenKindName(int kind) { return X10Parsersym.orderedTerminalSymbols[kind]; }            
+    public int getEOFTokenKind() { return X10Parserprs.EOFT_SYMBOL; }
+    public PrsStream getParseStream() { return (PrsStream) this; }
+
     public polyglot.ast.Node parser()
     {
+        return parser(null, 0);
+    }
+    
+    public polyglot.ast.Node parser(Monitor monitor)
+    {
+        return parser(monitor, 0);
+    }
+
+    public polyglot.ast.Node parser(int error_repair_count)
+    {
+        return parser(null, error_repair_count);
+    }
+
+    public polyglot.ast.Node parser(Monitor monitor, int error_repair_count)
+    {
+        ParseTable prs = new X10Parserprs();
+
         try
         {
-            btParser = new BacktrackingParser(this, prs, this);
+            btParser = new BacktrackingParser(monitor, (TokenStream)this, prs, (RuleAction)this);
         }
         catch (NotBacktrackParseTableException e)
         {
@@ -178,17 +181,21 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
         try
         {
-            return (polyglot.ast.Node) btParser.parse();
+            return (polyglot.ast.Node) btParser.parse(error_repair_count);
         }
         catch (BadParseException e)
         {
-            reset(e.error_token); // point to error token
-            DiagnoseParser diagnoseParser = new DiagnoseParser(this, prs);
-            diagnoseParser.diagnose(e.error_token);
+            if (monitor == null || !monitor.isCancelled())
+            {
+                reset(e.error_token); // point to error token
+                DiagnoseParser diagnoseParser = new DiagnoseParser(this, prs);
+                diagnoseParser.diagnose(e.error_token);
+            }
         }
 
         return null;
     }
+
 
     private ErrorQueue eq;
     private X10TypeSystem ts;
@@ -212,17 +219,34 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                getEndLine(righttok) + ":" + getEndColumn(righttok) + ": ";
     }
 
+    public class JPGPosition extends Position
+    {
+        private final int startOffset,
+                          endOffset;
+            
+        JPGPosition(String path, String filename, int start_line, int start_column,
+                    int end_line, int end_column, int start_offset, int end_offset)
+        {
+            super(path, filename, start_line, start_column, end_line, end_column);
+            this.startOffset = start_offset;
+            this.endOffset = end_offset;
+            
+        }
+
+        public int getStartOffset() { return startOffset; }
+        public int getEndOffset() { return endOffset; }
+    }
+
     public void reportError(int errorCode, String locationInfo, int leftToken, int rightToken, String tokenText)
     {
         if (errorCode == DELETION_CODE ||
             errorCode == MISPLACED_CODE) tokenText = "";
         if (! tokenText.equals("")) tokenText += ' ';
-        eq.enqueue(ErrorInfo.SYNTAX_ERROR, tokenText + errorMsgText[errorCode],
-        	new JPGPosition("", getFileName(),
-        		getLine(leftToken), getColumn(leftToken), getLine(rightToken), getColumn(rightToken),
-        		getStartOffset(leftToken), getEndOffset(rightToken)));
+        eq.enqueue(ErrorInfo.SYNTAX_ERROR, locationInfo + tokenText + errorMsgText[errorCode],
+                   new JPGPosition("", getFileName(), getLine(leftToken), getColumn(leftToken), getLine(rightToken), getColumn(rightToken), getStartOffset(leftToken), getEndOffset(rightToken)));
     }
 
+    int bad_rule = 0;
     public polyglot.ast.Node parse() {
         try
         {
@@ -249,36 +273,36 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     
     public String file()
     {
-        return prsStream.getFileName();
+        return super.getFileName();
     }
 
     private Position pos()
     {
         int i = btParser.getFirstToken(),
             j = btParser.getLastToken();
-        return new Position(prsStream.getFileName(),
-                            prsStream.getLine(i),
-                            prsStream.getColumn(i),
-                            prsStream.getEndLine(j),
-                            prsStream.getEndColumn(j));
+        return new Position(super.getFileName(),
+                            super.getLine(i),
+                            super.getColumn(i),
+                            super.getEndLine(j),
+                            super.getEndColumn(j));
     }
 
     private Position pos(int i)
     {
-        return new Position(prsStream.getFileName(),
-                            prsStream.getLine(i),
-                            prsStream.getColumn(i),
-                            prsStream.getEndLine(i),
-                            prsStream.getEndColumn(i));
+        return new Position(super.getFileName(),
+                            super.getLine(i),
+                            super.getColumn(i),
+                            super.getEndLine(i),
+                            super.getEndColumn(i));
     }
 
     private Position pos(int i, int j)
     {
-        return new Position(prsStream.getFileName(),
-                            prsStream.getLine(i),
-                            prsStream.getColumn(i),
-                            prsStream.getEndLine(j),
-                            prsStream.getEndColumn(j));
+        return new Position(super.getFileName(),
+                            super.getLine(i),
+                            super.getColumn(i),
+                            super.getEndLine(j),
+                            super.getEndColumn(j));
     }
 
     /**
@@ -297,7 +321,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             slash = filename.lastIndexOf('/', dot);
         if (slash == -1)
             slash = filename.lastIndexOf('\\', dot);
-        String clean_filename = filename.substring(slash+1, dot);
+        String clean_filename = (slash >= 0 && dot >= 0 ? filename.substring(slash+1, dot) : "");
         if ((! clean_filename.equals(idname)) && clean_filename.equalsIgnoreCase(idname))
             eq.enqueue(ErrorInfo.SYNTAX_ERROR,
                        "This type name does not match the name of the containing file: " + filename.substring(slash+1),
@@ -306,14 +330,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 
 
     private polyglot.lex.Operator op(int i) {
-        return new Operator(pos(i), prsStream.getName(i), prsStream.getKind(i));
+        return new Operator(pos(i), super.getName(i), super.getKind(i));
     }
 
     private polyglot.lex.Identifier id(int i) {
-        return new Identifier(pos(i), prsStream.getName(i), X10Parsersym.TK_IDENTIFIER);
+        return new Identifier(pos(i), super.getName(i), X10Parsersym.TK_IDENTIFIER);
     }
     private String comment(int i) {
-        String s = prsStream.getName(i);
+        String s = super.getName(i);
         if (s != null && s.startsWith("/**") && s.endsWith("*/")) {
             return s +"\n";
         }
@@ -461,32 +485,32 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
     private polyglot.lex.IntegerLiteral int_lit(int i, int radix)
     {
-        long x = parseLong(prsStream.getName(i), radix);
+        long x = parseLong(super.getName(i), radix);
         return new IntegerLiteral(pos(i), (int) x, X10Parsersym.TK_IntegerLiteral);
     }
 
     private polyglot.lex.IntegerLiteral int_lit(int i)
     {
-        long x = parseLong(prsStream.getName(i));
+        long x = parseLong(super.getName(i));
         return new IntegerLiteral(pos(i), (int) x, X10Parsersym.TK_IntegerLiteral);
     }
 
     private polyglot.lex.LongLiteral long_lit(int i, int radix)
     {
-        long x = parseLong(prsStream.getName(i), radix);
+        long x = parseLong(super.getName(i), radix);
         return new LongLiteral(pos(i), x, X10Parsersym.TK_LongLiteral);
     }
 
     private polyglot.lex.LongLiteral long_lit(int i)
     {
-        long x = parseLong(prsStream.getName(i));
+        long x = parseLong(super.getName(i));
         return new LongLiteral(pos(i), x, X10Parsersym.TK_LongLiteral);
     }
 
     private polyglot.lex.FloatLiteral float_lit(int i)
     {
         try {
-            String s = prsStream.getName(i);
+            String s = super.getName(i);
             int end_index = (s.charAt(s.length() - 1) == 'f' || s.charAt(s.length() - 1) == 'F'
                                                        ? s.length() - 1
                                                        : s.length());
@@ -496,7 +520,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         catch (NumberFormatException e) {
             unrecoverableSyntaxError = true;
             eq.enqueue(ErrorInfo.LEXICAL_ERROR,
-                       "Illegal float literal \"" + prsStream.getName(i) + "\"", pos(i));
+                       "Illegal float literal \"" + super.getName(i) + "\"", pos(i));
             return null;
         }
     }
@@ -504,7 +528,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     private polyglot.lex.DoubleLiteral double_lit(int i)
     {
         try {
-            String s = prsStream.getName(i);
+            String s = super.getName(i);
             int end_index = (s.charAt(s.length() - 1) == 'd' || s.charAt(s.length() - 1) == 'D'
                                                        ? s.length() - 1
                                                        : s.length());
@@ -514,7 +538,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         catch (NumberFormatException e) {
             unrecoverableSyntaxError = true;
             eq.enqueue(ErrorInfo.LEXICAL_ERROR,
-                       "Illegal float literal \"" + prsStream.getName(i) + "\"", pos(i));
+                       "Illegal float literal \"" + super.getName(i) + "\"", pos(i));
             return null;
         }
     }
@@ -522,7 +546,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     private polyglot.lex.CharacterLiteral char_lit(int i)
     {
         char x;
-        String s = prsStream.getName(i);
+        String s = super.getName(i);
         if (s.charAt(1) == '\\') {
             switch(s.charAt(2)) {
                 case 'u':
@@ -571,12 +595,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
     private polyglot.lex.BooleanLiteral boolean_lit(int i)
     {
-        return new BooleanLiteral(pos(i), prsStream.getKind(i) == X10Parsersym.TK_true, prsStream.getKind(i));
+        return new BooleanLiteral(pos(i), super.getKind(i) == X10Parsersym.TK_true, super.getKind(i));
     }
 
     private polyglot.lex.StringLiteral string_lit(int i)
     {
-        String s = prsStream.getName(i);
+        String s = super.getName(i);
         char x[] = new char[s.length()];
         int j = 1,
             k = 0;
@@ -647,8 +671,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         return new NullLiteral(pos(i), X10Parsersym.TK_null);
     }
 
-
-    int bad_rule = 0;
 
     public void ruleAction(int ruleNumber)
     {
@@ -4695,7 +4717,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 btParser.setSym1(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
-        
+    
+    
             default:
                 break;
         }

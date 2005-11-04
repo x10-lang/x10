@@ -1,5 +1,11 @@
 
 //
+// 12/25/2004
+// This is the basic X10 grammar specification without support for generic types.
+// Intended for the Feb 2005 X10 release.
+//
+
+//
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -7,10 +13,8 @@
 // (2) Removed TypeParameters from types.
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
-// 12/28/2004// 12/25/2004
-// This is the basic X10 grammar specification without support for generic types.
-// Intended for the Feb 2005 X10 release.
-//
+// 12/28/2004
+
 package x10.parser;
 
 public interface X10Parsersym {
@@ -146,14 +150,16 @@ public interface X10Parsersym {
       TK_value = 2,
       TK_when = 18,
       TK_IDENTIFIER = 19,
-      TK_Comment = 133,
-      TK_GREATER_EQUAL = 134,
-      TK_RIGHT_SHIFT = 135,
-      TK_UNSIGNED_RIGHT_SHIFT = 136,
-      TK_RIGHT_SHIFT_EQUAL = 137,
-      TK_UNSIGNED_RIGHT_SHIFT_EQUAL = 138,
+      TK_SlComment = 133,
+      TK_MlComment = 134,
+      TK_DocComment = 135,
+      TK_GREATER_EQUAL = 136,
+      TK_RIGHT_SHIFT = 137,
+      TK_UNSIGNED_RIGHT_SHIFT = 138,
+      TK_RIGHT_SHIFT_EQUAL = 139,
+      TK_UNSIGNED_RIGHT_SHIFT_EQUAL = 140,
       TK_EOF_TOKEN = 117,
-      TK_$error = 139;
+      TK_$error = 141;
 
       public final static String orderedTerminalSymbols[] = {
                  "",
@@ -289,7 +295,9 @@ public interface X10Parsersym {
                  "goto",
                  "boxed",
                  "fun",
-                 "Comment",
+                 "SlComment",
+                 "MlComment",
+                 "DocComment",
                  "GREATER_EQUAL",
                  "RIGHT_SHIFT",
                  "UNSIGNED_RIGHT_SHIFT",
