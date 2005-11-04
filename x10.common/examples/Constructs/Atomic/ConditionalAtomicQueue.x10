@@ -96,13 +96,13 @@ public class ConditionalAtomicQueue {
 	public boolean run() {
 		final int N= T.N;
 		final int NP= place.MAX_PLACES;
-		final dist D2= Dist.val(N*NP);
+		final dist D2= MyDist.val(N*NP);
 		final int[.] received = new int[D2];
 		
 		finish {
 			// spawn producer activities on each place
 			async( this )
-			ateach(point [i]:Dist.unique()) {
+			ateach(point [i]:MyDist.unique()) {
 				for(point [j]: [0:N-1]) { 
 					final T t= new T(i,j); // produce a T
 					async(this) {
@@ -154,7 +154,7 @@ public class ConditionalAtomicQueue {
 /**
  * Utility routines to create simple common dists
  */
-class Dist {
+class MyDist {
     /**
      * create a simple 1D blocked dist
      */
