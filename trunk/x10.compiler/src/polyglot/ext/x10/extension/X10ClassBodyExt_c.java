@@ -15,9 +15,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
+import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -299,9 +301,14 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		ArrayList args = new ArrayList();
 		for (ListIterator i = nativeMethod.formals().listIterator(); i.hasNext();) {
 			Formal_c parameter = (Formal_c) i.next();
-			if(parameter.declType().isPrimitive())
-				args.add(nf.Local(pos,parameter.name()));
-			else{
+
+			if(parameter.declType().isPrimitive()) {
+				Local arg= nf.Local(pos,parameter.name());
+				// RMF 11/2/2005 - Set the type of the Local. This would normally
+				// be handled by type-checking, but we're past that point now...
+				arg= (Local) arg.type(parameter.declType());
+				args.add(arg);
+			} else {
 				ClassType_c ct = (ClassType_c)parameter.declType().toClass();
 				if(null == ct) 
 					throw new Error("Problems with unsafe array "+parameter.name());
@@ -342,17 +349,28 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					throw new Error("Could not find "+KgetUnsafeDescriptorMethod+" in class"+ ct.fullName());
 				}
 				
-				Call getAddr = nf.Call(pos,nf.Local(pos,parameter.name()),KgetUnsafeAddressMethod);
+				Local getAddrTarget= nf.Local(pos,parameter.name());
+				// RMF 11/3/2005 - Set the type of getAddr call's target. This would normally be handled by type-checking, but we're past that point now...
+				getAddrTarget= (Local) getAddrTarget.type(parameter.type().type());
+				Call getAddr = nf.Call(pos,getAddrTarget,KgetUnsafeAddressMethod);
 				getAddr = (Call_c)getAddr.methodInstance(unsafeBufferMI);
+				// RMF 11/3/2005 - Set the type of getAddr call. This would normally be handled by type-checking, but we're past that point now...
+				getAddr = (Call) getAddr.type(unsafeBufferMI.returnType());
 				args.add(getAddr);
 				//System.out.println("just added " + getAddr);
-				Call getDescriptor = nf.Call(pos,nf.Local(pos,parameter.name()),KgetUnsafeDescriptorMethod);
+				Call getDescriptor = nf.Call(pos,getAddrTarget,KgetUnsafeDescriptorMethod);
 				getDescriptor = (Call_c)getDescriptor.methodInstance(arrayDescriptorMI);
+				// RMF 11/3/2005 - Set the type of getDescriptor call. This would normally be handled by type-checking, but we're past that point now...
+				getDescriptor = (Call) getDescriptor.type(arrayDescriptorMI.returnType());
 				args.add(getDescriptor);
 			}
 		}
 		
 		jniCall = (Call_c)jniCall.arguments(args);
+
+		// RMF 11/2/2005 - Set type of jniCall to that of method's return type. This would
+		// ordinarily be taken care of by type-checking, but we're past that point...
+		jniCall = (Call) jniCall.type(nativeMethod.returnType().type());
 		
 		ArrayList newStmts = new ArrayList();
 		if (nativeMethod.methodInstance().returnType().isVoid())
@@ -506,8 +524,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		
 		ClassBody_c cb = (ClassBody_c) node();
 		List members = cb.members();
-		HashMap methodHash=null;
-		ArrayList listOfNewMethods = new ArrayList();	
+		Map methodHash=null;
+		ArrayList newListOfMembers = new ArrayList();	
 		for (ListIterator i = members.listIterator(); i.hasNext();) {
 			Object o = i.next();
 			if (o instanceof MethodDecl) {
@@ -515,48 +533,31 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				MethodInstance mi = md.methodInstance();
 			
 				if (!mi.flags().isNative()){
-					listOfNewMethods.add(o);
+					newListOfMembers.add(o);
 					continue;
 				}
 
 				if (!seenNativeMethodDecl) {
-					
 					// JNI signature changes depends on whether the method
 					// is overloaded or not.  Determine that by scanning
 					// through and hashing all native method names
-					methodHash = new HashMap();
-					for (ListIterator j = members.listIterator(); j.hasNext();) {
-						Object theObj = j.next();
-						if (!(theObj instanceof MethodDecl))
-							continue;
-						MethodDecl_c methodDecl = (MethodDecl_c) theObj;
-						if (!methodDecl.methodInstance().flags().isNative())
-							continue;
-						Boolean boolObj = null;
-
-						if (methodHash.containsKey(methodDecl.name())) {
-							methodHash.put(methodDecl.name(), methodDecl); // more than one instance
-						} else {
-							methodHash.put(methodDecl.name(), null);
-						}					
-					}
+					methodHash = buildNativeMethodHash(members);
 					if (0 == containingClassDepth++) {
 						createWrapperFile(mi.container().toString());
 						generateWrapperPrologue();
 					}
 					seenNativeMethodDecl = true;
 				}
-				
-				
+
 				boolean isOverLoaded = (null != methodHash.get(md.name()));
-				
+
 				//System.out.println("method: "+md.name() +" overload:"+isOverLoaded);
 				generateStub(md,isOverLoaded);
-				listOfNewMethods.add(createNewNative(md,nf));	
-				listOfNewMethods.add(createNativeWrapper(md,nf));
+				newListOfMembers.add(createNewNative(md,nf));	
+				newListOfMembers.add(createNativeWrapper(md,nf));
 			}
 			else
-				listOfNewMethods.add(o);
+				newListOfMembers.add(o);
 		}
 		
 		if (seenNativeMethodDecl) {
@@ -565,7 +566,26 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				generateWrapperEpilogue();
 		}
 
-		cb = (ClassBody_c)cb.members(listOfNewMethods);
-        return cb;
+		cb = (ClassBody_c)cb.members(newListOfMembers);
+		return cb;
+	}
+
+	private Map buildNativeMethodHash(List members) {
+	    Map methodHash = new HashMap();
+	    for (ListIterator j = members.listIterator(); j.hasNext();) {
+	    	Object theObj = j.next();
+	    	if (!(theObj instanceof MethodDecl))
+	    		continue;
+	    	MethodDecl_c methodDecl = (MethodDecl_c) theObj;
+	    	if (!methodDecl.methodInstance().flags().isNative())
+	    		continue;
+
+	    	if (methodHash.containsKey(methodDecl.name())) {
+	    		methodHash.put(methodDecl.name(), methodDecl); // more than one instance
+	    	} else {
+	    		methodHash.put(methodDecl.name(), null);
+	    	}					
+	    }
+	    return methodHash;
 	}
 }
