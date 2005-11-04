@@ -7,6 +7,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Job;
+import polyglot.frontend.goals.Goal;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -91,9 +92,15 @@ public class X10Boxer extends AscriptionVisitor
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         n = super.leaveCall(old, n, v);
 
-        if (n.ext() instanceof X10Ext) {
-            return ((X10Ext) n.ext()).rewrite((X10TypeSystem) typeSystem(),
-                                              nodeFactory());
+        // RMF 11/3/2005 - Don't rewrite yet if this goal is already marked unreachable;
+        // the next time we try to run this pass, we'll have a half-rewritten class, and
+        // will end up with duplicate compiler-generated methods, or worse.
+        // 
+        if (((Goal) this.context.goalStack().get(0)).state() != Goal.UNREACHABLE_THIS_RUN) {
+            if (n.ext() instanceof X10Ext) {
+        	return ((X10Ext) n.ext()).rewrite((X10TypeSystem) typeSystem(),
+                                                  nodeFactory());
+            }
         }
 
         return n;
