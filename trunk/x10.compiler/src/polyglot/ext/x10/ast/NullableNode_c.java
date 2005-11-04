@@ -80,13 +80,18 @@ public class NullableNode_c extends TypeNode_c  implements NullableNode {
 
     	TypeNode newType = (TypeNode) base.disambiguate( sc );
 
-	if (Report.should_report("debug", 5)) {
+    	// RMF 11/2/2005 - Don't throw a SemanticException if all that's wrong is
+    	// that disambiguation still needs to be done on the type argument
+    	if (!newType.type().isCanonical())
+    	    return this;
+
+    	if (Report.should_report("debug", 5)) {
 	    Report.report(5,"[NullableNode_c] ... yields type |" + newType + "|.");
 	}
 
     	Type baseType = newType.type();
     	if (null == baseType || ! (baseType instanceof ReferenceType) ) {
-    		throw new SemanticException("The type constructor future cannot be applied to a <null> type", 
+    		throw new SemanticException("The type constructor nullable cannot be applied to a <null> type",
         			position());
     	}
     	
