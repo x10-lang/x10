@@ -486,5 +486,12 @@ public class ParametricType_c
         	// ugh
         	throw new RuntimeException("isValueType() called on " + this);
         }
-        
+
+	public void setFlags(Flags flags) {
+	    throw new UnsupportedOperationException("");
+	}
+
+	public void setContainer(ReferenceType container) {
+	    throw new UnsupportedOperationException("");
+	}
 }
