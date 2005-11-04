@@ -117,11 +117,13 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
     	
     	Type baseType = base.type();
     	
-    	if (! baseType.isCanonical()) {
-    		throw new SemanticException(
-    				"Base type " + baseType + " of array could not be resolved.",
-					base.position());
-    	}
+    	if (! baseType.isCanonical())
+    	    return this;
+//    	{
+//    		throw new SemanticException(
+//    				"Base type " + baseType + " of array could not be resolved.",
+//					base.position());
+//    	}
     	// Now the base type is known. Simply ask the type system to load the corresponding
     	// class and return the type you thus get back. No need for X10ArrayType and X10ArrayType_c.
     	return nf.CanonicalTypeNode(position(), ts.array(baseType, isValueType, distribution));

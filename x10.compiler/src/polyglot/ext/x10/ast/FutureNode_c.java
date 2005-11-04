@@ -84,6 +84,11 @@ public class FutureNode_c extends TypeNode_c implements FutureNode {
     	TypeNode newType = (TypeNode) base.disambiguate( sc );
     	// Report.report(5,"[FutureNode_c] ... yields type |" + type + "|.");
     	Type baseType = newType.type();
+
+    	// RMF 11/2/2005 - Don't proceed further if the base type hasn't yet been disambiguated...
+    	if (!baseType.isCanonical())
+    	    return this;
+
     	if (null == baseType ) {
     		throw new SemanticException("The type constructor future cannot be applied to a <null> type", 
         			position());
