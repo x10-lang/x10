@@ -3,24 +3,28 @@ Procedure to run nightly test cases on AIX, with a home directory on dce.
 (tested on rios2.watson.ibm.com)
 =========================================================================
 
+Ensure you have ant 1.6.x available.
+
+Ensure you are able to do cvs checkouts from the Purdue x10 cvs repository.
+
 Create the  file attached below as ~/X10_cronJob
 
-chmod 700 ~/X10_cronJob #this makes the file unreadable by others
+ chmod 700 ~/X10_cronJob #this makes the file unreadable by others
 
 Edit the file ~/X10_cronJob to enter
-your own password, userid fields in it.
+your own dce password, userid fields in it.
 
 Allow the nightly "at" job to get access to your home directory
 on dce:
 
-cd /u/<yourAIXUserId> 
-dcecp -c acl modify /u/<yourAIXUserId> -add any_other:x -mask calc
+ cd /u/<yourAIXUserId> 
+ dcecp -c acl modify /u/<yourAIXUserId> -add any_other:x -mask calc
 
 Now do the following when it is time to run the tests:
 
-at now
-dce_login <yourAIXUserId> <yourDcePassword> -e ksh -c "~/X10_cronJob ; /bin/kdestroy" 
-control-D
+ at now
+ dce_login <yourAIXUserId> <yourDcePassword> -e ksh -c "~/X10_cronJob ; /bin/kdestroy" 
+ control-D
 
 The script will reschedule itself run at the same time each day
 
