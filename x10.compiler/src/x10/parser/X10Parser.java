@@ -141,6 +141,22 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         } 
     }
 
+    public class JPGPosition extends Position {
+	private int fStartOffset, fEndOffset;
+
+	public JPGPosition(String path, String file, int line, int column, int endLine, int endColumn, int startOffset, int endOffset) {
+	    super(path, file, line, column, endLine, endColumn);
+	    fStartOffset= startOffset;
+	    fEndOffset= endOffset;
+	}
+	public int getEndOffset() {
+	    return fEndOffset;
+	}
+	public int getStartOffset() {
+	    return fStartOffset;
+	}
+    }
+
     public String[] orderedTerminalSymbols() { return X10Parsersym.orderedTerminalSymbols; }
         
     public polyglot.ast.Node parser()
@@ -201,7 +217,10 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         if (errorCode == DELETION_CODE ||
             errorCode == MISPLACED_CODE) tokenText = "";
         if (! tokenText.equals("")) tokenText += ' ';
-        eq.enqueue(ErrorInfo.SYNTAX_ERROR, locationInfo + tokenText + errorMsgText[errorCode]);
+        eq.enqueue(ErrorInfo.SYNTAX_ERROR, tokenText + errorMsgText[errorCode],
+        	new JPGPosition("", getFileName(),
+        		getLine(leftToken), getColumn(leftToken), getLine(rightToken), getColumn(rightToken),
+        		getStartOffset(leftToken), getEndOffset(rightToken)));
     }
 
     public polyglot.ast.Node parse() {
