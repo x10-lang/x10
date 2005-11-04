@@ -24,8 +24,13 @@ import polyglot.util.Position;
 public class NullableType_c extends X10ReferenceType_c implements NullableType {
 
     protected X10ReferenceType base;
-    protected List fields;
-    protected List methods;
+    // RMF 11/2/2005 --
+    // Attempting to initialize these (unused) fields at construction time causes a
+    // chicken-and-egg problem for any recursive type with a nullable field of the
+    // owner's type (e.g. class Node { nullable Node link; }): can't initialize the
+    // type of the nullable field without knowing all the fields/methods first!
+//    protected List fields;
+//    protected List methods;
     protected List interfaces;
 
     /** Used for deserializing types. */
@@ -56,8 +61,8 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
     	this.base = base;
     	assert base != null;
 
-        this.methods = base.methods();
-        this.fields = base.fields();
+//        this.methods = base.methods();
+//        this.fields = base.fields();
         this.interfaces = base.interfaces();
     }
 
