@@ -247,12 +247,12 @@ implements ArrayConstructor {
 		
 	}
 	
-	public Context enterScope(Node child, Context c) {
+	public Context enterChildScope(Node child, Context c) {
         if (child == initializer ) {
         	
          
         }
-        Context result = super.enterScope(child, c);
+        Context result = super.enterChildScope(child, c);
         
         return result;
     }
