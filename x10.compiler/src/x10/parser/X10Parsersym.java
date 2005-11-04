@@ -13,7 +13,7 @@
 //
 package x10.parser;
 
-interface X10Parsersym {
+public interface X10Parsersym {
     public final static int
       TK_IntegerLiteral = 32,
       TK_LongLiteral = 33,
