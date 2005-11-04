@@ -9,7 +9,7 @@
     <property name="container_loc" value="."/>
     <property name="lpg.location" value="../lpg"/>
     <property name="pe.location" value="../pe"/>
-    <property name="polyglot.location" value="../polyglot"/>
+    <property name="polyglot.location" value="../polyglot2"/>
     <property name="resource_loc" value="../x10.compiler"/>
     <property name="workspace_loc:x10.common" value="../x10.common"/>
     <property name="x10.common.location" value="../x10.common"/>
