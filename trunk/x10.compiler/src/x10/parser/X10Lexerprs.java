@@ -1,10 +1,6 @@
-
-
 package x10.parser;
 
-import com.ibm.lpg.*;
-
-class X10Lexerprs implements ParseTable, X10Lexersym {
+public class X10Lexerprs implements com.ibm.lpg.ParseTable, X10Lexersym {
 
     public interface IsKeyword {
         public final static byte isKeyword[] = {0,

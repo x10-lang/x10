@@ -1,8 +1,6 @@
-
-
 package x10.parser;
 
-interface X10KWLexersym {
+public interface X10KWLexersym {
     public final static int
       Char_a = 3,
       Char_b = 15,
