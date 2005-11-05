@@ -132,6 +132,7 @@ checkUsage() {
   force=""
   pat=""
   x10lib="./x10lib"
+  NewFailures=""
   while [[ $# -gt 0 ]]; do
     if [[ "$1" = "-t"  && $# -ge 2 ]]; then
       timeLimit="$2"
@@ -418,8 +419,10 @@ findSinceWhenMsgKeptOccurring() {
 # Slow algorithm,
 # but fine for nightly test runs
 
-  chkArgs 1 "$@"
+  chkArgs 3 "$@"
   local str="$1"
+  local altstr="$2"
+  local test="$3"
   makeTempFile "allTestLogDates"
   local allTestLogDates="$RESULT"
   makeTempFile "buggyTestLogDates"
@@ -441,6 +444,12 @@ findSinceWhenMsgKeptOccurring() {
        RESULT=`sed -n -e "${n},${n}p" $allTestLogDates`
     else
        RESULT="$startDate"
+       if [[ -n "$altstr" ]]; then
+         local old_logSummary=`ls $testLogs/logSummary.* |tail -1`
+         if grep  "$altstr" $old_logSummary > /dev/null ; then
+             NewFailures="$NewFailures $test"; 
+         fi
+       fi
     fi
   else
     RESULT="$startDate"
@@ -456,9 +465,11 @@ writeLogLine() {
 # followed by the earliest date since when str appeared 
 # continuously in the logs
 
-  chkArgs 1 "$@"
+  chkArgs 3 "$@"
   local str="$1"
-  findSinceWhenMsgKeptOccurring "$str"
+  local altstr="$2"
+  local test="$3"
+  findSinceWhenMsgKeptOccurring "$str" "$altstr" "$test"
   local firstDate="$RESULT"
   echo "$str"
   msg logSummary0 "$str	$firstDate"	
@@ -530,14 +541,14 @@ recordTestResult() {
   determineExpectedResult "$className"
   local expectedResult="$RESULT"
   if compareExpectedToActualResult "$expectedResult" "$actualResult"; then
-    writeLogLine "$tdir $className met expectation: $actualResult."
+    writeLogLine "$tdir $className met expectation: $actualResult." "" ""
   else
     checkLimitation "$x10FileName"
     local limitation="$RESULT"
     if [[ -n "$limitation" ]]; then
       let "nLimitation = (( $nLimitation + 1 ))"
     fi
-    writeLogLine "$limitation$tdir $className did not meet expectation: expected=$expectedResult actual=$actualResult."
+    writeLogLine "$limitation$tdir $className did not meet expectation: expected=$expectedResult actual=$actualResult." "$tdir $className met expectation" "$tdir.$className"
     let "nFail = (( $nFail + 1 ))" 
   fi
 }
@@ -699,21 +710,40 @@ mailDiffFromLastRun() {
 
   local old_logSummary=`ls $testLogs/logSummary.* | tail -1` 
   if [[ -n "$old_logSummary" ]]; then
+
     local oldStartDate=${old_logSummary#*logSummary.}
-    diff -l -w "$old_logSummary" logSummary  > $logDiff
-    if [[ $? -eq 0 ]] ; then
-      echo "There were no differences." >> $logDiff
-    fi
     makeReadableDate "$oldStartDate"
     local date1="$RESULT"
     makeReadableDate "$startDate"
     local date2="$RESULT"
+
+    touch $logDiff
+    local newFailStr=""
+
+    if [[ -n "$NewFailures" ]]; then
+        echo "+++ The following existing test case(s) stopped working, between $date1 ET and $date2 ET:" >> $logDiff 
+        echo "" >> $logDiff
+	for f in $NewFailures ; do
+		echo "    $f" >> $logDiff
+	done
+        echo "" >> $logDiff
+	newFailStr="A test case stopped working! "
+    fi
+
+    echo "+++ Differences between test run results of $date1 ET and $date2 ET:" >> $logDiff
+    echo "" >> $logDiff
+    diff -w "$old_logSummary" logSummary  >> $logDiff
+    if [[ $? -eq 0 ]] ; then
+      echo "There were no differences." >> $logDiff
+    fi
+
     echo "" >> $logDiff
     echo "" >> $logDiff
     echo "+++ CVS changes between $date1 ET and $date2 ET (times below are in UTC):" >> $logDiff
+    echo "" >> $logDiff
     (cd ../..; cvs -q log -d "${date1}<${date2}" -S -b -N `cat x10.common/projectList.txt`|sed -n -e "/^RCS file:/p;/^date:/p;/^=/p"|awk '{print}; END {if(NR==0) print "No changes."}' ) >> $logDiff
-    mail -s "X10: differences between test runs started on $date1 vs. $date2" "$mailDest" < $logDiff
-    rm -f $logDiff
+    mail -s "X10: ${newFailStr}Differences between test runs started on $date1 vs. $date2" "$mailDest" < $logDiff
+    mv $logDiff logDiff
   fi
 }
 
