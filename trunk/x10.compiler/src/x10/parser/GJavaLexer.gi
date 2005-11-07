@@ -1123,6 +1123,8 @@ $Rules
            | Digit
            | SpecialNotDQ
            | Space
+           | HT
+           | FF
            | EscapeSequence
            | '\' u HexDigit HexDigit HexDigit HexDigit
            | '\' OctalDigit
@@ -1131,6 +1133,8 @@ $Rules
            | Digit
            | SpecialNotSQ
            | Space
+           | HT
+           | FF
            | EscapeSequence
            | '\' u HexDigit HexDigit HexDigit HexDigit
            | '\' OctalDigits3
