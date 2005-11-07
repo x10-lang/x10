@@ -53,7 +53,7 @@ ext_cp="${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${ext}.jar"
 extargs="-ext ${ext}"
 
 classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot2${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}lpg${FILE_SEP}lib${FILE_SEP}lpg.jar${ext_cp}${extra_cp}"
-command="\"$JAVA\" \"$config\" $profile -classpath \"$classpath\" polyglot.main.Main $extargs $args"
+command="\"$JAVA\" -Xmx128m \"$config\" $profile -classpath \"$classpath\" polyglot.main.Main $extargs $args"
 
 
 if [ -n "$verbose" ]
