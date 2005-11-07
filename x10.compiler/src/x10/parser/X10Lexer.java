@@ -1340,25 +1340,25 @@ assert(new_file != null);
             }
      
             //
-            // Rule 350:  Token ::= . .
+            // Rule 354:  Token ::= . .
             //
-            case 350: { 
+            case 354: { 
                  makeToken(TK_RANGE);
                  break;
             }
       
             //
-            // Rule 351:  Token ::= - >
+            // Rule 355:  Token ::= - >
             //
-            case 351: { 
+            case 355: { 
                 makeToken(TK_ARROW);
                 break;
             }
      
             //
-            // Rule 352:  IntLiteralAndRange ::= Integer . .
+            // Rule 356:  IntLiteralAndRange ::= Integer . .
             //
-            case 352: { 
+            case 356: { 
                 makeToken(lexParser.getToken(1), lexParser.getLastToken(1), TK_IntegerLiteral);
                 makeToken(lexParser.getToken(2), lexParser.getToken(3), TK_RANGE);
                 break;
