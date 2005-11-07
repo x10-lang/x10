@@ -36,6 +36,10 @@ public class X10IRTests extends IRTests {
 	return getName().substring(4) + ".x10";
     }
 
+    protected String singlePkgInputForTest(String pkgName) {
+	return pkgName + File.separator + getName().substring(4) + ".x10";
+    }
+
     public void testAsync1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions());
