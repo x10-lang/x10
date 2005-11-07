@@ -41,7 +41,10 @@ step, the testcase is assumed to fail.  By default timeLimit is
 The shiftLog parameter causes the current results  to be saved,
 so running the testScript later in the same directory will cause
 a diff with the previous results to be mailed out as well, when
-the -m userEmail option flag is present.
+the -m userEmail option flag is present. Note that if existing
+test cases that used to meet expectations, have stopped meeting
+expectations since the last test run, the new test run results will
+not be saved (to allow developers more time to fix the errors).
 
 An X10 test case file *.x10 contains a single public class, which
 has a \"public boolean run()\" instance method, and a \"public
@@ -727,7 +730,7 @@ mailDiffFromLastRun() {
 		echo "    $f" >> $logDiff
 	done
         echo "" >> $logDiff
-	newFailStr="A test case stopped working! "
+	newFailStr="Test case(s) stopped working! "
     fi
 
     echo "+++ Differences between test run results of $date1 ET and $date2 ET:" >> $logDiff
@@ -773,10 +776,13 @@ generateAndMailFinalLog() {
 }
 
 saveLog() {
-# save the log 
+# save the log. 
+# do not save if the testLogs directory is not found,
+# or if there were broken existing test cases (wait until they
+# are fixed).
 
   chkArgs 0 "$@"
-  if [[ -n "$shiftLog" && -d "$testLogs" ]]; then
+  if [[ -n "$shiftLog" && -d "$testLogs" && -z "$NewFailures" ]]; then
     mv logSummary "$testLogs/logSummary.$startDate"
     mv log "$testLogs/log.$startDate"
     local lastDir=`pwd`
@@ -786,7 +792,7 @@ saveLog() {
       local date2="$RESULT"
       cvs commit -m "Test run started on $date2" log*.$startDate
     cd $lastDir
-  elif [[ -n "$shiftLog" ]]; then
+  elif [[ ! -d "$testLogs" ]]; then
     msgBoth log "Warning: directory $testLogs was not found" 
   fi
 }
