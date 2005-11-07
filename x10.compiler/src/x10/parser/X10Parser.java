@@ -219,18 +219,22 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                getEndLine(righttok) + ":" + getEndColumn(righttok) + ": ";
     }
 
-    public class JPGPosition extends Position
+    // RMF 11/7/2005 - N.B. This class has to be serializable, since it shows up inside Type objects,
+    // which Polyglot serializes to save processing when loading class files generated from source
+    // by Polyglot itself.
+    public static class JPGPosition extends Position
     {
-        private final IToken leftIToken,
+        private static final long serialVersionUID= -1593187800129872262L;
+        private final transient IToken leftIToken,
                              rightIToken;
             
-        JPGPosition(String path, String filename, int leftToken, int rightToken)
+        JPGPosition(String path, String filename, int leftToken, int rightToken, X10Parser parser)
         {
             super(path, filename,
-                  getLine(leftToken), getColumn(leftToken),
-                  getLine(rightToken), getColumn(rightToken));
-            this.leftIToken = X10Parser.this.getIToken(leftToken);
-            this.rightIToken = X10Parser.this.getIToken(rightToken);
+                  parser.getLine(leftToken), parser.getColumn(leftToken),
+                  parser.getLine(rightToken), parser.getColumn(rightToken));
+            this.leftIToken = parser.getIToken(leftToken);
+            this.rightIToken = parser.getIToken(rightToken);
         }
 
         public IToken getLeftIToken() { return leftIToken; }
@@ -243,7 +247,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             errorCode == MISPLACED_CODE) tokenText = "";
         if (! tokenText.equals("")) tokenText += ' ';
         eq.enqueue(ErrorInfo.SYNTAX_ERROR, locationInfo + tokenText + errorMsgText[errorCode],
-                   new JPGPosition("", getFileName(), leftToken, rightToken));
+                   new JPGPosition("", getFileName(), leftToken, rightToken, this));
     }
 
     int bad_rule = 0;
@@ -278,17 +282,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
     private JPGPosition pos()
     {
-        return new JPGPosition("", super.getFileName(), btParser.getFirstToken(), btParser.getLastToken());
+        return new JPGPosition("", super.getFileName(), btParser.getFirstToken(), btParser.getLastToken(), this);
     }
 
     private JPGPosition pos(int i)
     {
-        return new JPGPosition("", super.getFileName(), i, i);
+        return new JPGPosition("", super.getFileName(), i, i, this);
     }
 
     private JPGPosition pos(int i, int j)
     {
-        return new JPGPosition("", super.getFileName(), i, j);
+        return new JPGPosition("", super.getFileName(), i, j, this);
     }
 
     /**
