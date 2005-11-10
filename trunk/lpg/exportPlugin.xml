@@ -1,28 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="lpg" default="build.jars" basedir=".">
-
-	<property name="basews" value="${ws}"/>
-	<property name="baseos" value="${os}"/>
-	<property name="basearch" value="${arch}"/>
-	<property name="basenl" value="${nl}"/>
-
-	<!-- Compiler settings. -->
-	<property name="javacFailOnError" value="false"/>
-	<property name="javacDebugInfo" value="on"/>
-	<property name="javacVerbose" value="false"/>
-	<property name="javacSource" value="1.4"/>
-	<property name="javacTarget" value="1.4"/>
-	<property name="compilerArg" value=""/>
-	<path id="path_bootclasspath">
-		<fileset dir="${java.home}/lib">
-			<include name="*.jar"/>
-		</fileset>
-	</path>
-	<property name="bootclasspath" refid="path_bootclasspath"/>
+<project name="lpg" default="build.update.jar" basedir=".">
+	<import file="../com.ibm.watson.safari.feature/buildCommon.xml"/>
 
 	<target name="init" depends="properties">
 		<property name="plugin.name" value="lpg"/>
-		<property name="plugin.version" value="1.0.1"/>
+		<property name="plugin.version" value="1.0.0"/>
 		<property name="plugin.jar.name" value="${plugin.name}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.name}_${plugin.version}.zip"/>
 		<property name="plugin.src.zip" value="${plugin.name}src.zip"/>
@@ -49,7 +31,7 @@
 		<antcall target="gather.bin.parts">
 			<param name="destination.temp.folder" value="${temp.folder}/"/>
 		</antcall>
-		<zip destfile="${plugin.destination}/${plugin.jar.name}" basedir="${temp.folder}/${plugin}_1.0.1" filesonly="false" whenempty="skip" update="false"/>
+		<zip destfile="${plugin.destination}/${plugin.jar.name}" basedir="${temp.folder}/${plugin.name}_${plugin.version}" filesonly="false" whenempty="skip" update="false"/>
 		<delete dir="${temp.folder}"/>
 	</target>
 
