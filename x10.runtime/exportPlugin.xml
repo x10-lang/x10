@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="x10.compiler" default="build.update.jar" basedir=".">
+<project name="x10.runtime" default="build.update.jar" basedir=".">
 	<import file="../com.ibm.watson.safari.feature/buildCommon.xml"/>
 
 	<target name="init" depends="properties">
-		<property name="plugin.name" value="x10.compiler"/>
+		<property name="plugin.name" value="x10.runtime"/>
 		<property name="plugin.version" value="1.0.0"/>
 		<property name="plugin.jar.name" value="${plugin.name}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.name}_${plugin.version}.zip"/>
@@ -46,9 +46,7 @@
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
 				<pathelement path="${eclipse.build.path}"/>
-				<pathelement location="../lpg/lib/lpg.jar"/>
-				<pathelement location="../polyglot2/bin"/>
-				<pathelement location="../x10.runtime/classes"/>
+				<pathelement location="../pe/classes"/>
 			</classpath>
 			<src path="src/"/>
 		</javac>
