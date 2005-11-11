@@ -9,4 +9,6 @@ public interface AstX10InstructionVisitor extends AstJavaInstructionVisitor {
     void visitAtomic(SSAAtomicInstruction instruction);
 
     void visitFinish(SSAFinishInstruction instruction);
+
+    void visitForce(SSAForceInstruction instruction);
 }

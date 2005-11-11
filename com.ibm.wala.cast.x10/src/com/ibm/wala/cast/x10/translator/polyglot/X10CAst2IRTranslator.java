@@ -12,6 +12,7 @@ import com.ibm.domo.ast.java.types.JavaPrimitiveTypeMap;
 import com.ibm.domo.ast.x10.ssa.AsyncCallSiteReference;
 import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAFinishInstruction;
+import com.ibm.domo.ast.x10.ssa.SSAForceInstruction;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.domo.ssa.SSAInstructionFactory;
@@ -70,6 +71,13 @@ public class X10CAst2IRTranslator extends JavaCAst2IRTranslator {
 	    }
 	    case X10CastNode.FINISH_EXIT: {
 		context.cfg().addInstruction(new SSAFinishInstruction(false));
+		break;
+	    }
+	    case X10CastNode.FORCE: {
+		walkNodes(n.getChild(0), context);
+		int targetValue= getValue(n.getChild(0));
+		int retValue= context.scope().allocateTempValue();
+		context.cfg().addInstruction(new SSAForceInstruction(retValue, targetValue, (TypeReference) n.getChild(1).getValue()));
 		break;
 	    }
 	}
