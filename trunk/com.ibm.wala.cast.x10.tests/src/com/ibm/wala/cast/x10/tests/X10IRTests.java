@@ -5,12 +5,17 @@ package com.ibm.domo.ast.x10.tests;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.ibm.domo.ast.java.test.IRTests;
 import com.ibm.domo.ast.java.translator.polyglot.IRTranslatorExtension;
+import com.ibm.domo.ast.x10.ipa.callgraph.X10ZeroXCFABuilder;
 import com.ibm.domo.ast.x10.translator.polyglot.X10IRTranslatorExtension;
+import com.ibm.domo.ipa.callgraph.AnalysisOptions;
+import com.ibm.domo.ipa.callgraph.CallGraphBuilder;
+import com.ibm.domo.ipa.callgraph.propagation.cfa.ZeroXInstanceKeys;
+import com.ibm.domo.ipa.cha.ClassHierarchy;
+import com.ibm.domo.util.warnings.WarningSet;
 
 public class X10IRTests extends IRTests {
     protected static List/*<String>*/ x10RTJar;
@@ -32,6 +37,10 @@ public class X10IRTests extends IRTests {
 	return translatorTestExtension;
     }
 
+    protected CallGraphBuilder createCGBuilder(AnalysisOptions options, ClassHierarchy cha, WarningSet warnings) {
+	return new X10ZeroXCFABuilder(cha, warnings, options, null, null, options.getReflectionSpec(), ZeroXInstanceKeys.NONE);
+    }
+
     protected String singleInputForTest() {
 	return getName().substring(4) + ".x10";
     }
@@ -46,6 +55,11 @@ public class X10IRTests extends IRTests {
     }
 
     public void testFuture1() {
+	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+		new GraphAssertions());
+    }
+
+    public void testFinish1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions());
     }
