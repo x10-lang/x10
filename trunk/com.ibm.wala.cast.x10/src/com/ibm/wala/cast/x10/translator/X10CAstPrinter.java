@@ -25,6 +25,7 @@ public class X10CAstPrinter extends CAstPrinter {
 	    case X10CastNode.FINISH_ENTER: return "FINISH_ENTER";
 	    case X10CastNode.FINISH_EXIT: return "FINISH_EXIT";
 	    case X10CastNode.FOREACH: return "FOREACH";
+	    case X10CastNode.FORCE: return "FORCE";
 	    case X10CastNode.HERE: return "HERE";
 	    case X10CastNode.NEXT: return "NEXT";
 	    case X10CastNode.PLACE_CAST: return "PLACE_CAST";
