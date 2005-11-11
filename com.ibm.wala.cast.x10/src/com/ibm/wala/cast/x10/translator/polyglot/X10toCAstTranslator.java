@@ -29,6 +29,7 @@ import com.ibm.domo.ast.java.translator.polyglot.TranslatingVisitor;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.domo.types.ClassLoaderReference;
+import com.ibm.domo.types.TypeReference;
 
 public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, TypeSystem ts) {
@@ -206,7 +207,10 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    ReferenceType methodOwner= methodInstance.container();
 
 	    if (methodOwner instanceof FutureType) {
-		return fFactory.makeNode(X10CastNode.FORCE, walkNodes(c.target(), wc));
+		FutureType type= (FutureType) methodOwner;
+		TypeReference typeRef= TypeReference.findOrCreate(fClassLoaderRef, typeToTypeID(type.base()));
+
+		return fFactory.makeNode(X10CastNode.FORCE, walkNodes(c.target(), wc), fFactory.makeConstant(typeRef));
 	    } else
 		return super.visit(c, wc);
 	}
