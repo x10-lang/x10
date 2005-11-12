@@ -7,7 +7,7 @@ import NPB3_0_X10.*;
 public class cg {
 
 	public boolean run() {
-		NPB3_0_X10.CG.mainEntry(new String[] {"-np8","CLASS=S"});
+		NPB3_0_X10.CG.entryPoint(new String[] {"-np8","CLASS=S"});
 		return true;
 		
 	}
