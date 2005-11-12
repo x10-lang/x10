@@ -4,10 +4,10 @@
  * CG
  */
 import NPB3_0_X10.*;
-public class cg {
+public class mg {
 
 	public boolean run() {
-		NPB3_0_X10.CG.mainEntry(new String[] {"-np8","CLASS=S"});
+		NPB3_0_X10.MG.mainEntry(new String[] {"-np8","CLASS=S"});
 		return true;
 		
 	}
@@ -15,7 +15,7 @@ public class cg {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish async b.val=(new cg()).run();
+                finish async b.val=(new mg()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
