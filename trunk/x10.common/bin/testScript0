@@ -182,6 +182,8 @@ cleanClasses() {
 chkArgs 0 "$@"
 
   find . \( -name '*.java' -o -name '*.class' -o -name '*.pem' -o -name '*_x10stub.c' -o -name 'javacore*' -o -name 'heapdump*' -o -name '*.stackdump' -o -name 'log*' -o -name 'TMP_*' \) -exec rm {} \; 
+  find . -name 'jgfutil' -empty -exec rmdir {} \;
+
 }
 
 clean() {
