@@ -70,7 +70,7 @@ public class MG extends MGBase{
                 super(clss,np,ser);
                 serial=ser;
         }
-        public static void mainEntry(String argv[] ){
+        public static void entryPoint(String argv[] ){
                 nullable MG mg=null;
                 
                 BMArgs.ParseCmdLineArgs(argv,BMName);

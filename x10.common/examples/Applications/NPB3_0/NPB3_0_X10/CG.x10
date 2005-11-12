@@ -160,7 +160,7 @@ public class CG  {
 		THREADS = [0:num_threads-1];
 	}
 	
-	public static void mainEntry(String argv[]){
+	public static void entryPoint(String argv[]){
 		nullable CG cg = null;
 		
 		BMArgs.ParseCmdLineArgs(argv,BMName);
