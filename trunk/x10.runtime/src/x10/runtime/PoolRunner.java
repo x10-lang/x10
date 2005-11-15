@@ -26,10 +26,18 @@ public final  class PoolRunner extends LoadMonitored
    private Activity act;
    private Method ac;
    private Object vmto;
-   public LocalPlace_c place; // not final, may be set by DefaultRuntime_c.setCurrentPlace(place p)
+   
+   /* the pace where this runner currently executed - can be different from 
+    *  homePlace, e.g inside an array initiizer, see also 
+    *  DefaultRuntime_c.setCurrentPlace(place p) */
+   public LocalPlace_c place; 
+   
+   /* the pace to which this worker thread belongs */
+   public final LocalPlace_c homePlace;
    
    PoolRunner(LocalPlace_c p) {
-       place = p;
+       homePlace = p;
+	   place = p;
        p.addThread( this );
        
        try {
@@ -107,7 +115,7 @@ public final  class PoolRunner extends LoadMonitored
     * @param delta +1 for thread starts to run (unblocked), -1 for thread is blocked
     */
    public void changeRunningStatus(int delta) {
-       place.changeRunningStatus(delta);
+	   homePlace.changeRunningStatus(delta);
    }
    
    /**
@@ -147,17 +155,17 @@ public final  class PoolRunner extends LoadMonitored
                }
                // notify the LocalPlace_c that we're again available
                // for more work!
-               synchronized (place) {
-                   if (place.isShutdown()) {
+               synchronized (homePlace) {
+                   if (homePlace.isShutdown()) {
                        if (Report.should_report("activity", 5)) {
                            Report.report(5, logString() + " shuts down.");
                        }                       
                        return;
                    }
-                   if (place.shouldRunnerTerminate())
+                   if (homePlace.shouldRunnerTerminate())
                        active = false;
                    else
-                       place.repool(this);
+                	   homePlace.repool(this);
                }
            }
        }
@@ -167,7 +175,7 @@ public final  class PoolRunner extends LoadMonitored
    }
    
    public String thisThreadString() {
-   	return Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis();
+   	return Thread.currentThread() +  "@" + homePlace + ":" + System.currentTimeMillis();
    }
    public static String logString() {
    	return ((PoolRunner) Thread.currentThread()).thisThreadString();
