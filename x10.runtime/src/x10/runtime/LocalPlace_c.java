@@ -130,7 +130,7 @@ public class LocalPlace_c extends Place {
 				PoolRunner list = threadQueue_;
 				while (list != null) {
 					if (Report.should_report("activity", 7)) {
-						Report.report(7, Thread.currentThread() +  "@" + list.place + ":" + System.currentTimeMillis() 
+						Report.report(7, Thread.currentThread() +  "@" + list.homePlace + ":" + System.currentTimeMillis() 
 								+"  threadpool contains " + list);
 					}
 					list = list.next;
