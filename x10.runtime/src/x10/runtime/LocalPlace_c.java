@@ -257,7 +257,6 @@ public class LocalPlace_c extends Place {
 						a.run();
 					}
 				} catch (Throwable e) {
-				System.out.println("exception thrown:"+e);
 					a.finalizeTermination(e);
 					return;
 				}
