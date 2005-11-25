@@ -1,4 +1,4 @@
-// xlC -O3 -qhot -qnomaf -qstrict -g -o Solver Solver.cpp
+// xlC -O3 -qhot -qlist -qnomaf -qstrict -g -o Solver Solver.cpp
 // xlC -O3 -qhot -g -o SolverX Solver.cpp
 // Unfortunately, SolverX doesn't seem to generate non-singular matrices
 // above around 1701x1701.  (Obviously, the matricies are the same for
@@ -34,40 +34,50 @@ private:
 bool Solver::computeYDirectly = true;
 
 int main(int argc, char *argv[]) {
-    unsigned int N = 3;
+    unsigned int N = 32;
     bool debug = false;
     bool computeResidual = true;
+    unsigned long count = 1;    // 262144
     for (unsigned int i = 1; i < argc; ++i) {
         if (argv[i][0] == '-') {
             if (strcmp(argv[i],"-debug") == 0) debug = true;
             if (strcmp(argv[i],"-nr") == 0) computeResidual = false;
+            if (strcmp(argv[i],"-count") == 0) {
+                ++i;
+                sscanf(argv[i],"%lu", &count);
+            }
         } else {
             sscanf(argv[i],"%d", &N);
         }
     }
+    unsigned long accumTime = 0;
+    double residual = 0;
     Solver *solver = new Solver(N, debug);
-    solver->setup(true);
-    if (debug) solver->print();
-    clock_t start_time0 = clock();
-    bool nonSingular = solver->LUFactorize();
-    if (debug) solver->print();
-    solver->LyeqPb();
-    solver->Uxeqy();
-    clock_t finish_time0 = clock();
-    clock_t start_time1 = 0;
-    clock_t finish_time1 = 0;
-    if (debug) solver->print();
-    solver->setup(false);
-    if (computeResidual && nonSingular) {
-        start_time1 = clock();
-        double d = solver->computeResidual();
-        finish_time1 = clock();
-        printf("residual = %e\n", d);
+    for (unsigned long x = 0; x < count; ++x) {
+        solver->setup(true);
+        if (debug) solver->print();
+        clock_t start_time0 = clock();
+        bool nonSingular = solver->LUFactorize();
+        if (debug) solver->print();
+        solver->LyeqPb();
+        solver->Uxeqy();
+        clock_t finish_time0 = clock();
+        clock_t start_time1 = 0;
+        clock_t finish_time1 = 0;
+        if (debug) solver->print();
+        solver->setup(false);
+        if (computeResidual && nonSingular) {
+            start_time1 = clock();
+            residual = solver->computeResidual();
+            finish_time1 = clock();
+        }
+        if (!nonSingular) {
+            fprintf(stderr, "A is singular\n");
+        }
+        accumTime += (finish_time0-start_time0)+(finish_time1-start_time1);
     }
-    if (!nonSingular) {
-        fprintf(stderr, "A is singular\n");
-    }
-    printf("Number of microseconds: %ld\n", (finish_time0-start_time0)+(finish_time1-start_time1));
+    printf("residual = %e\n", residual);
+    printf("Number of microseconds: %lu\n", accumTime);
     delete solver;
     return 0;
 }
@@ -216,16 +226,20 @@ bool Solver::LUFactorize() {
             largest_val = 0;
             largest_row = diag_index+1;
             #if 1       // This version is much faster in both C++ and Java!
+            if (diag_index + 1 < N_) {
+                for (int row = diag_index+1; row < N_; ++row) {
+                    double m = A_[diag_index][row];
+                    A_[diag_index+1][row] = A_[diag_index+1][row] - m * A_[diag_index+1][diag_index];
+                    if (fabs(A_[diag_index+1][row]) > largest_val) {
+                        largest_val = fabs(A_[diag_index+1][row]);
+                        largest_row = row;
+                    }
+                }
+            }
             for (unsigned int col = diag_index+1; col < N_; ++col) {
                 for (int row = diag_index+1; row < N_; ++row) {
                     double m = A_[diag_index][row];
                     A_[col][row] = A_[col][row] - m * A_[col][diag_index];
-                    if (col == diag_index + 1) {
-                        if (fabs(A_[col][row]) > largest_val) {
-                            largest_val = fabs(A_[col][row]);
-                            largest_row = row;
-                        }
-                    }
                 }
             }
             #else

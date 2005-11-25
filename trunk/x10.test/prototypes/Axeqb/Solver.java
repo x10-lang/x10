@@ -1,9 +1,10 @@
 class Solver {
     
     public static void main(String[] args) {
-        int N = 3;
+        int N = 32;
         boolean debug = false;
         boolean computeResidual = true;
+        int count = 1;  // 262144
         for (int i = 0; i < args.length; ++i) {
             if (args[i].charAt(0) == '-') {
                 if (args[i].equals("-debug")) {
@@ -12,43 +13,53 @@ class Solver {
                 if (args[i].equals("-nr")) {
                     computeResidual = false;
                 }
+                if (args[i].equals("-count")) {
+                    ++i;
+                    count = java.lang.Integer.parseInt(args[i]);
+                }
             } else {
                 N = java.lang.Integer.parseInt(args[i]);
             }
         }
-
+        long accumTime = 0;
+        
         // Force Math.abs to be a resolved method!
         double dddd = Math.abs((double) args.length - N);
         
         Solver solver = new Solver(N, debug);
-        solver.setup();
-        if (debug) solver.print();
-        //long start_time0 = System.currentTimeMillis();
-        long start_time0 = System.nanoTime();
-        boolean nonSingular = solver.LUFactorize();
-        if (debug) solver.print();
-        if (!Solver.computeYDirectly) {
-            solver.LyeqPb();
+        double residual = 0;
+        boolean nonSingular;
+        for (int x = 0; x < count; ++x) {
+            solver.setup();
             if (debug) solver.print();
+            //long start_time0 = System.currentTimeMillis();
+            long start_time0 = System.nanoTime();
+            nonSingular = solver.LUFactorize();
+            if (debug) solver.print();
+            if (!Solver.computeYDirectly) {
+                solver.LyeqPb();
+                if (debug) solver.print();
+            }
+            solver.Uxeqy();
+            long finish_time0 = System.nanoTime();
+            //        long finish_time0 = System.currentTimeMillis();
+            long start_time1 = 0;
+            long finish_time1 = 0;
+            if (debug) solver.print();
+            solver.setup();
+            if (computeResidual && nonSingular) {
+                start_time1 = System.nanoTime();
+                residual = solver.computeResidual();
+                finish_time1 = System.nanoTime();
+            }
+            if (!nonSingular) {
+                System.out.println("A is singular");
+            }
+            accumTime += (finish_time0-start_time0) + (finish_time1-start_time1);
         }
-        solver.Uxeqy();
-        long finish_time0 = System.nanoTime();
-        //        long finish_time0 = System.currentTimeMillis();
-        long start_time1 = 0;
-        long finish_time1 = 0;
-        if (debug) solver.print();
-        solver.setup();
-        if (computeResidual && nonSingular) {
-            start_time1 = System.nanoTime();
-            double d = solver.computeResidual();
-            finish_time1 = System.nanoTime();
-            System.out.println("residual = " + d);
-        }
-        if (!nonSingular) {
-            System.out.println("A is singular");
-        }
+        System.out.println("residual = " + residual);
         String kindoftime = "microseconds";
-        System.out.println("Number of " + kindoftime + ": " + (((finish_time0-start_time0) + (finish_time1-start_time1))/1000));
+        System.out.println("Number of " + kindoftime + ": " + (accumTime/1000));
     }
 
     void setup() {
@@ -148,18 +159,23 @@ class Solver {
                 }
                 largest_val = 0;
                 largest_row = diag_index+1;
-                for (int col = diag_index + 1; col < N; ++col) {
+                if (diag_index + 1 < N) {
+                    for (int row = diag_index+1; row < N; ++row) {
+                        double m = A[diag_index][row];
+                        double A_col_diag_index = A[diag_index+1][diag_index];
+                        A[diag_index+1][row] = A[diag_index+1][row] - m * A_col_diag_index;//A[col][diag_index];
+                        if (Math.abs(A[diag_index+1][row]) > largest_val) {
+                            largest_val = Math.abs(A[diag_index+1][row]);
+                            largest_row = row;
+                        }
+                    }
+                }
+                for (int col = diag_index + 2; col < N; ++col) {
                     // we should common this ...
                     double A_col_diag_index = A[col][diag_index];
                     for (int row = diag_index+1; row < N; ++row) {
                         double m = A[diag_index][row];
                         A[col][row] = A[col][row] - m * A_col_diag_index;//A[col][diag_index];
-                        if (col == diag_index + 1) {
-                            if (Math.abs(A[col][row]) > largest_val) {
-                                largest_val = Math.abs(A[col][row]);
-                                largest_row = row;
-                            }
-                        }
                     }
                 }
             }
