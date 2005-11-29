@@ -1,5 +1,6 @@
 package com.ibm.domo.ast.x10.ssa;
 
+import com.ibm.capa.impl.debug.Assertions;
 import com.ibm.domo.ssa.SSAInstruction;
 import com.ibm.domo.ssa.SymbolTable;
 import com.ibm.domo.ssa.ValueDecorator;
@@ -43,5 +44,31 @@ public class SSAForceInstruction extends SSAInstruction {
 
     public TypeReference getValueType() {
         return valueType;
+    }
+
+    public int getDef() {
+        return retValue;
+    }
+
+    public int getDef(int i) {
+	Assertions._assert(i == 0, "invalid def index for force instruction");
+        return retValue;
+    }
+
+    public boolean hasDef() {
+        return true;
+    }
+
+    public int getNumberOfDefs() {
+        return 1;
+    }
+
+    public int getUse(int j) {
+	Assertions._assert(j == 0, "invalid use index for force instruction");
+	return targetValue;
+    }
+
+    public int getNumberOfUses() {
+        return 1;
     }
 }
