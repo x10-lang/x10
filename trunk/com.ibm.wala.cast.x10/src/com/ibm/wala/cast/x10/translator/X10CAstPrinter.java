@@ -33,6 +33,9 @@ public class X10CAstPrinter extends CAstPrinter {
 	    case X10CastNode.RANGE: return "RANGE";
 	    case X10CastNode.REGION: return "REGION";
 	    case X10CastNode.WHEN: return "WHEN";
+	    case X10CastNode.REGION_ITER_INIT: return "REGION_INIT";
+	    case X10CastNode.REGION_ITER_HASNEXT: return "REGION_HASNEXT";
+	    case X10CastNode.REGION_ITER_NEXT: return "REGION_NEXT";
 	}
         return super.getKindAsString(kind);
     }
