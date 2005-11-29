@@ -9,6 +9,9 @@ import com.ibm.domo.ast.x10.ssa.AstX10InstructionVisitor;
 import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAFinishInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAForceInstruction;
+import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
+import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
+import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
 import com.ibm.domo.ipa.callgraph.AnalysisOptions;
 import com.ibm.domo.ipa.callgraph.impl.ExplicitCallGraph;
 import com.ibm.domo.ipa.callgraph.propagation.PointerKeyFactory;
@@ -60,6 +63,19 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	    Assertions._assert(instruction.getUse(0) == vn, "force instruction has bogus use/def info?");
 	    bingo= true;
 	}
+
+	public void visitRegionIterInit(SSARegionIterInitInstruction instruction) {
+	    Assertions._assert(instruction.getUse(0) == vn, "regionIterInit instruction has bogus use/def info?");
+	    bingo= true;
+	}
+
+	public void visitRegionIterHasNext(SSARegionIterHasNextInstruction instruction) {
+	}
+
+	public void visitRegionIterNext(SSARegionIterNextInstruction instruction) {
+	    Assertions._assert(instruction.getUse(0) == vn, "regionIterNext instruction has bogus use/def info?");
+	    bingo= true;
+	}
     }
 
     protected InterestingVisitor makeInterestingVisitor(int vn) {
@@ -81,6 +97,19 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	}
 
 	public void visitForce(SSAForceInstruction instruction) {
+	    // TODO model data flow for future/force
+	}
+
+	public void visitRegionIterInit(SSARegionIterInitInstruction instruction) {
+	    // TODO model data flow for future/force
+	    
+	}
+
+	public void visitRegionIterHasNext(SSARegionIterHasNextInstruction instruction) {
+	    // NOOP: no flow through this kind of instruction
+	}
+
+	public void visitRegionIterNext(SSARegionIterNextInstruction instruction) {
 	    // TODO model data flow for future/force
 	}
     }
