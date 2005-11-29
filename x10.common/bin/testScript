@@ -1,6 +1,8 @@
 #!/bin/bash
 # run the test script with given arguments
-testScript0 $* 2> ErrorsLog
+
+MYDIR=`dirname $0`
+"$MYDIR"/testScript0 "$@" 2> ErrorsLog
 retC=$?
 # if the objective was just to clean files, remove ErrorsLog as well.
 if [[ "$1" = "-f" && "$2" = "-cleanOnly" && $# -eq 2 || "$1" = "-cleanOnly" && $# -eq 1 ]]; then
