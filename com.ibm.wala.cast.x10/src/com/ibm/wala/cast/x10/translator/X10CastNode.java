@@ -156,4 +156,29 @@ public interface X10CastNode extends CAstNode {
      */
     public static final int FORCE= SUB_LANGUAGE_BASE + 16;
 
+    /**
+     * Kind constant for a CAstNode representing an X10 region iterator initialization.<br>
+     * Children:
+     * <ol>
+     * <li>CAstNode.EXPR representing the receiver (the region being iterated over)
+     */
+    public static final int REGION_ITER_INIT= SUB_LANGUAGE_BASE + 17;
+
+    /**
+     * Kind constant for a CAstNode representing a test for whether an X10 region iteration
+     * has a next point.<br>
+     * Children:
+     * <ol>
+     * <li>CAstNode.EXPR representing the receiver (the region iterator)
+     */
+    public static final int REGION_ITER_HASNEXT= SUB_LANGUAGE_BASE + 18;
+
+    /**
+     * Kind constant for a CAstNode representing the accessor for the next element of an
+     * X10 region iteration.<br>
+     * Children:
+     * <ol>
+     * <li>CAstNode.EXPR representing the receiver (the region iterator)
+     */
+    public static final int REGION_ITER_NEXT= SUB_LANGUAGE_BASE + 19;
 }
