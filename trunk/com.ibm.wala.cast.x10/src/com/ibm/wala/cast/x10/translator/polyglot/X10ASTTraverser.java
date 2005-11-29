@@ -6,6 +6,7 @@ package com.ibm.domo.ast.x10.translator.polyglot;
 import polyglot.ast.Node;
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.Finish;
+import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.Here;
 
@@ -25,6 +26,8 @@ public class X10ASTTraverser extends ASTTraverser {
 	    return xtv.visit((Future) n, wc);
 	else if (n instanceof Finish)
 	    return xtv.visit((Finish) n, wc);
+	else if (n instanceof ForLoop_c)
+	    return xtv.visit((ForLoop_c) n, wc);
 	else
 	    return ASTTraverser.visit(n, xtv, wc);
     }
