@@ -12,7 +12,7 @@ import com.ibm.domo.ast.java.translator.polyglot.PolyglotJava2CAstTranslator.*;
 public interface X10TranslatorVisitor extends TranslatingVisitor {
     CAstNode visit(Async a, WalkContext context);
     CAstNode visit(Finish f, WalkContext context);
-    CAstNode visit(ForLoop_c f, WalkContext context);
+    CAstNode visit(ForLoop_c f, WalkContext context); // Should probably use ForLoop, but there ain't no such thang
     CAstNode visit(ForEach f, WalkContext context);
     CAstNode visit(AtEach a, WalkContext context);
     CAstNode visit(Future f, WalkContext context);
