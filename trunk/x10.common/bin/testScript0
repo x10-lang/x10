@@ -3,6 +3,8 @@
 # Simple script to run test cases
 # until a better solution is found.
 
+MYDIR=`dirname $0`
+
 chkArgs() {
 # check number of arguments
 # e.g. chkArgs 3 a b c
@@ -359,9 +361,9 @@ runWithTimeLimit() {
   # create a new process group so that the main job
   # and all of the its descendant processes can be terminated 
   # as a whole
-  newpgrp "$cmd" >> $tmpFile 2>&1 &    #main job
+  "$MYDIR"/newpgrp "$cmd" >> $tmpFile 2>&1 &    #main job
   local pidMain=$!   #remember pid of main job
-  newpgrp "sleep $maxsec; /usr/bin/kill -9 -$pidMain" &> /dev/null & #timer job
+  "$MYDIR"/newpgrp "sleep $maxsec; /usr/bin/kill -9 -$pidMain" &> /dev/null & #timer job
   local pidTimer=$!  #remember pid of timer job 
   wait $pidMain      # wait until main job finishes, 
                      # either normally or through the timer
@@ -590,7 +592,7 @@ doTest() {
 
   let "nTotal = (( $nTotal + 1 ))"
 
-  runWithTimeLimit "$tdir" "$className" "x10c -t -v -sourcepath $x10lib -sourcepath $testDir -d $testDir $x10FileName" "" ""
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -d $testDir $x10FileName" "" ""
 
   if [[ $? != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
@@ -604,7 +606,7 @@ doTest() {
 
   # the output must contain 'Test succeeded'
   # the output must not contain a java stack traceback
-  runWithTimeLimit "$tdir" "$className" "x10 -t -v -classpath $testDir $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10 -t -v -classpath $testDir $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   local runRc=$?
 
   echo ""                                    >> logDetail.$tdir.$className
