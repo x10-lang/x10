@@ -13,6 +13,9 @@ import com.ibm.domo.ast.x10.ssa.AsyncCallSiteReference;
 import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAFinishInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAForceInstruction;
+import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
+import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
+import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.domo.ssa.SSAInstructionFactory;
@@ -78,6 +81,31 @@ public class X10CAst2IRTranslator extends JavaCAst2IRTranslator {
 		int targetValue= getValue(n.getChild(0));
 		int retValue= context.scope().allocateTempValue();
 		context.cfg().addInstruction(new SSAForceInstruction(retValue, targetValue, (TypeReference) n.getChild(1).getValue()));
+		setValue(n, retValue);
+		break;
+	    }
+	    case X10CastNode.REGION_ITER_INIT: {
+		walkNodes(n.getChild(0), context);
+		int targetValue= getValue(n.getChild(0));
+		int retValue= context.scope().allocateTempValue();
+		context.cfg().addInstruction(new SSARegionIterInitInstruction(retValue, targetValue));
+		setValue(n, retValue);
+		break;
+	    }
+	    case X10CastNode.REGION_ITER_HASNEXT: {
+		walkNodes(n.getChild(0), context);
+		int targetValue= getValue(n.getChild(0));
+		int retValue= context.scope().allocateTempValue();
+		context.cfg().addInstruction(new SSARegionIterHasNextInstruction(retValue, targetValue));
+		setValue(n, retValue);
+		break;
+	    }
+	    case X10CastNode.REGION_ITER_NEXT: {
+		walkNodes(n.getChild(0), context);
+		int targetValue= getValue(n.getChild(0));
+		int retValue= context.scope().allocateTempValue();
+		context.cfg().addInstruction(new SSARegionIterNextInstruction(retValue, targetValue));
+		setValue(n, retValue);
 		break;
 	    }
 	}
