@@ -203,7 +203,8 @@ implements TypeArgument, ValueType {
      * @see java.lang.Object#equals(java.lang.Object)
      */
 	public boolean equals(java.lang.Object o) {
-	    assert o instanceof region;
+	    
+	    if(!( o instanceof region)) return false;
 	    
 	    boolean ret = (o == this);
 	    if (!ret) {
