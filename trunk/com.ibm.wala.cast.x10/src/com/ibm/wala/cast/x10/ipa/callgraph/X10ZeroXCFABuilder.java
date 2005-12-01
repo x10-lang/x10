@@ -38,7 +38,7 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
       SSAContextInterpreter contextInterpreter = new DelegatingSSAContextInterpreter(appContextInterpreter, c);
       setContextInterpreter(contextInterpreter);
 
-      ContextSelector def = new DefaultContextSelector(cha, options.getMethodTargetSelector());
+      ContextSelector def = new DefaultContextSelector(options.getMethodTargetSelector());
       ContextSelector contextSelector = new DelegatingContextSelector(appContextSelector, def);
       DefaultPropagationContextSelector I = new DefaultPropagationContextSelector(contextSelector, cha);
 
