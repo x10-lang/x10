@@ -32,7 +32,7 @@ public class Transpose1 {
                 x10.lang.Runtime.setExitCode(99);
                 return;
             }
-           }	
+          }	
             checkVal(dimX,"-x");
             checkVal(dimY,"-y");
             checkVal(blockQ,"-Q");
