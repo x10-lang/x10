@@ -568,7 +568,8 @@ public class Runabout {
 	 * Create the Cache.
 	 */
 	Cache() {
-	    this.loader_ = new ClassLoader() {
+	    // RMF 12/02/2005 -- Make sure the new class loader's parent is the same as the one that got this class loaded...
+	    this.loader_ = new ClassLoader(this.getClass().getClassLoader()) {
 		    public Class loadClass(String name) 
 			throws ClassNotFoundException {
 			if (name == "Code")
