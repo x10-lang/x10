@@ -13,8 +13,8 @@ public class Transpose1 {
    // two blocks share the same vm they can resolve to the same
    // variable--need to ensure they live seperately, hence
    // maintain an explicit list/array of blocks
-   final java.lang.Object[] _srcMatrix;
-   final java.lang.Object[] _destMatrix;
+    java.lang.Object[] _srcMatrix;
+    java.lang.Object[] _destMatrix;
 
    // maintain P * Q global arrays, each mapped to a single place
 	// keep an array of global arrays so we can access them
@@ -182,14 +182,16 @@ public class Transpose1 {
        // these stmts will be tossed
          _x=_y=_P=_Q = 0;
          _transposeMap = new int [1];
-         _srcMatrix = new java.lang.Object[1];
-         _destMatrix = new java.lang.Object[1];
+         // allocate storage for blocks assigned to local places
+         _srcMatrix = new java.lang.Object[place.MAX_PLACES];
+         _destMatrix = new java.lang.Object[place.MAX_PLACES];
+
     }
     public void initialize(){
          startTimer(INIT_PHASE);
          place cur_place = place.FIRST_PLACE;
           finish do {
-            // if(_debug) System.out.println("Launching init at "+cur_place.id);
+             if(_debug) System.out.println("Launching init at "+cur_place.id);
              async(cur_place){
                 int placeId = here.id;
                 _srcMatrix[here.id] = (java.lang.Object)createLocalBlock(placeId);
@@ -238,6 +240,7 @@ public class Transpose1 {
 	          final double[] srcBlock = (double[])_srcMatrix[here.id];
                   async(destPlace){
                        double[] destBlock = (double[])_destMatrix[here.id];
+                       if(_debug) System.out.println("Transposing block "+here.id);
 		       transposeBlock(destBlock,srcBlock);
                   }
                 }  
@@ -255,7 +258,7 @@ public class Transpose1 {
        System.out.println("Dumping source array");
        do {
           finish async(cur_place){
-            System.out.println("Dumping block "+here.id);
+            System.out.println("Dumping src block "+here.id);
             dumpBlock((double[])_srcMatrix[here.id],_x,_y);
           }
           cur_place = cur_place.next();
@@ -267,7 +270,7 @@ public class Transpose1 {
        place cur_place = place.FIRST_PLACE;
        do {
           finish async(cur_place){
-            System.out.println("Dumping block "+here.id);
+            System.out.println("Dumping destination block "+here.id);
             dumpBlock((double[])_destMatrix[here.id],_y,_x);
           }
           cur_place = cur_place.next();
@@ -276,7 +279,7 @@ public class Transpose1 {
     void dumpBlock(double[] block,int colSize,int rowSize){
         String blockRow;
                 for(int i = 0;i < colSize;++i){
-          blockRow = i+": ";
+          blockRow = "row "+i+": ";
          
           for(int j = 0;j < rowSize;++j){
             blockRow += block[i*rowSize+j] + "   ";
