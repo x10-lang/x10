@@ -11,8 +11,8 @@ import com.ibm.lpg.*;
 
 public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym, RuleAction
 {
+    private static ParseTable prs = new X10Lexerprs();
     private PrsStream prsStream;
-    private ParseTable prs = new X10Lexerprs();
     private LexParser lexParser = new LexParser(this, prs, this);
 
     public X10Lexer(String filename, int tab) throws java.io.IOException 
