@@ -105,8 +105,9 @@ import com.ibm.lpg.*;
 
 public class X10Parser extends PrsStream implements RuleAction, Parser
 {
-    LexStream lexStream;
-    BacktrackingParser btParser;
+    private static ParseTable prs = new X10Parserprs();
+    private BacktrackingParser btParser;
+    private LexStream lexStream;
 
     public X10Parser(LexStream lexStream)
     {
@@ -162,8 +163,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
     public polyglot.ast.Node parser(Monitor monitor, int error_repair_count)
     {
-        ParseTable prs = new X10Parserprs();
-
         try
         {
             btParser = new BacktrackingParser(monitor, (TokenStream)this, prs, (RuleAction)this);
