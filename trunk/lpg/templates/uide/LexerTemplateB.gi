@@ -86,8 +86,8 @@ $Headers
 
     public class $action_class extends $super_stream implements $exp_type, $sym_type, RuleAction$additional_interfaces
     {
+        private static ParseTable prs = new $prs_type();
         private $prs_stream_class prsStream;
-        private ParseTable prs = new $prs_type();
         private LexParser lexParser = new LexParser(this, prs, this);
 
         public $action_class(String filename, int tab) throws java.io.IOException 
