@@ -90,8 +90,9 @@ $Headers
 
     public class $action_class extends PrsStream implements RuleAction, Parser$additional_interfaces
     {
-        LexStream lexStream;
-        BacktrackingParser btParser;
+        private static ParseTable prs = new $prs_type();
+        private BacktrackingParser btParser;
+        private LexStream lexStream;
 
         public $action_class(LexStream lexStream)
         {
@@ -147,8 +148,6 @@ $Headers
 
         public $ast_class parser(Monitor monitor, int error_repair_count)
         {
-            ParseTable prs = new $prs_type();
-
             try
             {
                 btParser = new BacktrackingParser(monitor, (TokenStream)this, prs, (RuleAction)this);
