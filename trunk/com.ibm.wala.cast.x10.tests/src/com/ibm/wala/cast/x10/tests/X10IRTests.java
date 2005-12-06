@@ -68,4 +68,9 @@ public class X10IRTests extends IRTests {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions());
     }
+
+    public void testForEach1() {
+	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+		new GraphAssertions());
+    }
 }
