@@ -140,13 +140,15 @@ public interface X10CastNode extends CAstNode {
 
     /**
      * Kind constant for a CAstNode representing an X10 'when' statement.<br>
-     * Children:
+     * Children: an even number of pairs of the following type
      * <ol>
      * <li>CAstNode.EXPR of type boolean, representing the condition
-     * <li>CAstNode.BLOCK representing the 'when' body
+     * <li>Some kind of CAstNode representing the body associated with that condition
+     * (e.g. CAstNode.BLOCK or CAstNode.STMT)
      * </ol>
      */
-    public static final int WHEN = SUB_LANGUAGE_BASE + 15;
+//  12/6/2005 - currently unused; see X10toCAstTranslator.visit(When).
+//  public static final int WHEN = SUB_LANGUAGE_BASE + 15;
 
     /**
      * Kind constant for a CAstNode representing an X10 'force' expression.<br>
