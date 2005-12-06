@@ -6,6 +6,7 @@ package com.ibm.domo.ast.x10.translator.polyglot;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
@@ -30,8 +31,10 @@ import polyglot.ext.x10.ast.Point;
 import polyglot.ext.x10.ast.Range;
 import polyglot.ext.x10.ast.Region;
 import polyglot.ext.x10.ast.When;
+import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Loop;
+import polyglot.ext.x10.ast.When.Branch;
 import polyglot.ext.x10.types.FutureType;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
@@ -42,6 +45,7 @@ import com.ibm.capa.ast.CAstNode;
 import com.ibm.capa.ast.CAstNodeTypeMap;
 import com.ibm.capa.ast.CAstSourcePositionMap;
 import com.ibm.capa.ast.CAstType;
+import com.ibm.capa.impl.debug.Assertions;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.domo.ast.java.translator.polyglot.TranslatingVisitor;
@@ -278,12 +282,58 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstNode visit(When w, WalkContext context) {
-	    // TODO Auto-generated method stub
-	    return null;
+	    When_c when= (When_c) w;
+	    List/*<When.Branch>*/ branches= when.branches();
+	    // In the fullness of time, some analyses may want to have "when" constructs
+	    // clearly marked in a more declarative fashion, but for now, this has the
+	    // advantage of making the operational semantics clear, with minimal extra
+	    // machinery.
+	    CAstNode[] whenClauses= new CAstNode[branches.size()];
+
+	    
+	    CAstNode whenExit= fFactory.makeNode(CAstNode.LABEL_STMT,
+		    fFactory.makeConstant("when exit"),
+		    fFactory.makeNode(CAstNode.EMPTY));
+
+	    context.cfg().map(whenExit, whenExit);
+
+	    int idx= 0;
+	    for(Iterator iter= branches.iterator(); iter.hasNext(); idx++) {
+		Branch b= (Branch) iter.next();
+
+		CAstNode whenBreak= fFactory.makeNode(CAstNode.GOTO);
+
+		whenClauses[idx]= fFactory.makeNode(CAstNode.IF_STMT,
+			walkNodes(b.expr(), context),
+			fFactory.makeNode(CAstNode.BLOCK_STMT,
+				walkNodes(b.stmt(), context),
+				whenBreak));
+		context.cfg().map(whenBreak, whenBreak);
+		context.cfg().add(whenBreak, whenExit, null);
+	    }
+	    return fFactory.makeNode(CAstNode.BLOCK_STMT,
+		    fFactory.makeNode(CAstNode.LOOP,
+			    fFactory.makeConstant(true),
+			    wrapBodyInAtomic(fFactory.makeNode(CAstNode.BLOCK_STMT, whenClauses))),
+	            whenExit);
+
+	    // Alternative, quasi-declarative representation:
+//	    CAstNode[] branchNodes= new CAstNode[branches.size()*2];
+//
+//	    int idx= 0;
+//	    for(Iterator iter= branches.iterator(); iter.hasNext(); idx += 2) {
+//		Branch b= (Branch) iter.next();
+//
+//		branchNodes[idx]= walkNodes(b.expr(), context);
+//		branchNodes[idx+1]= walkNodes(b.stmt(), context);
+//	    }
+//	    return fFactory.makeNode(X10CastNode.WHEN, branchNodes);
 	}
 
 	public CAstNode visit(X10Formal f, WalkContext context) {
-	    // TODO Auto-generated method stub
+	    // Parser currently expands the various types of formal parameters in constructs
+	    // such as foreach, ateach, and "enhanced for".
+	    Assertions.UNREACHABLE("X10toCAstTranslator.visit(X10Formal) called?");
 	    return null;
 	}
 
@@ -298,10 +348,15 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstNode visit(Atomic a, WalkContext context) {
+	    final CAstNode bodyNode= walkNodes(a.body(), context);
+	    return wrapBodyInAtomic(bodyNode);
+	}
+
+	private CAstNode wrapBodyInAtomic(final CAstNode bodyNode) {
 	    return fFactory.makeNode(CAstNode.UNWIND, 
 		    fFactory.makeNode(CAstNode.BLOCK_STMT, 
 			    fFactory.makeNode(X10CastNode.ATOMIC_ENTER),
-			    walkNodes(a.body(), context)),
+			    bodyNode),
 		    fFactory.makeNode(X10CastNode.ATOMIC_EXIT));
 	}
 
