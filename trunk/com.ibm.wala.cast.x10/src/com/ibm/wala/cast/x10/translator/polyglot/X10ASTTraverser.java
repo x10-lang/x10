@@ -10,6 +10,7 @@ import polyglot.ext.x10.ast.ForEach;
 import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.Here;
+import polyglot.ext.x10.ast.When;
 
 import com.ibm.capa.ast.CAstNode;
 import com.ibm.domo.ast.java.translator.polyglot.ASTTraverser;
@@ -31,6 +32,8 @@ public class X10ASTTraverser extends ASTTraverser {
 	    return xtv.visit((ForLoop_c) n, wc);
 	else if (n instanceof ForEach)
 	    return xtv.visit((ForEach) n, wc);
+	else if (n instanceof When)
+	    return xtv.visit((When) n, wc);
 	else
 	    return ASTTraverser.visit(n, xtv, wc);
     }
