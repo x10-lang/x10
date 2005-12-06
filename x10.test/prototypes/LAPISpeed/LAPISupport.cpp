@@ -302,7 +302,7 @@ bool initLAPI(JNIEnv *e,
         extended_info.add_udp_addrs = (lapi_udp_t *) malloc(sizeof(lapi_udp_t) * mp_procs);
         bool allAllocOk = true;
         for (int ht = 0; ht < sizeof(hdr_handlers) / sizeof(hdr_handlers[0]); ++ht) {
-            if ((hdr_handlers[ht].handlers = (lapi_long_t *) malloc(mp_procs * sizeof(void *))) == NULL) {
+            if ((hdr_handlers[ht].handlers = (lapi_long_t *) malloc(mp_procs * sizeof(hdr_handlers[ht].handlers[0]))) == NULL) {
                 allAllocOk = false;
                 break;
             }
