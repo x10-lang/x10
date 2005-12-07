@@ -633,6 +633,7 @@ public class X10PrettyPrinterVisitor
             byte[] b = new byte[dis.available()];
             dis.read(b);
             String trans = new String(b, "UTF-8");
+            trans = "/* template:"+id+" { */ " + trans + " /* } */";
             translationCache_.put(id, trans);
             return trans;
         } catch (IOException io) {
