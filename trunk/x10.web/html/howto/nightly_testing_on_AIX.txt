@@ -92,9 +92,6 @@ cd $testDir
 findTimeLimit
 timeLimit="$RESULT"
 testScript -t "$timeLimit" -shiftLog -m "$MAILDEST"
-#Allow others to read test results
-cd 
-chmod -R og+rx  $X10
 sleep 600
 #Be sure not to leave any process running
 kill -9 -1
