@@ -183,8 +183,8 @@ cleanClasses() {
 # clean the .java .class and .pem leftover files
 chkArgs 0 "$@"
 
-  find . \( -name '*.java' -o -name '*.class' -o -name '*.pem' -o -name '*_x10stub.c' -o -name 'javacore*' -o -name 'heapdump*' -o -name '*.stackdump' -o -name 'log*' -o -name 'TMP_*' \) -exec rm {} \; 
-  find . -name 'jgfutil' -empty -exec rmdir {} \;
+  find . \( -name '*.java' -o -name '*.class' -o -name '*.pem' -o -name '*_x10stub.c' -o -name 'javacore*' -o -name 'heapdump*' -o -name '*.stackdump' -o -name 'log*' -o -name 'TMP_*' \) -print0 | xargs -r0 rm -f
+  find . -name 'jgfutil' -empty -print0 | xargs -r0 rmdir
 
 }
 
@@ -194,7 +194,7 @@ clean() {
   chkArgs 0 "$@"
   cleanClasses
   #in case no one else has done this make .so files executable
-  find . \( -name '*.so' -o -name '*.dll' \) -exec chmod ugo+rx  {} \;
+  find . \( -name '*.so' -o -name '*.dll' \) -print0 | xargs -r0 chmod ugo+rx
 }
 
 testForMain() {
@@ -244,7 +244,7 @@ testForEligibility() {
     chkArgs 2 "$@"
     local f="$1"
     local tail="$2"
-    testForMain "$f" "$tail" && testInList "$f"
+    testInList "$f" && testForMain "$f" "$tail"
 }
 
 
