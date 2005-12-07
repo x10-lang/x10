@@ -1,6 +1,6 @@
 package com.ibm.domo.ast.x10.ssa;
 
-import com.ibm.capa.impl.debug.Assertions;
+import com.ibm.domo.ssa.SSAAbstractUnaryInstruction;
 import com.ibm.domo.ssa.SSAInstruction;
 import com.ibm.domo.ssa.SymbolTable;
 import com.ibm.domo.ssa.ValueDecorator;
@@ -17,7 +17,7 @@ public class SSARegionIterNextInstruction extends SSAAbstractUnaryInstruction {
     }
 
     public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	return getValueString(symbolTable, d, nextValue) + " = regionIterNext(" + getValueString(symbolTable, d, regionIter) + ")";
+	return getValueString(symbolTable, d, getDef(0)) + " = regionIterNext(" + getValueString(symbolTable, d, getUse(0)) + ")";
     }
 
     public void visit(Visitor v) {
