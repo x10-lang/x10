@@ -3,11 +3,12 @@
  */
 package com.ibm.domo.ast.x10.translator.polyglot;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
@@ -38,6 +39,7 @@ import polyglot.ext.x10.ast.When.Branch;
 import polyglot.ext.x10.types.FutureType;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import com.ibm.capa.ast.CAstControlFlowMap;
 import com.ibm.capa.ast.CAstEntity;
@@ -68,7 +70,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     }
 
     protected CAstEntity walkAsyncEntity(final Node rootNode, final Node bodyNode, final WalkContext context) {
-	List/*<CAstEntity>*/ childEntities= new ArrayList();
+	Map/*<CAstNode,CAstEntity>*/ childEntities= new HashMap();
 	final CodeBodyContext asyncContext= new CodeBodyContext(context, childEntities);
 	final CAstNode bodyAST= walkNodes(bodyNode, asyncContext);
 
@@ -118,14 +120,14 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
     }
 
-    private final class AsyncEntity extends ParentEntity {
+    private final class AsyncEntity extends CodeBodyEntity {
 	private final Node fNode;
 
 	private final CodeBodyContext fContext;
 
 	private final CAstNode fBodyast;
 
-	private AsyncEntity(List entities, Node node, CodeBodyContext context, CAstNode bodyast) {
+	private AsyncEntity(Map/*<CAstNode,CAstEntity>*/ entities, Node node, CodeBodyContext context, CAstNode bodyast) {
 	    super(entities);
 	    fNode= node;
 	    fContext= context;
@@ -180,11 +182,12 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	public CAstNode visit(Async a, WalkContext context) {
 	    CAstEntity bodyEntity= walkAsyncEntity(a, a.body(), context);
 
-	    context.addScopedEntity(bodyEntity);
-
-	    return fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
+	    CAstNode asyncNode= fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
 		    walkNodes(a.place(), context),
 		    fFactory.makeConstant(bodyEntity));
+
+	    context.addScopedEntity(asyncNode, bodyEntity);
+	    return asyncNode;
 	}
 
 	public CAstNode visit(Finish f, WalkContext context) {
@@ -199,22 +202,26 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	public CAstNode visit(ForEach f, WalkContext context) {
 	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), context);
 
-	    context.addScopedEntity(bodyEntity);
 	    final CAstNode bodyNode= fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
 					    fFactory.makeNode(X10CastNode.HERE),
 					    fFactory.makeConstant(bodyEntity));
 
+	    context.addScopedEntity(bodyNode, bodyEntity);
 	    return walkRegionIterator(f, bodyNode, context);
 	}
 
 	private CAstNode walkRegionIterator(X10Loop loop, final CAstNode bodyNode, WalkContext context) {
-	    Expr regionExpr= loop.domain();
+	    return walkRegionIterator(loop, bodyNode, walkNodes(loop.domain(), context), context);
+	}
+
+	private CAstNode walkRegionIterator(X10Loop loop, final CAstNode bodyNode, CAstNode domainNode, WalkContext context) {
+//	    Expr regionExpr= loop.domain();
 	    Formal formal= loop.formal();
 
 	    return fFactory.makeNode(CAstNode.LOCAL_SCOPE,
 		fFactory.makeNode(CAstNode.BLOCK_STMT,
 		    fFactory.makeNode(CAstNode.DECL_STMT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp")),
-			fFactory.makeNode(X10CastNode.REGION_ITER_INIT, walkNodes(regionExpr, context))),
+			fFactory.makeNode(X10CastNode.REGION_ITER_INIT, domainNode)),
 		    fFactory.makeNode(CAstNode.LOOP,
 			fFactory.makeNode(X10CastNode.REGION_ITER_HASNEXT,
 			    fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp"))),
@@ -225,18 +232,37 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstNode visit(AtEach a, WalkContext context) {
-	    // TODO Auto-generated method stub
-	    return null;
+	    CAstEntity bodyEntity= walkAsyncEntity(a, a.body(), context);
+
+	    Expr domain= a.domain();
+	    Type type= domain.type();
+	    CAstNode dist;
+
+	    if (type.isArray())
+		dist= fFactory.makeNode(X10CastNode.ARRAY_DISTRIBUTION, walkNodes(domain, context));
+	    else
+		dist= walkNodes(domain, context);
+
+	    final CAstNode bodyNode=
+		fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
+			fFactory.makeNode(X10CastNode.PLACE_OF_POINT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), walkNodes(a.formal(), context)),
+			fFactory.makeConstant(bodyEntity));
+
+	    context.addScopedEntity(bodyNode, bodyEntity);
+	    return fFactory.makeNode(CAstNode.LOCAL_SCOPE,
+		fFactory.makeNode(CAstNode.BLOCK_STMT,
+			fFactory.makeNode(CAstNode.DECL_STMT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), dist),
+			walkRegionIterator(a, bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), context)));
 	}
 
 	public CAstNode visit(Future f, WalkContext context) {
 	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), context);
-
-	    context.addScopedEntity(bodyEntity);
-
-	    return fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
+	    CAstNode bodyNode= fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
 		    walkNodes(f.place(), context),
 		    fFactory.makeConstant(bodyEntity));
+
+	    context.addScopedEntity(bodyNode, bodyEntity);
+	    return bodyNode;
 	}
 
 	public CAstNode visit(Call c, WalkContext wc) {
