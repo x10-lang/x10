@@ -183,4 +183,23 @@ public interface X10CastNode extends CAstNode {
      * <li>CAstNode.EXPR representing the receiver (the region iterator)
      */
     public static final int REGION_ITER_NEXT= SUB_LANGUAGE_BASE + 19;
+
+    /**
+     * Kind constant for a CAstNode representing the accessor for the distribution of an
+     * X10 array-typed expression.<br>
+     * Children:
+     * <ol>
+     * <li>CAstNode.EXPR representing the receiver array
+     */
+    public static final int ARRAY_DISTRIBUTION= SUB_LANGUAGE_BASE + 20;
+
+    /**
+     * Kind constant for a CAstNode representing the accessor for the place at which a given point
+     * resides in a given distribution.<br>
+     * Children:
+     * <ol>
+     * <li>CAstNode.EXPR representing the array
+     * <li>CAstNode.EXPR representing the point
+     */
+    public static final int PLACE_OF_POINT= SUB_LANGUAGE_BASE + 21;
 }
