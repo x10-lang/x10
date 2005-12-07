@@ -1,6 +1,6 @@
 package com.ibm.domo.ast.x10.ssa;
 
-import com.ibm.capa.impl.debug.Assertions;
+import com.ibm.domo.ssa.SSAAbstractUnaryInstruction;
 import com.ibm.domo.ssa.SSAInstruction;
 import com.ibm.domo.ssa.SymbolTable;
 import com.ibm.domo.ssa.ValueDecorator;
@@ -11,7 +11,7 @@ public class SSAForceInstruction extends SSAAbstractUnaryInstruction {
     private final TypeReference valueType;
 
     public SSAForceInstruction(int retValue, int targetValue, TypeReference valueType) {
-	suer(retValue, targetValue);
+	super(retValue, targetValue);
 	this.valueType= valueType;
     }
 
@@ -20,7 +20,7 @@ public class SSAForceInstruction extends SSAAbstractUnaryInstruction {
     }
 
     public String toString(SymbolTable symbolTable, ValueDecorator d) {
-	return getValueString(symbolTable, d, retValue) + " = force(" + getValueString(symbolTable, d, targetValue) + ")";
+	return getValueString(symbolTable, d, getDef()) + " = force(" + getValueString(symbolTable, d, getUse(0)) + ")";
     }
 
     public void visit(Visitor v) {
