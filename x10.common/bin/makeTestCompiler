@@ -1,42 +1,48 @@
-#!/bin/bash 
+#!/bin/bash -xv
+RESULTFILE="../x10.test/src/polyglot/ext/x10/tests/TestCompiler.java"
+TESTDIR="examples"
 
 usage() {
 # print usage message and exit with nonzero return code
 
 echo "
-makeTestCompiler <resultFile> <testDirectory>
+makeTestCompiler
 
-Currently, resultFile must be set to 
-src/polyglot/ext/x10/tests/TestCompiler.java
 
 Automatically generates a java file suitable for use by
 junit. Tests are generated for all the *.x10 files in the given
 test directory, and recursively for subdirectories thereof.
+
+Currently, the java result is placed in
+\$X10/$RESULTFILE
+
+The test directory is set to
+\$X10/$TESTDIR
+
+The environment variable \$X10 must be set to the x10.common
+directory (e.g. ~/x10.common) before running this script, and
+x10.test directory must be a sibling of x10.common
 
 The file hierarchy starting at the top test directory is scanned
 in a pre-order enumeration.  Top level directories that do not
 contain *.x10 files are considered organizational directories,
 not containing packages or test cases. As soon as a directory
 containing any *.x10 files, is encountered in the pre-order
-traversal, all the .x10 files containing "public static void
-main" methods in this directory and subdirecties are executed
+traversal, all the .x10 files containing \"public static void
+main\" methods in this directory and subdirecties are executed
 (using the preorder enumeration) as test cases, with the x10
 classpath set to this directory.  The subdirectories may have a
 package/subpackage organization as in java.
 
-*.x10 files which do not contain "public static void main" are
+*.x10 files which do not contain \"public static void main\" are
 not made into tests. You can put auxiliary classes used by other
 tests in these files.
 
-Omit the ~/x10/ prefix before directory and file names, it will
-be inserted. The environment variable X10 must be set to
-~/x10 before running this script.
 
-Example:
+Way to invoke :
 
-makeTestCompiler src/polyglot/ext/x10/tests/TestCompiler.java examples
-
-\"junit\" must then be run in the <testDirectory>" 
+makeTestCompiler
+"
 
 exit 1
 
@@ -45,10 +51,9 @@ exit 1
 checkUsage () {
 #simple checks on arguments and environment
 
-  if [[ $# -gt 2 ]]; then usage; fi 
-  if [[ "$1" = "-h" || "$1" = "--help" || "$1" = "-help" ]]; then usage; fi
+  if [[ "$1" = "-h" || "$1" = "--help" || "$1" = "-help" || $# -ne 0 ]]; then usage; fi
   if [[ -z "$X10" ]]; then
-    echo "X10 environment variable must be set"
+    echo "X10 environment variable must be set (e.g., to ~/x10.common)"
     usage
   fi
 }
@@ -141,11 +146,11 @@ main() {
 
   checkUsage $*
   #result  file
-  local result=$X10/${1:-"src/polyglot/ext/x10/tests/TestCompiler.java"}
+  local result="$X10/$RESULTFILE"
   #test directory
-  local testDir=$X10/${2:-"examples"}
-  local SD=$X10/bin                     #source directory
-  WD=$X10/TestCompilerWork              #working directory
+  local testDir="$X10/$TESTDIR"
+  local SD="$X10/bin"                     #source directory
+  WD="$X10/TestCompilerWork"              #working directory
   if [ -e "$WD" ]; then rm -rf $WD/*; else mkdir $WD; fi
   cd $testDir
   genTest "." "." #generate junit code for $testDir and subdirectories
