@@ -9,6 +9,7 @@ import com.ibm.domo.ast.x10.ssa.AstX10InstructionVisitor;
 import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAFinishInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAForceInstruction;
+import com.ibm.domo.ast.x10.ssa.SSAHereInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
@@ -76,6 +77,10 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	    Assertions._assert(instruction.getUse(0) == vn, "regionIterNext instruction has bogus use/def info?");
 	    bingo= true;
 	}
+
+	public void visitHere(SSAHereInstruction instruction) {
+	    Assertions.UNREACHABLE("Query of interestingness of value number for Here???");
+	}
     }
 
     protected InterestingVisitor makeInterestingVisitor(int vn) {
@@ -102,7 +107,6 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 
 	public void visitRegionIterInit(SSARegionIterInitInstruction instruction) {
 	    // TODO model data flow for future/force
-	    
 	}
 
 	public void visitRegionIterHasNext(SSARegionIterHasNextInstruction instruction) {
@@ -111,6 +115,10 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 
 	public void visitRegionIterNext(SSARegionIterNextInstruction instruction) {
 	    // TODO model data flow for future/force
+	}
+
+	public void visitHere(SSAHereInstruction instruction) {
+	    // TODO model data flow for here
 	}
     }
 

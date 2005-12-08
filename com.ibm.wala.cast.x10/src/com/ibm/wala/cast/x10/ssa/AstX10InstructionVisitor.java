@@ -17,4 +17,6 @@ public interface AstX10InstructionVisitor extends AstJavaInstructionVisitor {
     void visitRegionIterHasNext(SSARegionIterHasNextInstruction instruction);
 
     void visitRegionIterNext(SSARegionIterNextInstruction instruction);
+
+    void visitHere(SSAHereInstruction instruction);
 }

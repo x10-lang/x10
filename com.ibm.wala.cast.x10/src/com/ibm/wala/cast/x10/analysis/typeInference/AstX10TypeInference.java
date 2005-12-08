@@ -8,6 +8,7 @@ import com.ibm.domo.ast.x10.ssa.AstX10InstructionVisitor;
 import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAFinishInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAForceInstruction;
+import com.ibm.domo.ast.x10.ssa.SSAHereInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
@@ -70,6 +71,14 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    IClass klass= cha.lookupClass(type);
 
 	    result= new DeclaredTypeOperator(new PointType(klass, cha));
+	}
+
+	public void visitHere(SSAHereInstruction instruction) {
+	    // This instruction always produces a value of type "x10.lang.point".
+	    TypeReference type= X10TypeReference.x10LangPlace;
+	    IClass klass= cha.lookupClass(type);
+
+	    result= new DeclaredTypeOperator(new ConeType(klass, cha));
 	}
     }
 
