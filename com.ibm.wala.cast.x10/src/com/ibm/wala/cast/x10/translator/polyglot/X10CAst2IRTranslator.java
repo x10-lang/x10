@@ -13,6 +13,7 @@ import com.ibm.domo.ast.x10.ssa.AsyncCallSiteReference;
 import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAFinishInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAForceInstruction;
+import com.ibm.domo.ast.x10.ssa.SSAHereInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
@@ -105,6 +106,12 @@ public class X10CAst2IRTranslator extends JavaCAst2IRTranslator {
 		int targetValue= getValue(n.getChild(0));
 		int retValue= context.scope().allocateTempValue();
 		context.cfg().addInstruction(new SSARegionIterNextInstruction(retValue, targetValue));
+		setValue(n, retValue);
+		break;
+	    }
+	    case X10CastNode.HERE: {
+		int retValue= context.scope().allocateTempValue();
+		context.cfg().addInstruction(new SSAHereInstruction(retValue));
 		setValue(n, retValue);
 		break;
 	    }
