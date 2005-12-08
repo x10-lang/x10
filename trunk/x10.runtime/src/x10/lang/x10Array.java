@@ -2,7 +2,7 @@ package x10.lang;
 import x10.lang.place;
 
 /* root for all array classes */
-abstract public class x10Array extends x10.lang.Object implements Indexable, Unsafe {
+abstract public class x10Array implements Indexable, Unsafe {
 
 	// used to associate a partitioned global array with a
 	// particular place
