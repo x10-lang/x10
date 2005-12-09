@@ -2,11 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 compiler
 Bundle-SymbolicName: x10.compiler
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.3
 Bundle-Localization: plugin
 Require-Bundle: lpg,
  x10.runtime,
- x10.common,
  polyglot2
 Export-Package: org.ovmj.util,
  polyglot.ext.x10,
