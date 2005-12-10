@@ -8,6 +8,7 @@ import x10.array.Helper;
 import x10.array.GenericArray;
 import x10.array.Operator;
 import x10.base.Allocator;
+import x10.array.Distribution_c;
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
 import x10.compilergenerated.Parameter1;

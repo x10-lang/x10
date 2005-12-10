@@ -6,6 +6,7 @@ package x10.array.sharedmemory;
 import java.util.Iterator;
 import x10.array.LongArray;
 import x10.array.Operator;
+import x10.array.Distribution_c;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;

@@ -293,7 +293,7 @@ public class MultiDimRegion extends region  {
 
 // [<unique id> <type>,<dim size>,[<region>,...]
         public void serialize(SerializerBuffer outputBuffer){
-          Integer originalIndex = outputBuffer.findOriginalRef(this);
+	    Integer originalIndex = outputBuffer.findOriginalRef(this);
 
           if(originalIndex == null){
             originalIndex = new Integer(outputBuffer.getOffset());

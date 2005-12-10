@@ -1,4 +1,4 @@
-package x10.array.sharedmemory;
+package x10.array;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,15 +58,15 @@ public class DistributionFactory extends dist.factory {
         final int dim_to_split = r.rank - 1;
         int sz = r.rank(dim_to_split).size();
         int qsize = qs.size();
-        assert (qsize > 0);        
+        assert (qsize > 0);
+	
         //if (sz % (n * qsize) != 0)
           //  throw new Error("DistributionFactory::blockCyclic - only supported if least significant dimension has a size that is a multiple of the number of places to cycle over");
-        
         Object[] q = qs.toArray();
         // actually qs should be a sorted set of places - here we sort the in global order 
         assert (q[0] instanceof Comparable);
-            
-        Arrays.sort(q);
+
+	Arrays.sort(q);
         if (qsize == 1) {
             place p = (place) q[0];
             ret = new Distribution_c.Constant(r, p);
@@ -80,7 +80,31 @@ public class DistributionFactory extends dist.factory {
                  dists[i] = new Distribution_c.Constant(sub[i], (place) q[i % q.length]);
              }
              ret = new Distribution_c.Combined(r, dists);
+
+	} else if (sz == n && dim_to_split > 0 && qsize == r.rank(dim_to_split-1).size()){
+	    // blocking entire rows
+	    // currently only support it if virtual mapping function is a simple offset ie
+	    // number of rows must equal number of places
+	    
+	     int adjustment=0;
+	    // FIXME n should be == num of places, but if x10c config differs from x10
+	    // then it won't be
+            int adjustmentOffset[] = new int[Runtime.places().length];
+	    int chunks = r.rank(dim_to_split-1).size();;
+	    Distribution_c[] dists = new Distribution_c[chunks];
+	    region[] sub = r.partition(chunks,dim_to_split - 1);//split along rows
+	    for(int i=0;i < chunks;++i){
+		int placeId = ((place)q[i%chunks]).id;
+            	adjustmentOffset[placeId] = adjustment;
             
+            	//System.out.println("set adjustment to:"+adjustment);
+            	adjustment+= sub[i].size();
+		dists[i] = new Distribution_c.Constant(sub[i],(place)q[i%chunks]);
+	    }
+	    ret = new Distribution_c.Combined(r,dists);
+	    ret.setVirtualIndexAdjustments(adjustmentOffset);
+	  
+	
         } else {
             ret = blockCyclicHelper_(r, n, q);
         }
@@ -137,7 +161,7 @@ public class DistributionFactory extends dist.factory {
         final int dim_to_split = 0; //r.rank - 1;
         dist ret = null;
         int sz = r.rank(dim_to_split).size();
-        
+       
         //if (sz < n)
           // throw new Error("DistributionFactory::block - blocking only supported along the most significant dimension and blocking factor must be lower than or equal to the size of that dimension.");
         
@@ -168,12 +192,12 @@ public class DistributionFactory extends dist.factory {
             }
             ret =  new Distribution_c.Combined(r, dists);
             ret.setVirtualIndexAdjustments(adjustmentOffset);
-            if(n ==1) ret._distributionType = dist.BLOCK;
-            else ret._distributionType = dist.BLOCK_CYCLIC;
-           
-        } else {
+	} else {
+        	
             ret = blockHelper_(r, n, q);
         }
+	if(n ==1) ret._distributionType = dist.BLOCK;
+	else ret._distributionType = dist.BLOCK_CYCLIC;
         ret._cyclicValue=n;
         return ret;
 	}
@@ -187,7 +211,7 @@ public class DistributionFactory extends dist.factory {
         int adjustment=0;
         int adjustmentOffset[] = new int[Runtime.places().length];
         
-        HashMap hm = new HashMap();
+       	HashMap hm = new HashMap();
         int offsWithinPlace = 0;
         int blockNum = 0;
         for (Iterator it = r.iterator(); it.hasNext(); ) {
