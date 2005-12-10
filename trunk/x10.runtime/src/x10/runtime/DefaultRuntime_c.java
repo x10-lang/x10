@@ -15,7 +15,7 @@ import x10.array.CharArray;
 import x10.array.ByteArray;
 import x10.array.ShortArray;
 import x10.array.point_c;
-import x10.array.sharedmemory.DistributionFactory;
+import x10.array.DistributionFactory;
 import x10.array.sharedmemory.DoubleArray_c;
 import x10.array.sharedmemory.FloatArray_c;
 import x10.array.sharedmemory.GenericArray_c;

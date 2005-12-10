@@ -78,7 +78,8 @@ public abstract class Activity implements Runnable {
     }
     
     public Activity() {
-    	this.clocks_ = new LinkedList();
+	this.clocks_ = new LinkedList();
+	
     }
     
     /**
@@ -215,6 +216,7 @@ public abstract class Activity implements Runnable {
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, PoolRunner.logString() + " " + this + ".finishRun() started." );
     	}
+	
     	finishRun( this );
     }
     public /*myThread*/ void finishRun( Runnable r) {
@@ -453,7 +455,7 @@ public abstract class Activity implements Runnable {
     public long globalRefAddr;
 
     public void pseudoSerialize() {
-
+	
        x10.runtime.distributed.Serializer serializer = new Serializer(this);
     
        clocksMappedToGlobalAddresses = new long[clocks_.size() << 1];
@@ -466,7 +468,7 @@ public abstract class Activity implements Runnable {
        count = serializer.calculateSize();
         
        pseudoSerializedLongArray = new long[count];
-
+       
        serializer.serialize(new SerializerBuffer(pseudoSerializedLongArray));
        
        constructorSignature = serializer.getConstructorSignature();
