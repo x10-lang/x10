@@ -6,6 +6,7 @@ package x10.array.sharedmemory;
 import x10.array.Helper;
 import x10.lang.Runtime;
 import x10.lang.dist;
+import x10.array.Distribution_c;
 import x10.runtime.Configuration;
 
 /**

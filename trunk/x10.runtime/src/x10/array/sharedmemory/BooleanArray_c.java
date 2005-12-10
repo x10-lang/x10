@@ -19,6 +19,7 @@ import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
 import x10.runtime.Configuration;
+import x10.array.Distribution_c;
 
 
 /**

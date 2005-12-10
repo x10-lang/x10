@@ -3,6 +3,7 @@
  */
 package x10.array.sharedmemory;
 
+import x10.array.Distribution_c;
 import java.util.Iterator;
 import x10.array.ShortArray;
 import x10.array.Helper;

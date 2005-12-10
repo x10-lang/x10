@@ -1,23 +1,28 @@
 /*
  * Created on Oct 3, 2004
  */
-package x10.array.sharedmemory;
+package x10.array;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import x10.array.ArbitraryRegion;
+import x10.array.EmptyRegion;
 import x10.array.ContiguousRange;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
+import x10.array.point_c;
 import x10.lang.region;
+import x10.runtime.distributed.DeserializerBuffer;
 import x10.runtime.distributed.SerializerBuffer;
+
 
 
 /**
@@ -28,17 +33,72 @@ import x10.runtime.distributed.SerializerBuffer;
  * @author Christian Grothoff
  * @author vj
  */
-public abstract class Distribution_c extends /*Region_c*/dist /*implements Distribution*/ {
+public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
-    public void serialize(SerializerBuffer buf) { throw new RuntimeException("Should not be called");}
-    public static dist deserialize(SerializerBuffer buf)
-      { if(true)throw new RuntimeException("Should not be called"); return null;}
+   private int _blockSize;
+   private int _cycleSize;
+   static public dist deserialize(DeserializerBuffer inputBuffer)
+          {
+          int thisIndex = inputBuffer.getOffset();
+          int owningIndex = (int)inputBuffer.readLong();
+          if(thisIndex != owningIndex){
+          //System.out.println("found a second reference "+thisIndex+" to "+owningIndex);
+            return (dist)inputBuffer.getCachedRef(owningIndex);
+                      }
+          int distType = (int)inputBuffer.readLong();
+          // next is a region
+          region r= x10.lang.region.deserialize(inputBuffer);
+          
+          dist newDist=null;
+          switch(distType){
+             case x10.lang.dist.BLOCK_CYCLIC:
+	       {
+		   int blockSize = (int)inputBuffer.readLong();
+		   newDist = factory.blockCyclic(r,blockSize);
+	       }
+             break;
+             case x10.lang.dist.BLOCK:
+		 newDist = factory.block(r);
+             break;
+	     case x10.lang.dist.CONSTANT:
+	     {
+		 place pl = place.deserialize(inputBuffer);
+		 newDist = factory.constant(r,pl);
+	     }
+	     break;
+             case x10.lang.dist.CYCLIC:
+	     {
+		 newDist = factory.cyclic(r);
+		 break;
+	     }
+	  case x10.lang.dist.ARBITRARY:
+	      {
+		  int size = (int)inputBuffer.readLong();
+		  HashMap newMap = new HashMap(size);
+		  for(int i = 0; i < size;++i){
+		      
+		      point_c p = point_c.deserialize(inputBuffer);
+		      place pl = place.deserialize(inputBuffer);
+		      newMap.put(p,pl);
+		  }
+		  newDist = new Arbitrary(r,newMap);
+		  //System.out.println("created:"+newDist);
+	      }
+	      break;
+          default:
+	     System.out.println("Distribution:block dist unimplemented!!!!"+distType);
+             throw new RuntimeException("Unimplemented");
+          }
 
+          inputBuffer.cacheRef(owningIndex,newDist);
+          return newDist;
+          }
 
     public boolean isValue() {
         return true;
     }
 
+   
     /**
      * Is this indexable value-equals to the other indexable?
      * @param other
@@ -55,7 +115,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
         return places;
     }
     
-    protected Distribution_c(region r) {
+    public Distribution_c(region r) {
         super( r);
         this.places = new HashSet();
     }
@@ -68,6 +128,17 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
     The value returned is a subset of this.region.
     */
     protected static region/*(rank)*/ restriction(dist th, place pl) {
+	
+	if(th instanceof Combined)
+	    return ((Combined)th).restrictToRegion(pl);
+
+	if(th instanceof Constant)
+	    return ((Constant)th).restrictToRegion(pl);
+
+	if(th instanceof Unique)
+	    return ((Unique)th).restrictToRegion(pl);
+
+	
        Set points = new HashSet();
        for (Iterator it = th.region.iterator(); it.hasNext(); ) {
            point p = (point) it.next();
@@ -87,6 +158,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
     */
    protected static dist/*(:this.region.contains(region))*/
    restriction(dist th, Set/*<place>*/Ps ) {
+       
        HashMap hm = new HashMap();
        Set points = new HashSet();
        for (Iterator it = th.region.iterator(); it.hasNext(); ) {
@@ -98,7 +170,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
            }
        }
        region reg = new ArbitraryRegion(th.rank, points);
-       dist ret = new Arbitrary(reg, hm); 
+       dist ret = new Arbitrary(reg, hm);
        return ret;
    }
    
@@ -114,7 +186,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
    /*(region(rank) R)*/ dist/*(region.intersection(R))*/
    restriction(dist th, region/*(rank)*/ r) {
        assert r.rank == th.rank;
-       
+      
        HashMap hm = new HashMap();
        Set points = new HashSet();
        for (Iterator it = th.region.iterator(); it.hasNext(); ) {
@@ -217,7 +289,9 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
            }
            hm.put(p, pl);
        }
-       dist ret = new Arbitrary(reg, hm); 
+       // TODO: *must* try to convert this to a recognized form (constant? Unique?)
+       // otherwise serialization will have to send the entire hashtable over
+       dist ret = new Arbitrary(reg, hm);
        return ret;
    }
    
@@ -273,13 +347,14 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
    }
 
     static final class Empty extends Distribution_c {
-        
+    public void serialize(SerializerBuffer outputBuffer){
+    System.out.println("unimplemented for empty");
+    throw new RuntimeException("Unimplemented");}
         Empty() {
             this(1);
         }
         
-
-        
+            
         /** The empty region of rank k
          * @param k
          */
@@ -374,10 +449,47 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
     static final class Constant extends Distribution_c {
         place place_;
 
+
+    /* format: <unique id>,<type>,<place_id>,<region> */
+    public void serialize(SerializerBuffer outputBuffer)
+          {
+          Integer originalIndex = outputBuffer.findOriginalRef(this);
+          boolean isOriginalRef = true;
+          
+          if(originalIndex == null){
+            isOriginalRef = false;
+            originalIndex = new Integer(outputBuffer.getOffset());
+            outputBuffer.recordRef(this,originalIndex);
+          }
+          else {
+            outputBuffer.recordRef(this,originalIndex);
+            outputBuffer.writeLong(originalIndex.intValue());
+            return;
+          }
+
+          outputBuffer.writeLong(originalIndex.intValue());
+          outputBuffer.writeLong(_distributionType);
+	  assert(CONSTANT == _distributionType);
+         
+          this.region.serialize(outputBuffer);
+	  place_.serialize(outputBuffer);
+	  }
+
         Constant(region r, place p) {
             super(r);
             this.places.add(p);
             place_ = p;
+        }
+        
+        /*
+         *  (non-Javadoc)
+         * @see x10.lang.dist#getPerPlaceRegions()
+         */
+        public final region[] getPerPlaceRegions(){
+        	region theRegions[] = new region[place.MAX_PLACES];
+        	theRegions[place_.id] = distribution.region;
+        	
+        	return theRegions;
         }
         
         /** Returns the place to which the point p in region is mapped.
@@ -395,6 +507,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
         public region/*(rank)*/ restrictToRegion( place P ) {
             if (P.equals(place_)) 
                 return this.region;
+	
             return Runtime.factory.getRegionFactory().emptyRegion(this.rank);
         }
         
@@ -480,15 +593,18 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
             s.append(region.toString());
             s.append("|, place=|");
             s.append(place_);
-            s.append("|>");
-           return s.toString();
+            s.append("|");
+            s.append(">");
+            return s.toString();
         }
         
     } // end of Distribution_c.Constant
     
     static class Unique extends Distribution_c {
         place[] placeseq;
-
+        public void serialize(SerializerBuffer outputBuffer){
+	System.out.println("unimplemented for unique");
+	throw new RuntimeException("Unimplemented");}
         Unique(place[] ps) {
             super(new ContiguousRange(0, ps.length - 1));
             this.placeseq = ps;
@@ -544,9 +660,39 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
     
     static class Combined extends Distribution_c {
         private final Distribution_c[] members_;
-        
-       
-        /**
+       public void serialize(SerializerBuffer outputBuffer)
+          {
+          Integer originalIndex = outputBuffer.findOriginalRef(this);
+          boolean isOriginalRef = true;
+          
+          if(originalIndex == null){
+            isOriginalRef = false;
+            originalIndex = new Integer(outputBuffer.getOffset());
+            outputBuffer.recordRef(this,originalIndex);
+          }
+          else {
+            outputBuffer.recordRef(this,originalIndex);
+            outputBuffer.writeLong(originalIndex.intValue());
+            return;
+          }
+
+          outputBuffer.writeLong(originalIndex.intValue());
+          outputBuffer.writeLong(_distributionType);
+         
+          this.region.serialize(outputBuffer);
+	  switch(_distributionType){
+	  case BLOCK_CYCLIC:
+	    outputBuffer.writeLong(_cyclicValue);
+	    break;
+          case CYCLIC:
+	  case BLOCK:
+	    break; // no need to store info
+          default:
+	    System.out.println("Unhandled dist type "+_distributionType);
+	    assert false;
+          }
+       }
+       /**
          * @param r
          */
         Combined(region r, Distribution_c[] members_) {
@@ -586,14 +732,48 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
                 throw new ArrayIndexOutOfBoundsException();
             return ret;
         }
-        
 
+	
+          
+	public region/*(rank)*/ restrictToRegion(place pl) {
+	  
+	    region [] newRegions = new region[members_.length];
+	    int count=0;
+	    int i;
+	    for (i=0; i < members_.length; ++i) {
+		region r = restriction(members_[i],pl);
+		if(r instanceof EmptyRegion) continue;
+		newRegions[count++] = r;
+       	    }
+	    
+	    region.factory RF = Runtime.factory.getRegionFactory();
+	    if(0 == count) return RF.emptyRegion(region.rank);
+            
+	    if(1==count) return newRegions[0]; // we win
+	    
+	    // now must merge results--may or may not be as cheap as
+	    // a Distribution_c.restiction
+	    Set points = new HashSet();
+	    for(i=0;i < count;++i){
+		for (Iterator it = newRegions[i].iterator(); it.hasNext(); ) {
+		    point p = (point) it.next();
+		    points.add(p);
+		}
+	    }
+       
+	    region ret = new ArbitraryRegion(region.rank, points);
+	    return ret;
+	    
+	}
 
+	
         public String toString() {
             StringBuffer s = new StringBuffer("CombinedDistribution_c<");
             for (int i=0; i < members_.length;i++) 
                 s.append(members_[i]);
-                  
+        
+          
+            
             return s.append(">").toString();
         }
     } // end of Distribution_c.Combined
@@ -601,13 +781,69 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
     static final class Arbitrary extends Distribution_c {
         
         private final Map map_;
-        
+    //
+    // format:
+    // <unique id>  index into buffer so refs can be commoned
+    // <type>       int indicating type
+    // <...region info...> 
+       public void serialize(SerializerBuffer outputBuffer)
+          {
+          Integer originalIndex = outputBuffer.findOriginalRef(this);
+          boolean isOriginalRef = true;
+          
+          if(originalIndex == null){
+            isOriginalRef = false;
+            originalIndex = new Integer(outputBuffer.getOffset());
+            outputBuffer.recordRef(this,originalIndex);
+          }
+          else {
+            outputBuffer.recordRef(this,originalIndex);
+            outputBuffer.writeLong(originalIndex.intValue());
+            return;
+          }
+
+          outputBuffer.writeLong(originalIndex.intValue());
+          outputBuffer.writeLong(_distributionType);
+         
+          this.region.serialize(outputBuffer);
+	  switch(_distributionType){
+	  case BLOCK_CYCLIC:
+	    outputBuffer.writeLong(_cyclicValue);
+	    break;
+          case CYCLIC:
+	  case BLOCK:
+	    break; // no need to store info
+	  case ARBITRARY://expensive
+	      {
+		  Set data = map_.entrySet();
+		  outputBuffer.writeLong(data.size());
+		  for(Iterator i = data.iterator();i.hasNext();){
+		      Map.Entry entry = (Map.Entry)i.next();
+		      place pl = (place)entry.getValue();
+		      point_c p = (point_c)entry.getKey();
+		      p.serialize(outputBuffer);
+		      pl.serialize(outputBuffer);
+		  }
+	      }
+	      //System.out.println("Serialized:"+this);
+	      break;
+          default:
+	      System.out.println("dump dist:"+this);
+	      System.out.println("Unhandled dist type "+_distributionType);
+	    assert false;
+          }
+       }
+
+    
         Arbitrary(region r, Map m) {
             super(r);
-            map_ = m;
+           	  map_ = m;
             places.addAll(m.values());
+            this._indexMap = generateIndexMap(this,m);
+	    this._distributionType = ARBITRARY;
         }
         
+       
         /** Returns the place to which the point p in region is mapped.
          */
         public place get(point/*(region)*/ p) {
@@ -630,7 +866,7 @@ public abstract class Distribution_c extends /*Region_c*/dist /*implements Distr
                     s.append(",\n");
                 
             }
-         
+          
             s.append(">");
             return s.toString();
         }
