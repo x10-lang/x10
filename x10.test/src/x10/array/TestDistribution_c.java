@@ -1,16 +1,14 @@
-package x10.array.sharedmemory;
+package x10.array;
 import junit.framework.TestCase;
 import x10.array.ContiguousRange;
 
-import x10.array.sharedmemory.Distribution_c;
+import x10.array.Distribution_c;
 import x10.lang.Runtime;
 import x10.lang.place;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
-import x10.runtime.DefaultRuntime_c;
-import x10.runtime.Place;
 
 
 /**
@@ -103,8 +101,7 @@ public class TestDistribution_c extends TestCase {
     			region R = region.factory.region(0, N);
     			dist D = dist.factory.constant(R, p); 
     			region R_local = region.factory.region(0, N);
-    			dist D_local = dist.factory.constant(R, p);
-    			
+    			dist D_local = dist.factory.constant(R_local, p);    			
     			dist D_nonlocal = D.difference(D_local.region);
     			
     			System.out.println("D_local =" + D_local);
