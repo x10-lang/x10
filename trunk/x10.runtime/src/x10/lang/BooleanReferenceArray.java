@@ -20,4 +20,49 @@ public abstract class BooleanReferenceArray extends booleanArray {
 	abstract /*value*/ public boolean set(boolean v, int p, int q);
 	abstract /*value*/ public boolean set(boolean v, int p, int q, int r);
 	abstract /*value*/ public boolean set(boolean v, int p, int q, int r, int s);	
+	public boolean bitAndSet(boolean v, point/*(region)*/ p) {
+		return set(get(p)&v,p);
+	}
+	public boolean bitAndSet(boolean v, int p) {
+		return set(get(p)&v,p);
+	}
+	public boolean bitAndSet(boolean v, int p, int q) {
+		return set(get(p,q)&v,p,q);
+	}
+	public boolean bitAndSet(boolean v, int p, int q, int r) {
+		return set(get(p,q,r)&v,p,q,r);
+	}
+	public boolean bitAndSet(boolean v, int p, int q, int r, int s) {
+		return set(get(p,q,r,s)&v,p,q,r,s);
+	}
+	public boolean bitOrSet(boolean v, point/*(region)*/ p) {
+		return set(get(p)|v,p);
+	}
+	public boolean bitOrSet(boolean v, int p) {
+		return set(get(p)|v,p);
+	}
+	public boolean bitOrSet(boolean v, int p, int q) {
+		return set(get(p,q)|v,p,q);
+	}
+	public boolean bitOrSet(boolean v, int p, int q, int r) {
+		return set(get(p,q,r)|v,p,q,r);
+	}
+	public boolean bitOrSet(boolean v, int p, int q, int r, int s) {
+		return set(get(p,q,r,s)|v,p,q,r,s);
+	}
+	public boolean bitXorSet(boolean v, point/*(region)*/ p) {
+		return set(get(p)^v,p);
+	}
+	public boolean bitXorSet(boolean v, int p) {
+		return set(get(p)^v,p);
+	}
+	public boolean bitXorSet(boolean v, int p, int q) {
+		return set(get(p,q)^v,p,q);
+	}
+	public boolean bitXorSet(boolean v, int p, int q, int r) {
+		return set(get(p,q,r)^v,p,q,r);
+	}
+	public boolean bitXorSet(boolean v, int p, int q, int r, int s) {
+		return set(get(p,q,r,s)^v,p,q,r,s);
+	}
 }
