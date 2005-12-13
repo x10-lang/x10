@@ -138,8 +138,12 @@ public final class Configuration {
      * Read the configuration file (if specified) and initialize the
      * globals.
      */
-    static {        
-        String cfg = getConfigurationFileName_();
+    static {
+        readConfiguration();
+    }
+
+    public static void readConfiguration() throws Error {
+	String cfg = getConfigurationFileName_();
         if (cfg != null) {
             try {
                 Properties props = new Properties();
@@ -162,7 +166,7 @@ public final class Configuration {
                 throw new Error(io);
             }
         } // end of 'have configuration file'       
-    } // end of static initializer
+    }
     
 
     private static void set(String key, String val) {
