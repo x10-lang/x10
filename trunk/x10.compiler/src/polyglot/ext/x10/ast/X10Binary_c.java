@@ -44,6 +44,18 @@ public class X10Binary_c extends Binary_c {
 	public X10Binary_c(Position pos, Expr left, Operator op, Expr right) {
 		super(pos, left, op, right);
 	}
+
+	/** Get the precedence of the expression. */
+	public Precedence precedence() {
+		X10Type l = (X10Type) left.type();
+		if (l.isPoint() || l.isPlace() || l.isDistribution() || l.isRegion() ||
+			l.isPrimitiveTypeArray() || l.isDistributedArray())
+		{
+			return Precedence.LITERAL;
+		}
+		return super.precedence();
+	}
+
 	// TODO: take care of the base cases for regions, distributions, points and places.
 	public Object constantValue() {
 		
