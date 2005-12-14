@@ -4,7 +4,7 @@
 
 	<target name="init" depends="properties">
 		<property name="plugin.name" value="lpg"/>
-		<property name="plugin.version" value="1.0.3"/>
+		<property name="plugin.version" value="${safari.version}"/>
 		<property name="plugin.jar.name" value="${plugin.name}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.name}_${plugin.version}.zip"/>
 		<property name="plugin.src.zip" value="${plugin.name}src.zip"/>
@@ -30,11 +30,6 @@
 		<delete dir="${temp.folder}"/>
 		<mkdir dir="${temp.folder}"/>
 		<antcall target="build.jars"/>
-<!--		<antcall target="gather.bin.parts">
-			<param name="destination.temp.folder" value="${temp.folder}/"/>
-		</antcall>
-		<zip destfile="${plugin.destination}/${plugin.jar.name}" basedir="${temp.folder}/${plugin.name}_${plugin.version}" filesonly="false" whenempty="skip" update="false"/>
-  -->
 		<delete dir="${temp.folder}"/>
 	</target>
 
@@ -49,21 +44,15 @@
 		<!-- Don't rebuild from source; the jar is already there; but we need to  -->
 		<!-- add to it, so explode it into the temp dir before adding to that dir -->
 		<unjar src="lib/lpg.jar" dest="${temp.folder}/${plugin.jar.name}.bin"/>
+		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/bin"/>
+		<copy todir="${temp.folder}/${plugin.jar.name}.bin/bin" failonerror="true" overwrite="false">
+			<fileset dir="bin" includes="lpg*"/>
+		</copy>
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${temp.folder}/${plugin.jar.name}.bin"
 			manifest="META-INF/MANIFEST.MF"/>
 		<delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
 	</target>
 
-<!--	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/${plugin.name}_${plugin.version}"/>
-		<copy todir="${destination.temp.folder}/${plugin.name}_${plugin.version}" failonerror="true" overwrite="false">
-			<fileset dir="${build.result.folder}" includes="${plugin.jar.name}"/>
-		</copy>
-		<copy todir="${destination.temp.folder}/${plugin.name}_${plugin.version}" failonerror="true" overwrite="false">
-			<fileset dir="${basedir}" includes="plugin.xml,icons/,schema/,${plugin.jar.name}"/>
-		</copy>
-	</target>
-  -->
 	<!-- ================================================================================= -->
 
 	<target name="build.sources" depends="init">
