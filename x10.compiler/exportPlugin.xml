@@ -45,10 +45,10 @@
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}">
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement path="${eclipse.build.path}"/>
 				<pathelement location="../lpg/lib/lpg.jar"/>
 				<pathelement location="../polyglot2/bin"/>
 				<pathelement location="../x10.runtime/classes"/>
+				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>
 		</javac>
