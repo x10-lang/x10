@@ -288,25 +288,6 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
         kwLexer = new X10KWLexer(getInputChars(), TK_IDENTIFIER);
     }
     
-    public class DebugToken extends Token
-    {
-        char [] inputChars;
-        
-        DebugToken(int startOffset, int endOffset, int kind)
-        {
-            super(startOffset, endOffset, kind);
-            this.inputChars = getInputChars();
-        }
-
-        public String toString() { return getValue(inputChars); }
-    }
-    
-    public final void makeToken(int startOffset, int endOffset, int kind)
-    {
-        //prsStream.makeToken(startOffset, endOffset, kind);
-        prsStream.addToken(new DebugToken(startOffset, endOffset, kind));
-    }
-    
     final void makeComment(int kind)
     {
         int startOffset = lexParser.getToken(1),

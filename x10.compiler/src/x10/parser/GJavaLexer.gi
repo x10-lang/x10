@@ -46,25 +46,6 @@ $Headers
             kwLexer = new $kw_lexer_class(getInputChars(), $_IDENTIFIER);
         }
         
-        public class DebugToken extends Token
-        {
-            char [] inputChars;
-            
-            DebugToken(int startOffset, int endOffset, int kind)
-            {
-                super(startOffset, endOffset, kind);
-                this.inputChars = getInputChars();
-            }
-
-            public String toString() { return getValue(inputChars); }
-        }
-        
-        public final void makeToken(int startOffset, int endOffset, int kind)
-        {
-            //$prs_stream.makeToken(startOffset, endOffset, kind);
-            $prs_stream.addToken(new DebugToken(startOffset, endOffset, kind));
-        }
-        
         final void makeComment(int kind)
         {
             int startOffset = $getToken(1),
