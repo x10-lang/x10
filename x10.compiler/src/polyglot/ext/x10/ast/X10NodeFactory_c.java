@@ -25,6 +25,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
 import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.CanonicalTypeNode_c;
 import polyglot.ext.jl.ast.Field_c;
@@ -288,18 +289,14 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
         public Assign Assign(Position pos, Expr left, Assign.Operator op,
                         Expr right) {
-                if (left instanceof Local) {
-                        return LocalAssign(pos, (Local) left, op, right);
-                } else if (left instanceof Field) {
-                        return FieldAssign(pos, (Field) left, op, right);
-                } else if (left instanceof X10ArrayAccess) {
+                if (left instanceof X10ArrayAccess) {
                         return X10ArrayAccessAssign(pos, (X10ArrayAccess) left,
                                         op, right);
                 } else if (left instanceof X10ArrayAccess1) {
                         return X10ArrayAccess1Assign(pos,
                                         (X10ArrayAccess1) left, op, right);
                 }
-                return AmbAssign(pos, left, op, right);
+                return super.Assign(pos, left, op, right);
         }
 
         public X10ArrayAccessAssign X10ArrayAccessAssign(Position pos,
@@ -362,6 +359,34 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
                 n = (Binary) n.ext(extFactory().extBinary());
                 n = (Binary) n.del(delFactory().delBinary());
                 return n;
+        }
+
+	public Unary Unary(Position pos, Unary.Operator op, Expr expr) {
+                boolean incOp = (op == Unary.POST_INC || op == Unary.PRE_INC ||
+                                 op == Unary.POST_DEC || op == Unary.PRE_DEC);
+                if (incOp && expr instanceof X10ArrayAccess) {
+                        return X10ArrayAccessUnary(pos, op,
+                                        (X10ArrayAccess) expr);
+                } else if (incOp && expr instanceof X10ArrayAccess1) {
+                        return X10ArrayAccess1Unary(pos, op,
+                                        (X10ArrayAccess1) expr);
+                }
+                return super.Unary(pos, op, expr);
+	}
+
+        public X10ArrayAccessUnary X10ArrayAccessUnary(Position pos,
+                        Unary.Operator op, X10ArrayAccess expr) {
+
+                X10ArrayAccessUnary n = new X10ArrayAccessUnary_c(pos, op, expr);
+                n = (X10ArrayAccessUnary) n.ext(extFactory().extArrayAccess());
+                return (X10ArrayAccessUnary) n.del(delFactory().delArrayAccess());
+        }
+
+        public X10ArrayAccess1Unary X10ArrayAccess1Unary(Position pos,
+                        Unary.Operator op, X10ArrayAccess1 expr) {
+                X10ArrayAccess1Unary n = new X10ArrayAccess1Unary_c(pos, op, expr);
+                n = (X10ArrayAccess1Unary) n.ext(extFactory().extArrayAccess());
+                return (X10ArrayAccess1Unary) n.del(delFactory().delArrayAccess());
         }
 
         public Tuple Tuple(Position pos, Name p, Name r, List a) {
