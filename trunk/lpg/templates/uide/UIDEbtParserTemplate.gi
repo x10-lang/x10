@@ -8,8 +8,8 @@
 --
 --     $package_declaration
 --     $import_classes
---     $action_class
---     $ast_class
+--     $action_type
+--     $ast_type
 --
 %Options escape=$,table=java,margin=4,backtrack,error_maps,scopes
 %options action=("*.java", "/.", "./")
@@ -84,16 +84,20 @@ $Define
     $prs_stream /.prsStream./
 $End
 
+$Globals
+    /.
+        import com.ibm.lpg.*;
+     ./
+$End
+
 $Headers
     /.
-    import com.ibm.lpg.*;
-
-    public class $action_class extends PrsStream implements RuleAction$additional_interfaces
+    public class $action_type extends PrsStream implements RuleAction$additional_interfaces
     {
         private static ParseTable prs = new $prs_type();
         private BacktrackingParser btParser;
 
-        public $action_class(LexStream lexStream)
+        public $action_type(LexStream lexStream)
         {
             super(lexStream);
 
@@ -158,22 +162,22 @@ $Headers
         //        lexStream.reportError(errorCode, locationInfo, leftToken, rightToken, tokenText);
         // }
 
-        public $ast_class parser()
+        public $ast_type parser()
         {
             return parser(null, 0);
         }
         
-        public $ast_class parser(Monitor monitor)
+        public $ast_type parser(Monitor monitor)
         {
             return parser(monitor, 0);
         }
 
-        public $ast_class parser(int error_repair_count)
+        public $ast_type parser(int error_repair_count)
         {
             return parser(null, error_repair_count);
         }
 
-        public $ast_class parser(Monitor monitor, int error_repair_count)
+        public $ast_type parser(Monitor monitor, int error_repair_count)
         {
             try
             {
@@ -192,7 +196,7 @@ $Headers
 
             try
             {
-                return ($ast_class) btParser.parse(error_repair_count);
+                return ($ast_type) btParser.parse(error_repair_count);
             }
             catch (BadParseException e)
             {
