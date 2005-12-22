@@ -43,10 +43,17 @@
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<!-- Don't rebuild from source; the jar is already there; but we need to  -->
 		<!-- add to it, so explode it into the temp dir before adding to that dir -->
-		<unjar src="lib/lpg.jar" dest="${temp.folder}/${plugin.jar.name}.bin"/>
+<!--		<unjar src="lib/lpg.jar" dest="${temp.folder}/${plugin.jar.name}.bin"/> -->
+		<copy todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true">
+			<fileset dir="lib" includes="lpg.jar"/>
+		</copy>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/bin"/>
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin/bin" failonerror="true" overwrite="false">
 			<fileset dir="bin" includes="lpg*"/>
+		</copy>
+		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/templates"/>
+		<copy todir="${temp.folder}/${plugin.jar.name}.bin/templates" failonerror="true" overwrite="false">
+			<fileset dir="templates" includes="**/*"/>
 		</copy>
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${temp.folder}/${plugin.jar.name}.bin"
 			manifest="META-INF/MANIFEST.MF"/>
