@@ -8,8 +8,8 @@ public class ObjectArrayInitializerShorthand {
 	public boolean run() {
 		
 		final dist d=[1:10,1:10]->here;
-        final x10.lang.Exception o = new x10.lang.Exception("Foo");
-		final x10.lang.Exception[.] ia = new x10.lang.Exception[d] (point [i,j]){return o;};
+        final x10.lang.point o = x10.lang.point.factory.point(0);
+		final x10.lang.point[.] ia = new x10.lang.point[d] (point [i,j]){return o;};
 		for(point [i,j]:ia) chk(ia[i,j]==o);
 		return true;
 	}
