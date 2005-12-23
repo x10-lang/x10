@@ -7,7 +7,7 @@ public class ArrayFuture {
 
 	public boolean run() {
 		
-		final distribution d=[1:10,1:10]->here;
+		final dist d=[1:10,1:10]->here;
 		final future<int>[.] ia = new future<int>[d] (point [i,j]){return future(here){i+j};};
 		for(point [i,j]:ia) chk(ia[i,j].force()==i+j);
 		return true;
