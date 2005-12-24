@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 abstract public class structureArray /*( distribution distribution )*/ 
 /*implements Cloneable, Serializable */
-implements Indexable, Unsafe {
+extends x10Array {
 
 	protected int _elementSize;
 	final public int getElementSize(){ return _elementSize;}
