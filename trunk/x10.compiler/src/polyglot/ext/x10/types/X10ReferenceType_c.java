@@ -153,6 +153,20 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
 		return xts.isSubtype( this, xts.distribution());
 	}
 
+	public boolean descendsFromImpl(Type ancestor) {
+		// Check subtype relation for supertype.
+		if (superType() == null) {
+			return false;
+		}
+
+		if (ts.isSubtype(superType(), ancestor)) {
+			return true;
+		}
+
+		// Next check default behavior.
+		return super.descendsFromImpl(ancestor);
+	}
+
 	public  boolean isSubtypeImpl( Type t) {
     	X10Type target = (X10Type) t;
     	
