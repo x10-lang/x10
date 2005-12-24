@@ -353,7 +353,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
       List l1 = new TypedList(new LinkedList(), X10Formal.class, false);
       l1.add(f);
       TypeNode appResultType = resultType;
-      if (resultType instanceof AmbTypeNode) {
+      if (!(resultType instanceof CanonicalTypeNode)) {
         Name x10 = new Name(nf, ts, pos, "x10");
         Name x10CG = new Name(nf, ts, pos, x10, "compilergenerated");
         Name x10CGP1 = new Name(nf, ts, pos, x10CG, "Parameter1");
@@ -363,7 +363,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                                     "apply", l1,
                                       new LinkedList(), body);
       //  new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
-      String prefix = (resultType instanceof AmbTypeNode) ? "generic" : resultType.toString();
+      String prefix = !(resultType instanceof CanonicalTypeNode) ?
+						"generic" : resultType.toString();
       Name x10 = new Name(nf, ts, pos, "x10");
       Name x10Lang = new Name(nf, ts, pos, x10, "lang");
       Name tArray
@@ -373,7 +374,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
       Name tArrayPointwiseOp = new Name(nf, ts, pos, tArray, "pointwiseOp");
       List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
       classDecl.add( decl );
-      TypeNode t = (resultType instanceof AmbTypeNode) ?
+      TypeNode t = !(resultType instanceof CanonicalTypeNode) ?
                (TypeNode) nf.GenericArrayPointwiseOpTypeNode(pos, resultType) :
                (TypeNode) tArrayPointwiseOp.toType();
                
@@ -406,6 +407,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                                     "apply", l1,
                                       new LinkedList(), body);
       //  new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
+	  // [IP] FIXME: this will break if the result is not a canonical type
       Name tArray = new Name(nf, ts, pos, resultType.toString() + "Array");
       Name tArrayPointwiseOp = new Name(nf, ts, pos, tArray, "pointwiseOp");
       List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
@@ -4714,4 +4716,5 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         return;
     }
 }
+
 
