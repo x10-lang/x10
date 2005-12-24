@@ -30,6 +30,7 @@ implements X10TypeSystem {
 	public X10TypeSystem_c() {
 		super();
 		factory = this;
+		unknownType = new X10UnknownType_c(this);
 	}
 	
 	
@@ -70,7 +71,7 @@ implements X10TypeSystem {
 	}
 	
 	protected UnknownType createUnknownType() {
-		return new X10UnknownType_c( this );
+		return unknownType;
 	}
 	
 	protected NullType createNull() {
