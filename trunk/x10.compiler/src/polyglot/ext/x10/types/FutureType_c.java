@@ -10,6 +10,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Resolver;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeObject;
 
 import polyglot.util.Position;
 import java.util.Collections;
@@ -81,7 +82,7 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	 * @see polyglot.types.ReferenceType#superType()
 	 */
 	public Type superType() {
-		return ts.Object();
+		return ((X10TypeSystem) ts).X10Object();
 	}
 
 	/* This type implements no interfaces.
@@ -122,73 +123,79 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 		return null;
 	}
 	
-	 public boolean isImplicitCastValidImpl( Type origType ) {
+	public boolean isImplicitCastValidImpl(Type origType) {
+		if ( Report.should_report("debug", 5) )  {
+			Report.report(5, "[FutureType_c] |" + this + "|.isImplicitCastValidImpl(|" + origType +"|):");
+		}
 
-	    if ( Report.should_report("debug", 5) )  {
-	       Report.report(5, "[FutureType_c] |" + this + "|.isImplicitCastValidImpl(|" + origType +"|):");
-	    }
-	    X10Type toType = (X10Type) origType;
+		X10Type toType = (X10Type) origType;
+		if (toType.isNullable()) {
+			NullableType targetType = toType.toNullable();
+			toType = targetType.base();
+		}
 
-	 	if (toType.isNullable()) {
-	 	  NullableType targetType = toType.toNullable();
-	 	  toType = targetType.base();
-	 	}
-    	if (toType.isFuture()) {
-    		
-    		FutureType target = toType.toFuture();
-    		boolean result = base().isImplicitCastValidImpl( target.base() );
-    		
-    		if ( Report.should_report("debug", 5) )  {
-    		       Report.report(5, "[FutureType_c] ..." + result);
-    		    }
-	
-    		return result;
-    		
-    	}
-    	if ( Report.should_report("debug", 5) )  {
-		       Report.report(5, "[FutureType_c] ... false");
-		    }
-     	
-        return false;
-	 }
-	 
-	 public boolean isCastValidImpl( Type origType) { 
-	 	X10Type toType = (X10Type) origType;
-	 	
-	 	if (Report.should_report("debug", 5)) {
-	 		Report.report(5, "[FutureType_c] |" +  this + "|.isCastValidImpl(|" + toType +"|):");
-	 	}
-	 	if (toType.equals(ts.Object())) {
-	 	 return true;
-	 	}
-	 	if (toType.isNullable()) {
-	 		NullableType nullType = toType.toNullable();
-	 		toType = nullType.base();
-	 	}
-	 	if (toType.isFuture()) {
-	 		FutureType target = toType.toFuture();
-	 		boolean result = base().isCastValidImpl( target.base() );
-	 		if (Report.should_report("debug", 5)) {
-		 		Report.report(5, "[FutureType_c] ... target=|" +  target + "|.");
-		 		Report.report(5, "[FutureType_c] ... returns |" +  result + "|.");
-		 	}
-	 		
-	 		return result;
-	 	}
-	 	if (Report.should_report("debug", 5)) {
-	 		
-	 		Report.report(5, "[FutureType_c] ... returns false.");
-	 	}
- 		
-	 	return false;
-	 }
-	 /** Returns true iff the type is canonical. */
-	    public boolean isCanonical() {
+		if (toType.isFuture()) {
+			FutureType target = toType.toFuture();
+			boolean result = base().isImplicitCastValidImpl( target.base() );
+			if ( Report.should_report("debug", 5) )  {
+				Report.report(5, "[FutureType_c] ..." + result);
+			}
+			return result;
+		}
+
+		// Otherwise do the default check
+		boolean result = super.isImplicitCastValidImpl(toType);
+		if ( Report.should_report("debug", 5) )  {
+			Report.report(5, "[FutureType_c] ... "+result);
+		}
+		return result;
+	}
+
+	public boolean isCastValidImpl(Type origType) {
+		if (Report.should_report("debug", 5)) {
+			Report.report(5, "[FutureType_c] |" +  this + "|.isCastValidImpl(|" + origType +"|):");
+		}
+
+		X10Type toType = (X10Type) origType;
+		if (toType.isNullable()) {
+			NullableType nullType = toType.toNullable();
+			toType = nullType.base();
+		}
+
+		if (toType.isFuture()) {
+			FutureType target = toType.toFuture();
+			boolean result = base().isCastValidImpl( target.base() );
+			if (Report.should_report("debug", 5)) {
+				Report.report(5, "[FutureType_c] ... target=|" +  target + "|.");
+				Report.report(5, "[FutureType_c] ... returns |" +  result + "|.");
+			}
+			return result;
+		}
+
+		// Otherwise do the default check
+		boolean result = super.isCastValidImpl(toType);
+		if ( Report.should_report("debug", 5) )  {
+			Report.report(5, "[FutureType_c] ... "+result);
+		}
+		return result;
+	}
+
+	/*
+	 * [IP] Cannot use the default pointer equality, since we're creating too many
+	 * of these.  This makes all Futures the same -- may be wrong.
+	 * [IP] FIXME: make sure only one instance at a time is created instead.
+	 */
+	public boolean equalsImpl(TypeObject t) {
+		return t instanceof FutureType_c;
+	}
+
+	/** Returns true iff the type is canonical. */
+	public boolean isCanonical() {
 		return base().isCanonical();
-	    }
+	}
 
-	    public boolean isValueType() {
-	    	return true;
-	    }
-	 
+	public boolean isValueType() {
+		return true;
+	}
 }
+
