@@ -217,6 +217,10 @@ public class X10ParsedClassType_c extends ParsedClassType_c implements
     		NullableType type = targetType.toNullable();
     		return isCastValidImpl( type.base() );
     	}
+        if (targetType.isFuture()) {
+            // If we can cast the Future into this type, we can do the reverse
+            return targetType.isCastValidImpl(this);
+        }
         return super.isCastValidImpl(toType);
     }
 }
