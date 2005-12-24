@@ -14,7 +14,7 @@ import x10.compilergenerated.Parameter1;
 
 abstract public class genericArray /*( distribution distribution )*/ 
 /*implements Cloneable, Serializable */
-implements Indexable, Unsafe {
+extends x10Array {
 
 	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
