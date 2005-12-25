@@ -65,14 +65,11 @@ public class X10VarDeclarator extends VarDeclarator {
 		*/
 		return nf.LocalDecl(pos, flags.set(Flags.FINAL), nf.array(type, pos, dims), name, init);
 	}
-	/** Given the flags for this variable declaration, return the initialization 
-	 * statements for the exploding variables, if any.
-	 * 
-	 * @param flags
-	 * @param type
+	/**
+	 * Return the initialization statements for the exploding variables.
 	 * @return
 	 */
-	public List/*<Stmt>*/ explode( Stmt s ) {
+	public List/*<Stmt>*/ explode() {
 	    if (paramList == null) return null;
 		List stmt = new LinkedList();
 		Expr arrayBase = new Name(nf, ts, pos, name).toExpr();
@@ -85,11 +82,18 @@ public class X10VarDeclarator extends VarDeclarator {
 			Stmt d = makeLocalDecl( intType, varName.name, init);
 			stmt.add(d);
 		}
-		if (s != null )
-			stmt.add( s );
 		return stmt;
 	}
-	public List explode () {
-		return explode( null );
+	public List/*<Stmt>*/ explode( Stmt s ) {
+		List/*<Stmt>*/ init = explode();
+		if (s != null )
+			init.add( s );
+		return init;
+	}
+	public List/*<Stmt>*/ explode( List/*<Stmt>*/ s ) {
+		List/*<Stmt>*/ init = explode();
+		if (s != null )
+			init.addAll( s );
+		return init;
 	}
 }
