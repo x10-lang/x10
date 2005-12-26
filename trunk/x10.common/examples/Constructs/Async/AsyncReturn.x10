@@ -25,14 +25,18 @@ public class AsyncReturn {
 	}
 	
 	public static void main(String[] args) {
-		final boolean b=false;
+		final boxedBoolean b=new boxedBoolean();
 		try {
-			finish b=(new AsyncReturn()).run();
+			finish async b.val=(new AsyncReturn()).run();
 		} catch (Throwable e) {
 			e.printStackTrace();
+			b.val = false;
 		}
-		System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
-		x10.lang.Runtime.setExitCode(b?0:1);
+		System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
+		x10.lang.Runtime.setExitCode(b.val?0:1);
 	}
 	
+	static class boxedBoolean {
+		boolean val=false;
+	}
 }
