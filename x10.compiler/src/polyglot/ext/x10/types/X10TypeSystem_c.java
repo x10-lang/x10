@@ -1,11 +1,13 @@
 package polyglot.ext.x10.types;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ext.jl.types.TypeSystem_c;
+import polyglot.ext.jl.types.MethodInstance_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
@@ -15,13 +17,13 @@ import polyglot.util.Position;
 
 /**
  * A TypeSystem implementation for X10.
- * 
+ *
  * @author Christian Grothoff
  * @author Christoph von Praun
  * @author vj
  */
-public class X10TypeSystem_c 
-extends TypeSystem_c 
+public class X10TypeSystem_c
+extends TypeSystem_c
 implements X10TypeSystem {
 	private static X10TypeSystem_c factory = null;
 	public static X10TypeSystem_c getFactory() {
@@ -32,8 +34,8 @@ implements X10TypeSystem {
 		factory = this;
 		unknownType = new X10UnknownType_c(this);
 	}
-	
-	
+
+
 	/**
 	 * Requires: all type arguments are canonical.
 	 *
@@ -55,41 +57,54 @@ implements X10TypeSystem {
 			Report.report(5, "[X10TypeSystem_c] ... " + result);
 		return result;
 	}
-		
+
 	public NullableType createNullableType( Position pos, ReferenceType type ) {
 		return NullableType_c.makeNullable( this, pos, type );
 	}
-	
+
 	public FutureType createFutureType( Position pos, Type type ) {
 		return new FutureType_c( this, pos, type );
 	}
-	
-	public ParametricType createParametricType ( Position pos, X10ReferenceType type, 
+
+	public ParametricType createParametricType ( Position pos, X10ReferenceType type,
 	        List typeparameters,
 	        DepParameterExpr expr ) {
 		return new ParametricType_c( this, pos, type, typeparameters, expr);
 	}
-	
+
 	protected UnknownType createUnknownType() {
 		return unknownType;
 	}
-	
+
+	/**
+	 * [IP] TODO: this should be a special CodeInstance instead
+	 */
+	protected CodeInstance asyncCodeInstance_;
+	public CodeInstance asyncCodeInstance() {
+		if (asyncCodeInstance_ == null)
+			asyncCodeInstance_ =
+				new MethodInstance_c(this, Position.COMPILER_GENERATED,
+						Runtime(), Public(), VOID_, "$dummyAsync$",
+						Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+		return asyncCodeInstance_;
+	}
+
 	protected NullType createNull() {
 		return new X10NullType_c(this);
 	}
-	
+
 	public ParsedClassType createClassType(LazyClassInitializer init, Source fromSource) {
-		return new X10ParsedClassType_c(this, init, fromSource);    
+		return new X10ParsedClassType_c(this, init, fromSource);
 	}
-	
+
 	/******************** Primitive types as Objects ******************/
-	
+
 	private static final String WRAPPER_PACKAGE = "x10.compilergenerated";
-	
+
 	public PrimitiveType createPrimitive(PrimitiveType.Kind kind) {
 		return new X10PrimitiveType_c(this, kind);
 	}
-	
+
 	/* Predefined x10.lang classes that need not be translated by polyglot */
 	protected ClassType x10ObjectType_;
 	public ClassType X10Object() {
@@ -97,23 +112,23 @@ implements X10TypeSystem {
 			x10ObjectType_ = load("x10.lang.Object"); // java file
 		return x10ObjectType_;
 	}
-	
+
 	protected ClassType placeType_;
 	public ClassType place() {
 		if ( placeType_ == null)
 			placeType_ = load("x10.lang.place"); // java file
 		return placeType_;
 	}
-	
+
 	protected ClassType regionType_;
 	public ClassType region() {
 		if ( regionType_ == null)
 			regionType_ = load("x10.lang.region"); // java file
 		return regionType_;
 	}
-	
 
-	
+
+
 	protected ClassType pointType_;
 	public ClassType point() {
 		if ( pointType_ == null)
@@ -134,7 +149,7 @@ implements X10TypeSystem {
             distributionType_ = load("x10.lang.dist"); // java file
         return distributionType_;
     }
-    
+
 	protected ClassType activityType_;
 	public ClassType Activity() {
 		if ( activityType_ == null)
@@ -148,14 +163,14 @@ implements X10TypeSystem {
 			futureActivityType_ = load("x10.lang.Activity$Expr"); // java file
 		return futureActivityType_;
 	}
-	
+
 	protected ClassType arrayType_;
 	public ClassType array() {
 		if ( arrayType_ == null)
 			arrayType_ = load("x10.lang.array"); // java file
 		return arrayType_;
 	}
-	
+
 	protected ClassType clockType_;
 	public ClassType clock() {
 		if ( clockType_ == null)
@@ -169,35 +184,35 @@ implements X10TypeSystem {
 			runtimeType_ = load("x10.lang.Runtime"); // java file
 		return runtimeType_;
 	}
-	
+
 	protected ClassType booleanArrayPointwiseOpType_;
     public ClassType BooleanArrayPointwiseOp() {
         if ( booleanArrayPointwiseOpType_ == null)
             booleanArrayPointwiseOpType_ = load("x10.lang.booleanArray$pointwiseOp"); // java file
         return booleanArrayPointwiseOpType_;
     }
-    
+
     protected ClassType charArrayPointwiseOpType_;
     public ClassType CharArrayPointwiseOp() {
         if ( charArrayPointwiseOpType_ == null)
             charArrayPointwiseOpType_ = load("x10.lang.charArray$pointwiseOp"); // java file
         return charArrayPointwiseOpType_;
     }
-    
+
     protected ClassType byteArrayPointwiseOpType_;
     public ClassType ByteArrayPointwiseOp() {
         if ( byteArrayPointwiseOpType_ == null)
             byteArrayPointwiseOpType_ = load("x10.lang.byteArray$pointwiseOp"); // java file
         return byteArrayPointwiseOpType_;
     }
-    
+
     protected ClassType shortArrayPointwiseOpType_;
     public ClassType ShortArrayPointwiseOp() {
         if ( shortArrayPointwiseOpType_ == null)
             shortArrayPointwiseOpType_ = load("x10.lang.shortArray$pointwiseOp"); // java file
         return shortArrayPointwiseOpType_;
     }
-    
+
     protected ClassType intArrayPointwiseOpType_;
 	public ClassType IntArrayPointwiseOp() {
 		if ( intArrayPointwiseOpType_ == null) {
@@ -206,14 +221,14 @@ implements X10TypeSystem {
 		}
 		return intArrayPointwiseOpType_;
 	}
-    
+
     protected ClassType floatArrayPointwiseOpType_;
     public ClassType FloatArrayPointwiseOp() {
         if ( floatArrayPointwiseOpType_ == null)
             floatArrayPointwiseOpType_ = load("x10.lang.floatArray$pointwiseOp"); // java file
         return floatArrayPointwiseOpType_;
     }
-    
+
 	protected ClassType doubleArrayPointwiseOpType_;
 	public ClassType DoubleArrayPointwiseOp() {
 		if ( doubleArrayPointwiseOpType_ == null)
@@ -229,7 +244,7 @@ implements X10TypeSystem {
     	return new X10ArrayType_c(this, pos, type);
     }
 
-	
+
 	public ReferenceType array(Type type, boolean isValueType, Expr distribution) {
         if (type.isBoolean())
             return booleanArray( isValueType, distribution);
@@ -254,7 +269,7 @@ implements X10TypeSystem {
 		        list,
 		        null);
 	}
-	
+
 	public ReferenceType array( Type type,  Expr distribution ) {
         if (type.isBoolean())
             return booleanArray(distribution);
@@ -279,7 +294,7 @@ implements X10TypeSystem {
                 list,
                 null);
 	}
-	
+
 	public ReferenceType array(Type type, boolean isValue ) {
         if (type.isBoolean())
             return isValue ? booleanValueArray() : BooleanReferenceArray();
@@ -304,7 +319,7 @@ implements X10TypeSystem {
 		        list,
 		        null);
 	}
-	
+
 	public ReferenceType array(Type type ) {
         if (type.isBoolean())
             return booleanArray();
@@ -329,37 +344,37 @@ implements X10TypeSystem {
             list,
             null);
 	}
-	
+
     public ClassType booleanArray(boolean isValueType, Expr distribution ) {
-        return 
+        return
         isValueType ? booleanValueArray( distribution ) : BooleanReferenceArray( distribution );
     }
     public ClassType booleanArray() {
         return booleanArray( null );
     }
-    
+
     protected ClassType booleanArrayType_;
-    public ClassType booleanArray( Expr distribution ) {     
+    public ClassType booleanArray( Expr distribution ) {
         if ( booleanArrayType_ == null)
             booleanArrayType_ = load("x10.lang.booleanArray"); // java file
-        
+
         return booleanArrayType_;
     }
-    
+
     public ClassType booleanValueArray( ) {
         return booleanValueArray(null );
     }
-    
+
     protected ClassType booleanValueArrayType_;
     // see the todo for intValueArray.
     public ClassType booleanValueArray( Expr distribution ) {
             return booleanArray( distribution );
     }
-    
+
     public ClassType BooleanReferenceArray( ) {
         return BooleanReferenceArray(null );
     }
-    
+
     protected ClassType booleanReferenceArrayType_;
     public ClassType BooleanReferenceArray( Expr distribution ) {
         if ( booleanReferenceArrayType_ == null)
@@ -367,37 +382,37 @@ implements X10TypeSystem {
          //  return booleanReferenceArrayType_.setParameter( "distribution", distribution );
         return booleanReferenceArrayType_;
     }
-    
+
     public ClassType charArray(boolean isValueType, Expr distribution ) {
-        return 
+        return
         isValueType ? charValueArray( distribution ) : CharReferenceArray( distribution );
     }
     public ClassType charArray() {
         return charArray( null );
     }
-    
+
     protected ClassType charArrayType_;
-    public ClassType charArray( Expr distribution ) {     
+    public ClassType charArray( Expr distribution ) {
         if ( charArrayType_ == null)
             charArrayType_ = load("x10.lang.charArray"); // java file
-        
+
         return charArrayType_;
     }
-    
+
     public ClassType charValueArray( ) {
         return charValueArray(null );
     }
-    
+
     protected ClassType charValueArrayType_;
     // see the todo for intValueArray.
     public ClassType charValueArray( Expr distribution ) {
             return charArray( distribution );
     }
-    
+
     public ClassType CharReferenceArray( ) {
         return CharReferenceArray(null );
     }
-    
+
     protected ClassType charReferenceArrayType_;
     public ClassType CharReferenceArray( Expr distribution ) {
         if ( charReferenceArrayType_ == null)
@@ -405,37 +420,37 @@ implements X10TypeSystem {
          //  return charReferenceArrayType_.setParameter( "distribution", distribution );
         return charReferenceArrayType_;
     }
-    
+
     public ClassType byteArray(boolean isValueType, Expr distribution ) {
-        return 
+        return
         isValueType ? byteValueArray( distribution ) : ByteReferenceArray( distribution );
     }
     public ClassType byteArray() {
         return byteArray( null );
     }
-    
+
     protected ClassType byteArrayType_;
-    public ClassType byteArray( Expr distribution ) {     
+    public ClassType byteArray( Expr distribution ) {
         if ( byteArrayType_ == null)
             byteArrayType_ = load("x10.lang.byteArray"); // java file
-        
+
         return byteArrayType_;
     }
-    
+
     public ClassType byteValueArray( ) {
         return byteValueArray(null );
     }
-    
+
     protected ClassType byteValueArrayType_;
     // see the todo for intValueArray.
     public ClassType byteValueArray( Expr distribution ) {
             return byteArray( distribution );
     }
-    
+
     public ClassType ByteReferenceArray( ) {
         return ByteReferenceArray(null );
     }
-    
+
     protected ClassType byteReferenceArrayType_;
     public ClassType ByteReferenceArray( Expr distribution ) {
         if ( byteReferenceArrayType_ == null)
@@ -443,37 +458,37 @@ implements X10TypeSystem {
          //  return byteReferenceArrayType_.setParameter( "distribution", distribution );
         return byteReferenceArrayType_;
     }
-    
+
     public ClassType shortArray(boolean isValueType, Expr distribution ) {
-        return 
+        return
         isValueType ? shortValueArray( distribution ) : ShortReferenceArray( distribution );
     }
     public ClassType shortArray() {
         return shortArray( null );
     }
-    
+
     protected ClassType shortArrayType_;
-    public ClassType shortArray( Expr distribution ) {     
+    public ClassType shortArray( Expr distribution ) {
         if ( shortArrayType_ == null)
             shortArrayType_ = load("x10.lang.shortArray"); // java file
-        
+
         return shortArrayType_;
     }
-    
+
     public ClassType shortValueArray( ) {
         return shortValueArray(null );
     }
-    
+
     protected ClassType shortValueArrayType_;
     // see the todo for intValueArray.
     public ClassType shortValueArray( Expr distribution ) {
             return shortArray( distribution );
     }
-    
+
     public ClassType ShortReferenceArray( ) {
         return ShortReferenceArray(null );
     }
-    
+
     protected ClassType shortReferenceArrayType_;
     public ClassType ShortReferenceArray( Expr distribution ) {
         if ( shortReferenceArrayType_ == null)
@@ -483,25 +498,25 @@ implements X10TypeSystem {
     }
 
     public ClassType intArray(boolean isValueType, Expr distribution ) {
-		return 
+		return
 		isValueType ? intValueArray( distribution ) : IntReferenceArray( distribution );
 	}
-	
+
 	protected ClassType intArrayType_;
 	public ClassType intArray( Expr distribution ) {
 		if ( intArrayType_ == null)
 			intArrayType_ = load("x10.lang.intArray"); // java file
 		return intArrayType_;
 	}
-	
+
 	public ClassType intArray() {
 		return intArray( null );
 	}
-	
+
 	public ClassType intValueArray( ) {
 		return intValueArray(null );
 	}
-	
+
 	protected ClassType intValueArrayType_;
 	public ClassType intValueArray( Expr distribution ) {
 			// vj: should really load x10.lang.intValueArray, but we are cheating...
@@ -510,13 +525,13 @@ implements X10TypeSystem {
 		    // The backend does not do anything special about value classes right now anyway,
 		    // so there is no need to tell the implementation that this is a value class.
 		    // This hack will need to be fixed once the compiler starts checking that
-		    // value classes can only be extended by value classes. 
+		    // value classes can only be extended by value classes.
 		return intArray( distribution );
 	}
 	public ClassType IntReferenceArray() {
 		return IntReferenceArray( null );
 	}
-	
+
 	protected ClassType intReferenceArrayType_;
 	public ClassType IntReferenceArray( Expr distribution ) {
 		if ( intReferenceArrayType_ == null)
@@ -532,32 +547,32 @@ implements X10TypeSystem {
 		return longArrayPointwiseOpType_;
 	}
 	public ClassType longArray(boolean isValueType, Expr distribution ) {
-		return 
+		return
 		isValueType ? longValueArray( distribution ) : LongReferenceArray( distribution );
 	}
-	
+
 	protected ClassType longArrayType_;
 	public ClassType longArray( Expr distribution ) {
 		if ( longArrayType_ == null)
 			longArrayType_ = load("x10.lang.longArray"); // java file
 		return longArrayType_;
 	}
-	
+
 	public ClassType longArray() {
 		return longArray( null );
 	}
-	
+
 	public ClassType longValueArray( ) {
 		return longValueArray(null );
 	}
-	
+
 	public ClassType longValueArray( Expr distribution ) {
 		return longArray( distribution );
 	}
 	public ClassType LongReferenceArray() {
 		return LongReferenceArray( null );
 	}
-	
+
 	protected ClassType longReferenceArrayType_;
 	public ClassType LongReferenceArray( Expr distribution ) {
 		if ( longReferenceArrayType_ == null)
@@ -583,10 +598,10 @@ implements X10TypeSystem {
                 null);
     }
     public ClassType genericArray(boolean isValueType, Expr distribution ) {
-        return 
+        return
         isValueType ? genericValueArray( distribution ) : GenericReferenceArray( distribution );
     }
-    
+
     protected ClassType genericArrayType_;
     public ClassType genericArray( Expr distribution ) {
         if ( genericArrayType_ == null)
@@ -596,22 +611,22 @@ implements X10TypeSystem {
         // in the runtime - CG
         return genericArrayType_;
     }
-    
+
     public ClassType genericArray() {
         return genericArray( null );
     }
-    
+
     public ClassType genericValueArray( ) {
         return genericValueArray(null );
     }
-    
+
     public ClassType genericValueArray( Expr distribution ) {
         return genericArray( distribution );
     }
     public ClassType GenericReferenceArray() {
         return GenericReferenceArray( null );
     }
-    
+
     protected ClassType genericReferenceArrayType_;
     public ClassType GenericReferenceArray( Expr distribution ) {
         if ( genericReferenceArrayType_ == null)
@@ -619,37 +634,37 @@ implements X10TypeSystem {
         // return genericReferenceArrayType_.setParameter( "distribution", distribution );
         return genericReferenceArrayType_;
     }
-    
+
     public ClassType floatArray(boolean isValueType, Expr distribution ) {
-        return 
+        return
         isValueType ? floatValueArray( distribution ) : FloatReferenceArray( distribution );
     }
     public ClassType floatArray() {
         return floatArray( null );
     }
-    
+
     protected ClassType floatArrayType_;
-    public ClassType floatArray( Expr distribution ) {     
+    public ClassType floatArray( Expr distribution ) {
         if ( floatArrayType_ == null)
             floatArrayType_ = load("x10.lang.floatArray"); // java file
-        
+
         return floatArrayType_;
     }
-    
+
     public ClassType floatValueArray( ) {
         return floatValueArray(null );
     }
-    
+
     protected ClassType floatValueArrayType_;
     // see the todo for intValueArray.
     public ClassType floatValueArray( Expr distribution ) {
             return floatArray( distribution );
     }
-    
+
     public ClassType FloatReferenceArray( ) {
         return FloatReferenceArray(null );
     }
-    
+
     protected ClassType floatReferenceArrayType_;
     public ClassType FloatReferenceArray( Expr distribution ) {
         if ( floatReferenceArrayType_ == null)
@@ -659,35 +674,35 @@ implements X10TypeSystem {
     }
 
     public ClassType doubleArray(boolean isValueType, Expr distribution ) {
-        return 
+        return
         isValueType ? doubleValueArray( distribution ) : DoubleReferenceArray( distribution );
     }
     public ClassType doubleArray() {
         return doubleArray( null );
     }
-	
+
 	protected ClassType doubleArrayType_;
-	public ClassType doubleArray( Expr distribution ) {	    
+	public ClassType doubleArray( Expr distribution ) {
 		if ( doubleArrayType_ == null)
 			doubleArrayType_ = load("x10.lang.doubleArray"); // java file
-		
+
 		return doubleArrayType_;
 	}
-	
+
 	public ClassType doubleValueArray( ) {
 		return doubleValueArray(null );
 	}
-	
+
 	protected ClassType doubleValueArrayType_;
 	// see the todo for intValueArray.
 	public ClassType doubleValueArray( Expr distribution ) {
 			return doubleArray( distribution );
 	}
-	
+
 	public ClassType DoubleReferenceArray( ) {
 		return DoubleReferenceArray(null );
 	}
-	
+
 	protected ClassType doubleReferenceArrayType_;
 	public ClassType DoubleReferenceArray( Expr distribution ) {
 		if ( doubleReferenceArrayType_ == null)
@@ -695,27 +710,27 @@ implements X10TypeSystem {
          //	 return doubleReferenceArrayType_.setParameter( "distribution", distribution );
 		return doubleReferenceArrayType_;
 	}
-	
+
 	protected ClassType indexableType_ = null;
 	public ClassType Indexable() {
-		if ( indexableType_ == null) 
+		if ( indexableType_ == null)
 			indexableType_ = load("x10.lang.Indexable"); // java file
 		return indexableType_;
 	}
-	
+
 	public MethodInstance primitiveEquals() {
 		String name = WRAPPER_PACKAGE + ".BoxedNumber";
-		
+
 		try {
 			Type ct = (Type) systemResolver().find(name);
-			
+
 			List args = new LinkedList();
 			args.add(X10Object());
 			args.add(X10Object());
-			
+
 			for (Iterator i = ct.toClass().methods("equals", args).iterator();
 			i.hasNext(); ) {
-				
+
 				MethodInstance mi = (MethodInstance) i.next();
 				return mi;
 			}
@@ -723,14 +738,14 @@ implements X10TypeSystem {
 		catch (SemanticException e) {
 			throw new InternalCompilerError(e.getMessage());
 		}
-		
+
 		throw new InternalCompilerError("Could not find equals method.");
 	}
-	
+
 	public MethodInstance getter(PrimitiveType t) {
 		String methodName = t.toString() + "Value";
 		ConstructorInstance ci = wrapper(t);
-		
+
 		for (Iterator i = ci.container().methods().iterator();
 		i.hasNext(); ) {
 			MethodInstance mi = (MethodInstance) i.next();
@@ -738,20 +753,20 @@ implements X10TypeSystem {
 				return mi;
 			}
 		}
-		
+
 		throw new InternalCompilerError("Could not find getter for " + t);
 	}
-	
+
 	public Type boxedType(PrimitiveType t) {
 		return wrapper(t).container();
 	}
-	
+
 	public ConstructorInstance wrapper(PrimitiveType t) {
 		String name = WRAPPER_PACKAGE + ".Boxed" + wrapperTypeString(t).substring("java.lang.".length());
-		
+
 		try {
 			ClassType ct = ((Type) systemResolver().find(name)).toClass();
-			
+
 			for (Iterator i = ct.constructors().iterator(); i.hasNext(); ) {
 				ConstructorInstance ci = (ConstructorInstance) i.next();
 				if (ci.formalTypes().size() == 1) {
@@ -765,7 +780,7 @@ implements X10TypeSystem {
 		catch (SemanticException e) {
 			throw new InternalCompilerError(e.getMessage());
 		}
-		
+
 		throw new InternalCompilerError("Could not find constructor for " + t);
 	}
 
@@ -777,5 +792,5 @@ implements X10TypeSystem {
 	    if (sf.isInterface()) return sf.Static();
 	    return sf;
 	}
-	
+
 } // end of X10TypeSystem_c
