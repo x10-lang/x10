@@ -35,7 +35,7 @@ public class X10BinaryExt_c extends X10Ext_c {
                 if (r.type().isReference()) {
                     TypeNode x = nf.CanonicalTypeNode(b.position(),
                                                       mi.container());
-                    Call y = nf.Call(b.position(), x, mi.name(), l, r);
+                    Call y = nf.Call(b.position(), x, mi.name(), l, r).methodInstance(mi);
                     y = (Call) y.type(mi.returnType());
 
                     if (b.operator() == Binary.NE) {
