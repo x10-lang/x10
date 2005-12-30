@@ -90,6 +90,14 @@ public class MemoryBlockUnsafe extends MemoryBlock {
        return unsafe_.getByte(address_+d0*Allocator.SIZE_BYTE); 
     }
 
+    public boolean setBoolean(boolean val, int d0) {
+        unsafe_.putByte(address_+d0*Allocator.SIZE_BYTE, val?(byte)1:(byte)0); 
+        return val;
+    }
+    
+    public boolean getBoolean(int d0) {
+        return unsafe_.getByte(address_+d0*Allocator.SIZE_BYTE)==1?true:false; 
+    }
     public char setChar(char val, int d0) {
         unsafe_.putChar(address_+d0*Allocator.SIZE_CHAR, val); 
         return val;
