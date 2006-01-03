@@ -202,6 +202,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
         }
 
+        public Call Call(Position pos, Receiver target, String name, List args) {
+                Call n = new X10Call_c(pos, target, name, args);
+                n = (Call) n.ext(extFactory().extExpr());
+                return (Call) n.del(delFactory().delExpr());
+        }
+
         public X10Loop AtEach(Position pos, Formal formal, Expr domain,
                         List clocks, Stmt body) {
                 X10Loop n = new AtEach_c(pos, formal, domain, clocks, body);
