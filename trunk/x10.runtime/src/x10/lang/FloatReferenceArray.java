@@ -81,6 +81,68 @@ public abstract class FloatReferenceArray extends floatArray {
 	public float divSet(float v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s)/v,p,q,r,s);
 	}
-	
-	
+	public float preInc(int p) {
+		return set(get(p) + 1,p);
+	}
+	public float preInc(int p, int q) {
+		return set(get(p,q) + 1,p,q);
+	}
+	public float preInc(int p, int q, int r) {
+		return set(get(p,q,r) + 1,p,q,r);
+	}
+	public float preInc(int p, int q, int r, int s) {
+		return set(get(p,q,r,s) + 1,p,q,r,s);
+	}
+	public float preDec(int p) {
+		return set(get(p) - 1,p);
+	}
+	public float preDec(int p, int q) {
+		return set(get(p,q) - 1,p,q);
+	}
+	public float preDec(int p, int q, int r) {
+		return set(get(p,q,r) - 1,p,q,r);
+	}
+	public float preDec(int p, int q, int r, int s) {
+		return set(get(p,q,r,s) - 1,p,q,r,s);
+	}
+	public float postInc(int p) {
+		float v = get(p);
+		set(v + 1, p);
+		return v;
+	}
+	public float postInc(int p, int q) {
+		float v = get(p,q);
+		set(v + 1, p,q);
+		return v;
+	}
+	public float postInc(int p, int q, int r) {
+		float v = get(p,q,r);
+		set(v + 1, p,q,r);
+		return v;
+	}
+	public float postInc(int p, int q, int r, int s) {
+		float v = get(p,q,r,s);
+		set(v + 1, p,q,r,s);
+		return v;
+	}
+	public float postDec(int p) {
+		float v = get(p);
+		set(v - 1, p);
+		return v;
+	}
+	public float postDec(int p, int q) {
+		float v = get(p,q);
+		set(v - 1, p,q);
+		return v;
+	}
+	public float postDec(int p, int q, int r) {
+		float v = get(p,q,r);
+		set(v - 1, p,q,r);
+		return v;
+	}
+	public float postDec(int p, int q, int r, int s) {
+		float v = get(p,q,r,s);
+		set(v - 1, p,q,r,s);
+		return v;
+	}
 }

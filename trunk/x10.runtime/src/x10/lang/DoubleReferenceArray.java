@@ -82,6 +82,68 @@ public abstract class DoubleReferenceArray extends doubleArray {
 	public double divSet(double v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s)/v,p,q,r,s);
 	}
-	
-	
+	public double preInc(int p) {
+		return set(get(p) + 1,p);
+	}
+	public double preInc(int p, int q) {
+		return set(get(p,q) + 1,p,q);
+	}
+	public double preInc(int p, int q, int r) {
+		return set(get(p,q,r) + 1,p,q,r);
+	}
+	public double preInc(int p, int q, int r, int s) {
+		return set(get(p,q,r,s) + 1,p,q,r,s);
+	}
+	public double preDec(int p) {
+		return set(get(p) - 1,p);
+	}
+	public double preDec(int p, int q) {
+		return set(get(p,q) - 1,p,q);
+	}
+	public double preDec(int p, int q, int r) {
+		return set(get(p,q,r) - 1,p,q,r);
+	}
+	public double preDec(int p, int q, int r, int s) {
+		return set(get(p,q,r,s) - 1,p,q,r,s);
+	}
+	public double postInc(int p) {
+		double v = get(p);
+		set(v + 1, p);
+		return v;
+	}
+	public double postInc(int p, int q) {
+		double v = get(p,q);
+		set(v + 1, p,q);
+		return v;
+	}
+	public double postInc(int p, int q, int r) {
+		double v = get(p,q,r);
+		set(v + 1, p,q,r);
+		return v;
+	}
+	public double postInc(int p, int q, int r, int s) {
+		double v = get(p,q,r,s);
+		set(v + 1, p,q,r,s);
+		return v;
+	}
+	public double postDec(int p) {
+		double v = get(p);
+		set(v - 1, p);
+		return v;
+	}
+	public double postDec(int p, int q) {
+		double v = get(p,q);
+		set(v - 1, p,q);
+		return v;
+	}
+	public double postDec(int p, int q, int r) {
+		double v = get(p,q,r);
+		set(v - 1, p,q,r);
+		return v;
+	}
+	public double postDec(int p, int q, int r, int s) {
+		double v = get(p,q,r,s);
+		set(v - 1, p,q,r,s);
+		return v;
+	}
 }

@@ -82,4 +82,68 @@ public abstract class ByteReferenceArray extends byteArray {
 	public byte divSet(byte v, int p, int q, int r, int s) {
 		return set((byte) (get(p,q,r,s)/v),p,q,r,s);
 	}	
+	public byte preInc(int p) {
+		return set((byte)(get(p) + 1),p);
+	}
+	public byte preInc(int p, int q) {
+		return set((byte)(get(p,q) + 1),p,q);
+	}
+	public byte preInc(int p, int q, int r) {
+		return set((byte)(get(p,q,r) + 1),p,q,r);
+	}
+	public byte preInc(int p, int q, int r, int s) {
+		return set((byte)(get(p,q,r,s) + 1),p,q,r,s);
+	}
+	public byte preDec(int p) {
+		return set((byte)(get(p) - 1),p);
+	}
+	public byte preDec(int p, int q) {
+		return set((byte)(get(p,q) - 1),p,q);
+	}
+	public byte preDec(int p, int q, int r) {
+		return set((byte)(get(p,q,r) - 1),p,q,r);
+	}
+	public byte preDec(int p, int q, int r, int s) {
+		return set((byte)(get(p,q,r,s) - 1),p,q,r,s);
+	}
+	public byte postInc(int p) {
+		byte v = get(p);
+		set((byte)(v + 1), p);
+		return v;
+	}
+	public byte postInc(int p, int q) {
+		byte v = get(p,q);
+		set((byte)(v + 1), p,q);
+		return v;
+	}
+	public byte postInc(int p, int q, int r) {
+		byte v = get(p,q,r);
+		set((byte)(v + 1), p,q,r);
+		return v;
+	}
+	public byte postInc(int p, int q, int r, int s) {
+		byte v = get(p,q,r,s);
+		set((byte)(v + 1), p,q,r,s);
+		return v;
+	}
+	public byte postDec(int p) {
+		byte v = get(p);
+		set((byte)(v - 1), p);
+		return v;
+	}
+	public byte postDec(int p, int q) {
+		byte v = get(p,q);
+		set((byte)(v - 1), p,q);
+		return v;
+	}
+	public byte postDec(int p, int q, int r) {
+		byte v = get(p,q,r);
+		set((byte)(v - 1), p,q,r);
+		return v;
+	}
+	public byte postDec(int p, int q, int r, int s) {
+		byte v = get(p,q,r,s);
+		set((byte)(v - 1), p,q,r,s);
+		return v;
+	}
 }
