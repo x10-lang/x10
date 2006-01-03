@@ -189,4 +189,68 @@ public abstract class IntReferenceArray extends intArray {
 	public int ushrSet(int v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s) >>> v,p,q,r,s);
 	}
+	public int preInc(int p) {
+		return set(get(p) + 1,p);
+	}
+	public int preInc(int p, int q) {
+		return set(get(p,q) + 1,p,q);
+	}
+	public int preInc(int p, int q, int r) {
+		return set(get(p,q,r) + 1,p,q,r);
+	}
+	public int preInc(int p, int q, int r, int s) {
+		return set(get(p,q,r,s) + 1,p,q,r,s);
+	}
+	public int preDec(int p) {
+		return set(get(p) - 1,p);
+	}
+	public int preDec(int p, int q) {
+		return set(get(p,q) - 1,p,q);
+	}
+	public int preDec(int p, int q, int r) {
+		return set(get(p,q,r) - 1,p,q,r);
+	}
+	public int preDec(int p, int q, int r, int s) {
+		return set(get(p,q,r,s) - 1,p,q,r,s);
+	}
+	public int postInc(int p) {
+		int v = get(p);
+		set(v + 1, p);
+		return v;
+	}
+	public int postInc(int p, int q) {
+		int v = get(p,q);
+		set(v + 1, p,q);
+		return v;
+	}
+	public int postInc(int p, int q, int r) {
+		int v = get(p,q,r);
+		set(v + 1, p,q,r);
+		return v;
+	}
+	public int postInc(int p, int q, int r, int s) {
+		int v = get(p,q,r,s);
+		set(v + 1, p,q,r,s);
+		return v;
+	}
+	public int postDec(int p) {
+		int v = get(p);
+		set(v - 1, p);
+		return v;
+	}
+	public int postDec(int p, int q) {
+		int v = get(p,q);
+		set(v - 1, p,q);
+		return v;
+	}
+	public int postDec(int p, int q, int r) {
+		int v = get(p,q,r);
+		set(v - 1, p,q,r);
+		return v;
+	}
+	public int postDec(int p, int q, int r, int s) {
+		int v = get(p,q,r,s);
+		set(v - 1, p,q,r,s);
+		return v;
+	}
 }

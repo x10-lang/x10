@@ -189,5 +189,68 @@ public abstract class LongReferenceArray extends longArray {
 	public long ushrSet(long v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s) >>> v,p,q,r,s);
 	}
-	
+	public long preInc(int p) {
+		return set(get(p) + 1,p);
+	}
+	public long preInc(int p, int q) {
+		return set(get(p,q) + 1,p,q);
+	}
+	public long preInc(int p, int q, int r) {
+		return set(get(p,q,r) + 1,p,q,r);
+	}
+	public long preInc(int p, int q, int r, int s) {
+		return set(get(p,q,r,s) + 1,p,q,r,s);
+	}
+	public long preDec(int p) {
+		return set(get(p) - 1,p);
+	}
+	public long preDec(int p, int q) {
+		return set(get(p,q) - 1,p,q);
+	}
+	public long preDec(int p, int q, int r) {
+		return set(get(p,q,r) - 1,p,q,r);
+	}
+	public long preDec(int p, int q, int r, int s) {
+		return set(get(p,q,r,s) - 1,p,q,r,s);
+	}
+	public long postInc(int p) {
+		long v = get(p);
+		set(v + 1, p);
+		return v;
+	}
+	public long postInc(int p, int q) {
+		long v = get(p,q);
+		set(v + 1, p,q);
+		return v;
+	}
+	public long postInc(int p, int q, int r) {
+		long v = get(p,q,r);
+		set(v + 1, p,q,r);
+		return v;
+	}
+	public long postInc(int p, int q, int r, int s) {
+		long v = get(p,q,r,s);
+		set(v + 1, p,q,r,s);
+		return v;
+	}
+	public long postDec(int p) {
+		long v = get(p);
+		set(v - 1, p);
+		return v;
+	}
+	public long postDec(int p, int q) {
+		long v = get(p,q);
+		set(v - 1, p,q);
+		return v;
+	}
+	public long postDec(int p, int q, int r) {
+		long v = get(p,q,r);
+		set(v - 1, p,q,r);
+		return v;
+	}
+	public long postDec(int p, int q, int r, int s) {
+		long v = get(p,q,r,s);
+		set(v - 1, p,q,r,s);
+		return v;
+	}
 }

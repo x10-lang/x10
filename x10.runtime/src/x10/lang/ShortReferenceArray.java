@@ -81,4 +81,68 @@ public abstract class ShortReferenceArray extends shortArray {
 	public short divSet(short v, int p, int q, int r, int s) {
 		return set((short) (get(p,q,r,s)/v),p,q,r,s);
 	}
+	public short preInc(int p) {
+		return set((short)(get(p) + 1),p);
+	}
+	public short preInc(int p, int q) {
+		return set((short)(get(p,q) + 1),p,q);
+	}
+	public short preInc(int p, int q, int r) {
+		return set((short)(get(p,q,r) + 1),p,q,r);
+	}
+	public short preInc(int p, int q, int r, int s) {
+		return set((short)(get(p,q,r,s) + 1),p,q,r,s);
+	}
+	public short preDec(int p) {
+		return set((short)(get(p) - 1),p);
+	}
+	public short preDec(int p, int q) {
+		return set((short)(get(p,q) - 1),p,q);
+	}
+	public short preDec(int p, int q, int r) {
+		return set((short)(get(p,q,r) - 1),p,q,r);
+	}
+	public short preDec(int p, int q, int r, int s) {
+		return set((short)(get(p,q,r,s) - 1),p,q,r,s);
+	}
+	public short postInc(int p) {
+		short v = get(p);
+		set((short)(v + 1), p);
+		return v;
+	}
+	public short postInc(int p, int q) {
+		short v = get(p,q);
+		set((short)(v + 1), p,q);
+		return v;
+	}
+	public short postInc(int p, int q, int r) {
+		short v = get(p,q,r);
+		set((short)(v + 1), p,q,r);
+		return v;
+	}
+	public short postInc(int p, int q, int r, int s) {
+		short v = get(p,q,r,s);
+		set((short)(v + 1), p,q,r,s);
+		return v;
+	}
+	public short postDec(int p) {
+		short v = get(p);
+		set((short)(v - 1), p);
+		return v;
+	}
+	public short postDec(int p, int q) {
+		short v = get(p,q);
+		set((short)(v - 1), p,q);
+		return v;
+	}
+	public short postDec(int p, int q, int r) {
+		short v = get(p,q,r);
+		set((short)(v - 1), p,q,r);
+		return v;
+	}
+	public short postDec(int p, int q, int r, int s) {
+		short v = get(p,q,r,s);
+		set((short)(v - 1), p,q,r,s);
+		return v;
+	}
 }
