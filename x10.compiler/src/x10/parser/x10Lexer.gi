@@ -44,7 +44,7 @@ $Define
 $End
 
 $Export
-    RANGE
+--     RANGE
     ARROW
 $End
 
@@ -198,24 +198,24 @@ $Headers
 $End
 
 $Rules
-    Token ::= IntLiteralAndRange
-
-    Token ::= '.' '.'
-         /.$BeginAction
-                     makeToken($_RANGE);
-           $EndAction
-         ./
-
+--     Token ::= IntLiteralAndRange
+-- 
+--     Token ::= '.' '.'
+--          /.$BeginAction
+--                      makeToken($_RANGE);
+--            $EndAction
+--          ./
+-- 
     Token ::= '-' '>'
         /.$BeginAction
                     makeToken($_ARROW);
           $EndAction
         ./
 
-    IntLiteralAndRange ::= Integer '.' '.'
-        /.$BeginAction
-                    makeToken($getToken(1), $getRightSpan(1), $_IntegerLiteral);
-                    makeToken($getToken(2), $getToken(3), $_RANGE);
-          $EndAction
-        ./
+--     IntLiteralAndRange ::= Integer '.' '.'
+--         /.$BeginAction
+--                     makeToken($getToken(1), $getRightSpan(1), $_IntegerLiteral);
+--                     makeToken($getToken(2), $getToken(3), $_RANGE);
+--           $EndAction
+--         ./
 $End
