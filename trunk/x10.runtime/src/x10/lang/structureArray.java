@@ -16,6 +16,8 @@ extends x10Array {
 		return userIndex * _elementSize;
 	}
 	public final dist distribution;
+
+	public dist getDistribution() { return distribution;}
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
