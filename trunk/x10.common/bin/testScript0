@@ -164,6 +164,9 @@ checkUsage() {
     elif [[ "$1" = "-m" && $# -ge 2 ]]; then
       mailDest="$2"
       shift 2
+    elif [[ "$1" = "-x10lib" && $# -ge 2 ]]; then
+      x10lib="$2"
+      shift 2
     elif [[ "$1" = -* ]]; then
       echo "unrecognized flag $1, or missing argument"
       usage
@@ -815,7 +818,8 @@ printInfo() {
   msgBoth logBegin "Starting: $0 $*"
   msgBoth logBegin "Machine name: `hostname`"
   msgBoth logBegin "Operating system: `uname`"
-  msgBoth logBegin "System load: `w | head -1`"
+  msgBoth logBegin "Current directory: $PWD"
+  msgBoth logBegin "System load: `uptime`"
   msgBoth logBegin ""
 }
 
