@@ -135,28 +135,42 @@ STATISTICS_DISABLE=none</echo>
 		</condition>
 	</target>
 
+	<available file="${env.JAVA_HOME}${file.separator}jre${file.separator}bin${file.separator}java"
+	  property="java.executable"
+	  value="${env.JAVA_HOME}${file.separator}jre${file.separator}bin${file.separator}java"/>
+	<available file="${env.JAVA_HOME}${file.separator}jre${file.separator}bin${file.separator}java.exe"
+	  property="java.executable"
+	  value="${env.JAVA_HOME}${file.separator}jre${file.separator}bin${file.separator}java"/>
+	<available file="${env.JAVA_HOME}${file.separator}bin${file.separator}java"
+	  property="java.executable"
+	  value="${env.JAVA_HOME}${file.separator}bin${file.separator}java"/>
+	<available file="${env.JAVA_HOME}${file.separator}bin${file.separator}java.exe"
+	  property="java.executable"
+	  value="${env.JAVA_HOME}${file.separator}bin${file.separator}java"/>
+
 	<target name="executable-defs" depends="defs-deps" unless="defs.up-to-date"
           description="creates a file containing common environment variable definitions">
 		<echo message="Creating ${bin}/defs"/>
 		<echo message="Javahome is ${env.JAVA_HOME}" />
+		<echo message="Java is ${java.executable}" />
 		<echo message="FILE_SEP = '${file.separator}'" />
 		<echo message="PATH_SEP = '${path.separator}'" />
 		<echo message="X10_PLATFORM = '${env.X10_PLATFORM}'" />
 		<echo message="TOP = '${basedir}'" />
-		<echo file="${bin}/defs" append="no">#!/bin/sh
+		<echo file="${bin}/defs" append="no">#!/bin/bash
 # DO NOT EDIT - This file was automatically generated.
 
-JAVA='${env.JAVA_HOME}${file.separator}bin${file.separator}java'
+JAVA='${java.executable}'
 FILE_SEP='${file.separator}'
 PATH_SEP='${path.separator}'
 TOP='${basedir}'
 X10_PLATFORM='${env.X10_PLATFORM}'
 CONFIG_FILE='standard.cfg'
     </echo>
-		<echo file="${bin}/multivm-defs" append="no">#!/bin/sh
+		<echo file="${bin}/multivm-defs" append="no">#!/bin/bash
 # DO NOT EDIT - This file was automatically generated.
 
-JAVA='${env.JAVA_HOME}${file.separator}bin${file.separator}java'
+JAVA='${java.executable}'
 FILE_SEP='${file.separator}'
 PATH_SEP='${path.separator}'
 TOP='${basedir}'
