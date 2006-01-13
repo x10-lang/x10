@@ -26,7 +26,7 @@ import jgfutil.*;
 public class JGFCryptBench extends IDEATest implements JGFSection2{ 
 	
 	private int size; 
-	private int datasizes[]={30000,20000000,50000000};
+	private int datasizes[]={32000,20000000,50000000};
 	
 	public void JGFsetsize(int size){
 		this.size = size;
