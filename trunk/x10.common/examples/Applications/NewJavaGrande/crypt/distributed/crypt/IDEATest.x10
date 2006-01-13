@@ -84,6 +84,8 @@ void Do()
 void buildTestData()
 {
 
+  // WARNING: This assumes that array_rows/NUMBER_OF_LOCAL_PLACES
+  // is a multiple of 8!
   final dist D = dist.factory.block([0:array_rows-1]);
 
     // Create three byte arrays that will be used (and reused) for
@@ -263,6 +265,10 @@ private void cipher_idea(final byte[.] text1,
 
 {
 
+// WARNING: This assumes that the size of each block is a multiple of 8!
+if (text1.region.size() % (8 * place.MAX_PLACES) != 0) {
+  throw new RuntimeException("Invalid number of places for the distribution size");
+}
 for (point [i] : text1.distribution |here)
  if (i%8 == 0) {
 int i1 = i;                 // Index into first text array.
@@ -487,3 +493,4 @@ void freeTestData()
 
 
 }
+
