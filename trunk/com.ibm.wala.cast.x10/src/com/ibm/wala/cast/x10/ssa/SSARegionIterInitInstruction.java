@@ -1,10 +1,11 @@
 package com.ibm.domo.ast.x10.ssa;
 
+import java.util.Collection;
+import java.util.Collections;
 import com.ibm.domo.ssa.SSAAbstractUnaryInstruction;
 import com.ibm.domo.ssa.SSAInstruction;
 import com.ibm.domo.ssa.SymbolTable;
 import com.ibm.domo.ssa.ValueDecorator;
-import com.ibm.domo.types.TypeReference;
 
 public class SSARegionIterInitInstruction extends SSAAbstractUnaryInstruction {
 
@@ -24,7 +25,7 @@ public class SSARegionIterInitInstruction extends SSAAbstractUnaryInstruction {
 	((AstX10InstructionVisitor) v).visitRegionIterInit(this);
     }
 
-    public TypeReference[] getExceptionTypes() {
-	return null;
+    public Collection getExceptionTypes() {
+	return Collections.EMPTY_SET;
     }
 }

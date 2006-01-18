@@ -3,11 +3,12 @@
  */
 package com.ibm.domo.ast.x10.ssa;
 
+import java.util.Collection;
+import java.util.Collections;
 import com.ibm.capa.impl.debug.Assertions;
 import com.ibm.domo.ssa.SSAInstruction;
 import com.ibm.domo.ssa.SymbolTable;
 import com.ibm.domo.ssa.ValueDecorator;
-import com.ibm.domo.types.TypeReference;
 
 public class SSAFinishInstruction extends SSAInstruction {
     private final boolean isEnter;
@@ -62,8 +63,8 @@ public class SSAFinishInstruction extends SSAInstruction {
     /* (non-Javadoc)
      * @see com.ibm.domo.ssa.Instruction#getExceptionTypes()
      */
-    public TypeReference[] getExceptionTypes() {
-      return new TypeReference[0];
+    public Collection getExceptionTypes() {
+	return Collections.EMPTY_SET;
     }
 
     public boolean isFinishEnter() {
