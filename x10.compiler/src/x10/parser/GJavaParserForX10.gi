@@ -614,7 +614,7 @@ $Rules
           $EndJava
         ./
     
-    VariableDeclarator ::= VariableDeclaratorId
+    VariableDeclarator ::= TraditionalVariableDeclaratorId
                          | VariableDeclaratorId = VariableInitializer
         /.$BeginJava
                     VariableDeclaratorId.init = VariableInitializer;
@@ -622,17 +622,19 @@ $Rules
           $EndJava
         ./
     
-    VariableDeclaratorId ::= identifier
+    TraditionalVariableDeclaratorId ::= identifier
         /.$BeginJava
                     $setResult(new X10VarDeclarator(pos(), identifier.getIdentifier()));
           $EndJava
         ./
-                           | VariableDeclaratorId [ ]
+                           | TraditionalVariableDeclaratorId [ ]
         /.$BeginJava
-                    VariableDeclaratorId.dims++;
+                    TraditionalVariableDeclaratorId.dims++;
                     // $setResult(a);
           $EndJava
         ./
+
+    VariableDeclaratorId ::= TraditionalVariableDeclaratorId
                            | identifier [ IdentifierList ] 
         /.$BeginJava
                     $setResult(new X10VarDeclarator(pos(), identifier.getIdentifier(), IdentifierList));
