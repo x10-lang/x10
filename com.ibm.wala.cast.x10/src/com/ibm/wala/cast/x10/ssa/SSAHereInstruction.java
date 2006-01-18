@@ -1,10 +1,11 @@
 package com.ibm.domo.ast.x10.ssa;
 
+import java.util.Collection;
+import java.util.Collections;
 import com.ibm.capa.impl.debug.Assertions;
 import com.ibm.domo.ssa.SSAInstruction;
 import com.ibm.domo.ssa.SymbolTable;
 import com.ibm.domo.ssa.ValueDecorator;
-import com.ibm.domo.types.TypeReference;
 
 public class SSAHereInstruction extends SSAInstruction {
     private final int retValue;
@@ -29,8 +30,8 @@ public class SSAHereInstruction extends SSAInstruction {
 	return 413771901 * retValue;
     }
 
-    public TypeReference[] getExceptionTypes() {
-	return null;
+    public Collection getExceptionTypes() {
+	return Collections.EMPTY_SET;
     }
 
     public boolean isFallThrough() {

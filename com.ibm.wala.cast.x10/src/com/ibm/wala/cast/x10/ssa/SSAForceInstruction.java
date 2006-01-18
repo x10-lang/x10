@@ -1,5 +1,7 @@
 package com.ibm.domo.ast.x10.ssa;
 
+import java.util.Collection;
+import java.util.Collections;
 import com.ibm.domo.ssa.SSAAbstractUnaryInstruction;
 import com.ibm.domo.ssa.SSAInstruction;
 import com.ibm.domo.ssa.SymbolTable;
@@ -27,8 +29,8 @@ public class SSAForceInstruction extends SSAAbstractUnaryInstruction {
 	((AstX10InstructionVisitor) v).visitForce(this);
     }
 
-    public TypeReference[] getExceptionTypes() {
-	return null;
+    public Collection getExceptionTypes() {
+	return Collections.EMPTY_SET;
     }
 
     public TypeReference getValueType() {
