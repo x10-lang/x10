@@ -8,6 +8,8 @@ package polyglot.ext.x10.ast;
 import polyglot.ast.Formal;
 import java.util.List;
 import polyglot.ast.Stmt;
+import polyglot.ast.NodeFactory;
+import polyglot.types.TypeSystem;
 
 /**
  * @author vj Jan 23, 2005
@@ -15,12 +17,14 @@ import polyglot.ast.Stmt;
  */
 public interface X10Formal extends Formal {
    boolean hasExplodedVars();
-   /**Return a list of statements containing the initializations for the exploded vars,
+
+   /**
+    * Return a list of statements containing the initializations for the exploded vars,
     * with s appended.
     * 
     * @param s -- the list of statements to be appended.
     * @return
     */
-   List/*<Stmt>*/ explode( Stmt s );
-   List/*<Stmt>*/ explode();
+   List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts, Stmt s);
+   List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts);
 }
