@@ -702,7 +702,7 @@ $Rules
                     for (Iterator i = l.iterator(); i.hasNext(); ) {
                        X10Formal d = (X10Formal) i.next();
                        if (d.hasExplodedVars())
-                         s.addAll( d.explode());
+                         s.addAll(d.explode(nf, ts));
                     }
                     if (! s.isEmpty()) {
                         s.addAll(MethodBody.statements());
@@ -774,8 +774,7 @@ $Rules
     
     FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
         /.$BeginJava
-                    VariableDeclaratorId.setFlag(VariableModifiersopt);
-                    $setResult(nf.Formal(pos(), nf.array(Type, pos($getLeftSpan(2), $getRightSpan(2)), VariableDeclaratorId.dims), VariableDeclaratorId));
+                    $setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos($getLeftSpan(2), $getRightSpan(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
           $EndJava
         ./
     
@@ -797,8 +796,7 @@ $Rules
     LastFormalParameter ::= VariableModifiersopt Type ...opt$opt VariableDeclaratorId
         /.$BeginJava
                     assert(opt == null);
-                    VariableDeclaratorId.setFlag(VariableModifiersopt);
-                    $setResult(nf.Formal(pos(), nf.array(Type, pos($getLeftSpan(2), $getRightSpan(2)), VariableDeclaratorId.dims), VariableDeclaratorId));
+                    $setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos($getLeftSpan(2), $getRightSpan(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
           $EndJava
         ./
 
@@ -1330,7 +1328,7 @@ $Rules
                         l.add(nf.LocalDecl(d.pos, d.flags,
                                            nf.array(Type, pos(d), d.dims), d.name, d.init));
                         if (d.hasExplodedVars())
-                           s.addAll(d.explode());
+                           s.addAll(X10Formal_c.explode(nf, ts, d.name, pos(d), d.flags, d.names()));
                     }
                     l.addAll(s); 
                     $setResult(l);
