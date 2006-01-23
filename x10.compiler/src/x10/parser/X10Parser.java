@@ -1,8 +1,11 @@
+
 //
 // 12/25/2004
 // This is the basic X10 grammar specification without support for generic types.
 // Intended for the Feb 2005 X10 release.
-////
+//
+
+//
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -11,7 +14,9 @@
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
 // 12/28/2004
+
 package x10.parser;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -96,6 +101,7 @@ import com.ibm.lpg.PrsStream;
 import com.ibm.lpg.RuleAction;
 import com.ibm.lpg.UndefinedEofSymbolException;
 import com.ibm.lpg.UnimplementedTerminalsException;
+
 import com.ibm.lpg.*;
 
 public class X10Parser extends PrsStream implements RuleAction, Parser
@@ -190,6 +196,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         return null;
     }
 
+
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -232,6 +239,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
         public IToken getLeftIToken() { return leftIToken; }
         public IToken getRightIToken() { return rightIToken; }
+
+        public String toText()
+        {
+            PrsStream prsStream = leftIToken.getPrsStream();
+            return new String(prsStream.getInputChars(),
+                              leftIToken.getStartOffset(),
+                              rightIToken.getEndOffset() - leftIToken.getStartOffset() + 1);
+        }
     }
 
     public void reportError(int errorCode, String locationInfo, int leftToken, int rightToken, String tokenText)
@@ -4689,7 +4704,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 btParser.setSym1(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
-        
+    
+    
             default:
                 break;
         }
