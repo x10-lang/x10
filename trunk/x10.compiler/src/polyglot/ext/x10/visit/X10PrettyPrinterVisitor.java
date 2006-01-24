@@ -44,6 +44,7 @@ import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1Assign_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1_c;
 import polyglot.ext.x10.ast.X10ArrayAccess_c;
+import polyglot.ext.x10.ast.X10Loop;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
@@ -211,21 +212,6 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		dump("Future", new Node[] {f.place(), f.body()});
 	}
 
-	public void visit(ForEach_c f) {
-		// System.out.println("X10PrettyPrinter.visit(ForEach c): |" + f.formal().flags().translate() + "|");
-		assert (null != f.clocks());
-		dumpLoop("foreach",
-				 "clocked-loop",
-				 new Object[] {
-					 f.formal().flags().translate(),
-					 f.formal().type(),
-					 f.formal().name(),
-					 f.domain(),
-					 f.body(),
-					 new List[] { f.clocks() }
-				 });
-	}
-
 	public void visit(ForLoop_c f) {
 		// System.out.println("X10PrettyPrinter.visit(ForLoop c): |" + f.formal().flags().translate() + "|");
 		dump("forloop",
@@ -238,18 +224,27 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			 });
 	}
 
-	public void visit(AtEach_c f) {
-		assert (null != f.clocks());
-		dumpLoop("ateach",
+	private void processClockedLoop(String template, X10Loop l, List clocks) {
+		assert (null != clocks);
+		dumpLoop(template,
 				 "clocked-loop",
 				 new Object[] {
-					 f.formal().flags().translate(),
-					 f.formal().type(),
-					 f.formal().name(),
-					 f.domain(),
-					 f.body(),
-					 new List[] { f.clocks() }
+					 l.formal().flags().translate(),
+					 l.formal().type(),
+					 l.formal().name(),
+					 l.domain(),
+					 l.body(),
+					 new List[] { clocks }
 				 });
+	}
+
+	public void visit(ForEach_c f) {
+		// System.out.println("X10PrettyPrinter.visit(ForEach c): |" + f.formal().flags().translate() + "|");
+		processClockedLoop("foreach", f, f.clocks());
+	}
+
+	public void visit(AtEach_c f) {
+		processClockedLoop("ateach", f, f.clocks());
 	}
 
 	public void visit(Now_c n) {
@@ -303,251 +298,72 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		dump("finish", new Object[] { a.body(), getUniqueId_() });
 	}
 
+	private void processArrayConstructor(String template, ArrayConstructor_c a) {
+		if (a.hasLocal1DimDistribution()) {
+			if (a.hasInitializer()) {
+				dump(template+"_array_initializer",
+					 new Object[] {
+						 a.initializer(),
+						 new Boolean(a.isSafe()),
+						 new Boolean(a.isValue())
+					 });
+				return;
+			}
+			dump(template+"_array_local",
+				 new Object[] {
+					 a.distribution(),
+					 new Boolean(a.isSafe()),
+					 new Boolean(a.isValue())
+				 });
+			return;
+		}
+		Object init = a.initializer();
+		dump(template+"_array_dist_op",
+			 new Object[] {
+				 a.distribution(),
+				 init != null ? init : "null",
+				 new Boolean(a.isSafe()),
+				 new Boolean(a.isValue())
+			 });
+		return;
+	}
+
 	public void visit(ArrayConstructor_c a) {
 		Type base_type = a.arrayBaseType().type();
 
-		if (base_type.isBoolean()) {
-			// this is an double[?] ? array
-			if (a.hasLocal1DimDistribution()) {
-				if (a.hasInitializer()) {
-					dump("boolean_array_initializer",
-						 new Object[] {
-							 a.initializer(),
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue())
-						 });
-					return;
-				}
-				dump("boolean_array_local",
-					 new Object[] {
-						 a.distribution(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())
-					 });
-				return;
-			}
-			Object init = a.initializer();
-			dump("boolean_array_dist_op",
-				 new Object[] {
-					 a.distribution(),
-					 init != null ? init : "null",
-					 new Boolean(a.isSafe()),
-					 new Boolean(a.isValue())
-				 });
+		if (base_type.isBoolean()) { // this is a boolean[?] ? array
+			processArrayConstructor("boolean", a);
 			return;
 		}
-		if (base_type.isChar()) {
-			// this is an double[?] ? array
-			if (a.hasLocal1DimDistribution()) {
-				if (a.hasInitializer()) {
-					dump("char_array_initializer",
-						 new Object[] {
-							 a.initializer(),
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue())
-						 });
-					return;
-				}
-				dump("char_array_local",
-					 new Object[] {
-						 a.distribution(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())
-					 });
-				return;
-			}
-			Object init = a.initializer();
-			dump("char_array_dist_op",
-				 new Object[] {
-					 a.distribution(),
-					 init != null ? init : "null",
-					 new Boolean(a.isSafe()),
-					 new Boolean(a.isValue())
-				 });
+		if (base_type.isChar()) { // this is a char[?] ? array
+			processArrayConstructor("char", a);
 			return;
 		}
-		if (base_type.isByte()) {
-			// this is an double[?] ? array
-			if (a.hasLocal1DimDistribution()) {
-				if (a.hasInitializer()) {
-					dump("byte_array_initializer",
-						 new Object[] {
-							 a.initializer(),
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue())
-						 });
-					return;
-				}
-				dump("byte_array_local",
-					 new Object[] {
-						 a.distribution(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())
-					 });
-				return;
-			}
-			Object init = a.initializer();
-			dump("byte_array_dist_op",
-				 new Object[] {
-					 a.distribution(),
-					 init != null ? init : "null",
-					 new Boolean(a.isSafe()),
-					 new Boolean(a.isValue())
-				 });
+		if (base_type.isByte()) { // this is a byte[?] ? array
+			processArrayConstructor("byte", a);
 			return;
 		}
-		if (base_type.isShort()) {
-			// this is an double[?] ? array
-			if (a.hasLocal1DimDistribution()) {
-				if (a.hasInitializer()) {
-					dump("short_array_initializer",
-						 new Object[] {
-							 a.initializer(),
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue())
-						 });
-					return;
-				}
-				dump("short_array_local",
-					 new Object[] {
-						 a.distribution(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())
-					 });
-				return;
-			}
-			Object init = a.initializer();
-			dump("short_array_dist_op",
-				 new Object[] {
-					 a.distribution(),
-					 init != null ? init : "null",
-					 new Boolean(a.isSafe()),
-					 new Boolean(a.isValue())
-				 });
+		if (base_type.isShort()) { // this is a short[?] ? array
+			processArrayConstructor("short", a);
 			return;
 		}
-		if (base_type.isInt()) {
-			// this is an int[?] ? array
-			if (a.hasLocal1DimDistribution()) {
-				if (a.hasInitializer()) {
-					dump("int_array_initializer",
-						 new Object[] {
-							 a.initializer(),
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue())
-						 });
-					return;
-				}
-				dump("int_array_local",
-					 new Object[] {
-						 a.distribution(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())
-					 });
-				return;
-			}
-			Object init = a.initializer();
-			dump("int_array_dist_op",
-				 new Object[] {
-					 a.distribution(),
-					 init != null ? init : "null",
-					 new Boolean(a.isSafe()),
-					 new Boolean(a.isValue())
-				 });
+		if (base_type.isInt()) { // this is an int[?] ? array
+			processArrayConstructor("int", a);
 			return;
 		}
-		if (base_type.isFloat()) {
-			// this is an double[?] ? array
-			if (a.hasLocal1DimDistribution()) {
-				if (a.hasInitializer()) {
-					dump("float_array_initializer",
-						 new Object[] {
-							 a.initializer(),
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue())
-						 });
-					return;
-				}
-				dump("float_array_local",
-					 new Object[] {
-						 a.distribution(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())
-					 });
-				return;
-			}
-			Object init = a.initializer();
-			dump("float_array_dist_op",
-				 new Object[] {
-					 a.distribution(),
-					 init != null ? init : "null",
-					 new Boolean(a.isSafe()),
-					 new Boolean(a.isValue())
-				 });
+		if (base_type.isFloat()) { // this is a float[?] ? array
+			processArrayConstructor("float", a);
 			return;
 		}
-		if (base_type.isDouble()) {
-			// this is an double[?] ? array
-			if (a.hasLocal1DimDistribution()) {
-				if (a.hasInitializer()) {
-					dump("double_array_initializer",
-						 new Object[] {
-							 a.initializer(),
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue())
-						 });
-					return;
-				}
-				dump("double_array_local",
-					 new Object[] {
-						 a.distribution(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())
-					 });
-				return;
-			}
-			Object init = a.initializer();
-			dump("double_array_dist_op",
-				 new Object[] {
-					 a.distribution(),
-					 init != null ? init : "null",
-					 new Boolean(a.isSafe()),
-					 new Boolean(a.isValue())
-				 });
+		if (base_type.isDouble()) { // this is a double[?] ? array
+			processArrayConstructor("double", a);
 			return;
 		}
-		if (base_type.isLong()) {
-			// this is a long[?] ? array
-			if (a.hasLocal1DimDistribution()) {
-				if (a.hasInitializer()) {
-					dump("long_array_initializer",
-						 new Object[] {
-							 a.initializer(),
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue())
-						 });
-					return;
-				}
-				dump("long_array_local",
-					 new Object[] {
-						 a.distribution(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())
-					 });
-				return;
-			}
-			Object init = a.initializer();
-			dump("long_array_dist_op",
-				 new Object[] {
-					 a.distribution(),
-					 init != null ? init : "null",
-					 new Boolean(a.isSafe()),
-					 new Boolean(a.isValue())
-				 });
+		if (base_type.isLong()) { // this is a long[?] ? array
+			processArrayConstructor("long", a);
 			return;
 		}
-		if (! base_type.isPrimitive()) {
-			// this is a User-defined[?] ? array
+		if (! base_type.isPrimitive()) { // this is a User-defined[?] ? array
 			boolean refs_to_values = (base_type instanceof X10Type && ((X10Type) base_type).isValueType());
 			if (a.hasLocal1DimDistribution()) {
 				if (a.hasInitializer()) {
@@ -598,6 +414,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			 });
 	}
 
+	// [IP] TODO: rewrite using a loop
 	public void visit(X10ArrayAccess_c a) {
 		List index = a.index();
 		int size = index.size();
@@ -681,11 +498,14 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	/**
 	 * Expand a given loop body template repeatedly within the main template
 	 * with given parameters.
+	 * [IP] TODO: Replace with template actions to perform inner template
+	 * expansion.
 	 *
 	 * @param id xcd filename for the main template
 	 * @param lid xcd filename for the loop body
 	 * @param components arguments to the main template and the loop body.
 	 *        For the loop body, pass an array of Lists of identical length
+	 *        (each list representing all instances of a given argument),
 	 *        which will be translated into array-length repetitions of the
 	 *        loop body template.
 	 */
