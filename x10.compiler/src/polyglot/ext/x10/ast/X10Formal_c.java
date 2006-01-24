@@ -5,6 +5,7 @@ package polyglot.ext.x10.ast;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.Expr;
@@ -22,11 +23,10 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
+import polyglot.util.TypedList;
 import polyglot.visit.TypeBuilder;
-
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10TypeSystem;
-
 
 /**
  * An immutable representation of an X10Formal, which is of the form
@@ -74,8 +74,8 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 */
 	public void addDecls(Context c) {
 		super.addDecls(c);
-		//for (int i = 0; i < lis.length; i++)
-		//	c.addVariable(lis[i]);
+		for (int i = 0; i < lis.length; i++)
+			c.addVariable(lis[i]);
 	}
 
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
@@ -116,7 +116,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		if (vars != NO_VARS) {
 			sb.append("[");
 			for (int i = 0; i < vars.length; i++)
-				sb.append(vars[i].name()).append(i > 0 ? "," : "");
+				sb.append(i > 0 ? "," : "").append(vars[i].name());
 			sb.append("]");
 		}
 		return sb.toString();
@@ -167,18 +167,26 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @return
 	 */
 	public List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts) {
-		return explode(nf, ts, name(), position(), flags(), vars, lis);
+		return explode(nf, ts, name(), position(), flags(), vars, localInstance(), lis);
 	}
 
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.ast.X10Formal#explode(polyglot.ast.NodeFactory, polyglot.types.TypeSystem)
 	 */
 	public List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts, Stmt s) {
-		return explode(nf, ts, name(), position(), flags(), vars, lis, s);
+		List/*<Stmt>*/ init = this.explode(nf, ts);
+		if (s != null)
+			init.add(s);
+		return init;
 	}
 
-	public List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts, List/*<Stmt>*/ s) {
-		return explode(nf, ts, name(), position(), flags(), vars, lis, s);
+	public List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts, List/*<Stmt>*/ s, boolean prepend) {
+		List/*<Stmt>*/ init = this.explode(nf, ts);
+		if (s != null) {
+			if (prepend) init.addAll(s);
+			else init.addAll(0, s);
+		}
+		return init;
 	}
 
 	/**
@@ -193,21 +201,24 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @param lis
 	 * @return
 	 */
-	public static List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts,
-										 String name, Position pos,
-										 Flags flags, AmbExpr[] vars,
-										 LocalInstance[] lis)
+	private static List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts,
+										  String name, Position pos,
+										  Flags flags, AmbExpr[] vars,
+										  LocalInstance bli,
+										  LocalInstance[] lis)
 	{
 		if (vars == null || vars == NO_VARS) return null;
 		X10NodeFactory x10nf = (X10NodeFactory) nf;
-		List stmts = new ArrayList(vars.length);
-		Expr arrayBase = nf.AmbExpr(pos, name);
+		List/*<Stmt>*/ stmts = new TypedList(new ArrayList(vars.length), Stmt.class, false);
+		Expr arrayBase =
+			(bli == null) ? nf.AmbExpr(pos, name)
+						  : (Expr) nf.Local(pos, name).localInstance(bli).type(bli.type());
 		TypeNode intType = x10nf.CanonicalTypeNode(pos, ts.Int());
 		for (int i = 0; i < vars.length; i++) {
 			// int arglist(i) = name[i];
 			AmbExpr var = vars[i];
-			Expr index = x10nf.IntLit(var.position(), IntLit.INT, i);
-			Expr init = x10nf.X10ArrayAccess1(var.position(), arrayBase, index);
+			Expr index = x10nf.IntLit(var.position(), IntLit.INT, i).type(ts.Int());
+			Expr init = x10nf.X10ArrayAccess1(var.position(), arrayBase, index).type(ts.Int());
 			LocalInstance li = lis != null
 				? lis[i]
 				: ts.localInstance(var.position(), flags, ts.Int(), var.name());
@@ -233,57 +244,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 										 String name, Position pos,
 										 Flags flags, AmbExpr[] vars)
 	{
-		return explode(nf, ts, name, pos, flags, vars, null);
-	}
-
-	/**
-	 * Return the initialization statements for the exploding variables
-	 * plus the given statement.
-	 *
-	 * @param nf
-	 * @param ts
-	 * @param name
-	 * @param pos
-	 * @param flags
-	 * @param vars
-	 * @param lis
-	 * @param s
-	 * @return
-	 */
-	public static List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts,
-										 String name, Position pos,
-										 Flags flags, AmbExpr[] vars,
-										 LocalInstance[] lis, Stmt s)
-	{
-		List/*<Stmt>*/ init = explode(nf, ts, name, pos, flags, vars, lis);
-		if (s != null)
-			init.add(s);
-		return init;
-	}
-
-	/**
-	 * Return the initialization statements for the exploding variables
-	 * plus the given statements.
-	 *
-	 * @param nf
-	 * @param ts
-	 * @param name
-	 * @param pos
-	 * @param flags
-	 * @param vars
-	 * @param lis
-	 * @param s
-	 * @return
-	 */
-	public static List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts,
-										 String name, Position pos,
-										 Flags flags, AmbExpr[] vars,
-										 LocalInstance[] lis, List/*<Stmt>*/ s)
-	{
-		List/*<Stmt>*/ init = explode(nf, ts, name, pos, flags, vars, lis);
-		if (s != null)
-			init.addAll(s);
-		return init;
+		return explode(nf, ts, name, pos, flags, vars, null, null);
 	}
 }
 
