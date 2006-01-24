@@ -1,11 +1,8 @@
-
 //
 // 12/25/2004
 // This is the basic X10 grammar specification without support for generic types.
 // Intended for the Feb 2005 X10 release.
-//
-
-//
+////
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -14,9 +11,7 @@
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
 // 12/28/2004
-
 package x10.parser;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -101,7 +96,6 @@ import com.ibm.lpg.PrsStream;
 import com.ibm.lpg.RuleAction;
 import com.ibm.lpg.UndefinedEofSymbolException;
 import com.ibm.lpg.UnimplementedTerminalsException;
-
 import com.ibm.lpg.*;
 
 public class X10Parser extends PrsStream implements RuleAction, Parser
@@ -195,7 +189,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
         return null;
     }
-
 
     private ErrorQueue eq;
     private X10TypeSystem ts;
@@ -351,12 +344,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
     private New makeInitializer( Position pos, TypeNode resultType,
                                  X10Formal f, Block body ) {
-      if (f.hasExplodedVars()) {
-        List s = new TypedList(new LinkedList(), Stmt.class, false);
-        s.addAll( f.explode(nf, ts) );
-        s.addAll( body.statements() );
-        body = body.statements( s );
-      }
       Flags flags = Flags.PUBLIC;
       // resulttype is a.
       List l1 = new TypedList(new LinkedList(), X10Formal.class, false);
@@ -402,12 +389,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     */
     private New XXmakeInitializer( Position pos, TypeNode resultType,
                                  X10Formal f, Block body ) {
-      if (f.hasExplodedVars()) {
-        List s = new TypedList(new LinkedList(), Stmt.class, false);
-        s.addAll( f.explode(nf, ts) );
-        s.addAll( body.statements() );
-        body = body.statements( s );
-      }
       Flags flags = Flags.PUBLIC;
       // resulttype is a.
       List l1 = new TypedList(new LinkedList(), X10Formal.class, false);
@@ -1376,16 +1357,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 MethodDecl MethodHeader = (MethodDecl) btParser.getSym(1);
                 Block MethodBody = (Block) btParser.getSym(2);
                 List l = MethodHeader.formals();
-                List s = new TypedList(new LinkedList(), Stmt.class, false);
-                for (Iterator i = l.iterator(); i.hasNext(); ) {
-                   X10Formal d = (X10Formal) i.next();
-                   if (d.hasExplodedVars())
-                     s.addAll(d.explode(nf, ts));
-                }
-                if (! s.isEmpty()) {
-                    s.addAll(MethodBody.statements());
-                    MethodBody = MethodBody.statements(s);
-                }
                 Flags f = MethodHeader.flags();
                 if (f.contains(X10Flags.ATOMIC)) {
                      List ss = new TypedList(new LinkedList(), Stmt.class, false);
@@ -2084,6 +2055,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                     // use d.flags below and not flags, setFlag may change it.
                     l.add(nf.LocalDecl(d.pos, d.flags,
                                        nf.array(Type, pos(d), d.dims), d.name, d.init));
+                    // [IP] TODO: Add X10Local with exploded variables
                     if (d.hasExplodedVars())
                        s.addAll(X10Formal_c.explode(nf, ts, d.name, pos(d), d.flags, d.names()));
                 }
@@ -4111,9 +4083,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                               FormalParameter.flags(FormalParameter.flags().Final()),
                               Expression,
                               ClockedClauseopt,
-                              FormalParameter.hasExplodedVars()
-                                  ? nf.Block(pos(), FormalParameter.explode(nf, ts, Statement))
-                                  : Statement));
+                              Statement));
                 break;
             }
      
@@ -4129,9 +4099,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
                              ClockedClauseopt,
-                             FormalParameter.hasExplodedVars()
-                                   ? nf.Block(pos(), FormalParameter.explode(nf, ts, Statement))
-                                   : Statement));
+                             Statement));
                 break;
             }
      
@@ -4145,9 +4113,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 btParser.setSym1(nf.ForLoop(pos(),
                         FormalParameter.flags(FormalParameter.flags().Final()),
                         Expression,
-                        FormalParameter.hasExplodedVars()
-                              ? nf.Block(pos(), FormalParameter.explode(nf, ts, Statement))
-                              : Statement));
+                        Statement));
                 break;
             }
      
@@ -4227,9 +4193,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
                              ClockedClauseopt,
-                             FormalParameter.hasExplodedVars()
-                                   ? nf.Block(pos(), FormalParameter.explode(nf, ts, StatementNoShortIf))
-                                   : StatementNoShortIf));
+                             StatementNoShortIf));
 
                 break;
             }
@@ -4246,9 +4210,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                             FormalParameter.flags(FormalParameter.flags().Final()),
                             Expression,
                             ClockedClauseopt,
-                            FormalParameter.hasExplodedVars()
-                                  ? nf.Block(pos(), FormalParameter.explode(nf, ts, StatementNoShortIf))
-                                  : StatementNoShortIf));
+                            StatementNoShortIf));
                 break;
             }
      
@@ -4262,9 +4224,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                   btParser.setSym1(nf.ForLoop(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
-                             FormalParameter.hasExplodedVars()
-                                   ? nf.Block(pos(), FormalParameter.explode(nf, ts, StatementNoShortIf))
-                                   : StatementNoShortIf));
+                             StatementNoShortIf));
                 break;
             }
      
@@ -4704,8 +4664,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 btParser.setSym1(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
-    
-    
+        
             default:
                 break;
         }
