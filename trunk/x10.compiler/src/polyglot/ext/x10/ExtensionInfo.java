@@ -10,6 +10,7 @@ import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Qualifier;
+import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
@@ -127,6 +128,7 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 	    super(job);
 	    addPrerequisiteGoal(new X10Boxed(job()), job.extensionInfo().scheduler());
 	    addPrerequisiteGoal(new X10Qualified(job()), job.extensionInfo().scheduler());
+	    addPrerequisiteGoal(new X10Expanded(job()), job.extensionInfo().scheduler());
 	}
 	public void setState(int state) {
 	    super.setState(state);
@@ -157,8 +159,20 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 	}
     }
 
+    static class X10Expanded extends VisitorGoal {
+	public X10Expanded(Job job) throws CyclicDependencyException {
+	    super(job, new X10ImplicitDeclarationExpander(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory()));
+	    addPrerequisiteGoal(job.extensionInfo().scheduler().TypeChecked(job), job.extensionInfo().scheduler());
+	}
+	public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
+//	    System.out.println("Creating pass for X10Expanded goal...");
+	    return super.createPass(extInfo);
+	}
+    }
+
 //    public static final Pass.ID CAST_REWRITE = new Pass.ID("cast-rewrite");
 //    public static final Pass.ID SPECIAL_QUALIFIER = new Pass.ID("this/super-qualifier");
+//    public static final Pass.ID EXPAND_IMPLICIT_VARS = new Pass.ID("expand-implicit-vars");
 //    public static final Pass.ID ASYNC_ELIMINATION = new Pass.ID("async-elimination");
 //    public static final Pass.ID ATOMIC_ELIMINATION = new Pass.ID("atomic-elimination");
 
@@ -197,6 +211,10 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 //        beforePass(passes, Pass.PRE_OUTPUT_ALL,
 //                new VisitorPass(SPECIAL_QUALIFIER,
 //                        job, new X10Qualifier(job, ts, nf)));
+//        
+//        beforePass(passes, Pass.PRE_OUTPUT_ALL,
+//                new VisitorPass(EXPAND_IMPLICIT_VARS,
+//                        job, new X10Expander(job, ts, nf)));
 //        
 //        if (Report.should_report("debug", 6)) {
 //			beforePass(passes, Pass.PRE_OUTPUT_ALL, new VisitorPass(Pass.DUMP, job,
