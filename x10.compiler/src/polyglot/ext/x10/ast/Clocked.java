@@ -16,5 +16,5 @@ public interface Clocked extends CompoundStmt {
     /** Get the clock. */
     List clocks();
 
-    Clocked expr(List clocks);
+    Clocked clocks(List clocks);
 }
