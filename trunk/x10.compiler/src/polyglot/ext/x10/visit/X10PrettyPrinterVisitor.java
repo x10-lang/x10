@@ -59,6 +59,7 @@ import polyglot.visit.PrettyPrinter;
  * pretty printing).
  *
  * @author Christian Grothoff
+ * @author Igor Peshansky (template classes)
  */
 public class X10PrettyPrinterVisitor extends Runabout {
 
@@ -183,13 +184,12 @@ public class X10PrettyPrinterVisitor extends Runabout {
 
 	public void visit(Async_c a) {
 		assert (null != a.clocks());
-		dumpLoop("Async",
-				 "clocked-loop",
-				 new Object[] {
-					 a.place(),
-					 new List[] { a.clocks() },
-					 a.body()
-				});
+		dump("Async",
+			 new Object[] {
+				 a.place(),
+				 new Loop("clocked-loop", a.clocks()),
+				 a.body()
+			 });
 	}
 
 	public void visit(Atomic_c a) {
@@ -226,16 +226,15 @@ public class X10PrettyPrinterVisitor extends Runabout {
 
 	private void processClockedLoop(String template, X10Loop l, List clocks) {
 		assert (null != clocks);
-		dumpLoop(template,
-				 "clocked-loop",
-				 new Object[] {
-					 l.formal().flags().translate(),
-					 l.formal().type(),
-					 l.formal().name(),
-					 l.domain(),
-					 l.body(),
-					 new List[] { clocks }
-				 });
+		dump(template,
+			 new Object[] {
+				 l.formal().flags().translate(),
+				 l.formal().type(),
+				 l.formal().name(),
+				 l.domain(),
+				 l.body(),
+				 new Loop("clocked-loop", clocks)
+			 });
 	}
 
 	public void visit(ForEach_c f) {
@@ -281,13 +280,12 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(When_c w) {
-		dumpLoop("when",
-				 "when-loop",
-				 new Object[] { w.expr(),
-					 w.stmt(),
-					 new List[] { w.branches() },
-					 getUniqueId_()
-				 });
+		dump("when",
+			 new Object[] { w.expr(),
+				 w.stmt(),
+				 new Loop("when-loop", w.branches()),
+				 getUniqueId_()
+			 });
 	}
 
 	public void visit(When_c.Branch_c b) {
@@ -496,48 +494,18 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	*/
 
 	/**
-	 * Expand a given loop body template repeatedly within the main template
-	 * with given parameters.
-	 * [IP] TODO: Replace with template actions to perform inner template
-	 * expansion.
+	 * Pretty-print a given object.
 	 *
-	 * @param id xcd filename for the main template
-	 * @param lid xcd filename for the loop body
-	 * @param components arguments to the main template and the loop body.
-	 *        For the loop body, pass an array of Lists of identical length
-	 *        (each list representing all instances of a given argument),
-	 *        which will be translated into array-length repetitions of the
-	 *        loop body template.
+	 * @param o object to print
 	 */
-	private void dumpLoop(String id, String lid, Object[] components) {
-		String regex = translate(id);
-		int len = regex.length();
-		int pos = 0;
-		int start = 0;
-		while (pos < len) {
-			if (regex.charAt(pos) == '#') {
-				w.write(regex.substring(start, pos));
-				Integer idx = new Integer(regex.substring(pos+1,pos+2));
-				pos++;
-				start = pos+1;
-				int ival = idx.intValue();
-				if (components[ival] instanceof Object[]) {
-					List[] lists = (List[]) components[ival];
-					Node[] args = new Node[lists.length];
-					for (int i=lists[0].size()-1;i>=0;i--) {
-						for (int j=args.length-1;j>=0;j--)
-							args[j] = (Node) lists[j].get(i);
-						dump(lid, args);
-					}
-				} else if (components[ival] instanceof Node) {
-					((Node)components[idx.intValue()]).del().prettyPrint(w, pp);
-				} else {
-					w.write(components[ival].toString());
-				}
-			}
-			pos++;
+	private void prettyPrint(Object o) {
+		if (o instanceof Expander) {
+			((Expander) o).expand();
+		} else if (o instanceof Node) {
+			((Node) o).del().prettyPrint(w, pp);
+		} else {
+			w.write(o.toString());
 		}
-		w.write(regex.substring(start));
 	}
 
 	/**
@@ -557,18 +525,76 @@ public class X10PrettyPrinterVisitor extends Runabout {
 				Integer idx = new Integer(regex.substring(pos+1,pos+2));
 				pos++;
 				start = pos+1;
-				Object tmp = components[idx.intValue()];
-
-				if (tmp instanceof Node) {
-					((Node) tmp).del().prettyPrint(w, pp);
-				} else {
-					w.write(tmp.toString());
-				}
-
+				prettyPrint(components[idx.intValue()]);
 			}
 			pos++;
 		}
 		w.write(regex.substring(start));
+	}
+
+	/**
+	 * An abstract class for sub-template expansion.
+	 */
+	public abstract class Expander { public abstract void expand(); }
+
+	/**
+	 * Expand a given template in a loop with the given set of arguments.
+	 * For the loop body, pass in an array of Lists of identical length
+	 * (each list representing all instances of a given argument),
+	 * which will be translated into array-length repetitions of the
+	 * loop body template.
+	 */
+	public class Loop extends Expander {
+		private final String id;
+		//private final String template;
+		private final List[] lists;
+		private final int N;
+		public Loop(String id, List components) {
+			this(id, new List[] { components });
+		}
+		public Loop(String id, List[] components) {
+			this.id = id;
+			//this.template = translate(id);
+			this.lists = components;
+			// Make sure we have the parameters
+			assert(lists.length > 0);
+			this.N = lists[0].size();
+			// Make sure the lists are all of the same size
+			for (int i = 1; i < lists.length; i++)
+				assert(lists[i].size() == N);
+		}
+		public void expand() {
+			Object[] args = new Object[lists.length];
+			Iterator[] iters = new Iterator[lists.length];
+			// Parallel iterators over all argument lists
+			for (int j = 0; j < lists.length; j++)
+				iters[j] = lists[j].iterator();
+			for (int i = 0; i < N; i++) {
+				for (int j = 0; j < args.length; j++)
+					args[j] = iters[j].next();
+				dump(id, args);
+			}
+		}
+	}
+
+	/**
+	 * Join a given list of arguments with a given delimiter.
+	 */
+	public class Join extends Expander {
+		private final String delimiter;
+		private final List args;
+		public Join(String delimiter, List args) {
+			this.delimiter = delimiter;
+			this.args = args;
+		}
+		public void expand() {
+			int N = args.size();
+			for (Iterator i = args.iterator(); i.hasNext(); ) {
+				prettyPrint(i.next());
+				if (i.hasNext())
+					prettyPrint(delimiter);
+			}
+		}
 	}
 
 	static HashMap translationCache_ = new HashMap();
@@ -581,11 +607,11 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			String fname = Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY + id + ".xcd"; // xcd = x10 compiler data/definition
 			fname = fname.replace('\\','/'); // win32 hack
 			// Override definition with any identically named file in DATA_EXT dir
-			if(null != Configuration.COMPILER_FRAGMENT_DATA_EXT_DIRECTORY){
-				String extfname = Configuration.COMPILER_FRAGMENT_DATA_EXT_DIRECTORY+ id + ".xcd";
+			if (null != Configuration.COMPILER_FRAGMENT_DATA_EXT_DIRECTORY) {
+				String extfname = Configuration.COMPILER_FRAGMENT_DATA_EXT_DIRECTORY + id + ".xcd";
 				extfname = extfname.replace('\\','/'); // win32 hack
 				File testFile = new File(extfname);
-				if(testFile.exists() &&testFile.canRead()){
+				if (testFile.exists() && testFile.canRead()) {
 					fname = extfname;
 				}
 			}
