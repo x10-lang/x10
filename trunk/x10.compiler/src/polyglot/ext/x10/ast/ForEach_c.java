@@ -1,7 +1,5 @@
 /*
  * Created by vj on Dec 9, 2004
- *
- *
  */
 package polyglot.ext.x10.ast;
 
@@ -17,16 +15,11 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 
 import polyglot.util.CodeWriter;
-import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
-import polyglot.types.Type;
 
-/** An immutable representation of the X10 statement: foreach (i : D) S
+/**
+ * An immutable representation of the X10 statement: foreach (i : D) S
  * @author vj Dec 9, 2004
  * @author Christian Grothoff
  */
@@ -58,18 +51,17 @@ public class ForEach_c extends X10Loop_c implements ForEach, Clocked {
 	}
 
 	/** clock */
-	public Clocked expr(List clocks) {
+	public Clocked clocks(List clocks) {
 		ForEach_c n = (ForEach_c) copy();
 		n.clocks = TypedList.copyAndCheck(clocks, Expr.class, true);
 		return n;
 	}
 
-
 	public String toString() {
 		return "foreach (" + formal + ":" + domain + ")" + body;
 	}
 
-	public void prettyPrint( CodeWriter w, PrettyPrinter tr ) {
+	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		w.write("foreach(");
 		printBlock(formal, w, tr);
 		w.write(" : ");
@@ -77,11 +69,12 @@ public class ForEach_c extends X10Loop_c implements ForEach, Clocked {
 		w.write(") ");
 		printSubStmt(body, w, tr);
 	}
+
 	public Node visitChildren(NodeVisitor v) {
 		Formal formal = (Formal) visitChild(this.formal, v);
 		Expr domain = (Expr) visitChild(this.domain, v);
 		List clocks = visitList(this.clocks, v);
 		Stmt body = (Stmt) visitChild(this.body, v);
-		return ((Clocked) reconstruct(formal, domain, body)).expr(clocks);
+		return ((Clocked) reconstruct(formal, domain, body)).clocks(clocks);
 	}
 }
