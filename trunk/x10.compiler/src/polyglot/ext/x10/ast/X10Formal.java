@@ -1,7 +1,5 @@
 /*
  * Created by vj on Jan 23, 2005
- *
- * 
  */
 package polyglot.ext.x10.ast;
 
@@ -13,7 +11,6 @@ import polyglot.types.TypeSystem;
 
 /**
  * @author vj Jan 23, 2005
- * 
  */
 public interface X10Formal extends Formal {
    boolean hasExplodedVars();
@@ -25,6 +22,7 @@ public interface X10Formal extends Formal {
     * @param s -- the list of statements to be appended.
     * @return
     */
+   List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts, List/*<Stmt>*/ s, boolean prepend);
    List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts, Stmt s);
    List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts);
 }
