@@ -698,16 +698,6 @@ $Rules
     MethodDeclaration ::= MethodHeader MethodBody
         /.$BeginJava
                     List l = MethodHeader.formals();
-                    List s = new TypedList(new LinkedList(), Stmt.class, false);
-                    for (Iterator i = l.iterator(); i.hasNext(); ) {
-                       X10Formal d = (X10Formal) i.next();
-                       if (d.hasExplodedVars())
-                         s.addAll(d.explode(nf, ts));
-                    }
-                    if (! s.isEmpty()) {
-                        s.addAll(MethodBody.statements());
-                        MethodBody = MethodBody.statements(s);
-                    }
                     Flags f = MethodHeader.flags();
                     if (f.contains(X10Flags.ATOMIC)) {
                          List ss = new TypedList(new LinkedList(), Stmt.class, false);
@@ -1327,6 +1317,7 @@ $Rules
                         // use d.flags below and not flags, setFlag may change it.
                         l.add(nf.LocalDecl(d.pos, d.flags,
                                            nf.array(Type, pos(d), d.dims), d.name, d.init));
+                        // [IP] TODO: Add X10Local with exploded variables
                         if (d.hasExplodedVars())
                            s.addAll(X10Formal_c.explode(nf, ts, d.name, pos(d), d.flags, d.names()));
                     }
