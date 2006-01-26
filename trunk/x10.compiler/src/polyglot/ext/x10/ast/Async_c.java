@@ -31,21 +31,20 @@ import polyglot.util.CollectionUtil;
 
 /**
  * Created on Oct 5, 2004
-
+ *
  * @author Christian Grothoff
  * @author Philippe Charles
  * @author vj
  */
 
-public class Async_c extends Stmt_c
-      implements Async, Clocked {
+public class Async_c extends Stmt_c implements Async, Clocked {
 
 	public Expr place;
 	public Stmt body;
-    protected List clocks;
+	protected List clocks;
 
-	public Async_c( Position pos, Expr place, List clocks, Stmt body ) {
-		super( pos );
+	public Async_c(Position pos, Expr place, List clocks, Stmt body) {
+		super(pos);
 		this.place = place;
 		this.clocks = clocks;
 		this.body = body;
@@ -62,19 +61,20 @@ public class Async_c extends Stmt_c
 		return body;
 	}
 
-    /** Expression */
-    public List clocks() {
-        return this.clocks;
-    }
+	/** Expression */
+	public List clocks() {
+		return this.clocks;
+	}
 
-    /** clock */
-    public Clocked expr(List clocks) {
-        Async_c n = (Async_c) copy();
-        n.clocks = clocks;
-        return n;
-    }
+	/** clock */
+	public Clocked clocks(List clocks) {
+		Async_c n = (Async_c) copy();
+		n.clocks = clocks;
+		return n;
+	}
 
-	/** Set the body of the statement.
+	/**
+	 * Set the body of the statement.
 	 */
 	public Async body(Stmt body) {
 		Async_c n = (Async_c) copy();
@@ -94,19 +94,18 @@ public class Async_c extends Stmt_c
 	}
 
 	/** Reconstruct the statement. */
-	protected Async reconstruct( Expr place, Stmt body ) {
-		if ( place != this.place || body != this.body ) {
+	protected Async reconstruct(Expr place, Stmt body) {
+		if (place != this.place || body != this.body) {
 			Async_c n = (Async_c) copy();
 			n.place = place;
 			n.body = body;
 			return n;
 		}
-
 		return this;
 	}
 
 	/** Visit the children of the statement. */
-	public Node visitChildren( NodeVisitor v ) {
+	public Node visitChildren(NodeVisitor v) {
 		Expr place = (Expr) visitChild(this.place, v);
 		Stmt body = (Stmt) visitChild(this.body, v);
 		return reconstruct(place, body);
@@ -123,26 +122,21 @@ public class Async_c extends Stmt_c
 	/** Type check the statement. */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-    	Type placeType = place.type();
-    	Expr newPlace = place;
-    	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
-		if ( ! placeIsPlace ) {
+		Type placeType = place.type();
+		Expr newPlace = place;
+		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
+		if (! placeIsPlace) {
 			newPlace = (Expr) new X10Field_c(position(), place, "location").typeCheck(tc);
 		}
-
-       	return (Async_c) place(newPlace);
-
-
+		return (Async_c) place(newPlace);
 	}
 
 	// not sure how this works.. vj. Copied from Synchronized_c.
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
 		TypeSystem ts = av.typeSystem();
-
 		if (child == place) {
 			return ts.Object();
 		}
-
 		return child.type();
 	}
 
@@ -178,3 +172,4 @@ public class Async_c extends Stmt_c
 	private static final Collection TOPICS =
 		CollectionUtil.list(Report.types, Report.context);
 }
+
