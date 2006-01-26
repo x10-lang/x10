@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +45,7 @@ import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1Assign_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1_c;
 import polyglot.ext.x10.ast.X10ArrayAccess_c;
+import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10Loop;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ReferenceType;
@@ -224,8 +226,8 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			 });
 	}
 
-	private void processClockedLoop(String template, X10Loop l, List clocks) {
-		assert (null != clocks);
+	private void processClockedLoop(String template, X10ClockedLoop l) {
+		assert (null != l.clocks());
 		dump(template,
 			 new Object[] {
 				 l.formal().flags().translate(),
@@ -233,17 +235,19 @@ public class X10PrettyPrinterVisitor extends Runabout {
 				 l.formal().name(),
 				 l.domain(),
 				 l.body(),
-				 new Loop("clocked-loop", clocks)
+				 new Join("\n",
+					 new Join("\n", l.locals()),
+					 new Loop("clocked-loop", l.clocks()))
 			 });
 	}
 
 	public void visit(ForEach_c f) {
 		// System.out.println("X10PrettyPrinter.visit(ForEach c): |" + f.formal().flags().translate() + "|");
-		processClockedLoop("foreach", f, f.clocks());
+		processClockedLoop("foreach", f);
 	}
 
 	public void visit(AtEach_c f) {
-		processClockedLoop("ateach", f, f.clocks());
+		processClockedLoop("ateach", f);
 	}
 
 	public void visit(Now_c n) {
@@ -543,6 +547,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	 * (each list representing all instances of a given argument),
 	 * which will be translated into array-length repetitions of the
 	 * loop body template.
+	 * If the template has only one argument, a single list can be used.
 	 */
 	public class Loop extends Expander {
 		private final String id;
@@ -577,12 +582,26 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		}
 	}
 
+	private static List asList(Object a, Object b) {
+		List l = new ArrayList(2); l.add(a); l.add(b); return l;
+	}
+	private static List asList(Object a, Object b, Object c) {
+		List l = new ArrayList(3); l.add(a); l.add(b); l.add(c); return l;
+	}
+
 	/**
 	 * Join a given list of arguments with a given delimiter.
+	 * Two or three arguments can also be specified separately.
 	 */
 	public class Join extends Expander {
 		private final String delimiter;
 		private final List args;
+		public Join(String delimiter, Object a, Object b) {
+			this(delimiter, asList(a, b));
+		}
+		public Join(String delimiter, Object a, Object b, Object c) {
+			this(delimiter, asList(a, b, c));
+		}
 		public Join(String delimiter, List args) {
 			this.delimiter = delimiter;
 			this.args = args;
