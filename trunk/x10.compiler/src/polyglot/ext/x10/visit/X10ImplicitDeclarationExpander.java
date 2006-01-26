@@ -17,8 +17,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.util.Position;
 import polyglot.util.InternalCompilerError;
-import polyglot.ext.x10.ast.ForEach;
-import polyglot.ext.x10.ast.AtEach;
+import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10Loop;
 import polyglot.ext.x10.ast.X10Formal;
 
@@ -36,11 +35,9 @@ public class X10ImplicitDeclarationExpander extends ContextVisitor
 	{
 		if (n instanceof MethodDecl)
 			return visitMethodDecl((MethodDecl) n);
-//		if (n instanceof ForEach)
-//			return visitForEach((ForEach) n);
-//		if (n instanceof AtEach)
-//			return visitAtEach((AtEach) n);
-		// WARNING: this has to come after the two previous ifs!
+		if (n instanceof X10ClockedLoop)
+			return visitClockedLoop((X10ClockedLoop) n);
+		// WARNING: this has to come after the previous "if"!
 		if (n instanceof X10Loop)
 			return visitLoop((X10Loop) n);
 		return n;
@@ -62,26 +59,12 @@ public class X10ImplicitDeclarationExpander extends ContextVisitor
 		return n.body(b.statements(stmts));
 	}
 
-	// [IP] TODO: factor out parts common with visitAtEach
-	private Node visitForEach(ForEach n) {
+	private Node visitClockedLoop(X10ClockedLoop n) {
 		X10Formal f = (X10Formal) n.formal();
 		if (!f.hasExplodedVars())
 			return n;
-		n = (ForEach) visitLoop(n);
-		List/*<Node>*/ c = n.clocks();
-		System.out.println("\tExpanding clocked loop with "+c.size()+" clocks");
-		return n.clocks(f.explode(nf, ts, c, true));
-	}
-
-	// [IP] TODO: factor out parts common with visitForEach
-	private Node visitAtEach(AtEach n) {
-		X10Formal f = (X10Formal) n.formal();
-		if (!f.hasExplodedVars())
-			return n;
-		n = (AtEach) visitLoop(n);
-		List/*<Node>*/ c = n.clocks();
-		System.out.println("\tExpanding clocked loop with "+c.size()+" clocks");
-		return n.clocks(f.explode(nf, ts, c, true));
+		n = (X10ClockedLoop) visitLoop(n);
+		return n.locals(f.explode(nf, ts));
 	}
 
 	private Node visitLoop(X10Loop n) {
