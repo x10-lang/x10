@@ -7,6 +7,6 @@ package polyglot.ext.x10.ast;
  * @author vj Jan 5, 2005
  * @author igor Jan 19, 2006
  */
-public interface ForEach extends X10Loop, Clocked {
+public interface ForEach extends X10ClockedLoop {
 }
 
