@@ -4,6 +4,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.List;
+import java.util.Collections;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
@@ -22,9 +23,7 @@ import polyglot.visit.PrettyPrinter;
  * @author vj Dec 9, 2004
  * @author Christian Grothoff
  */
-public class AtEach_c extends X10Loop_c implements AtEach, Clocked {
-
-	protected List clocks;
+public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 
 	/**
 	 * @param pos
@@ -37,23 +36,11 @@ public class AtEach_c extends X10Loop_c implements AtEach, Clocked {
 	 * @param pos
 	 * @param formal
 	 * @param domain
+	 * @param clocks
 	 * @param body
 	 */
 	public AtEach_c(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
-		super(pos, formal, domain, body);
-		this.clocks = TypedList.copyAndCheck(clocks, Expr.class, true);
-	}
-
-	/** Expression */
-	public List clocks() {
-		return this.clocks;
-	}
-
-	/** clock */
-	public Clocked clocks(List clocks) {
-		AtEach_c n = (AtEach_c) copy();
-		n.clocks = TypedList.copyAndCheck(clocks, Expr.class, true);
-		return n;
+		super(pos, formal, domain, clocks, body);
 	}
 
 	public Expr getDomain(Expr d) {
@@ -72,13 +59,4 @@ public class AtEach_c extends X10Loop_c implements AtEach, Clocked {
 		w.write(") ");
 		printSubStmt(body, w, tr);
 	}
-
-	public Node visitChildren(NodeVisitor v) {
-		Formal formal = (Formal) visitChild(this.formal, v);
-		Expr domain = (Expr) visitChild(this.domain, v);
-		List clocks = visitList(this.clocks, v);
-		Stmt body = (Stmt) visitChild(this.body, v);
-		return ((Clocked) reconstruct(formal, domain, body)).clocks(clocks);
-	}
 }
-
