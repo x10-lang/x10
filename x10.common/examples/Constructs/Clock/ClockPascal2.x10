@@ -61,8 +61,9 @@ One possible execution:
  */
 
 public class ClockPascal2 {
-const int N=3;
-const int EXPECTED_CHECKSUM=251;
+const int N=5;
+const int EXPECTED_CHECKSUM=prod(N+1,2*N)/prod(1,N)-1;
+//const int EXPECTED_CHECKSUM=251; // (for N=5)
 const int DELAY=2000;
 public boolean run() {
     final dist D=[0:N-1,0:N-1]->here;
@@ -136,6 +137,17 @@ static void pr4(int i, int j, int[.] A) {
  */
 static int compute(int x,int y) {
     return x+y;
+}
+
+/**
+ * Product of numbers from m to n inclusive.
+ * Note that prod(1,n) == n!
+ */
+static int prod(int m, int n) {
+    int s = 1;
+    for (int i = m; i <= n; i++)
+        s *= i;
+    return s;
 }
 
   
