@@ -23,9 +23,7 @@ import polyglot.visit.PrettyPrinter;
  * @author vj Dec 9, 2004
  * @author Christian Grothoff
  */
-public class ForEach_c extends X10Loop_c implements ForEach, Clocked {
-
-	protected List clocks;
+public class ForEach_c extends X10ClockedLoop_c implements ForEach, Clocked {
 
 	/**
 	 * @param pos
@@ -38,23 +36,11 @@ public class ForEach_c extends X10Loop_c implements ForEach, Clocked {
 	 * @param pos
 	 * @param formal
 	 * @param domain
+	 * @param clocks
 	 * @param body
 	 */
 	public ForEach_c(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
-		super(pos, formal, domain, body);
-		this.clocks = TypedList.copyAndCheck(clocks, Expr.class, true);
-	}
-
-	/** Expression */
-	public List clocks() {
-		return Collections.unmodifiableList(this.clocks);
-	}
-
-	/** clock */
-	public Clocked clocks(List clocks) {
-		ForEach_c n = (ForEach_c) copy();
-		n.clocks = TypedList.copyAndCheck(clocks, Expr.class, true);
-		return n;
+		super(pos, formal, domain, clocks, body);
 	}
 
 	public String toString() {
@@ -68,13 +54,5 @@ public class ForEach_c extends X10Loop_c implements ForEach, Clocked {
 		printBlock(domain, w, tr);
 		w.write(") ");
 		printSubStmt(body, w, tr);
-	}
-
-	public Node visitChildren(NodeVisitor v) {
-		Formal formal = (Formal) visitChild(this.formal, v);
-		Expr domain = (Expr) visitChild(this.domain, v);
-		List clocks = visitList(this.clocks, v);
-		Stmt body = (Stmt) visitChild(this.body, v);
-		return ((Clocked) reconstruct(formal, domain, body)).clocks(clocks);
 	}
 }
