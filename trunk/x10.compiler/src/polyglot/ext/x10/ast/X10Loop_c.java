@@ -5,6 +5,7 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Expr;
@@ -50,6 +51,7 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
 	protected Formal formal;
 	protected Expr domain;
 	protected Stmt body;
+	protected List locals;
 
 	/**
 	 * @param pos
@@ -144,6 +146,13 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
 	}
 
 	/* (non-Javadoc)
+	 * @see polyglot.ext.x10.ast.X10Loop#locals()
+	 */
+	public List/*<Stmt>*/ locals() {
+		return this.locals == null ? Collections.EMPTY_LIST : this.locals;
+	}
+
+	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.ast.X10Loop#body(polyglot.ast.Stmt)
 	 */
 	public X10Loop body(Stmt body) {
@@ -167,6 +176,15 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
 	public X10Loop domain(Expr domain) {
 		X10Loop_c n = (X10Loop_c) copy();
 		n.domain = domain;
+		return n;
+	}
+
+	/* (non-Javadoc)
+	 * @see polyglot.ext.x10.ast.X10Loop#locals(java.util.List)
+	 */
+	public X10Loop locals(List/*<Stmt>*/ locals) {
+		X10Loop_c n = (X10Loop_c) copy();
+		n.locals = locals;
 		return n;
 	}
 }
