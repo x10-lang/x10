@@ -44,7 +44,8 @@
 		<!-- Don't rebuild from source; the jar is already there; but we need to  -->
 		<!-- add to it, so explode it into the temp dir before adding to that dir -->
 <!--		<unjar src="lib/lpg.jar" dest="${temp.folder}/${plugin.jar.name}.bin"/> -->
-		<copy todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true">
+		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/lib"/>
+		<copy todir="${temp.folder}/${plugin.jar.name}.bin/lib" failonerror="true">
 			<fileset dir="lib" includes="lpg.jar"/>
 		</copy>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/bin"/>
