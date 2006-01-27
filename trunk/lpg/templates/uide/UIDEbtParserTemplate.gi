@@ -9,7 +9,6 @@
 --     $package_declaration
 --     $import_classes
 --     $action_type
---     $ast_type
 --
 %Options escape=$,table=java,margin=4,backtrack,error_maps,scopes
 %options action=("*.java", "/.", "./")
@@ -162,22 +161,22 @@ $Headers
         //        lexStream.reportError(errorCode, locationInfo, leftToken, rightToken, tokenText);
         // }
 
-        public $ast_type parser()
+        public Object parser()
         {
             return parser(null, 0);
         }
         
-        public $ast_type parser(Monitor monitor)
+        public Object parser(Monitor monitor)
         {
             return parser(monitor, 0);
         }
 
-        public $ast_type parser(int error_repair_count)
+        public Object parser(int error_repair_count)
         {
             return parser(null, error_repair_count);
         }
 
-        public $ast_type parser(Monitor monitor, int error_repair_count)
+        public Object parser(Monitor monitor, int error_repair_count)
         {
             try
             {
@@ -196,7 +195,7 @@ $Headers
 
             try
             {
-                return ($ast_type) btParser.parse(error_repair_count);
+                return btParser.parse(error_repair_count);
             }
             catch (BadParseException e)
             {
