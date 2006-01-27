@@ -1,7 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: LPG
+Bundle-Name: JikesPG Parser Generator
 Bundle-SymbolicName: lpg
-Bundle-Version: 1.0.5
+Bundle-Version: 1.0.6
 Bundle-Localization: plugin
 Export-Package: com.ibm.lpg
+Bundle-ClassPath: lib/lpg.jar
+Bundle-Vendor: pcharles@us.ibm.com
