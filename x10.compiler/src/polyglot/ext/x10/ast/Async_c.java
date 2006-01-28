@@ -14,6 +14,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.util.Position;
 import polyglot.util.CodeWriter;
 import polyglot.visit.CFGBuilder;
+import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 import polyglot.visit.AscriptionVisitor;
@@ -162,9 +163,14 @@ public class Async_c extends Stmt_c implements Async, Clocked {
 
 	/**
 	 * Visit this term in evaluation order.
+	 * [IP] Treat this as a conditional to make sure the following
+	 *      statements are always reachable.
+	 * We should really build our own CFG, push a new context, and
+	 * disallow uses of "continue", "break", etc. in asyncs.
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-		v.visitCFG(place, body.entry());
+		v.visitCFG(place, FlowGraph.EDGE_KEY_TRUE, body.entry(), 
+						  FlowGraph.EDGE_KEY_FALSE, this);
 		v.visitCFG(body, this);
 		return succs;
 	}
