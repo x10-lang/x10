@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import polyglot.ext.jl.ast.Stmt_c;
 
 import polyglot.ast.Block;
+import polyglot.ast.CompoundStmt;
 import polyglot.ast.Stmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
@@ -30,44 +31,44 @@ import polyglot.visit.TypeChecker;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.PrettyPrinter;
 
-
 /**
- *
+ * An immutable representation of the when statement.
+ * [IP] Implements CompoundStmt, since it can be unreachable.
  */
-public class When_c extends Stmt_c implements When {
+public class When_c extends Stmt_c implements CompoundStmt, When {
 
     public static class Branch_c extends Stmt_c implements Branch {
     	public Expr expr;
     	public Stmt stmt;
     	public Expr expr() { return this.expr; }
     	public Stmt stmt() { return this.stmt; }
-    	
+
         public Branch branch(Expr expr, Stmt stmt) {
     		if (expr != this.expr || stmt != this.stmt) {
     			return new Branch_c(position, expr, stmt);
     		}
     		return this;
     	}
-    	
+
         public Branch_c(Position p, Expr expr, Stmt stmt) {
     		super(p);
             this.expr = expr;
     		this.stmt = stmt;
     	}
-        
+
 //      TODO: cvp -> vj implement this
         public Node typeCheck(TypeChecker tc) throws SemanticException {
     	    TypeSystem ts = tc.typeSystem();
     	    return super.typeCheck(tc);
     	}
-    	
+
     	/** Visit the children of the statement. */
     	public Node visitChildren( NodeVisitor v ) {
     	    Expr e = (Expr) visitChild(expr, v);
     	    Stmt s = (Stmt) visitChild(stmt, v);
     	    return reconstruct(e, s);
     	}
-    	
+
     	/** Reconstruct the statement. */
     	protected Node reconstruct( Expr e, Stmt s) {
     	    if ( e != this.expr || s != this.stmt ) {
@@ -78,7 +79,7 @@ public class When_c extends Stmt_c implements When {
     	    }
     	    return this;
     	}
-        
+
         /**
          * Return the first (sub)term performed when evaluating this
          * term.
@@ -86,7 +87,7 @@ public class When_c extends Stmt_c implements When {
         public Term entry() {
             return expr.entry();
         }
-        
+
         /**
          * Visit this term in evaluation order.
          */
@@ -96,16 +97,17 @@ public class When_c extends Stmt_c implements When {
             return succs;
         }
     }
+
     // Optimize the implementation of single-armed whens.
     Expr expr;
     Stmt stmt;
-    
+
     public Expr expr() { return this.expr; }
-    
+
     public Stmt stmt() { return this.stmt; }
-    
-	public /*final*/ List/*<Branches>*/ rest; 
-    
+
+	public /*final*/ List/*<Branches>*/ rest;
+
 
     public When_c(Position p, Expr expr, Stmt stmt) {
     	super(p);
@@ -113,17 +115,19 @@ public class When_c extends Stmt_c implements When {
     	this.stmt = stmt;
     	this.rest = new TypedList(new LinkedList(), Branch_c.class, false);
     }
-    
-    
+
+
     public void add( Branch b) {
     	this.rest.add( b );
     }
+
     public List branches() {
     	List result = new LinkedList();
     	result.add(new Branch_c(position, expr, stmt));
     	result.addAll( rest);
     	return result;
     }
+
     /** Set the branches of the statement. */
     public When branches( Expr expr, Stmt stmt, List branches ) {
     	When_c n = (When_c) copy();
@@ -138,14 +142,14 @@ public class When_c extends Stmt_c implements When {
     	Expr e = (Expr) visitChild(expr, v);
     	Stmt s = (Stmt) visitChild(stmt, v);
     	List result = visitList(rest, v);
-    	return branches( e, s, result);	
+    	return branches( e, s, result);
     }
-    
+
     /** Type check the statement. */
 //  TODO: cvp -> vj implement this
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	TypeSystem ts = tc.typeSystem();
-    	
+
     	/*
     	 if (! ts.isSubtype(expr.type(), ts.Object()) ) {
     	 throw new SemanticException(
@@ -155,20 +159,20 @@ public class When_c extends Stmt_c implements When {
     	 */
     	return super.typeCheck(tc);// this;
     }
-    
-   
+
+
     public String toString() {
-    	return "when (" + expr + ")" + stmt 
+    	return "when (" + expr + ")" + stmt
 		+ (rest.size() > 0 ? "..." : "");
     }
-    
+
     /** Write the statement to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
     	w.write("when (");
     	printBlock(expr, w, tr);
     	w.write(") ");
     	printSubStmt(stmt, w, tr);
-    	if (rest.size() > 0) 
+    	if (rest.size() > 0)
     		for (Iterator it = rest.iterator(); it.hasNext();) {
     			Branch_c branch = (Branch_c) it.next();
     			w.write("or (" );
@@ -177,7 +181,7 @@ public class When_c extends Stmt_c implements When {
     			printSubStmt( branch.stmt, w, tr);
     		}
     }
-    
+
     /**
      * Return the first (sub)term performed when evaluating this
      * term.
@@ -185,18 +189,15 @@ public class When_c extends Stmt_c implements When {
     public Term entry() {
     	return expr.entry();
     }
-    
+
     /**
      * Visit this term in evaluation order.
      */
     public List acceptCFG(CFGBuilder v, List succs) {
     	v.visitCFG(expr, stmt.entry());
-    	v.visitCFG(stmt, listEntry( rest, this));
-    	v.visitCFGList( rest, this);
+    	v.visitCFG(stmt, listEntry(rest, this));
+    	v.visitCFGList(rest, this);
     	return succs;
     }
-    
-  
-
-  
 }
+
