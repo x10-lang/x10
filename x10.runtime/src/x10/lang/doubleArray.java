@@ -239,6 +239,18 @@ abstract public class doubleArray extends x10Array{
 		return restriction(distribution.restriction(P));
 	}
 	
+	abstract public /*(region(rank) R)*/
+	DoubleReferenceArray/*(distribution.restriction(R)())*/  restrictShallow(region R);	
+	
+	public  /*(distribution(:rank=this.rank) D)*/ 
+	DoubleReferenceArray/*(distribution.restriction(D.region)())*/ restrictShallow(dist D) {
+	 return restrictShallow(D.region);
+	}
+	
+	public DoubleReferenceArray restrictShallow(place P) {
+		return restrictShallow(distribution.restriction(P));
+	}
+	
 	/** Take as parameter a distribution D of the same rank as *
 	 * this, and defined over a disjoint region. Take as argument an *
 	 * array other over D. Return an array whose distribution is the
