@@ -7,6 +7,7 @@ import java.util.Iterator;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
+import x10.lang.region;
 import x10.lang.DoubleReferenceArray;
 
 /**
@@ -204,6 +205,11 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 
     public abstract double get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
     public abstract double get(int[] p,boolean chkPl,boolean chkAOB);
+    
+    public DoubleReferenceArray restrictShallow (region r) {
+    	dist dist = distribution.restriction(r);
+    	return new DoubleProxyArray(dist, this);    	
+    }
     
     public Object toJava() {        
         final int[] dims_tmp = new int[distribution.rank];       
