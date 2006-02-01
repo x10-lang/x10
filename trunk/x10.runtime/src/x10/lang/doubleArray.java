@@ -138,12 +138,18 @@ abstract public class doubleArray extends x10Array{
 	public double sum() {
 		return reduce(add, 0);
 	}
+	public double sum(region r) {
+		return reduce(add, 0, r);
+	}
 	/**
 	 * Convenience method for returning the max of the array.
 	 * @return
 	 */
 	public double max() {
 		return reduce(max, 0);
+	}
+	public double max(region r) {
+		return reduce(max, 0, r);
 	}
 	/**
 	 * Convenience method for returning the max of the array after applying the given fun.
@@ -210,11 +216,15 @@ abstract public class doubleArray extends x10Array{
 		return max(abs);
 	}
     
-	/** Return the value obtained by reducing the given array with the
+	
+	public double reduce(binaryOp fun, double unit) {
+		return reduce(fun, unit, distribution.region);
+	}
+	/** Return the value obtained by reducing the given array (viewed only through the region r) with the
 	 function fun, which is assumed to be associative and
-	 commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).
+	 commutative. unit should satisfy fun(unit,x)=x=fun(x,unit). Assume r is contained in the array's region.
 	 */
-	abstract public double reduce(binaryOp fun, double unit);
+	abstract public double reduce(binaryOp fun, double unit, region r);
 	
 	/** Return a DoubleArray with the same distribution as this, by 
 	 scanning this with the function fun, and unit unit.

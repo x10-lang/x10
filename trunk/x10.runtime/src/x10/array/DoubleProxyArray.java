@@ -62,8 +62,8 @@ public class DoubleProxyArray extends DoubleReferenceArray {
 		return realArray_.get(p);
 	}
 
-	public double reduce(binaryOp fun, double unit) {
-		return realArray_.reduce(fun, unit);
+	public double reduce(binaryOp fun, double unit, region r) {
+		return realArray_.reduce(fun, unit, r);
 	}
 
 	public DoubleReferenceArray scan(binaryOp fun, double unit) {

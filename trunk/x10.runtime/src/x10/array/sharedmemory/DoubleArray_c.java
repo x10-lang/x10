@@ -219,11 +219,15 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         }  
 	    return result;
 	}
-    public double reduce( DoubleArray.binaryOp op, double unit ) {
+	
+	/**
+	 * Assume that r is contained in distribution.region.
+	 */
+    public double reduce( DoubleArray.binaryOp op, double unit, region r ) {
         double result = unit;
         place here = x10.lang.Runtime.runtime.currentPlace();
         try {
-        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+        for (Iterator it = r.iterator(); it.hasNext();) {
             point p = (point) it.next();
                 place pl = distribution.get(p);
                 x10.lang.Runtime.runtime.setCurrentPlace(pl);
