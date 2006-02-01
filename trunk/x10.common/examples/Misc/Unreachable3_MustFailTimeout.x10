@@ -1,21 +1,25 @@
 /**
- *
  * Test resulted in unreachable statement message
  * in the compiler, as of 7/29/2005
  *
- *@author Armando Solar-Lezama
- *
+ * @author Armando Solar-Lezama
  */
 public class Unreachable3_MustFailTimeout {
-	
 
     public boolean run() {
+        async (here) {
+            // [IP] Thread.sleep() for now; add x10.lang.System.sleep() later
+            try {
+                java.lang.Thread.sleep(300000);
+            } catch (java.lang.InterruptedException e) { }
+            System.exit(128);
+        }
         async (here) {
             while(true){}
         }
         return true;
     }
-	
+
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
@@ -31,3 +35,4 @@ public class Unreachable3_MustFailTimeout {
         boolean val=false;
     }
 }
+
