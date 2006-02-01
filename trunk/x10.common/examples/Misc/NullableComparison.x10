@@ -6,11 +6,12 @@
  */
 public class NullableComparison {
 
-	(nullable java.lang.Object)[] objList;
+	int N = 6;
+	(nullable java.lang.Object)[] objList = new java.lang.Object[N];
 
 	public boolean run() {
 		final java.lang.Object obj = new java.lang.Object();
-		int i = 5;
+		int i = N-1;
 		while (i > 0 && (obj != objList[i])) {
 			i--;
 		}
