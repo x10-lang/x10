@@ -1,8 +1,11 @@
+
 //
 // 12/25/2004
 // This is the basic X10 grammar specification without support for generic types.
 // Intended for the Feb 2005 X10 release.
-////
+//
+
+//
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -11,9 +14,10 @@
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
 // 12/28/2004
+
 package x10.parser;
 
-public class X10Parserprs implements com.ibm.lpg.ParseTable, X10Parsersym {
+public class X10Parserprs implements lpg.lpgjavaruntime.ParseTable, X10Parsersym {
 
     public interface IsKeyword {
         public final static byte isKeyword[] = {0,
@@ -4156,7 +4160,7 @@ public class X10Parserprs implements com.ibm.lpg.ParseTable, X10Parsersym {
             "RIGHT_SHIFT_EQUAL",
             "UNSIGNED_RIGHT_SHIFT_EQUAL",
             "EOF_TOKEN",
-            "$error",
+            "ERROR_TOKEN",
             "identifier",
             "ClassOrInterfaceType",
             "TypeName",
