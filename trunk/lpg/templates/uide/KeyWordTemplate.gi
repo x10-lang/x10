@@ -7,9 +7,6 @@
 --
 -- Macros that must be defined in an instance of this template
 --
---     $package_declaration
---     $import_classes
---     $action_class
 --     $eof_char
 --
 -- B E G I N N I N G   O F   T E M P L A T E
@@ -17,7 +14,7 @@
 %Options escape=$,table=java,margin=4
 %options slr
 %options action=("*.java", "/.", "./")
-%options ParseTable=com.ibm.lpg.ParseTable
+%options ParseTable=lpg.lpgjavaruntime.ParseTable
 
 $Define
     --
@@ -39,11 +36,15 @@ $Define
     $EndAction /../
 $End
 
+$Globals
+    /.
+    import lpg.lpgjavaruntime.*;./
+$End
+
 $Headers
     /.
-    import com.ibm.lpg.*;
 
-    public class $action_class extends $prs_type implements $exp_type
+    public class $action_type extends $prs_type implements $exp_type
     {
         private char[] inputChars;
         private final int keywordKind[] = new int[$num_rules + 1];
@@ -82,7 +83,7 @@ $End
 $Rules
     /.
 
-        public $action_class(char[] inputChars, int identifierKind)
+        public $action_type(char[] inputChars, int identifierKind)
         {
             this.inputChars = inputChars;
             keywordKind[0] = identifierKind;
