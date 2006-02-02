@@ -349,8 +349,7 @@ public /* final */ class Clock extends clock {
 			}
 		splitPhase_ = true;
 		this.phase_++;
-		if (Sampling.SINGLETON != null)
-			Sampling.SINGLETON.signalEvent(Sampling.EVENT_ID_CLOCK_ADVANCE, id_);
+
 		// first notify everyone
 		if (this.listener1_ != null) {
 			this.listener1_.notifyAdvance();
@@ -390,12 +389,9 @@ public /* final */ class Clock extends clock {
 		int start = phase_;
 		while (start == phase_) { // signal might be random in Java, check!
 			try {
-				LoadMonitored.blocked(Sampling.CAUSE_CLOCK, id_, null);
 				this.wait(); // wait for signal
 			} catch (InterruptedException ie) {
 				throw new Error(ie); // that was unexpected...
-			} finally {
-				LoadMonitored.unblocked(Sampling.CAUSE_CLOCK, id_, null);
 			}
 		}
 	}

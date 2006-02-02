@@ -94,7 +94,6 @@ public class DefaultRuntime_c extends Runtime {
         if (places_[0] == null) {
             createPlaces();
         }
-        LocalPlace_c.initAllPlaceTimes(getLocalPlaces());
     }
 
     protected synchronized void loadAndInitLibs() {
@@ -166,10 +165,7 @@ public class DefaultRuntime_c extends Runtime {
             				
             	}
             	
-            	if (Sampling.SINGLETON != null && Configuration.DUMP_STATS_ON_EXIT) {  
-            		System.out.println(Sampling.SINGLETON.toString());
-            		Sampling.shutdown();
-            	}
+          
             	// and now the shutdown sequence!
             	// places_[] should have been initialized by now ...
             	for (int i=getPlaces().length-1; i >= 0;i--) {
@@ -190,9 +186,7 @@ public class DefaultRuntime_c extends Runtime {
             }
             
         };
-        // Initialize sampling.
-        if (false && Configuration.SAMPLING_FREQUENCY_MS >= 0)
-            Sampling.boot(DefaultRuntime_c.this, boot);
+       
 
         // Run the boot activity.
         if (Configuration.runBootHere) {

@@ -11,11 +11,7 @@
 */
 package x10.runtime;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-public final  class PoolRunner extends LoadMonitored 
+public final  class PoolRunner extends Thread 
 	implements ActivityRunner {
    /**
     * For building a linked list of these.
@@ -24,8 +20,7 @@ public final  class PoolRunner extends LoadMonitored
    private boolean active = true;
    private Runnable job;
    private Activity act;
-   private Method ac;
-   private Object vmto;
+
    
    /* the pace where this runner currently executed - can be different from 
     *  homePlace, e.g inside an array initiizer, see also 
@@ -39,24 +34,6 @@ public final  class PoolRunner extends LoadMonitored
        homePlace = p;
 	   place = p;
        p.addThread( this );
-       
-       try {
-           Field vmt = java.lang.Thread.class.getDeclaredField("vmdata");
-           vmt.setAccessible(true);
-           this.vmto = vmt.get(this); // o is 'VM_Thread'
-           this.ac = vmto.getClass().getDeclaredMethod("accumulateCycles", new Class[0]);
-           setName("PoolRunner" + hashCode());
-       } catch (SecurityException se) {
-           // System.out.println("GSPT: " + se);
-       } catch (IllegalAccessException iae) {
-           // System.out.println("GSPT: " + iae);
-       } catch (NoClassDefFoundError ncfe) {
-           // System.out.println("GSPT: " + ncfe);
-       } catch (NoSuchMethodException ncme) {
-           // System.out.println("GSPT: " + ncfe);
-       } catch (NoSuchFieldException ncfe) {
-           // System.out.println("GSPT: " + ncfe);
-       }
    }
    public Activity getActivity() {
    	return act;
@@ -65,37 +42,6 @@ public final  class PoolRunner extends LoadMonitored
    	this.act = a;
    }
 
-   /**
-    * On JikesRVM, get the total number of CPU cycles spend in this
-    * thread.  We use reflection mostly because we want this to
-    * still link (!) and compile under other VMs.  
-    * @return 0 on error
-    */
-   /*package*/ long getThreadRunTime() {
-       if (ac == null)
-           return 0;
-       try {
-           // Field vmt = java.lang.Thread.class.getDeclaredField("vmdata");
-           // vmt.setAccessible(true);
-           // Object o = vmt.get(this); // o is 'VM_Thread'
-           // Field trt = o.getClass().getDeclaredField("totalCycles");
-           // trt.setAccessible(true);
-           // return trt.getLong(o);                
-           return ((Long)ac.invoke(vmto, new Object[0])).longValue();                
-       } catch (SecurityException se) {
-           // System.out.println("GSPT: " + se);
-       } catch (IllegalAccessException iae) {
-           // System.out.println("GSPT: " + iae);
-       } catch (NoClassDefFoundError ncfe) {
-           // System.out.println("GSPT: " + ncfe);
-       } catch (InvocationTargetException ite) {
-           // System.out.println("GSPT: " + ncfe);
-       }/* catch (NoSuchFieldException nsfe) {
-           // System.out.println("GSPT: " + nsfe);
-           // not JikesRVM
-       }*/
-       return 0;   
-   }
    
    synchronized void shutdown() {
        active = false;
