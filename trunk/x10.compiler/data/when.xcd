@@ -1,4 +1,5 @@
 // SYNOPSIS: when (0) 1 2=branches 3=unique_id
+
 synchronized (x10.lang.Runtime.here()) {
 	try {
 		while (true) {
