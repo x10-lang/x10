@@ -6,26 +6,21 @@
  */
 package x10.array.sharedmemory;
 
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import x10.array.ContiguousRange;
 import x10.array.DoubleArray;
 import x10.array.IntArray;
+import x10.array.MultiDimRegion;
 import x10.array.Operator;
 import x10.array.Range;
-import x10.array.MultiDimRegion;
 import x10.lang.Runtime;
 import x10.lang.dist;
-import x10.lang.region;
 import x10.lang.point;
+import x10.lang.region;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
-import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
-import x10.runtime.TestRuntime;
-
-
-
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 
 /**
