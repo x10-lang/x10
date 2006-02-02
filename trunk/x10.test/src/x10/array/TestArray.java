@@ -5,12 +5,10 @@ package x10.array;
 
 import junit.framework.TestCase;
 import x10.lang.Runtime;
-import x10.lang.region;
 import x10.lang.dist;
+import x10.lang.region;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
-import x10.runtime.DefaultRuntime_c;
-import x10.runtime.Place;
 
 
 /**
