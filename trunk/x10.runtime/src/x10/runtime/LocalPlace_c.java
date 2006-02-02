@@ -16,45 +16,6 @@ import x10.lang.Future;
 public class LocalPlace_c extends Place {
 	
 	
-	/**
-	 * Compute the number of simulated cycles spent
-	 * globally at this point.
-	 * 
-	 * this method must not be called in the constructor of 
-	 * LocalPlace_c, and not before the runtime is initialized 
-	 * completely.
-	 *  
-	 * @return max of all simulatedPlaceTimes of all places
-	 */
-	public static long systemNow() {
-		long max = 0;
-		Place[] places = x10.lang.Runtime.places();
-		for (int i=places.length-1;i>=0;i--) {
-			long val = 0;
-			if (places[i] instanceof LocalPlace_c) {
-				val = ((LocalPlace_c) places[i]).getSimulatedPlaceTime();
-			}
-			if (val > max)
-				max = val;
-		}
-		return max;
-	}
-	
-	public static void initAllPlaceTimes(Place[] places) {
-		long max = 0;
-		for (int i=places.length-1;i>=0;i--) {
-			assert (places[i] instanceof LocalPlace_c);
-			long val = 0;
-			LocalPlace_c lp = (LocalPlace_c) places[i];
-			val = lp.getSimulatedPlaceTime();
-			if (val > max)
-				max = val;
-		}
-		for (int i=places.length-1;i>=0;i--) {
-			LocalPlace_c lp = (LocalPlace_c) places[i];
-			lp.startBlock = max; 
-		}
-	}
 	
 	
 	/**
@@ -78,39 +39,13 @@ public class LocalPlace_c extends Place {
 	 */
 	final ArrayList myThreads = new ArrayList(); // <PoolRunner>
 	
-	/**
-	 * The amount of cycles that this places was blocked waiting
-	 * for activities at other places to complete.  
-	 */
-	long blockedTime;
-	
-	/**
-	 * "global" time at which this place was blocked (that is, all
-	 * activities at this place were blocked).
-	 */
-	private long startBlock; 
-	
+
 	/**
 	 * List of activities that are waiting for a thread, to be
 	 * launched when the local place becomes idle.
 	 */
 	private final Stack waitingActivities = new Stack();
 	
-	/**
-	 * Get how many cycles were spent in computation or blocked at this 
-	 * place so far.  Only (sort of) works on JikesRVM where we can get
-	 * per-thread cycle counts.
-	 *
-	 * @return
-	 */
-	public long getSimulatedPlaceTime() {
-		long ret = blockedTime;
-		synchronized (myThreads) {
-			for (int i = myThreads.size()-1;i>=0;i--)
-				ret += ((PoolRunner)myThreads.get(i)).getThreadRunTime();
-		}
-		return ret;
-	}
 	
 	synchronized void addThread( PoolRunner p) {
 		synchronized (myThreads) { myThreads.add(p); }
@@ -373,12 +308,10 @@ public class LocalPlace_c extends Place {
 	/*package*/ synchronized void changeRunningStatus(int delta) {
 		if (runningThreads == 0) {
 			assert delta >= 0;
-			this.blockedTime += systemNow() - startBlock;
 		}
 		runningThreads += delta;
 		if (runningThreads == 0) {
 			assert delta <= 0;
-			startBlock = systemNow();
 			if (! waitingActivities.isEmpty()) {
 				Activity a = (Activity) waitingActivities.pop();
 				runAsync(a,

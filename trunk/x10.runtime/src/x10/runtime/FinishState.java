@@ -27,8 +27,8 @@ public class FinishState {
 	protected Activity parent; // not really needed, used in toString().
 	protected boolean parentWaiting = false; // optimization.
 	
-	/** Create a new finish state for the given activity.
-	 * 
+	/** 
+	 * Create a new finish state for the given activity.
 	 */
 	public FinishState( Activity activity ) {
 		super();
@@ -39,22 +39,19 @@ public class FinishState {
 		if (finishCount == 0 ) return;
 		parentWaiting = true;
 		if (finishCount > 0) {			
-			LoadMonitored.blocked(x10.runtime.Sampling.CAUSE_FINISH, 0, null);
 			while (finishCount > 0) {
 				try {
 					this.wait();
 				} catch (InterruptedException z) {
 					// What should i do?
 				}
-			}		
-			LoadMonitored.unblocked(x10.runtime.Sampling.CAUSE_FINISH, 0, null);		
+			}			
 		}
 		parentWaiting = false;
 	}
 	
 	public /*someThread*/ synchronized void notifySubActivitySpawn() {
 		finishCount++;
-		// new Error().printStackTrace();
 		if (Report.should_report("activity", 5)) {
 			Report.report(5, " updating " + toString());
 		}
@@ -74,7 +71,6 @@ public class FinishState {
      */
     public /*someThread*/ synchronized void notifySubActivityTermination() {
 		finishCount--;
-    	// new Error().printStackTrace();
 		if (parentWaiting && finishCount==0)
 			this.notifyAll();
 	}
