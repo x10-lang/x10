@@ -4,6 +4,6 @@ Bundle-Name: JikesPG Parser Generator
 Bundle-SymbolicName: lpg
 Bundle-Version: 1.0.6
 Bundle-Localization: plugin
-Export-Package: com.ibm.lpg
+Export-Package: lpg.lpgjavaruntime
 Bundle-ClassPath: lib/lpg.jar
 Bundle-Vendor: pcharles@us.ibm.com
