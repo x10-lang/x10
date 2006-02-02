@@ -5,7 +5,7 @@
 %options scopes
 %options backtrack
 %options package=javaparser
-%options template=btParserTemplate.gi
+%options template=uide/btParserTemplate.gi
 %options import_terminals=GJavaLexer.gi
 
 $Notice
@@ -106,16 +106,11 @@ $Define
     $ast_class /.Ast./
 $End
 
-$Title
-    /.package $package;
-    ./
-$End
-
 $Rules
 
-    identifier ::= IDENTIFIER
+    identifier ::= IDENTIFIER$id
         /.$BeginJava
-                    $setResult(id($getToken(1)));
+                    setResult(id(getRhsFirstTokenIndex($id)));
           $EndJava
         ./
 
@@ -130,7 +125,7 @@ $Rules
     PrimitiveType ::= NumericType
                     | boolean
         /.$BeginJava
-                    $setResult(nf.CanonicalTypeNode(pos(), ts.Boolean()));
+                    setResult(nf.CanonicalTypeNode(pos(), ts.Boolean()));
           $EndJava
         ./
 
@@ -139,38 +134,38 @@ $Rules
 
     IntegralType ::= byte
         /.$BeginJava
-                    $setResult(nf.CanonicalTypeNode(pos(), ts.Byte()));
+                    setResult(nf.CanonicalTypeNode(pos(), ts.Byte()));
           $EndJava
         ./
                    | char
         /.$BeginJava
-                    $setResult(nf.CanonicalTypeNode(pos(), ts.Char()));
+                    setResult(nf.CanonicalTypeNode(pos(), ts.Char()));
           $EndJava
         ./
                    | short
         /.$BeginJava
-                    $setResult(nf.CanonicalTypeNode(pos(), ts.Short()));
+                    setResult(nf.CanonicalTypeNode(pos(), ts.Short()));
           $EndJava
         ./
                    | int
         /.$BeginJava
-                    $setResult(nf.CanonicalTypeNode(pos(), ts.Int()));
+                    setResult(nf.CanonicalTypeNode(pos(), ts.Int()));
           $EndJava
         ./
                    | long
         /.$BeginJava
-                    $setResult(nf.CanonicalTypeNode(pos(), ts.Long()));
+                    setResult(nf.CanonicalTypeNode(pos(), ts.Long()));
           $EndJava
         ./
 
     FloatingPointType ::= float
         /.$BeginJava
-                    $setResult(nf.CanonicalTypeNode(pos(), ts.Float()));
+                    setResult(nf.CanonicalTypeNode(pos(), ts.Float()));
           $EndJava
         ./
                         | double
         /.$BeginJava
-                    $setResult(nf.CanonicalTypeNode(pos(), ts.Double()));
+                    setResult(nf.CanonicalTypeNode(pos(), ts.Double()));
           $EndJava
         ./
 
@@ -195,14 +190,14 @@ $Rules
 
     TypeName ::= identifier
         /.$BeginJava
-                    $setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
         ./
                | TypeName . identifier
         /.$BeginJava
-                    $setResult(new Name(nf,
+                    setResult(new Name(nf,
                                       ts,
-                                      pos($getLeftSpan(), $getRightSpan()),
+                                      pos(getLeftSpan(), getRightSpan()),
                                       TypeName,
                                       identifier.getIdentifier()));
           $EndJava
@@ -214,7 +209,7 @@ $Rules
 
     ArrayType ::= Type [ ]
         /.$BeginJava
-                    $setResult(nf.array(Type, pos(), 1));
+                    setResult(nf.array(Type, pos(), 1));
           $EndJava
         ./
 
@@ -261,14 +256,14 @@ $Rules
 
     PackageName ::= identifier
         /.$BeginJava
-                    $setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
         ./
                   | PackageName . identifier
         /.$BeginJava
-                    $setResult(new Name(nf,
+                    setResult(new Name(nf,
                                       ts,
-                                      pos($getLeftSpan(), $getRightSpan()),
+                                      pos(getLeftSpan(), getRightSpan()),
                                       PackageName,
                                       identifier.getIdentifier()));
           $EndJava
@@ -282,14 +277,14 @@ $Rules
     --
     ExpressionName ::= identifier
         /.$BeginJava
-                    $setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
         ./
                      | AmbiguousName . identifier
         /.$BeginJava
-                    $setResult(new Name(nf,
+                    setResult(new Name(nf,
                                       ts,
-                                      pos($getLeftSpan(), $getRightSpan()),
+                                      pos(getLeftSpan(), getRightSpan()),
                                       AmbiguousName,
                                       identifier.getIdentifier()));
           $EndJava
@@ -297,14 +292,14 @@ $Rules
 
     MethodName ::= identifier
         /.$BeginJava
-                    $setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
         ./
                  | AmbiguousName . identifier
         /.$BeginJava
-                    $setResult(new Name(nf,
+                    setResult(new Name(nf,
                                       ts,
-                                      pos($getLeftSpan(), $getRightSpan()),
+                                      pos(getLeftSpan(), getRightSpan()),
                                       AmbiguousName,
                                       identifier.getIdentifier()));
           $EndJava
@@ -312,14 +307,14 @@ $Rules
 
     PackageOrTypeName ::= identifier
         /.$BeginJava
-                    $setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
         ./
                         | PackageOrTypeName . identifier
         /.$BeginJava
-                    $setResult(new Name(nf,
+                    setResult(new Name(nf,
                                       ts,
-                                      pos($getLeftSpan(), $getRightSpan()),
+                                      pos(getLeftSpan(), getRightSpan()),
                                       PackageOrTypeName,
                                       identifier.getIdentifier()));
           $EndJava
@@ -327,14 +322,14 @@ $Rules
 
     AmbiguousName ::= identifier
         /.$BeginJava
-                    $setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
         ./
                     | AmbiguousName . identifier
         /.$BeginJava
-                    $setResult(new Name(nf,
+                    setResult(new Name(nf,
                                       ts,
-                                      pos($getLeftSpan(), $getRightSpan()),
+                                      pos(getLeftSpan(), getRightSpan()),
                                       AmbiguousName,
                                       identifier.getIdentifier()));
          $EndJava
@@ -348,9 +343,9 @@ $Rules
                     Name x10 = new Name(nf, ts, pos(), "x10");
                     Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
                     Import x10LangImport = 
-                    nf.Import(pos($getLeftSpan(), $getRightSpan()), Import.PACKAGE, x10Lang.toString());
+                    nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, x10Lang.toString());
                     ImportDeclarationsopt.add(x10LangImport);
-                    $setResult(nf.SourceFile(pos($getLeftSpan(), $getRightSpan()), PackageDeclarationopt, ImportDeclarationsopt, TypeDeclarationsopt));
+                    setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()), PackageDeclarationopt, ImportDeclarationsopt, TypeDeclarationsopt));
           $EndJava
         ./
 
@@ -358,14 +353,14 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Import.class, false);
                     l.add(ImportDeclaration);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                          | ImportDeclarations ImportDeclaration
         /.$BeginJava
                     if (ImportDeclaration != null)
                         ImportDeclarations.add(ImportDeclaration);
-                    //$setResult(l);
+                    //setResult(l);
           $EndJava
         ./
 
@@ -374,14 +369,14 @@ $Rules
                     List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                     if (TypeDeclaration != null)
                         l.add(TypeDeclaration);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                        | TypeDeclarations TypeDeclaration
         /.$BeginJava
                     if (TypeDeclaration != null)
                         TypeDeclarations.add(TypeDeclaration);
-                    //$setResult(l);
+                    //setResult(l);
           $EndJava
         ./
 
@@ -394,13 +389,13 @@ $Rules
 
     SingleTypeImportDeclaration ::= import TypeName ;
         /.$BeginJava
-                    $setResult(nf.Import(pos($getLeftSpan(), $getRightSpan()), Import.CLASS, TypeName.toString()));
+                    setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, TypeName.toString()));
           $EndJava
         ./
 
     TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
         /.$BeginJava
-                    $setResult(nf.Import(pos($getLeftSpan(), $getRightSpan()), Import.PACKAGE, PackageOrTypeName.toString()));
+                    setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, PackageOrTypeName.toString()));
           $EndJava
         ./
     
@@ -414,7 +409,7 @@ $Rules
                       | InterfaceDeclaration
                       | ;
         /.$BeginJava
-                    $setResult(null);
+                    setResult(null);
           $EndJava
         ./
 
@@ -428,7 +423,7 @@ $Rules
     ClassModifiers ::= ClassModifier
                      | ClassModifiers ClassModifier
         /.$BeginJava
-                    $setResult(ClassModifiers.set(ClassModifier));
+                    setResult(ClassModifiers.set(ClassModifier));
           $EndJava
         ./
 
@@ -436,37 +431,37 @@ $Rules
         /.$BadAction./
                     | public
         /.$BeginJava
-                    $setResult(Flags.PUBLIC);
+                    setResult(Flags.PUBLIC);
           $EndJava
         ./
                     | protected
         /.$BeginJava
-                    $setResult(Flags.PROTECTED);
+                    setResult(Flags.PROTECTED);
           $EndJava
         ./
                     | private
         /.$BeginJava
-                    $setResult(Flags.PRIVATE);
+                    setResult(Flags.PRIVATE);
           $EndJava
         ./
                     | abstract
         /.$BeginJava
-                    $setResult(Flags.ABSTRACT);
+                    setResult(Flags.ABSTRACT);
           $EndJava
         ./
                     | static
         /.$BeginJava
-                    $setResult(Flags.STATIC);
+                    setResult(Flags.STATIC);
           $EndJava
         ./
                     | final
         /.$BeginJava
-                    $setResult(Flags.FINAL);
+                    setResult(Flags.FINAL);
           $EndJava
         ./
                     | strictfp
         /.$BeginJava
-                    $setResult(Flags.STRICTFP);
+                    setResult(Flags.STRICTFP);
           $EndJava
         ./
 
@@ -480,7 +475,7 @@ $Rules
 
     Super ::= extends ClassType
         /.$BeginJava
-                    $setResult(ClassType);
+                    setResult(ClassType);
           $EndJava
         ./
 
@@ -491,7 +486,7 @@ $Rules
     --
     Interfaces ::= implements InterfaceTypeList
         /.$BeginJava
-                    $setResult(InterfaceTypeList);
+                    setResult(InterfaceTypeList);
           $EndJava
         ./
 
@@ -499,13 +494,13 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), TypeNode.class, false);
                     l.add(InterfaceType);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                         | InterfaceTypeList , InterfaceType
         /.$BeginJava
                     InterfaceTypeList.add(InterfaceType);
-                    $setResult(InterfaceTypeList);
+                    setResult(InterfaceTypeList);
           $EndJava
         ./
 
@@ -516,7 +511,7 @@ $Rules
     --
     ClassBody ::= { ClassBodyDeclarationsopt }
         /.$BeginJava
-                    $setResult(nf.ClassBody(pos($getLeftSpan(), $getRightSpan()), ClassBodyDeclarationsopt));
+                    setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
           $EndJava
         ./
 
@@ -524,7 +519,7 @@ $Rules
                             | ClassBodyDeclarations ClassBodyDeclaration
         /.$BeginJava
                     ClassBodyDeclarations.addAll(ClassBodyDeclaration);
-                    // $setResult(a);
+                    // setResult(a);
           $EndJava
         ./
 
@@ -533,21 +528,21 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(nf.Initializer(pos(), Flags.NONE, InstanceInitializer));
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                            | StaticInitializer
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(nf.Initializer(pos(), Flags.STATIC, StaticInitializer));
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                            | ConstructorDeclaration
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(ConstructorDeclaration);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
 
@@ -556,27 +551,27 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(MethodDeclaration);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                              | ClassDeclaration
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(ClassDeclaration);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                              | InterfaceDeclaration
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(InterfaceDeclaration);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                              | ;
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
     
@@ -590,13 +585,13 @@ $Rules
                           // TODO: Report this exception correctly.
                           throw new Error("Field Declarations may not have exploded variables." + pos());
                         d.setFlag(FieldModifiersopt);
-                        l.add(nf.FieldDecl(pos($getLeftSpan(2), $getRightSpan()),
+                        l.add(nf.FieldDecl(d.position(),
                                            d.flags,
-                                           nf.array(Type, pos($getLeftSpan(2), $getRightSpan(2)), d.dims),
+                                           nf.array(Type, Type.position(), d.dims),
                                            d.name,
                                            d.init));
                     }
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
     
@@ -604,13 +599,13 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), X10VarDeclarator.class, false);
                     l.add(VariableDeclarator);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                           | VariableDeclarators , VariableDeclarator
         /.$BeginJava
                     VariableDeclarators.add(VariableDeclarator);
-                    // $setResult(VariableDeclarators);
+                    // setResult(VariableDeclarators);
           $EndJava
         ./
     
@@ -618,32 +613,34 @@ $Rules
                          | VariableDeclaratorId = VariableInitializer
         /.$BeginJava
                     VariableDeclaratorId.init = VariableInitializer;
-                    // $setResult(VariableDeclaratorId); 
+                    VariableDeclaratorId.position(pos());
+                    // setResult(VariableDeclaratorId); 
           $EndJava
         ./
     
     TraditionalVariableDeclaratorId ::= identifier
         /.$BeginJava
-                    $setResult(new X10VarDeclarator(pos(), identifier.getIdentifier()));
+                    setResult(new X10VarDeclarator(pos(), identifier.getIdentifier()));
           $EndJava
         ./
                            | TraditionalVariableDeclaratorId [ ]
         /.$BeginJava
                     TraditionalVariableDeclaratorId.dims++;
-                    // $setResult(a);
+                    TraditionalVariableDeclaratorId.position(pos());
+                    // setResult(a);
           $EndJava
         ./
 
     VariableDeclaratorId ::= TraditionalVariableDeclaratorId
                            | identifier [ IdentifierList ] 
         /.$BeginJava
-                    $setResult(new X10VarDeclarator(pos(), identifier.getIdentifier(), IdentifierList));
+                    setResult(new X10VarDeclarator(pos(), identifier.getIdentifier(), IdentifierList));
           $EndJava
         ./
                            | [ IdentifierList ] 
         /.$BeginJava
                     String name = polyglot.ext.x10.visit.X10PrettyPrinterVisitor.getId();
-                    $setResult(new X10VarDeclarator(pos(), name, IdentifierList));
+                    setResult(new X10VarDeclarator(pos(), name, IdentifierList));
           $EndJava
         ./
     
@@ -653,7 +650,7 @@ $Rules
     FieldModifiers ::= FieldModifier
                      | FieldModifiers FieldModifier
         /.$BeginJava
-                    $setResult(FieldModifiers.set(FieldModifier));
+                    setResult(FieldModifiers.set(FieldModifier));
           $EndJava
         ./
     
@@ -661,37 +658,37 @@ $Rules
         /.$BadAction./
                     | public
         /.$BeginJava
-                    $setResult(Flags.PUBLIC);
+                    setResult(Flags.PUBLIC);
           $EndJava
         ./
                     | protected
         /.$BeginJava
-                    $setResult(Flags.PROTECTED);
+                    setResult(Flags.PROTECTED);
           $EndJava
         ./
                     | private
         /.$BeginJava
-                    $setResult(Flags.PRIVATE);
+                    setResult(Flags.PRIVATE);
           $EndJava
         ./
                     | static
         /.$BeginJava
-                    $setResult(Flags.STATIC);
+                    setResult(Flags.STATIC);
           $EndJava
         ./
                     | final
         /.$BeginJava
-                    $setResult(Flags.FINAL);
+                    setResult(Flags.FINAL);
           $EndJava
         ./
                     | transient
         /.$BeginJava
-                    $setResult(Flags.TRANSIENT);
+                    setResult(Flags.TRANSIENT);
           $EndJava
         ./
                     | volatile
         /.$BeginJava
-                    $setResult(Flags.VOLATILE);
+                    setResult(Flags.VOLATILE);
           $EndJava
         ./
     
@@ -705,7 +702,7 @@ $Rules
                          MethodBody = MethodBody.statements(ss);
                          MethodHeader = MethodHeader.flags(f.clear(X10Flags.ATOMIC));
                     }
-                    $setResult(MethodHeader.body(MethodBody));
+                    setResult(MethodHeader.body(MethodBody));
           $EndJava
         ./
     
@@ -714,7 +711,7 @@ $Rules
     ResultType ::= Type
                  | void
         /.$BeginJava
-                    $setResult(nf.CanonicalTypeNode(pos(), ts.Void()));
+                    setResult(nf.CanonicalTypeNode(pos(), ts.Void()));
           $EndJava
         ./
     
@@ -724,13 +721,13 @@ $Rules
                     a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
                     a[1] = FormalParameterListopt;
                     a[2] = new Integer(0);
-                    $setResult(a);
+                    setResult(a);
           $EndJava
         ./
                        | MethodDeclarator [ ]
         /.$BeginJava
                     MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
-                    // $setResult(MethodDeclarator);
+                    // setResult(MethodDeclarator);
           $EndJava
         ./
     
@@ -738,13 +735,13 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Formal.class, false);
                     l.add(LastFormalParameter);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                           | FormalParameters , LastFormalParameter
         /.$BeginJava
                     FormalParameters.add(LastFormalParameter);
-                    // $setResult(FormalParameters);
+                    // setResult(FormalParameters);
           $EndJava
         ./
     
@@ -752,32 +749,32 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Formal.class, false);
                     l.add(FormalParameter);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                        | FormalParameters , FormalParameter
         /.$BeginJava
                     FormalParameters.add(FormalParameter);
-                    // $setResult(FormalParameters);
+                    // setResult(FormalParameters);
           $EndJava
         ./
     
     FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
         /.$BeginJava
-                    $setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos($getLeftSpan(2), $getRightSpan(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
+                    setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
           $EndJava
         ./
     
     VariableModifiers ::= VariableModifier
                         | VariableModifiers VariableModifier
         /.$BeginJava
-                    $setResult(VariableModifiers.set(VariableModifier));
+                    setResult(VariableModifiers.set(VariableModifier));
           $EndJava
         ./
     
     VariableModifier ::= final
         /.$BeginJava
-                    $setResult(Flags.FINAL);
+                    setResult(Flags.FINAL);
           $EndJava
         ./
                        | Annotations
@@ -786,7 +783,7 @@ $Rules
     LastFormalParameter ::= VariableModifiersopt Type ...opt$opt VariableDeclaratorId
         /.$BeginJava
                     assert(opt == null);
-                    $setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos($getLeftSpan(2), $getRightSpan(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
+                    setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
           $EndJava
         ./
 
@@ -799,7 +796,7 @@ $Rules
     MethodModifiers ::= MethodModifier
                       | MethodModifiers MethodModifier
         /.$BeginJava
-                    $setResult(MethodModifiers.set(MethodModifier));
+                    setResult(MethodModifiers.set(MethodModifier));
           $EndJava
         ./
     
@@ -807,53 +804,53 @@ $Rules
         /.$BadAction./
                      | public
         /.$BeginJava
-                    $setResult(Flags.PUBLIC);
+                    setResult(Flags.PUBLIC);
           $EndJava
         ./
                      | protected
         /.$BeginJava
-                    $setResult(Flags.PROTECTED);
+                    setResult(Flags.PROTECTED);
           $EndJava
         ./
                      | private
         /.$BeginJava
-                    $setResult(Flags.PRIVATE);
+                    setResult(Flags.PRIVATE);
           $EndJava
         ./
                      | abstract
         /.$BeginJava
-                    $setResult(Flags.ABSTRACT);
+                    setResult(Flags.ABSTRACT);
           $EndJava
         ./
                      | static
         /.$BeginJava
-                    $setResult(Flags.STATIC);
+                    setResult(Flags.STATIC);
           $EndJava
         ./
                      | final
         /.$BeginJava
-                    $setResult(Flags.FINAL);
+                    setResult(Flags.FINAL);
           $EndJava
         ./
                      | synchronized
         /.$BeginJava
-                    $setResult(Flags.SYNCHRONIZED);
+                    setResult(Flags.SYNCHRONIZED);
           $EndJava
         ./
                      | native
         /.$BeginJava
-                    $setResult(Flags.NATIVE);
+                    setResult(Flags.NATIVE);
           $EndJava
         ./
                      | strictfp
         /.$BeginJava
-                    $setResult(Flags.STRICTFP);
+                    setResult(Flags.STRICTFP);
           $EndJava
         ./
     
     Throws ::= throws ExceptionTypeList
         /.$BeginJava
-                    $setResult(ExceptionTypeList);
+                    setResult(ExceptionTypeList);
           $EndJava
         ./
     
@@ -861,13 +858,13 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), TypeNode.class, false);
                     l.add(ExceptionType);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                         | ExceptionTypeList , ExceptionType
         /.$BeginJava
                     ExceptionTypeList.add(ExceptionType);
-                    // $setResult(ExceptionTypeList);
+                    // setResult(ExceptionTypeList);
           $EndJava
         ./
     
@@ -888,7 +885,7 @@ $Rules
     
     StaticInitializer ::= static Block
         /.$BeginJava
-                    $setResult(Block);
+                    setResult(Block);
           $EndJava
         ./
     
@@ -897,7 +894,7 @@ $Rules
                     Name a = (Name) ConstructorDeclarator[1];
                     List b = (List) ConstructorDeclarator[2];
 
-                    $setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), b, Throwsopt, ConstructorBody));
+                    setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), b, Throwsopt, ConstructorBody));
           $EndJava
         ./
     
@@ -905,14 +902,14 @@ $Rules
     
     SimpleTypeName ::= identifier
         /.$BeginJava
-                    $setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
         ./
 
     ConstructorModifiers ::= ConstructorModifier
                            | ConstructorModifiers ConstructorModifier
         /.$BeginJava
-                    $setResult(ConstructorModifiers.set(ConstructorModifier));
+                    setResult(ConstructorModifiers.set(ConstructorModifier));
           $EndJava
         ./
     
@@ -920,17 +917,17 @@ $Rules
         /.$BadAction./
                           | public
         /.$BeginJava
-                    $setResult(Flags.PUBLIC);
+                    setResult(Flags.PUBLIC);
           $EndJava
         ./
                           | protected
         /.$BeginJava
-                    $setResult(Flags.PROTECTED);
+                    setResult(Flags.PROTECTED);
           $EndJava
         ./
                           | private
         /.$BeginJava
-                    $setResult(Flags.PRIVATE);
+                    setResult(Flags.PRIVATE);
           $EndJava
         ./
     
@@ -945,7 +942,7 @@ $Rules
                         l.add(ExplicitConstructorInvocationopt);
                         l.addAll(BlockStatementsopt);
                     }
-                    $setResult(nf.Block(pos(), l));
+                    setResult(nf.Block(pos(), l));
           $EndJava
         ./
     
@@ -969,7 +966,7 @@ $Rules
     
     Arguments ::= ( ArgumentListopt )
         /.$BeginJava
-                    $setResult(ArgumentListopt);
+                    setResult(ArgumentListopt);
           $EndJava
         ./
     
@@ -987,7 +984,7 @@ $Rules
     InterfaceModifiers ::= InterfaceModifier
                          | InterfaceModifiers InterfaceModifier
         /.$BeginJava
-                    $setResult(InterfaceModifiers.set(InterfaceModifier));
+                    setResult(InterfaceModifiers.set(InterfaceModifier));
           $EndJava
         ./
     
@@ -995,32 +992,32 @@ $Rules
         /.$BadAction./
                         | public
         /.$BeginJava
-                    $setResult(Flags.PUBLIC);
+                    setResult(Flags.PUBLIC);
           $EndJava
         ./
                         | protected
         /.$BeginJava
-                    $setResult(Flags.PROTECTED);
+                    setResult(Flags.PROTECTED);
           $EndJava
         ./
                         | private
         /.$BeginJava
-                    $setResult(Flags.PRIVATE);
+                    setResult(Flags.PRIVATE);
           $EndJava
         ./
                         | abstract
         /.$BeginJava
-                    $setResult(Flags.ABSTRACT);
+                    setResult(Flags.ABSTRACT);
           $EndJava
         ./
                         | static
         /.$BeginJava
-                    $setResult(Flags.STATIC);
+                    setResult(Flags.STATIC);
           $EndJava
         ./
                         | strictfp
         /.$BeginJava
-                    $setResult(Flags.STRICTFP);
+                    setResult(Flags.STRICTFP);
           $EndJava
         ./
     
@@ -1028,13 +1025,13 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), TypeNode.class, false);
                     l.add(InterfaceType);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                         | ExtendsInterfaces , InterfaceType
         /.$BeginJava
                     ExtendsInterfaces.add(InterfaceType);
-                    // $setResult(ExtendsInterfaces);
+                    // setResult(ExtendsInterfaces);
           $EndJava
         ./
     
@@ -1045,7 +1042,7 @@ $Rules
     
     InterfaceBody ::= { InterfaceMemberDeclarationsopt }
         /.$BeginJava
-                    $setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
+                    setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
           $EndJava
         ./
     
@@ -1053,7 +1050,7 @@ $Rules
                                   | InterfaceMemberDeclarations InterfaceMemberDeclaration
         /.$BeginJava
                     InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
-                    // $setResult(l);
+                    // setResult(l);
           $EndJava
         ./
     
@@ -1062,26 +1059,26 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(AbstractMethodDeclaration);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                                  | ClassDeclaration
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(ClassDeclaration);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                                  | InterfaceDeclaration
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     l.add(InterfaceDeclaration);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                                  | ;
         /.$BeginJava
-                    $setResult(Collections.EMPTY_LIST);
+                    setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
     
@@ -1094,20 +1091,20 @@ $Rules
                         if (d.hasExplodedVars())
                           // TODO: Report this exception correctly.
                           throw new Error("Field Declarations may not have exploded variables." + pos());
-                        l.add(nf.FieldDecl(pos($getLeftSpan(2), $getRightSpan()),
+                        l.add(nf.FieldDecl(pos(getRhsFirstTokenIndex($Type), getRightSpan()),
                                            ConstantModifiersopt,
-                                           nf.array(Type, pos($getLeftSpan(2), $getRightSpan(2)), d.dims),
+                                           nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), d.dims),
                                            d.name,
                                            d.init));
                     }
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
     
     ConstantModifiers ::= ConstantModifier
                         | ConstantModifiers ConstantModifier
         /.$BeginJava
-                    $setResult(ConstantModifiers.set(ConstantModifier));
+                    setResult(ConstantModifiers.set(ConstantModifier));
           $EndJava
         ./
     
@@ -1115,17 +1112,17 @@ $Rules
         /.$BadAction./
                        | public
         /.$BeginJava
-                    $setResult(Flags.PUBLIC);
+                    setResult(Flags.PUBLIC);
           $EndJava
         ./
                        | static
         /.$BeginJava
-                    $setResult(Flags.STATIC);
+                    setResult(Flags.STATIC);
           $EndJava
         ./
                        | final
         /.$BeginJava
-                    $setResult(Flags.FINAL);
+                    setResult(Flags.FINAL);
           $EndJava
         ./
     
@@ -1134,7 +1131,7 @@ $Rules
     AbstractMethodModifiers ::= AbstractMethodModifier
                               | AbstractMethodModifiers AbstractMethodModifier
         /.$BeginJava
-                    $setResult(AbstractMethodModifiers.set(AbstractMethodModifier));
+                    setResult(AbstractMethodModifiers.set(AbstractMethodModifier));
           $EndJava
         ./
     
@@ -1142,12 +1139,12 @@ $Rules
         /.$BadAction./
                              | public
         /.$BeginJava
-                    $setResult(Flags.PUBLIC);
+                    setResult(Flags.PUBLIC);
           $EndJava
         ./
                              | abstract
         /.$BeginJava
-                    $setResult(Flags.ABSTRACT);
+                    setResult(Flags.ABSTRACT);
           $EndJava
         ./
     
@@ -1205,7 +1202,7 @@ $Rules
     
     SimpleName ::= identifier
         /.$BeginJava
-                    $setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
         ./
 
@@ -1235,8 +1232,8 @@ $Rules
     ArrayInitializer ::= { VariableInitializersopt ,opt$opt }
         /.$BeginJava
                     if (VariableInitializersopt == null)
-                         $setResult(nf.ArrayInit(pos()));
-                    else $setResult(nf.ArrayInit(pos(), VariableInitializersopt));
+                         setResult(nf.ArrayInit(pos()));
+                    else setResult(nf.ArrayInit(pos(), VariableInitializersopt));
           $EndJava
         ./
     
@@ -1244,13 +1241,13 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Expr.class, false);
                     l.add(VariableInitializer);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                            | VariableInitializers , VariableInitializer
         /.$BeginJava
                     VariableInitializers.add(VariableInitializer);
-                    //$setResult(VariableInitializers);
+                    //setResult(VariableInitializers);
           $EndJava
         ./
     
@@ -1270,7 +1267,7 @@ $Rules
     
     Block ::= { BlockStatementsopt }
         /.$BeginJava
-                    $setResult(nf.Block(pos(), BlockStatementsopt));
+                    setResult(nf.Block(pos(), BlockStatementsopt));
           $EndJava
         ./
     
@@ -1278,13 +1275,13 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Stmt.class, false);
                     l.addAll(BlockStatement);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                       | BlockStatements BlockStatement
         /.$BeginJava
                     BlockStatements.addAll(BlockStatement);
-                    //$setResult(l);
+                    //setResult(l);
           $EndJava
         ./
     
@@ -1293,14 +1290,14 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Stmt.class, false);
                     l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                      | Statement
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Stmt.class, false);
                     l.add(Statement);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
     
@@ -1322,7 +1319,7 @@ $Rules
                            s.addAll(X10Formal_c.explode(nf, ts, d.name, pos(d), d.flags, d.names()));
                     }
                     l.addAll(s); 
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
     
@@ -1369,43 +1366,43 @@ $Rules
     
     IfThenStatement ::= if ( Expression ) Statement
         /.$BeginJava
-                    $setResult(nf.If(pos(), Expression, Statement));
+                    setResult(nf.If(pos(), Expression, Statement));
           $EndJava
         ./
     
     IfThenElseStatement ::= if ( Expression ) StatementNoShortIf else Statement
         /.$BeginJava
-                    $setResult(nf.If(pos(), Expression, StatementNoShortIf, Statement));
+                    setResult(nf.If(pos(), Expression, StatementNoShortIf, Statement));
           $EndJava
         ./
     
     IfThenElseStatementNoShortIf ::= if ( Expression ) StatementNoShortIf$true_stmt else StatementNoShortIf$false_stmt
         /.$BeginJava
-                    $setResult(nf.If(pos(), Expression, true_stmt, false_stmt));
+                    setResult(nf.If(pos(), Expression, true_stmt, false_stmt));
           $EndJava
         ./
     
     EmptyStatement ::= ;
         /.$BeginJava
-                    $setResult(nf.Empty(pos()));
+                    setResult(nf.Empty(pos()));
           $EndJava
         ./
     
     LabeledStatement ::= identifier : Statement
         /.$BeginJava
-                    $setResult(nf.Labeled(pos(), identifier.getIdentifier(), Statement));
+                    setResult(nf.Labeled(pos(), identifier.getIdentifier(), Statement));
           $EndJava
         ./
     
     LabeledStatementNoShortIf ::= identifier : StatementNoShortIf
         /.$BeginJava
-                    $setResult(nf.Labeled(pos(), identifier.getIdentifier(), StatementNoShortIf));
+                    setResult(nf.Labeled(pos(), identifier.getIdentifier(), StatementNoShortIf));
           $EndJava
         ./
     
     ExpressionStatement ::= StatementExpression ;
         /.$BeginJava
-                    $setResult(nf.Eval(pos(), StatementExpression));
+                    setResult(nf.Eval(pos(), StatementExpression));
           $EndJava
         ./
     
@@ -1428,25 +1425,25 @@ $Rules
     
     AssertStatement ::= assert Expression ;
         /.$BeginJava
-                    $setResult(nf.Assert(pos(), Expression));
+                    setResult(nf.Assert(pos(), Expression));
           $EndJava
         ./
                       | assert Expression$expr1 : Expression$expr2 ;
         /.$BeginJava
-                    $setResult(nf.Assert(pos(), expr1, expr2));
+                    setResult(nf.Assert(pos(), expr1, expr2));
           $EndJava
         ./
     
     SwitchStatement ::= switch ( Expression ) SwitchBlock
         /.$BeginJava
-                    $setResult(nf.Switch(pos(), Expression, SwitchBlock));
+                    setResult(nf.Switch(pos(), Expression, SwitchBlock));
           $EndJava
         ./
     
     SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
         /.$BeginJava
                     SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
-                    $setResult(SwitchBlockStatementGroupsopt);
+                    setResult(SwitchBlockStatementGroupsopt);
           $EndJava
         ./
     
@@ -1454,7 +1451,7 @@ $Rules
                                  | SwitchBlockStatementGroups SwitchBlockStatementGroup
         /.$BeginJava
                     SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
-                    // $setResult(SwitchBlockStatementGroups);
+                    // setResult(SwitchBlockStatementGroups);
           $EndJava
         ./
     
@@ -1463,7 +1460,7 @@ $Rules
                     List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                     l.addAll(SwitchLabels);
                     l.add(nf.SwitchBlock(pos(), BlockStatements));
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
     
@@ -1471,26 +1468,26 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Case.class, false);
                     l.add(SwitchLabel);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                    | SwitchLabels SwitchLabel
         /.$BeginJava
                     SwitchLabels.add(SwitchLabel);
-                    //$setResult(SwitchLabels);
+                    //setResult(SwitchLabels);
           $EndJava
         ./
     
     SwitchLabel ::= case ConstantExpression :
         /.$BeginJava
-                    $setResult(nf.Case(pos(), ConstantExpression));
+                    setResult(nf.Case(pos(), ConstantExpression));
           $EndJava
         ./
                   | case EnumConstant :
         /.$BadAction./
                   | default :
         /.$BeginJava
-                    $setResult(nf.Default(pos()));
+                    setResult(nf.Default(pos()));
           $EndJava
         ./
 
@@ -1499,19 +1496,19 @@ $Rules
     
     WhileStatement ::= while ( Expression ) Statement
         /.$BeginJava
-                    $setResult(nf.While(pos(), Expression, Statement));
+                    setResult(nf.While(pos(), Expression, Statement));
           $EndJava
         ./
     
     WhileStatementNoShortIf ::= while ( Expression ) StatementNoShortIf
         /.$BeginJava
-                    $setResult(nf.While(pos(), Expression, StatementNoShortIf));
+                    setResult(nf.While(pos(), Expression, StatementNoShortIf));
           $EndJava
         ./
     
     DoStatement ::= do Statement while ( Expression ) ;
         /.$BeginJava
-                    $setResult(nf.Do(pos(), Statement, Expression));
+                    setResult(nf.Do(pos(), Statement, Expression));
           $EndJava
         ./
     
@@ -1520,13 +1517,13 @@ $Rules
     
     BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
         /.$BeginJava
-                    $setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
+                    setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
           $EndJava
         ./
     
     ForStatementNoShortIf ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) StatementNoShortIf
         /.$BeginJava
-                    $setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, StatementNoShortIf));
+                    setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, StatementNoShortIf));
           $EndJava
         ./
     
@@ -1535,7 +1532,7 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ForInit.class, false);
                     l.addAll(LocalVariableDeclaration);
-                    //$setResult(l);
+                    //setResult(l);
           $EndJava
         ./
     
@@ -1545,13 +1542,13 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Eval.class, false);
                     l.add(nf.Eval(pos(), StatementExpression));
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                               | StatementExpressionList , StatementExpression
         /.$BeginJava
                     StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
-                    //$setResult(StatementExpressionList);
+                    //setResult(StatementExpressionList);
           $EndJava
         ./
     
@@ -1561,45 +1558,45 @@ $Rules
     BreakStatement ::= break identifieropt ;
         /.$BeginJava
                     if (identifieropt == null)
-                         $setResult(nf.Break(pos()));
-                    else $setResult(nf.Break(pos(), identifieropt.toString()));
+                         setResult(nf.Break(pos()));
+                    else setResult(nf.Break(pos(), identifieropt.toString()));
           $EndJava
         ./
     
     ContinueStatement ::= continue identifieropt ;
         /.$BeginJava
                     if (identifieropt == null)
-                         $setResult(nf.Continue(pos()));
-                    else $setResult(nf.Continue(pos(), identifieropt.toString()));
+                         setResult(nf.Continue(pos()));
+                    else setResult(nf.Continue(pos(), identifieropt.toString()));
           $EndJava
         ./
     
     ReturnStatement ::= return Expressionopt ;
         /.$BeginJava
-                    $setResult(nf.Return(pos(), Expressionopt));
+                    setResult(nf.Return(pos(), Expressionopt));
           $EndJava
         ./
     
     ThrowStatement ::= throw Expression ;
         /.$BeginJava
-                    $setResult(nf.Throw(pos(), Expression));
+                    setResult(nf.Throw(pos(), Expression));
           $EndJava
         ./
     
     SynchronizedStatement ::= synchronized ( Expression ) Block
         /.$BeginJava
-                    $setResult(nf.Synchronized(pos(), Expression, Block));
+                    setResult(nf.Synchronized(pos(), Expression, Block));
           $EndJava
         ./
     
     TryStatement ::= try Block Catches
         /.$BeginJava
-                    $setResult(nf.Try(pos(), Block, Catches));
+                    setResult(nf.Try(pos(), Block, Catches));
           $EndJava
         ./
                    | try Block Catchesopt Finally
         /.$BeginJava
-                    $setResult(nf.Try(pos(), Block, Catchesopt, Finally));
+                    setResult(nf.Try(pos(), Block, Catchesopt, Finally));
           $EndJava
         ./
     
@@ -1607,25 +1604,25 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Catch.class, false);
                     l.add(CatchClause);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
               | Catches CatchClause
         /.$BeginJava
                     Catches.add(CatchClause);
-                    //$setResult(Catches);
+                    //setResult(Catches);
           $EndJava
         ./
     
     CatchClause ::= catch ( FormalParameter ) Block
         /.$BeginJava
-                    $setResult(nf.Catch(pos(), FormalParameter, Block));
+                    setResult(nf.Catch(pos(), FormalParameter, Block));
           $EndJava
         ./
     
     Finally ::= finally Block
         /.$BeginJava
-                    $setResult(Block);
+                    setResult(Block);
           $EndJava
         ./
     
@@ -1648,39 +1645,39 @@ $Rules
                     if (Type instanceof Name)
                     {
                         Name a = (Name) Type;
-                        $setResult(nf.ClassLit(pos(), a.toType()));
+                        setResult(nf.ClassLit(pos(), a.toType()));
                     }
                     else if (Type instanceof TypeNode)
                     {
-                        $setResult(nf.ClassLit(pos(), Type));
+                        setResult(nf.ClassLit(pos(), Type));
                     }
                     else if (Type instanceof CanonicalTypeNode)
                     {
                         CanonicalTypeNode a = (CanonicalTypeNode) Type;
-                        $setResult(nf.ClassLit(pos(), a));
+                        setResult(nf.ClassLit(pos(), a));
                     }
                     else assert(false);
           $EndJava
         ./
                         | void . class
         /.$BeginJava
-                    $setResult(nf.ClassLit(pos(),
-                                         nf.CanonicalTypeNode(pos($getLeftSpan()), ts.Void())));
+                    setResult(nf.ClassLit(pos(),
+                                         nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
           $EndJava
         ./
                         | this
         /.$BeginJava
-                    $setResult(nf.This(pos()));
+                    setResult(nf.This(pos()));
           $EndJava
         ./
                         | ClassName . this
         /.$BeginJava
-                    $setResult(nf.This(pos(), ClassName.toType()));
+                    setResult(nf.This(pos(), ClassName.toType()));
           $EndJava
         ./
                         | ( Expression )
         /.$BeginJava
-                    $setResult(nf.ParExpr(pos(), Expression));
+                    setResult(nf.ParExpr(pos(), Expression));
           $EndJava
         ./
                         | ClassInstanceCreationExpression
@@ -1688,61 +1685,61 @@ $Rules
                         | MethodInvocation
                         | ArrayAccess
     
-    Literal ::= IntegerLiteral
+    Literal ::= IntegerLiteral$IntegerLiteral
         /.$BeginJava
-                    polyglot.lex.IntegerLiteral a = int_lit($getToken(1));
-                    $setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().intValue()));
+                    polyglot.lex.IntegerLiteral a = int_lit(getRhsFirstTokenIndex($IntegerLiteral));
+                    setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().intValue()));
           $EndJava
         ./
-              | LongLiteral
+              | LongLiteral$LongLiteral
         /.$BeginJava
-                    polyglot.lex.LongLiteral a = long_lit($getToken(1));
-                    $setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
+                    polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex($LongLiteral));
+                    setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
           $EndJava
         ./
-              | FloatingPointLiteral
+              | FloatingPointLiteral$FloatLiteral
         /.$BeginJava
-                    polyglot.lex.FloatLiteral a = float_lit($getToken(1));
-                    $setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
+                    polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex($FloatLiteral));
+                    setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
           $EndJava
         ./
-              | DoubleLiteral
+              | DoubleLiteral$DoubleLiteral
         /.$BeginJava
-                    polyglot.lex.DoubleLiteral a = double_lit($getToken(1));
-                    $setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
+                    polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex($DoubleLiteral));
+                    setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
           $EndJava
         ./
               | BooleanLiteral
         /.$BeginJava
-                    $setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
+                    setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
           $EndJava
         ./
-              | CharacterLiteral
+              | CharacterLiteral$CharacterLiteral
         /.$BeginJava
-                    polyglot.lex.CharacterLiteral a = char_lit($getToken(1));
-                    $setResult(nf.CharLit(pos(), a.getValue().charValue()));
+                    polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex($CharacterLiteral));
+                    setResult(nf.CharLit(pos(), a.getValue().charValue()));
           $EndJava
         ./
-              | StringLiteral
+              | StringLiteral$str
         /.$BeginJava
-                    polyglot.lex.StringLiteral a = string_lit($getToken(1));
-                    $setResult(nf.StringLit(pos(), a.getValue()));
+                    polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex($str));
+                    setResult(nf.StringLit(pos(), a.getValue()));
           $EndJava
         ./
               | null
         /.$BeginJava
-                    $setResult(nf.NullLit(pos()));
+                    setResult(nf.NullLit(pos()));
           $EndJava
         ./
 
-    BooleanLiteral ::= true
+    BooleanLiteral ::= true$trueLiteral
         /.$BeginJava
-                    $setResult(boolean_lit($getToken(1)));
+                    setResult(boolean_lit(getRhsFirstTokenIndex($trueLiteral)));
           $EndJava
         ./
-                     | false
+                     | false$falseLiteral
         /.$BeginJava
-                    $setResult(boolean_lit($getToken(1)));
+                    setResult(boolean_lit(getRhsFirstTokenIndex($falseLiteral)));
           $EndJava
         ./
 
@@ -1759,13 +1756,13 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Expr.class, false);
                     l.add(Expression);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                    | ArgumentList , Expression
         /.$BeginJava
                     ArgumentList.add(Expression);
-                    //$setResult(ArgumentList);
+                    //setResult(ArgumentList);
           $EndJava
         ./
 
@@ -1779,22 +1776,22 @@ $Rules
 --
 --    ArrayCreationExpression ::= new PrimitiveType DimExprs Dimsopt
 --        /.$BeginJava
---                    $setResult(nf.NewArray(pos(), PrimitiveType, DimExprs, Dimsopt.intValue()));
+--                    setResult(nf.NewArray(pos(), PrimitiveType, DimExprs, Dimsopt.intValue()));
 --          $EndJava
 --        ./
 --                              | new ClassOrInterfaceType DimExprs Dimsopt
 --        /.$BeginJava
---                    $setResult(nf.NewArray(pos(), ClassOrInterfaceType, DimExprs, Dimsopt.intValue()));
+--                    setResult(nf.NewArray(pos(), ClassOrInterfaceType, DimExprs, Dimsopt.intValue()));
 --          $EndJava
 --        ./
 --                              | new PrimitiveType Dims ArrayInitializer
 --        /.$BeginJava
---                    $setResult(nf.NewArray(pos(), PrimitiveType, Dims.intValue(), ArrayInitializer));
+--                    setResult(nf.NewArray(pos(), PrimitiveType, Dims.intValue(), ArrayInitializer));
 --          $EndJava
 --        ./
 --                              | new ClassOrInterfaceType Dims ArrayInitializer
 --        /.$BeginJava
---                    $setResult(nf.NewArray(pos(), ClassOrInterfaceType, Dims.intValue(), ArrayInitializer));
+--                    setResult(nf.NewArray(pos(), ClassOrInterfaceType, Dims.intValue(), ArrayInitializer));
 --          $EndJava
 --        ./
     
@@ -1802,52 +1799,52 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Expr.class, false);
                     l.add(DimExpr);
-                    $setResult(l);
+                    setResult(l);
           $EndJava
         ./
                | DimExprs DimExpr
         /.$BeginJava
                     DimExprs.add(DimExpr);
-                    //$setResult(DimExprs);
+                    //setResult(DimExprs);
           $EndJava
         ./
     
     DimExpr ::= [ Expression ]
         /.$BeginJava
-                    $setResult(Expression.position(pos()));
+                    setResult(Expression.position(pos()));
           $EndJava
         ./
     
     Dims ::= [ ]
         /.$BeginJava
-                    $setResult(new Integer(1));
+                    setResult(new Integer(1));
           $EndJava
         ./
            | Dims [ ]
         /.$BeginJava
-                    $setResult(new Integer(Dims.intValue() + 1));
+                    setResult(new Integer(Dims.intValue() + 1));
           $EndJava
         ./
     
     FieldAccess ::= Primary . identifier
         /.$BeginJava
-                    $setResult(nf.Field(pos(), Primary, identifier.getIdentifier()));
+                    setResult(nf.Field(pos(), Primary, identifier.getIdentifier()));
           $EndJava
         ./
                   | super . identifier
         /.$BeginJava
-                    $setResult(nf.Field(pos($getRightSpan()), nf.Super(pos($getLeftSpan())), identifier.getIdentifier()));
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), identifier.getIdentifier()));
           $EndJava
         ./
-                  | ClassName . super . identifier
+                  | ClassName . super$sup . identifier
         /.$BeginJava
-                    $setResult(nf.Field(pos($getRightSpan()), nf.Super(pos($getLeftSpan(3)), ClassName.toType()), identifier.getIdentifier()));
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), identifier.getIdentifier()));
           $EndJava
         ./
     
     MethodInvocation ::= MethodName ( ArgumentListopt )
         /.$BeginJava
-                    $setResult(nf.Call(pos(), MethodName.prefix == null
+                    setResult(nf.Call(pos(), MethodName.prefix == null
                                                                  ? null
                                                                  : MethodName.prefix.toReceiver(), MethodName.name, ArgumentListopt));
           $EndJava
@@ -1872,7 +1869,7 @@ $Rules
     PostfixExpression ::= Primary
                         | ExpressionName
         /.$BeginJava
-                    $setResult(ExpressionName.toExpr());
+                    setResult(ExpressionName.toExpr());
           $EndJava
         ./
                         | PostIncrementExpression
@@ -1880,13 +1877,13 @@ $Rules
     
     PostIncrementExpression ::= PostfixExpression ++
         /.$BeginJava
-                    $setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
+                    setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
           $EndJava
         ./
     
     PostDecrementExpression ::= PostfixExpression '--'
         /.$BeginJava
-                    $setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
+                    setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
           $EndJava
         ./
     
@@ -1894,37 +1891,37 @@ $Rules
                       | PreDecrementExpression
                       | + UnaryExpression
         /.$BeginJava
-                    $setResult(nf.Unary(pos(), Unary.POS, UnaryExpression));
+                    setResult(nf.Unary(pos(), Unary.POS, UnaryExpression));
           $EndJava
         ./
                       | - UnaryExpression
         /.$BeginJava
-                    $setResult(nf.Unary(pos(), Unary.NEG, UnaryExpression));
+                    setResult(nf.Unary(pos(), Unary.NEG, UnaryExpression));
           $EndJava
         ./
                       | UnaryExpressionNotPlusMinus
     
     PreIncrementExpression ::= ++ UnaryExpression
         /.$BeginJava
-                    $setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpression));
+                    setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpression));
           $EndJava
         ./
     
     PreDecrementExpression ::= '--' UnaryExpression
         /.$BeginJava
-                    $setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpression));
+                    setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpression));
           $EndJava
         ./
     
     UnaryExpressionNotPlusMinus ::= PostfixExpression
                                   | ~ UnaryExpression
         /.$BeginJava
-                    $setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
+                    setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
           $EndJava
         ./
                                   | ! UnaryExpression
         /.$BeginJava
-                    $setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
+                    setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
           $EndJava
         ./
                                   | CastExpression
@@ -1938,71 +1935,71 @@ $Rules
     MultiplicativeExpression ::= UnaryExpression
                                | MultiplicativeExpression * UnaryExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
+                    setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
           $EndJava
         ./
                                | MultiplicativeExpression / UnaryExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
+                    setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
           $EndJava
         ./
                                | MultiplicativeExpression % UnaryExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
+                    setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
           $EndJava
         ./
     
     AdditiveExpression ::= MultiplicativeExpression
                          | AdditiveExpression + MultiplicativeExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
+                    setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
           $EndJava
         ./
                          | AdditiveExpression - MultiplicativeExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
+                    setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
           $EndJava
         ./
     
     ShiftExpression ::= AdditiveExpression
                       | ShiftExpression << AdditiveExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
+                    setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
           $EndJava
         ./
                       | ShiftExpression > > AdditiveExpression
         /.$BeginJava
                     // TODO: make sure that there is no space after the ">" signs
-                    $setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
+                    setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
           $EndJava
         ./
                       | ShiftExpression > > > AdditiveExpression
         /.$BeginJava
                     // TODO: make sure that there is no space after the ">" signs
-                    $setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
+                    setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
           $EndJava
         ./
     
     RelationalExpression ::= ShiftExpression
                            | RelationalExpression < ShiftExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
+                    setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
           $EndJava
         ./
                            | RelationalExpression > ShiftExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
+                    setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
           $EndJava
         ./
                            | RelationalExpression <= ShiftExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
+                    setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
           $EndJava
         ./
                            | RelationalExpression > = ShiftExpression
         /.$BeginJava
                     // TODO: make sure that there is no space after the ">" signs
-                    $setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, ShiftExpression));
+                    setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, ShiftExpression));
           $EndJava
         ./
 --
@@ -2010,61 +2007,61 @@ $Rules
 --
 --                           | RelationalExpression instanceof ReferenceType
 --        /.$BeginJava
---                    $setResult(nf.Instanceof(pos(), RelationalExpression, ReferenceType));
+--                    setResult(nf.Instanceof(pos(), RelationalExpression, ReferenceType));
 --          $EndJava
 --        ./
     
     EqualityExpression ::= RelationalExpression
                          | EqualityExpression == RelationalExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
+                    setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
           $EndJava
         ./
                          | EqualityExpression != RelationalExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
+                    setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
           $EndJava
         ./
     
     AndExpression ::= EqualityExpression
                     | AndExpression & EqualityExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
+                    setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
           $EndJava
         ./
     
     ExclusiveOrExpression ::= AndExpression
                             | ExclusiveOrExpression ^ AndExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
+                    setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
           $EndJava
         ./
     
     InclusiveOrExpression ::= ExclusiveOrExpression
                             | InclusiveOrExpression '|' ExclusiveOrExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
+                    setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
           $EndJava
         ./
     
     ConditionalAndExpression ::= InclusiveOrExpression
                                | ConditionalAndExpression && InclusiveOrExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
+                    setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
           $EndJava
         ./
     
     ConditionalOrExpression ::= ConditionalAndExpression
                               | ConditionalOrExpression || ConditionalAndExpression
         /.$BeginJava
-                    $setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
+                    setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
           $EndJava
         ./
     
     ConditionalExpression ::= ConditionalOrExpression
                             | ConditionalOrExpression ? Expression : ConditionalExpression
         /.$BeginJava
-                    $setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
+                    setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
           $EndJava
         ./
     
@@ -2073,13 +2070,13 @@ $Rules
     
     Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
         /.$BeginJava
-                    $setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
+                    setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
           $EndJava
         ./
     
     LeftHandSide ::= ExpressionName
         /.$BeginJava
-                    $setResult(ExpressionName.toExpr());
+                    setResult(ExpressionName.toExpr());
           $EndJava
         ./
                    | FieldAccess
@@ -2087,64 +2084,64 @@ $Rules
     
     AssignmentOperator ::= =
         /.$BeginJava
-                    $setResult(Assign.ASSIGN);
+                    setResult(Assign.ASSIGN);
           $EndJava
         ./
                          | *=
         /.$BeginJava
-                    $setResult(Assign.MUL_ASSIGN);
+                    setResult(Assign.MUL_ASSIGN);
           $EndJava
         ./
                          | /=
         /.$BeginJava
-                    $setResult(Assign.DIV_ASSIGN);
+                    setResult(Assign.DIV_ASSIGN);
           $EndJava
         ./
                          | %=
         /.$BeginJava
-                    $setResult(Assign.MOD_ASSIGN);
+                    setResult(Assign.MOD_ASSIGN);
           $EndJava
         ./
                          | +=
         /.$BeginJava
-                    $setResult(Assign.ADD_ASSIGN);
+                    setResult(Assign.ADD_ASSIGN);
           $EndJava
         ./
                          | -=
         /.$BeginJava
-                    $setResult(Assign.SUB_ASSIGN);
+                    setResult(Assign.SUB_ASSIGN);
           $EndJava
         ./
                          | <<=
         /.$BeginJava
-                    $setResult(Assign.SHL_ASSIGN);
+                    setResult(Assign.SHL_ASSIGN);
           $EndJava
         ./
                          | > > =
         /.$BeginJava
                     // TODO: make sure that there is no space after the ">" signs
-                    $setResult(Assign.SHR_ASSIGN);
+                    setResult(Assign.SHR_ASSIGN);
           $EndJava
         ./
                          | > > > =
         /.$BeginJava
                     // TODO: make sure that there is no space after the ">" signs
-                    $setResult(Assign.USHR_ASSIGN);
+                    setResult(Assign.USHR_ASSIGN);
           $EndJava
         ./
                          | &=
         /.$BeginJava
-                    $setResult(Assign.BIT_AND_ASSIGN);
+                    setResult(Assign.BIT_AND_ASSIGN);
           $EndJava
         ./
                          | ^=
         /.$BeginJava
-                    $setResult(Assign.BIT_XOR_ASSIGN);
+                    setResult(Assign.BIT_XOR_ASSIGN);
           $EndJava
         ./
                          | |=
         /.$BeginJava
-                    $setResult(Assign.BIT_OR_ASSIGN);
+                    setResult(Assign.BIT_OR_ASSIGN);
           $EndJava
         ./
     
@@ -2157,14 +2154,14 @@ $Rules
     --
     Dimsopt ::= $Empty
         /.$BeginJava
-                    $setResult(new Integer(0));
+                    setResult(new Integer(0));
           $EndJava
         ./
               | Dims
 
     Catchesopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), Catch.class, false));
+                    setResult(new TypedList(new LinkedList(), Catch.class, false));
           $EndJava
         ./
                  | Catches
@@ -2173,13 +2170,13 @@ $Rules
         /.$NullAction./
                     | identifier
         /.$BeginJava
-                    $setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
         ./
 
     ForUpdateopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
+                    setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
           $EndJava
         ./
                    | ForUpdate
@@ -2190,28 +2187,28 @@ $Rules
 
     ForInitopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), ForInit.class, false));
+                    setResult(new TypedList(new LinkedList(), ForInit.class, false));
           $EndJava
         ./
                  | ForInit
 
     SwitchLabelsopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), Case.class, false));
+                    setResult(new TypedList(new LinkedList(), Case.class, false));
           $EndJava
         ./
                       | SwitchLabels
 
     SwitchBlockStatementGroupsopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
+                    setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
           $EndJava
         ./
                                     | SwitchBlockStatementGroups
 
     VariableModifiersopt ::= $Empty
         /.$BeginJava
-                    $setResult(Flags.NONE);
+                    setResult(Flags.NONE);
           $EndJava
         ./
                            | VariableModifiers
@@ -2241,35 +2238,35 @@ $Rules
 
     AbstractMethodModifiersopt ::= $Empty
         /.$BeginJava
-                    $setResult(Flags.NONE);
+                    setResult(Flags.NONE);
           $EndJava
         ./
                                  | AbstractMethodModifiers
 
     ConstantModifiersopt ::= $Empty
         /.$BeginJava
-                    $setResult(Flags.NONE);
+                    setResult(Flags.NONE);
           $EndJava
         ./
                            | ConstantModifiers
 
     InterfaceMemberDeclarationsopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), ClassMember.class, false));
+                    setResult(new TypedList(new LinkedList(), ClassMember.class, false));
           $EndJava
         ./
                                      | InterfaceMemberDeclarations
 
     ExtendsInterfacesopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), TypeNode.class, false));
+                    setResult(new TypedList(new LinkedList(), TypeNode.class, false));
           $EndJava
         ./
                            | ExtendsInterfaces
 
     InterfaceModifiersopt ::= $Empty
         /.$BeginJava
-                    $setResult(Flags.NONE);
+                    setResult(Flags.NONE);
           $EndJava
         ./
                             | InterfaceModifiers
@@ -2299,14 +2296,14 @@ $Rules
 
     ArgumentListopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), Catch.class, false));
+                    setResult(new TypedList(new LinkedList(), Catch.class, false));
           $EndJava
         ./
                       | ArgumentList
 
     BlockStatementsopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), Stmt.class, false));
+                    setResult(new TypedList(new LinkedList(), Stmt.class, false));
           $EndJava
         ./
                          | BlockStatements
@@ -2317,7 +2314,7 @@ $Rules
 
     ConstructorModifiersopt ::= $Empty
         /.$BeginJava
-                    $setResult(Flags.NONE);
+                    setResult(Flags.NONE);
           $EndJava
         ./
                               | ConstructorModifiers
@@ -2328,49 +2325,49 @@ $Rules
 
     FormalParameterListopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), Formal.class, false));
+                    setResult(new TypedList(new LinkedList(), Formal.class, false));
           $EndJava
         ./
                              | FormalParameterList
 
     Throwsopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), TypeNode.class, false));
+                    setResult(new TypedList(new LinkedList(), TypeNode.class, false));
           $EndJava
         ./
                 | Throws
 
     MethodModifiersopt ::= $Empty
         /.$BeginJava
-                    $setResult(Flags.NONE);
+                    setResult(Flags.NONE);
           $EndJava
         ./
                          | MethodModifiers
 
     FieldModifiersopt ::= $Empty
         /.$BeginJava
-                    $setResult(Flags.NONE);
+                    setResult(Flags.NONE);
           $EndJava
         ./
                         | FieldModifiers
 
     ClassBodyDeclarationsopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), ClassMember.class, false));
+                    setResult(new TypedList(new LinkedList(), ClassMember.class, false));
           $EndJava
         ./
                                | ClassBodyDeclarations
 
     Interfacesopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), TypeNode.class, false));
+                    setResult(new TypedList(new LinkedList(), TypeNode.class, false));
           $EndJava
         ./
                     | Interfaces
 
     Superopt ::= $Empty
         /.$BeginJava
-                   $setResult(new Name(nf, ts, pos(), "x10.lang.Object").toType());
+                   setResult(new Name(nf, ts, pos(), "x10.lang.Object").toType());
           $EndJava
         ./
                | Super
@@ -2381,7 +2378,7 @@ $Rules
 
     ClassModifiersopt ::= $Empty
         /.$BeginJava
-                    $setResult(Flags.NONE);
+                    setResult(Flags.NONE);
           $EndJava
         ./
                         | ClassModifiers
@@ -2393,14 +2390,14 @@ $Rules
 
     TypeDeclarationsopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
+                    setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
           $EndJava
         ./
                           | TypeDeclarations
 
     ImportDeclarationsopt ::= $Empty
         /.$BeginJava
-                    $setResult(new TypedList(new LinkedList(), Import.class, false));
+                    setResult(new TypedList(new LinkedList(), Import.class, false));
           $EndJava
         ./
                             | ImportDeclarations

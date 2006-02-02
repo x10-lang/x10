@@ -5,7 +5,7 @@
 %Options fp=JavaLexer,prefix=Char_
 %options single_productions
 %options package=javaparser
-%options template=LexerTemplateB.gi
+%options template=uide/LexerTemplate.gi
 %options filter=GJavaKWLexer.gi
 %options export_terminals=("JavaParsersym.java", "TK_")
 
@@ -48,9 +48,9 @@ $Headers
         
         final void makeComment(int kind)
         {
-            int startOffset = $getToken(1),
-                endOffset = $getRightSpan();
-            $prs_stream.makeAdjunct(startOffset, endOffset, kind);
+            int startOffset = getLeftSpan(),
+                endOffset = getRightSpan();
+            super.getPrsStream().makeAdjunct(startOffset, endOffset, kind);
         }
 
         private static int LINES = 0,
@@ -507,11 +507,6 @@ assert(new_file != null);
     ./
 $End
 
-$Title
-    /.package $package;
-    ./
-$End
-
 $Globals
     /.import java.util.*;./
 $End
@@ -695,7 +690,7 @@ $Rules
         ./
     Token ::= '/' '*' Inside Stars '/'
         /.$BeginAction
-                    if (getKind($getLeftSpan(3)) == Char_Star && getKind(getNext($getLeftSpan(3))) != Char_Star)
+                    if (getKind(getRhsFirstTokenIndex(3)) == Char_Star && getKind(getNext(getRhsFirstTokenIndex(3))) != Char_Star)
                          makeComment($_DocComment);
                     else makeComment($_MlComment);
           $EndAction
