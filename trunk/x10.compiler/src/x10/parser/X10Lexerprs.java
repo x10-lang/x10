@@ -1,6 +1,6 @@
 package x10.parser;
 
-public class X10Lexerprs implements com.ibm.lpg.ParseTable, X10Lexersym {
+public class X10Lexerprs implements lpg.lpgjavaruntime.ParseTable, X10Lexersym {
 
     public interface IsKeyword {
         public final static byte isKeyword[] = {0,
