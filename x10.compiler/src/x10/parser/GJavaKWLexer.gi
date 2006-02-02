@@ -3,14 +3,9 @@
 --
 %Options fp=JavaKWLexer,prefix=Char_
 %options package=javaparser
-%options template=KeyWordTemplateB.gi
+%options template=KeyWordTemplate.gi
 %options export_terminals=("JavaParsersym.java", "TK_")
 
-$Title
-    /.package $package;
-    ./
-$End
-    
 $Globals
     /.import java.util.*;./
 $End

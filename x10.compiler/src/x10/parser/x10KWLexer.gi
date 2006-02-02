@@ -5,16 +5,11 @@
 %Options list
 %Options fp=X10KWLexer,prefix=Char_
 %options package=x10.parser
-%options template=uide/KeyWordTemplateB.gi
+%options template=uide/KeyWordTemplate.gi
 %options export_terminals=("X10Parsersym.java", "TK_")
 
 $Import
     GJavaKWLexer.gi
-$End
-
-$Title
-    /.package $package;
-    ./
 $End
 
 $Globals
