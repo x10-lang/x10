@@ -1,6 +1,5 @@
 // SYNOPSIS: when (0) 1 2=branches 3=unique_id
 
-x10.runtime.LoadMonitored.blocked(x10.runtime.Sampling.CAUSE_ATOMIC, 0, null);
 synchronized (x10.lang.Runtime.here()) {
 	try {
 		while (true) {
