@@ -16,7 +16,7 @@ $Headers
 
         public int [] getKeywordKinds() { return keywords; }
 
-        public $action_class(String filename) throws java.io.IOException
+        public $action_type(String filename) throws java.io.IOException
         {
             this(filename, ECLIPSE_TAB_VALUE);
         }
@@ -28,22 +28,22 @@ $Headers
         
         final void makeToken(int kind)
         {
-            int startOffset = $getToken(1),
-                endOffset = $getRightSpan();
+            int startOffset = getLeftSpan(),
+                endOffset = getRightSpan();
             makeToken(startOffset, endOffset, kind);
             if (printTokens) printValue(startOffset, endOffset);
         }
 
         final void makeComment(int kind)
         {
-            int startOffset = $getToken(1),
-                endOffset = $getRightSpan();
-            $prs_stream.makeAdjunct(startOffset, endOffset, kind);
+            int startOffset = getLeftSpan(),
+                endOffset = getRightSpan();
+            super.getPrsStream().makeAdjunct(startOffset, endOffset, kind);
         }
 
         final void skipToken()
         {
-            if (printTokens) printValue($getToken(1), $getRightSpan());
+            if (printTokens) printValue(getLeftSpan(), getRightSpan());
         }
         
         final void printValue(int startOffset, int endOffset)
