@@ -12,6 +12,6 @@ public class X10CFABuilder extends X10SSAPropagationCallGraphBuilder {
      * @param warnings
      */
     public X10CFABuilder(ClassHierarchy cha, WarningSet warnings, AnalysisOptions options) {
-      super(cha, warnings, options, new CFAPointerKeys(cha));
+      super(cha, warnings, options, new CFAPointerKeys());
     }
 }
