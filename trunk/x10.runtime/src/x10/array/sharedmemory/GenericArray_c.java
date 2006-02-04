@@ -266,7 +266,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
         int	theIndex = Helper.ordinal(distribution,d0,chkAOB);   	  	 
-        return (Parameter1) setOrdinal(v, d0);
+        return (Parameter1) setOrdinal(v, theIndex);
     }
     
     public Parameter1 set(Parameter1 v, int d0,int d1) {return set(v,d0,d1,true,true);}
