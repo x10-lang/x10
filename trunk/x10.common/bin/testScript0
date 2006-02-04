@@ -609,7 +609,7 @@ doTest() {
 
   # the output must contain 'Test succeeded'
   # the output must not contain a java stack traceback
-  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10 -t -v -classpath $testDir $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10 -t -v -mx 128M -classpath $testDir $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   local runRc=$?
 
   echo ""                                    >> logDetail.$tdir.$className
