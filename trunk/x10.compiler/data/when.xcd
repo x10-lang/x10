@@ -1,24 +1,22 @@
-// SYNOPSIS: when (0) 1 2=branches 3=unique_id
+// SYNOPSIS: when (#0) #1 #2=loop-over-branches #3=unique_id
 
 synchronized (x10.lang.Runtime.here()) {
 	try {
 		while (true) {
 			// first when branch
 			if (#0) {
-				#1;
+				#1
 				break;
 			}
 			#2
-			try {
-				x10.lang.Runtime.here().wait();
-			} finally {
-			}
+			x10.lang.Runtime.here().wait();
 		}
-		x10.lang.Runtime.here().notifyAll();
 	} catch (Throwable tmp#3) {
 		tmp#3.printStackTrace();
 		x10.lang.Runtime.runtime.java.log(java.util.logging.Level.SEVERE,
 				"Unexpected exception during conditional atomic.", tmp#3);
 		throw new RuntimeException(tmp#3);
+	} finally {
+		x10.lang.Runtime.here().notifyAll();
 	}
 }
