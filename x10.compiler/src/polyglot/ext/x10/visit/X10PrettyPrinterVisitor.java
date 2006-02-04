@@ -285,9 +285,10 @@ public class X10PrettyPrinterVisitor extends Runabout {
 
 	public void visit(When_c w) {
 		dump("when",
-			 new Object[] { w.expr(),
+			 new Object[] {
+				 w.expr(),
 				 w.stmt(),
-				 new Loop("when-loop", w.branches()),
+				 new Join("\n", w.branches()),
 				 getUniqueId_()
 			 });
 	}
@@ -569,6 +570,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 				assert(lists[i].size() == N);
 		}
 		public void expand() {
+			w.write("/* Loop: { */");
 			Object[] args = new Object[lists.length];
 			Iterator[] iters = new Iterator[lists.length];
 			// Parallel iterators over all argument lists
@@ -579,6 +581,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 					args[j] = iters[j].next();
 				dump(id, args);
 			}
+			w.write("/* } */");
 		}
 	}
 
@@ -607,12 +610,14 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			this.args = args;
 		}
 		public void expand() {
+			w.write("/* Join: { */");
 			int N = args.size();
 			for (Iterator i = args.iterator(); i.hasNext(); ) {
 				prettyPrint(i.next());
 				if (i.hasNext())
 					prettyPrint(delimiter);
 			}
+			w.write("/* } */");
 		}
 	}
 
