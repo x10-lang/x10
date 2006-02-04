@@ -1,5 +1,6 @@
-// another when branch
-if (#0) {
-  #1;
-  break;
-}
+// SYNOPSIS: or (#0) #1
+			// another when branch
+			if (#0) {
+				#1
+				break;
+			}
