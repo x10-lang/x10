@@ -199,7 +199,13 @@ public class ArbitraryRegion extends region {
     }
     
     protected static region intersection(region r1, region r2) {
-        assert r1.rank == r2.rank;
+        assert r1.rank == r2.rank;        
+        if (r1.size() > r2.size()) {
+        	// swap for efficiency
+        	region tmp = r2;
+        	r2 = r1;
+        	r1 = tmp;
+        }
         
         ArbitraryRegion ret = new ArbitraryRegion(r1.rank);
         for (Iterator it = r1.iterator(); it.hasNext(); ) {
