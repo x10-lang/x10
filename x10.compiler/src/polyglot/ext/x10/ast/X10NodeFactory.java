@@ -36,7 +36,6 @@ public interface X10NodeFactory extends NodeFactory {
 	 */
 	When When(Position pos, Expr expr, Stmt statement);
 
-	When.Branch WhenBranch(Position pos, Expr expr, Stmt statement);
 	Next Next(Position pos);
 	Now Now(Position pos, Expr expr, Stmt stmt);
 

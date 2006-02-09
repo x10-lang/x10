@@ -106,12 +106,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (When) w.del(delFactory().delStmt());
 	}
 
-	public When.Branch WhenBranch(Position pos, Expr expr, Stmt statement) {
-		When.Branch w = new When_c.Branch_c(pos, expr, statement);
-		w = (When.Branch) w.ext(extFactory().extStmt());
-		return (When.Branch) w.del(delFactory().delStmt());
-	}
-
 	public Next Next(Position pos) {
 		Next n = new Next_c(pos);
 		n = (Next) n.ext(extFactory().extStmt());
