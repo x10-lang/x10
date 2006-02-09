@@ -8,30 +8,36 @@ import polyglot.ast.Stmt;
 import polyglot.util.Position;
 import java.util.List;
 
-/** The AST node representing the X10 construct when (c) {S} else (c) {S} ...
+/**
+ * The AST node representing the X10 construct when (c) {S} or (c) {S} ...
  * @author vj
  */
 public interface When extends Stmt {
-    public interface Branch extends Stmt {
-        
-        // TODO cvp_>vj change parser sich that it invokes  
-        // branch (Position p, Expr cond, Stmt stmt);
-        Branch branch (Expr cond, Stmt stmt);
-        Expr expr();
-        Stmt stmt();
-    }
-    
-    /** Add this branch to the list. To be called only by the parser.
-     * @param b
-     */
-    void add(Branch b);
+	/**
+	 * Return the expression of the first branch.
+	 */
+	Expr expr();
 
-    /** Return a new When statement with the given branches.
-     * 
-     */
-    When branches(Expr expr, Stmt stmt, List rest);
+	/**
+	 * Return the statement of the first branch.
+	 */
+	Stmt stmt();
 
-    Expr expr(); 
-    
-    Stmt stmt();
+	/**
+	 * Add a branch to the list. To be called only by the parser.
+	 * @param p
+	 * @param e
+	 * @param s
+	 */
+	void addBranch(Position p, Expr e, Stmt s);
+
+	/**
+	 * Return the expressions on the other branches of the when statement.
+	 */
+	List exprs();
+
+	/**
+	 * Return the statements on the other branches of the when statement.
+	 */
+	List stmts();
 }
