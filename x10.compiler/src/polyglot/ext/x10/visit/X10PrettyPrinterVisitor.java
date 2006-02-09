@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +20,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
+import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Binary_c;
 import polyglot.ext.jl.ast.Call_c;
@@ -53,7 +55,10 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
 import polyglot.visit.PrettyPrinter;
+
+import polyglot.ext.x10.ast.X10NodeFactory_c;
 
 /**
  * Visitor on the AST nodes that for some X10 nodes triggers the template
@@ -283,18 +288,30 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			n.prettyPrint(w, pp);
 	}
 
+	private Stmt optionalBreak(Stmt s) {
+		X10NodeFactory_c nf = X10NodeFactory_c.getFactory();
+		if (s.reachable())
+			return nf.Break(s.position());
+		// [IP] Heh, Empty cannot be unreachable either.  Who knew?
+//		return nf.Empty(s.position());
+		return null;
+	}
+
 	public void visit(When_c w) {
+		Integer id = getUniqueId_();
+		List breaks = new ArrayList(w.stmts().size());
+		for (Iterator i = w.stmts().iterator(); i.hasNext(); ) {
+			Stmt s = (Stmt) i.next();
+			breaks.add(optionalBreak(s));
+		}
 		dump("when",
 			 new Object[] {
 				 w.expr(),
 				 w.stmt(),
-				 new Join("\n", w.branches()),
-				 getUniqueId_()
+				 optionalBreak(w.stmt()),
+				 new Loop("when-branch", w.exprs(), w.stmts(), breaks),
+				 id
 			 });
-	}
-
-	public void visit(When_c.Branch_c b) {
-		dump("when-branch", new Node[] { b.expr(), b.stmt() });
 	}
 
 	public void visit(Finish_c a) {
@@ -508,7 +525,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			((Expander) o).expand();
 		} else if (o instanceof Node) {
 			((Node) o).del().prettyPrint(w, pp);
-		} else {
+		} else if (o != null) {
 			w.write(o.toString());
 		}
 	}
@@ -530,6 +547,8 @@ public class X10PrettyPrinterVisitor extends Runabout {
 				Integer idx = new Integer(regex.substring(pos+1,pos+2));
 				pos++;
 				start = pos+1;
+				if (idx.intValue() >= components.length)
+					throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
 				prettyPrint(components[idx.intValue()]);
 			}
 			pos++;
@@ -541,6 +560,23 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	 * An abstract class for sub-template expansion.
 	 */
 	public abstract class Expander { public abstract void expand(); }
+
+	/**
+	 * A list of one object that has an infinite circular iterator.
+	 */
+	public static class CircularList extends AbstractList {
+		private Object o;
+		public CircularList(Object o) { this.o = o; }
+		public Iterator iterator() {
+			return new Iterator() {
+				public boolean hasNext() { return true; }
+				public Object next() { return o; }
+				public void remove() { return; }
+			};
+		}
+		public Object get(int i) { return o; }
+		public int size() { return 1; }
+	}
 
 	/**
 	 * Expand a given template in a loop with the given set of arguments.
@@ -555,8 +591,14 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		//private final String template;
 		private final List[] lists;
 		private final int N;
-		public Loop(String id, List components) {
-			this(id, new List[] { components });
+		public Loop(String id, List arg) {
+			this(id, new List[] { arg });
+		}
+		public Loop(String id, List arg1, List arg2) {
+			this(id, new List[] { arg1, arg2 });
+		}
+		public Loop(String id, List arg1, List arg2, List arg3) {
+			this(id, new List[] { arg1, arg2, arg3 });
 		}
 		public Loop(String id, List[] components) {
 			this.id = id;
@@ -645,8 +687,9 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			byte[] b = new byte[dis.available()];
 			dis.read(b);
 			String trans = new String(b, "UTF-8");
-			// Skip any line that starts with "// SYNOPSIS: " (spaces matter)
-			if (trans.indexOf("// SYNOPSIS: ") == 0)
+			// Skip initial lines that start with "// SYNOPSIS: "
+			// (spaces matter!)
+			while (trans.indexOf("// SYNOPSIS: ") == 0)
 				trans = trans.substring(trans.indexOf('\n')+1);
 			trans = "/* template:"+id+" { */" + trans + "/* } */";
 			translationCache_.put(id, trans);
