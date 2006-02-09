@@ -73,7 +73,8 @@
             "${grammar.file}"
         </echo>
         -->
-        <exec dir="${basedir}/src/x10/parser" executable="${lpg.executable}">
+        <exec dir="${basedir}/src/x10/parser" executable="${lpg.executable}"
+              failonerror="true">
             <arg value="-include-directory=${include.dir}"/>
             <arg value="${grammar.file}"/>
         </exec>
