@@ -1,6 +1,4 @@
 --
--- An LPG Lexer Template Using lpg.jar
---
 -- An instance of this template must have a $Export section and the export_terminals option
 --
 -- Macros that may be redefined in an instance of this template
@@ -16,6 +14,24 @@
 %Options table
 %options action=("*.java", "/.", "./")
 %options ParseTable=lpg.lpgjavaruntime.ParseTable
+%Options prefix=Char_
+
+--
+-- This template requires that the name of the EOF token be set
+-- to EOF and that the prefix be "Char_" to be consistent with
+-- KeywordTemplateD.
+--
+$Eof
+    EOF
+$End
+
+--
+-- This template also requires that the name of the parser EOF
+-- Token to be exported be set to EOF_TOKEN
+--
+$Export
+    EOF_TOKEN
+$End
 
 $Define
     --
@@ -40,12 +56,17 @@ $Define
     /. $Header
                 case $rule_number: { ./
 
-    $BeginAction
-    /.$DefaultAction./
+    $BeginAction /.$DefaultAction./
 
     $EndAction
     /.          break;
                 }./
+
+    $BeginJava
+    /.$BeginAction
+                $symbol_declarations./
+
+    $EndJava /.$EndAction./
 
     $NoAction
     /. $Header
@@ -59,6 +80,20 @@ $Define
             switch(ruleNumber)
             {./
 
+    $SplitActions
+    /.
+	            default:
+	                ruleAction$rule_number(ruleNumber);
+	                break;
+	        }
+	        return;
+	    }
+	
+	    public void ruleAction$rule_number(int ruleNumber)
+	    {
+	        switch (ruleNumber)
+	        {./
+
     $EndActions
     /.
                 default:
@@ -66,12 +101,6 @@ $Define
             }
             return;
         }./
-
-    $BeginJava
-    /.$BeginAction
-                    $symbol_declarations./
-
-    $EndJava /.$EndAction./
 $End
 
 $Globals

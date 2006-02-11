@@ -1,16 +1,14 @@
 --
--- An LPG Parser Template Using lpg.jar
---
---
--- B E G I N N I N G   O F   T E M P L A T E
---
 -- In a parser using this template, the following macro may be redefined:
 --
 --     $additional_interfaces
 --     $ast_class
 --
+-- B E G I N N I N G   O F   T E M P L A T E
+--
 %Options programming_language=java,margin=4,backtrack
 %Options table,error_maps,scopes
+%options prefix=TK_,
 %options action=("*.java", "/.", "./")
 %options ParseTable=lpg.lpgjavaruntime.ParseTable
 
@@ -56,9 +54,7 @@ $Define
     $BadAction
     /. $Header
                 case $rule_number:
-                    bad_rule = $rule_number;
-                    break;./
-
+                    throw new Error("No action specified for rule " + $rule_number);./
 
     $NullAction
     /. $Header
@@ -68,13 +64,8 @@ $Define
 
     $BeginActions
     /.
-        int bad_rule = 0;
-        public int getBadRule() { return bad_rule; }
         public void ruleAction(int ruleNumber)
         {
-            if (bad_rule != 0)
-                return;
-
             switch (ruleNumber)
             {./
 
@@ -108,8 +99,8 @@ $Define
 $End
 
 $Globals
-    /.
-    import lpg.lpgjavaruntime.*;./
+    /.import lpg.lpgjavaruntime.*;
+    ./
 $End
 
 $Headers

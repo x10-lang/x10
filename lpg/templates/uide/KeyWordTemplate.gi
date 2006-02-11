@@ -5,26 +5,38 @@
 -- There must be only one non-terminal, the start symbol, for the keywords
 -- The action for each keyword should be a call to $setResult(terminal_symbol)
 --
--- Macros that must be defined in an instance of this template
+-- Macro that may be redefined in an instance of this template
 --
 --     $eof_char
 --
 -- B E G I N N I N G   O F   T E M P L A T E
 --
-%Options escape=$,table=java,margin=4
-%options slr
+%Options Programming_Language=java,margin=4
+%Options table
 %options action=("*.java", "/.", "./")
 %options ParseTable=lpg.lpgjavaruntime.ParseTable
+%Options prefix=Char_
+
+--
+-- This template requires that the name of the EOF token be set
+-- to EOF and that the prefix be "Char_" to be consistent with
+-- LexerTemplateD.
+--
+$Eof
+    EOF
+$End
 
 $Define
     --
-    -- Macros that may be needed in an instance of this template
+    -- Macro that may be respecified in an instance of this template
     --
-    $setResult /.keywordKind[$rule_number] = ./
+    $eof_char /.Char_EOF./
 
     --
     -- Macros useful for specifying actions
     --
+    $setResult /.keywordKind[$rule_number] = ./
+
     $Header
     /.
             //
@@ -37,19 +49,18 @@ $Define
 $End
 
 $Globals
-    /.
-    import lpg.lpgjavaruntime.*;./
+    /.import lpg.lpgjavaruntime.*;
+    ./
 $End
 
 $Headers
     /.
-
     public class $action_type extends $prs_type implements $exp_type
     {
         private char[] inputChars;
         private final int keywordKind[] = new int[$num_rules + 1];
 
-        int[] getKeywordKinds() { return keywordKind; }
+        public int[] getKeywordKinds() { return keywordKind; }
 
         public int lexer(int curtok, int lasttok)
         {

@@ -1,21 +1,12 @@
 --
 -- The Java KeyWord Lexer
 --
-%Options fp=JavaKWLexer,prefix=Char_
+%Options fp=JavaKWLexer
 %options package=javaparser
 %options template=KeyWordTemplate.gi
-%options export_terminals=("JavaParsersym.java", "TK_")
 
 $Globals
     /.import java.util.*;./
-$End
-
-$Define
-    --
-    -- Definition of macros used in the lexer template
-    --
-    $action_class /.JavaKWLexer./
-    $eof_char /.Char_EOF./
 $End
 
 $Headers
@@ -117,10 +108,6 @@ $End
 $Terminals
     a    b    c    d    e    f    g    h    i    j    k    l    m
     n    o    p    q    r    s    t    u    v    w    x    y    z
-$End
-
-$Eof
-    EOF
 $End
 
 $Start

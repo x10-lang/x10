@@ -1,12 +1,10 @@
 --
 -- The X10 KeyWord Lexer
 --
-
 %Options list
-%Options fp=X10KWLexer,prefix=Char_
+%Options fp=X10KWLexer
 %options package=x10.parser
 %options template=uide/KeyWordTemplate.gi
-%options export_terminals=("X10Parsersym.java", "TK_")
 
 $Import
     GJavaKWLexer.gi
@@ -15,15 +13,6 @@ $End
 $Globals
     /.import java.util.*;
     ./
-$End
-
-$Define
-    --
-    -- Definition of macros used in the lexer template
-    --
-    $action_class /.$file_prefix./
-    $eof_char /.Char_EOF./
-
 $End
 
 $Export
@@ -190,4 +179,3 @@ $Rules
           $EndAction
         ./
 $End
-

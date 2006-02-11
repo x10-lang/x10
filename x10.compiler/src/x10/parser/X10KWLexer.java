@@ -1,6 +1,7 @@
 package x10.parser;
 
-import lpg.lpgjavaruntime.*;import java.util.*;
+import lpg.lpgjavaruntime.*;
+import java.util.*;
 import java.util.*;
 
 public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
@@ -8,7 +9,7 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
     private char[] inputChars;
     private final int keywordKind[] = new int[79 + 1];
 
-    int[] getKeywordKinds() { return keywordKind; }
+    public int[] getKeywordKinds() { return keywordKind; }
 
     public int lexer(int curtok, int lasttok)
     {
@@ -35,6 +36,7 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
     }
 
     public void setInputChars(char[] inputChars) { this.inputChars = inputChars; }
+
 
     final static int tokenKind[] = new int[128];
     static
@@ -71,6 +73,7 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
     {
         return (c < 128 ? tokenKind[c] : 0);
     }
+
 
     public X10KWLexer(char[] inputChars, int identifierKind)
     {
@@ -551,6 +554,7 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
                 keywordKind[79] = (TK_when);
       
     
+
         for (int i = 0; i < keywordKind.length; i++)
         {
             if (keywordKind[i] == 0)

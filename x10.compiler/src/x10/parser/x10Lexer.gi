@@ -1,14 +1,12 @@
 --
 -- The X10 Lexer
 --
-
 %Options la=2,list
-%Options fp=X10Lexer,prefix=Char_
+%Options fp=X10Lexer
 %options single_productions
 %options package=x10.parser
 %options template=uide/LexerTemplate.gi
 %options filter=X10KWLexer.gi
-%options export_terminals=("X10Parsersym.java", "TK_")
 
 $Import
     GjavaLexer.gi
@@ -25,12 +23,6 @@ $Globals
 $End
 
 $Define
-    --
-    -- Definition of macros used in the lexer template
-    --
-    $action_class /.$file_prefix./
-    $prs_stream_class /.PrsStream./
-
     --
     -- Definition of macro used in the included file LexerBasicMapB.g
     --

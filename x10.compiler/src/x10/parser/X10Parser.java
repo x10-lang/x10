@@ -1,8 +1,11 @@
+
 //
 // 12/25/2004
 // This is the basic X10 grammar specification without support for generic types.
 // Intended for the Feb 2005 X10 release.
-////
+//
+
+//
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -11,9 +14,12 @@
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
 // 12/28/2004
+
 package x10.parser;
 
-import lpg.lpgjavaruntime.*;import java.util.Collections;
+import lpg.lpgjavaruntime.*;
+
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -97,6 +103,7 @@ import lpg.lpgjavaruntime.PrsStream;
 import lpg.lpgjavaruntime.RuleAction;
 import lpg.lpgjavaruntime.UndefinedEofSymbolException;
 import lpg.lpgjavaruntime.UnimplementedTerminalsException;
+
 public class X10Parser extends PrsStream implements RuleAction, Parser
 {
     private static ParseTable prs = new X10Parserprs();
@@ -233,6 +240,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         return null;
     }
 
+
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -268,7 +276,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         {
             super(path, filename,
                   leftToken.getLine(), leftToken.getColumn(),
-                  rightToken.getLine(), rightToken.getColumn());
+                  rightToken.getEndLine(), rightToken.getEndColumn());
             this.leftIToken = leftToken;
             this.rightIToken = rightToken;
         }
@@ -301,8 +309,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         try
         {
             SourceFile sf = (SourceFile) parser();
-            if (getBadRule() != 0)
-                throw new RuntimeException("Rule " + getBadRule() + " has not yet been implemented");
 
             if ((!unrecoverableSyntaxError) && (sf != null))
                 return sf.source(source);
@@ -707,13 +713,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     }
 
 
-    int bad_rule = 0;
-    public int getBadRule() { return bad_rule; }
     public void ruleAction(int ruleNumber)
     {
-        if (bad_rule != 0)
-            return;
-
         switch (ruleNumber)
         {
  
@@ -3325,8 +3326,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 373:  Argumentsopt ::= Arguments
             //
             case 373:
-                bad_rule = 373;
-                break;
+                throw new Error("No action specified for rule " + 373);
  
             //
             // Rule 374:  ,opt ::= $Empty
@@ -3867,15 +3867,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 450:  ObjectKind ::= value
             //
             case 450:
-                bad_rule = 450;
-                break;
+                throw new Error("No action specified for rule " + 450);
  
             //
             // Rule 451:  ObjectKind ::= reference
             //
             case 451:
-                bad_rule = 451;
-                break;
+                throw new Error("No action specified for rule " + 451);
  
             //
             // Rule 452:  MethodModifier ::= atomic
@@ -4536,64 +4534,55 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 529:  FunExpression ::= fun Type ( FormalParameterListopt ) { Expression }
             //
             case 529:
-                bad_rule = 529;
-                break;
+                throw new Error("No action specified for rule " + 529);
  
             //
             // Rule 530:  MethodInvocation ::= MethodName ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 530:
-                bad_rule = 530;
-                break; 
+                throw new Error("No action specified for rule " + 530); 
  
             //
             // Rule 531:  MethodInvocation ::= Primary . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 531:
-                bad_rule = 531;
-                break; 
+                throw new Error("No action specified for rule " + 531); 
  
             //
             // Rule 532:  MethodInvocation ::= super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 532:
-                bad_rule = 532;
-                break; 
+                throw new Error("No action specified for rule " + 532); 
  
             //
             // Rule 533:  MethodInvocation ::= ClassName . super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 533:
-                bad_rule = 533;
-                break; 
+                throw new Error("No action specified for rule " + 533); 
  
             //
             // Rule 534:  MethodInvocation ::= TypeName . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 534:
-                bad_rule = 534;
-                break; 
+                throw new Error("No action specified for rule " + 534); 
  
             //
             // Rule 535:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
             //
             case 535:
-                bad_rule = 535;
-                break; 
+                throw new Error("No action specified for rule " + 535); 
  
             //
             // Rule 536:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
             //
             case 536:
-                bad_rule = 536;
-                break; 
+                throw new Error("No action specified for rule " + 536); 
  
             //
             // Rule 537:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
             //
             case 537:
-                bad_rule = 537;
-                break; 
+                throw new Error("No action specified for rule " + 537); 
  
             //
             // Rule 538:  MethodModifier ::= synchronized
@@ -4726,7 +4715,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
-        
+    
+    
             default:
                 break;
         }
