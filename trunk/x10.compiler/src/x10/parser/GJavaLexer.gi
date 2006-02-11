@@ -2,12 +2,11 @@
 -- The Java Lexer
 --
 %Options la=2,list
-%Options fp=JavaLexer,prefix=Char_
+%Options fp=JavaLexer
 %options single_productions
 %options package=javaparser
 %options template=uide/LexerTemplate.gi
 %options filter=GJavaKWLexer.gi
-%options export_terminals=("JavaParsersym.java", "TK_")
 
 $Include
     uide/LexerBasicMap.gi
@@ -18,7 +17,7 @@ $Headers
     -- Additional methods for the action class not provided in the template
     --
     /.
-        public $action_class(java.io.Reader reader, String filename) throws java.io.IOException
+        public $action_type(java.io.Reader reader, String filename) throws java.io.IOException
         {
             ArrayList buffers = new ArrayList();
             int size = 0;
@@ -250,7 +249,7 @@ $Headers
             {
                 fileCount++;
 
-                $action_class lexer = new $action_class(file);
+                $action_type lexer = new $action_type(file);
 
                 PrsStream stream = new PrsStream(lexer);
                 lexer.lexer(stream);
@@ -297,21 +296,21 @@ $Headers
         {
             try
             {
-                $action_class old_lexer, new_lexer;
+                $action_type old_lexer, new_lexer;
                 
                 if (old_file.equals(""))
                 {
                     char[] input_chars = new char[0];
-                    old_lexer = new $action_class(input_chars, "null_file");
+                    old_lexer = new $action_type(input_chars, "null_file");
                 }
-                else old_lexer = new $action_class(old_file);
+                else old_lexer = new $action_type(old_file);
 
                 if (new_file.equals(""))
                 {
                     char[] input_chars = new char[0];
-                    new_lexer = new $action_class(input_chars, "null_file");
+                    new_lexer = new $action_type(input_chars, "null_file");
                 }
-                else new_lexer = new $action_class(new_file);
+                else new_lexer = new $action_type(new_file);
 
                 PrsStream old_stream = new PrsStream(old_lexer);
                 old_lexer.lexer(old_stream);
@@ -512,15 +511,6 @@ $Globals
 $End
     
 $Define
-
-    --
-    -- Definition of macros used in the lexer template
-    --
-    $action_class /.$file_prefix./
-    $lex_stream_class /.JavaLexerStream./
-    $prs_stream_class /.PrsStream./
-    $eof_token /.$_EOF_TOKEN./
-
     --
     -- Definition of macro used in the included file LexerBasicMapB.g
     --
@@ -589,7 +579,6 @@ $Export
     DOT
     EQUAL
     ELLIPSIS
-    EOF_TOKEN
 
 $End
 
@@ -645,10 +634,6 @@ $Terminals
     RightParen   ::= ')'
     Equal        ::= '='
 
-$End
-
-$Eof
-    EOF
 $End
 
 $Rules

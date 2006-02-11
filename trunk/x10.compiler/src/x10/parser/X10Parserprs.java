@@ -1,8 +1,11 @@
+
 //
 // 12/25/2004
 // This is the basic X10 grammar specification without support for generic types.
 // Intended for the Feb 2005 X10 release.
-////
+//
+
+//
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -11,6 +14,7 @@
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
 // 12/28/2004
+
 package x10.parser;
 
 public class X10Parserprs implements lpg.lpgjavaruntime.ParseTable, X10Parsersym {
@@ -3659,7 +3663,7 @@ public class X10Parserprs implements lpg.lpgjavaruntime.ParseTable, X10Parsersym
     public interface TerminalIndex {
         public final static char terminalIndex[] = {0,
             12,129,127,24,125,54,56,59,65,72,
-            79,81,90,122,123,124,130,131,13,112,
+            79,81,90,122,123,124,130,132,13,112,
             119,120,117,21,44,102,1,34,83,93,
             96,46,47,48,49,50,51,69,84,100,
             118,88,70,86,87,91,52,92,17,28,
@@ -3669,9 +3673,9 @@ public class X10Parserprs implements lpg.lpgjavaruntime.ParseTable, X10Parsersym
             40,36,61,99,103,121,37,14,7,18,
             39,57,63,78,2,4,6,8,9,10,
             11,15,19,26,27,30,35,38,41,67,
-            128,22,29,43,82,113,140,58,68,71,
+            128,22,29,43,82,113,131,58,68,71,
             77,98,76,85,105,111,126,66,74,110,
-            116,132,133,134,135,136,137,138,139,141
+            116,133,134,135,136,137,138,139,140,141
         };
     };
     public final static char terminalIndex[] = TerminalIndex.terminalIndex;
@@ -4146,6 +4150,7 @@ public class X10Parserprs implements lpg.lpgjavaruntime.ParseTable, X10Parsersym
             "unsafe",
             "value",
             "when",
+            "EOF_TOKEN",
             "IDENTIFIER",
             "SlComment",
             "MlComment",
@@ -4155,7 +4160,6 @@ public class X10Parserprs implements lpg.lpgjavaruntime.ParseTable, X10Parsersym
             "UNSIGNED_RIGHT_SHIFT",
             "RIGHT_SHIFT_EQUAL",
             "UNSIGNED_RIGHT_SHIFT_EQUAL",
-            "EOF_TOKEN",
             "ERROR_TOKEN",
             "identifier",
             "ClassOrInterfaceType",

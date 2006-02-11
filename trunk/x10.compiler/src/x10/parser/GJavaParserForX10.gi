@@ -1,9 +1,4 @@
-%options fp=JavaParser,prefix=TK_
-%options escape=$
-%options table=java
-%options error-maps
-%options scopes
-%options backtrack
+%options fp=JavaParser
 %options package=javaparser
 %options template=uide/btParserTemplate.gi
 %options import_terminals=GJavaLexer.gi
@@ -90,20 +85,8 @@ $Terminals
     ELLIPSIS ::= ...
 $End
 
-$Eof
-    EOF_TOKEN
-$End
-
 $Start
     CompilationUnit
-$End
-
-$Define
-    --
-    -- Definition of macros used in the parser template
-    --
-    $action_class /.JavaParser./
-    $ast_class /.Ast./
 $End
 
 $Rules

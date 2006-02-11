@@ -2,11 +2,13 @@ package x10.parser;
 
 import lpg.lpgjavaruntime.*;
 import java.util.*;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.io.File;
 import java.util.ArrayList;
+
 public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym, RuleAction
 {
     private static ParseTable prs = new X10Lexerprs();
@@ -63,6 +65,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             
         return;
     }
+
     //
     // The Lexer contains an array of characters as the input stream to be parsed.
     // There are methods to retrieve and classify characters.
@@ -264,6 +267,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
                        ? Char_EOF
                        : Char_AfterASCII);
     }
+
     public X10Lexer(java.io.Reader reader, String filename) throws java.io.IOException
     {
         ArrayList buffers = new ArrayList();
@@ -750,6 +754,7 @@ assert(new_file != null);
         }
         return;
     }
+
     static public class DifferX10 extends DifferJava
     {
         protected DifferX10() {}
@@ -1330,7 +1335,8 @@ assert(new_file != null);
                 makeToken(TK_ARROW);
                 break;
             }
-        
+    
+    
             default:
                 break;
         }
