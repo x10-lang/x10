@@ -6,14 +6,11 @@
  */
 package polyglot.ext.x10.types;
 
-import polyglot.types.ReferenceType;
-
 /**
  * @author vj
- *
- * 
  */
 public interface NullableType extends X10ReferenceType {
-	X10ReferenceType base();
-
+	X10Type base();
+	NullableType base(X10Type base);
 }
+
