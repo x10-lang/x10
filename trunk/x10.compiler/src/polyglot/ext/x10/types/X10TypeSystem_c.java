@@ -2,6 +2,7 @@ package polyglot.ext.x10.types;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,9 +23,8 @@ import polyglot.util.Position;
  * @author Christoph von Praun
  * @author vj
  */
-public class X10TypeSystem_c
-extends TypeSystem_c
-implements X10TypeSystem {
+public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
+
 	private static X10TypeSystem_c factory = null;
 	public static X10TypeSystem_c getFactory() {
 		return factory;
@@ -34,7 +34,6 @@ implements X10TypeSystem {
 		factory = this;
 		unknownType = new X10UnknownType_c(this);
 	}
-
 
 	/**
 	 * Requires: all type arguments are canonical.
@@ -58,18 +57,30 @@ implements X10TypeSystem {
 		return result;
 	}
 
-	public NullableType createNullableType( Position pos, ReferenceType type ) {
-		return NullableType_c.makeNullable( this, pos, type );
+	private HashMap nullableMap = new HashMap();
+	/**
+	 * Return a nullable type based on a given type.
+	 * TODO: rename this to nullableType() -- the name is misleading.
+	 */
+	public NullableType createNullableType(Position pos, X10Type type) {
+		NullableType t = (NullableType) nullableMap.get(type);
+		if (t == null) {
+			t = NullableType_c.makeNullable(this, pos, type);
+			nullableMap.put(type, t);
+		}
+		return t;
 	}
 
-	public FutureType createFutureType( Position pos, Type type ) {
-		return new FutureType_c( this, pos, type );
+	public FutureType createFutureType(Position pos, Type type) {
+		return new FutureType_c(this, pos, type);
 	}
 
-	public ParametricType createParametricType ( Position pos, X10ReferenceType type,
-	        List typeparameters,
-	        DepParameterExpr expr ) {
-		return new ParametricType_c( this, pos, type, typeparameters, expr);
+	public ParametricType createParametricType(Position pos,
+											   X10ReferenceType type,
+											   List typeparameters,
+											   DepParameterExpr expr)
+	{
+		return new ParametricType_c(this, pos, type, typeparameters, expr);
 	}
 
 	protected UnknownType createUnknownType() {
@@ -108,612 +119,629 @@ implements X10TypeSystem {
 	/* Predefined x10.lang classes that need not be translated by polyglot */
 	protected ClassType x10ObjectType_;
 	public ClassType X10Object() {
-		if ( x10ObjectType_ == null)
+		if (x10ObjectType_ == null)
 			x10ObjectType_ = load("x10.lang.Object"); // java file
 		return x10ObjectType_;
 	}
 
 	protected ClassType placeType_;
 	public ClassType place() {
-		if ( placeType_ == null)
+		if (placeType_ == null)
 			placeType_ = load("x10.lang.place"); // java file
 		return placeType_;
 	}
 
 	protected ClassType regionType_;
 	public ClassType region() {
-		if ( regionType_ == null)
+		if (regionType_ == null)
 			regionType_ = load("x10.lang.region"); // java file
 		return regionType_;
 	}
 
-
-
 	protected ClassType pointType_;
 	public ClassType point() {
-		if ( pointType_ == null)
+		if (pointType_ == null)
 			pointType_ = load("x10.lang.point"); // java file
 		return pointType_;
 	}
 
-    protected ClassType valueType_;
-    public ClassType value() {
-        if ( valueType_ == null)
-            valueType_ = load("x10.lang.ValueType"); // java file
-        return valueType_;
-    }
+	protected ClassType valueType_;
+	public ClassType value() {
+		if (valueType_ == null)
+			valueType_ = load("x10.lang.ValueType"); // java file
+		return valueType_;
+	}
 
-    protected ClassType distributionType_;
-    public ClassType distribution() {
-        if ( distributionType_ == null)
-            distributionType_ = load("x10.lang.dist"); // java file
-        return distributionType_;
-    }
+	protected ClassType distributionType_;
+	public ClassType distribution() {
+		if (distributionType_ == null)
+			distributionType_ = load("x10.lang.dist"); // java file
+		return distributionType_;
+	}
 
 	protected ClassType activityType_;
 	public ClassType Activity() {
-		if ( activityType_ == null)
+		if (activityType_ == null)
 			activityType_ = load("x10.lang.Activity"); // java file
 		return activityType_;
 	}
 
 	protected ClassType futureActivityType_;
 	public ClassType FutureActivity() {
-		if ( futureActivityType_ == null)
+		if (futureActivityType_ == null)
 			futureActivityType_ = load("x10.lang.Activity$Expr"); // java file
 		return futureActivityType_;
 	}
 
 	protected ClassType arrayType_;
 	public ClassType array() {
-		if ( arrayType_ == null)
+		if (arrayType_ == null)
 			arrayType_ = load("x10.lang.array"); // java file
 		return arrayType_;
 	}
 
 	protected ClassType clockType_;
 	public ClassType clock() {
-		if ( clockType_ == null)
+		if (clockType_ == null)
 			clockType_ = load("x10.lang.clock"); // java file
 		return clockType_;
 	}
 
 	protected ClassType runtimeType_;
 	public ClassType Runtime() {
-		if ( runtimeType_ == null)
+		if (runtimeType_ == null)
 			runtimeType_ = load("x10.lang.Runtime"); // java file
 		return runtimeType_;
 	}
 
 	protected ClassType booleanArrayPointwiseOpType_;
-    public ClassType BooleanArrayPointwiseOp() {
-        if ( booleanArrayPointwiseOpType_ == null)
-            booleanArrayPointwiseOpType_ = load("x10.lang.booleanArray$pointwiseOp"); // java file
-        return booleanArrayPointwiseOpType_;
-    }
+	public ClassType BooleanArrayPointwiseOp() {
+		if (booleanArrayPointwiseOpType_ == null)
+			booleanArrayPointwiseOpType_ = load("x10.lang.booleanArray$pointwiseOp"); // java file
+		return booleanArrayPointwiseOpType_;
+	}
 
-    protected ClassType charArrayPointwiseOpType_;
-    public ClassType CharArrayPointwiseOp() {
-        if ( charArrayPointwiseOpType_ == null)
-            charArrayPointwiseOpType_ = load("x10.lang.charArray$pointwiseOp"); // java file
-        return charArrayPointwiseOpType_;
-    }
+	protected ClassType charArrayPointwiseOpType_;
+	public ClassType CharArrayPointwiseOp() {
+		if (charArrayPointwiseOpType_ == null)
+			charArrayPointwiseOpType_ = load("x10.lang.charArray$pointwiseOp"); // java file
+		return charArrayPointwiseOpType_;
+	}
 
-    protected ClassType byteArrayPointwiseOpType_;
-    public ClassType ByteArrayPointwiseOp() {
-        if ( byteArrayPointwiseOpType_ == null)
-            byteArrayPointwiseOpType_ = load("x10.lang.byteArray$pointwiseOp"); // java file
-        return byteArrayPointwiseOpType_;
-    }
+	protected ClassType byteArrayPointwiseOpType_;
+	public ClassType ByteArrayPointwiseOp() {
+		if (byteArrayPointwiseOpType_ == null)
+			byteArrayPointwiseOpType_ = load("x10.lang.byteArray$pointwiseOp"); // java file
+		return byteArrayPointwiseOpType_;
+	}
 
-    protected ClassType shortArrayPointwiseOpType_;
-    public ClassType ShortArrayPointwiseOp() {
-        if ( shortArrayPointwiseOpType_ == null)
-            shortArrayPointwiseOpType_ = load("x10.lang.shortArray$pointwiseOp"); // java file
-        return shortArrayPointwiseOpType_;
-    }
+	protected ClassType shortArrayPointwiseOpType_;
+	public ClassType ShortArrayPointwiseOp() {
+		if (shortArrayPointwiseOpType_ == null)
+			shortArrayPointwiseOpType_ = load("x10.lang.shortArray$pointwiseOp"); // java file
+		return shortArrayPointwiseOpType_;
+	}
 
-    protected ClassType intArrayPointwiseOpType_;
+	protected ClassType intArrayPointwiseOpType_;
 	public ClassType IntArrayPointwiseOp() {
-		if ( intArrayPointwiseOpType_ == null) {
+		if (intArrayPointwiseOpType_ == null) {
 			intArray(); // ensure that intArray is loaded.
 			intArrayPointwiseOpType_ = load("x10.lang.intArray$pointwiseOp"); // java file
 		}
 		return intArrayPointwiseOpType_;
 	}
 
-    protected ClassType floatArrayPointwiseOpType_;
-    public ClassType FloatArrayPointwiseOp() {
-        if ( floatArrayPointwiseOpType_ == null)
-            floatArrayPointwiseOpType_ = load("x10.lang.floatArray$pointwiseOp"); // java file
-        return floatArrayPointwiseOpType_;
-    }
+	protected ClassType floatArrayPointwiseOpType_;
+	public ClassType FloatArrayPointwiseOp() {
+		if (floatArrayPointwiseOpType_ == null)
+			floatArrayPointwiseOpType_ = load("x10.lang.floatArray$pointwiseOp"); // java file
+		return floatArrayPointwiseOpType_;
+	}
 
 	protected ClassType doubleArrayPointwiseOpType_;
 	public ClassType DoubleArrayPointwiseOp() {
-		if ( doubleArrayPointwiseOpType_ == null)
+		if (doubleArrayPointwiseOpType_ == null)
 			doubleArrayPointwiseOpType_ = load("x10.lang.doubleArray$pointwiseOp"); // java file
 		return doubleArrayPointwiseOpType_;
 	}
 
-	 /**
-     * Factory method for ArrayTypes.
-     * vj 05/23 -- I dont believe this is called anymore. Called only from jl.types.TypeSystem_c.
-     */
-    protected ArrayType arrayType(Position pos, Type type) {
-    	return new X10ArrayType_c(this, pos, type);
-    }
+	/**
+	 * Factory method for ArrayTypes.
+	 * vj 05/23 -- I dont believe this is called anymore. Called only from jl.types.TypeSystem_c.
+	 */
+	protected ArrayType arrayType(Position pos, Type type) {
+		return new X10ArrayType_c(this, pos, type);
+	}
 
-
+	// [IP] TODO: Consolidate the following 4 methods.
 	public ReferenceType array(Type type, boolean isValueType, Expr distribution) {
-        if (type.isBoolean())
-            return booleanArray( isValueType, distribution);
-        if (type.isChar())
-            return charArray( isValueType, distribution);
-        if (type.isByte())
-            return byteArray( isValueType, distribution);
-        if (type.isShort())
-            return shortArray( isValueType, distribution);
-        if (type.isInt())
-			return intArray( isValueType, distribution );
-        if (type.isFloat())
-            return floatArray( isValueType, distribution);
-        if (type.isDouble())
-			return doubleArray( isValueType, distribution);
+		if (type.isBoolean())
+			return booleanArray(isValueType, distribution);
+		if (type.isChar())
+			return charArray(isValueType, distribution);
+		if (type.isByte())
+			return byteArray(isValueType, distribution);
+		if (type.isShort())
+			return shortArray(isValueType, distribution);
+		if (type.isInt())
+			return intArray(isValueType, distribution);
+		if (type.isFloat())
+			return floatArray(isValueType, distribution);
+		if (type.isDouble())
+			return doubleArray(isValueType, distribution);
 		if (type.isLong())
-			return longArray( isValueType, distribution);
+			return longArray(isValueType, distribution);
 		List list = new LinkedList();
 		list.add(type);
 		return this.createParametricType(Position.COMPILER_GENERATED,
-		        (X10ReferenceType) genericArray(isValueType, distribution),
-		        list,
-		        null);
+				(X10ReferenceType) genericArray(isValueType, distribution),
+				list,
+				null);
 	}
 
-	public ReferenceType array( Type type,  Expr distribution ) {
-        if (type.isBoolean())
-            return booleanArray(distribution);
-        if (type.isChar())
-            return charArray(distribution);
-        if (type.isByte())
-            return byteArray(distribution);
-        if (type.isShort())
-            return shortArray(distribution);
-        if (type.isInt())
-            return intArray(distribution );
-        if (type.isFloat())
-            return floatArray(distribution);
-        if (type.isDouble())
-            return doubleArray(distribution);
-        if (type.isLong())
-            return longArray(distribution);
-        List list = new LinkedList();
-        list.add(type);
-        return this.createParametricType(Position.COMPILER_GENERATED,
-                (X10ReferenceType) genericArray(distribution),
-                list,
-                null);
+	public ReferenceType array(Type type, Expr distribution) {
+		if (type.isBoolean())
+			return booleanArray(distribution);
+		if (type.isChar())
+			return charArray(distribution);
+		if (type.isByte())
+			return byteArray(distribution);
+		if (type.isShort())
+			return shortArray(distribution);
+		if (type.isInt())
+			return intArray(distribution);
+		if (type.isFloat())
+			return floatArray(distribution);
+		if (type.isDouble())
+			return doubleArray(distribution);
+		if (type.isLong())
+			return longArray(distribution);
+		List list = new LinkedList();
+		list.add(type);
+		return this.createParametricType(Position.COMPILER_GENERATED,
+				(X10ReferenceType) genericArray(distribution),
+				list,
+				null);
 	}
 
-	public ReferenceType array(Type type, boolean isValue ) {
-        if (type.isBoolean())
-            return isValue ? booleanValueArray() : BooleanReferenceArray();
-        if (type.isChar())
-            return isValue ? charValueArray() : CharReferenceArray();
-        if (type.isByte())
-            return isValue ? byteValueArray() : ByteReferenceArray();
-        if (type.isShort())
-            return isValue ? shortValueArray() : ShortReferenceArray();
-        if (type.isInt())
+	public ReferenceType array(Type type, boolean isValue) {
+		if (type.isBoolean())
+			return isValue ? booleanValueArray() : BooleanReferenceArray();
+		if (type.isChar())
+			return isValue ? charValueArray() : CharReferenceArray();
+		if (type.isByte())
+			return isValue ? byteValueArray() : ByteReferenceArray();
+		if (type.isShort())
+			return isValue ? shortValueArray() : ShortReferenceArray();
+		if (type.isInt())
 			return isValue ? intValueArray() : IntReferenceArray();
-        if (type.isFloat())
-            return isValue ? floatValueArray() : FloatReferenceArray();
-        if (type.isDouble())
-		    return isValue ? doubleValueArray() : DoubleReferenceArray();
+		if (type.isFloat())
+			return isValue ? floatValueArray() : FloatReferenceArray();
+		if (type.isDouble())
+			return isValue ? doubleValueArray() : DoubleReferenceArray();
 		if (type.isLong())
-		    return isValue ? longValueArray() : LongReferenceArray();
+			return isValue ? longValueArray() : LongReferenceArray();
 		List list = new LinkedList();
 		list.add(type);
 		return this.createParametricType(Position.COMPILER_GENERATED,
-		        (X10ReferenceType) genericValueArray(),
-		        list,
-		        null);
+				(X10ReferenceType) genericValueArray(),
+				list,
+				null);
 	}
 
-	public ReferenceType array(Type type ) {
-        if (type.isBoolean())
-            return booleanArray();
-        if (type.isChar())
-            return charArray();
-        if (type.isByte())
-            return byteArray();
-        if (type.isShort())
-            return shortArray();
-        if (type.isInt())
-		    return intArray( );
-        if (type.isFloat())
-            return floatArray();
-        if (type.isDouble())
-		    return doubleArray();
+	public ReferenceType array(Type type) {
+		if (type.isBoolean())
+			return booleanArray();
+		if (type.isChar())
+			return charArray();
+		if (type.isByte())
+			return byteArray();
+		if (type.isShort())
+			return shortArray();
+		if (type.isInt())
+			return intArray();
+		if (type.isFloat())
+			return floatArray();
+		if (type.isDouble())
+			return doubleArray();
 		if (type.isLong())
-		    return longArray();
+			return longArray();
 		List list = new LinkedList();
-        list.add(type);
-        return this.createParametricType(Position.COMPILER_GENERATED,
-            (X10ReferenceType) genericArray(),
-            list,
-            null);
+		list.add(type);
+		return this.createParametricType(Position.COMPILER_GENERATED,
+				(X10ReferenceType) genericArray(),
+				list,
+				null);
 	}
 
-    public ClassType booleanArray(boolean isValueType, Expr distribution ) {
-        return
-        isValueType ? booleanValueArray( distribution ) : BooleanReferenceArray( distribution );
-    }
-    public ClassType booleanArray() {
-        return booleanArray( null );
-    }
+	public ClassType booleanArray(boolean isValueType, Expr distribution) {
+		return isValueType
+			? booleanValueArray(distribution)
+			: BooleanReferenceArray(distribution);
+	}
 
-    protected ClassType booleanArrayType_;
-    public ClassType booleanArray( Expr distribution ) {
-        if ( booleanArrayType_ == null)
-            booleanArrayType_ = load("x10.lang.booleanArray"); // java file
+	public ClassType booleanArray() {
+		return booleanArray(null);
+	}
 
-        return booleanArrayType_;
-    }
+	protected ClassType booleanArrayType_;
+	public ClassType booleanArray(Expr distribution) {
+		if (booleanArrayType_ == null)
+			booleanArrayType_ = load("x10.lang.booleanArray"); // java file
 
-    public ClassType booleanValueArray( ) {
-        return booleanValueArray(null );
-    }
+		return booleanArrayType_;
+	}
 
-    protected ClassType booleanValueArrayType_;
-    // see the todo for intValueArray.
-    public ClassType booleanValueArray( Expr distribution ) {
-            return booleanArray( distribution );
-    }
+	public ClassType booleanValueArray() {
+		return booleanValueArray(null);
+	}
 
-    public ClassType BooleanReferenceArray( ) {
-        return BooleanReferenceArray(null );
-    }
+	protected ClassType booleanValueArrayType_;
+	// see the TODO for intValueArray.
+	public ClassType booleanValueArray(Expr distribution) {
+		return booleanArray(distribution);
+	}
 
-    protected ClassType booleanReferenceArrayType_;
-    public ClassType BooleanReferenceArray( Expr distribution ) {
-        if ( booleanReferenceArrayType_ == null)
-            booleanReferenceArrayType_ = load("x10.lang.BooleanReferenceArray"); // java file
-         //  return booleanReferenceArrayType_.setParameter( "distribution", distribution );
-        return booleanReferenceArrayType_;
-    }
+	public ClassType BooleanReferenceArray() {
+		return BooleanReferenceArray(null);
+	}
 
-    public ClassType charArray(boolean isValueType, Expr distribution ) {
-        return
-        isValueType ? charValueArray( distribution ) : CharReferenceArray( distribution );
-    }
-    public ClassType charArray() {
-        return charArray( null );
-    }
+	protected ClassType booleanReferenceArrayType_;
+	public ClassType BooleanReferenceArray(Expr distribution) {
+		if (booleanReferenceArrayType_ == null)
+			booleanReferenceArrayType_ = load("x10.lang.BooleanReferenceArray"); // java file
+		// return booleanReferenceArrayType_.setParameter("distribution", distribution);
+		return booleanReferenceArrayType_;
+	}
 
-    protected ClassType charArrayType_;
-    public ClassType charArray( Expr distribution ) {
-        if ( charArrayType_ == null)
-            charArrayType_ = load("x10.lang.charArray"); // java file
+	public ClassType charArray(boolean isValueType, Expr distribution) {
+		return isValueType
+			? charValueArray(distribution)
+			: CharReferenceArray(distribution);
+	}
 
-        return charArrayType_;
-    }
+	public ClassType charArray() {
+		return charArray(null);
+	}
 
-    public ClassType charValueArray( ) {
-        return charValueArray(null );
-    }
+	protected ClassType charArrayType_;
+	public ClassType charArray(Expr distribution) {
+		if (charArrayType_ == null)
+			charArrayType_ = load("x10.lang.charArray"); // java file
 
-    protected ClassType charValueArrayType_;
-    // see the todo for intValueArray.
-    public ClassType charValueArray( Expr distribution ) {
-            return charArray( distribution );
-    }
+		return charArrayType_;
+	}
 
-    public ClassType CharReferenceArray( ) {
-        return CharReferenceArray(null );
-    }
+	public ClassType charValueArray() {
+		return charValueArray(null);
+	}
 
-    protected ClassType charReferenceArrayType_;
-    public ClassType CharReferenceArray( Expr distribution ) {
-        if ( charReferenceArrayType_ == null)
-            charReferenceArrayType_ = load("x10.lang.CharReferenceArray"); // java file
-         //  return charReferenceArrayType_.setParameter( "distribution", distribution );
-        return charReferenceArrayType_;
-    }
+	protected ClassType charValueArrayType_;
+	// see the TODO for intValueArray.
+	public ClassType charValueArray(Expr distribution) {
+		return charArray(distribution);
+	}
 
-    public ClassType byteArray(boolean isValueType, Expr distribution ) {
-        return
-        isValueType ? byteValueArray( distribution ) : ByteReferenceArray( distribution );
-    }
-    public ClassType byteArray() {
-        return byteArray( null );
-    }
+	public ClassType CharReferenceArray() {
+		return CharReferenceArray(null);
+	}
 
-    protected ClassType byteArrayType_;
-    public ClassType byteArray( Expr distribution ) {
-        if ( byteArrayType_ == null)
-            byteArrayType_ = load("x10.lang.byteArray"); // java file
+	protected ClassType charReferenceArrayType_;
+	public ClassType CharReferenceArray(Expr distribution) {
+		if (charReferenceArrayType_ == null)
+			charReferenceArrayType_ = load("x10.lang.CharReferenceArray"); // java file
+		// return charReferenceArrayType_.setParameter("distribution", distribution);
+		return charReferenceArrayType_;
+	}
 
-        return byteArrayType_;
-    }
+	public ClassType byteArray(boolean isValueType, Expr distribution) {
+		return isValueType
+			? byteValueArray(distribution)
+			: ByteReferenceArray(distribution);
+	}
 
-    public ClassType byteValueArray( ) {
-        return byteValueArray(null );
-    }
+	public ClassType byteArray() {
+		return byteArray(null);
+	}
 
-    protected ClassType byteValueArrayType_;
-    // see the todo for intValueArray.
-    public ClassType byteValueArray( Expr distribution ) {
-            return byteArray( distribution );
-    }
+	protected ClassType byteArrayType_;
+	public ClassType byteArray(Expr distribution) {
+		if (byteArrayType_ == null)
+			byteArrayType_ = load("x10.lang.byteArray"); // java file
 
-    public ClassType ByteReferenceArray( ) {
-        return ByteReferenceArray(null );
-    }
+		return byteArrayType_;
+	}
 
-    protected ClassType byteReferenceArrayType_;
-    public ClassType ByteReferenceArray( Expr distribution ) {
-        if ( byteReferenceArrayType_ == null)
-            byteReferenceArrayType_ = load("x10.lang.ByteReferenceArray"); // java file
-         //  return byteReferenceArrayType_.setParameter( "distribution", distribution );
-        return byteReferenceArrayType_;
-    }
+	public ClassType byteValueArray() {
+		return byteValueArray(null);
+	}
 
-    public ClassType shortArray(boolean isValueType, Expr distribution ) {
-        return
-        isValueType ? shortValueArray( distribution ) : ShortReferenceArray( distribution );
-    }
-    public ClassType shortArray() {
-        return shortArray( null );
-    }
+	protected ClassType byteValueArrayType_;
+	// see the TODO for intValueArray.
+	public ClassType byteValueArray(Expr distribution) {
+		return byteArray(distribution);
+	}
 
-    protected ClassType shortArrayType_;
-    public ClassType shortArray( Expr distribution ) {
-        if ( shortArrayType_ == null)
-            shortArrayType_ = load("x10.lang.shortArray"); // java file
+	public ClassType ByteReferenceArray() {
+		return ByteReferenceArray(null);
+	}
 
-        return shortArrayType_;
-    }
+	protected ClassType byteReferenceArrayType_;
+	public ClassType ByteReferenceArray(Expr distribution) {
+		if (byteReferenceArrayType_ == null)
+			byteReferenceArrayType_ = load("x10.lang.ByteReferenceArray"); // java file
+		// return byteReferenceArrayType_.setParameter("distribution", distribution);
+		return byteReferenceArrayType_;
+	}
 
-    public ClassType shortValueArray( ) {
-        return shortValueArray(null );
-    }
+	public ClassType shortArray(boolean isValueType, Expr distribution) {
+		return isValueType
+			? shortValueArray(distribution)
+			: ShortReferenceArray(distribution);
+	}
 
-    protected ClassType shortValueArrayType_;
-    // see the todo for intValueArray.
-    public ClassType shortValueArray( Expr distribution ) {
-            return shortArray( distribution );
-    }
+	public ClassType shortArray() {
+		return shortArray(null);
+	}
 
-    public ClassType ShortReferenceArray( ) {
-        return ShortReferenceArray(null );
-    }
+	protected ClassType shortArrayType_;
+	public ClassType shortArray(Expr distribution) {
+		if (shortArrayType_ == null)
+			shortArrayType_ = load("x10.lang.shortArray"); // java file
 
-    protected ClassType shortReferenceArrayType_;
-    public ClassType ShortReferenceArray( Expr distribution ) {
-        if ( shortReferenceArrayType_ == null)
-            shortReferenceArrayType_ = load("x10.lang.ShortReferenceArray"); // java file
-         //  return shortReferenceArrayType_.setParameter( "distribution", distribution );
-        return shortReferenceArrayType_;
-    }
+		return shortArrayType_;
+	}
 
-    public ClassType intArray(boolean isValueType, Expr distribution ) {
-		return
-		isValueType ? intValueArray( distribution ) : IntReferenceArray( distribution );
+	public ClassType shortValueArray() {
+		return shortValueArray(null);
+	}
+
+	protected ClassType shortValueArrayType_;
+	// see the TODO for intValueArray.
+	public ClassType shortValueArray(Expr distribution) {
+		return shortArray(distribution);
+	}
+
+	public ClassType ShortReferenceArray() {
+		return ShortReferenceArray(null);
+	}
+
+	protected ClassType shortReferenceArrayType_;
+	public ClassType ShortReferenceArray(Expr distribution) {
+		if (shortReferenceArrayType_ == null)
+			shortReferenceArrayType_ = load("x10.lang.ShortReferenceArray"); // java file
+		// return shortReferenceArrayType_.setParameter("distribution", distribution);
+		return shortReferenceArrayType_;
+	}
+
+	public ClassType intArray(boolean isValueType, Expr distribution) {
+		return isValueType
+			? intValueArray(distribution)
+			: IntReferenceArray(distribution);
 	}
 
 	protected ClassType intArrayType_;
-	public ClassType intArray( Expr distribution ) {
-		if ( intArrayType_ == null)
+	public ClassType intArray(Expr distribution) {
+		if (intArrayType_ == null)
 			intArrayType_ = load("x10.lang.intArray"); // java file
 		return intArrayType_;
 	}
 
 	public ClassType intArray() {
-		return intArray( null );
+		return intArray(null);
 	}
 
-	public ClassType intValueArray( ) {
-		return intValueArray(null );
+	public ClassType intValueArray() {
+		return intValueArray(null);
 	}
 
 	protected ClassType intValueArrayType_;
-	public ClassType intValueArray( Expr distribution ) {
-			// vj: should really load x10.lang.intValueArray, but we are cheating...
-			// there is no difference in the public type (= methods) of x10.lang.intValueArray
-		    // and x10.lang.intArray, so we reuse the implementation of x10.lang.intArray.
-		    // The backend does not do anything special about value classes right now anyway,
-		    // so there is no need to tell the implementation that this is a value class.
-		    // This hack will need to be fixed once the compiler starts checking that
-		    // value classes can only be extended by value classes.
-		return intArray( distribution );
+	public ClassType intValueArray(Expr distribution) {
+		// vj: should really load x10.lang.intValueArray, but we are cheating...
+		// there is no difference in the public type (= methods) of x10.lang.intValueArray
+		// and x10.lang.intArray, so we reuse the implementation of x10.lang.intArray.
+		// The backend does not do anything special about value classes right now anyway,
+		// so there is no need to tell the implementation that this is a value class.
+		// This hack will need to be fixed once the compiler starts checking that
+		// value classes can only be extended by value classes.
+		// [IP] FIXME
+		return intArray(distribution);
 	}
+
 	public ClassType IntReferenceArray() {
-		return IntReferenceArray( null );
+		return IntReferenceArray(null);
 	}
 
 	protected ClassType intReferenceArrayType_;
-	public ClassType IntReferenceArray( Expr distribution ) {
-		if ( intReferenceArrayType_ == null)
+	public ClassType IntReferenceArray(Expr distribution) {
+		if (intReferenceArrayType_ == null)
 			intReferenceArrayType_ = load("x10.lang.IntReferenceArray"); // java file
-		// return intReferenceArrayType_.setParameter( "distribution", distribution );
+		// return intReferenceArrayType_.setParameter("distribution", distribution);
 		return intReferenceArrayType_;
 	}
 
 	protected ClassType longArrayPointwiseOpType_;
 	public ClassType LongArrayPointwiseOp() {
-		if ( longArrayPointwiseOpType_ == null)
+		if (longArrayPointwiseOpType_ == null)
 			longArrayPointwiseOpType_ = load("x10.lang.longArray$pointwiseOp"); // java file
 		return longArrayPointwiseOpType_;
 	}
-	public ClassType longArray(boolean isValueType, Expr distribution ) {
-		return
-		isValueType ? longValueArray( distribution ) : LongReferenceArray( distribution );
+
+	public ClassType longArray(boolean isValueType, Expr distribution) {
+		return isValueType
+			? longValueArray(distribution)
+			: LongReferenceArray(distribution);
 	}
 
 	protected ClassType longArrayType_;
-	public ClassType longArray( Expr distribution ) {
-		if ( longArrayType_ == null)
+	public ClassType longArray(Expr distribution) {
+		if (longArrayType_ == null)
 			longArrayType_ = load("x10.lang.longArray"); // java file
 		return longArrayType_;
 	}
 
 	public ClassType longArray() {
-		return longArray( null );
+		return longArray(null);
 	}
 
-	public ClassType longValueArray( ) {
-		return longValueArray(null );
+	public ClassType longValueArray() {
+		return longValueArray(null);
 	}
 
-	public ClassType longValueArray( Expr distribution ) {
-		return longArray( distribution );
+	public ClassType longValueArray(Expr distribution) {
+		return longArray(distribution);
 	}
+
 	public ClassType LongReferenceArray() {
-		return LongReferenceArray( null );
+		return LongReferenceArray(null);
 	}
 
 	protected ClassType longReferenceArrayType_;
-	public ClassType LongReferenceArray( Expr distribution ) {
-		if ( longReferenceArrayType_ == null)
+	public ClassType LongReferenceArray(Expr distribution) {
+		if (longReferenceArrayType_ == null)
 			longReferenceArrayType_ = load("x10.lang.LongReferenceArray"); // java file
-		// return longReferenceArrayType_.setParameter( "distribution", distribution );
+		// return longReferenceArrayType_.setParameter("distribution", distribution);
 		return longReferenceArrayType_;
 	}
 
-    protected X10ReferenceType genericArrayPointwiseOpType_;
-    public X10ReferenceType GenericArrayPointwiseOp() {
-        if ( genericArrayPointwiseOpType_ == null)
-            genericArrayPointwiseOpType_
-                = (X10ReferenceType) load("x10.lang.genericArray$pointwiseOp"); // java file
-        return genericArrayPointwiseOpType_;
-    }
-    public ReferenceType GenericArrayPointwiseOp(Type typeParam) {
-        List l = new LinkedList();
-        l.add(typeParam);
-        return new ParametricType_c(this,
-                Position.COMPILER_GENERATED,
-                GenericArrayPointwiseOp(),
-                l,
-                null);
-    }
-    public ClassType genericArray(boolean isValueType, Expr distribution ) {
-        return
-        isValueType ? genericValueArray( distribution ) : GenericReferenceArray( distribution );
-    }
+	protected X10ReferenceType genericArrayPointwiseOpType_;
+	public X10ReferenceType GenericArrayPointwiseOp() {
+		if (genericArrayPointwiseOpType_ == null)
+			genericArrayPointwiseOpType_
+				= (X10ReferenceType) load("x10.lang.genericArray$pointwiseOp"); // java file
+		return genericArrayPointwiseOpType_;
+	}
 
-    protected ClassType genericArrayType_;
-    public ClassType genericArray( Expr distribution ) {
-        if ( genericArrayType_ == null)
-            genericArrayType_ = load("x10.lang.GenericReferenceArray"); // java file
-         // FIXME: was genericArray
-        // Also: I'd like to eliminate the plehora of Array classes
-        // in the runtime - CG
-        return genericArrayType_;
-    }
+	public ReferenceType GenericArrayPointwiseOp(Type typeParam) {
+		List l = new LinkedList();
+		l.add(typeParam);
+		return new ParametricType_c(this, Position.COMPILER_GENERATED,
+									GenericArrayPointwiseOp(), l, null);
+	}
 
-    public ClassType genericArray() {
-        return genericArray( null );
-    }
+	public ClassType genericArray(boolean isValueType, Expr distribution) {
+		return isValueType
+			? genericValueArray(distribution)
+			: GenericReferenceArray(distribution);
+	}
 
-    public ClassType genericValueArray( ) {
-        return genericValueArray(null );
-    }
+	protected ClassType genericArrayType_;
+	public ClassType genericArray(Expr distribution) {
+		if (genericArrayType_ == null)
+			genericArrayType_ = load("x10.lang.GenericReferenceArray"); // java file
+		// FIXME: was genericArray
+		// Also: I'd like to eliminate the plehora of Array classes
+		// in the runtime - CG
+		return genericArrayType_;
+	}
 
-    public ClassType genericValueArray( Expr distribution ) {
-        return genericArray( distribution );
-    }
-    public ClassType GenericReferenceArray() {
-        return GenericReferenceArray( null );
-    }
+	public ClassType genericArray() {
+		return genericArray(null);
+	}
 
-    protected ClassType genericReferenceArrayType_;
-    public ClassType GenericReferenceArray( Expr distribution ) {
-        if ( genericReferenceArrayType_ == null)
-            genericReferenceArrayType_ = load("x10.lang.GenericReferenceArray"); // java file
-        // return genericReferenceArrayType_.setParameter( "distribution", distribution );
-        return genericReferenceArrayType_;
-    }
+	public ClassType genericValueArray() {
+		return genericValueArray(null);
+	}
 
-    public ClassType floatArray(boolean isValueType, Expr distribution ) {
-        return
-        isValueType ? floatValueArray( distribution ) : FloatReferenceArray( distribution );
-    }
-    public ClassType floatArray() {
-        return floatArray( null );
-    }
+	public ClassType genericValueArray(Expr distribution) {
+		return genericArray(distribution);
+	}
 
-    protected ClassType floatArrayType_;
-    public ClassType floatArray( Expr distribution ) {
-        if ( floatArrayType_ == null)
-            floatArrayType_ = load("x10.lang.floatArray"); // java file
+	public ClassType GenericReferenceArray() {
+		return GenericReferenceArray(null);
+	}
 
-        return floatArrayType_;
-    }
+	protected ClassType genericReferenceArrayType_;
+	public ClassType GenericReferenceArray(Expr distribution) {
+		if (genericReferenceArrayType_ == null)
+			genericReferenceArrayType_ = load("x10.lang.GenericReferenceArray"); // java file
+		// return genericReferenceArrayType_.setParameter("distribution", distribution);
+		return genericReferenceArrayType_;
+	}
 
-    public ClassType floatValueArray( ) {
-        return floatValueArray(null );
-    }
+	public ClassType floatArray(boolean isValueType, Expr distribution) {
+		return isValueType
+			? floatValueArray(distribution)
+			: FloatReferenceArray(distribution);
+	}
 
-    protected ClassType floatValueArrayType_;
-    // see the todo for intValueArray.
-    public ClassType floatValueArray( Expr distribution ) {
-            return floatArray( distribution );
-    }
+	public ClassType floatArray() {
+		return floatArray(null);
+	}
 
-    public ClassType FloatReferenceArray( ) {
-        return FloatReferenceArray(null );
-    }
+	protected ClassType floatArrayType_;
+	public ClassType floatArray(Expr distribution) {
+		if (floatArrayType_ == null)
+			floatArrayType_ = load("x10.lang.floatArray"); // java file
 
-    protected ClassType floatReferenceArrayType_;
-    public ClassType FloatReferenceArray( Expr distribution ) {
-        if ( floatReferenceArrayType_ == null)
-            floatReferenceArrayType_ = load("x10.lang.FloatReferenceArray"); // java file
-         //  return floatReferenceArrayType_.setParameter( "distribution", distribution );
-        return floatReferenceArrayType_;
-    }
+		return floatArrayType_;
+	}
 
-    public ClassType doubleArray(boolean isValueType, Expr distribution ) {
-        return
-        isValueType ? doubleValueArray( distribution ) : DoubleReferenceArray( distribution );
-    }
-    public ClassType doubleArray() {
-        return doubleArray( null );
-    }
+	public ClassType floatValueArray() {
+		return floatValueArray(null);
+	}
+
+	protected ClassType floatValueArrayType_;
+	// see the TODO for intValueArray.
+	public ClassType floatValueArray(Expr distribution) {
+		return floatArray(distribution);
+	}
+
+	public ClassType FloatReferenceArray() {
+		return FloatReferenceArray(null);
+	}
+
+	protected ClassType floatReferenceArrayType_;
+	public ClassType FloatReferenceArray(Expr distribution) {
+		if (floatReferenceArrayType_ == null)
+			floatReferenceArrayType_ = load("x10.lang.FloatReferenceArray"); // java file
+		// return floatReferenceArrayType_.setParameter("distribution", distribution);
+		return floatReferenceArrayType_;
+	}
+
+	public ClassType doubleArray(boolean isValueType, Expr distribution) {
+		return isValueType
+			? doubleValueArray(distribution)
+			: DoubleReferenceArray(distribution);
+	}
+
+	public ClassType doubleArray() {
+		return doubleArray(null);
+	}
 
 	protected ClassType doubleArrayType_;
-	public ClassType doubleArray( Expr distribution ) {
-		if ( doubleArrayType_ == null)
+	public ClassType doubleArray(Expr distribution) {
+		if (doubleArrayType_ == null)
 			doubleArrayType_ = load("x10.lang.doubleArray"); // java file
 
 		return doubleArrayType_;
 	}
 
-	public ClassType doubleValueArray( ) {
-		return doubleValueArray(null );
+	public ClassType doubleValueArray() {
+		return doubleValueArray(null);
 	}
 
 	protected ClassType doubleValueArrayType_;
 	// see the todo for intValueArray.
-	public ClassType doubleValueArray( Expr distribution ) {
-			return doubleArray( distribution );
+	public ClassType doubleValueArray(Expr distribution) {
+			return doubleArray(distribution);
 	}
 
-	public ClassType DoubleReferenceArray( ) {
-		return DoubleReferenceArray(null );
+	public ClassType DoubleReferenceArray() {
+		return DoubleReferenceArray(null);
 	}
 
 	protected ClassType doubleReferenceArrayType_;
-	public ClassType DoubleReferenceArray( Expr distribution ) {
-		if ( doubleReferenceArrayType_ == null)
+	public ClassType DoubleReferenceArray(Expr distribution) {
+		if (doubleReferenceArrayType_ == null)
 			doubleReferenceArrayType_ = load("x10.lang.DoubleReferenceArray"); // java file
-         //	 return doubleReferenceArrayType_.setParameter( "distribution", distribution );
+		// return doubleReferenceArrayType_.setParameter("distribution", distribution);
 		return doubleReferenceArrayType_;
 	}
 
 	protected ClassType indexableType_ = null;
 	public ClassType Indexable() {
-		if ( indexableType_ == null)
+		if (indexableType_ == null)
 			indexableType_ = load("x10.lang.Indexable"); // java file
 		return indexableType_;
 	}
@@ -729,8 +757,8 @@ implements X10TypeSystem {
 			args.add(X10Object());
 
 			for (Iterator i = ct.toClass().methods("equals", args).iterator();
-			i.hasNext(); ) {
-
+				 i.hasNext(); )
+			{
 				MethodInstance mi = (MethodInstance) i.next();
 				return mi;
 			}
@@ -746,8 +774,7 @@ implements X10TypeSystem {
 		String methodName = t.toString() + "Value";
 		ConstructorInstance ci = wrapper(t);
 
-		for (Iterator i = ci.container().methods().iterator();
-		i.hasNext(); ) {
+		for (Iterator i = ci.container().methods().iterator(); i.hasNext(); ) {
 			MethodInstance mi = (MethodInstance) i.next();
 			if (mi.name().equals(methodName) && mi.formalTypes().isEmpty()) {
 				return mi;
@@ -787,10 +814,19 @@ implements X10TypeSystem {
 	// RMF 11/1/2005 - Not having the "static" qualifier on interfaces causes problems,
 	// e.g. for New_c.disambiguate(AmbiguityRemover), which assumes that instantiating
 	// non-static types requires a "this" qualifier expression.
+	// [IP] FIXME: why does the above matter when we supply the bits?
 	public Flags flagsForBits(int bits) {
-	    Flags sf= super.flagsForBits(bits);
-	    if (sf.isInterface()) return sf.Static();
-	    return sf;
+		Flags sf = super.flagsForBits(bits);
+		if (sf.isInterface()) return sf.Static();
+		return sf;
 	}
 
+//	/**
+//	 * Allow all explicit casts (for experimental purposes).
+//	 **/
+//	public boolean isCastValid(Type fromType, Type toType) {
+//		return true || super.isCastValid(fromType, toType);
+//	}
+
 } // end of X10TypeSystem_c
+
