@@ -133,7 +133,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	 * objects?
 	 */
 	public NullableNode Nullable(Position pos, TypeNode type) {
-		return new NullableNode_c(pos, type);
+		NullableNode n = new NullableNode_c(pos, type);
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		n = (NullableNode) n.ext(ext_fac.extNullableNodeImpl());
+		return n;
 	}
 
 	public ValueClassDecl ValueClassDecl(Position pos, Flags flags,
@@ -259,8 +262,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		List cpy = new LinkedList();
 		Iterator it = l.iterator();
 		while (it.hasNext()) {
-			cpy.add(X10NodeFactory_c.getFactory()
-						.CanonicalTypeNode(pos, (Type) it.next()));
+			cpy.add(this.CanonicalTypeNode(pos, (Type) it.next()));
 		}
 		GenParameterExpr n = new GenParameterExpr_c(pos, cpy);
 		n = (GenParameterExpr) n.ext(extFactory().extStmt());
@@ -524,17 +526,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		LocalDecl n = new X10LocalDecl_c(pos, flags, type, name, init);
 		n = (LocalDecl)n.ext(extFactory().extLocalDecl());
 		n = (LocalDecl)n.del(delFactory().delLocalDecl());
-		return n;
-	}
-
-	public CanonicalTypeNode CanonicalTypeNode(Position pos, Type type) {
-		if (! type.isCanonical()) {
-			throw new InternalCompilerError("Cannot construct a canonical " +
-					"type node for a non-canonical type: " + type);
-		}
-		CanonicalTypeNode n = new CanonicalTypeNode_c(pos, type);
-		n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
-		n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
 		return n;
 	}
 }
