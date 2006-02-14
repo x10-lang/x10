@@ -15,42 +15,46 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Type;
 
 public class X10CastExt_c extends X10Ext_c {
-    // Insert boxing and unboxing code.
-    public Node rewrite(X10TypeSystem ts, NodeFactory nf) {
+	// Insert boxing and unboxing code.
+	public Node rewrite(X10TypeSystem ts, NodeFactory nf) {
 
-        Cast c = (Cast) node();
-        Type rtype = c.expr().type();
-        Type ltype = c.castType().type();
+		Cast c = (Cast) node();
+		Type rtype = c.expr().type();
+		Type ltype = c.castType().type();
 
-        if (ltype.isPrimitive() && rtype.isReference()) {
-            // Unbox
-            MethodInstance mi = ts.getter(ltype.toPrimitive());
+		if (!ts.equals(c.type(), ltype))
+			c = (Cast) c.type(ltype);
 
-            Cast x = nf.Cast(c.position(),
-                             nf.CanonicalTypeNode(c.position(), mi.container()),
-                             c.expr());
-            x = (Cast) x.type(mi.container());
+		if (ltype.isPrimitive() && rtype.isReference()) {
+			// Unbox
+			MethodInstance mi = ts.getter(ltype.toPrimitive());
 
-            Call y = nf.Call(c.position(), x, mi.name(),
-                             Collections.EMPTY_LIST);
-            y = (Call) y.type(mi.returnType());
+			Cast x = nf.Cast(c.position(),
+							 nf.CanonicalTypeNode(c.position(), mi.container()),
+							 c.expr());
+			x = (Cast) x.type(mi.container());
 
-            return y.methodInstance(mi);
-        }
-        else if (ltype.isReference() && rtype.isPrimitive()) {
-            // Box
-            ConstructorInstance ci = ts.wrapper(rtype.toPrimitive());
+			Call y = nf.Call(c.position(), x, mi.name(),
+							 Collections.EMPTY_LIST);
+			y = (Call) y.type(mi.returnType());
 
-            List args = new ArrayList(1);
-            args.add(c.expr());
+			return y.methodInstance(mi);
+		}
+		else if (ltype.isReference() && rtype.isPrimitive()) {
+			// Box
+			ConstructorInstance ci = ts.wrapper(rtype.toPrimitive());
 
-            New x = nf.New(c.position(),
-                           nf.CanonicalTypeNode(c.position(), ci.container()),
-                           args);
-            x = (New) x.type(ci.container());
-            return x.constructorInstance(ci);
-        }
+			List args = new ArrayList(1);
+			args.add(c.expr());
 
-        return super.rewrite(ts, nf);
-    }
+			New x = nf.New(c.position(),
+						   nf.CanonicalTypeNode(c.position(), ci.container()),
+						   args);
+			x = (New) x.type(ci.container());
+			return x.constructorInstance(ci);
+		}
+
+		return c;
+	}
 }
+
