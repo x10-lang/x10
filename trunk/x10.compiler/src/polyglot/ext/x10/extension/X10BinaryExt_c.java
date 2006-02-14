@@ -1,14 +1,20 @@
 package polyglot.ext.x10.extension;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import polyglot.ast.Binary;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.Type;
 import polyglot.main.Report;
 
 public class X10BinaryExt_c extends X10Ext_c {
@@ -29,18 +35,29 @@ public class X10BinaryExt_c extends X10Ext_c {
 			}
 			if (ts.isSubtype(l.type(), mi.container())) {
 				// left is a boxed primitive
-				if (r.type().isReference()) {
-					TypeNode x = nf.CanonicalTypeNode(b.position(),
-													  mi.container());
-					Call y = nf.Call(b.position(), x, mi.name(), l, r).methodInstance(mi);
-					y = (Call) y.type(mi.returnType());
+				Type rtype = r.type();
+				if (rtype.isPrimitive()) {
+					// Box
+					ConstructorInstance ci = ts.wrapper(rtype.toPrimitive());
 
-					if (b.operator() == Binary.NE) {
-						return nf.Unary(b.position(), Unary.NOT, y).type(mi.returnType());
-					}
-					else {
-						return y;
-					}
+					List args = new ArrayList(1);
+					args.add(r);
+
+					New x = nf.New(r.position(),
+								   nf.CanonicalTypeNode(r.position(), ci.container()),
+								   args);
+					x = (New) x.type(ci.container());
+					r = x.constructorInstance(ci);
+				}
+				TypeNode x = nf.CanonicalTypeNode(b.position(), mi.container());
+				Call y = nf.Call(b.position(), x, mi.name(), l, r).methodInstance(mi);
+				y = (Call) y.type(mi.returnType());
+
+				if (b.operator() == Binary.NE) {
+					return nf.Unary(b.position(), Unary.NOT, y).type(mi.returnType());
+				}
+				else {
+					return y;
 				}
 			}
 		}
