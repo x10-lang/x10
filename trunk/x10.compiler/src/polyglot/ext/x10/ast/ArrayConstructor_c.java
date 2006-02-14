@@ -268,14 +268,14 @@ implements ArrayConstructor {
 			w.write(" unsafe ");
 		if (distribution == null) {
 			w.write("[]");
-			initializer.prettyPrint(w, tr);
+			initializer.del().prettyPrint(w, tr);
 			return;
 		}
 		w.write("[");
 		printBlock(distribution, w, tr);
 		w.write("]");
 		if (initializer != null)
-			initializer.prettyPrint(w, tr);
+			initializer.del().prettyPrint(w, tr);
 	}
 	
 	public String toString() {
