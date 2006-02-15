@@ -1,4 +1,6 @@
-From Bob Fuhrer
+From Bob Fuhrer.
+
+Note: orquesta.watson.ibm.com is visible only from within IBM.
 ============================================================
 To install X10DT for the first time:
   1) From Eclipse, invoke "Help" => "Software Updates" => "Find and Install"
