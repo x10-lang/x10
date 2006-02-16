@@ -20,7 +20,8 @@ To install X10DT for the first time:
 
 To update (only if you've installed a previous version):
 
-1. From Eclipse, invoke "Help" => "Software Updates" => "Find and Install"    http://orquesta.watson.ibm.com:1
+1. From Eclipse, invoke "Help" => "Software Updates" => "Find and Install"
+	http://orquesta.watson.ibm.com:1
 2. Select "Search for updates of currently installed features"; click "Finish"
 3. When prompted for update site mirrors, just click "Cancel" to accept the main site.
 4. It often takes several minutes for Eclipse to contact the update sites and determine
