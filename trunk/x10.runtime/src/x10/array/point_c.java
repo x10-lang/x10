@@ -208,6 +208,72 @@ public class point_c extends point implements Comparable {
 		return compareTo(p) <= 0;
 	}
 
+	public point/*(region)*/ neg() {
+		int array[] = new int[val.length];
+		for (int i = 0; i < val.length; i++)
+			array[i] = -val[i];
+		return factory.point(array);
+	}
+
+	public point/*(region)*/ add(point/*(region)*/ p) {
+		if (val.length != p.rank)
+			throw new RankMismatchException(p, rank);
+		int array[] = new int[val.length];
+		for (int i = 0; i < val.length; i++)
+			array[i] = val[i] + p.get(i);
+		return factory.point(array);
+	}
+
+	public point/*(region)*/ sub(point/*(region)*/ p) {
+		if (val.length != p.rank)
+			throw new RankMismatchException(p, rank);
+		int array[] = new int[val.length];
+		for (int i = 0; i < val.length; i++)
+			array[i] = val[i] - p.get(i);
+		return factory.point(array);
+	}
+
+	public point/*(region)*/ mul(point/*(region)*/ p) {
+		if (val.length != p.rank)
+			throw new RankMismatchException(p, rank);
+		int array[] = new int[val.length];
+		for (int i = 0; i < val.length; i++)
+			array[i] = val[i] * p.get(i);
+		return factory.point(array);
+	}
+
+	public point/*(region)*/ div(point/*(region)*/ p) {
+		if (val.length != p.rank)
+			throw new RankMismatchException(p, rank);
+		int array[] = new int[val.length];
+		// The loop below may also throw an ArithmeticException
+		for (int i = 0; i < val.length; i++)
+			array[i] = val[i] / p.get(i);
+		return factory.point(array);
+	}
+
+	public point/*(region)*/ add(int c) {
+		int array[] = new int[val.length];
+		for (int i = 0; i < val.length; i++)
+			array[i] = val[i] + c;
+		return factory.point(array);
+	}
+
+	public point/*(region)*/ mul(int c) {
+		int array[] = new int[val.length];
+		for (int i = 0; i < val.length; i++)
+			array[i] = val[i] * c;
+		return factory.point(array);
+	}
+
+	public point/*(region)*/ div(int c) {
+		int array[] = new int[val.length];
+		// The loop below may also throw an ArithmeticException
+		for (int i = 0; i < val.length; i++)
+			array[i] = val[i] / c;
+		return factory.point(array);
+	}
+
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("[");
