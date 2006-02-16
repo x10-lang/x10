@@ -115,7 +115,7 @@ public class X10Binary_c extends Binary_c {
 					if (op == COND_AND) return l.intersection(r);
 				}
 			}
-		} catch (Exception e) {
+		} catch (ArithmeticException e) {
 			// ignore div by 0
 		}
 		return null;
@@ -218,10 +218,18 @@ public class X10Binary_c extends Binary_c {
 			// pointwise numerical operations. TODO: Check that one type can be numerically coerced to the other.
 			if (!l.equals(r)) {
 				throw new SemanticException("The " + op
-						+ " operator must have  arrays of the same base type as operands.", right.position());
+						+ " operator must have arrays of the same base type as operands.", right.position());
 			}
 			return type(l);
 		}
+
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && l.isPoint()) {
+			if (!r.isPoint() && !r.isIntOrLess())
+				throw new SemanticException("The " + op +
+						" operator instance must have a point or integer operand.", right.position());
+			return type(l);
+		}
+
 		return super.typeCheck(tc);
 	}
 
@@ -282,7 +290,16 @@ public class X10Binary_c extends Binary_c {
 			w.write(")");
 			return;
 		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&  l.isPrimitiveTypeArray()) {
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && l.isPrimitiveTypeArray()) {
+			printSubExpr(left, true, w, tr);
+			w.write(".");
+			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
+			w.write("(");
+			printSubExpr(right, false, w, tr);
+			w.write(")");
+			return;
+		}
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && l.isPoint()) {
 			printSubExpr(left, true, w, tr);
 			w.write(".");
 			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
