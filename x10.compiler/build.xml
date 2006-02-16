@@ -42,6 +42,10 @@
     <target name="init">
         <mkdir dir="classes"/>
     </target>
+    <target name="cleanall" depends="clean">
+        <ant antfile="${polyglot.location}/build.xml" target="clean" inheritAll="false"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false"/>
+    </target>
     <target name="clean">
         <delete dir="classes"/>
     </target>
