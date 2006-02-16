@@ -6,9 +6,8 @@
  * As of 4/05, this is a limitation of the current release
  *
  * @author kemal 4/2005
- * [IP] TODO: remove _MustFailCompile.
  */
-public class ArrayTypeCheck_MustFailCompile {
+public class ArrayTypeCheck {
 
 	public boolean run() {
 		int [.] a1=new int[[0:2,0:3]->here](point p[i]){ return i; };
@@ -33,7 +32,7 @@ public class ArrayTypeCheck_MustFailCompile {
 			return a1[i]==a1[i,j,k];
 		} catch (RankMismatchException e) {
 			gotException = true;
-			e.printStackTrace();
+			System.out.println("Caught "+e);
 		}
 		if (!gotException) return false;
 
@@ -43,7 +42,7 @@ public class ArrayTypeCheck_MustFailCompile {
 	public static void main(String[] args) {
 		final boxedBoolean b=new boxedBoolean();
 		try {
-			finish async b.val=(new ArrayTypeCheck_MustFailCompile()).run();
+			finish async b.val=(new ArrayTypeCheck()).run();
 		} catch (Throwable e) {
 			e.printStackTrace();
 			b.val=false;
