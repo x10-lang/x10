@@ -7,10 +7,12 @@ import java.util.Collection;
 import polyglot.ast.NodeFactory;
 import polyglot.ext.jl.JLScheduler;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
+import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Qualifier;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
+import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
@@ -103,6 +105,11 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     protected TypeSystem createTypeSystem() {
         return new X10TypeSystem_c();
     }
+
+	public void initCompiler(Compiler compiler) {
+		super.initCompiler(compiler);
+		QueryEngine.init(this);
+	}
 
     protected Scheduler createScheduler() {
         return new X10Scheduler(this);
