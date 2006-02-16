@@ -42,13 +42,21 @@ public class PointArithmetic {
 		System.out.println("p/p: sum="+sum);
 		if (sum != 10) return false;
 
-		// Unary -
+		// Unary +/-
+
 		point u = -q;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += u[i];
 		System.out.println("-p: sum="+sum);
 		if (sum != -5) return false;
+
+		u = +q;
+		sum = 0;
+		for (int i = 0; i < DIM; i++)
+			sum += u[i];
+		System.out.println("+p: sum="+sum);
+		if (sum != 5) return false;
 
 		// Then test that the point/constant arithmetic works
 
