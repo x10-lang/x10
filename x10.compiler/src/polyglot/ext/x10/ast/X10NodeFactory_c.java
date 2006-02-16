@@ -416,7 +416,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		} else if (incOp && expr instanceof X10ArrayAccess1) {
 			return X10ArrayAccess1Unary(pos, op, (X10ArrayAccess1) expr);
 		}
-		return super.Unary(pos, op, expr);
+		Unary n = new X10Unary_c(pos, op, expr);
+		n = (Unary) n.ext(extFactory().extUnary());
+		n = (Unary) n.del(delFactory().delUnary());
+		return n;
 	}
 
 	public X10ArrayAccessUnary X10ArrayAccessUnary(Position pos,
