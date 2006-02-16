@@ -29,6 +29,7 @@ import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.MethodDecl_c;
 import polyglot.ext.x10.Configuration;
+import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.ast.ArrayConstructor_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
@@ -105,50 +106,47 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(Call_c c) {
-		boolean done = false;
 		if (c instanceof RemoteCall_c) {
 			// TODO assert false - that is not implemented yet
 			throw new RuntimeException("not implemented");
-		} else {
-			// add a check that verifies if the target of the call is in place 'here'
-			Receiver target = c.target();
-			Type t = target.type();
-			boolean base = false;
-
-			// access to method x10.lang.Object.getLocation should not be checked
-			boolean is_location_access;
-			String f_name = c.methodInstance().name();
-			ReferenceType f_container = c.methodInstance().container();
-			is_location_access = f_name != null && "getLocation".equals(f_name) && f_container instanceof X10ReferenceType;
-
-			if (! (target instanceof TypeNode) &&	// don't annotate access to static vars
-				! (target instanceof Future_c) &&
-				t instanceof X10ReferenceType &&	// don't annotate access to instances of ordinary Java objects.
-				! c.isTargetImplicit() &&
-				! (target instanceof Special) &&
-				! is_location_access)
-			{
-				// don't annotate calls with implicit target, or this and super
-				// the template file only emits the target
-				dump("call_local", new Object[] { t.translate(null), target } );
-				// then emit '.', name of the method and argument list.
-				w.write(c.name() + "(");
-				w.begin(0);
-				List l = c.arguments();
-				for(Iterator i = l.iterator(); i.hasNext();) {
-					Expr e = (Expr) i.next();
-					c.print(e, w, pp);
-					if (i.hasNext()) {
-						w.write(",");
-						w.allowBreak(0, " ");
-					}
-				}
-				w.end();
-				w.write(")");
-				done = true;
-			}
 		}
-		if (!done)
+		// add a check that verifies if the target of the call is in place 'here'
+		Receiver target = c.target();
+		Type t = target.type();
+		boolean base = false;
+
+		// access to method x10.lang.Object.getLocation should not be checked
+		boolean is_location_access;
+		String f_name = c.methodInstance().name();
+		ReferenceType f_container = c.methodInstance().container();
+		is_location_access = f_name != null && "getLocation".equals(f_name) && f_container instanceof X10ReferenceType;
+
+		if (! (target instanceof TypeNode) &&	// don't annotate access to static vars
+			! (target instanceof Future_c) &&
+			t instanceof X10ReferenceType &&	// don't annotate access to instances of ordinary Java objects.
+			! c.isTargetImplicit() &&
+			! (target instanceof Special) &&
+			! is_location_access &&
+			QueryEngine.INSTANCE().needsHereCheck(c))
+		{
+			// don't annotate calls with implicit target, or this and super
+			// the template file only emits the target
+			dump("place-check", new Object[] { t.translate(null), target } );
+			// then emit '.', name of the method and argument list.
+			w.write(c.name() + "(");
+			w.begin(0);
+			List l = c.arguments();
+			for (Iterator i = l.iterator(); i.hasNext(); ) {
+				Expr e = (Expr) i.next();
+				c.print(e, w, pp);
+				if (i.hasNext()) {
+					w.write(",");
+					w.allowBreak(0, " ");
+				}
+			}
+			w.end();
+			w.write(")");
+		} else
 			c.prettyPrint(w, pp);
 	}
 
@@ -264,7 +262,6 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	 * FieldAssign is a Field node!
 	 */
 	public void visit(Field_c n) {
-		boolean done = false;
 		Receiver target = n.target();
 		Type t = target.type();
 
@@ -278,13 +275,13 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			t instanceof X10ReferenceType &&	// don't annotate access to instances of ordinary Java objects.
 			! n.isTargetImplicit() &&
 			! (target instanceof Special) &&
-			! is_location_access)
+			! is_location_access &&
+			QueryEngine.INSTANCE().needsHereCheck(n))
 		{
 			// no check required for implicit targets, this and super
-			dump("field", new Object[] { t.translate(null), target, n.name() } );
-			done = true;
-		}
-		if (!done)
+			dump("place-check", new Object[] { t.translate(null), target } );
+			w.write(n.name());
+		} else
 			n.prettyPrint(w, pp);
 	}
 
@@ -670,6 +667,8 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		if (cached != null)
 			return cached;
 		try {
+			// [IP] TODO: make this a classpath-based resource lookup instead
+			// use something like this.getClass().getResourceAsStream()
 			String fname = Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY + id + ".xcd"; // xcd = x10 compiler data/definition
 			fname = fname.replace('\\','/'); // win32 hack
 			// Override definition with any identically named file in DATA_EXT dir
