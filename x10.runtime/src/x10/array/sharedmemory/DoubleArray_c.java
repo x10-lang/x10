@@ -362,7 +362,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public double get(int[] pos) {return get(pos,true,true);}
     public double get(int[] pos,boolean chkPl,boolean chkAOB) {
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+        final point p = Runtime.factory.getPointFactory().point( pos);
     	return get(p);
     }
     

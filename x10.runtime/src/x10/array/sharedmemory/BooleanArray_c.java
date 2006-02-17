@@ -344,7 +344,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     
     public boolean get(int[] pos) {return get(pos,true,true);}
     public boolean get(int[] pos,boolean chkPl,boolean chkAOB) {
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+        final point p = Runtime.factory.getPointFactory().point( pos);
     	return get(p);
     }
     

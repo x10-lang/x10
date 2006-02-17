@@ -72,7 +72,7 @@ public class Region3D0Base extends MultiDimRegion {
             rest = rest % base_[i];
             ret[i] = r.coord(tmp).get(0);
         }
-        return point.factory.point(Region3D0Base.this, ret);
+        return point.factory.point(ret);
     }
 
 }

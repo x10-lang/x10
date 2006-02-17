@@ -979,7 +979,7 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	}
 	
 	public int get(int[] pos) {
-		final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+		final point p = Runtime.factory.getPointFactory().point(pos);
 		if (true)
             throw new RuntimeException("unimplemented");
 		return 1;//get(p);

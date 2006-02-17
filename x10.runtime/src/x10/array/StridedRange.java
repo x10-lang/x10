@@ -28,7 +28,7 @@ public class StridedRange extends Range {
 	public point coord(/*nat*/int ord) {
 	    assert ord < size;
 	    int val = lo + ord * stride;
-	    return point.factory.point(StridedRange.this, new int[] {val});
+	    return point.factory.point( new int[] {val});
 	}
 	
 	public /*nat*/int ordinal(point p) {
@@ -136,7 +136,7 @@ public class StridedRange extends Range {
 		
 		public java.lang.Object next() {
 			assert hasNext();
-			point ret = point.factory.point(StridedRange.this, new int[] {cur_});
+			point ret = point.factory.point(new int[] {cur_});
 			cur_ += stride;
 			return ret;
 		}

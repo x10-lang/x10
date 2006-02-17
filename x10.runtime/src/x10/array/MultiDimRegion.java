@@ -289,7 +289,7 @@ public class MultiDimRegion extends region  {
             rest = rest % base_[i];
             ret[i] = r.coord(tmp).get(0);
         }
-        return point.factory.point(MultiDimRegion.this, ret);
+        return point.factory.point(ret);
     }
 
 // [<unique id> <type>,<dim size>,[<region>,...]

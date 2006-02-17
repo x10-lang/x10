@@ -432,12 +432,12 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
     }
     
     public float getReal(int[] pos) {
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+        final point p = Runtime.factory.getPointFactory().point( pos);
     	return getReal(p);
     }
     
     public float getImag(int[] pos) {
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+        final point p = Runtime.factory.getPointFactory().point( pos);
     	return getImag(p);
     }
     

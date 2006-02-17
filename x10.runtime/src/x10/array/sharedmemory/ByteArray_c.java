@@ -353,7 +353,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public byte get(int[] pos) {return get(pos,true,true);}
     
     public byte get(int[] pos,boolean chkPl,boolean chkAOB) {        
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+        final point p = Runtime.factory.getPointFactory().point( pos);
     	return get(p);
     }
     
