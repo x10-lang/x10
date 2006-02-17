@@ -274,6 +274,21 @@ public class point_c extends point implements Comparable {
 		return factory.point(array);
 	}
 
+	public point/*(region)*/ invsub(int c) {
+		int array[] = new int[val.length];
+		for (int i = 0; i < val.length; i++)
+			array[i] = c - val[i];
+		return factory.point(array);
+	}
+
+	public point/*(region)*/ invdiv(int c) {
+		int array[] = new int[val.length];
+		// The loop below may also throw an ArithmeticException
+		for (int i = 0; i < val.length; i++)
+			array[i] = c / val[i];
+		return factory.point(array);
+	}
+
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("[");
