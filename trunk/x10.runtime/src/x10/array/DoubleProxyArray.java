@@ -38,6 +38,13 @@ public class DoubleProxyArray extends DoubleReferenceArray {
 		return realArray_.set(v, p, q, r, s);
 	}
 
+	public double getOrdinal(int p) {
+		return realArray_.get(p);
+	}
+	
+	public double setOrdinal(double a, int p) {
+		 return realArray_.set(a, p);
+	}
 	public double get(point p) {
 		return realArray_.get(p);
 	}

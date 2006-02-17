@@ -14,7 +14,8 @@ import x10.runtime.distributed.SerializerBuffer;
 
 /**
  * Implementation of Region. Instance of this class are immutable! 
- * This class only implements a cross-product of contiguous or strided regions.
+ * This class only implements a cross-product of contiguous or strided regions,
+ * [lo1:hi1,...,lok:hik].
  *  @seealso point
  * @author Christoph von Praun
  * @author Christian Grothoff
@@ -22,8 +23,8 @@ import x10.runtime.distributed.SerializerBuffer;
  */
 
 public class MultiDimRegion extends region  {
-    private final region[] dims_;
-    private final int[] base_; 
+    final region[] dims_;
+    final int[] base_; 
     final int card;
     
     

@@ -93,5 +93,6 @@ abstract public /*value*/ class point/*(region region)*/ extends Object
 	public point/*(region)*/ invsub(int c) { return add(-c).neg(); }
 	public point/*(region)*/ invmul(int c) { return mul(c); }
 	public point/*(region)*/ invdiv(int c) { return toPoint(rank, c).div(this); }
+	abstract public int[] val();
 }
 
