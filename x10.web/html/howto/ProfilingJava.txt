@@ -1,0 +1,6 @@
+Links to the Visual Performance Analyser (formerly eTune)
+http://web.cs.opensource.ibm.com/www/vpa/
+
+The cheap man's method-level profiler is to run with -Xjit:verbose,vlog=verboselog
+
+and check the contents of the file verboselog.  This file will contain all the methods compiled by the jit.  Those that are recompiled are hotter than those that are not.
