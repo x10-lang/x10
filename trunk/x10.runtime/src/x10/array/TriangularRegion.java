@@ -173,7 +173,7 @@ public class TriangularRegion extends region {
                 tmp = new int[] {x_normal + dims_[0].low(), y_normal + dims_[1].low()};                
             else              
                 tmp = new int[] {dims_[0].high() - x_normal, dims_[1].high() - y_normal}; 
-            ret = point.factory.point(this, tmp);
+            ret = point.factory.point( tmp);
         }
         return ret;
     }

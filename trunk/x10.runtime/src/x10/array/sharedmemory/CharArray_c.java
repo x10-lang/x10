@@ -354,7 +354,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     
     public char get(int[] pos) {return get(pos,true,true);}
     public char get(int[] pos,boolean chkPl,boolean chkAOB) {
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+        final point p = Runtime.factory.getPointFactory().point( pos);
     	return get(p);
     }
     

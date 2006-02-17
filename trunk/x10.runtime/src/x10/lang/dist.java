@@ -267,7 +267,7 @@ implements Indexable, ValueType {
 	 */
 	abstract public place get(point/*(region)*/ p) throws MalformedError;
 	public place get(int[] p) {
-		return get(Runtime.factory.getPointFactory().point(region, p));
+		return get(Runtime.factory.getPointFactory().point(p));
 	}
 	public place get(int i) {
 		return get(new int[] {i} );

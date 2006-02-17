@@ -42,7 +42,7 @@ public class ArbitraryRegion extends region {
     /* create all points in the region that is spawned by the dimensions in var */
     private void permutations_(Set hs, int[] fix, region[] var) {
         if (var.length == 0) {
-            point new_point = point.factory.point(ArbitraryRegion.this, fix);
+            point new_point = point.factory.point(fix);
             hs.add(new_point);
         } else {
             region[] var_new = new region[var.length - 1];
@@ -107,7 +107,7 @@ public class ArbitraryRegion extends region {
             ret = new ArbitraryRegion(1);
             for (Iterator it = iterator(); it.hasNext(); ) {
                 point p = (point) it.next();
-                point p_onedim = point.factory.point(ret, new int[] {p.get(index)});
+                point p_onedim = point.factory.point( new int[] {p.get(index)});
                 ret.add_(p_onedim);
             }
             // add it to rankCache_ only after it is initialized 
@@ -274,7 +274,7 @@ public class ArbitraryRegion extends region {
         
         boolean ret;
         if (p.length == rank) {
-            point pp = point.factory.point(ArbitraryRegion.this, p);
+            point pp = point.factory.point(p);
         	ret = contains(pp);
         } else
             ret = false;

@@ -161,7 +161,7 @@ public class BandedRegion extends region {
             x_ordinal = ord / bands_;
             y_ordinal = (ord % bands_) + x_ordinal - ((bands_ - 1) / 2);           
             tmp = new int[] {x_ordinal + dims_[0].low(), y_ordinal + dims_[1].low()};
-            ret = point.factory.point(this, tmp);
+            ret = point.factory.point(tmp);
         }
         System.out.println("coord (" + ord + ") = " + ret);
         return ret;

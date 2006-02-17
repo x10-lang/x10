@@ -8,20 +8,12 @@ import x10.lang.RankMismatchException;
 public class point_c extends point implements Comparable {
 
 	public static class factory extends point.factory {
-		public point/*(region)*/ point(region region, int[/*rank*/] val) {
-			point p = new point_c(region, val);
-			if (region.rank != val.length)
-				throw new RankMismatchException(p, region.rank);
+		public point/*(region)*/ point( int[/*rank*/] val) {
+			point p = new point_c(val);
 			return p;
 		}
 
-		public point point(int[/*rank*/] val) {
-			region[] dims = new region[val.length];
-			for (int i=0; i<val.length;i++)
-				dims[i] = x10.lang.region.factory.region(val[i], val[i]);
-			region R = x10.lang.region.factory.region(dims);
-			return point(R, val);
-		}
+		
 		public point point(int i) {
 			return point(new int[] { i });
 		}
@@ -100,8 +92,8 @@ public class point_c extends point implements Comparable {
 			return false;
 	}
 public int[] val() { return val; }
-	public point_c(region region, int[] val) {
-		super(region);
+	public point_c( int[] val) {
+		super(val.length);
 		// assert region.contains(val); -- CVP omit, leads to a cyclic dependency and hence infinite recusions.
 		// make a copy of the array!
 		this.val = new int[val.length];
@@ -117,8 +109,6 @@ public int[] val() { return val; }
 		}
 		hash_ = hash_tmp;
 
-		if (region.rank != val.length)
-			throw new RankMismatchException(this, region.rank);
 	}
 
 	/**
@@ -134,16 +124,16 @@ public int[] val() { return val; }
 	 * Return true iff the point is on the upper boundary of the i'th
 	 * dimension of its region.
 	 */
-	public boolean onUpperBoundary(/*nat*/int i) {
-		return region.rank(i).high() == get(i);
+	public boolean onUpperBoundary(/*nat*/int i, region r) {
+		return r.rank(i).high() == get(i);
 	}
 
 	/**
 	 * Return true iff the point is on the lower boundary of the i'th
 	 * dimension.
 	 */
-	public boolean onLowerBoundary(/*nat*/int i) {
-		return region.rank(i).low() == get(i);
+	public boolean onLowerBoundary(/*nat*/int i, region r) {
+		return r.rank(i).low() == get(i);
 	}
 
 	public boolean isValue() {

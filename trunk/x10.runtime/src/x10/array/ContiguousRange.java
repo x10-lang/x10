@@ -189,7 +189,7 @@ public class ContiguousRange extends Range {
 	public  point/*(rank)*/ coord(/*nat*/ int ord) {
         assert ord < size();
         
-		return Runtime.factory.getPointFactory().point(this, new int[] {ord + lo});
+		return Runtime.factory.getPointFactory().point( new int[] {ord + lo});
 	}
 	public Iterator iterator() {
 		return new RegionIterator();
@@ -207,7 +207,7 @@ public class ContiguousRange extends Range {
 		
 		public java.lang.Object next() {
 			assert hasNext();
-			point ret = Runtime.factory.getPointFactory().point(ContiguousRange.this, new int[] { next_ });
+			point ret = Runtime.factory.getPointFactory().point( new int[] { next_ });
 			next_++;
 			return ret;
 		}

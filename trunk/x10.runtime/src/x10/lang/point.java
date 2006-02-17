@@ -1,24 +1,15 @@
 package x10.lang;
 
-abstract public /*value*/ class point/*(region region)*/ extends Object
+abstract public /*value*/ class point/*(region region)*/ extends java.lang.Object
 	implements Indexable, ValueType
 {
-	public final region region;
+	//public final region region;
 	/*parameter*/ public final /*nat*/int rank;
 
 	abstract public static /*value*/ class factory implements ValueType {
+		
 		/**
-		 * Create a point with the given coordinates in the given region.
-		 * Throws an error if the point is not in the region.
-		 * @param r
-		 * @param val
-		 * @return
-		 */
-		abstract public point/*(region)*/ point(region r, int[/*rank*/] val);
-
-		/**
-		 * Return a point with the given coordinates, created in the smallest region
-		 * that can enclose it.
+		 * Return a point with the given coordinates.
 		 */
 		abstract public point point(int[/*rank*/] val);
 		/**
@@ -49,9 +40,9 @@ abstract public /*value*/ class point/*(region region)*/ extends Object
 	}
 	public static final factory factory = Runtime.factory.getPointFactory();
 
-	protected point(region region) {
-		this.region = region;
-		this.rank = region.rank;
+	protected point(/*region region*/int rank) {
+		//this.region = region;
+		this.rank = rank;
 	}
 	/**
 	 * Return the value of this point on the i'th dimension.
@@ -62,13 +53,13 @@ abstract public /*value*/ class point/*(region region)*/ extends Object
 	 * Return true iff the point is on the upper boundary of the i'th
 	 * dimension.
 	 */
-	abstract public boolean onUpperBoundary(/*nat*/ int i);
+	abstract public boolean onUpperBoundary(/*nat*/ int i, region r);
 
 	/**
 	 * Return true iff the point is on the lower boundary of the i'th
 	 * dimension.
 	 */
-	abstract public boolean onLowerBoundary(/*nat*/ int i);
+	abstract public boolean onLowerBoundary(/*nat*/ int i, region r);
 
 	abstract public boolean gt(point/*(region)*/ p);
 	abstract public boolean lt(point/*(region)*/ p);

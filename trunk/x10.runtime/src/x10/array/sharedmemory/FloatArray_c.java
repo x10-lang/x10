@@ -363,7 +363,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
      public float get(int[] pos) {return get(pos,true,true);}
         
     public float get(int[] pos,boolean chkPl,boolean chkAOB) {
-        final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+        final point p = Runtime.factory.getPointFactory().point( pos);
     	return get(p);
     }
     

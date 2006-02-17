@@ -405,7 +405,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(pos));
 		
-		final point p = Runtime.factory.getPointFactory().point(this.region, pos);
+		final point p = Runtime.factory.getPointFactory().point( pos);
 		return get(p);
 	}
 	

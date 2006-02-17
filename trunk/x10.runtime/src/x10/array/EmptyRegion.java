@@ -107,7 +107,7 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#contains(x10.lang.point)
 	 */
 	public boolean contains(point p) {
-		assert this.rank == p.region.rank;
+		//assert this.rank == p.region.rank;
 		return false;
 	}
 
