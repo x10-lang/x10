@@ -76,7 +76,7 @@ implements TypeArgument, ValueType{
 		FIRST_PLACE = factory.place(0);
 		places = factory.places(MAX_PLACES-1);
 	}
-	
+	public static place places(int i) { return factory.place(i);}
 	public boolean equals(java.lang.Object o) {
         boolean ret = false;
         if (o != null && o instanceof x10.lang.place) {

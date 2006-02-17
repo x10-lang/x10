@@ -126,6 +126,8 @@ abstract public class doubleArray extends x10Array{
 	 * region.
 	 */
 	abstract public double get(point/*(region)*/ p);
+	abstract public double getOrdinal(int p);
+	abstract public double setOrdinal(double d, int p);
 	abstract /*value*/ public double get(int p);
 	abstract /*value*/ public double get(int p, int q);
 	abstract /*value*/ public double get(int p, int q, int r);

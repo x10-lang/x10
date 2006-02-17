@@ -79,8 +79,8 @@ public class point_c extends point implements Comparable {
 		return result;
 	}
 
-	private final int[] val;
-	private final int hash_;
+	final int[] val;
+	final int hash_;
 
 	/**
 	 * Is this indexable value-equals to the other indexable?
@@ -99,8 +99,8 @@ public class point_c extends point implements Comparable {
 		} else
 			return false;
 	}
-
-	private point_c(region region, int[] val) {
+public int[] val() { return val; }
+	public point_c(region region, int[] val) {
 		super(region);
 		// assert region.contains(val); -- CVP omit, leads to a cyclic dependency and hence infinite recusions.
 		// make a copy of the array!

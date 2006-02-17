@@ -26,20 +26,22 @@ import x10.runtime.Configuration;
  */
 public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Cloneable {
 
-    private final boolean safe_;
-    private final MemoryBlock arr_;
-    public final boolean mutable_;
+    protected final boolean safe_;
+    protected final MemoryBlock arr_;
+    protected final boolean mutable_;
     
     public boolean valueEquals(Indexable other) {
         return arr_.valueEquals(((DoubleArray_c)other).arr_);
     }
-
-    
+   
     /**
      *  This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
+    public DoubleArray_c(dist d) {
+    	this(d, (DoubleArray.pointwiseOp) null, true, false);
+    }
     protected DoubleArray_c(Distribution_c d, boolean safe) {
         this(d, (Operator.Pointwise) null, safe);
     }
@@ -118,7 +120,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
             scan(this, f);
     }
     
-    private DoubleArray_c( dist d, double[] a, boolean safe, boolean mutable) {
+    protected DoubleArray_c( dist d, double[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -284,7 +286,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     	return arr_.setDouble(v,d0);
     }
      
-    public double set(double v, int d0,int d1) {return set(v,d0,d1,true,true);}
+    public double set(double v, int d0,int d1) {return set(v,d0,d1,false,false);}
     public double set(double v, int d0, int d1,boolean chkPl,boolean chkAOB) {  	
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
@@ -292,7 +294,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     	return arr_.setDouble(v,theIndex);
     }
     
-    public double set(double v, int d0,int d1,int d2) {return set(v,d0,d1,d2,true,true);}
+    public double set(double v, int d0,int d1,int d2) {return set(v,d0,d1,d2,false,false);}
     public double set(double v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) { 
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
