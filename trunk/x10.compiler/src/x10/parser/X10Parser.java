@@ -1,11 +1,8 @@
-
 //
 // 12/25/2004
 // This is the basic X10 grammar specification without support for generic types.
 // Intended for the Feb 2005 X10 release.
-//
-
-//
+////
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -14,11 +11,9 @@
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
 // 12/28/2004
-
 package x10.parser;
 
 import lpg.lpgjavaruntime.*;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -103,7 +98,6 @@ import lpg.lpgjavaruntime.PrsStream;
 import lpg.lpgjavaruntime.RuleAction;
 import lpg.lpgjavaruntime.UndefinedEofSymbolException;
 import lpg.lpgjavaruntime.UnimplementedTerminalsException;
-
 public class X10Parser extends PrsStream implements RuleAction, Parser
 {
     private static ParseTable prs = new X10Parserprs();
@@ -239,7 +233,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
         return null;
     }
-
 
     private ErrorQueue eq;
     private X10TypeSystem ts;
@@ -3924,124 +3917,137 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 457:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt [ ] ArrayInitializer
+            // Rule 457:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt Dims ArrayInitializer
             //
             case 457: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                Here Unsafeopt = (Here) getRhsSym(3);
-                ArrayInit ArrayInitializer = (ArrayInit) getRhsSym(6);
+                Object Unsafeopt = (Object) getRhsSym(3);
+                Integer Dims = (Integer) getRhsSym(4);
+                ArrayInit ArrayInitializer = (ArrayInit) getRhsSym(5);
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
-                setResult(nf.NewArray(pos(), ArrayBaseType, 1, ArrayInitializer));
+                setResult(nf.NewArray(pos(), ArrayBaseType, Dims.intValue(), ArrayInitializer));
                 break;
             }
      
             //
-            // Rule 458:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt [ Expression ]
+            // Rule 458:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr Dims
             //
             case 458: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                Here Unsafeopt = (Here) getRhsSym(3);
-                Expr Expression = (Expr) getRhsSym(5);
-                setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, false, Expression, null));
+                Object Unsafeopt = (Object) getRhsSym(3);
+                Expr DimExpr = (Expr) getRhsSym(4);
+                Integer Dims = (Integer) getRhsSym(5);
+                // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
+                setResult(nf.NewArray(pos(), ArrayBaseType, Collections.singletonList(DimExpr), Dims.intValue()));
                 break;
             }
      
             //
-            // Rule 459:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt [ Expression$distr ] Expression$initializer
+            // Rule 459:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr DimExprs Dimsopt
             //
             case 459: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                Here Unsafeopt = (Here) getRhsSym(3);
-                Expr distr = (Expr) getRhsSym(5);
-                Expr initializer = (Expr) getRhsSym(7);
-                setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, false, distr, initializer));
+                Object Unsafeopt = (Object) getRhsSym(3);
+                Expr DimExpr = (Expr) getRhsSym(4);
+                List DimExprs = (List) getRhsSym(5);
+                Integer Dimsopt = (Integer) getRhsSym(6);
+                // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
+                List l = new TypedList(new LinkedList(), Expr.class, false);
+                l.add(DimExpr);
+                l.addAll(DimExprs);
+                setResult(nf.NewArray(pos(), ArrayBaseType, l, Dimsopt.intValue()));
                 break;
             }
      
             //
-            // Rule 460:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt [ Expression ] ($lparen FormalParameter ) MethodBody
+            // Rule 460:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ]
             //
             case 460: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                Here Unsafeopt = (Here) getRhsSym(3);
-                Expr Expression = (Expr) getRhsSym(5);
-                IToken lparen = (IToken) getRhsIToken(7);
-                X10Formal FormalParameter = (X10Formal) getRhsSym(8);
-                Block MethodBody = (Block) getRhsSym(10);
-                New initializer = makeInitializer( pos(getRhsFirstTokenIndex(7), getRightSpan()), ArrayBaseType, FormalParameter, MethodBody );
-                setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, false, Expression, initializer));
+                Object Valueopt = (Object) getRhsSym(3);
+                Object Unsafeopt = (Object) getRhsSym(4);
+                Expr Expression = (Expr) getRhsSym(6);
+                setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, null));
                 break;
             }
      
             //
-            // Rule 461:  ArrayCreationExpression ::= new ArrayBaseType value Unsafeopt [ Expression ]
+            // Rule 461:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression$distr ] Expression$initializer
             //
             case 461: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                Here Unsafeopt = (Here) getRhsSym(4);
-                Expr Expression = (Expr) getRhsSym(6);
-                setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, true, Expression, null));
+                Object Valueopt = (Object) getRhsSym(3);
+                Object Unsafeopt = (Object) getRhsSym(4);
+                Expr distr = (Expr) getRhsSym(6);
+                Expr initializer = (Expr) getRhsSym(8);
+                setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, distr, initializer));
                 break;
             }
      
             //
-            // Rule 462:  ArrayCreationExpression ::= new ArrayBaseType value Unsafeopt [ Expression$expr1 ] Expression$expr2
+            // Rule 462:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ] ($lparen FormalParameter ) MethodBody
             //
             case 462: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                Here Unsafeopt = (Here) getRhsSym(4);
-                Expr expr1 = (Expr) getRhsSym(6);
-                Expr expr2 = (Expr) getRhsSym(8);
-                setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, true, expr1, expr2));
-                break;
-            }
-     
-            //
-            // Rule 463:  ArrayCreationExpression ::= new ArrayBaseType value Unsafeopt [ Expression ] ($lparen FormalParameter ) MethodBody
-            //
-            case 463: {
-                TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                Here Unsafeopt = (Here) getRhsSym(4);
+                Object Valueopt = (Object) getRhsSym(3);
+                Object Unsafeopt = (Object) getRhsSym(4);
                 Expr Expression = (Expr) getRhsSym(6);
                 IToken lparen = (IToken) getRhsIToken(8);
                 X10Formal FormalParameter = (X10Formal) getRhsSym(9);
                 Block MethodBody = (Block) getRhsSym(11);
-                New initializer = makeInitializer(pos(getRhsFirstTokenIndex(8), getRhsLastTokenIndex(11)), ArrayBaseType, FormalParameter, MethodBody);
-                setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, true, Expression, initializer));
+                New initializer = makeInitializer( pos(getRhsFirstTokenIndex(8), getRightSpan()), ArrayBaseType, FormalParameter, MethodBody );
+                setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, initializer));
                 break;
             }
      
             //
-            // Rule 466:  ArrayBaseType ::= nullable Type
+            // Rule 463:  Valueopt ::= $Empty
             //
-            case 466: {
+            case 463:
+                setResult(null);
+                break;
+ 
+            //
+            // Rule 464:  Valueopt ::= value
+            //
+            case 464: {
+                
+                // any value distinct from null
+                setResult(this);
+                break;
+            }
+     
+            //
+            // Rule 467:  ArrayBaseType ::= nullable Type
+            //
+            case 467: {
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 setResult(nf.Nullable(pos(), Type));
                 break;
             }
      
             //
-            // Rule 467:  ArrayBaseType ::= future < Type >
+            // Rule 468:  ArrayBaseType ::= future < Type >
             //
-            case 467: {
+            case 468: {
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 setResult(nf.Future(pos(), Type));
                 break;
             }
      
             //
-            // Rule 468:  ArrayBaseType ::= ( Type )
+            // Rule 469:  ArrayBaseType ::= ( Type )
             //
-            case 468: {
+            case 469: {
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 setResult(Type);
                 break;
             }
      
             //
-            // Rule 469:  ArrayAccess ::= ExpressionName [ ArgumentList ]
+            // Rule 470:  ArrayAccess ::= ExpressionName [ ArgumentList ]
             //
-            case 469: {
+            case 470: {
                 Name ExpressionName = (Name) getRhsSym(1);
                 List ArgumentList = (List) getRhsSym(3);
                 if (ArgumentList.size() == 1)
@@ -4051,9 +4057,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 470:  ArrayAccess ::= PrimaryNoNewArray [ ArgumentList ]
+            // Rule 471:  ArrayAccess ::= PrimaryNoNewArray [ ArgumentList ]
             //
-            case 470: {
+            case 471: {
                 Expr PrimaryNoNewArray = (Expr) getRhsSym(1);
                 List ArgumentList = (List) getRhsSym(3);
                 if (ArgumentList.size() == 1)
@@ -4063,9 +4069,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 487:  NowStatement ::= now ( Clock ) Statement
+            // Rule 488:  NowStatement ::= now ( Clock ) Statement
             //
-            case 487: {
+            case 488: {
                 Expr Clock = (Expr) getRhsSym(3);
                 Stmt Statement = (Stmt) getRhsSym(5);
               setResult(nf.Now(pos(), Clock, Statement));
@@ -4073,18 +4079,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 488:  ClockedClause ::= clocked ( ClockList )
+            // Rule 489:  ClockedClause ::= clocked ( ClockList )
             //
-            case 488: {
+            case 489: {
                 List ClockList = (List) getRhsSym(3);
                 setResult(ClockList);
                 break;
             }
      
             //
-            // Rule 489:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
+            // Rule 490:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
-            case 489: {
+            case 490: {
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
                 List ClockedClauseopt = (List) getRhsSym(3);
                 Stmt Statement = (Stmt) getRhsSym(4);
@@ -4096,9 +4102,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 490:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
+            // Rule 491:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
             //
-            case 490: {
+            case 491: {
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
                 Stmt Statement = (Stmt) getRhsSym(3);
               setResult(nf.Atomic(pos(), (PlaceExpressionSingleListopt == null
@@ -4108,9 +4114,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 491:  WhenStatement ::= when ( Expression ) Statement
+            // Rule 492:  WhenStatement ::= when ( Expression ) Statement
             //
-            case 491: {
+            case 492: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Stmt Statement = (Stmt) getRhsSym(5);
                 setResult(nf.When(pos(), Expression, Statement));
@@ -4118,9 +4124,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 492:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
+            // Rule 493:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
-            case 492: {
+            case 493: {
                 When WhenStatement = (When) getRhsSym(1);
                 IToken or = (IToken) getRhsIToken(2);
                 Expr Expression = (Expr) getRhsSym(4);
@@ -4131,9 +4137,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 493:  ForEachStatement ::= foreach ( FormalParameter : Expression ) ClockedClauseopt Statement
+            // Rule 494:  ForEachStatement ::= foreach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
-            case 493: {
+            case 494: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 List ClockedClauseopt = (List) getRhsSym(7);
@@ -4147,9 +4153,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 494:  AtEachStatement ::= ateach ( FormalParameter : Expression ) ClockedClauseopt Statement
+            // Rule 495:  AtEachStatement ::= ateach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
-            case 494: {
+            case 495: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 List ClockedClauseopt = (List) getRhsSym(7);
@@ -4163,9 +4169,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 495:  EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
+            // Rule 496:  EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
             //
-            case 495: {
+            case 496: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 Stmt Statement = (Stmt) getRhsSym(7);
@@ -4177,18 +4183,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 496:  FinishStatement ::= finish Statement
+            // Rule 497:  FinishStatement ::= finish Statement
             //
-            case 496: {
+            case 497: {
                 Stmt Statement = (Stmt) getRhsSym(2);
                 setResult(nf.Finish(pos(),  Statement));
                 break;
             }
      
             //
-            // Rule 497:  NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
+            // Rule 498:  NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
             //
-            case 497: {
+            case 498: {
                 Expr Clock = (Expr) getRhsSym(3);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
                 setResult(nf.Now(pos(), Clock, StatementNoShortIf));
@@ -4196,9 +4202,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 498:  AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt ClockedClauseopt StatementNoShortIf
+            // Rule 499:  AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt ClockedClauseopt StatementNoShortIf
             //
-            case 498: {
+            case 499: {
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
                 List ClockedClauseopt = (List) getRhsSym(3);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(4);
@@ -4210,18 +4216,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 499:  AtomicStatementNoShortIf ::= atomic StatementNoShortIf
+            // Rule 500:  AtomicStatementNoShortIf ::= atomic StatementNoShortIf
             //
-            case 499: {
+            case 500: {
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
                 setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), StatementNoShortIf));
                 break;
             }
      
             //
-            // Rule 500:  WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
+            // Rule 501:  WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
             //
-            case 500: {
+            case 501: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
                 setResult(nf.When(pos(), Expression, StatementNoShortIf));
@@ -4229,9 +4235,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 501:  WhenStatementNoShortIf ::= WhenStatement or$or ( Expression ) StatementNoShortIf
+            // Rule 502:  WhenStatementNoShortIf ::= WhenStatement or$or ( Expression ) StatementNoShortIf
             //
-            case 501: {
+            case 502: {
                 When WhenStatement = (When) getRhsSym(1);
                 IToken or = (IToken) getRhsIToken(2);
                 Expr Expression = (Expr) getRhsSym(4);
@@ -4242,9 +4248,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 502:  ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
+            // Rule 503:  ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
-            case 502: {
+            case 503: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 List ClockedClauseopt = (List) getRhsSym(7);
@@ -4259,9 +4265,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 503:  AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
+            // Rule 504:  AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
-            case 503: {
+            case 504: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 List ClockedClauseopt = (List) getRhsSym(7);
@@ -4275,9 +4281,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 504:  EnhancedForStatementNoShortIf ::= for ( FormalParameter : Expression ) StatementNoShortIf
+            // Rule 505:  EnhancedForStatementNoShortIf ::= for ( FormalParameter : Expression ) StatementNoShortIf
             //
-            case 504: {
+            case 505: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(7);
@@ -4289,45 +4295,45 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 505:  FinishStatementNoShortIf ::= finish StatementNoShortIf
+            // Rule 506:  FinishStatementNoShortIf ::= finish StatementNoShortIf
             //
-            case 505: {
+            case 506: {
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
                 setResult(nf.Finish(pos(), StatementNoShortIf));
                 break;
             }
      
             //
-            // Rule 506:  PlaceExpressionSingleList ::= ( PlaceExpression )
+            // Rule 507:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
-            case 506: {
+            case 507: {
                 Expr PlaceExpression = (Expr) getRhsSym(2);
               setResult(PlaceExpression);
                 break;
             }
      
             //
-            // Rule 508:  NextStatement ::= next ;
+            // Rule 509:  NextStatement ::= next ;
             //
-            case 508: {
+            case 509: {
                 
                 setResult(nf.Next(pos()));
                 break;
             }
      
             //
-            // Rule 509:  AwaitStatement ::= await Expression ;
+            // Rule 510:  AwaitStatement ::= await Expression ;
             //
-            case 509: {
+            case 510: {
                 Expr Expression = (Expr) getRhsSym(2);
                 setResult(nf.Await(pos(), Expression));
                 break;
             }
      
             //
-            // Rule 510:  ClockList ::= Clock
+            // Rule 511:  ClockList ::= Clock
             //
-            case 510: {
+            case 511: {
                 Expr Clock = (Expr) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
@@ -4336,9 +4342,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 511:  ClockList ::= ClockList , Clock
+            // Rule 512:  ClockList ::= ClockList , Clock
             //
-            case 511: {
+            case 512: {
                 List ClockList = (List) getRhsSym(1);
                 Expr Clock = (Expr) getRhsSym(3);
                 ClockList.add(Clock);
@@ -4347,9 +4353,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 513:  CastExpression ::= ( Type ) UnaryExpressionNotPlusMinus
+            // Rule 514:  CastExpression ::= ( Type ) UnaryExpressionNotPlusMinus
             //
-            case 513: {
+            case 514: {
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
                 setResult(nf.Cast(pos(), Type, UnaryExpressionNotPlusMinus));
@@ -4357,9 +4363,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 514:  CastExpression ::= ( @ Expression ) UnaryExpressionNotPlusMinus
+            // Rule 515:  CastExpression ::= ( @ Expression ) UnaryExpressionNotPlusMinus
             //
-            case 514: {
+            case 515: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(5);
                 setResult(nf.PlaceCast(pos(), Expression, UnaryExpressionNotPlusMinus));
@@ -4367,9 +4373,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 515:  RelationalExpression ::= RelationalExpression instanceof Type
+            // Rule 516:  RelationalExpression ::= RelationalExpression instanceof Type
             //
-            case 515: {
+            case 516: {
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
@@ -4377,9 +4383,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 516:  IdentifierList ::= identifier
+            // Rule 517:  IdentifierList ::= identifier
             //
-            case 516: {
+            case 517: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Name.class, false);
                 l.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
@@ -4388,9 +4394,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 517:  IdentifierList ::= IdentifierList , identifier
+            // Rule 518:  IdentifierList ::= IdentifierList , identifier
             //
-            case 517: {
+            case 518: {
                 List IdentifierList = (List) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 IdentifierList.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
@@ -4399,9 +4405,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 518:  Primary ::= here
+            // Rule 519:  Primary ::= here
             //
-            case 518: {
+            case 519: {
                 
                 setResult(((X10NodeFactory) nf).Here(pos()));
 //
@@ -4417,9 +4423,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 521:  RegionExpression ::= Expression$expr1 : Expression$expr2
+            // Rule 522:  RegionExpression ::= Expression$expr1 : Expression$expr2
             //
-            case 521: {
+            case 522: {
                 Expr expr1 = (Expr) getRhsSym(1);
                 Expr expr2 = (Expr) getRhsSym(3);
                 Name x10 = new Name(nf, ts, pos(), "x10");
@@ -4437,9 +4443,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 522:  RegionExpressionList ::= RegionExpression
+            // Rule 523:  RegionExpressionList ::= RegionExpression
             //
-            case 522: {
+            case 523: {
                 Expr RegionExpression = (Expr) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
@@ -4448,9 +4454,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 523:  RegionExpressionList ::= RegionExpressionList , RegionExpression
+            // Rule 524:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
-            case 523: {
+            case 524: {
                 List RegionExpressionList = (List) getRhsSym(1);
                 Expr RegionExpression = (Expr) getRhsSym(3);
                 RegionExpressionList.add(RegionExpression);
@@ -4459,9 +4465,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 524:  Primary ::= [ RegionExpressionList ]
+            // Rule 525:  Primary ::= [ RegionExpressionList ]
             //
-            case 524: {
+            case 525: {
                 List RegionExpressionList = (List) getRhsSym(2);
                 Name x10 = new Name(nf, ts, pos(), "x10");
                 Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
@@ -4478,9 +4484,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 525:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
+            // Rule 526:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
-            case 525: {
+            case 526: {
                 Expr expr1 = (Expr) getRhsSym(1);
                 Expr expr2 = (Expr) getRhsSym(3);
                 //System.out.println("Distribution:" + a + "|" + b + "|");
@@ -4501,9 +4507,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 526:  FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
+            // Rule 527:  FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
             //
-            case 526: {
+            case 527: {
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
                 Expr Expression = (Expr) getRhsSym(4);
                 setResult(nf.Future(pos(), (PlaceExpressionSingleListopt == null
@@ -4513,81 +4519,81 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 527:  FieldModifier ::= mutable
+            // Rule 528:  FieldModifier ::= mutable
             //
-            case 527: {
+            case 528: {
                 
                 setResult(X10Flags.MUTABLE);
                 break;
             }
      
             //
-            // Rule 528:  FieldModifier ::= const
+            // Rule 529:  FieldModifier ::= const
             //
-            case 528: {
+            case 529: {
                 
                 setResult(Flags.PUBLIC.set(Flags.STATIC).set(Flags.FINAL));
                 break;
             }
      
             //
-            // Rule 529:  FunExpression ::= fun Type ( FormalParameterListopt ) { Expression }
-            //
-            case 529:
-                throw new Error("No action specified for rule " + 529);
- 
-            //
-            // Rule 530:  MethodInvocation ::= MethodName ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 530:  FunExpression ::= fun Type ( FormalParameterListopt ) { Expression }
             //
             case 530:
-                throw new Error("No action specified for rule " + 530); 
+                throw new Error("No action specified for rule " + 530);
  
             //
-            // Rule 531:  MethodInvocation ::= Primary . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 531:  MethodInvocation ::= MethodName ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 531:
                 throw new Error("No action specified for rule " + 531); 
  
             //
-            // Rule 532:  MethodInvocation ::= super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 532:  MethodInvocation ::= Primary . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 532:
                 throw new Error("No action specified for rule " + 532); 
  
             //
-            // Rule 533:  MethodInvocation ::= ClassName . super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 533:  MethodInvocation ::= super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 533:
                 throw new Error("No action specified for rule " + 533); 
  
             //
-            // Rule 534:  MethodInvocation ::= TypeName . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 534:  MethodInvocation ::= ClassName . super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 534:
                 throw new Error("No action specified for rule " + 534); 
  
             //
-            // Rule 535:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            // Rule 535:  MethodInvocation ::= TypeName . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 535:
                 throw new Error("No action specified for rule " + 535); 
  
             //
-            // Rule 536:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            // Rule 536:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
             //
             case 536:
                 throw new Error("No action specified for rule " + 536); 
  
             //
-            // Rule 537:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            // Rule 537:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
             //
             case 537:
                 throw new Error("No action specified for rule " + 537); 
  
             //
-            // Rule 538:  MethodModifier ::= synchronized
+            // Rule 538:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
             //
-            case 538: {
+            case 538:
+                throw new Error("No action specified for rule " + 538); 
+ 
+            //
+            // Rule 539:  MethodModifier ::= synchronized
+            //
+            case 539: {
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, getErrorLocation(getLeftSpan(), getRightSpan()) +
                                                    "\"synchronized\" is an invalid X10 Method Modifier");
@@ -4596,9 +4602,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 539:  FieldModifier ::= volatile
+            // Rule 540:  FieldModifier ::= volatile
             //
-            case 539: {
+            case 540: {
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, getErrorLocation(getLeftSpan(), getRightSpan()) +
                                                    "\"volatile\" is an invalid X10 Field Modifier");
@@ -4607,9 +4613,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 540:  SynchronizedStatement ::= synchronized ( Expression ) Block
+            // Rule 541:  SynchronizedStatement ::= synchronized ( Expression ) Block
             //
-            case 540: {
+            case 541: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Block Block = (Block) getRhsSym(5);
                 unrecoverableSyntaxError = true;
@@ -4620,103 +4626,103 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 541:  PlaceTypeSpecifieropt ::= $Empty
+            // Rule 542:  PlaceTypeSpecifieropt ::= $Empty
             //
-            case 541:
+            case 542:
                 setResult(null);
                 break;
  
             //
-            // Rule 543:  DepParametersopt ::= $Empty
+            // Rule 544:  DepParametersopt ::= $Empty
             //
-            case 543:
+            case 544:
                 setResult(null);
                 break;
  
             //
-            // Rule 545:  WhereClauseopt ::= $Empty
+            // Rule 546:  WhereClauseopt ::= $Empty
             //
-            case 545:
+            case 546:
                 setResult(null);
                 break;
  
             //
-            // Rule 547:  ObjectKindopt ::= $Empty
+            // Rule 548:  ObjectKindopt ::= $Empty
             //
-            case 547:
+            case 548:
                 setResult(null);
                 break;
  
             //
-            // Rule 549:  ArrayInitializeropt ::= $Empty
+            // Rule 550:  ArrayInitializeropt ::= $Empty
             //
-            case 549:
+            case 550:
                 setResult(null);
                 break;
  
             //
-            // Rule 551:  PlaceExpressionSingleListopt ::= $Empty
+            // Rule 552:  PlaceExpressionSingleListopt ::= $Empty
             //
-            case 551:
+            case 552:
                 setResult(null);
                 break;
  
             //
-            // Rule 553:  ArgumentListopt ::= $Empty
+            // Rule 554:  ArgumentListopt ::= $Empty
             //
-            case 553:
+            case 554:
                 setResult(null);
                 break;
  
             //
-            // Rule 555:  DepParametersopt ::= $Empty
+            // Rule 556:  DepParametersopt ::= $Empty
             //
-            case 555:
+            case 556:
                 setResult(null);
                 break;
  
             //
-            // Rule 557:  Unsafeopt ::= $Empty
+            // Rule 558:  Unsafeopt ::= $Empty
             //
-            case 557:
+            case 558:
                 setResult(null);
                 break;
  
             //
-            // Rule 558:  Unsafeopt ::= unsafe$unsafe
+            // Rule 559:  Unsafeopt ::= unsafe
             //
-            case 558: {
-                IToken unsafe = (IToken) getRhsIToken(1);
-                setResult(nf.Here(pos(getRhsFirstTokenIndex(1))));
+            case 559: {
+                
+                // any value distinct from null
+                setResult(this);
                 break;
             }
      
             //
-            // Rule 559:  ParamIdopt ::= $Empty
+            // Rule 560:  ParamIdopt ::= $Empty
             //
-            case 559:
+            case 560:
                 setResult(null);
                 break;
  
             //
-            // Rule 560:  ParamIdopt ::= identifier
+            // Rule 561:  ParamIdopt ::= identifier
             //
-            case 560: {
+            case 561: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 561:  ClockedClauseopt ::= $Empty
+            // Rule 562:  ClockedClauseopt ::= $Empty
             //
-            case 561: {
+            case 562: {
                 
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
-    
-    
+        
             default:
                 break;
         }
