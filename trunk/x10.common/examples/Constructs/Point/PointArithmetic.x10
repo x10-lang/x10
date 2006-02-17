@@ -88,6 +88,34 @@ public class PointArithmetic {
 		System.out.println("p/c: sum="+sum);
 		if (sum != 5) return false;
 
+		a = c + p;
+		sum = 0;
+		for (int i = 0; i < DIM; i++)
+			sum += a[i];
+		System.out.println("c+p: sum="+sum);
+		if (sum != 20) return false;
+
+		s = c - p;
+		sum = 0;
+		for (int i = 0; i < DIM; i++)
+			sum += s[i];
+		System.out.println("c-p: sum="+sum);
+		if (sum != 0) return false;
+
+		m = c * p;
+		sum = 0;
+		for (int i = 0; i < DIM; i++)
+			sum += m[i];
+		System.out.println("c*p: sum="+sum);
+		if (sum != 20) return false;
+
+		d = c / p;
+		sum = 0;
+		for (int i = 0; i < DIM; i++)
+			sum += d[i];
+		System.out.println("c/p: sum="+sum);
+		if (sum != 5) return false;
+
 		// Now test that the dimensionality is properly checked
 
 		boolean gotException;
