@@ -9,38 +9,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ext.x10.ast.ArrayConstructor;
-import polyglot.ext.x10.ast.Async;
-import polyglot.ext.x10.ast.AtEach;
-import polyglot.ext.x10.ast.Atomic;
-import polyglot.ext.x10.ast.Await;
-import polyglot.ext.x10.ast.Clocked;
-import polyglot.ext.x10.ast.Finish;
-import polyglot.ext.x10.ast.ForEach;
-import polyglot.ext.x10.ast.ForLoop_c;
-import polyglot.ext.x10.ast.Future;
-import polyglot.ext.x10.ast.GenParameterExpr;
-import polyglot.ext.x10.ast.Here;
-import polyglot.ext.x10.ast.Next;
-import polyglot.ext.x10.ast.PlaceCast;
-import polyglot.ext.x10.ast.Point;
-import polyglot.ext.x10.ast.Range;
-import polyglot.ext.x10.ast.Region;
-import polyglot.ext.x10.ast.When;
-import polyglot.ext.x10.ast.When_c;
-import polyglot.ext.x10.ast.X10Formal;
-import polyglot.ext.x10.ast.X10Loop;
-import polyglot.ext.x10.ast.When.Branch;
+import polyglot.ast.Stmt;
+import polyglot.ext.x10.ast.*;
 import polyglot.ext.x10.types.FutureType;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+
 import com.ibm.capa.ast.CAstControlFlowMap;
 import com.ibm.capa.ast.CAstEntity;
 import com.ibm.capa.ast.CAstNode;
@@ -309,12 +291,15 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	public CAstNode visit(When w, WalkContext context) {
 	    When_c when= (When_c) w;
-	    List/*<When.Branch>*/ branches= when.branches();
+//          List/*<When.Branch>*/ branches= when.branches();
+	    List/*<Expr>*/ exprs= when.exprs();
+	    List/*<Stmt>*/ stmts= when.stmts();
 	    // In the fullness of time, some analyses may want to have "when" constructs
 	    // clearly marked in a more declarative fashion, but for now, this has the
 	    // advantage of making the operational semantics clear, with minimal extra
 	    // machinery.
-	    CAstNode[] whenClauses= new CAstNode[branches.size()];
+            Assertions._assert(exprs.size() == stmts.size());
+	    CAstNode[] whenClauses= new CAstNode[exprs.size()];
 
 	    
 	    CAstNode whenExit= fFactory.makeNode(CAstNode.LABEL_STMT,
@@ -324,15 +309,18 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    context.cfg().map(whenExit, whenExit);
 
 	    int idx= 0;
-	    for(Iterator iter= branches.iterator(); iter.hasNext(); idx++) {
-		Branch b= (Branch) iter.next();
+            Iterator stmtIter= stmts.iterator();
+	    for(Iterator exprIter= exprs.iterator(); exprIter.hasNext(); idx++) {
+//		Branch b= (Branch) iter.next();
+                Expr expr= (Expr) exprIter.next();
+                Stmt stmt= (Stmt) stmtIter.next();
 
 		CAstNode whenBreak= fFactory.makeNode(CAstNode.GOTO);
 
 		whenClauses[idx]= fFactory.makeNode(CAstNode.IF_STMT,
-			walkNodes(b.expr(), context),
+			walkNodes(expr, context),
 			fFactory.makeNode(CAstNode.BLOCK_STMT,
-				walkNodes(b.stmt(), context),
+				walkNodes(stmt, context),
 				whenBreak));
 		context.cfg().map(whenBreak, whenBreak);
 		context.cfg().add(whenBreak, whenExit, null);
