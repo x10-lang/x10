@@ -215,6 +215,7 @@ public class X10Binary_c extends Binary_c {
 		}
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
 				l.isPrimitiveTypeArray()) {
+			// FIXME: allow strings here
 			// pointwise numerical operations. TODO: Check that one type can be numerically coerced to the other.
 			if (!l.equals(r)) {
 				throw new SemanticException("The " + op
@@ -223,11 +224,22 @@ public class X10Binary_c extends Binary_c {
 			return type(l);
 		}
 
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && l.isPoint()) {
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
+			l.isPoint() && !ts.equals(r, ts.String()))
+		{
 			if (!r.isPoint() && !r.isIntOrLess())
 				throw new SemanticException("The " + op +
 						" operator instance must have a point or integer operand.", right.position());
 			return type(l);
+		}
+
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
+			r.isPoint() && !ts.equals(l, ts.String()))
+		{
+			if (!l.isIntOrLess())
+				throw new SemanticException("The " + op +
+						" operator instance must have a point or integer operand.", left.position());
+			return type(r);
 		}
 
 		return super.typeCheck(tc);
@@ -247,6 +259,7 @@ public class X10Binary_c extends Binary_c {
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		X10Type l = (X10Type) left.type();
 		X10Type r = (X10Type) right.type();
+		TypeSystem ts = l.typeSystem();
 
 		if ((op == GT || op == LT || op == GE || op == LE) & (l.isPoint() || l.isPlace())) {
 			printSubExpr(left, true, w, tr);
@@ -299,12 +312,21 @@ public class X10Binary_c extends Binary_c {
 			w.write(")");
 			return;
 		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && l.isPoint()) {
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && l.isPoint() && !ts.equals(r, ts.String())) {
 			printSubExpr(left, true, w, tr);
 			w.write(".");
 			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
 			w.write("(");
 			printSubExpr(right, false, w, tr);
+			w.write(")");
+			return;
+		}
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && r.isPoint() && !ts.equals(l, ts.String())) {
+			printSubExpr(right, true, w, tr);
+			w.write(".inv");
+			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
+			w.write("(");
+			printSubExpr(left, false, w, tr);
 			w.write(")");
 			return;
 		}
