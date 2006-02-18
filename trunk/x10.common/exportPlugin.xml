@@ -41,7 +41,8 @@
 	<target name="plugin.jar" depends="init" unless="${plugin.jar.name}" description="Create jar: ${plugin.jar.name}.">
 		<delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin"/>
-		<copy todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true">
+		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/etc"/>
+		<copy todir="${temp.folder}/${plugin.jar.name}.bin/etc" failonerror="true">
 			<fileset dir="etc" includes="*.cfg"/>
 		</copy>
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${temp.folder}/${plugin.jar.name}.bin"
