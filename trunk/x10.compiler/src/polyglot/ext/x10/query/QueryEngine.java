@@ -3,6 +3,7 @@
  */
 package polyglot.ext.x10.query;
 
+import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ast.Call;
 import polyglot.ast.Field;
@@ -29,11 +30,11 @@ public class QueryEngine {
 	}
 
 	public boolean needsHereCheck(Call c) {
-		return true;
+		return Configuration.BAD_PLACE_RUNTIME_CHECK;
 	}
 
 	public boolean needsHereCheck(Field f) {
-		return true;
+		return Configuration.BAD_PLACE_RUNTIME_CHECK;
 	}
 }
 
