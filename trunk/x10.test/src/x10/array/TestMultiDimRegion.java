@@ -89,15 +89,15 @@ public class TestMultiDimRegion extends TestCase {
     			Range[] ranges = new Range[] { new ContiguousRange(10,109), new ContiguousRange(100, 1099) }; // 6x4         
     	        MultiDimRegion reg = new MultiDimRegion(ranges);
     	        
-    	        int ord = (int) reg.ordinal(point.factory.point(reg, new int[] {10, 100}));
+    	        int ord = (int) reg.ordinal(point.factory.point(new int[] {10, 100}));
     	        System.out.println("Result is " + ord + "; should be " + 0);
     	        assertTrue(ord == 0);
     	        
-    	        ord = (int) reg.ordinal(point.factory.point(reg, new int[] {11, 100}));
+    	        ord = (int) reg.ordinal(point.factory.point(new int[] {11, 100}));
     	        System.out.println("Result is " + ord + "; should be " + 1000);
     	        assertTrue(ord == 1000);
     	        
-    	        ord = (int) reg.ordinal(point.factory.point(reg, new int[] {11, 102}));
+    	        ord = (int) reg.ordinal(point.factory.point(new int[] {11, 102}));
     	        System.out.println("Result is " + ord + "; should be " + 1002);
     	        assertTrue(ord == 1002);
     		}
