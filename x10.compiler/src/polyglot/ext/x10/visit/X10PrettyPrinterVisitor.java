@@ -99,7 +99,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		boolean exp_nullab = (c.expr().type() instanceof NullableType);
 		boolean casttype_nullab = (c.castType().type() instanceof NullableType);
 		if (exp_nullab && !casttype_nullab) {
-			dump("cast_nullable", new Node[] { c.castType(), c.expr() });
+			new Template("cast_nullable", c.castType(), c.expr()).expand();
 		} else {
 			visit((Node)c);
 		}
@@ -131,7 +131,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		{
 			// don't annotate calls with implicit target, or this and super
 			// the template file only emits the target
-			dump("place-check", new Object[] { t.translate(null), target } );
+			new Template("place-check", t.translate(null), target).expand();
 			// then emit '.', name of the method and argument list.
 			w.write(".");
 			w.write(c.name());
@@ -153,22 +153,18 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(Binary_c binary) {
-		if (binary.operator().equals(polyglot.ast.Binary.EQ) &&
+		if ((binary.operator().equals(polyglot.ast.Binary.EQ) ||
+			 binary.operator().equals(polyglot.ast.Binary.NE)) &&
 			(binary.left().type() instanceof ReferenceType) &&
 			(binary.right().type() instanceof ReferenceType)
 			/*&&
 			(binary.left().type() instanceof ValueType) &&
 			(binary.right().type() instanceof ValueType) */)
 		{
-			dump("equalsequals", new Node[] { binary.left(), binary.right() });
-		} else if (binary.operator().equals(polyglot.ast.Binary.NE) &&
-				   (binary.left().type() instanceof ReferenceType) &&
-				   (binary.right().type() instanceof ReferenceType)
-				   /*&&
-				   (binary.left().type() instanceof ValueType) &&
-				   (binary.right().type() instanceof ValueType) */)
-		{
-			dump("notequalsequals", new Node[] { binary.left(), binary.right() });
+			new Template(binary.operator().equals(polyglot.ast.Binary.EQ)
+							? "equalsequals"
+							: "notequalsequals",
+						 binary.left(), binary.right()).expand();
 		} else {
 			visit((Node)binary);
 		}
@@ -184,67 +180,65 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			(dec.formals().size() == 1) &&
 			((Formal)dec.formals().get(0)).type().toString().equals("java.lang.String[]"))
 		{
-			dump("Main", new Node[] { (Node) dec.formals().get(0), dec.body() });
+			new Template("Main", dec.formals().get(0), dec.body()).expand();
 		} else
 			dec.prettyPrint(w, pp);
 	}
 
 	public void visit(Async_c a) {
 		assert (null != a.clocks());
-		dump("Async",
-			 new Object[] {
-				 a.place(),
-				 new Template("clocked", new Loop("clocked-loop", a.clocks())),
-				 a.body()
-			 });
+		new Template("Async",
+					 a.place(),
+					 new Template("clocked", new Loop("clocked-loop", a.clocks())),
+					 a.body()).expand();
 	}
 
 	public void visit(Atomic_c a) {
-		dump("Atomic", new Object[] { a.body(), getUniqueId_() });
+		new Template("Atomic", a.body(), getUniqueId_()).expand();
 	}
 
 	public void visit(Here_c a) {
-		dump("here", new Node[] { });
+		new Template("here").expand();
 	}
 
 	public void visit(Await_c c) {
-		dump("await", new Object[] { c.expr(), getUniqueId_() });
+		new Template("await", c.expr(), getUniqueId_()).expand();
 	}
 
 	public void visit(Next_c d) {
-		dump("next", new Object[] { getUniqueId_() });
+		new Template("next").expand();
 	}
 
 	public void visit(Future_c f) {
-		dump("Future", new Node[] { f.place(), f.body() });
+		new Template("Future", f.place(), f.body()).expand();
 	}
 
 	public void visit(ForLoop_c f) {
 		// System.out.println("X10PrettyPrinter.visit(ForLoop c): |" + f.formal().flags().translate() + "|");
-		dump("forloop",
-			 new Object[] {
-				 f.formal().flags().translate(),
-				 f.formal().type(),
-				 f.formal().name(),
-				 f.domain(),
-				 f.body()
-			 });
+		new Template("forloop",
+					 new Object[] {
+						 f.formal().flags().translate(),
+						 f.formal().type(),
+						 f.formal().name(),
+						 f.domain(),
+						 f.body()
+					 }).expand();
 	}
 
 	private void processClockedLoop(String template, X10ClockedLoop l) {
 		assert (null != l.clocks());
-		dump(template,
-			 new Object[] {
-				 l.formal().flags().translate(),
-				 l.formal().type(),
-				 l.formal().name(),
-				 l.domain(),
-				 l.body(),
-				 new Template("clocked",
-					 new Join("\n",
-						 new Join("\n", l.locals()),
-						 new Loop("clocked-loop", l.clocks())))
-			 });
+		new Template(template,
+					 new Object[] {
+						 l.formal().flags().translate(),
+						 l.formal().type(),
+						 l.formal().name(),
+						 l.domain(),
+						 l.body(),
+						 new Template("clocked",
+							 new Join("\n",
+								 new Join("\n", l.locals()),
+								 new Loop("clocked-loop", l.clocks())))
+					 }).expand();
 	}
 
 	public void visit(ForEach_c f) {
@@ -257,7 +251,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(Now_c n) {
-		dump("Now", new Node[] { n.clock(), n.body() });
+		new Template("Now", n.clock(), n.body()).expand();
 	}
 
 	/*
@@ -283,7 +277,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		{
 			// no check required for implicit targets, this and super
 			// the template file only emits the target
-			dump("place-check", new Object[] { t.translate(null), target } );
+			new Template("place-check", t.translate(null), target).expand();
 			// then emit '.' and name of the field.
 			w.write(".");
 			w.write(n.name());
@@ -307,47 +301,43 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			Stmt s = (Stmt) i.next();
 			breaks.add(optionalBreak(s));
 		}
-		dump("when",
-			 new Object[] {
-				 w.expr(),
-				 w.stmt(),
-				 optionalBreak(w.stmt()),
-				 new Loop("when-branch", w.exprs(), w.stmts(), breaks),
-				 id
-			 });
+		new Template("when",
+					 new Object[] {
+						 w.expr(),
+						 w.stmt(),
+						 optionalBreak(w.stmt()),
+						 new Loop("when-branch", w.exprs(), w.stmts(), breaks),
+						 id
+					 }).expand();
 	}
 
 	public void visit(Finish_c a) {
-		dump("finish", new Object[] { a.body(), getUniqueId_() });
+		new Template("finish", a.body(), getUniqueId_()).expand();
 	}
 
 	private void processArrayConstructor(String template, ArrayConstructor_c a) {
 		if (a.hasLocal1DimDistribution()) {
 			if (a.hasInitializer()) {
-				dump(template+"_array_initializer",
-					 new Object[] {
-						 a.initializer(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())
-					 });
+				new Template(template+"_array_initializer",
+							 a.initializer(),
+							 new Boolean(a.isSafe()),
+							 new Boolean(a.isValue())).expand();
 				return;
 			}
-			dump(template+"_array_local",
-				 new Object[] {
-					 a.distribution(),
-					 new Boolean(a.isSafe()),
-					 new Boolean(a.isValue())
-				 });
+			new Template(template+"_array_local",
+						 a.distribution(),
+						 new Boolean(a.isSafe()),
+						 new Boolean(a.isValue())).expand();
 			return;
 		}
 		Object init = a.initializer();
-		dump(template+"_array_dist_op",
-			 new Object[] {
-				 a.distribution(),
-				 init != null ? init : "null",
-				 new Boolean(a.isSafe()),
-				 new Boolean(a.isValue())
-			 });
+		new Template(template+"_array_dist_op",
+					 new Object[] {
+						 a.distribution(),
+						 init != null ? init : "null",
+						 new Boolean(a.isSafe()),
+						 new Boolean(a.isValue())
+					 }).expand();
 		return;
 	}
 
@@ -390,33 +380,34 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			boolean refs_to_values = (base_type instanceof X10Type && ((X10Type) base_type).isValueType());
 			if (a.hasLocal1DimDistribution()) {
 				if (a.hasInitializer()) {
-					dump("generic_array_initializer",
-						 new Object[] {
-							 a.initializer(),
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue()),
-							 new Boolean(refs_to_values)
-						 });
+					new Template("generic_array_initializer",
+								 new Object[] {
+									 a.initializer(),
+									 new Boolean(a.isSafe()),
+									 new Boolean(a.isValue()),
+									 new Boolean(refs_to_values)
+								 }).expand();
 					return;
 				}
-				dump("generic_array_local",
-					 new Object[] {
-						 a.distribution(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue()),
-						 new Boolean(refs_to_values)
-					 });
+				new Template("generic_array_local",
+							 new Object[] {
+								 a.distribution(),
+								 new Boolean(a.isSafe()),
+								 new Boolean(a.isValue()),
+								 new Boolean(refs_to_values)
+							 }).expand();
 				return;
 			}
 			Object init = a.initializer();
-			dump("generic_array_dist_op",
-				 new Object[] {
-					 a.distribution(),
-					 init != null ? init : "(x10.compilergenerated.Parameter1)null",
-					 new Boolean(a.isSafe()),
-					 new Boolean(a.isValue()),
-					 new Boolean(refs_to_values)
-				 });
+			// [IP] FIXME: is the cast below needed at all?
+			new Template("generic_array_dist_op",
+						 new Object[] {
+							 a.distribution(),
+							 init != null ? init : "(x10.compilergenerated.Parameter1)null",
+							 new Boolean(a.isSafe()),
+							 new Boolean(a.isValue()),
+							 new Boolean(refs_to_values)
+						 }).expand();
 			return;
 		}
 
@@ -424,97 +415,98 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(X10ArrayAccess1_c a) {
-		dump("array_get1", new Node[] { a.array(), a.index() });
+		new Template("array_get", a.array(), a.index()).expand();
+		// [IP] TODO: Remove array_get[1-4]
+//		new Template("array_get1", a.array(), a.index()).expand();
 	}
 
+	// [IP] TODO: is this used?
 	public void visit(PlaceCast_c a) {
-		System.out.println("Visit:" + a + "," + a.expr() + "," + a.placeCastType() );
-		dump("cast_place",
-			 new Node[] {
-				 a.expr(),
-				 a.placeCastType(),
-				 new CanonicalTypeNode_c(a.position(), a.expr().type())
-			 });
+		System.out.println("Visit:" + a + "," + a.expr() + "," + a.placeCastType());
+		new Template("cast_place",
+					 a.expr(),
+					 a.placeCastType(),
+					 new CanonicalTypeNode_c(a.position(), a.expr().type())).expand();
 	}
 
-	// [IP] TODO: rewrite using a loop
+//	// [IP] TODO: rewrite using a Join
 	public void visit(X10ArrayAccess_c a) {
+		assert false;
 		List index = a.index();
-		int size = index.size();
-		assert size > 1;
-		if (size == 2)
-			dump("array_get2",
-				 new Node[] {
-					 a.array(),
-					 (Node) index.get(0),
-					 (Node) index.get(1)
-				 });
-		else if (size == 3)
-			dump("array_get3",
-				 new Node[] {
-					 a.array(),
-					 (Node) index.get(0),
-					 (Node) index.get(1),
-					 (Node) index.get(2)
-				 });
-		else if (size == 4)
-			dump("array_get4",
-				 new Node[] {
-					 a.array(),
-					 (Node) index.get(0),
-					 (Node) index.get(1),
-					 (Node) index.get(2),
-					 (Node) index.get(3)
-				 });
-		else
-			throw new Error("TODO: vj->cvp/cg ... Please implement general case.");
+		assert index.size() > 1;
+		new Template("array_get", a.array(), new Join(",", index)).expand();
+		// [IP] TODO: Remove array_get[1-4]
+//		int size = index.size();
+//		if (size == 2)
+//			new Template("array_get2",
+//						 a.array(),
+//						 (Node) index.get(0),
+//						 (Node) index.get(1)).expand();
+//		else if (size == 3)
+//			new Template("array_get3",
+//						 new Node[] {
+//							 a.array(),
+//							 (Node) index.get(0),
+//							 (Node) index.get(1),
+//							 (Node) index.get(2)
+//						 }).expand();
+//		else if (size == 4)
+//			new Template("array_get4",
+//						 new Node[] {
+//							 a.array(),
+//							 (Node) index.get(0),
+//							 (Node) index.get(1),
+//							 (Node) index.get(2),
+//							 (Node) index.get(3)
+//						 }).expand();
+//		else
+//			throw new Error("TODO: vj->cvp/cg ... Please implement general case.");
 	}
 
 	public void visit(X10ArrayAccess1Assign_c a) {
+		assert false;
 		// Remember the index is a point or an int.
 		X10ArrayAccess1_c left = (X10ArrayAccess1_c) a.left();
-		dump("array_set1",
-			 new Node[] {
-				 left.array(),
-				 a.right(),
-				 left.index()
-			 });
+		// [IP] TODO: Remove array_set[1-4]
+		new Template("array_set", left.array(), a.right(), left.index()).expand();
+//		new Template("array_set1", left.array(), a.right(), left.index()).expand();
 	}
 
 	/*
+//	// [IP] TODO: rewrite using a Join
 	public void visit(X10ArrayAccessAssign_c a) {
 		X10ArrayAccess_c left = (X10ArrayAccess_c) a.left();
 		List index = left.index();
-		int size = index.size();
-		assert size > 1;
-		if (size == 2)
-			dump("array_set2",
-				 new Node[] {
-					 left.array(), a.right(),
-					 (Node) index.get(0),
-					 (Node) index.get(1)
-				 });
-		else if (size == 3)
-			dump("array_set3",
-				 new Node[] {
-					 left.array(),
-					 a.right(),
-					 (Node) index.get(0),
-					 (Node) index.get(1),
-					 (Node) index.get(2)
-				 });
-		else if (size == 4)
-			dump("array_set4",
-				 new Node[] {
-					 left.array(),
-					 a.right(),
-					 (Node) index.get(0),
-					 (Node) index.get(1),
-					 (Node) index.get(2),
-					 (Node) index.get(3)
-				 });
-		else
-			throw new Error("TODO: vj->cvp/cg ... Please implement general case.");
+		assert index.size() > 1;
+		new Template("array_set", a.array(), new Join(",", index)).expand();
+		// [IP] TODO: Remove array_get[1-4]
+//		int size = index.size();
+//		if (size == 2)
+//			new Template("array_set2",
+//						 left.array(), a.right(),
+//						 (Node) index.get(0),
+//						 (Node) index.get(1)).expand();
+//		else if (size == 3)
+//			new Template("array_set3",
+//						 new Node[] {
+//							 left.array(),
+//							 a.right(),
+//							 (Node) index.get(0),
+//							 (Node) index.get(1),
+//							 (Node) index.get(2)
+//						 });
+//		else if (size == 4)
+//			new Template("array_set4",
+//						 new Node[] {
+//							 left.array(),
+//							 a.right(),
+//							 (Node) index.get(0),
+//							 (Node) index.get(1),
+//							 (Node) index.get(2),
+//							 (Node) index.get(3)
+//						 });
+//		else
+//			throw new Error("TODO: vj->cvp/cg ... Please implement general case.");
 	}
 	*/
 
