@@ -1,12 +1,6 @@
-// async(0) clocked(1) 2
+// SYNOPSIS: async(#0) clocked(#1) #2
 ((x10.runtime.Place) #0).runAsync
-	(new x10.runtime.Activity(new x10.runtime.List() {
-		public java.util.List run() {
-			java.util.LinkedList clocks = new java.util.LinkedList();
-			#1
-			return clocks;
-		}
-	}.run()) {
+	(new x10.runtime.Activity(#1) {
 		public void run() {
 			#2
 		}
