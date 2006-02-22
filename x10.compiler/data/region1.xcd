@@ -1,3 +1,0 @@
-// SYNOPSIS: [#0] #0=region
-// SYNOPSIS: [IP] I don't think this is used
-(Runtime.factory.getRegionFactory().region(new region[]{#0}))

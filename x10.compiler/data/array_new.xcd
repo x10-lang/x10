@@ -1,2 +1,0 @@
-// SYNOPSIS: new #0[#1]
-Runtime.runtime.new#0Array(#1, null);

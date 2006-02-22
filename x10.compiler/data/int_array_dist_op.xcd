@@ -1,2 +1,0 @@
-// SYNOPSIS: new int[#0] {#1} #2=is_safe #3=is_value
-new x10.array.sharedmemory.IntArray_c(#0,#1,#2,!#3)
