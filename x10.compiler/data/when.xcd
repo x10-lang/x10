@@ -20,3 +20,4 @@ synchronized (x10.lang.Runtime.here()) {
 		x10.lang.Runtime.here().notifyAll();
 	}
 }
+
