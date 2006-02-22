@@ -99,7 +99,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		boolean exp_nullab = (c.expr().type() instanceof NullableType);
 		boolean casttype_nullab = (c.castType().type() instanceof NullableType);
 		if (exp_nullab && !casttype_nullab) {
-			dump("cast_nullable", new Node[] {c.castType(), c.expr()});
+			dump("cast_nullable", new Node[] { c.castType(), c.expr() });
 		} else {
 			visit((Node)c);
 		}
@@ -133,7 +133,9 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			// the template file only emits the target
 			dump("place-check", new Object[] { t.translate(null), target } );
 			// then emit '.', name of the method and argument list.
-			w.write(c.name() + "(");
+			w.write(".");
+			w.write(c.name());
+			w.write("(");
 			w.begin(0);
 			List l = c.arguments();
 			for (Iterator i = l.iterator(); i.hasNext(); ) {
@@ -192,7 +194,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		dump("Async",
 			 new Object[] {
 				 a.place(),
-				 new Loop("clocked-loop", a.clocks()),
+				 new Template("clocked", new Loop("clocked-loop", a.clocks())),
 				 a.body()
 			 });
 	}
@@ -202,11 +204,11 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(Here_c a) {
-		dump("here", new Node[] {});
+		dump("here", new Node[] { });
 	}
 
 	public void visit(Await_c c) {
-		dump("await", new Node[] { c.expr() });
+		dump("await", new Object[] { c.expr(), getUniqueId_() });
 	}
 
 	public void visit(Next_c d) {
@@ -214,7 +216,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(Future_c f) {
-		dump("Future", new Node[] {f.place(), f.body()});
+		dump("Future", new Node[] { f.place(), f.body() });
 	}
 
 	public void visit(ForLoop_c f) {
@@ -238,9 +240,10 @@ public class X10PrettyPrinterVisitor extends Runabout {
 				 l.formal().name(),
 				 l.domain(),
 				 l.body(),
-				 new Join("\n",
-					 new Join("\n", l.locals()),
-					 new Loop("clocked-loop", l.clocks()))
+				 new Template("clocked",
+					 new Join("\n",
+						 new Join("\n", l.locals()),
+						 new Loop("clocked-loop", l.clocks())))
 			 });
 	}
 
@@ -254,7 +257,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(Now_c n) {
-		dump("Now", new Node[] { n.clock(), n.body()});
+		dump("Now", new Node[] { n.clock(), n.body() });
 	}
 
 	/*
@@ -279,7 +282,10 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			QueryEngine.INSTANCE().needsHereCheck(n))
 		{
 			// no check required for implicit targets, this and super
+			// the template file only emits the target
 			dump("place-check", new Object[] { t.translate(null), target } );
+			// then emit '.' and name of the field.
+			w.write(".");
 			w.write(n.name());
 		} else
 			n.prettyPrint(w, pp);
@@ -559,6 +565,38 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	public abstract class Expander { public abstract void expand(); }
 
 	/**
+	 * Expand a given template with the given set of arguments.
+	 * Equivalent to a Loop with an array of singleton lists.
+	 * If the template has zero, one, two, or three arguments, the
+	 * arguments can be passed in directly to the constructor.
+	 */
+	public class Template extends Expander {
+		private final String id;
+		//private final String template;
+		private final Object[] args;
+		public Template(String id) {
+			this(id, new Object[] { });
+		}
+		public Template(String id, Object arg) {
+			this(id, new Object[] { arg });
+		}
+		public Template(String id, Object arg1, Object arg2) {
+			this(id, new Object[] { arg1, arg2 });
+		}
+		public Template(String id, Object arg1, Object arg2, Object arg3) {
+			this(id, new Object[] { arg1, arg2, arg3 });
+		}
+		public Template(String id, Object[] args) {
+			this.id = id;
+			//this.template = translate(id);
+			this.args = args;
+		}
+		public void expand() {
+			dump(id, args);
+		}
+	}
+
+	/**
 	 * A list of one object that has an infinite circular iterator.
 	 */
 	public static class CircularList extends AbstractList {
@@ -601,7 +639,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			this.id = id;
 			//this.template = translate(id);
 			this.lists = components;
-			// Make sure we have the parameters
+			// Make sure we have at least one parameter
 			assert(lists.length > 0);
 			this.N = lists[0].size();
 			// Make sure the lists are all of the same size
