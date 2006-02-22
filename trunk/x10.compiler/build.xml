@@ -60,6 +60,9 @@
             <src path="src"/>
             <classpath refid="project.classpath"/>
         </javac>
+        <copy todir="classes">
+            <fileset dir="." includes="data/**"/>
+        </copy>
     </target>
     <target name="grammar" depends="init">
         <property name="grammar.file" location="${resource_loc}/src/x10/parser/x10-feb2005.g"/>
