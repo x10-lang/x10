@@ -5,15 +5,13 @@ import x10.lang.point;
 import x10.lang.region;
 import x10.lang.RankMismatchException;
 
-public class point_c extends point implements Comparable {
+public final class point_c extends point implements Comparable {
 
 	public static class factory extends point.factory {
-		public point/*(region)*/ point( int[/*rank*/] val) {
+		public point/*(region)*/ point(int[/*rank*/] val) {
 			point p = new point_c(val);
 			return p;
 		}
-
-		
 		public point point(int i) {
 			return point(new int[] { i });
 		}
@@ -35,35 +33,34 @@ public class point_c extends point implements Comparable {
 		Integer originalIndex = outputBuffer.findOriginalRef(this);
 		final boolean disableHashing=true; // bad interaction with hashtable and point's hashCode
 
-		if(originalIndex == null){
+		if (originalIndex == null) {
 			originalIndex = new Integer(outputBuffer.getOffset());
-			if(!disableHashing) outputBuffer.recordRef(this,originalIndex);
+			if (!disableHashing) outputBuffer.recordRef(this,originalIndex);
 			outputBuffer.writeLong(originalIndex.intValue());
-		}
-		else {
+		} else {
 			outputBuffer.writeLong(originalIndex.intValue());
 			return;
 		}
 		int arraySize = val.length;
 		outputBuffer.writeLong(arraySize);
 
-		for(int i=0;i < arraySize;++i){
+		for (int i=0; i < arraySize; ++i) {
 			outputBuffer.writeLong(val[i]);
 		}
 	}
 
-	public static point_c deserialize(x10.runtime.distributed.DeserializerBuffer inputBuffer){
+	public static point_c deserialize(x10.runtime.distributed.DeserializerBuffer inputBuffer) {
 		int thisIndex = inputBuffer.getOffset();
 		int owningIndex = (int)inputBuffer.readLong();
 
-		if(thisIndex != owningIndex){
+		if (thisIndex != owningIndex) {
 			point_c p = (point_c)inputBuffer.getCachedRef(owningIndex);
 			return p;
 		}
 		int arraySize = (int)inputBuffer.readLong();
 
 		int array[] = new int[arraySize];
-		for(int i=0;i < arraySize;++i)
+		for (int i=0; i < arraySize; ++i)
 			array[i] = (int)inputBuffer.readLong();
 
 		point_c result = (point_c)factory.point(array);
@@ -84,15 +81,17 @@ public class point_c extends point implements Comparable {
 			return false;
 		point_c op = (point_c) other;
 		if ((op.hash_ == hash_) && (op.val.length == val.length)) {
-			for (int i=val.length-1;i>=0;i--)
+			for (int i = val.length-1; i >= 0; i--)
 				if (val[i] != op.val[i])
 					return false;
 			return true;
 		} else
 			return false;
 	}
-public int[] val() { return val; }
-	public point_c( int[] val) {
+
+	public int[] val() { return val; }
+
+	public point_c(int[] val) {
 		super(val.length);
 		// assert region.contains(val); -- CVP omit, leads to a cyclic dependency and hence infinite recusions.
 		// make a copy of the array!
@@ -144,6 +143,7 @@ public int[] val() { return val; }
 	 * This method overrideds superclass implementation - the argument
 	 * must be of type java.lang.Object.
 	 */
+	// [IP] FIXME: should we throw a RankMismatchException here?
 	public boolean equals(java.lang.Object o) {
 		assert o != null;
 		boolean ret = false;
@@ -171,7 +171,8 @@ public int[] val() { return val; }
 	public int compareTo(java.lang.Object o) {
 		assert o.getClass() == point_c.class;
 		point_c tmp = (point_c) o;
-		assert (tmp.rank == rank);
+		if (tmp.rank != rank)
+			throw new RankMismatchException(tmp, rank);
 
 		int res = 0;
 		// row major ordering (C conventions)
