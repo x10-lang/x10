@@ -1,5 +1,5 @@
-// Main method 0 is Formal, 1 is body
-	
+// SYNOPSIS: main(#0) #1
+
 public static class Main extends x10.runtime.Activity {
 	private final String[] form;
 	public Main(String[] args) {
@@ -8,10 +8,11 @@ public static class Main extends x10.runtime.Activity {
 	public void run() {
        main(form);
 	}
-}         
+}
 
-// the original app-main method	
+// the original app-main method
 public static void main(#0) #1
 
 // How to invoke?  Use the following general command:
 // java $(javaArgs) x10.lang.Runtime $(x10Args) ClassName $(x10AppArgs)
+

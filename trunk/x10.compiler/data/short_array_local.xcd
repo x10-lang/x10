@@ -1,1 +1,2 @@
-x10.array.sharedmemory.ShortArray_c.ShortArray_c(new short[#0], #1, (! #2))
+// SYNOPSIS: new short[#0] #1=is_safe #2=is_value
+x10.array.sharedmemory.ShortArray_c.ShortArray_c(new short[#0],#1,!#2)
