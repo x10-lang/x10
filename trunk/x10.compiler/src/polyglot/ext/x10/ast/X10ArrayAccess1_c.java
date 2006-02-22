@@ -130,6 +130,9 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 
 		//System.out.println("X10ArrayAccess1_c: Checking if |" + this + "| should be an ArrayAccess.");
 		// [IP] TODO: Huh?  Didn't we just check for this?
+		if (type instanceof NullableType_c) {
+			type = ((NullableType_c)type).base();
+		}
 		if (type.isArray()) {
 			// System.out.println("X10ArrayAccess1_c: yes, |" + this + "| should.");
 			return nf.ArrayAccess(position(), array, index).typeCheck(tc);
@@ -143,9 +146,6 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		}
 		List args = new LinkedList();
 		args.add(index);
-		if (type instanceof NullableType_c) {
-			type = ((NullableType_c)type).base();
-		}
 		if (type instanceof ParametricType_c) {
 			ParametricType_c pt = (ParametricType_c) type;
 			return

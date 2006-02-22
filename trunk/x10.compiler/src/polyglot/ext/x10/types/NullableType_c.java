@@ -11,6 +11,8 @@ import polyglot.ext.jl.types.ReferenceType_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.Resolver;
 import polyglot.types.Type;
+import polyglot.types.ArrayType;
+import polyglot.types.ClassType;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 
@@ -75,6 +77,22 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 
 	public boolean isX10Array() {
 		return base.isX10Array();
+	}
+
+	public boolean isArray() {
+		return base.isArray();
+	}
+
+	public ArrayType toArray() {
+		return base.toArray();
+	}
+
+	public boolean isClass() {
+		return base.isClass();
+	}
+
+	public ClassType toClass() {
+		return base.toClass();
 	}
 
 	public boolean isFuture() {
