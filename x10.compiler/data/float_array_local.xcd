@@ -1,1 +1,2 @@
-x10.array.sharedmemory.FloatArray_c.FloatArray_c(new float[#0], #1, (! #2))
+// SYNOPSIS: new float[#0] #1=is_safe #2=is_value
+x10.array.sharedmemory.FloatArray_c.FloatArray_c(new float[#0],#1,!#2)

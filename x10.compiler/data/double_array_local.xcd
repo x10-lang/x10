@@ -1,1 +1,2 @@
-new x10.array.sharedmemory.DoubleArray_c.DoubleArray_c(new double[#0], #1, (! #2))
+// SYNOPSIS: new double[#0] #1=is_safe #2=is_value
+new x10.array.sharedmemory.DoubleArray_c.DoubleArray_c(new double[#0],#1,!#2)

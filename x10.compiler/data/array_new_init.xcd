@@ -1,5 +1,9 @@
+// SYNOPSIS: new #0[#1] {#2}
+// SYNOPSIS: [IP] I don't think this is used (or works)
+
 Runtime.getRuntime().new#0Array(#2, ArrayFactory.newIntArray(d, new Operator.Pointwise() {
-                public #1 apply(#int[] p, int i) {
-                    #3
-                }
-            });
+	public #1 apply(#int[] p, int i) {
+		#3
+	}
+}));
+

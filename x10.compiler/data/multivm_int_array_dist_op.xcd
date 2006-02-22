@@ -1,1 +1,3 @@
-new x10.array.distributed.IntArray_c(#0,#1,#2, (! #3))
+// SYNOPSIS: new int[#0] {#1} #2=is_safe #3=is_value
+// SYNOPSIS: [IP] I don't think this is used
+new x10.array.distributed.IntArray_c(#0,#1,#2,!#3)
