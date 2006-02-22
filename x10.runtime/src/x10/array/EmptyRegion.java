@@ -1,7 +1,5 @@
 /*
  * Created by vj on Jan 4, 2005
- *
- * 
  */
 package x10.array;
 
@@ -10,11 +8,11 @@ import java.util.NoSuchElementException;
 
 import x10.lang.point;
 import x10.lang.region;
+import x10.lang.RankMismatchException;
 
-
-/** The empty region of rank k. There is only one unique object in each such type.
+/**
+ * The empty region of rank k. There is only one unique object in each such type.
  * @author vj Jan 4, 2005
- * 
  */
 public class EmptyRegion extends region {
 
@@ -36,7 +34,7 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#rank(long)
 	 */
 	public region rank(int index) {
-        assert index < rank;
+		assert index < rank;
 		return new EmptyRegion(1);
 	}
 
@@ -51,22 +49,23 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#low()
 	 */
 	public int low() {
-	    throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException();
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.lang.region#high()
 	 */
 	public int high() {
-	    throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException();
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.lang.region#union(x10.lang.region)
 	 */
 	public region union(region r) {
-        assert r != null;
-        assert this.rank == r.rank;
+		assert r != null;
+		if (r.rank != rank)
+			throw new RankMismatchException(r, rank);
 		return r;
 	}
 
@@ -74,8 +73,9 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#intersection(x10.lang.region)
 	 */
 	public region intersection(region r) {
-        assert r != null;
-        assert this.rank == r.rank;
+		assert r != null;
+		if (r.rank != rank)
+			throw new RankMismatchException(r, rank);
 		return this;
 	}
 
@@ -83,8 +83,9 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#difference(x10.lang.region)
 	 */
 	public region difference(region r) {
-        assert r != null;
-        assert this.rank == r.rank;
+		assert r != null;
+		if (r.rank != rank)
+			throw new RankMismatchException(r, rank);
 		return this;
 	}
 
@@ -99,7 +100,8 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#contains(x10.lang.region)
 	 */
 	public boolean contains(region r) {
-		assert this.rank == r.rank;
+		if (r.rank != rank)
+			throw new RankMismatchException(r, rank);
 		return r.size() == 0;
 	}
 
@@ -107,19 +109,23 @@ public class EmptyRegion extends region {
 	 * @see x10.lang.region#contains(x10.lang.point)
 	 */
 	public boolean contains(point p) {
-		//assert this.rank == p.region.rank;
+		if (p.rank != rank)
+			throw new RankMismatchException(p, rank);
 		return false;
 	}
 
+	// [IP] FIXME: should we be asserting this here?
 	public boolean contains(int[] p) {
 		assert this.rank == p.length;
 		return false;
 	}
+
 	/* (non-Javadoc)
 	 * @see x10.lang.region#disjoint(x10.lang.region)
 	 */
 	public boolean disjoint(region r) {
-		assert this.rank == r.rank;
+		if (r.rank != rank)
+			throw new RankMismatchException(r, rank);
 		return true;
 	}
 
@@ -143,30 +149,30 @@ public class EmptyRegion extends region {
 	public Iterator iterator() {
 
 		class RegionIterator implements Iterator {
-			
+
 			public boolean hasNext() {
 				return false;
 			}
-			
+
 			public void remove() {
 				throw new Error("not implemented");
 			}
-			
+
 			public java.lang.Object next() {
 				throw new Error("No such element.");
 			}
 		}
 
 		return new Iterator() {
-			public boolean hasNext() { 
-				return false; 
+			public boolean hasNext() {
+				return false;
 			}
-			public void remove() throws UnsupportedOperationException { 
+			public void remove() throws UnsupportedOperationException {
 				throw new UnsupportedOperationException();
 			}
-			public java.lang.Object next() throws NoSuchElementException { 
+			public java.lang.Object next() throws NoSuchElementException {
 				throw new NoSuchElementException();
-				}
+			}
 		};
 	}
 
@@ -181,20 +187,19 @@ public class EmptyRegion extends region {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(java.lang.Object o) {
-        boolean ret;
-        if (o == null || !(o instanceof region))
-            ret = false;
-        else {
-            region oe = (region) o;
-            ret = (oe.rank == this.rank) && oe.size() == 0;
-        }
-        return ret;
+		boolean ret;
+		if (o == null || !(o instanceof region))
+			ret = false;
+		else {
+			region oe = (region) o;
+			ret = (oe.rank == this.rank) && oe.size() == 0;
+		}
+		return ret;
 	}
 
-
-    public void serialize(x10.runtime.distributed.SerializerBuffer b){
-       System.out.println("No support yet for "+this.getClass().getName());
-       throw new RuntimeException("No support yet for "+this.getClass().getName());
-    }
-
+	public void serialize(x10.runtime.distributed.SerializerBuffer b){
+		System.out.println("No support yet for "+this.getClass().getName());
+		throw new RuntimeException("No support yet for "+this.getClass().getName());
+	}
 }
+
