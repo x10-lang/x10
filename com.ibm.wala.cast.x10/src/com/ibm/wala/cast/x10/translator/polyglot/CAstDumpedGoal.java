@@ -1,5 +1,5 @@
 /*
- * Created on Oct 7, 2005
+ * Created on Feb 23, 2006
  */
 package com.ibm.domo.ast.x10.translator.polyglot;
 
@@ -7,21 +7,13 @@ import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.Pass;
-import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.AbstractGoal;
-import polyglot.frontend.goals.EndGoal;
 import polyglot.util.ErrorInfo;
 
-import com.ibm.domo.ast.java.loader.JavaSourceLoaderImpl;
-import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
+public class CAstDumpedGoal extends AbstractGoal {
 
-public class X10IRGoal extends AbstractGoal implements EndGoal {
-    private JavaSourceLoaderImpl fSourceLoader;
-
-    public X10IRGoal(Job job, JavaSourceLoaderImpl sourceLoader) {
+    public CAstDumpedGoal(Job job) {
 	super(job);
-	fSourceLoader = sourceLoader;
-
 	try {
 	    DOMOScheduler scheduler= (DOMOScheduler) job.extensionInfo().scheduler();
 
@@ -33,10 +25,6 @@ public class X10IRGoal extends AbstractGoal implements EndGoal {
     }
 
     public Pass createPass(ExtensionInfo extInfo) {
-	return new X10IRPass(this, job(), fSourceLoader);
-    }
-
-    public String name() {
-	return "<DOMO IR goal for " + job().source().path() + ">";
+	return new CAstDumperPass(this);
     }
 }
