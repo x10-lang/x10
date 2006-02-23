@@ -21,7 +21,8 @@ public class AsyncAnalysisPass extends AbstractPass {
     public boolean run() {
 	AnalysisJobExt je= (AnalysisJobExt) goal().job().ext();
 
-	System.out.println("Hi Mom");
+	// Odd: System.out appears to be closed now??? Use System.err...
+	System.err.println("Hi Mom");
 	return true;
     }
 }
