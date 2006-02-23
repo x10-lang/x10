@@ -7,6 +7,9 @@ import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
+import com.ibm.capa.ast.CAstEntity;
+import com.ibm.domo.ast.java.loader.JavaSourceLoaderImpl;
+import com.ibm.domo.ast.x10.analysis.AnalysisJobExt;
 import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
 
 /**
@@ -15,16 +18,19 @@ import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
  */
 public class X10IRPass extends AbstractPass {
     private final Job fJob;
-    private final X10ToIRTranslator fTranslator;
+    private final JavaSourceLoaderImpl fLoader;
 
-    public X10IRPass(Goal goal, Job job, X10ToIRTranslator translator) {
+    public X10IRPass(Goal goal, Job job, JavaSourceLoaderImpl loader) {
 	super(goal);
 	this.fJob= job;
-	this.fTranslator= translator;
+	fLoader= loader;
     }
 
     public boolean run() {
-	fTranslator.translate(fJob.ast(), fJob.source().name());
+	CAstEntity entity= (CAstEntity) ((AnalysisJobExt) fJob.ext()).get(AnalysisJobExt.CAST_JOBEXT_KEY);
+
+	X10CAst2IRTranslator translator= new X10CAst2IRTranslator(entity, fLoader);
+	translator.translate();
 	return true;
     }
 }
