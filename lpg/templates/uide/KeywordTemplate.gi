@@ -46,6 +46,8 @@ $Define
     $BeginAction /.$Header./
 
     $EndAction /../
+
+    $BeginJava /.$BeginAction./
 $End
 
 $Globals
