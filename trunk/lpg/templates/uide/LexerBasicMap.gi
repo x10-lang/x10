@@ -39,6 +39,13 @@ $Headers
             if (printTokens) printValue(startOffset, endOffset);
         }
 
+        final void makeComment(int kind)
+        {
+            int startOffset = getLeftSpan(),
+                endOffset = getRightSpan();
+            super.getPrsStream().makeAdjunct(startOffset, endOffset, kind);
+        }
+
         final void skipToken()
         {
             if (printTokens) printValue(getLeftSpan(), getRightSpan());
