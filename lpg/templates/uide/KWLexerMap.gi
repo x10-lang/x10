@@ -1,9 +1,21 @@
+$Terminals
+    DollarSign ::= '$'
+    _
+    
+    a    b    c    d    e    f    g    h    i    j    k    l    m
+    n    o    p    q    r    s    t    u    v    w    x    y    z
+
+    A    B    C    D    E    F    G    H    I    J    K    L    M
+    N    O    P    Q    R    S    T    U    V    W    X    Y    Z
+$End
+
 $Headers
     /.
         final static int tokenKind[] = new int[128];
         static
         {
             tokenKind['$'] = Char_DollarSign;
+            tokenKind['_'] = Char__;
 
             tokenKind['a'] = Char_a;
             tokenKind['b'] = Char_b;
