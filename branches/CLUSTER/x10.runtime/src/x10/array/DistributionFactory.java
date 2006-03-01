@@ -144,7 +144,8 @@ public class DistributionFactory extends dist.factory {
      * @return
      */
 	public dist block(region r, Set/*<place>*/ q) {
-	    return block(r, q.size(), q);
+		assert(q!=null);
+		return block(r, q.size(), q);
     }
     
     /**
