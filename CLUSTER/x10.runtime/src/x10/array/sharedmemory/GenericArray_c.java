@@ -28,7 +28,7 @@ import x10.runtime.Configuration;
 public class GenericArray_c extends GenericArray implements UnsafeContainer, Cloneable {
 
     private final boolean safe_;
-    private final MemoryBlock arr_;
+    protected final MemoryBlock arr_;
     private final boolean mutable_;
     private final boolean refsToValues_;
     
@@ -113,7 +113,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         this.arr_ = Allocator.allocSafe(count, Parameter1.class);
     	this.safe_ = safe;
         if (f != null)
-            scan(this, f);
+            initScan(this, f);
     }
     
     private GenericArray_c( dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
@@ -124,6 +124,11 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         this.mutable_ = mutable;
         this.refsToValues_ = ref_to_values;
     }
+    
+    protected void initScan(GenericArray res, GenericArray.pointwiseOp op) {
+    	scan(res, op);
+    }
+    
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a

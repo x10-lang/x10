@@ -20,6 +20,7 @@ import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.CharReferenceArray;
+import x10.lang.charArray.pointwiseOp;
 import x10.runtime.Configuration;
 
 
@@ -29,7 +30,7 @@ import x10.runtime.Configuration;
 public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable {
 
     private final boolean safe_;
-    private final MemoryBlock arr_;
+    protected /*private*/ final MemoryBlock arr_;
     public final boolean mutable_;
     
     public boolean valueEquals(Indexable other) {
@@ -116,7 +117,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
             this.arr_ =Allocator.allocSafe(count, Character.TYPE);
         }
         if (f != null)
-            scan(this, f);
+            initScan(this, f);
     }
     
     private CharArray_c( dist d, char[] a, boolean safe, boolean mutable) {
@@ -134,6 +135,11 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
         }
         this.mutable_ = mutable;
     }
+    
+    protected void initScan(CharArray res, pointwiseOp op) {
+    	scan(res, op);
+    }
+    
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a
