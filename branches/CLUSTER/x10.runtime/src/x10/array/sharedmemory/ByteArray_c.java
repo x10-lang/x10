@@ -21,6 +21,7 @@ import x10.lang.point;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.ByteReferenceArray;
+import x10.lang.byteArray.pointwiseOp;
 import x10.runtime.Configuration;
 
 
@@ -30,7 +31,7 @@ import x10.runtime.Configuration;
 public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable {
 
     private final boolean safe_;
-    private final MemoryBlock arr_;
+    protected /*private*/ final MemoryBlock arr_;
     public final boolean mutable_;
     
     public boolean valueEquals(Indexable other) {
@@ -118,7 +119,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
             this.arr_ =Allocator.allocSafe(count, Byte.TYPE);
         }
         if (f != null)
-            scan(this, f);
+            initScan(this, f);
     }
     
     private ByteArray_c( dist d, byte[] a, boolean safe, boolean mutable) {
@@ -136,6 +137,11 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
         }
         this.mutable_ = mutable;
     }
+    
+    protected void initScan(ByteArray res, pointwiseOp op) {
+    	scan(res, op);
+    }
+    
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a
