@@ -1,5 +1,6 @@
 package x10.lang;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 /** The base class for all (value or reference) multidimensional,
@@ -14,7 +15,7 @@ import java.util.Iterator;
 
 
 abstract public class intArray extends x10Array{
-	public final dist distribution;
+	public /*final*/ dist distribution;
 	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
@@ -26,7 +27,7 @@ abstract public class intArray extends x10Array{
 		this.rank = D.rank;
 	}
 	
-	public static interface binaryOp {
+	public static interface binaryOp extends Serializable {
 		int apply(int r, int s);
 	}
 	
@@ -36,11 +37,11 @@ abstract public class intArray extends x10Array{
 	public static final binaryOp div = new binaryOp() { public int apply(int r, int s) { return r/s;}};
 	public static final binaryOp max = new binaryOp() { public int apply(int r, int s) { return Math.max(r,s);}};
 	public static final unaryOp abs = new unaryOp() { public int apply(int r) { return Math.abs(r);}};
-	public static interface pointwiseOp/*(region r)*/ { 
+	public static interface pointwiseOp/*(region r)*/ extends Serializable { 
 		int apply(point/*(r)*/ p);
 	}
 	
-	public static interface unaryOp {
+	public static interface unaryOp extends Serializable {
 		int apply(int r);
 	}
 	

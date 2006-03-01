@@ -17,7 +17,7 @@ public class BadPlaceException extends x10.lang.Exception {
     public BadPlaceException(x10.lang.place p_var, x10.lang.place p_access) {
         o_ = null;
         pAccess_ = p_access;
-        pVar_ = p_var;
+        pVar_ = p_var;        
     }
     public String toString() {
         String ret;

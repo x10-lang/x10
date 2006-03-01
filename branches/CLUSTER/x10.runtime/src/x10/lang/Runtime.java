@@ -4,6 +4,8 @@ package x10.lang;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import x10.cluster.ClusterConfig;
+import x10.cluster.ClusterRuntime;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
@@ -71,6 +73,14 @@ public abstract class Runtime {
             java = new JavaRuntime();
             factory = runtime.getFactory();
             // ArrayFactory.init(r);
+            r.initialize();  //eagerly 
+            /*dist.initFactory();
+            intArray.initFactory();
+            genericArray.initFactory();
+            point.initFactory();
+            charArray.initFactory();
+            doubleArray.initFactory();
+            */
         }
     }
     public static Factory factory; 
@@ -151,8 +161,13 @@ public abstract class Runtime {
     
     /* this is called from inside the array library */
     public static void hereCheckPlace(place p) {        
-        if (p != ((PoolRunner)Thread.currentThread()).place)   
-            throw new BadPlaceException(p, here());
+        if (p != ((PoolRunner)Thread.currentThread()).place) {
+        	//cluster situation
+        	if(ClusterConfig.multi && ClusterRuntime.isLocal(p)) 
+        		; //good
+        	else 
+        		throw new BadPlaceException(p, here());
+        }
     }
 
     /* this is called from the code snippet for field and array access */
