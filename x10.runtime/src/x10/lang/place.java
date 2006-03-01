@@ -19,7 +19,6 @@
  
 package x10.lang;
 
-
 import java.util.Set;
 
 import x10.base.TypeArgument;
@@ -28,7 +27,7 @@ import x10.runtime.Activity;
 public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
 implements TypeArgument, ValueType{
     private static int count_ = 0;
-    public final /*nat*/int id;
+    public /*final*/ /*nat*/int id;
 	
 	/** The number of places in this run of the system. Set on
 	 * initialization, through the command line/init parameters file.
@@ -148,5 +147,5 @@ implements TypeArgument, ValueType{
 	}
 	if(trace)System.out.println("Found place:"+placeId);
 	return placeArray[placeId];
-    }	
+    }
 }
