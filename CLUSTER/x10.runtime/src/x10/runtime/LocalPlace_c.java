@@ -268,7 +268,8 @@ public class LocalPlace_c extends Place {
                     t.setDaemon(false);
                     t.start();
                     if (Report.should_report("activity", 5)) {
-                        Report.report(5, PoolRunner.logString() + "LocalPlace starts " 
+                    	//when called from a non PoolRunner thread, commented will fail
+                        Report.report(5, /*PoolRunner.logString() + */"LocalPlace starts " 
                                       + (t.isDaemon() ? "" : "non") + "daemon thread " + t 
                                       + "in group " + Thread.currentThread().getThreadGroup() 
                                       + ".");
@@ -333,6 +334,5 @@ public class LocalPlace_c extends Place {
 			}
 		}
 	}
-	
 } // end of LocalPlace_c
 
