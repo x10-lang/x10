@@ -3,6 +3,8 @@
  */
 package x10.runtime;
 
+import x10.cluster.ClusterRuntime;
+import x10.cluster.X10Serializer;
 import x10.lang.Future;
 import x10.lang.Object;
 
@@ -16,7 +18,41 @@ import x10.lang.Object;
  * @author vj
  */
 public final class Future_c extends Future {
-
+	//cluster runtime
+	public Object force() {
+		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
+			return force_();
+		} else {
+			//TODO: run code remotely, waiting for return
+			throw new Error("Future_c.force()");
+		}
+	}
+	public void setException(final Throwable t) {
+		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
+			setException_(t);
+		} else {
+			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
+				public void run() {
+					setException_(t);
+				}
+			});
+		}
+	}
+	public void setResult(final Object res) {
+		//System.out.println("Future_c.setResult: "+rref+" "+res.getClass());
+		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
+			setResult_(res);
+		} else {
+			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
+				public void run() {
+					setResult_(res);
+				}
+			});
+		}
+	}
+	
+	
+	
     private boolean haveResult_;
        
     /**
@@ -35,7 +71,7 @@ public final class Future_c extends Future {
      * 
      * @param result
      */
-    public synchronized void setResult(Object result) {
+    public synchronized void setResult_(Object result) {
         assert (! haveResult_); 
         this.result_ = result;
         this.haveResult_ = true;
@@ -49,7 +85,7 @@ public final class Future_c extends Future {
      * 
      * @param result
      */
-    public synchronized void setException(Throwable t) {
+    public synchronized void setException_(Throwable t) {
         if (haveResult_) {
             t.printStackTrace();
             // FIXME: what should happen here?
@@ -63,7 +99,7 @@ public final class Future_c extends Future {
     /*
      * @see x10.runtime.Activity.Result#force()
      */
-    public synchronized Object force() {
+    public synchronized Object force_() {
     	while (! haveResult_) {
     		try {
     			this.wait();
