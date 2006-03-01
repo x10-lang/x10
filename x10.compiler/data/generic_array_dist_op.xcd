@@ -1,2 +1,2 @@
 // SYNOPSIS: new Type[#0] {#1} #2=is_safe #3=is_value #4=value_elements
-new x10.array.sharedmemory.GenericArray_c(#0,#1,#2,!#3,#4)
+x10.cluster.array.DistArrayManager.createGenericArray(#0,#1, #2, (! #3), #4)
