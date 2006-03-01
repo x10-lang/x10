@@ -45,6 +45,33 @@ $Headers
             tokenKind['x'] = Char_x;
             tokenKind['y'] = Char_y;
             tokenKind['z'] = Char_z;
+
+            tokenKind['A'] = Char_a;
+            tokenKind['B'] = Char_b;
+            tokenKind['C'] = Char_c;
+            tokenKind['D'] = Char_d;
+            tokenKind['E'] = Char_e;
+            tokenKind['F'] = Char_f;
+            tokenKind['G'] = Char_g;
+            tokenKind['H'] = Char_h;
+            tokenKind['I'] = Char_i;
+            tokenKind['J'] = Char_j;
+            tokenKind['K'] = Char_k;
+            tokenKind['L'] = Char_l;
+            tokenKind['M'] = Char_m;
+            tokenKind['N'] = Char_n;
+            tokenKind['O'] = Char_o;
+            tokenKind['P'] = Char_p;
+            tokenKind['Q'] = Char_q;
+            tokenKind['R'] = Char_r;
+            tokenKind['S'] = Char_s;
+            tokenKind['T'] = Char_t;
+            tokenKind['U'] = Char_u;
+            tokenKind['V'] = Char_v;
+            tokenKind['W'] = Char_w;
+            tokenKind['X'] = Char_x;
+            tokenKind['Y'] = Char_y;
+            tokenKind['Z'] = Char_z;
         };
     
         final int getKind(char c)
