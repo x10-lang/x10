@@ -15,7 +15,7 @@ import x10.lang.GlobalIndexMap;
 import x10.runtime.distributed.SerializerBuffer;
 
 abstract public /*value*/ class dist/*( region region )*/ extends Object 
-implements Indexable, ValueType {
+implements Indexable, ValueType, java.io.Serializable {
 	
 	/* used to create distributions remotely */
         public final static int UNKNOWN=0;
@@ -73,7 +73,7 @@ implements Indexable, ValueType {
     	}
     }
    
-	protected GlobalIndexMap _indexMap[]; 
+	transient protected GlobalIndexMap _indexMap[]; //Bin: no need for this 
 	
 	
 	/* analyse the region distributed as described in the map, and determine

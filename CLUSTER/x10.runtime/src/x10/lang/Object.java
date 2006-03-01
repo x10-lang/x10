@@ -5,6 +5,7 @@
 package x10.lang;
 
 import x10.base.TypeArgument;
+import x10.cluster.X10RemoteRef;
 import x10.compilergenerated.Parameter1;
 
 /**
@@ -13,11 +14,11 @@ import x10.compilergenerated.Parameter1;
  * This class implements the root of the inheritance Hierarchy
  * for objects in an X10 program.
  */
-public class Object implements Parameter1 {
+public class Object implements Parameter1/*, Serializable */{
 	/**
 	 * the place where this object was allocated.
 	 */
-	public final place location;
+	transient public /*final*/ place location;
 
 	private long _uniqueTag;// Used in distributed mode
 
@@ -41,6 +42,7 @@ public class Object implements Parameter1 {
 	 */
 	public Object() {
 		this(null);
+		rref = null;
 	}
 	
 	/**
@@ -48,7 +50,7 @@ public class Object implements Parameter1 {
 	 *                     passed as type parameters when this instance was created.
 	 * 	                   If the class is not generic, the null is passed.  
 	 */
-	public Object(TypeArgument[] actual_type_args) {
+	public Object(TypeArgument[] actual_type_args) {		
 		location = (this instanceof ValueType) ? null : Runtime.here();
 		actualTypeArguments_ = actual_type_args;
 	}
@@ -63,4 +65,9 @@ public class Object implements Parameter1 {
 		 
 		return actualTypeArguments_[i];
 	}
+	
+	/**
+	 * Representation of a remote reference in X10.
+	 */
+	public X10RemoteRef rref = null;
 }

@@ -9,13 +9,14 @@ package x10.lang;
  * @author vj 12/24/2004
  */
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 abstract public class byteArray extends x10Array{
 
 	public dist getDistribution() { return distribution;}
 
-	public final dist distribution;
+	public /*final*/ dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
@@ -25,7 +26,7 @@ abstract public class byteArray extends x10Array{
 		this.rank = D.rank;
 	}
 	
-	public static interface binaryOp {
+	public static interface binaryOp extends Serializable {
         int apply(byte r, byte s);
 	}
 	public static final binaryOp sub = new binaryOp() { public int apply(byte r, byte s) { return r-s;}};
