@@ -1,0 +1,8 @@
+// SYNOPSIS: or (#0) #1 #2=optional-break
+
+			// another when branch
+			if (#0) {
+				#1
+				#2
+			}
+
