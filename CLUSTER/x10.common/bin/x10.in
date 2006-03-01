@@ -19,6 +19,7 @@ while true; do
 	-D*) defs="${defs} $1"; shift;;
 	-classpath) extra_cp="$2"; shift; shift;;
 	-libpath) extra_lib="$2"; shift; shift;;
+	-multi) multivm="-Dx10.runtime=x10.cluster.ClusterRuntime"; shift; vmid="-Dx10.vmid=$1"; shift;;
         *) args="$args '$1'"; numargs=$((${numargs}+1)); shift;;
     esac
 done
@@ -66,7 +67,12 @@ then
 fi
 java_args="${java_args} ${defs}"
 
-command="\"$JAVA\" $java_args x10.lang.Runtime $args"
+rmi_args="-Djava.rmi.server.codebase=file://${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes/"
+rmi_args=`echo ${rmi_args// /%20}|tr -s '\\\\' /`
+
+cluster_args="$multivm $vmid"
+
+command="\"$JAVA\" $java_args ${rmi_args} ${cluster_args} x10.lang.Runtime $args"
 
 if [ -n "$verbose" ]
 then
