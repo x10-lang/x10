@@ -1,2 +1,2 @@
 // SYNOPSIS: new double[#0] {#1} #2=is_safe #3=is_value
-new x10.array.sharedmemory.DoubleArray_c(#0,#1,#2,!#3)
+x10.cluster.array.DistArrayManager.createDoubleArray(#0,#1, #2, (! #3))
