@@ -66,6 +66,7 @@ public abstract class Runtime {
             throw new Error(ie);
         } catch (Throwable t) {
             System.err.println("Runtime::<clinit> unknown exception during creation of runtime " + rt);
+            t.printStackTrace();
             throw new Error(t);
         } finally {        
             assert (r != null);
