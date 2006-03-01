@@ -7,6 +7,10 @@ package x10.runtime;
 
 import java.util.Stack;
 
+import x10.cluster.ClusterRuntime;
+import x10.cluster.X10RemoteRef;
+import x10.cluster.X10Serializer;
+
 /** The state associated with a finish operation. Records the count of 
  * active activities associated with this finish, and the stack
  * of exceptions thrown by activities associated with this finish that 
@@ -19,7 +23,46 @@ import java.util.Stack;
  * @author vj May 17, 2005
  * 
  */
-public class FinishState {
+public class FinishState implements FinishStateOps {
+	/**
+	 * FinishState gets passed between activities. The propagation model needs 
+	 * it to behave like a remote object.
+	 */
+	public X10RemoteRef rref = null;
+	public void notifySubActivityTermination() {
+		//System.out.println("FinishState.notifyActivityTermination ...");
+		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
+			notifySubActivityTermination_();
+		} else { //remote call
+			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
+				public void run() {
+					notifySubActivityTermination_();
+				}
+			});
+		}
+	}
+	public void notifySubActivityTermination(final Throwable t) {
+		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
+			notifySubActivityTermination_(t);
+		} else { //remote call
+			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
+				public void run() {
+					notifySubActivityTermination_(t);
+				}
+			});
+		}
+	}
+	public void notifySubActivitySpawn() {
+		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
+			notifySubActivitySpawn_();
+		} else { //remote call
+			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
+				public void run() {
+					notifySubActivitySpawn_();
+				}
+			});
+		}
+	}
 
 	protected Stack/* <Throwable> */ finish_ = new Stack();
 
@@ -33,6 +76,15 @@ public class FinishState {
 	public FinishState( Activity activity ) {
 		super();
 		parent = activity;
+		
+		//export rmi
+		/*
+		try {
+			UnicastRemoteObject.exportObject(this);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		*/
 	}
 	
 	public /*myThread*/ synchronized void waitForFinish() {
@@ -50,8 +102,12 @@ public class FinishState {
 		parentWaiting = false;
 	}
 	
-	public /*someThread*/ synchronized void notifySubActivitySpawn() {
+	private /*someThread*/ synchronized void notifySubActivitySpawn_() {
 		finishCount++;
+		
+		//System.out.println("FinsihState.notifySubActivitySpawn: new ... "+this+" "+finishCount);
+		
+		// new Error().printStackTrace();
 		if (Report.should_report("activity", 5)) {
 			Report.report(5, " updating " + toString());
 		}
@@ -69,8 +125,12 @@ public class FinishState {
     /** An activity created under this finish has terminated. Decrement the count
      * associated with the finish and notify the parent activity if it is waiting.
      */
-    public /*someThread*/ synchronized void notifySubActivityTermination() {
+    private /*someThread*/ synchronized void notifySubActivityTermination_() {    	
 		finishCount--;
+		
+		//System.out.println("FinsihState.notifyActivityTermination_: terminating ..."+this+" "+finishCount);
+		
+    	// new Error().printStackTrace();
 		if (parentWaiting && finishCount==0)
 			this.notifyAll();
 	}
@@ -80,7 +140,7 @@ public class FinishState {
      * 
      * @param t -- The exception thrown by the activity that terminated abruptly.
      */
-    public /*someThread*/ synchronized void notifySubActivityTermination(Throwable t) {
+    private /*someThread*/ synchronized void notifySubActivityTermination_(Throwable t) {
     	finish_.push(t);
     	notifySubActivityTermination();
     }
@@ -97,7 +157,7 @@ public class FinishState {
      */
     public synchronized String toString() {
     	return "<FinishState " + hashCode() + " " + finishCount + "," 
-		+ parent.shortString()+"," + finish_ +">";
+		+ (parent == null? "null" : parent.shortString())+"," + finish_ +">";
     }
 
 }

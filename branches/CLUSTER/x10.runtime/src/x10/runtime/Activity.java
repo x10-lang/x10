@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.lang.reflect.*;
 import java.io.*;
+
 import x10.lang.x10Array;
 import x10.lang.MultipleExceptions;
 import x10.lang.ClockUseException;
@@ -42,7 +43,7 @@ import x10.runtime.distributed.DeserializerBuffer;
  * pass it to the thread that executes the Activity.
  * @author Christian Grothoff, Christoph von Praun, vj
  */
-public abstract class Activity implements Runnable {
+public abstract class Activity implements Runnable/*, Serializable*/ {
 
     /**
      * The place on which this activity runs. 
@@ -50,7 +51,7 @@ public abstract class Activity implements Runnable {
      */
     protected Place place_ ;
     protected List clocks_;
-    protected FinishState finishState_ = null;
+    protected FinishStateOps finishState_ = null;
     protected Stack finishStack_ = new Stack();
     /**
      * Exception collector for this activity. This is field is used by the default
@@ -61,15 +62,15 @@ public abstract class Activity implements Runnable {
      * The FinishState up in the invocation tree within who's finish
      * this activity is being executed.
      */
-    protected FinishState rootNode_;
+    protected FinishStateOps rootNode_;
      
     /** Create an activity with the given set of clocks.  
      * 
      * @param clocks
      */
     public Activity( List clocks) {
-	assert(clocks!=null);
-    	if (! clocks.isEmpty()) {
+	//assert(clocks!=null); //cluster: accommodate reflective calls of anonymous subclass
+    	if (clocks!= null && ! clocks.isEmpty()) {
     		if (Report.should_report("activity", 3)) {
     			Report.report(3, PoolRunner.logString() + " adding clocks " + clocks + " to " + this);
     		}
@@ -101,7 +102,40 @@ public abstract class Activity implements Runnable {
     	}
     	
     }
-    public /*mySpawningThread*/ void setRootActivityFinishState (FinishState root ) {
+
+    /**
+     * Register clocks with the activity, in Cluster x10.  
+     * Called from child Activity context after X10Serializer.deserilizeAsync
+     * The other half: 
+     * 	Activity is registered with the clock during serialization of "clocks_" field.
+     * 
+     */
+    public void registerWithClock() {
+    	if(Report.should_report("cluster", 1))
+    		Report.report(1, "Activity.registerWithClock ");
+    	
+    	for(Iterator it = clocks_.iterator(); it.hasNext();) {
+    		Clock c = ((Clock)it.next());
+    		c.register(this);
+    	}
+    }
+    /**
+     * Increase parent's child count for the clock passed to child activity. 
+     * Called from parent Activity context, right before a child is shipped away,
+     * replacing call to LocalPlace_c.prepareActivity
+     */
+    public void initRemoteActivity(Activity child) {
+    	if(Report.should_report("cluster", 1))
+    		Report.report(1, "Activity.initRemoteActivity>>> addChild to: "+child.clocks_);
+    	
+    	Iterator it = child.clocks_.iterator();
+    	while (it.hasNext()) {
+    		Clock c = (Clock) it.next(); 
+    		c.addChild();
+    	}
+    }
+    
+    public /*mySpawningThread*/ void setRootActivityFinishState (FinishStateOps root ) {
     	this.rootNode_ = root;
     }
     
@@ -135,7 +169,7 @@ public abstract class Activity implements Runnable {
     		Report.report(3, PoolRunner.logString() + " " + this + " pushing exception " + t + " onto " + finishState_);
     	}
     	
-    	finishState_.pushException(t);
+    	try { finishState_.pushException(t); } catch (Exception ex) { ex.printStackTrace(); }
     }
     /**
      * Suspend until all activities spawned during this finish 
@@ -147,11 +181,11 @@ public abstract class Activity implements Runnable {
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, PoolRunner.logString() + " " + this + " enters stopfinish ");
     	}
-    	finishState_.waitForFinish();
+    	try { finishState_.waitForFinish(); } catch (Exception ex) { ex.printStackTrace(); }
     	if (Report.should_report("activity", 5)) {
     		Report.report(5, PoolRunner.logString() + " " + this + " continues stopfinish ");
     	}
-    	FinishState state = null;
+    	FinishStateOps state = null;
     	
     	synchronized (this ) {
     		state = finishState_;
@@ -164,7 +198,8 @@ public abstract class Activity implements Runnable {
     	}
     	// Do not reference finishState_ below, instead reference state.
     	
-    	Stack result = state.exceptions();
+    	Stack result = new Stack();
+    	try { result = state.exceptions(); } catch (Exception ex) { ex.printStackTrace(); }
     	if (! result.empty()) {
     		if (result.size()==1) {
     			Throwable t = (Throwable) result.pop();
@@ -299,9 +334,9 @@ public abstract class Activity implements Runnable {
     	if (Report.should_report("activity", 3)) {
     		Report.report(3, PoolRunner.logString() + " " + this + " spawns " + child);
     	}
-    	FinishState target = finishState_ == null ? rootNode_ : finishState_;
+    	FinishStateOps target = finishState_ == null ? rootNode_ : finishState_;
     	child.setRootActivityFinishState( target );
-    	target.notifySubActivitySpawn();
+    	try { target.notifySubActivitySpawn(); } catch (Exception ex) { ex.printStackTrace(); }
     	ArrayList myASL = null;
     	synchronized (this) { myASL = asl_; }
     	if (myASL != null) {
@@ -345,7 +380,7 @@ public abstract class Activity implements Runnable {
         if (activityAsSeenByInvokingVM == thisActivityIsLocal ||
             activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
             if (rootNode_ != null)
-    		rootNode_.notifySubActivityTermination();
+    		try { rootNode_.notifySubActivityTermination(); } catch (Exception ex) { ex.printStackTrace(); }
             if (asl_ != null) {
                 for (int j=0;j< asl_.size();j++) {
                     // tell other activities that want to know that this has spawned child
@@ -390,7 +425,7 @@ public abstract class Activity implements Runnable {
     		Report.report(5, Thread.currentThread() + " " + this + " drops clocks, has rootNode_ " + rootNode_);
     	}
     	if (rootNode_ != null)
-    		rootNode_.notifySubActivityTermination( t);
+    		try { rootNode_.notifySubActivityTermination( t); } catch (Exception ex) { ex.printStackTrace(); }
     	if (asl_ != null) {
     		for (int j=0;j< asl_.size();j++) {
     			// tell other activities that want to know that this has spawned child
