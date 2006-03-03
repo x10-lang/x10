@@ -272,7 +272,7 @@ public class MultiDimRegion extends region {
 
 	public boolean isConvex() {
 		boolean ret = true;
-		for (int i = 0; ret & i < rank && ret; ++i) {
+		for (int i = 0; i < rank && ret; ++i) {
 			ret &= dims_[i].isConvex();
 		}
 		return ret;
