@@ -1,0 +1,804 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Causality Test Cases</title>
+</head>
+<body>
+<h1>Weak Memory Models<br>
+</h1>
+<span style="font-weight: normal;"><br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">This note presents an overview of
+two formally-defined weak memory models for imperative shared-memory
+languages, the RAO model and the AO+L model. These models are currently
+being evaluated for X10. These models are closely related to the Java
+Memory Model, differing from it in that they permit "thread inlining".
+RAO is distinguished from AO+L in that it makes the </span><span
+ style="font-style: italic; color: rgb(0, 0, 153);">memory coherence
+assumption </span><span style="color: rgb(0, 0, 153);">[Gharcharloo et
+al 90]: All writes to a location are serialized in some order and are
+performed in that order with respect to any processor. AO+L does not
+make this assumption. </span><br style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">This note presents a formal
+description of these two models and illustrates their application to
+the many causality test cases discussed on the Java Memory Model
+mailing list, and in [Manson et al 05].<br>
+<br>
+When considering the question of a memory model for X10, the first
+question that arises is: Why not require that accesses to all shared
+variables be synchronized (e.g. be performed within an atomic block),
+and all threads are executed in a sequentially consistent fashion? <br>
+<br>
+Such a memory model has the enormous advantage of simplicity.
+Unfortunately, it would also incur a substantial performance penalty
+for single-threaded code that needs to read/write potentially shared
+variables that are known to the programmer to not actually be shared at
+the time of reading/writing because of higher-level algorithmic
+considerations. <br>
+<br>
+The use of finish/foreach operations often results in such programs in
+X10. Consider a canonical dense-array computation, red-black iteration:<br>
+</span></span><span style="font-weight: normal;"><span
+ style="color: rgb(0, 0, 153);"></span></span>
+<pre><span style="color: rgb(0, 0, 153);">for (point p: [1:NUM_ITERS] {<br>  finish foreach (point i : r) <br>     red[i] = black[i].average(stencil[i]);<br></span><span
+ style="color: rgb(0, 0, 153);">  finish foreach (point i : r) <br>     black[i] = red[i].average(stencil[i]);<br>}<br></span></pre>
+<span style="font-weight: normal;"><span style="color: rgb(0, 0, 153);">Here
+the programmer has arranged for red and black to reference different
+(non-overlapped) arrays, and r is a potentially large region (e.g.
+millions of elements).&nbsp; For every point i in the region stencil[i]
+specifies a region, relative to i. It is desired that this program
+result in the parallel evaluation of the average value over the given
+region, for every point in r, with the resulting value being written
+into the corresponding point in red. Notice that because of algorithmic
+considerations there are no concurrent reads/writes to the same
+location. Once all activities have finished the result of the writes
+should be available to all activities spawned subsequently by the main
+thread. <br>
+<br>
+For efficient execution of X10 it is necessary therefore that the
+implementation not be forced to perform synchronization actions (e.g.
+memory fences) at each red/black read/write. Rather, the implementation
+may trust that the programmer has established the global property that
+synchronization-free access to shared variables will not lead to race
+conditions. Consequently the implementation should be free to perform
+the usual aggressive single-thread optimizations that characterize
+modern compilers, runtimes and architectures.&nbsp; <br>
+<br>
+The example above illustrates another important requirement for the X10
+memory model. The X10 programming model encourages the programmer to
+use asynchrony pervasively. Any particular X10 implementation is likely
+to have fewer hardware threads than the number of activities spawned by
+the computation. Therefore it is necessary for the X10 compiler/runtime
+system to ensure that activities are aggregated. For instance, the X10
+compiler should be free to chunk the red-black iterations above with
+arbitrary granularity, depending on the number of hardware threads
+available. Such chunking should not impose any additional runtime cost
+because of extra synchronization. Therefore we require that the X10
+memory model support the ability to "inline" activities (wherever this
+does not cause deadlock; e.g. typically activities executing a
+potentially blocking when operation, or a clock next, will not be
+inlined). <br>
+<br>
+We may now summarize the X10 memory model requirements. These
+requirements are based on the fundamental assumption that the
+responsibility for ensuring that a program is correctly synchronized
+lies with the programmer.&nbsp; Below SC means Sequential Consistency.
+The nemory model must:<br>
+</span></span>
+<ol style="color: rgb(0, 0, 153);">
+  <li>Ensure that correctly synchronized programs (programs that have
+no data races under SC execution) execute in an SC fashion.</li>
+  <li>Permit unrestricted use of single-thread optimizations (e.g. code
+reordering).</li>
+  <li>Require the introduction of explicit memory synchronization
+operations, such as fences, only as required to implement explicit
+synchronization operations in the language (e.g. atomic, when, clocks).</li>
+  <li>Permit the compiler to perform whole program analysis and&nbsp;
+replace an arbitrary single-thread code fragment C with another
+fragment that is equivalent to it under constraints on the value of
+data variables that are true at (the beginning of) C in all SC
+executions of the program.<br>
+  </li>
+</ol>
+<span style="font-weight: normal;"><span style="color: rgb(0, 0, 153);"><br>
+It is desire that the following programming methodology be supported by
+the memory model:<br>
+</span></span>
+<ol>
+  <li style="color: rgb(0, 0, 153);">Most programmers should use
+explicit synchronization operations (atomic, when) to reliably
+communicate values between activities via shared variables.</li>
+  <li style="color: rgb(0, 0, 153);">For better performance,
+programmers may use&nbsp; unsynchronized access to variables provided
+they ensure the global property that there are no data-races involving
+these variables. They may then reason about their program using
+sequential consistency.</li>
+  <li><span style="color: rgb(0, 0, 153);">If the program contains
+data-races, the memory model must specify a few set of rules that may
+be used by the programmer/compiler to reason about programs.</span><br>
+  </li>
+</ol>
+<h3 style="color: rgb(0, 0, 153);">RAO Analysis</h3>
+<span style="color: rgb(0, 0, 153);">The RAO analysis is based on the
+notion of an </span><span
+ style="font-style: italic; color: rgb(0, 0, 153);">AO <span
+ style="font-weight: bold;">process</span></span><span
+ style="color: rgb(0, 0, 153);">. An AO process is a <span
+ style="font-style: italic; font-weight: bold;">initialized pomset</span><span
+ style="font-weight: bold;"> of </span></span><span
+ style="font-style: italic; color: rgb(0, 0, 153); font-weight: bold;">steps</span><span
+ style="color: rgb(0, 0, 153);">.&nbsp; A step is a finite function
+from stores to stores, optionally labeled as </span><span
+ style="font-style: italic; color: rgb(0, 0, 153); font-weight: bold;">atomic</span><span
+ style="color: rgb(0, 0, 153);">, together with a finite sets of
+variables R and W read and written by the step. A pomset is a partially
+ordered multiset; the partial order is sometimes called the
+"happens-before" (hb) order. A pomset of steps is said to be
+initialized if for every variable v there is a step f that writes into
+v, does not read from v and hb before any step that reads from or
+writes into v. </span><br style="color: rgb(0, 0, 153);">
+<br>
+<span style="color: rgb(0, 0, 153);">Given an AO process P, <span
+ style="font-style: italic; font-weight: bold;">an SC-execution of P</span>
+is any AO process P' with the same multiset of steps as P, but with a
+total hb order extending that of P.</span><br>
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">Below, we represent an AO process
+using concrete program syntax to represent steps. The read and write
+sets for a step may be infered from the concrete representation of the
+step. A step is represented by simultaneous assignment </span><span
+ style="font-family: monospace; color: rgb(0, 0, 153);">x1,...,xn=t1,...,tn</span><span
+ style="color: rgb(0, 0, 153);">. (The terms </span><span
+ style="font-family: monospace; color: rgb(0, 0, 153);">ti</span><span
+ style="color: rgb(0, 0, 153);"> may use conditional expressions</span><span
+ style="font-family: monospace; color: rgb(0, 0, 153);"> e?t1:t2</span><span
+ style="color: rgb(0, 0, 153);">.)&nbsp; Note that multiple occurrences
+of variables in ti does not necessarily mean that multiple reads are
+issued. <br>
+<br>
+An atomic step is prefixed with </span><span
+ style="font-family: monospace; color: rgb(0, 0, 153);">atomic</span><span
+ style="color: rgb(0, 0, 153);">.&nbsp; Steps are composed using </span><span
+ style="font-family: monospace; color: rgb(0, 0, 153);">; </span><span
+ style="color: rgb(0, 0, 153);">(sequential composition) and </span><span
+ style="font-family: monospace; color: rgb(0, 0, 153);">|</span><span
+ style="color: rgb(0, 0, 153);"> (parallel composition). We intend </span><span
+ style="font-family: monospace; color: rgb(0, 0, 153);">;</span><span
+ style="color: rgb(0, 0, 153);"> to bind tighter than </span><span
+ style="font-family: monospace; color: rgb(0, 0, 153);">|</span><span
+ style="color: rgb(0, 0, 153);">. </span><br
+ style="color: rgb(0, 0, 153);">
+<br>
+<span style="color: rgb(0, 0, 153);">Below, a step f&nbsp; is said to
+be
+decomposable into f1 and f2 if&nbsp; f1 is independent of&nbsp; the
+read and
+write sets of f2 (and vice versa)&nbsp; and&nbsp; composing f1 and f2
+in either
+order yields f. f is independent of a set of variables V if the read
+and write sets of f are disjoint from V.</span><br
+ style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">In the RAO model, the following
+transformation rules can be used to transform an AO process P into
+another::</span><br style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<div style="margin-left: 40px; color: rgb(0, 153, 0);"><span
+ style="color: rgb(0, 0, 153);"><span style="font-weight: bold;">Propagation</span>
+(PR). Replace a step f&nbsp; in P with a step f1 (which is atomic iff f
+is) that is c-equivalent to it (for c a constraint on stores), provided
+that in all SC-executions of P c is true at (before) f.&nbsp; (Two
+functions f1 and f2 are c-equivalent if for all stores s satisfying c,
+f1(s)=f2(s).)</span><br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);"><span style="font-weight: bold;">Augmentation</span>
+(AU). Replace f | g in P by f ; g.</span><br
+ style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);"><span style="font-weight: bold;">Composition</span>
+(CO). Replace f;g in P with their function composition.&nbsp; The
+resulting step is atomic iff either f and g are.</span><br
+ style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);"><span style="font-weight: bold;">Decomposition</span>
+(DE). Replace f with f1 | f2, if f1 and f2 constitute an independent
+decomposition of f.&nbsp; (f must not be atomic.)<br>
+<br>
+</span></div>
+<span style="color: rgb(0, 0, 153);">It is not difficult to see that
+each of these transformation rules are well-defined: they produce an AO
+process when applied to an AO process.<br>
+<br>
+An <span style="font-style: italic; font-weight: bold;">execution</span>
+of an AO process P is any process P' containing a single step, obtained
+from P by repeated application of PR, AU, CO and DE (in any order).
+Since P' is an AO process, it is initialized, hence the single step in
+P' must not read any variable. The result of the execution is the value
+produced by the step for each variable of interest.<br>
+<br>
+Thus the RAO model comes equipped with a <span
+ style="font-style: italic;">calculus</span>: it allows us to
+calculate, through the application of a fixed set of rules, whether a
+process exhibits a particular behavior.<br>
+</span>
+<h4 style="color: rgb(0, 0, 153);">Notes</h4>
+<ol style="color: rgb(0, 0, 153);">
+  <li>The applicability of AU, CO and DE does not depend on whole
+program analysis or on the presence/absence of additional steps not
+involved in the transformation.</li>
+  <li>PR depends on whole program analysis. PR is useful in replacing
+conditional execution with unconditional execution (valuable for
+single-thread performance).</li>
+  <li>PR, AU, CO and DE can be used to obtain one of several
+single-threaded programs equivalent to the original program under RAO
+semantics. Thus RAO semantics&nbsp; can be thought of as "Semantic
+Sequential Consistency": every permissible execution of the program
+corresponds to an SC execution of some single-threaded program obtained
+from the original via one of the four transformations (applied in any
+order, as many times as necessary). <br>
+  </li>
+  <li>The simplest example which cannot be handled by RAO is the
+cross-coupling in Case 16.</li>
+</ol>
+<h3 style="color: rgb(0, 0, 153);">AO+L Analysis</h3>
+<span style="color: rgb(0, 0, 153);">Given an AO process P, a linking L
+is a set of edges (labeled with
+variables) between steps of P with the following properties:</span><br
+ style="color: rgb(0, 0, 153);">
+<ol style="color: rgb(0, 0, 153);">
+  <li>A v-edge e is directed from a step S that writes v to a step T
+that reads v.&nbsp; (We write s(e) for S and t(e) for T.)<br>
+  </li>
+  <li>(HB Read Condition.) Every v-edge from S to T must satisfy the <span
+ style="font-style: italic;">happens-before read </span>rule: (a) it
+must not be the case that T &lt; S, (b) it must not be the case that
+there is some other step S' that writes on v and S &lt; S'&nbsp; &lt; T.<br>
+  </li>
+  <li>(Unique Read Condition.) For every step there is exactly one
+incoming v-edge, for every variable v read by the step.</li>
+  <li>(Unique Valuation Condition.) There must exist a unique
+assignment of value l(e)&nbsp; to each v-edge e in L sastisfying the
+set of constraints l(e) = s(e)(u)(v), where u is the store v=l(e) for
+each incoming v-edge into s.<br>
+  </li>
+</ol>
+<span style="color: rgb(0, 0, 153);">A linking explicitly specifies how
+each read is to be answered with a
+visible write.&nbsp; </span><br style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">In the AO+L model, the only
+transformation permitted is PR.&nbsp;</span><span
+ style="font-style: italic; font-weight: bold; color: rgb(0, 0, 153);">
+(Perhaps AU should be permitted too?)</span><br
+ style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">An execution of an AO process P in
+this model is a linking L for any
+process P' obtained from P by zero or more applications of PR.&nbsp; A
+linking uniquely determines the value written by each step into the
+store, and the value read by each read from the store. </span><br
+ style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">Note that an AO+L execution of a
+process P does not necessarily
+determine a unique value for each variable at the end of the
+computation. The AO+L model is very weak: it does not presume that
+there is a single shared store and each thread sees the same sequence
+of assignments to variables in this store ,</span><br
+ style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">The following proposition follows
+from the initialization requirement
+on AO processes.</span><br style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<div style="margin-left: 40px; color: rgb(0, 0, 153);">Proposition: For
+every AO process P and
+every step f that reads from a variable v there is a unique step g that
+writes into v st g &lt; f and no step g' betwen g and f writes into
+v.&nbsp; (We say that g is the SC v-step for f.)<br>
+</div>
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">Thus for every AO process P there
+is a unique linking, the SC linking,
+that links each step&nbsp; that reads from v to the (unique) SC v-step
+before it. </span><br style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<div style="margin-left: 40px; color: rgb(0, 0, 153);">Proposition: An
+AO process P exhibits a
+race iff it has a linking other than the SC linking. <br>
+</div>
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">AO+L is strictly more general than
+RAO. (See Case 16.)</span><br style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<div style="margin-left: 40px; color: rgb(0, 0, 153);">Proposition
+(TBD): Every RAO execution of an
+AO process A can be mimicked by an AO+L execution of A.<br>
+<br>
+</div>
+<span
+ style="font-weight: bold; font-style: italic; color: rgb(0, 0, 153);">TBD:
+Need to add rules
+for atomic, when, finish, volatile (a variable declaration which
+ensures all reads and writes are automatically wrapped in an atomic).
+The rule for atomic should be: Before establishing a linking (to
+determine an execution) apply AU as often as necessary to ensure that
+all atomic steps are totally ordered.</span><br
+ style="color: rgb(0, 0, 153);">
+<h3 style="color: rgb(0, 0, 153);">AO + Conditional Linkings Analysis<br>
+</h3>
+<span style="color: rgb(0, 0, 153);">This is discussed in the ASIAN
+paper. I do not believe
+conditional linkings are necessary, given the notion of steps as
+functions and PR.</span><br style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">The model of interest to us is
+AO+L. However, below we shall choose to
+analyze "possible execution" test cases with RAO wherever possible
+(since this gives a tighter analysis). To show that a certain behavior
+is </span><span style="font-style: italic; color: rgb(0, 0, 153);">not</span>
+possible, we must use AO+L though.<br style="color: rgb(0, 0, 153);">
+<h2 style="color: rgb(0, 0, 153);">Bibiolography</h2>
+<span style="color: rgb(0, 0, 153);">[Gharcharloo 90] K Gharcharloo, D
+Lenoski, J Laudon, P Gibbens, A Gupta, J Hennessy "Memory consistency
+and event ordering in Scalable Shared-Memory Multiprocessors", Proc
+ISCA, 1990.</span><br style="color: rgb(0, 0, 153);">
+<br style="color: rgb(0, 0, 153);">
+<span style="color: rgb(0, 0, 153);">[Manson et al 05]&nbsp; J Manson,
+W. Pugh and S. Adve "The Java Memory Model", POPL 2005.</span><br
+ style="color: rgb(0, 0, 153);">
+<br>
+<h1>Appendix: Causality Test Cases</h1>
+<h2 style="color: rgb(0, 0, 153);">vj : Tests originally from
+Manson/Pugh at U Md.</h2>
+<h2><span style="color: rgb(0, 0, 153);">vj: Modified to present the
+RAO and AO+L analyses.</span></h2>
+<span style="color: rgb(0, 0, 153);">(Original text in black, new text
+in blue.)</span><br>
+<p>Certain kinds of causal loops, in which an event causes itself to
+happen,
+are unacceptable.
+Since discussions have shown that notions of causality are not
+intuitive or
+universal, it is useful to describe a series of examples
+of unacceptable causal loops and seemly causal loops that must be
+allowed
+by the semantics.
+</p>
+<h3>Proposed weak causal loop semantics for JMM</h3>
+<ul>
+  <li> Forbidden behaviors: test cases 4 and 12. </li>
+  <li> Allowed behaviors: test cases 1-3, 5-11. </li>
+</ul>
+<h3>Proposed strong causal loop semantics for JMM</h3>
+<ul>
+  <li> Forbidden behaviors: test cases 4, 5, 10, 12. </li>
+  <li> Allowed behaviors: test cases 1-3, 6-9, 11. </li>
+</ul>
+<h3>Manson/Pugh results</h3>
+<ul>
+  <li> Forbidden: 4, 5, 10 and 12. </li>
+  <li> Allowed without prohibited executions: 1, 2, 6-8, 11. </li>
+  <li> Allowed with prohibited executions: 3, 9.</li>
+</ul>
+<br>
+<div style="color: rgb(0, 0, 153);"><br>
+In analyzing the test cases below we shall usually omit the initial
+step in the AO process.<br>
+</div>
+<hr>
+<h2>Causality test case 1</h2>
+<pre>Initially, x = y = 0<br><br>Thread 1<br>r1 = x<br>if r1 &gt;= 0<br>  y = 1<br><br>Thread 2<br>r2 = y<br>x = r2<br><br>Behavior in question: r1 == r2 == 1<br><br>Decision: Allowed, since interthread compiler analysis could determine that<br>	x and y are always non-negative, allowing simplification of r1 &gt;= 0<br>	to true, and allowing write y = 1 to be moved early.<br><br></pre>
+<p style="color: rgb(0, 0, 153);">AO+L Analysis:&nbsp; Allowed.
+Reasoning as above.<br>
+</p>
+<pre><span style="color: rgb(0, 0, 153);">r1=x; y=1 | r2=y; x=r2   (PR)<br>r1=x | y=1 | r2=y; x=r2  (DE)<br>r1=x | y=1 ; r2=y; x=r2  (AU)<br></span><span
+ style="color: rgb(0, 153, 0);"><span style="color: rgb(0, 0, 153);">y=1; r2=y; x=r2; r1=x    (AU)</span><br
+ style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);">y,r2,x,r1=1,1,1,1        (CO)</span><br><br></span><span
+ style="color: rgb(0, 153, 0);"></span><span
+ style="color: rgb(0, 153, 0);"></span><br></pre>
+<hr>
+<h2>Causality test case 2 (Also Fig 5 in POPL 05)<br>
+</h2>
+<pre>Initially, x = y = 0<br><br>Thread 1:<br>r1 = x<br>r2 = x<br>if r1 == r2<br>  y = 1<br><br>Thread 2:<br>r3 = y<br>x = r3<br><br>Behavior in question: r1 == r2 == r3 == 1<br><br>Decision: Allowed, since redundant read elimination could result in simplification<br>	of r1 == r2 to true, allowing y = 1 to be moved early.<br><br>Notes: In SC executions, both reads of x always return the same value (i.e., zero),<br>	so that r1 == r2 is always true in SC executions.<br><br></pre>
+<p style="color: rgb(0, 0, 153);">AO+L Analysis: Allowed. Reasoning as
+above.<br>
+</p>
+<span style="color: rgb(0, 0, 153);">r1,r2=x,x;if (r1==r2) y=1 |
+r3=y;x=r3&nbsp; (CO)<br>
+</span><span style="color: rgb(0, 0, 153);">r1,r2,y=x,x,1 |
+r3=y;x=r3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(CO)<br>
+</span><span style="color: rgb(0, 0, 153);">r1,r2=x,x | y=1 |
+r3=y;x=r3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(DE)<br>
+</span><span style="color: rgb(0, 0, 153);">y=1 ; r3=y;x=r3; </span><span
+ style="color: rgb(0, 0, 153);">r1,r2=x,x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(AU)<br>
+</span><span style="color: rgb(0, 0, 153);">y,r3,x,r1,r2=1,1,1,1,1
+&nbsp; &nbsp; &nbsp;&nbsp;</span><span style="color: rgb(0, 0, 153);">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(CO)</span><br>
+<br>
+<hr>
+<h2>Causality test case 3</h2>
+<pre>Initially, x = y = 0<br><br>Thread 1:<br>r1 = x<br>r2 = x<br>if r1 == r2<br>  y = 1<br><br>Thread 2:<br>r3 = y<br>x = r3<br><br>Thread 3:<br>x = 2<br><br>Behavior in question: r1 == r2 == r3 == 1<br><br>Decision: Allowed, since redundant read elimination could result in simplification<br>	of r1 == r2 to true, allowing y = 1 to be moved early.<br><br>Notes: Same as test case 2, except there are SC executions in which r1 != r2<br><br></pre>
+<p style="color: rgb(0, 0, 153);">AO+L Analysis:&nbsp; Allowed. Same as
+2. The extra thread does not matter. (See Note 1.)<br>
+</p>
+<span style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span>
+<hr>
+<h2>Causality test case 4 (Also Fig 2 in POPL 05)<br>
+</h2>
+<pre>Initially, x = y = 0<br><br>Thread 1:<br>r1 = x<br>y = r1<br><br>Thread 2:<br>r2 = y<br>x = r2<br><br>Behavior in question: r1 == r2 == 1<br><br>Decision: Forbidden: values are not allowed to come out of thin air<br><br></pre>
+<span style="color: rgb(0, 0, 153);">AO+L Analysis:&nbsp; PR is not
+applicable (no conditionals).&nbsp; All linkings are forced to link
+either the x-read in Thread 1 <br>
+or the y-read in Thread 2 to the initial value (to satisfy the Unique
+Valuation Condition). <br>
+<br>
+In more detail consider this proposed linking. Let f1 be the step for
+Thread 1, f2 the step for Thread 2 and f2 the initial step.<br>
+</span>
+<pre><span style="color: rgb(0, 0, 153);">f1:r1,y=x,x<span
+ style="font-family: monospace;"></span></span><br><span
+ style="color: rgb(0, 0, 153);"><span style="font-family: monospace;"></span>f2:r2,x=y,y</span><span
+ style="color: rgb(0, 0, 153);"><span style="font-family: monospace;"></span></span><br><span
+ style="color: rgb(0, 0, 153);"><span style="font-family: monospace;"></span>f2-x-&gt;f1</span><span
+ style="color: rgb(0, 0, 153);"><span style="font-family: monospace;"></span></span><br><span
+ style="color: rgb(0, 0, 153);"><span style="font-family: monospace;"></span>f1-y-&gt;f2</span>
+<span style="color: rgb(0, 0, 153);"></span></pre>
+<span style="color: rgb(0, 0, 153);"><br>
+This yields the system of constraints: (here we use the notation f1.x
+for the value associated with the incoming x-edge for f1,&nbsp; and
+similarly for&nbsp; f2.y):<br>
+<br>
+</span>
+<pre><span style="color: rgb(0, 0, 153);">f1(r1)=f1.x</span><br><span
+ style="color: rgb(0, 0, 153);">f1(y)=f1.x</span><br><span
+ style="color: rgb(0, 0, 153);">f2(r2)=f2.y</span><br><span
+ style="color: rgb(0, 0, 153);">f2(x)=f2.y</span><br><span
+ style="color: rgb(0, 0, 153);">f1.x=f2(x)</span><br><span
+ style="color: rgb(0, 0, 153);">f2.y=f1(y)</span>
+<span style="color: rgb(0, 0, 153);"></span></pre>
+<span style="color: rgb(0, 0, 153);"><br>
+This system has the same solutions as <br>
+</span>
+<pre><span style="color: rgb(0, 0, 153);">f1(r1)=f2(x)</span><br><span
+ style="color: rgb(0, 0, 153);">f1(y)=f2(x)</span><br><span
+ style="color: rgb(0, 0, 153);">f2(r2)=f2(x)</span><br><span
+ style="color: rgb(0, 0, 153);">f2(x)=f2(x)</span><br><span
+ style="color: rgb(0, 0, 153);">f1.x=f2(x)</span><br><span
+ style="color: rgb(0, 0, 153);">f2.y=f2(x)</span><br><span
+ style="color: rgb(0, 0, 153);">f1(y)=f2(x)</span></pre>
+<span style="color: rgb(0, 0, 153);">Now this permits an infinite
+number of solutions generated by f2(x)=k,
+for any k. Hence this proposed linking does not satisfy the Unique
+Valuation Condition and must be rejected.<br>
+</span><span style="color: rgb(0, 0, 153);"><br>
+<br>
+</span>
+<hr>
+<h2>Causality test case 5</h2>
+<pre>Initially, x = y = z = 0<br><br>Thread 1:<br>r1 = x<br>y = r1<br><br>Thread 2<br>r2 = y<br>x = r2<br><br>Thread 3<br>z = 1<br><br>Thread 4<br>r3 = z<br>x = r3<br><br>Behavior in question: r1 == r2 == 1, r3 == 0.<br><br>Decision: Forbidden: values are not allowed to come out of thin air,<br>	even if there are other executions in which the thin-air value<br>	would have been written to that variable by some not out-of-thin<br>	air means.<br><br></pre>
+<span style="color: rgb(0, 0, 153);">AO+L Analysis:&nbsp; PR is not
+applicable (no conditionals).&nbsp; Let f be the initial step, and f1,
+f2, f3, f4 the steps for Thread 1, 2, 3 and 4 respectively.&nbsp; The
+only possible linkings are described by<br>
+<br>
+</span>
+<pre><span style="color: rgb(0, 0, 153);">{f-z-&gt; f4, f3-z-&gt;f4} x {f -x-&gt; f1, f2 -x-&gt; f1, f4 -x-&gt; f1} x {f1 -y-&gt; f2,f -y-&gt; f2}<br><br></span></pre>
+<span style="color: rgb(0, 0, 153);">&nbsp;None of these 12 yield the
+desired result.</span><span style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span><br>
+<span style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span><br>
+<hr>
+<h2>Causality test case 6</h2>
+<em>Earlier drafts had a bug with A and B initially 1</em>
+<pre>Initially A = B = 0<br><br>Thread 1<br>r1 = A<br>if (r1 == 1)<br>   B = 1<br><br>Thread 2<br>r2=B<br>if (r2 == 1)<br>    A = 1<br>if (r2 == 0)<br>    A = 1<br><br>Behavior in question: r1 == r2 == 1 allowed?<br><br>Decision: Allowed. Intrathread analysis could determine that thread 2 always writes <br>	1 to A and hoist the write to the beginning of thread 2.<br><br
+ style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);">AO+L analysis. Allowed. Reasoning as above.</span><br
+ style="color: rgb(0, 0, 153);"><br style="color: rgb(0, 0, 153);"><span
+ style="color: rgb(0, 0, 153);">r1=A; if (r1==1) B=1 | r2=B; A=(r1==1?1:(r1==1?1:A)) (CO)</span><br
+ style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);">r1=A; if (r1==1) B=1 | r2=B; A=1                     (PR), since r2 in {0,1} holds at this step.</span><br
+ style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);">r1=A; if (r1==1) B=1 | r2,A=B,1                      (CO)</span><br
+ style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);">r1=A; if (r1==1) B=1 | r2=B | A=1                    (DE)</span><br
+ style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);">A=1; r1=A; if (r1==1) B=1; r2=B                      (AU)</span><br
+ style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);">A,r1,B,r2=1,1,1,1                                    (CO)</span><br
+ style="color: rgb(0, 0, 153);"></pre>
+<hr style="color: rgb(0, 0, 153);">
+<h2 style="color: rgb(51, 0, 51);">Causality test case 7</h2>
+<pre>Initially, x = y = z = 0<br><br>Thread 1:<br>r1 = z<br>r2 = x<br>y = r2<br><br>Thread 2:<br>r3 = y<br>z = r3<br>x = 1<br><br>Behavior in question: r1 = r2 = r3 = 1.<br><br>Decision: Allowed. Intrathread transformations could move r1 = z to <br>	after the last statement in thread 1, and x = 1 to before the <br>	first statement in thread 2.<br><br><span
+ style="color: rgb(0, 0, 153);">AO+L analysis. Allowed. </span><span
+ style="color: rgb(0, 0, 153);">Reasoning as above.<br><br
+ style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);">r1=z;r2=x;y=r2 | r3=y;z=r3;x=1 <br>r1=z;r2,y=x,x | r3,z=y,y; x=1      (CO,CO)<br></span><span
+ style="color: rgb(0, 0, 153);">r1=z | r2,y=x,x | r3,z=y,y | x=1   (CO,DE;CO,DE)<br></span><span
+ style="color: rgb(0, 0, 153);">x=1;r2,y=x,x;r3,z=y,y;r1=z         (AU,AU,AU)<br></span><span
+ style="color: rgb(0, 0, 153);">x,r2,y,r3,z,r1=1,1,1,1,1,1         (CO)</span><span
+ style="color: rgb(0, 0, 153);"><br></span><span
+ style="color: rgb(0, 0, 153);"></span></pre>
+<hr>
+<h2>Causality test case 8 (Also essentially Fig 6 in POPL 05)<br>
+</h2>
+<pre>Initially, x = y = 0<br><br>Thread 1:<br>r1 = x<br>r2 = 1 + r1*r1 - r1<br>y = r2<br><br>Thread 2:<br>r3 = y<br>x = r3<br><br>Behavior in question: r1 = r2 = 1<br><br>Decision: Allowed. Interthread analysis could determine that x and y are always<br>	either 0 or 1, and thus determine that r2 is always 1. Once this determination<br>	is made, the write of 1 to y could be moved early in thread 1.<br><br><span
+ style="color: rgb(0, 0, 153);">AO+L analysis. Allowed. </span><span
+ style="color: rgb(0, 0, 153);">Reasoning as above.<br><br
+ style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);">r1=x;r2=1+r1*r1-r1;y=r2 | r3=y;x=r3 <br></span><span
+ style="color: rgb(0, 0, 153);">r1=x;r2=1;y=r2 | r3=y;x=r3           (PR, under r1 in {0,1}.) <br></span><span
+ style="color: rgb(0, 0, 153);">r1,r2,y=x,1,1 | r3=y;x=r3            (CO,CO) <br></span><span
+ style="color: rgb(0, 0, 153);">y=1 | r2=1 | r1=x | r3=y;x=r3        (DE) <br></span><span
+ style="color: rgb(0, 0, 153);">y=1;r2=1;r3=y;x=r3;r1=x              (AU) <br></span><span
+ style="color: rgb(0, 0, 153);">y,r2,r2,x,r1=1,1,1,1,1               (CO) </span><br><span
+ style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span><br></pre>
+<hr>
+<h2>Causality test case 9</h2>
+<pre>Initially, x = y = 0<br><br>Thread 1:<br>r1 = x<br>r2 = 1 + r1*r1 - r1<br>y = r2<br><br>Thread 2:<br>r3 = y<br>x = r3<br><br>Thread 3:<br>x = 2<br><br>Behavior in question: r1 = r2 = 1<br><br>Decision: Allowed. Similar to test case 8, except that the x is not always<br>	0 or 1. However, a compiler might determine that the read of x by thread<br>	2 will never see the write by thread 3 (perhaps because thread 3<br>	will be scheduled after thread 1).  Thus, the compiler<br>	can determine that r1 will always be 0 or 1.<br><br><span
+ style="color: rgb(0, 0, 153);">AO+L analysis. Allowed. Reasoning as above.</span><br
+ style="color: rgb(0, 0, 153);"><br style="color: rgb(0, 0, 153);"><span
+ style="color: rgb(0, 0, 153);">r1=x;r2=1+r1*r1-r1;y=r2 | r3=y;x=r3 |x=2<br></span><span
+ style="color: rgb(0, 0, 153);">(r1=x;r2=1+r1*r1-r1;y=r2 | r3=y;x=r3);x=2 (AU)</span><br><span
+ style="color: rgb(0, 0, 153);">(r1=x;r2=1;y=r2 | r3=y;x=r3);x=2          (PR, under r1 in {0,1}.) <br></span><span
+ style="color: rgb(0, 0, 153);">(r1,r2,y=x,1,1 | r3=y;x=r3);x=2           (CO,CO) <br></span><span
+ style="color: rgb(0, 0, 153);">(y=1 | r2=1 | r1=x | r3=y;x=r3);x=2       (DE) <br></span><span
+ style="color: rgb(0, 0, 153);">y=1;r2=1;r3=y;x=r3;r1=x;x=2               (AU) <br></span><span
+ style="color: rgb(0, 0, 153);">y,r2,r2,x,r1=1,1,1,1,2                    (CO) </span><br></pre>
+<hr>
+<h2>Causality test case 10</h2>
+<pre>Initially, x = y = z = 0<br><br>Thread 1:<br>r1 = x<br>if (r1 == 1)<br>  y = 1<br><br>Thread 2<br>r2 = y<br>if (r2 == 1)<br>  x = 1<br><br>Thread 3<br>z = 1<br><br>Thread 4<br>r3 = z<br>if (r3 == 1)<br>  x = 1<br><br>Behavior in question: r1 == r2 == 1, r3 == 0.<br><br>Decision: Forbidden. This is the same as test case 5, except using control<br>	dependences rather than data dependences.<br><br><span
+ style="color: rgb(0, 0, 153);">AO+L analysis. Disallowed, as in Case 5. The program is:<br><br>(f1:) r1,y=x,x==1?1:y | (f2:) r1,x=y,y==1?1:x | (f3:) z=1 | (f4:) r3,x=z,z==1?1:x<br><br></span><span
+ style="color: rgb(0, 0, 153);">There are 48 possible linkings:<br><br></span><span
+ style="color: rgb(0, 0, 153);">{f-x-&gt;f1, f2-x-&gt;f1,f4-x-&gt;f1} x {f-y-&gt;f1} x {f1-y-&gt;f2,f-y-&gt;f2} x {f-x-&gt;f2,f4-x-&gt;f2} <br>x {f -z-&gt;f4, f3-z-&gt;f4} x {f2-x-&gt;f4, f-x-&gt;f4}<br><br>f-x-&gt;f1 will give r1=0, f-y-&gt;f2 will give r2=0, f3-z-&gt;f4 will give r3=1, <br>hence these choices must be ruled out. So we are left with the 8 possibilities:<br><br></span><span
+ style="color: rgb(0, 0, 153);">{f2-x-&gt;f1,f4-x-&gt;f1}x{f-y-&gt;f1}x{f1-y-&gt;f2}x{f-x-&gt;f2,f4-x-&gt;f2}x{f-z-&gt;f4}x{f2-x-&gt;f4,f-x-&gt;f4}<br><br></span></pre>
+<span style="color: rgb(0, 0, 153);">In all these f4(x)=f4.x, since
+r3=0. </span><br>
+<span style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span><br>
+<span style="color: rgb(0, 0, 153);">Consider the choice f2-x-&gt;f1:
+This yields the self-dependent equation (through f1-y-&gt;f2)
+f1(y)=(f1(y)==1?1:0)==1?1:f2.x (since&nbsp; f1.y=f(y)=0). This equation
+has two solutions&nbsp; f1(y)=0 and f1(y)=1, if we choose f-x-&gt;f2,
+and hence is not a linking. If we choose f4-x-&gt;f2, then if we choose
+f-x-&gt;f4 we get two solutions. In the last case (f4 -x-&gt; f2 and f2
+-x-&gt;f4) we get arbitrarily many solutions through the self
+dependence f2.x=f2.x.<br>
+<br>
+So consider the other choice f4-x-&gt;f1. Then f1.x=f4(x)=f4.x. Now for
+r1==1 we cannot have the choice f-x-&gt;f4, since this will yield
+r1==0. So the choice f2-x-&gt;f4 is forced. Thus we get
+f1.x=f4(x)=f4.x=f2(x)=(f4.x==1?1:f1.y)==1?1:f2.x.&nbsp; This yields two
+solutions (f4.x=0 or f4.x=1) regardless of whether we choose f-x-&gt;f2
+or f4-x-&gt;f2. Hence the choice f4-x-&gt;f1 does not lead to a
+linking. <br>
+</span><br>
+<hr>
+<h2>Causality test case 11</h2>
+<pre>Initially, x = y = z = 0<br><br>Thread 1:<br>r1 = z<br>w = r1<br>r2 = x<br>y = r2<br><br>Thread 2:<br>r4 = w<br>r3 = y<br>z = r3<br>x = 1<br><br>Behavior in question: r1 = r2 = r3 = r4 = 1<br><br>Decision: Allowed. Reordering of independent statements can transform<br>  the code to:<br><br>	Thread 1:<br>	r2 = x<br>	y = r2<br>	r1 = z<br>	w = r1<br><br>	Thread 2:<br>	x = 1<br>	r3 = y<br>	z = r3<br>	r4 = w<br><br>  after which the behavior in question is SC.<br><br>Note: This is similar to test case 7, but extended with one more<br>	rung in the ladder<br><br><span
+ style="color: rgb(0, 0, 153);">AO+L analysis. Allowed. Reasoning as above.</span><br
+ style="color: rgb(0, 0, 153);"><br style="color: rgb(0, 0, 153);"><span
+ style="color: rgb(0, 0, 153);">r1=z;w=r1;r2=x;y=r2 | r4=w;r3=y;z=r3;x=1 <br>r1,w,r2,y=z,z,x,x | </span><span
+ style="color: rgb(0, 0, 153);">r4=w;r3=y;z=r3;x=1   (CO,CO,CO)<br></span><span
+ style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);">r1,w=z,z | r2,y=x,x | </span><span
+ style="color: rgb(0, 0, 153);">r4=w;r3=y;z=r3;x=1 (DE)<br></span><span
+ style="color: rgb(0, 0, 153);">r1,w=z,z | r2,y=x,x | </span><span
+ style="color: rgb(0, 0, 153);">r4,r3,z,x=w,y,y,1  (CO,CO,CO)<br></span><span
+ style="color: rgb(0, 0, 153);">r1,w=z,z | r2,y=x,x | </span><span
+ style="color: rgb(0, 0, 153);">r4=w |r3,z=y,y|x=1 (DE,DE)<br>x=1;r2,y=x,x;r3,z=y,y;r1,w=z,z;r4=w      (AU)<br>x,r2,y,r3,z,r1,w,r4=1,1,1,1,1,1,1,1      (CO)<br></span><span
+ style="color: rgb(0, 0, 153);"><br></span><span
+ style="color: rgb(0, 0, 153);"></span></pre>
+<hr>
+<h2>Causality test case 12</h2>
+<pre>Initially, x = y = 0; a[0] = 1, a[1] = 2<br><br>Thread 1<br>r1 = x<br>a[r1] = 0<br>r2 = a[0]<br>y = r2<br><br>Thread 2<br>r3 = y<br>x = r3<br><br>Behavior in question: r1 = r2 = r3 = 1<br><br>Decision: Disallowed. Since no other thread accesses the array a,<br>     the code for thread 1 should be equivalent to:<br><br>	r1 = x<br>	a[r1] = 0<br>	if (r1 == 0)<br>          r2 = 0<br>        else<br>          r2 = 1<br>	y = r2<br><br><br>    With this code, it is clear that this is the same situation as<br>    test 4.<br><span
+ style="color: rgb(0, 0, 153);"><br></span><span
+ style="color: rgb(51, 0, 153);">AO+L: TBD</span><br><br></pre>
+<hr>
+<h2>Causality test case 13 (Essentially Fig 4 in POPL 05)<br>
+</h2>
+<pre>Initially, x = y = 0<br><br>Thread 1:<br>r1 = x<br>if (r1 == 1)<br>  y = 1<br><br>Thread 2:<br>r2 = y<br>if (r2 == 1)<br>  x = 1<br><br>Behavior in question: r1 == r2 == 1<br><br>Decision: Disallowed. In all sequentially consistent executions, no writes<br>	to x or y occur and the program is correctly synchronized. The<br>	only SC behavior is r1 == r2 == 0.<br><br><span
+ style="color: rgb(0, 0, 153);">AO+L analysis. Disallowed. Let f be the initial step, f1 the step obtained from Thread 1 <br><br>f1:r1,y=x,(x==1)?1:y<br>f2:r2,x=y,(y==1)?1:x<br><br>Note that f1 and f2 read <span
+ style="font-style: italic;">both</span> x and y. Therefore any linking must have x- and <br>y-incoming edges for both f1 and f2. Note further that the incoming y-edge for f1 <br>is forced: it must come from f, since f2 does not write y. Similarly the incoming <br>x-edge for f2 is forced. Thus the only possible linkings are:<br><br>L1: f2-x-&gt;f1, f1-y-&gt;f2, f-y-&gt;f1, f-x-&gt;f2<br>L2: f-x-&gt;f1, f1-y-&gt;f2, f-y-&gt;f1,f-x-&gt;f2<br>L3: </span><span
+ style="color: rgb(0, 0, 153);">f2-x-&gt;f1, f-y-&gt;f2, f-y-&gt;f1, f-x-&gt;f2<br></span><span
+ style="color: rgb(0, 0, 153);">L3: </span><span
+ style="color: rgb(0, 0, 153);">f-x-&gt;f1, f-y-&gt;f2, f-y-&gt;f1, f-x-&gt;f2<br><br></span><span
+ style="color: rgb(0, 0, 153);">The only linking that can yield r1=r2=1 is L1. However it is not a valid linking,<br>it does not satisfy the Unique Valuation Condition. Below, let us designate by f1.x<br>the label on the incoming x-edge to f1. Similarly for f1.y, f2.x and f2.y. Then the <br>Unique Valuation Condition says that the following constraints must have a unique solution:<br><br>f1(r1)=f1.x<br>f1(y)=(f1.x==1)?1:f1.y<br>f2(r2)=f2.y<br>f2(x)=(f2.y==1)?1:f2.x<br></span><span
+ style="color: rgb(51, 0, 153);">f1.x=f2(x), f1.y=f(y)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">f2.y=f1(y), f2.x=f(x)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">f(y)=0, f(x)=0<br><br>This can be simplified to:<br><br>f1(r1)=f2(x)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">f1(y)= (f1(y)==1?1 : 0)==1?1 : 0</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">f2(r2)=f1(y)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">f2(x)=f1(y)==1?1 : 0<br><br></span><span
+ style="color: rgb(51, 0, 153);">f1.x=f2(x), f1.y=f(y)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">f2.y=f1(y), f2.x=f(x)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">f(y)=0, f(x)=0</span><br><span
+ style="color: rgb(51, 0, 153);"><br><br>Unfortunately this system has two solutions, characterized by:<br>f1(y)=f2(x)=f1(r1)=f2(r2)=1, and </span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">f1(y)=f2(x)=f1(r1)=f2(r2)=0<br><br>Therefore this is not an acceptable linking. <br><br>Thus there is no linking which produces the desired answer.<br><br>As this example shows, the problematic linking is ruled out because it forces<br>a value to depend upon itself.<br></span><span
+ style="color: rgb(0, 0, 153);"></span></pre>
+<hr>
+<h2>Causality test case 14</h2>
+<pre>Initially, a = b = y = 0, y is volatile<br><br>Thread 1:<br>r1 = a<br>if (r1 == 0)<br>  y = 1<br>else<br>  b = 1<br><br>Thread 2:<br>do {<br>  r2 = y<br>  r3 = b<br>  } while (r2 + r3 == 0);<br>a = 1;<br><br>Behavior in question: r1 == r3 = 1; r2 = 0<br><br>Decision: Disallowed In all sequentially consistent executions, r1 = 0 and<br>	the program is correctly synchronized. Since the program is correctly<br>	synchronized in all SC executions, no non-sc behaviors are allowed.<br><br><span
+ style="color: rgb(51, 0, 153);">AO+L: TBD</span><br><br></pre>
+<hr>
+<h2>Causality test case 15</h2>
+<pre>Initially, a = b = x = y = 0, x and y are volatile<br><br>Thread 1:<br>r0 = x<br>if (r0 == 1)<br>  r1 = a<br>else <br>  r1 = 0<br>if (r1 == 0)<br>  y = 1<br>else<br>  b = 1<br><br>Thread 2:<br>do {<br>  r2 = y<br>  r3 = b<br>  } while (r2 + r3 == 0);<br>a = 1;<br><br>Thread 3:<br>x = 1<br><br>Behavior in question: r0 == r1 == r3 = 1; r2 == 0<br><br>Decision: Disallowed. In all sequentially consistent executions, r1 = 0 and<br>	the program is correctly synchronized. Since the program is correctly<br>	synchronized in all SC executions, no non-sc behaviors are allowed.<br><br><span
+ style="color: rgb(51, 0, 153);">AO+L: TBD</span><br><br></pre>
+<hr>
+<h2>Causality test case 16 (also Fig 1 in POPL 05 paper)<br>
+</h2>
+<pre>Initially, x = 0<br><br>Thread 1:<br>r1 = x<br>x = 1<br><br>Thread 2:<br>r2 = x <br>x = 2<br><br>Behavior in question: r1 == 2; r2 == 1<br><br>Decision: Allowed.<br><br><span
+ style="color: rgb(51, 0, 153);">AO+L analysis. Allowed. Needs linking.</span><br
+ style="color: rgb(51, 0, 153);"><br style="color: rgb(51, 0, 153);"><span
+ style="color: rgb(51, 0, 153);">r1=x;x=1 | r2=x;x=2</span><br
+ style="color: rgb(51, 0, 153);"><br style="color: rgb(51, 0, 153);"><span
+ style="color: rgb(51, 0, 153);">Linking: (x=1)-x-&gt; (r2=x), (x=2)-x-&gt;(r1=x)</span><br></pre>
+<hr>
+<h2>Causality test case 17</h2>
+<pre>Initially,  x = y = 0<br><br>Thread 1:<br>r3 = x<br>if (r3 != 42)<br>  x = 42<br>r1 = x<br>y = r1<br><br>Thread 2:<br>r2 = y<br>x = r2<br><br>Behavior in question: r1 == r2 == r3 == 42<br><br>Decision: Allowed. A compiler could determine that at r1 = x in thread 1,<br>  is must be legal for to read x and see the value 42. Changing r1 = x <br>  to r1 = 42 would allow y = r1 to be transformed to y = 42 and performed<br>  earlier, resulting in the behavior in question.<br><br><span
+ style="color: rgb(51, 0, 153);">AO+L analysis. Allowed. Reasoning as above.</span><br
+ style="color: rgb(51, 0, 153);"><br style="color: rgb(51, 0, 153);"><span
+ style="color: rgb(51, 0, 153);">r3,x=x,(x!=42)?42:x; r1=x;y=r1 | r2=y;x=r2 (CO)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">r3,x=x,42; r1=x;y=r1 | r2=y;x=r2           (just a different formulation of the same step)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">r3,x,r1,y=x,42,42,42 | r2=y;x=r2           (CO)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">y=42 | r1=42 | r3,x=x,42 | r2=y;x=r2       (DE)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">y=42;r2=y;x=r2;r1=42;r3,x=x,42             (AU,AU,AU)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">y,r2,r1,r3,x=42,42,42,42,42                (CO)</span><br
+ style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span><br
+ style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(0, 0, 153);"></span><br></pre>
+<hr>
+<h2>Causality test case 18 (Also Fig 12 in POPL 05)<br>
+</h2>
+<pre>Initially,  x = y = 0<br><br>Thread 1:<br>r3 = x<br>if (r3 == 0)<br>  x = 42<br>r1 = x<br>y = r1<br><br>Thread 2:<br>r2 = y<br>x = r2<br><br>Behavior in question: r1 == r2 == r3 == 42<br><br>Decision: Allowed. A compiler could determine that the only legal values<br>  for x are 0 and 42. From that, the compiler could deduce that r3 != 0 implies<br>  r3 = 42.  A compiler could then determine that at r1 = x in thread 1,<br>  is must be legal for to read x and see the value 42. Changing r1 = x <br>  to r1 = 42 would allow y = r1 to be transformed to y = 42 and performed<br>  earlier, resulting in the behavior in question.<br><br><span
+ style="color: rgb(0, 0, 153);">AO+L analysis. Allowed. Reasoning as above.<br></span><span
+ style="color: rgb(51, 0, 153);">r3,x=x,(x==0)?42:x; r1=x;y=r1 | r2=y;x=r2 (CO)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);">r3,x=x,42; r1=x;y=r1 | r2=y;x=r2           (PR, with x in {0,42}<br>(Rest as in Case 17)</span><br
+ style="color: rgb(51, 0, 153);"><span style="color: rgb(51, 0, 153);"></span><br></pre>
+<hr>
+<h2>Causality test case 18a</h2>
+<pre>Initially,  x = y = 0<br><br>Thread 1:<br>r3 = x<br>if (r3 == 0)<br>x = 42<br>r1 = x<br>y = r1<br><br>Thread 2:<br>r2 = y<br>x = r2<br><br>Thread 3:<br>if (false())<br>x=43<br></pre>
+<></>
+<pre><>Behavior in question: r1 == r2 == r3 == 42</></pre>
+<pre><>Decision: Here false() is some procedure which cannot be statically analyzed. Alowed. </></pre>
+<pre><br><span style="color: rgb(0, 0, 153);">AO+L analysis. Allowed. The compiler may schedule Thread 3 after Thread 1 and Thread 2. <br>(The analysis below is not entirely formal. We need to extend steps to permit evaluation<br>of functions, or permit the notion of partial executions.)<br><br>r3=x;if (r3==0) x=42; r1=x;y=r1 | r2=y;x=r2 | if (false()) x=43 <br></span><span
+ style="color: rgb(0, 0, 153);">(r3=x;if (r3==0) x=42; r1=x;y=r1 | r2=y;x=r2) ; if (false()) x=43  (AU)<br></span><span
+ style="color: rgb(0, 0, 153);">(r3=x; x=42; r1=x;y=r1 | r2=y;x=r2) ; if (false()) x=43            (PR, with r3 in {0,42})<br></span><span
+ style="color: rgb(0, 0, 153);">(r3,x,r1,y=x,42,42,42 | r2=y;x=r2) ; if (false()) x=43             (CO)<br></span><span
+ style="color: rgb(0, 0, 153);">(r3,x=x,42) | r1=42 | y=42 | r2=y;x=r2) ; if (false()) x=43        (DE)<br></span><span
+ style="color: rgb(0, 0, 153);">(r3,x=x,42) | r1=42; y=42;r2=y;x=r2) ; if (false()) x=43           (AU)<br></span><span
+ style="color: rgb(0, 0, 153);">(r3,x=x,42) | r1,r2,x=42,42,42) ; if (false()) x=43                (CO)<br></span><span
+ style="color: rgb(0, 0, 153);">(r1,r2,x=42,42,42)</span><span
+ style="color: rgb(0, 0, 153);">;(r3,x=x,42)</span><span
+ style="color: rgb(0, 0, 153);">; if (false()) x=43                  (AU)<br></span><span
+ style="color: rgb(0, 0, 153);">(r1,r2,x,r3=42,42,false()?43:42,42</span><span
+ style="color: rgb(0, 0, 153);">)</span><span
+ style="color: rgb(0, 0, 153);">                                (CO)</span><br><span
+ style="color: rgb(0, 0, 153);"><br></span></pre>
+<span style="color: rgb(51, 0, 153);"></span><span
+ style="color: rgb(51, 0, 153);"></span>
+<hr>
+<h2>Causality test case 19</h2>
+<pre>Initially,  x = y = 0<br><br>Thread 1:<br>join thread 3<br>r1 = x<br>y = r1<br><br>Thread 2:<br>r2 = y<br>x = r2<br><br>Thread 3:<br>r3 = x<br>if (r3 != 42)<br>  x = 42<br><br>Behavior in question: r1 == r2 == r3 == 42<br><br>Decision: Allowed. This is the same as test case 17, except that thread 1 has been<br>  split into two threads.<br><br><span
+ style="color: rgb(0, 0, 153);">AO+L analysis. Allowed. Reasoning as above.<br>(r3=x; if (r3 != 42) x=42); (r1=x;y=r1) | r2=y;x=r2  (Defn of thread join.)<br></span><span
+ style="color: rgb(0, 0, 153);">(r3,x=x,(x != 42)?42:x); (r1=x;y=r1) | r2=y;x=r2     (CO)<br></span><span
+ style="color: rgb(0, 0, 153);">(r3,x=x,42); (r1=x;y=r1) | r2=y;x=r2                 (equivalent formulation of the step)<br></span><span
+ style="color: rgb(0, 0, 153);">(r3,x,r1,y=x,42,42,42)| r2=y;x=r2                    (CO)<br></span><span
+ style="color: rgb(0, 0, 153);">(r3,x=x,42) | r1=42 | y=42 | r2=y;x=r2               (DE)<br></span><span
+ style="color: rgb(0, 0, 153);">r1=42;y=42;r2=y;x=r2;</span><span
+ style="color: rgb(0, 0, 153);">(r3,x=x,42)                     (AUG)<br>r1,y,r2,r3,x=42,42,42,42,42                          (CO)<br></span><span
+ style="color: rgb(0, 0, 153);"></span><span
+ style="color: rgb(51, 0, 153);"></span><br></pre>
+<hr>
+<h2>Causality test case 20</h2>
+<pre>Initially,  x = y = 0<br><br>Thread 1:<br>join thread 3<br>r1 = x<br>y = r1<br><br>Thread 2:<br>r2 = y<br>x = r2<br><br>Thread 3:<br>r3 = x<br>if (r3 == 0)<br>  x = 42<br><br>Behavior in question: r1 == r2 == r3 == 42<br><br>Decision: Allowed. This is the same as test case 18, except that thread 1 has been<br>  split into two threads.<br><br><span
+ style="color: rgb(0, 0, 153);">AO+L analysis. Allowed. Reasoning as above.<br>(r3=x; if (r3 ==0) x=42); (r1=x;y=r1) | r2=y;x=r2  (Defn of thread join.)<br></span><span
+ style="color: rgb(0, 0, 153);">Reasoning as in 18.<br></span><br></pre>
+<hr>
+<h2 style="color: rgb(51, 0, 153);">Additional Tests: Fig 3 from POPL 05<br>
+</h2>
+<pre style="color: rgb(51, 0, 153);">Initially, x = 0, ready = false, ready is volatile</pre>
+< style="color: rgb(51, 0, 153);"></>
+<pre style="color: rgb(51, 0, 153);"><><>Thread 1:<span
+ style="font-family: monospace;"> </span><br>x=1; <br>ready = true</></></pre>
+<pre style="color: rgb(51, 0, 153);"><>Thread 2:&nbsp; <span
+ style="font-family: monospace;"></span><br>if (ready)  </><br> r1=x;</pre>
+<pre style="color: rgb(51, 0, 153);"><br>Behavior in question: If (r1=x) executes, it will read 1.<br><br>AO+L Analysis: Allowed. By the rules of atomic reads/writes, AU must be used on<br><br>x=1; f1:ready=true | f2:if (ready) r1=x;<br><br></pre>
+<span style="color: rgb(51, 0, 153);">to totally order f1 and f2 before
+linkings are established. Thus we get the following possible AO
+processes:<br>
+</span>
+<pre style="color: rgb(51, 0, 153);">x=1; f1:ready=true;f2:if (ready) r1=x;<br>x=1; f2:if (ready) r1=x; f1:ready=true;<br>(x=1 | f2:if (ready) r1=x); f1:ready=true;<br></pre>
+<span style="color: rgb(51, 0, 153);">The first is the only process
+which can yield an execution in which (r1=x) executes. This process has
+a single linking (execution), the SC linking, yielding the execution</span><br>
+<pre style="color: rgb(51, 0, 153);">x,ready,r1=1,true,1</pre>
+<pre style="color: rgb(51, 0, 153);"></pre>
+<hr style="color: rgb(51, 0, 153);">
+<h2 style="color: rgb(51, 0, 153);">Additional Tests: Fig 10 from POPL
+05<br>
+</h2>
+<pre style="color: rgb(51, 0, 153);"><>Initially, x=y=z=0</></pre>
+<pre style="color: rgb(51, 0, 153);"><></></pre>
+<pre style="color: rgb(51, 0, 153);"><><>Thread 1 z=1</></></pre>
+<pre style="color: rgb(51, 0, 153);"><></></pre>
+<pre style="color: rgb(51, 0, 153);"><>Thread 2 <br></><><>r1=z&nbsp; <br>if (r1 == 0)</></>  <br>x=1</pre>
+<pre style="color: rgb(51, 0, 153);"><></></pre>
+<pre style="color: rgb(51, 0, 153);"><></></pre>
+<pre style="color: rgb(51, 0, 153);"><><>Thread 3 <br>r2=x </></><><br>y=r2</><></><><></></></pre>
+<pre style="color: rgb(51, 0, 153);"><><></></></pre>
+<pre style="color: rgb(51, 0, 153);"><><>Thread 4&nbsp; <span
+ style="font-family: monospace;"></span><br>r3=y </></><><br>x=r3</></pre>
+<pre style="color: rgb(51, 0, 153);"><></></pre>
+<pre style="color: rgb(51, 0, 153);"><>Behavior in question: r1==r2==r3==1</></pre>
+<pre style="color: rgb(51, 0, 153);"><>Decision: Forbidden.<br><br>AO+L analysis: Proof by case analysis.<br></></pre>
+<pre style="color: rgb(51, 0, 153);"><>In more detail, the program is:</><br><></></pre>
+<pre style="color: rgb(51, 0, 153);"><>z=1 | r1=z;if (r1==0) x=1 | r2=x;y=r2 | r3=y;x=r3</></pre>
+<pre><></></pre>
+<pre style="color: rgb(51, 0, 153);"><></></pre>
+< style="color: rgb(51, 0, 153);">Now it is not possible to use PR to
+reduce if (r1 == 0) x=1 to x=1 (except by using AU to place z=1 after
+the other three processes -- but in that case r1=z can be linked only
+to x=0, so that r1=1 will not be possible).&nbsp; Without that, the
+only way r2 can be 1 is if its step has an incoming x-edge from f2 (the
+step corresponding to Thread 2). But f2 will not produce x=1 unless
+r1=0. Therefore the desired result is not possible.<br>
+<br>
+</>
+<hr style="color: rgb(51, 0, 153);">
+<h2 style="color: rgb(51, 0, 153);">Additional Tests: Fig 11 from POPL
+05<br>
+</h2>
+<span style="font-family: monospace;"><span
+ style="color: rgb(51, 0, 153);">Initially, x=y=z=0</span><br
+ style="color: rgb(51, 0, 153);">
+<br style="color: rgb(51, 0, 153);">
+<br style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">Thread 1 </span><br
+ style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">r1=x &nbsp;</span><br
+ style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">if (r1 == 0) &nbsp;</span><br
+ style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">x=1</span><br
+ style="color: rgb(51, 0, 153);">
+<br style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">Thread 2 </span><br
+ style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">r2=x </span><br
+ style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">y=r2</span><br
+ style="color: rgb(51, 0, 153);">
+<br style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">Thread 3 &nbsp;</span><br
+ style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">r3=y </span><br
+ style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">x=r3</span><br
+ style="color: rgb(51, 0, 153);">
+<br style="color: rgb(51, 0, 153);">
+<br style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">Behavior in question:
+r1==r2==r2==1</span><br style="color: rgb(51, 0, 153);">
+<br style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">Decision: Forbidden in JMM,
+Permitted for X10.</span><br style="color: rgb(51, 0, 153);">
+<span style="color: rgb(51, 0, 153);">Note: Case 18 is obtained from
+Fig 11 by inlining Thread 2 after Thread 1.<br>
+<br>
+AO+L analysis. Permitted. <br>
+<br>
+r1=x;if (r1==0) x=1 | r2=x;y=r2 | r3=y; x=r3 <br>
+</span></span><span style="font-family: monospace;"><span
+ style="color: rgb(51, 0, 153);">r1=x;if (r1==0) x=1; r2=x;y=r2 | r3=y;
+x=r3&nbsp; (AU)<br>
+Now follows Case 18.<br>
+</span></span><span style="font-family: monospace;"><span
+ style="color: rgb(51, 0, 153);"><br style="color: rgb(51, 0, 153);">
+</span><br>
+</span>
+</body>
+</html>
