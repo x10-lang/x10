@@ -818,6 +818,12 @@ printInfo() {
   msgBoth logBegin "Starting: $0 $*"
   msgBoth logBegin "Machine name: `hostname`"
   msgBoth logBegin "Operating system: `uname`"
+  JAVA=java
+  if [ -n "$JAVA_HOME" ]; then
+    msgBoth logBegin "Java home: $JAVA_HOME"
+    JAVA="$JAVA_HOME/bin/java"
+  fi
+  msgBoth logBegin "Java version: `"$JAVA" -version 2>&1 | sed '2,$s/^/  /'`"
   msgBoth logBegin "Current directory: $PWD"
   msgBoth logBegin "System load: `uptime`"
   msgBoth logBegin ""
