@@ -4,7 +4,7 @@
 public class AtomicMethodTest  {
 	
 	long val=0;
-	const int N=1000000000;
+	const int N=1000;
 	long startCount = 0;
 	long endCount = 0;
 	atomic void body() {

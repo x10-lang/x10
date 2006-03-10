@@ -5,7 +5,7 @@
 public class AtomicTest  {
 	
 	long val=0;
-	static final long N=1000000000;
+	static final long N=1000;
 	long startCount = 0;
 	long endCount = 0;
 	
