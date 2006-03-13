@@ -1,8 +1,11 @@
+
 //
 // 12/25/2004
 // This is the basic X10 grammar specification without support for generic types.
 // Intended for the Feb 2005 X10 release.
-////
+//
+
+//
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -11,9 +14,11 @@
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
 // 12/28/2004
+
 package x10.parser;
 
 import lpg.lpgjavaruntime.*;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -98,6 +103,7 @@ import lpg.lpgjavaruntime.PrsStream;
 import lpg.lpgjavaruntime.RuleAction;
 import lpg.lpgjavaruntime.UndefinedEofSymbolException;
 import lpg.lpgjavaruntime.UnimplementedTerminalsException;
+
 public class X10Parser extends PrsStream implements RuleAction, Parser
 {
     private static ParseTable prs = new X10Parserprs();
@@ -233,6 +239,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
         return null;
     }
+
 
     private ErrorQueue eq;
     private X10TypeSystem ts;
@@ -4722,7 +4729,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
-        
+    
+    
             default:
                 break;
         }
