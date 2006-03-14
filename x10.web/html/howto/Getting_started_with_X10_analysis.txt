@@ -30,24 +30,25 @@ The code is spread across projects on two different CVS servers:
 
    The repository path is /usr/src/cvs/safari. You need the following projects:
 
-    - com.ibm.capa.ast
-    - com.ibm.capa.core
-    - com.ibm.capa.java
-    - com.ibm.capa.util
-    - com.ibm.domo.ast
-    - com.ibm.domo.core
-    - com.ibm.domo.core.tests
-    - com.ibm.shrike
+    - com.ibm.domo.ast.java
+    - com.ibm.domo.ast.java.test
+    - com.ibm.domo.ast.x10
+    - com.ibm.domo.ast.x10.tests
 
  - deagol.watson.ibm.com (ask Julian or Steve Fink for access if you don't
    already have it)
 
    The repository path is /home/domo/cvsroot. You'll need the following:
 
-    - com.ibm.domo.ast.java
-    - com.ibm.domo.ast.java.test
-    - com.ibm.domo.ast.x10
-    - com.ibm.domo.ast.x10.tests
+    - com.ibm.capa.ast
+    - com.ibm.capa.core
+    - com.ibm.capa.domo
+    - com.ibm.capa.java
+    - com.ibm.capa.util
+    - com.ibm.domo.ast
+    - com.ibm.domo.core
+    - com.ibm.domo.core.tests
+    - com.ibm.shrike
 
 ==================================
 The key players in the X10 analysis framework:
