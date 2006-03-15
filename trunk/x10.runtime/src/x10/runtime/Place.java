@@ -9,12 +9,34 @@ import x10.runtime.distributed.FatPointer;
 
 /**
  * @author Christian Grothoff
+ * 
+ * @author Raj Barik, Vivek Sarkar
+ * 3/6/2006: use X10ThreadPoolExecutor services in support of JCU implementation.
+ * Also keep track of numBlocked = number of blocked activities in this place.
+ * The implementation ensures that each place's thread pool has at least numBlocked+INIT_THREADS_PER_PLACE threads.
  */
 public abstract class Place extends place 
 implements Comparable {
 	
+	/**
+	 * Executor Service which provides the thread pool: starts 
+	 * with # threads = INIT_THREADS_PER_PLACE, and increases the pool as and when the threads 
+	 * block themselves 
+	 */
+	protected X10ThreadPoolExecutor threadPoolService = new X10ThreadPoolExecutor(Configuration.INIT_THREADS_PER_PLACE);
+	
+	/**
+	 * Number of activities that can possibly wait at a given moment
+	 */
+	protected int numBlocked=0;
+	
 	public abstract void runAsync(Activity a);
+	public abstract void runBootAsync(Activity a);
 	public abstract void runAsyncLater(Activity a);
+	public abstract X10ThreadPoolExecutor getThreadPool();
+	public abstract int getNumBlocked();
+	public abstract void incNumBlocked();
+	public abstract void decNumBlocked();
 	
 	/**
 	 * We return an Activity.Result here to force the programmer
