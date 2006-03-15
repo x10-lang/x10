@@ -66,6 +66,10 @@ import x10.runtime.distributed.RemotePlace;
  * 
  * @author Christian Grothoff, Christoph von Praun
  * @author vj
+ * 
+ * @author Raj Barik, Vivek Sarkar
+ * 3/6/2006: use new getPlace/setPlace interfaces in PoolRunner.
+ * Also call runBootAsync() instead of runAsync() for boot activity.
  */
 public class DefaultRuntime_c extends Runtime {
    
@@ -110,7 +114,8 @@ public class DefaultRuntime_c extends Runtime {
     /**
      * Run the X10 application.
      */
-    protected void run(String[] args) {   
+    protected void run(String[] args) {
+    	
     	if (Report.should_report("activity", 5)) {
     		Thread t = Thread.currentThread();
     		int tCount = Thread.activeCount();
@@ -187,14 +192,16 @@ public class DefaultRuntime_c extends Runtime {
             
         };
        
+        
 
         // Run the boot activity.
         if (Configuration.runBootHere) {
-            Runtime.runAsync(boot);
+            Runtime.runBootAsync(boot);
         }
 
         finalizeAndTermLibs();
 
+        //
         // Main thread terminates. bootActivity will now carry on.
         // VM terminates when bootActivity terminates.
         return;
@@ -209,10 +216,8 @@ public class DefaultRuntime_c extends Runtime {
     public synchronized void setCurrentPlace(place p) {
         assert p != null;
         Thread t = Thread.currentThread();
-        if (t instanceof PoolRunner) {
-            PoolRunner pr = (PoolRunner) t;
-            pr.place = (LocalPlace_c) p;
-        } 
+        if (t instanceof PoolRunner) 
+        	((PoolRunner)t).setPlace((Place)p);
     }
 
     /**
@@ -228,10 +233,9 @@ public class DefaultRuntime_c extends Runtime {
                 return getPlaces()[0]; // fast path for simple test environments!
         Thread t = Thread.currentThread();
         Place ret = null;
-        if (t instanceof PoolRunner) {
-                PoolRunner pr = (PoolRunner) t;
-                ret = pr.place;
-        }
+        if (t instanceof PoolRunner) 
+        	ret=(Place)((PoolRunner)t).getPlace();
+        
         /* TODO:  when entering from LAPI (another VM) there may
            not be a "currentPlace"  Find a better test than this one. */
         if (Configuration.VM_ == null && ret == null)
@@ -245,10 +249,10 @@ public class DefaultRuntime_c extends Runtime {
     public Activity currentActivity() {
         Thread t = Thread.currentThread();
         Activity result = null;
-        if (t instanceof ActivityRunner) {
-                ActivityRunner pr = (ActivityRunner) t;
-                result = pr.getActivity();
-        } 
+        if(t instanceof ActivityRunner) {
+        	result = ((ActivityRunner)t).getActivity();
+        }
+        
         /* TODO:  when entering from LAPI (another VM) there may
            not be a "currentActivity"  Find a better test than this one. */
         if (Configuration.VM_ == null && result == null)
