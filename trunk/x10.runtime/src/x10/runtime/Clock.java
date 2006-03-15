@@ -106,6 +106,10 @@ import x10.runtime.distributed.RemoteClock;
  * </code>
  * @author Christian Grothoff, Christoph von Praun
  * @author vj
+ * 
+ * @author Raj Barik, Vivek Sarkar
+ * 3/6/2006: Add calls to addPoolNew() and decNumBlocked() in method block_() in support of new
+ * runtime based on JCU.
  */
 
 /* This really should be a final class.  However, for the time being,
@@ -387,6 +391,10 @@ public /* final */ class Clock extends clock {
 	
 	private void block_() {
 		int start = phase_;
+		
+		Thread t = Thread.currentThread();
+		((PoolRunner) t).addPoolNew();
+		
 		while (start == phase_) { // signal might be random in Java, check!
 			try {
 				this.wait(); // wait for signal
@@ -394,6 +402,7 @@ public /* final */ class Clock extends clock {
 				throw new Error(ie); // that was unexpected...
 			}
 		}
+		((PoolRunner) t).getPlace().decNumBlocked();
 	}
 	
 	public void doNext() {
