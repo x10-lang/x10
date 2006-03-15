@@ -66,6 +66,9 @@ import x10.runtime.distributed.VMInfo;
  * long, short, char, byte or boolean.
  * 
  * @author Christian Grothoff
+ * 
+ * @author Raj Barik, Vivek Sarkar
+ * 3/6/2006: replaced NUMBER_OF_ACTIVITIES_PER_PLACE by INIT_THREADS_PER_PLACE. 
  */
 public final class Configuration {
 
@@ -83,7 +86,7 @@ public final class Configuration {
     
     public static int NUMBER_OF_LOCAL_PLACES = 4;
     public static int NUMBER_OF_VMS = 1;
-    public static int NUMBER_OF_ACTIVITIES_PER_PLACE = 5;
+    public static int INIT_THREADS_PER_PLACE = 3;
     public static VMInfo[] VM_;
     
     /** this check does not work -- it causes spurious warnings */
@@ -197,6 +200,11 @@ public final class Configuration {
         	System.err.println("Negative value |" + NUMBER_OF_LOCAL_PLACES 
         			+ "| for NUMBER_OF_LOCAL_PLACES rejected. Set to 4." );
         	NUMBER_OF_LOCAL_PLACES = 4;
+        }
+        if (INIT_THREADS_PER_PLACE < 0) {
+        	System.err.println("Negative value |" + INIT_THREADS_PER_PLACE 
+        			+ "| for INIT_THREADS_PER_PLACE rejected. Set to 3." );
+        	INIT_THREADS_PER_PLACE = 3;
         }
         if (SAMPLING_FREQUENCY_MS < 0) {
         	SAMPLING_FREQUENCY_MS = 50;
