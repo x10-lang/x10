@@ -42,90 +42,184 @@ public class X10CAst2IRTranslator extends JavaCAst2IRTranslator {
 
 	return MethodReference.findOrCreate(owningTypeRef, asyncName, asyncDesc);
     }
-    
-    protected boolean doProcessNode(CAstNode n, WalkContext context) {
-	switch(n.getKind()) {
+
+    protected boolean doVisit(CAstNode n, Context context) {
+	switch (n.getKind()) {
 	    case X10CastNode.ASYNC_INVOKE: {
-		CAstEntity bodyEntity= (CAstEntity) n.getChild(1).getValue();
-		// Figure out whether this is a future or an async
-		int exceptValue= context.scope().allocateTempValue();
-		AsyncCallSiteReference acsr= new AsyncCallSiteReference(asyncEntityToMethodReference(bodyEntity), context.cfg().getCurrentInstruction());
-
-		if (((CAstType.Function) bodyEntity.getType()).getReturnType() == JavaPrimitiveTypeMap.VoidType)
-		    context.cfg().addInstruction(SSAInstructionFactory.InvokeInstruction(new int[0], exceptValue, acsr));
-		else {
-		    int retValue= context.scope().allocateTempValue();
-
-		    context.cfg().addInstruction(SSAInstructionFactory.InvokeInstruction(retValue, new int[0], exceptValue, acsr));
-		    setValue(n, retValue);
-		}
+		if (visitAsyncInvoke(n, context))
+		    break;
+		leaveAsyncInvoke(n, context);
 		break;
 	    }
 	    case X10CastNode.ATOMIC_ENTER: {
-		context.cfg().addInstruction(new SSAAtomicInstruction(true));
+		if (visitAtomicEnter(n, context))
+		    break;
+		leaveAtomicEnter(n, context);
 		break;
 	    }
 	    case X10CastNode.ATOMIC_EXIT: {
-		context.cfg().addInstruction(new SSAAtomicInstruction(false));
+		if (visitAtomicExit(n, context))
+		    break;
+		leaveAtomicExit(n, context);
 		break;
 	    }
 	    case X10CastNode.FINISH_ENTER: {
-		context.cfg().addInstruction(new SSAFinishInstruction(true));
+		if (visitFinishEnter(n, context))
+		    break;
+		leaveFinishEnter(n, context);
 		break;
 	    }
 	    case X10CastNode.FINISH_EXIT: {
-		context.cfg().addInstruction(new SSAFinishInstruction(false));
+		if (visitFinishExit(n, context))
+		    break;
+		leaveFinishExit(n, context);
 		break;
 	    }
 	    case X10CastNode.FORCE: {
-		walkNodes(n.getChild(0), context);
-		int targetValue= getValue(n.getChild(0));
-		int retValue= context.scope().allocateTempValue();
-		context.cfg().addInstruction(new SSAForceInstruction(retValue, targetValue, (TypeReference) n.getChild(1).getValue()));
-		setValue(n, retValue);
+		if (visitForce(n, context))
+		    break;
+		visit(n.getChild(0), context);
+		leaveForce(n, context);
 		break;
 	    }
 	    case X10CastNode.REGION_ITER_INIT: {
-		walkNodes(n.getChild(0), context);
-		int targetValue= getValue(n.getChild(0));
-		int retValue= context.scope().allocateTempValue();
-		context.cfg().addInstruction(new SSARegionIterInitInstruction(retValue, targetValue));
-		setValue(n, retValue);
+		if (visitRegionIterInit(n, context))
+		    break;
+		visit(n.getChild(0), context);
+		leaveRegionIterInit(n, context);
 		break;
 	    }
 	    case X10CastNode.REGION_ITER_HASNEXT: {
-		walkNodes(n.getChild(0), context);
-		int targetValue= getValue(n.getChild(0));
-		int retValue= context.scope().allocateTempValue();
-		context.cfg().addInstruction(new SSARegionIterHasNextInstruction(retValue, targetValue));
-		setValue(n, retValue);
+		if (visitRegionIterHasNext(n, context))
+		    break;
+		visit(n.getChild(0), context);
+		leaveRegionIterHasNext(n, context);
 		break;
 	    }
 	    case X10CastNode.REGION_ITER_NEXT: {
-		walkNodes(n.getChild(0), context);
-		int targetValue= getValue(n.getChild(0));
-		int retValue= context.scope().allocateTempValue();
-		context.cfg().addInstruction(new SSARegionIterNextInstruction(retValue, targetValue));
-		setValue(n, retValue);
+		if (visitRegionIterNext(n, context))
+		    break;
+		visit(n.getChild(0), context);
+		leaveRegionIterNext(n, context);
 		break;
 	    }
 	    case X10CastNode.HERE: {
-		int retValue= context.scope().allocateTempValue();
-		context.cfg().addInstruction(new SSAHereInstruction(retValue));
-		setValue(n, retValue);
+		if (visitHere(n, context))
+		    break;
+		leaveHere(n, context);
 		break;
 	    }
+	    default:
+		return super.doVisit(n, context);
 	}
-        return super.doProcessNode(n, context);
+	return true;
     }
 
-    protected boolean doProcessEntity(CAstEntity n, WalkContext context) {
-	switch(n.getKind()) {
+    protected boolean visitAsyncInvoke(CAstNode n, Context c) { /* empty */ return false; }
+    protected void leaveAsyncInvoke(CAstNode n, Context c) {
+	WalkContext context = (WalkContext)c;
+	CAstEntity bodyEntity = (CAstEntity) n.getChild(1).getValue();
+	// Figure out whether this is a future or an async
+	int exceptValue = context.scope().allocateTempValue();
+	AsyncCallSiteReference acsr = new AsyncCallSiteReference(asyncEntityToMethodReference(bodyEntity), context.cfg().getCurrentInstruction());
+
+	if (((CAstType.Function) bodyEntity.getType()).getReturnType() == JavaPrimitiveTypeMap.VoidType)
+	    context.cfg().addInstruction(SSAInstructionFactory.InvokeInstruction(new int[0], exceptValue, acsr));
+	else {
+	    int retValue = context.scope().allocateTempValue();
+
+	    context.cfg().addInstruction(SSAInstructionFactory.InvokeInstruction(retValue, new int[0], exceptValue, acsr));
+	    setValue(n, retValue);
+	}
+    }
+    protected boolean visitAtomicEnter(CAstNode n, Context c) { /* empty */ return false; }
+    protected void leaveAtomicEnter(CAstNode n, Context c) {
+	WalkContext context = (WalkContext)c;
+	context.cfg().addInstruction(new SSAAtomicInstruction(true));
+    }
+    protected boolean visitAtomicExit(CAstNode n, Context c) { /* empty */ return false; }
+    protected void leaveAtomicExit(CAstNode n, Context c) {
+	WalkContext context = (WalkContext)c;
+	context.cfg().addInstruction(new SSAAtomicInstruction(false));
+    }
+    protected boolean visitFinishEnter(CAstNode n, Context c) { /* empty */ return false; }
+    protected void leaveFinishEnter(CAstNode n, Context c) {
+	WalkContext context = (WalkContext)c;
+	context.cfg().addInstruction(new SSAFinishInstruction(true));
+    }
+    protected boolean visitFinishExit(CAstNode n, Context c) { /* empty */ return false; }
+    protected void leaveFinishExit(CAstNode n, Context c) {
+	WalkContext context = (WalkContext)c;
+	context.cfg().addInstruction(new SSAFinishInstruction(false));
+    }
+    protected boolean visitForce(CAstNode n, Context c) { /* empty */ return false; }
+    protected void leaveForce(CAstNode n, Context c) {
+	WalkContext context = (WalkContext)c;
+	int targetValue = getValue(n.getChild(0));
+	int retValue = context.scope().allocateTempValue();
+	context.cfg().addInstruction(new SSAForceInstruction(retValue, targetValue, (TypeReference) n.getChild(1).getValue()));
+	setValue(n, retValue);
+    }
+    protected boolean visitRegionIterInit(CAstNode n, Context c) { /* empty */ return false; }
+    protected void leaveRegionIterInit(CAstNode n, Context c) {
+	WalkContext context = (WalkContext)c;
+	int targetValue = getValue(n.getChild(0));
+	int retValue = context.scope().allocateTempValue();
+	context.cfg().addInstruction(new SSARegionIterInitInstruction(retValue, targetValue));
+	setValue(n, retValue);
+    }
+    protected boolean visitRegionIterHasNext(CAstNode n, Context c) { /* empty */ return false; }
+    protected void leaveRegionIterHasNext(CAstNode n, Context c) {
+	WalkContext context = (WalkContext)c;
+	int targetValue = getValue(n.getChild(0));
+	int retValue = context.scope().allocateTempValue();
+	context.cfg().addInstruction(new SSARegionIterHasNextInstruction(retValue, targetValue));
+	setValue(n, retValue);
+    }
+    protected boolean visitRegionIterNext(CAstNode n, Context c) { /* empty */ return false; }
+    protected void leaveRegionIterNext(CAstNode n, Context c) {
+	WalkContext context = (WalkContext)c;
+	int targetValue = getValue(n.getChild(0));
+	int retValue = context.scope().allocateTempValue();
+	context.cfg().addInstruction(new SSARegionIterNextInstruction(retValue, targetValue));
+	setValue(n, retValue);
+    }
+    protected boolean visitHere(CAstNode n, Context c) { /* empty */ return false; }
+    protected void leaveHere(CAstNode n, Context c) {
+	WalkContext context = (WalkContext)c;
+	int retValue = context.scope().allocateTempValue();
+	context.cfg().addInstruction(new SSAHereInstruction(retValue));
+	setValue(n, retValue);
+    }
+
+    protected boolean isFunctionEntity(CAstEntity n) {
+	return n.getKind() == X10CAstEntity.ASYNC_BODY || super.isFunctionEntity(n);
+    }
+
+    protected boolean doVisitEntity(CAstEntity n, Context context) {
+	switch (n.getKind()) {
 	    case X10CAstEntity.ASYNC_BODY: {
-		handleConcreteFunction(n, context);
+		Context codeContext = makeCodeContext(context, n);
+		visitAsyncBodyEntity(n, context, codeContext);
+		// visit the AST if any
+		if (n.getAST() != null)
+		    visit(n.getAST(), codeContext);
+		// process any remaining scoped children
+		visitScopedEntities(n, n.getScopedEntities(null), codeContext);
+		leaveAsyncBodyEntity(n, context, context);
 		break;
 	    }
+	    default:
+		return super.doVisitEntity(n, context);
 	}
-        return super.doProcessEntity(n, context);
+	return true;
+    }
+
+    protected boolean visitAsyncBodyEntity(CAstEntity n, Context context, Context codeContext) {
+	initFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
+	return false;
+    }
+    protected void leaveAsyncBodyEntity(CAstEntity n, Context context, Context codeContext) {
+	closeFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
     }
 }
