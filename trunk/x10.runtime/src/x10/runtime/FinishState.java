@@ -7,6 +7,8 @@ package x10.runtime;
 
 import java.util.Stack;
 
+import x10.lang.place;
+
 /** The state associated with a finish operation. Records the count of 
  * active activities associated with this finish, and the stack
  * of exceptions thrown by activities associated with this finish that 
@@ -18,40 +20,42 @@ import java.util.Stack;
  * 
  * @author vj May 17, 2005
  * 
+ * @author Raj Barik, Vivek Sarkar
+ * 3/6/2006: use ModCountDownLatch (modified version of JCU CountDownLatch) instead of synchronized updates to finishCount. 
  */
 public class FinishState {
 
-	protected Stack/* <Throwable> */ finish_ = new Stack();
+	protected Stack finish_ = new Stack();
 
-	protected int finishCount = 0;
 	protected Activity parent; // not really needed, used in toString().
-	protected boolean parentWaiting = false; // optimization.
-	
+
+	protected ModCountDownLatch mcdl = new ModCountDownLatch(0);
+
 	/** 
 	 * Create a new finish state for the given activity.
 	 */
-	public FinishState( Activity activity ) {
+	public FinishState(Activity activity) {
 		super();
 		parent = activity;
 	}
-	
-	public /*myThread*/ synchronized void waitForFinish() {
-		if (finishCount == 0 ) return;
-		parentWaiting = true;
-		if (finishCount > 0) {			
-			while (finishCount > 0) {
-				try {
-					this.wait();
-				} catch (InterruptedException z) {
-					// What should i do?
-				}
-			}			
+
+	public void waitForFinish() {
+		if (mcdl.getCount() == 0)
+			return;
+
+		Thread t = Thread.currentThread();
+		((PoolRunner) t).addPoolNew();
+
+		try {
+			mcdl.await();
+		} catch (InterruptedException z) {
 		}
-		parentWaiting = false;
+
+		((PoolRunner) t).getPlace().decNumBlocked();
 	}
-	
-	public /*someThread*/ synchronized void notifySubActivitySpawn() {
-		finishCount++;
+
+	public void notifySubActivitySpawn() {
+		mcdl.updateCount();
 		if (Report.should_report("activity", 5)) {
 			Report.report(5, " updating " + toString());
 		}
@@ -62,42 +66,43 @@ public class FinishState {
 	 * inline code, not a spawned activity.
 	 * @param t
 	 */
-    public /*myThread*/ synchronized void pushException( Throwable t) {
-    	finish_.push(t);
-    }
-    
-    /** An activity created under this finish has terminated. Decrement the count
-     * associated with the finish and notify the parent activity if it is waiting.
-     */
-    public /*someThread*/ synchronized void notifySubActivityTermination() {
-		finishCount--;
-		if (parentWaiting && finishCount==0)
-			this.notifyAll();
+	public synchronized void pushException(Throwable t) {
+		finish_.push(t);
 	}
-    /** An activity created under this finish has terminated abruptly. 
-     * Record the exception, decrement the count associated with the finish
-     * and notify the parent activity if it is waiting.
-     * 
-     * @param t -- The exception thrown by the activity that terminated abruptly.
-     */
-    public /*someThread*/ synchronized void notifySubActivityTermination(Throwable t) {
-    	finish_.push(t);
-    	notifySubActivityTermination();
-    }
-   
-    /** Return the stack of exceptions, if any, recorded for this finish.
-     * 
-     * @return -- stack of exceptions recorded for this finish.
-     */
-    public /*myThread*/ synchronized Stack exceptions() {
-    	return finish_;
-    }
-    
-    /** Return a string to be used in Report messages.
-     */
-    public synchronized String toString() {
-    	return "<FinishState " + hashCode() + " " + finishCount + "," 
-		+ parent.shortString()+"," + finish_ +">";
-    }
+
+	/** An activity created under this finish has terminated. Decrement the count
+	 * associated with the finish and notify the parent activity if it is waiting.
+	 */
+	public void notifySubActivityTermination() {
+		mcdl.countDown();
+	}
+
+	/** An activity created under this finish has terminated abruptly. 
+	 * Record the exception, decrement the count associated with the finish
+	 * and notify the parent activity if it is waiting.
+	 * 
+	 * @param t -- The exception thrown by the activity that terminated abruptly.
+	 */
+	public void notifySubActivityTermination(Throwable t) {
+		synchronized (this) {
+			finish_.push(t);
+		}
+		notifySubActivityTermination();
+	}
+
+	/** Return the stack of exceptions, if any, recorded for this finish.
+	 * 
+	 * @return -- stack of exceptions recorded for this finish.
+	 */
+	public synchronized Stack exceptions() {
+		return finish_;
+	}
+
+	/** Return a string to be used in Report messages.
+	 */
+	public synchronized String toString() {
+		return "<FinishState " + hashCode() + " " + mcdl.getCount() + ","
+				+ parent.shortString() + "," + finish_ + ">";
+	}
 
 }
