@@ -56,7 +56,9 @@
         <ant antfile="${x10.common.location}/build.xml" inheritAll="false"/>
         <ant antfile="${x10.runtime.location}/build.xml" inheritAll="false"/>
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac destdir="classes" source="1.4" target="1.4">
+	<!-- <javac destdir="classes" source="1.4" target="1.4"> -->
+	<!-- <javac destdir="classes" source="1.5" target="1.5"> -->
+        <javac destdir="classes">
             <src path="src"/>
             <classpath refid="project.classpath"/>
         </javac>
