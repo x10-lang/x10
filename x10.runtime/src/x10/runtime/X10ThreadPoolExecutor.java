@@ -17,7 +17,7 @@ public class X10ThreadPoolExecutor extends ThreadPoolExecutor {
 	public X10ThreadPoolExecutor ( int nThreads ) { 
 		super ( nThreads,nThreads, 
 				0L, TimeUnit.MILLISECONDS,
-				new LinkedBlockingQueue<Runnable> (),
+				new LinkedBlockingQueue (),
 				new X10ThreadFactory ()); 
 
 	}
