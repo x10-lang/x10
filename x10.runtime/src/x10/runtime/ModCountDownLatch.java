@@ -23,15 +23,14 @@ public class ModCountDownLatch {
         }
         
         // Update the state
-        public int updateCount() {
-        	int c = getState();
-        	
-        	//if (c==0) return -1;
-        	int nextc = c + 1;
-        	if(compareAndSetState(c,nextc)) 
-        		return nextc;
-        	
-        	else return -1;
+        public void updateCount() {
+        	// Increment count -- loop till the update is successful
+        	// Modeled after tryReleaseShared()
+            for (;;) {
+                int c = getState();
+                int nextc = c+1;
+                if (compareAndSetState(c, nextc)) return; // Success!
+            }       	
         }
 
         public int tryAcquireShared(int acquires) {
@@ -161,8 +160,8 @@ public class ModCountDownLatch {
      * @return -1 for error
      * @return current set counter value 
      */
-    public int updateCount() {
-    	return sync.updateCount();
+    public void updateCount() {
+    	sync.updateCount();
     }
 
     /**
