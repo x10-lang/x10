@@ -21,8 +21,7 @@ import x10.lang.point;
 import x10.lang.RankMismatchException;
 import x10.array.point_c;
 import x10.lang.region;
-import x10.runtime.distributed.DeserializerBuffer;
-import x10.runtime.distributed.SerializerBuffer;
+
 
 /**
  * Implementation of Distributions.
@@ -36,7 +35,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 	private int _blockSize;
 	private int _cycleSize;
-
+/*
 	static public dist deserialize(DeserializerBuffer inputBuffer) {
 		int thisIndex = inputBuffer.getOffset();
 		int owningIndex = (int)inputBuffer.readLong();
@@ -89,7 +88,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		inputBuffer.cacheRef(owningIndex, newDist);
 		return newDist;
 	}
-
+*/
 	public boolean isValue() {
 		return true;
 	}
@@ -362,10 +361,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	}
 
 	static final class Empty extends Distribution_c {
-		public void serialize(SerializerBuffer outputBuffer) {
-			System.out.println("unimplemented for empty");
-			throw new RuntimeException("Unimplemented");
-		}
+	
 
 		Empty() {
 			this(1);
@@ -477,6 +473,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		place place_;
 
 		/* format: <unique id>,<type>,<place_id>,<region> */
+		/*
 		public void serialize(SerializerBuffer outputBuffer) {
 			Integer originalIndex = outputBuffer.findOriginalRef(this);
 			boolean isOriginalRef = true;
@@ -498,7 +495,9 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			this.region.serialize(outputBuffer);
 			place_.serialize(outputBuffer);
 		}
-
+		
+		XXX
+*/
 		Constant(region r, place p) {
 			super(r);
 			this.places.add(p);
@@ -632,10 +631,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 		place[] placeseq;
 
-		public void serialize(SerializerBuffer outputBuffer) {
-			System.out.println("unimplemented for unique");
-			throw new RuntimeException("Unimplemented");
-		}
+		
 
 		Unique(place[] ps) {
 			super(new ContiguousRange(0, ps.length - 1));
@@ -692,6 +688,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 		private final Distribution_c[] members_;
 
+		/*
 		public void serialize(SerializerBuffer outputBuffer) {
 			Integer originalIndex = outputBuffer.findOriginalRef(this);
 			boolean isOriginalRef = true;
@@ -722,7 +719,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 					assert false;
 			}
 		}
-
+*/
 		/**
 		 * @param r
 		 */
@@ -812,6 +809,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		// <unique id>  index into buffer so refs can be commoned
 		// <type>       int indicating type
 		// <...region info...>
+		/*
 		public void serialize(SerializerBuffer outputBuffer) {
 			Integer originalIndex = outputBuffer.findOriginalRef(this);
 			boolean isOriginalRef = true;
@@ -857,13 +855,13 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 					assert false;
 			}
 		}
-
+*/
 		Arbitrary(region r, Map m) {
 			super(r);
 			map_ = m;
 			places.addAll(m.values());
-			this._indexMap = generateIndexMap(this, m);
-			this._distributionType = ARBITRARY;
+		//	this._indexMap = generateIndexMap(this, m);
+	//		this._distributionType = ARBITRARY;
 		}
 
 		/**

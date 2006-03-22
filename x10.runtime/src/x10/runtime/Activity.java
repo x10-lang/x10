@@ -13,10 +13,6 @@ import x10.lang.ClockUseException;
 import x10.runtime.distributed.RemoteClock;
 import x10.runtime.distributed.RemoteObjectMap;
 import x10.runtime.distributed.VMInfo;
-import x10.runtime.distributed.Serializer;
-import x10.runtime.distributed.Deserializer;
-import x10.runtime.distributed.SerializerBuffer;
-import x10.runtime.distributed.DeserializerBuffer;
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -528,35 +524,11 @@ public abstract class Activity implements Runnable {
 
 	public void pseudoSerialize() {
 
-		x10.runtime.distributed.Serializer serializer = new Serializer(this);
-
-		clocksMappedToGlobalAddresses = new long[clocks_.size() << 1];
-		SerializerBuffer clockBuffer = new SerializerBuffer(
-				clocksMappedToGlobalAddresses);
-
-		serializer.serializeClocks(clockBuffer, clocks_);
-
-		int count = 0;
-
-		count = serializer.calculateSize();
-
-		pseudoSerializedLongArray = new long[count];
-
-		serializer.serialize(new SerializerBuffer(pseudoSerializedLongArray));
-
-		constructorSignature = serializer.getConstructorSignature();
-
-		numArgsInConstructor = serializer.getNumArgsInConstructor();
-		listOfClocksIsArgNum = serializer.getClockListPosition();
+		if(true) throw new RuntimeException("should not be called");
 	}
 
 	public void pseudoDeSerialize(LocalPlace_c pl) {
-		Deserializer deserializer = new Deserializer(this, pl);
-		deserializer.deserializeClocks(clocks_, new DeserializerBuffer(
-				clocksMappedToGlobalAddresses));
-
-		deserializer.deserialize(new DeserializerBuffer(
-				pseudoSerializedLongArray));
+		if(true) throw new RuntimeException("should not be called");
 	}
 
 	String constructorSignature;

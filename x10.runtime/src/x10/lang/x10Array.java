@@ -15,14 +15,7 @@ abstract public class x10Array implements Indexable, Unsafe, Parameter1 {
 	// copy src onto dest over regions on the this place
 	abstract public dist getDistribution();
 
-	// For distributed arrays, return vm-unique long to identify
-	// it.  Used to create fatpointer for global objects
-	public long generateUniqueId(){ return -1;}
+	
 
-        public void loadDataLocally(x10.runtime.distributed.DeserializerBuffer ib){
-            throw new RuntimeException("loadDataLocally unimplemented:"+this);
-        }
-        public void SerializeLocalData(int start,int end,x10.runtime.distributed.SerializerBuffer outputBuffer){
-           throw new RuntimeException("SerializeLocalData unimplemented:"+this);
-        }
+       
 }

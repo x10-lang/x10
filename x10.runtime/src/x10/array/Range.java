@@ -5,8 +5,7 @@ package x10.array;
 
 import x10.lang.point;
 import x10.lang.region;
-import x10.runtime.distributed.DeserializerBuffer;
-import x10.runtime.distributed.SerializerBuffer;
+
 /**
  * Ranges are a collection of points in the int space.
  * Currently, only contiguous sets of points are supported.
@@ -91,48 +90,5 @@ extends region/*(1)*/ {
 		return this;
 	}
 
-// store in an array of longs
-// [<unique id> <type>,<low>,<high>,<size>]
-        public void serialize(SerializerBuffer outputBuffer){
-        //System.out.println("serializing
-          Integer originalIndex = outputBuffer.findOriginalRef(this);
-
-          if(originalIndex == null){
-            originalIndex = new Integer(outputBuffer.getOffset());
-            outputBuffer.recordRef(this,originalIndex);
-          }
-          else {
-             outputBuffer.writeLong(originalIndex.intValue());
-             return;
-          }
-
-          outputBuffer.writeLong(originalIndex.intValue());
-          outputBuffer.writeLong(RANGE);
-          outputBuffer.writeLong(low());  
-          outputBuffer.writeLong(high());        
-          outputBuffer.writeLong(size());
-       
-        }
-
-
-/* to be called from region */
-// assume the ref(<unique id>) slot and type slot have already been read
-    public static region deserializeRange(DeserializerBuffer inputBuffer){
-          
-          int low,high,size;
-        
-          low = (int)inputBuffer.readLong();
-          high = (int)inputBuffer.readLong();
-          size = (int)inputBuffer.readLong();
-                      
-          int stepSize;
-          if(size>0)
-             stepSize = (1+high-low)/size;
-          else
-             stepSize=1;
-
-          region result = factory.region(low,high,stepSize);
-          return result;
-        }
 
 }

@@ -10,7 +10,7 @@ import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
 import x10.lang.dist.MalformedError;
-import x10.runtime.distributed.SerializerBuffer;
+
 
 /**
  * Divides a given 3d region [lo1:hi1,lo2:hi2,lo3:hi3] into
@@ -105,8 +105,5 @@ public class BlockIJK extends Distribution_c {
         public region/*(rank)*/ restrictToRegion( place P ) {
         	return regions[P.id];
         }
-        public void serialize(SerializerBuffer outputBuffer){
-        	System.out.println("unimplemented for empty");
-        	throw new RuntimeException("Unimplemented");
-        }
+     
 }
