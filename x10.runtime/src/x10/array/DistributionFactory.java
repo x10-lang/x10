@@ -146,6 +146,9 @@ public class DistributionFactory extends dist.factory {
 	public dist block(region r, Set/*<place>*/ q) {
 	    return block(r, q.size(), q);
     }
+	public dist block(region[] r, Set/*<place>*/ q) {
+	    return block(r, q.size(), q);
+    }
     
     /**
      * Create a Distribution where the given Region is distributed
@@ -153,6 +156,9 @@ public class DistributionFactory extends dist.factory {
      * @param r
      * @return
      */
+	public dist block(region[] r, int n, Set/*<place>*/ qs) {
+		throw new Error("Not implemented yet.");
+	}
 	public dist block(region r, int n, Set/*<place>*/ qs) {
         assert n <= qs.size();
         assert n > 0;
