@@ -102,15 +102,13 @@ public class DistributionFactory extends dist.factory {
 		dists[i] = new Distribution_c.Constant(sub[i],(place)q[i%chunks]);
 	    }
 	    ret = new Distribution_c.Combined(r,dists);
-	    ret.setVirtualIndexAdjustments(adjustmentOffset);
+	  
 	  
 	
         } else {
             ret = blockCyclicHelper_(r, n, q);
         }
-        if(n ==1) ret._distributionType = dist.CYCLIC;
-        else ret._distributionType = dist.BLOCK_CYCLIC;
-        ret._cyclicValue=n;
+      
         return ret;
     }
     
@@ -124,9 +122,7 @@ public class DistributionFactory extends dist.factory {
             offset++;
         }
         Distribution_c.Arbitrary ret = new Distribution_c.Arbitrary(r, hm); 
-        if(bf ==1) ret._distributionType = dist.CYCLIC;
-        else ret._distributionType = dist.BLOCK_CYCLIC;
-        ret._cyclicValue=bf;
+        
         return ret;
     }
     
@@ -197,14 +193,12 @@ public class DistributionFactory extends dist.factory {
                 dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
             }
             ret =  new Distribution_c.Combined(r, dists);
-            ret.setVirtualIndexAdjustments(adjustmentOffset);
+     
 	} else {
         	
             ret = blockHelper_(r, n, q);
         }
-	if(n ==1) ret._distributionType = dist.BLOCK;
-	else ret._distributionType = dist.BLOCK_CYCLIC;
-        ret._cyclicValue=n;
+	
         return ret;
 	}
     
@@ -233,9 +227,7 @@ public class DistributionFactory extends dist.factory {
             }           
         }
         Distribution_c.Arbitrary ret = new Distribution_c.Arbitrary(r, hm); 
-        ret.setVirtualIndexAdjustments(adjustmentOffset);
-        if(nb ==1) ret._distributionType = dist.BLOCK;
-        else ret._distributionType = dist.BLOCK_CYCLIC;
+     
         return ret;
     }
     
@@ -267,8 +259,6 @@ public class DistributionFactory extends dist.factory {
     	int adjustmentOffset[] = new int[Runtime.places().length];
       
         dist newDist = new Distribution_c.Constant(r, p);
-        newDist.setVirtualIndexAdjustments(adjustmentOffset);
-        newDist._distributionType = dist.CONSTANT;
         return newDist;
     }
     
@@ -286,8 +276,7 @@ public class DistributionFactory extends dist.factory {
     		ps[i] = (place) places[i];
     	
     	dist newDist = new Distribution_c.Unique(ps);
-        newDist._distributionType = dist.UNIQUE;
-        return newDist;
+    	return newDist;
     }
 
 }

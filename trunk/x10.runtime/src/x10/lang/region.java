@@ -4,7 +4,7 @@ package x10.lang;
 import java.util.Iterator;
 
 import x10.base.TypeArgument;
-import x10.runtime.distributed.DeserializerBuffer;
+
 
 /**
  *  A region represents a (sparse or dense) k-dimensional space of
@@ -243,42 +243,5 @@ implements TypeArgument, ValueType {
     	return dist.factory.local( this);
     }
 
-    abstract public void serialize(x10.runtime.distributed.SerializerBuffer b);
-
-    public static region deserialize(DeserializerBuffer inputBuffer){
-          int thisIndex = inputBuffer.getOffset();
-          int owningIndex = (int)inputBuffer.readLong();
-
-          if(thisIndex != owningIndex){
-             return (region)inputBuffer.getCachedRef(owningIndex);
-          }
-          
-          int type = (int)inputBuffer.readLong();
-	  if(false)System.out.println("region: serialize:"+type);
-          region result=null;
-          switch(type){
-          case RANGE:
-	      result = x10.array.Range.deserializeRange(inputBuffer);
-	      break;
-	  case MULTIDIM:
-	      result = x10.array.MultiDimRegion.deserializeMultiDim(inputBuffer);
-	      break;
-	  case ARBITRARY:
-	      result = x10.array.ArbitraryRegion.deserializeArbitrary(inputBuffer);
-	      break;
-           
-             //TODO: implement deserialization of other region types
-	  case BANDED:
-	      // break;
-	  case TRIANGULAR:
-              //break;
-          default:
-	      System.out.println ("Unexpected range type "+type);
-	      throw new RuntimeException("Unexpected range type "+type);
-          }
-        
-           inputBuffer.cacheRef(owningIndex,result);
-           return result;
-    }
-
+   
 }

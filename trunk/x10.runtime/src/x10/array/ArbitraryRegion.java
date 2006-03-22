@@ -11,8 +11,6 @@ import java.util.Set;
 import x10.lang.point;
 import x10.lang.region;
 import x10.lang.RankMismatchException;
-import x10.runtime.distributed.DeserializerBuffer;
-import x10.runtime.distributed.SerializerBuffer;
 
 /**
  * @author Christoph von Praun
@@ -364,39 +362,8 @@ public class ArbitraryRegion extends region {
 		return sb.toString();
 	}
 
-	// Format:<rank><num_elements[,<point>...]
-	public void serialize(x10.runtime.distributed.SerializerBuffer outputBuffer) {
-		Integer originalIndex = outputBuffer.findOriginalRef(this);
+	
 
-		if (originalIndex == null) {
-			originalIndex = new Integer(outputBuffer.getOffset());
-			outputBuffer.recordRef(this, originalIndex);
-			outputBuffer.writeLong(originalIndex.intValue());
-		}
-		else {
-			outputBuffer.writeLong(originalIndex.intValue());
-			return;
-		}
-		outputBuffer.writeLong(ARBITRARY);
-		outputBuffer.writeLong(rank);
-		int size = points_.size();
-		outputBuffer.writeLong(size);
-		for (Iterator it = points_.iterator();it.hasNext(); ) {
-			point_c p = (point_c)it.next();
-			p.serialize(outputBuffer);
-		}
-	}
-
-	public static region deserializeArbitrary(DeserializerBuffer inputBuffer) {
-		int rank = (int)inputBuffer.readLong();
-		int size = (int)inputBuffer.readLong();
-		TreeSet newSet = new TreeSet();
-		for (int i = 0; i < size; ++i) {
-			point_c p = point_c.deserialize(inputBuffer);
-			newSet.add(p);
-		}
-		ArbitraryRegion newregion = new ArbitraryRegion(rank, newSet);
-		return newregion;
-	}
+	
 }
 

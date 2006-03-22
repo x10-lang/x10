@@ -29,44 +29,9 @@ public final class point_c extends point implements Comparable {
 		}
 	}
 
-	public void serialize(x10.runtime.distributed.SerializerBuffer outputBuffer) {
-		Integer originalIndex = outputBuffer.findOriginalRef(this);
-		final boolean disableHashing=true; // bad interaction with hashtable and point's hashCode
+	
 
-		if (originalIndex == null) {
-			originalIndex = new Integer(outputBuffer.getOffset());
-			if (!disableHashing) outputBuffer.recordRef(this,originalIndex);
-			outputBuffer.writeLong(originalIndex.intValue());
-		} else {
-			outputBuffer.writeLong(originalIndex.intValue());
-			return;
-		}
-		int arraySize = val.length;
-		outputBuffer.writeLong(arraySize);
-
-		for (int i=0; i < arraySize; ++i) {
-			outputBuffer.writeLong(val[i]);
-		}
-	}
-
-	public static point_c deserialize(x10.runtime.distributed.DeserializerBuffer inputBuffer) {
-		int thisIndex = inputBuffer.getOffset();
-		int owningIndex = (int)inputBuffer.readLong();
-
-		if (thisIndex != owningIndex) {
-			point_c p = (point_c)inputBuffer.getCachedRef(owningIndex);
-			return p;
-		}
-		int arraySize = (int)inputBuffer.readLong();
-
-		int array[] = new int[arraySize];
-		for (int i=0; i < arraySize; ++i)
-			array[i] = (int)inputBuffer.readLong();
-
-		point_c result = (point_c)factory.point(array);
-		inputBuffer.cacheRef(owningIndex,result);
-		return result;
-	}
+	
 
 	final int[] val;
 	final int hash_;

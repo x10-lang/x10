@@ -135,18 +135,6 @@ implements TypeArgument, ValueType{
 	public void runAsync(x10.runtime.Activity a){throw new RuntimeException("Should never be called");}
 	public  Future runFuture(Activity.Expr a) {if(true) throw new RuntimeException("Should never be called"); return null;}
 
-    final public void serialize(x10.runtime.distributed.SerializerBuffer outputBuffer){
-	outputBuffer.writeLong(id);
-    }
-    final public static place deserialize(x10.runtime.distributed.DeserializerBuffer inputBuffer){
-	final boolean trace=false;
-	int placeId = (int)inputBuffer.readLong();
-	x10.runtime.Place[] placeArray = Runtime.places();
-	if(placeArray.length < placeId){
-	    System.out.println("Error: placeId:"+placeId+" >= "+placeArray.length);
-	    assert false;
-	}
-	if(trace)System.out.println("Found place:"+placeId);
-	return placeArray[placeId];
-    }	
+   
+   
 }
