@@ -206,7 +206,7 @@ public class X10CAst2IRTranslator extends JavaCAst2IRTranslator {
 		    visit(n.getAST(), codeContext);
 		// process any remaining scoped children
 		visitScopedEntities(n, n.getScopedEntities(null), codeContext);
-		leaveAsyncBodyEntity(n, context, context);
+		leaveAsyncBodyEntity(n, context, codeContext);
 		break;
 	    }
 	    default:
