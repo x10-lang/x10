@@ -18,6 +18,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.*;
 import polyglot.ext.x10.types.FutureType;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
@@ -198,7 +199,16 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	private CAstNode walkRegionIterator(X10Loop loop, final CAstNode bodyNode, CAstNode domainNode, WalkContext context) {
 //	    Expr regionExpr= loop.domain();
-	    Formal formal= loop.formal();
+	    X10Formal formal= (X10Formal)loop.formal();
+	    LocalInstance[] vars = formal.localInstances();
+	    CAstNode[] varDecls = new CAstNode[vars.length + 1];
+	    for (int i = 0; i < vars.length; i++)
+		varDecls[i] = fFactory.makeNode(CAstNode.DECL_STMT,
+		    fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant(vars[i].name())),
+			fFactory.makeNode(CAstNode.ARRAY_REF, walkNodes(formal, context),
+			    fFactory.makeConstant(TypeReference.Int),
+			    fFactory.makeConstant(i)));
+	    varDecls[vars.length] = bodyNode;
 
 	    return fFactory.makeNode(CAstNode.LOCAL_SCOPE,
 		fFactory.makeNode(CAstNode.BLOCK_STMT,
@@ -210,7 +220,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 			fFactory.makeNode(CAstNode.BLOCK_STMT,
 			    fFactory.makeNode(CAstNode.DECL_STMT, walkNodes(formal, context),
 				fFactory.makeNode(X10CastNode.REGION_ITER_NEXT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp")))),
-			    bodyNode))));
+			    varDecls))));
 	}
 
 	public CAstNode visit(AtEach a, WalkContext context) {
