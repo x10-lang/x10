@@ -32,8 +32,8 @@
     <!-- uncomment the following line (and comment out the next one) to build LAPI -->
     <!-- target name="build" depends="init,lapi-support" -->
     <target name="build" depends="init">
-        <ant antfile="${pe.location}/build.xml" inheritAll="false"/>
-        <ant antfile="${x10.common.location}/build.xml" inheritAll="false"/>
+        <ant antfile="${pe.location}/build.xml" inheritAll="false" dir="${pe.location}"/>
+        <ant antfile="${x10.common.location}/build.xml" inheritAll="false" dir="${x10.common.location}"/>
         <echo message="${ant.project.name}: ${ant.file}"/>
 	<!-- <javac destdir="classes" source="1.4" target="1.4"> -->
 	<!-- <javac destdir="classes" source="1.5" target="1.5"> -->
