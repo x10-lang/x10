@@ -43,18 +43,18 @@
         <mkdir dir="classes"/>
     </target>
     <target name="cleanall" depends="clean">
-        <ant antfile="${polyglot.location}/build.xml" target="clean" inheritAll="false"/>
-        <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false"/>
+        <ant antfile="${polyglot.location}/build.xml" target="clean" inheritAll="false" dir="${polyglot.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
     <target name="clean">
         <delete dir="classes"/>
     </target>
     <target name="build" depends="init">
-        <ant antfile="${lpg.location}/build.xml" inheritAll="false"/>
-        <ant antfile="${pe.location}/build.xml" inheritAll="false"/>
-        <ant antfile="${polyglot.location}/build.xml" inheritAll="false"/>
-        <ant antfile="${x10.common.location}/build.xml" inheritAll="false"/>
-        <ant antfile="${x10.runtime.location}/build.xml" inheritAll="false"/>
+        <ant antfile="${lpg.location}/build.xml" inheritAll="false" dir="${lpg.location}"/>
+        <ant antfile="${pe.location}/build.xml" inheritAll="false" dir="${pe.location}"/>
+        <ant antfile="${polyglot.location}/build.xml" inheritAll="false" dir="${polyglot.location}"/>
+        <ant antfile="${x10.common.location}/build.xml" inheritAll="false" dir="${x10.common.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" inheritAll="false" dir="${x10.runtime.location}"/>
         <echo message="${ant.project.name}: ${ant.file}"/>
 	<!-- <javac destdir="classes" source="1.4" target="1.4"> -->
 	<!-- <javac destdir="classes" source="1.5" target="1.5"> -->
