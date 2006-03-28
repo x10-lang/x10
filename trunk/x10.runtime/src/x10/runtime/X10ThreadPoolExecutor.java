@@ -15,11 +15,11 @@ public class X10ThreadPoolExecutor extends ThreadPoolExecutor {
 
 	/** Fix nThreads to 1 for best results */
 	public X10ThreadPoolExecutor ( int nThreads ) { 
-		super ( 2*nThreads,3*nThreads, 
+		super ( 2*nThreads,2*nThreads, 
 				0L, TimeUnit.MILLISECONDS,
 				new LinkedBlockingQueue (),
 				new X10ThreadFactory ()); 
-
+                prestartAllCoreThreads();
 	}
 	
 	/** Should it be atomic? 
