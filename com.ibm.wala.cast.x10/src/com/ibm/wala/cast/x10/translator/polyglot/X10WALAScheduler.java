@@ -17,14 +17,14 @@ public class X10DOMOScheduler extends DOMOScheduler {
     }
 
     public Goal CAstGenerated(Job job) {
-	ClassLoaderReference loaderRef= ((X10AnalysisExtension) job.extensionInfo()).getSourceLoaderReference();
+	ClassLoaderReference loaderRef= ((X10ExtensionInfo) job.extensionInfo()).getSourceLoaderReference();
 	Goal g= internGoal(new X10CASTGoal(job, loaderRef));
 
 	return g;
     }
 
     public Goal IRGenerated(Job job) {
-	JavaSourceLoaderImpl loader= ((X10AnalysisExtension) job.extensionInfo()).getSourceLoader();
+	JavaSourceLoaderImpl loader= ((X10ExtensionInfo) job.extensionInfo()).getSourceLoader();
 	Goal g= internGoal(new X10IRGoal(job, loader));
 
 	return g;
