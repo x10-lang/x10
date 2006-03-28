@@ -11,19 +11,8 @@ import polyglot.frontend.goals.Goal;
 import com.ibm.domo.ast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 
-public class X10IRTranslatorExtension extends ExtensionInfo implements IRTranslatorExtension {
-    protected PolyglotSourceLoaderImpl fSourceLoader;
-
-    public void setSourceLoader(PolyglotSourceLoaderImpl sourceLoader) {
-	fSourceLoader = sourceLoader;
-    }
+public class X10IRTranslatorExtension extends X10ExtensionInfo implements IRTranslatorExtension {
     public Goal getCompileGoal(Job job) {
 	return ((DOMOScheduler) this.scheduler).IRGenerated(job);
-    }
-    protected Scheduler createScheduler() {
-        return new X10DOMOScheduler(this);
-    }
-    public PolyglotSourceLoaderImpl getSourceLoader() {
-        return fSourceLoader;
     }
 }
