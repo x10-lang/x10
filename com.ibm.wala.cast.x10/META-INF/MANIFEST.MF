@@ -19,4 +19,5 @@ Export-Package: com.ibm.domo.ast.x10,
  com.ibm.domo.ast.x10.ipa.callgraph,
  com.ibm.domo.ast.x10.ssa,
  com.ibm.domo.ast.x10.translator,
- com.ibm.domo.ast.x10.translator.polyglot
+ com.ibm.domo.ast.x10.translator.polyglot,
+ com.ibm.domo.ast.x10.visit
