@@ -4,7 +4,7 @@
 %Options list
 %Options fp=X10KWLexer
 %options package=x10.parser
-%options template=uide/KeyWordTemplate.gi
+%options template=uide/KeywordTemplate.gi
 
 $Import
     GJavaKWLexer.gi
