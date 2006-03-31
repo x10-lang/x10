@@ -1382,7 +1382,6 @@ $Rules
                     setResult(nf.Labeled(pos(), identifier.getIdentifier(), StatementNoShortIf));
           $EndJava
         ./
-    
     ExpressionStatement ::= StatementExpression ;
         /.$BeginJava
                     setResult(nf.Eval(pos(), StatementExpression));
