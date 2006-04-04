@@ -17,7 +17,7 @@ abstract public class genericArray /*( distribution distribution )*/
 /*implements Cloneable, Serializable */
 extends x10Array {
 
-	public /*final*/ dist distribution;
+	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
