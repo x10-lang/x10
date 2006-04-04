@@ -151,6 +151,13 @@ public class DefaultRuntime_c extends Runtime {
                 return "Boot activity";
             }
             public void run() {
+            	/*
+            	synchronized(DefaultRuntime_c.this.mainThreadObj) {
+            		DefaultRuntime_c.this.mainThread = Thread.currentThread();
+            		DefaultRuntime_c.this.mainThreadSet = true;
+            		DefaultRuntime_c.this.mainThreadObj.notify();
+            	}*/
+            	
              	if (Report.should_report("activity", 5)) {
             		Report.report(5, PoolRunner.logString() + " starts running the Boot Activity.");
             	}
@@ -194,12 +201,13 @@ public class DefaultRuntime_c extends Runtime {
             Runtime.runAsync(boot);
         }
 
-        finalizeAndTermLibs();
-
         // Main thread terminates. bootActivity will now carry on.
         // VM terminates when bootActivity terminates.
         return;
     }
+    //protected boolean mainThreadSet = false;
+    //protected Object mainThreadObj = new Object();
+    //protected Thread mainThread = null;
     
     /**
      * Set the current place in the PoolRunner. Should only
