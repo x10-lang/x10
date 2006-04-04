@@ -15,7 +15,7 @@ import java.util.Iterator;
 
 
 abstract public class intArray extends x10Array{
-	public /*final*/ dist distribution;
+	public final dist distribution;
 	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
