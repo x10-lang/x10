@@ -39,7 +39,7 @@ public abstract class Runtime {
      * This instance should be used only in the implementation of 
      * the x10.runtime. 
      */
-    public static JavaRuntime java;
+    public static JavaRuntime javaRuntime;
     
     private static boolean done_;
     public static void init() {
@@ -71,7 +71,7 @@ public abstract class Runtime {
         } finally {        
             assert (r != null);
             runtime = r;
-            java = new JavaRuntime();
+            javaRuntime = new JavaRuntime();
             factory = runtime.getFactory();
             // ArrayFactory.init(r);
             r.initialize();  //eagerly 
@@ -94,7 +94,7 @@ public abstract class Runtime {
             init();
             runtime.run(args_stripped);
     	} catch (Exception e) {
-    		Runtime.java.error("Unexpected Exception in X10 Runtime.", e);
+    		Runtime.javaRuntime.error("Unexpected Exception in X10 Runtime.", e);
     	}
         // vj: The return from this method does not signal termination of the VM
     	// because a separate non-daemon thread has been spawned to execute Boot Activity.
