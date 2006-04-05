@@ -19,6 +19,7 @@ abstract public class intArray extends x10Array{
 	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
+	public region getRegion() { return region; }
 	public dist getDistribution() { return distribution;}
 	
 	protected intArray( dist D) {
