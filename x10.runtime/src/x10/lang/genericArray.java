@@ -21,6 +21,7 @@ extends x10Array {
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
+	public region getRegion() { return region; }
 	public dist getDistribution() { return distribution;}
 	protected genericArray( dist D) {
 		this.distribution = D;

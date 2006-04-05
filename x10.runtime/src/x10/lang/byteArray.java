@@ -14,6 +14,7 @@ import java.util.Iterator;
 
 abstract public class byteArray extends x10Array{
 
+	public region getRegion() { return region; }
 	public dist getDistribution() { return distribution;}
 
 	public final dist distribution;
