@@ -31,6 +31,7 @@ implements Indexable, ValueType, java.io.Serializable {
         public int getCyclicValue() {return _cyclicValue;}
 	
 	public final region region;
+	public region getRegion() { return region; }
 	/** The parameter dimension may be used in constructing types derived
 	 * from the class distribution. For instance,
 	 * distribution(dimension=k) is the type of all k-dimensional
