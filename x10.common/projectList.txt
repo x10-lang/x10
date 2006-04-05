@@ -12,3 +12,4 @@ x10.runtime
 x10.test
 x10.tutorial
 x10.vm
+x10web
