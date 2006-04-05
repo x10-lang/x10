@@ -24,7 +24,7 @@ public class Type implements TypeArgument {
 		try {
 			tmp = Class.forName(name);
 		} catch (Throwable e) {
-			Runtime.java.error("Failed to instance class.", e);
+			Runtime.javaRuntime.error("Failed to instance class.", e);
 		} finally {
 			class_ = tmp;
 		}
