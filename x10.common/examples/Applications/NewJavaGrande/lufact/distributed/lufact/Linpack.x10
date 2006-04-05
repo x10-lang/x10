@@ -69,7 +69,7 @@ public class Linpack {
 	double resid,time;
 	double kf;
 	int n,i,ntimes,info,lda,ldaa,kflops;
-	int ipvt[];
+	int[.] ipvt;
 	
 	final double read(final double[.] a, final int i, final int j) {
 		return future (a.distribution[i,j]) { a[i,j]}.force();
@@ -160,7 +160,7 @@ public class Linpack {
 	 blas daxpy,dscal,idamax
 	 */
 	int infodgefa = 0;
-	final int dgefa(final double[.] a, final int lda, final int n, final int ipvt[])
+	final int dgefa(final double[.] a, final int lda, final int n, final int[.] ipvt)
 	{
 		// gaussian elimination with partial pivoting
 		infodgefa = 0;
@@ -274,7 +274,7 @@ public class Linpack {
 	 
 	 blas daxpy,ddot
 	 */
-	final void dgesl(final  double[.] a, final int lda, final int n, final int ipvt[], final double[.] b, final int job)
+	final void dgesl(final  double[.] a, final int lda, final int n, final int[.] ipvt, final double[.] b, final int job)
 	{
 		final int nm1 = n - 1;
 		if (job == 0) {
