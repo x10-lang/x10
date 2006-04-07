@@ -2,7 +2,8 @@
 
 synchronized (x10.lang.Runtime.here()) {
 	try {
-		while (true) {
+	        ((x10.runtime.PoolRunner) Thread.currentThread()).addPoolNew(); // Add a thread for current activity if needed
+			while (true) {
 			// first when branch
 			if (#0) {
 				#1
@@ -17,6 +18,7 @@ synchronized (x10.lang.Runtime.here()) {
 				"Unexpected exception during conditional atomic.", tmp#4);
 		throw new RuntimeException(tmp#4);
 	} finally {
+	    ((x10.runtime.PoolRunner) Thread.currentThread()).getPlace().decNumBlocked(); // Allow current thread to be used for other activities if needed
 		x10.lang.Runtime.here().notifyAll();
 	}
 }
