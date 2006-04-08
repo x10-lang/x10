@@ -12,7 +12,7 @@ chkArgs() {
 
 local num="$1"
 shift
-if [[ $# -ne $num ]]; then 
+if [[ $# -ne $num ]]; then
 	echo "Argument count error, expecting $num, found $#"
 	exit 1
 fi
@@ -116,7 +116,7 @@ testScript -test \"Constructs/*/FutureTest*.x10\"
 
 will only run the tests matching the given pattern.
 
-The -h, -help or --help option will print this message. Use: 
+The -h, -help or --help option will print this message. Use:
 
 testScript -h | less
 
@@ -144,7 +144,7 @@ checkUsage() {
       shift 2
     elif [[ "$1" = "-testList"  && $# -ge 2 && -r "$2" ]]; then
       #remove comments and blank lines
-      pat=$(cat "$2"| egrep -v '^([[:space:]]*#.*|[[:space:]]*)$') 
+      pat=$(cat "$2"| egrep -v '^([[:space:]]*#.*|[[:space:]]*)$')
       shift 2
     elif [[ "$1" = "-test"  && $# -ge 2 ]]; then
       shift
@@ -213,7 +213,7 @@ testForMain() {
 }
 
 removeDotSlash() {
-# convert ./a/b/./c to a/b/c 
+# convert ./a/b/./c to a/b/c
 
   chkArgs 1 "$@"
   local str=$1
@@ -232,7 +232,7 @@ local f="$1"
 removeDotSlash "$f"
 f="$RESULT"
 if [[ -z "$pat" ]]; then return 0; fi
-for i in $pat ; do 
+for i in $pat ; do
   if [[ "$f" = $i ]] ; then
 	return 0
   fi
@@ -242,7 +242,7 @@ return 1
 
 testForEligibility() {
 # Checks if an .x10 file is really a test
-# True(0) if  file $f contains "public static void main" and 
+# True(0) if  file $f contains "public static void main" and
 # the file name matches one of the patterns in -test or -testList
     chkArgs 2 "$@"
     local f="$1"
@@ -267,7 +267,7 @@ genTest() {
 # executed (using the preorder enumeration), as test cases.
 # The x10 classpath is set to this directory, while
 # recursively processing the test cases contained in the directory.
-# Files and directories in a given directory are processed in 
+# Files and directories in a given directory are processed in
 # alphabetical name order.
 
   chkArgs 2 "$@"
@@ -289,7 +289,7 @@ genTest() {
       genTest "$srcDir/$tail" "$testDir" #recursively generate tests for package subdir
     elif testForEligibility "$f" "$tail"; then
       # an actual .x10 file containing a main method
-      # and also matches one of the specified filename patterns 
+      # and also matches one of the specified filename patterns
       doTest $srcDir $testDir ${tail%.x10} # run an actual x10 test case
     fi
   done
@@ -299,7 +299,7 @@ correctExitCode() {
 # Does additional checks on the output of a command and
 # makes the exit code nonzero if necessary.
 # $rc is the original exit code.
-# If the original exit code $rc is already nonzero, or if 
+# If the original exit code $rc is already nonzero, or if
 # $mustFindPat is null, return the original exit code $rc.
 # Otherwise, check that the result of the command
 # contains $mustFindPat and does not contain $mustNotFindPat.
@@ -314,12 +314,12 @@ local tmpFile="$4"
 
 # if rc is already nonzero or no pattern match is required
 # return the existing exit code
-if [[ -z "$mustFindPat" || "$rc" -ne 0 ]]; then return "$rc"; fi 
+if [[ -z "$mustFindPat" || "$rc" -ne 0 ]]; then return "$rc"; fi
 
-egrep "$mustFindPat" $tmpFile >/dev/null 
+egrep "$mustFindPat" $tmpFile >/dev/null
 local mustFindRc=$?
 
-egrep "$mustNotFindPat" $tmpFile >/dev/null 
+egrep "$mustNotFindPat" $tmpFile >/dev/null
 local mustNotFindRc=$?
 
 if [[ "$mustFindRc" -eq 0 && "$mustNotFindRc" -ne 0 ]]; then
@@ -341,13 +341,13 @@ makeTempFile() {
 
 runWithTimeLimit() {
 # Run the command $cmd with a wall clock time limit.
-# Return the (possibly corrected) exit code of $cmd. 
-# A main process group running $cmd, 
+# Return the (possibly corrected) exit code of $cmd.
+# A main process group running $cmd,
 # and a "deadman timer" process group that waits maxsec seconds and
 # then kills the main process group, are created.
 # If the main process group ends before the timer process
 # group, the timer process group is killed.
-# The output of $cmd is saved in the logDetail.$tdir.$className 
+# The output of $cmd is saved in the logDetail.$tdir.$className
 # file.
 
 
@@ -362,22 +362,22 @@ runWithTimeLimit() {
   local tmpFile="$RESULT"
   echo "" > $tmpFile
   # create a new process group so that the main job
-  # and all of the its descendant processes can be terminated 
+  # and all of the its descendant processes can be terminated
   # as a whole
   "$MYDIR"/newpgrp "$cmd" >> $tmpFile 2>&1 &    #main job
   local pidMain=$!   #remember pid of main job
   "$MYDIR"/newpgrp "sleep $maxsec; /usr/bin/kill -9 -$pidMain" &> /dev/null & #timer job
-  local pidTimer=$!  #remember pid of timer job 
-  wait $pidMain      # wait until main job finishes, 
+  local pidTimer=$!  #remember pid of timer job
+  wait $pidMain      # wait until main job finishes,
                      # either normally or through the timer
   local rcMain=$?    # exit code of main job
   local temp
   if [[ $rcMain -ge 128 ]]; then
-    let  "temp = $rcMain - 128" 
-    echo "++++++ Got killed by signal $temp"      >> logDetail.$tdir.$className 
+    let  "temp = $rcMain - 128"
+    echo "++++++ Got killed by signal $temp"      >> logDetail.$tdir.$className
     echo "++++++ Time limit was $maxsec seconds"  >> logDetail.$tdir.$className
   fi
-  /usr/bin/kill -9 -$pidTimer &> /dev/null #kill the timer job 
+  /usr/bin/kill -9 -$pidTimer &> /dev/null #kill the timer job
   correctExitCode "$mustFindPat" "$mustNotFindPat" "$rcMain" "$tmpFile"
   local rcMain2=$?
   cat $tmpFile >> logDetail.$tdir.$className
@@ -395,11 +395,11 @@ msgBoth() {
   local file="$1"
 
   echo "$str" >> $file
-  echo "$str" 
+  echo "$str"
 }
 
 msg() {
-# write a message to the indicated log file 
+# write a message to the indicated log file
 
   chkArgs 2 "$@"
   local str="$2"
@@ -442,12 +442,12 @@ findSinceWhenMsgKeptOccurring() {
     #ensure that there is an imaginary first test log
     #where this message did not appear
     echo "2000.01.01_00.00.00" > $allTestLogDates
-  
+
     egrep "$str" $testLogs/logSummary.* |  sed -e 's/^.*logSummary\.//;s/:.*$//' > $buggyTestLogDates
     ls $testLogs/logSummary.* |  sed -e 's/^.*logSummary\.//' >> $allTestLogDates
     reverseFile "$allTestLogDates"
     reverseFile "$buggyTestLogDates"
-    
+
     local n=`diff $allTestLogDates $buggyTestLogDates | sed -n -e 's/^\([0-9]\+\).*$/\1/p' | head -1`
     if [[ -n "$n" && "$n" -gt 1 ]]; then
        let "n = (( $n - 1 ))"
@@ -457,7 +457,7 @@ findSinceWhenMsgKeptOccurring() {
        if [[ -n "$altstr" ]]; then
          local old_logSummary=`ls $testLogs/logSummary.* |tail -1`
          if grep  "$altstr" $old_logSummary > /dev/null ; then
-             NewFailures="$NewFailures $test"; 
+             NewFailures="$NewFailures $test";
          fi
        fi
     fi
@@ -472,7 +472,7 @@ findSinceWhenMsgKeptOccurring() {
 
 writeLogLine() {
 # write str to the logSummary0 file,
-# followed by the earliest date since when str appeared 
+# followed by the earliest date since when str appeared
 # continuously in the logs
 
   chkArgs 3 "$@"
@@ -482,9 +482,9 @@ writeLogLine() {
   findSinceWhenMsgKeptOccurring "$str" "$altstr" "$test"
   local firstDate="$RESULT"
   echo "$str"
-  msg logSummary0 "$str	$firstDate"	
+  msg logSummary0 "$str	$firstDate"
 }
-  
+
 
 determineExpectedResult() {
 # determine the expected result of the test from the name
@@ -520,7 +520,7 @@ compareExpectedToActualResult() {
   else
 	return 1
   fi
-} 
+}
 
 checkLimitation() {
 # check if this test case is marked as a limitation of the
@@ -534,11 +534,11 @@ checkLimitation() {
   egrep "^\/\/LIMITATION\:" "$x10FileName" > $tmpFile
   if [[ $? -eq 0 ]]; then
     limitation="LIMITATION: "
-  fi  
+  fi
   rm -f "$tmpFile"
   RESULT="$limitation"
 }
-  
+
 recordTestResult() {
 # check if actual test result matched expected result
 # and print in logSummary
@@ -551,7 +551,10 @@ recordTestResult() {
   determineExpectedResult "$className"
   local expectedResult="$RESULT"
   if compareExpectedToActualResult "$expectedResult" "$actualResult"; then
-    writeLogLine "$tdir $className met expectation: $actualResult." "" ""
+    if [[ -n "$limitation" ]]; then
+      let "nPassLim = (( $nPassLim + 1 ))"
+    fi
+    writeLogLine "$limitation$tdir $className met expectation: $actualResult." "" ""
   else
     checkLimitation "$x10FileName"
     local limitation="$RESULT"
@@ -559,10 +562,12 @@ recordTestResult() {
       let "nLimitation = (( $nLimitation + 1 ))"
     fi
     writeLogLine "$limitation$tdir $className did not meet expectation: expected=$expectedResult actual=$actualResult." "$tdir $className met expectation" "$tdir.$className"
-    let "nFail = (( $nFail + 1 ))" 
+    if [[ -z "$limitation" ]]; then
+      let "nFail = (( $nFail + 1 ))"
+    fi
   fi
 }
-    
+
 
 changeSlashToDot() {
 # convert a/b/c to a.b.c , but ./foo becomes foo
@@ -577,7 +582,7 @@ changeSlashToDot() {
 
 
 doTest() {
-# run the x10 test case $tstDir/$srcDir/test.x10 
+# run the x10 test case $tstDir/$srcDir/test.x10
 
   chkArgs 3 "$@"
   local srcDir="$1"
@@ -619,7 +624,7 @@ doTest() {
   elif [[ $runRc -ne 0 ]]; then
     echo "****** $tdir $className failed: run" >> logDetail.$tdir.$className
     recordTestResult "FailRun" "$tdir" "$className" "$x10FileName"
-  else 
+  else
     echo "****** $tdir $className succeeded." >> logDetail.$tdir.$className
     recordTestResult "Success" "$tdir" "$className" "$x10FileName"
   fi
@@ -634,8 +639,9 @@ initAll() {
   let "nTotal = 0" #total tests
   let "nFail  = 0" #tests that did not meet expectations
   let "nLimitation = 0" #tests that failed but were limitations
+  let "nPassLim = 0" #tests that passed but were limitations
   rm -f logSummary0              # summary for each each test
-  touch logSummary0              # ensure file exists  
+  touch logSummary0              # ensure file exists
   rm -f logDetail.*             # details for each test
   rm -f logBegin                # Header file
   startDate=`date '+%Y.%m.%d_%H.%M.%S'`
@@ -653,22 +659,26 @@ generateFinalLog() {
   local nTotal="$1"
   local nFail="$2"
   local nLimitation="$3"
+  local nPassLim="$4"
+  local nRealTotal
   local nPass
   makeTempFile "logTemp2"
   local logTemp2="$RESULT"
   makeTempFile "logDetail2"
-  local logDetail2="$RESULT" 
+  local logDetail2="$RESULT"
   cat logBegin > log
   rm -f logBegin
-  let "nPass = (( $nTotal - $nFail ))"
+  let "nRealTotal = (( $nTotal - $nLimitation - $nPassLim ))"
+  let "nPass = (( $nRealTotal - $nFail ))"
   makeReadableDate "$startDate"
   local date2="$RESULT"
   echo "X10 tests started on $date2" >> log
-  echo "$nPass tests out of $nTotal met expectations. $nFail (including $nLimitation implementation limitations) did not meet expectations." >> log
+  echo "$nPass tests out of $nRealTotal met expectations. $nFail did not meet expectations." >> log
+  echo "$nLimitation implementation limitations did not meet expectations.  $nPassLim unexpectedly met expectations." >> log
   echo "" >> log
   echo "The dates after each error message below show the earliest test run since which the same error message kept occurring continuously." >> log
   echo "" >> log
-  if [[ $nTotal -eq 0 ]] ; then
+  if [[ $nRealTotal -eq 0 ]] ; then
 	msgBoth log "Warning: No applicable test was found"
   fi
   makeTempFile "logTemp0"
@@ -683,12 +693,12 @@ generateFinalLog() {
   makeTempFile "logTemp3"
   local logTemp3="$RESULT"
   cat $logTemp2 | sed '-e s/^LIMITATION: //' > $logTemp3
-  for f in `awk '{print $1 "." $2;}' $logTemp3` ; do 
+  for f in `awk '{print $1 "." $2;}' $logTemp3` ; do
     cat logDetail.$f >> $logDetail2
   done
   cat $logTemp2 $logDetail2 >> log
-  rm -f $logTemp0 $logTemp2 $logDetail2 $logTemp3 
-  
+  rm -f $logTemp0 $logTemp2 $logDetail2 $logTemp3
+
   #rm -f logDetail.*
 }
 
@@ -718,7 +728,7 @@ mailDiffFromLastRun() {
   makeTempFile "logDiff"
   local logDiff="$RESULT"
 
-  local old_logSummary=`ls $testLogs/logSummary.* | tail -1` 
+  local old_logSummary=`ls $testLogs/logSummary.* | tail -1`
   if [[ -n "$old_logSummary" ]]; then
 
     local oldStartDate=${old_logSummary#*logSummary.}
@@ -731,7 +741,7 @@ mailDiffFromLastRun() {
     local newFailStr=""
 
     if [[ -n "$NewFailures" ]]; then
-        echo "+++ The following existing test case(s) stopped working, between $date1 ET and $date2 ET:" >> $logDiff 
+        echo "+++ The following existing test case(s) stopped working, between $date1 ET and $date2 ET:" >> $logDiff
         echo "" >> $logDiff
 	for f in $NewFailures ; do
 		echo "    $f" >> $logDiff
@@ -764,13 +774,16 @@ mailIt() {
   local nTotal="$2"
   local nFail="$3"
   local nLimitation="$4"
+  local nPassLim="$4"
+  local nRealTotal
   local nPass
-  let "nPass = (( $nTotal - $nFail ))"
+  let "nRealTotal = (( $nTotal - $nLimitation - $nPassLim ))"
+  let "nPass = (( $nRealTotal - $nFail ))"
   if [[ -n "$mailDest" ]]; then
     makeReadableDate "$startDate"
     local date2="$RESULT"
-    cat log | mail -s "X10 (started $date2): $nPass tests out of $nTotal met expectations. $nFail (including $nLimitation implementation limitations) did not meet expectations." "$mailDest"
-    mailDiffFromLastRun "$mailDest" 
+    cat log | mail -s "X10 (started $date2): $nPass tests out of $nRealTotal met expectations. $nFail did not meet expectations." "$mailDest"
+    mailDiffFromLastRun "$mailDest"
   fi
 }
 
@@ -778,12 +791,12 @@ generateAndMailFinalLog() {
 # generate the final log file and email it to recipient
 
   chkArgs 0 "$@"
-  generateFinalLog "$nTotal" "$nFail" "$nLimitation"
-  mailIt "$mailDest" "$nTotal" "$nFail" "$nLimitation" 
+  generateFinalLog "$nTotal" "$nFail" "$nLimitation" "$nPassLim"
+  mailIt "$mailDest" "$nTotal" "$nFail" "$nLimitation" "$nPassLim"
 }
 
 saveLog() {
-# save the log. 
+# save the log.
 # do not save if the testLogs directory is not found,
 # or if there were broken existing test cases (wait until they
 # are fixed).
@@ -794,13 +807,13 @@ saveLog() {
     mv log "$testLogs/log.$startDate"
     local lastDir=`pwd`
     cd $testLogs
-      cvs add log*.$startDate  
+      cvs add log*.$startDate
       makeReadableDate "$startDate"
       local date2="$RESULT"
       cvs commit -m "Test run started on $date2" log*.$startDate
     cd $lastDir
   elif [[ ! -d "$testLogs" ]]; then
-    msgBoth log "Warning: directory $testLogs was not found" 
+    msgBoth log "Warning: directory $testLogs was not found"
   fi
 }
 
