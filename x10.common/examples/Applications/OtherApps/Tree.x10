@@ -77,6 +77,7 @@ public class Tree {
 		return build(10,5).sum()==36;
 		
 	}
+	// Test should be run with number of places >= 5.
 	public static void main(String[] args) {
         boolean b=false;
         try {
