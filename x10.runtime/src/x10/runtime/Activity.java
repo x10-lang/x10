@@ -11,13 +11,7 @@ import java.io.*;
 import x10.lang.x10Array;
 import x10.lang.MultipleExceptions;
 import x10.lang.ClockUseException;
-import x10.runtime.distributed.RemoteClock;
-import x10.runtime.distributed.RemoteObjectMap;
-import x10.runtime.distributed.VMInfo;
-import x10.runtime.distributed.Serializer;
-import x10.runtime.distributed.Deserializer;
-import x10.runtime.distributed.SerializerBuffer;
-import x10.runtime.distributed.DeserializerBuffer;
+
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -388,7 +382,7 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
                     asl.notifyActivityTerminated(this);
                 }
             }
-    	} else {
+    	} /*else {
             // Ready to finalize termination on surrogate (remote) Activity.
             // First, let's get a list of no longer used clocks on the
             // same VM as the surrogate.
@@ -407,7 +401,7 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
                }
             }
             finalizeTerminationOfSurrogate(invokingVM, activityAsSeenByInvokingVM, clks, serializedX10Result);
-        }
+        }*/
     }
    
    /**
@@ -450,10 +444,10 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
      */
     public String toString() {
         String rv = "<" + myName();
-        if (Configuration.VM_ != null &&
+        /*if (Configuration.VM_ != null &&
             activityAsSeenByInvokingVM != 0) {
             rv = rv + " on " + VMInfo.THIS_IS_VM;
-        }
+        }*/
         rv = rv + " " + finishState_ + "," + rootNode_;
         if (activityAsSeenByInvokingVM != thisActivityIsLocal) {
             if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
@@ -488,36 +482,7 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
      **/
     public long globalRefAddr;
 
-    public void pseudoSerialize() {
-	
-       x10.runtime.distributed.Serializer serializer = new Serializer(this);
     
-       clocksMappedToGlobalAddresses = new long[clocks_.size() << 1];
-       SerializerBuffer clockBuffer = new SerializerBuffer(clocksMappedToGlobalAddresses);
-
-       serializer.serializeClocks(clockBuffer,clocks_);
-     
-       int count = 0;
-        
-       count = serializer.calculateSize();
-        
-       pseudoSerializedLongArray = new long[count];
-       
-       serializer.serialize(new SerializerBuffer(pseudoSerializedLongArray));
-       
-       constructorSignature = serializer.getConstructorSignature();
-        
-       numArgsInConstructor = serializer.getNumArgsInConstructor();
-       listOfClocksIsArgNum = serializer.getClockListPosition();
-    }
-
-
-    public void pseudoDeSerialize(LocalPlace_c pl) {
-       Deserializer deserializer = new Deserializer(this,pl);
-       deserializer.deserializeClocks(clocks_,new DeserializerBuffer(clocksMappedToGlobalAddresses));
-
-       deserializer.deserialize(new DeserializerBuffer(pseudoSerializedLongArray));
-    }
 
     String      constructorSignature;
     long[]      clocksMappedToGlobalAddresses;

@@ -8,8 +8,6 @@ import java.util.Iterator;
 import x10.lang.region;
 import x10.lang.point;
 import x10.lang.RankMismatchException;
-import x10.runtime.distributed.DeserializerBuffer;
-import x10.runtime.distributed.SerializerBuffer;
 
 /**
  * Implementation of Region. Instance of this class are immutable!
@@ -293,37 +291,6 @@ public class MultiDimRegion extends region {
 		return point.factory.point(ret);
 	}
 
-	// [<unique id> <type>,<dim size>,[<region>,...]
-	public void serialize(SerializerBuffer outputBuffer) {
-		Integer originalIndex = outputBuffer.findOriginalRef(this);
 
-		if (originalIndex == null) {
-			originalIndex = new Integer(outputBuffer.getOffset());
-			outputBuffer.recordRef(this,originalIndex);
-		}
-		else {
-			outputBuffer.writeLong(originalIndex.intValue());
-			return;
-		}
-
-		outputBuffer.writeLong(originalIndex.intValue());
-
-		outputBuffer.writeLong(MULTIDIM);
-		outputBuffer.writeLong(dims_.length);
-		for (int i=0; i < dims_.length; ++i)
-			dims_[i].serialize(outputBuffer);
-	}
-
-	/* to be called from region */
-	// assume the ref(<unique id>) slot and type slot have already been read
-	public static region deserializeMultiDim(DeserializerBuffer inputBuffer) {
-		int numRegions = (int)inputBuffer.readLong();
-		region theRegions[] = new region[numRegions];
-
-		for (int i=0; i < numRegions; ++i)
-			theRegions[i] = x10.lang.region.deserialize(inputBuffer);
-		region result = factory.region(theRegions);
-		return result;
-	}
 }
 

@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import x10.runtime.distributed.VMInfo;
 
 
 
@@ -84,7 +83,7 @@ public final class Configuration {
     public static int NUMBER_OF_LOCAL_PLACES = 4;
     public static int NUMBER_OF_VMS = 1;
     public static int NUMBER_OF_ACTIVITIES_PER_PLACE = 5;
-    public static VMInfo[] VM_;
+  
     
     /** this check does not work -- it causes spurious warnings */
     public static boolean BAD_PLACE_RUNTIME_CHECK = true;
@@ -166,17 +165,7 @@ public final class Configuration {
                 pos++;
                 continue;
             }
-            if (args[pos].equals("-vm")) {
-                pos++;
-                VMInfo.THIS_IS_VM = Integer.parseInt(args[pos]);
-                if (VMInfo.THIS_IS_VM >= NUMBER_OF_VMS) {
-                    System.err.println("vm # " + VMInfo.THIS_IS_VM +
-                                       " >= " + NUMBER_OF_VMS);
-                    throw new Error();
-                }
-                pos++;
-                break;
-            }
+           
             int eq = args[pos].indexOf('=');
             String optionName;
             String optionValue = null;
@@ -248,11 +237,11 @@ public final class Configuration {
                 Iterator i = props.keySet().iterator();
                 while (i.hasNext()) {
                     String key = (String) i.next();
-                    if (key.equals("NUMBER_OF_VMS")) {
+                    /*if (key.equals("NUMBER_OF_VMS")) {
                         String val = props.getProperty(key);
                         set(key, val);
                         VM_ = new VMInfo[NUMBER_OF_VMS];
-                    }
+                    }*/
                 }
                 
                 i = props.keySet().iterator();
