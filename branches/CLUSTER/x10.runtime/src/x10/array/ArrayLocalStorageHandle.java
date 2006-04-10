@@ -3,15 +3,12 @@ import java.util.Iterator;
 import x10.lang.region;
 import x10.lang.x10Array;
 import x10.lang.Runtime;
-import x10.runtime.distributed.FatPointer;
+
 import x10.lang.point;
 import x10.lang.place;
 import x10.lang.floatArray;
 import x10.lang.doubleArray;
-import x10.runtime.distributed.DLocalPlace_c;
-import x10.runtime.distributed.DeserializerBuffer;
-import x10.runtime.distributed.SerializerBuffer;
-import x10.runtime.distributed.DistributedRuntime;
+
 import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.DoubleArray_c;
 import x10.array.sharedmemory.ShortArray_c;
@@ -40,15 +37,7 @@ public class ArrayLocalStorageHandle   {
 
     public ArrayLocalStorageHandle(){}
    
-    // format: <fp><dump of local array>
-    public void serialize(SerializerBuffer outputBuffer){
-     int count = _localRegion.size();
-
-     FatPointer dest_fp = DistributedRuntime.registerGlobalObject(_destArray);
-     
-     dest_fp.serialize(outputBuffer);
-     _srcArray.SerializeLocalData(_startIndex,_endIndex,outputBuffer);
-   }
+ 
 
    // a nop in distributed mode
    public void transferDataToArray(){
@@ -123,26 +112,4 @@ public class ArrayLocalStorageHandle   {
    }
 
 
-   public static void transferDataToArray(DeserializerBuffer inputBuffer,place thisPlace){
-      FatPointer destFp = FatPointer.deserialize(inputBuffer);
-      destFp = DLocalPlace_c.findGlobalObject(thisPlace,destFp.getKey());
-      x10Array destArray = (x10Array)destFp.getObject();
-
-      if(destArray instanceof x10.array.distributed.IntArray_c)
-         ((x10.array.distributed.IntArray_c)destArray).loadDataLocally(inputBuffer);
-      else if(destArray instanceof x10.array.distributed.CharArray_c)
-         ((x10.array.distributed.CharArray_c)destArray).loadDataLocally(inputBuffer);
-      else if(destArray instanceof x10.array.distributed.DoubleArray_c)
-         ((x10.array.distributed.DoubleArray_c)destArray).loadDataLocally(inputBuffer);
-      else if(destArray instanceof x10.array.distributed.LongArray_c)
-         ((x10.array.distributed.LongArray_c)destArray).loadDataLocally(inputBuffer);
-      else if(destArray instanceof x10.array.distributed.FloatArray_c)
-         ((x10.array.distributed.FloatArray_c)destArray).loadDataLocally(inputBuffer);
-      else if(destArray instanceof x10.array.distributed.ByteArray_c)
-         ((x10.array.distributed.ByteArray_c)destArray).loadDataLocally(inputBuffer);
-      else if(destArray instanceof x10.array.distributed.BooleanArray_c)
-         ((x10.array.distributed.BooleanArray_c)destArray).loadDataLocally(inputBuffer);
-      else if(destArray instanceof x10.array.distributed.ShortArray_c)
-         ((x10.array.distributed.ShortArray_c)destArray).loadDataLocally(inputBuffer);
-   }
 }

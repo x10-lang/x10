@@ -58,7 +58,7 @@ import x10.lang.complex4Array;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
-import x10.runtime.distributed.RemotePlace;
+
 
 /**
  * Default implementation of Runtime. Considerably revised 5/16 by vj
@@ -242,9 +242,10 @@ public class DefaultRuntime_c extends Runtime {
                 ret = pr.place;
         }
         /* TODO:  when entering from LAPI (another VM) there may
-           not be a "currentPlace"  Find a better test than this one. */
+           not be a "currentPlace"  Find a better test than this one. 
         if ((Configuration.VM_ == null && ClusterConfig.multi == false) && ret == null)
            throw new Error("This thread is not an X10 thread!");
+           */
         return ret;
     }
     
@@ -259,9 +260,9 @@ public class DefaultRuntime_c extends Runtime {
                 result = pr.getActivity();
         } 
         /* TODO:  when entering from LAPI (another VM) there may
-           not be a "currentActivity"  Find a better test than this one. */
+           not be a "currentActivity"  Find a better test than this one. 
         if (Configuration.VM_ == null && result == null)
-           throw new Error("This thread is not an X10 thread!");
+           throw new Error("This thread is not an X10 thread!");*/
         return result;
     }
 

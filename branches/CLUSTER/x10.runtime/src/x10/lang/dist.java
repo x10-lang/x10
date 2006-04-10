@@ -12,7 +12,7 @@ package x10.lang;
 import /*x10*/java.util.Set;
 import java.util.Iterator;
 import x10.lang.GlobalIndexMap;
-import x10.runtime.distributed.SerializerBuffer;
+
 
 abstract public /*value*/ class dist/*( region region )*/ extends Object 
 implements Indexable, ValueType, java.io.Serializable {
@@ -43,8 +43,7 @@ implements Indexable, ValueType, java.io.Serializable {
      * Hence it must have a field 'distrubution' (see ateach construct) */
     public final dist distribution;
 
-    // Used for multi-vm
-    public abstract void serialize(SerializerBuffer b);
+   
 
     /**
      * Determine offset adjustment to devirtualize shared array
