@@ -251,6 +251,7 @@ public class LocalPlace_c extends Place {
                             start = System.currentTimeMillis();
                         wait(next_turn);
                     } catch (Exception e) {
+                    	e.printStackTrace();
                         // should not happen 
                         assert (false);
                     }
