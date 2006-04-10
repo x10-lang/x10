@@ -54,38 +54,39 @@ public class Tree {
 			future(place.places(here.id+span/2)){build(count/2, span/2)}.force()),
 		build(count/2, span/2),count);
 	}
-	public void print(final String prefix, final String suffix) {
-		System.out.print(prefix + "{" + size + "@"+here.id);
-		if (left!= null) {
-			System.out.println("");
-			if (localLeft)
-				left.print(prefix+" ", ",");
-			else {
-				final Tree tmp_  = left;
-				finish async(tmp_) { tmp_.print(prefix+" ", ",");};
-			}
-		}
-		if (right!=null) {
-			if (left==null)	System.out.println("");
-			right.print(prefix+" ","}"+suffix);
-		} else
-		System.out.println((left!=null? prefix :"")+"}"+suffix);
+
+    public void print(final String prefix, final String suffix) {
+	System.out.print(prefix + "{" + size + "@"+here.id);
+	if (left!= null) {
+	    System.out.println("");
+	    if (localLeft)
+		left.print(prefix+" ", ",");
+	    else {
+		final nullable Tree tmp = left;
+		finish async(left) { tmp.print(prefix+" ", ",");};
+	    }
 	}
-	public int sum() {
-		return size+((right==null)?0:right.sum())
-		               +((left==null)? 0:(localLeft?left.sum():
-		            	   future(left){left.sum()}.force()));
-	}
-	public boolean run() {
-		return build(10,5).sum()==36;
-		
-	}
-	// Test should be run with number of places >= 5.
-	public static void main(String[] args) {
+	if (right!=null) {
+	    if (left==null)	System.out.println("");
+	    right.print(prefix+" ","}"+suffix);
+	} else 
+	    System.out.println((left!=null? prefix :"")+"}"+suffix);
+    }
+    public int sum() {
+	final nullable Tree tmp = left;
+	return size+((right==null)?0:right.sum())
+	    +((left==null)? 0:(localLeft?left.sum():
+			       future(left){tmp.sum()}.force()));
+    }
+    public boolean run() {
+	return build(10,5).sum()==36;
+    }
+    // Test should be run with number of places >= 5.
+    public static void main(String[] args) {
         boolean b=false;
         try {
             nullable Tree t = build(10,5);
-            t.print("", "");
+	    //            t.print("", "");
              b=t.sum()==36;
         } catch (Throwable e) {
             e.printStackTrace();
