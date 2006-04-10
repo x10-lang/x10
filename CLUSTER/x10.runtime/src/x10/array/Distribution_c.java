@@ -393,6 +393,21 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	static final class Constant extends Distribution_c {
 		transient place place_;
 		
+        private void writeObject(ObjectOutputStream out) throws IOException {
+        	out.defaultWriteObject();
+        	out.writeInt(place_.id);
+        }
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        	in.defaultReadObject();
+        	place_ = Runtime.places()[in.readInt()];
+        	
+        	//parent Distribution_c's state
+        	places = new HashSet();
+        	places.add(place_);
+        }
+
+
+   
 		Constant(region r, place p) {
 			super(r);
 			this.places.add(p);
@@ -521,7 +536,28 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	static class Unique extends Distribution_c {
 		transient place[] placeseq;
 		
-		  Unique(place[] ps) {
+
+        private void writeObject(ObjectOutputStream out) throws IOException {
+        	out.defaultWriteObject();
+        	int[] pids = new int[placeseq.length];
+        	for(int i=0; i<placeseq.length; i++)
+        		pids[i] = placeseq[i].id;
+        	out.writeObject(pids); //write the set of place ids in this dist
+        }
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        	in.defaultReadObject();
+        	int[] pids = (int[])in.readObject();
+        	
+        	//think this as a constructor, then we need to initialize ...
+        	places = new HashSet(); //
+        	placeseq = new place[pids.length];
+        	for (int i=0;i<placeseq.length;i++) {
+        		placeseq[i] = Runtime.places()[pids[i]];
+        		places.add(placeseq[i]);
+        	}
+        }
+        
+         Unique(place[] ps) {
             super(new ContiguousRange(0, ps.length - 1));
             this.placeseq = ps;
             for (int i=0;i<placeseq.length;i++) 
@@ -576,7 +612,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	static class Combined extends Distribution_c {
 		private final Distribution_c[] members_;
 		
-		/*private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 			in.defaultReadObject();
 			
 			//parent state
@@ -585,7 +621,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 				places.addAll( members_[i].places());
 			}
 		}
-		*/
+		
 		
 		/**
 		 * @param r
