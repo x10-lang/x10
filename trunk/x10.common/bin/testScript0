@@ -655,7 +655,7 @@ initAll() {
 
 generateFinalLog() {
 #generate the final log file
-  chkArgs 3 "$@"
+  chkArgs 4 "$@"
   local nTotal="$1"
   local nFail="$2"
   local nLimitation="$3"
@@ -769,12 +769,12 @@ mailDiffFromLastRun() {
 
 mailIt() {
 # mail test results if there is a destination address
-  chkArgs 4 "$@"
+  chkArgs 5 "$@"
   local mailDest="$1"
   local nTotal="$2"
   local nFail="$3"
   local nLimitation="$4"
-  local nPassLim="$4"
+  local nPassLim="$5"
   local nRealTotal
   local nPass
   let "nRealTotal = (( $nTotal - $nLimitation - $nPassLim ))"
