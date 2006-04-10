@@ -51,9 +51,10 @@ public abstract class Runtime {
             if (rt != null)
                 r = (Runtime) Class.forName(rt).newInstance();
             else
+            	/*
             	if(x10.runtime.Configuration.isMultiNodeVM())
-            		r = new x10.runtime.distributed.DistributedRuntime();
-            	else
+            	//	r = new x10.runtime.distributed.DistributedRuntime();
+            	else*/
             		r = new DefaultRuntime_c();
         } catch (ClassNotFoundException cnfe) {
             System.err.println("Runtime::<clinit> did not find runtime " + rt);
@@ -156,7 +157,7 @@ public abstract class Runtime {
     public static Place here() {
         place p = runtime.currentPlace();
         /** TODO (ahk) ... a better assert for multi-VM case **/
-        assert Configuration.VM_ == null || p != null;
+       // assert Configuration.VM_ == null || p != null;
     	return (Place) p;
     }
     

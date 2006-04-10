@@ -4,19 +4,19 @@
  * (MAX_PLACES). Each place is indexed by a nat, from 0 to MAX_PLACES;
  * thus there are MAX_PLACES+1 places. This ensures that there is
  * always at least 1 place, the 0'th place.
-
+ 
  * <p>We use a dependent parameter to ensure that the compiler can track
  * indices for places.
  * 
  * <p>Note that place(i), for i =< MAX_PLACES, can now be used as a non-empty type.
-
+ 
  * <p>Thus it is possible to run an async at another place, without
  * using arays --- just use async(place(i)) {...} for an appropriate
  * i.
-
+ 
  * @author vj
  */
- 
+
 package x10.lang;
 
 import java.util.Set;
@@ -26,8 +26,8 @@ import x10.runtime.Activity;
 
 public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
 implements TypeArgument, ValueType{
-    private static int count_ = 0;
-    public /*final*/ /*nat*/int id;
+	private static int count_ = 0;
+	public /*final*/ /*nat*/int id;
 	
 	/** The number of places in this run of the system. Set on
 	 * initialization, through the command line/init parameters file.
@@ -37,9 +37,9 @@ implements TypeArgument, ValueType{
 	
 	
 	protected place() {
-        synchronized (place.class) {
-            id = count_++;
-        } 
+		synchronized (place.class) {
+			id = count_++;
+		} 
 	}
 	
 	public static abstract /*value*/ class factory implements ValueType {
@@ -77,14 +77,14 @@ implements TypeArgument, ValueType{
 	}
 	public static place places(int i) { return factory.place(i);}
 	public boolean equals(java.lang.Object o) {
-        boolean ret = false;
-        if (o != null && o instanceof x10.lang.place) {
-            x10.lang.place op = (x10.lang.place) o;
-            ret = op.id == id;
-        }
-        return ret;
-    }
-    
+		boolean ret = false;
+		if (o != null && o instanceof x10.lang.place) {
+			x10.lang.place op = (x10.lang.place) o;
+			ret = op.id == id;
+		}
+		return ret;
+	}
+	
 	/** Returns the next place, using modular arithmetic. Thus the
 	 * next place for the last place is the first place. 
 	 */
@@ -123,29 +123,16 @@ implements TypeArgument, ValueType{
 	public boolean isLast() { 
 		return id==MAX_PLACES -1; 
 	}
-    
+	
 	public String toString() {
-	    return "place(id=" + id +")"; 
+		return "place(id=" + id +")"; 
 	}
-
-        // ahk ... find a way to remove the need for this
+	
+	// ahk ... find a way to remove the need for this
 	public void runAsyncNoRemapping(x10.runtime.Activity a){throw new RuntimeException("Should never be called");}
 	
 	public void runAsync(x10.runtime.Activity a){throw new RuntimeException("Should never be called");}
 	public  Future runFuture(Activity.Expr a) {if(true) throw new RuntimeException("Should never be called"); return null;}
-
-    final public void serialize(x10.runtime.distributed.SerializerBuffer outputBuffer){
-	outputBuffer.writeLong(id);
-    }
-    final public static place deserialize(x10.runtime.distributed.DeserializerBuffer inputBuffer){
-	final boolean trace=false;
-	int placeId = (int)inputBuffer.readLong();
-	x10.runtime.Place[] placeArray = Runtime.places();
-	if(placeArray.length < placeId){
-	    System.out.println("Error: placeId:"+placeId+" >= "+placeArray.length);
-	    assert false;
-	}
-	if(trace)System.out.println("Found place:"+placeId);
-	return placeArray[placeId];
-    }
+	
+	
 }

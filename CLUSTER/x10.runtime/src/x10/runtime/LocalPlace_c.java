@@ -180,11 +180,8 @@ public class LocalPlace_c extends Place {
 				t.setActivity(a);
                                 a.setPlace(LocalPlace_c.this);
 				
-				// need to perform deserialization after runtime
-				// for this place is setup so we can create x10 objects
-			        if(performDeserialization){
-				  a.pseudoDeSerialize(LocalPlace_c.this);
-				}
+				
+				
 				try {
 					if (finish) {
 						a.finishRun();
