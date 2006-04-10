@@ -60,7 +60,10 @@ public class Tree {
 			System.out.println("");
 			if (localLeft)
 				left.print(prefix+" ", ",");
-			else finish async(left) { left.print(prefix+" ", ",");};
+			else {
+				final Tree tmp_  = left;
+				finish async(tmp_) { tmp_.print(prefix+" ", ",");};
+			}
 		}
 		if (right!=null) {
 			if (left==null)	System.out.println("");
