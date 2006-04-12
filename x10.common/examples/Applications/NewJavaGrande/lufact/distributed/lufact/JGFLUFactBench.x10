@@ -44,18 +44,17 @@ public class JGFLUFactBench extends Linpack implements JGFSection2{
 		region rectangularRegion = [0:ldaa, 0:lda];
 		region slimRegion = [0:0, 0:lda];//fake out because we don't support array sections
 		dist rectangular_distribution = dist.factory.blockCyclic(rectangularRegion,lda+1);
-		
+			
 		a = new double[rectangular_distribution];
 		b = new double [slimRegion->here];
 		x = new double [slimRegion->here];
-		ipvt = new int [ldaa];
+		ipvt = new int [vectorRegion->here];
 		
 		
 		long nl = (long) n;   //avoid integer overflow
 		ops = (2.0*(nl*nl*nl))/3.0 + 2.0*(nl*nl);
 		
-		norma = matgen(a,lda,n,b);    
-		
+		norma = matgen(a,lda,n,b);
 	}
 	
 	public void JGFkernel(){

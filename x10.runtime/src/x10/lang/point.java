@@ -1,9 +1,9 @@
 package x10.lang;
 
-abstract public /*value*/ class point/*(region region)*/ extends java.lang.Object
-	implements Indexable, ValueType
-{
+abstract public /*value*/ class point/*( region region )*/ extends Object 
+implements Indexable, ValueType, java.io.Serializable {
 	//public final region region;
+
 	/*parameter*/ public final /*nat*/int rank;
 
 	abstract public static /*value*/ class factory implements ValueType {

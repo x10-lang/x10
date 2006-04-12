@@ -15,7 +15,7 @@ import x10.lang.GlobalIndexMap;
 import x10.runtime.distributed.SerializerBuffer;
 
 abstract public /*value*/ class dist/*( region region )*/ extends Object 
-implements Indexable, ValueType {
+implements Indexable, ValueType, java.io.Serializable {
 	
 	/* used to create distributions remotely */
         public final static int UNKNOWN=0;
@@ -31,6 +31,7 @@ implements Indexable, ValueType {
         public int getCyclicValue() {return _cyclicValue;}
 	
 	public final region region;
+	public region getRegion() { return region; }
 	/** The parameter dimension may be used in constructing types derived
 	 * from the class distribution. For instance,
 	 * distribution(dimension=k) is the type of all k-dimensional
@@ -73,7 +74,7 @@ implements Indexable, ValueType {
     	}
     }
    
-	protected GlobalIndexMap _indexMap[]; 
+	transient protected GlobalIndexMap _indexMap[]; //Bin: no need for this 
 	
 	
 	/* analyse the region distributed as described in the map, and determine

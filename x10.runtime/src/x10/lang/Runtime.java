@@ -4,6 +4,8 @@ package x10.lang;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import x10.cluster.ClusterConfig;
+import x10.cluster.ClusterRuntime;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
@@ -37,7 +39,7 @@ public abstract class Runtime {
      * This instance should be used only in the implementation of 
      * the x10.runtime. 
      */
-    public static JavaRuntime java;
+    public static JavaRuntime javaRuntime;
     
     private static boolean done_;
     public static void init() {
@@ -64,13 +66,22 @@ public abstract class Runtime {
             throw new Error(ie);
         } catch (Throwable t) {
             System.err.println("Runtime::<clinit> unknown exception during creation of runtime " + rt);
+            t.printStackTrace();
             throw new Error(t);
         } finally {        
             assert (r != null);
             runtime = r;
-            java = new JavaRuntime();
+            javaRuntime = new JavaRuntime();
             factory = runtime.getFactory();
             // ArrayFactory.init(r);
+            r.initialize();  //eagerly 
+            /*dist.initFactory();
+            intArray.initFactory();
+            genericArray.initFactory();
+            point.initFactory();
+            charArray.initFactory();
+            doubleArray.initFactory();
+            */
         }
     }
     public static Factory factory; 
@@ -83,7 +94,7 @@ public abstract class Runtime {
             init();
             runtime.run(args_stripped);
     	} catch (Exception e) {
-    		Runtime.java.error("Unexpected Exception in X10 Runtime.", e);
+    		Runtime.javaRuntime.error("Unexpected Exception in X10 Runtime.", e);
     	}
         // vj: The return from this method does not signal termination of the VM
     	// because a separate non-daemon thread has been spawned to execute Boot Activity.
@@ -151,8 +162,13 @@ public abstract class Runtime {
     
     /* this is called from inside the array library */
     public static void hereCheckPlace(place p) {        
-        if (p != ((PoolRunner)Thread.currentThread()).place)   
-            throw new BadPlaceException(p, here());
+        if (p != ((PoolRunner)Thread.currentThread()).place) {
+        	//cluster situation
+        	if(ClusterConfig.multi && ClusterRuntime.isLocal(p)) 
+        		; //good
+        	else 
+        		throw new BadPlaceException(p, here());
+        }
     }
 
     /* this is called from the code snippet for field and array access */

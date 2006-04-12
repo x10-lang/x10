@@ -16,7 +16,9 @@ abstract public class charArray extends x10Array{
 	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
-        public dist getDistribution() { return distribution;}
+    
+	public region getRegion() { return region; }
+	public dist getDistribution() { return distribution;}
     
 	protected charArray( dist D) {
 		this.distribution = D;

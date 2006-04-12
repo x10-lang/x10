@@ -9,6 +9,7 @@ package x10.lang;
  * @author vj 12/24/2004
  */
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 abstract public class doubleArray extends x10Array{
@@ -17,6 +18,7 @@ abstract public class doubleArray extends x10Array{
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 
+	public region getRegion() { return region; }
 	public dist getDistribution() { return distribution;}
 	
 	protected doubleArray( dist D) {
@@ -25,7 +27,7 @@ abstract public class doubleArray extends x10Array{
 		this.rank = D.rank;
 	}
 	
-	public static interface binaryOp {
+	public static interface binaryOp extends Serializable {
 		double apply(double r, double s);
 	}
 	public static final binaryOp sub = new binaryOp() { public double apply(double r, double s) { return r-s;}};
@@ -33,13 +35,13 @@ abstract public class doubleArray extends x10Array{
 	public static final binaryOp mul = new binaryOp() { public double apply(double r, double s) { return r*s;}};
 	public static final binaryOp div = new binaryOp() { public double apply(double r, double s) { return r/s;}};
 	public static final binaryOp max = new binaryOp() { public double apply(double r, double s) { return Math.max(r,s);}};
-	public static interface unaryOp {
+	public static interface unaryOp extends Serializable {
 		double apply(double r);
 	}
 	public static final unaryOp abs = new unaryOp() { public double apply(double r) { return Math.abs(r);}};
 	public static final unaryOp id = new unaryOp() { public double apply(double r) { return r;}};
 	
-	public static interface pointwiseOp/*(region r)*/ {
+	public static interface pointwiseOp/*(region r)*/ extends Serializable {
 		double apply(point/*(r)*/ p);
 	}
 	

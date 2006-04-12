@@ -20,7 +20,7 @@ import x10.runtime.distributed.DeserializerBuffer;
  * @author vj
  */
 public abstract /*value*/ class region extends Object 
-implements TypeArgument, ValueType {
+implements TypeArgument, ValueType, java.io.Serializable {
 
         public static final int UNKNOWN=0;
         public static final int RANGE=1;

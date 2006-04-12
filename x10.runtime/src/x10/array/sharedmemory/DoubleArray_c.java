@@ -8,6 +8,7 @@ import x10.array.Distribution_c;
 import x10.array.DoubleArray;
 import x10.array.Helper;
 import x10.array.Operator;
+import x10.array.Operator.Scan;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
@@ -26,9 +27,10 @@ import x10.runtime.Configuration;
  */
 public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Cloneable {
 
-    protected final boolean safe_;
-    protected final MemoryBlock arr_;
-    protected final boolean mutable_;
+    protected /*private*/ final boolean safe_;
+    protected /*private*/ final MemoryBlock arr_;
+    public final boolean mutable_;
+
     
     public boolean valueEquals(Indexable other) {
         return arr_.valueEquals(((DoubleArray_c)other).arr_);
@@ -93,7 +95,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         } else {
             this.arr_ =Allocator.allocSafe(count, Double.TYPE);
         }
-        scan(this, new Assign(c));
+        initScan(this, new Assign(c));
     	
     }
     public DoubleArray_c( dist d, DoubleArray.pointwiseOp f) {
@@ -117,9 +119,14 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
             this.arr_ =Allocator.allocSafe(count, Double.TYPE);
         }
         if (f != null)
-            scan(this, f);
+            initScan(this, f);
     }
-    
+    protected void initScan(DoubleArray a, DoubleArray.pointwiseOp f) {
+    	scan(a, f);
+    }
+    protected void initScan(DoubleArray a, Scan op) {
+    	scan(a, op);
+    }
     protected DoubleArray_c( dist d, double[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
