@@ -66,7 +66,7 @@ public class AppDemo extends Universal {
 	 */
 	private int runMode;
 	private dist D;
-	private ToTask[.] tasks;
+	private /*final*/ ToTask[.] tasks;  //Bin: should be final
 	private final double[.] expectedReturnRate;
 	private final double[.] volatility;
 	public AppDemo(  
@@ -131,10 +131,11 @@ public class AppDemo extends Universal {
 	
 	public void runSerial() {
 		final ToInitAllTasks t = (ToInitAllTasks) initAllTasks;
+		final ToTask[.] tmp_tasks_ = tasks; //cx10: work around
 		finish ateach (point [i] : expectedReturnRate) {
 			PriceStock ps = new PriceStock();
 			ps.setInitAllTasks(t);
-			ps.setTask(tasks[i]);
+			ps.setTask(tmp_tasks_[i]);
 			ps.run();
 			ToResult r = (ToResult) ps.getResult();
 			expectedReturnRate[i] = r.get_expectedReturnRate();
