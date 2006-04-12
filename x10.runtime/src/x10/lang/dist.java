@@ -116,9 +116,14 @@ implements Indexable, ValueType {
 		 */
 		abstract public  
 		/*(region R)*/ dist/*(R)*/ block( region R, Set/*<place>*/ s);
-		public dist block(region[] R) {
-		    throw new Error("Not yet implemented.");
-        }
+		
+		public 
+		/*(region R)*/ dist/*(R)*/ block( final region[] R ) {
+			final dist/*(R)*/ result = this.block/*(R)*/(R, x10.lang.place.places);
+			assert result.region.equals(R); 
+			return result;
+		}
+		abstract public dist block(region[] R, Set/*<places>*/ s);
 		
 		/** Returns the cyclic distribution over the given region, and over
 		 * all places.
