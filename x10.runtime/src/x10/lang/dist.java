@@ -116,7 +116,9 @@ implements Indexable, ValueType {
 		 */
 		abstract public  
 		/*(region R)*/ dist/*(R)*/ block( region R, Set/*<place>*/ s);
-		
+		public dist block(region[] R) {
+		    throw new Error("Not yet implemented.");
+        }
 		
 		/** Returns the cyclic distribution over the given region, and over
 		 * all places.
