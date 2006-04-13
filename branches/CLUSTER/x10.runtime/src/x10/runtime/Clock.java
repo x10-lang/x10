@@ -172,7 +172,9 @@ public /* final */ class Clock extends clock {
 	 */
 	private int childCnt_ = 0;
 	private int childResumedCnt_ = 0; //Set childResumed_ = new HashSet();
+	private int childNextResumedCnt_ = 0;
 	private int childNextCnt_ = 0;
+	private int childNextNextCnt_ = 0;
 	private X10RemoteRef rref_p = null;
 	private boolean advancedParent = false;
 	public static final int dbg_level = 3;
@@ -185,7 +187,12 @@ public /* final */ class Clock extends clock {
 		if(Report.should_report("cluster", Clock.dbg_level))
 			Report.report(Clock.dbg_level, "Clock.signalResumet>>> before: "+this);
 		
-		childResumedCnt_++; //childResumed_.add(child);
+		if(splitPhase_) {
+			childNextResumedCnt_ ++;
+			return;
+		} else {
+			childResumedCnt_++; //childResumed_.add(child);
+		}
 		tryMoveToSplit_();
 		
 		if(Report.should_report("cluster", Clock.dbg_level))
@@ -196,8 +203,15 @@ public /* final */ class Clock extends clock {
 		if(Report.should_report("cluster", Clock.dbg_level))
 			Report.report(Clock.dbg_level, "Clock.signalNext>>> before: "+this);
 		
-		childNextCnt_ ++;
-		if(!splitPhase_) block_();
+		if((!splitPhase_) || ph < phase_) {//2): child call resume, and then call next
+			childNextCnt_ ++;
+			if((activityCount_ +childCnt_) > (resumedCount_ +childResumedCnt_) && ph == phase_) 
+				block_();
+		} else { //splitPhase_ //&& ph > phase_
+			childNextNextCnt_ ++;
+			block_();
+		}
+		
 		tryMoveToWhole_();
 		
 		if(Report.should_report("cluster", Clock.dbg_level))
@@ -463,6 +477,10 @@ public /* final */ class Clock extends clock {
 		advancedParent = false;
 		childResumedCnt_ = 0;
 		childNextCnt_ = 0;
+		childResumedCnt_ = childNextResumedCnt_;
+		childNextResumedCnt_ = 0;
+		childNextCnt_ = childNextNextCnt_;
+		childNextNextCnt_ = 0;
 		
 		return true;
 	}
