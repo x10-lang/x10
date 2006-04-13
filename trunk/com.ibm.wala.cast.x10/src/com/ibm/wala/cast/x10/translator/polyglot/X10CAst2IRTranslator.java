@@ -3,6 +3,8 @@
  */
 package com.ibm.domo.ast.x10.translator.polyglot;
 
+import java.io.PrintWriter;
+
 import com.ibm.capa.ast.CAstEntity;
 import com.ibm.capa.ast.CAstNode;
 import com.ibm.capa.ast.CAstType;
@@ -19,6 +21,7 @@ import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
+import com.ibm.domo.ast.x10.translator.X10CAstPrinter;
 import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.domo.ast.x10.visit.X10CAstVisitor;
 import com.ibm.domo.ssa.SSAInstructionFactory;
@@ -145,6 +148,9 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     private void translate(final CAstEntity N, final String nm) {
 	if (translator.DEBUG_TOP)
 	    Trace.println("translating " + nm);
+//	PrintWriter printWriter= new PrintWriter(System.out);
+//	X10CAstPrinter.printTo(N, printWriter);
+//	printWriter.flush();
 	visitEntities(N, new DefaultContext(translator, N, nm), this);
     }
 
