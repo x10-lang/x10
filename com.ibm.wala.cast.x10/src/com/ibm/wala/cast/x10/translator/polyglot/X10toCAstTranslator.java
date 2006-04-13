@@ -12,7 +12,6 @@ import java.util.Map;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
-import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
@@ -38,6 +37,7 @@ import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.domo.types.ClassLoaderReference;
 import com.ibm.domo.types.TypeReference;
+import com.ibm.domo.util.IteratorPlusOne;
 
 public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, TypeSystem ts) {
@@ -309,7 +309,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    // advantage of making the operational semantics clear, with minimal extra
 	    // machinery.
             Assertions._assert(exprs.size() == stmts.size());
-	    CAstNode[] whenClauses= new CAstNode[exprs.size()];
+	    CAstNode[] whenClauses= new CAstNode[exprs.size()+1];
 
 	    
 	    CAstNode whenExit= fFactory.makeNode(CAstNode.LABEL_STMT,
@@ -319,8 +319,8 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    context.cfg().map(whenExit, whenExit);
 
 	    int idx= 0;
-            Iterator stmtIter= stmts.iterator();
-	    for(Iterator exprIter= exprs.iterator(); exprIter.hasNext(); idx++) {
+            Iterator stmtIter= new IteratorPlusOne(stmts.iterator(), when.stmt());
+	    for(Iterator exprIter= new IteratorPlusOne(exprs.iterator(), when.expr()); exprIter.hasNext(); idx++) {
 //		Branch b= (Branch) iter.next();
                 Expr expr= (Expr) exprIter.next();
                 Stmt stmt= (Stmt) stmtIter.next();
