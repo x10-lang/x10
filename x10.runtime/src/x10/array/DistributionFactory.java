@@ -142,19 +142,38 @@ public class DistributionFactory extends dist.factory {
 	public dist block(region r, Set/*<place>*/ q) {
 		return block(r, q.size(), q);
 	}
-	public dist block(region[] r, Set/*<place>*/ q) {
-		return block(r, q.size(), q);
+	/**
+	 * Create a Distribution where the given tiled region r is distributed
+	 * into blocks over the given q places. 
+	 * For now we require the programmer to provide the base region, base,
+	 * which is intended to be split into r as well. It is the 
+	 * programmer's responsibility to ensure that r partitions base.
+	 * @param r
+	 * @return
+	 */
+	public dist block(region base, region[] r, Set/*<place>*/ q) {
+		return block(base, r, q.size(), q);
 	}
 	
+	
+	public dist block(region base, region[] r, int n, Set/*<place>*/ qs) {
+		assert (n > 0);
+		if ( r.length != n)
+		throw new Error("Not implemented yet.");
+		Distribution_c[] dists = new Distribution_c[n];
+		Object[] q = qs.toArray();
+		
+		for (int i=0; i < n; i++) {
+			dists[i]= new Distribution_c.Constant(r[i],(place)q[i]);
+		}
+		return new Distribution_c.Combined(base,dists);
+	}
 	/**
 	 * Create a Distribution where the given Region is distributed
 	 * into blocks over the first n Places.
 	 * @param r
 	 * @return
 	 */
-	public dist block(region[] r, int n, Set/*<place>*/ qs) {
-		throw new Error("Not implemented yet.");
-	}
 	public dist block(region r, int n, Set/*<place>*/ qs) {
 		assert n <= qs.size();
 		assert n > 0;

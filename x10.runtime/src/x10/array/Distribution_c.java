@@ -35,60 +35,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 	private int _blockSize;
 	private int _cycleSize;
-/*
-	static public dist deserialize(DeserializerBuffer inputBuffer) {
-		int thisIndex = inputBuffer.getOffset();
-		int owningIndex = (int)inputBuffer.readLong();
-		if (thisIndex != owningIndex) {
-			//System.out.println("found a second reference "+thisIndex+" to "+owningIndex);
-			return (dist)inputBuffer.getCachedRef(owningIndex);
-		}
-		int distType = (int)inputBuffer.readLong();
-		// next is a region
-		region r = x10.lang.region.deserialize(inputBuffer);
 
-		dist newDist = null;
-		switch (distType) {
-			case x10.lang.dist.BLOCK_CYCLIC:
-				{
-					int blockSize = (int)inputBuffer.readLong();
-					newDist = factory.blockCyclic(r, blockSize);
-				}
-				break;
-			case x10.lang.dist.BLOCK:
-				newDist = factory.block(r);
-				break;
-			case x10.lang.dist.CONSTANT:
-				{
-					place pl = place.deserialize(inputBuffer);
-					newDist = factory.constant(r, pl);
-				}
-				break;
-			case x10.lang.dist.CYCLIC:
-				newDist = factory.cyclic(r);
-				break;
-			case x10.lang.dist.ARBITRARY:
-				{
-					int size = (int)inputBuffer.readLong();
-					HashMap newMap = new HashMap(size);
-					for (int i = 0; i < size; ++i) {
-						point_c p = point_c.deserialize(inputBuffer);
-						place pl = place.deserialize(inputBuffer);
-						newMap.put(p, pl);
-					}
-					newDist = new Arbitrary(r, newMap);
-					//System.out.println("created:"+newDist);
-				}
-				break;
-			default:
-				System.out.println("Distribution:block dist unimplemented!!!!"+distType);
-				throw new RuntimeException("Unimplemented");
-		}
-
-		inputBuffer.cacheRef(owningIndex, newDist);
-		return newDist;
-	}
-*/
 	public boolean isValue() {
 		return true;
 	}
@@ -472,32 +419,6 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	static final class Constant extends Distribution_c {
 		place place_;
 
-		/* format: <unique id>,<type>,<place_id>,<region> */
-		/*
-		public void serialize(SerializerBuffer outputBuffer) {
-			Integer originalIndex = outputBuffer.findOriginalRef(this);
-			boolean isOriginalRef = true;
-
-			if (originalIndex == null) {
-				isOriginalRef = false;
-				originalIndex = new Integer(outputBuffer.getOffset());
-				outputBuffer.recordRef(this, originalIndex);
-			} else {
-				outputBuffer.recordRef(this, originalIndex);
-				outputBuffer.writeLong(originalIndex.intValue());
-				return;
-			}
-
-			outputBuffer.writeLong(originalIndex.intValue());
-			outputBuffer.writeLong(_distributionType);
-			assert(CONSTANT == _distributionType);
-
-			this.region.serialize(outputBuffer);
-			place_.serialize(outputBuffer);
-		}
-		
-		XXX
-*/
 		Constant(region r, place p) {
 			super(r);
 			this.places.add(p);
@@ -687,39 +608,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	static class Combined extends Distribution_c {
 
 		private final Distribution_c[] members_;
-
-		/*
-		public void serialize(SerializerBuffer outputBuffer) {
-			Integer originalIndex = outputBuffer.findOriginalRef(this);
-			boolean isOriginalRef = true;
-
-			if (originalIndex == null) {
-				isOriginalRef = false;
-				originalIndex = new Integer(outputBuffer.getOffset());
-				outputBuffer.recordRef(this, originalIndex);
-			} else {
-				outputBuffer.recordRef(this, originalIndex);
-				outputBuffer.writeLong(originalIndex.intValue());
-				return;
-			}
-
-			outputBuffer.writeLong(originalIndex.intValue());
-			outputBuffer.writeLong(_distributionType);
-
-			this.region.serialize(outputBuffer);
-			switch (_distributionType) {
-				case BLOCK_CYCLIC:
-					outputBuffer.writeLong(_cyclicValue);
-					break;
-				case CYCLIC:
-				case BLOCK:
-					break; // no need to store info
-				default:
-					System.out.println("Unhandled dist type "+_distributionType);
-					assert false;
-			}
-		}
-*/
+		
 		/**
 		 * @param r
 		 */
@@ -805,57 +694,6 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 		private final Map map_;
 
-		// format:
-		// <unique id>  index into buffer so refs can be commoned
-		// <type>       int indicating type
-		// <...region info...>
-		/*
-		public void serialize(SerializerBuffer outputBuffer) {
-			Integer originalIndex = outputBuffer.findOriginalRef(this);
-			boolean isOriginalRef = true;
-
-			if (originalIndex == null) {
-				isOriginalRef = false;
-				originalIndex = new Integer(outputBuffer.getOffset());
-				outputBuffer.recordRef(this, originalIndex);
-			} else {
-				outputBuffer.recordRef(this, originalIndex);
-				outputBuffer.writeLong(originalIndex.intValue());
-				return;
-			}
-
-			outputBuffer.writeLong(originalIndex.intValue());
-			outputBuffer.writeLong(_distributionType);
-
-			this.region.serialize(outputBuffer);
-			switch (_distributionType) {
-				case BLOCK_CYCLIC:
-					outputBuffer.writeLong(_cyclicValue);
-					break;
-				case CYCLIC:
-				case BLOCK:
-					break; // no need to store info
-				case ARBITRARY://expensive
-					{
-						Set data = map_.entrySet();
-						outputBuffer.writeLong(data.size());
-						for (Iterator i = data.iterator(); i.hasNext(); ) {
-							Map.Entry entry = (Map.Entry)i.next();
-							place pl = (place)entry.getValue();
-							point_c p = (point_c)entry.getKey();
-							p.serialize(outputBuffer);
-							pl.serialize(outputBuffer);
-						}
-					}
-					//System.out.println("Serialized:"+this);
-					break;
-				default:
-					System.out.println("dump dist:"+this);
-					System.out.println("Unhandled dist type "+_distributionType);
-					assert false;
-			}
-		}
-*/
 		Arbitrary(region r, Map m) {
 			super(r);
 			map_ = m;
