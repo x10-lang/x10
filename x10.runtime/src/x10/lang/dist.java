@@ -17,20 +17,6 @@ import x10.lang.GlobalIndexMap;
 abstract public /*value*/ class dist/*( region region )*/ extends Object 
 implements Indexable, ValueType {
 	
-	/* used to create distributions remotely */
-	/*
-        public final static int UNKNOWN=0;
-	public final static int BLOCK_CYCLIC=1;
-	public final static int BLOCK=2;
-	public final static int CONSTANT=3;
-	public final static int CYCLIC=4;
-	public final static int UNIQUE=5;
-        public final static int ARBITRARY=6; 
-	public int _distributionType=UNKNOWN;
-	public int _cyclicValue;
-        public int getDistributionType() {return _distributionType;}
-        public int getCyclicValue() {return _cyclicValue;}
-	*/
 	public final region region;
 	/** The parameter dimension may be used in constructing types derived
 	 * from the class distribution. For instance,
@@ -42,10 +28,6 @@ implements Indexable, ValueType {
     /* disrtibution is Indexable and as such regarded by the compiler as an X10array.
      * Hence it must have a field 'distrubution' (see ateach construct) */
     public final dist distribution;
-
-   
-
-   
 	
 	/** places is the range of the distribution. Guranteed that if a
 	 * place P is in this set then for some point p in region,
@@ -118,12 +100,12 @@ implements Indexable, ValueType {
 		/*(region R)*/ dist/*(R)*/ block( region R, Set/*<place>*/ s);
 		
 		public 
-		/*(region R)*/ dist/*(R)*/ block( final region[] R ) {
-			final dist/*(R)*/ result = this.block/*(R)*/(R, x10.lang.place.places);
-			assert result.region.equals(R); 
+		/*(region R)*/ dist/*(R)*/ block( final region base, final region[] R ) {
+			final dist/*(R)*/ result = this.block/*(R)*/(base, R, x10.lang.place.places);
+			//assert result.region.equals(R); 
 			return result;
 		}
-		abstract public dist block(region[] R, Set/*<places>*/ s);
+		abstract public dist block(region base, region[] R, Set/*<places>*/ s);
 		
 		/** Returns the cyclic distribution over the given region, and over
 		 * all places.
