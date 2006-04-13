@@ -151,6 +151,9 @@ public class RayTracer {
 		final dist DBlock = dist.factory.block(R);
 		final dist U = dist.factory.unique();
 		final int[.] row = new int[DBlock];
+		final View view = this.view;
+		final Primitive[] prim = this.prim;
+		final Light[] lights = this.lights;
 
 		finish ateach (point[pl] : U) {
 			final dist my_dist = DBlock | here;
@@ -169,7 +172,7 @@ public class RayTracer {
 				double ylen = (double)(2.0 * y) / (double)interval.width - 1.0;
 				double xlen = (double)(2.0 * x) / (double)interval.width - 1.0;
 				r = r.d (Vec.comb(xlen, leftVec, ylen, upVec).added(viewVec).normalized());
-				Vec col = trace(0, 1.0, r, new Isect(), new Ray());
+				Vec col = trace(0, 1.0, r, new Isect(), new Ray(), prim, lights);
 				
 				// computes the color of the ray
 				int red = (int)(col.x * 255.0);
@@ -192,7 +195,7 @@ public class RayTracer {
 		
 	}
 	
-	boolean intersect(Ray r, double maxt, Isect inter) {
+	boolean intersect(Ray r, double maxt, Isect inter, Primitive[] prim) {
 		nullable Isect tp;
 		int i, nhits;
 		
@@ -217,8 +220,8 @@ public class RayTracer {
 	 * @param r The ray
 	 * @return Returns 1 if there is a shadow, 0 if there isn't
 	 */
-	int Shadow(Ray r, double tmax, Isect inter) {
-		if (intersect(r, tmax, inter))
+	int Shadow(Ray r, double tmax, Isect inter, Primitive[] prim) {
+		if (intersect(r, tmax, inter, prim))
 			return 0;
 		return 1;
 	}
@@ -250,7 +253,7 @@ public class RayTracer {
 	 * Returns the shaded color
 	 * @return The color in Vec form (rgb)
 	 */
-	Vec shade(int level, double weight, Vec P, Vec N, Vec I, Isect hit, Ray tRay) {
+	Vec shade(int level, double weight, Vec P, Vec N, Vec I, Isect hit, Ray tRay, Primitive[] prim, Light[] lights) {
 
 		nullable Surface surf = hit.surf;
 		Vec bigr = new Vec();
@@ -270,7 +273,7 @@ public class RayTracer {
 				tRay.d=L;
 				
 				// Checks if there is a shadow
-				if (Shadow(tRay, t, hit) > 0) {
+				if (Shadow(tRay, t, hit, prim) > 0) {
 					double diff = Vec.dot(N, L) * surf.kd *
 					lights[l].brightness;
 					
@@ -289,7 +292,7 @@ public class RayTracer {
 		tRay.p=P;
 		if (surf.ks * weight > 1e-3) {
 			tRay.d = SpecularDirection(I, N);
-			Vec tcol = trace(level + 1, surf.ks * weight, tRay, hit, tRay);
+			Vec tcol = trace(level + 1, surf.ks * weight, tRay, hit, tRay, prim, lights);
 			col=col.adds(surf.ks, tcol);
 		}
 		if (surf.kt * weight > 1e-3) {
@@ -297,7 +300,7 @@ public class RayTracer {
 				tRay.d = (Vec) TransDir(null, surf, I, N);
 			else
 				tRay.d = (Vec) TransDir(surf, null, I, N);
-			Vec tcol = trace(level + 1, surf.kt * weight, tRay, hit, tRay);
+			Vec tcol = trace(level + 1, surf.kt * weight, tRay, hit, tRay, prim, lights);
 			col=col.adds(surf.kt, tcol);
 		}
 		// garbaging...
@@ -310,20 +313,20 @@ public class RayTracer {
 	/**
 	 * Launches a ray
 	 */
-	Vec trace (int level, double weight, Ray r, Isect inter, Ray tRay) {
+	Vec trace (int level, double weight, Ray r, Isect inter, Ray tRay, Primitive[] prim, Light[] lights) {
 		// Checks the recursion level
 		if (level > 6) {
 			return new Vec();
 		}
 		
-		boolean hit = intersect(r, 1e6, inter);
+		boolean hit = intersect(r, 1e6, inter, prim);
 		if (hit) {
 			Vec P = r.point(inter.t);
 			Vec N = inter.prim.normal(P);
 			if (Vec.dot(r.d, N) >= 0.0) {
 				N=N.negate();
 			}
-			return shade(level, weight, P, N, r.d, inter, tRay);
+			return shade(level, weight, P, N, r.d, inter, tRay, prim, lights);
 		}
 		// no intersection --> col = 0,0,0
 		return voidVec;
