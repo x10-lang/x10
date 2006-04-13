@@ -8,6 +8,7 @@ import java.util.List;
 import java.lang.reflect.*;
 import java.io.*;
 
+import x10.cluster.Debug;
 import x10.lang.x10Array;
 import x10.lang.MultipleExceptions;
 import x10.lang.ClockUseException;
@@ -105,8 +106,8 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
      * 
      */
     public void registerWithClock() {
-    	if(Report.should_report("cluster", 1))
-    		Report.report(1, "Activity.registerWithClock ");
+    	if(Report.should_report("cluster", Debug.comm))
+    		Report.report(Debug.comm, "Activity.registerWithClock ");
     	
     	for(Iterator it = clocks_.iterator(); it.hasNext();) {
     		Clock c = ((Clock)it.next());
@@ -119,8 +120,8 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
      * replacing call to LocalPlace_c.prepareActivity
      */
     public void initRemoteActivity(Activity child) {
-    	if(Report.should_report("cluster", 1))
-    		Report.report(1, "Activity.initRemoteActivity>>> addChild to: "+child.clocks_);
+    	if(Report.should_report("cluster", Debug.comm))
+    		Report.report(Debug.comm, "Activity.initRemoteActivity>>> addChild to: "+child.clocks_);
     	
     	Iterator it = child.clocks_.iterator();
     	while (it.hasNext()) {
