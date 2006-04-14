@@ -33,19 +33,20 @@ public class JGFMolDynBench extends md implements JGFSection3 {
 	//   int size;
 	
 	static final dist D= dist.factory.unique();
-	public static final md[.] P = new md[D] (point [j]) {return new md();};
+	public /*static*/ final md[.] P = new md[D] (point [j]) {return new md();};
 	
 	public JGFMolDynBench() {
 	}
 	
-	public void JGFsetsize(int size){
-		this.size = size;
+	public void JGFsetsize(final int size_){
+		this.size = size_; //cx10: may initialized inproperly for 'md'
+		finish ateach(point [j]:D) (P[j]).size = size_;
 	}
 	
-	public void JGFinitialise(){
-		
-		finish ateach(point [j]:D) (P[j]).initialise(j, place.MAX_PLACES);
-		
+	public void JGFinitialise(){		
+		finish ateach(point [j]:D) {
+			(P[j]).initialise(j, place.MAX_PLACES);
+		}
 	}
 	
 	public void JGFapplication(){ 
@@ -53,7 +54,7 @@ public class JGFMolDynBench extends md implements JGFSection3 {
 		JGFInstrumentor.startTimer("Section3:MolDyn:Run");  
 		finish async {
 			final clock C= clock.factory.clock();
-			ateach(point [j]: D) clocked(C) P[j].runiters(C);
+			ateach(point [j]: D) clocked(C) P[j].runiters(C, P);
 		}
 		JGFInstrumentor.stopTimer("Section3:MolDyn:Run");  
 	} 
