@@ -664,7 +664,42 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			return ret;
 		}
 		
-		
+		/*
+		 * Cx10: a restriction on a Combined distribution of Constant distributions 
+		 * should be fast.
+		 */
+		public dist/*(:this.region.contains(region))*/ restriction( Set/*<place>*/Ps ) {
+			//System.out.println("optimizing dist.restriction(Set): 1");
+			Object[] toPls_ = Ps.toArray();
+			dist [] newDists = new dist[members_.length];
+			int count=0;
+			int i;
+			for (i=0; i < members_.length; ++i) {
+				Distribution_c mem_ = members_[i];
+				for(int j=0; j<toPls_.length; j++)
+					if(mem_.places.contains(toPls_[j])) { //if this member contain any place in 'Ps'
+						dist d_ = mem_.restriction(Ps);
+						if(! (d_ instanceof Empty)) 
+							newDists[count++] = d_;
+						break;
+					}
+			}
+			if(count == 0) return new Empty(this.rank);
+			if(count == 1) return newDists[0];
+			
+			//System.out.println("optimizing dist.restriction(Set): 2");
+			//now we may not have saved by specializing this method for 'Combined'
+			region ru_ = null;
+			Distribution_c[] du_ = new Distribution_c[count]; 
+			for(i=0;i < count;++i){
+				if(ru_ != null) ru_ = ru_.union(newDists[i].region);
+				else ru_ = newDists[i].region;
+				du_[i] = (Distribution_c) newDists[i];
+			}
+			
+			//System.out.println("optimizing dist.restriction(Set): 3");
+			return new Combined(ru_, du_);
+		}
 		
 		public region/*(rank)*/ restrictToRegion(place pl) {
 			
