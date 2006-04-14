@@ -42,12 +42,16 @@ public class JGFCryptBench extends IDEATest implements JGFSection2{
 	}
 	
 	public void JGFvalidate(){
-		finish ateach (point [i] : plain1 )
-		if (plain1[i] != plain2[i]) {
+		final byte[.] tmp_plain1 = plain1;
+		final byte[.] tmp_plain2 = plain2;
+		final byte[.] tmp_crypt1 = crypt1;
+		
+		finish ateach (point [i] : tmp_plain1 )
+		if (tmp_plain1[i] != tmp_plain2[i]) {
 			System.out.println("Validation failed");
-			System.out.println("Original Byte " + i + " = " + plain1[i]); 
-			System.out.println("Encrypted Byte " + i + " = " + crypt1[i]); 
-			System.out.println("Decrypted Byte " + i + " = " + plain2[i]); 
+			System.out.println("Original Byte " + i + " = " + tmp_plain1[i]); 
+			System.out.println("Encrypted Byte " + i + " = " + tmp_crypt1[i]); 
+			System.out.println("Decrypted Byte " + i + " = " + tmp_plain2[i]); 
 			throw new Error("Validation failed");
 		}
 	}
