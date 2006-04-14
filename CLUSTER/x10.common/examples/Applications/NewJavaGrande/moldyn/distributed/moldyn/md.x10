@@ -206,7 +206,7 @@ public class md {
 		
 	}
 	
-	public void runiters(final clock C) {
+	public void runiters(final clock C, md[.] benchP) {
 		
 		int n=0;
 		move = 0;
@@ -227,7 +227,7 @@ public class md {
 			
 			/* global reduction on partial sums of the forces, epot, vir and interactions */ 
 			next;
-			allreduce();
+			allreduce(benchP);			
 			next;
 			
 			
@@ -259,7 +259,6 @@ public class md {
 			}
 			
 			/* sum to get full potential energy and virial */
-			
 			if(((move+1) % iprint) == 0) {
 				ek = 24.0*ekin;
 				epot = 4.0*epot;
@@ -277,17 +276,17 @@ public class md {
 		
 	}
 	
-	void allreduce() {
+	void allreduce(md[.] benchP) {
 		// Place holder for now to emulate allreduce. To be optimized
 		
 		if (rank!=0)  return;
-		final md[.] P= JGFMolDynBench.P;
+		final md[.] P= benchP; //JGFMolDynBench.P;
 		final md t=new md();
 		t.mdsize=mdsize;
 		t.one= new Particle[mdsize];
 		for(point [k]: [0:(mdsize-1)]) t.one[k]=new Particle(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
 		// sum reduction
-		for(point [j]: P) {
+		for(point [j]: P) {			
 			for(point [k]: [0:(mdsize-1)]) {
 				t.one[k].xforce+= future(P.distribution[j]){P[j].one[k].xforce}.force();
 				t.one[k].yforce+= future(P.distribution[j]){P[j].one[k].yforce}.force();
@@ -299,7 +298,7 @@ public class md {
 		}
 		// broadcast
 		finish ateach(point [j]: P.distribution) {
-			for(point [k]: [0:(mdsize-1)]) {
+			for(point [k]: [0:(P[j].mdsize-1)]) {
 				P[j].one[k].xforce=future(t){t.one[k].xforce}.force();
 				P[j].one[k].yforce=future(t){t.one[k].yforce}.force();
 				P[j].one[k].zforce=future(t){t.one[k].zforce}.force();
