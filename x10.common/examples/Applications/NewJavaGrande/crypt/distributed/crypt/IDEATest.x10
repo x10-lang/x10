@@ -63,10 +63,16 @@ void Do()
   // Start the stopwatch.       
   JGFInstrumentor.startTimer("Section2:Crypt:Kernel"); 		
 
+  final byte[.] tmp_plain1 = plain1;//cx10: workaround
+  final byte[.] tmp_plain2 = plain2;
+  final byte[.] tmp_crypt1 = crypt1;
+  final int value[.] tmp_ZR = ZR;
+  final int value[.] tmp_DKR = DKR;
+  
   finish 
     ateach(point p : dist.factory.unique()) {
-      cipher_idea(plain1, crypt1, ZR);     // Encrypt plain1.
-      cipher_idea(crypt1, plain2, DKR);    // Decrypt.
+      cipher_idea(tmp_plain1, tmp_crypt1, tmp_ZR);     // Encrypt plain1.
+      cipher_idea(tmp_crypt1, tmp_plain2, tmp_DKR);    // Decrypt.
     } 
   
 
@@ -266,7 +272,7 @@ private void cipher_idea(final byte[.] text1,
 {
 
 // WARNING: This assumes that the size of each block is a multiple of 8!
-if (text1.region.size() % (8 * place.MAX_PLACES) != 0) {
+if (text1.getRegion().size() % (8 * place.MAX_PLACES) != 0) {
   throw new RuntimeException("Invalid number of places for the distribution size");
 }
 for (point [i] : text1.distribution |here)

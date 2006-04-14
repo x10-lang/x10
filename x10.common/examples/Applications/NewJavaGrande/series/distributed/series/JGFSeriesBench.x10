@@ -58,11 +58,12 @@ public class JGFSeriesBench extends SeriesTest implements JGFSection2{
 		       {0.08241482176581083, -0.8057591902785817}};
 */ 
  
+     final double[.] tmp_testArray = testArray;
     for (int i = 0; i < 4; i++){
       for (int j = 0; j < 2; j++){
         final int ii = i;
         final int jj = j;
-        double cval = future(testArray.distribution[j,i]) { testArray[jj,ii] }.force();
+        double cval = future(tmp_testArray.distribution[j,i]) { tmp_testArray[jj,ii] }.force();
 	double error = Math.abs(cval - ref[i][j]);
 	if (error > 1.0e-12 ){
 	  System.out.println("Validation failed for coefficient " + j + "," + i);
