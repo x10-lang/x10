@@ -96,6 +96,7 @@ class SeriesTest
 		
 		final double omega = (double) 3.1415926535897932;
 		final dist U = dist.factory.unique();
+		final double[.] tmp_testArray = testArray;
 		finish {
 			ateach(final point p: U) {
 				int ilow;
@@ -105,7 +106,7 @@ class SeriesTest
 				} else {
 					ilow = 0;
 				}
-				for (point p[n,i] : testArray.distribution| here) {
+				for (point p[n,i] : tmp_testArray.distribution| here) {
 					if (i >= ilow) {
 						
 						// Calculate A[i] terms. Note, once again, that we
@@ -113,7 +114,7 @@ class SeriesTest
 						// since the period is 2 and the term cancels itself
 						// out.
 						if (n == 0) {
-							testArray[0,i] = TrapezoidIntegrate((double)0.0,
+							tmp_testArray[0,i] = TrapezoidIntegrate((double)0.0,
 									(double)2.0,
 									1000,
 									omega * (double)i,
@@ -121,7 +122,7 @@ class SeriesTest
 						} else {
 							// Calculate the B[i] terms.
 							
-							testArray[n,i] = TrapezoidIntegrate((double)0.0,
+							tmp_testArray[n,i] = TrapezoidIntegrate((double)0.0,
 									(double)2.0,
 									1000,
 									omega * (double)i,
