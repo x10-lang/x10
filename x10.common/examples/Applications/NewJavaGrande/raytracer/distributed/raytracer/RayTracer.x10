@@ -21,37 +21,39 @@
  *                                                                         *
  **************************************************************************/
 
+// Modified by Hiroshi Yamauchi (yamauchi@cs.purdue.edu) so that it runs 
+// on the cluster version without getting a bad place exception. Also, the
+// primitive objects and light objects are copied in each place in order
+// to maximize the parallism and reduce inter-place communication (potentially
+// over network on the cluster version.
 
 package raytracer; 
 
 public class RayTracer { 
 	
-	// Make copy of lights and prim in each place to reduce network access
+	// Make a copy of lights and prim in each place to reduce network access
 	private static class PL {
 		Light[] lights;
 		Primitive[] prim;
 	}
 	
-	PL pl0;
-	PL pl1;
-	PL pl2;
-	PL pl3;
+	// This array is allocated at the first place
+	// but the elements are allocated at each place
+	PL[] pl;
+	PL localPL;
 	
-	PL placeToPL(place p) {
-		switch(p.id) {
-		case 0: return future (place.places(0)) { this.pl0 }.force();
-		case 1: return future (place.places(0)) { this.pl1 }.force();
-		case 2: return future (place.places(0)) { this.pl2 }.force();
-		case 3: return future (place.places(0)) { this.pl3 }.force();
-		default: throw new Error("bad place : " + p);
-		}
+	private PL placeToPL(place p) {
+		final int id = p.id;
+		return future (place.FIRST_PLACE) { pl[id] }.force();
 	}
 	 
 	RayTracer() {
-		pl0 = future (place.places(0)) { new PL() }.force();
-		pl1 = future (place.places(1)) { new PL() }.force();
-		pl2 = future (place.places(2)) { new PL() }.force();
-		pl3 = future (place.places(3)) { new PL() }.force();
+		pl = new PL[place.LAST_PLACE.id - place.FIRST_PLACE.id + 1];
+		place p = place.FIRST_PLACE;
+		do {
+			pl[p.id] = future (p) { new PL() }.force();
+			p = p.next();
+		} while (p != place.FIRST_PLACE); // next() works like a modular arithmetic
 	}
 	
 	Scene scene;
@@ -166,43 +168,29 @@ public class RayTracer {
 			prim[o]=scene.getObject(o);
 		}
 		
-		final PL pl0 = this.pl0;
-		final PL pl1 = this.pl1;
-		final PL pl2 = this.pl2;
-		final PL pl3 = this.pl3;
+		for(int i = 0; i < pl.length; i++) {
+			final PL _pl_ = pl[i];
+			finish async (_pl_.location) {
+				_pl_.lights = new Light[nLights];
+				_pl_.prim = new Primitive[nObjects];
+			}
+		}
 		
-		finish async (pl0.location) {
-			pl0.lights = new Light[nLights];
-			pl0.prim = new Primitive[nObjects];
-		}
-		finish async (pl1.location) {
-			pl1.lights = new Light[nLights];
-			pl1.prim = new Primitive[nObjects];
-		}
-		finish async (pl2.location) {
-			pl2.lights = new Light[nLights];
-			pl2.prim = new Primitive[nObjects];
-		}
-		finish async (pl3.location) {
-			pl3.lights = new Light[nLights];
-			pl3.prim = new Primitive[nObjects];
-		}
-
 		for(int i = 0; i < nLights; i++) {
 			final int idx = i;
 			final Light l = lights[i];
-			finish async (pl0.location) { pl0.lights[idx] = l; }
-			finish async (pl1.location) { pl1.lights[idx] = l; }
-			finish async (pl2.location) { pl2.lights[idx] = l; }
-			finish async (pl3.location) { pl3.lights[idx] = l; }
+			for(int j = 0; j < pl.length; j++) {
+				final PL _pl_ = pl[j];
+				finish async (_pl_.location) { _pl_.lights[idx] = l; }
+			}
 		}
 		for(int i = 0; i < nObjects; i++) {
 			final int idx = i;
 			final Primitive p = prim[i];
-			finish async (pl0.location) { pl0.prim[idx] = p; }
-			finish async (pl1.location) { pl1.prim[idx] = p; }
-			finish async (pl2.location) { pl2.prim[idx] = p; }
-			finish async (pl3.location) { pl3.prim[idx] = p; }
+			for(int j = 0; j < pl.length; j++) {
+				final PL _pl_ = pl[j];
+				finish async (_pl_.location) { _pl_.prim[idx] = p; }
+			}
 		}
 		
 		// Set the view
