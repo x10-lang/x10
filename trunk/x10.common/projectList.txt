@@ -1,6 +1,5 @@
 junit
 lpg
-pe
 polyglot2
 x10.common
 x10.compiler
