@@ -21,39 +21,35 @@
  *                                                                         *
  **************************************************************************/
 
-// Modified by Hiroshi Yamauchi (yamauchi@cs.purdue.edu) so that it runs 
-// on the cluster version without getting a bad place exception. Also, the
-// primitive objects and light objects are copied in each place in order
-// to maximize the parallism and reduce inter-place communication (potentially
-// over network on the cluster version.
-
 package raytracer; 
 
 public class RayTracer { 
 	
 	// Make a copy of lights and prim in each place to reduce network access
-	private static class PL {
+	private static class SceneObjects {
 		Light[] lights;
 		Primitive[] prim;
 	}
 	
-	// This array is allocated at the first place
-	// but the elements are allocated at each place
-	PL[] pl;
-	PL localPL;
+	final SceneObjects[.] sceneObjects;
+	dist distOfSceneObjects;
 	
-	private PL placeToPL(place p) {
-		final int id = p.id;
-		return future (place.FIRST_PLACE) { pl[id] }.force();
-	}
-	 
 	RayTracer() {
-		pl = new PL[place.LAST_PLACE.id - place.FIRST_PLACE.id + 1];
-		place p = place.FIRST_PLACE;
+		region r = [place.FIRST_PLACE.id:place.FIRST_PLACE.id];
+		distOfSceneObjects = r->here;
+		place pl = place.FIRST_PLACE.next();
 		do {
-			pl[p.id] = future (p) { new PL() }.force();
-			p = p.next();
-		} while (p != place.FIRST_PLACE); // next() works like a modular arithmetic
+			final region rg = [pl.id:pl.id];
+			dist dt = future (pl) { rg->here }.force();
+			r = r || rg;
+			distOfSceneObjects = distOfSceneObjects || dt;
+			pl = pl.next();
+		} while (pl != place.FIRST_PLACE);
+		sceneObjects = new SceneObjects[distOfSceneObjects];
+		final SceneObjects[.] sos = sceneObjects;
+		finish ateach(point p : distOfSceneObjects) {
+			sos[p] = new SceneObjects();
+		}
 	}
 	
 	Scene scene;
@@ -168,28 +164,27 @@ public class RayTracer {
 			prim[o]=scene.getObject(o);
 		}
 		
-		for(int i = 0; i < pl.length; i++) {
-			final PL _pl_ = pl[i];
-			finish async (_pl_.location) {
-				_pl_.lights = new Light[nLights];
-				_pl_.prim = new Primitive[nObjects];
-			}
+		final SceneObjects[.] sos = sceneObjects;
+		finish ateach (point p : distOfSceneObjects) {
+			SceneObjects so = sos[p];
+			so.lights = new Light[nLights];
+			so.prim = new Primitive[nObjects];
 		}
 		
 		for(int i = 0; i < nLights; i++) {
 			final int idx = i;
-			final Light l = lights[i];
-			for(int j = 0; j < pl.length; j++) {
-				final PL _pl_ = pl[j];
-				finish async (_pl_.location) { _pl_.lights[idx] = l; }
+			final Light o = lights[i];
+			finish ateach (point p : distOfSceneObjects) {
+				final SceneObjects so = sos[p];
+				so.lights[idx] = o;
 			}
 		}
 		for(int i = 0; i < nObjects; i++) {
 			final int idx = i;
-			final Primitive p = prim[i];
-			for(int j = 0; j < pl.length; j++) {
-				final PL _pl_ = pl[j];
-				finish async (_pl_.location) { _pl_.prim[idx] = p; }
+			final Primitive o = prim[i];
+			finish ateach (point p : distOfSceneObjects) {
+				final SceneObjects so = sos[p];
+				so.prim[idx] = o;
 			}
 		}
 		
@@ -206,6 +201,7 @@ public class RayTracer {
 		final dist U = dist.factory.unique();
 		final int[.] row = new int[DBlock];
 		final View view = this.view;
+		final SceneObjects[.] sos = this.sceneObjects;
 		
 		finish ateach (point[pl] : U) {
 			final dist my_dist = DBlock | here;
@@ -224,7 +220,7 @@ public class RayTracer {
 				double ylen = (double)(2.0 * y) / (double)interval.width - 1.0;
 				double xlen = (double)(2.0 * x) / (double)interval.width - 1.0;
 				r = r.d (Vec.comb(xlen, leftVec, ylen, upVec).added(viewVec).normalized());
-				Vec col = trace(0, 1.0, r, new Isect(), new Ray());
+				Vec col = trace(0, 1.0, r, new Isect(), new Ray(), sos);
 				
 				// computes the color of the ray
 				int red = (int)(col.x * 255.0);
@@ -252,10 +248,10 @@ public class RayTracer {
 		Vec col;
 	}
 	
-	boolean intersect(final Ray r, double maxt, final Isect inter) {
+	boolean intersect(final Ray r, double maxt, final Isect inter, SceneObjects[.] sos) {
 		inter.t = 1e9;
 		int nhits = 0;
-		Primitive[] prim = placeToPL(here).prim;
+		Primitive[] prim = sos[[here.id]].prim;
 		for(int i = 0; i < prim.length; i++) {
 			nullable Isect tp;
 			tp = prim[i].intersect(r);
@@ -275,8 +271,8 @@ public class RayTracer {
 	 * @param r The ray
 	 * @return Returns 1 if there is a shadow, 0 if there isn't
 	 */
-	int Shadow(Ray r, double tmax, Isect inter) {
-		if (intersect(r, tmax, inter))
+	int Shadow(Ray r, double tmax, Isect inter, SceneObjects[.] sos) {
+		if (intersect(r, tmax, inter, sos))
 			return 0;
 		return 1;
 	}
@@ -308,7 +304,7 @@ public class RayTracer {
 	 * Returns the shaded color
 	 * @return The color in Vec form (rgb)
 	 */
-	Vec shade(int level, double weight, final Vec P, final Vec N, Vec I, final Isect hit, final Ray tRay) {
+	Vec shade(int level, double weight, final Vec P, final Vec N, Vec I, final Isect hit, final Ray tRay, SceneObjects[.] sos) {
 
 		final nullable Surface surf = hit.surf;
 		Vec bigr = new Vec();
@@ -316,7 +312,7 @@ public class RayTracer {
 			bigr = SpecularDirection(I, N);
 		}
 		
-		Light[] lights = placeToPL(here).lights;
+		Light[] lights = sos[[here.id]].lights;
 		
 		// Computes the effectof each light
 		Vec col = new Vec();
@@ -331,7 +327,7 @@ public class RayTracer {
 				tRay.d=L;
 				
 				// Checks if there is a shadow
-				if (Shadow(tRay, t, hit) > 0) {
+				if (Shadow(tRay, t, hit, sos) > 0) {
 					double diff = Vec.dot(N, L) * surf.kd *
 					lt.brightness;
 					
@@ -350,7 +346,7 @@ public class RayTracer {
 		tRay.p=P;
 		if (surf.ks * weight > 1e-3) {
 			tRay.d = SpecularDirection(I, N);
-			Vec tcol = trace(level + 1, surf.ks * weight, tRay, hit, tRay);
+			Vec tcol = trace(level + 1, surf.ks * weight, tRay, hit, tRay, sos);
 			col=col.adds(surf.ks, tcol);
 		}
 		if (surf.kt * weight > 1e-3) {
@@ -358,7 +354,7 @@ public class RayTracer {
 				tRay.d = (Vec) TransDir(null, surf, I, N);
 			else
 				tRay.d = (Vec) TransDir(surf, null, I, N);
-			Vec tcol = trace(level + 1, surf.kt * weight, tRay, hit, tRay);
+			Vec tcol = trace(level + 1, surf.kt * weight, tRay, hit, tRay, sos);
 			col=col.adds(surf.kt, tcol);
 		}
 		// garbaging...
@@ -371,20 +367,20 @@ public class RayTracer {
 	/**
 	 * Launches a ray
 	 */
-	Vec trace (int level, double weight, Ray r, Isect inter, Ray tRay) {
+	Vec trace (int level, double weight, Ray r, Isect inter, Ray tRay, SceneObjects[.] sos) {
 		// Checks the recursion level
 		if (level > 6) {
 			return new Vec();
 		}
 		
-		boolean hit = intersect(r, 1e6, inter);
+		boolean hit = intersect(r, 1e6, inter, sos);
 		if (hit) {
 			Vec P = r.point(inter.t);
 			Vec N = inter.prim.normal(P);
 			if (Vec.dot(r.d, N) >= 0.0) {
 				N=N.negate();
 			}
-			return shade(level, weight, P, N, r.d, inter, tRay);
+			return shade(level, weight, P, N, r.d, inter, tRay, sos);
 		}
 		// no intersection --> col = 0,0,0
 		return voidVec;
