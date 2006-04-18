@@ -8,7 +8,6 @@
     &buildfile;
     <property name="container_loc" value="."/>
     <property name="lpg.location" value="../lpg"/>
-    <property name="pe.location" value="../pe"/>
     <property name="polyglot.location" value="../polyglot2"/>
     <property name="resource_loc" value="../x10.compiler"/>
     <property name="workspace_loc:x10.common" value="../x10.common"/>
@@ -17,7 +16,6 @@
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
-        <path refid="pe.classpath"/>
         <path refid="polyglot.classpath"/>
         <path refid="x10.common.classpath"/>
         <path refid="x10.runtime.classpath"/>
@@ -27,10 +25,6 @@
     </path>
     <path id="lpg.classpath">
         <pathelement location="${lpg.location}/lib/lpg.jar"/>
-    </path>
-    <path id="pe.classpath">
-        <pathelement location="${pe.location}/classes"/>
-        <pathelement location="${pe.location}/lib/PE.jar"/>
     </path>
     <path id="polyglot.classpath">
         <pathelement location="${polyglot.location}/bin"/>
@@ -51,7 +45,6 @@
     </target>
     <target name="build" depends="init">
         <ant antfile="${lpg.location}/build.xml" inheritAll="false" dir="${lpg.location}"/>
-        <ant antfile="${pe.location}/build.xml" inheritAll="false" dir="${pe.location}"/>
         <ant antfile="${polyglot.location}/build.xml" inheritAll="false" dir="${polyglot.location}"/>
         <ant antfile="${x10.common.location}/build.xml" inheritAll="false" dir="${x10.common.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" inheritAll="false" dir="${x10.runtime.location}"/>
