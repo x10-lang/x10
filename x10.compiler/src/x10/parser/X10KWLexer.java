@@ -1,3 +1,9 @@
+
+//
+// Licensed Material 
+// (C) Copyright IBM Corp, 2006
+//
+
 package x10.parser;
 
 import lpg.lpgjavaruntime.*;

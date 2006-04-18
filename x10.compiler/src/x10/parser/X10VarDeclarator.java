@@ -1,3 +1,8 @@
+//
+// Licensed Material 
+// (C) Copyright IBM Corp, 2006
+//
+
 /*
  * Created by vj on Jan 23, 2005
  */

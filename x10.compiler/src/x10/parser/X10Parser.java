@@ -1,8 +1,7 @@
 
 //
-// 12/25/2004
-// This is the basic X10 grammar specification without support for generic types.
-// Intended for the Feb 2005 X10 release.
+// Licensed Material 
+// (C) Copyright IBM Corp, 2006
 //
 
 //
