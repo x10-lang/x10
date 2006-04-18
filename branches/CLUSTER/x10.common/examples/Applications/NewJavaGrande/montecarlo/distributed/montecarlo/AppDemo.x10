@@ -65,7 +65,7 @@ public class AppDemo extends Universal {
 	 * Variable to determine which deployment scenario to run.
 	 */
 	private int runMode;
-	private dist D;
+	private final dist D;
 	private /*final*/ ToTask[.] tasks;  //Bin: should be final
 	private final double[.] expectedReturnRate;
 	private final double[.] volatility;
@@ -130,9 +130,13 @@ public class AppDemo extends Universal {
 	}
 	
 	public void runSerial() {
-		final ToInitAllTasks t = (ToInitAllTasks) initAllTasks;
+		final ToInitAllTasks t = (ToInitAllTasks) initAllTasks; //cx10: is this passed by value, or everybody has to come back?
 		final ToTask[.] tmp_tasks_ = tasks; //cx10: work around
-		finish ateach (point [i] : expectedReturnRate) {
+		//cx10: reduce cross-node async creation
+		final dist unique_ = dist.factory.unique();
+		finish ateach (point[k]: unique_) 
+		   finish ateach (point[i]: D|here) {
+		//finish ateach (point [i] : expectedReturnRate) {
 			PriceStock ps = new PriceStock();
 			ps.setInitAllTasks(t);
 			ps.setTask(tmp_tasks_[i]);
