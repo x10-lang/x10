@@ -6,6 +6,15 @@
 %options package=x10.parser
 %options template=uide/KeywordTemplate.gi
 
+$Notice
+/.
+//
+// Licensed Material 
+// (C) Copyright IBM Corp, 2006
+//
+./
+$End
+
 $Import
     GJavaKWLexer.gi
 $End
