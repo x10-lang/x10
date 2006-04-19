@@ -1,78 +1,81 @@
 help=""
-numargs=0
 time=""
+verbose=""
 extra_cp=""
 extra_lib=""
 mx=""
 defs=""
+java_args=""
+args=""
 
-while true; do
+parse=true
+while [ -n "$1" ]; do
+    if [ -z "$parse" ]; then
+        args="$args '$1'"
+        shift
+        continue
+    fi
     case "$1" in
-        "") break;;
-        -v) verbose="1"; shift;;
-      	-verbose) verbose="1"; shift;;
-	-t) time="time "; shift;;
-	-time) time="time "; shift;;
-	-h) help="1"; shift;;
-	-help) help="1"; shift;;
-	-mx) shift; mx="$1"; shift;;
-	-D*) defs="${defs} $1"; shift;;
-	-classpath) extra_cp="$2"; shift; shift;;
-	-libpath) extra_lib="$2"; shift; shift;;
-        *) args="$args '$1'"; numargs=$((${numargs}+1)); shift;;
+        -h|-help|--help) help="1"; break;;
+        -v|-verbose|--verbose) verbose="1";;
+        -t|-time) time="time ";;
+        -mx) shift; mx="$1";;
+        -D*) defs="${defs} $1";;
+        -classpath) extra_cp="$2"; shift;;
+        -libpath) extra_lib="$2"; shift;;
+        -J*) java_args="${java_args} '${1##-J}'";;
+        --) parse=;;
+        *) args="$args '$1'";;
     esac
+    shift
 done
 
-if [ -n "$help" -o $numargs = 0 ]
-then
-    echo "Usage: x10 [options] <main-class> [arg0 arg1 ...]"
-    echo "where [options] includes:"
-    echo "    -t -time                 display execution time"
-    echo "    -v -verbose              print verbose debugging information"
-    echo "    -h -help                 print this message"
-    echo "    -mx <size>               set max heap size, e.g., -mx 200M"
-    echo "    -classpath <path>        search path for class files"
-    echo "    -libpath <path>          search path for native libraries"
-    echo " "
-    echo "X10 configuration:"
-    echo "    -NUMBER_OF_LOCAL_PLACES=<int>  number of places (default 4)"
-    echo "    -LOAD=<shared-lib>             load specified shared library"
-    echo "    -PE_FILE=<path>                output for PE tool (default x10.pem)"
-    echo "    -SAMPLING_FREQUENCY_MS=<int>   default 50ms"
-    echo "    -DUMP_STATS_ON_EXIT=<bool>     print statistics on exit"
-    echo "    -STATISTICS_DISABLE=<stats>    disable selected runtime statistics"
-    echo "                                   currently supported: all, none"
+if [ -n "$help" -o -z "$args" ]; then
+    cat << EOF
+Usage: x10 [options] <main-class> [arg0 arg1 ...]
+where [options] includes:
+    -t -time                 display execution time
+    -v -verbose --verbose    print verbose debugging information
+    -h -help --help          print this message
+    -mx <size>               set max heap size, e.g., -mx 200M
+    -classpath <path>        search path for class files
+    -libpath <path>          search path for native libraries
+    -J<arg>                  pass <arg> to java.
+        e.g., use -J-verbose to make java execution verbose.
+
+X10 configuration:
+    -NUMBER_OF_LOCAL_PLACES=<int>  number of places (default 4)
+    -LOAD=<shared-lib>             load specified shared library
+    -SAMPLING_FREQUENCY_MS=<int>   default 50ms
+    -DUMP_STATS_ON_EXIT=<bool>     print statistics on exit
+    -STATISTICS_DISABLE=<stats>    disable selected runtime statistics
+                                   currently supported: all, none
+EOF
     exit 1
 fi
 
 classpath=".${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes"
 
-if [ -n "$extra_cp" ]
-then
+if [ -n "$extra_cp" ]; then
    classpath="$extra_cp${PATH_SEP}$classpath"
 fi
 
 externpath="${TOP}${FILE_SEP}lib${FILE_SEP}${X10_PLATFORM}"
-if [ -n "$extra_lib" ] 
-then
+if [ -n "$extra_lib" ]; then
    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
 
-java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\""
+java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\" ${java_args}"
 
-if [ -n "$mx" ]
-then
+if [ -n "$mx" ]; then
    java_args="-Xmx$mx $java_args"
 fi
 java_args="${java_args} ${defs}"
 
 command="\"$JAVA\" $java_args x10.lang.Runtime $args"
 
-if [ -n "$verbose" ]
-then
-  echo "$command"
-fi
-
+[ -n "$verbose" ] && echo "$command"
 
 eval "$time$command"
 exit $?
+
