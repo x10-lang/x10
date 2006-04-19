@@ -66,12 +66,10 @@ import java.util.StringTokenizer;
 
 public final class Configuration {
 
-	private static String COMPILER_FRAGMENT_DATA_DIRECTORY_desc = "Directory for compiler templates";
+	private static final String COMPILER_FRAGMENT_DATA_DIRECTORY_desc = "Directory for compiler templates";
 	public static String COMPILER_FRAGMENT_DATA_DIRECTORY = "data/";
-	private static String COMPILER_FRAGMENT_DATA_EXT_DIRECTORY_desc = "Directory for extra compiler templates";
-	public static String COMPILER_FRAGMENT_DATA_EXT_DIRECTORY = "dataext/";
 
-	private static String BAD_PLACE_RUNTIME_CHECK_desc = "Generate runtime place checks";
+	private static final String BAD_PLACE_RUNTIME_CHECK_desc = "Generate runtime place checks";
 	public static boolean BAD_PLACE_RUNTIME_CHECK = true;
 
 	/**
@@ -135,8 +133,7 @@ public final class Configuration {
 	/**
 	 * Method to obtain the name of the configuration file used
 	 * for the current configuration.
-	 * @return null if no file is given and only default values
-	 *  are used
+	 * @return null if no file is given and only default values are used
 	 */
 	private static String getConfigurationFileName_() {
 		return System.getProperty("x10.configuration");
@@ -161,9 +158,7 @@ public final class Configuration {
 					throw new Error();
 				String s = new String(data).replace('\\','/');
 				props.load(new ByteArrayInputStream(s.getBytes()));
-				// arrg... the Iterator isn't always in order of text
 				Iterator i = props.keySet().iterator();
-
 				while (i.hasNext()) {
 					String key = (String) i.next();
 					String val = props.getProperty(key);
@@ -250,3 +245,4 @@ public final class Configuration {
 		return true;
 	}
 }
+
