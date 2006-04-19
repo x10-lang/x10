@@ -4,8 +4,7 @@
 package polyglot.ext.x10.visit;
 
 import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -697,22 +696,11 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		if (cached != null)
 			return cached;
 		try {
-			// [IP] TODO: make this a classpath-based resource lookup instead
-			// use something like this.getClass().getResourceAsStream()
-			String fname = Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY + id + ".xcd"; // xcd = x10 compiler data/definition
-			fname = fname.replace('\\','/'); // win32 hack
-			// Override definition with any identically named file in DATA_EXT dir
-			if (null != Configuration.COMPILER_FRAGMENT_DATA_EXT_DIRECTORY) {
-				String extfname = Configuration.COMPILER_FRAGMENT_DATA_EXT_DIRECTORY + id + ".xcd";
-				extfname = extfname.replace('\\','/'); // win32 hack
-				File testFile = new File(extfname);
-				if (testFile.exists() && testFile.canRead()) {
-					fname = extfname;
-				}
-			}
-
-			FileInputStream fis = new FileInputStream(fname);
-			DataInputStream dis = new DataInputStream(fis);
+			String rname = Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY + id + ".xcd"; // xcd = x10 compiler data/definition
+			InputStream is = X10PrettyPrinterVisitor.class.getClassLoader().getResourceAsStream(rname);
+			if (is == null)
+				throw new IOException("Cannot find resource '"+rname+"'");
+			DataInputStream dis = new DataInputStream(is);
 			byte[] b = new byte[dis.available()];
 			dis.read(b);
 			String trans = new String(b, "UTF-8");
@@ -722,6 +710,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 				trans = trans.substring(trans.indexOf('\n')+1);
 			trans = "/* template:"+id+" { */" + trans + "/* } */";
 			translationCache_.put(id, trans);
+			dis.close();
 			return trans;
 		} catch (IOException io) {
 			throw new Error("No translation for " + id + " found!");
