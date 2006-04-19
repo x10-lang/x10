@@ -14,8 +14,6 @@ import java.util.StringTokenizer;
 
 import x10.runtime.distributed.VMInfo;
 
-
-
 /**
  * This class provides the configuration for the X10 runtime.
  * The configuration is a set of values that can be used to
@@ -23,29 +21,29 @@ import x10.runtime.distributed.VMInfo;
  * The configuration class provides mechanisms that allow the user
  * to change the default configuration values in a simple and
  * systematic manner.
- * 
- * A typical use of the Configuration is to just read the 
+ *
+ * A typical use of the Configuration is to just read the
  * respective static fields, i.e.:
  * *
  * <code>
  *  this.setMinimumPoolSize(Configuration.MINIMUM_POOL_SIZE);
- *  this.setKeepAliveTime(Configuration.KEEP_ALIVE_TIME);   
+ *  this.setKeepAliveTime(Configuration.KEEP_ALIVE_TIME);
  * </code>
- * 
+ *
  * <br>
  * Clients are expected to add static fields to the configuration
  * class and initialize them to the respective default values,
  * i.e.:
- * 
+ *
  * <code>
  * public static int MINIMUM_POOL_SIZE = 2;
  * </code>
- * 
+ *
  * Note that these fields MUST NOT be final.  The reason is that
  * these are just the default values, the Configuration class
  * may initialize them to different values based on a configuration
  * file provided by the user.
- * 
+ *
  * <p>
  * Users can change these values by providing the name of a configuration
  * file in the system properties under "x10.configuration".  By passing
@@ -56,100 +54,71 @@ import x10.runtime.distributed.VMInfo;
  * (using reflection).  The format of the configuration file is described
  * in the JDK documentation for the method "java.util.Properties.load()".
  * <br>
- * 
+ *
  * Note that clients should NEVER set the static fields (even though they
- * are public and non-final), after the static initializer runs the 
+ * are public and non-final), after the static initializer runs the
  * value of static Configuration fields should never change.
- * 
- * <p> 
+ *
+ * <p>
  * All static fields in this class must be of types String, int, float, double,
  * long, short, char, byte or boolean.
- * 
+ *
  * @author Christian Grothoff
- * 
+ *
  * @author Raj Barik, Vivek Sarkar
- * 3/6/2006: replaced NUMBER_OF_ACTIVITIES_PER_PLACE by INIT_THREADS_PER_PLACE. 
+ * 3/6/2006: replaced NUMBER_OF_ACTIVITIES_PER_PLACE by INIT_THREADS_PER_PLACE.
  */
 public final class Configuration {
 
-    /**
-     * The directory where the compiler fragments for translating nodes
-     * can be found in.
-     */
-    public static String COMPILER_FRAGMENT_DATA_DIRECTORY = "data/";
-    public static String COMPILER_FRAGMENT_DATA_EXT_DIRECTORY = "dataext/";
-    /**
-     * File name for generating PE files.  Use null to not generate
-     * PE traces.
-     */
-    public static String PE_FILE = null; 
-    
     public static int NUMBER_OF_LOCAL_PLACES = 4;
     public static int NUMBER_OF_VMS = 1;
     public static int INIT_THREADS_PER_PLACE = 3;
     public static VMInfo[] VM_;
-    
+
     /** this check does not work -- it causes spurious warnings */
     public static boolean BAD_PLACE_RUNTIME_CHECK = true;
-    
-    /**
-     * How often should the sampling instrumentations be run?
-     * Use -1 for no sampling.
-     */
-    public static int SAMPLING_FREQUENCY_MS = 50;
-    
-    /**
-     * Should statistics be dumped on exit?
-     */
-    public static boolean DUMP_STATS_ON_EXIT = false;
-    
+
     /**
      * The name of the main class of the application.
      */
     public static String MAIN_CLASS_NAME = null;
-    
-    /**
-     * Which statistics plugins should be enabled or disabled?
-     * Reserved values are "none" and "all".  Otherwise list
-     * the specific plugins that you want to disable.
-     */
-    public static String STATISTICS_DISABLE = "none";
 
     /**
-     * Enables new (experimental) ateach and foreach optimization (code by C. Grothoff
-     * and R. Barik).  Default to off until that code is sufficiently tested...
+     * Enables new (experimental) ateach and foreach optimization (code by
+     * Christian Grothoff and Raj Barik).  Default to off until that code is
+     * sufficiently tested...
      */
     public static boolean OPTIMIZE_FOREACH = false;
-    
+
     /**
      * Which shared libraries should be loaded?  The format
      * is libraryname[:libraryname]*.  Null or "" are valid
-     * entries (for not loading any libraries).   
+     * entries (for not loading any libraries).
      */
     public static String LOAD = null;
-    
-    private static boolean done_;
-    
+
+    private static boolean done_ = false;
+
     public static boolean isMultiNodeVM() { return NUMBER_OF_VMS > 1;}
     public static boolean runBootHere = true;
-    
+
     /**
-     * Parses the command line.  This allows the user to specify 
+     * Parses the command line.  This allows the user to specify
      * options also on the command line (in addition to the
      * configuration file and the defaults).  The name of the
      * main class is the first argument that does not start with
      * a "-".  All arguments after the main class are returned
      * and should be passed to the application.
-     * 
-     * @param args arguments.  Example: -STATISTICS_DISABLE=all
+     *
+     * @param args arguments.  Example: -BAD_PLACE_RUNTIME_CHECK=true
      * @return the arguments for the application
      */
     public static String[] parseCommandLine(String[] args) {
         assert !done_;
-        
+
         if (args == null)
             return new String[0];
-        
+
         int pos = 0;
         while (pos < args.length && args[pos].length() > 0 && args[pos].charAt(0) == '-') {
         	// vj: added to allow the runtime to use Polyglot's report mechanism
@@ -161,10 +130,10 @@ public final class Configuration {
                 if (st.hasMoreTokens()) {
                     try {
                         level = Integer.parseInt(st.nextToken());
-                    } 
+                    }
                     catch (NumberFormatException e) {}
                 }
-             
+
                 Report.addTopic(topic, level);
                 pos++;
                 continue;
@@ -185,34 +154,29 @@ public final class Configuration {
             String optionValue = null;
             if (eq == -1) {
                 optionName = args[pos].substring(1);
-            } else {               
+            } else {
                 optionName = args[pos].substring(1, eq);
                 optionValue = args[pos].substring(eq+1);
             }
-            set(optionName, optionValue); 
+            set(optionName, optionValue);
             pos++;
-        }        
+        }
         MAIN_CLASS_NAME = args[pos++];
         // vj hack to let Eclipse x10 command run with ${resource_loc}
-        
+
         // Sanity checks for values.
         if (NUMBER_OF_LOCAL_PLACES < 0) {
-        	System.err.println("Negative value |" + NUMBER_OF_LOCAL_PLACES 
+        	System.err.println("Negative value |" + NUMBER_OF_LOCAL_PLACES
         			+ "| for NUMBER_OF_LOCAL_PLACES rejected. Set to 4." );
         	NUMBER_OF_LOCAL_PLACES = 4;
         }
         if (INIT_THREADS_PER_PLACE < 0) {
-        	System.err.println("Negative value |" + INIT_THREADS_PER_PLACE 
+        	System.err.println("Negative value |" + INIT_THREADS_PER_PLACE
         			+ "| for INIT_THREADS_PER_PLACE rejected. Set to 3." );
         	INIT_THREADS_PER_PLACE = 3;
         }
-        if (SAMPLING_FREQUENCY_MS < 0) {
-        	SAMPLING_FREQUENCY_MS = 50;
-        	System.err.println("Negative value |" + SAMPLING_FREQUENCY_MS 
-        			+ "| for SAMPLING_FREQUENCY_MS rejected. Set to 4." );
-        }
-       // get rid of prefix pathname.
-       MAIN_CLASS_NAME = MAIN_CLASS_NAME.substring(MAIN_CLASS_NAME.lastIndexOf("\\")+1);
+        // get rid of prefix pathname.
+        MAIN_CLASS_NAME = MAIN_CLASS_NAME.substring(MAIN_CLASS_NAME.lastIndexOf("\\")+1);
         if (MAIN_CLASS_NAME.endsWith(".java"))
         	MAIN_CLASS_NAME = MAIN_CLASS_NAME.substring(0, MAIN_CLASS_NAME.length()-5);
         else  if (MAIN_CLASS_NAME.endsWith(".x10"))
@@ -221,12 +185,12 @@ public final class Configuration {
         String[] appArgs = new String[aa];
         System.arraycopy(args, pos, appArgs, 0, aa);
         if (Report.should_report("activity", 3)) {
-    		Report.report(3, Thread.currentThread() +  " user class is |" 
+    		Report.report(3, Thread.currentThread() +  " user class is |"
     				+ Configuration.MAIN_CLASS_NAME+ "|.");
     	}
         return appArgs;
     }
-    
+
     /**
      * Method to obtain the name of the configuration file used
      * for the current configuration.
@@ -236,12 +200,12 @@ public final class Configuration {
     private static String getConfigurationFileName_() {
         return System.getProperty("x10.configuration");
     }
-    
+
     /**
      * Read the configuration file (if specified) and initialize the
      * globals.
      */
-    static {        
+    static {
         String cfg = getConfigurationFileName_();
         if (cfg != null) {
             try {
@@ -252,18 +216,12 @@ public final class Configuration {
                 	throw new Error();
                 String s = new String(data).replace('\\','/');
                 props.load(new ByteArrayInputStream(s.getBytes()));
-                // arrg... the Iterator isn't always in order of text
-                Iterator i = props.keySet().iterator();
-                while (i.hasNext()) {
-                    String key = (String) i.next();
-                    if (key.equals("NUMBER_OF_VMS")) {
-                        String val = props.getProperty(key);
-                        set(key, val);
-                        VM_ = new VMInfo[NUMBER_OF_VMS];
-                    }
+                s = (String) props.get("NUMBER_OF_VMS");
+                if (s != null) {
+                    set("NUMBER_OF_VMS", s);
+                    VM_ = new VMInfo[NUMBER_OF_VMS];
                 }
-                
-                i = props.keySet().iterator();
+                Iterator i = props.keySet().iterator();
                 while (i.hasNext()) {
                     String key = (String) i.next();
                     String val = props.getProperty(key);
@@ -273,13 +231,12 @@ public final class Configuration {
                 System.err.println("Failed to read configuration file " + cfg + ": " + io);
                 throw new Error(io);
             }
-        } // end of 'have configuration file'       
+        } // end of 'have configuration file'
     } // end of static initializer
-    
 
     private static void set(String key, String val) {
         Class c = Configuration.class;
-        int idx=0;
+        int idx = 0;
         String fld = null;
         try {
             if (key.indexOf('[') > 0) {
@@ -331,7 +288,7 @@ public final class Configuration {
             	} else if (val.equalsIgnoreCase("false")) {
             		f.setBoolean(null, false);
             	} else {
-            		System.err.println("Parameter |" + key + "| expects a boolean, not |" 
+            		System.err.println("Parameter |" + key + "| expects a boolean, not |"
             				+ val + "|. Ignored.");
             	}
             }
@@ -347,6 +304,5 @@ public final class Configuration {
         	System.err.println("Parameter |" + key + "| expects a number, not |" + val + "|. Ignored.");
         }
     }
-
-
 } // end of Configuration
+
