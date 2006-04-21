@@ -25,31 +25,34 @@ package raytracer;
 
 public class RayTracer { 
 	
+
 	// Make a copy of lights and prim in each place to reduce network access
 	private static class SceneObjects {
 		Light[] lights;
 		Primitive[] prim;
 	}
 	
+	final int[.] checksums;
 	final SceneObjects[.] sceneObjects;
-	dist distOfSceneObjects;
+	dist onePerPlaceDist;
 	
 	RayTracer() {
 		region r = [place.FIRST_PLACE.id:place.FIRST_PLACE.id];
-		distOfSceneObjects = r->here;
+		onePerPlaceDist = r->here;
 		place pl = place.FIRST_PLACE.next();
 		do {
 			final region rg = [pl.id:pl.id];
 			dist dt = future (pl) { rg->here }.force();
 			r = r || rg;
-			distOfSceneObjects = distOfSceneObjects || dt;
+			onePerPlaceDist = onePerPlaceDist || dt;
 			pl = pl.next();
 		} while (pl != place.FIRST_PLACE);
-		sceneObjects = new SceneObjects[distOfSceneObjects];
+		sceneObjects = new SceneObjects[onePerPlaceDist];
 		final SceneObjects[.] sos = sceneObjects;
-		finish ateach(point p : distOfSceneObjects) {
+		finish ateach(point p : onePerPlaceDist) {
 			sos[p] = new SceneObjects();
 		}
+		checksums = new int[onePerPlaceDist];
 	}
 	
 	Scene scene;
@@ -89,8 +92,8 @@ public class RayTracer {
 	 */
 	int width;
 	
-	//int datasizes[] = {150,500};    
-	int datasizes[] = {20,500}; //reducing data size
+	int datasizes[] = {150,500};    
+	//int datasizes[] = {20,500}; //reducing data size
 	
 	long checksum = 0; 
 	
@@ -165,7 +168,7 @@ public class RayTracer {
 		}
 		
 		final SceneObjects[.] sos = sceneObjects;
-		finish ateach (point p : distOfSceneObjects) {
+		finish ateach (point p : onePerPlaceDist) {
 			SceneObjects so = sos[p];
 			so.lights = new Light[nLights];
 			so.prim = new Primitive[nObjects];
@@ -174,7 +177,7 @@ public class RayTracer {
 		for(int i = 0; i < nLights; i++) {
 			final int idx = i;
 			final Light o = lights[i];
-			finish ateach (point p : distOfSceneObjects) {
+			finish ateach (point p : onePerPlaceDist) {
 				final SceneObjects so = sos[p];
 				so.lights[idx] = o;
 			}
@@ -182,7 +185,7 @@ public class RayTracer {
 		for(int i = 0; i < nObjects; i++) {
 			final int idx = i;
 			final Primitive o = prim[i];
-			finish ateach (point p : distOfSceneObjects) {
+			finish ateach (point p : onePerPlaceDist) {
 				final SceneObjects so = sos[p];
 				so.prim[idx] = o;
 			}
@@ -202,24 +205,24 @@ public class RayTracer {
 		final int[.] row = new int[DBlock];
 		final View view = this.view;
 		final SceneObjects[.] sos = this.sceneObjects;
+		final int[.] css = this.checksums;
 		
 		finish ateach (point[pl] : U) {
 			final dist my_dist = DBlock | here;
 			long checksum1 = 0; 
 			double frustrumwidth = view.dist * Math.tan(view.angle);
-			Vec viewVec = Vec.sub(view.at, view.from).normalized();
+			final Vec viewVec = Vec.sub(view.at, view.from).normalized();
 			Vec tmpVec = new Vec(viewVec).scale(Vec.dot(view.up, viewVec));
-			Vec upVec = Vec.sub(view.up, tmpVec).normalized().scale(-frustrumwidth);
-			Vec leftVec = Vec.cross(view.up, viewVec).normalized().scale(view.aspect * frustrumwidth);
+			final Vec upVec = Vec.sub(view.up, tmpVec).normalized().scale(-frustrumwidth);
+			final Vec leftVec = Vec.cross(view.up, viewVec).normalized().scale(view.aspect * frustrumwidth);
+			final Vec viewFrom = view.from;
 			
-			Ray r = new Ray(view.from, voidVec);    
-			
-			for(point[pixCounter] : my_dist.region) {
+			foreach (point[pixCounter] : my_dist.region) {
 				int y = pixCounter / interval.width;
 				int x = pixCounter % interval.width;
 				double ylen = (double)(2.0 * y) / (double)interval.width - 1.0;
 				double xlen = (double)(2.0 * x) / (double)interval.width - 1.0;
-				r = r.d (Vec.comb(xlen, leftVec, ylen, upVec).added(viewVec).normalized());
+				Ray r = new Ray(viewFrom, Vec.comb(xlen, leftVec, ylen, upVec).added(viewVec).normalized(), false);
 				Vec col = trace(0, 1.0, r, new Isect(), new Ray(), sos);
 				
 				// computes the color of the ray
@@ -230,17 +233,18 @@ public class RayTracer {
 				int blue = (int)(col.z * 255.0);
 				if (blue > 255) blue = 255;
 				
-				checksum1 += red + green + blue;
+				atomic css[[here.id]] += red + green + blue;
 				// RGB values for .ppm file 
 				// Sets the pixels
 				//					row[pixCounter/*++*/] =  alpha | (red << 16) | (green << 8) | (blue);
 			}
-			final long checksumx = checksum1;
-			finish async(place.FIRST_PLACE) {
-				atomic { checksum += checksumx; }
+		}
+		finish ateach (point p : onePerPlaceDist) {
+			final int cs = css[p];
+			async (place.FIRST_PLACE) {
+				atomic checksum += cs;
 			}
 		}
-		
 	}
 	
 	private class RV {

@@ -66,8 +66,8 @@ public class JGFRayTracerBench extends RayTracer implements JGFSection3 {
 	
 	
 	public void JGFvalidate(){
-		//long refval[] = {2676692,29827635};
-    		long refval[] = {51398,29827635}; // reduced data size
+		long refval[] = {2676692,29827635};
+    	//long refval[] = {51398,29827635}; // reduced data size
 		long dev = checksum - refval[size]; 
 		if (dev != 0 ){
 			System.out.println("Validation failed"); 
