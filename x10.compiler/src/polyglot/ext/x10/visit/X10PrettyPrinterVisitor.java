@@ -700,20 +700,25 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			InputStream is = X10PrettyPrinterVisitor.class.getClassLoader().getResourceAsStream(rname);
 			if (is == null)
 				throw new IOException("Cannot find resource '"+rname+"'");
-			DataInputStream dis = new DataInputStream(is);
-			byte[] b = new byte[dis.available()];
-			dis.read(b);
+			byte[] b = new byte[is.available()];
+			for (int off = 0; off < b.length; ) {
+				int read = is.read(b, off, b.length - off);
+				off += read;
+			}
 			String trans = new String(b, "UTF-8");
 			// Skip initial lines that start with "// SYNOPSIS: "
 			// (spaces matter!)
 			while (trans.indexOf("// SYNOPSIS: ") == 0)
 				trans = trans.substring(trans.indexOf('\n')+1);
+			// Remove one trailing newline (if any)
+			if (trans.lastIndexOf('\n') == trans.length()-1)
+				trans = trans.substring(0, trans.length()-1);
 			trans = "/* template:"+id+" { */" + trans + "/* } */";
 			translationCache_.put(id, trans);
-			dis.close();
+			is.close();
 			return trans;
 		} catch (IOException io) {
-			throw new Error("No translation for " + id + " found!");
+			throw new Error("No translation for " + id + " found!", io);
 		}
 	}
 } // end of X10PrettyPrinterVisitor
