@@ -1,3 +1,6 @@
+TOP="$(cd "$(dirname $0)/.." && pwd)"
+if [[ `uname -s` = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
+
 help=""
 time=""
 verbose=""
@@ -21,8 +24,8 @@ while [ -n "$1" ]; do
         -t|-time) time="time ";;
         -mx) shift; mx="$1";;
         -D*) defs="${defs} $1";;
-        -classpath) extra_cp="$2"; shift;;
-        -libpath) extra_lib="$2"; shift;;
+        -classpath|-cp) shift; extra_cp="$1";;
+        -libpath) shift; extra_lib="$1";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
         *) args="$args '$1'";;
