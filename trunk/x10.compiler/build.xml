@@ -106,4 +106,13 @@
         </exec>
     </target>
     <target name="rebuild" depends="grammar,build"/>
+    <target name="zip" depends="dist">
+        <zip destfile="${x10.home}/x10-${DSTAMP}-${TSTAMP}.zip">
+            <zipfileset prefix="" dir="${x10.common.location}" includes="epl-v10.html"/>
+	    <zipfileset prefix="bin" dir="${x10.common.location}/bin" includes="newpgrp,x10,x10c,testScript*"/>
+            <zipfileset prefix="etc" dir="${x10.common.location}/etc" includes="*.cfg"/>
+            <zipfileset prefix="examples" dir="${x10.common.location}/examples" includes="README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
+            <zipfileset prefix="lib" dir="${x10.common.location}/lib" includes="*.jar"/>
+        </zip>
+    </target>
 </project>
