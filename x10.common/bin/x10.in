@@ -57,7 +57,10 @@ EOF
     exit 1
 fi
 
-classpath=".${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes"
+LIB_DIR="${TOP}${FILE_SEP}lib"
+
+#classpath=".${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes"
+classpath=".${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar"
 
 if [ -n "$extra_cp" ]; then
    classpath="$extra_cp${PATH_SEP}$classpath"
