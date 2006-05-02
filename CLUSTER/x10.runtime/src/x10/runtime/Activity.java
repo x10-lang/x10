@@ -496,7 +496,7 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
      */
     public static abstract class Expr extends Activity {
         
-        public Future_c future; 
+        protected Future_c future; 
         /**
          * Wait for the completion of this activity and return the
          * return value.
