@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import x10.cluster.ClusterConfig;
+import x10.cluster.Debug;
 import x10.cluster.X10RemoteRef;
 import x10.cluster.X10Serializer;
 import x10.lang.ClockUseException;
@@ -282,14 +283,16 @@ public /* final */ class Clock extends clock {
 			if (Report.should_report("clock", 5)) {
 				Report.report(5, PoolRunner.logString() + " " + this + ".register:" + authorizer + " registering " + a);
 			}
-		System.out.println("Clock.register>>>");
+		if(Report.should_report("cluster", Debug.clock))
+			Report.report(Debug.clock, "Clock.register>>>");
 		synchronized (this) {
 			if (authorizer != null && inactive(authorizer))	
 				throw new ClockUseException(authorizer + "is not active on " + this + "; cannot transmit.");
 			if (activities_.contains(a)) return;			
 			activities_.add(a);
 			activityCount_++;
-			System.out.println("Clock.register>>>"+this);
+			if(Report.should_report("cluster", Debug.clock))
+				Report.report(Debug.clock, "Clock.register>>>"+this);
 		}
 		if (Report.should_report("clock", 3)) {
 			Report.report(3, PoolRunner.logString() + " " + this + "...done.(activityCount_=" + activityCount_+").");
