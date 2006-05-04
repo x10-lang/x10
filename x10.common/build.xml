@@ -150,11 +150,14 @@ STATISTICS_DISABLE=none</echo>
 		<echo file="${bin}/defs" append="no">#!/bin/bash
 # DO NOT EDIT - This file was automatically generated.
 
-JAVA='${java.executable}'
+#JAVA='${java.executable}'
+[ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
+JRE_HOME='${java.home}'
 FILE_SEP='${file.separator}'
 PATH_SEP='${path.separator}'
 X10_PLATFORM='${env.X10_PLATFORM}'
 CONFIG_FILE='standard.cfg'
+
 </echo>
 	</target>
 
@@ -181,10 +184,6 @@ CONFIG_FILE='standard.cfg'
 		<concat destfile="${bin}/x10" append="no">
 			<filelist dir="${bin}" files="defs"/>
 		</concat>
-		<echo file="${bin}/x10" append="yes">
-	ext=""
-
-	</echo>
 		<concat destfile="${bin}/x10" append="yes">
 			<filelist dir="${bin}" files="x10.in"/>
 		</concat>
