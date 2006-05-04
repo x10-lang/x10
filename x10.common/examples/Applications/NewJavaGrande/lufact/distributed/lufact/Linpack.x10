@@ -61,6 +61,7 @@ import jgfutil.*;
 
 
 public class Linpack {
+	static final dist uniqueD = dist.factory.unique();
 	
 	double[.] a;
 	double[.] b;
@@ -74,8 +75,14 @@ public class Linpack {
 	final double read(final double[.] a, final int i, final int j) {
 		return future (a.distribution[i,j]) { a[i,j]}.force();
 	}	
+	final double read(final double[.] a, final int i) {
+		return future (a.distribution[i]) { a[i]}.force();
+	}	
 	final void write(final double[.] a, final int i, final int j, final double val) {
 		async (a.distribution[i,j]) atomic a[i,j] = val;
+	}	
+	final void write(final double[.] a, final int i, final double val) {
+		async (a.distribution[i]) atomic a[i] = val;
 	}	
 	final void plusWrite(final double[.] a, final int i, final int j, final double val) {
 		async (a.distribution[i,j]) atomic a[i,j] += val;
@@ -109,7 +116,7 @@ public class Linpack {
 			norma = value > norma ? value : norma;
 		}
 		finish ateach (point [i,j] : b)  b[i,j] = 0.0;
-		finish ateach (point [i,j] : a.distribution | [0:n-1,0:n-1])     plusWrite(b, 0,j, a[i,j]); 
+		finish ateach (point [i,j] : a.distribution)     plusWrite(b, 0, j, a[i,j]); 
 		return norma;
 	}
 	
@@ -167,13 +174,11 @@ public class Linpack {
 		final int nm1 = n - 1;
 		
 		if (nm1 >=  0) {			
-			// array is distributed along each column, 
-			
 			for (point [k] : [0:nm1-1]) {
-				finish async(a.distribution[k,1]){// do this on row k 
+				finish async(a.distribution[k,0]){// do this on column (which is really 'row') k 
 					final int kp1 = k+1;
 					// would be nice to do this via an X10 reduction on a sub-array
-					final int l = idamax(n - k, a,k, k, 1) + k;
+					final int l = idamax(n - k, a,k, k, 1) + k; //cx10: local
 					ipvt[k] = l;// must be distributed same way as a					
 					// zero pivot implies this column already triangularized
 					if (a[k, l] != 0) {
@@ -188,7 +193,7 @@ public class Linpack {
 						// compute multipliers
 						final double tx = -1.0/a[k,k];
 						
-						dscal(n-(kp1),tx,a,k,kp1,1);
+						dscal(n-(kp1),tx,a,k,kp1,1); //cx10: local
 						
 						// row elimination with column indexing						
 						// daxpy on all columns to the right in parallel						
@@ -200,7 +205,7 @@ public class Linpack {
 										a[j,l] = a[j,k];
 										a[j,k] = t;
 									}
-									daxpy(n-(kp1),t,a,k,kp1,1,a,j,kp1,1);							
+									daxpy(n-(kp1),t,a,k,kp1,1,a,j,kp1,1);//cx10: cross place					
 								}
 							}
 						}      			
@@ -210,9 +215,10 @@ public class Linpack {
 				}
 			}					
 		}
-		ipvt[n-1] = n-1;
+		finish async(ipvt.distribution[n-1]) ipvt[n-1] = n-1;
+		
 		double val = read(a,n-1,n-1);
-		if (val == 0) info = n-1;
+		if (val == 0) infodgefa = n-1;
 		
 		return infodgefa;
 	}
@@ -279,47 +285,57 @@ public class Linpack {
 		final int nm1 = n - 1;
 		if (job == 0) {
 			// job = 0 , solve  a * x = b.  first solve  l*y = b
-			if (nm1 >= 1) {
-				for (point [k] : [0:nm1-1]) {
-					int l = ipvt[k];
-					double t = b[0,l];
-					if (l != k){
-						b[0,l] = b[0,k];
-						b[0,k] = t;
+			if (nm1 >= 1) {				
+				for (point [k] : [0:nm1-1]) {						
+					finish async(a.distribution[k,0]) { //cx10: intrisic serial processing part
+						int l = ipvt[k];
+						double t = read(b, 0, l); 
+						if (l != k){
+							write(b, 0, l, b[0, k]); //cx10: b[0,k] is local
+							b[0, k] = t;
+						}
+						int kp1 = k + 1;
+						daxpy(n-(kp1),t,a,k,kp1,1,b,0,kp1,1);// FIXME: subarrays
 					}
-					int kp1 = k + 1;
-					daxpy(n-(kp1),t,a,k,kp1,1,b,0,kp1,1);// FIXME: subarrays
-				}
+				}				
 			}
 			
 			// now solve  u*x = y
 			
 			for (point [kb] : [0:n-1]) {
 				final int k = n - (kb + 1);
-				b[0,k] /= read(a, k, k);
-				double t = -b[0,k];
-				daxpy(k,t,a,k,0,1,b,0,0,1);// FIXME: subarrays
+				finish async(a.distribution[k,0]) {					
+					b[0,k] /= read(a, k, k);
+					double t = -b[0,k];
+					daxpy(k,t,a,k,0,1,b,0,0,1);// FIXME: subarrays
+				}
 			}
 		}
 		else {
+			//XXX revist: this code not called in this X10 version. 
+			
 			// job = nonzero, solve  trans(a) * x = b.  first solve  trans(u)*y = b
 			for (point [k] : [0:n-1]) {
-				double t = ddot(k,a,k,0,1,b,0,0,1); // FIXME: subarraysnot yet supported
-				b[0,k] = (b[0,k] - t)/a[k,k];
+				finish async(a.distribution[k,0]) {
+					double t = ddot(k,a,k,0,1,b,0,0,1); // FIXME: subarraysnot yet supported
+					b[0,k] = (b[0,k] - t)/a[k,k];
+				}
 			}
 			
 			// now solve trans(l)*x = y 
 			
 			if (nm1 >= 1) {
 				for (point [kb] : [1:nm1-1]) {
-					final int k = n - (kb+1);
-					final int kp1 = k + 1;
-					b[0,k] += ddot(n-(kp1),a,k,kp1,1,b,0,kp1,1);//FIXME: subarrays not yet supported
-					final int l = ipvt[k];
-					if (l != k) {
-						double t = b[0,l];
-						b[0,l] = b[0,k];
-						b[0,k] = t;
+					finish async(a.distribution[kb,0]) {
+						final int k = n - (kb+1);
+						final int kp1 = k + 1;
+						b[0,k] += ddot(n-(kp1),a,k,kp1,1,b,0,kp1,1);//FIXME: subarrays not yet supported
+						final int l = ipvt[k];
+						if (l != k) {
+							double t = read(b, 0, l); 
+							write(b,0, l, b[0,k]);
+							b[0,k] = t;
+						}
 					}
 				}
 			}
@@ -344,7 +360,7 @@ public class Linpack {
 				if (incy < 0) iy = (-n+1)*incy;
 				for (point [i] : [0:n-1]) {
 					// daxpy is called at dy.distribution[dyCol,xx]
-					dy[dyCol,iy +dy_off] += da* read(dx,dxCol,ix+dx_off);
+					plusWrite(dy, dyCol,iy +dy_off, da* read(dx,dxCol,ix+dx_off));
 					ix += incx;
 					iy += incy;
 				}
@@ -352,7 +368,7 @@ public class Linpack {
 			} 
 			// code for both increments equal to 1
 			for (point [i] : [0:n-1])
-				dy[dyCol,i +dy_off] += da*read(dx,dxCol,i +dx_off);
+				plusWrite(dy, dyCol,i +dy_off, da*read(dx,dxCol,i +dx_off));
 		}
 	}
 	
@@ -374,14 +390,14 @@ public class Linpack {
 				if (incx < 0) ix = (-n+1)*incx;
 				if (incy < 0) iy = (-n+1)*incy;
 				for (point [i]: [0:n-1]) {
-					dtemp += dx[dxCol,ix +dx_off]*dy[dyCol,iy +dy_off];
+					dtemp += read(dx, dxCol,ix +dx_off)*read(dy, dyCol,iy +dy_off);
 					ix += incx;
 					iy += incy;
 				}
 			} else {
 				// code for both increments equal to 1
 				for (point [i]: [0:n-1])
-					dtemp += dx[dxCol,i +dx_off]*dy[dyCol,i +dy_off];
+					dtemp += read(dx, dxCol,i +dx_off)*read(dy, dyCol,i +dy_off);
 			}
 		}
 		return dtemp;
@@ -521,8 +537,15 @@ public class Linpack {
 	final void dmxpy (final int n1, final double[.] y, final int n2, final int ldm, final double[.] x, final double[.] m)
 	{
 		// cleanup odd vector
-		for (point [j,i] : [0:n2-1,0:n1-1]) {
-			y[0,i] += x[0,j]*read(m,j,i);
+		finish ateach(point [_]:uniqueD)  {
+			double[.] tmp = new double[[0:(n1-1)]->here];  //initialized to zero?
+			for (point [j,i]:m.distribution | here) {
+				if(i<n1 && j<n2) 
+					tmp[i] += x[0,j]*read(m,j,i);			
+			}
+			for(point [i]: [0: (n1-1)]) {
+				plusWrite(y, 0, i, tmp[i]);
+			}
 		}
 	}
 	

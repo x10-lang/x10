@@ -25,7 +25,7 @@
 package lufact; 
 import jgfutil.*; 
 
-public class JGFLUFactBench extends Linpack implements JGFSection2{
+public class JGFLUFactBench extends Linpack implements JGFSection2{	
 	
 	private int size;
 	//private int datasizes[] = {150,1000,2000};
@@ -40,15 +40,20 @@ public class JGFLUFactBench extends Linpack implements JGFSection2{
 		ldaa = n; 
 		lda = ldaa + 1;
 		
-		region vectorRegion = [0:ldaa];
-		region rectangularRegion = [0:ldaa, 0:lda];
-		region slimRegion = [0:0, 0:lda];//fake out because we don't support array sections
-		dist rectangular_distribution = dist.factory.blockCyclic(rectangularRegion,lda+1);
-			
+		region vectorRegion = [0: (ldaa-1)];
+		region rectangularRegion = [0:(ldaa-1), 0:(lda-1)];
+		region slimRegion = [0:0, 0:(lda-1)];
+		
+		dist rectangular_distribution = dist.factory.blockCyclic(rectangularRegion,lda);
+		dist vector_distribution = dist.factory.cyclic(vectorRegion);
+		dist slim_distribution = dist.factory.cyclic(slimRegion);
+		
 		a = new double[rectangular_distribution];
-		b = new double [slimRegion->here];
-		x = new double [slimRegion->here];
-		ipvt = new int [vectorRegion->here];
+		//b[j],x[j], ipvt[j] same place as a[j, *], which balance load better
+		//except for b[n], x[n]
+		b = new double [slim_distribution]; 
+		x = new double [slim_distribution];
+		ipvt = new int [vector_distribution]; 
 		
 		
 		long nl = (long) n;   //avoid integer overflow
@@ -72,20 +77,27 @@ public class JGFLUFactBench extends Linpack implements JGFSection2{
 		double eps,residn;
 		final double ref[] = {6.0, 12.0, 20.0}; 
 		
-		for (i = 0; i < n; i++) {
-			x[0,i] = b[0,i];
+		final double[.] xx = x;
+		final double[.] bb = b;
+		finish ateach(point [_]: uniqueD) {
+			for (point [i,j]: bb.distribution|here) 
+				xx[i,j] = bb[i,j];
 		}
 		norma = matgen(a,lda,n,b);
-		for (i = 0; i < n; i++) {
-			b[0,i] = -b[0,i];
+		
+		finish ateach(point [_]:uniqueD) {
+			for (point [i,j]: bb.distribution|here)
+				bb[i,j] = -bb[i,j];
 		}
 		
 		dmxpy(n,b,n,lda,x,a);
 		resid = 0.0;
 		normx = 0.0;
 		for (i = 0; i < n; i++) {
-			resid = (resid > abs(b[0,i])) ? resid : abs(b[0,i]);
-			normx = (normx > abs(x[0,i])) ? normx : abs(x[0,i]);
+			double dtmp1 = abs(read(b, 0,i));
+			double dtmp2 = abs(read(x, 0,i));
+			resid = (resid > dtmp1) ? resid : dtmp1;
+			normx = (normx > dtmp2) ? normx : dtmp2;
 		}
 		
 		eps =  epslon((double)1.0);
