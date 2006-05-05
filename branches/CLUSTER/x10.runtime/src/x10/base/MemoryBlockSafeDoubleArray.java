@@ -31,6 +31,8 @@ public class MemoryBlockSafeDoubleArray extends MemoryBlockSafe {
         arr_ = a;
     }
     
+    public double[] getBackingArray() { return arr_; }
+    
     public int count() { 
         return arr_.length;
      }
