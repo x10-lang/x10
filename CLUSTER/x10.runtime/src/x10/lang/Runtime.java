@@ -156,8 +156,6 @@ public abstract class Runtime {
      */
     public static Place here() {
         place p = runtime.currentPlace();
-        /** TODO (ahk) ... a better assert for multi-VM case **/
-       // assert Configuration.VM_ == null || p != null;
     	return (Place) p;
     }
     

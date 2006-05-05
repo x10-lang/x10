@@ -241,11 +241,7 @@ public class DefaultRuntime_c extends Runtime {
                 PoolRunner pr = (PoolRunner) t;
                 ret = pr.place;
         }
-        /* TODO:  when entering from LAPI (another VM) there may
-           not be a "currentPlace"  Find a better test than this one. 
-        if ((Configuration.VM_ == null && ClusterConfig.multi == false) && ret == null)
-           throw new Error("This thread is not an X10 thread!");
-           */
+
         return ret;
     }
     
