@@ -109,14 +109,35 @@ public class Linpack {
 		/*  Next two for() statements switched.  Solver wants
 		 matrix in column order. --dmd 3/3/97
 		 */
-		for (point [i,j] : a) {
-			init = 3125*init % 65536;
-			double value = (init - 32768.0)/16384.0;
-			finish write(a,i,j,value);
-			norma = value > norma ? value : norma;
+		//cx10: try to reduce cross node comm
+		for(point [i]: [0:n-1]) {
+			final double[] tmp = new double[n+1];
+			for(point [j]: [0:n]) {
+				init = 3125*init % 65536;
+				double value = (init - 32768.0)/16384.0;
+				tmp[j] = value;
+				norma = value > norma ? value : norma;
+			}
+			finish async(a.distribution[i,0]) {
+				for(point [j]: [0:n])
+				finish write(a,i,j,tmp[j]);
+			}
 		}
-		finish ateach (point [i,j] : b)  b[i,j] = 0.0;
-		finish ateach (point [i,j] : a.distribution)     plusWrite(b, 0, j, a[i,j]); 
+		finish ateach (point [_]:uniqueD) {
+			for (point [i,j] : b.distribution | here)  
+				b[i,j] = 0.0;
+		}
+		finish ateach (point [_]:uniqueD) {
+			final double[] tmp = new double[n];
+			for (point [i,j] : a.distribution | here)     {		
+				if(j<n)  //cx10: c.f. original linpack source
+					tmp[j] += a[i,j];
+			}
+			finish async(b.distribution[0,0]) {
+				for(int j=0; j<n; j++) 			
+					plusWrite(b, 0, j, tmp[j]);
+			}
+		}
 		return norma;
 	}
 	
@@ -175,7 +196,7 @@ public class Linpack {
 		
 		if (nm1 >=  0) {			
 			for (point [k] : [0:nm1-1]) {
-				finish async(a.distribution[k,0]){// do this on column (which is really 'row') k 
+				finish async(a.distribution[k,0]){//cx10: intrisic serial part of the computation 
 					final int kp1 = k+1;
 					// would be nice to do this via an X10 reduction on a sub-array
 					final int l = idamax(n - k, a,k, k, 1) + k; //cx10: local
@@ -198,6 +219,11 @@ public class Linpack {
 						// row elimination with column indexing						
 						// daxpy on all columns to the right in parallel						
 						finish{
+							//cx10: at this point a[k, kp1:n] is known, thus we should
+							//avoid read back from it every time
+							final double[] tmp = new double[n-kp1];
+							for(int m=0; m<(n-kp1); m++) tmp[m] = a[k, kp1+m];
+							
 							for(point [j] : [kp1:n-1]){
 								async(a.distribution[j,l]){
 									double t = a[j,l];
@@ -205,7 +231,11 @@ public class Linpack {
 										a[j,l] = a[j,k];
 										a[j,k] = t;
 									}
-									daxpy(n-(kp1),t,a,k,kp1,1,a,j,kp1,1);//cx10: cross place					
+									//cx10: this seems too heavy weight XXX
+									double[.] rowk = new double[[0:0, 0:n-kp1-1]->here] (point [_,j]) {
+										return tmp[j];									
+									};
+									daxpy(n-(kp1),t,rowk,0,0,1,a,j,kp1,1);//cx10: now local					
 								}
 							}
 						}      			
@@ -287,15 +317,25 @@ public class Linpack {
 			// job = 0 , solve  a * x = b.  first solve  l*y = b
 			if (nm1 >= 1) {				
 				for (point [k] : [0:nm1-1]) {						
-					finish async(a.distribution[k,0]) { //cx10: intrisic serial processing part
-						int l = ipvt[k];
-						double t = read(b, 0, l); 
-						if (l != k){
-							write(b, 0, l, b[0, k]); //cx10: b[0,k] is local
-							b[0, k] = t;
+					finish async(a.distribution[k,0]) { //cx10: intrinsic serial processing part
+						final int l = ipvt[k];
+						final int kp1 = k + 1;
+						//cx10: ship everything to b's place
+						final double[] tmp = new double[n-kp1];
+						for(int m=0; m<n-kp1; m++) tmp[m] = a[k,kp1+m];
+						
+						finish async(b.distribution[0,k]) {							
+							final double t = read(b, 0, l); 
+							if (l != k){
+								write(b, 0, l, b[0, k]); 
+								b[0, k] = t;
+							}
+							//cx10: this seems too heavy weight XXX
+							double[.] rowk = new double[[0:0, 0:n-kp1-1]->here] (point [_,j]) {
+								return tmp[j];									
+							};
+							daxpy(n-(kp1),t,rowk,0,0,1,b,0,kp1,1);//cx10: now local
 						}
-						int kp1 = k + 1;
-						daxpy(n-(kp1),t,a,k,kp1,1,b,0,kp1,1);// FIXME: subarrays
 					}
 				}				
 			}
@@ -304,10 +344,21 @@ public class Linpack {
 			
 			for (point [kb] : [0:n-1]) {
 				final int k = n - (kb + 1);
-				finish async(a.distribution[k,0]) {					
-					b[0,k] /= read(a, k, k);
-					double t = -b[0,k];
-					daxpy(k,t,a,k,0,1,b,0,0,1);// FIXME: subarrays
+				finish async(a.distribution[k,0]) { //cx10: instrinsically serial					
+					final double akk = read(a, k, k);					
+					//cx10: ship everything to b's place
+					final double[] tmp = new double[k];
+					for(int m=0; m<k; m++) tmp[m] = a[k,m];	
+					
+					finish async(b.distribution[0,k]) {
+						b[0,k] /= akk;		
+						double t = -b[0,k];
+						//cx10: this seems too heavy weight XXX
+						double[.] rowk = new double[[0:0, 0:k-1]->here] (point [_,j]) {
+							return tmp[j];									
+						};					
+						daxpy(k,t,rowk,0,0,1,b,0,0,1);// FIXME: subarrays
+					}
 				}
 			}
 		}
@@ -537,14 +588,20 @@ public class Linpack {
 	final void dmxpy (final int n1, final double[.] y, final int n2, final int ldm, final double[.] x, final double[.] m)
 	{
 		// cleanup odd vector
+		final double[] copyx = new double[n2];
+		for(int i=0; i<n2; i++) copyx[i] = x[0,i];
+		
 		finish ateach(point [_]:uniqueD)  {
-			double[.] tmp = new double[[0:(n1-1)]->here];  //initialized to zero?
+			final double[] tmp = new double[n1];  //initialized to zero?
 			for (point [j,i]:m.distribution | here) {
 				if(i<n1 && j<n2) 
-					tmp[i] += x[0,j]*read(m,j,i);			
+					tmp[i] += copyx[j]*read(m,j,i);			
 			}
-			for(point [i]: [0: (n1-1)]) {
-				plusWrite(y, 0, i, tmp[i]);
+			
+			async(y.distribution[0,0]) {
+				for(point [i]: [0: (n1-1)]) {
+					plusWrite(y, 0, i, tmp[i]);
+				}
 			}
 		}
 	}

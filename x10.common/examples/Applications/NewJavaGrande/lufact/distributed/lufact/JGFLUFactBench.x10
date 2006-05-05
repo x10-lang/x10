@@ -21,6 +21,26 @@
 /**
  * @author ahk,cmd
  * Ported to x10 March 18th 2005
+ * 
+ * @author xinb
+ * A few changes intended to improve performance on Cluster, without decrease
+ * single-VM performance.
+ * Issues:
+ * 	o   the inrinsic serial nature of the LU algorithm is gonna to put a upper limit;
+ *  o   the lack of flexible "views", so to speak, makes the this code rather awkward.
+ *  	by this I mean, the ability to generate a 1-dim array view from an underlying 
+ *  	2-dim array.
+ *  o	this is how currently data are partitioned among places: (keep in mind: ax = b) 
+ *  	a:  N X N+1 array
+ *  	b: 	N X 1 vector
+ *  	x:  N X 1 vector
+ *  	ipvt: N X 1 vector 
+ *  
+ *  	a[i,*] located the same places as ipvt[i]; b,x located at a master node
+ *  	a[i+1, *] located at the next place (modula place.MAX.PLACES) to a[i, *]
+ *  o   one way to improve performance is to be aware of the above partitioning, and 
+ *  	avoiding basic read/write across places by aggregate those operations, using
+ *  	Java array or X10 value array;
  */
 package lufact; 
 import jgfutil.*; 
@@ -42,11 +62,13 @@ public class JGFLUFactBench extends Linpack implements JGFSection2{
 		
 		region vectorRegion = [0: (ldaa-1)];
 		region rectangularRegion = [0:(ldaa-1), 0:(lda-1)];
-		region slimRegion = [0:0, 0:(lda-1)];
+		//cx10: This 2-dim region only necessary due to reuse code 'daxpy' where a 
+		//vector argument can come both from 'b' or a subarray of 'a'
+		region slimRegion = [0:0, 0:(ldaa-1)];
 		
 		dist rectangular_distribution = dist.factory.blockCyclic(rectangularRegion,lda);
 		dist vector_distribution = dist.factory.cyclic(vectorRegion);
-		dist slim_distribution = dist.factory.cyclic(slimRegion);
+		dist slim_distribution = slimRegion->here;
 		
 		a = new double[rectangular_distribution];
 		//b[j],x[j], ipvt[j] same place as a[j, *], which balance load better
@@ -77,28 +99,17 @@ public class JGFLUFactBench extends Linpack implements JGFSection2{
 		double eps,residn;
 		final double ref[] = {6.0, 12.0, 20.0}; 
 		
-		final double[.] xx = x;
-		final double[.] bb = b;
-		finish ateach(point [_]: uniqueD) {
-			for (point [i,j]: bb.distribution|here) 
-				xx[i,j] = bb[i,j];
-		}
+		for (point [_,j]: b.distribution) 
+			x[0,j] = b[0,j];
+		
 		norma = matgen(a,lda,n,b);
 		
-		finish ateach(point [_]:uniqueD) {
-			for (point [i,j]: bb.distribution|here)
-				bb[i,j] = -bb[i,j];
-		}
+		for (point [_,j]: b.distribution)
+			b[0,j] = -b[0,j];
 		
 		dmxpy(n,b,n,lda,x,a);
-		resid = 0.0;
-		normx = 0.0;
-		for (i = 0; i < n; i++) {
-			double dtmp1 = abs(read(b, 0,i));
-			double dtmp2 = abs(read(x, 0,i));
-			resid = (resid > dtmp1) ? resid : dtmp1;
-			normx = (normx > dtmp2) ? normx : dtmp2;
-		}
+		resid = b.maxAbs(); 
+		normx = x.maxAbs(); 
 		
 		eps =  epslon((double)1.0);
 		residn = resid/( n*norma*normx*eps );
