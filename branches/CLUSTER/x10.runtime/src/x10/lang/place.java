@@ -19,6 +19,8 @@
 
 package x10.lang;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 
 import x10.base.TypeArgument;
@@ -71,9 +73,16 @@ implements TypeArgument, ValueType{
 	 *
 	 */
 	public static void initialize() {
+		assert(places == null); //should be invoked only once
 		LAST_PLACE = factory.place(MAX_PLACES-1);
 		FIRST_PLACE = factory.place(0);
 		places = factory.places(MAX_PLACES-1);
+		
+		locks_ = new place[MAX_PLACES];
+		for(Iterator it = places.iterator(); it.hasNext(); ) {
+			place p = (place) it.next();
+			locks_[p.id] = p;
+		}
 	}
 	public static place places(int i) { return factory.place(i);}
 	public boolean equals(java.lang.Object o) {
@@ -128,11 +137,13 @@ implements TypeArgument, ValueType{
 		return "place(id=" + id +")"; 
 	}
 	
-	// ahk ... find a way to remove the need for this
-	public void runAsyncNoRemapping(x10.runtime.Activity a){throw new RuntimeException("Should never be called");}
-	
-	public void runAsync(x10.runtime.Activity a){throw new RuntimeException("Should never be called");}
-	public  Future runFuture(Activity.Expr a) {if(true) throw new RuntimeException("Should never be called"); return null;}
-	
-	
+	/**
+	 *  Return a lock to use for 'atomic' construct.  Place objects can be easily
+	 *  created multiple time for a single place id.
+	 *  @author xinb
+	 */
+	private static place[] locks_ = null;
+	public Object getLock() {
+		return locks_[this.id];
+	}
 }
