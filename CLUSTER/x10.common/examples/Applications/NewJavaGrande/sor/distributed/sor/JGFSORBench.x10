@@ -15,6 +15,9 @@
  * 2) Add suffix D for all double constants
  * 3) Increased error threshold from 1e-12 to 1e-3
  *    TODO: check the source of error --- is it due to the red-black loop parallelization?
+ *    
+ * @authro xinb
+ * 	o	use the X10 idiom to initialize array.
  */
 
 
@@ -83,7 +86,10 @@ public class JGFSORBench extends SOR implements JGFSection2{
 	private static double[.] RandomMatrix(final int M, final int N, final java.util.Random R)
 	{
 		final double[.] t= new double[blockStar([0:M-1],[0:N-1])];
-                for(point [i,j]:t) write(t, i, j, R.nextDouble() * 1e-6);
+		//XXX cx10: better to aggregate initializtion at each place into one async, except
+		//if Random use some machine-specific state, this might not be right.
+		for(point [i,j]:t)  
+			write(t, i, j, R.nextDouble() * 1e-6);
 		return t;
 	}
 	private static void write(final double[.] t, final int i, final int j, final double v) {
@@ -107,7 +113,7 @@ public class JGFSORBench extends SOR implements JGFSection2{
          */
 	private static dist distTimesRegion(dist d,region r) {
 		dist d0=[1:0,1:0]->here;
-	        for(place p: d.places()) d0=d0 || ([(d|p).region,r]->p);
+		for(place p: d.places()) d0=d0 || ([(d|p).region,r]->p);
 		return d0;
 	}
 		
