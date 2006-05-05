@@ -1,6 +1,6 @@
 // SYNOPSIS: atomic #0
 
-synchronized (x10.lang.Runtime.here()) {
+synchronized (x10.lang.Runtime.here().getLock()) {
 	try {
 		#0
 	} finally {
