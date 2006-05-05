@@ -1,9 +1,3 @@
-/**
- *
- * moldyn with multiple places ported to x10.
- *
- * @author kemal 3/2005
- */
 /**************************************************************************
  *                                                                         *
  *             Java Grande Forum Benchmark Suite - MPJ Version 1.0         *
@@ -29,7 +23,16 @@
  *                                                                         *
  **************************************************************************/
 
-
+/**
+ *
+ * moldyn with multiple places ported to x10.
+ *
+ * @author kemal 3/2005
+ * 
+ * @author xinb 5/2006
+ * 	o	aggregate primitive reads/writes through futures/asyncs, which 
+ * 		improve performance greatly;
+ */
 
 package moldyn;
 
@@ -286,26 +289,52 @@ public class md {
 		t.one= new Particle[mdsize];
 		for(point [k]: [0:(mdsize-1)]) t.one[k]=new Particle(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
 		// sum reduction
-		for(point [j]: P) {			
-			for(point [k]: [0:(mdsize-1)]) {
-				t.one[k].xforce+= future(P.distribution[j]){P[j].one[k].xforce}.force();
-				t.one[k].yforce+= future(P.distribution[j]){P[j].one[k].yforce}.force();
-				t.one[k].zforce+= future(P.distribution[j]){P[j].one[k].zforce}.force();
+		finish ateach(point [j]: P.distribution) {
+			//aggregate
+			final double[][] xyzs = new double[3][P[j].one.length];
+			for(point [k]: [0:P[j].mdsize-1]) {
+				xyzs[0][k] = P[j].one[k].xforce;
+				xyzs[1][k] = P[j].one[k].yforce;
+				xyzs[2][k] = P[j].one[k].zforce;
 			}
-			t.vir += future(P.distribution[j]){P[j].vir}.force();
-			t.epot += future(P.distribution[j]){P[j].epot}.force();
-			t.interactions += future(P.distribution[j]){P[j].interactions}.force();
+			final double virj = P[j].vir;
+			final double epotj = P[j].epot;
+			final int interactionsj = P[j].interactions;
+			//reduce
+			async(t) {
+				atomic {
+					for(point [k]: [0:(t.mdsize-1)]) {
+						t.one[k].xforce+= xyzs[0][k]; 
+						t.one[k].yforce+= xyzs[1][k]; 
+						t.one[k].zforce+= xyzs[2][k]; 
+					}
+					t.vir += virj; 
+					t.epot += epotj; 
+					t.interactions += interactionsj; 
+				}
+			}
 		}
 		// broadcast
-		finish ateach(point [j]: P.distribution) {
+		//aggregate
+		final double[][] xyzt = new double[3][mdsize];
+		for(point [k]: [0:mdsize-1]) {
+			xyzt[0][k] = t.one[k].xforce;
+			xyzt[1][k] = t.one[k].yforce;
+			xyzt[2][k] = t.one[k].zforce;
+		}
+		final double virt = t.vir;
+		final double epott = t.epot;
+		final int interactionst = t.interactions;
+		//broadcast
+		finish ateach(point [j]: P.distribution) {			
 			for(point [k]: [0:(P[j].mdsize-1)]) {
-				P[j].one[k].xforce=future(t){t.one[k].xforce}.force();
-				P[j].one[k].yforce=future(t){t.one[k].yforce}.force();
-				P[j].one[k].zforce=future(t){t.one[k].zforce}.force();
+				P[j].one[k].xforce = xyzt[0][k]; 
+				P[j].one[k].yforce = xyzt[1][k]; 
+				P[j].one[k].zforce = xyzt[2][k]; 
 			}
-			P[j].vir= future(t){t.vir}.force();
-			P[j].epot=future(t){t.epot}.force();
-			P[j].interactions= future(t){t.interactions}.force();
+			P[j].vir= virt; 
+			P[j].epot= epott; 
+			P[j].interactions= interactionst; 
 		}
 	}
 	
