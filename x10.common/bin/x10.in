@@ -58,13 +58,14 @@ EOF
 fi
 
 if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
-    JAVA="`cygpath -au "$JAVA_HOME/bin/java"`"
+    JAVA="$JAVA_HOME/bin/java"
 elif [ -n "$JRE_HOME" -a -e "$JRE_HOME/bin/java" ]; then
-    JAVA="`cygpath -au "$JRE_HOME/bin/java"`"
+    JAVA="$JRE_HOME/bin/java"
 else
     echo "JAVA_HOME ($JAVA_HOME) is not pointing to a JRE or a JDK"
     exit 1
 fi
+if [[ `uname -s` = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"
 
 LIB_DIR="${TOP}${FILE_SEP}lib"
 
