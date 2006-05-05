@@ -65,7 +65,7 @@ else
     echo "JAVA_HOME ($JAVA_HOME) is not pointing to a JRE or a JDK"
     exit 1
 fi
-if [[ `uname -s` = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"
+if [[ `uname -s` = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
 
 LIB_DIR="${TOP}${FILE_SEP}lib"
 
