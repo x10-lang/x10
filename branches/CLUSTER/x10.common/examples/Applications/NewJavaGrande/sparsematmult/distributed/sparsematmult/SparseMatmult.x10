@@ -19,11 +19,15 @@
  *                                                                         *
  **************************************************************************/
 
+/**
+ * @author xinb
+ * 	o 	modification; aggregate primitive cross-place write.
+ */
 package sparsematmult;
 import jgfutil.*;
 import x10.lang.Double;
 public class SparseMatmult {
-
+	static final dist uniqueD = dist.factory.unique();
 	// final checksum -- cvp
 	public static final Double ytotal = new Double(0.0);
 	
@@ -36,19 +40,26 @@ public class SparseMatmult {
 		
 		JGFInstrumentor.startTimer("Section2:SparseMatmult:Kernel"); 
 		
-		finish foreach (point [id] : dist.factory.unique(place.places)) 
-		for (point [reps] : [0: NUM_ITERATIONS-1]) 
-			for (point [i] : [lowsum[id] : highsum[id]-1]) 
-			    // finish async (yt.distribution[row[i]]) { yt[row[i]] += x[col[i]]*val[i]; } 
-			    //  cvp finish async not necessary because access is place-local
-			    //  vj. No, thats not the case. Get bad place exception.
-			    //  cvp - again: finish async not necessary - I just overlooked to check in the change 
-			    //        of the initialization of ilow and iup in JGFSparseMatMultBench.x10. 
-			     finish async (y.distribution[row[i]]) { y[row[i]] += x[col[i]]*val[i]; } 
-			   
+		finish foreach (point [id] : uniqueD) {
+			final int low = lowsum[id];
+			final int high = highsum[id];
+			final double[] tmp = new double[high-low];
 			
+			for (point [reps] : [0: NUM_ITERATIONS-1]) 
+				for (point [i] : [low : high-1]) {				
+					tmp[i-low] += x[col[i]]*val[i];
+				}
+			for (point [i] : [low : high-1]) {
+				final double yi = tmp[i-low];
+				final int indx = row[i];
+				finish async (y.distribution[indx]) { 
+					y[indx] += yi; 
+				}
+			}
+		}
 		
 		JGFInstrumentor.stopTimer("Section2:SparseMatmult:Kernel"); 
+		
 		for (point [i]:[0:nz-1]) {
             ytotal.val += future (y.distribution[row[i]]) {y[ row[i] ]}.force();
           }
