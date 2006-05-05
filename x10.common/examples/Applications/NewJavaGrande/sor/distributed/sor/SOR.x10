@@ -7,6 +7,11 @@
  *
  * Porting issues identified:
  * 1) Replace Java multidimensional array by X10 Multidimensional array
+ * 
+ * @author xinb
+ * 	o	remember G[i,*] lives at the same place
+ * 	o	reduce the number of cross place async-launchings; try aggregate them;
+ * 		In a lot of cases, this means watching the order of nested loop;
  */
 
 package sor; 
@@ -14,7 +19,7 @@ import jgfutil.*;
 import x10.lang.Double;
 public class SOR
 {
-	
+	static final dist uniqueD = dist.factory.unique();	
 	const Double gtotal = new Double(0.0);
 	
 	public static double read(final double[.] G, final int i, final int j) {
@@ -36,15 +41,21 @@ public class SOR
 		
 		JGFInstrumentor.startTimer("Section2:SOR:Kernel"); 
 		
-		for (point [p] : [0 : num_iterations-1])
-			for (point [o] : [0:1]) 
-			finish foreach (point [ii] : [0: (((Mm1-1)-(1+o))/2)]) {
-				final int i = 2 * ii + 1 + o;
-				finish async (G.distribution[i,1])
-				for (point [j] : [1 : Nm1-1])
-					G[i,j] = omega_over_four * (read(G, i-1,j) + read(G, i+1,j) + G[i,j-1] 
-												+ G[i,j+1]) + one_minus_omega * G[i,j];
+		for (point [p] : [0 : num_iterations-1]) {
+			for (point [o] : [0:1]) {
+				finish ateach(point [_]: uniqueD) {
+					for (point [i,j] : G|here) {
+						if(i > 0 && i < Mm1 && j > 0 && j < Nm1) { //skip bounds elements
+							if(i%2 != o) { //pick one of two subsets of rows 
+								G[i,j] = omega_over_four * (read(G, i-1,j) + read(G, i+1,j) + G[i,j-1] 
+								          + G[i,j+1]) + one_minus_omega * G[i,j];
+							}
+						}
+					}
+				}
 			}
+		}
+		
 		JGFInstrumentor.stopTimer("Section2:SOR:Kernel");
 		gtotal.val = G.sum();
 		
