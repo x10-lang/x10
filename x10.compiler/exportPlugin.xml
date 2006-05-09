@@ -57,10 +57,6 @@
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin/data" failonerror="true" overwrite="false">
 			<fileset dir="data" includes="**/*"/>
 		</copy>
-		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/dataext"/>
-		<copy todir="${temp.folder}/${plugin.jar.name}.bin/dataext" failonerror="true" overwrite="false">
-			<fileset dir="dataext" includes="**/*"/>
-		</copy>
 		<copy todir="${temp.folder}/${plugin.name}.jar.bin" failonerror="true" overwrite="false">
 			<fileset dir="src/" excludes="**/*.java,**/package.htm*"/>
 		</copy>
