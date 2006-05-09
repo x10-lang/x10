@@ -38,7 +38,7 @@ while true; do
     esac
 done
 
-if [ $printhelp = 1 -o $numargs = 0 ] ; then
+if [ "$printhelp" -eq "1" -o "$numargs" -eq "0" ] ; then
     echo "NAME"
     echo "    cx10run.sh  script to launch an X10 program on a cluster."
     echo ""
@@ -94,7 +94,7 @@ if [ -n "$standard_cfg" ] ; then
 	if [ -n "$numplaces" ] ; then
 	    MAX_PLACES=`echo "$numplaces" | cut -f2 -d=`
 	fi
-	if [ $MAX_PLACES < 1 ] ; then
+	if [ "$MAX_PLACES" -lt "1" ] ; then
 	    echo "cx10: incorrect number of places specified $MAX_PLACES"
 	    exit -1;
 	fi
@@ -150,13 +150,13 @@ force_quit() {
 	if [ "$testrun" -ne "0" ] ; then
 	    echo "cx10: ssh $host \"killall -g x10\""
 	else
-	    echo "cx10: terminate $host ..."
-	    ignored=`ssh $host \"killall -g x10\"`
+	    echo "cx10: terminate $host ...";
+	    ssh $host \"killall -g x10\";
 	fi
     done
 }
 
-if [ $quitvms = 1 ] ; then
+if [ "$quitvms" -eq "1" ] ; then
     force_quit;
     exit -1;
 fi
@@ -176,9 +176,9 @@ for host in $machinelist; do
     fi
     
     if [ "$testrun" -ne "0" ] ; then
-	echo "ssh -f $host \"cd $CLASSDIR; $X10 -multi $vmid -Dx10.cluster.cfgfile=$cfg_file $standard_cfg $MAINCLASS\""
+	echo "ssh -f $host \"cd $CLASSDIR; $X10 -multi $vmid $standard_opt -Dx10.cluster.cfgfile=$cfg_file $MAINCLASS\""
     else
-	ssh -f $host "cd $CLASSDIR; $X10 -multi $vmid -Dx10.cluster.cfgfile=$cfg_file  $standard_cfg $MAINCLASS"
+	ssh -f $host "cd $CLASSDIR; $X10 -multi $vmid $standard_opt -Dx10.cluster.cfgfile=$cfg_file $MAINCLASS"
 	
 	# wait till the VM is started
 	vm_started=`ssh $host "ps -eo comm | grep x10"`
@@ -191,9 +191,9 @@ done
 
 # Lauch main VM
 if [ "$testrun" -ne "0" ] ; then
-    echo "ssh $mainhost \"cd $CLASSDIR; $X10 -multi $mainvm -Dx10.cluster.cfgfile=$cfg_file $standard_cfg $MAINCLASS\""
+    echo "ssh $mainhost \"cd $CLASSDIR; $X10 -multi $mainvm $standard_opt -Dx10.cluster.cfgfile=$cfg_file $MAINCLASS\""
 else
-    ssh $mainhost "cd $CLASSDIR; $X10 -multi $mainvm -Dx10.cluster.cfgfile=$cfg_file  $standard_cfg $MAINCLASS"
+    ssh $mainhost "cd $CLASSDIR; $X10 -multi $mainvm $standard_opt -Dx10.cluster.cfgfile=$cfg_file $MAINCLASS"
 fi
 
 
