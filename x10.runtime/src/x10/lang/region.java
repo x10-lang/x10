@@ -152,7 +152,10 @@ implements TypeArgument, ValueType {
 	abstract public region/*(rank)*/ difference( region/*(rank)*/ r);
 	abstract public region/*(rank)*/ convexHull();
 	
-	
+	public point startPoint() {
+		Iterator it = iterator();
+		return (it.hasNext() ? (point) it.next() : null);
+	}
 	/**
 	 Returns true iff this is a superset of r.
 	 */
