@@ -153,9 +153,9 @@ STATISTICS_DISABLE=none</echo>
 #JAVA='${java.executable}'
 [ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
 JRE_HOME='${java.home}'
-FILE_SEP='${file.separator}'
-PATH_SEP='${path.separator}'
-X10_PLATFORM='${env.X10_PLATFORM}'
+#FILE_SEP='${file.separator}'
+#PATH_SEP='${path.separator}'
+#[ -n "$X10_PLATFORM" ] || X10_PLATFORM='${env.X10_PLATFORM}'
 CONFIG_FILE='standard.cfg'
 
 </echo>

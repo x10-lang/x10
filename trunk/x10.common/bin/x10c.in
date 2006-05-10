@@ -1,5 +1,15 @@
+UNAME=`uname -s`
+FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\'; fi
+PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
+[ -n "$X10_PLATFORM" ] || \
+case "$UNAME" in
+  CYGWIN*) X10_PLATFORM='win32_x86';;
+  Linux) X10_PLATFORM='linux_x86';;
+  *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
+esac
+
 TOP="$(cd "$(dirname $0)/.." && pwd)"
-if [[ `uname -s` = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
+if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
 
 help=""
 time="" 
@@ -57,7 +67,7 @@ else
     echo "JAVA_HOME ($JAVA_HOME) is not pointing to a JRE or a JDK"
     exit 1
 fi
-if [[ `uname -s` = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
 
 CONFIG_DIR="${TOP}${FILE_SEP}etc"
 LIB_DIR="${TOP}${FILE_SEP}lib"
