@@ -423,7 +423,12 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     
     public x10.lang.genericArray toValueArray() {
     	if (! mutable_) return this;
-    	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");   
+    	try {
+    		return (x10.lang.genericArray) this.clone();
+    	} catch (CloneNotSupportedException x) {
+    		throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray"); 
+    	}
+    	
     }
     public boolean isValue() {
         return ! this.mutable_;

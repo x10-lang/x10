@@ -440,7 +440,11 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public x10.lang.doubleArray toValueArray() {
     	if (! mutable_) return this;
-    	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");   
+    	try {
+    		return (x10.lang.doubleArray) this.clone();
+    	} catch (CloneNotSupportedException x) {
+    		throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray"); 
+    	}
     }
     public boolean isValue() {
         return ! this.mutable_;
