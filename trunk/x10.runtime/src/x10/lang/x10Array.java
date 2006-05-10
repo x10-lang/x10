@@ -4,7 +4,7 @@ import x10.lang.place;
 import x10.compilergenerated.Parameter1;
 
 /* root for all array classes */
-abstract public class x10Array implements Indexable, Unsafe, Parameter1 {
+abstract public class x10Array extends x10.lang.Object implements Indexable, Unsafe, Parameter1, ValueType  {
 
 	// used to associate a partitioned global array with a
 	// particular place
