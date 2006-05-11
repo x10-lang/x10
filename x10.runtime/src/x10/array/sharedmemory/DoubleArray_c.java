@@ -33,7 +33,12 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     public boolean valueEquals(Indexable other) {
         return arr_.valueEquals(((DoubleArray_c)other).arr_);
     }
-   
+    private DoubleArray_c(dist d, boolean safe, MemoryBlock arr, boolean mutable) {
+    	super(d);
+    	safe_ = safe;
+    	arr_  = arr;
+    	mutable_ = mutable;
+    }
     /**
      *  This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
@@ -439,12 +444,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     }
     
     public x10.lang.doubleArray toValueArray() {
-    	if (! mutable_) return this;
-    	try {
-    		return (x10.lang.doubleArray) this.clone();
-    	} catch (CloneNotSupportedException x) {
-    		throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray"); 
-    	}
+    	if (! mutable_) 
+    		return this;
+    	return new DoubleArray_c(distribution, safe_, arr_, false);
     }
     public boolean isValue() {
         return ! this.mutable_;
