@@ -189,8 +189,10 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	{
 		if (d.rank != th.rank)
 			throw new RankMismatchException(d, th.rank);
-		assert d.region.disjoint(th.region); // assume
-
+		//commented out vj -- 05/11/06 assert d.region.disjoint(th.region); 
+		return new Combined(d.region.union(th.region), 
+				new Distribution_c[]{(Distribution_c) th, (Distribution_c) d});
+/*
 		region reg = d.region.union(th.region);
 		HashMap hm = new HashMap();
 		for (Iterator it = th.region.iterator(); it.hasNext(); ) {
@@ -203,6 +205,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		}
 		dist ret = new Arbitrary(reg, hm);
 		return ret;
+		*/
 	}
 
 	public dist intersection(dist D) {
