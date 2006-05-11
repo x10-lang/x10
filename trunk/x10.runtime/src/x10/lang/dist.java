@@ -34,6 +34,12 @@ implements Indexable, ValueType {
 	 * this.valueAt(p)==P.
 	 */
 	abstract public Set/*<place>*/ places(); // consider making this a parameter?
+	public place[] placesArray() {
+		java.lang.Object[] a = places().toArray();
+		place[] res = new place[a.length];
+		System.arraycopy(a,0,res,0,a.length);
+		return res;
+	}
 
 	protected dist(region R) {
 		this.region = R;
