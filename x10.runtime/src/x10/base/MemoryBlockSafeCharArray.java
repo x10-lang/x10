@@ -31,6 +31,7 @@ public class MemoryBlockSafeCharArray extends MemoryBlockSafe {
         arr_ = a;
     }
     
+    public char[] getBackingArray() { return arr_; }
     public int count() { 
         return arr_.length;
      }
