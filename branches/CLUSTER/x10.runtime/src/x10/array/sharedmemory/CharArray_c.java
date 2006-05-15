@@ -12,6 +12,8 @@ import x10.array.CharArray;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
+import x10.base.MemoryBlockSafeCharArray;
+import x10.base.MemoryBlockSafeDoubleArray;
 import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
@@ -120,7 +122,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
             initScan(this, f);
     }
     
-    private CharArray_c( dist d, char[] a, boolean safe, boolean mutable) {
+    protected CharArray_c( dist d, char[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -134,6 +136,11 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
             this.arr_ =Allocator.allocSafe(count, Character.TYPE);
         }
         this.mutable_ = mutable;
+    }
+    public char[] getBackingArray() { 
+    	return (arr_ instanceof MemoryBlockSafeCharArray) ?
+        		((MemoryBlockSafeCharArray) arr_).getBackingArray()
+    			: null; 
     }
     
     protected void initScan(CharArray res, pointwiseOp op) {
