@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # NOTE: this script assumes cx10 is installed on a network file system
 # that is mounted the same way in all physical nodes involved.  Also,
@@ -13,6 +13,7 @@
 # No need to change below, if this script is used in current directory
 # and x10 classes are compiled in current directory.
 CLASSDIR=`pwd`
+cur_user=`whoami`
 X10=../bin/x10
 
 testrun=0  # test the command sequences in this file
@@ -117,6 +118,9 @@ machinelist=""
 vmidlist=""
 places=""
 
+old_IFS=$IFS  # newlines will be stripped otherwise which confuses
+IFS=" "
+
 stripped=`grep -v ^# $cfg_file`
 places=`echo "$stripped" | cut -f3 -d,`
 
@@ -143,15 +147,16 @@ then
     exit -1
 fi
 
+IFS=$old_IFS # restor IFS
 
 # Force quite in case of failure. Need a more platform independent way.
 force_quit() {
     for host in $machinelist ; do
 	if [ "$testrun" -ne "0" ] ; then
-	    echo "cx10: ssh $host \"killall -g x10\""
+	    echo "cx10: ssh $host \"pkill -u $cur_user x10\""
 	else
-	    echo "cx10: terminate $host ...";
-	    ssh $host \"killall -g x10\";
+	    echo "cx10: terminate $host ..."
+	    `ssh $host \"/usr/bin/pkill -u $cur_user x10\"`
 	fi
     done
 }
@@ -166,6 +171,7 @@ fi
 #
 #echo "$machinelist"
 #echo "$vmidlist"
+#echo "$mainvm $mainhost"
 cnt=0
 for host in $machinelist; do
     cnt=`expr 1 + $cnt`
