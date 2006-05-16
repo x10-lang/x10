@@ -8,6 +8,7 @@ package x10.runtime;
 import java.util.Stack;
 
 import x10.cluster.ClusterRuntime;
+import x10.cluster.HasResult;
 import x10.cluster.X10RemoteRef;
 import x10.cluster.X10Serializer;
 
@@ -34,6 +35,7 @@ public class FinishState implements FinishStateOps {
 		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
 			notifySubActivityTermination_();
 		} else { //remote call
+			//asynchronously is fine
 			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
 				public void run() {
 					notifySubActivityTermination_();
@@ -45,6 +47,7 @@ public class FinishState implements FinishStateOps {
 		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
 			notifySubActivityTermination_(t);
 		} else { //remote call
+			//asynchronously is fine
 			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
 				public void run() {
 					notifySubActivityTermination_(t);
@@ -56,10 +59,12 @@ public class FinishState implements FinishStateOps {
 		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
 			notifySubActivitySpawn_();
 		} else { //remote call
-			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
+			//synchronously
+			X10Serializer.serializeCodeW(rref.getPlace().id, new HasResult() /*Runnable()*/ {
 				public void run() {
 					notifySubActivitySpawn_();
 				}
+				public Object getResult() { return null; }
 			});
 		}
 	}
