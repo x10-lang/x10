@@ -31,6 +31,7 @@ public final class Future_c extends Future {
 		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
 			setException_(t);
 		} else {
+			//asynchronously is fine
 			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
 				public void run() {
 					setException_(t);
@@ -43,6 +44,7 @@ public final class Future_c extends Future {
 		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
 			setResult_(res);
 		} else {
+			//asynchronously is fine
 			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
 				public void run() {
 					setResult_(res);
