@@ -5,6 +5,7 @@ import java.util.Set;
 
 import x10.cluster.ClusterConfig;
 import x10.cluster.Debug;
+import x10.cluster.HasResult;
 import x10.cluster.X10RemoteRef;
 import x10.cluster.X10Serializer;
 import x10.lang.ClockUseException;
@@ -432,8 +433,9 @@ public /* final */ class Clock extends clock {
 			}
 		if(rref_p != null && !advancedParent ) {
 			//child lock node
-			final int curPhase = phase_;
+			final int curPhase = phase_;			
 			final X10RemoteRef pclock = rref_p;
+			//asynchronously is fine
 			X10Serializer.serializeCode(pclock.getPlace().id, new Runnable() {
 				public void run() {
 					((Clock)pclock.getObject()).signalResume(curPhase); //Has to be called on the right Clock object
@@ -532,10 +534,11 @@ public /* final */ class Clock extends clock {
 					final int curPhase = phase_;
 					final X10RemoteRef pclock = rref_p;
 					//blocking call
-					X10Serializer.serializeCode(pclock.getPlace().id, new Runnable() {
+					X10Serializer.serializeCodeW(pclock.getPlace().id, new HasResult() /*Runnable()*/ {
 						public void run() {
 							((Clock)pclock.getObject()).signalNext(curPhase);
 						}
+						public Object getResult() { return null;}
 					});
 					
 					advancedParent = true;
