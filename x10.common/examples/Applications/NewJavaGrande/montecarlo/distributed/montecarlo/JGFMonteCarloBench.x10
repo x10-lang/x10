@@ -37,8 +37,8 @@ public class JGFMonteCarloBench extends CallAppDemo implements JGFSection3 {
 	
 	
 	public void JGFvalidate(){
-		// double[]  refval = {-0.0333976656762814D, -0.03215796752868655D };
-		double[]  refval = {-0.03234469082617506D, -0.03215796752868655D };
+		double[]  refval = {-0.0333976656762814D, -0.03215796752868655D };
+		//double[]  refval = {-0.03234469082617506D, -0.03215796752868655D };
 		double dev = Math.abs(AppDemo.JGFavgExpectedReturnRateMC() - refval[size]);
 		if (dev > 1.0e-12 ){
 			System.out.println("Validation failed");

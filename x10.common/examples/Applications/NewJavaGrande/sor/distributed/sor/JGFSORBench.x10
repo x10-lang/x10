@@ -28,7 +28,8 @@ import java.util.Random;
 public class JGFSORBench extends SOR implements JGFSection2{ 
 	
 	private int size; 
-	private int datasizes[]={10,1500,2000};
+	private int datasizes[]={1000,1500,2000, 10}; //append reduced size
+	//private int datasizes[]={10,1500,2000};
 	private static final int JACOBI_NUM_ITER = 100;
 	private static final long RANDOM_SEED = 10101010;
 	
@@ -50,8 +51,8 @@ public class JGFSORBench extends SOR implements JGFSection2{
 	}
 	
 	public void JGFvalidate(){
-		//double refval[] = {0.0012191583622038237D,1.123010681492097D,1.9967774998523777D};
-		double refval[] = {4.5185971433257635E-5D,1.123010681492097D,1.9967774998523777D};
+		double refval[] = {0.498574406322512D,1.123010681492097D,1.9967774998523777D, 4.5185971433257635E-5D};//append reduced size
+		//double refval[] = {4.5185971433257635E-5D,1.123010681492097D,1.9967774998523777D};
 		double dev = Math.abs(gtotal.val - refval[size]);
 		if (dev > 1.0e-12 ){ 
 			System.out.println("Validation failed");
