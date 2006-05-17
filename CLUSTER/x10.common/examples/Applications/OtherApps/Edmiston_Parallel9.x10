@@ -87,6 +87,7 @@ class EditDistMatrix {
 
         e = new int[D];
 
+        System.out.println("1>>> "+e.region.rank(1).size());
         // compute required number of overlap columns
         // with preceding block 
         final int overlap=ceilFrac(N*(-iMatch),iGapPen)+N;

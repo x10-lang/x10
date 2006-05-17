@@ -64,12 +64,12 @@ public class JGFMolDynBench extends md implements JGFSection3 {
 	public void JGFvalidate(){
 		finish ateach(point [j]:D) {
 			md myNode=P[j];
-			// double refval[] = {1731.4306625334357,7397.392307839352};
-			double refval[] = {275.97175611773514,7397.392307839352};
-			double dev = Math.abs(myNode.ek - refval[size]);
+			double refval[] = {1731.4306625334357,7397.392307839352};
+			//double refval[] = {275.97175611773514,7397.392307839352};
+			double dev = Math.abs(myNode.ek - refval[myNode.size]);
 			if (dev > 1.0e-10 ){
 				System.out.println("Validation failed at place "+j);
-				System.out.println("Kinetic Energy = " + myNode.ek + "  " + dev + "  " + refval[size]);
+				System.out.println("Kinetic Energy = " + myNode.ek + "  " + dev + "  " + refval[myNode.size]);
 				throw new Error("Validation failed");
 			}
 		}
