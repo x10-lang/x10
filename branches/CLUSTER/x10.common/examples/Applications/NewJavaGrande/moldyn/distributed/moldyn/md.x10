@@ -53,8 +53,8 @@ public class md {
 	public double vir = 0.0;
 	public double count = 0.0;
 	int size;
-	//int datasizes[] = {8,13};
-	int datasizes[] = {4,13};
+	int datasizes[] = {8,13};
+	//int datasizes[] = {4,13};
 	
 	public int interactions = 0;
 	

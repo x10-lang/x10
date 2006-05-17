@@ -48,8 +48,8 @@ import jgfutil.*;
 public class JGFLUFactBench extends Linpack implements JGFSection2{	
 	
 	private int size;
-	//private int datasizes[] = {150,1000,2000};
-	private int datasizes[] = {50,1000,2000};
+	private int datasizes[] = {500,1000,2000, 50};//append reduced size
+	//private int datasizes[] = {50,1000,2000}; //reduced size
 	public void JGFsetsize(int size){
 		this.size = size;
 	}
@@ -97,7 +97,8 @@ public class JGFLUFactBench extends Linpack implements JGFSection2{
 		
 		int i;
 		double eps,residn;
-		final double ref[] = {6.0, 12.0, 20.0}; 
+		final double ref[] = {6.0, 12.0, 20.0, 6.0};//append reduced size
+		//final double ref[] = {6.0, 12.0, 20.0}; //reduced size 
 		
 		for (point [_,j]: b.distribution) 
 			x[0,j] = b[0,j];
