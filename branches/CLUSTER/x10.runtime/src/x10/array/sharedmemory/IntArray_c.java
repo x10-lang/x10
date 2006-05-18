@@ -475,7 +475,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     
     public IntReferenceArray restriction(region d) {
         dist dist = distribution.restriction(d);
-        IntArray_c ret = new IntArray_c(dist, 0, safe_);
+        IntArray ret = newInstance(dist); //new IntArray_c(dist, 0, safe_);
         place here = x10.lang.Runtime.runtime.currentPlace();
         try {
             for (Iterator it = dist.iterator(); it.hasNext(); ) {
