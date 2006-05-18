@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
+<project name="x10.compiler" default="dist" basedir=".">
+    &buildfile;
+    <property name="x10.home" value=".."/>
+    <property name="lpg.location" value="${x10.home}/lpg"/>
+    <property name="polyglot.location" value="${x10.home}/polyglot2"/>
+    <property name="x10.common.location" value="${x10.home}/x10.common"/>
+    <property name="x10.runtime.location" value="${x10.home}/x10.runtime"/>
+    <property name="build" location="${basedir}/classes"/>
+    <property name="src" location="${basedir}/src"/>
+    <property name="lib" location="${x10.common.location}/lib"/>
+    <property name="jar" value="x10c.jar"/>
+    <property name="lpg.jar" value="lpg.jar"/>
+    <property name="polyglot.jar" value="polyglot2.jar"/>
+    <property name="runtime.jar" value="x10.jar"/>
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <path refid="lpg.classpath"/>
+        <path refid="polyglot.classpath"/>
+        <path refid="x10.common.classpath"/>
+        <path refid="x10.runtime.classpath"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <path id="lpg.classpath">
+        <pathelement location="${lib}/${lpg.jar}"/>
+    </path>
+    <path id="polyglot.classpath">
+        <pathelement location="${lib}/${polyglot.jar}"/>
+    </path>
+    <path id="x10.common.classpath"/>
+    <path id="x10.runtime.classpath">
+        <pathelement location="${lib}/${runtime.jar}"/>
+    </path>
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+    </target>
+    <target name="cleanall" depends="clean">
+        <ant antfile="${polyglot.location}/build.xml" target="clean" inheritAll="false" dir="${polyglot.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build}"/>
+    </target>
+    <target name="dist" depends="jar" description="generate part of the distribution">
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+    </target>
+    <target name="jar" depends="build">
+        <jar jarfile="${build}/${jar}">
+            <fileset dir="${build}" includes="org/**,polyglot/ext/x10/**,x10/parser/**,data/**" excludes="${jar}"/>
+        </jar>
+    </target>
+    <target name="buildall" depends="init">
+        <ant antfile="${lpg.location}/build.xml" target="build" inheritAll="false" dir="${lpg.location}"/>
+        <ant antfile="${polyglot.location}/build.xml" target="build" inheritAll="false" dir="${polyglot.location}"/>
+        <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="build" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+    <target name="lpg-jar" depends="init">
+        <ant antfile="${lpg.location}/build.xml" target="dist" inheritAll="false" dir="${lpg.location}"/>
+    </target>
+    <target name="polyglot-jar" depends="init">
+        <ant antfile="${polyglot.location}/build.xml" target="dist" inheritAll="false" dir="${polyglot.location}"/>
+    </target>
+    <target name="runtime-jar" depends="init">
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+    <target name="build" depends="init,lpg-jar,polyglot-jar,runtime-jar">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <!-- <javac destdir="${build}" source="1.4" target="1.4"> -->
+        <!-- <javac destdir="${build}" source="1.5" target="1.5"> -->
+        <javac destdir="${build}">
+            <src path="${src}"/>
+            <classpath refid="project.classpath"/>
+        </javac>
+        <copy todir="${build}">
+            <fileset dir="." includes="data/**"/>
+        </copy>
+    </target>
+    <target name="grammar" depends="init">
+        <property name="grammar.file" location="${src}/x10/parser/x10-feb2005.g"/>
+        <property name="include.dir" location="${lpg.location}/templates"/>
+        <condition property="platform" value="win32"><os family="windows"/></condition>
+        <condition property="platform" value="linux"><os name="Linux"/></condition>
+        <property name="lpg.executable" location="${lpg.location}/bin/lpg-${platform}_${os.arch}"/>
+        <!--
+        <echo message="OS: ${os.name} ${os.arch}"/>
+        <echo message="Platform: ${platform}"/>
+        <echo message="LPG: ${lpg.executable}"/>
+        <echo>
+            dir="${src}/x10/parser" executable="${lpg.executable}"
+            "-include-directory=${include.dir}"
+            "${grammar.file}"
+        </echo>
+        -->
+        <exec dir="${src}/x10/parser" executable="${lpg.executable}"
+              failonerror="true">
+            <arg value="-include-directory=${include.dir}"/>
+            <arg value="${grammar.file}"/>
+        </exec>
+    </target>
+    <target name="rebuild" depends="grammar,build"/>
+    <target name="zip" depends="dist">
+        <zip destfile="${x10.home}/x10-${DSTAMP}-${TSTAMP}.zip">
+            <zipfileset prefix="" dir="${x10.common.location}" includes="epl-v10.html"/>
+	    <zipfileset prefix="bin" dir="${x10.common.location}/bin" includes="newpgrp,x10,x10c,testScript*"/>
+            <zipfileset prefix="etc" dir="${x10.common.location}/etc" includes="*.cfg"/>
+            <zipfileset prefix="examples" dir="${x10.common.location}/examples" includes="README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
+            <zipfileset prefix="lib" dir="${x10.common.location}/lib" includes="*.jar"/>
+        </zip>
+    </target>
+</project>

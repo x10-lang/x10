@@ -1,0 +1,3 @@
+// SYNOPSIS: #0=clock
+current.checkClockUse((x10.runtime.Clock) #0);
+clocks.add(#0);
