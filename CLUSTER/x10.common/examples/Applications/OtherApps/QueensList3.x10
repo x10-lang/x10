@@ -30,8 +30,8 @@ class loadBalancer {
 	const int NP= place.MAX_PLACES;
 	// random number generators with different seeds
 	// in each place
-	const BoxedRandom[.] Ran= new BoxedRandom[UniqueD]
-            (point p[i]) {return new BoxedRandom((long)i*17L);};
+	const BoxedRandom[.] Ran= new BoxedRandom[UniqueD] (point p[i]) {return new BoxedRandom((long)i*17L);}; //cx10: bad usage of statics; multiple array allocated
+	
 	/**
 	 * find an appropriate place to ship a task
 	 */
@@ -80,7 +80,7 @@ public value class QueensList3 {
    }
 
    // Number of solutions
-   const BoxedInt nSolutions=new BoxedInt(0);
+   //const BoxedInt nSolutions=new BoxedInt(0); //cx10: avoid; current VM cannot control allocation
    
    // Length of one side of chess board
    const int N=5;
@@ -133,13 +133,13 @@ public value class QueensList3 {
    *
    */
   
-   public void Q() {
+   public void Q(final BoxedInt nSolutions) {
        if (length(q)==N) {async(nSolutions) atomic nSolutions.val++; return;}
            
        foreach (point p[k]: [0:(N-1)]) {//try all columns of next row
 	       if (!attacks(k)) {
                async(loadBalancer.choosePlace())
-                     {(new QueensList3(q,k)).Q();};
+                     {(new QueensList3(q,k)).Q(nSolutions);};
            }
        }
    }
@@ -155,7 +155,8 @@ public value class QueensList3 {
     * run the n-queens problem
     */
    public boolean run() {
-       finish{this.Q();}
+	   final BoxedInt nSolutions = new BoxedInt(0);
+       finish{this.Q(nSolutions);}
        System.out.println("Number of solutions for "+N+" queens: "+nSolutions.val);
        return nSolutions.val==expectedSolutions[N];
    }
