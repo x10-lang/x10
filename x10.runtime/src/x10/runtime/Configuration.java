@@ -91,6 +91,21 @@ public final class Configuration {
     public static boolean OPTIMIZE_FOREACH = false;
 
     /**
+     * Pre-load all classes recursively on startup.  This is needed for JIT
+     * optimizations.  Default to off until the initialization sequence is
+     * sufficiently tested...
+     */
+    public static boolean PRELOAD_CLASSES = false;
+
+    /**
+     * Pre-load all strings in all classes on startup.  This is needed for
+     * JIT optimizations.  This option only takes effect if PRELOAD_CLASSES
+     * is also on.  Default to off until the JIT can actually take advantage
+     * of it.
+     */
+    public static boolean PRELOAD_STRINGS = false;
+
+    /**
      * Which shared libraries should be loaded?  The format
      * is libraryname[:libraryname]*.  Null or "" are valid
      * entries (for not loading any libraries).
