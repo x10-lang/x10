@@ -76,7 +76,7 @@ init(isAlive, 1,1,
 int nIter=0;
 pr("isAlive",isAlive | D_inner);
 
-while(true) {  
+while(true) {	
   // nn[i,j]=number of live neighbors of cell(i,j)
   final int[.] nn= new int[D_inner]
     (point p[i,j]) 
@@ -86,7 +86,7 @@ while(true) {
   // A dead cell is born again iff it has exactly 3 live neighbors.
   final int[.] temp= new int[D_inner]
     (point p[i,j]) 
-    {return b2i(((isAlive[i,j]!=0) & (nn[i,j]==2)) | (nn[i,j]==3));};
+    {return b2i(((isAlive[i,j]!=0) && (nn[i,j]==2)) || (nn[i,j]==3));};
   pr("temp",temp);
   if (((isAlive | D_inner)-temp).abs().sum()==0) break;
   isAlive.update(temp);
