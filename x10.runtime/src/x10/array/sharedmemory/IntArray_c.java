@@ -108,14 +108,9 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
             this.arr_ =Allocator.allocSafe(count, Integer.TYPE);
         }
     	if (f != null)
-    	    initScan(this, f);
+    	    scan(this, f);
     }
-    /**
-     * Called from constructor only.
-     */
-    protected void initScan( IntArray res, IntArray.pointwiseOp op ) {
-    	scan(res, op);
-    }
+
     protected IntArray_c( dist d, int[] a, boolean safe, boolean mutable ) {
     	super(d);
         this.mutable_ = mutable;
