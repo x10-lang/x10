@@ -94,8 +94,8 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
 	}
 
 	public Expr getDomain(Expr d) {
-		//return new Field_c(position(), d, "region");
-		return new Call_c(position(), d, "getRegion", new LinkedList());
+		return new Field_c(position(), d, "region");
+		//return new Call_c(position(), d, "getRegion", new LinkedList());
 	}
 
 	/* (non-Javadoc)
