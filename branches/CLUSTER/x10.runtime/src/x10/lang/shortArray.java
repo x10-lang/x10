@@ -9,20 +9,11 @@ package x10.lang;
  * @author vj 12/24/2004
  */
 
-import java.util.Iterator;
 
 abstract public class shortArray extends x10Array{
 
-	public dist getDistribution() { return distribution;}
-
-	public final dist distribution;
-	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
-	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
-	
 	protected shortArray( dist D) {
-		this.distribution = D;
-		this.region = D.region;
-		this.rank = D.rank;
+		super(D);
 	}
 	
 	public static interface binaryOp {
@@ -260,11 +251,4 @@ abstract public class shortArray extends x10Array{
 	 * @return an immutable version of this array.
 	 */
 	abstract public shortArray toValueArray();
-	
-	public Iterator iterator() {
-	 	return region.iterator();
-	 }
-	public dist toDistribution() {
-		return distribution;
-	}
 }

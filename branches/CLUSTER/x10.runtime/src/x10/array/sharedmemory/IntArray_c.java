@@ -297,7 +297,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(pos));
 		
-		int theIndex = Helper.ordinal(distribution,pos,chkAOB);
+		int theIndex = Helper.ordinal(localDist,pos,chkAOB);
 		//  System.out.println("about the set "+pos+"=>"+theIndex+" at "+Runtime.here());
 		
 		return arr_.setInt(v, theIndex);
@@ -313,7 +313,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(d0));
 		
-		d0 = Helper.ordinal(distribution,d0,chkAOB);
+		d0 = Helper.ordinal(localDist,d0,chkAOB);
 		return arr_.setInt(v,d0);
 	}
 	
@@ -322,7 +322,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(d0, d1));
 		
-		int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+		int	theIndex = Helper.ordinal(localDist,d0,d1,chkAOB);
 		
 		return arr_.setInt(v,theIndex);
 	}
@@ -332,7 +332,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
 		
-		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+		int	theIndex = Helper.ordinal(localDist,d0,d1,d2,chkAOB);
 		return arr_.setInt(v,theIndex);
 	}
 	
@@ -341,7 +341,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
 		
-		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+		int	theIndex = Helper.ordinal(localDist,d0,d1,d2,d3,chkAOB);
 		return arr_.setInt(v,theIndex);
 		
 	}
@@ -362,7 +362,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 	public int get(point pos,boolean chkPl,boolean chkAOB) {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(pos));
-		int theIndex = Helper.ordinal(distribution,pos,chkAOB);
+		int theIndex = Helper.ordinal(localDist,pos,chkAOB);
 		
 		return arr_.getInt(theIndex);
 	}   
@@ -372,7 +372,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(d0));
 		
-		d0 = Helper.ordinal(distribution,d0,chkAOB);
+		d0 = Helper.ordinal(localDist,d0,chkAOB);
 		return arr_.getInt(d0);
 	}
 	
@@ -381,7 +381,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(d0, d1));
 		
-		int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+		int	theIndex = Helper.ordinal(localDist,d0,d1,chkAOB);
 		return arr_.getInt(theIndex);
 	}
 	
@@ -390,7 +390,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
 		
-		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+		int	theIndex = Helper.ordinal(localDist,d0,d1,d2,chkAOB);
 		return arr_.getInt(theIndex);  	
 	} 
 	
@@ -399,7 +399,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
 		
-		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+		int	theIndex = Helper.ordinal(localDist,d0,d1,d2,d3,chkAOB);
 		return arr_.getInt(theIndex);
 		
 	}
