@@ -96,8 +96,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         } else {
             this.arr_ =Allocator.allocSafe(count, Double.TYPE);
         }
-        initScan(this, new Assign(c));
-    	
+        scan(this, new Assign(c));
     }
     public DoubleArray_c( dist d, DoubleArray.pointwiseOp f) {
         this(d, f, true);
@@ -120,13 +119,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
             this.arr_ =Allocator.allocSafe(count, Double.TYPE);
         }
         if (f != null)
-            initScan(this, f);
-    }
-    protected void initScan(DoubleArray a, DoubleArray.pointwiseOp f) {
-    	scan(a, f);
-    }
-    protected void initScan(DoubleArray a, Scan op) {
-    	scan(a, op);
+            scan(this, f);
     }
     protected DoubleArray_c( dist d, double[] a, boolean safe, boolean mutable) {
     	super(d);
@@ -458,6 +451,4 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     public boolean isValue() {
         return ! this.mutable_;
     }
-
-    
 }
