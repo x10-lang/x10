@@ -40,7 +40,7 @@ public class ZeroBasedIntArray_c extends IntArray_c {
     public int set(int v, int d0,boolean chkPl,boolean chkAOB) {
        if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
            Runtime.hereCheckPlace(distribution.get(d0));     
-       int	theIndex = Helper.rawordinal(region,d0,chkAOB);
+       int	theIndex = Helper.rawordinal(localRegion,d0,chkAOB);
        return arr_.setInt(v,theIndex);
     }
     
@@ -48,7 +48,7 @@ public class ZeroBasedIntArray_c extends IntArray_c {
     public int get(int d0,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));
-       	int	theIndex = Helper.rawordinal(region,d0,chkAOB);
+       	int	theIndex = Helper.rawordinal(localRegion,d0,chkAOB);
     	return arr_.getInt(theIndex);  	
     } 
     
@@ -57,7 +57,7 @@ public class ZeroBasedIntArray_c extends IntArray_c {
     public int set(int v, int d0, int d1,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));     
-        int	theIndex = Helper.rawordinal(region,d0,d1,chkAOB);
+        int	theIndex = Helper.rawordinal(localRegion,d0,d1,chkAOB);
     	return arr_.setInt(v,theIndex);
     }
     
@@ -65,7 +65,7 @@ public class ZeroBasedIntArray_c extends IntArray_c {
     public int get(int d0, int d1,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));     
-        int	theIndex = Helper.rawordinal(region,d0,d1,chkAOB);
+        int	theIndex = Helper.rawordinal(localRegion,d0,d1,chkAOB);
     	return arr_.getInt(theIndex);  	
     } 
     
@@ -74,7 +74,7 @@ public class ZeroBasedIntArray_c extends IntArray_c {
     public int set(int v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));     
-        int	theIndex = Helper.rawordinal(region,d0,d1,d2,chkAOB);
+        int	theIndex = Helper.rawordinal(localRegion,d0,d1,d2,chkAOB);
         return arr_.setInt(v,theIndex);
     }
     
@@ -83,7 +83,7 @@ public class ZeroBasedIntArray_c extends IntArray_c {
     public int get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));     
-        int	theIndex = Helper.rawordinal(region,d0,d1,d2,chkAOB);
+        int	theIndex = Helper.rawordinal(localRegion,d0,d1,d2,chkAOB);
     	return arr_.getInt(theIndex);  	
     } 
     
@@ -93,7 +93,7 @@ public class ZeroBasedIntArray_c extends IntArray_c {
     public int set(int v, int d0, int d1, int d2,int d3,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));     
-        int	theIndex = Helper.rawordinal(region,d0,d1,d2,d3,chkAOB);
+        int	theIndex = Helper.rawordinal(localRegion,d0,d1,d2,d3,chkAOB);
     	return arr_.setInt(v,theIndex);
     }
     
@@ -102,7 +102,7 @@ public class ZeroBasedIntArray_c extends IntArray_c {
     public int get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));     
-        int	theIndex = Helper.rawordinal(region,d0,d1,d2,d3,chkAOB);
+        int	theIndex = Helper.rawordinal(localRegion,d0,d1,d2,d3,chkAOB);
     	return arr_.getInt(theIndex);  	
     } 
 }

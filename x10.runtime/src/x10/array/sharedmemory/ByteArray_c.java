@@ -268,7 +268,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
      */
 	public byte set(byte v, point pos) {return set(v,pos,true,true);}
     public byte set(byte v, point pos,boolean chkPl,boolean chkAOB) {
-        return arr_.setByte(v, (int) distribution.region.ordinal(pos));
+        return arr_.setByte(v, (int) localDist.region.ordinal(pos));
     }
     
     public byte setOrdinal(byte v, int rawIndex) {
@@ -279,7 +279,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public byte set(byte v, int d0,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0,chkAOB);
+        d0 = Helper.ordinal(localDist,d0,chkAOB);
     	return arr_.setByte(v,d0);
     }
      
@@ -287,7 +287,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public byte set(byte v, int d0, int d1,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+    	int	theIndex = Helper.ordinal(localDist,d0,d1,chkAOB);
     	return arr_.setByte(v,theIndex);
     }
     
@@ -295,7 +295,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public byte set(byte v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-    	int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+    	int	theIndex = Helper.ordinal(localDist,d0,d1,d2,chkAOB);
     	return arr_.setByte(v,theIndex);
     }
     
@@ -303,7 +303,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public byte set(byte v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,d3,chkAOB);
     	return arr_.setByte(v,theIndex);    	
     }
 
@@ -316,7 +316,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public byte get(point pos,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));        
-        return arr_.getByte((int) distribution.region.ordinal(pos));
+        return arr_.getByte((int) localDist.region.ordinal(pos));
     }
     
     public byte getOrdinal(int rawIndex) {    	
@@ -327,7 +327,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public byte get(int d0,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0,chkAOB);
+        d0 = Helper.ordinal(localDist,d0,chkAOB);
     	return arr_.getByte(d0);
     }
     
@@ -335,7 +335,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public byte get(int d0, int d1,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,chkAOB);
     	return arr_.getByte(theIndex);
     }
     
@@ -343,7 +343,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public byte get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,chkAOB);
     	return arr_.getByte(theIndex);  	
     } 
     
@@ -351,7 +351,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
     public byte get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,d3,chkAOB);
     	return arr_.getByte(theIndex);
     	
     }
