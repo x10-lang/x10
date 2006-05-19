@@ -113,7 +113,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         this.arr_ = Allocator.allocSafe(count, Parameter1.class);
     	this.safe_ = safe;
         if (f != null)
-            initScan(this, f);
+            scan(this, f);
     }
     
     private GenericArray_c( dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
@@ -123,10 +123,6 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
         this.safe_ = safe;
         this.mutable_ = mutable;
         this.refsToValues_ = ref_to_values;
-    }
-    
-    protected void initScan(GenericArray res, GenericArray.pointwiseOp op) {
-    	scan(res, op);
     }
     
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.

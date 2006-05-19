@@ -119,7 +119,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
             this.arr_ =Allocator.allocSafe(count, Character.TYPE);
         }
         if (f != null)
-            initScan(this, f);
+            scan(this, f);
     }
     
     protected CharArray_c( dist d, char[] a, boolean safe, boolean mutable) {
@@ -142,11 +142,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
         		((MemoryBlockSafeCharArray) arr_).getBackingArray()
     			: null; 
     }
-    
-    protected void initScan(CharArray res, pointwiseOp op) {
-    	scan(res, op);
-    }
-    
+
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a
