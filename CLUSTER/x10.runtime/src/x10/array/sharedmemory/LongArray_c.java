@@ -252,7 +252,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));
         
-        return arr_.setLong(v, (int) distribution.region.ordinal(pos));
+        return arr_.setLong(v, (int) localDist.region.ordinal(pos));
     }
        
     /**
@@ -267,7 +267,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     public long set(long v, int d0,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0,chkAOB);
+        d0 = Helper.ordinal(localDist,d0,chkAOB);
     	return arr_.setLong(v,d0);
     }
     
@@ -276,7 +276,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     public long set(long v, int d0, int d1,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,chkAOB);
     	return arr_.setLong(v,theIndex);
     }
     
@@ -284,7 +284,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     public long set(long v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,chkAOB);
     	return arr_.setLong(v,theIndex);
     }
     
@@ -292,7 +292,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     public long set(long v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,d3,chkAOB);
     	return arr_.setLong(v,theIndex); 	
     }
         
@@ -303,7 +303,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     public long get(point pos,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));        
-        return arr_.getLong((int) distribution.region.ordinal(pos));
+        return arr_.getLong((int) localDist.region.ordinal(pos));
     }
     
    
@@ -319,7 +319,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     public long get(int d0,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0,chkAOB);
+        d0 = Helper.ordinal(localDist,d0,chkAOB);
     	return arr_.getLong(d0);
     }
     
@@ -327,7 +327,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     public long get(int d0, int d1,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,chkAOB);
     	return arr_.getLong(theIndex);
     }
     
@@ -335,7 +335,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     public long get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0,d1,d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,chkAOB);
     	return arr_.getLong(theIndex);  	
     } 
     
@@ -343,7 +343,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     public long get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB); 	
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,d3,chkAOB); 	
     	return arr_.getLong(theIndex);
     	
     }

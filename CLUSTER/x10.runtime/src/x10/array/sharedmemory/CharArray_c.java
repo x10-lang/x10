@@ -278,7 +278,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));
         
-        return arr_.setChar(v, (int) distribution.region.ordinal(pos));
+        return arr_.setChar(v, (int) localDist.region.ordinal(pos));
     }
     
     public char setOrdinal(char v, int rawIndex) {
@@ -288,7 +288,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     
     public char set(char v, int d0) {return set(v,d0,true,true);}
     public char set(char v, int d0,boolean chkPl,boolean chkAOB) {
-    	d0 = Helper.ordinal(distribution,d0,chkAOB);
+    	d0 = Helper.ordinal(localDist,d0,chkAOB);
     	return arr_.setChar(v,d0);
     }
      
@@ -296,7 +296,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     public char set(char v, int d0, int d1,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,chkAOB);
     	return arr_.setChar(v,theIndex);
     }
     
@@ -304,7 +304,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     public char set(char v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,chkAOB);
     	return arr_.setChar(v,theIndex);
     }
     
@@ -312,7 +312,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     public char set(char v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,d3,chkAOB);
     	return arr_.setChar(v,theIndex); 	
     }
 
@@ -324,7 +324,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(pos));
         
-        return arr_.getChar((int) distribution.region.ordinal(pos));
+        return arr_.getChar((int) localDist.region.ordinal(pos));
     }
     
     public char getOrdinal(int rawIndex) {    	
@@ -336,7 +336,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     public char get(int d0,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0));        
-        d0 = Helper.ordinal(distribution,d0,chkAOB);
+        d0 = Helper.ordinal(localDist,d0,chkAOB);
     	return arr_.getChar(d0);
     }
     
@@ -344,7 +344,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     public char get(int d0, int d1,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,chkAOB);
     	return arr_.getChar(theIndex);
     }
     
@@ -352,7 +352,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     public char get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,chkAOB);
     	return arr_.getChar(theIndex);  	
     } 
     
@@ -360,7 +360,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     public char get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
         if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
             Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));        
-        int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+        int	theIndex = Helper.ordinal(localDist,d0,d1,d2,d3,chkAOB);
     	return arr_.getChar(theIndex);
     	
     }

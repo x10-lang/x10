@@ -9,7 +9,6 @@ package x10.lang;
  */
 
 import java.io.Serializable;
-import java.util.Iterator;
 
 import x10.compilergenerated.Parameter1;
 
@@ -17,16 +16,8 @@ abstract public class genericArray /*( distribution distribution )*/
 /*implements Cloneable, Serializable */
 extends x10Array {
 
-	public final dist distribution;
-	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
-	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
-	
-	public region getRegion() { return region; }
-	public dist getDistribution() { return distribution;}
 	protected genericArray( dist D) {
-		this.distribution = D;
-		this.region = D.region;
-		this.rank = D.rank;
+		super(D);
 	}
 	
 	public static interface binaryOp {
@@ -193,11 +184,4 @@ extends x10Array {
 	 * @return an immutable version of this array.
 	 */
 	abstract public genericArray toValueArray();
-	
-	public Iterator iterator() {
-	 	return region.iterator();
-	 }
-	public dist toDistribution() {
-		return distribution;
-	}
 }
