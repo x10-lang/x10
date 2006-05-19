@@ -55,7 +55,9 @@ public final class Allocator {
     public static final MemoryBlock allocSafeIntArray(int[] a) {      
         return new MemoryBlockSafeIntArray( a );
     }
-    
+    public static final MemoryBlock allocSafeCharArray(char[] a) {      
+        return new MemoryBlockSafeCharArray( a );
+    }
     public static final MemoryBlock allocSafeLongArray(long[] a) {      
         return new MemoryBlockSafeLongArray( a );
     }
