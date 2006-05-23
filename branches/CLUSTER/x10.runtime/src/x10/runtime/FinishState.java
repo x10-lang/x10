@@ -10,7 +10,9 @@ import java.util.Stack;
 import x10.cluster.ClusterRuntime;
 import x10.cluster.HasResult;
 import x10.cluster.X10RemoteRef;
+import x10.cluster.X10Runnable;
 import x10.cluster.X10Serializer;
+import x10.cluster.message.MessageType;
 
 /** The state associated with a finish operation. Records the count of 
  * active activities associated with this finish, and the stack
@@ -36,7 +38,7 @@ public class FinishState implements FinishStateOps {
 			notifySubActivityTermination_();
 		} else { //remote call
 			//asynchronously is fine
-			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
+			X10Serializer.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
 				public void run() {
 					notifySubActivityTermination_();
 				}
@@ -48,7 +50,7 @@ public class FinishState implements FinishStateOps {
 			notifySubActivityTermination_(t);
 		} else { //remote call
 			//asynchronously is fine
-			X10Serializer.serializeCode(rref.getPlace().id, new Runnable() {
+			X10Serializer.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
 				public void run() {
 					notifySubActivityTermination_(t);
 				}
@@ -60,7 +62,7 @@ public class FinishState implements FinishStateOps {
 			notifySubActivitySpawn_();
 		} else { //remote call
 			//synchronously
-			X10Serializer.serializeCodeW(rref.getPlace().id, new HasResult() /*Runnable()*/ {
+			X10Serializer.serializeCodeW(rref.getPlace().id, new HasResult(MessageType.FIN) /*Runnable()*/ {
 				public void run() {
 					notifySubActivitySpawn_();
 				}
