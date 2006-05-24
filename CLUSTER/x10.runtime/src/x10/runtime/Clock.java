@@ -280,7 +280,7 @@ public /* final */ class Clock extends clock {
 		/* TODO ... a better authorizer for multi-VM case */
 		Activity authorizer = null; 
 		if(!ClusterConfig.multi) {
-			authorizer = (a.activityAsSeenByInvokingVM==Activity.thisActivityIsLocal)?Runtime.getCurrentActivity() : null;
+			authorizer = Runtime.getCurrentActivity();
 		}
 		if (authorizer != null)
 			if (Report.should_report("clock", 5)) {
