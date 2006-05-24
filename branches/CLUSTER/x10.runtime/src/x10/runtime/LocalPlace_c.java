@@ -14,10 +14,6 @@ import x10.lang.Future;
  * @author vj
  */
 public class LocalPlace_c extends Place {
-	
-	
-	
-	
 	/**
 	 * Is this place shutdown?
 	 */
@@ -99,45 +95,17 @@ public class LocalPlace_c extends Place {
 	 * Run the given activity asynchronously.
 	 * vj 5/17/05. This has been completely revamped,
 	 * with Activity given much more responsibility for its execution.
-	 */
-        // ahk ... need to do something about this!!
-        public  void mapToCorrectPlace(java.lang.Object o){ }
-   
+	 */   
 	public void runAsync(final Activity a) {
-		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
-			mapToCorrectPlace(a);
 			prepareAsync(a);
 			runAsync( a, false);	
-		} else {
-			prepareAsync(a);
-			runAsync( a, true);
-		}
-	}
-   
-	public void runAsyncNoRemapping(final Activity a) {
-		prepareAsync(a);
-		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {			
-			runAsync( a, false);
-		} else {
-			runAsync( a, true);
-		}
 	}
 
 	public void runAsyncLater(Activity a) {
 		if (Configuration.OPTIMIZE_FOREACH) {
-			if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-					a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
-				mapToCorrectPlace(a);
 				prepareAsync(a);
 				waitingActivities.push(a);
 				changeRunningStatus(0);
-			} else {
-				prepareAsync(a);
-				waitingActivities.push(a);
-				changeRunningStatus(0);
-			}
 		} else {
 			runAsync(a);
 		}
@@ -145,7 +113,7 @@ public class LocalPlace_c extends Place {
 	
 	private void prepareAsync(Activity a) {
 		Thread currentThread = Thread.currentThread();  
-		if (currentThread instanceof ActivityRunner && a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal) {
+		if (currentThread instanceof ActivityRunner) {
 			// This will not be executed only for bootActivity.
 			Activity parent = ((ActivityRunner) currentThread).getActivity();
 			parent.finalizeActivitySpawn(a);
@@ -165,9 +133,6 @@ public class LocalPlace_c extends Place {
 	}
 	
 	protected void runAsync(final Activity a, final boolean finish) {
-		final boolean performDeserialization = !(a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-                a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate);
-
 		this.execute(new Runnable() {
 			public void run() {
 				// Get a thread to run this activity.
@@ -178,10 +143,8 @@ public class LocalPlace_c extends Place {
 				
 				// Install the activity.
 				t.setActivity(a);
-                                a.setPlace(LocalPlace_c.this);
-				
-				
-				
+				a.setPlace(LocalPlace_c.this);				
+							
 				try {
 					if (finish) {
 						a.finishRun();
@@ -313,9 +276,7 @@ public class LocalPlace_c extends Place {
 			assert delta <= 0;
 			if (! waitingActivities.isEmpty()) {
 				Activity a = (Activity) waitingActivities.pop();
-				runAsync(a,
-						 ! ((a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-						     a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate)));				
+				runAsync(a, false);				
 			}
 		}
 	}
