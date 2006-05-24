@@ -8,6 +8,7 @@ package x10.runtime;
 import java.util.Stack;
 
 import x10.cluster.ClusterRuntime;
+import x10.cluster.Debug;
 import x10.cluster.HasResult;
 import x10.cluster.X10RemoteRef;
 import x10.cluster.X10Runnable;
@@ -25,52 +26,135 @@ import x10.cluster.message.MessageType;
  * 
  * @author vj May 17, 2005
  * 
+ * @xinb
+ * 	extension for distributed scenario.
  */
 public class FinishState implements FinishStateOps {
+	/**
+	 * After <code>waitForFinish</code> returns, the life cycle of this object
+	 * ends.  Furthur call on this object signifies error.  
+	 * For debug purpose. 
+	 */
+	private boolean isLive = true;
+	
 	/**
 	 * FinishState gets passed between activities. The propagation model needs 
 	 * it to behave like a remote object.
 	 */
 	public X10RemoteRef rref = null;
-	public void notifySubActivityTermination() {
-		//System.out.println("FinishState.notifyActivityTermination ...");
-		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
-			notifySubActivityTermination_();
+	
+	/**
+	 * We can save some cross VM communications, if activities with a shadow
+	 * FinishState object spawns new activities.
+	 * 
+	 * <code>shadowCount</code> the total number of activities running on this 
+	 * FinishState object.
+	 * 
+	 * <code>remoteChild</code> number of activities crossing nodes, and for which
+	 * the root FinishState are waiting on.
+	 * 
+	 * @postcondition shadowCount >= remoteChild   If shadowCount >> remoteChild, we win.
+	 */
+	private int remoteChild = 0;
+	private int shadowCount = 0;
+	
+	public boolean notShadow() {
+		return rref == null || ClusterRuntime.isLocal(rref.getPlace());
+	}
+	public synchronized void notifySubActivityTermination() {
+		assert (isLive);
+		if( notShadow()) {
+			notifySubActivityTermination_(1);
 		} else { //remote call
-			//asynchronously is fine
-			X10Serializer.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
-				public void run() {
-					notifySubActivityTermination_();
-				}
-			});
+			shadowCount--;
+			if( shadowCount == 0) {
+				//System.out.println("FinishState.Termi remote."+this);
+				//asynchronously is fine
+				final int finishedCnt = remoteChild;
+				if(finishedCnt > 1) System.out.println("FinishState.Termi remote: finishedCnt = "+finishedCnt);
+				X10Serializer.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
+					public void run() {
+						notifySubActivityTermination_(finishedCnt);
+					}
+				});
+				
+				remoteChild = 0;
+			} 
 		}
 	}
-	public void notifySubActivityTermination(final Throwable t) {
-		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
-			notifySubActivityTermination_(t);
+	public synchronized void notifySubActivityTermination(final Throwable t) {
+		assert (isLive);
+		if( notShadow()) {
+			notifySubActivityTermination_(t, 1);
 		} else { //remote call
-			//asynchronously is fine
-			X10Serializer.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
-				public void run() {
-					notifySubActivityTermination_(t);
-				}
-			});
+			shadowCount--;
+			if( shadowCount == 0) {
+				//asynchronously is fine
+				final int finishedCnt = remoteChild;
+				X10Serializer.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
+					public void run() {
+						notifySubActivityTermination_(t, finishedCnt);
+					}
+				});
+				
+				remoteChild = 0;
+			}
 		}
 	}
-	public void notifySubActivitySpawn() {
-		if(rref == null || ClusterRuntime.isLocal(rref.getPlace())) {
+	public synchronized void notifySubActivitySpawn() {
+		assert (isLive);
+		//System.out.println("FinishState.Spawn ."+this);
+		if( notShadow()) {
 			notifySubActivitySpawn_();
-		} else { //remote call
-			//synchronously
-			X10Serializer.serializeCodeW(rref.getPlace().id, new HasResult(MessageType.FIN) /*Runnable()*/ {
-				public void run() {
-					notifySubActivitySpawn_();
-				}
-				public Object getResult() { return null; }
-			});
+		}/* else { //remote call
+			shadowCount ++;
+			if( shadowCount == 1 ) {
+				//synchronously
+				X10Serializer.serializeCodeW(rref.getPlace().id, new HasResult(MessageType.FIN) {
+					public void run() {
+						notifySubActivitySpawn_();
+					}
+					public Object getResult() { return null; }
+				});
+				
+				remoteChild = 1;
+			}
+		}*/
+	}
+	/**
+	 * This is called when an activity is spawn at a node with an existing FinishState object.
+	 * When this FinishState object is the real thing, we increase the <code>finishCount</code>
+	 * counter; Otherwise, if this is a shadow, we increase the <code>shadowCount</code> 
+	 * counter.
+	 *
+	 */
+	public synchronized void notifySubActivitySpawnAtChild(boolean fromRoot) {
+		assert (isLive);
+		if( notShadow()) {
+			if(!fromRoot) notifySubActivitySpawn_();
+		} else {
+			shadowCount ++;
+			if( shadowCount == 1 ) {
+				//synchronously remote call
+				if(!fromRoot) 
+					X10Serializer.serializeCodeW(rref.getPlace().id, new HasResult(MessageType.FIN) {
+						public void run() {
+							notifySubActivitySpawn_();
+						}
+						public Object getResult() { return null; }
+					});
+				
+				remoteChild = 1;
+			} else {
+				if(fromRoot) remoteChild ++;
+			}
 		}
 	}
 
+	
+	
+	
+	
 	protected Stack/* <Throwable> */ finish_ = new Stack();
 
 	protected int finishCount = 0;
@@ -84,17 +168,12 @@ public class FinishState implements FinishStateOps {
 		super();
 		parent = activity;
 		
-		//export rmi
-		/*
-		try {
-			UnicastRemoteObject.exportObject(this);
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
-		*/
+		remoteChild = shadowCount = 0;
+		isLive = true;
 	}
 	
 	public /*myThread*/ synchronized void waitForFinish() {
+		assert (notShadow());
 		if (finishCount == 0 ) return;
 		parentWaiting = true;
 		if (finishCount > 0) {			
@@ -107,14 +186,12 @@ public class FinishState implements FinishStateOps {
 			}			
 		}
 		parentWaiting = false;
+		isLive = false; 
 	}
 	
 	private /*someThread*/ synchronized void notifySubActivitySpawn_() {
 		finishCount++;
 		
-		//System.out.println("FinsihState.notifySubActivitySpawn: new ... "+this+" "+finishCount);
-		
-		// new Error().printStackTrace();
 		if (Report.should_report("activity", 5)) {
 			Report.report(5, " updating " + toString());
 		}
@@ -132,12 +209,10 @@ public class FinishState implements FinishStateOps {
     /** An activity created under this finish has terminated. Decrement the count
      * associated with the finish and notify the parent activity if it is waiting.
      */
-    private /*someThread*/ synchronized void notifySubActivityTermination_() {    	
-		finishCount--;
+    private /*someThread*/ synchronized void notifySubActivityTermination_(final int cnt) {
+    	//System.out.println("FinishState.Termi ."+this);
+		finishCount -= cnt; //finishCount--;
 		
-		//System.out.println("FinsihState.notifyActivityTermination_: terminating ..."+this+" "+finishCount);
-		
-    	// new Error().printStackTrace();
 		if (parentWaiting && finishCount==0)
 			this.notifyAll();
 	}
@@ -147,9 +222,9 @@ public class FinishState implements FinishStateOps {
      * 
      * @param t -- The exception thrown by the activity that terminated abruptly.
      */
-    private /*someThread*/ synchronized void notifySubActivityTermination_(Throwable t) {
+    private /*someThread*/ synchronized void notifySubActivityTermination_(Throwable t, final int cnt) {
     	finish_.push(t);
-    	notifySubActivityTermination();
+    	notifySubActivityTermination_(cnt);
     }
    
     /** Return the stack of exceptions, if any, recorded for this finish.
@@ -163,8 +238,9 @@ public class FinishState implements FinishStateOps {
     /** Return a string to be used in Report messages.
      */
     public synchronized String toString() {
-    	return "<FinishState " + hashCode() + " " + finishCount + "," 
-		+ (parent == null? "null" : parent.shortString())+"," + finish_ +">";
+    	return "<"+notShadow()+"#FinishState " + (rref == null?null: rref)+","+
+    	finishCount+","+shadowCount+","+remoteChild+"," + 
+    	finish_ +">";
     }
 
 }

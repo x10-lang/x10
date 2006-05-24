@@ -37,6 +37,8 @@ import x10.lang.ClockUseException;
  * We require that the initiating thread not invoke any methods on the Activity object and merely
  * pass it to the thread that executes the Activity.
  * @author Christian Grothoff, Christoph von Praun, vj
+ * 
+ * @author xinb
  */
 public abstract class Activity implements Runnable/*, Serializable*/ {
 
@@ -58,6 +60,11 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
      * this activity is being executed.
      */
     protected FinishStateOps rootNode_;
+    
+    /**
+     * Whether this activity is spawned from <code>rootNode_</code>'s home node.
+     */
+    private boolean fromRoot = false;
      
     /** Create an activity with the given set of clocks.  
      * 
@@ -130,8 +137,10 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     	}
     }
     
-    public /*mySpawningThread*/ void setRootActivityFinishState (FinishStateOps root ) {
+    public /*mySpawningThread*/ void setRootActivityFinishState (FinishStateOps root ) {    	
     	this.rootNode_ = root;
+		if(root.notShadow())
+			fromRoot = true;
     }
     
     public /*mySpawningThread*/ void setPlace(Place p) {
@@ -164,7 +173,7 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     		Report.report(3, PoolRunner.logString() + " " + this + " pushing exception " + t + " onto " + finishState_);
     	}
     	
-    	try { finishState_.pushException(t); } catch (Exception ex) { ex.printStackTrace(); }
+    	finishState_.pushException(t);
     }
     /**
      * Suspend until all activities spawned during this finish 
@@ -194,7 +203,7 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     	// Do not reference finishState_ below, instead reference state.
     	
     	Stack result = new Stack();
-    	try { result = state.exceptions(); } catch (Exception ex) { ex.printStackTrace(); }
+    	result = state.exceptions();
     	if (! result.empty()) {
     		if (result.size()==1) {
     			Throwable t = (Throwable) result.pop();
@@ -331,7 +340,10 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     	}
     	FinishStateOps target = finishState_ == null ? rootNode_ : finishState_;
     	child.setRootActivityFinishState( target );
-    	try { target.notifySubActivitySpawn(); } catch (Exception ex) { ex.printStackTrace(); }
+    	if(target != null) {
+    		target.notifySubActivitySpawn();
+    	}
+    	
     	ArrayList myASL = null;
     	synchronized (this) { myASL = asl_; }
     	if (myASL != null) {
@@ -344,6 +356,17 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     	return child;
     }
 	
+    /**
+     * Run after this activity is spawned, but before it's actually run.  Set up code
+     * related to cluster VM goes here.
+     * 
+     * @author xinb
+     */
+    public void finalizeActivitySpawnAtChild() {
+    	if(rootNode_ != null) 
+    		rootNode_.notifySubActivitySpawnAtChild(fromRoot);
+    }
+    
     /** Register an activity spawn listener for this activity.
      * 
      * @param a
@@ -355,13 +378,6 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
 		asl_.add( a);
 	}
 
-    /**
-     * An Activity running on this VM has terminated.  Go tell the VM
-     * that actually invoked it the news.  While you're at it, tell
-     * that VM about any clocks of his that you no longer reference.
-     **/
-    public native void finalizeTerminationOfSurrogate(int invokingVM, long activityAsSeenByInvokingVM, long[] clks, byte[] serializedX10Result);
-    
    /**
     * This activity has terminated normally. Now clean up. (Notify the finish ancestor,
     * if any, and any other listeners (e.g. Sample listeners).
@@ -372,37 +388,16 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     		Report.report(5, PoolRunner.logString() + " " + this + "terminates.");
     	}
     	dropAllClocks();
-        if (activityAsSeenByInvokingVM == thisActivityIsLocal ||
-            activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-            if (rootNode_ != null)
-    		try { rootNode_.notifySubActivityTermination(); } catch (Exception ex) { ex.printStackTrace(); }
-            if (asl_ != null) {
-                for (int j=0;j< asl_.size();j++) {
-                    // tell other activities that want to know that this has spawned child
-                    ActivitySpawnListener asl = (ActivitySpawnListener) asl_.get(j);
-                    asl.notifyActivityTerminated(this);
-                }
-            }
-    	} /*else {
-            // Ready to finalize termination on surrogate (remote) Activity.
-            // First, let's get a list of no longer used clocks on the
-            // same VM as the surrogate.
-            long[] clks = RemoteObjectMap.deleteClockEntries(invokingVM);
-            byte[] serializedX10Result = null;
-            if (this instanceof Expr) {
-               try {
-                  Field f = this.getClass().getDeclaredField("x10_result_");
-                  ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                  ObjectOutputStream oos = new ObjectOutputStream(baos);
-                  f.setAccessible(true);
-                  oos.writeObject(f.get(this));
-                  serializedX10Result = baos.toByteArray();
-               } catch (Exception e) {
-                  throw new Error(e);
-               }
-            }
-            finalizeTerminationOfSurrogate(invokingVM, activityAsSeenByInvokingVM, clks, serializedX10Result);
-        }*/
+    	
+    	if (rootNode_ != null)
+    		rootNode_.notifySubActivityTermination(); 
+    		if (asl_ != null) {
+    			for (int j=0;j< asl_.size();j++) {
+    				// tell other activities that want to know that this has spawned child
+    				ActivitySpawnListener asl = (ActivitySpawnListener) asl_.get(j);
+    				asl.notifyActivityTerminated(this);
+    			}
+    		}
     }
    
    /**
@@ -420,7 +415,7 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     		Report.report(5, Thread.currentThread() + " " + this + " drops clocks, has rootNode_ " + rootNode_);
     	}
     	if (rootNode_ != null)
-    		try { rootNode_.notifySubActivityTermination( t); } catch (Exception ex) { ex.printStackTrace(); }
+    		rootNode_.notifySubActivityTermination( t);
     	if (asl_ != null) {
     		for (int j=0;j< asl_.size();j++) {
     			// tell other activities that want to know that this has spawned child
@@ -434,30 +429,14 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
 	 * @return -- the short name for the activity.
 	 */
     public String myName() {
-        if (globalRefAddr == 0) {
             return "Activity " + Long.toHexString(hashCode());
-        } else {
-            return "Activity* " + Long.toHexString(globalRefAddr);
-        }
     }
     /** A long descriptor for the activity. By default displays the finishState_ and the rootNode_.
      * 
      */
     public String toString() {
         String rv = "<" + myName();
-        /*if (Configuration.VM_ != null &&
-            activityAsSeenByInvokingVM != 0) {
-            rv = rv + " on " + VMInfo.THIS_IS_VM;
-        }*/
         rv = rv + " " + finishState_ + "," + rootNode_;
-        if (activityAsSeenByInvokingVM != thisActivityIsLocal) {
-            if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-                rv = rv + ", Surrogate for vm " + placeWhereRealActivityIsRunning;//.vm_;
-            } else {
-                rv = rv + "," + Long.toHexString(activityAsSeenByInvokingVM) +
-                    " on " + invokingVM;
-            }
-        }
         rv = rv + ">";
         return rv;
     }
@@ -467,29 +446,6 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     public String shortString() {
     	return "<" + myName() + ">";
     }
-
-    public static final int thisActivityIsLocal = 0;
-    public static final int thisActivityIsASurrogate = -1;
-    /**
-     * the following field has a value passed in from a remote VM
-     * or one of the above two values
-     **/
-    public long activityAsSeenByInvokingVM;
-    public int  invokingVM;
-    public Place placeWhereRealActivityIsRunning;
-    /**
-     * if this Activity is a surrogate, the RemotePlace.runAsync will
-     * cause it to be pinned and set globalRefAddr to its now fixed address.
-     **/
-    public long globalRefAddr;
-
-    
-
-    String      constructorSignature;
-    long[]      clocksMappedToGlobalAddresses;
-    long[]      pseudoSerializedLongArray;
-    int         numArgsInConstructor;
-    int         listOfClocksIsArgNum;
     
     /**
      * An activity used to implement an X10 future.
@@ -521,10 +477,7 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
         		} 
         		stopFinish(); // this may throw an exception if a nested async did.
         		// Normal termination.
-                        if (activityAsSeenByInvokingVM == thisActivityIsLocal ||
-                            activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-                            future.setResult(getResult());
-                        }
+        		future.setResult(getResult());
         	} catch (Throwable t) {
         		// Now nested asyncs have terminated.
         		future.setException(t);
@@ -532,39 +485,11 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
         }
 
         public void finalizeTermination() {
-            if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-                try {
-                    Field f = this.getClass().getDeclaredField("x10_result_");
-                    ByteArrayInputStream bais = new ByteArrayInputStream(serializedX10Result);
-                    ObjectInputStream ois = new ObjectInputStream(bais);
-                    f.setAccessible(true);
-                    f.set(this, ois.readObject());
-                    future.setResult(getResult());
-                } catch (Exception e) {
-                    System.err.println("Could not deserialize the future's return " +e);
-                    throw new Error(e);
-                }
-            }
             super.finalizeTermination();
         }
         
         public void finalizeTermination(Throwable t) {
-            if (activityAsSeenByInvokingVM == thisActivityIsLocal) {
         	future.setException(t);
-            }
-            if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-                try {
-                    Field f = this.getClass().getDeclaredField("x10_result_");
-                    ByteArrayInputStream bais = new ByteArrayInputStream(serializedX10Result);
-                    ObjectInputStream ois = new ObjectInputStream(bais);
-                    f.setAccessible(true);
-                    f.set(this, ois.readObject());
-                    future.setResult(getResult());
-                } catch (Exception e) {
-                    System.err.println("Could not deserialize the future's return");
-                    throw new Error(e);
-                }
-            }
             super.finalizeTermination(t);
         }
         
