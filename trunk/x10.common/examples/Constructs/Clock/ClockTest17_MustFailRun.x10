@@ -44,7 +44,7 @@ class Y {
 	}
 }
 
-public class ClockTest17_MustFailCompile {
+public class ClockTest17_MustFailRun {
 	
 	
 	public boolean run() {
@@ -97,7 +97,7 @@ public class ClockTest17_MustFailCompile {
 	public static void main(String[] args) {
 		final boxedBoolean b=new boxedBoolean();
 		try {
-			finish async b.val=(new ClockTest17_MustFailCompile()).run();
+			finish async b.val=(new ClockTest17_MustFailRun()).run();
 		} catch (Throwable e) {
 			e.printStackTrace();
 			b.val=false;
