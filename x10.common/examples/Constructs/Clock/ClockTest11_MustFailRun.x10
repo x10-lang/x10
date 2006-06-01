@@ -21,7 +21,7 @@
  *
  * @author kemal 4/2005
  */
-public class ClockTest11_MustFailCompile {
+public class ClockTest11_MustFailRun {
 
 	public boolean run() {
             finish async {
@@ -39,7 +39,7 @@ public class ClockTest11_MustFailCompile {
     public static void main(String[] args) {
         final boxedBoolean b=new boxedBoolean();
         try {
-                finish async b.val=(new ClockTest11_MustFailCompile()).run();
+                finish async b.val=(new ClockTest11_MustFailRun()).run();
         } catch (Throwable e) {
                 e.printStackTrace();
                 b.val=false;
