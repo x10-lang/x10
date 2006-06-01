@@ -73,9 +73,9 @@
     </target>
     <target name="build" depends="init,lpg-jar,polyglot-jar,runtime-jar">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <!-- <javac destdir="${build}" source="1.4" target="1.4"> -->
+        <javac destdir="${build}" source="1.4" target="1.4">
         <!-- <javac destdir="${build}" source="1.5" target="1.5"> -->
-        <javac destdir="${build}">
+        <!-- <javac destdir="${build}"> -->
             <src path="${src}"/>
             <classpath refid="project.classpath"/>
         </javac>
