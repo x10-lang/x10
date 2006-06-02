@@ -71,7 +71,7 @@ public class FinishState implements FinishStateOps {
 				//System.out.println("FinishState.Termi remote."+this);
 				//asynchronously is fine
 				final int finishedCnt = remoteChild;
-				if(finishedCnt > 1) System.out.println("FinishState.Termi remote: finishedCnt = "+finishedCnt);
+				//if(finishedCnt > 1) System.out.println("FinishState.Termi remote: finishedCnt = "+finishedCnt);
 				X10Serializer.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
 					public void run() {
 						notifySubActivityTermination_(finishedCnt);
