@@ -6,9 +6,9 @@ import java.util.Set;
 import x10.cluster.ClusterConfig;
 import x10.cluster.Debug;
 import x10.cluster.HasResult;
+import x10.cluster.X10Dispatcher;
 import x10.cluster.X10RemoteRef;
 import x10.cluster.X10Runnable;
-import x10.cluster.X10Serializer;
 import x10.cluster.message.MessageType;
 import x10.lang.ClockUseException;
 import x10.lang.Runtime;
@@ -438,7 +438,7 @@ public /* final */ class Clock extends clock {
 			final int curPhase = phase_;			
 			final X10RemoteRef pclock = rref_p;
 			//asynchronously is fine
-			X10Serializer.serializeCode(pclock.getPlace().id, new X10Runnable(MessageType.CLK) {
+			X10Dispatcher.serializeCode(pclock.getPlace().id, new X10Runnable(MessageType.CLK) {
 				public void run() {
 					((Clock)pclock.getObject()).signalResume(curPhase); //Has to be called on the right Clock object
 				}
@@ -536,7 +536,7 @@ public /* final */ class Clock extends clock {
 					final int curPhase = phase_;
 					final X10RemoteRef pclock = rref_p;
 					//blocking call
-					X10Serializer.serializeCodeW(pclock.getPlace().id, new HasResult(MessageType.CLK) /*Runnable()*/ {
+					X10Dispatcher.serializeCodeW(pclock.getPlace().id, new HasResult(MessageType.CLK) /*Runnable()*/ {
 						public void run() {
 							((Clock)pclock.getObject()).signalNext(curPhase);
 						}
