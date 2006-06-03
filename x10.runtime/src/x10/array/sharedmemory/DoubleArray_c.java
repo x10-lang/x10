@@ -188,13 +188,18 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
 		return new DoubleArray_c((Distribution_c) d, safe_);	
 	}
 	
-	protected DoubleArray newInstance(dist d, Operator.Pointwise c) {
+	/*protected DoubleArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
 		return new DoubleArray_c((Distribution_c) d, c, safe_);	
+	}*/
+	
+	protected DoubleArray_c newInstance(dist d, double init, boolean safe_) {
+		assert d instanceof Distribution_c;
+		
+		return new DoubleArray_c(d, init, safe_);	
 	}
 	
-
 	public DoubleReferenceArray lift( DoubleArray.binaryOp op, x10.lang.doubleArray arg ) {
 	    assert arg.distribution.equals(distribution); 
 	    DoubleArray arg1 = (DoubleArray)arg;
@@ -374,7 +379,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public x10.lang.DoubleReferenceArray overlay(x10.lang.doubleArray d) {
     	dist dist = distribution.overlay(d.distribution);
-        DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
+        DoubleArray_c ret = newInstance(dist, 0, safe_); //new DoubleArray_c(dist, 0, safe_);
         place here = x10.lang.Runtime.runtime.currentPlace();
         try {
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -407,7 +412,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public DoubleReferenceArray union(x10.lang.doubleArray d) {
         dist dist = distribution.union(d.distribution);
-        DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
+        DoubleArray_c ret = newInstance(dist, 0, safe_); //new DoubleArray_c(dist, 0, safe_);
         place here = x10.lang.Runtime.runtime.currentPlace();
         try {
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
@@ -429,7 +434,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public DoubleReferenceArray restriction(region r) {
         dist dist = distribution.restriction(r);
-        DoubleArray_c ret = new DoubleArray_c(dist, 0, safe_);
+        DoubleArray_c ret = newInstance(dist, 0, safe_); //new DoubleArray_c(dist, 0, safe_);
         place here = x10.lang.Runtime.runtime.currentPlace();
         try {
         for (Iterator it = dist.iterator(); it.hasNext(); ) {
