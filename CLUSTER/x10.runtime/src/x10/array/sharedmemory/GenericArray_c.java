@@ -10,6 +10,7 @@ import x10.array.Operator;
 import x10.base.Allocator;
 import x10.array.Distribution_c;
 import x10.base.MemoryBlock;
+import x10.base.MemoryBlockSafeObjectArray;
 import x10.base.UnsafeContainer;
 import x10.compilergenerated.Parameter1;
 import x10.lang.GenericReferenceArray;
@@ -133,6 +134,10 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     public static GenericArray_c GenericArray_c( Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new GenericArray_c(d, a, safe, mutable, ref_to_values);
+    }
+    
+    public Object[] getBackingArray() {
+    	return ((MemoryBlockSafeObjectArray)arr_).getBackingArray();
     }
     
     public void keepItLive() {}
