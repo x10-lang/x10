@@ -4,8 +4,8 @@
 package x10.runtime;
 
 import x10.cluster.ClusterRuntime;
+import x10.cluster.X10Dispatcher;
 import x10.cluster.X10Runnable;
-import x10.cluster.X10Serializer;
 import x10.cluster.message.MessageType;
 import x10.lang.Future;
 import x10.lang.Object;
@@ -34,7 +34,7 @@ public final class Future_c extends Future {
 			setException_(t);
 		} else {
 			//asynchronously is fine
-			X10Serializer.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FUT) {
+			X10Dispatcher.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FUT) {
 				public void run() {
 					setException_(t);
 				}
@@ -47,7 +47,7 @@ public final class Future_c extends Future {
 			setResult_(res);
 		} else {
 			//asynchronously is fine
-			X10Serializer.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FUT) {
+			X10Dispatcher.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FUT) {
 				public void run() {
 					setResult_(res);
 				}
