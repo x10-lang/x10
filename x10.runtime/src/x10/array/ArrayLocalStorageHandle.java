@@ -1,23 +1,18 @@
 package x10.array;
 import java.util.Iterator;
+
+import x10.array.sharedmemory.BooleanArray_c;
+import x10.array.sharedmemory.ByteArray_c;
+import x10.array.sharedmemory.CharArray_c;
+import x10.array.sharedmemory.DoubleArray_c;
+import x10.array.sharedmemory.FloatArray_c;
+import x10.array.sharedmemory.IntArray_c;
+import x10.array.sharedmemory.LongArray_c;
+import x10.array.sharedmemory.ShortArray_c;
+import x10.lang.Runtime;
+import x10.lang.point;
 import x10.lang.region;
 import x10.lang.x10Array;
-import x10.lang.Runtime;
-import x10.runtime.distributed.FatPointer;
-import x10.lang.point;
-import x10.lang.place;
-import x10.lang.floatArray;
-import x10.lang.doubleArray;
-import x10.runtime.distributed.DLocalPlace_c;
-import x10.runtime.distributed.DistributedRuntime;
-import x10.array.sharedmemory.IntArray_c;
-import x10.array.sharedmemory.DoubleArray_c;
-import x10.array.sharedmemory.ShortArray_c;
-import x10.array.sharedmemory.LongArray_c;
-import x10.array.sharedmemory.FloatArray_c;
-import x10.array.sharedmemory.CharArray_c;
-import x10.array.sharedmemory.ByteArray_c;
-import x10.array.sharedmemory.BooleanArray_c;
 
 public class ArrayLocalStorageHandle   {
     x10Array _destArray;
