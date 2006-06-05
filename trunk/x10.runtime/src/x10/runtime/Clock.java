@@ -6,7 +6,6 @@ import java.util.Set;
 import x10.lang.ClockUseException;
 import x10.lang.Runtime;
 import x10.lang.clock;
-import x10.runtime.distributed.RemoteClock;
 
 /**
  * Implementation of Clock.  Technically the spec says that this is
@@ -181,22 +180,23 @@ public /* final */ class Clock extends clock {
 		synchronized (getClass()) {
 			id_ = nextId_++;
 		}
-                if (this instanceof RemoteClock) {
-                   // arrrgg... have to create activity first!
-                } else {
-                    Activity a = Runtime.getCurrentActivity();
-                    a.addClock(this);
-                    activities_.add(a);
-                    activityCount_++;
-                    if (Report.should_report("clock",3)) {
-			Report.report(3, PoolRunner.logString() + " " + this + " created by " + a +".");
-                    }
-                }
+               
+        Activity a = Runtime.getCurrentActivity();
+		a.addClock(this);
+		activities_.add(a);
+		activityCount_++;
+		if (Report.should_report("clock", 3)) {
+			Report.report(3, PoolRunner.logString() + " " + this
+					+ " created by " + a + ".");
+
+		}
 	}
 	
 	/**
-	 * An activity a is inactive on a clock if it is not registered with it
-	 * or it is registered with it, but has already resumed it in the current phase.
+	 * An activity a is inactive on a clock if it is not registered with it or
+	 * it is registered with it, but has already resumed it in the current
+	 * phase.
+	 * 
 	 * @param a
 	 * @return
 	 */
@@ -410,15 +410,7 @@ public /* final */ class Clock extends clock {
         };
 
         /* An activity on a remote VM has done a next on this clock */
-        public void doNextForRemoteClock(final Activity a, final long lapi_target, final long lapi_target_addr) {
-            // do not stall LAPI threads
-            new Thread() {
-                public void run() {
-                    doNext(a);
-                    RemoteClock.completeClockOp(lapi_target, lapi_target_addr);
-                }
-            }.start();
-        }
+       
     
 	public void doNext(Activity a) {
 		// do not acquire lock earlier - otherwise deadlock can happen

@@ -1,18 +1,18 @@
 package x10.runtime;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Stack;
 import java.util.LinkedList;
 import java.util.List;
-import java.lang.reflect.*;
-import java.io.*;
-import x10.lang.x10Array;
-import x10.lang.MultipleExceptions;
+import java.util.Stack;
+
 import x10.lang.ClockUseException;
-import x10.runtime.distributed.RemoteClock;
-import x10.runtime.distributed.RemoteObjectMap;
-import x10.runtime.distributed.VMInfo;
+import x10.lang.MultipleExceptions;
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -398,25 +398,7 @@ public abstract class Activity implements Runnable {
 				}
 			}
 		} else {
-			// Ready to finalize termination on surrogate (remote) Activity.
-			// First, let's get a list of no longer used clocks on the
-			// same VM as the surrogate.
-			long[] clks = RemoteObjectMap.deleteClockEntries(invokingVM);
-			byte[] serializedX10Result = null;
-			if (this instanceof Expr) {
-				try {
-					Field f = this.getClass().getDeclaredField("x10_result_");
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					ObjectOutputStream oos = new ObjectOutputStream(baos);
-					f.setAccessible(true);
-					oos.writeObject(f.get(this));
-					serializedX10Result = baos.toByteArray();
-				} catch (Exception e) {
-					throw new Error(e);
-				}
-			}
-			finalizeTerminationOfSurrogate(invokingVM,
-					activityAsSeenByInvokingVM, clks, serializedX10Result);
+			throw new Error("Multi-node VM unsupported");
 		}
 	}
 
@@ -464,9 +446,7 @@ public abstract class Activity implements Runnable {
 	 */
 	public String toString() {
 		String rv = "<" + myName();
-		if (Configuration.VM_ != null && activityAsSeenByInvokingVM != 0) {
-			rv = rv + " on " + VMInfo.THIS_IS_VM;
-		}
+		
 		rv = rv + " " + finishState_ + "," + rootNode_;
 		if (activityAsSeenByInvokingVM != thisActivityIsLocal) {
 			if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {

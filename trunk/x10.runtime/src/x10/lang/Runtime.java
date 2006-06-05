@@ -50,8 +50,10 @@ public abstract class Runtime {
 		try {
 			if (rt != null)
 				r = (Runtime) Class.forName(rt).newInstance();
-			else if (x10.runtime.Configuration.isMultiNodeVM())
-				r = new x10.runtime.distributed.DistributedRuntime();
+			else if (x10.runtime.Configuration.isMultiNodeVM()){
+				System.err.println("Runtime::<clinit> multi-node VM unsupported");
+				throw new Error("Multi-node VM unsupported");
+			}
 			else
 				r = new DefaultRuntime_c();
 		} catch (ClassNotFoundException cnfe) {
@@ -169,8 +171,8 @@ public abstract class Runtime {
 	 */
 	public static Place here() {
 		place p = runtime.currentPlace();
-		/** TODO (ahk) ... a better assert for multi-VM case **/
-		assert Configuration.VM_ == null || p != null;
+		
+		assert  p != null;
 		return (Place) p;
 	}
 

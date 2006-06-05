@@ -4,7 +4,6 @@ import x10.lang.Future;
 import x10.lang.Object;
 import x10.lang.Runtime;
 import x10.lang.place;
-import x10.runtime.distributed.FatPointer;
 
 
 /**
