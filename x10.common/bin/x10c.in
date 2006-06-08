@@ -88,8 +88,10 @@ else
 fi
 extargs="-ext ${ext}"
 
-#classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot2${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}lpg${FILE_SEP}lib${FILE_SEP}lpg.jar${ext_cp}${extra_cp}"
-classpath="${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}polyglot2.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}lpg.jar${ext_cp}${extra_cp}"
+## FIXME vv: hack!
+classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot2${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
+## FIXME ^^
+classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}polyglot2.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}lpg.jar${ext_cp}${extra_cp}"
 
 command="\"$JAVA\" -Xmx128m \"$config\" $profile -classpath \"$classpath\" ${java_args} polyglot.main.Main $extargs $args"
 

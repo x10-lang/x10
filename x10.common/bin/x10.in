@@ -79,8 +79,10 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
 
 LIB_DIR="${TOP}${FILE_SEP}lib"
 
-#classpath=".${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes"
-classpath=".${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar"
+## FIXME vv: hack!
+classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
+## FIXME ^^
+classpath=".${PATH_SEP}${classpath}${LIB_DIR}${FILE_SEP}x10.jar"
 
 if [ -n "$extra_cp" ]; then
    classpath="$extra_cp${PATH_SEP}$classpath"
