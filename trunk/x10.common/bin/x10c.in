@@ -55,6 +55,7 @@ where [options] includes:
     -h -help --help          print this message
     -disable <pass>          disable compiler pass <pass>
                              valid passes are: async-elimination
+    Use "x10c -- -help" to get more detailed help on compiler options
 EOF
     exit 1
 fi
