@@ -172,7 +172,7 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 			s = (Stmt) ss.next();
         }
 		v.visitCFG(e, FlowGraph.EDGE_KEY_TRUE, s.entry(),
-					  FlowGraph.EDGE_KEY_FALSE, this);
+					  FlowGraph.EDGE_KEY_FALSE, expr);
 		v.visitCFG(s, this);
 		return succs;
 	}
