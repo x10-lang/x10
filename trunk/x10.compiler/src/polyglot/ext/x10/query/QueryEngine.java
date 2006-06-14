@@ -7,6 +7,8 @@ import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ast.Call;
 import polyglot.ast.Field;
+import polyglot.types.Type;
+import polyglot.ext.x10.types.X10Type;
 
 /**
  * A query engine for analysis results and other properties of various program
@@ -30,11 +32,21 @@ public class QueryEngine {
 	}
 
 	public boolean needsHereCheck(Call c) {
-		return Configuration.BAD_PLACE_RUNTIME_CHECK;
+		if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
+			return false;
+		Type t = c.target().type();
+		if (t instanceof X10Type && ((X10Type)t).isValueType())
+			return false;
+		return true;
 	}
 
 	public boolean needsHereCheck(Field f) {
-		return Configuration.BAD_PLACE_RUNTIME_CHECK;
+		if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
+			return false;
+		Type t = f.target().type();
+		if (t instanceof X10Type && ((X10Type)t).isValueType())
+			return false;
+		return true;
 	}
 }
 
