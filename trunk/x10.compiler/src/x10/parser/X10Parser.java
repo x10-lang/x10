@@ -196,12 +196,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
     public polyglot.ast.Node parser()
     {
-        return parser(null, 0);
+        return parser(null, Integer.MAX_VALUE);
     }
     
     public polyglot.ast.Node parser(Monitor monitor)
     {
-        return parser(monitor, 0);
+        return parser(monitor, Integer.MAX_VALUE);
     }
     
     public polyglot.ast.Node parser(int error_repair_count)
@@ -227,7 +227,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
         try
         {
-            return (polyglot.ast.Node) btParser.parse(error_repair_count);
+            return (polyglot.ast.Node) btParser.fuzzyParse(error_repair_count);
         }
         catch (BadParseException e)
         {
