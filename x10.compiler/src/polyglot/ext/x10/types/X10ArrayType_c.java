@@ -170,7 +170,15 @@ public class X10ArrayType_c extends ArrayType_c implements X10ReferenceType {
 		return false;
 	}
 
+	/**
+	 * Returns true if this is a value array.
+	 * This method always returns false, because any X10 value arrays
+	 * would have been translated into other types earlier.
+	 * It will need to be reimplemented once we have the X10-specific
+	 * array typesystem.
+	 */
 	public boolean isValueType() {
-		throw new RuntimeException("Internal compiler error: isValueType() on " + this);
+		return false;
+		//throw new RuntimeException("Internal compiler error: isValueType() on " + this);
 	}
 }

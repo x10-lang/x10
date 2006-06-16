@@ -477,8 +477,7 @@ public class ParametricType_c
 	}
 
 	public boolean isValueType() {
-		// ugh
-		throw new RuntimeException("isValueType() called on " + this);
+		return false;
 	}
 
 	public void setFlags(Flags flags) {
