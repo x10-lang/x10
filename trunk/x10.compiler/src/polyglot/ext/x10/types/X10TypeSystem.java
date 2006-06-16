@@ -118,34 +118,18 @@ public interface X10TypeSystem extends TypeSystem {
 	ClassType booleanArray(boolean isValueType, Expr distribution);
 	ClassType booleanArray(Expr distribution);
 	ClassType booleanArray();
-	ClassType booleanValueArray(Expr distribution);
-	ClassType booleanValueArray();
-	ClassType BooleanReferenceArray(Expr distribution);
-	ClassType BooleanReferenceArray();
 
 	ClassType charArray(boolean isValueType, Expr distribution);
 	ClassType charArray(Expr distribution);
 	ClassType charArray();
-	ClassType charValueArray(Expr distribution);
-	ClassType charValueArray();
-	ClassType CharReferenceArray(Expr distribution);
-	ClassType CharReferenceArray();
 
 	ClassType byteArray(boolean isValueType, Expr distribution);
 	ClassType byteArray(Expr distribution);
 	ClassType byteArray();
-	ClassType byteValueArray(Expr distribution);
-	ClassType byteValueArray();
-	ClassType ByteReferenceArray(Expr distribution);
-	ClassType ByteReferenceArray();
 
 	ClassType shortArray(boolean isValueType, Expr distribution);
 	ClassType shortArray(Expr distribution);
 	ClassType shortArray();
-	ClassType shortValueArray(Expr distribution);
-	ClassType shortValueArray();
-	ClassType ShortReferenceArray(Expr distribution);
-	ClassType ShortReferenceArray();
 
 	/**
 	 * Return the parametric type of all X10 intArrays with the
@@ -173,44 +157,9 @@ public interface X10TypeSystem extends TypeSystem {
 	 */
 	ClassType intArray();
 
-	/**
-	 * Return the parametric type of all X10 int value arrays with the
-	 * given distribution.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	ClassType intValueArray(Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 int value arrays with no constraints on the
-	 * given distribution.
-	 * @return -- the ClassType object
-	 */
-	ClassType intValueArray();
-
-	/**
-	 * Return the parametric type of all X10 int reference arrays with the
-	 * given distribution.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	ClassType IntReferenceArray(Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 int reference arrays with no constraints on the
-	 * given distribution.
-	 *
-	 * @return -- the ClassType object
-	 */
-	ClassType IntReferenceArray();
-
 	ClassType floatArray(boolean isValueType, Expr distribution);
 	ClassType floatArray(Expr distribution);
 	ClassType floatArray();
-	ClassType floatValueArray(Expr distribution);
-	ClassType floatValueArray();
-	ClassType FloatReferenceArray(Expr distribution);
-	ClassType FloatReferenceArray();
 
 	/**
 	 * Return the parametric type of all X10 doubleArrays with the
@@ -239,37 +188,6 @@ public interface X10TypeSystem extends TypeSystem {
 	ClassType doubleArray();
 
 	/**
-	 * Return the parametric type of all X10 double value arrays with the
-	 * given distribution.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	ClassType doubleValueArray(Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 double value arrays with no constraints on the
-	 * given distribution.
-	 * @return -- the ClassType object
-	 */
-	ClassType doubleValueArray();
-
-	/**
-	 * Return the parametric type of all X10 double reference arrays with the
-	 * given distribution.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	ClassType DoubleReferenceArray(Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 double reference arrays with no constraints on the
-	 * given distribution.
-	 *
-	 * @return -- the ClassType object
-	 */
-	ClassType DoubleReferenceArray();
-
-	/**
 	 * Return the parametric type of all X10 longArrays with the
 	 * given values for the isValueType and distribution parameters.
 	 * @param isValueType -- true if this type is a value type.
@@ -294,37 +212,6 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @return -- the ClassType object
 	 */
 	ClassType longArray();
-
-	/**
-	 * Return the parametric type of all X10 long value arrays with the
-	 * given distribution.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	ClassType longValueArray(Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 long value arrays with no constraints on the
-	 * given distribution.
-	 * @return -- the ClassType object
-	 */
-	ClassType longValueArray();
-
-	/**
-	 * Return the parametric type of all X10 long reference arrays with the
-	 * given distribution.
-	 * @param distribution -- the underlying distribution for this type. May be null.
-	 * @return -- the ClassType object
-	 */
-	ClassType LongReferenceArray(Expr distribution);
-
-	/**
-	 * Return the parametric type of all X10 long reference arrays with no constraints on the
-	 * given distribution.
-	 *
-	 * @return -- the ClassType object
-	 */
-	ClassType LongReferenceArray();
 
 	// TODO: Add similar support for arrays of long and boolean.
 
