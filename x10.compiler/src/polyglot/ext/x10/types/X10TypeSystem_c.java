@@ -372,22 +372,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return booleanArrayType_;
 	}
 
-	public ClassType booleanValueArray() {
+	private ClassType booleanValueArray() {
 		return booleanValueArray(null);
 	}
 
 	protected ClassType booleanValueArrayType_;
 	// see the TODO for intValueArray.
-	public ClassType booleanValueArray(Expr distribution) {
+	private ClassType booleanValueArray(Expr distribution) {
 		return booleanArray(distribution);
 	}
 
-	public ClassType BooleanReferenceArray() {
+	private ClassType BooleanReferenceArray() {
 		return BooleanReferenceArray(null);
 	}
 
 	protected ClassType booleanReferenceArrayType_;
-	public ClassType BooleanReferenceArray(Expr distribution) {
+	private ClassType BooleanReferenceArray(Expr distribution) {
 		if (booleanReferenceArrayType_ == null)
 			booleanReferenceArrayType_ = load("x10.lang.BooleanReferenceArray"); // java file
 		// return booleanReferenceArrayType_.setParameter("distribution", distribution);
@@ -412,22 +412,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return charArrayType_;
 	}
 
-	public ClassType charValueArray() {
+	private ClassType charValueArray() {
 		return charValueArray(null);
 	}
 
 	protected ClassType charValueArrayType_;
 	// see the TODO for intValueArray.
-	public ClassType charValueArray(Expr distribution) {
+	private ClassType charValueArray(Expr distribution) {
 		return charArray(distribution);
 	}
 
-	public ClassType CharReferenceArray() {
+	private ClassType CharReferenceArray() {
 		return CharReferenceArray(null);
 	}
 
 	protected ClassType charReferenceArrayType_;
-	public ClassType CharReferenceArray(Expr distribution) {
+	private ClassType CharReferenceArray(Expr distribution) {
 		if (charReferenceArrayType_ == null)
 			charReferenceArrayType_ = load("x10.lang.CharReferenceArray"); // java file
 		// return charReferenceArrayType_.setParameter("distribution", distribution);
@@ -452,22 +452,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return byteArrayType_;
 	}
 
-	public ClassType byteValueArray() {
+	private ClassType byteValueArray() {
 		return byteValueArray(null);
 	}
 
 	protected ClassType byteValueArrayType_;
 	// see the TODO for intValueArray.
-	public ClassType byteValueArray(Expr distribution) {
+	private ClassType byteValueArray(Expr distribution) {
 		return byteArray(distribution);
 	}
 
-	public ClassType ByteReferenceArray() {
+	private ClassType ByteReferenceArray() {
 		return ByteReferenceArray(null);
 	}
 
 	protected ClassType byteReferenceArrayType_;
-	public ClassType ByteReferenceArray(Expr distribution) {
+	private ClassType ByteReferenceArray(Expr distribution) {
 		if (byteReferenceArrayType_ == null)
 			byteReferenceArrayType_ = load("x10.lang.ByteReferenceArray"); // java file
 		// return byteReferenceArrayType_.setParameter("distribution", distribution);
@@ -492,22 +492,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return shortArrayType_;
 	}
 
-	public ClassType shortValueArray() {
+	private ClassType shortValueArray() {
 		return shortValueArray(null);
 	}
 
 	protected ClassType shortValueArrayType_;
 	// see the TODO for intValueArray.
-	public ClassType shortValueArray(Expr distribution) {
+	private ClassType shortValueArray(Expr distribution) {
 		return shortArray(distribution);
 	}
 
-	public ClassType ShortReferenceArray() {
+	private ClassType ShortReferenceArray() {
 		return ShortReferenceArray(null);
 	}
 
 	protected ClassType shortReferenceArrayType_;
-	public ClassType ShortReferenceArray(Expr distribution) {
+	private ClassType ShortReferenceArray(Expr distribution) {
 		if (shortReferenceArrayType_ == null)
 			shortReferenceArrayType_ = load("x10.lang.ShortReferenceArray"); // java file
 		// return shortReferenceArrayType_.setParameter("distribution", distribution);
@@ -531,12 +531,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return intArray(null);
 	}
 
-	public ClassType intValueArray() {
+	private ClassType intValueArray() {
 		return intValueArray(null);
 	}
 
 	protected ClassType intValueArrayType_;
-	public ClassType intValueArray(Expr distribution) {
+	private ClassType intValueArray(Expr distribution) {
 		// vj: should really load x10.lang.intValueArray, but we are cheating...
 		// there is no difference in the public type (= methods) of x10.lang.intValueArray
 		// and x10.lang.intArray, so we reuse the implementation of x10.lang.intArray.
@@ -548,12 +548,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return intArray(distribution);
 	}
 
-	public ClassType IntReferenceArray() {
+	private ClassType IntReferenceArray() {
 		return IntReferenceArray(null);
 	}
 
 	protected ClassType intReferenceArrayType_;
-	public ClassType IntReferenceArray(Expr distribution) {
+	private ClassType IntReferenceArray(Expr distribution) {
 		if (intReferenceArrayType_ == null)
 			intReferenceArrayType_ = load("x10.lang.IntReferenceArray"); // java file
 		// return intReferenceArrayType_.setParameter("distribution", distribution);
@@ -584,20 +584,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return longArray(null);
 	}
 
-	public ClassType longValueArray() {
+	private ClassType longValueArray() {
 		return longValueArray(null);
 	}
 
-	public ClassType longValueArray(Expr distribution) {
+	private ClassType longValueArray(Expr distribution) {
 		return longArray(distribution);
 	}
 
-	public ClassType LongReferenceArray() {
+	private ClassType LongReferenceArray() {
 		return LongReferenceArray(null);
 	}
 
 	protected ClassType longReferenceArrayType_;
-	public ClassType LongReferenceArray(Expr distribution) {
+	private ClassType LongReferenceArray(Expr distribution) {
 		if (longReferenceArrayType_ == null)
 			longReferenceArrayType_ = load("x10.lang.LongReferenceArray"); // java file
 		// return longReferenceArrayType_.setParameter("distribution", distribution);
@@ -639,20 +639,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return genericArray(null);
 	}
 
-	public ClassType genericValueArray() {
+	private ClassType genericValueArray() {
 		return genericValueArray(null);
 	}
 
-	public ClassType genericValueArray(Expr distribution) {
+	private ClassType genericValueArray(Expr distribution) {
 		return genericArray(distribution);
 	}
 
-	public ClassType GenericReferenceArray() {
+	private ClassType GenericReferenceArray() {
 		return GenericReferenceArray(null);
 	}
 
 	protected ClassType genericReferenceArrayType_;
-	public ClassType GenericReferenceArray(Expr distribution) {
+	private ClassType GenericReferenceArray(Expr distribution) {
 		if (genericReferenceArrayType_ == null)
 			genericReferenceArrayType_ = load("x10.lang.GenericReferenceArray"); // java file
 		// return genericReferenceArrayType_.setParameter("distribution", distribution);
@@ -677,22 +677,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return floatArrayType_;
 	}
 
-	public ClassType floatValueArray() {
+	private ClassType floatValueArray() {
 		return floatValueArray(null);
 	}
 
 	protected ClassType floatValueArrayType_;
 	// see the TODO for intValueArray.
-	public ClassType floatValueArray(Expr distribution) {
+	private ClassType floatValueArray(Expr distribution) {
 		return floatArray(distribution);
 	}
 
-	public ClassType FloatReferenceArray() {
+	private ClassType FloatReferenceArray() {
 		return FloatReferenceArray(null);
 	}
 
 	protected ClassType floatReferenceArrayType_;
-	public ClassType FloatReferenceArray(Expr distribution) {
+	private ClassType FloatReferenceArray(Expr distribution) {
 		if (floatReferenceArrayType_ == null)
 			floatReferenceArrayType_ = load("x10.lang.FloatReferenceArray"); // java file
 		// return floatReferenceArrayType_.setParameter("distribution", distribution);
@@ -717,22 +717,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return doubleArrayType_;
 	}
 
-	public ClassType doubleValueArray() {
+	private ClassType doubleValueArray() {
 		return doubleValueArray(null);
 	}
 
 	protected ClassType doubleValueArrayType_;
 	// see the todo for intValueArray.
-	public ClassType doubleValueArray(Expr distribution) {
+	private ClassType doubleValueArray(Expr distribution) {
 			return doubleArray(distribution);
 	}
 
-	public ClassType DoubleReferenceArray() {
+	private ClassType DoubleReferenceArray() {
 		return DoubleReferenceArray(null);
 	}
 
 	protected ClassType doubleReferenceArrayType_;
-	public ClassType DoubleReferenceArray(Expr distribution) {
+	private ClassType DoubleReferenceArray(Expr distribution) {
 		if (doubleReferenceArrayType_ == null)
 			doubleReferenceArrayType_ = load("x10.lang.DoubleReferenceArray"); // java file
 		// return doubleReferenceArrayType_.setParameter("distribution", distribution);
