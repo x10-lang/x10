@@ -18,6 +18,7 @@ import polyglot.main.Report;
  * 
  * @author vj
  *
+ * FIXME: Is this even used?
  * 
  */
 public abstract class X10Type_c extends Type_c implements X10Type {
@@ -44,7 +45,8 @@ public abstract class X10Type_c extends Type_c implements X10Type {
 	public NullableType toNullable() {
 		return null;
 	}
-	// TODO: Extend this for other kinds of X10 arrays
+
+	// FIXME: make default implementation return false
 	public boolean isPrimitiveTypeArray() {
 		return 
         isBooleanArray() || 
@@ -57,64 +59,78 @@ public abstract class X10Type_c extends Type_c implements X10Type {
         isDoubleArray();
 	}
 	
+	// FIXME: make default implementation return false
 	public boolean isX10Array() { 
 		return ts.isSubtype(this, ((X10TypeSystem) ts).Indexable());
 	}
 
+	// FIXME: remove this method
 	public boolean isBooleanArray() {
         X10TypeSystem xts = (X10TypeSystem) ts;
         return xts.isSubtype( this, xts.booleanArray()); 
     }
+	// FIXME: remove this method
     public boolean isCharArray() {
         X10TypeSystem xts = (X10TypeSystem) ts;
         return xts.isSubtype( this, xts.charArray()); 
     }
+	// FIXME: remove this method
     public boolean isByteArray() {
         X10TypeSystem xts = (X10TypeSystem) ts;
         return xts.isSubtype( this, xts.byteArray()); 
     }
+	// FIXME: remove this method
     public boolean isShortArray() {
         X10TypeSystem xts = (X10TypeSystem) ts;
         return xts.isSubtype( this, xts.shortArray()); 
     }
+	// FIXME: remove this method
     public boolean isIntArray() {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.intArray()); 
 	}
+	// FIXME: remove this method
 	public boolean isLongArray() {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.longArray()); 
 	}
+	// FIXME: remove this method
     public boolean isFloatArray() {
         X10TypeSystem xts = (X10TypeSystem) ts;
         return xts.isSubtype( this, xts.floatArray()); 
     }
+	// FIXME: remove this method
 	public boolean isDoubleArray() {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.doubleArray());
 	}
+	// FIXME: make default implementation return false
 	public boolean isClock() {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.clock());
 	}
+	// FIXME: make default implementation return false
 	public boolean isPoint() {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.point());
 	}
+	// FIXME: make default implementation return false
 	public boolean isPlace() {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.place());
 	}
+	// FIXME: make default implementation return false
 	public boolean isRegion() {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.region());
 	}
+	// FIXME: make default implementation return false
 	public boolean isDistribution() {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return xts.isSubtype( this, xts.distribution());
 	}
 	
-	public  boolean isSubtypeImpl( Type t) {
+	public boolean isSubtypeImpl( Type t) {
 		X10Type target = (X10Type) t;
 		
 		if (Report.should_report("debug", 5))
@@ -139,7 +155,12 @@ public abstract class X10Type_c extends Type_c implements X10Type {
 			Report.report( 5, "[X10Type_c] ..." + result+".");	
 		return false;
 	}
+
+	public boolean isValueType() {
+		return false;
+	}
 	
+	// FIXME: remove this method
 	public boolean isValueType( Type t) {
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		return t.isCastValid( xts.value());
