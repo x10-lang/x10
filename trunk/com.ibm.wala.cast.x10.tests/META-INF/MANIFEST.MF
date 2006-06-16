@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.ibm.domo.core.tests,
  org.junit,
  com.ibm.domo.ast.java,
- x10.compiler,
  polyglot2,
+ x10.compiler,
  com.ibm.domo.ast
 Eclipse-AutoStart: true
