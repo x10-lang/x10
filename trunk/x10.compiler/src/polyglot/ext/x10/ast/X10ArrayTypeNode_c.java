@@ -65,7 +65,7 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
 	}
 	
 	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.ast.X10ArrayTypeNode#isValueArray()
+	 * @see polyglot.ext.x10.ast.X10ArrayTypeNode#isValueType()
 	 */
 	public boolean isValueType() {
 		return this.isValueType;
