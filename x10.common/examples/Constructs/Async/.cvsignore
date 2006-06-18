@@ -1,4 +1,5 @@
 *.Jacobi
 logDetail.*
 *.class
-*.javaharness
+*.java
+harness
