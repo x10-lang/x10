@@ -42,7 +42,10 @@
         <!-- <javac destdir="${build}" source="1.5" target="1.5"> -->
         <javac destdir="${build}">
             <src path="${src}"/>
-            <classpath refid="project.classpath"/>
+            <classpath>
+              <path refid="project.classpath"/>
+              <!--<pathelement location="${lib}/backport-util-concurrent.jar"/>-->
+            </classpath>
         </javac>
     </target>
     <target name="buildall" depends="build,lapi-support"
