@@ -108,9 +108,28 @@ public abstract class Runtime {
 			Thread t = Thread.currentThread();
 			Report.report(3, t + "@" + System.currentTimeMillis()
 					+ " The XVM is now terminating.");
-
 		}
 		System.exit(exitCode);
+	}
+
+	public static void exit(int code) {
+		setExitCode(code);
+		x10Exit();
+	}
+
+	/**
+	 * Sleep for the specified number of milliseconds.
+	 * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
+	 * @param millis the number of milliseconds to sleep
+	 * @return true if completed normally, false if interrupted
+	 */
+	public static boolean sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+			return true;
+		} catch (InterruptedException e) {
+			return false;
+		}
 	}
 
 	protected Runtime() {
