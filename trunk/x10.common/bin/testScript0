@@ -208,7 +208,7 @@ testForMain() {
     local f="$1"
     local tail="$2"
     if [[ "$tail" != *.x10 ]] ; then return 1; fi
-    egrep '(public[[:space:]]+static|static[[:space:]]+public)[[:space:]]+void[[:space:]]+main' "$f" >/dev/null
+    egrep '(public[[:space:]]+static|static[[:space:]]+public)[[:space:]]+void[[:space:]]+main\b' "$f" >/dev/null
     return $?
 }
 
@@ -241,8 +241,10 @@ return 1
 }
 
 testForEligibility() {
+	# TODO: switch to using find commands for globbing and
+	# test for 'extends \(\i\+\.\)*x10Test' instead.
 # Checks if an .x10 file is really a test
-# True(0) if  file $f contains "public static void main" and
+# True(0) if file $f contains "public static void main" and
 # the file name matches one of the patterns in -test or -testList
     chkArgs 2 "$@"
     local f="$1"
@@ -275,14 +277,20 @@ genTest() {
   local testDir="$2" #X10 classpath relative to top directory
   local tail=""
   # $testDir/$srcDir/ is the current directory to process
-  ls $testDir/$srcDir/*.x10 >/dev/null 2>&1
-  local X10Files="$?" #0 if *.x10 files exist in current directory
+  local X10Files="1" #0 if *.x10 test cases (with main) exist in current directory
+  for f in $testDir/$srcDir/*.x10; do
+    tail=${f##*/} # if f is a/b/c tail will be c
+    if testForMain "$testDir/$srcDir" "$tail"; then
+      X10Files="0"
+      break
+    fi
+  done
   for f in $testDir/$srcDir/*; do
     tail=${f##*/} # if f is a/b/c tail will be c
     if [[ -d "$f" && "$tail" != CVS && "$srcDir" = "." && $X10Files -ne 0 ]]; then
       # still in the top level organizational directories
       # not containing x10 test cases
-      genTest "." "$testDir/$tail"  #this is an organizational  subdir
+      genTest "." "$testDir/$tail"  #this is an organizational subdir
     elif [[ -d "$f" && "$tail" != CVS ]]; then
       # either $srcDir (x10 classpath) is already found above.
       # or $srcDir is the first encountered directory with *.x10 files in it
@@ -582,6 +590,7 @@ changeSlashToDot() {
 
 
 doTest() {
+	# TODO: run test via TestHarness instead.
 # run the x10 test case $tstDir/$srcDir/test.x10
 
   chkArgs 3 "$@"
@@ -614,7 +623,8 @@ doTest() {
 
   # the output must contain 'Test succeeded'
   # the output must not contain a java stack traceback
-  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10 -t -v -mx 128M -classpath $testDir $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
+  let "x10test_timeout = (( $timeLimit + 30 ))"
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10 -t -v -mx 128M -classpath $testDir -Dx10test.timeout=$x10test_timeout $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   local runRc=$?
 
   echo ""                                    >> logDetail.$tdir.$className
