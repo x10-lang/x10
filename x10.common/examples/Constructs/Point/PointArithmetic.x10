@@ -1,13 +1,16 @@
+import harness.x10Test;
+
 /**
  * Testing point arithmetic operations.
  *
  * @author igor, 2/2006
  */
-public class PointArithmetic {
+public class PointArithmetic extends x10Test {
+
 	const int DIM = 5;
 
 	public boolean run() {
-		int sum=0;
+		int sum = 0;
 		point p = [2, 2, 2, 2, 2];
 		point q = [1, 1, 1, 1, 1];
 		int c = 2;
@@ -18,28 +21,28 @@ public class PointArithmetic {
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += a[i];
-		System.out.println("p+p: sum="+sum);
+		System.out.println("p+p: sum = "+sum);
 		if (sum != 15) return false;
 
 		point s = p - q;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += s[i];
-		System.out.println("p-p: sum="+sum);
+		System.out.println("p-p: sum = "+sum);
 		if (sum != 5) return false;
 
 		point m = p * q;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += m[i];
-		System.out.println("p*p: sum="+sum);
+		System.out.println("p*p: sum = "+sum);
 		if (sum != 10) return false;
 
 		point d = p / q;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += d[i];
-		System.out.println("p/p: sum="+sum);
+		System.out.println("p/p: sum = "+sum);
 		if (sum != 10) return false;
 
 		// Unary +/-
@@ -48,14 +51,14 @@ public class PointArithmetic {
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += u[i];
-		System.out.println("-p: sum="+sum);
+		System.out.println("-p: sum = "+sum);
 		if (sum != -5) return false;
 
 		u = +q;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += u[i];
-		System.out.println("+p: sum="+sum);
+		System.out.println("+p: sum = "+sum);
 		if (sum != 5) return false;
 
 		// Then test that the point/constant arithmetic works
@@ -64,56 +67,56 @@ public class PointArithmetic {
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += a[i];
-		System.out.println("p+c: sum="+sum);
+		System.out.println("p+c: sum = "+sum);
 		if (sum != 20) return false;
 
 		s = p - c;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += s[i];
-		System.out.println("p-c: sum="+sum);
+		System.out.println("p-c: sum = "+sum);
 		if (sum != 0) return false;
 
 		m = p * c;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += m[i];
-		System.out.println("p*c: sum="+sum);
+		System.out.println("p*c: sum = "+sum);
 		if (sum != 20) return false;
 
 		d = p / c;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += d[i];
-		System.out.println("p/c: sum="+sum);
+		System.out.println("p/c: sum = "+sum);
 		if (sum != 5) return false;
 
 		a = c + p;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += a[i];
-		System.out.println("c+p: sum="+sum);
+		System.out.println("c+p: sum = "+sum);
 		if (sum != 20) return false;
 
 		s = c - p;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += s[i];
-		System.out.println("c-p: sum="+sum);
+		System.out.println("c-p: sum = "+sum);
 		if (sum != 0) return false;
 
 		m = c * p;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += m[i];
-		System.out.println("c*p: sum="+sum);
+		System.out.println("c*p: sum = "+sum);
 		if (sum != 20) return false;
 
 		d = c / p;
 		sum = 0;
 		for (int i = 0; i < DIM; i++)
 			sum += d[i];
-		System.out.println("c/p: sum="+sum);
+		System.out.println("c/p: sum = "+sum);
 		if (sum != 5) return false;
 
 		// Now test that the dimensionality is properly checked
@@ -213,19 +216,7 @@ public class PointArithmetic {
 	}
 
 	public static void main(String[] args) {
-		final boxedBoolean b=new boxedBoolean();
-		try {
-			finish async b.val=(new PointArithmetic()).run();
-		} catch (Throwable e) {
-			e.printStackTrace();
-			b.val=false;
-		}
-		System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-		x10.lang.Runtime.setExitCode(b.val?0:1);
+		new PointArithmetic().execute();
 	}
-	static class boxedBoolean {
-		boolean val=false;
-	}
-
-
 }
+

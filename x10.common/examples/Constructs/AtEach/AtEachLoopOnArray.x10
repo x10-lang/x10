@@ -1,35 +1,25 @@
+import harness.x10Test;
+
 /**
- * Test for an ateach loop on an array
+ * Test for an ateach loop on an array.
  *
- * @author: vj
+ * @author vj
  */
-public class AtEachLoopOnArray {
-    boolean success = true;
+public class AtEachLoopOnArray extends x10Test {
+	boolean success = true;
 
-    public boolean run() {
-        final double[.] A = new double[[0:10] -> here] (point [i]) { return i;};
-        
-        finish ateach(point [i]: A) 
-            if (A[i] != i) 
-                async (this) atomic { success = false; }
-        
-        return success;
+	public boolean run() {
+		final double[.] A = new double[[0:10]->here] (point [i]) { return i; };
 
-    }
-    
-    public static void main(String[] args) {
-        final boxedBoolean b=new boxedBoolean();
-        try {
-                finish async b.val=(new AtEachLoopOnArray()).run();
-        } catch (Throwable e) {
-                e.printStackTrace();
-                b.val=false;
-        }
-        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b.val?0:1);
-    }
-    static class boxedBoolean {
-        boolean val=false;
-    }
+		finish ateach (point [i]: A)
+			if (A[i] != i)
+				async (this) atomic { success = false; }
 
+		return success;
+	}
+
+	public static void main(String[] args) {
+		new AtEachLoopOnArray().execute();
+	}
 }
+

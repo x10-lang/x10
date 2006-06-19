@@ -1,21 +1,21 @@
+import harness.x10Test;
+
 /**
- *@author kemal 5/2005
- *
- * Program that throws an uncaught error was causing a deadlock 
+ * Program that throws an uncaught error was causing a deadlock
  * as of 5/26/2005.
+ *
+ * @author kemal 5/2005
  */
+public class ExceptionBug_MustFailRun extends x10Test {
 
-public class ExceptionBug_MustFailRun {
-    int n=0;
-    public boolean run() {
-	if(n==0) throw new Error("Testing error");
-	return true;
-    }
+	int n = 0;
+	public boolean run() {
+		if (n == 0) throw new Error("Testing error");
+		return true;
+	}
 
-    public static void main(String[] args) {
-        boolean b=(new ExceptionBug_MustFailRun()).run();
-        System.out.println("++++++ "+(b?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b?0:1);
-    }
-
+	public static void main(String[] args) {
+		new ExceptionBug_MustFailRun().execute();
+	}
 }
+
