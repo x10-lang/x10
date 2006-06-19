@@ -20,63 +20,61 @@
 *                         All rights reserved.                            *
 *                                                                         *
 **************************************************************************/
-
-
-package raytracer; 
+package raytracer;
 
 //ok
 import java.util.Vector;
 
-public value class Scene
-{
-    final public Vector lights;
-    final public Vector objects;
-    final private View view;  
-  
-    public Scene (View v)
-    {
-        lights = new Vector ();
-        objects = new Vector ();   
-        view = v;
-    }
-  
-    public void addLight(Light l)
-    {
-        this.lights.addElement(l);
-    }
-  
-    public void addObject(Primitive object)
-    {
-        this.objects.addElement(object);
-    }
-  
-    public View getView()
-    {
-        return this.view;
-    }
-  
-    public Light getLight(int number)
-    {
-        return (Light) this.lights.elementAt(number);
-    }
-  
-    public Primitive getObject(int number)
-    {
-        return (Primitive) objects.elementAt(number);
-    }
-  
-    public int getLights()
-    {
-        return this.lights.size();
-    }
-  
-    public int getObjects()
-    {
-        return this.objects.size();
-    }
-  
-    public void setObject(Primitive object, int pos)
-    {
-        this.objects.setElementAt(object, pos);
-    }
+public value class Scene {
+	final public Vector lights;
+	final public Vector objects;
+	final private View view;
+
+	public Scene (View v)
+	{
+		lights = new Vector ();
+		objects = new Vector ();
+		view = v;
+	}
+
+	public void addLight(Light l)
+	{
+		this.lights.addElement(l);
+	}
+
+	public void addObject(Primitive object)
+	{
+		this.objects.addElement(object);
+	}
+
+	public View getView()
+	{
+		return this.view;
+	}
+
+	public Light getLight(int number)
+	{
+		return (Light) this.lights.elementAt(number);
+	}
+
+	public Primitive getObject(int number)
+	{
+		return (Primitive) objects.elementAt(number);
+	}
+
+	public int getLights()
+	{
+		return this.lights.size();
+	}
+
+	public int getObjects()
+	{
+		return this.objects.size();
+	}
+
+	public void setObject(Primitive object, int pos)
+	{
+		this.objects.setElementAt(object, pos);
+	}
 }
+

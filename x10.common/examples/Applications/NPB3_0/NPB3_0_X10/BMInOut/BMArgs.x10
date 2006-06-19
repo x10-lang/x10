@@ -32,13 +32,13 @@
 !	   Moffett Field, CA   94035-1000				  !
 !									  !
 !	   E-mail:  npb@nas.nasa.gov					  !
-!	   Fax:     (650) 604-3957					  !
+!	   Fax: (650) 604-3957					  !
 !									  !
 !-------------------------------------------------------------------------!
 !     Translation to Java and to MultiThreaded Code:			  !
 !     Michael A. Frumkin					          !
 !-------------------------------------------------------------------------!
-Translation to X10 
+Translation to X10
 Vijay Saraswat
 */
 package NPB3_0_X10.BMInOut;
@@ -48,70 +48,74 @@ import java.lang.Exception;
 import java.lang.Integer;
 
 public class BMArgs implements Serializable {
-		
-  public static final BoxedChar CLASS= new BoxedChar('U');
-  public static final BoxedInt num_threads=new BoxedInt(4);
-  public static final BoxedBoolean serial =  new BoxedBoolean(true);
-  public BMArgs(){
-    CLASS.val='U';
-    num_threads.val=4;
-    serial.val = true;  
-  }
-  static public void ParseCmdLineArgs(String argv[],String BMName){  
-   for(int i=0; i<argv.length; i++){
-     if(   argv[i].equals("SERIAL") 
-     	|| argv[i].equals("serial") 
-     	|| argv[i].equals("-serial")  
-     	|| argv[i].equals("-SERIAL")){
-       serial.val = true; 
-     }else  
-     if(   argv[i].startsWith("class=") 
-     	|| argv[i].startsWith("CLASS=") 
-     	|| argv[i].startsWith("-class") 
-     	|| argv[i].startsWith("-CLASS")){
-       
-       if( argv[i].length()>6 )
-     	 CLASS.val = Character.toUpperCase( argv[i].charAt(6) ); 
-       if(CLASS.val!='A' && CLASS.val!='B' && CLASS.val!='C' && CLASS.val!='S' && CLASS.val!='W' ){
-     	 System.out.println("classes allowed are A,B,C,W and S.");  
-     	 commandLineError(BMName);
-       }
-     }else if(   argv[i].startsWith("np=") 
-     	      || argv[i].startsWith("NP=") 
-     	      || argv[i].startsWith("-NP") 
-     	      || argv[i].startsWith("-np")){
-     	 try{
-     	   if( argv[i].length()>3 )
-     	     num_threads.val = Integer.parseInt(argv[i].substring(3));
-             serial.val = false; 
-     	 }catch(Exception e){
-     	   System.out.println( "argument to " + argv[i].substring(0,3) 
-     			      +" must be an integer." );
-     	   commandLineError(BMName);
-     	 }
-       }    
-    }
-  }
-  public static void commandLineError(String BMName){
-    System.out.println("synopsis: java "+BMName
-    		      +" CLASS=[ABCWS] -serial [-NPnnn]");
-    System.out.println( "[ABCWS] is the size class \n" 
-    		       +"-serial specifies the serial version and\n" 
-    		       +"-NP specifies number of threads where nnn "
-    		       +"is an integer");
-    System.exit(1);	
-  } 
-  public static void outOfMemoryMessage(){
-    System.out.println( "The java maximum heap size is "
-    		       +"to small to run this benchmark class");
-    System.out.println( "To allocate more memory, use the -mxn option" 
-        	       +" where n is the number of bytes to be allocated");
-  }
-  public static void Banner(String BMName,
-                            char clss,boolean serial,int np){
-    System.out.println(" NAS Parallel Benchmarks X10 version (NPB3_0_X10)");
-    if(serial) System.out.println(" Serial Version "+BMName+"."+clss);
-    else System.out.println(" Multithreaded Version "+BMName+"."+clss+
-                            " np="+np);
-  }
+
+	public static final BoxedChar CLASS = new BoxedChar('U');
+	public static final BoxedInt num_threads = new BoxedInt(4);
+	public static final BoxedBoolean serial =  new BoxedBoolean(true);
+
+	public BMArgs() {
+		CLASS.val = 'U';
+		num_threads.val = 4;
+		serial.val = true;
+	}
+
+	static public void ParseCmdLineArgs(String argv[], String BMName) {
+		for (int i = 0; i<argv.length; i++) {
+			if (argv[i].equals("SERIAL")
+					|| argv[i].equals("serial")
+					|| argv[i].equals("-serial")
+					|| argv[i].equals("-SERIAL")) {
+				serial.val = true;
+			} else if (argv[i].startsWith("class=")
+					|| argv[i].startsWith("CLASS=")
+					|| argv[i].startsWith("-class")
+					|| argv[i].startsWith("-CLASS"))
+			{
+				if (argv[i].length()>6)
+					CLASS.val = Character.toUpperCase(argv[i].charAt(6));
+				if (CLASS.val != 'A' && CLASS.val != 'B' && CLASS.val != 'C' && CLASS.val != 'S' && CLASS.val != 'W') {
+					System.out.println("classes allowed are A,B,C,W and S.");
+					commandLineError(BMName);
+				}
+			} else if (argv[i].startsWith("np=")
+					|| argv[i].startsWith("NP=")
+					|| argv[i].startsWith("-NP")
+					|| argv[i].startsWith("-np"))
+			{
+				try {
+					if (argv[i].length()>3)
+						num_threads.val = Integer.parseInt(argv[i].substring(3));
+					serial.val = false;
+				} catch (Exception e) {
+					System.out.println("argument to " + argv[i].substring(0, 3)
+							+" must be an integer.");
+					commandLineError(BMName);
+				}
+			}
+		}
+	}
+
+	public static void commandLineError(String BMName) {
+		System.out.println("synopsis: java "+BMName
+				+" CLASS=[ABCWS] -serial [-NPnnn]");
+		System.out.println("[ABCWS] is the size class \n"
+				+"-serial specifies the serial version and\n"
+				+"-NP specifies number of threads where nnn "
+				+"is an integer");
+		System.exit(1);
+	}
+
+	public static void outOfMemoryMessage() {
+		System.out.println("The java maximum heap size is "
+				+"to small to run this benchmark class");
+		System.out.println("To allocate more memory, use the -mxn option"
+				+" where n is the number of bytes to be allocated");
+	}
+
+	public static void Banner(String BMName, char clss, boolean serial, int np) {
+		System.out.println(" NAS Parallel Benchmarks X10 version (NPB3_0_X10)");
+		if (serial) System.out.println(" Serial Version "+BMName+"."+clss);
+		else System.out.println(" Multithreaded Version "+BMName+"."+clss+" np="+np);
+	}
 }
+
