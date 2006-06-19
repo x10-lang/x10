@@ -20,12 +20,11 @@
 *                         All rights reserved.                            *
 *                                                                         *
 **************************************************************************/
+package raytracer;
 
-
-package raytracer; 
 //ok
 public abstract value class Primitive {
-	public Surface	surf;
+	public Surface surf;
 
 	public Primitive() {
 		surf = new Surface();
@@ -38,5 +37,6 @@ public abstract value class Primitive {
 	public abstract nullable Isect intersect(Ray ry);
 	public abstract String toString();
 	public abstract Vec getCenter();
-//	public abstract void setCenter(Vec c);
+	//public abstract void setCenter(Vec c);
 }
+

@@ -17,7 +17,7 @@
 !    without express or implied warranty.				  !
 !									  !
 !    Information on NPB 3.0, including the Technical Report NAS-02-008	  !
-!    "Implementation of the NAS Parallel Benchmarks in Java",		  !
+!    "Implementation of the NAS Parallel Benchmarks in Java",	!
 !    original specifications, source code, results and information	  !
 !    on how to submit new results, is available at:			  !
 !									  !
@@ -31,7 +31,7 @@
 !	   Moffett Field, CA   94035-1000				  !
 !									  !
 !	   E-mail:  npb@nas.nasa.gov					  !
-!	   Fax:     (650) 604-3957					  !
+!	   Fax: (650) 604-3957					  !
 !									  !
 !-------------------------------------------------------------------------!
 !     Translation to Java and to MultiThreaded Code:			  !
@@ -41,39 +41,40 @@
 */
 package NPB3_0_X10;
 
-public class Timer{
-  public static final int max_counters=64;
-  double start_time[]=new double[max_counters];
-  double elapsed_time[]=new double[max_counters];
-  double total_time[]=new double[max_counters];
+public class Timer {
+	public static final int max_counters = 64;
+	double start_time[] = new double[max_counters];
+	double elapsed_time[] = new double[max_counters];
+	double total_time[] = new double[max_counters];
 
-  public void Timer(){
-    for(int i=0;i<max_counters;i++){
-      start_time[i]=0;
-      elapsed_time[i]=0;
-      total_time[i]=0;
-    }
-  }
+	public void Timer() {
+		for (int i = 0; i < max_counters; i++) {
+			start_time[i] = 0;
+			elapsed_time[i] = 0;
+			total_time[i] = 0;
+		}
+	}
 
-  public void start(int n){  
-    start_time[n]=System.currentTimeMillis();
-  }
-  
-  public void stop(int n){
-    elapsed_time[n]=System.currentTimeMillis()-start_time[n];
-    elapsed_time[n]/=1000;
-    total_time[n] += elapsed_time[n];
-  }
-  
-  public double readTimer(int n){
-    return total_time[n];
-  }
-  
-  public void resetTimer(int n){
-    elapsed_time[n]=start_time[n]=total_time[n]=0;
-  }
-  
-  public void resetAllTimers(){
-    for(int i=0;i<max_counters;i++) resetTimer(i);
-  }
+	public void start(int n) {
+		start_time[n] = System.currentTimeMillis();
+	}
+
+	public void stop(int n) {
+		elapsed_time[n] = System.currentTimeMillis()-start_time[n];
+		elapsed_time[n] /= 1000;
+		total_time[n] += elapsed_time[n];
+	}
+
+	public double readTimer(int n) {
+		return total_time[n];
+	}
+
+	public void resetTimer(int n) {
+		elapsed_time[n] = start_time[n] = total_time[n] = 0;
+	}
+
+	public void resetAllTimers() {
+		for (int i = 0; i < max_counters; i++) resetTimer(i);
+	}
 }
+

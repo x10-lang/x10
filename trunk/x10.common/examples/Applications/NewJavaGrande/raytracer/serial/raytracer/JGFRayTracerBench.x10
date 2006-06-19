@@ -9,7 +9,7 @@
 *                                at                                       *
 *                                                                         *
 *                Edinburgh Parallel Computing Centre                      *
-*                                                                         * 
+*                                                                         *
 *                email: epcc-javagrande@epcc.ed.ac.uk                     *
 *                                                                         *
 *                                                                         *
@@ -17,105 +17,92 @@
 *                         All rights reserved.                            *
 *                                                                         *
 **************************************************************************/
+package raytracer;
 
-
-package raytracer; 
-
-import jgfutil.*; 
+import jgfutil.*;
 
 public class JGFRayTracerBench extends RayTracer implements JGFSection3 {
 
+	public void JGFsetsize(int size) {
+		this.size = size;
+	}
 
-  public void JGFsetsize(int size){
-    this.size = size;
-  }
+	public void JGFinitialise() {
+		JGFInstrumentor.startTimer("Section3:RayTracer:Init");
 
-  public void JGFinitialise(){
+		// set image size
+		width = height = datasizes[size];
 
-    JGFInstrumentor.startTimer("Section3:RayTracer:Init"); 
+		// create the objects to be rendered
+		scene = createScene();
 
-    // set image size 
-    width = height = datasizes[size]; 
+		// get lights, objects etc. from scene.
+		setScene(scene);
 
-    // create the objects to be rendered 
-    scene = createScene();
+		numobjects = scene.getObjects();
 
-    // get lights, objects etc. from scene. 
-    setScene(scene); 
+		JGFInstrumentor.stopTimer("Section3:RayTracer:Init");
+	}
 
-    numobjects = scene.getObjects();
+	public void JGFapplication() {
+		JGFInstrumentor.startTimer("Section3:RayTracer:Run");
 
-    JGFInstrumentor.stopTimer("Section3:RayTracer:Init"); 
+		// Set interval to be rendered to the whole picture
+		// (overkill, but will be useful to retain this for parallel versions)
+		Interval interval = new Interval(0, width, height, 0, height, 1);
 
-  }
+		// Do the business!
+		render(interval);
 
-  public void JGFapplication(){ 
+		JGFInstrumentor.stopTimer("Section3:RayTracer:Run");
+	}
 
-    JGFInstrumentor.startTimer("Section3:RayTracer:Run");  
+	public void JGFvalidate() {
+		//long refval[] = { 2676692, 29827635 };
+		long refval[] = { 51398, 29827635 }; // reduced data size
+		long dev = checksum - refval[size];
+		if (dev != 0) {
+			System.out.println("Validation failed");
+			System.out.println("Pixel checksum = " + checksum);
+			System.out.println("Reference value = " + refval[size]);
+			throw new Error("Validation failed");
+		}
+	}
 
-    // Set interval to be rendered to the whole picture 
-    // (overkill, but will be useful to retain this for parallel versions)
-    Interval interval = new Interval(0,width,height,0,height,1); 
+	public void JGFtidyup() {
+		/*
+		scene = null;
+		lights = null;
+		prim = null;
+		tRay = null;
+		inter = null;
+		*/
+		System.gc();
+	}
 
-    // Do the business!
-    render(interval); 
+	public void JGFrun(int size) {
+		JGFInstrumentor.addTimer("Section3:RayTracer:Total", "Solutions", size);
+		JGFInstrumentor.addTimer("Section3:RayTracer:Init", "Objects", size);
+		JGFInstrumentor.addTimer("Section3:RayTracer:Run", "Pixels", size);
 
-    JGFInstrumentor.stopTimer("Section3:RayTracer:Run");  
+		JGFsetsize(size);
 
-  } 
+		JGFInstrumentor.startTimer("Section3:RayTracer:Total");
 
+		JGFinitialise();
+		JGFapplication();
+		JGFvalidate();
+		JGFtidyup();
 
-  public void JGFvalidate(){
-    //long refval[] = {2676692,29827635};
-    long refval[] = {51398,29827635}; // reduced data size
-    long dev = checksum - refval[size]; 
-    if (dev != 0 ){
-      System.out.println("Validation failed"); 
-      System.out.println("Pixel checksum = " + checksum);
-      System.out.println("Reference value = " + refval[size]); 
-      throw new Error("Validation failed");
-    }
-  }
+		JGFInstrumentor.stopTimer("Section3:RayTracer:Total");
 
-  public void JGFtidyup(){    
-  /*
-    scene = null;  
-    lights = null;  
-    prim = null;  
-    tRay = null;  
-    inter = null;  
-  */
+		JGFInstrumentor.addOpsToTimer("Section3:RayTracer:Init", (double) numobjects);
+		JGFInstrumentor.addOpsToTimer("Section3:RayTracer:Run", (double) (width*height));
+		JGFInstrumentor.addOpsToTimer("Section3:RayTracer:Total", 1);
 
-    System.gc(); 
-  }
-
-
-  public void JGFrun(int size){
-
-    JGFInstrumentor.addTimer("Section3:RayTracer:Total", "Solutions",size);
-    JGFInstrumentor.addTimer("Section3:RayTracer:Init", "Objects",size);
-    JGFInstrumentor.addTimer("Section3:RayTracer:Run", "Pixels",size);
-
-    JGFsetsize(size); 
-
-    JGFInstrumentor.startTimer("Section3:RayTracer:Total");
-
-    JGFinitialise(); 
-    JGFapplication(); 
-    JGFvalidate(); 
-    JGFtidyup(); 
-
-    JGFInstrumentor.stopTimer("Section3:RayTracer:Total");
-
-    JGFInstrumentor.addOpsToTimer("Section3:RayTracer:Init", (double) numobjects);
-    JGFInstrumentor.addOpsToTimer("Section3:RayTracer:Run", (double) (width*height));
-    JGFInstrumentor.addOpsToTimer("Section3:RayTracer:Total", 1);
-
-    JGFInstrumentor.printTimer("Section3:RayTracer:Init"); 
-    JGFInstrumentor.printTimer("Section3:RayTracer:Run"); 
-    JGFInstrumentor.printTimer("Section3:RayTracer:Total"); 
-  }
-
-
+		JGFInstrumentor.printTimer("Section3:RayTracer:Init");
+		JGFInstrumentor.printTimer("Section3:RayTracer:Run");
+		JGFInstrumentor.printTimer("Section3:RayTracer:Total");
+	}
 }
- 
+

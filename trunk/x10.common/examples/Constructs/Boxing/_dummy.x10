@@ -1,6 +1,6 @@
 /**
- * A dummy class, not a test by itself
+ * A dummy class, not a test by itself.
  */
 value _dummy extends x10.lang.Object {
-
 }
+
