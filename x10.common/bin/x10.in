@@ -76,6 +76,7 @@ else
     exit 1
 fi
 if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
 
 LIB_DIR="${TOP}${FILE_SEP}lib"
 
