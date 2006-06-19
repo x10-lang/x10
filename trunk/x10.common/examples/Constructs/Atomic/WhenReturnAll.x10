@@ -1,9 +1,12 @@
+import harness.x10Test;
+
 /**
- * @author igor, 2/2006
- *
  * Returns from all branches of a "when" should work.
+ *
+ * @author igor, 2/2006
  */
-public class WhenReturnAll {
+public class WhenReturnAll extends x10Test {
+
 	int test() {
 		int ret = 0;
 		when (X.t()) {
@@ -19,22 +22,11 @@ public class WhenReturnAll {
 	}
 
 	public static void main(String[] args) {
-		final boxedBoolean b=new boxedBoolean();
-		try {
-			finish async b.val=(new WhenReturnAll()).run();
-		} catch (Throwable e) {
-			e.printStackTrace();
-			b.val=false;
-		}
-		System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-		x10.lang.Runtime.setExitCode(b.val?0:1);
+		new WhenReturnAll().execute();
 	}
-	static class boxedBoolean {
-		boolean val=false;
-	}
-}
 
-class X {
-	static boolean t() { return true; }
+	static class X {
+		static boolean t() { return true; }
+	}
 }
 

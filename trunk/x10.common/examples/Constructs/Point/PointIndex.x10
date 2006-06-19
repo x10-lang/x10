@@ -1,50 +1,39 @@
+import harness.x10Test;
+
 /**
  * Accessing p[3] in a 2D point should cause an array
  * index out of  bounds exception.
  *
  * @author kemal, 6/2005
  */
-public class PointIndex {
+public class PointIndex extends x10Test {
 
 	public boolean run() {
-		int sum=0;
+		int sum = 0;
 		boolean gotException;
-		point p=[1,2];
+		point p = [1,2];
 
-		gotException=false;
+		gotException = false;
 		try {
-			sum+=p[-1];
+			sum += p[-1];
 		} catch (ArrayIndexOutOfBoundsException e) {
-			gotException=true;
+			gotException = true;
 		}
-		System.out.println("1: sum="+sum+" gotException="+gotException);
-		if (!(sum==0 && gotException)) return false;
+		System.out.println("1: sum = "+sum+" gotException = "+gotException);
+		if (!(sum == 0 && gotException)) return false;
 
-		gotException=false;
+		gotException = false;
 		try {
-			sum+=p[3];
+			sum += p[3];
 		} catch (ArrayIndexOutOfBoundsException e) {
-			gotException=true;
+			gotException = true;
 		}
-		System.out.println("2: sum="+sum+" gotException="+gotException);
-		return sum==0 && gotException;
-
+		System.out.println("2: sum = "+sum+" gotException = "+gotException);
+		return sum == 0 && gotException;
 	}
-	
-    public static void main(String[] args) {
-        final boxedBoolean b=new boxedBoolean();
-        try {
-                finish async b.val=(new PointIndex()).run();
-        } catch (Throwable e) {
-                e.printStackTrace();
-                b.val=false;
-        }
-        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b.val?0:1);
-    }
-    static class boxedBoolean {
-        boolean val=false;
-    }
 
-
+	public static void main(String[] args) {
+		new PointIndex().execute();
+	}
 }
+

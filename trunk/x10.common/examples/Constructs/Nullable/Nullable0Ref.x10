@@ -1,39 +1,30 @@
+import harness.x10Test;
+
 /**
  * Casting nullable T to T when the value is null
  * should cause a null pointer exception.
  * (unless T is itself nullable S)
  */
-public class Nullable0Ref {
-	public  boolean run() {
-                boolean gotNull=false;
+public class Nullable0Ref extends x10Test {
+	public boolean run() {
+		boolean gotNull = false;
 		try {
 			nullable Nullable0Ref x = X.mynull();
 			Nullable0Ref y = (Nullable0Ref) x;
-                        X.use(y);
+			X.use(y);
 		} catch (ClassCastException e) {
-		        gotNull=true;	
+			gotNull = true;
 		}
-                return gotNull;
+		return gotNull;
 	}
-	
-    public static void main(String[] args) {
-        final boxedBoolean b=new boxedBoolean();
-        try {
-                finish async b.val=(new Nullable0Ref()).run();
-        } catch (Throwable e) {
-                e.printStackTrace();
-                b.val=false;
-        }
-        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b.val?0:1);
-    }
-    static class boxedBoolean {
-        boolean val=false;
-    }
 
-}
-class X {
-    public static nullable Nullable0Ref mynull() {return null; }
-    public static void use(Nullable0Ref y) { }
+	public static void main(String[] args) {
+		new Nullable0Ref().execute();
+	}
+
+	static class X {
+		public static nullable Nullable0Ref mynull() { return null; }
+		public static void use(Nullable0Ref y) { }
+	}
 }
 

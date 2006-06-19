@@ -1,14 +1,10 @@
+import harness.x10Test;
 
-
-/** Testing an async spawned to a field access.
-
+/**
+ * Testing an async spawned to a field access.
  */
- 
-public class AsyncFieldAccess {
-	
-	static class T extends x10.lang.Object {
-		public int i;
-	}
+public class AsyncFieldAccess extends x10Test {
+
 	T t;
 	public boolean run() {
 		place Second = place.FIRST_PLACE.next();
@@ -16,29 +12,18 @@ public class AsyncFieldAccess {
 		final dist D = r->Second;
 		finish ateach (point p: D) {
 			final T NewT = new T();
-			async ( this ) {
-				t = NewT;
-			}
+			async (this) { t = NewT; }
 		}
-		finish async ( t ) {
-			atomic t.i = 3;
-		}
+		finish async (t) { atomic t.i = 3; }
 		return 3 == future(t){t.i}.force();
 	}
-	
-    public static void main(String[] args) {
-        final boxedBoolean b=new boxedBoolean();
-        try {
-                finish async b.val=(new AsyncFieldAccess()).run();
-        } catch (Throwable e) {
-                e.printStackTrace();
-                b.val=false;
-        }
-        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b.val?0:1);
-    }
-    static class boxedBoolean {
-        boolean val=false;
-    }
 
+	public static void main(String[] args) {
+		new AsyncFieldAccess().execute();
+	}
+
+	static class T extends x10.lang.Object {
+		public int i;
+	}
 }
+

@@ -1,35 +1,26 @@
+import harness.x10Test;
+
 /**
- * @author Vivek Sarkar (vsarkar@us.ibm.com)
  * Minimal test for async.
  * Uses busy-wait to check for execution of async.
  * run() method returns true if successful, false otherwise.
+ *
+ * @author Vivek Sarkar (vsarkar@us.ibm.com)
  */
-public class AsyncTest1  {
+public class AsyncTest1 extends x10Test {
 
 	boolean flag;
-
 	public boolean run() {
-		async (this) { atomic{flag = true;} }
-                boolean b;
-                do {
-                   atomic{b=flag;}
-		} while(!b);
-	  	return b;
+		async (this) { atomic { flag = true; } }
+		boolean b;
+		do {
+			atomic { b = flag; }
+		} while (!b);
+		return b;
 	}
-	
-    public static void main(String[] args) {
-        final boxedBoolean b=new boxedBoolean();
-        try {
-                finish async b.val=(new AsyncTest1()).run();
-        } catch (Throwable e) {
-                e.printStackTrace();
-                b.val=false;
-        }
-        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b.val?0:1);
-    }
-    static class boxedBoolean {
-        boolean val=false;
-    }
 
+	public static void main(String[] args) {
+		new AsyncTest1().execute();
+	}
 }
+

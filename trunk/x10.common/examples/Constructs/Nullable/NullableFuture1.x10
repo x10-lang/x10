@@ -1,37 +1,27 @@
+import harness.x10Test;
+
 /**
- * when nullable future T x is not null at run time
+ * When nullable future T x is not null at run time,
  * ((future T)x) should not cause exception
- * and ((future T).x).force() should return a T
+ * and ((future T).x).force() should return a T.
  */
-public class NullableFuture1 {
+public class NullableFuture1 extends x10Test {
 	public boolean run() {
 		nullable future<int> x;
 		if (X.t()) {
-			x=future{42};
+			x = future { 42 };
 		} else {
-			x=null;
+			x = null;
 		}
-		return x!=null && ((future<int>)x).force()==42;
+		return x != null && ((future<int>)x).force() == 42;
 	}
-	
-    public static void main(String[] args) {
-        final boxedBoolean b=new boxedBoolean();
-        try {
-                finish async b.val=(new NullableFuture1()).run();
-        } catch (Throwable e) {
-                e.printStackTrace();
-                b.val=false;
-        }
-        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b.val?0:1);
-    }
-    static class boxedBoolean {
-        boolean val=false;
-    }
 
-}
+	public static void main(String[] args) {
+		new NullableFuture1().execute();
+	}
 
-class X {
-   public static boolean t() {return true;}
+	static class X {
+		public static boolean t() { return true; }
+	}
 }
 

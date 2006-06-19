@@ -1,38 +1,28 @@
+import harness.x10Test;
+
 /**
  * Casting nullable String to String when value is null
  * should cause a class cast exception
  */
-public class Nullable1 {
+public class Nullable1 extends x10Test {
 	public boolean run() {
-                boolean gotNull=false;
+		boolean gotNull = false;
 		try {
 			nullable String x = null;
 			String y = (String)x;
-		        X.use(y);	
+			X.use(y);
 		} catch (ClassCastException e) {
-			gotNull=true;
+			gotNull = true;
 		}
-                return gotNull;
+		return gotNull;
 	}
-	
-    public static void main(String[] args) {
-        final boxedBoolean b=new boxedBoolean();
-        try {
-                finish async b.val=(new Nullable1()).run();
-        } catch (Throwable e) {
-                e.printStackTrace();
-                b.val=false;
-        }
-        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b.val?0:1);
-    }
-    static class boxedBoolean {
-        boolean val=false;
-    }
 
-}
+	public static void main(String[] args) {
+		new Nullable1().execute();
+	}
 
-class X {
-    public static void use(String y) {}
+	static class X {
+		public static void use(String y) { }
+	}
 }
 

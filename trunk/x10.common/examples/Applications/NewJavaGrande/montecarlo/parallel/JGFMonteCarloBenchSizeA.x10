@@ -1,42 +1,25 @@
+import montecarlo.*;
+
+import jgfutil.*;
+import harness.x10Test;
+
 /**
- * X10 port of montecarlo benchmark from Section 2 of Java Grande Forum Benchmark Suite (Version 2.0)
+ * X10 port of montecarlo benchmark from Section 2 of Java Grande Forum Benchmark Suite (Version 2.0).
  *
  * Single-place, multi-threaded version.
  * @author vj
  */
- 
-import montecarlo.*;
-import jgfutil.*;
- public class JGFMonteCarloBenchSizeA  { 
+public class JGFMonteCarloBenchSizeA extends x10Test {
 
- public boolean run() {
+	public boolean run() {
+		JGFInstrumentor.printHeader(3, 0);
+		JGFMonteCarloBench mc = new JGFMonteCarloBench();
+		mc.JGFrun(0);
+		return true;
+	}
 
-   JGFInstrumentor.printHeader(3,0);
-
-   JGFMonteCarloBench mc = new JGFMonteCarloBench(); 
-   mc.JGFrun(0);
-   return true;
-
- }
-   /**
-    * main method
-    */
-   
-    public static void main(String[] args) {
-        final boxedBoolean b=new boxedBoolean();
-        try {
-                finish async b.val=(new JGFMonteCarloBenchSizeA()).run();
-        } catch (Throwable e) {
-                e.printStackTrace();
-                b.val=false;
-        }
-        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b.val?0:1);
-    }
-    static class boxedBoolean {
-        boolean val=false;
-    }
-
-
+	public static void main(String[] args) {
+		new JGFMonteCarloBenchSizeA().execute();
+	}
 }
 
