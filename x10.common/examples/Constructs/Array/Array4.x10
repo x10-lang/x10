@@ -1,8 +1,9 @@
+import harness.x10Test;
+
 /**
  * Test for X10 arrays -- tests arrays passed as parameters and stored in fields.
- *
  */
-public class Array4 {
+public class Array4 extends x10Test {
 	int[.] ia;
 
 	public Array4() {}
@@ -14,41 +15,17 @@ public class Array4 {
 	private boolean runtest() {
 		ia[1,1] = 42;
 		return 42 == ia[1,1];
-		
 	}
 
 	/**
-	 *Run method for the array. Returns true iff the test succeeds.
+	 * Run method for the array. Returns true iff the test succeeds.
 	 */
 	public boolean run() {
-		region e= [1:10];
-		region r = [e,e];
-		dist d=r->here;
-		chk(d.equals([1:10,1:10]->here));
-		return (new Array4(new int[d])).runtest();
+		return (new Array4(new int[[1:10,1:10]->here])).runtest();
 	}
 
-    static void chk(boolean b) {if (!b) throw new Error();}
-	
-
-	/** Harness for running the test.
-	 * 
-	 */
-        
-    public static void main(String[] args) {
-        final boxedBoolean b=new boxedBoolean();
-        try {
-                finish async b.val=(new Array4()).run();
-        } catch (Throwable e) {
-                e.printStackTrace();
-                b.val=false;
-        }
-        System.out.println("++++++ "+(b.val?"Test succeeded.":"Test failed."));
-        x10.lang.Runtime.setExitCode(b.val?0:1);
-    }
-    static class boxedBoolean {
-        boolean val=false;
-    }
-
-		
+	public static void main(String[] args) {
+		new Array4().execute();
+	}
 }
+
