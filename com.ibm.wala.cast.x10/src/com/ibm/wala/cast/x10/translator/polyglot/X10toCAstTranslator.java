@@ -204,21 +204,27 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    CAstNode[] varDecls = new CAstNode[vars.length + 1];
 	    for (int i = 0; i < vars.length; i++)
 		varDecls[i] = fFactory.makeNode(CAstNode.DECL_STMT,
-		    fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant(vars[i].name())),
-			fFactory.makeNode(CAstNode.ARRAY_REF, walkNodes(formal, context),
-			    fFactory.makeConstant(TypeReference.Int),
-			    fFactory.makeConstant(i)));
+		  fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant(vars[i].name())),
+		  fFactory.makeConstant(false),
+		  fFactory.makeConstant(false),
+		  fFactory.makeNode(CAstNode.ARRAY_REF, walkNodes(formal, context),
+		    fFactory.makeConstant(TypeReference.Int),
+		    fFactory.makeConstant(i)));
 	    varDecls[vars.length] = bodyNode;
 
 	    return fFactory.makeNode(CAstNode.LOCAL_SCOPE,
 		fFactory.makeNode(CAstNode.BLOCK_STMT,
 		    fFactory.makeNode(CAstNode.DECL_STMT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp")),
-			fFactory.makeNode(X10CastNode.REGION_ITER_INIT, domainNode)),
+		      fFactory.makeConstant(true),
+		      fFactory.makeConstant(false),
+		      fFactory.makeNode(X10CastNode.REGION_ITER_INIT, domainNode)),
 		    fFactory.makeNode(CAstNode.LOOP,
 			fFactory.makeNode(X10CastNode.REGION_ITER_HASNEXT,
 			    fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp"))),
 			fFactory.makeNode(CAstNode.BLOCK_STMT,
 			    fFactory.makeNode(CAstNode.DECL_STMT, walkNodes(formal, context),
+				fFactory.makeConstant(false),
+				fFactory.makeConstant(false),
 				fFactory.makeNode(X10CastNode.REGION_ITER_NEXT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp")))),
 			    varDecls))));
 	}
@@ -243,7 +249,11 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    context.addScopedEntity(bodyNode, bodyEntity);
 	    return fFactory.makeNode(CAstNode.LOCAL_SCOPE,
 		fFactory.makeNode(CAstNode.BLOCK_STMT,
-			fFactory.makeNode(CAstNode.DECL_STMT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), dist),
+			fFactory.makeNode(CAstNode.DECL_STMT, 
+			  fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")),
+			  fFactory.makeConstant(true),
+			  fFactory.makeConstant(false),
+			  dist),
 			walkRegionIterator(a, bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), context)));
 	}
 
