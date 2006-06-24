@@ -126,9 +126,25 @@ exit 1
 
 }
 
+checkGNU() {
+# check whether a particular tool is from GNU or exit with nonzero return code
+chkArgs 1 "$@"
+
+    local tool="$1"
+
+    if ! "$tool" --version &> /dev/null; then
+      echo "Cannot find GNU $tool in the PATH"
+      exit 2
+    fi
+}
+
 checkUsage() {
 # Process the arguments.
 # Also perform simple checks before running script.
+
+  checkGNU egrep
+  checkGNU find
+  checkGNU sed
 
   timeLimit=60
   mailDest=""
