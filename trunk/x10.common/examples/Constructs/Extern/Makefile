@@ -45,7 +45,7 @@ CC=gcc $(CCEXTRA)
 CXX=g++ $(CCEXTRA)
 CXXFLAGS=$(CFLAGS)
 
-$(LIBPFX)%.$(LIBEXT):	checkjava %.o
+$(LIBPFX)%.$(LIBEXT):	checkjava
 	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o $@ $(filter %.o,$^)
 
 ifneq ($(UNAME),AIX)
