@@ -16,6 +16,8 @@ ifneq ($(UNAME),Linux)
 LIBPFX=
 LIBEXT=dll
 CFLAGSEXTRA="-I${JAVA_HOME}/include/win32"
+else
+CFLAGSEXTRA="-I${JAVA_HOME}/include/linux"
 endif
 endif
 
