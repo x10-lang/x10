@@ -1,6 +1,5 @@
 package polyglot.ext.x10.extension;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,15 +7,15 @@ import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.Expr;
 import polyglot.ast.NodeFactory;
+import polyglot.frontend.ExtensionInfo;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Type;
 import polyglot.ext.x10.ast.Future;
 
-
 public class X10FutureExt_c extends X10Ext_c {
     // Rewrite == and != to invoke Primitive.equals(o, p).
-    public Node rewrite(X10TypeSystem ts, NodeFactory nf) {
+    public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
         Future b = (Future) node();
         Expr body_e = b.body();
         Type body_t = body_e.type();
@@ -34,6 +33,6 @@ public class X10FutureExt_c extends X10Ext_c {
             return b.body(x.constructorInstance(ci));
         }
 
-        return super.rewrite(ts, nf);
+        return super.rewrite(ts, nf, info);
     }
 }

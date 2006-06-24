@@ -16,10 +16,11 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Type;
 import polyglot.main.Report;
+import polyglot.frontend.ExtensionInfo;
 
 public class X10BinaryExt_c extends X10Ext_c {
 	// Rewrite == and != to invoke Primitive.equals(o, p).
-	public Node rewrite(X10TypeSystem ts, NodeFactory nf) {
+	public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
 		Binary b = (Binary) node();
 		Expr l = b.left();
 		Expr r = b.right();
@@ -62,7 +63,7 @@ public class X10BinaryExt_c extends X10Ext_c {
 			}
 		}
 
-		return super.rewrite(ts, nf);
+		return super.rewrite(ts, nf, info);
 	}
 }
 
