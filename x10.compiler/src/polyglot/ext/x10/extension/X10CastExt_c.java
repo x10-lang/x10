@@ -13,10 +13,11 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Type;
+import polyglot.frontend.ExtensionInfo;
 
 public class X10CastExt_c extends X10Ext_c {
 	// Insert boxing and unboxing code.
-	public Node rewrite(X10TypeSystem ts, NodeFactory nf) {
+	public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
 
 		Cast c = (Cast) node();
 		Type rtype = c.expr().type();
