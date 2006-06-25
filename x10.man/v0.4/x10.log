@@ -1,4 +1,4 @@
-This is pdfeTeX, Version 3.141592-1.21a-2.2 (MiKTeX 2.4) (preloaded format=latex 2005.4.10)  26 JUL 2005 16:30
+This is pdfeTeX, Version 3.141592-1.21a-2.2 (MiKTeX 2.4) (preloaded format=latex 2005.4.10)  16 MAR 2006 20:02
 entering extended mode
 **x10
 (x10.tex
@@ -546,7 +546,7 @@ it/10 ACM
 Here is how much of TeX's memory you used:
  1003 strings out of 95512
  10561 string characters out of 1189448
- 66435 words of memory out of 1055875
+ 66436 words of memory out of 1055876
  3972 multiletter control sequences out of 60000
  36415 words of font info for 65 fonts, out of 500000 for 1000
  14 hyphenation exceptions out of 607
@@ -562,4 +562,4 @@ ri8a.pfb><C:\texmf\fonts\type1\bluesky\cm\cmr7.pfb><C:\texmf\fonts\type1\bluesk
 y\cm\cmr10.pfb><C:\texmf\fonts\type1\bluesky\cm\cmsy10.pfb><C:\texmf\fonts\type
 1\urw\urwstd\ucrr8a.pfb><C:\texmf\fonts\type1\urw\urwstd\utmr8a.pfb><C:\texmf\f
 onts\type1\urw\urwstd\uhvr8a.pfb><C:\texmf\fonts\type1\urw\urwstd\utmb8a.pfb>
-Output written on x10.pdf (30 pages, 241454 bytes).
+Output written on x10.pdf (30 pages, 241373 bytes).
