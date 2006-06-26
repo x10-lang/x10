@@ -8,6 +8,28 @@ package x10.parser;
 
 public class X10Lexerprs implements lpg.lpgjavaruntime.ParseTable, X10Lexersym {
 
+    public interface IsNullable {
+        public final static byte isNullable[] = {0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            1,0,0,0,0,0,1,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0
+        };
+    };
+    public final static byte isNullable[] = IsNullable.isNullable;
+    public final boolean isNullable(int index) { return isNullable[index] != 0; }
+
     public interface IsKeyword {
         public final static byte isKeyword[] = {0,
             0,0,0,0,0,0,0,0,0,0,
