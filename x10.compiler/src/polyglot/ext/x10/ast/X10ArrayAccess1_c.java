@@ -10,14 +10,11 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.ArrayAccess_c;
-import polyglot.ext.jl.ast.Call_c;
-import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.x10.types.NullableType_c;
-import polyglot.ext.x10.types.ParametricType_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -146,12 +143,14 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		}
 		List args = new LinkedList();
 		args.add(index);
-		if (type instanceof ParametricType_c) {
-			ParametricType_c pt = (ParametricType_c) type;
+        X10Type pt = (X10Type) type;
+        //Report.report(1, "[X10ArrayAccess1: GOLDEN " + pt.getClass());
+		if (pt.isParametric()) {
+            List params = pt.typeParameters();
+            Type param = (Type) params.get(0);
 			return
 				nf.Cast(position(),
-						nf.CanonicalTypeNode(position(),
-							(Type) pt.getTypeParameters().get(0)).type((Type) pt.getTypeParameters().get(0)),
+						nf.CanonicalTypeNode(position(), param).type(param),
 						(Expr) nf.Call(position(), array, "get", args).typeCheck(tc)).typeCheck(tc);
 
 		}

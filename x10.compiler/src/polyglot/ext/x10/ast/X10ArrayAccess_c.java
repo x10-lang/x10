@@ -5,41 +5,32 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.ArrayAccess;
+import java.util.Iterator;
+import java.util.List;
+
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.ArrayAccess_c;
+import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Expr_c;
-import polyglot.ext.jl.ast.Call_c;
-
+//import polyglot.ext.x10.types.ParametricType_c;
+import polyglot.ext.x10.types.X10Type;
+import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.Flags;
-
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
-import polyglot.visit.AscriptionVisitor;
-
-import java.util.LinkedList;
-
-import polyglot.ext.x10.types.ParametricType_c;
-import polyglot.ext.x10.types.X10Type;
-
-import java.util.Iterator;
-import java.util.List;
 
 /** An immutable representation of a (multdimensional) X10 array access, involving more than
  * one index.
@@ -125,7 +116,10 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 		if (type.isArray())
 			throw new SemanticException(
 					"Multiple subscript cannot follow an array of rank 1.", position());
-		//System.out.println("X10ArrayAccess_c: typeCheck type="  + type);
+		if ( Report.should_report("debug",3))
+        Report.report(3,"X10ArrayAccess_c: typeCheck type="  + type + " |" 
+                + type.getClass() + "|" + ((X10Type) type).isX10Array());
+        
 		X10Type target = (X10Type) type;
 		if (! target.isX10Array()) {
 			throw new SemanticException(
@@ -134,13 +128,13 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 		// Note that we cannot change X10NodeFactory to produce this call to begin with because
 		// we need to let X10ArrayAccessAssign have a chance to see an X10ArrayAccess object.
 		// Typechecking is a good time to do the rewriting.
-		
-		if (type instanceof ParametricType_c) {
-			ParametricType_c pt = (ParametricType_c) type;
+        //Report.report(3, "[X10ArrayAccess_c.typeCheck:] this = " + this  + " |" + this.getClass()+"|");
+		//Report.report(3, "[X10ArrayAccess_c.typeCheck:] type = " + type + " |" + type.getClass()+"|");
+		if (target.isParametric()) {
+			Type param = (Type) target.typeParameters().get(0);
 			return
 			new Cast_c(position(), 
-					X10NodeFactory_c.getFactory().CanonicalTypeNode(position(),
-							(Type) pt.getTypeParameters().get(0)).type((Type) pt.getTypeParameters().get(0)),
+					X10NodeFactory_c.getFactory().CanonicalTypeNode(position(),  param).type(param),
 							(Expr) new Call_c(position(), array, "get", index).typeCheck(tc)).typeCheck(tc);
 			
 		} else {

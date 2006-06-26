@@ -30,7 +30,7 @@ import polyglot.types.TypeSystem;
  * @author vj Dec 9, 2004
  * 
  */
-public class X10ArrayTypeNode_c extends TypeNode_c implements
+public class X10ArrayTypeNode_c extends X10TypeNode_c implements
 		X10ArrayTypeNode {
     protected TypeNode base;
 	protected boolean isValueType;
@@ -65,7 +65,7 @@ public class X10ArrayTypeNode_c extends TypeNode_c implements
 	}
 	
 	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.ast.X10ArrayTypeNode#isValueType()
+	 * @see polyglot.ext.x10.ast.X10ArrayTypeNode#isValueArray()
 	 */
 	public boolean isValueType() {
 		return this.isValueType;

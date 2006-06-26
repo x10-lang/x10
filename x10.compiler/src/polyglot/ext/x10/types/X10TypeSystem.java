@@ -51,10 +51,10 @@ public interface X10TypeSystem extends TypeSystem {
 
 	NullableType createNullableType(Position p, X10Type t);
 	FutureType createFutureType(Position p, Type t);
-	ParametricType createParametricType(Position pos,
+	/*ParametricType createParametricType(Position pos,
 										X10ReferenceType type,
 										List typeparameters,
-										DepParameterExpr expr);
+										DepParameterExpr expr);*/
 	ClassType X10Object();
 	ClassType place();
 	ClassType region();

@@ -3,9 +3,15 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import polyglot.ext.jl.types.ReferenceType_c;
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.main.Report;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 
@@ -18,141 +24,90 @@ import polyglot.util.Position;
 public abstract class X10ReferenceType_c extends ReferenceType_c implements
 		X10ReferenceType {
 	
-	protected X10ReferenceType_c() {
-		super();
-	    }
-
-	    public X10ReferenceType_c(TypeSystem ts) {
-		this(ts, null);
-	    }
-
-	    public X10ReferenceType_c(TypeSystem ts, Position pos) {
-		super(ts, pos);
-	    }
-
+    
+    protected X10ReferenceType_c() { super();}
+    public X10ReferenceType_c(TypeSystem ts) { this(ts, null);}
+    public X10ReferenceType_c(TypeSystem ts, Position pos) { super(ts, pos);}
+    
+    protected DepParameterExpr depClause;
+    protected List/*<GenParameterExpr>*/ typeParameters;
+    protected X10Type baseType = this;
+    public X10Type baseType() { return baseType;}
+    public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
+    public List typeParameters() { return typeParameters;}
+    public X10Type makeVariant(DepParameterExpr d, List l) { 
+        if (d == null && (l == null || l.isEmpty()))
+                return this;
+        X10ReferenceType_c n = (X10ReferenceType_c) copy();
+        // n.baseType = baseType; // this may not be needed.
+        n.typeParameters = l;
+        n.depClause = d;
+        if (  Report.should_report("debug", 5))
+            Report.report(5,"X10ReferenceType_c.makeVariant: " + this + " creates " + n + "|");
+        return n;
+    }
+    
+   
+    public boolean equalsImpl(TypeObject o) {
+        //    Report.report(3,"X10ParsedClassType_c: equals |" + this + "| and |" + o+"|");
+        if (o == this) return true;
+        if (! (o instanceof X10ReferenceType_c)) return false;
+        X10ReferenceType_c other = (X10ReferenceType_c) o;
+        if (baseType != other.baseType) return false;
+        
+        if (depClause == null && other.depClause != null) return false;
+        if (depClause != null && ! depClause.equals(other.depClause)) return false;
+        
+        if (typeParameters == null) return other.typeParameters == null;
+        if (typeParameters.isEmpty()) return other.typeParameters == null || other.typeParameters.isEmpty();
+        if (typeParameters.size() != other.typeParameters.size()) return false;
+        Iterator it1 = typeParameters.iterator();
+        Iterator it2 = other.typeParameters.iterator();
+        while (it1.hasNext()) {
+            Type t1 = (Type) it1.next();
+            Type t2 = (Type) it2.next();
+            if (!t1.equals(t2)) return false;
+        }
+        return true;
+    }
+   
+    public boolean isCanonical() {
+        if (typeParameters != null) {
+            Iterator it = typeParameters.iterator();
+            while (it.hasNext()) {
+                Type t = (Type) it.next();
+                if (!t.isCanonical())
+                    return false;
+            }
+        }
+        return true;
+        
+    }    
 	// ----------------------------- begin manual mixin code from X10Type_c
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isNullable()
-	 */
-	public boolean isNullable() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isFuture()
-	 */
-	public boolean isFuture() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#toNullable()
-	 */
-	public NullableType toNullable() {
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#toFuture()
-	 */
-	public FutureType toFuture() {
-		return null;
-	}
-	/** Returns true iff the type implements x10.lang.Indexable.
-	 * 
-	 */
-	public boolean isX10Array() { 
-		return ts.isSubtype(this, ((X10TypeSystem) ts).Indexable());
-	}
-
-	public boolean isDistributedArray() {
-	    return 
-	    isBooleanArray() || 
-	    isCharArray() || 
-	    isByteArray() || 
-	    isShortArray() || 
-	    isIntArray() || 
-	    isLongArray() ||
-	    isFloatArray() ||
-	    isDoubleArray();
-	}
-	public boolean isPrimitiveTypeArray() {
-	    return 
-	    isBooleanArray() || 
-	    isCharArray() || 
-	    isByteArray() || 
-	    isShortArray() || 
-	    isIntArray() || 
-	    isLongArray() ||
-	    isFloatArray() ||
-	    isDoubleArray();
-	}
-	public boolean isBooleanArray() {
-        X10TypeSystem xts = (X10TypeSystem) ts;
-        return xts.isSubtype( this, xts.booleanArray()); 
-    }
-    public boolean isCharArray() {
-        X10TypeSystem xts = (X10TypeSystem) ts;
-        return xts.isSubtype( this, xts.charArray()); 
-    }
-    public boolean isByteArray() {
-        X10TypeSystem xts = (X10TypeSystem) ts;
-        return xts.isSubtype( this, xts.byteArray()); 
-    }
-    public boolean isShortArray() {
-        X10TypeSystem xts = (X10TypeSystem) ts;
-        return xts.isSubtype( this, xts.shortArray()); 
-    }
-    /**
-	 * Returns true if this type is a subtype of intArray.
-	 * implies isX10Array().
-	 */
-	public boolean isIntArray() {
-		X10TypeSystem xts = (X10TypeSystem) ts;
-		return xts.isSubtype( this, xts.intArray()); 
-	}
-	
-	/**
-	 * Returns true if this type is a subtype of longArray.
-	 * implies isX10Array().
-	 */
-	public boolean isLongArray() {
-		X10TypeSystem xts = (X10TypeSystem) ts;
-		return xts.isSubtype( this, xts.longArray()); 
-	}
-	public boolean isFloatArray() {
-        X10TypeSystem xts = (X10TypeSystem) ts;
-        return xts.isSubtype( this, xts.floatArray());
-    }
-    /**
-	 * Returns true if this type is a subtype of doubleArray.
-	 * implies isX10Array().
-	 */
-	public boolean isDoubleArray() {
-		X10TypeSystem xts = (X10TypeSystem) ts;
-		return xts.isSubtype( this, xts.doubleArray());
-	}
-	public boolean isClock() {
-		X10TypeSystem xts = (X10TypeSystem) ts;
-		return xts.isSubtype( this, xts.clock());
-	}
-	public boolean isPoint() {
-		X10TypeSystem xts = (X10TypeSystem) ts;
-		return xts.isSubtype( this, xts.point());
-	}
-	public boolean isPlace() {
-		X10TypeSystem xts = (X10TypeSystem) ts;
-		return xts.isSubtype( this, xts.place());
-	}
-	public boolean isRegion() {
-		X10TypeSystem xts = (X10TypeSystem) ts;
-		return xts.isSubtype( this, xts.region());
-	}
-	public boolean isDistribution() {
-		X10TypeSystem xts = (X10TypeSystem) ts;
-		return xts.isSubtype( this, xts.distribution());
-	}
-
+    public boolean isNullable() { return false; }
+    public boolean isFuture() { return false; }
+    public FutureType toFuture() { return null; }
+    public NullableType toNullable() { return null;}
+    public boolean isPrimitiveTypeArray() { return X10Type_c.isPrimitiveTypeArray(this);}
+    public boolean isX10Array() { return X10Type_c.isX10Array(this);}
+    public boolean isDistributedArray() { return false;}
+    public boolean isBooleanArray() { return X10Type_c.isBooleanArray(this);}
+    public boolean isCharArray() { return X10Type_c.isCharArray(this);}
+    public boolean isByteArray() { return X10Type_c.isByteArray(this); }
+    public boolean isShortArray() { return X10Type_c.isShortArray(this);}
+    public boolean isIntArray() { return X10Type_c.isIntArray(this); }
+    public boolean isLongArray() { return X10Type_c.isLongArray(this);}
+    public boolean isFloatArray() { return X10Type_c.isFloatArray(this);}
+    public boolean isDoubleArray() { return X10Type_c.isDoubleArray(this);}
+    public boolean isClock() { return X10Type_c.isClock(this);}
+    public boolean isPoint() { return X10Type_c.isPoint(this);}
+    public boolean isPlace() { return X10Type_c.isPlace(this);}
+    public boolean isRegion() { return X10Type_c.isRegion(this);}
+    public boolean isDistribution() { return X10Type_c.isDistribution(this);}
+    public boolean isValueType() { return X10Type_c.isValueType(this);}
+    public boolean isSubtypeImpl(  Type other) { return X10Type_c.isSubtypeImpl(this, other);}
+  
+    
 	public boolean descendsFromImpl(Type ancestor) {
 		// Check subtype relation for supertype.
 		if (superType() == null) {
@@ -167,31 +122,6 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
 		return super.descendsFromImpl(ancestor);
 	}
 
-	public  boolean isSubtypeImpl( Type t) {
-    	X10Type target = (X10Type) t;
-    	
-    	if (Report.should_report("debug", 5))
-			Report.report( 5, "[X10ReferenceType_c] isSubTypeImpl |" + this +  "| of |" + t + "|?");	
-    	
-    	boolean result = ts.equals(this, target) || ts.descendsFrom(this, target);
-    	
-       	if (result) {
-       		if (Report.should_report("debug", 5))
-    			Report.report( 5, "[X10ReferenceType_c] ..." + result+".");	
-     		return result;
-    	}
-    	if (target.isNullable()) {
-    		NullableType toType = target.toNullable();
-    		Type baseType = toType.base();
-    		result = isSubtypeImpl( baseType );
-    		if (Report.should_report("debug", 5))
-    			Report.report( 5, "[X10ReferenceType_c] ..." + result+".");	
-    		return result;
-    	}
-    	if (Report.should_report("debug", 5))
-			Report.report( 5, "[X10ReferenceType_c] ..." + result+".");	
-    	return false;
-    }
 	// ----------------------------- end manual mixin code from X10Type_c
 	
 }

@@ -105,12 +105,12 @@ $Rules
 --    Type ::= PrimitiveType
 --           | ReferenceType
 
-    PrimitiveType ::= NumericType
-                    | boolean
-        /.$BeginJava
-                    setResult(nf.CanonicalTypeNode(pos(), ts.Boolean()));
-          $EndJava
-        ./
+--   PrimitiveType ::= NumericType
+--                    | boolean
+--        /.$BeginJava
+--                    setResult(nf.CanonicalTypeNode(pos(), ts.Boolean()));
+--          $EndJava
+--        ./
 
     NumericType ::= IntegralType
                   | FloatingPointType
@@ -167,7 +167,7 @@ $Rules
     --
     --                       | InterfaceType
     --
-    ClassType ::= TypeName TypeArgumentsopt
+    -- ClassType ::= TypeName TypeArgumentsopt
 
     InterfaceType ::= TypeName TypeArgumentsopt
 
@@ -456,7 +456,7 @@ $Rules
                         | TypeParameterList , TypeParameter
         /.$BadAction./
 
-    Super ::= extends ClassType
+     Super ::= extends ClassType
         /.$BeginJava
                     setResult(ClassType);
           $EndJava
@@ -698,21 +698,21 @@ $Rules
           $EndJava
         ./
     
-    MethodDeclarator ::= identifier ( FormalParameterListopt )
-        /.$BeginJava
-                    Object[] a = new Object[3];
-                    a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
-                    a[1] = FormalParameterListopt;
-                    a[2] = new Integer(0);
-                    setResult(a);
-          $EndJava
-        ./
-                       | MethodDeclarator [ ]
-        /.$BeginJava
-                    MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
-                    // setResult(MethodDeclarator);
-          $EndJava
-        ./
+    -- MethodDeclarator ::= identifier ( FormalParameterListopt )
+    --    /.$BeginJava
+    --                 Object[] a = new Object[3];
+    --               a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
+    --                 a[1] = FormalParameterListopt;
+    --                a[2] = new Integer(0);
+    --                 setResult(a);
+    --      $EndJava
+    --     ./
+    --                  | MethodDeclarator [ ]
+     --    /.$BeginJava
+      --              MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
+      --               // setResult(MethodDeclarator);
+     --     $EndJava
+     --    ./
     
     FormalParameterList ::= LastFormalParameter
         /.$BeginJava
@@ -872,16 +872,16 @@ $Rules
           $EndJava
         ./
     
-    ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
-        /.$BeginJava
-                    Name a = (Name) ConstructorDeclarator[1];
-                    List b = (List) ConstructorDeclarator[2];
-
-                    setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), b, Throwsopt, ConstructorBody));
-          $EndJava
-        ./
+  -- ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
+   --    /.$BeginJava
+   --                 Name a = (Name) ConstructorDeclarator[1];
+   --                 List b = (List) ConstructorDeclarator[2];
+--
+   --                setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), b, Throwsopt, ConstructorBody));
+    --     $EndJava
+    --   ./
     
-    ConstructorDeclarator ::= TypeParametersopt SimpleTypeName ( FormalParameterListopt )
+--   ConstructorDeclarator ::= TypeParametersopt SimpleTypeName ( FormalParameterListopt )
     
     SimpleTypeName ::= identifier
         /.$BeginJava

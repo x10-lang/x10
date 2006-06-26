@@ -83,6 +83,7 @@ $Globals
     import polyglot.parse.VarDeclarator;
     import polyglot.types.Flags;
     import polyglot.ext.x10.types.X10Flags;
+    import polyglot.ext.x10.ast.X10TypeNode;
     import polyglot.types.Type;
     import polyglot.types.TypeSystem;
     import polyglot.util.ErrorInfo;
@@ -715,15 +716,20 @@ $Headers
 $End
 
 $Rules -- Overridden rules from GJavaParser
-    ClassType ::= TypeName
+    ClassType ::= TypeName DepParametersopt
         /.$BeginJava
-                    setResult(TypeName.toType());
+                         setResult(DepParametersopt == null
+                                   ? TypeName.toType()
+                                   : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
           $EndJava
         ./
-
-    InterfaceType ::= TypeName
+   
+     
+    InterfaceType ::= TypeName DepParametersopt
         /.$BeginJava
-                    setResult(TypeName.toType());
+                     setResult(DepParametersopt == null
+                                   ? TypeName.toType()
+                                   : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
           $EndJava
         ./
 
@@ -733,8 +739,9 @@ $Rules -- Overridden rules from GJavaParser
           $EndJava
         ./
 
-    NormalClassDeclaration ::= ClassModifiersopt class identifier Superopt Interfacesopt ClassBody
+    NormalClassDeclaration ::= ClassModifiersopt class identifier DepParametersopt Superopt Interfacesopt ClassBody
         /.$BeginJava
+        // vj TODO: Add processing of DepParametersopt
                     checkTypeName(identifier);
                     setResult(X10Flags.isValue(ClassModifiersopt)
                                  ? nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
@@ -763,15 +770,6 @@ $Rules -- Overridden rules from GJavaParser
                                            d,
                                            Throwsopt,
                                            null));
-          $EndJava
-        ./
-
-    ConstructorDeclarator ::= SimpleTypeName ( FormalParameterListopt )
-        /.$BeginJava
-                    Object[] a = new Object[3];
-                    a[1] = SimpleTypeName;
-                    a[2] = FormalParameterListopt;
-                    setResult(a);
           $EndJava
         ./
 
@@ -874,10 +872,6 @@ $End
 $Rules
 
     -------------------------------------- Section:::Types
-    ---- Builds in dependent types.
-    ---- For February we shall not implement user-defined dependent types.
-    ---- The only built-in dependent types in X10 are:
-    ----    place, region, point, distribution and array.
 
     Type ::= DataType PlaceTypeSpecifieropt
         /.$BeginJava
@@ -894,9 +888,11 @@ $Rules
                     setResult(nf.Future(pos(), Type));
           $EndJava
         ./
-            | ( Type )
+            | ( Type ) DepParametersopt
              /.$BeginJava
-                    setResult(Type);
+               System.out.println("Parser: parsed (Type) DepParmetersopt |" + Type + "| |" + DepParametersopt +"|");
+                    setResult(DepParametersopt == null ? Type 
+                    : ((X10TypeNode) Type).dep(null, DepParametersopt));
           $EndJava
         ./
 
@@ -910,18 +906,32 @@ $Rules
     DataType ::= ClassOrInterfaceType
                | ArrayType
 
+    PrimitiveType ::= NumericType DepParametersopt
+     /.$BeginJava
+                    System.out.println("Parser: parsed PrimitiveType |" + NumericType + "| |" + DepParametersopt +"|");
+                    setResult(DepParametersopt == null
+                                   ? NumericType
+                                   : ((X10TypeNode) NumericType).dep(null, DepParametersopt));
+          $EndJava
+        ./
+                   | boolean DepParametersopt
+       /.$BeginJava
+                    X10TypeNode res = (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.Boolean());
+                    setResult(DepParametersopt==null 
+                               ? res 
+                               : res.dep(null, DepParametersopt));
+         $EndJava
+        ./
     PlaceTypeSpecifier ::= @ PlaceType
 
-    PlaceType ::= placelocal
-                | activitylocal
-                | current
+    PlaceType ::= any
                 | PlaceExpression
 
     ClassOrInterfaceType ::= TypeName PlaceTypeSpecifieropt DepParametersopt
         /.$BeginJava
                     setResult(DepParametersopt == null
                                    ? TypeName.toType()
-                                   : nf.ParametricTypeNode(pos(), TypeName.toType(), null, DepParametersopt));
+                                   : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
           $EndJava
         ./
 
@@ -938,7 +948,7 @@ $Rules
         ./
                 | WhereClause
         /.$BeginJava
-                    setResult(nf.DepParameterExpr(pos(), null, WhereClause));
+                    setResult(nf.DepParameterExpr(pos(), Collections.EMPTY_LIST, WhereClause));
           $EndJava
         ./
 
@@ -1021,6 +1031,43 @@ $Rules
           $EndJava
         ./
 
+ ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
+       /.$BeginJava
+                    Name a = (Name) ConstructorDeclarator[1];
+                    DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
+                    List b = (List) ConstructorDeclarator[3];
+
+                   setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), b, Throwsopt, ConstructorBody));
+         $EndJava
+       ./
+       
+    ConstructorDeclarator ::=  SimpleTypeName DepParametersopt ( FormalParameterListopt )
+       /.$BeginJava
+                 Object[] a = new Object[4];
+                 a[1] = SimpleTypeName;
+                 a[2] = DepParametersopt;
+                 a[3] = FormalParameterListopt;
+                 setResult(a);
+         $EndJava
+       ./
+    ThisClause ::= this DepParameters
+    
+    MethodDeclarator ::= ThisClauseopt identifier ( FormalParameterListopt  )
+       /.$BeginJava
+                    // vj: TODO -- add processing of ThisClause, the this-restriction.
+                    Object[] a = new Object[3];
+                   a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
+                    a[1] = FormalParameterListopt;
+                   a[2] = new Integer(0);
+                    setResult(a);
+          $EndJava
+        ./
+                     | MethodDeclarator [ ]
+        /.$BeginJava
+                    MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
+                    // setResult(MethodDeclarator);
+         $EndJava
+        ./
     --------------------------------------- Section ::: Arrays
     -- The dependent type array([D][:E])<T> is written as
     -- T[D:E].
@@ -1520,6 +1567,10 @@ $Rules
 
     ---------------------------------------- All the opts...
 
+ThisClauseopt ::= $Empty
+       /.$NullAction./
+                            | ThisClause
+                            
     PlaceTypeSpecifieropt ::= $Empty
        /.$NullAction./
                             | PlaceTypeSpecifier
@@ -1589,6 +1640,7 @@ $Types
 
     SourceFile ::= CompilationUnit
     polyglot.ast.Lit ::= Literal
+    TypeNode ::= ThisClause | ThisClauseopt
     TypeNode ::= Type
     TypeNode ::= PrimitiveType | NumericType
     TypeNode ::= IntegralType | FloatingPointType

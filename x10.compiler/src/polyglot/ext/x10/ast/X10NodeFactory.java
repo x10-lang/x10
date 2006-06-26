@@ -6,6 +6,9 @@ import polyglot.util.*;
 import java.util.*;
 
 import polyglot.ast.AmbExpr;
+import polyglot.ast.ConstructorDecl;
+import polyglot.ast.Expr;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.TypeNode;
 import polyglot.types.ReferenceType;
 import polyglot.types.Flags;
@@ -41,9 +44,6 @@ public interface X10NodeFactory extends NodeFactory {
 
 	NullableNode Nullable(Position pos, TypeNode type);
 	FutureNode Future(Position pos, TypeNode type);
-	ParametricTypeNode ParametricTypeNode(Position pos, TypeNode type,
-										  GenParameterExpr g,
-										  DepParameterExpr expr);
 
 	ValueClassDecl ValueClassDecl(Position pos, Flags flags, String name,
 								  TypeNode superClass, List interfaces,
@@ -70,7 +70,9 @@ public interface X10NodeFactory extends NodeFactory {
 	DepParameterExpr DepParameterExpr(Position pos, Expr cond);
 	GenParameterExpr GenParameterExpr(Position pos, List args);
 	TypeNode GenericArrayPointwiseOpTypeNode(Position pos, TypeNode typeParam);
-
+    MethodDecl MethodDecl(Position pos, Flags flags,
+             TypeNode returnType, String name,
+             List formals, Expr e, List throwTypes, Block body);
 	X10ArrayTypeNode X10ArrayTypeNode(Position pos, TypeNode base,
 									  boolean isValueType,
 									  DepParameterExpr indexedSet);
@@ -84,5 +86,8 @@ public interface X10NodeFactory extends NodeFactory {
 				  AmbExpr[] vars);
 	ParExpr ParExpr(Position pos, Expr e);
 	PlaceCast PlaceCast(Position pos, Expr place, Expr target);
+    
+    ConstructorDecl ConstructorDecl(Position pos, Flags flags, String name,
+            Expr e, List formals, List throwTypes, Block body);
 }
 

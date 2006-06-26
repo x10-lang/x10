@@ -82,6 +82,7 @@ import polyglot.main.Report;
 import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.ast.X10TypeNode;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorInfo;
@@ -196,12 +197,12 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
     public polyglot.ast.Node parser()
     {
-        return parser(null, Integer.MAX_VALUE);
+        return parser(null, 0);
     }
     
     public polyglot.ast.Node parser(Monitor monitor)
     {
-        return parser(monitor, Integer.MAX_VALUE);
+        return parser(monitor, 0);
     }
     
     public polyglot.ast.Node parser(int error_repair_count)
@@ -227,7 +228,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
 
         try
         {
-            return (polyglot.ast.Node) btParser.fuzzyParse(error_repair_count);
+            return (polyglot.ast.Node) btParser.parse(error_repair_count);
         }
         catch (BadParseException e)
         {
@@ -418,6 +419,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                                     "apply", l1,
                                       new LinkedList(), body);
       //  new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
+     // Report.report(1,"X10Parser: GOLDEN resultType=|" + resultType);
       String prefix = !(resultType instanceof CanonicalTypeNode) ?
                         "generic" : resultType.toString();
       Name x10 = new Name(nf, ts, pos, "x10");
@@ -430,10 +432,10 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
       List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
       classDecl.add( decl );
       TypeNode t = !(resultType instanceof CanonicalTypeNode) ?
-               (TypeNode) nf.GenericArrayPointwiseOpTypeNode(pos, resultType) :
-               (TypeNode) tArrayPointwiseOp.toType();
-
-      New initializer = nf.New(pos,
+              (TypeNode) nf.GenericArrayPointwiseOpTypeNode(pos, resultType) :
+                  (TypeNode) tArrayPointwiseOp.toType();
+    // Report.report(1,"X10Parser: GOLDEN type =|" + t +"|");
+     New initializer = nf.New(pos,
                       t,
                       new LinkedList(),
                              nf.ClassBody( pos, classDecl ) );
@@ -727,90 +729,81 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 3:  PrimitiveType ::= boolean
+            // Rule 4:  IntegralType ::= byte
             //
-            case 3: {
-                
-                setResult(nf.CanonicalTypeNode(pos(), ts.Boolean()));
-                break;
-            }
-     
-            //
-            // Rule 6:  IntegralType ::= byte
-            //
-            case 6: {
+            case 4: {
                 
                 setResult(nf.CanonicalTypeNode(pos(), ts.Byte()));
                 break;
             }
      
             //
-            // Rule 7:  IntegralType ::= char
+            // Rule 5:  IntegralType ::= char
             //
-            case 7: {
+            case 5: {
                 
                 setResult(nf.CanonicalTypeNode(pos(), ts.Char()));
                 break;
             }
      
             //
-            // Rule 8:  IntegralType ::= short
+            // Rule 6:  IntegralType ::= short
             //
-            case 8: {
+            case 6: {
                 
                 setResult(nf.CanonicalTypeNode(pos(), ts.Short()));
                 break;
             }
      
             //
-            // Rule 9:  IntegralType ::= int
+            // Rule 7:  IntegralType ::= int
             //
-            case 9: {
+            case 7: {
                 
                 setResult(nf.CanonicalTypeNode(pos(), ts.Int()));
                 break;
             }
      
             //
-            // Rule 10:  IntegralType ::= long
+            // Rule 8:  IntegralType ::= long
             //
-            case 10: {
+            case 8: {
                 
                 setResult(nf.CanonicalTypeNode(pos(), ts.Long()));
                 break;
             }
      
             //
-            // Rule 11:  FloatingPointType ::= float
+            // Rule 9:  FloatingPointType ::= float
             //
-            case 11: {
+            case 9: {
                 
                 setResult(nf.CanonicalTypeNode(pos(), ts.Float()));
                 break;
             }
      
             //
-            // Rule 12:  FloatingPointType ::= double
+            // Rule 10:  FloatingPointType ::= double
             //
-            case 12: {
+            case 10: {
                 
                 setResult(nf.CanonicalTypeNode(pos(), ts.Double()));
                 break;
             }
      
             //
-            // Rule 15:  TypeName ::= identifier
+            // Rule 13:  TypeName ::= identifier
             //
-            case 15: {
+            case 13: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 16:  TypeName ::= TypeName . identifier
+            // Rule 14:  TypeName ::= TypeName . identifier
             //
-            case 16: {
+            case 14: {
                 Name TypeName = (Name) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 setResult(new Name(nf,
@@ -822,27 +815,27 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 18:  ArrayType ::= Type [ ]
+            // Rule 16:  ArrayType ::= Type [ ]
             //
-            case 18: {
+            case 16: {
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 setResult(nf.array(Type, pos(), 1));
                 break;
             }
      
             //
-            // Rule 19:  PackageName ::= identifier
+            // Rule 17:  PackageName ::= identifier
             //
-            case 19: {
+            case 17: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 20:  PackageName ::= PackageName . identifier
+            // Rule 18:  PackageName ::= PackageName . identifier
             //
-            case 20: {
+            case 18: {
                 Name PackageName = (Name) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 setResult(new Name(nf,
@@ -854,7 +847,30 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 21:  ExpressionName ::= identifier
+            // Rule 19:  ExpressionName ::= identifier
+            //
+            case 19: {
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
+                setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                break;
+            }
+     
+            //
+            // Rule 20:  ExpressionName ::= AmbiguousName . identifier
+            //
+            case 20: {
+                Name AmbiguousName = (Name) getRhsSym(1);
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
+                setResult(new Name(nf,
+                                  ts,
+                                  pos(getLeftSpan(), getRightSpan()),
+                                  AmbiguousName,
+                                  identifier.getIdentifier()));
+                break;
+            }
+     
+            //
+            // Rule 21:  MethodName ::= identifier
             //
             case 21: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
@@ -863,7 +879,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 22:  ExpressionName ::= AmbiguousName . identifier
+            // Rule 22:  MethodName ::= AmbiguousName . identifier
             //
             case 22: {
                 Name AmbiguousName = (Name) getRhsSym(1);
@@ -877,7 +893,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 23:  MethodName ::= identifier
+            // Rule 23:  PackageOrTypeName ::= identifier
             //
             case 23: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
@@ -886,32 +902,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 24:  MethodName ::= AmbiguousName . identifier
+            // Rule 24:  PackageOrTypeName ::= PackageOrTypeName . identifier
             //
             case 24: {
-                Name AmbiguousName = (Name) getRhsSym(1);
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                setResult(new Name(nf,
-                                  ts,
-                                  pos(getLeftSpan(), getRightSpan()),
-                                  AmbiguousName,
-                                  identifier.getIdentifier()));
-                break;
-            }
-     
-            //
-            // Rule 25:  PackageOrTypeName ::= identifier
-            //
-            case 25: {
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
-                break;
-            }
-     
-            //
-            // Rule 26:  PackageOrTypeName ::= PackageOrTypeName . identifier
-            //
-            case 26: {
                 Name PackageOrTypeName = (Name) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 setResult(new Name(nf,
@@ -923,18 +916,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 27:  AmbiguousName ::= identifier
+            // Rule 25:  AmbiguousName ::= identifier
             //
-            case 27: {
+            case 25: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 28:  AmbiguousName ::= AmbiguousName . identifier
+            // Rule 26:  AmbiguousName ::= AmbiguousName . identifier
             //
-            case 28: {
+            case 26: {
                 Name AmbiguousName = (Name) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 setResult(new Name(nf,
@@ -946,9 +939,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 29:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+            // Rule 27:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
-            case 29: {
+            case 27: {
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
                 List ImportDeclarationsopt = (List) getRhsSym(2);
                 List TypeDeclarationsopt = (List) getRhsSym(3);
@@ -963,9 +956,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 30:  ImportDeclarations ::= ImportDeclaration
+            // Rule 28:  ImportDeclarations ::= ImportDeclaration
             //
-            case 30: {
+            case 28: {
                 Import ImportDeclaration = (Import) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Import.class, false);
                 l.add(ImportDeclaration);
@@ -974,9 +967,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 31:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
+            // Rule 29:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
-            case 31: {
+            case 29: {
                 List ImportDeclarations = (List) getRhsSym(1);
                 Import ImportDeclaration = (Import) getRhsSym(2);
                 if (ImportDeclaration != null)
@@ -986,9 +979,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 32:  TypeDeclarations ::= TypeDeclaration
+            // Rule 30:  TypeDeclarations ::= TypeDeclaration
             //
-            case 32: {
+            case 30: {
                 ClassDecl TypeDeclaration = (ClassDecl) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
@@ -998,9 +991,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 33:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
+            // Rule 31:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
-            case 33: {
+            case 31: {
                 List TypeDeclarations = (List) getRhsSym(1);
                 ClassDecl TypeDeclaration = (ClassDecl) getRhsSym(2);
                 if (TypeDeclaration != null)
@@ -1010,36 +1003,36 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 36:  SingleTypeImportDeclaration ::= import TypeName ;
+            // Rule 34:  SingleTypeImportDeclaration ::= import TypeName ;
             //
-            case 36: {
+            case 34: {
                 Name TypeName = (Name) getRhsSym(2);
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, TypeName.toString()));
                 break;
             }
      
             //
-            // Rule 37:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
+            // Rule 35:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
-            case 37: {
+            case 35: {
                 Name PackageOrTypeName = (Name) getRhsSym(2);
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, PackageOrTypeName.toString()));
                 break;
             }
      
             //
-            // Rule 40:  TypeDeclaration ::= ;
+            // Rule 38:  TypeDeclaration ::= ;
             //
-            case 40: {
+            case 38: {
                 
                 setResult(null);
                 break;
             }
      
             //
-            // Rule 43:  ClassModifiers ::= ClassModifiers ClassModifier
+            // Rule 41:  ClassModifiers ::= ClassModifiers ClassModifier
             //
-            case 43: {
+            case 41: {
                 Flags ClassModifiers = (Flags) getRhsSym(1);
                 Flags ClassModifier = (Flags) getRhsSym(2);
                 setResult(ClassModifiers.set(ClassModifier));
@@ -1047,90 +1040,90 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 44:  ClassModifier ::= public
+            // Rule 42:  ClassModifier ::= public
             //
-            case 44: {
+            case 42: {
                 
                 setResult(Flags.PUBLIC);
                 break;
             }
      
             //
-            // Rule 45:  ClassModifier ::= protected
+            // Rule 43:  ClassModifier ::= protected
             //
-            case 45: {
+            case 43: {
                 
                 setResult(Flags.PROTECTED);
                 break;
             }
      
             //
-            // Rule 46:  ClassModifier ::= private
+            // Rule 44:  ClassModifier ::= private
             //
-            case 46: {
+            case 44: {
                 
                 setResult(Flags.PRIVATE);
                 break;
             }
      
             //
-            // Rule 47:  ClassModifier ::= abstract
+            // Rule 45:  ClassModifier ::= abstract
             //
-            case 47: {
+            case 45: {
                 
                 setResult(Flags.ABSTRACT);
                 break;
             }
      
             //
-            // Rule 48:  ClassModifier ::= static
+            // Rule 46:  ClassModifier ::= static
             //
-            case 48: {
+            case 46: {
                 
                 setResult(Flags.STATIC);
                 break;
             }
      
             //
-            // Rule 49:  ClassModifier ::= final
+            // Rule 47:  ClassModifier ::= final
             //
-            case 49: {
+            case 47: {
                 
                 setResult(Flags.FINAL);
                 break;
             }
      
             //
-            // Rule 50:  ClassModifier ::= strictfp
+            // Rule 48:  ClassModifier ::= strictfp
             //
-            case 50: {
+            case 48: {
                 
                 setResult(Flags.STRICTFP);
                 break;
             }
      
             //
-            // Rule 51:  Super ::= extends ClassType
+            // Rule 49:  Super ::= extends ClassType
             //
-            case 51: {
+            case 49: {
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
                 setResult(ClassType);
                 break;
             }
      
             //
-            // Rule 52:  Interfaces ::= implements InterfaceTypeList
+            // Rule 50:  Interfaces ::= implements InterfaceTypeList
             //
-            case 52: {
+            case 50: {
                 List InterfaceTypeList = (List) getRhsSym(2);
                 setResult(InterfaceTypeList);
                 break;
             }
      
             //
-            // Rule 53:  InterfaceTypeList ::= InterfaceType
+            // Rule 51:  InterfaceTypeList ::= InterfaceType
             //
-            case 53: {
+            case 51: {
                 TypeNode InterfaceType = (TypeNode) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(InterfaceType);
@@ -1139,9 +1132,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 54:  InterfaceTypeList ::= InterfaceTypeList , InterfaceType
+            // Rule 52:  InterfaceTypeList ::= InterfaceTypeList , InterfaceType
             //
-            case 54: {
+            case 52: {
                 List InterfaceTypeList = (List) getRhsSym(1);
                 TypeNode InterfaceType = (TypeNode) getRhsSym(3);
                 InterfaceTypeList.add(InterfaceType);
@@ -1150,18 +1143,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 55:  ClassBody ::= { ClassBodyDeclarationsopt }
+            // Rule 53:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
-            case 55: {
+            case 53: {
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                 break;
             }
      
             //
-            // Rule 57:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
+            // Rule 55:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
-            case 57: {
+            case 55: {
                 List ClassBodyDeclarations = (List) getRhsSym(1);
                 List ClassBodyDeclaration = (List) getRhsSym(2);
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
@@ -1170,9 +1163,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 59:  ClassBodyDeclaration ::= InstanceInitializer
+            // Rule 57:  ClassBodyDeclaration ::= InstanceInitializer
             //
-            case 59: {
+            case 57: {
                 Block InstanceInitializer = (Block) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(nf.Initializer(pos(), Flags.NONE, InstanceInitializer));
@@ -1181,9 +1174,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 60:  ClassBodyDeclaration ::= StaticInitializer
+            // Rule 58:  ClassBodyDeclaration ::= StaticInitializer
             //
-            case 60: {
+            case 58: {
                 Block StaticInitializer = (Block) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(nf.Initializer(pos(), Flags.STATIC, StaticInitializer));
@@ -1192,9 +1185,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 61:  ClassBodyDeclaration ::= ConstructorDeclaration
+            // Rule 59:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
-            case 61: {
+            case 59: {
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
@@ -1203,9 +1196,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 63:  ClassMemberDeclaration ::= MethodDeclaration
+            // Rule 61:  ClassMemberDeclaration ::= MethodDeclaration
             //
-            case 63: {
+            case 61: {
                 MethodDecl MethodDeclaration = (MethodDecl) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
@@ -1214,9 +1207,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 64:  ClassMemberDeclaration ::= ClassDeclaration
+            // Rule 62:  ClassMemberDeclaration ::= ClassDeclaration
             //
-            case 64: {
+            case 62: {
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
@@ -1225,9 +1218,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 65:  ClassMemberDeclaration ::= InterfaceDeclaration
+            // Rule 63:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
-            case 65: {
+            case 63: {
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
@@ -1236,9 +1229,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 66:  ClassMemberDeclaration ::= ;
+            // Rule 64:  ClassMemberDeclaration ::= ;
             //
-            case 66: {
+            case 64: {
                 
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 setResult(l);
@@ -1246,9 +1239,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 67:  FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators ;
+            // Rule 65:  FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators ;
             //
-            case 67: {
+            case 65: {
                 Flags FieldModifiersopt = (Flags) getRhsSym(1);
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 List VariableDeclarators = (List) getRhsSym(3);
@@ -1271,9 +1264,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 68:  VariableDeclarators ::= VariableDeclarator
+            // Rule 66:  VariableDeclarators ::= VariableDeclarator
             //
-            case 68: {
+            case 66: {
                 VarDeclarator VariableDeclarator = (VarDeclarator) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), X10VarDeclarator.class, false);
                 l.add(VariableDeclarator);
@@ -1282,9 +1275,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 69:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
+            // Rule 67:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
-            case 69: {
+            case 67: {
                 List VariableDeclarators = (List) getRhsSym(1);
                 VarDeclarator VariableDeclarator = (VarDeclarator) getRhsSym(3);
                 VariableDeclarators.add(VariableDeclarator);
@@ -1293,9 +1286,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 71:  VariableDeclarator ::= VariableDeclaratorId = VariableInitializer
+            // Rule 69:  VariableDeclarator ::= VariableDeclaratorId = VariableInitializer
             //
-            case 71: {
+            case 69: {
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(1);
                 Expr VariableInitializer = (Expr) getRhsSym(3);
                 VariableDeclaratorId.init = VariableInitializer;
@@ -1305,18 +1298,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 72:  TraditionalVariableDeclaratorId ::= identifier
+            // Rule 70:  TraditionalVariableDeclaratorId ::= identifier
             //
-            case 72: {
+            case 70: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 setResult(new X10VarDeclarator(pos(), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 73:  TraditionalVariableDeclaratorId ::= TraditionalVariableDeclaratorId [ ]
+            // Rule 71:  TraditionalVariableDeclaratorId ::= TraditionalVariableDeclaratorId [ ]
             //
-            case 73: {
+            case 71: {
                 X10VarDeclarator TraditionalVariableDeclaratorId = (X10VarDeclarator) getRhsSym(1);
                 TraditionalVariableDeclaratorId.dims++;
                 TraditionalVariableDeclaratorId.position(pos());
@@ -1325,9 +1318,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 75:  VariableDeclaratorId ::= identifier [ IdentifierList ]
+            // Rule 73:  VariableDeclaratorId ::= identifier [ IdentifierList ]
             //
-            case 75: {
+            case 73: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 List IdentifierList = (List) getRhsSym(3);
                 setResult(new X10VarDeclarator(pos(), identifier.getIdentifier(), IdentifierList));
@@ -1335,9 +1328,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 76:  VariableDeclaratorId ::= [ IdentifierList ]
+            // Rule 74:  VariableDeclaratorId ::= [ IdentifierList ]
             //
-            case 76: {
+            case 74: {
                 List IdentifierList = (List) getRhsSym(2);
                 String name = polyglot.ext.x10.visit.X10PrettyPrinterVisitor.getId();
                 setResult(new X10VarDeclarator(pos(), name, IdentifierList));
@@ -1345,9 +1338,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 80:  FieldModifiers ::= FieldModifiers FieldModifier
+            // Rule 78:  FieldModifiers ::= FieldModifiers FieldModifier
             //
-            case 80: {
+            case 78: {
                 Flags FieldModifiers = (Flags) getRhsSym(1);
                 Flags FieldModifier = (Flags) getRhsSym(2);
                 setResult(FieldModifiers.set(FieldModifier));
@@ -1355,63 +1348,63 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 81:  FieldModifier ::= public
+            // Rule 79:  FieldModifier ::= public
             //
-            case 81: {
+            case 79: {
                 
                 setResult(Flags.PUBLIC);
                 break;
             }
      
             //
-            // Rule 82:  FieldModifier ::= protected
+            // Rule 80:  FieldModifier ::= protected
             //
-            case 82: {
+            case 80: {
                 
                 setResult(Flags.PROTECTED);
                 break;
             }
      
             //
-            // Rule 83:  FieldModifier ::= private
+            // Rule 81:  FieldModifier ::= private
             //
-            case 83: {
+            case 81: {
                 
                 setResult(Flags.PRIVATE);
                 break;
             }
      
             //
-            // Rule 84:  FieldModifier ::= static
+            // Rule 82:  FieldModifier ::= static
             //
-            case 84: {
+            case 82: {
                 
                 setResult(Flags.STATIC);
                 break;
             }
      
             //
-            // Rule 85:  FieldModifier ::= final
+            // Rule 83:  FieldModifier ::= final
             //
-            case 85: {
+            case 83: {
                 
                 setResult(Flags.FINAL);
                 break;
             }
      
             //
-            // Rule 86:  FieldModifier ::= transient
+            // Rule 84:  FieldModifier ::= transient
             //
-            case 86: {
+            case 84: {
                 
                 setResult(Flags.TRANSIENT);
                 break;
             }
      
             //
-            // Rule 87:  MethodDeclaration ::= MethodHeader MethodBody
+            // Rule 85:  MethodDeclaration ::= MethodHeader MethodBody
             //
-            case 87: {
+            case 85: {
                 MethodDecl MethodHeader = (MethodDecl) getRhsSym(1);
                 Block MethodBody = (Block) getRhsSym(2);
                 List l = MethodHeader.formals();
@@ -1427,42 +1420,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 89:  ResultType ::= void
+            // Rule 87:  ResultType ::= void
             //
-            case 89: {
+            case 87: {
                 
                 setResult(nf.CanonicalTypeNode(pos(), ts.Void()));
                 break;
             }
      
             //
-            // Rule 90:  MethodDeclarator ::= identifier ( FormalParameterListopt )
+            // Rule 88:  FormalParameterList ::= LastFormalParameter
             //
-            case 90: {
-                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                List FormalParameterListopt = (List) getRhsSym(3);
-                Object[] a = new Object[3];
-                a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
-                a[1] = FormalParameterListopt;
-                a[2] = new Integer(0);
-                setResult(a);
-                break;
-            }
-     
-            //
-            // Rule 91:  MethodDeclarator ::= MethodDeclarator [ ]
-            //
-            case 91: {
-                Object[] MethodDeclarator = (Object[]) getRhsSym(1);
-                MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
-                // setResult(MethodDeclarator);
-                break;
-            }
-     
-            //
-            // Rule 92:  FormalParameterList ::= LastFormalParameter
-            //
-            case 92: {
+            case 88: {
                 Formal LastFormalParameter = (Formal) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(LastFormalParameter);
@@ -1471,9 +1440,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 93:  FormalParameterList ::= FormalParameters , LastFormalParameter
+            // Rule 89:  FormalParameterList ::= FormalParameters , LastFormalParameter
             //
-            case 93: {
+            case 89: {
                 List FormalParameters = (List) getRhsSym(1);
                 Formal LastFormalParameter = (Formal) getRhsSym(3);
                 FormalParameters.add(LastFormalParameter);
@@ -1482,9 +1451,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 94:  FormalParameters ::= FormalParameter
+            // Rule 90:  FormalParameters ::= FormalParameter
             //
-            case 94: {
+            case 90: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
@@ -1493,9 +1462,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 95:  FormalParameters ::= FormalParameters , FormalParameter
+            // Rule 91:  FormalParameters ::= FormalParameters , FormalParameter
             //
-            case 95: {
+            case 91: {
                 List FormalParameters = (List) getRhsSym(1);
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 FormalParameters.add(FormalParameter);
@@ -1504,9 +1473,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 96:  FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
+            // Rule 92:  FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
             //
-            case 96: {
+            case 92: {
                 Flags VariableModifiersopt = (Flags) getRhsSym(1);
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(3);
@@ -1515,9 +1484,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 98:  VariableModifiers ::= VariableModifiers VariableModifier
+            // Rule 94:  VariableModifiers ::= VariableModifiers VariableModifier
             //
-            case 98: {
+            case 94: {
                 Flags VariableModifiers = (Flags) getRhsSym(1);
                 Flags VariableModifier = (Flags) getRhsSym(2);
                 setResult(VariableModifiers.set(VariableModifier));
@@ -1525,18 +1494,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 99:  VariableModifier ::= final
+            // Rule 95:  VariableModifier ::= final
             //
-            case 99: {
+            case 95: {
                 
                 setResult(Flags.FINAL);
                 break;
             }
      
             //
-            // Rule 100:  LastFormalParameter ::= VariableModifiersopt Type ...opt$opt VariableDeclaratorId
+            // Rule 96:  LastFormalParameter ::= VariableModifiersopt Type ...opt$opt VariableDeclaratorId
             //
-            case 100: {
+            case 96: {
                 Flags VariableModifiersopt = (Flags) getRhsSym(1);
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 Object opt = (Object) getRhsSym(3);
@@ -1547,9 +1516,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 102:  MethodModifiers ::= MethodModifiers MethodModifier
+            // Rule 98:  MethodModifiers ::= MethodModifiers MethodModifier
             //
-            case 102: {
+            case 98: {
                 Flags MethodModifiers = (Flags) getRhsSym(1);
                 Flags MethodModifier = (Flags) getRhsSym(2);
                 setResult(MethodModifiers.set(MethodModifier));
@@ -1557,90 +1526,90 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 103:  MethodModifier ::= public
+            // Rule 99:  MethodModifier ::= public
             //
-            case 103: {
+            case 99: {
                 
                 setResult(Flags.PUBLIC);
                 break;
             }
      
             //
-            // Rule 104:  MethodModifier ::= protected
+            // Rule 100:  MethodModifier ::= protected
             //
-            case 104: {
+            case 100: {
                 
                 setResult(Flags.PROTECTED);
                 break;
             }
      
             //
-            // Rule 105:  MethodModifier ::= private
+            // Rule 101:  MethodModifier ::= private
             //
-            case 105: {
+            case 101: {
                 
                 setResult(Flags.PRIVATE);
                 break;
             }
      
             //
-            // Rule 106:  MethodModifier ::= abstract
+            // Rule 102:  MethodModifier ::= abstract
             //
-            case 106: {
+            case 102: {
                 
                 setResult(Flags.ABSTRACT);
                 break;
             }
      
             //
-            // Rule 107:  MethodModifier ::= static
+            // Rule 103:  MethodModifier ::= static
             //
-            case 107: {
+            case 103: {
                 
                 setResult(Flags.STATIC);
                 break;
             }
      
             //
-            // Rule 108:  MethodModifier ::= final
+            // Rule 104:  MethodModifier ::= final
             //
-            case 108: {
+            case 104: {
                 
                 setResult(Flags.FINAL);
                 break;
             }
      
             //
-            // Rule 109:  MethodModifier ::= native
+            // Rule 105:  MethodModifier ::= native
             //
-            case 109: {
+            case 105: {
                 
                 setResult(Flags.NATIVE);
                 break;
             }
      
             //
-            // Rule 110:  MethodModifier ::= strictfp
+            // Rule 106:  MethodModifier ::= strictfp
             //
-            case 110: {
+            case 106: {
                 
                 setResult(Flags.STRICTFP);
                 break;
             }
      
             //
-            // Rule 111:  Throws ::= throws ExceptionTypeList
+            // Rule 107:  Throws ::= throws ExceptionTypeList
             //
-            case 111: {
+            case 107: {
                 List ExceptionTypeList = (List) getRhsSym(2);
                 setResult(ExceptionTypeList);
                 break;
             }
      
             //
-            // Rule 112:  ExceptionTypeList ::= ExceptionType
+            // Rule 108:  ExceptionTypeList ::= ExceptionType
             //
-            case 112: {
+            case 108: {
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
@@ -1649,9 +1618,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 113:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
+            // Rule 109:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
-            case 113: {
+            case 109: {
                 List ExceptionTypeList = (List) getRhsSym(1);
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
                 ExceptionTypeList.add(ExceptionType);
@@ -1660,49 +1629,34 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 116:  MethodBody ::= ;
+            // Rule 112:  MethodBody ::= ;
             //
-            case 116:
+            case 112:
                 setResult(null);
                 break;
  
             //
-            // Rule 118:  StaticInitializer ::= static Block
+            // Rule 114:  StaticInitializer ::= static Block
             //
-            case 118: {
+            case 114: {
                 Block Block = (Block) getRhsSym(2);
                 setResult(Block);
                 break;
             }
      
             //
-            // Rule 119:  ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
+            // Rule 115:  SimpleTypeName ::= identifier
             //
-            case 119: {
-                Flags ConstructorModifiersopt = (Flags) getRhsSym(1);
-                Object[] ConstructorDeclarator = (Object[]) getRhsSym(2);
-                List Throwsopt = (List) getRhsSym(3);
-                Block ConstructorBody = (Block) getRhsSym(4);
-                Name a = (Name) ConstructorDeclarator[1];
-                List b = (List) ConstructorDeclarator[2];
-
-                setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), b, Throwsopt, ConstructorBody));
-                break;
-            }
-     
-            //
-            // Rule 120:  SimpleTypeName ::= identifier
-            //
-            case 120: {
+            case 115: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 122:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
+            // Rule 117:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
-            case 122: {
+            case 117: {
                 Flags ConstructorModifiers = (Flags) getRhsSym(1);
                 Flags ConstructorModifier = (Flags) getRhsSym(2);
                 setResult(ConstructorModifiers.set(ConstructorModifier));
@@ -1710,36 +1664,36 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 123:  ConstructorModifier ::= public
+            // Rule 118:  ConstructorModifier ::= public
             //
-            case 123: {
+            case 118: {
                 
                 setResult(Flags.PUBLIC);
                 break;
             }
      
             //
-            // Rule 124:  ConstructorModifier ::= protected
+            // Rule 119:  ConstructorModifier ::= protected
             //
-            case 124: {
+            case 119: {
                 
                 setResult(Flags.PROTECTED);
                 break;
             }
      
             //
-            // Rule 125:  ConstructorModifier ::= private
+            // Rule 120:  ConstructorModifier ::= private
             //
-            case 125: {
+            case 120: {
                 
                 setResult(Flags.PRIVATE);
                 break;
             }
      
             //
-            // Rule 126:  ConstructorBody ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+            // Rule 121:  ConstructorBody ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
-            case 126: {
+            case 121: {
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
                 List BlockStatementsopt = (List) getRhsSym(3);
                 List l;
@@ -1756,18 +1710,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 127:  Arguments ::= ( ArgumentListopt )
+            // Rule 122:  Arguments ::= ( ArgumentListopt )
             //
-            case 127: {
+            case 122: {
                 List ArgumentListopt = (List) getRhsSym(2);
                 setResult(ArgumentListopt);
                 break;
             }
      
             //
-            // Rule 130:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
+            // Rule 125:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
-            case 130: {
+            case 125: {
                 Flags InterfaceModifiers = (Flags) getRhsSym(1);
                 Flags InterfaceModifier = (Flags) getRhsSym(2);
                 setResult(InterfaceModifiers.set(InterfaceModifier));
@@ -1775,63 +1729,63 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 131:  InterfaceModifier ::= public
+            // Rule 126:  InterfaceModifier ::= public
             //
-            case 131: {
+            case 126: {
                 
                 setResult(Flags.PUBLIC);
                 break;
             }
      
             //
-            // Rule 132:  InterfaceModifier ::= protected
+            // Rule 127:  InterfaceModifier ::= protected
             //
-            case 132: {
+            case 127: {
                 
                 setResult(Flags.PROTECTED);
                 break;
             }
      
             //
-            // Rule 133:  InterfaceModifier ::= private
+            // Rule 128:  InterfaceModifier ::= private
             //
-            case 133: {
+            case 128: {
                 
                 setResult(Flags.PRIVATE);
                 break;
             }
      
             //
-            // Rule 134:  InterfaceModifier ::= abstract
+            // Rule 129:  InterfaceModifier ::= abstract
             //
-            case 134: {
+            case 129: {
                 
                 setResult(Flags.ABSTRACT);
                 break;
             }
      
             //
-            // Rule 135:  InterfaceModifier ::= static
+            // Rule 130:  InterfaceModifier ::= static
             //
-            case 135: {
+            case 130: {
                 
                 setResult(Flags.STATIC);
                 break;
             }
      
             //
-            // Rule 136:  InterfaceModifier ::= strictfp
+            // Rule 131:  InterfaceModifier ::= strictfp
             //
-            case 136: {
+            case 131: {
                 
                 setResult(Flags.STRICTFP);
                 break;
             }
      
             //
-            // Rule 137:  ExtendsInterfaces ::= extends InterfaceType
+            // Rule 132:  ExtendsInterfaces ::= extends InterfaceType
             //
-            case 137: {
+            case 132: {
                 TypeNode InterfaceType = (TypeNode) getRhsSym(2);
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(InterfaceType);
@@ -1840,9 +1794,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 138:  ExtendsInterfaces ::= ExtendsInterfaces , InterfaceType
+            // Rule 133:  ExtendsInterfaces ::= ExtendsInterfaces , InterfaceType
             //
-            case 138: {
+            case 133: {
                 List ExtendsInterfaces = (List) getRhsSym(1);
                 TypeNode InterfaceType = (TypeNode) getRhsSym(3);
                 ExtendsInterfaces.add(InterfaceType);
@@ -1851,18 +1805,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 139:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+            // Rule 134:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
-            case 139: {
+            case 134: {
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                 break;
             }
      
             //
-            // Rule 141:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
+            // Rule 136:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
-            case 141: {
+            case 136: {
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
@@ -1871,9 +1825,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 143:  InterfaceMemberDeclaration ::= AbstractMethodDeclaration
+            // Rule 138:  InterfaceMemberDeclaration ::= AbstractMethodDeclaration
             //
-            case 143: {
+            case 138: {
                 MethodDecl AbstractMethodDeclaration = (MethodDecl) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(AbstractMethodDeclaration);
@@ -1882,9 +1836,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 144:  InterfaceMemberDeclaration ::= ClassDeclaration
+            // Rule 139:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
-            case 144: {
+            case 139: {
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
@@ -1893,9 +1847,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 145:  InterfaceMemberDeclaration ::= InterfaceDeclaration
+            // Rule 140:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
-            case 145: {
+            case 140: {
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
@@ -1904,18 +1858,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 146:  InterfaceMemberDeclaration ::= ;
+            // Rule 141:  InterfaceMemberDeclaration ::= ;
             //
-            case 146: {
+            case 141: {
                 
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 147:  ConstantDeclaration ::= ConstantModifiersopt Type VariableDeclarators
+            // Rule 142:  ConstantDeclaration ::= ConstantModifiersopt Type VariableDeclarators
             //
-            case 147: {
+            case 142: {
                 Flags ConstantModifiersopt = (Flags) getRhsSym(1);
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 List VariableDeclarators = (List) getRhsSym(3);
@@ -1937,9 +1891,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 149:  ConstantModifiers ::= ConstantModifiers ConstantModifier
+            // Rule 144:  ConstantModifiers ::= ConstantModifiers ConstantModifier
             //
-            case 149: {
+            case 144: {
                 Flags ConstantModifiers = (Flags) getRhsSym(1);
                 Flags ConstantModifier = (Flags) getRhsSym(2);
                 setResult(ConstantModifiers.set(ConstantModifier));
@@ -1947,7 +1901,44 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 150:  ConstantModifier ::= public
+            // Rule 145:  ConstantModifier ::= public
+            //
+            case 145: {
+                
+                setResult(Flags.PUBLIC);
+                break;
+            }
+     
+            //
+            // Rule 146:  ConstantModifier ::= static
+            //
+            case 146: {
+                
+                setResult(Flags.STATIC);
+                break;
+            }
+     
+            //
+            // Rule 147:  ConstantModifier ::= final
+            //
+            case 147: {
+                
+                setResult(Flags.FINAL);
+                break;
+            }
+     
+            //
+            // Rule 149:  AbstractMethodModifiers ::= AbstractMethodModifiers AbstractMethodModifier
+            //
+            case 149: {
+                Flags AbstractMethodModifiers = (Flags) getRhsSym(1);
+                Flags AbstractMethodModifier = (Flags) getRhsSym(2);
+                setResult(AbstractMethodModifiers.set(AbstractMethodModifier));
+                break;
+            }
+     
+            //
+            // Rule 150:  AbstractMethodModifier ::= public
             //
             case 150: {
                 
@@ -1956,64 +1947,27 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 151:  ConstantModifier ::= static
+            // Rule 151:  AbstractMethodModifier ::= abstract
             //
             case 151: {
-                
-                setResult(Flags.STATIC);
-                break;
-            }
-     
-            //
-            // Rule 152:  ConstantModifier ::= final
-            //
-            case 152: {
-                
-                setResult(Flags.FINAL);
-                break;
-            }
-     
-            //
-            // Rule 154:  AbstractMethodModifiers ::= AbstractMethodModifiers AbstractMethodModifier
-            //
-            case 154: {
-                Flags AbstractMethodModifiers = (Flags) getRhsSym(1);
-                Flags AbstractMethodModifier = (Flags) getRhsSym(2);
-                setResult(AbstractMethodModifiers.set(AbstractMethodModifier));
-                break;
-            }
-     
-            //
-            // Rule 155:  AbstractMethodModifier ::= public
-            //
-            case 155: {
-                
-                setResult(Flags.PUBLIC);
-                break;
-            }
-     
-            //
-            // Rule 156:  AbstractMethodModifier ::= abstract
-            //
-            case 156: {
                 
                 setResult(Flags.ABSTRACT);
                 break;
             }
      
             //
-            // Rule 157:  SimpleName ::= identifier
+            // Rule 152:  SimpleName ::= identifier
             //
-            case 157: {
+            case 152: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 158:  ArrayInitializer ::= { VariableInitializersopt ,opt$opt }
+            // Rule 153:  ArrayInitializer ::= { VariableInitializersopt ,opt$opt }
             //
-            case 158: {
+            case 153: {
                 List VariableInitializersopt = (List) getRhsSym(2);
                 Object opt = (Object) getRhsSym(3);
                 if (VariableInitializersopt == null)
@@ -2023,9 +1977,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 159:  VariableInitializers ::= VariableInitializer
+            // Rule 154:  VariableInitializers ::= VariableInitializer
             //
-            case 159: {
+            case 154: {
                 Expr VariableInitializer = (Expr) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
@@ -2034,9 +1988,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 160:  VariableInitializers ::= VariableInitializers , VariableInitializer
+            // Rule 155:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
-            case 160: {
+            case 155: {
                 List VariableInitializers = (List) getRhsSym(1);
                 Expr VariableInitializer = (Expr) getRhsSym(3);
                 VariableInitializers.add(VariableInitializer);
@@ -2045,18 +1999,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 161:  Block ::= { BlockStatementsopt }
+            // Rule 156:  Block ::= { BlockStatementsopt }
             //
-            case 161: {
+            case 156: {
                 List BlockStatementsopt = (List) getRhsSym(2);
                 setResult(nf.Block(pos(), BlockStatementsopt));
                 break;
             }
      
             //
-            // Rule 162:  BlockStatements ::= BlockStatement
+            // Rule 157:  BlockStatements ::= BlockStatement
             //
-            case 162: {
+            case 157: {
                 List BlockStatement = (List) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
@@ -2065,9 +2019,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 163:  BlockStatements ::= BlockStatements BlockStatement
+            // Rule 158:  BlockStatements ::= BlockStatements BlockStatement
             //
-            case 163: {
+            case 158: {
                 List BlockStatements = (List) getRhsSym(1);
                 List BlockStatement = (List) getRhsSym(2);
                 BlockStatements.addAll(BlockStatement);
@@ -2076,9 +2030,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 165:  BlockStatement ::= ClassDeclaration
+            // Rule 160:  BlockStatement ::= ClassDeclaration
             //
-            case 165: {
+            case 160: {
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
@@ -2087,9 +2041,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 166:  BlockStatement ::= Statement
+            // Rule 161:  BlockStatement ::= Statement
             //
-            case 166: {
+            case 161: {
                 Stmt Statement = (Stmt) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
@@ -2098,9 +2052,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 168:  LocalVariableDeclaration ::= VariableModifiersopt Type VariableDeclarators
+            // Rule 163:  LocalVariableDeclaration ::= VariableModifiersopt Type VariableDeclarators
             //
-            case 168: {
+            case 163: {
                 Flags VariableModifiersopt = (Flags) getRhsSym(1);
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 List VariableDeclarators = (List) getRhsSym(3);
@@ -2123,9 +2077,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 192:  IfThenStatement ::= if ( Expression ) Statement
+            // Rule 187:  IfThenStatement ::= if ( Expression ) Statement
             //
-            case 192: {
+            case 187: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Stmt Statement = (Stmt) getRhsSym(5);
                 setResult(nf.If(pos(), Expression, Statement));
@@ -2133,9 +2087,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 193:  IfThenElseStatement ::= if ( Expression ) StatementNoShortIf else Statement
+            // Rule 188:  IfThenElseStatement ::= if ( Expression ) StatementNoShortIf else Statement
             //
-            case 193: {
+            case 188: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
                 Stmt Statement = (Stmt) getRhsSym(7);
@@ -2144,9 +2098,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 194:  IfThenElseStatementNoShortIf ::= if ( Expression ) StatementNoShortIf$true_stmt else StatementNoShortIf$false_stmt
+            // Rule 189:  IfThenElseStatementNoShortIf ::= if ( Expression ) StatementNoShortIf$true_stmt else StatementNoShortIf$false_stmt
             //
-            case 194: {
+            case 189: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Stmt true_stmt = (Stmt) getRhsSym(5);
                 Stmt false_stmt = (Stmt) getRhsSym(7);
@@ -2155,18 +2109,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 195:  EmptyStatement ::= ;
+            // Rule 190:  EmptyStatement ::= ;
             //
-            case 195: {
+            case 190: {
                 
                 setResult(nf.Empty(pos()));
                 break;
             }
      
             //
-            // Rule 196:  LabeledStatement ::= identifier : Statement
+            // Rule 191:  LabeledStatement ::= identifier : Statement
             //
-            case 196: {
+            case 191: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 Stmt Statement = (Stmt) getRhsSym(3);
                 setResult(nf.Labeled(pos(), identifier.getIdentifier(), Statement));
@@ -2174,9 +2128,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 197:  LabeledStatementNoShortIf ::= identifier : StatementNoShortIf
+            // Rule 192:  LabeledStatementNoShortIf ::= identifier : StatementNoShortIf
             //
-            case 197: {
+            case 192: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(3);
                 setResult(nf.Labeled(pos(), identifier.getIdentifier(), StatementNoShortIf));
@@ -2184,27 +2138,27 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 198:  ExpressionStatement ::= StatementExpression ;
+            // Rule 193:  ExpressionStatement ::= StatementExpression ;
             //
-            case 198: {
+            case 193: {
                 Expr StatementExpression = (Expr) getRhsSym(1);
                 setResult(nf.Eval(pos(), StatementExpression));
                 break;
             }
      
             //
-            // Rule 206:  AssertStatement ::= assert Expression ;
+            // Rule 201:  AssertStatement ::= assert Expression ;
             //
-            case 206: {
+            case 201: {
                 Expr Expression = (Expr) getRhsSym(2);
                 setResult(nf.Assert(pos(), Expression));
                 break;
             }
      
             //
-            // Rule 207:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
+            // Rule 202:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
-            case 207: {
+            case 202: {
                 Expr expr1 = (Expr) getRhsSym(2);
                 Expr expr2 = (Expr) getRhsSym(4);
                 setResult(nf.Assert(pos(), expr1, expr2));
@@ -2212,9 +2166,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 208:  SwitchStatement ::= switch ( Expression ) SwitchBlock
+            // Rule 203:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
-            case 208: {
+            case 203: {
                 Expr Expression = (Expr) getRhsSym(3);
                 List SwitchBlock = (List) getRhsSym(5);
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
@@ -2222,9 +2176,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 209:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
+            // Rule 204:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
-            case 209: {
+            case 204: {
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
                 List SwitchLabelsopt = (List) getRhsSym(3);
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
@@ -2233,9 +2187,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 211:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
+            // Rule 206:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
-            case 211: {
+            case 206: {
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
@@ -2244,9 +2198,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 212:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
+            // Rule 207:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
-            case 212: {
+            case 207: {
                 List SwitchLabels = (List) getRhsSym(1);
                 List BlockStatements = (List) getRhsSym(2);
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
@@ -2257,9 +2211,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 213:  SwitchLabels ::= SwitchLabel
+            // Rule 208:  SwitchLabels ::= SwitchLabel
             //
-            case 213: {
+            case 208: {
                 Case SwitchLabel = (Case) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
@@ -2268,9 +2222,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 214:  SwitchLabels ::= SwitchLabels SwitchLabel
+            // Rule 209:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
-            case 214: {
+            case 209: {
                 List SwitchLabels = (List) getRhsSym(1);
                 Case SwitchLabel = (Case) getRhsSym(2);
                 SwitchLabels.add(SwitchLabel);
@@ -2279,27 +2233,27 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 215:  SwitchLabel ::= case ConstantExpression :
+            // Rule 210:  SwitchLabel ::= case ConstantExpression :
             //
-            case 215: {
+            case 210: {
                 Expr ConstantExpression = (Expr) getRhsSym(2);
                 setResult(nf.Case(pos(), ConstantExpression));
                 break;
             }
      
             //
-            // Rule 216:  SwitchLabel ::= default :
+            // Rule 211:  SwitchLabel ::= default :
             //
-            case 216: {
+            case 211: {
                 
                 setResult(nf.Default(pos()));
                 break;
             }
      
             //
-            // Rule 217:  WhileStatement ::= while ( Expression ) Statement
+            // Rule 212:  WhileStatement ::= while ( Expression ) Statement
             //
-            case 217: {
+            case 212: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Stmt Statement = (Stmt) getRhsSym(5);
                 setResult(nf.While(pos(), Expression, Statement));
@@ -2307,9 +2261,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 218:  WhileStatementNoShortIf ::= while ( Expression ) StatementNoShortIf
+            // Rule 213:  WhileStatementNoShortIf ::= while ( Expression ) StatementNoShortIf
             //
-            case 218: {
+            case 213: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
                 setResult(nf.While(pos(), Expression, StatementNoShortIf));
@@ -2317,9 +2271,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 219:  DoStatement ::= do Statement while ( Expression ) ;
+            // Rule 214:  DoStatement ::= do Statement while ( Expression ) ;
             //
-            case 219: {
+            case 214: {
                 Stmt Statement = (Stmt) getRhsSym(2);
                 Expr Expression = (Expr) getRhsSym(5);
                 setResult(nf.Do(pos(), Statement, Expression));
@@ -2327,9 +2281,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 222:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
+            // Rule 217:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
-            case 222: {
+            case 217: {
                 List ForInitopt = (List) getRhsSym(3);
                 Expr Expressionopt = (Expr) getRhsSym(5);
                 List ForUpdateopt = (List) getRhsSym(7);
@@ -2339,9 +2293,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 223:  ForStatementNoShortIf ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) StatementNoShortIf
+            // Rule 218:  ForStatementNoShortIf ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) StatementNoShortIf
             //
-            case 223: {
+            case 218: {
                 List ForInitopt = (List) getRhsSym(3);
                 Expr Expressionopt = (Expr) getRhsSym(5);
                 List ForUpdateopt = (List) getRhsSym(7);
@@ -2351,9 +2305,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 225:  ForInit ::= LocalVariableDeclaration
+            // Rule 220:  ForInit ::= LocalVariableDeclaration
             //
-            case 225: {
+            case 220: {
                 List LocalVariableDeclaration = (List) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
@@ -2362,9 +2316,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 227:  StatementExpressionList ::= StatementExpression
+            // Rule 222:  StatementExpressionList ::= StatementExpression
             //
-            case 227: {
+            case 222: {
                 Expr StatementExpression = (Expr) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
@@ -2373,9 +2327,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 228:  StatementExpressionList ::= StatementExpressionList , StatementExpression
+            // Rule 223:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
-            case 228: {
+            case 223: {
                 List StatementExpressionList = (List) getRhsSym(1);
                 Expr StatementExpression = (Expr) getRhsSym(3);
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
@@ -2384,9 +2338,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 229:  BreakStatement ::= break identifieropt ;
+            // Rule 224:  BreakStatement ::= break identifieropt ;
             //
-            case 229: {
+            case 224: {
                 Name identifieropt = (Name) getRhsSym(2);
                 if (identifieropt == null)
                      setResult(nf.Break(pos()));
@@ -2395,9 +2349,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 230:  ContinueStatement ::= continue identifieropt ;
+            // Rule 225:  ContinueStatement ::= continue identifieropt ;
             //
-            case 230: {
+            case 225: {
                 Name identifieropt = (Name) getRhsSym(2);
                 if (identifieropt == null)
                      setResult(nf.Continue(pos()));
@@ -2406,27 +2360,27 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 231:  ReturnStatement ::= return Expressionopt ;
+            // Rule 226:  ReturnStatement ::= return Expressionopt ;
             //
-            case 231: {
+            case 226: {
                 Expr Expressionopt = (Expr) getRhsSym(2);
                 setResult(nf.Return(pos(), Expressionopt));
                 break;
             }
      
             //
-            // Rule 232:  ThrowStatement ::= throw Expression ;
+            // Rule 227:  ThrowStatement ::= throw Expression ;
             //
-            case 232: {
+            case 227: {
                 Expr Expression = (Expr) getRhsSym(2);
                 setResult(nf.Throw(pos(), Expression));
                 break;
             }
      
             //
-            // Rule 233:  TryStatement ::= try Block Catches
+            // Rule 228:  TryStatement ::= try Block Catches
             //
-            case 233: {
+            case 228: {
                 Block Block = (Block) getRhsSym(2);
                 List Catches = (List) getRhsSym(3);
                 setResult(nf.Try(pos(), Block, Catches));
@@ -2434,9 +2388,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 234:  TryStatement ::= try Block Catchesopt Finally
+            // Rule 229:  TryStatement ::= try Block Catchesopt Finally
             //
-            case 234: {
+            case 229: {
                 Block Block = (Block) getRhsSym(2);
                 List Catchesopt = (List) getRhsSym(3);
                 Block Finally = (Block) getRhsSym(4);
@@ -2445,9 +2399,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 235:  Catches ::= CatchClause
+            // Rule 230:  Catches ::= CatchClause
             //
-            case 235: {
+            case 230: {
                 Catch CatchClause = (Catch) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
@@ -2456,9 +2410,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 236:  Catches ::= Catches CatchClause
+            // Rule 231:  Catches ::= Catches CatchClause
             //
-            case 236: {
+            case 231: {
                 List Catches = (List) getRhsSym(1);
                 Catch CatchClause = (Catch) getRhsSym(2);
                 Catches.add(CatchClause);
@@ -2467,9 +2421,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 237:  CatchClause ::= catch ( FormalParameter ) Block
+            // Rule 232:  CatchClause ::= catch ( FormalParameter ) Block
             //
-            case 237: {
+            case 232: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Block Block = (Block) getRhsSym(5);
                 setResult(nf.Catch(pos(), FormalParameter, Block));
@@ -2477,18 +2431,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 238:  Finally ::= finally Block
+            // Rule 233:  Finally ::= finally Block
             //
-            case 238: {
+            case 233: {
                 Block Block = (Block) getRhsSym(2);
                 setResult(Block);
                 break;
             }
      
             //
-            // Rule 242:  PrimaryNoNewArray ::= Type . class
+            // Rule 237:  PrimaryNoNewArray ::= Type . class
             //
-            case 242: {
+            case 237: {
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 if (Type instanceof Name)
                 {
@@ -2509,9 +2463,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 243:  PrimaryNoNewArray ::= void . class
+            // Rule 238:  PrimaryNoNewArray ::= void . class
             //
-            case 243: {
+            case 238: {
                 
                 setResult(nf.ClassLit(pos(),
                                      nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
@@ -2519,36 +2473,36 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 244:  PrimaryNoNewArray ::= this
+            // Rule 239:  PrimaryNoNewArray ::= this
             //
-            case 244: {
+            case 239: {
                 
                 setResult(nf.This(pos()));
                 break;
             }
      
             //
-            // Rule 245:  PrimaryNoNewArray ::= ClassName . this
+            // Rule 240:  PrimaryNoNewArray ::= ClassName . this
             //
-            case 245: {
+            case 240: {
                 Name ClassName = (Name) getRhsSym(1);
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
      
             //
-            // Rule 246:  PrimaryNoNewArray ::= ( Expression )
+            // Rule 241:  PrimaryNoNewArray ::= ( Expression )
             //
-            case 246: {
+            case 241: {
                 Expr Expression = (Expr) getRhsSym(2);
                 setResult(nf.ParExpr(pos(), Expression));
                 break;
             }
      
             //
-            // Rule 251:  Literal ::= IntegerLiteral$IntegerLiteral
+            // Rule 246:  Literal ::= IntegerLiteral$IntegerLiteral
             //
-            case 251: {
+            case 246: {
                 IToken IntegerLiteral = (IToken) getRhsIToken(1);
                 polyglot.lex.IntegerLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().intValue()));
@@ -2556,9 +2510,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 252:  Literal ::= LongLiteral$LongLiteral
+            // Rule 247:  Literal ::= LongLiteral$LongLiteral
             //
-            case 252: {
+            case 247: {
                 IToken LongLiteral = (IToken) getRhsIToken(1);
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
@@ -2566,9 +2520,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 253:  Literal ::= FloatingPointLiteral$FloatLiteral
+            // Rule 248:  Literal ::= FloatingPointLiteral$FloatLiteral
             //
-            case 253: {
+            case 248: {
                 IToken FloatLiteral = (IToken) getRhsIToken(1);
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
@@ -2576,9 +2530,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 254:  Literal ::= DoubleLiteral$DoubleLiteral
+            // Rule 249:  Literal ::= DoubleLiteral$DoubleLiteral
             //
-            case 254: {
+            case 249: {
                 IToken DoubleLiteral = (IToken) getRhsIToken(1);
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
@@ -2586,18 +2540,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 255:  Literal ::= BooleanLiteral
+            // Rule 250:  Literal ::= BooleanLiteral
             //
-            case 255: {
+            case 250: {
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                 break;
             }
      
             //
-            // Rule 256:  Literal ::= CharacterLiteral$CharacterLiteral
+            // Rule 251:  Literal ::= CharacterLiteral$CharacterLiteral
             //
-            case 256: {
+            case 251: {
                 IToken CharacterLiteral = (IToken) getRhsIToken(1);
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
@@ -2605,9 +2559,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 257:  Literal ::= StringLiteral$str
+            // Rule 252:  Literal ::= StringLiteral$str
             //
-            case 257: {
+            case 252: {
                 IToken str = (IToken) getRhsIToken(1);
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
@@ -2615,36 +2569,36 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 258:  Literal ::= null
+            // Rule 253:  Literal ::= null
             //
-            case 258: {
+            case 253: {
                 
                 setResult(nf.NullLit(pos()));
                 break;
             }
      
             //
-            // Rule 259:  BooleanLiteral ::= true$trueLiteral
+            // Rule 254:  BooleanLiteral ::= true$trueLiteral
             //
-            case 259: {
+            case 254: {
                 IToken trueLiteral = (IToken) getRhsIToken(1);
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
      
             //
-            // Rule 260:  BooleanLiteral ::= false$falseLiteral
+            // Rule 255:  BooleanLiteral ::= false$falseLiteral
             //
-            case 260: {
+            case 255: {
                 IToken falseLiteral = (IToken) getRhsIToken(1);
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
      
             //
-            // Rule 261:  ArgumentList ::= Expression
+            // Rule 256:  ArgumentList ::= Expression
             //
-            case 261: {
+            case 256: {
                 Expr Expression = (Expr) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
@@ -2653,9 +2607,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 262:  ArgumentList ::= ArgumentList , Expression
+            // Rule 257:  ArgumentList ::= ArgumentList , Expression
             //
-            case 262: {
+            case 257: {
                 List ArgumentList = (List) getRhsSym(1);
                 Expr Expression = (Expr) getRhsSym(3);
                 ArgumentList.add(Expression);
@@ -2664,9 +2618,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 263:  DimExprs ::= DimExpr
+            // Rule 258:  DimExprs ::= DimExpr
             //
-            case 263: {
+            case 258: {
                 Expr DimExpr = (Expr) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(DimExpr);
@@ -2675,9 +2629,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 264:  DimExprs ::= DimExprs DimExpr
+            // Rule 259:  DimExprs ::= DimExprs DimExpr
             //
-            case 264: {
+            case 259: {
                 List DimExprs = (List) getRhsSym(1);
                 Expr DimExpr = (Expr) getRhsSym(2);
                 DimExprs.add(DimExpr);
@@ -2686,36 +2640,36 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 265:  DimExpr ::= [ Expression ]
+            // Rule 260:  DimExpr ::= [ Expression ]
             //
-            case 265: {
+            case 260: {
                 Expr Expression = (Expr) getRhsSym(2);
                 setResult(Expression.position(pos()));
                 break;
             }
      
             //
-            // Rule 266:  Dims ::= [ ]
+            // Rule 261:  Dims ::= [ ]
             //
-            case 266: {
+            case 261: {
                 
                 setResult(new Integer(1));
                 break;
             }
      
             //
-            // Rule 267:  Dims ::= Dims [ ]
+            // Rule 262:  Dims ::= Dims [ ]
             //
-            case 267: {
+            case 262: {
                 Integer Dims = (Integer) getRhsSym(1);
                 setResult(new Integer(Dims.intValue() + 1));
                 break;
             }
      
             //
-            // Rule 268:  FieldAccess ::= Primary . identifier
+            // Rule 263:  FieldAccess ::= Primary . identifier
             //
-            case 268: {
+            case 263: {
                 Expr Primary = (Expr) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 setResult(nf.Field(pos(), Primary, identifier.getIdentifier()));
@@ -2723,18 +2677,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 269:  FieldAccess ::= super . identifier
+            // Rule 264:  FieldAccess ::= super . identifier
             //
-            case 269: {
+            case 264: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 270:  FieldAccess ::= ClassName . super$sup . identifier
+            // Rule 265:  FieldAccess ::= ClassName . super$sup . identifier
             //
-            case 270: {
+            case 265: {
                 Name ClassName = (Name) getRhsSym(1);
                 IToken sup = (IToken) getRhsIToken(3);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
@@ -2743,9 +2697,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 271:  MethodInvocation ::= MethodName ( ArgumentListopt )
+            // Rule 266:  MethodInvocation ::= MethodName ( ArgumentListopt )
             //
-            case 271: {
+            case 266: {
                 Name MethodName = (Name) getRhsSym(1);
                 List ArgumentListopt = (List) getRhsSym(3);
                 setResult(nf.Call(pos(), MethodName.prefix == null
@@ -2755,90 +2709,90 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 273:  PostfixExpression ::= ExpressionName
+            // Rule 268:  PostfixExpression ::= ExpressionName
             //
-            case 273: {
+            case 268: {
                 Name ExpressionName = (Name) getRhsSym(1);
                 setResult(ExpressionName.toExpr());
                 break;
             }
      
             //
-            // Rule 276:  PostIncrementExpression ::= PostfixExpression ++
+            // Rule 271:  PostIncrementExpression ::= PostfixExpression ++
             //
-            case 276: {
+            case 271: {
                 Expr PostfixExpression = (Expr) getRhsSym(1);
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                 break;
             }
      
             //
-            // Rule 277:  PostDecrementExpression ::= PostfixExpression --
+            // Rule 272:  PostDecrementExpression ::= PostfixExpression --
             //
-            case 277: {
+            case 272: {
                 Expr PostfixExpression = (Expr) getRhsSym(1);
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                 break;
             }
      
             //
-            // Rule 280:  UnaryExpression ::= + UnaryExpression
+            // Rule 275:  UnaryExpression ::= + UnaryExpression
             //
-            case 280: {
+            case 275: {
                 Expr UnaryExpression = (Expr) getRhsSym(2);
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 281:  UnaryExpression ::= - UnaryExpression
+            // Rule 276:  UnaryExpression ::= - UnaryExpression
             //
-            case 281: {
+            case 276: {
                 Expr UnaryExpression = (Expr) getRhsSym(2);
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 283:  PreIncrementExpression ::= ++ UnaryExpression
+            // Rule 278:  PreIncrementExpression ::= ++ UnaryExpression
             //
-            case 283: {
+            case 278: {
                 Expr UnaryExpression = (Expr) getRhsSym(2);
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 284:  PreDecrementExpression ::= -- UnaryExpression
+            // Rule 279:  PreDecrementExpression ::= -- UnaryExpression
             //
-            case 284: {
+            case 279: {
                 Expr UnaryExpression = (Expr) getRhsSym(2);
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 286:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
+            // Rule 281:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
-            case 286: {
+            case 281: {
                 Expr UnaryExpression = (Expr) getRhsSym(2);
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 287:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
+            // Rule 282:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
-            case 287: {
+            case 282: {
                 Expr UnaryExpression = (Expr) getRhsSym(2);
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                 break;
             }
      
             //
-            // Rule 290:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
+            // Rule 285:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
-            case 290: {
+            case 285: {
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
                 Expr UnaryExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
@@ -2846,9 +2800,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 291:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
+            // Rule 286:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
-            case 291: {
+            case 286: {
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
                 Expr UnaryExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
@@ -2856,9 +2810,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 292:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
+            // Rule 287:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
-            case 292: {
+            case 287: {
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
                 Expr UnaryExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
@@ -2866,9 +2820,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 294:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
+            // Rule 289:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
-            case 294: {
+            case 289: {
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
@@ -2876,9 +2830,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 295:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
+            // Rule 290:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
-            case 295: {
+            case 290: {
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
@@ -2886,9 +2840,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 297:  ShiftExpression ::= ShiftExpression << AdditiveExpression
+            // Rule 292:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
-            case 297: {
+            case 292: {
                 Expr ShiftExpression = (Expr) getRhsSym(1);
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
@@ -2896,9 +2850,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 298:  ShiftExpression ::= ShiftExpression > > AdditiveExpression
+            // Rule 293:  ShiftExpression ::= ShiftExpression > > AdditiveExpression
             //
-            case 298: {
+            case 293: {
                 Expr ShiftExpression = (Expr) getRhsSym(1);
                 Expr AdditiveExpression = (Expr) getRhsSym(4);
                 // TODO: make sure that there is no space after the ">" signs
@@ -2907,9 +2861,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 299:  ShiftExpression ::= ShiftExpression > > > AdditiveExpression
+            // Rule 294:  ShiftExpression ::= ShiftExpression > > > AdditiveExpression
             //
-            case 299: {
+            case 294: {
                 Expr ShiftExpression = (Expr) getRhsSym(1);
                 Expr AdditiveExpression = (Expr) getRhsSym(5);
                 // TODO: make sure that there is no space after the ">" signs
@@ -2918,9 +2872,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 301:  RelationalExpression ::= RelationalExpression < ShiftExpression
+            // Rule 296:  RelationalExpression ::= RelationalExpression < ShiftExpression
             //
-            case 301: {
+            case 296: {
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 Expr ShiftExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
@@ -2928,9 +2882,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 302:  RelationalExpression ::= RelationalExpression > ShiftExpression
+            // Rule 297:  RelationalExpression ::= RelationalExpression > ShiftExpression
             //
-            case 302: {
+            case 297: {
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 Expr ShiftExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
@@ -2938,9 +2892,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 303:  RelationalExpression ::= RelationalExpression <= ShiftExpression
+            // Rule 298:  RelationalExpression ::= RelationalExpression <= ShiftExpression
             //
-            case 303: {
+            case 298: {
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 Expr ShiftExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
@@ -2948,9 +2902,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 304:  RelationalExpression ::= RelationalExpression > = ShiftExpression
+            // Rule 299:  RelationalExpression ::= RelationalExpression > = ShiftExpression
             //
-            case 304: {
+            case 299: {
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 Expr ShiftExpression = (Expr) getRhsSym(4);
                 // TODO: make sure that there is no space after the ">" signs
@@ -2959,9 +2913,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 306:  EqualityExpression ::= EqualityExpression == RelationalExpression
+            // Rule 301:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
-            case 306: {
+            case 301: {
                 Expr EqualityExpression = (Expr) getRhsSym(1);
                 Expr RelationalExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
@@ -2969,9 +2923,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 307:  EqualityExpression ::= EqualityExpression != RelationalExpression
+            // Rule 302:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
-            case 307: {
+            case 302: {
                 Expr EqualityExpression = (Expr) getRhsSym(1);
                 Expr RelationalExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
@@ -2979,9 +2933,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 309:  AndExpression ::= AndExpression & EqualityExpression
+            // Rule 304:  AndExpression ::= AndExpression & EqualityExpression
             //
-            case 309: {
+            case 304: {
                 Expr AndExpression = (Expr) getRhsSym(1);
                 Expr EqualityExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
@@ -2989,9 +2943,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 311:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
+            // Rule 306:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
-            case 311: {
+            case 306: {
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
                 Expr AndExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
@@ -2999,9 +2953,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 313:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
+            // Rule 308:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
-            case 313: {
+            case 308: {
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
@@ -3009,9 +2963,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 315:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
+            // Rule 310:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
-            case 315: {
+            case 310: {
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
@@ -3019,9 +2973,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 317:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
+            // Rule 312:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
-            case 317: {
+            case 312: {
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
@@ -3029,9 +2983,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 319:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
+            // Rule 314:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
-            case 319: {
+            case 314: {
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
                 Expr Expression = (Expr) getRhsSym(3);
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
@@ -3040,9 +2994,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 322:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+            // Rule 317:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
-            case 322: {
+            case 317: {
                 Expr LeftHandSide = (Expr) getRhsSym(1);
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
@@ -3051,81 +3005,81 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 323:  LeftHandSide ::= ExpressionName
+            // Rule 318:  LeftHandSide ::= ExpressionName
             //
-            case 323: {
+            case 318: {
                 Name ExpressionName = (Name) getRhsSym(1);
                 setResult(ExpressionName.toExpr());
                 break;
             }
      
             //
-            // Rule 326:  AssignmentOperator ::= =
+            // Rule 321:  AssignmentOperator ::= =
             //
-            case 326: {
+            case 321: {
                 
                 setResult(Assign.ASSIGN);
                 break;
             }
      
             //
-            // Rule 327:  AssignmentOperator ::= *=
+            // Rule 322:  AssignmentOperator ::= *=
             //
-            case 327: {
+            case 322: {
                 
                 setResult(Assign.MUL_ASSIGN);
                 break;
             }
      
             //
-            // Rule 328:  AssignmentOperator ::= /=
+            // Rule 323:  AssignmentOperator ::= /=
             //
-            case 328: {
+            case 323: {
                 
                 setResult(Assign.DIV_ASSIGN);
                 break;
             }
      
             //
-            // Rule 329:  AssignmentOperator ::= %=
+            // Rule 324:  AssignmentOperator ::= %=
             //
-            case 329: {
+            case 324: {
                 
                 setResult(Assign.MOD_ASSIGN);
                 break;
             }
      
             //
-            // Rule 330:  AssignmentOperator ::= +=
+            // Rule 325:  AssignmentOperator ::= +=
             //
-            case 330: {
+            case 325: {
                 
                 setResult(Assign.ADD_ASSIGN);
                 break;
             }
      
             //
-            // Rule 331:  AssignmentOperator ::= -=
+            // Rule 326:  AssignmentOperator ::= -=
             //
-            case 331: {
+            case 326: {
                 
                 setResult(Assign.SUB_ASSIGN);
                 break;
             }
      
             //
-            // Rule 332:  AssignmentOperator ::= <<=
+            // Rule 327:  AssignmentOperator ::= <<=
             //
-            case 332: {
+            case 327: {
                 
                 setResult(Assign.SHL_ASSIGN);
                 break;
             }
      
             //
-            // Rule 333:  AssignmentOperator ::= > > =
+            // Rule 328:  AssignmentOperator ::= > > =
             //
-            case 333: {
+            case 328: {
                 
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(Assign.SHR_ASSIGN);
@@ -3133,9 +3087,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 334:  AssignmentOperator ::= > > > =
+            // Rule 329:  AssignmentOperator ::= > > > =
             //
-            case 334: {
+            case 329: {
                 
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(Assign.USHR_ASSIGN);
@@ -3143,371 +3097,379 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 335:  AssignmentOperator ::= &=
+            // Rule 330:  AssignmentOperator ::= &=
             //
-            case 335: {
+            case 330: {
                 
                 setResult(Assign.BIT_AND_ASSIGN);
                 break;
             }
      
             //
-            // Rule 336:  AssignmentOperator ::= ^=
+            // Rule 331:  AssignmentOperator ::= ^=
             //
-            case 336: {
+            case 331: {
                 
                 setResult(Assign.BIT_XOR_ASSIGN);
                 break;
             }
      
             //
-            // Rule 337:  AssignmentOperator ::= |=
+            // Rule 332:  AssignmentOperator ::= |=
             //
-            case 337: {
+            case 332: {
                 
                 setResult(Assign.BIT_OR_ASSIGN);
                 break;
             }
      
             //
-            // Rule 340:  Dimsopt ::= $Empty
+            // Rule 335:  Dimsopt ::= $Empty
             //
-            case 340: {
+            case 335: {
                 
                 setResult(new Integer(0));
                 break;
             }
      
             //
-            // Rule 342:  Catchesopt ::= $Empty
+            // Rule 337:  Catchesopt ::= $Empty
             //
-            case 342: {
+            case 337: {
                 
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
      
             //
-            // Rule 344:  identifieropt ::= $Empty
+            // Rule 339:  identifieropt ::= $Empty
             //
-            case 344:
+            case 339:
                 setResult(null);
                 break;
  
             //
-            // Rule 345:  identifieropt ::= identifier
+            // Rule 340:  identifieropt ::= identifier
             //
-            case 345: {
+            case 340: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 346:  ForUpdateopt ::= $Empty
+            // Rule 341:  ForUpdateopt ::= $Empty
             //
-            case 346: {
+            case 341: {
                 
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                 break;
             }
      
             //
-            // Rule 348:  Expressionopt ::= $Empty
+            // Rule 343:  Expressionopt ::= $Empty
             //
-            case 348:
+            case 343:
                 setResult(null);
                 break;
  
             //
-            // Rule 350:  ForInitopt ::= $Empty
+            // Rule 345:  ForInitopt ::= $Empty
             //
-            case 350: {
+            case 345: {
                 
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                 break;
             }
      
             //
-            // Rule 352:  SwitchLabelsopt ::= $Empty
+            // Rule 347:  SwitchLabelsopt ::= $Empty
             //
-            case 352: {
+            case 347: {
                 
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                 break;
             }
      
             //
-            // Rule 354:  SwitchBlockStatementGroupsopt ::= $Empty
+            // Rule 349:  SwitchBlockStatementGroupsopt ::= $Empty
             //
-            case 354: {
+            case 349: {
                 
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                 break;
             }
      
             //
-            // Rule 356:  VariableModifiersopt ::= $Empty
+            // Rule 351:  VariableModifiersopt ::= $Empty
             //
-            case 356: {
+            case 351: {
                 
                 setResult(Flags.NONE);
                 break;
             }
      
             //
-            // Rule 358:  VariableInitializersopt ::= $Empty
+            // Rule 353:  VariableInitializersopt ::= $Empty
             //
-            case 358:
+            case 353:
                 setResult(null);
                 break;
  
             //
-            // Rule 360:  AbstractMethodModifiersopt ::= $Empty
+            // Rule 355:  AbstractMethodModifiersopt ::= $Empty
             //
-            case 360: {
+            case 355: {
                 
                 setResult(Flags.NONE);
                 break;
             }
      
             //
-            // Rule 362:  ConstantModifiersopt ::= $Empty
+            // Rule 357:  ConstantModifiersopt ::= $Empty
             //
-            case 362: {
+            case 357: {
                 
                 setResult(Flags.NONE);
                 break;
             }
      
             //
-            // Rule 364:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 359:  InterfaceMemberDeclarationsopt ::= $Empty
             //
-            case 364: {
+            case 359: {
                 
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
      
             //
-            // Rule 366:  ExtendsInterfacesopt ::= $Empty
+            // Rule 361:  ExtendsInterfacesopt ::= $Empty
             //
-            case 366: {
+            case 361: {
                 
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 368:  InterfaceModifiersopt ::= $Empty
+            // Rule 363:  InterfaceModifiersopt ::= $Empty
             //
-            case 368: {
+            case 363: {
                 
                 setResult(Flags.NONE);
                 break;
             }
      
             //
-            // Rule 370:  ClassBodyopt ::= $Empty
+            // Rule 365:  ClassBodyopt ::= $Empty
             //
-            case 370:
+            case 365:
                 setResult(null);
                 break;
  
             //
-            // Rule 372:  Argumentsopt ::= $Empty
+            // Rule 367:  Argumentsopt ::= $Empty
             //
-            case 372:
+            case 367:
                 setResult(null);
                 break;
  
             //
-            // Rule 373:  Argumentsopt ::= Arguments
+            // Rule 368:  Argumentsopt ::= Arguments
             //
-            case 373:
-                throw new Error("No action specified for rule " + 373);
+            case 368:
+                throw new Error("No action specified for rule " + 368);
  
             //
-            // Rule 374:  ,opt ::= $Empty
+            // Rule 369:  ,opt ::= $Empty
             //
-            case 374:
+            case 369:
                 setResult(null);
                 break;
  
             //
-            // Rule 376:  ArgumentListopt ::= $Empty
+            // Rule 371:  ArgumentListopt ::= $Empty
             //
-            case 376: {
+            case 371: {
                 
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
      
             //
-            // Rule 378:  BlockStatementsopt ::= $Empty
+            // Rule 373:  BlockStatementsopt ::= $Empty
             //
-            case 378: {
+            case 373: {
                 
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                 break;
             }
      
             //
-            // Rule 380:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 375:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 380:
+            case 375:
                 setResult(null);
                 break;
  
             //
-            // Rule 382:  ConstructorModifiersopt ::= $Empty
+            // Rule 377:  ConstructorModifiersopt ::= $Empty
             //
-            case 382: {
+            case 377: {
                 
                 setResult(Flags.NONE);
                 break;
             }
      
             //
-            // Rule 384:  ...opt ::= $Empty
+            // Rule 379:  ...opt ::= $Empty
             //
-            case 384:
+            case 379:
                 setResult(null);
                 break;
  
             //
-            // Rule 386:  FormalParameterListopt ::= $Empty
+            // Rule 381:  FormalParameterListopt ::= $Empty
             //
-            case 386: {
+            case 381: {
                 
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
      
             //
-            // Rule 388:  Throwsopt ::= $Empty
+            // Rule 383:  Throwsopt ::= $Empty
             //
-            case 388: {
+            case 383: {
                 
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 390:  MethodModifiersopt ::= $Empty
+            // Rule 385:  MethodModifiersopt ::= $Empty
             //
-            case 390: {
+            case 385: {
                 
                 setResult(Flags.NONE);
                 break;
             }
      
             //
-            // Rule 392:  FieldModifiersopt ::= $Empty
+            // Rule 387:  FieldModifiersopt ::= $Empty
             //
-            case 392: {
+            case 387: {
                 
                 setResult(Flags.NONE);
                 break;
             }
      
             //
-            // Rule 394:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 389:  ClassBodyDeclarationsopt ::= $Empty
             //
-            case 394: {
+            case 389: {
                 
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
      
             //
-            // Rule 396:  Interfacesopt ::= $Empty
+            // Rule 391:  Interfacesopt ::= $Empty
             //
-            case 396: {
+            case 391: {
                 
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 398:  Superopt ::= $Empty
+            // Rule 393:  Superopt ::= $Empty
             //
-            case 398: {
+            case 393: {
                 
                setResult(new Name(nf, ts, pos(), "x10.lang.Object").toType());
                 break;
             }
      
             //
-            // Rule 400:  ClassModifiersopt ::= $Empty
+            // Rule 395:  ClassModifiersopt ::= $Empty
             //
-            case 400: {
+            case 395: {
                 
                 setResult(Flags.NONE);
                 break;
             }
      
             //
-            // Rule 402:  TypeDeclarationsopt ::= $Empty
+            // Rule 397:  TypeDeclarationsopt ::= $Empty
             //
-            case 402: {
+            case 397: {
                 
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                 break;
             }
      
             //
-            // Rule 404:  ImportDeclarationsopt ::= $Empty
+            // Rule 399:  ImportDeclarationsopt ::= $Empty
             //
-            case 404: {
+            case 399: {
                 
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                 break;
             }
      
             //
-            // Rule 406:  PackageDeclarationopt ::= $Empty
+            // Rule 401:  PackageDeclarationopt ::= $Empty
             //
-            case 406:
+            case 401:
                 setResult(null);
                 break;
  
             //
-            // Rule 408:  ClassType ::= TypeName
+            // Rule 403:  ClassType ::= TypeName DepParametersopt
             //
-            case 408: {
+            case 403: {
                 Name TypeName = (Name) getRhsSym(1);
-                setResult(TypeName.toType());
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+                     setResult(DepParametersopt == null
+                               ? TypeName.toType()
+                               : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
                 break;
             }
      
             //
-            // Rule 409:  InterfaceType ::= TypeName
+            // Rule 404:  InterfaceType ::= TypeName DepParametersopt
             //
-            case 409: {
+            case 404: {
                 Name TypeName = (Name) getRhsSym(1);
-                setResult(TypeName.toType());
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+                 setResult(DepParametersopt == null
+                               ? TypeName.toType()
+                               : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
                 break;
             }
      
             //
-            // Rule 410:  PackageDeclaration ::= package PackageName ;
+            // Rule 405:  PackageDeclaration ::= package PackageName ;
             //
-            case 410: {
+            case 405: {
                 Name PackageName = (Name) getRhsSym(2);
                 setResult(PackageName.toPackage());
                 break;
             }
      
             //
-            // Rule 411:  NormalClassDeclaration ::= ClassModifiersopt class identifier Superopt Interfacesopt ClassBody
+            // Rule 406:  NormalClassDeclaration ::= ClassModifiersopt class identifier DepParametersopt Superopt Interfacesopt ClassBody
             //
-            case 411: {
+            case 406: {
                 Flags ClassModifiersopt = (Flags) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                TypeNode Superopt = (TypeNode) getRhsSym(4);
-                List Interfacesopt = (List) getRhsSym(5);
-                ClassBody ClassBody = (ClassBody) getRhsSym(6);
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(4);
+                TypeNode Superopt = (TypeNode) getRhsSym(5);
+                List Interfacesopt = (List) getRhsSym(6);
+                ClassBody ClassBody = (ClassBody) getRhsSym(7);
+    // vj TODO: Add processing of DepParametersopt
                 checkTypeName(identifier);
                 setResult(X10Flags.isValue(ClassModifiersopt)
                              ? nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
@@ -3518,9 +3480,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 412:  MethodHeader ::= MethodModifiersopt ResultType MethodDeclarator Throwsopt
+            // Rule 407:  MethodHeader ::= MethodModifiersopt ResultType MethodDeclarator Throwsopt
             //
-            case 412: {
+            case 407: {
                 Flags MethodModifiersopt = (Flags) getRhsSym(1);
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
                 Object[] MethodDeclarator = (Object[]) getRhsSym(3);
@@ -3546,40 +3508,27 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 413:  ConstructorDeclarator ::= SimpleTypeName ( FormalParameterListopt )
+            // Rule 408:  ExplicitConstructorInvocation ::= this ( ArgumentListopt ) ;
             //
-            case 413: {
-                Name SimpleTypeName = (Name) getRhsSym(1);
-                List FormalParameterListopt = (List) getRhsSym(3);
-                Object[] a = new Object[3];
-                a[1] = SimpleTypeName;
-                a[2] = FormalParameterListopt;
-                setResult(a);
-                break;
-            }
-     
-            //
-            // Rule 414:  ExplicitConstructorInvocation ::= this ( ArgumentListopt ) ;
-            //
-            case 414: {
+            case 408: {
                 List ArgumentListopt = (List) getRhsSym(3);
                 setResult(nf.ThisCall(pos(), ArgumentListopt));
                 break;
             }
      
             //
-            // Rule 415:  ExplicitConstructorInvocation ::= super ( ArgumentListopt ) ;
+            // Rule 409:  ExplicitConstructorInvocation ::= super ( ArgumentListopt ) ;
             //
-            case 415: {
+            case 409: {
                 List ArgumentListopt = (List) getRhsSym(3);
                 setResult(nf.SuperCall(pos(), ArgumentListopt));
                 break;
             }
      
             //
-            // Rule 416:  ExplicitConstructorInvocation ::= Primary . this ( ArgumentListopt ) ;
+            // Rule 410:  ExplicitConstructorInvocation ::= Primary . this ( ArgumentListopt ) ;
             //
-            case 416: {
+            case 410: {
                 Expr Primary = (Expr) getRhsSym(1);
                 List ArgumentListopt = (List) getRhsSym(5);
                 setResult(nf.ThisCall(pos(), Primary, ArgumentListopt));
@@ -3587,9 +3536,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 417:  ExplicitConstructorInvocation ::= Primary . super ( ArgumentListopt ) ;
+            // Rule 411:  ExplicitConstructorInvocation ::= Primary . super ( ArgumentListopt ) ;
             //
-            case 417: {
+            case 411: {
                 Expr Primary = (Expr) getRhsSym(1);
                 List ArgumentListopt = (List) getRhsSym(5);
                 setResult(nf.SuperCall(pos(), Primary, ArgumentListopt));
@@ -3597,9 +3546,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 418:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier ExtendsInterfacesopt InterfaceBody
+            // Rule 412:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier ExtendsInterfacesopt InterfaceBody
             //
-            case 418: {
+            case 412: {
                 Flags InterfaceModifiersopt = (Flags) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 List ExtendsInterfacesopt = (List) getRhsSym(4);
@@ -3615,9 +3564,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 419:  AbstractMethodDeclaration ::= AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt ;
+            // Rule 413:  AbstractMethodDeclaration ::= AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt ;
             //
-            case 419: {
+            case 413: {
                 Flags AbstractMethodModifiersopt = (Flags) getRhsSym(1);
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
                 Object[] MethodDeclarator = (Object[]) getRhsSym(3);
@@ -3643,9 +3592,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 420:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
+            // Rule 414:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
             //
-            case 420: {
+            case 414: {
                 TypeNode ClassOrInterfaceType = (TypeNode) getRhsSym(2);
                 List ArgumentListopt = (List) getRhsSym(4);
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(6);
@@ -3656,9 +3605,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 421:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt ) ClassBodyopt
+            // Rule 415:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt ) ClassBodyopt
             //
-            case 421: {
+            case 415: {
                 Expr Primary = (Expr) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
                 List ArgumentListopt = (List) getRhsSym(6);
@@ -3671,9 +3620,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 422:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt ) ClassBodyopt
+            // Rule 416:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt ) ClassBodyopt
             //
-            case 422: {
+            case 416: {
                 Name AmbiguousName = (Name) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
                 List ArgumentListopt = (List) getRhsSym(6);
@@ -3686,9 +3635,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 423:  MethodInvocation ::= Primary . identifier ( ArgumentListopt )
+            // Rule 417:  MethodInvocation ::= Primary . identifier ( ArgumentListopt )
             //
-            case 423: {
+            case 417: {
                 Expr Primary = (Expr) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 List ArgumentListopt = (List) getRhsSym(5);
@@ -3697,9 +3646,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 424:  MethodInvocation ::= super . identifier ( ArgumentListopt )
+            // Rule 418:  MethodInvocation ::= super . identifier ( ArgumentListopt )
             //
-            case 424: {
+            case 418: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 List ArgumentListopt = (List) getRhsSym(5);
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), identifier.getIdentifier(), ArgumentListopt));
@@ -3707,9 +3656,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 425:  MethodInvocation ::= ClassName . super$sup . identifier ( ArgumentListopt )
+            // Rule 419:  MethodInvocation ::= ClassName . super$sup . identifier ( ArgumentListopt )
             //
-            case 425: {
+            case 419: {
                 Name ClassName = (Name) getRhsSym(1);
                 IToken sup = (IToken) getRhsIToken(3);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
@@ -3719,9 +3668,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 426:  Type ::= DataType PlaceTypeSpecifieropt
+            // Rule 420:  Type ::= DataType PlaceTypeSpecifieropt
             //
-            case 426: {
+            case 420: {
                 TypeNode DataType = (TypeNode) getRhsSym(1);
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(2);
                 // Just parse the placetype and drop it for now.
@@ -3729,58 +3678,86 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 427:  Type ::= nullable Type
+            // Rule 421:  Type ::= nullable Type
             //
-            case 427: {
+            case 421: {
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 setResult(nf.Nullable(pos(), Type));
                 break;
             }
      
             //
-            // Rule 428:  Type ::= future < Type >
+            // Rule 422:  Type ::= future < Type >
             //
-            case 428: {
+            case 422: {
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 setResult(nf.Future(pos(), Type));
                 break;
             }
      
             //
-            // Rule 429:  Type ::= ( Type )
+            // Rule 423:  Type ::= ( Type ) DepParametersopt
             //
-            case 429: {
+            case 423: {
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                setResult(Type);
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(4);
+          // System.out.println("Parser: parsed (Type) DepParmetersopt |" + Type + "| |" + DepParametersopt +"|");
+                setResult(DepParametersopt == null ? Type 
+                : ((X10TypeNode) Type).dep(null, DepParametersopt));
                 break;
             }
      
             //
-            // Rule 438:  ClassOrInterfaceType ::= TypeName PlaceTypeSpecifieropt DepParametersopt
+            // Rule 427:  PrimitiveType ::= NumericType DepParametersopt
             //
-            case 438: {
+            case 427: {
+                TypeNode NumericType = (TypeNode) getRhsSym(1);
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+               // System.out.println("Parser: parsed PrimitiveType |" + NumericType + "| |" + DepParametersopt +"|");
+                setResult(DepParametersopt == null
+                               ? NumericType
+                               : ((X10TypeNode) NumericType).dep(null, DepParametersopt));
+                break;
+            }
+     
+            //
+            // Rule 428:  PrimitiveType ::= boolean DepParametersopt
+            //
+            case 428: {
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+                X10TypeNode res = (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.Boolean());
+                setResult(DepParametersopt==null 
+                           ? res 
+                           : res.dep(null, DepParametersopt));
+               break;
+            }
+     
+            //
+            // Rule 432:  ClassOrInterfaceType ::= TypeName PlaceTypeSpecifieropt DepParametersopt
+            //
+            case 432: {
                 Name TypeName = (Name) getRhsSym(1);
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(2);
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(3);
                 setResult(DepParametersopt == null
                                ? TypeName.toType()
-                               : nf.ParametricTypeNode(pos(), TypeName.toType(), null, DepParametersopt));
+                               : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
                 break;
             }
      
             //
-            // Rule 439:  DepParameters ::= ( DepParameterExpr )
+            // Rule 433:  DepParameters ::= ( DepParameterExpr )
             //
-            case 439: {
+            case 433: {
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(2);
                 setResult(DepParameterExpr);
                 break;
             }
      
             //
-            // Rule 440:  DepParameterExpr ::= ArgumentList WhereClauseopt
+            // Rule 434:  DepParameterExpr ::= ArgumentList WhereClauseopt
             //
-            case 440: {
+            case 434: {
                 List ArgumentList = (List) getRhsSym(1);
                 Expr WhereClauseopt = (Expr) getRhsSym(2);
                 setResult(nf.DepParameterExpr(pos(), ArgumentList, WhereClauseopt));
@@ -3788,54 +3765,54 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 441:  DepParameterExpr ::= WhereClause
+            // Rule 435:  DepParameterExpr ::= WhereClause
             //
-            case 441: {
+            case 435: {
                 Expr WhereClause = (Expr) getRhsSym(1);
-                setResult(nf.DepParameterExpr(pos(), null, WhereClause));
+                setResult(nf.DepParameterExpr(pos(), Collections.EMPTY_LIST, WhereClause));
                 break;
             }
      
             //
-            // Rule 442:  WhereClause ::= : Expression
+            // Rule 436:  WhereClause ::= : Expression
             //
-            case 442: {
+            case 436: {
                 Expr Expression = (Expr) getRhsSym(2);
                 setResult(Expression);
                 break;
             }
      
             //
-            // Rule 444:  X10ArrayType ::= Type [ . ]
+            // Rule 438:  X10ArrayType ::= Type [ . ]
             //
-            case 444: {
+            case 438: {
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, null));
                 break;
             }
      
             //
-            // Rule 445:  X10ArrayType ::= Type reference [ . ]
+            // Rule 439:  X10ArrayType ::= Type reference [ . ]
             //
-            case 445: {
+            case 439: {
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, null));
                 break;
             }
      
             //
-            // Rule 446:  X10ArrayType ::= Type value [ . ]
+            // Rule 440:  X10ArrayType ::= Type value [ . ]
             //
-            case 446: {
+            case 440: {
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 setResult(nf.X10ArrayTypeNode(pos(), Type, true, null));
                 break;
             }
      
             //
-            // Rule 447:  X10ArrayType ::= Type [ DepParameterExpr ]
+            // Rule 441:  X10ArrayType ::= Type [ DepParameterExpr ]
             //
-            case 447: {
+            case 441: {
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(3);
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, DepParameterExpr));
@@ -3843,9 +3820,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 448:  X10ArrayType ::= Type reference [ DepParameterExpr ]
+            // Rule 442:  X10ArrayType ::= Type reference [ DepParameterExpr ]
             //
-            case 448: {
+            case 442: {
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(4);
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, DepParameterExpr));
@@ -3853,9 +3830,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 449:  X10ArrayType ::= Type value [ DepParameterExpr ]
+            // Rule 443:  X10ArrayType ::= Type value [ DepParameterExpr ]
             //
-            case 449: {
+            case 443: {
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(4);
                 setResult(nf.X10ArrayTypeNode(pos(), Type, true, DepParameterExpr));
@@ -3863,39 +3840,39 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 450:  ObjectKind ::= value
+            // Rule 444:  ObjectKind ::= value
             //
-            case 450:
-                throw new Error("No action specified for rule " + 450);
+            case 444:
+                throw new Error("No action specified for rule " + 444);
  
             //
-            // Rule 451:  ObjectKind ::= reference
+            // Rule 445:  ObjectKind ::= reference
             //
-            case 451:
-                throw new Error("No action specified for rule " + 451);
+            case 445:
+                throw new Error("No action specified for rule " + 445);
  
             //
-            // Rule 452:  MethodModifier ::= atomic
+            // Rule 446:  MethodModifier ::= atomic
             //
-            case 452: {
+            case 446: {
                 
                 setResult(X10Flags.ATOMIC);
                 break;
             }
      
             //
-            // Rule 453:  MethodModifier ::= extern
+            // Rule 447:  MethodModifier ::= extern
             //
-            case 453: {
+            case 447: {
                 
                 setResult(Flags.NATIVE);
                 break;
             }
      
             //
-            // Rule 455:  ValueClassDeclaration ::= ClassModifiersopt value identifier Superopt Interfacesopt ClassBody
+            // Rule 449:  ValueClassDeclaration ::= ClassModifiersopt value identifier Superopt Interfacesopt ClassBody
             //
-            case 455: {
+            case 449: {
                 Flags ClassModifiersopt = (Flags) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 TypeNode Superopt = (TypeNode) getRhsSym(4);
@@ -3908,9 +3885,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 456:  ValueClassDeclaration ::= ClassModifiersopt value class identifier Superopt Interfacesopt ClassBody
+            // Rule 450:  ValueClassDeclaration ::= ClassModifiersopt value class identifier Superopt Interfacesopt ClassBody
             //
-            case 456: {
+            case 450: {
                 Flags ClassModifiersopt = (Flags) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
                 TypeNode Superopt = (TypeNode) getRhsSym(5);
@@ -3923,9 +3900,66 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 457:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt Dims ArrayInitializer
+            // Rule 451:  ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
             //
-            case 457: {
+            case 451: {
+                Flags ConstructorModifiersopt = (Flags) getRhsSym(1);
+                Object[] ConstructorDeclarator = (Object[]) getRhsSym(2);
+                List Throwsopt = (List) getRhsSym(3);
+                Block ConstructorBody = (Block) getRhsSym(4);
+                Name a = (Name) ConstructorDeclarator[1];
+                DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
+                List b = (List) ConstructorDeclarator[3];
+
+               setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), b, Throwsopt, ConstructorBody));
+               break;
+            }
+    
+            //
+            // Rule 452:  ConstructorDeclarator ::= SimpleTypeName DepParametersopt ( FormalParameterListopt )
+            //
+            case 452: {
+                Name SimpleTypeName = (Name) getRhsSym(1);
+                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
+                List FormalParameterListopt = (List) getRhsSym(4);
+             Object[] a = new Object[4];
+             a[1] = SimpleTypeName;
+             a[2] = DepParametersopt;
+             a[3] = FormalParameterListopt;
+             setResult(a);
+               break;
+            }
+    
+            //
+            // Rule 454:  MethodDeclarator ::= ThisClauseopt identifier ( FormalParameterListopt )
+            //
+            case 454: {
+                TypeNode ThisClauseopt = (TypeNode) getRhsSym(1);
+                polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(2);
+                List FormalParameterListopt = (List) getRhsSym(4);
+                // vj: TODO -- add processing of ThisClause, the this-restriction.
+                Object[] a = new Object[3];
+               a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
+                a[1] = FormalParameterListopt;
+               a[2] = new Integer(0);
+                setResult(a);
+                break;
+            }
+     
+            //
+            // Rule 455:  MethodDeclarator ::= MethodDeclarator [ ]
+            //
+            case 455: {
+                Object[] MethodDeclarator = (Object[]) getRhsSym(1);
+                MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
+                // setResult(MethodDeclarator);
+               break;
+            }
+     
+            //
+            // Rule 456:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt Dims ArrayInitializer
+            //
+            case 456: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
                 Object Unsafeopt = (Object) getRhsSym(3);
                 Integer Dims = (Integer) getRhsSym(4);
@@ -3936,9 +3970,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 458:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr Dims
+            // Rule 457:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr Dims
             //
-            case 458: {
+            case 457: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
                 Object Unsafeopt = (Object) getRhsSym(3);
                 Expr DimExpr = (Expr) getRhsSym(4);
@@ -3949,9 +3983,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 459:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr DimExprs Dimsopt
+            // Rule 458:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr DimExprs Dimsopt
             //
-            case 459: {
+            case 458: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
                 Object Unsafeopt = (Object) getRhsSym(3);
                 Expr DimExpr = (Expr) getRhsSym(4);
@@ -3966,9 +4000,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 460:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ]
+            // Rule 459:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ]
             //
-            case 460: {
+            case 459: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
                 Object Valueopt = (Object) getRhsSym(3);
                 Object Unsafeopt = (Object) getRhsSym(4);
@@ -3978,9 +4012,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 461:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression$distr ] Expression$initializer
+            // Rule 460:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression$distr ] Expression$initializer
             //
-            case 461: {
+            case 460: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
                 Object Valueopt = (Object) getRhsSym(3);
                 Object Unsafeopt = (Object) getRhsSym(4);
@@ -3991,9 +4025,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 462:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ] ($lparen FormalParameter ) MethodBody
+            // Rule 461:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ] ($lparen FormalParameter ) MethodBody
             //
-            case 462: {
+            case 461: {
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
                 Object Valueopt = (Object) getRhsSym(3);
                 Object Unsafeopt = (Object) getRhsSym(4);
@@ -4007,16 +4041,16 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 463:  Valueopt ::= $Empty
+            // Rule 462:  Valueopt ::= $Empty
             //
-            case 463:
+            case 462:
                 setResult(null);
                 break;
  
             //
-            // Rule 464:  Valueopt ::= value
+            // Rule 463:  Valueopt ::= value
             //
-            case 464: {
+            case 463: {
                 
                 // any value distinct from null
                 setResult(this);
@@ -4024,36 +4058,36 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 467:  ArrayBaseType ::= nullable Type
+            // Rule 466:  ArrayBaseType ::= nullable Type
             //
-            case 467: {
+            case 466: {
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 setResult(nf.Nullable(pos(), Type));
                 break;
             }
      
             //
-            // Rule 468:  ArrayBaseType ::= future < Type >
+            // Rule 467:  ArrayBaseType ::= future < Type >
             //
-            case 468: {
+            case 467: {
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 setResult(nf.Future(pos(), Type));
                 break;
             }
      
             //
-            // Rule 469:  ArrayBaseType ::= ( Type )
+            // Rule 468:  ArrayBaseType ::= ( Type )
             //
-            case 469: {
+            case 468: {
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 setResult(Type);
                 break;
             }
      
             //
-            // Rule 470:  ArrayAccess ::= ExpressionName [ ArgumentList ]
+            // Rule 469:  ArrayAccess ::= ExpressionName [ ArgumentList ]
             //
-            case 470: {
+            case 469: {
                 Name ExpressionName = (Name) getRhsSym(1);
                 List ArgumentList = (List) getRhsSym(3);
                 if (ArgumentList.size() == 1)
@@ -4063,9 +4097,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 471:  ArrayAccess ::= PrimaryNoNewArray [ ArgumentList ]
+            // Rule 470:  ArrayAccess ::= PrimaryNoNewArray [ ArgumentList ]
             //
-            case 471: {
+            case 470: {
                 Expr PrimaryNoNewArray = (Expr) getRhsSym(1);
                 List ArgumentList = (List) getRhsSym(3);
                 if (ArgumentList.size() == 1)
@@ -4075,9 +4109,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 488:  NowStatement ::= now ( Clock ) Statement
+            // Rule 487:  NowStatement ::= now ( Clock ) Statement
             //
-            case 488: {
+            case 487: {
                 Expr Clock = (Expr) getRhsSym(3);
                 Stmt Statement = (Stmt) getRhsSym(5);
               setResult(nf.Now(pos(), Clock, Statement));
@@ -4085,18 +4119,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 489:  ClockedClause ::= clocked ( ClockList )
+            // Rule 488:  ClockedClause ::= clocked ( ClockList )
             //
-            case 489: {
+            case 488: {
                 List ClockList = (List) getRhsSym(3);
                 setResult(ClockList);
                 break;
             }
      
             //
-            // Rule 490:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
+            // Rule 489:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
-            case 490: {
+            case 489: {
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
                 List ClockedClauseopt = (List) getRhsSym(3);
                 Stmt Statement = (Stmt) getRhsSym(4);
@@ -4108,9 +4142,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 491:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
+            // Rule 490:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
             //
-            case 491: {
+            case 490: {
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
                 Stmt Statement = (Stmt) getRhsSym(3);
               setResult(nf.Atomic(pos(), (PlaceExpressionSingleListopt == null
@@ -4120,9 +4154,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 492:  WhenStatement ::= when ( Expression ) Statement
+            // Rule 491:  WhenStatement ::= when ( Expression ) Statement
             //
-            case 492: {
+            case 491: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Stmt Statement = (Stmt) getRhsSym(5);
                 setResult(nf.When(pos(), Expression, Statement));
@@ -4130,9 +4164,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 493:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
+            // Rule 492:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
-            case 493: {
+            case 492: {
                 When WhenStatement = (When) getRhsSym(1);
                 IToken or = (IToken) getRhsIToken(2);
                 Expr Expression = (Expr) getRhsSym(4);
@@ -4143,9 +4177,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 494:  ForEachStatement ::= foreach ( FormalParameter : Expression ) ClockedClauseopt Statement
+            // Rule 493:  ForEachStatement ::= foreach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
-            case 494: {
+            case 493: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 List ClockedClauseopt = (List) getRhsSym(7);
@@ -4159,9 +4193,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 495:  AtEachStatement ::= ateach ( FormalParameter : Expression ) ClockedClauseopt Statement
+            // Rule 494:  AtEachStatement ::= ateach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
-            case 495: {
+            case 494: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 List ClockedClauseopt = (List) getRhsSym(7);
@@ -4175,9 +4209,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 496:  EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
+            // Rule 495:  EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
             //
-            case 496: {
+            case 495: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 Stmt Statement = (Stmt) getRhsSym(7);
@@ -4189,18 +4223,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 497:  FinishStatement ::= finish Statement
+            // Rule 496:  FinishStatement ::= finish Statement
             //
-            case 497: {
+            case 496: {
                 Stmt Statement = (Stmt) getRhsSym(2);
                 setResult(nf.Finish(pos(),  Statement));
                 break;
             }
      
             //
-            // Rule 498:  NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
+            // Rule 497:  NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
             //
-            case 498: {
+            case 497: {
                 Expr Clock = (Expr) getRhsSym(3);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
                 setResult(nf.Now(pos(), Clock, StatementNoShortIf));
@@ -4208,9 +4242,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 499:  AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt ClockedClauseopt StatementNoShortIf
+            // Rule 498:  AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt ClockedClauseopt StatementNoShortIf
             //
-            case 499: {
+            case 498: {
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
                 List ClockedClauseopt = (List) getRhsSym(3);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(4);
@@ -4222,18 +4256,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 500:  AtomicStatementNoShortIf ::= atomic StatementNoShortIf
+            // Rule 499:  AtomicStatementNoShortIf ::= atomic StatementNoShortIf
             //
-            case 500: {
+            case 499: {
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
                 setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), StatementNoShortIf));
                 break;
             }
      
             //
-            // Rule 501:  WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
+            // Rule 500:  WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
             //
-            case 501: {
+            case 500: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
                 setResult(nf.When(pos(), Expression, StatementNoShortIf));
@@ -4241,9 +4275,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 502:  WhenStatementNoShortIf ::= WhenStatement or$or ( Expression ) StatementNoShortIf
+            // Rule 501:  WhenStatementNoShortIf ::= WhenStatement or$or ( Expression ) StatementNoShortIf
             //
-            case 502: {
+            case 501: {
                 When WhenStatement = (When) getRhsSym(1);
                 IToken or = (IToken) getRhsIToken(2);
                 Expr Expression = (Expr) getRhsSym(4);
@@ -4254,9 +4288,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 503:  ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
+            // Rule 502:  ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
-            case 503: {
+            case 502: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 List ClockedClauseopt = (List) getRhsSym(7);
@@ -4271,9 +4305,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 504:  AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
+            // Rule 503:  AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
-            case 504: {
+            case 503: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 List ClockedClauseopt = (List) getRhsSym(7);
@@ -4287,9 +4321,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 505:  EnhancedForStatementNoShortIf ::= for ( FormalParameter : Expression ) StatementNoShortIf
+            // Rule 504:  EnhancedForStatementNoShortIf ::= for ( FormalParameter : Expression ) StatementNoShortIf
             //
-            case 505: {
+            case 504: {
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 Expr Expression = (Expr) getRhsSym(5);
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(7);
@@ -4301,45 +4335,45 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 506:  FinishStatementNoShortIf ::= finish StatementNoShortIf
+            // Rule 505:  FinishStatementNoShortIf ::= finish StatementNoShortIf
             //
-            case 506: {
+            case 505: {
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
                 setResult(nf.Finish(pos(), StatementNoShortIf));
                 break;
             }
      
             //
-            // Rule 507:  PlaceExpressionSingleList ::= ( PlaceExpression )
+            // Rule 506:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
-            case 507: {
+            case 506: {
                 Expr PlaceExpression = (Expr) getRhsSym(2);
               setResult(PlaceExpression);
                 break;
             }
      
             //
-            // Rule 509:  NextStatement ::= next ;
+            // Rule 508:  NextStatement ::= next ;
             //
-            case 509: {
+            case 508: {
                 
                 setResult(nf.Next(pos()));
                 break;
             }
      
             //
-            // Rule 510:  AwaitStatement ::= await Expression ;
+            // Rule 509:  AwaitStatement ::= await Expression ;
             //
-            case 510: {
+            case 509: {
                 Expr Expression = (Expr) getRhsSym(2);
                 setResult(nf.Await(pos(), Expression));
                 break;
             }
      
             //
-            // Rule 511:  ClockList ::= Clock
+            // Rule 510:  ClockList ::= Clock
             //
-            case 511: {
+            case 510: {
                 Expr Clock = (Expr) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
@@ -4348,9 +4382,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 512:  ClockList ::= ClockList , Clock
+            // Rule 511:  ClockList ::= ClockList , Clock
             //
-            case 512: {
+            case 511: {
                 List ClockList = (List) getRhsSym(1);
                 Expr Clock = (Expr) getRhsSym(3);
                 ClockList.add(Clock);
@@ -4359,9 +4393,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 514:  CastExpression ::= ( Type ) UnaryExpressionNotPlusMinus
+            // Rule 513:  CastExpression ::= ( Type ) UnaryExpressionNotPlusMinus
             //
-            case 514: {
+            case 513: {
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
                 setResult(nf.Cast(pos(), Type, UnaryExpressionNotPlusMinus));
@@ -4369,9 +4403,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 515:  CastExpression ::= ( @ Expression ) UnaryExpressionNotPlusMinus
+            // Rule 514:  CastExpression ::= ( @ Expression ) UnaryExpressionNotPlusMinus
             //
-            case 515: {
+            case 514: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(5);
                 setResult(nf.PlaceCast(pos(), Expression, UnaryExpressionNotPlusMinus));
@@ -4379,9 +4413,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 516:  RelationalExpression ::= RelationalExpression instanceof Type
+            // Rule 515:  RelationalExpression ::= RelationalExpression instanceof Type
             //
-            case 516: {
+            case 515: {
                 Expr RelationalExpression = (Expr) getRhsSym(1);
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
@@ -4389,9 +4423,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 517:  IdentifierList ::= identifier
+            // Rule 516:  IdentifierList ::= identifier
             //
-            case 517: {
+            case 516: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Name.class, false);
                 l.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
@@ -4400,9 +4434,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 518:  IdentifierList ::= IdentifierList , identifier
+            // Rule 517:  IdentifierList ::= IdentifierList , identifier
             //
-            case 518: {
+            case 517: {
                 List IdentifierList = (List) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
                 IdentifierList.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
@@ -4411,9 +4445,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 519:  Primary ::= here
+            // Rule 518:  Primary ::= here
             //
-            case 519: {
+            case 518: {
                 
                 setResult(((X10NodeFactory) nf).Here(pos()));
 //
@@ -4429,9 +4463,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 522:  RegionExpression ::= Expression$expr1 : Expression$expr2
+            // Rule 521:  RegionExpression ::= Expression$expr1 : Expression$expr2
             //
-            case 522: {
+            case 521: {
                 Expr expr1 = (Expr) getRhsSym(1);
                 Expr expr2 = (Expr) getRhsSym(3);
                 Name x10 = new Name(nf, ts, pos(), "x10");
@@ -4443,15 +4477,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(expr1);
                 l.add(expr2);
+               
                 Call regionCall = nf.Call( pos(), x10LangRegionFactoryRegion.prefix.toReceiver(), "region", l  );
+              
                 setResult(regionCall);
                 break;
             }
      
             //
-            // Rule 523:  RegionExpressionList ::= RegionExpression
+            // Rule 522:  RegionExpressionList ::= RegionExpression
             //
-            case 523: {
+            case 522: {
                 Expr RegionExpression = (Expr) getRhsSym(1);
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
@@ -4460,9 +4496,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 524:  RegionExpressionList ::= RegionExpressionList , RegionExpression
+            // Rule 523:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
-            case 524: {
+            case 523: {
                 List RegionExpressionList = (List) getRhsSym(1);
                 Expr RegionExpression = (Expr) getRhsSym(3);
                 RegionExpressionList.add(RegionExpression);
@@ -4471,9 +4507,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 525:  Primary ::= [ RegionExpressionList ]
+            // Rule 524:  Primary ::= [ RegionExpressionList ]
             //
-            case 525: {
+            case 524: {
                 List RegionExpressionList = (List) getRhsSym(2);
                 Name x10 = new Name(nf, ts, pos(), "x10");
                 Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
@@ -4490,9 +4526,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 526:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
+            // Rule 525:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
-            case 526: {
+            case 525: {
                 Expr expr1 = (Expr) getRhsSym(1);
                 Expr expr2 = (Expr) getRhsSym(3);
                 //System.out.println("Distribution:" + a + "|" + b + "|");
@@ -4513,9 +4549,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 527:  FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
+            // Rule 526:  FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
             //
-            case 527: {
+            case 526: {
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
                 Expr Expression = (Expr) getRhsSym(4);
                 setResult(nf.Future(pos(), (PlaceExpressionSingleListopt == null
@@ -4525,81 +4561,81 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 528:  FieldModifier ::= mutable
+            // Rule 527:  FieldModifier ::= mutable
             //
-            case 528: {
+            case 527: {
                 
                 setResult(X10Flags.MUTABLE);
                 break;
             }
      
             //
-            // Rule 529:  FieldModifier ::= const
+            // Rule 528:  FieldModifier ::= const
             //
-            case 529: {
+            case 528: {
                 
                 setResult(Flags.PUBLIC.set(Flags.STATIC).set(Flags.FINAL));
                 break;
             }
      
             //
-            // Rule 530:  FunExpression ::= fun Type ( FormalParameterListopt ) { Expression }
+            // Rule 529:  FunExpression ::= fun Type ( FormalParameterListopt ) { Expression }
             //
-            case 530:
-                throw new Error("No action specified for rule " + 530);
+            case 529:
+                throw new Error("No action specified for rule " + 529);
  
             //
-            // Rule 531:  MethodInvocation ::= MethodName ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 530:  MethodInvocation ::= MethodName ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            //
+            case 530:
+                throw new Error("No action specified for rule " + 530); 
+ 
+            //
+            // Rule 531:  MethodInvocation ::= Primary . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 531:
                 throw new Error("No action specified for rule " + 531); 
  
             //
-            // Rule 532:  MethodInvocation ::= Primary . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 532:  MethodInvocation ::= super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 532:
                 throw new Error("No action specified for rule " + 532); 
  
             //
-            // Rule 533:  MethodInvocation ::= super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 533:  MethodInvocation ::= ClassName . super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 533:
                 throw new Error("No action specified for rule " + 533); 
  
             //
-            // Rule 534:  MethodInvocation ::= ClassName . super . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 534:  MethodInvocation ::= TypeName . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
             //
             case 534:
                 throw new Error("No action specified for rule " + 534); 
  
             //
-            // Rule 535:  MethodInvocation ::= TypeName . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
+            // Rule 535:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
             //
             case 535:
                 throw new Error("No action specified for rule " + 535); 
  
             //
-            // Rule 536:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            // Rule 536:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
             //
             case 536:
                 throw new Error("No action specified for rule " + 536); 
  
             //
-            // Rule 537:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            // Rule 537:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
             //
             case 537:
                 throw new Error("No action specified for rule " + 537); 
  
             //
-            // Rule 538:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 ) ClassBodyopt
+            // Rule 538:  MethodModifier ::= synchronized
             //
-            case 538:
-                throw new Error("No action specified for rule " + 538); 
- 
-            //
-            // Rule 539:  MethodModifier ::= synchronized
-            //
-            case 539: {
+            case 538: {
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, getErrorLocation(getLeftSpan(), getRightSpan()) +
                                                    "\"synchronized\" is an invalid X10 Method Modifier");
@@ -4608,9 +4644,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 540:  FieldModifier ::= volatile
+            // Rule 539:  FieldModifier ::= volatile
             //
-            case 540: {
+            case 539: {
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.SYNTAX_ERROR, getErrorLocation(getLeftSpan(), getRightSpan()) +
                                                    "\"volatile\" is an invalid X10 Field Modifier");
@@ -4619,9 +4655,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 541:  SynchronizedStatement ::= synchronized ( Expression ) Block
+            // Rule 540:  SynchronizedStatement ::= synchronized ( Expression ) Block
             //
-            case 541: {
+            case 540: {
                 Expr Expression = (Expr) getRhsSym(3);
                 Block Block = (Block) getRhsSym(5);
                 unrecoverableSyntaxError = true;
@@ -4632,72 +4668,79 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 542:  PlaceTypeSpecifieropt ::= $Empty
+            // Rule 541:  ThisClauseopt ::= $Empty
             //
-            case 542:
+            case 541:
                 setResult(null);
                 break;
  
             //
-            // Rule 544:  DepParametersopt ::= $Empty
+            // Rule 543:  PlaceTypeSpecifieropt ::= $Empty
             //
-            case 544:
+            case 543:
                 setResult(null);
                 break;
  
             //
-            // Rule 546:  WhereClauseopt ::= $Empty
+            // Rule 545:  DepParametersopt ::= $Empty
             //
-            case 546:
+            case 545:
                 setResult(null);
                 break;
  
             //
-            // Rule 548:  ObjectKindopt ::= $Empty
+            // Rule 547:  WhereClauseopt ::= $Empty
             //
-            case 548:
+            case 547:
                 setResult(null);
                 break;
  
             //
-            // Rule 550:  ArrayInitializeropt ::= $Empty
+            // Rule 549:  ObjectKindopt ::= $Empty
             //
-            case 550:
+            case 549:
                 setResult(null);
                 break;
  
             //
-            // Rule 552:  PlaceExpressionSingleListopt ::= $Empty
+            // Rule 551:  ArrayInitializeropt ::= $Empty
             //
-            case 552:
+            case 551:
                 setResult(null);
                 break;
  
             //
-            // Rule 554:  ArgumentListopt ::= $Empty
+            // Rule 553:  PlaceExpressionSingleListopt ::= $Empty
             //
-            case 554:
+            case 553:
                 setResult(null);
                 break;
  
             //
-            // Rule 556:  DepParametersopt ::= $Empty
+            // Rule 555:  ArgumentListopt ::= $Empty
             //
-            case 556:
+            case 555:
                 setResult(null);
                 break;
  
             //
-            // Rule 558:  Unsafeopt ::= $Empty
+            // Rule 557:  DepParametersopt ::= $Empty
             //
-            case 558:
+            case 557:
                 setResult(null);
                 break;
  
             //
-            // Rule 559:  Unsafeopt ::= unsafe
+            // Rule 559:  Unsafeopt ::= $Empty
             //
-            case 559: {
+            case 559:
+                setResult(null);
+                break;
+ 
+            //
+            // Rule 560:  Unsafeopt ::= unsafe
+            //
+            case 560: {
                 
                 // any value distinct from null
                 setResult(this);
@@ -4705,25 +4748,25 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             }
      
             //
-            // Rule 560:  ParamIdopt ::= $Empty
+            // Rule 561:  ParamIdopt ::= $Empty
             //
-            case 560:
+            case 561:
                 setResult(null);
                 break;
  
             //
-            // Rule 561:  ParamIdopt ::= identifier
+            // Rule 562:  ParamIdopt ::= identifier
             //
-            case 561: {
+            case 562: {
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
      
             //
-            // Rule 562:  ClockedClauseopt ::= $Empty
+            // Rule 563:  ClockedClauseopt ::= $Empty
             //
-            case 562: {
+            case 563: {
                 
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;

@@ -32,7 +32,7 @@ import polyglot.main.Report;
  * @author vj
  *
  */
-public class FutureNode_c extends TypeNode_c implements FutureNode {
+public class FutureNode_c extends X10TypeNode_c implements FutureNode {
 
 	// Recall the field this.type is defined at the supertype.
 	// The Typenode representing the argument type X.
@@ -64,10 +64,10 @@ public class FutureNode_c extends TypeNode_c implements FutureNode {
 
 	public Node visitChildren( NodeVisitor v ) {
 		TypeNode base = (TypeNode) visitChild(this.base, v);
-		return reconstruct( base );
+		return ((FutureNode_c) super.visitChildren(v)).reconstruct( base );
 	}
 
-	public Node disambiguate(AmbiguityRemover sc) throws SemanticException {
+	public Node disambiguateBase(AmbiguityRemover sc) throws SemanticException {
 		// Report.report(5,"[FutureNode_c] Disambiguating |" + this + "|(#" + this.hashCode() +"):");
 		TypeNode newType = (TypeNode) base.disambiguate( sc );
 		// Report.report(5,"[FutureNode_c] ... yields type |" + type + "|.");
@@ -91,7 +91,7 @@ public class FutureNode_c extends TypeNode_c implements FutureNode {
     /**
      * Typecheck the type-argument.
      */
-	public Node typeCheck( TypeChecker tc) throws SemanticException {
+	public Node typeCheckBase( TypeChecker tc) throws SemanticException {
 		// Report.report(5,"[FutureNode_c] Type checking |" + this +"|:");
 		Node n = base.typeCheck( tc );
 		// Report.report(5,"[FutureNode_c] ... yields node |" + n +"|.");
