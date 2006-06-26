@@ -1,3 +1,10 @@
+// Licensed Materials - Property of IBM
+// (C) Copyright IBM Corporation 2004,2005,2006. All Rights Reserved. 
+// Note to U.S. Government Users Restricted Rights:  Use, duplication or disclosure restricted by GSA ADP  Schedule Contract with IBM Corp. 
+//                                                                             
+// --------------------------------------------------------------------------- 
+
+
 package polyglot.ext.x10;
 
 import java.io.IOException;
@@ -9,6 +16,7 @@ import polyglot.ext.jl.JLScheduler;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Qualifier;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
@@ -30,6 +38,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.visit.NodeVisitor;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
+
 
 /**
  * Extension information for x10 extension.
@@ -103,7 +112,9 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     }
 
     protected TypeSystem createTypeSystem() {
-        return new X10TypeSystem_c();
+        X10TypeSystem ts = new X10TypeSystem_c();
+        X10TypeSystem_c.setTypeSystem(ts);
+        return ts;
     }
 
 	public void initCompiler(Compiler compiler) {
