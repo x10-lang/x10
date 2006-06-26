@@ -419,7 +419,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                                     "apply", l1,
                                       new LinkedList(), body);
       //  new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
-     // Report.report(1,"X10Parser: GOLDEN resultType=|" + resultType);
       String prefix = !(resultType instanceof CanonicalTypeNode) ?
                         "generic" : resultType.toString();
       Name x10 = new Name(nf, ts, pos, "x10");
@@ -432,10 +431,10 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
       List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
       classDecl.add( decl );
       TypeNode t = !(resultType instanceof CanonicalTypeNode) ?
-              (TypeNode) nf.GenericArrayPointwiseOpTypeNode(pos, resultType) :
-                  (TypeNode) tArrayPointwiseOp.toType();
-    // Report.report(1,"X10Parser: GOLDEN type =|" + t +"|");
-     New initializer = nf.New(pos,
+               (TypeNode) nf.GenericArrayPointwiseOpTypeNode(pos, resultType) :
+               (TypeNode) tArrayPointwiseOp.toType();
+
+      New initializer = nf.New(pos,
                       t,
                       new LinkedList(),
                              nf.ClassBody( pos, classDecl ) );
@@ -3701,7 +3700,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 423: {
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(4);
-          // System.out.println("Parser: parsed (Type) DepParmetersopt |" + Type + "| |" + DepParametersopt +"|");
+           System.out.println("Parser: parsed (Type) DepParmetersopt |" + Type + "| |" + DepParametersopt +"|");
                 setResult(DepParametersopt == null ? Type 
                 : ((X10TypeNode) Type).dep(null, DepParametersopt));
                 break;
@@ -3713,7 +3712,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 427: {
                 TypeNode NumericType = (TypeNode) getRhsSym(1);
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-               // System.out.println("Parser: parsed PrimitiveType |" + NumericType + "| |" + DepParametersopt +"|");
+                System.out.println("Parser: parsed PrimitiveType |" + NumericType + "| |" + DepParametersopt +"|");
                 setResult(DepParametersopt == null
                                ? NumericType
                                : ((X10TypeNode) NumericType).dep(null, DepParametersopt));
@@ -4477,9 +4476,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(expr1);
                 l.add(expr2);
-               
                 Call regionCall = nf.Call( pos(), x10LangRegionFactoryRegion.prefix.toReceiver(), "region", l  );
-              
                 setResult(regionCall);
                 break;
             }
