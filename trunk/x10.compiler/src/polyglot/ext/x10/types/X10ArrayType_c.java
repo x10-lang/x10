@@ -4,181 +4,107 @@
 package polyglot.ext.x10.types;
 
 import polyglot.ext.jl.types.ArrayType_c;
+import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Christian Grothoff
  */
 public class X10ArrayType_c extends ArrayType_c implements X10ReferenceType {
 
-	/**
-	 * 
-	 */
-	public X10ArrayType_c() {
-		super();
-	}
-	
-    public boolean isArray() {
+    protected DepParameterExpr depClause;
+    protected List/*<GenParameterExpr>*/ typeParameters;
+    protected X10Type baseType = this;
+    public X10Type baseType() { return baseType;}
+    public boolean isParametric() { return typeParameters != null && !  typeParameters.isEmpty();}
+    public List typeParameters() { return typeParameters;}
+    public X10Type makeVariant(DepParameterExpr d, List l) { 
+        if (d == null && (l == null || l.isEmpty()))
+                return this;
+        X10ArrayType_c n = (X10ArrayType_c) copy();
+        // n.baseType = baseType; // this may not be needed.
+        n.typeParameters = l;
+        n.depClause = d;
+        return n;
+    }
+    
+    public boolean equalsImpl(TypeObject o) {
+        //    Report.report(3,"X10ParsedClassType_c: equals |" + this + "| and |" + o+"|");
+        if (o == this) return true;
+        if (! (o instanceof X10ReferenceType_c)) return false;
+        X10ArrayType_c other = (X10ArrayType_c) o;
+        if ( baseType !=other.baseType) return false;
+        
+        if (depClause == null && other.depClause != null) return false;
+        if (depClause != null && ! depClause.equals(other.depClause)) return false;
+        
+        if (typeParameters == null) return other.typeParameters == null;
+        if (typeParameters.isEmpty()) return other.typeParameters == null || other.typeParameters.isEmpty();
+        if (typeParameters.size() != other.typeParameters.size()) return false;
+        Iterator it1 = typeParameters.iterator();
+        Iterator it2 = other.typeParameters.iterator();
+        while (it1.hasNext()) {
+            Type t1 = (Type) it1.next();
+            Type t2 = (Type) it2.next();
+            if (!t1.equals(t2)) return false;
+        }
         return true;
     }
     
-    public boolean isX10Array() {
-        return true;
-    }
-
 	/**
-	 * @param ts
-	 * @param pos
-	 * @param base
+	 * 
 	 */
-	public X10ArrayType_c(TypeSystem ts, Position pos, Type base) {
-		super(ts, pos, base);
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isNullable()
-	 */
-	public boolean isNullable() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isFuture()
-	 */
-	public boolean isFuture() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#toNullable()
-	 */
+	public X10ArrayType_c() {super();}
+    public X10ArrayType_c(TypeSystem ts, Position pos, Type base) {
+        super(ts, pos, base);
+    }
+    
+    public boolean isArray() {return true;}
+    public boolean isX10Array() {return true;}
+	public boolean isNullable() {return false; }
+	public boolean isFuture() {return false;}
 	public NullableType toNullable() {
 	     return X10TypeSystem_c.getFactory().createNullableType(Position.COMPILER_GENERATED, this);
 	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#toFuture()
-	 */
 	public FutureType toFuture() {
 		return X10TypeSystem_c.getFactory().createFutureType(Position.COMPILER_GENERATED, this);
 	}
+	public boolean isBooleanArray() {return base.isBoolean();}
+	public boolean isCharArray() {return base.isChar();}
+	public boolean isByteArray() {return base.isByte();}
+	public boolean isShortArray() {return base.isShort();}
+	public boolean isLongArray() {return base.isLong();}
+	public boolean isIntArray() {return base.isInt();}
+	public boolean isFloatArray() {return  base.isFloat();	}
+	public boolean isDoubleArray() {return base.isDouble();}
+	public boolean isPrimitiveTypeArray() {return base.isPrimitive();}
+    //  vj TODO: check whether the depclause says so 
+	public boolean isDistributedArray() {return true; } 
+	public boolean isPoint() {return false;}
+	public boolean isPlace() {return false;}
 
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isBooleanArray()
-	 */	
-	public boolean isBooleanArray() {
-		return base.isBoolean();
-	}
+   //FIXME: should the array be identified with its distribution?
+    // vj: NO. A distribution is indexable, so itself an array.
+	public boolean isDistribution() {return false; }
 
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isCharArray()
-	 */
-	public boolean isCharArray() {
-		return base.isChar();
-	}
+//   FIXME: should the array be identified with its region?
+    // vj: No.
+	public boolean isRegion() {return false; }
+	public boolean isClock() {return false; }
 
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isByteArray()
-	 */
-	public boolean isByteArray() {
-		return base.isByte();
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isShortArray()
-	 */
-	public boolean isShortArray() {
-		return base.isShort();
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isLongArray()
-	 */
-	public boolean isLongArray() {
-		return base.isLong();
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isIntArray()
-	 */
-	public boolean isIntArray() {
-		return base.isInt();
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isFloatArray()
-	 */
-	public boolean isFloatArray() {
-		return base.isFloat();
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isDoubleArray()
-	 */
-	public boolean isDoubleArray() {
-		return base.isDouble();
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isPrimitiveTypeArray()
-	 */
-	public boolean isPrimitiveTypeArray() {
-		return base.isPrimitive();
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isDistributedArray()
-	 */
-	public boolean isDistributedArray() {
-		return true; // FIXME: how to tell?  
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isPoint()
-	 */
-	public boolean isPoint() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isPlace()
-	 */
-	public boolean isPlace() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isDistribution()
-	 */
-	public boolean isDistribution() {
-		return false; // FIXME: should the array be identified with its distribution?
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isRegion()
-	 */
-	public boolean isRegion() {
-		return false; // FIXME: should the array be identified with its region?
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isClock()
-	 */
-	public boolean isClock() {
-		return false;
-	}
-
-	/**
-	 * Returns true if this is a value array.
-	 * This method always returns false, because any X10 value arrays
-	 * would have been translated into other types earlier.
-	 * It will need to be reimplemented once we have the X10-specific
-	 * array typesystem.
-	 */
+    // FIXME: Its a value type if the array declaration says so.
+    
 	public boolean isValueType() {
-		return false;
+	   return false;
 		//throw new RuntimeException("Internal compiler error: isValueType() on " + this);
 	}
+   
 }

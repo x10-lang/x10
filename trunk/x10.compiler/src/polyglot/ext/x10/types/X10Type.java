@@ -6,17 +6,17 @@
  */
 package polyglot.ext.x10.types;
 
+import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.types.Type;
+import java.util.List;
 
 
 /**
  * @author vj
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public interface X10Type extends Type {
-	
     
     /** Added for the X10 type system. Returns true if the type is of the form nullable X, for some type X.
      * @author vj
@@ -38,6 +38,52 @@ public interface X10Type extends Type {
      */
     boolean isX10Array();
     
+    /** Succeeds if this type represents an array of booleans.
+     * 
+     * @return 
+     */
+    boolean isBooleanArray();
+    
+    /** Succeeds if this type represents an array of chars.
+     * 
+     * @return 
+     */
+    boolean isCharArray();
+    
+    /** Succeeds if this type represents an array of bytes.
+     * 
+     * @return 
+     */
+    boolean isByteArray();
+    
+    /** Succeeds if this type represents an array of shorts.
+     * 
+     * @return 
+     */
+    boolean isShortArray();
+    
+    /** Succeeds if this type represents an array of longs.
+     * 
+     * @return 
+     */
+    boolean isLongArray();
+    /** Succeeds if this type represents an array of ints.
+     * 
+     * @return 
+     */
+    boolean isIntArray();
+    
+    /** Succeeds if this type represents an array of floats.
+     * 
+     * @return 
+     */
+    boolean isFloatArray();
+    
+    /** Succeeds if this type represents an array of doubles.
+     * 
+     * @return 
+     */
+    boolean isDoubleArray();
     /**
      * Succeeds if this type represents an array with the arithmetic operations add, sub, mul, div defined on it.
      * @return
@@ -77,5 +123,16 @@ public interface X10Type extends Type {
     
     boolean isValueType();
     
+    /** Return a subtype of the basetype with the given
+     * depclause and type parameters.
+     * 
+     * @param d
+     * @param g
+     * @return
+     */
+    X10Type makeVariant(DepParameterExpr d, List g);
+    X10Type  baseType();
+    List typeParameters();
+    boolean isParametric();
 
 }

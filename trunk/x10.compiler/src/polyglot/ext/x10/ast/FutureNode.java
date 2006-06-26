@@ -12,7 +12,7 @@ import polyglot.ast.TypeNode;
  * @author vj
  *
  */
-public interface FutureNode extends TypeNode {
+public interface FutureNode extends X10TypeNode {
 	TypeNode base();
 
 }

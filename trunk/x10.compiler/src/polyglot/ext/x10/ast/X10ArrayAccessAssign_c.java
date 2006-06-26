@@ -17,6 +17,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Assign_c;
 import polyglot.ext.jl.ast.Call_c;
+import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -83,13 +84,13 @@ implements X10ArrayAccessAssign {
 		 Type t = left.type();
 		 Type s = right.type();
 //		 Now left must be an X10ArrayAccess which has now resolved into a Call_c.
-			// Use the information in the call to construct the real set call.
-                 Expr left = (this.left instanceof Cast) ? ((Cast)this.left).expr() : this.left;                        
-		  	Call call = (Call) left;            
-			List args = TypedList.copyAndCheck(call.arguments(), Expr.class, false);
-			args.add( 0, right);
-			Expr receiver = (Expr) call.target();
-			
+		 // Use the information in the call to construct the real set call.
+		 Expr left = (this.left instanceof Cast) ? ((Cast)this.left).expr() : this.left;                        
+		 Call call = (Call) left;            
+		 List args = TypedList.copyAndCheck(call.arguments(), Expr.class, false);
+		 args.add( 0, right);
+		 Expr receiver = (Expr) call.target();
+
 		if (op == ASSIGN) {
 		      if (! ts.isImplicitCastValid(s, t) &&
 		          ! ts.equals(s, t) &&
