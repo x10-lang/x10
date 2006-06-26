@@ -128,12 +128,15 @@ exit 1
 
 checkGNU() {
 # check whether a particular tool is from GNU or exit with nonzero return code
+# TODO: make this look through all instances and find the GNU one if any
 chkArgs 1 "$@"
 
     local tool="$1"
 
     if ! "$tool" --version &> /dev/null; then
-      echo "Cannot find GNU $tool in the PATH"
+      TOOL=`type -p $tool`
+      [ -n "$TOOL" ] && TOOLLOC="; $tool is $TOOL"
+      echo "Cannot find GNU $tool in the PATH$TOOLLOC"
       exit 2
     fi
 }
