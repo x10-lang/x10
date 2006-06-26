@@ -1,0 +1,13 @@
+// SYNOPSIS: finish #0 #1=unique_id
+
+{
+	x10.lang.Runtime.getCurrentActivity().startFinish();
+	try {
+		#0
+	} catch (Throwable tmp#1) {
+		x10.lang.Runtime.getCurrentActivity().pushException(tmp#1);
+	} finally {
+		x10.lang.Runtime.getCurrentActivity().stopFinish();
+	}
+}
+
