@@ -218,6 +218,43 @@ public class LocalPlace_c extends Place {
 	public boolean isShutdown() { 
 		return shutdown; 
 	}
+	
+	/**
+	 * Start of code to support abstract execution model
+	 */
+	
+	/*
+	 * totalOps and critPathOps keep track of operations defined by user by calls to x10.lang.perf.addLocalOps()
+	 */
+	private long totalOps = 0; // Total unblocked work done by this activity (in units of user-defined ops)
+	private long critPathOps = 0; // Critical path length for this activity, including dependences due to child activities (in units of user-defined ops)
+	
+	synchronized public long getTotalOps() { return totalOps; }
+	
+	synchronized public long getCritPathOps() { return critPathOps; }
+	
+	synchronized public void addLocalOps(long n) { totalOps += n; }
+	
+	synchronized public void maxCritPathOps(long n) { critPathOps = Math.max(critPathOps, n); }
+	
+	private long totalUnblockedTime = 0; // Total unblocked work done at this place
+	private long critPathTime = 0; // Ideal time = max critical path length of all activities executed at this place
+
+	synchronized public long getTotalUnblockedTime() { return totalUnblockedTime; }
+	
+	synchronized public long getCritPathTime() { return critPathTime; }
+	
+	synchronized public void addUnblockedTime(long t) { totalUnblockedTime += t; }
+	
+	synchronized public void maxCritPathTime(long t) { 
+		critPathTime = Math.max(critPathTime, t); 
+		}
+
+	/**
+	 * End of code to support abstract execution model
+	 */
 		
+	
+
 } // end of LocalPlace_c
 

@@ -48,6 +48,13 @@ public class FinishState {
 
 		try {
 			mcdl.await();
+			if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+				x10.lang.Runtime.getCurrentActivity().maxCritPathOps(mcdl.getCritPathOps());
+				if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+					x10.lang.Runtime.getCurrentActivity().maxCritPathTime(mcdl.getIdealTime());
+					x10.lang.Runtime.getCurrentActivity().setResumeTime();
+				}
+			}
 		} catch (InterruptedException z) {
 		}
 

@@ -74,6 +74,20 @@ public final class Configuration {
     public static int NUMBER_OF_VMS = 1;
     public static int INIT_THREADS_PER_PLACE = 3;
    
+    /**
+     * If ABSTRACT_EXECUTION_STATS = true, then X10 runtime performs additional instrumentation to dump
+     * out abstract parallel execution statistics for the X10 program.  The default value is false.
+     */
+    public static boolean ABSTRACT_EXECUTION_STATS = false;
+
+    /**
+     * If ABSTRACT_EXECUTION_TIMES = true, then also dump out unblocked execution in each place.  The time that an activity is spent blocked
+	 * in the X10 runtime is not counted.  However, this is still an approximate estimate because it does account for time that an activity is not
+	 * executing because its Java thread in the thread pool does not have an available processor.
+	 * 
+	 * NOTE: this option is only enabled when ABSTRACT_EXECUTION_STATS = true;
+     */
+    public static boolean ABSTRACT_EXECUTION_TIMES = false;
 
     /** this check does not work -- it causes spurious warnings */
     public static boolean BAD_PLACE_RUNTIME_CHECK = true;

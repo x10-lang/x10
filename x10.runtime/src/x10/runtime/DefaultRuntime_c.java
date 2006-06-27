@@ -184,6 +184,129 @@ public class DefaultRuntime_c extends Runtime {
 					Report.report(5, PoolRunner.logString() + " terminates.");
 
 				}
+
+				// Dump abstract execution statistics on stderr if requested to
+				// do so
+				if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+					System.err
+							.println("\n#### START OF ABSTRACT EXECUTION STATISTICS (EXCLUDING MAIN ACTIVITY) ####");
+
+					{
+						// PRINT STATISTICS ON NUMBER OF ACTIVITES
+						{
+							long sum = 0;
+							for (int i = 0; i <= getPlaces().length - 1; i++) {
+								sum += getPlaces()[i].getThreadPool()
+										.getCompletedTaskCount();
+							}
+
+							System.err
+									.println("  TOTAL NUMBER OF ACTIVITIES = "
+											+ sum);
+
+							System.err
+									.print("  TOTAL NUMBER OF ACTIVITIES PER PLACE = [ ");
+							for (int i = 0; i <= getPlaces().length - 1; i++) {
+								System.err.print(getPlaces()[i].getThreadPool()
+										.getCompletedTaskCount()
+										+ " ");
+							}
+							System.err.println("]");
+						}
+
+						// PRINT STATISTICS ON NUMBER OF OPS DEFINED BY CALLS TO
+						// x10.lang.perf.addLocalOps()
+						long sum = 0;
+						for (int i = 0; i <= getPlaces().length - 1; i++) {
+							sum += getPlaces()[i].getTotalOps();
+						}
+
+						System.err
+								.println("\n  TOTAL NUMBER OF OPS DEFINED BY CALLS TO x10.lang.perf.addLocalOps() = "
+										+ sum);
+
+						System.err
+								.print("  TOTAL NUMBER OF OPS PER PLACE = [ ");
+						for (int i = 0; i <= getPlaces().length - 1; i++) {
+							System.err
+									.print(getPlaces()[i].getTotalOps() + " ");
+						}
+						System.err.println("]");
+
+						// PRINT STATISTICS ON CRITICAL PATH LENGTHS OF OPS
+						// DEFINED BY CALLS TO x10.lang.perf.addLocalOps()
+						long max = 0;
+						for (int i = 0; i <= getPlaces().length - 1; i++) {
+							max = Math
+									.max(max, getPlaces()[i].getCritPathOps());
+						}
+
+						System.err
+								.println("\n  CRITICAL PATH LENGTH OF OPS DEFINED BY CALLS TO x10.lang.perf.addLocalOps() = "
+										+ max);
+
+						System.err
+								.print("  CRITICAL PATH LENGTH OF OPS PER PLACE = [ ");
+						for (int i = 0; i <= getPlaces().length - 1; i++) {
+							System.err.print(getPlaces()[i].getCritPathOps()
+									+ " ");
+						}
+						System.err.println("]");
+						
+						double speedup = (double) max > 0 ? (double) sum / (double) max : 0;
+						System.err.println("\n  IDEAL SPEEDUP IN NUMBER OF OPS, (TOTAL NUMBER) / (CRIT PATH LENGTH) = " + speedup);
+					}
+
+					if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+						// PRINT STATISTICS ON TOTAL UNBLOCKED EXECUTION TIME
+
+						long sum = 0;
+						for (int i = 0; i <= getPlaces().length - 1; i++) {
+							sum += getPlaces()[i].getTotalUnblockedTime();
+						}
+
+						System.err
+								.println("\n  TOTAL UNBLOCKED TIME FOR ALL ACTIVITIES (in milliseconds) = "
+										+ sum);
+
+						System.err
+								.print("  TOTAL UNBLOCKED TIME PER PLACE = [ ");
+						for (int i = 0; i <= getPlaces().length - 1; i++) {
+							System.err.print(getPlaces()[i]
+									.getTotalUnblockedTime()
+									+ " ");
+						}
+						System.err.println("]");
+
+						// PRINT STATISTICS ON ESTIMATED EXECUTION TIMES
+						long max = 0;
+						for (int i = 0; i <= getPlaces().length - 1; i++) {
+							max = Math.max(max, getPlaces()[i]
+									.getCritPathTime());
+						}
+
+						System.err
+								.println("\n  CRITICAL PATH LENGTH OF ALL ACTIVITIES (in milliseconds) = "
+										+ max);
+
+						System.err
+								.print("  CRITICAL PATH LENGTH PER PLACE = [ ");
+						for (int i = 0; i <= getPlaces().length - 1; i++) {
+							System.err.print(getPlaces()[i].getCritPathTime()
+									+ " ");
+						}
+						System.err.println("]");
+						
+						double speedup = (double) max > 0 ? (double) sum / (double) max : 0;
+						System.err.println("\n  IDEAL SPEEDUP IN EXECUTION TIME,(TOTAL TIME) / (CRIT PATH LENGTH) = " + speedup);
+	
+					}
+
+					System.err
+							.println("#### END OF ABSTRACT EXECUTION STATISTICS (EXCLUDING MAIN ACTIVITY) ####");
+				}
+				
+
 				// The VM goes bye bye.
 				finalizeAndTermLibs();
 				Runtime.x10Exit();

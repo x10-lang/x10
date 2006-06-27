@@ -107,7 +107,10 @@ public abstract class Activity implements Runnable {
 			Clock c = (Clock) it.next();
 			c.register(this);
 		}
-
+		
+		if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) 
+			// Record time at which activity was started
+			setResumeTime();
 	}
 
 	public/*mySpawningThread*/void setRootActivityFinishState(FinishState root) {
@@ -384,7 +387,7 @@ public abstract class Activity implements Runnable {
 			Report.report(5, PoolRunner.logString() + " " + this
 					+ "terminates.");
 		}
-		dropAllClocks();
+		finalizeTerminationCleanup();
 		if (activityAsSeenByInvokingVM == thisActivityIsLocal
 				|| activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
 			if (rootNode_ != null)
@@ -413,11 +416,7 @@ public abstract class Activity implements Runnable {
 			Report.report(5, Thread.currentThread() + " " + this
 					+ " terminates abruptly with " + t);
 		}
-		dropAllClocks();
-		if (Report.should_report("activity", 5)) {
-			Report.report(5, Thread.currentThread() + " " + this
-					+ " drops clocks, has rootNode_ " + rootNode_);
-		}
+		finalizeTerminationCleanup();
 		if (rootNode_ != null)
 			rootNode_.notifySubActivityTermination(t);
 		if (asl_ != null) {
@@ -428,6 +427,29 @@ public abstract class Activity implements Runnable {
 			}
 		}
 	}
+	
+	/**
+	 * Helper method called by finalizeTermination() and finalizeTermination(t)
+	 */
+
+	public/*myThread*/void finalizeTerminationCleanup() {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+		    x10.lang.Runtime.here().maxCritPathOps(getCritPathOps());
+		    x10.lang.Runtime.here().addLocalOps(getTotalOps());
+		    
+		    if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+				updateIdealTime();
+				x10.lang.Runtime.here().addUnblockedTime(getTotalUnblockedTime());
+				x10.lang.Runtime.here().maxCritPathTime(getCritPathTime());
+			}
+		}
+		dropAllClocks();
+		if (Report.should_report("activity", 5)) {
+			Report.report(5, Thread.currentThread() + " " + this
+					+ " drops clocks, has rootNode_ " + rootNode_);
+		}
+	}
+
 
 	/** The short name for the activity. Used in logging.
 	 * 
@@ -520,6 +542,57 @@ public abstract class Activity implements Runnable {
 	int numArgsInConstructor;
 
 	int listOfClocksIsArgNum;
+	
+	/**
+	 * Start of code to support abstract execution model
+	 */
+	
+	/*
+	 * totalOps and critPathOps keep track of operations defined by user by calls to x10.lang.perf.addLocalOps()
+	 */
+	private long totalOps = 0; // Total unblocked work done by this activity (in units of user-defined ops)
+	private long critPathOps = 0; // Critical path length for this activity, including dependences due to child activities (in units of user-defined ops)
+	
+	synchronized public long getTotalOps() { return totalOps; }
+	
+	synchronized public long getCritPathOps() { return critPathOps; }
+	
+	synchronized public void addLocalOps(long n) { totalOps += n; critPathOps += n; }
+	
+	synchronized public void maxCritPathOps(long n) { critPathOps = Math.max(critPathOps, n); }
+	
+	/*
+	 * totalTime, critPathTime, and resumeTime keep tracks of actual unblocked execution in each activity.  The time that an activity is spent blocked
+	 * in the X10 runtime is not counted.  However, this is still an approximate estimate because it does account for time that an activity is not
+	 * executing because its Java thread in the thread pool does not have an available processor.
+	 */
+	private long totalUnblockedTime = 0; // Total unblocked time done by this activity (in milliseconds)
+	private long critPathTime = 0; // Critical path length for this activity, including dependences due to child activities (in milliseconds)
+	private long resumeTime = 0; // Time at which activity was started or unblocked (whichever is most recent)
+	
+	synchronized public long getTotalUnblockedTime() { return totalUnblockedTime; }
+	
+	synchronized public long getCritPathTime() { return critPathTime; }
+	
+	synchronized public void maxCritPathTime(long t) { critPathTime = Math.max(critPathTime, t); }
+	
+	synchronized public long getResumeTime() { return resumeTime; }
+	
+	synchronized public void setResumeTime() { resumeTime = getCurrentTime(); }
+
+	synchronized public void updateIdealTime() {
+		long delta = getCurrentTime() - getResumeTime();
+		totalUnblockedTime += delta;
+		critPathTime += delta;
+	}
+	
+	// Use System.currentTimeMillis() for now to measure ideal execution time.
+	// This can be changed in the future
+	public long getCurrentTime() { return System.currentTimeMillis(); }
+	
+	/**
+	 * End of code to support abstract execution model
+	 */
 
 	/**
 	 * An activity used to implement an X10 future.

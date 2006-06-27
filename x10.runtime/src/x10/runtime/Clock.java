@@ -419,9 +419,18 @@ public /* final */ class Clock extends clock {
 		if (Report.should_report("clock", 5)) {
 			Report.report(5, PoolRunner.logString() + " " + this+".doNext(" + a + ") called.");
 		}
+		
 		synchronized (this) {
 			assert activities_.contains(a);
 			assert nextResumed_.contains(a) || resumed_.contains(a);
+	    	if ( JITTimeConstants.ABSTRACT_EXECUTION_STATS ) {
+	    		maxCritPathOps(x10.lang.Runtime.getCurrentActivity().getCritPathOps());
+	    		if ( JITTimeConstants.ABSTRACT_EXECUTION_TIMES ) {
+	    			x10.lang.Runtime.getCurrentActivity().updateIdealTime();
+	    			maxIdealTime(x10.lang.Runtime.getCurrentActivity().getCritPathTime());
+	    		}
+	    	}
+			
 			if (!splitPhase_ || nextResumed_.contains(a)){
 				if (Report.should_report("clock", 3)) {
 					Report.report(3, PoolRunner.logString() + " " + this+".doNext(" + a + ") blocks.");
@@ -435,6 +444,14 @@ public /* final */ class Clock extends clock {
 			resumed_.remove(a);
 			resumedCount_ --;
 			tryMoveToWhole_();
+			
+			if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+				x10.lang.Runtime.getCurrentActivity().maxCritPathOps(getCritPathOps());
+				if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+					x10.lang.Runtime.getCurrentActivity().maxCritPathTime(getIdealTime());
+					x10.lang.Runtime.getCurrentActivity().setResumeTime();
+				}
+			}
 			return;
 		}
 	}
@@ -483,4 +500,28 @@ public /* final */ class Clock extends clock {
 		+ ")";
 	}
 	
+	/*
+	 * critPathOps keeps track of operations defined by user by calls to x10.lang.perf.addLocalOps()
+	 */
+    private long critPathOps = 0; // Current critical path length for this latch (in user-defined operations)
+	
+	synchronized public void maxCritPathOps(long n) {
+		critPathOps = Math.max(critPathOps, n);
+	}
+
+    /**
+     * getCritPathOps() should only be called after a next operation has succeeded
+     * (That's why it need not be a synchronized method.)
+     */
+    public long getCritPathOps() { return critPathOps; }
+    
+    private long curIdealTime = 0; // Current "ideal" execution time for this latch (assuming unbounded resources)
+	
+	synchronized public void maxIdealTime(long t) { curIdealTime = Math.max(curIdealTime, t); }
+
+    /**
+     * getIdealTime() should only be called after a next operation has succeeded
+     * (That's why it need not be a synchronized method.)
+     */
+    public long getIdealTime() { return curIdealTime; }
 } // end of Clock

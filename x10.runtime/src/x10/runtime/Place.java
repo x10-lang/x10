@@ -96,6 +96,23 @@ implements Comparable {
         // works because every place has unique id
         return this == o;
     }
+    
+	/**
+	 * Start of code to support abstract execution model
+	 */
+	public abstract long getTotalOps();	
+	public abstract long getCritPathOps();
+	public abstract void addLocalOps(long n);
+	public abstract void maxCritPathOps(long n);
+	
+	public abstract long getTotalUnblockedTime();
+	public abstract long getCritPathTime();
+	public abstract void addUnblockedTime(long t);
+	public abstract void maxCritPathTime(long t);
+	/**
+	 * End of code to support abstract execution model
+	 */
+		
 
 } // end of Place
 
