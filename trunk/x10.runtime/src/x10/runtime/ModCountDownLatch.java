@@ -151,9 +151,42 @@ public class ModCountDownLatch {
      * happens.
      */
     public void countDown() {
+    	if ( JITTimeConstants.ABSTRACT_EXECUTION_STATS ) {
+		    // Method finalizeTermination() in Activity.java ensures that the activity's ideal execution ops & time values are updated 
+		    // before the call to notifySubActivityTermination() occurs
+    		maxCritPathOps(x10.lang.Runtime.getCurrentActivity().getCritPathOps());
+    		if ( JITTimeConstants.ABSTRACT_EXECUTION_TIMES )
+    			maxIdealTime(x10.lang.Runtime.getCurrentActivity().getCritPathTime());
+    	}
         sync.releaseShared(1);
     }
     
+	/*
+	 * critPathOps keeps track of operations defined by user by calls to x10.lang.perf.addLocalOps()
+	 */
+    private long critPathOps = 0; // Current critical path length for this latch (in user-defined operations)
+	
+	synchronized public void maxCritPathOps(long n) {
+		critPathOps = Math.max(critPathOps, n);
+	}
+
+    /**
+     * getCritPathOps() shoudl only be called after latch has counted down to zero.
+     * (That's why it need not be a synchronized method.)
+     */
+    public long getCritPathOps() { return critPathOps; }
+    
+    private long curIdealTime = 0; // Current "ideal" execution time for this latch (assuming unbounded resources)
+	
+	synchronized public void maxIdealTime(long t) { curIdealTime = Math.max(curIdealTime, t); }
+
+    /**
+     * getIdealTime() shoudl only be called after latch has counted down to zero.
+     * (That's why it need not be a synchronized method.)
+     */
+    public long getIdealTime() { return curIdealTime; }
+	
+   
     /**
      * Updates the counter of the synch variable dynamically
      * Update only if the counter value is > 0

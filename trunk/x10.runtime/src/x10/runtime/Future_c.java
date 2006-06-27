@@ -48,6 +48,13 @@ public final class Future_c extends Future {
     public void setResult(Object result) {
 	this.result_ = result;
 	if (cdl.getCount() > 0) cdl.countDown();
+	if ( JITTimeConstants.ABSTRACT_EXECUTION_STATS ) {
+		maxCritPathOps(x10.lang.Runtime.getCurrentActivity().getCritPathOps());
+		if ( JITTimeConstants.ABSTRACT_EXECUTION_TIMES ) {
+			x10.lang.Runtime.getCurrentActivity().updateIdealTime();
+			maxIdealTime(x10.lang.Runtime.getCurrentActivity().getCritPathTime());
+		}
+	}
     }
 
     /**
@@ -60,7 +67,14 @@ public final class Future_c extends Future {
     public void setException(Throwable t) {
 	this.exception_ = t;
 	if (cdl.getCount() > 0) cdl.countDown();
-    }
+	if ( JITTimeConstants.ABSTRACT_EXECUTION_STATS ) {
+		maxCritPathOps(x10.lang.Runtime.getCurrentActivity().getCritPathOps());
+		if ( JITTimeConstants.ABSTRACT_EXECUTION_TIMES ) {
+			x10.lang.Runtime.getCurrentActivity().updateIdealTime();
+			maxIdealTime(x10.lang.Runtime.getCurrentActivity().getCritPathTime());
+		}
+	}
+	}
 
     /*
      * @see x10.runtime.Activity.Result#force()
@@ -77,6 +91,13 @@ public final class Future_c extends Future {
 	    }
 	    ((PoolRunner) t).getPlace().decNumBlocked();
 	}
+	if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+		x10.lang.Runtime.getCurrentActivity().maxCritPathOps(getCritPathOps());
+		if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+			x10.lang.Runtime.getCurrentActivity().maxCritPathTime(getIdealTime());
+			x10.lang.Runtime.getCurrentActivity().setResumeTime();
+		}
+	}
 	if (exception_ != null) {
 	    if (exception_ instanceof Error)
 		throw (Error) exception_;
@@ -87,4 +108,30 @@ public final class Future_c extends Future {
 			
 	return result_;
     }
+    
+	/*
+	 * critPathOps keeps track of operations defined by user by calls to x10.lang.perf.addLocalOps()
+	 */
+    private long critPathOps = 0; // Current critical path length for this latch (in user-defined operations)
+	
+	synchronized public void maxCritPathOps(long n) {
+		critPathOps = Math.max(critPathOps, n);
+	}
+	
+    /**
+     * getCritPathOps() should only be called after a next operation has succeeded
+     * (That's why it need not be a synchronized method.)
+     */
+    public long getCritPathOps() { return critPathOps; }
+    
+    private long curIdealTime = 0; // Current "ideal" execution time for this latch (assuming unbounded resources)
+	
+	synchronized public void maxIdealTime(long t) { curIdealTime = Math.max(curIdealTime, t); }
+
+    /**
+     * getIdealTime() should only be called after a next operation has succeeded
+     * (That's why it need not be a synchronized method.)
+     */
+    public long getIdealTime() { return curIdealTime; }
+
 }
