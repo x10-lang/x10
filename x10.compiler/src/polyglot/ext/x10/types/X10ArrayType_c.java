@@ -3,17 +3,16 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.Iterator;
+import java.util.List;
+
 import polyglot.ext.jl.types.ArrayType_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.ast.GenParameterExpr;
+import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * @author Christian Grothoff
@@ -37,11 +36,12 @@ public class X10ArrayType_c extends ArrayType_c implements X10ReferenceType {
     }
     
     public boolean equalsImpl(TypeObject o) {
-        //    Report.report(3,"X10ParsedClassType_c: equals |" + this + "| and |" + o+"|");
+        //Report.report(3,"X10ArrayType_c: equals |" + this + "| and |" + o+"|");
         if (o == this) return true;
-        if (! (o instanceof X10ReferenceType_c)) return false;
+        if (! (o instanceof X10ArrayType_c)) return false;
         X10ArrayType_c other = (X10ArrayType_c) o;
-        if ( baseType !=other.baseType) return false;
+        
+        if ( ! base.equalsImpl(other.base)) return false;
         
         if (depClause == null && other.depClause != null) return false;
         if (depClause != null && ! depClause.equals(other.depClause)) return false;

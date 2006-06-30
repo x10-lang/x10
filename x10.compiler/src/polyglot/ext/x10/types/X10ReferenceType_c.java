@@ -49,11 +49,13 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     
    
     public boolean equalsImpl(TypeObject o) {
-        //    Report.report(3,"X10ParsedClassType_c: equals |" + this + "| and |" + o+"|");
+        // Report.report(3,"X10ReferenceType_c: equals |" + this + "| and |" + o+"|");
+      
         if (o == this) return true;
         if (! (o instanceof X10ReferenceType_c)) return false;
         X10ReferenceType_c other = (X10ReferenceType_c) o;
-        if (baseType != other.baseType) return false;
+        //Report.report(3,"X10ReferenceType_c: baseType |" + baseType + "| and |" + other.baseType +"|");
+        if (! baseType.equalsImpl(other.baseType)) return false;
         
         if (depClause == null && other.depClause != null) return false;
         if (depClause != null && ! depClause.equals(other.depClause)) return false;
