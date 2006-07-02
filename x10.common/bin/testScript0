@@ -790,7 +790,7 @@ mailDiffFromLastRun() {
     echo "" >> $logDiff
     echo "+++ CVS changes between $date1 ET and $date2 ET (times below are in UTC):" >> $logDiff
     echo "" >> $logDiff
-    (cd ../..; cvs -q log -d "${date1}<${date2}" -S -b -N `cat x10.common/projectList.txt`|sed -n -e "/^RCS file:/p;/^date:/p;/^=/p"|awk '{print}; END {if(NR==0) print "No changes."}' ) >> $logDiff
+    (cd ../..; cvs -q log -d "${date1}<${date2}" -S -b -N `grep -v '^#' x10.common/projectList.txt`|sed -n -e "/^RCS file:/p;/^date:/p;/^=/p"|awk '{print}; END {if(NR==0) print "No changes."}' ) >> $logDiff
     mail -s "X10: ${newFailStr}Differences between test runs started on $date1 vs. $date2" "$mailDest" < $logDiff
     mv $logDiff logDiff
   fi

@@ -23,11 +23,11 @@ if [[ -z "$X10_PLATFORM" ]]; then echo "+++ X10_PLATFORM must be defined"; exit 
 cvs -q update -dPA x10.common/projectList.txt
 
 #cvs checkout or update all projects
-cvs -q checkout -PA `cat x10.common/projectList.txt`
+cvs -q checkout -PA `grep -v '^#' x10.common/projectList.txt`
 chkRc $? "+++ cvs update failed"
 
 #build all projects
-for p in `cat x10.common/projectList.txt` ; do
+for p in `grep -v '^#' x10.common/projectList.txt` ; do
   if [[ ! -e $p/build.xml ]] ; then continue; fi
   cd $p
   echo "+++ building $p"
