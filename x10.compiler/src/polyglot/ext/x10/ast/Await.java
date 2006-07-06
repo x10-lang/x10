@@ -5,8 +5,8 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Stmt;
 import polyglot.ast.Expr;
+import polyglot.ast.Stmt;
 
 /**
  * @author vj

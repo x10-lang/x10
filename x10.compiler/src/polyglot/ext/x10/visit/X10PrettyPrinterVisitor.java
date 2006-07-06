@@ -285,7 +285,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	private Stmt optionalBreak(Stmt s) {
-		X10NodeFactory_c nf = X10NodeFactory_c.getFactory();
+		X10NodeFactory_c nf = X10NodeFactory_c.getNodeFactory();
 		if (s.reachable())
 			return nf.Break(s.position());
 		// [IP] Heh, Empty cannot be unreachable either.  Who knew?

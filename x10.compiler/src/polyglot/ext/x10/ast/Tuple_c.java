@@ -14,7 +14,6 @@ import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.main.Report;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;

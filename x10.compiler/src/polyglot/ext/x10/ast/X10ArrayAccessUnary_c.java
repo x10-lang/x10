@@ -13,15 +13,13 @@ import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.Unary;
-import polyglot.ast.Variable;
-import polyglot.ext.jl.ast.Unary_c;
 import polyglot.ext.jl.ast.Call_c;
+import polyglot.ext.jl.ast.Unary_c;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.TypedList;
 import polyglot.visit.TypeChecker;
 
 /**

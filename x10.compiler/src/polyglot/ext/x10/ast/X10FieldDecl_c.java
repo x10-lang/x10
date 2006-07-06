@@ -5,7 +5,6 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.x10.types.X10ReferenceType;
-import polyglot.main.Report;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
@@ -15,10 +14,13 @@ import polyglot.visit.TypeChecker;
 
 public class X10FieldDecl_c extends FieldDecl_c {
 
-	public X10FieldDecl_c(Position pos, Flags flags, TypeNode type,
+    // TODO: Use this during type-checking.
+    TypeNode thisClause;
+	public X10FieldDecl_c(Position pos, TypeNode thisClause, Flags flags, TypeNode type,
 						  String name, Expr init)
 	{
 		super(pos, flags, type, name, init);
+        this.thisClause = thisClause;
 	}
 
 	public Node typeCheck(TypeChecker tc) throws SemanticException {

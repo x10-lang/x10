@@ -4,7 +4,6 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.Stmt;
-import polyglot.ast.Block;
 
 /** The node constructed for the X10 construct async (P) {S}.
  * @author Christian Grothoff

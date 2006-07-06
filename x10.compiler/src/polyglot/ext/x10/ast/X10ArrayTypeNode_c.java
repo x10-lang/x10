@@ -6,25 +6,22 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.TypeNode_c;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.ast.Node;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
-import polyglot.visit.TypeChecker;
-import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.visit.TypeBuilder;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
+import polyglot.visit.TypeChecker;
 
 /** An immutable AST representation of an X10 array type.
  * @author vj Dec 9, 2004

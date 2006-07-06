@@ -5,26 +5,18 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ext.jl.ast.TypeNode_c;
-import polyglot.ext.x10.types.FutureType_c;
-import polyglot.ext.x10.types.X10TypeSystem;
-
-import polyglot.util.Position;
-import polyglot.util.CodeWriter;
-
-import polyglot.ast.TypeNode;
 import polyglot.ast.Node;
-
+import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-
-import polyglot.visit.TypeChecker;
-import polyglot.visit.NodeVisitor;
+import polyglot.util.CodeWriter;
+import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
-import polyglot.visit.TypeBuilder;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-
-import polyglot.main.Report;
+import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeChecker;
 
 
 /** A FutureNode is an TypeNode that has been marked with a future

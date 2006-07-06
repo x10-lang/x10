@@ -3,9 +3,9 @@
  */
 package polyglot.ext.x10.ast;
 
+import polyglot.ast.CompoundStmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
-import polyglot.ast.CompoundStmt;
 
 /** The node constructed for the X10 construct now (c) S.
  * 

@@ -3,9 +3,11 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 import polyglot.ext.jl.types.ParsedClassType_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
@@ -18,6 +20,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 
 /** 6/2006 Modified so that every type is now potentially generic and dependent.
  * @author vj
@@ -38,6 +41,7 @@ public class X10ParsedClassType_c extends ParsedClassType_c
 								Source fromSource)
 	{
 		super(ts, init, fromSource);
+        
 	}
 
     /** An instance of X10ParsedClassType_c obtained by reading a code
@@ -81,6 +85,7 @@ public class X10ParsedClassType_c extends ParsedClassType_c
 	}
 
    public boolean equalsImpl(TypeObject o) {
+       
         if ( Report.should_report("debug", 5))
             Report.report(5,"X10ParsedClassType_c: equals |" + this + "| and |" + o+"|?");
        
@@ -415,6 +420,40 @@ public class X10ParsedClassType_c extends ParsedClassType_c
         }
 		return result;
 	}
+    
+    List properties = null;
+    public List properties() {
+        if (properties != null) 
+            return properties;
+        init.canonicalFields();
+        FieldInstance fi = fieldNamed("propertyNames$");
+        if (fi == null) {
+            if (Report.should_report(Report.types, 2))
+                Report.report(2, "Type " + name + " has no properties.");
+            properties = Collections.EMPTY_LIST;
+            return properties;
+        }
+        String propertyNames = (String) fi.constantValue();
+        if (fi == null)
+            throw new InternalCompilerError("The synthetic field propertyNames$ " 
+                    + " has not been initialized for type " + name); 
+        properties = Collections.EMPTY_LIST;
+        Scanner s = new Scanner(propertyNames);
+        while (s.hasNext()) {
+            String propName = s.next();
+            FieldInstance prop = fieldNamed(propName);
+            if (prop == null) 
+                throw new InternalCompilerError("Type " 
+                        + name + " has no property named " + propName); 
+            properties.add(prop);
+        }
+        if (superType != null) 
+            properties.addAll(((X10Type) superType).properties());
+        if (true || Report.should_report(Report.types, 2))
+            Report.report(2, "Type " + name + " has properties " + properties +".");
+        return properties;
+     
+    }
 
 
 }

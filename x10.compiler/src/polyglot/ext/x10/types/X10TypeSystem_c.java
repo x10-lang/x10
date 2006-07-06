@@ -9,7 +9,6 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ext.jl.types.MethodInstance_c;
 import polyglot.ext.jl.types.TypeSystem_c;
-import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
 import polyglot.types.ArrayType;
@@ -791,6 +790,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		Flags sf = super.flagsForBits(bits);
 		if (sf.isInterface()) return sf.Static();
 		return sf;
+	}
+
+	public PropertyInstance propertyInstance(Position pos,
+	        ReferenceType container, Flags flags,
+	        Type type, String name) {
+	    assert_(container);
+	    assert_(type);
+	    return new PropertyInstance_c(this, pos, container, flags, type, name);
 	}
 
 //	/**

@@ -5,27 +5,22 @@ package polyglot.ext.x10.ast;
 
 import java.util.List;
 
-import polyglot.ast.BooleanLit;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ext.jl.ast.Binary_c;
+import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
-import polyglot.visit.FlowGraph;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeSystem;
-
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.region;
-import x10.lang.point;
 
 /**
  * An immutable representation of a binary operation Expr op Expr.

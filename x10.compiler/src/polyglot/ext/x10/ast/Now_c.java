@@ -3,20 +3,16 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
-import polyglot.ast.Block;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
-import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;

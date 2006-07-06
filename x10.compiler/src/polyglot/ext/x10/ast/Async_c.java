@@ -1,34 +1,28 @@
 package polyglot.ext.x10.ast;
 
+import java.util.Collection;
 import java.util.List;
 
-import polyglot.ast.Block;
-import polyglot.ast.Stmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.Stmt;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Stmt_c;
-import polyglot.ext.x10.types.FutureType_c;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.util.Position;
+import polyglot.main.Report;
+import polyglot.types.Context;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
+import polyglot.util.Position;
+import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.types.Context;
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
-import polyglot.types.Type;
-import java.util.LinkedList;
-import polyglot.util.TypedList;
-import java.util.ArrayList;
-import polyglot.main.Report;
-import java.util.Collection;
-import polyglot.util.CollectionUtil;
+import polyglot.visit.TypeChecker;
 
 /**
  * Created on Oct 5, 2004
