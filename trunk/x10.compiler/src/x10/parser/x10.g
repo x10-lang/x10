@@ -67,6 +67,7 @@ $Globals
     import polyglot.ext.x10.ast.X10NodeFactory;
     import polyglot.ext.x10.types.X10TypeSystem;
     import polyglot.ext.x10.types.X10TypeSystem_c;
+    import polyglot.ext.x10.ast.PropertyDecl;
     import polyglot.frontend.FileSource;
     import polyglot.frontend.Parser;
     import polyglot.lex.BooleanLiteral;
@@ -177,6 +178,7 @@ $Import
                          | synchronized
         SynchronizedStatement ::= synchronized ( Expression ) Block
         ConstructorDeclarator ::= TypeParametersopt SimpleTypeName ( FormalParameterListopt )
+        FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators ;
         ConstructorModifier ::= Annotations
         ExplicitConstructorInvocation ::= TypeArgumentsopt this ( ArgumentListopt ) ;
                                         | TypeArgumentsopt super ( ArgumentListopt ) ;
@@ -716,7 +718,7 @@ $Headers
 $End
 
 $Rules -- Overridden rules from GJavaParser
-    ClassType ::= TypeName DepParametersopt
+    ClassType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
         /.$BeginJava
                          setResult(DepParametersopt == null
                                    ? TypeName.toType()
@@ -725,7 +727,7 @@ $Rules -- Overridden rules from GJavaParser
         ./
    
      
-    InterfaceType ::= TypeName DepParametersopt
+    InterfaceType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
         /.$BeginJava
                      setResult(DepParametersopt == null
                                    ? TypeName.toType()
@@ -739,37 +741,74 @@ $Rules -- Overridden rules from GJavaParser
           $EndJava
         ./
 
-    NormalClassDeclaration ::= ClassModifiersopt class identifier DepParametersopt Superopt Interfacesopt ClassBody
+    NormalClassDeclaration ::= ClassModifiersopt class identifier PropertyListopt  Superopt Interfacesopt ClassBody
         /.$BeginJava
-        // vj TODO: Add processing of DepParametersopt
-                    checkTypeName(identifier);
-                    setResult(X10Flags.isValue(ClassModifiersopt)
-                                 ? nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-                                                     ClassModifiersopt, identifier.getIdentifier(), Superopt, Interfacesopt, ClassBody)
-                                 : nf.ClassDecl(pos(getLeftSpan(), getRightSpan()),
-                                                ClassModifiersopt, identifier.getIdentifier(), Superopt, Interfacesopt, ClassBody));
+          checkTypeName(identifier);
+          //Report.report(1, "Parser: Golden Creating class with properties |" + PropertyListopt + "|");
+          List/*<PropertyDecl>*/ props = PropertyListopt == null ? null 
+                      : (List) PropertyListopt[0];
+          Expr ci = PropertyListopt == null ? null : (Expr) PropertyListopt[1];
+          setResult(X10Flags.isValue(ClassModifiersopt)
+             ? nf.ValueClassDecl(pos(),
+                  ClassModifiersopt, identifier.getIdentifier(), props, ci, Superopt, Interfacesopt, ClassBody)
+             : nf.ClassDecl(pos(),
+                  ClassModifiersopt, identifier.getIdentifier(), props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
 
+    PropertyList ::= ( Properties WhereClauseopt )
+    /.$BeginJava
+       Object[] result = new Object[2];
+       result[0] = Properties;
+       result[1] = WhereClauseopt;
+       setResult(result);
+     $EndJava ./
+     
+       Properties ::= Property
+        /.$BeginJava
+                    List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
+                    l.add(Property);
+                    setResult(l);
+          $EndJava
+        ./
+                          | Properties , Property
+        /.$BeginJava
+                    Properties.add(Property);
+                    // setResult(FormalParameters);
+          $EndJava
+        ./
+    
+    
+    Property ::=  Type identifier
+        /.$BeginJava
+        
+                    setResult(nf.PropertyDecl(pos(), Flags.PUBLIC.Final(), Type,
+                    identifier.getIdentifier()));
+                  
+          $EndJava
+        ./
     MethodHeader ::= MethodModifiersopt ResultType MethodDeclarator Throwsopt
         /.$BeginJava
-                    Name c = (Name) MethodDeclarator[0];
-                    List d = (List) MethodDeclarator[1];
-                    Integer e = (Integer) MethodDeclarator[2];
+          Name c = (Name) MethodDeclarator[0];
+          List d = (List) MethodDeclarator[1];
+          Integer e = (Integer) MethodDeclarator[2];
+          Expr where = (Expr) MethodDeclarator[3];
+          TypeNode thisClause = (TypeNode) MethodDeclarator[4];
+          if (ResultType.type() == ts.Void() && e.intValue() > 0)
+             {
+               // TODO: error!!!
+               assert(false);
+             }
 
-                    if (ResultType.type() == ts.Void() && e.intValue() > 0)
-                    {
-                        // TODO: error!!!
-                        assert(false);
-                    }
-
-                    setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($MethodDeclarator)),
-                                           MethodModifiersopt,
-                                           nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e.intValue()),
-                                           c.toString(),
-                                           d,
-                                           Throwsopt,
-                                           null));
+           setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($MethodDeclarator)),
+              thisClause,
+              MethodModifiersopt,
+              nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e.intValue()),
+              c.toString(),
+              d,
+              where,
+              Throwsopt,
+              null));
           $EndJava
         ./
 
@@ -794,37 +833,45 @@ $Rules -- Overridden rules from GJavaParser
           $EndJava
         ./
 
-    NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier ExtendsInterfacesopt InterfaceBody
+    NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier PropertyListopt ExtendsInterfacesopt InterfaceBody
         /.$BeginJava
-                    checkTypeName(identifier);
-                    setResult(nf.ClassDecl(pos(),
-                                        InterfaceModifiersopt.Interface(),
-                                        identifier.getIdentifier(),
-                                        null,
-                                        ExtendsInterfacesopt,
-                                        InterfaceBody));
+          checkTypeName(identifier);
+          List/*<PropertyDecl>*/ props = PropertyListopt == null ? null 
+                      : (List) PropertyListopt[0];
+          Expr ci = PropertyListopt == null ? null : (Expr) PropertyListopt[1];
+          setResult(nf.ClassDecl(pos(),
+                       InterfaceModifiersopt.Interface(),
+                       identifier.getIdentifier(),
+                       props,
+                       ci,
+                       null,
+                       ExtendsInterfacesopt,
+                       InterfaceBody));
           $EndJava
         ./
 
     AbstractMethodDeclaration ::= AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt ;
         /.$BeginJava
-                    Name c = (Name) MethodDeclarator[0];
-                    List d = (List) MethodDeclarator[1];
-                    Integer e = (Integer) MethodDeclarator[2];
+         Name c = (Name) MethodDeclarator[0];
+         List d = (List) MethodDeclarator[1];
+         Integer e = (Integer) MethodDeclarator[2];
+         Expr where = (Expr) MethodDeclarator[3];
+         TypeNode thisClause = (TypeNode) MethodDeclarator[4];
+         if (ResultType.type() == ts.Void() && e.intValue() > 0)
+            {
+              // TODO: error!!!
+              assert(false);
+            }
 
-                    if (ResultType.type() == ts.Void() && e.intValue() > 0)
-                    {
-                        // TODO: error!!!
-                        assert(false);
-                    }
-
-                    setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($MethodDeclarator)),
-                                           AbstractMethodModifiersopt ,
-                                           nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e.intValue()),
-                                           c.toString(),
-                                           d,
-                                           Throwsopt,
-                                           null));
+         setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($MethodDeclarator)),
+                    thisClause,
+                    AbstractMethodModifiersopt ,
+                    nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e.intValue()),
+                    c.toString(),
+                    d,
+                    where,
+                    Throwsopt,
+                    null));
           $EndJava
         ./
 
@@ -873,9 +920,9 @@ $Rules
 
     -------------------------------------- Section:::Types
 
-    Type ::= DataType PlaceTypeSpecifieropt
+    Type ::= DataType 
         /.$BeginJava
-                    // Just parse the placetype and drop it for now.
+                  setResult(DataType);
           $EndJava
         ./
             | nullable Type
@@ -890,7 +937,7 @@ $Rules
         ./
             | ( Type ) DepParametersopt
              /.$BeginJava
-               System.out.println("Parser: parsed (Type) DepParmetersopt |" + Type + "| |" + DepParametersopt +"|");
+               //System.out.println("Parser: parsed (Type) DepParmetersopt |" + Type + "| |" + DepParametersopt +"|");
                     setResult(DepParametersopt == null ? Type 
                     : ((X10TypeNode) Type).dep(null, DepParametersopt));
           $EndJava
@@ -908,7 +955,7 @@ $Rules
 
     PrimitiveType ::= NumericType DepParametersopt
      /.$BeginJava
-                    System.out.println("Parser: parsed PrimitiveType |" + NumericType + "| |" + DepParametersopt +"|");
+                  //  System.out.println("Parser: parsed PrimitiveType |" + NumericType + "| |" + DepParametersopt +"|");
                     setResult(DepParametersopt == null
                                    ? NumericType
                                    : ((X10TypeNode) NumericType).dep(null, DepParametersopt));
@@ -925,10 +972,12 @@ $Rules
     PlaceTypeSpecifier ::= @ PlaceType
 
     PlaceType ::= any
+                | current 
                 | PlaceExpression
 
-    ClassOrInterfaceType ::= TypeName PlaceTypeSpecifieropt DepParametersopt
+    ClassOrInterfaceType ::= TypeName DepParametersopt PlaceTypeSpecifieropt 
         /.$BeginJava
+               //  System.out.println("Parser: parsed ClassOrInterfaceType |" + TypeName + "| |" + DepParametersopt +"|");
                     setResult(DepParametersopt == null
                                    ? TypeName.toType()
                                    : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
@@ -969,22 +1018,12 @@ $Rules
                     setResult(nf.X10ArrayTypeNode(pos(), Type, false, null));
           $EndJava
         ./
-     | Type reference [ . ]
-        /.$BeginJava
-                    setResult(nf.X10ArrayTypeNode(pos(), Type, false, null));
-          $EndJava
-        ./
      | Type value  [ . ]
         /.$BeginJava
                     setResult(nf.X10ArrayTypeNode(pos(), Type, true, null));
           $EndJava
         ./
      | Type [ DepParameterExpr ]
-        /.$BeginJava
-                    setResult(nf.X10ArrayTypeNode(pos(), Type, false, DepParameterExpr));
-          $EndJava
-        ./
-     | Type reference [ DepParameterExpr ]
         /.$BeginJava
                     setResult(nf.X10ArrayTypeNode(pos(), Type, false, DepParameterExpr));
           $EndJava
@@ -1016,49 +1055,58 @@ $Rules
 
     ClassDeclaration ::= ValueClassDeclaration
 
-    ValueClassDeclaration ::= ClassModifiersopt value identifier Superopt Interfacesopt ClassBody
+    ValueClassDeclaration ::= ClassModifiersopt value identifier PropertyListopt  Superopt Interfacesopt ClassBody
         /.$BeginJava
-                    checkTypeName(identifier);
-                    setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-                                                 ClassModifiersopt, identifier.getIdentifier(), Superopt, Interfacesopt, ClassBody));
+        checkTypeName(identifier);
+        List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
+        Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
+        setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
+        ClassModifiersopt, identifier.getIdentifier(), 
+        props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
-      | ClassModifiersopt value class identifier Superopt Interfacesopt ClassBody
+      | ClassModifiersopt value class identifier PropertyListopt Superopt Interfacesopt ClassBody
         /.$BeginJava
                     checkTypeName(identifier);
-                    setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-                                                ClassModifiersopt, identifier.getIdentifier(), Superopt, Interfacesopt, ClassBody));
+        List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
+        Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
+        setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
+                                  ClassModifiersopt, identifier.getIdentifier(), 
+                                  props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
 
  ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
        /.$BeginJava
-                    Name a = (Name) ConstructorDeclarator[1];
-                    DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
-                    List b = (List) ConstructorDeclarator[3];
-
-                   setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), b, Throwsopt, ConstructorBody));
+         Name a = (Name) ConstructorDeclarator[1];
+         DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
+         List b = (List) ConstructorDeclarator[3];
+         Expr e = (Expr) ConstructorDeclarator[4];              
+         setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), c, b, e, Throwsopt, ConstructorBody));
          $EndJava
        ./
        
-    ConstructorDeclarator ::=  SimpleTypeName DepParametersopt ( FormalParameterListopt )
+    ConstructorDeclarator ::=  SimpleTypeName DepParametersopt ( FormalParameterListopt WhereClauseopt )
        /.$BeginJava
-                 Object[] a = new Object[4];
+                 Object[] a = new Object[5];
                  a[1] = SimpleTypeName;
                  a[2] = DepParametersopt;
                  a[3] = FormalParameterListopt;
+                 a[4] = WhereClauseopt;
                  setResult(a);
          $EndJava
        ./
     ThisClause ::= this DepParameters
     
-    MethodDeclarator ::= ThisClauseopt identifier ( FormalParameterListopt  )
+    MethodDeclarator ::= ThisClauseopt identifier ( FormalParameterListopt  WhereClauseopt )
        /.$BeginJava
                     // vj: TODO -- add processing of ThisClause, the this-restriction.
-                    Object[] a = new Object[3];
+                    Object[] a = new Object[5];
                    a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
                     a[1] = FormalParameterListopt;
                    a[2] = new Integer(0);
+                   a[3] = WhereClauseopt;
+                   a[4] = ThisClauseopt;
                     setResult(a);
           $EndJava
         ./
@@ -1068,6 +1116,28 @@ $Rules
                     // setResult(MethodDeclarator);
          $EndJava
         ./
+
+    FieldDeclaration ::= FieldModifiersopt ThisClauseopt Type VariableDeclarators ;
+        /.$BeginJava
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
+                    {
+                        X10VarDeclarator d = (X10VarDeclarator) i.next();
+                        if (d.hasExplodedVars())
+                          // TODO: Report this exception correctly.
+                          throw new Error("Field Declarations may not have exploded variables." + pos());
+                        d.setFlag(FieldModifiersopt);
+                        l.add(nf.FieldDecl(d.position(),
+                                           ThisClauseopt,
+                                           d.flags,
+                                           nf.array(Type, Type.position(), d.dims),
+                                           d.name,
+                                           d.init));
+                    }
+                    setResult(l);
+          $EndJava
+        ./
+
     --------------------------------------- Section ::: Arrays
     -- The dependent type array([D][:E])<T> is written as
     -- T[D:E].
@@ -1578,7 +1648,10 @@ ThisClauseopt ::= $Empty
     DepParametersopt ::= $Empty
         /.$NullAction./
                        | DepParameters
-
+    PropertyListopt ::=  $Empty
+        /.$NullAction./
+                       | PropertyList
+                       
     WhereClauseopt ::= $Empty
         /.$NullAction./
                      | WhereClause
@@ -1692,7 +1765,7 @@ $Types
     X10VarDeclarator ::= VariableDeclaratorId | TraditionalVariableDeclaratorId
     Expr ::= VariableInitializer
     MethodDecl ::= MethodDeclaration | MethodHeader
-    List ::= FormalParameterListopt | FormalParameterList
+    List ::= FormalParameterListopt | FormalParameterList 
     X10Formal ::= FormalParameter
     List ::= Throwsopt | Throws
     Block ::= MethodBody
@@ -1835,4 +1908,7 @@ $Types
     DepParameterExpr ::= DepParametersopt
                        | DepParameters
                        | DepParameterExpr
+    List ::= Properties 
+    Object[] ::=  PropertyList | PropertyListopt
+    PropertyDecl ::= Property
 $End

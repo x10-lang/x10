@@ -9,7 +9,6 @@
 package x10.parser;
 
 import java.util.List;
-import java.util.Iterator;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ext.jl.parse.Name;

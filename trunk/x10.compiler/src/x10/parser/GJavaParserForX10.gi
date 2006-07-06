@@ -559,24 +559,7 @@ $Rules
         ./
     
     FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators ;
-        /.$BeginJava
-                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
-                    for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
-                    {
-                        X10VarDeclarator d = (X10VarDeclarator) i.next();
-                        if (d.hasExplodedVars())
-                          // TODO: Report this exception correctly.
-                          throw new Error("Field Declarations may not have exploded variables." + pos());
-                        d.setFlag(FieldModifiersopt);
-                        l.add(nf.FieldDecl(d.position(),
-                                           d.flags,
-                                           nf.array(Type, Type.position(), d.dims),
-                                           d.name,
-                                           d.init));
-                    }
-                    setResult(l);
-          $EndJava
-        ./
+
     
     VariableDeclarators ::= VariableDeclarator
         /.$BeginJava
