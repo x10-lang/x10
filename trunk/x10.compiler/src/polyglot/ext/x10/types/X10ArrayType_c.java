@@ -3,12 +3,12 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ext.jl.types.ArrayType_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -106,5 +106,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ReferenceType {
 	   return false;
 		//throw new RuntimeException("Internal compiler error: isValueType() on " + this);
 	}
+    // TODO: Remove this class.
+    public List properties() { return Collections.EMPTY_LIST;}
    
 }

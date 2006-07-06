@@ -8,19 +8,17 @@ package polyglot.ext.x10.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
+import polyglot.ast.Call;
 import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
-import polyglot.ast.Call;
-
-import polyglot.ext.jl.ast.Assign_c;
 import polyglot.ext.jl.ast.ArrayAccessAssign_c;
-import polyglot.ext.jl.ast.Call_c;
-import polyglot.ast.ArrayAccess;
-import polyglot.ast.Assign.Operator;
 import polyglot.ext.jl.ast.ArrayAccess_c;
+import polyglot.ext.jl.ast.Assign_c;
+import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -28,9 +26,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-
 import polyglot.visit.CFGBuilder;
-import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 
 /** An immutable representation of the X10 array assignment a[ index ] = e.

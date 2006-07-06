@@ -15,7 +15,6 @@ import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Expr_c;
-//import polyglot.ext.x10.types.ParametricType_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.main.Report;
 import polyglot.types.Flags;
@@ -134,7 +133,7 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 			Type param = (Type) target.typeParameters().get(0);
 			return
 			new Cast_c(position(), 
-					X10NodeFactory_c.getFactory().CanonicalTypeNode(position(),  param).type(param),
+					X10NodeFactory_c.getNodeFactory().CanonicalTypeNode(position(),  param).type(param),
 							(Expr) new Call_c(position(), array, "get", index).typeCheck(tc)).typeCheck(tc);
 			
 		} else {

@@ -9,7 +9,6 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
-import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Stmt_c;
 import polyglot.types.SemanticException;

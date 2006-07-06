@@ -17,7 +17,6 @@ import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Assign_c;
 import polyglot.ext.jl.ast.Call_c;
-import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;

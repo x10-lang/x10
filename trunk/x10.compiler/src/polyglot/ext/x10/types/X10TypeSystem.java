@@ -3,13 +3,11 @@
  */
 package polyglot.ext.x10.types;
 
-import java.util.List;
-
 import polyglot.ast.Expr;
-import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.types.ClassType;
-import polyglot.types.ConstructorInstance;
 import polyglot.types.CodeInstance;
+import polyglot.types.ConstructorInstance;
+import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.PrimitiveType;
 import polyglot.types.ReferenceType;
@@ -231,6 +229,18 @@ public interface X10TypeSystem extends TypeSystem {
 
 	/** Return boxed type runtime.T for primitive t. */
 	public Type boxedType(PrimitiveType t);
+    
+	/** Create a property instance. A property is a public final instance field
+	 * that can be used to construct deptypes.
+	 * @param pos Position of the field.
+	 * @param container Containing type of the field.
+	 * @param flags The field's flags.
+	 * @param type The field's type.
+	 * @param name The field's name.
+	 */
+    PropertyInstance propertyInstance(Position pos, ReferenceType container,
+                                Flags flags, Type type, String name);
+
 
 } // end of X10TypeSystem
 

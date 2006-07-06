@@ -3,8 +3,8 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ext.jl.types.UnknownType_c;
@@ -93,5 +93,6 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 	public boolean isX10Array() { return false; }
     public boolean isValueType() { return false;}
     public boolean isSubtypeImpl(  Type other) { return X10Type_c.isSubtypeImpl(this, other);}
+    public List properties() { return Collections.EMPTY_LIST;}
     
 }

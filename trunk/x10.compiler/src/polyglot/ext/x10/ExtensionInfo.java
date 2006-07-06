@@ -9,17 +9,17 @@ package polyglot.ext.x10;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collection;
 
 import polyglot.ast.NodeFactory;
 import polyglot.ext.jl.JLScheduler;
+import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.query.QueryEngine;
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.X10Boxer;
-import polyglot.ext.x10.visit.X10Qualifier;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
+import polyglot.ext.x10.visit.X10Qualifier;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.FileSource;
@@ -27,7 +27,6 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Pass;
 import polyglot.frontend.Scheduler;
-import polyglot.frontend.VisitorPass;
 import polyglot.frontend.goals.CodeGenerated;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.VisitorGoal;
@@ -35,7 +34,6 @@ import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
-import polyglot.visit.NodeVisitor;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
@@ -108,7 +106,9 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     }
 
     protected NodeFactory createNodeFactory() {
-        return new X10NodeFactory_c();
+        X10NodeFactory_c nf = new X10NodeFactory_c();
+        X10NodeFactory_c.setNodeFactory(nf);
+        return nf;
     }
 
     protected TypeSystem createTypeSystem() {

@@ -14,7 +14,6 @@ import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.x10.types.NullableType_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;

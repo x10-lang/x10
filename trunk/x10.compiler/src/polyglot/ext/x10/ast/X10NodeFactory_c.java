@@ -13,6 +13,7 @@ import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Cast;
 import polyglot.ast.ClassBody;
+import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
@@ -29,12 +30,12 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ext.jl.ast.Disamb_c;
+import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
@@ -56,13 +57,17 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     public Disamb disamb() {
         return new Disamb_c();
     }
-	public static X10NodeFactory_c getFactory() {
+	public static X10NodeFactory_c getNodeFactory() {
 		return factory;
 	}
+    public static X10NodeFactory_c setNodeFactory(X10NodeFactory_c nf) {
+        factory = nf;
+        return factory;
+    }
 
 	public X10NodeFactory_c() {
 		super(new X10ExtFactory_c(), new X10DelFactory_c());
-		factory = this;
+		//factory = this;
 	}
 
 	protected X10NodeFactory_c(ExtFactory extFact) {
@@ -155,12 +160,26 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
+    public ClassDecl ClassDecl(Position pos, Flags flags,
+            String name, List properties, Expr ci, TypeNode superClass,
+            List interfaces, ClassBody body)
+    {
+        ClassDecl n = X10ClassDecl_c.make(pos, flags, name, properties, ci, superClass, interfaces,
+                body);
+        n = (ClassDecl)n.ext(extFactory().extClassDecl());
+        n = (ClassDecl)n.del(delFactory().delClassDecl());
+        return n;
+        
+    }
 	public ValueClassDecl ValueClassDecl(Position pos, Flags flags,
-										 String name, TypeNode superClass,
-										 List interfaces, ClassBody body)
+            String name, List properties,  Expr ci, TypeNode superClass,
+            List interfaces, ClassBody body)
 	{
-		return new ValueClassDecl_c(pos, flags, name, superClass, interfaces,
-									body);
+        ValueClassDecl n = new ValueClassDecl_c(pos, flags, name, properties, ci, superClass, interfaces,
+                body);
+        n = (ValueClassDecl)n.ext(extFactory().extClassDecl());
+        n = (ValueClassDecl)n.del(delFactory().delClassDecl());
+        return n;
 	}
 
 	public Await Await(Position pos, Expr expr) {
@@ -516,10 +535,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public FieldDecl FieldDecl(Position pos, Flags flags, TypeNode type,
+	public FieldDecl FieldDecl(Position pos, TypeNode thisClause, Flags flags, TypeNode type,
 							   String name, Expr init)
 	{
-		FieldDecl n = new X10FieldDecl_c(pos, flags, type, name, init);
+		FieldDecl n = new X10FieldDecl_c(pos, thisClause, flags, type, name, init);
 		n = (FieldDecl) n.ext(extFactory().extFieldDecl());
 		n = (FieldDecl) n.del(delFactory().delFieldDecl());
 		return n;
@@ -532,26 +551,17 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public MethodDecl MethodDecl(Position pos, Flags flags,
-								 TypeNode returnType, String name,
-								 List formals, List throwTypes, Block body)
-	{
-		MethodDecl n = new X10MethodDecl_c(pos, flags, returnType, name,
-										   formals, throwTypes, body);
-		n = (MethodDecl)n.ext(extFactory().extMethodDecl());
-		n = (MethodDecl)n.del(delFactory().delMethodDecl());
-		return n;
-	}
-    public MethodDecl MethodDecl(Position pos, Flags flags,
+    
+    public MethodDecl MethodDecl(Position pos, TypeNode thisClause, Flags flags,
              TypeNode returnType, String name,
-             List formals, Expr e, List throwTypes, Block body)
-{
-MethodDecl n = new X10MethodDecl_c(pos, flags, returnType, name,
-                       formals, e, throwTypes, body);
-n = (MethodDecl)n.ext(extFactory().extMethodDecl());
-n = (MethodDecl)n.del(delFactory().delMethodDecl());
-return n;
-}
+             List formals, Expr whereClause, List throwTypes, Block body)
+    {
+        MethodDecl n = new X10MethodDecl_c(pos, thisClause, flags, returnType, name,
+                formals, whereClause, throwTypes, body);
+        n = (MethodDecl)n.ext(extFactory().extMethodDecl());
+        n = (MethodDecl)n.del(delFactory().delMethodDecl());
+        return n;
+    }
 
 	public LocalDecl LocalDecl(Position pos, Flags flags, TypeNode type,
 							   String name, Expr init)
@@ -561,14 +571,22 @@ return n;
 		n = (LocalDecl)n.del(delFactory().delLocalDecl());
 		return n;
 	}
-     public ConstructorDecl ConstructorDecl(Position pos, Flags flags, String name,  List formals, List throwTypes, Block body) {
+     public ConstructorDecl ConstructorDecl(Position pos, Flags flags, 
+             String name,  List formals, List throwTypes, Block body) {
             ConstructorDecl n = new X10ConstructorDecl_c(pos, flags, name,  formals, throwTypes, body);
             n = (ConstructorDecl)n.ext(extFactory().extConstructorDecl());
             n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
             return n;
         }
-    public ConstructorDecl ConstructorDecl(Position pos, Flags flags, String name, Expr e, List formals, List throwTypes, Block body) {
-        ConstructorDecl n = new X10ConstructorDecl_c(pos, flags, name, e, formals, throwTypes, body);
+    public ConstructorDecl ConstructorDecl(Position pos, Flags flags, 
+            String name, Expr retWhereClause, 
+            List formals, Expr argWhereClause, 
+            List throwTypes, Block body) {
+        ConstructorDecl n = 
+            new X10ConstructorDecl_c(pos, flags, 
+                    name, retWhereClause, 
+                    formals, argWhereClause, 
+                    throwTypes, body);
         n = (ConstructorDecl)n.ext(extFactory().extConstructorDecl());
         n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
         return n;
@@ -597,5 +615,11 @@ return n;
          n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
          return n;
      }
+    public PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, String name) {
+        PropertyDecl n = new PropertyDecl_c(pos, flags, type, name);
+        n = (PropertyDecl)n.ext(extFactory().extFieldDecl());
+        n = (PropertyDecl)n.del(delFactory().delFieldDecl());
+        return n;
+    }
 }
 

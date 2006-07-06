@@ -5,7 +5,6 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 

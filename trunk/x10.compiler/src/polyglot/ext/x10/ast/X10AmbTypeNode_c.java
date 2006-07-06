@@ -1,14 +1,11 @@
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Node;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.AmbTypeNode_c;
-import polyglot.ext.jl.ast.TypeNode_c;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
@@ -43,6 +40,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
         if (expr == this.dep)  return this;
         X10TypeNode_c n = (X10TypeNode_c) copy();
         n.dep = expr;
+       
         return n;
         }  
     
@@ -52,6 +50,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
         X10AmbTypeNode_c n = (X10AmbTypeNode_c) copy();
         n.gen=g;
         n.dep=d;
+        Report.report(1, "X10AmbType: Adding a dep |" + d + "|, g=|" + g + "| => " + n);
         return n;
     }
     

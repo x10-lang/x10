@@ -6,10 +6,10 @@
  */
 package polyglot.ext.x10.types;
 
-import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.ast.GenParameterExpr;
-import polyglot.types.Type;
 import java.util.List;
+
+import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.types.Type;
 
 
 /**
@@ -134,5 +134,11 @@ public interface X10Type extends Type {
     X10Type  baseType();
     List typeParameters();
     boolean isParametric();
+    
+    /** The list of properties of the class.
+     
+     * @return
+     */
+    List/*<PropertyInstance>*/ properties();
 
 }

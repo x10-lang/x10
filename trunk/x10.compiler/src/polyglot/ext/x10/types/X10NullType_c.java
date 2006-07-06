@@ -4,8 +4,8 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ext.jl.types.NullType_c;
@@ -118,7 +118,7 @@ public class X10NullType_c extends NullType_c implements X10NullType {
 	public boolean isX10Array() { return false; }
     public boolean isSubtypeImpl(  Type other) { return X10Type_c.isSubtypeImpl(this, other);}
     public boolean isValueType() { return true;}
-  
+    public List properties() { return Collections.EMPTY_LIST;}
 	// ----------------------------- end manual mixin code from X10Type_c
 	
 	

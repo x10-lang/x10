@@ -7,10 +7,9 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
-import polyglot.visit.TypeChecker;
+import polyglot.types.SemanticException;
 import polyglot.visit.AmbiguityRemover;
-import polyglot.types.SemanticException; 
-import polyglot.types.Type;
+import polyglot.visit.TypeChecker;
 
 /**
  * @author vj Jan 9, 2005

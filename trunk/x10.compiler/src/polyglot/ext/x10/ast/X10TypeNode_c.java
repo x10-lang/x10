@@ -13,14 +13,8 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.TypeNode_c;
 import polyglot.ext.jl.parse.Name;
-import polyglot.ext.x10.types.X10ArrayType_c;
-import polyglot.ext.x10.types.X10NullType_c;
-import polyglot.ext.x10.types.X10ParsedClassType_c;
-import polyglot.ext.x10.types.X10PrimitiveType_c;
-import polyglot.ext.x10.types.X10ReferenceType_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10UnknownType_c;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
@@ -96,10 +90,11 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         }
        
         DepParameterExpr newParameter = me.dep() == null? null : (DepParameterExpr) me.dep().disambiguate( sc );
+        
         GenParameterExpr newTParameter =  me.gen()==null ? null : (GenParameterExpr) me.gen().disambiguate( sc );
         
-        if (Report.should_report("debug", 5)) {
-            Report.report(5,"[X10TypeNode_c static] newTParameter="+ newTParameter );
+        if ( Report.should_report("debug", 5)) {
+            Report.report(1,"[X10TypeNode_c static] newParameter="+ newParameter );
         }
         X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
         List typeParameters = new LinkedList(); 

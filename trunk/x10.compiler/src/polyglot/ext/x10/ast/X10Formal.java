@@ -3,10 +3,11 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Formal;
 import java.util.List;
-import polyglot.ast.Stmt;
+
+import polyglot.ast.Formal;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Stmt;
 import polyglot.types.LocalInstance;
 import polyglot.types.TypeSystem;
 

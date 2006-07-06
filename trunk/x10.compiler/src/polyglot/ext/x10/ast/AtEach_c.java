@@ -4,18 +4,13 @@
 package polyglot.ext.x10.ast;
 
 import java.util.List;
-import java.util.Collections;
 
 import polyglot.ast.Expr;
-import polyglot.ast.Node;
-import polyglot.ast.Stmt;
 import polyglot.ast.Formal;
+import polyglot.ast.Stmt;
 import polyglot.ext.jl.ast.Field_c;
-import polyglot.util.Position;
-import polyglot.util.TypedList;
-
 import polyglot.util.CodeWriter;
-import polyglot.visit.NodeVisitor;
+import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
 
 /**

@@ -4,13 +4,12 @@
  */
 package polyglot.ext.x10.types;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ext.jl.types.Type_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.types.Type;
 import polyglot.main.Report;
+import polyglot.types.Type;
 
 /** This class is added for the sake of symmetry, but may not be used very much.
  * Most ..ext.x10.type.X10*Type classes actually subclass from corresponding
