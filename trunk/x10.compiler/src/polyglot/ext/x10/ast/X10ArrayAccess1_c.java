@@ -129,16 +129,13 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 						"Subscript can only follow an array type.", position());
 		}
 
-		//System.out.println("X10ArrayAccess1_c: Checking if |" + this + "| should be an ArrayAccess.");
 		// [IP] TODO: Huh?  Didn't we just check for this?
 		if (type instanceof NullableType_c) {
 			type = ((NullableType_c)type).base();
 		}
 		if (type.isArray()) {
-			// System.out.println("X10ArrayAccess1_c: yes, |" + this + "| should.");
 			return nf.ArrayAccess(position(), array, index).typeCheck(tc);
 		}
-		//System.out.println("X10ArrayAccess1_c: no, |" + this + "| isn't.");
 		if (!ts.isImplicitCastValid(index.type(), ts.point()) &&
 			(!index.type().isInt()))
 		{
@@ -153,11 +150,6 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
             List params = pt.typeParameters();
             Type param = (Type) params.get(0);
             return type(param);
-			/*return
-				nf.Cast(position(),
-						nf.CanonicalTypeNode(position(), param).type(param),
-						(Expr) nf.Call(position(), array, "get", args).typeCheck(tc)).typeCheck(tc);*/
-
 		}
         // find the return type by finding the return type of the get(index) method on type.
         
@@ -173,8 +165,6 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
         MethodInstance m = ts.findMethod(refType, name, argTypes, currType); 
         Type retType = m.returnType();
         return type(retType);
-      
-
 	}
 
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {

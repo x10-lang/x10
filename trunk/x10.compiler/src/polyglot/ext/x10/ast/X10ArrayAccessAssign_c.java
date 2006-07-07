@@ -82,14 +82,6 @@ implements X10ArrayAccessAssign {
 		TypeSystem ts = tc.typeSystem();
 		 Type t = left.type();
 		 Type s = right.type();
-//		 Now left must be an X10ArrayAccess which has now resolved into a Call_c.
-		 // Use the information in the call to construct the real set call.
-		 /*Expr left = (this.left instanceof Cast) ? ((Cast)this.left).expr() : this.left;                        
-		 Call call = (Call) left;            
-		 List args = TypedList.copyAndCheck(call.arguments(), Expr.class, false);
-		 args.add( 0, right);
-		 Expr receiver = (Expr) call.target();
-*/
 		if (op == ASSIGN) {
 		      if (! ts.isImplicitCastValid(s, t) &&
 		          ! ts.equals(s, t) &&
@@ -99,7 +91,6 @@ implements X10ArrayAccessAssign {
 		                                    position());
 		      }   
               return type(s);
-		      //return new Call_c(position(), receiver, "set", args).del().typeCheck(tc);
 		    }
 
 		    if (op == ADD_ASSIGN) {
@@ -110,7 +101,6 @@ implements X10ArrayAccessAssign {
 
 		      if (t.isNumeric() && s.isNumeric()) {
                   return type(s);
-		      	 //return new Call_c(position(), receiver, "addSet", args).del().typeCheck(tc);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -122,7 +112,6 @@ implements X10ArrayAccessAssign {
 		        op == DIV_ASSIGN || op == MOD_ASSIGN) {
 		      if (t.isNumeric() && s.isNumeric()) {
                   return type(s);
-		      	// return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -133,13 +122,11 @@ implements X10ArrayAccessAssign {
 		    if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
 		      if (t.isBoolean() && s.isBoolean()) {
                   return type(s);
-		      	//return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
 		      }
 
 		      if (ts.isImplicitCastValid(t, ts.Long()) &&
 		          ts.isImplicitCastValid(s, ts.Long())) {
                   return type(s);
-		      	//return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -152,7 +139,6 @@ implements X10ArrayAccessAssign {
 		          ts.isImplicitCastValid(s, ts.Long())) {
 		        // Only promote the left of a shift.
                   return type(s);
-		      	//return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -171,21 +157,11 @@ implements X10ArrayAccessAssign {
 	
 	protected void acceptCFGAssign(CFGBuilder v) {
 		X10ArrayAccess a = (X10ArrayAccess)left();
-		
-		//    a[i1,...,ik] = e: visit a -> i1 -> i2 ->... -> ik -> e -> (a[i] = e)
-		//v.visitCFG(a.array(), a.index().entry());
-		//v.visitCFG(a.index(), right().entry());
-		//v.visitCFG(right(), this);
 		v.visitCFG(a, right().entry());
 		v.visitCFG(right(), this);
 	}
 	protected void acceptCFGOpAssign(CFGBuilder v) {
 		X10ArrayAccess a = (X10ArrayAccess)left();
-		
-		// a[i] OP= e: visit a -> i -> a[i] -> e -> (a[i] OP= e)
-		// v.visitCFG(a.array(), a.index().entry());
-		// v.visitCFG(a.index(), a);
-		// v.visitThrow(a);
 		v.visitCFG(a, right().entry());
 		v.visitCFG(right(), this);
 	}
@@ -208,7 +184,6 @@ implements X10ArrayAccessAssign {
 		return op == ASSIGN && left.type().isReference();
 	}
     public String toString() {
-       
         return left + "." +   opString(op) +"(" + right + ")";
     }
     

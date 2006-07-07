@@ -4,6 +4,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.ArrayAccess;
@@ -14,14 +15,22 @@ import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.Unary;
+import polyglot.ast.Variable;
 import polyglot.ext.jl.ast.ArrayAccess_c;
 import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Unary_c;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.AscriptionVisitor;
+import polyglot.visit.CFGBuilder;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 
 /**
@@ -30,6 +39,7 @@ import polyglot.visit.TypeChecker;
  * a[index] is represented by an X10ArrayAccess1.
  *
  * @author igor Dec 19, 2005
+ * @author vj July 7, 2006 -- Fixed the early expansion.
  */
 public class X10ArrayAccess1Unary_c extends Unary_c
 	implements X10ArrayAccess1Unary
@@ -75,40 +85,17 @@ public class X10ArrayAccess1Unary_c extends Unary_c
 			throw new SemanticException("Operand of " + op +
 					" operator must be numeric.", expr.position());
 		}
-		/* TODO: we rewrite array accesses to calls way too early, so
-		 * this check is not possible here.
-		System.err.println("this = "+getClass()+"; Expr = "+expr.getClass());
 		if (! (expr instanceof Variable)) {
 			throw new SemanticException("Operand of " + op +
 					" operator must be a variable.", expr.position());
 		}
-		 */
-		/* TODO: we rewrite array accesses to calls way too early, so
-		 * this check is not possible here.  Need to find some wayt to
-		 * check for a value type!
 		if (((Variable) expr).flags().isFinal()) {
 			throw new SemanticException("Operand of " + op +
 					" operator must be a non-final variable.",
 					expr.position());
 		}
-		 */
-		/** The ugly code below is borrowed from X10ArrayAccess1Assign_c */
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		// Used to have an X10ArrayAccess1 as the expression, but it has now
-		// resolved into an ArrayAccess. So this node must resolve into a Unary.
-		// [IP] I don't think this will ever happen, but such is the nature of
-		// cut-and-paste...
-		if (expr instanceof ArrayAccess_c) {
-			Unary_c n = new Unary_c( position(), op, (ArrayAccess) expr);
-			return n.del().typeCheck( tc );
-		}
-		// Now it must be an X10ArrayAccess1 which has now resolved into a Call_c.
-		// Use the information in the call to construct the real update call.
-		Expr expr = (this.expr instanceof Cast) ? ((Cast)this.expr).expr() : this.expr;                        
-		Call call = (Call) expr;
-		Expr receiver = (Expr) call.target();
-		List args = call.arguments();
-		return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
+        return type(expr.type());
+       
 	}
 	
 	public Term entry() {
@@ -120,4 +107,13 @@ public class X10ArrayAccess1Unary_c extends Unary_c
 		l.add(ts.NullPointerException());
 		return l;
 	}
+    /** Write the expression to an output file. */
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        X10ArrayAccess1 a = (X10ArrayAccess1) expr;
+        printSubExpr(a.array(), w, tr);
+        w.write ("." + opString(op)+"(");
+        printSubExpr(a.index(), w, tr);
+        w.write(")");            
+    }
+   
 }
