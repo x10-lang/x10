@@ -80,15 +80,7 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		}
 		 Type t = left.type();
 		 Type s = right.type();
-		 /*// Now it must be an X10ArrayAccess1 which has now resolved into a Call (not generic) or a Cast (generic)
-		 // Use the information in the call to construct the real set call.
-		 Expr left = (this.left instanceof Cast) ? ((Cast)this.left).expr() : this.left;                        
-		 Call call = (Call) left;
-		 Expr receiver = (Expr) call.target();
-		 List args = TypedList.copyAndCheck(call.arguments(), Expr.class, false);
-		 args.add( 0, right);*/
-        
-			
+		
 		if (op == ASSIGN) {
 		      if (! ts.isImplicitCastValid(s, t) &&
 		          ! ts.equals(s, t) &&
@@ -97,15 +89,6 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		        throw new SemanticException("Cannot assign " + s + " to " + t + ".",
 		                                    position());
 		      }
-              // Now all the type-checking has been done. We merely need to construct
-              // the call which will correctly type-check.
-		      /*
-		      Report.report(1,"X10ArrayAccess1Assign: GOLDEN s=|" + s + "| t=|" + t);
-		      Report.report(1,"X10ArrayAccess1Assign: GOLDEN receiver.type=|" + receiver.type() + "| t=|" + t);
-		      
-		      Expr result1 = (Expr) new Call_c(position(), receiver, "set", args);
-		      return result1.del().typeCheck(tc);
-		      */
               return type(s);
 		      
 		    }
@@ -118,7 +101,6 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 
 		      if (t.isNumeric() && s.isNumeric()) {
                   return type(s);
-		      	// return new Call_c(position(), receiver, "addSet", args).del().typeCheck(tc);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -130,7 +112,6 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		        op == DIV_ASSIGN || op == MOD_ASSIGN) {
 		      if (t.isNumeric() && s.isNumeric()) {
                   return type(s);
-		      	 //return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -141,14 +122,11 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		    if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
 		      if (t.isBoolean() && s.isBoolean()) {
                   return type(s);
-                  
-		      	//return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
 		      }
 
 		      if (ts.isImplicitCastValid(t, ts.Long()) &&
 		          ts.isImplicitCastValid(s, ts.Long())) {
                   return type(s);
-		      	//return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -161,7 +139,6 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		          ts.isImplicitCastValid(s, ts.Long())) {
 		        // Only promote the left of a shift.
                   return type(s);
-		      //	return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "

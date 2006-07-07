@@ -142,10 +142,6 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
             List params = target.typeParameters();
             Type param = (Type) params.get(0);
             return type(param);
-            /*new Cast_c(position(), 
-                    X10NodeFactory_c.getNodeFactory().CanonicalTypeNode(position(),  param).type(param),
-                            (Expr) new Call_c(position(), array, "get", index).typeCheck(tc)).typeCheck(tc);*/
-
         }
         // find the return type by finding the return type of the get(index) method on type.
         
@@ -164,16 +160,6 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
         MethodInstance m = ts.findMethod(refType, name, argTypes, currType); 
         Type retType = m.returnType();
         return type(retType);
-		/*
-		
-		// TODO
-		// * (1) Check if Java catches IndexOutOfBounds errors at compiletime for a constant point. 
-		// *      If so, X10 should do the same.
-		//* (2) The X10 runtime should throw an IndexOutOfBounds when a variable of type
-		//*     region takes a value not in the region (e.g. as a result of arithmetic operations). 
-		
-		return type(target.toX10Array().base());
-		*/
 	}
 	
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
@@ -242,6 +228,6 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 		return CollectionUtil.list(ts.OutOfBoundsException(),
 				ts.NullPointerException());
 	}
-    /** Write the expression to an output file. */
+   
  
 }
