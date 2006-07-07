@@ -3,9 +3,8 @@
  */
 package polyglot.ext.x10.visit;
 
-import java.io.DataInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +27,6 @@ import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.MethodDecl_c;
 import polyglot.ext.x10.Configuration;
-import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.ast.ArrayConstructor_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
@@ -46,9 +44,11 @@ import polyglot.ext.x10.ast.RemoteCall_c;
 import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1Assign_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1_c;
+import polyglot.ext.x10.ast.X10ArrayAccessAssign_c;
 import polyglot.ext.x10.ast.X10ArrayAccess_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
-import polyglot.ext.x10.ast.X10Loop;
+import polyglot.ext.x10.ast.X10NodeFactory_c;
+import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
@@ -57,8 +57,6 @@ import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.PrettyPrinter;
-
-import polyglot.ext.x10.ast.X10NodeFactory_c;
 
 /**
  * Visitor on the AST nodes that for some X10 nodes triggers the template
@@ -414,7 +412,8 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(X10ArrayAccess1_c a) {
-		new Template("array_get", a.array(), a.index()).expand();
+        a.prettyPrint(w,pp);
+		//new Template("array_get", a.array(), a.index()).expand();
 		// [IP] TODO: Remove array_get[1-4]
 //		new Template("array_get1", a.array(), a.index()).expand();
 	}
@@ -430,10 +429,11 @@ public class X10PrettyPrinterVisitor extends Runabout {
 
 //	// [IP] TODO: rewrite using a Join
 	public void visit(X10ArrayAccess_c a) {
-		assert false;
-		List index = a.index();
-		assert index.size() > 1;
-		new Template("array_get", a.array(), new Join(",", index)).expand();
+        a.prettyPrint(w,pp);
+		//assert false;
+		//List index = a.index();
+		//assert index.size() > 1;
+		//new Template("array_get", a.array(), new Join(",", index)).expand();
 		// [IP] TODO: Remove array_get[1-4]
 //		int size = index.size();
 //		if (size == 2)
@@ -463,14 +463,18 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(X10ArrayAccess1Assign_c a) {
-		assert false;
+		// vj... changed 06/07/06 ... trying out proper treatment of arrays. assert false;
 		// Remember the index is a point or an int.
-		X10ArrayAccess1_c left = (X10ArrayAccess1_c) a.left();
+        a.prettyPrint(w,pp);
+		// X10ArrayAccess1_c left = (X10ArrayAccess1_c) a.left();
 		// [IP] TODO: Remove array_set[1-4]
-		new Template("array_set", left.array(), a.right(), left.index()).expand();
+		// new Template("array_set", left.array(), a.right(), left.index()).expand();
 //		new Template("array_set1", left.array(), a.right(), left.index()).expand();
 	}
 
+    public void visit(X10ArrayAccessAssign_c a) {
+        a.prettyPrint(w,pp);
+    }
 	/*
 //	// [IP] TODO: rewrite using a Join
 	public void visit(X10ArrayAccessAssign_c a) {

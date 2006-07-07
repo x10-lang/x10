@@ -6,6 +6,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Expr;
@@ -15,9 +16,12 @@ import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Expr_c;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.main.Report;
+import polyglot.types.ClassType;
 import polyglot.types.Flags;
+import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -124,30 +128,44 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 			throw new SemanticException(
 					"Multiple subscripts can only follow an array of rank > 1.", position());
 		}
-		// Note that we cannot change X10NodeFactory to produce this call to begin with because
-		// we need to let X10ArrayAccessAssign have a chance to see an X10ArrayAccess object.
-		// Typechecking is a good time to do the rewriting.
-        //Report.report(3, "[X10ArrayAccess_c.typeCheck:] this = " + this  + " |" + this.getClass()+"|");
-		//Report.report(3, "[X10ArrayAccess_c.typeCheck:] type = " + type + " |" + type.getClass()+"|");
-		if (target.isParametric()) {
-			Type param = (Type) target.typeParameters().get(0);
-			return
-			new Cast_c(position(), 
-					X10NodeFactory_c.getNodeFactory().CanonicalTypeNode(position(),  param).type(param),
-							(Expr) new Call_c(position(), array, "get", index).typeCheck(tc)).typeCheck(tc);
-			
-		} else {
-			return new Call_c(position(), array, "get", index).typeCheck(tc);
-			//      return type(((X10Type) type).toX10Array().base());
-		}
+        for (Iterator it = index.iterator(); it.hasNext();) {
+            Expr item = (Expr) it.next();
+            if (! ts.isImplicitCastValid(item.type(), ts.Int())) {
+                throw new SemanticException(
+                        "Array subscript " + item + " must be an integer.", position());
+            }
+        }
+        List args = new LinkedList();
+        args.add(index);
+       
+        if (target.isParametric()) {
+            List params = target.typeParameters();
+            Type param = (Type) params.get(0);
+            return type(param);
+            /*new Cast_c(position(), 
+                    X10NodeFactory_c.getNodeFactory().CanonicalTypeNode(position(),  param).type(param),
+                            (Expr) new Call_c(position(), array, "get", index).typeCheck(tc)).typeCheck(tc);*/
+
+        }
+        // find the return type by finding the return type of the get(index) method on type.
+        
+        X10ClassType refType = (X10ClassType) type;
+        String name = "get";
+        List argTypes = new LinkedList();
+        for (Iterator it = index.iterator(); it.hasNext();) {
+            Expr item = (Expr) it.next();
+            argTypes.add(item.type());
+        }
+        // fake this since you know the method is public.
+        ClassType currType= refType; 
+        
+        // May throw a semantic exception. Should prolly be caught and rethrown 
+        // as an InternalError.
+        MethodInstance m = ts.findMethod(refType, name, argTypes, currType); 
+        Type retType = m.returnType();
+        return type(retType);
 		/*
-		for (Iterator it = index.iterator(); it.hasNext();) {
-			Expr item = (Expr) it.next();
-			if (! ts.isImplicitCastValid(item.type(), ts.Int())) {
-				throw new SemanticException(
-						"Array subscript " + item + " must be an integer.", position());
-			}
-		}
+		
 		// TODO
 		// * (1) Check if Java catches IndexOutOfBounds errors at compiletime for a constant point. 
 		// *      If so, X10 should do the same.
@@ -173,27 +191,40 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 	}
 	
 	public String toString() {
-		return array + "[" + index + "]";
+		return array.toString()  + index ;
 	}
 	
 	/** Write the expression to an output file. */
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-		printSubExpr( array, w, tr );
-		w.write("[");
-		w.begin(0);
+        X10Type at = ( X10Type) array.type();
+    
+        
+        if (at.isParametric()) {
+            Type result = (Type) at.typeParameters().get(0);
+            w.write("((");
+            print(new X10CanonicalTypeNode_c(Position.COMPILER_GENERATED,result), w, tr);
+            w.write(")");
+        }
+        printSubExpr(array, w, tr);
+        w.write (".get(");
+        w.begin(0);
+        
+        for(Iterator i = index.iterator(); i.hasNext();) {
+            Expr e = (Expr) i.next();
+            print(e, w, tr);
+            
+            if (i.hasNext()) {
+                w.write(",");
+                w.allowBreak(0, " ");
+            }
+        }
+        
+        w.end();
+       
+        w.write (")");
+        if (at.isParametric()) { w.write (")");}
+        
 		
-		for(Iterator i = index.iterator(); i.hasNext();) {
-			Expr e = (Expr) i.next();
-			print(e, w, tr);
-			
-			if (i.hasNext()) {
-				w.write(",");
-				w.allowBreak(0, " ");
-			}
-		}
-		
-		w.end();
-		w.write("]");
 	}
 	
 	
@@ -211,4 +242,6 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 		return CollectionUtil.list(ts.OutOfBoundsException(),
 				ts.NullPointerException());
 	}
+    /** Write the expression to an output file. */
+ 
 }
