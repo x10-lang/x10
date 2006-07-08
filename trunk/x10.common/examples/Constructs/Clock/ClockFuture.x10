@@ -4,7 +4,7 @@ import harness.x10Test;
  * Test for the interaction of clocks and future.
  * clock.doNext should not wait for futures to
  * terminate.
- *
+ * vj: 07/08/06 Changed future<int@here> to future<int>. Value types can no longer have place annotations.
  * @author Christoph von Praun
  */
 public class ClockFuture extends x10Test {
@@ -21,7 +21,7 @@ public class ClockFuture extends x10Test {
 
 	public boolean run() {
 		final clock c = clock.factory.clock();
-		future<int@here> f = future (here) { m() };
+		future<int> f = future (here) { m() };
 		System.out.print("1 ... ");
 		// this next should not wait on the future
 		next;
