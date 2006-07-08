@@ -4,32 +4,21 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.ArrayAccess;
-import polyglot.ast.Call;
-import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.Unary;
 import polyglot.ast.Variable;
-import polyglot.ext.jl.ast.ArrayAccess_c;
-import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Unary_c;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
-import polyglot.visit.CFGBuilder;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 
@@ -60,6 +49,7 @@ public class X10ArrayAccess1Unary_c extends Unary_c
     }
 
 	public Unary expr(Expr expr) {
+       
 		X10ArrayAccess1Unary_c n = (X10ArrayAccess1Unary_c)super.expr(expr);
 		n.assertExprType();
 		return n;
@@ -109,11 +99,31 @@ public class X10ArrayAccess1Unary_c extends Unary_c
 	}
     /** Write the expression to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-        X10ArrayAccess1 a = (X10ArrayAccess1) expr;
-        printSubExpr(a.array(), w, tr);
-        w.write ("." + opString(op)+"(");
-        printSubExpr(a.index(), w, tr);
-        w.write(")");            
+        
+        if (! (expr instanceof X10ArrayAccess1 || expr instanceof ArrayAccess))
+            throw new InternalCompilerError("X10ArrayAccess1Unary has an illegal argument " + expr);
+        if (expr instanceof X10ArrayAccess1 ) {
+            X10ArrayAccess1 x = (X10ArrayAccess1) expr;
+            printSubExpr(x.array(), w, tr);
+            w.write ("." + opString(op)+"(");
+            printSubExpr(x.index(), w, tr);
+            w.write(")");   
+            return;
+        }
+        if (expr instanceof ArrayAccess ) {
+            ArrayAccess x = (ArrayAccess) expr;
+            String opString = (op == PRE_DEC || op == POST_DEC) ? "--" : "++";
+            if (op == PRE_INC || op ==PRE_DEC)  w.write(opString);
+            
+            printSubExpr(x.array(), w, tr);
+            w.write ("[");
+            printSubExpr(x.index(), w, tr);
+            w.write("]"); 
+            if (op == POST_INC || op ==POST_DEC)  w.write(opString);
+        }
+         
+        
+                 
     }
    
 }

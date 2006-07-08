@@ -211,6 +211,6 @@ implements X10ArrayAccessAssign {
                 w.allowBreak(0, " ");
             }
         }
-        w.write(");");
+        w.write(")");
   }
 }
