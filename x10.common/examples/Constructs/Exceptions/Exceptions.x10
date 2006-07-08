@@ -22,7 +22,7 @@ public class Exceptions extends x10Test {
 
 		try {
 			finish {
-				future<int@here> ret
+				future<int> ret
 					= future(here) { m() };
 			}
 			//System.out.println("Exception in future missed!");
