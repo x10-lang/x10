@@ -36,7 +36,7 @@ public class FutureTest5 extends x10Test {
 		};
 		nullable future<int> t2;
 		when (fut != null) { t2 = fut; }
-		int@here fortytwo = t2.force();
+		int fortytwo = t2.force();
 		System.out.println("up done");
 		return fortytwo == 42;
 	}
@@ -47,7 +47,7 @@ public class FutureTest5 extends x10Test {
 	private boolean testDown_() {
 		final future<int> fut_l = future (here) { 42 } ;
 		finish async (here) {
-			int@here fortytwo = fut_l.force();
+			int fortytwo = fut_l.force();
 			System.out.println("down done");
 		};
 		return true;
@@ -67,7 +67,7 @@ public class FutureTest5 extends x10Test {
 		finish async (here) {
 			nullable future<int> t2;
 			when (fut != null) { t2 = fut; }
-			int@here fortytwo = t2.force();
+			int fortytwo = t2.force();
 			System.out.println("sibling done");
 		};
 		return true;
