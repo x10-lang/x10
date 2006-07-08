@@ -227,7 +227,7 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
           printSubExpr(right, w, tr);
           w.write(",");
           printSubExpr(index, w, tr);
-          w.write(");");
+          w.write(")");
               
     }
 }
