@@ -6,8 +6,8 @@ import harness.x10Test;
 public class FutureTest2 extends x10Test {
 
 	public boolean run() {
-		future<boolean@here> ret = future (here) { this.m() };
-		boolean@here syn = ret.force();
+		future<boolean> ret = future (here) { this.m() };
+		boolean syn = ret.force();
 		return syn;
 	}
 
