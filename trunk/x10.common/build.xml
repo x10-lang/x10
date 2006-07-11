@@ -14,11 +14,6 @@
 
 	<target name="clean">
 		<delete>
-			<fileset dir="${etc}">
-				<include name="standard.cfg"/>
-			</fileset>
-		</delete>
-		<delete>
 			<fileset dir="${bin}">
 				<include name="x10"/>
 				<include name="x10c"/>
@@ -99,11 +94,14 @@
 
 	<target name="config" depends="config-deps" unless="config.up-to-date"
 	        description="creates the default config file">
+		<fail message="Missing ${etc}/standard.cfg"/>
+		<!--
 		<echo message="Creating ${etc}/standard.cfg"/>
 		<echo file="${etc}/standard.cfg" append="no"># This file was automatically generated during the configure process of this x10 installation.
 
 SAMPLING_FREQUENCY_MS=50
 STATISTICS_DISABLE=none</echo>
+		-->
 	</target>
 
 	<target name="defs-deps">
@@ -156,7 +154,7 @@ JRE_HOME='${java.home}'
 #FILE_SEP='${file.separator}'
 #PATH_SEP='${path.separator}'
 #[ -n "$X10_PLATFORM" ] || X10_PLATFORM='${env.X10_PLATFORM}'
-CONFIG_FILE='standard.cfg'
+#CONFIG_FILE='standard.cfg'
 
 </echo>
 	</target>
