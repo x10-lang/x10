@@ -17,6 +17,7 @@ verbose=""
 ext_cp=""
 extra_cp=""
 ext=""
+dev=""
 java_args=""
 args=""
 
@@ -35,6 +36,7 @@ while [ -n "$1" ]; do
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
         -ext) shift; ext=$1;;
+        -dev) shift; dev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
         *) args="$args '$1'";;
@@ -55,6 +57,7 @@ where [options] includes:
     -h -help --help          print this message
     -disable <pass>          disable compiler pass <pass>
                              valid passes are: async-elimination
+    -dev                     developer mode (use unpackaged X10 libraries)
     Use "x10c -- -help" to get more detailed help on compiler options
 EOF
     exit 1
@@ -74,10 +77,8 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
 CONFIG_DIR="${TOP}${FILE_SEP}etc"
 LIB_DIR="${TOP}${FILE_SEP}lib"
 
-if [ -z "$config" ]; then
-    config="${CONFIG_FILE}"
-fi
-config="-Dx10.configuration=${CONFIG_DIR}${FILE_SEP}${config}"
+#[ -z "$config" ] && config="${CONFIG_FILE}"
+[ -n "$config" ] && config="-Dx10.configuration=${CONFIG_DIR}${FILE_SEP}${config}"
 
 if [ -n "$extra_cp" ]; then
     extra_cp="${PATH_SEP}${extra_cp}"
@@ -90,9 +91,8 @@ else
 fi
 extargs="-ext ${ext}"
 
-## FIXME vv: hack!
-classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot2${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
-## FIXME ^^
+classpath=""
+[ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot2${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
 classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}polyglot2.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}lpg.jar${ext_cp}${extra_cp}"
 
 command="\"$JAVA\" -Xmx128m \"$config\" $profile -classpath \"$classpath\" ${java_args} polyglot.main.Main $extargs $args"
