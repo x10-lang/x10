@@ -11,6 +11,8 @@
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${x10.common.location}/lib"/>
     <property name="jar" value="x10c.jar"/>
+    <property name="etc" location="${x10.common.location}/etc"/>
+    <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="polyglot.jar" value="polyglot2.jar"/>
     <property name="runtime.jar" value="x10.jar"/>
@@ -49,6 +51,10 @@
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
             <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+        <mkdir dir="${etc}"/>
+        <copy todir="${etc}">
+            <fileset dir="${basedir}/etc" includes="${config}"/>
         </copy>
     </target>
     <target name="jar" depends="build">
@@ -109,10 +115,10 @@
     <target name="zip" depends="dist">
         <zip destfile="${x10.home}/x10-${DSTAMP}-${TSTAMP}.zip">
             <zipfileset prefix="" dir="${x10.common.location}" includes="epl-v10.html"/>
-	    <zipfileset prefix="bin" dir="${x10.common.location}/bin" includes="newpgrp,x10,x10c,testScript*"/>
-            <zipfileset prefix="etc" dir="${x10.common.location}/etc" includes="*.cfg"/>
+            <zipfileset prefix="bin" dir="${x10.common.location}/bin" includes="newpgrp,x10,x10c,testScript*"/>
+            <zipfileset prefix="etc" dir="${etc}" includes="${config}"/>
             <zipfileset prefix="examples" dir="${x10.common.location}/examples" includes="README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
-            <zipfileset prefix="lib" dir="${x10.common.location}/lib" includes="*.jar"/>
+            <zipfileset prefix="lib" dir="${lib}" includes="*.jar"/>
         </zip>
     </target>
 </project>
