@@ -21,7 +21,7 @@ public class SSARegionIterHasNextInstruction extends SSAAbstractUnaryInstruction
 	return getValueString(symbolTable, d, getDef(0)) + " = regionIterHasNext(" + getValueString(symbolTable, d, getUse(0)) + ")";
     }
 
-    public void visit(Visitor v) {
+    public void visit(IVisitor v) {
 	((AstX10InstructionVisitor) v).visitRegionIterHasNext(this);
     }
 

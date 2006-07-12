@@ -22,7 +22,7 @@ public class SSAHereInstruction extends SSAInstruction {
 	return getValueString(symbolTable, d, getDef()) + " = here()";
     }
 
-    public void visit(Visitor v) {
+    public void visit(IVisitor v) {
 	((AstX10InstructionVisitor) v).visitHere(this);
     }
 
