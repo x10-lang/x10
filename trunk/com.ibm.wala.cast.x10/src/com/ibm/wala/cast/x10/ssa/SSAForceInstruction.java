@@ -25,7 +25,7 @@ public class SSAForceInstruction extends SSAAbstractUnaryInstruction {
 	return getValueString(symbolTable, d, getDef()) + " = force(" + getValueString(symbolTable, d, getUse(0)) + ")";
     }
 
-    public void visit(Visitor v) {
+    public void visit(IVisitor v) {
 	((AstX10InstructionVisitor) v).visitForce(this);
     }
 

@@ -21,7 +21,7 @@ public class SSARegionIterInitInstruction extends SSAAbstractUnaryInstruction {
 	return getValueString(symbolTable, d, getDef(0)) + " = regionIter(" + getValueString(symbolTable, d, getUse(0)) + ")";
     }
 
-    public void visit(Visitor v) {
+    public void visit(IVisitor v) {
 	((AstX10InstructionVisitor) v).visitRegionIterInit(this);
     }
 

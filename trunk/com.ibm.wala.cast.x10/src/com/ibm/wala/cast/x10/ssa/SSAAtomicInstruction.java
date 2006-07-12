@@ -25,9 +25,9 @@ public class SSAAtomicInstruction extends SSAInstruction {
       return isEnter ? "atomic enter" : "atomic exit";
     }
     /**
-     * @see com.ibm.domo.ssa.SSAInstruction#visit(Visitor)
+     * @see com.ibm.domo.ssa.SSAInstruction#visit(IVisitor)
      */
-    public void visit(Visitor v) {
+    public void visit(IVisitor v) {
 	((AstX10InstructionVisitor) v).visitAtomic(this);
     }
     /**
