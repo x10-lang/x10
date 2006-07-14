@@ -26,10 +26,10 @@ public class JGFLUFactBenchSizeA {
 	
 	public  boolean run() {
 		
-		JGFInstrumentor.printHeader(2,0);
+		JGFInstrumentor.printHeader(2,3);
 		
 		JGFLUFactBench lub = new JGFLUFactBench(); 
-		lub.JGFrun(0);
+		lub.JGFrun(3);
 		return true;
 		
 	}

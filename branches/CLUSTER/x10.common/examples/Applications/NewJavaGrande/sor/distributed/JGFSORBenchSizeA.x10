@@ -15,7 +15,7 @@ public class JGFSORBenchSizeA {
 		JGFInstrumentor.printHeader(2,0, place.MAX_PLACES);
 		
 		JGFSORBench sor = new JGFSORBench(); 
-		sor.JGFrun(0);
+		sor.JGFrun(3);
 		return true;
 		
 	}
