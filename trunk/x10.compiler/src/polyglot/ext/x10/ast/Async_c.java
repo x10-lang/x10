@@ -142,7 +142,7 @@ public class Async_c extends Stmt_c implements Async, Clocked {
             }
         }
 
-		return this;
+		return (Async_c) place(newPlace);
 	}
 
 	
