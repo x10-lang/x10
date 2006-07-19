@@ -1,17 +1,17 @@
-import harness.x10Test;
-
 /**
  * Code generation for clocked asyn uses "clocks" as the name of the clock list.
- *
+ * This test will fail at runtime, because the wrong clocks variable is being used.
  * @author Tong Wen 7/2006
  */
+ import harness.x10Test;
 public class ClockAsyncTest extends x10Test {
 
 	public boolean run() {
 		finish async{
-			final clock value [.] clocks=new clock [[0:5,0:2]] (point i)
+			final clock  value [.] clocks=new clock [[0:5]] (point i)
 			{return clock.factory.clock();};
-			async clocked(clocks[1,1]){
+			final int i = 0;
+			async (here) clocked (clocks[i]){
 				next;
 			}
 		}
@@ -24,4 +24,3 @@ public class ClockAsyncTest extends x10Test {
 		new ClockAsyncTest().execute();
 	}
 }
-
