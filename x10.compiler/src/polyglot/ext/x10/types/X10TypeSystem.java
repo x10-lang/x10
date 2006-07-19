@@ -218,6 +218,25 @@ public interface X10TypeSystem extends TypeSystem {
 	 */
 	ClassType Indexable();
 
+	// RMF 7/11/2006 - Added so that the parser can create a canonical type node
+	// for "primitive types", which otherwise will cause disambiguation to fail.
+	//
+	// Technically, there are no primitive types in X10, but the compiler can't
+	// quite treat types like "int" as ordinary object types - there are no source
+	// or class files corresponding to them, and therefore disambiguating such
+	// types will always fail. The solution is to prevent the compiler from
+	// attempting to disambiguate them by giving the parser enough information
+	// to create a CanonicalTypeNode for them. Currently this is only an issue
+	// when such types are decorated with place specifiers, in which case the
+	// ClassOrInterfaceType production fires, and the left-hand side type could
+	// be either an ordinary class/interface or a "primitive type". In the
+	// absence of place specifiers, the base Java grammar rule IntegralType
+	// fires, which always creates a CanonicalTypeNode.
+	/**
+	 * @return true iff the given name is that of a "primitive type".
+	 */
+	public boolean isPrimitiveTypeName(String name);
+
 	/** Return the method instance for runtime.Primitive.equals */
 	public MethodInstance primitiveEquals();
 

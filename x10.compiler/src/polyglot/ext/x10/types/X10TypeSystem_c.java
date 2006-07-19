@@ -2,9 +2,11 @@ package polyglot.ext.x10.types;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Expr;
 import polyglot.ext.jl.types.MethodInstance_c;
@@ -49,6 +51,23 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		super();
 		factory = this;
 		unknownType = new X10UnknownType_c(this);
+	}
+
+	private final static Set<String> primitiveTypeNames= new HashSet<String>();
+
+	static {
+	    primitiveTypeNames.add("boolean");
+	    primitiveTypeNames.add("byte");
+	    primitiveTypeNames.add("char");
+	    primitiveTypeNames.add("short");
+	    primitiveTypeNames.add("int");
+	    primitiveTypeNames.add("long");
+	    primitiveTypeNames.add("float");
+	    primitiveTypeNames.add("double");
+	}
+
+	public boolean isPrimitiveTypeName(String name) {
+	    return primitiveTypeNames.contains(name);
 	}
 
 	/**
