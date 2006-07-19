@@ -168,14 +168,14 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 	}
 
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		TypeSystem ts = av.typeSystem();
-		/* FIXME vj-> vj. Treat the int as a shortform for new point(expr).
+		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+		/* FIXME vj-> vj. Treat the int as a shortform for new point(expr).*/
 		if (child == index) {
 			return ts.Int();
 		}
-		*/
+		
 		if (child == array) {
-			return ts.arrayOf(this.type);
+			return ts.array(this.type);
 		}
 
 		return child.type();

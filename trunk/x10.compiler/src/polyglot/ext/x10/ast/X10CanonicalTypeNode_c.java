@@ -56,7 +56,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
         X10CanonicalTypeNode_c n = (X10CanonicalTypeNode_c) copy();
         n.gen=g;
         n.dep=d;
-        Report.report(1, "X10CanonicalType: Adding a dep |" + d + "|, g=|" + g + "| => " + n);
+        //Report.report(1, "X10CanonicalType: Adding a dep |" + d + "|, g=|" + g + "| => " + n);
         return n;
     }
     
