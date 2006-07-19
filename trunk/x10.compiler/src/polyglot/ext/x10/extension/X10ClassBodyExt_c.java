@@ -385,6 +385,9 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				// RMF 11/2/2005 - Set the type of the Local. This would normally
 				// be handled by type-checking, but we're past that point now...
 				arg= (Local) arg.type(parameter.declType());
+				// RMF 7/10/2006 - Make sure the Local has an associated LocalInstance;
+				// the InitChecker will need to see it...
+				arg= (Local) arg.localInstance(typeSystem.localInstance(pos, parameter.flags(), arg.type(), arg.name()));
 				args.add(arg);
 			} else {
 				ClassType_c ct = (ClassType_c)parameter.declType().toClass();
@@ -432,6 +435,10 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				// would normally be handled by type-checking, but we're past
 				// that point now...
 				getAddrTarget= (Local) getAddrTarget.type(parameter.type().type());
+				// RMF 7/10/2006 - Make sure the Local has an associated LocalInstance;
+				// the InitChecker will need to see it...
+				getAddrTarget= (Local) getAddrTarget.localInstance(typeSystem.localInstance(pos, parameter.flags(), getAddrTarget.type(), getAddrTarget.name()));
+				
 				Call getAddr = nf.Call(pos, getAddrTarget, KgetUnsafeAddressMethod);
 				getAddr = (Call_c)getAddr.methodInstance(unsafeBufferMI);
 				// RMF 11/3/2005 - Set the type of getAddr call. This would
