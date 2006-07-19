@@ -9,6 +9,9 @@ package polyglot.ext.x10;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import polyglot.ast.NodeFactory;
 import polyglot.ext.jl.JLScheduler;
@@ -18,8 +21,8 @@ import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.X10Boxer;
-import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
 import polyglot.ext.x10.visit.X10Qualifier;
+import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.FileSource;
@@ -27,16 +30,18 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Pass;
 import polyglot.frontend.Scheduler;
+import polyglot.frontend.VisitorPass;
 import polyglot.frontend.goals.CodeGenerated;
+import polyglot.frontend.goals.ConstantsChecked;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
+import polyglot.visit.NodeVisitor;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
-
 
 /**
  * Extension information for x10 extension.
@@ -117,11 +122,14 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
         return ts;
     }
 
-	public void initCompiler(Compiler compiler) {
-		super.initCompiler(compiler);
-		QueryEngine.init(this);
-	}
+    public void initCompiler(Compiler compiler) {
+	super.initCompiler(compiler);
+	QueryEngine.init(this);
+    }
 
+    // =================================
+    // X10-specific goals and scheduling
+    // =================================
     protected Scheduler createScheduler() {
         return new X10Scheduler(this);
     }
@@ -132,33 +140,54 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 	}
 	public Goal CodeGenerated(final Job job) {
 //	    System.out.println("creating CodeGenerated Goal for " + job.source().name());
-	    try {
-		Goal g= internGoal(new X10CodeGenerated(job));
-		return g;
-	    } catch (CyclicDependencyException e) {
-		throw new IllegalStateException(e.getMessage());
-	    }
+	    return X10CodeGenerated.create(this, job);
+	}
+	public Goal X10Boxed(final Job job) {
+	    return X10Boxed.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
+	}
+	public Goal X10Qualified(final Job job) {
+	    return X10Qualified.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
+	}
+	public Goal X10Expanded(final Job job) {
+	    return X10Expanded.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
 	}
     }
 
     static class X10CodeGenerated extends CodeGenerated {
-	private X10CodeGenerated(Job job) throws CyclicDependencyException {
-	    super(job);
-	    addPrerequisiteGoal(new X10Boxed(job()), job.extensionInfo().scheduler());
-	    addPrerequisiteGoal(new X10Qualified(job()), job.extensionInfo().scheduler());
-	    addPrerequisiteGoal(new X10Expanded(job()), job.extensionInfo().scheduler());
+	public static Goal create(Scheduler scheduler, Job job) {
+	    return scheduler.internGoal(new X10CodeGenerated(job));
 	}
-	public void setState(int state) {
-	    super.setState(state);
+	private X10CodeGenerated(Job job) {
+	    super(job);
+	}
+	public Collection prerequisiteGoals(Scheduler scheduler) {
+	    X10Scheduler x10Sched= (X10Scheduler) scheduler;
+	    List l = new ArrayList();
+	    l.add(x10Sched.X10Boxed(job));
+	    l.add(x10Sched.X10Qualified(job));
+	    l.add(x10Sched.X10Expanded(job));
+	    l.addAll(super.prerequisiteGoals(scheduler));
+	    return l;
+	}
+//	public void setState(int state) {
+//	    super.setState(state);
 //	    if (state == Goal.REACHED)
 //		System.out.println("Reached CodeGenerated goal.");
-	}
+//	}
     }
 
     static class X10Boxed extends VisitorGoal {
-	public X10Boxed(Job job) throws CyclicDependencyException {
-	    super(job, new X10Boxer(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory()));
-	    addPrerequisiteGoal(job.extensionInfo().scheduler().TypeChecked(job), job.extensionInfo().scheduler());
+	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
+	    return scheduler.internGoal(new X10Boxed(job, ts, nf));
+	}
+	private X10Boxed(Job job, TypeSystem ts, NodeFactory nf) {
+	    super(job, new X10Boxer(job, ts, nf));
+	}
+	public Collection prerequisiteGoals(Scheduler scheduler) {
+	    List l = new ArrayList();
+	    l.add(scheduler.TypeChecked(job));
+	    l.addAll(super.prerequisiteGoals(scheduler));
+	    return l;
 	}
 	public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
 //	    System.out.println("Creating pass for X10Boxed goal...");
@@ -167,9 +196,17 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     }
 
     static class X10Qualified extends VisitorGoal {
-	public X10Qualified(Job job) throws CyclicDependencyException {
-	    super(job, new X10Qualifier(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory()));
-	    addPrerequisiteGoal(job.extensionInfo().scheduler().TypeChecked(job), job.extensionInfo().scheduler());
+	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
+	    return scheduler.internGoal(new X10Qualified(job, ts, nf));
+	}
+	private X10Qualified(Job job, TypeSystem ts, NodeFactory nf) {
+	    super(job, new X10Qualifier(job, ts, nf));
+	}
+	public Collection prerequisiteGoals(Scheduler scheduler) {
+	    List l = new ArrayList();
+	    l.add(scheduler.TypeChecked(job));
+	    l.addAll(super.prerequisiteGoals(scheduler));
+	    return l;
 	}
 	public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
 //	    System.out.println("Creating pass for X10Qualified goal...");
@@ -178,9 +215,17 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     }
 
     static class X10Expanded extends VisitorGoal {
-	public X10Expanded(Job job) throws CyclicDependencyException {
+	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
+	    return scheduler.internGoal(new X10Expanded(job, ts, nf));
+	}
+	private X10Expanded(Job job, TypeSystem ts, NodeFactory nf) {
 	    super(job, new X10ImplicitDeclarationExpander(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory()));
-	    addPrerequisiteGoal(job.extensionInfo().scheduler().TypeChecked(job), job.extensionInfo().scheduler());
+	}
+	public Collection prerequisiteGoals(Scheduler scheduler) {
+	    List l = new ArrayList();
+	    l.add(scheduler.TypeChecked(job));
+	    l.addAll(super.prerequisiteGoals(scheduler));
+	    return l;
 	}
 	public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
 //	    System.out.println("Creating pass for X10Expanded goal...");
@@ -188,61 +233,7 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 	}
     }
 
-//    public static final Pass.ID CAST_REWRITE = new Pass.ID("cast-rewrite");
-//    public static final Pass.ID SPECIAL_QUALIFIER = new Pass.ID("this/super-qualifier");
-//    public static final Pass.ID EXPAND_IMPLICIT_VARS = new Pass.ID("expand-implicit-vars");
-//    public static final Pass.ID ASYNC_ELIMINATION = new Pass.ID("async-elimination");
-//    public static final Pass.ID ATOMIC_ELIMINATION = new Pass.ID("atomic-elimination");
-
-//    public List passes(Job job) {
-//        List passes = super.passes(job);
-//        
-//        if (DEBUG_) {
-//            System.out.println("polyglot.ext.x10.ExtensionInfo: disabled passes: " + getOptions().disable_passes);
-//        }
-//        
-//        // The elimination of synchronization may lead JiT's to promote local variables
-//        // to memory where it it not permissible -- example would be AsyncTest1, which could fail
-//        // if the atomic elimination is enabled.
-//        
-//        // beforePass(passes, Pass.PRE_OUTPUT_ALL,
-//        //        new VisitorPass(ATOMIC_ELIMINATION,
-//        //                job, new AtomicElimination()));
-//        
-//        // Schedule elimination of async / future after the atomic elimination 
-//        // because atomic eliminiation might create additional opportunities.
-//        //
-//        // This transformation can render the results of the sampling mechanism
-//        // incorrect because remote accesses may 'look like' local access in the 
-//        // program.
-//        //
-//        // Moreover, it will mislead the BAD_PLACE_RUNTIME_CHECK - hence we 
-//        // disable it.
-//        // beforePass(passes, Pass.PRE_OUTPUT_ALL,
-//        //      new VisitorPass(ASYNC_ELIMINATION,
-//        //                 job, new AsyncElimination()));
-//        
-//        beforePass(passes, Pass.PRE_OUTPUT_ALL,
-//                new VisitorPass(CAST_REWRITE,
-//                        job, new X10Boxer(job, ts, nf)));
-//        
-//        beforePass(passes, Pass.PRE_OUTPUT_ALL,
-//                new VisitorPass(SPECIAL_QUALIFIER,
-//                        job, new X10Qualifier(job, ts, nf)));
-//        
-//        beforePass(passes, Pass.PRE_OUTPUT_ALL,
-//                new VisitorPass(EXPAND_IMPLICIT_VARS,
-//                        job, new X10Expander(job, ts, nf)));
-//        
-//        if (Report.should_report("debug", 6)) {
-//			beforePass(passes, Pass.PRE_OUTPUT_ALL, new VisitorPass(Pass.DUMP, job,
-//					new DumpAst(new CodeWriter(System.out, 1))));
-//        }
-//        return passes;
-//    }
-    
     protected Options createOptions() {
         return new X10CompilerOptions(this);
     }
-
 }
