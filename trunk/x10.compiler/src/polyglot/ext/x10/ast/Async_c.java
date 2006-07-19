@@ -87,8 +87,13 @@ public class Async_c extends Stmt_c implements Async, Clocked {
 	}
 
 	/** Set the RemoteActivity's place. */
-	public RemoteActivityInvocation place(Expr place) {
-		this.place = place;
+	public Async place(Expr place) {
+        if (place != this.place) {
+            Async_c n = (Async_c) copy();
+            n.place = place;
+           return n;
+        }
+		
 		return this;
 	}
 
@@ -142,7 +147,7 @@ public class Async_c extends Stmt_c implements Async, Clocked {
             }
         }
 
-		return (Async_c) place(newPlace);
+		return place(newPlace);
 	}
 
 	
