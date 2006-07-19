@@ -108,12 +108,12 @@ public class PlaceCast_c extends Expr_c implements PlaceCast {
 		n.expr = expr;
 		return n;
 	}
-	 public Node typeCheck(TypeChecker tc) throws SemanticException
-	    {
-	        TypeSystem ts = tc.typeSystem();
+	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	    TypeSystem ts = tc.typeSystem();
 
-	        
-		return type(expr.type());
-	    }
-
+	    return type(expr.type());
+	}
+	public String toString() {
+	    return "(@" + place + ") " + expr;
+	}
 }
