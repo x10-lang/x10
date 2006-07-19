@@ -107,6 +107,9 @@ public abstract class X10Type_c extends Type_c implements X10Type {
     public static boolean isValueType( Type t) {
        // Report.report(5, "[X10Type_c] isValueType " + t + " " + t.getClass());
         X10TypeSystem xts=X10TypeSystem_c.getTypeSystem();
+        // RMF 7/12/2006 - treat all "primitive types" as value types
+        // TODO RMF Shouldn't X10PrimitiveType_c.isValueType() directly return true?
+        if (t.isPrimitive()) return true;
         Type target = xts.value();
         boolean res =  t.isSubtype( target);
         //Report.report(5, "[X10Type_c] isValueType " + res + "( target=" + target+")");
