@@ -57,6 +57,10 @@
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin/data" failonerror="true" overwrite="false">
 			<fileset dir="data" includes="**/*"/>
 		</copy>
+		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/etc"/>
+		<copy todir="${temp.folder}/${plugin.jar.name}.bin/etc" failonerror="true" overwrite="false">
+			<fileset dir="../x10.common/etc" includes="**/*.cfg"/>
+		</copy>
 		<copy todir="${temp.folder}/${plugin.name}.jar.bin" failonerror="true" overwrite="false">
 			<fileset dir="src/" excludes="**/*.java,**/package.htm*"/>
 		</copy>
