@@ -84,10 +84,12 @@ import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.ast.X10TypeNode;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 
@@ -3778,10 +3780,20 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name TypeName = (Name) getRhsSym(1);
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
+                X10TypeNode type;
+                
+                if (ts.isPrimitiveTypeName(TypeName.name)) {
+                    try {
+			type= (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.primitiveForName(TypeName.name));
+		    } catch (SemanticException e) {
+			throw new InternalCompilerError("Unable to create primitive type for '" + TypeName.name + "'!");
+		    }
+                } else
+                    type= (X10TypeNode) TypeName.toType();
            //  System.out.println("Parser: parsed ClassOrInterfaceType |" + TypeName + "| |" + DepParametersopt +"|");
                 setResult(DepParametersopt == null
-                               ? TypeName.toType()
-                               : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
+                               ? type
+                               : type.dep(null, DepParametersopt));
                 break;
             }
      
