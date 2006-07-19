@@ -96,7 +96,7 @@ public class X10Boxer extends AscriptionVisitor
 		// the next time we try to run this pass, we'll have a half-rewritten class, and
 		// will end up with duplicate compiler-generated methods, or worse.
 		//
-		if (((Goal) this.context.goalStack().get(0)).state() != Goal.UNREACHABLE_THIS_RUN) {
+		if (job.extensionInfo().scheduler().currentGoal().state() != Goal.UNREACHABLE_THIS_RUN) {
 			if (n.ext() instanceof X10Ext) {
 				return ((X10Ext) n.ext()).rewrite((X10TypeSystem) typeSystem(),
 												  nodeFactory(),
