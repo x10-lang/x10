@@ -28,65 +28,26 @@ public class LocalPlace_c extends Place {
 	boolean shutdown;
 	
 	
-	// ahk ... need to do something about this!!
-    public  void mapToCorrectPlace(java.lang.Object o){ }
-   
 	public void runAsync(final Activity a) {
-		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
-			
-			mapToCorrectPlace(a);
-			prepareAsync(a);
-			runAsync( a, false);	
-		} else {
-			
-			prepareAsync(a);
-			runAsync( a, true);
-		}
+           prepareAsync(a);
+           runAsync( a, false);	
 	}
 	
 	/*
      * runBootAsync is a special version of runAsync reserved for only the boot activity
      */
 	public void runBootAsync(final Activity a) {
-		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
-			
-			mapToCorrectPlace(a);
-			a.initializeActivity();
-			runAsync( a, false);	
-		} else {
-			
-			a.initializeActivity();
-			runAsync( a, true);
-		}
+           a.initializeActivity();
+           runAsync( a, false);	
 	}
 	
 	
    
-	public void runAsyncNoRemapping(final Activity a) {
-		prepareAsync(a);
-		if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-				a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {			
-			runAsync( a, false);
-		} else {
-			runAsync( a, true);
-		}
-	}
-
 	public void runAsyncLater(Activity a) {
 		if (Configuration.OPTIMIZE_FOREACH) {
-			if (a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-					a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate) {
-				mapToCorrectPlace(a);
-				prepareAsync(a);
-				
-			} else {
-				prepareAsync(a);
-				
-			}
+                   prepareAsync(a);
 		} else {
-			runAsync(a);
+                   runAsync(a);
 		}
 	}	
 	/**
@@ -96,7 +57,7 @@ public class LocalPlace_c extends Place {
 	private void prepareAsync(Activity a) {
 		Thread t = Thread.currentThread();
 		
-		if ( t instanceof ActivityRunner && a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal) {
+		if ( t instanceof ActivityRunner) {
 			Activity parent =  ((ActivityRunner) t).getActivity();
 			parent.finalizeActivitySpawn(a);
 		}
@@ -114,8 +75,6 @@ public class LocalPlace_c extends Place {
 	}
 	
 	protected void runAsync(final Activity a, final boolean finish) {
-		final boolean performDeserialization = !(a.activityAsSeenByInvokingVM == Activity.thisActivityIsLocal ||
-                a.activityAsSeenByInvokingVM == Activity.thisActivityIsASurrogate);
 		
 		threadPoolService.execute(new Runnable() {
 			public void run() {

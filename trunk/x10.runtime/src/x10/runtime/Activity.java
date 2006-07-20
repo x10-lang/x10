@@ -369,15 +369,6 @@ public abstract class Activity implements Runnable {
 	}
 
 	/**
-	 * An Activity running on this VM has terminated.  Go tell the VM
-	 * that actually invoked it the news.  While you're at it, tell
-	 * that VM about any clocks of his that you no longer reference.
-	 **/
-	public native void finalizeTerminationOfSurrogate(int invokingVM,
-			long activityAsSeenByInvokingVM, long[] clks,
-			byte[] serializedX10Result);
-
-	/**
 	 * This activity has terminated normally. Now clean up. (Notify the finish ancestor,
 	 * if any, and any other listeners (e.g. Sample listeners).
 	 *
@@ -388,21 +379,16 @@ public abstract class Activity implements Runnable {
 					+ "terminates.");
 		}
 		finalizeTerminationCleanup();
-		if (activityAsSeenByInvokingVM == thisActivityIsLocal
-				|| activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-			if (rootNode_ != null)
-				rootNode_.notifySubActivityTermination();
-			if (asl_ != null) {
-				for (int j = 0; j < asl_.size(); j++) {
-					// tell other activities that want to know that this has spawned child
-					ActivitySpawnListener asl = (ActivitySpawnListener) asl_
-							.get(j);
-					asl.notifyActivityTerminated(this);
-				}
-			}
-		} else {
-			throw new Error("Multi-node VM unsupported");
-		}
+                if (rootNode_ != null)
+                   rootNode_.notifySubActivityTermination();
+                if (asl_ != null) {
+                   for (int j = 0; j < asl_.size(); j++) {
+                      // tell other activities that want to know that this has spawned child
+                      ActivitySpawnListener asl = (ActivitySpawnListener) asl_
+                         .get(j);
+                      asl.notifyActivityTerminated(this);
+                   }
+                }
 	}
 
 	/**
@@ -456,11 +442,7 @@ public abstract class Activity implements Runnable {
 	 * @return -- the short name for the activity.
 	 */
 	public String myName() {
-		if (globalRefAddr == 0) {
-			return "Activity " + Long.toHexString(hashCode());
-		} else {
-			return "Activity* " + Long.toHexString(globalRefAddr);
-		}
+           return "Activity " + Long.toHexString(hashCode());
 	}
 
 	/** A long descriptor for the activity. By default displays the finishState_ and the rootNode_.
@@ -470,15 +452,6 @@ public abstract class Activity implements Runnable {
 		String rv = "<" + myName();
 		
 		rv = rv + " " + finishState_ + "," + rootNode_;
-		if (activityAsSeenByInvokingVM != thisActivityIsLocal) {
-			if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-				rv = rv + ", Surrogate for vm "
-						+ placeWhereRealActivityIsRunning;//.vm_;
-			} else {
-				rv = rv + "," + Long.toHexString(activityAsSeenByInvokingVM)
-						+ " on " + invokingVM;
-			}
-		}
 		rv = rv + ">";
 		return rv;
 	}
@@ -504,45 +477,6 @@ public abstract class Activity implements Runnable {
 		return addPoolCalled;
 	}
 
-	public static final int thisActivityIsLocal = 0;
-
-	public static final int thisActivityIsASurrogate = -1;
-
-	/**
-	 * the following field has a value passed in from a remote VM
-	 * or one of the above two values
-	 **/
-	public long activityAsSeenByInvokingVM;
-
-	public int invokingVM;
-
-	public Place placeWhereRealActivityIsRunning;
-
-	/**
-	 * if this Activity is a surrogate, the RemotePlace.runAsync will
-	 * cause it to be pinned and set globalRefAddr to its now fixed address.
-	 **/
-	public long globalRefAddr;
-
-	public void pseudoSerialize() {
-
-		if(true) throw new RuntimeException("should not be called");
-	}
-
-	public void pseudoDeSerialize(LocalPlace_c pl) {
-		if(true) throw new RuntimeException("should not be called");
-	}
-
-	String constructorSignature;
-
-	long[] clocksMappedToGlobalAddresses;
-
-	long[] pseudoSerializedLongArray;
-
-	int numArgsInConstructor;
-
-	int listOfClocksIsArgNum;
-	
 	/**
 	 * Start of code to support abstract execution model
 	 */
@@ -609,8 +543,6 @@ public abstract class Activity implements Runnable {
 
 		public abstract void runSource();
 
-		byte[] serializedX10Result;
-
 		public void run() {
 			try {
 				try {
@@ -628,10 +560,7 @@ public abstract class Activity implements Runnable {
 				}
 				stopFinish(); // this may throw an exception if a nested async did.
 				// Normal termination.
-				if (activityAsSeenByInvokingVM == thisActivityIsLocal
-						|| activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-					future.setResult(getResult());
-				}
+                                future.setResult(getResult());
 			} catch (Throwable t) {
 				// Now nested asyncs have terminated.
 				future.setException(t);
@@ -639,44 +568,11 @@ public abstract class Activity implements Runnable {
 		}
 
 		public void finalizeTermination() {
-			if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-				try {
-					Field f = this.getClass().getDeclaredField("x10_result_");
-					ByteArrayInputStream bais = new ByteArrayInputStream(
-							serializedX10Result);
-					ObjectInputStream ois = new ObjectInputStream(bais);
-					f.setAccessible(true);
-					f.set(this, ois.readObject());
-					future.setResult(getResult());
-				} catch (Exception e) {
-					System.err
-							.println("Could not deserialize the future's return "
-									+ e);
-					throw new Error(e);
-				}
-			}
 			super.finalizeTermination();
 		}
 
 		public void finalizeTermination(Throwable t) {
-			if (activityAsSeenByInvokingVM == thisActivityIsLocal) {
-				future.setException(t);
-			}
-			if (activityAsSeenByInvokingVM == thisActivityIsASurrogate) {
-				try {
-					Field f = this.getClass().getDeclaredField("x10_result_");
-					ByteArrayInputStream bais = new ByteArrayInputStream(
-							serializedX10Result);
-					ObjectInputStream ois = new ObjectInputStream(bais);
-					f.setAccessible(true);
-					f.set(this, ois.readObject());
-					future.setResult(getResult());
-				} catch (Exception e) {
-					System.err
-							.println("Could not deserialize the future's return");
-					throw new Error(e);
-				}
-			}
+                        future.setException(t);
 			super.finalizeTermination(t);
 		}
 
