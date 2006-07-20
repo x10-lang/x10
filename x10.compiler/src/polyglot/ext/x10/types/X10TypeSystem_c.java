@@ -53,7 +53,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		unknownType = new X10UnknownType_c(this);
 	}
 
-	private final static Set<String> primitiveTypeNames= new HashSet<String>();
+	private final static Set primitiveTypeNames= new HashSet();
 
 	static {
 	    primitiveTypeNames.add("boolean");
