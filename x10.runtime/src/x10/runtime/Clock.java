@@ -207,16 +207,12 @@ public /* final */ class Clock extends clock {
 	 * Register the current activity with this clock.
 	 */
 	public synchronized void register(Activity a ) {
-                /* TODO ... a better authorizer for multi-VM case */
-		Activity authorizer =
-                   a.activityAsSeenByInvokingVM==Activity.thisActivityIsLocal ?
-                   Runtime.getCurrentActivity() : null;
-                if (authorizer != null)
-                    if (Report.should_report("clock", 5)) {
-			Report.report(5, PoolRunner.logString() + " " + this + ".register:" + authorizer + " registering " + a);
-                    }
+                Activity authorizer = Runtime.getCurrentActivity();
+                if (Report.should_report("clock", 5)) {
+                   Report.report(5, PoolRunner.logString() + " " + this + ".register:" + authorizer + " registering " + a);
+                }
 		synchronized (this) {
-                   if (authorizer != null && inactive(authorizer))	
+                   if (inactive(authorizer))	
 				throw new ClockUseException(authorizer + "is not active on " + this + "; cannot transmit.");
 			if (activities_.contains(a)) return;
 			activities_.add(a);
@@ -456,15 +452,6 @@ public /* final */ class Clock extends clock {
 		}
 	}
 
-        public native long establishGlobalRefAddr_();
-        public void establishGlobalRefAddr() {
-            globalRefAddr_ = establishGlobalRefAddr_();
-        }
-        public void clearGlobalRefAddr() {
-            globalRefAddr_ = 0;
-        }
-        public long getGlobalRefAddr() { return globalRefAddr_; }
-        private long globalRefAddr_;
 	/**
 	 * Register a callback that is to be called whenever the clock
 	 * advances into the next phase.
@@ -496,7 +483,6 @@ public /* final */ class Clock extends clock {
 		+ ":" + activityCount_ 
 		+ "," + resumedCount_
 		+ "," + nextResumedCount_
-                + ((globalRefAddr_ == 0) ? "" : ("," + Long.toHexString(globalRefAddr_)))
 		+ ")";
 	}
 	
