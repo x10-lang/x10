@@ -1,9 +1,12 @@
 #!/bin/bash
 # Author: kemal, 1/2005
+# Author: igor, 7/2006
 # Simple script to run test cases
 # until a better solution is found.
 
 MYDIR=`dirname $0`
+
+declare -a pat
 
 chkArgs() {
 # check number of arguments
@@ -26,7 +29,7 @@ echo "
 
 Usage:
 
-testScript [-cleanOnly] [-f] [-t timeLimit] [-shiftLog] [ -m userEmail]
+testScript [-clean] [-cleanOnly] [-f] [-t timeLimit] [-shiftLog] [ -m userEmail]
 [-testList fileName] [-test test1 test2 ...]
 
 Runs the *.x10 test cases in the current directory and
@@ -40,7 +43,7 @@ before killing the process. If the time limit is exceeded in any
 step, the testcase is assumed to fail.  By default timeLimit is
 60 seconds.
 
-The shiftLog parameter causes the current results  to be saved,
+The -shiftLog parameter causes the current results to be saved,
 so running the testScript later in the same directory will cause
 a diff with the previous results to be mailed out as well, when
 the -m userEmail option flag is present. Note that if existing
@@ -50,7 +53,7 @@ not be saved (to allow developers more time to fix the errors).
 
 An X10 test case file *.x10 contains a single public class, which
 has a \"public boolean run()\" instance method, and a \"public
-static void main(String args[])\"  method.  The run method must
+static void main(String args[])\" method.  The run method must
 contain the actual test and must return true if the test passed.
 run() must throw an exception or return false to indicate failure.
 The main method must create the class with an empty constructor,
@@ -102,8 +105,9 @@ can be fixed in the nearer term.
 
 Additional option flags:
 
-The -cleanOnly option just cleans up left-over intermediate files
-from a previous run and exits immediately.
+The -clean option cleans up left-over intermediate files before
+running the tests.
+The -cleanOnly option implies -clean and exits immediately.
 
 The -testList option indicates a file containing a list of shell
 file patterns denoting the tests to run. The test list file can
@@ -152,9 +156,10 @@ checkUsage() {
   timeLimit=60
   mailDest=""
   shiftLog=""
+  clean=""
   cleanOnly=""
   force=""
-  pat=""
+  pat=(.)
   x10lib="./x10lib"
   NewFailures=""
   while [[ $# -gt 0 ]]; do
@@ -162,19 +167,27 @@ checkUsage() {
       timeLimit="$2"
       shift 2
     elif [[ "$1" = "-testList"  && $# -ge 2 && -r "$2" ]]; then
-      #remove comments and blank lines
-      pat=$(cat "$2"| egrep -v '^([[:space:]]*#.*|[[:space:]]*)$')
+      while IFS='' read -r line; do
+	#remove comments and blank lines
+	line="${line##[[:space:]]}"
+        [ -z "$line" ] || [[ "$line" == \#* ]] || \
+          pat=("${pat[@]}" "$line")
+      done < "$2"
       shift 2
     elif [[ "$1" = "-test"  && $# -ge 2 ]]; then
       shift
-      pat="$*"
+      pat=("$@")
       break
     elif [[ "$1" = "-help" || "$1" = "-h" || "$1" = "--help" ]]; then
       usage
     elif [[ "$1" = "-shiftLog" ]]; then
       shiftLog="yes"
       shift
+    elif [[ "$1" = "-clean" ]]; then
+      clean="yes"
+      shift
     elif [[ "$1" = "-cleanOnly" ]]; then
+      clean="yes"
       cleanOnly="yes"
       shift
     elif [[ "$1" = "-f" ]]; then
@@ -199,6 +212,13 @@ checkUsage() {
     echo "The file .ThisIsAnX10TestDirectory must be present"
     usage
   fi
+
+  #findpat=""
+  #for p in "${pat[@]}"; do
+  #  findpat="$findpat -o -path '$p'"
+  #done
+  #[ -n "$findpat" ] && findpat="\( ${findpat## -o } \)"
+  findpat="`printf "%q " "${pat[@]}" | sed 's/\\\\\([\*\?]\)/\1/g'`"
 }
 
 cleanClasses() {
@@ -215,6 +235,7 @@ clean() {
 
   chkArgs 0 "$@"
   cleanClasses
+  rm -f logDetail.*             # details for each test
   #in case no one else has done this make .so files executable
   find . \( -name '*.so' -o -name '*.dll' \) -print0 | xargs -r0 chmod ugo+rx
 }
@@ -231,6 +252,14 @@ testForMain() {
     return $?
 }
 
+extractPackage() {
+# extract the package path from a *.x10 file f
+
+    chkArgs 1 "$@"
+    local f="$1"
+    RESULT="`sed -ne '/^\s*package /{s|^\s*package \([^;]*\);|\1|;s|\.|/|g;p}' "$f"`"
+}
+
 removeDotSlash() {
 # convert ./a/b/./c to a/b/c
 
@@ -242,23 +271,6 @@ removeDotSlash() {
   RESULT=$str
 }
 
-testInList() {
-# true(0) iff $f matches one of the patterns in $pat
-# or $pat is empty
-
-chkArgs 1 "$@"
-local f="$1"
-removeDotSlash "$f"
-f="$RESULT"
-if [[ -z "$pat" ]]; then return 0; fi
-for i in $pat ; do
-  if [[ "$f" = $i ]] ; then
-	return 0
-  fi
-done
-return 1
-}
-
 testForEligibility() {
 	# TODO: switch to using find commands for globbing and
 	# test for 'extends \(\i\+\.\)*x10Test' instead.
@@ -268,58 +280,49 @@ testForEligibility() {
     chkArgs 2 "$@"
     local f="$1"
     local tail="$2"
-    testInList "$f" && testForMain "$f" "$tail"
+    testForMain "$f" "$tail"
 }
 
 
-
 genTest() {
-# Top level call will be: genTest "." "."
+# Top level call will be: genTest "."
 
 # executed at the top level test directory
 
-# The file hierarchy starting at the top test directory is scanned
-# in a pre-order (depth-first) enumeration.  Top level directories
-# that do not contain *.x10 files are considered organizational
-# directories, not containing packages or test cases. As soon
-# as a directory containing any *.x10 files, is encountered in
-# the pre-order traversal, all the .x10 files containing "public
-# static void main" methods in this directory and subdirecties are
-# executed (using the preorder enumeration), as test cases.
-# The x10 classpath is set to this directory, while
-# recursively processing the test cases contained in the directory.
-# Files and directories in a given directory are processed in
-# alphabetical name order.
+# This function finds all tests that match the pattern, and then
+# executes them in the order they were returned by "find".  If the
+# test contains a package declaration, the path to the package is
+# checked to make sure the directory structure matches the package,
+# and the x10 classpath is set to the package root directory.
+# Otherwise, the classpath for the test is set to the directory
+# containing the test.
+#
+# A test is a *.x10 file that contains a "public static void main()"
+# method.
 
-  chkArgs 2 "$@"
-  local srcDir="$1" #current directory relative to X10 classpath
-  local testDir="$2" #X10 classpath relative to top directory
+  chkArgs 1 "$@"
+  local topDir="$1"  #top directory
+
   local tail=""
-  # $testDir/$srcDir/ is the current directory to process
-  local X10Files="1" #0 if *.x10 test cases (with main) exist in current directory
-  for f in $testDir/$srcDir/*.x10; do
-    tail=${f##*/} # if f is a/b/c tail will be c
-    if testForMain "$testDir/$srcDir" "$tail"; then
-      X10Files="0"
-      break
-    fi
-  done
-  for f in $testDir/$srcDir/*; do
-    tail=${f##*/} # if f is a/b/c tail will be c
-    if [[ -d "$f" && "$tail" != CVS && "$srcDir" = "." && $X10Files -ne 0 ]]; then
-      # still in the top level organizational directories
-      # not containing x10 test cases
-      genTest "." "$testDir/$tail"  #this is an organizational subdir
-    elif [[ -d "$f" && "$tail" != CVS ]]; then
-      # either $srcDir (x10 classpath) is already found above.
-      # or $srcDir is the first encountered directory with *.x10 files in it
-      genTest "$srcDir/$tail" "$testDir" #recursively generate tests for package subdir
-    elif testForEligibility "$f" "$tail"; then
+  #echo "Patterns: $findpat"
+  # TODO: rewrite to use pipes properly
+  #for f in `eval "find $findpat -type f -name '*.x10' -print"`; do
+  #TESTS="`eval "find '$topDir' -type f -name '*.x10' $findpat -print"`"
+  TESTS="`eval "find $findpat -type d -name CVS -prune -o -type f -name '*.x10' -print"`"
+  while read f; do
+    file="${f##*/}"    # if f is a/b/c file will be c
+    path="${f%/$file}" # if f is a/b/c path will be a/b
+    if testForEligibility "$f" "$file"; then
       # an actual .x10 file containing a main method
       # and also matches one of the specified filename patterns
-      doTest $srcDir $testDir ${tail%.x10} # run an actual x10 test case
+      extractPackage "$f"
+      pkg="$RESULT"
+      path="${path%/$pkg}"
+      [ -n "$pkg" ] || pkg='.'
+      doTest "$pkg" "$path" "${file%.x10}" # run an actual x10 test case
     fi
-  done
+  done <<<"$TESTS"
+  return 0
 }
 
 correctExitCode() {
@@ -671,7 +674,6 @@ initAll() {
   let "nPassLim = 0" #tests that passed but were limitations
   rm -f logSummary0              # summary for each each test
   touch logSummary0              # ensure file exists
-  rm -f logDetail.*             # details for each test
   rm -f logBegin                # Header file
   startDate=`date '+%Y.%m.%d_%H.%M.%S'`
   testLogs="../../x10web/html/testLogs"
@@ -708,7 +710,7 @@ generateFinalLog() {
   echo "The dates after each error message below show the earliest test run since which the same error message kept occurring continuously." >> log
   echo "" >> log
   if [[ $nRealTotal -eq 0 ]] ; then
-	msgBoth log "Warning: No applicable test was found"
+    msgBoth log "Warning: No applicable test was found"
   fi
   makeTempFile "logTemp0"
   local logTemp0="$RESULT"
@@ -877,11 +879,11 @@ main() {
 # main program
 
   checkUsage "$@" # check arguments and current directory
-  clean         # clean any leftover files
-  if [[ -n "$cleanOnly" ]]; then exit 0; fi
+  [ -n "$clean" ] && clean    # clean any leftover files
+  [ -n "$cleanOnly" ] && exit 0
   initAll
   printInfo "$@"
-  genTest "." "." #run all tests in current directory and subdirectories
+  genTest "." #run all tests in current directory and subdirectories
   generateAndMailFinalLog
   finalCleanUp
   exit 0
