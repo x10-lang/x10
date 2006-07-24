@@ -62,9 +62,12 @@
 
 	<target name="etc-deps">
 		<condition property="etc.up-to-date">
+			<istrue value="true"/><!-- Cannot simply say <true> -->
+			<!--
 			<and>
 				<available file="${etc}/standard.cfg"/>
 			</and>
+			-->
 		</condition>
 	</target>
 
@@ -75,7 +78,6 @@
 		</dependset>
 		<condition property="bin.up-to-date">
 			<and>
-				<available file="${bin}/standard.cfg"/>
 				<available file="${bin}/x10"/>
 				<available file="${bin}/x10c"/>
 				<available file="${bin}/junit"/>
@@ -85,14 +87,7 @@
 		</condition>
 	</target>
 
-	<target name="config-deps">
-		<condition property="config.up-to-date">
-			<available file="${bin}/config"/>
-		</condition>
-	</target>
-
-
-	<target name="config" depends="config-deps" unless="config.up-to-date"
+	<target name="config"
 	        description="creates the default config file">
 		<fail message="Missing ${etc}/standard.cfg"/>
 		<!--
