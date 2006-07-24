@@ -91,9 +91,10 @@ $End
 
 $Rules
 
-    identifier ::= IDENTIFIER$id
+    identifier ::= IDENTIFIER$ident
         /.$BeginJava
-                    setResult(id(getRhsFirstTokenIndex($id)));
+                    ident.setKind($sym_type.TK_IDENTIFIER);
+                    setResult(id(getRhsFirstTokenIndex($ident)));
           $EndJava
         ./
 
@@ -258,7 +259,7 @@ $Rules
     -- TypeName ::= identifier
     --           | PackageOrTypeName . identifier
     --
-    ExpressionName ::= identifier
+    ExpressionName ::=? identifier
         /.$BeginJava
                     setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
@@ -273,7 +274,7 @@ $Rules
           $EndJava
         ./
 
-    MethodName ::= identifier
+    MethodName ::=? identifier
         /.$BeginJava
                     setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
@@ -303,7 +304,7 @@ $Rules
           $EndJava
         ./
 
-    AmbiguousName ::= identifier
+    AmbiguousName ::=? identifier
         /.$BeginJava
                     setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
           $EndJava
