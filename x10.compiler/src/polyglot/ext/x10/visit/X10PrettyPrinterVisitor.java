@@ -72,7 +72,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	private final PrettyPrinter pp;
 
 	private static int nextId_;
-	/* to provide a unique name for local variabales introduce in the templates */
+	/* to provide a unique name for local variables introduce in the templates */
 	private static Integer getUniqueId_() {
 		return new Integer(nextId_++);
 	}
@@ -184,9 +184,20 @@ public class X10PrettyPrinterVisitor extends Runabout {
 
 	public void visit(Async_c a) {
 		assert (null != a.clocks());
+		Object clocks = null;
+		if (a.clocks().isEmpty())
+			clocks = "";
+		else if (a.clocks().size() == 1)
+			clocks = new Template("clock", a.clocks().get(0));
+		else {
+			Integer id = getUniqueId_();
+			clocks = new Template("clocked",
+								  new Loop("clocked-loop", a.clocks(), new CircularList(id)),
+								  id);
+		}
 		new Template("Async",
 					 a.place(),
-					 new Template("clocked", new Loop("clocked-loop", a.clocks())),
+					 clocks,
 					 a.body()).expand();
 	}
 
@@ -224,6 +235,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 
 	private void processClockedLoop(String template, X10ClockedLoop l) {
 		assert (null != l.clocks());
+		Integer id = getUniqueId_();
 		new Template(template,
 					 new Object[] {
 						 l.formal().flags().translate(),
@@ -234,7 +246,8 @@ public class X10PrettyPrinterVisitor extends Runabout {
 						 new Template("clocked",
 							 new Join("\n",
 								 new Join("\n", l.locals()),
-								 new Loop("clocked-loop", l.clocks())))
+								 new Loop("clocked-loop", l.clocks(), new CircularList(id))),
+							 id)
 					 }).expand();
 	}
 
@@ -605,7 +618,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			};
 		}
 		public Object get(int i) { return o; }
-		public int size() { return 1; }
+		public int size() { return -1; }
 	}
 
 	/**
@@ -636,10 +649,14 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			this.lists = components;
 			// Make sure we have at least one parameter
 			assert(lists.length > 0);
-			this.N = lists[0].size();
-			// Make sure the lists are all of the same size
-			for (int i = 1; i < lists.length; i++)
-				assert(lists[i].size() == N);
+			int n = -1;
+			int i = 0;
+			for (; i < lists.length && n == -1; i++)
+				n = lists[i].size();
+			// Make sure the lists are all of the same size or circular
+			for (; i < lists.length; i++)
+				assert(lists[i].size() == n || lists[i].size() == -1);
+			this.N = n;
 		}
 		public void expand() {
 			w.write("/* Loop: { */");
@@ -667,6 +684,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	/**
 	 * Join a given list of arguments with a given delimiter.
 	 * Two or three arguments can also be specified separately.
+	 * Do not join a circular list.
 	 */
 	public class Join extends Expander {
 		private final String delimiter;
