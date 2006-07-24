@@ -90,7 +90,7 @@
         </copy>
     </target>
     <target name="grammar" depends="init">
-        <property name="grammar.file" location="${src}/x10/parser/x10-feb2005.g"/>
+        <property name="grammar.file" location="${src}/x10/parser/x10.g"/>
         <property name="include.dir" location="${lpg.location}/templates"/>
         <condition property="platform" value="win32"><os family="windows"/></condition>
         <condition property="platform" value="linux"><os name="Linux"/></condition>
