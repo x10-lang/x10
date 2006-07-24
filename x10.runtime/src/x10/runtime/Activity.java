@@ -69,8 +69,8 @@ public abstract class Activity implements Runnable {
 	 */
 	protected FinishState rootNode_;
 
-	/** Create an activity with the given set of clocks.  
-	 * 
+	/**
+	 * Create an activity with the given set of clocks.  
 	 * @param clocks
 	 */
 	public Activity(List clocks) {
@@ -84,9 +84,22 @@ public abstract class Activity implements Runnable {
 		this.clocks_ = clocks;
 	}
 
+	/**
+	 * Create an activity with the given clock.  
+	 * @param clock
+	 */
+	public Activity(Clock clock) {
+		assert (clock != null);
+		this.clocks_ = new LinkedList();
+		if (Report.should_report("activity", 3)) {
+			Report.report(3, PoolRunner.logString() + " adding clock "
+					+ clock + " to " + this);
+		}
+		this.clocks_.add(clock);
+	}
+
 	public Activity() {
 		this.clocks_ = new LinkedList();
-
 	}
 
 	/**
@@ -222,13 +235,14 @@ public abstract class Activity implements Runnable {
 	 * Invoked from code generated from the X10 source by the translator.
 	 * @param c -- The clock being checked for.
 	 */
-	public/*myThread*/void checkClockUse(Clock c) {
+	public/*myThread*/Clock checkClockUse(Clock c) {
 		if (c.dropped())
 			throw new ClockUseException("Cannot transmit dropped clock.");
 		if (c.quiescent())
 			throw new ClockUseException("Cannot transmit resumed clock.");
 		if (inFinish())
 			throw new ClockUseException("Finish cannot spawn clocked async.");
+		return c;
 	}
 
 	/**
