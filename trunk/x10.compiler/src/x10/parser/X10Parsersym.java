@@ -1,10 +1,7 @@
-
 //
-// Licensed Material 
+// Licensed Material
 // (C) Copyright IBM Corp, 2006
-//
-
-//
+////
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -13,7 +10,6 @@
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
 // 12/28/2004
-
 package x10.parser;
 
 public interface X10Parsersym {

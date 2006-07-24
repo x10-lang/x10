@@ -1,9 +1,7 @@
-
 //
 // Licensed Material 
 // (C) Copyright IBM Corp, 2006
 //
-
 package x10.parser;
 
 public class X10Lexerprs implements lpg.lpgjavaruntime.ParseTable, X10Lexersym {
