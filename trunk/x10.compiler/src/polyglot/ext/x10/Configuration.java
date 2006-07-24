@@ -12,6 +12,7 @@ package polyglot.ext.x10;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -159,9 +160,11 @@ public final class Configuration {
 		if (cfg != null) {
 			try {
 				Properties props = new Properties();
-				FileInputStream fis = new FileInputStream(cfg);
-				byte[] data = new byte[fis.available()];
-				if (data.length != fis.read(data))
+				InputStream is = Configuration.class.getClassLoader().getResourceAsStream(cfg);
+				if (is == null)
+					throw new IOException("Configuration "+cfg+" non-existent");
+				byte[] data = new byte[is.available()];
+				if (data.length != is.read(data))
 					throw new Error();
 				String s = new String(data).replace('\\','/');
 				props.load(new ByteArrayInputStream(s.getBytes()));
