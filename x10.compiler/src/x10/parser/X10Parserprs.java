@@ -1,10 +1,7 @@
-
 //
-// Licensed Material 
+// Licensed Material
 // (C) Copyright IBM Corp, 2006
-//
-
-//
+////
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -13,7 +10,6 @@
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
 // 12/28/2004
-
 package x10.parser;
 
 public class X10Parserprs implements lpg.lpgjavaruntime.ParseTable, X10Parsersym {
@@ -2445,8 +2441,8 @@ public class X10Parserprs implements lpg.lpgjavaruntime.ParseTable, X10Parsersym
             0,144,149,0,42,144,149,0,42,125,
             144,0,42,144,0,42,125,144,149,0,
             42,125,149,0,1094,12623,0,1590,15,548,
-            562,0,7876,233,0,13,19,0,13,19,
-            21,0,13,25,19,0,12893,279,0,12892,
+            562,0,7876,233,0,19,13,0,19,21,
+            13,0,19,25,13,0,12893,279,0,12892,
             279,0,1775,266,0,6681,290,0,7021,290,
             0,7686,287,0,7781,287,0,7925,287,0,
             1173,299,0,6016,299,0,6111,299,0,6206,
@@ -2479,7 +2475,7 @@ public class X10Parserprs implements lpg.lpgjavaruntime.ParseTable, X10Parsersym
             0,42,125,78,98,0,42,125,78,98,
             117,0,69,986,0,5152,469,0,1533,469,
             0,14,5967,0,6062,263,0,371,561,0,
-            20,22,0,26,20,0,5533,548,562,0,
+            20,22,0,20,26,0,5533,548,562,0,
             548,562,12623,0,6157,262,0,7686,289,0,
             7781,289,0,7925,289,0,7686,288,0,7781,
             288,0,7925,288,0,5152,518,0,1533,518,
@@ -2491,8 +2487,8 @@ public class X10Parserprs implements lpg.lpgjavaruntime.ParseTable, X10Parsersym
             6111,300,0,6206,300,0,5680,307,0,5746,
             305,0,5328,311,0,5455,309,0,316,332,
             0,528,9207,0,2836,12623,0,2835,12623,0,
-            2758,12623,0,9403,12623,0,13,21,0,13,
-            25,0,7827,558,0,3077,477,477,0,47,
+            2758,12623,0,9403,12623,0,21,13,0,25,
+            13,0,7827,558,0,3077,477,477,0,47,
             94,0,19,519,0,265,6252,0,2513,298,
             0,6396,298,0,6681,292,0,7021,292,0,
             460,3161,0,9599,334,0,6537,364,0,11289,

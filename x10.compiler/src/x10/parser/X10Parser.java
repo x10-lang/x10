@@ -1,10 +1,7 @@
-
 //
-// Licensed Material 
+// Licensed Material
 // (C) Copyright IBM Corp, 2006
-//
-
-//
+////
 // This is the grammar specification from the Final Draft of the generic spec.
 // It has been modified by Philippe Charles and Vijay Saraswat for use with 
 // X10. 
@@ -13,11 +10,9 @@
 // (3) Removed Annotations -- cause conflicts with @ used in places.
 // (4) Removed EnumDeclarations.
 // 12/28/2004
-
 package x10.parser;
 
 import lpg.lpgjavaruntime.*;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -106,7 +101,6 @@ import lpg.lpgjavaruntime.PrsStream;
 import lpg.lpgjavaruntime.RuleAction;
 import lpg.lpgjavaruntime.UndefinedEofSymbolException;
 import lpg.lpgjavaruntime.UnimplementedTerminalsException;
-
 public class X10Parser extends PrsStream implements RuleAction, Parser
 {
     private static ParseTable prs = new X10Parserprs();
@@ -243,7 +237,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         return null;
     }
      
-
 
     private ErrorQueue eq;
     private X10TypeSystem ts;
@@ -723,10 +716,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         {
  
             //
-            // Rule 1:  identifier ::= IDENTIFIER$id
+            // Rule 1:  identifier ::= IDENTIFIER$ident
             //
             case 1: {
-                IToken id = (IToken) getRhsIToken(1);
+                IToken ident = (IToken) getRhsIToken(1);
+                ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -3451,7 +3445,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 ClassBody ClassBody = (ClassBody) getRhsSym(7);
       checkTypeName(identifier);
       //Report.report(1, "Parser: Golden Creating class with properties |" + PropertyListopt + "|");
-      List/*<PropertyDecl>*/ props = PropertyListopt == null ? null 
+      List/*<PropertyDecl>*/ props = PropertyListopt == null ? null
                   : (List) PropertyListopt[0];
       Expr ci = PropertyListopt == null ? null : (Expr) PropertyListopt[1];
       setResult(X10Flags.isValue(ClassModifiersopt)
@@ -3502,10 +3496,10 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 409: {
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(2);
-    
+
                 setResult(nf.PropertyDecl(pos(), Flags.PUBLIC.Final(), Type,
                 identifier.getIdentifier()));
-              
+
                 break;
             }
      
@@ -3588,7 +3582,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 List ExtendsInterfacesopt = (List) getRhsSym(5);
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(6);
       checkTypeName(identifier);
-      List/*<PropertyDecl>*/ props = PropertyListopt == null ? null 
+      List/*<PropertyDecl>*/ props = PropertyListopt == null ? null
                   : (List) PropertyListopt[0];
       Expr ci = PropertyListopt == null ? null : (Expr) PropertyListopt[1];
       setResult(nf.ClassDecl(pos(),
@@ -3743,7 +3737,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(4);
            //System.out.println("Parser: parsed (Type) DepParmetersopt |" + Type + "| |" + DepParametersopt +"|");
-                setResult(DepParametersopt == null ? Type 
+                setResult(DepParametersopt == null ? Type
                 : ((X10TypeNode) Type).dep(null, DepParametersopt));
                 break;
             }
@@ -3767,8 +3761,8 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             case 431: {
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
                 X10TypeNode res = (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.Boolean());
-                setResult(DepParametersopt==null 
-                           ? res 
+                setResult(DepParametersopt == null
+                           ? res
                            : res.dep(null, DepParametersopt));
                break;
             }
@@ -3780,16 +3774,16 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 Name TypeName = (Name) getRhsSym(1);
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
-                X10TypeNode type;
-                
-                if (ts.isPrimitiveTypeName(TypeName.name)) {
-                    try {
-			type= (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.primitiveForName(TypeName.name));
-		    } catch (SemanticException e) {
-			throw new InternalCompilerError("Unable to create primitive type for '" + TypeName.name + "'!");
-		    }
-                } else
-                    type= (X10TypeNode) TypeName.toType();
+				X10TypeNode type;
+
+				if (ts.isPrimitiveTypeName(TypeName.name)) {
+					try {
+						type= (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.primitiveForName(TypeName.name));
+					} catch (SemanticException e) {
+						throw new InternalCompilerError("Unable to create primitive type for '" + TypeName.name + "'!");
+					}
+				} else
+					type= (X10TypeNode) TypeName.toType();
            //  System.out.println("Parser: parsed ClassOrInterfaceType |" + TypeName + "| |" + DepParametersopt +"|");
                 setResult(DepParametersopt == null
                                ? type
@@ -3916,7 +3910,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
     Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
     setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-    ClassModifiersopt, identifier.getIdentifier(), 
+    ClassModifiersopt, identifier.getIdentifier(),
     props, ci, Superopt, Interfacesopt, ClassBody));
                 break;
             }
@@ -3935,7 +3929,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
     Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
     setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-                              ClassModifiersopt, identifier.getIdentifier(), 
+                              ClassModifiersopt, identifier.getIdentifier(),
                               props, ci, Superopt, Interfacesopt, ClassBody));
                 break;
             }
@@ -3951,7 +3945,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
      Name a = (Name) ConstructorDeclarator[1];
      DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
      List b = (List) ConstructorDeclarator[3];
-     Expr e = (Expr) ConstructorDeclarator[4];              
+     Expr e = (Expr) ConstructorDeclarator[4];
      setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), c, b, e, Throwsopt, ConstructorBody));
                break;
             }
@@ -4849,8 +4843,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
-    
-    
+        
             default:
                 break;
         }
