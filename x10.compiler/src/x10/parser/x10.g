@@ -8,6 +8,10 @@
 %options template=uide/btParserTemplate.gi
 %options import_terminals="X10Lexer.gi"
 
+$include
+    "MissingId.gi"
+$End
+
 $Notice
 /.
 //
