@@ -1,23 +1,25 @@
+
 //
 // Licensed Material 
 // (C) Copyright IBM Corp, 2006
 //
+
 package x10.parser;
 
 import lpg.lpgjavaruntime.*;
 import java.util.*;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.io.File;
 import java.util.ArrayList;
+
 public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym, RuleAction
 {
     private static ParseTable prs = new X10Lexerprs();
-    private PrsStream prsStream;
     private LexParser lexParser = new LexParser(this, prs, this);
 
-    public PrsStream getPrsStream() { return prsStream; }
     public int getToken(int i) { return lexParser.getToken(i); }
     public int getRhsFirstTokenIndex(int i) { return lexParser.getFirstToken(i); }
     public int getRhsLastTokenIndex(int i) { return lexParser.getLastToken(i); }
@@ -55,7 +57,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
         if (getInputChars() == null)
             throw new NullPointerException("LexStream was not initialized");
 
-        this.prsStream = prsStream;
+        setPrsStream(prsStream);
 
         prsStream.makeToken(0, 0, 0); // Token list must start with a bad token
             
@@ -67,6 +69,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             
         return;
     }
+
     //
     // The Lexer contains an array of characters as the input stream to be parsed.
     // There are methods to retrieve and classify characters.
@@ -276,6 +279,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
                        ? Char_EOF
                        : Char_AfterASCII);
     }
+
     public X10Lexer(java.io.Reader reader, String filename) throws java.io.IOException
     {
         ArrayList buffers = new ArrayList();
@@ -755,6 +759,7 @@ assert(new_file != null);
         }
         return;
     }
+
     static public class DifferX10 extends DifferJava
     {
         protected DifferX10() {}
@@ -1335,7 +1340,8 @@ assert(new_file != null);
                 makeToken(TK_ARROW);
                 break;
             }
-        
+    
+    
             default:
                 break;
         }
