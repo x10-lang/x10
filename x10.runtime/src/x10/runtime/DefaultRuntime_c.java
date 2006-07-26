@@ -314,9 +314,7 @@ public class DefaultRuntime_c extends Runtime {
 		};
 
 		// Run the boot activity.
-		if (Configuration.runBootHere) {
-			Runtime.runBootAsync(boot);
-		}
+		Runtime.runBootAsync(boot);
 
 		finalizeAndTermLibs();
 
