@@ -37,8 +37,6 @@ public class ArrayLocalStorageHandle   {
 
    // a nop in distributed mode
    public void transferDataToArray(){
-      if(x10.runtime.Configuration.isMultiNodeVM()) return;
-
       region localRegion = _destArray.getDistribution().restrictToRegion(Runtime.here());
 
       if(_destArray instanceof IntArray_c){
