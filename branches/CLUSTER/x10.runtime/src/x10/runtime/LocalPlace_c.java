@@ -4,11 +4,21 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 import x10.lang.Future;
+import x10.lang.place;
 /**
  * A LocalPlace_c is an implementation of a place
  * that runs on this Java Virtual Machine.  In the
  * future we will have RemotePlaces that refer to
  * Places on other machines.
+ * 
+ * The major resource controlled by this place is a threadpool, the total number
+ * of threads is controlled by Configuration.NUMBER_OF_ACTIVITIES_PER_PLACE. New
+ * threads can be created freely up to this number.  Thread is an instance of
+ * <code>PoolRunner</code>, and thus is link by its <code>next</code> field.  
+ * PoolRunner has a state variable <code>isactive</code> which when clear will
+ * finish the Thread.  <code>shutdown</code> will shut down this place, and 
+ * leave all the threads finish its current job and then terminate. 
+ * @author xinb
  * 
  * @author Christian Grothoff
  * @author vj
@@ -22,7 +32,7 @@ public class LocalPlace_c extends Place {
 	/**
 	 * How many threads are truely running (not blocked) in this place?
 	 */
-	int runningThreads;
+	protected int runningThreads;
 	
 	/**
 	 * Linked list of threads in the thread pool that are not currently
@@ -33,19 +43,22 @@ public class LocalPlace_c extends Place {
 	/**
 	 * List of all of the threads of this place.
 	 */
-	final ArrayList myThreads = new ArrayList(); // <PoolRunner>
+	//dead code ? final ArrayList myThreads = new ArrayList(); // <PoolRunner>
 	
 
 	/**
 	 * List of activities that are waiting for a thread, to be
 	 * launched when the local place becomes idle.
 	 */
-	private final Stack waitingActivities = new Stack();
+	protected final Stack waitingActivities = new Stack();
 	
-	
+	//dead code?
+	/*
 	synchronized void addThread( PoolRunner p) {
 		synchronized (myThreads) { myThreads.add(p); }
 	}
+	*/
+	
 	/**
 	 * Shutdown this place, the current X10 runtime will exit.    Assumes
 	 * that all activities have already completed.  Threads beloging
@@ -173,7 +186,7 @@ public class LocalPlace_c extends Place {
 		return result;
 	}
 	 
-    private int threadInPool_;
+    private int threadInPool_ = 0;
     
     public synchronized boolean shouldRunnerTerminate() {
         boolean ret;
@@ -278,6 +291,10 @@ public class LocalPlace_c extends Place {
 				Activity a = (Activity) waitingActivities.pop();
 				runAsync(a, false);				
 			}
+			
+			//System.out.print(this+"Notifying All...");
+			//System.out.println("isShutdown: "+isShutdown()+"runningThreads = "+runningThreads + "#waitingActivities = "+waitingActivities.size());
+			notifyAll(); //@see ClusterPlace#shutdown
 		}
 	}
 	
@@ -293,5 +310,32 @@ public class LocalPlace_c extends Place {
 			}
 		}
 	}
+	
+	////////////////////////////////////////////////////////////////////
+	//lifecycle API
+	
+	/**
+	 * The states of current place, depends on <code>runningThreads</code>, <code>
+	 * waitingActivities</code> and whether the <code>shutdown</code> command is
+	 * issued.
+	 * @author xinb
+	 */
+	public synchronized PlaceState getState() {		
+		//only make sense if this place is Local to current VM
+		//System.out.println(this+" isShutdown: "+isShutdown()+"runningThreads = "+runningThreads + "#waitingActivities = "+waitingActivities.size());
+		if(runningThreads > 0 || ! waitingActivities.empty()) {
+			if(isShutdown())
+				return PlaceState.WAIT;
+			else 
+				return PlaceState.BUSY;
+		} else {
+			if(isShutdown()) 
+				return PlaceState.TERMINATED;
+			else
+				return PlaceState.IDLE;
+		}
+	}
+	
+	
 } // end of LocalPlace_c
 

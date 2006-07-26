@@ -33,7 +33,7 @@ public final  class PoolRunner extends Thread
    PoolRunner(LocalPlace_c p) {
        homePlace = p;
 	   place = p;
-       p.addThread( this );
+       //p.addThread( this );
    }
    public Activity getActivity() {
    	return act;
@@ -53,7 +53,8 @@ public final  class PoolRunner extends Thread
     */
    synchronized void run(Runnable r) {
        assert job == null;
-       job = r;       
+       job = r;
+       changeRunningStatus(1);
        this.notifyAll();
    }
    /**
@@ -86,7 +87,7 @@ public final  class PoolRunner extends Thread
                Runnable j = job;
                job = null;
                try {
-                   changeRunningStatus(1);
+                   //changeRunningStatus(1); //Move to run(Runnalbe) to better reflect the state of 'place'
                    if (Report.should_report("activity", 5)) {
                        Report.report(5, logString() + " starts running " + j +".");
                    }
