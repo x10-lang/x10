@@ -3,9 +3,15 @@ package x10.lang;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import x10.cluster.ClusterConfig;
 import x10.cluster.ClusterRuntime;
+import x10.cluster.Node;
+import x10.cluster.X10Runnable;
+import x10.cluster.comm.InvocationHelper;
+import x10.cluster.message.MessageType;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
@@ -51,11 +57,7 @@ public abstract class Runtime {
             if (rt != null)
                 r = (Runtime) Class.forName(rt).newInstance();
             else
-            	/*
-            	if(x10.runtime.Configuration.isMultiNodeVM())
-            	//	r = new x10.runtime.distributed.DistributedRuntime();
-            	else*/
-            		r = new DefaultRuntime_c();
+            	r = new DefaultRuntime_c();
         } catch (ClassNotFoundException cnfe) {
             System.err.println("Runtime::<clinit> did not find runtime " + rt);
             throw new Error(cnfe);
@@ -276,5 +278,4 @@ public abstract class Runtime {
 	    }
 	    return true;
 	}
-	
 } // end of Runtime
