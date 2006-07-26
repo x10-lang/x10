@@ -24,9 +24,19 @@ import java.util.Iterator;
 import java.util.Set;
 
 import x10.base.TypeArgument;
+import x10.cluster.ClusterConfig;
+import x10.cluster.ClusterPlace;
+import x10.cluster.ClusterRuntime;
+import x10.cluster.HasResult;
+import x10.cluster.Node;
+import x10.cluster.X10Dispatcher;
+import x10.cluster.Node.VMState;
+import x10.cluster.comm.InvocationHelper;
+import x10.cluster.message.MessageType;
 import x10.runtime.Activity;
+import x10.runtime.LocalPlace_c;
 
-public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
+public /*value*/ abstract class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
 implements TypeArgument, ValueType{
 	private static int count_ = 0;
 	public /*final*/ /*nat*/int id;
@@ -146,4 +156,91 @@ implements TypeArgument, ValueType{
 	public Object getLock() {
 		return locks_[this.id];
 	}
+	
+	
+	/////////////////////////////////////////////////////////////////////
+	//Lifecycle APIs
+	////////////////////////////////////////////////////////////////////
+	public enum PlaceState {IDLE, BUSY, WAIT, TERMINATED}		
+	
+	/**
+	 * Dynamically create a new place, which is not linked with the statically
+	 * configured places.  By default this newly created place will run on the
+	 * same VM as the calling place.
+	 * 
+	 * @return
+	 */
+	public static place newPlace() {
+		place p = createPlace();
+		
+		//map this place correctly and inform other VMs, if necessary
+		ClusterConfig.addDynamicPlace(ClusterRuntime.getNode(), p);
+		
+		return p;
+	}
+	
+	private static HashMap<Integer, place> dynPlaces_ = new HashMap<Integer, place>();
+	private static place createPlace() {
+		place p; 
+		if(ClusterConfig.multi)
+			p = new ClusterPlace();
+		else
+			p = new LocalPlace_c();
+		
+		dynPlaces_.put(new Integer(p.id), p);
+		
+		return p;
+	}
+	
+	/**
+	 * Get the dynamically created 'place' instance by its id, if not existing,
+	 * then create one.
+	 * @param id
+	 * @return
+	 */
+	public static place dynPlace(int id) {
+		place ret = dynPlaces_.get(id);
+		if(ret == null) {
+			ret = createPlace();
+			ret.id = id;  //make sure the id is consistent
+			dynPlaces_.put(new Integer(id), ret);
+		}
+		return ret;
+	}
+	
+	public static place newPlace(final Node nd) {
+		if(ClusterRuntime.getNode().sameNode(nd)) {
+			return newPlace();
+		} else {
+			try {
+				return (place) X10Dispatcher.serializeCodeW(nd, new HasResult(MessageType.MIS) {
+					private Object ret;
+					public void run() {
+						System.out.println("Creating new places ....");
+						ret = newPlace(); 
+					}
+					public Object getResult() {
+						return ret;
+					}
+				});
+			}catch(java.lang.Exception ex) {
+				ex.printStackTrace();
+			}
+			return null;
+		}
+	}
+	
+	/**
+	 * The current state of this place: IDLE, BUSY, WAIT, TERMINATED.
+	 * @return
+	 */
+	public abstract /*synchronized*/ PlaceState getState();
+	
+	/**
+	 * Terminate this place and release all the associated resources at
+	 * the earliest moment.  If there is task running, wait for it to
+	 * finish, but receive no more new tasks.
+	 * 
+	 */
+	public abstract /*synchronized*/ void shutdown();
 }

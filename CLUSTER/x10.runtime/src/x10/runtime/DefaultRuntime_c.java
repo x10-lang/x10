@@ -181,7 +181,7 @@ public class DefaultRuntime_c extends Runtime {
                 		Report.report(5, PoolRunner.logString() + " shutting down " + getPlaces()[i]);
                 				
                 	}
-            		getPlaces()[i].shutdown();
+            		//getPlaces()[i].shutdown();
             	}
             	
             	if (Report.should_report("activity", 5)) {
