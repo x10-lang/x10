@@ -59,13 +59,7 @@ where [options] includes:
     -J<arg>                  pass <arg> to java.
         e.g., use -J-verbose to make java execution verbose.
 
-X10 configuration:
-    -NUMBER_OF_LOCAL_PLACES=<int>  number of places (default 4)
-    -LOAD=<shared-lib>             load specified shared library
-    -SAMPLING_FREQUENCY_MS=<int>   default 50ms
-    -DUMP_STATS_ON_EXIT=<bool>     print statistics on exit
-    -STATISTICS_DISABLE=<stats>    disable selected runtime statistics
-                                   currently supported: all, none
+    Use "x10 -- -help" to get help on X10 runtime configuration options
 EOF
     exit 1
 fi
