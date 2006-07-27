@@ -58,6 +58,7 @@ where [options] includes:
     -disable <pass>          disable compiler pass <pass>
                              valid passes are: async-elimination
     -dev                     developer mode (use unpackaged X10 libraries)
+
     Use "x10c -- -help" to get more detailed help on compiler options
 EOF
     exit 1
