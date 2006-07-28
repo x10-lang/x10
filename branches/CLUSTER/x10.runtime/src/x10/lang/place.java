@@ -28,12 +28,9 @@ import x10.cluster.ClusterConfig;
 import x10.cluster.ClusterPlace;
 import x10.cluster.ClusterRuntime;
 import x10.cluster.HasResult;
-import x10.cluster.Node;
-import x10.cluster.X10Dispatcher;
-import x10.cluster.Node.VMState;
-import x10.cluster.comm.InvocationHelper;
+import x10.cluster.X10Node;
+import x10.cluster.comm.RPCHelper;
 import x10.cluster.message.MessageType;
-import x10.runtime.Activity;
 import x10.runtime.LocalPlace_c;
 
 public /*value*/ abstract class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
@@ -208,12 +205,12 @@ implements TypeArgument, ValueType{
 		return ret;
 	}
 	
-	public static place newPlace(final Node nd) {
+	public static place newPlace(final X10Node nd) {
 		if(ClusterRuntime.getNode().sameNode(nd)) {
 			return newPlace();
 		} else {
 			try {
-				java.lang.Integer pid = (java.lang.Integer) X10Dispatcher.serializeCodeW(nd, new HasResult(MessageType.MIS) {
+				java.lang.Integer pid = (java.lang.Integer) RPCHelper.serializeCodeW(nd, new HasResult(MessageType.MIS) {
 					private place ret;
 					public void run() {
 						//System.out.println("place.newPlace: Creating new places ....");

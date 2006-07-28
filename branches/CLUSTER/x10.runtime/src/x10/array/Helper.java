@@ -3,11 +3,10 @@
  */
 package x10.array;
 
-import x10.array.MultiDimRegion;
+import x10.lang.RankMismatchException;
 import x10.lang.dist;
 import x10.lang.point;
 import x10.lang.region;
-import x10.lang.RankMismatchException;
 
 /**
  * Ideally this would be in the abstract interface for region, however we don't

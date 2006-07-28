@@ -4,10 +4,10 @@
 package x10.array;
 
 import java.util.Iterator;
+
+import x10.lang.Runtime;
 import x10.lang.point;
 import x10.lang.region;
-import x10.lang.RankMismatchException;
-import x10.lang.Runtime;
 
 /**
  * A ContiguousRange is a 1-d region (Range) from lo (inclusive) to hi (inclusive).

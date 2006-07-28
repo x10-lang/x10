@@ -3,13 +3,10 @@
  */
 package x10.array;
 
-import java.util.Iterator;
-
+import x10.lang.StructureReferenceArray;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
-import x10.lang.StructureReferenceArray;
-import x10.lang.structureArray.pointwiseOp;
 
 public abstract class StructureArray extends StructureReferenceArray {
     public StructureArray(dist d,int elSize) {

@@ -3,8 +3,9 @@
  */
 package x10.base;
 
-import sun.misc.Unsafe;
 import java.lang.reflect.Field;
+
+import sun.misc.Unsafe;
 
 /**
  * @author Christoph von Praun, Patrick Gallop

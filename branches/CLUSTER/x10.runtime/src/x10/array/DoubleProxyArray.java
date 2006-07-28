@@ -6,8 +6,6 @@ import x10.lang.dist;
 import x10.lang.doubleArray;
 import x10.lang.point;
 import x10.lang.region;
-import x10.lang.doubleArray.binaryOp;
-import x10.lang.doubleArray.unaryOp;
 
 public class DoubleProxyArray extends DoubleReferenceArray {
 
