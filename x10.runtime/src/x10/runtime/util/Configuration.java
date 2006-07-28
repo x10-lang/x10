@@ -154,7 +154,7 @@ public abstract class Configuration {
 	 * configuration.
 	 * @return null if no resource is given and default values should be used
 	 */
-	protected static String getConfigurationResource() {
+	public static String getConfigurationResource() {
 		return System.getProperty("x10.configuration");
 	}
 
@@ -166,7 +166,7 @@ public abstract class Configuration {
 	 * @param cfg the configuration resource name
 	 * @throws ConfigurationError if unable to process the resource
 	 */
-	protected static void readConfiguration(Class cls, String cfg)
+	public static void readConfiguration(Class cls, String cfg)
 		throws ConfigurationError
 	{
 		if (cfg == null)
