@@ -213,16 +213,19 @@ implements TypeArgument, ValueType{
 			return newPlace();
 		} else {
 			try {
-				return (place) X10Dispatcher.serializeCodeW(nd, new HasResult(MessageType.MIS) {
-					private Object ret;
+				java.lang.Integer pid = (java.lang.Integer) X10Dispatcher.serializeCodeW(nd, new HasResult(MessageType.MIS) {
+					private place ret;
 					public void run() {
-						System.out.println("Creating new places ....");
+						//System.out.println("place.newPlace: Creating new places ....");
 						ret = newPlace(); 
+						//System.out.println("place.newPlace: Creating new places .... done.");
 					}
-					public Object getResult() {
-						return ret;
+					public java.lang.Object getResult() {
+						return ret.id;
 					}
 				});
+				
+				return dynPlace(pid.intValue());
 			}catch(java.lang.Exception ex) {
 				ex.printStackTrace();
 			}
