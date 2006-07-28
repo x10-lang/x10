@@ -10,7 +10,6 @@ package x10.lang;
  */
 
 
-import x10.lang.intArray.binaryOp;
 
 abstract public class booleanArray extends x10Array{
 

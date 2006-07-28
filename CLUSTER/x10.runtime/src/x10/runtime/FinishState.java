@@ -8,11 +8,10 @@ package x10.runtime;
 import java.util.Stack;
 
 import x10.cluster.ClusterRuntime;
-import x10.cluster.Debug;
 import x10.cluster.HasResult;
-import x10.cluster.X10Dispatcher;
 import x10.cluster.X10RemoteRef;
 import x10.cluster.X10Runnable;
+import x10.cluster.comm.RPCHelper;
 import x10.cluster.message.MessageType;
 
 /** The state associated with a finish operation. Records the count of 
@@ -72,7 +71,7 @@ public class FinishState implements FinishStateOps {
 				//asynchronously is fine
 				final int finishedCnt = remoteChild;
 				//if(finishedCnt > 1) System.out.println("FinishState.Termi remote: finishedCnt = "+finishedCnt);
-				X10Dispatcher.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
+				RPCHelper.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
 					public void run() {
 						notifySubActivityTermination_(finishedCnt);
 					}
@@ -91,7 +90,7 @@ public class FinishState implements FinishStateOps {
 			if( shadowCount == 0) {
 				//asynchronously is fine
 				final int finishedCnt = remoteChild;
-				X10Dispatcher.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
+				RPCHelper.serializeCode(rref.getPlace().id, new X10Runnable(MessageType.FIN) {
 					public void run() {
 						notifySubActivityTermination_(t, finishedCnt);
 					}
@@ -137,7 +136,7 @@ public class FinishState implements FinishStateOps {
 			if( shadowCount == 1 ) {
 				//synchronously remote call
 				if(!fromRoot) 
-					X10Dispatcher.serializeCodeW(rref.getPlace().id, new HasResult(MessageType.FIN) {
+					RPCHelper.serializeCodeW(rref.getPlace().id, new HasResult(MessageType.FIN) {
 						public void run() {
 							notifySubActivitySpawn_();
 						}

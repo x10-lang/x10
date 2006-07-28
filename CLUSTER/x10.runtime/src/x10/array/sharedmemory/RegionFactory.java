@@ -1,11 +1,11 @@
 package x10.array.sharedmemory;
 
-import x10.array.ContiguousRange;
-import x10.array.TriangularRegion;
 import x10.array.BandedRegion;
+import x10.array.ContiguousRange;
 import x10.array.EmptyRegion;
 import x10.array.MultiDimRegion;
 import x10.array.StridedRange;
+import x10.array.TriangularRegion;
 import x10.lang.region;
 
 public  class RegionFactory extends region.factory {

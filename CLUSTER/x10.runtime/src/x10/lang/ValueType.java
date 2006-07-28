@@ -3,7 +3,6 @@
  */
 package x10.lang;
 
-import java.io.Serializable;
 
 /**
  * Annotation to mark value types.  X10 should probably use

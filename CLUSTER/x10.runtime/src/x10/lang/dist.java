@@ -9,9 +9,8 @@ package x10.lang;
  @author vj
  @date 12/24/2004
  */
-import /*x10*/java.util.Set;
 import java.util.Iterator;
-import x10.lang.GlobalIndexMap;
+import java.util.Set;
 
 
 abstract public /*value*/ class dist/*( region region )*/ extends Object 

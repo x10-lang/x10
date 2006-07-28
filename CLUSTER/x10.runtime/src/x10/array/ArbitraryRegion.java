@@ -4,13 +4,13 @@
 package x10.array;
 
 import java.util.Iterator;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Set;
 
+import x10.lang.RankMismatchException;
 import x10.lang.point;
 import x10.lang.region;
-import x10.lang.RankMismatchException;
 
 
 /**

@@ -4,10 +4,11 @@
 package x10.array;
 
 import java.util.Iterator;
+
+import x10.lang.ByteReferenceArray;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
-import x10.lang.ByteReferenceArray;
 
 /**
  * @author Christoph von Praun

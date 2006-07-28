@@ -4,10 +4,11 @@
 package x10.array;
 
 import java.util.Iterator;
+
+import x10.lang.Complex4ReferenceArray;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
-import x10.lang.Complex4ReferenceArray;
 
 /**
  * @author cmd

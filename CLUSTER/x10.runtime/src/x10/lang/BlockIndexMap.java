@@ -1,6 +1,5 @@
 package x10.lang;
 
-import x10.lang.GlobalIndexMap;
 
 /**
  * 

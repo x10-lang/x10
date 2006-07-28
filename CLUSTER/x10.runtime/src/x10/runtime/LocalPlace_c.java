@@ -1,10 +1,8 @@
 package x10.runtime;
 
-import java.util.ArrayList;
 import java.util.Stack;
 
 import x10.lang.Future;
-import x10.lang.place;
 /**
  * A LocalPlace_c is an implementation of a place
  * that runs on this Java Virtual Machine.  In the

@@ -1,63 +1,59 @@
 package x10.runtime;
 
 import java.util.Set;
-
 import java.util.TreeSet;
 
-
+import x10.array.BooleanArray;
+import x10.array.ByteArray;
+import x10.array.CharArray;
+import x10.array.DistributionFactory;
 import x10.array.DoubleArray;
 import x10.array.FloatArray;
 import x10.array.GenericArray;
 import x10.array.IntArray;
-import x10.array.StructureArray;
-import x10.array.BooleanArray;
-import x10.array.CharArray;
-import x10.array.ByteArray;
 import x10.array.ShortArray;
+import x10.array.StructureArray;
 import x10.array.point_c;
-import x10.array.DistributionFactory;
+import x10.array.sharedmemory.BooleanArray_c;
+import x10.array.sharedmemory.ByteArray_c;
+import x10.array.sharedmemory.CharArray_c;
+import x10.array.sharedmemory.Complex4Array_c;
 import x10.array.sharedmemory.DoubleArray_c;
 import x10.array.sharedmemory.FloatArray_c;
 import x10.array.sharedmemory.GenericArray_c;
-import x10.array.sharedmemory.BooleanArray_c;
-import x10.array.sharedmemory.CharArray_c;
-import x10.array.sharedmemory.ByteArray_c;
-import x10.array.sharedmemory.ShortArray_c;
 import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.LongArray_c;
-import x10.array.sharedmemory.StructureArray_c;
-import x10.array.sharedmemory.Complex4Array_c;
 import x10.array.sharedmemory.RegionFactory;
-import x10.cluster.ClusterConfig;
+import x10.array.sharedmemory.ShortArray_c;
+import x10.array.sharedmemory.StructureArray_c;
 import x10.compilergenerated.Parameter1;
-import x10.lang.FloatReferenceArray;
-import x10.lang.DoubleReferenceArray;
-
-import x10.lang.GenericReferenceArray;
 import x10.lang.BooleanReferenceArray;
-import x10.lang.CharReferenceArray;
 import x10.lang.ByteReferenceArray;
-import x10.lang.ShortReferenceArray;
+import x10.lang.CharReferenceArray;
+import x10.lang.Complex4ReferenceArray;
+import x10.lang.DoubleReferenceArray;
+import x10.lang.FloatReferenceArray;
+import x10.lang.GenericReferenceArray;
 import x10.lang.IntReferenceArray;
 import x10.lang.LongReferenceArray;
-import x10.lang.StructureReferenceArray;
-import x10.lang.Complex4ReferenceArray;
 import x10.lang.Runtime;
+import x10.lang.ShortReferenceArray;
+import x10.lang.StructureReferenceArray;
+import x10.lang.booleanArray;
+import x10.lang.byteArray;
+import x10.lang.charArray;
 import x10.lang.clock;
+import x10.lang.complex4Array;
 import x10.lang.dist;
 import x10.lang.doubleArray;
 import x10.lang.floatArray;
-import x10.lang.booleanArray;
-import x10.lang.charArray;
-import x10.lang.byteArray;
-import x10.lang.shortArray;
 import x10.lang.intArray;
 import x10.lang.longArray;
-import x10.lang.structureArray;
-import x10.lang.complex4Array;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
+import x10.lang.shortArray;
+import x10.lang.structureArray;
 
 
 /**
