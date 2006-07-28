@@ -2,16 +2,13 @@ package x10.runtime;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Stack;
 import java.util.LinkedList;
 import java.util.List;
-import java.lang.reflect.*;
-import java.io.*;
+import java.util.Stack;
 
 import x10.cluster.Debug;
-import x10.lang.x10Array;
-import x10.lang.MultipleExceptions;
 import x10.lang.ClockUseException;
+import x10.lang.MultipleExceptions;
 
 
 /** The representation of an X10 async activity.

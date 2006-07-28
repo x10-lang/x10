@@ -8,21 +8,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import x10.array.ArbitraryRegion;
-import x10.array.EmptyRegion;
-import x10.array.ContiguousRange;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
-import x10.lang.RankMismatchException;
-import x10.array.point_c;
 import x10.lang.region;
 import x10.runtime.Report;
 

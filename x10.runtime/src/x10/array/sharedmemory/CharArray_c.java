@@ -5,24 +5,21 @@ package x10.array.sharedmemory;
 
 import java.util.Iterator;
 
-
+import x10.array.CharArray;
 import x10.array.Distribution_c;
 import x10.array.Helper;
-import x10.array.CharArray;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
 import x10.base.MemoryBlockSafeCharArray;
-import x10.base.MemoryBlockSafeDoubleArray;
 import x10.base.UnsafeContainer;
+import x10.lang.CharReferenceArray;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
+import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
-import x10.lang.dist;
 import x10.lang.region;
-import x10.lang.CharReferenceArray;
-import x10.lang.charArray.pointwiseOp;
 import x10.runtime.Configuration;
 
 

@@ -1,18 +1,15 @@
 package x10.array;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Arrays;
-import java.lang.Comparable;
 
+import x10.lang.Runtime;
 import x10.lang.dist;
 import x10.lang.place;
-import x10.lang.region;
 import x10.lang.point;
-import x10.array.ContiguousRange;
-import x10.array.MultiDimRegion;
-import x10.lang.Runtime;
+import x10.lang.region;
 
 public class DistributionFactory extends dist.factory {
 	

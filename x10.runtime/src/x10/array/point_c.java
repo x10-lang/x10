@@ -1,9 +1,9 @@
 package x10.array;
 
 import x10.lang.Indexable;
+import x10.lang.RankMismatchException;
 import x10.lang.point;
 import x10.lang.region;
-import x10.lang.RankMismatchException;
 
 public final class point_c extends point implements Comparable {
 
