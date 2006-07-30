@@ -326,8 +326,14 @@ $Rules
                     // Add import x10.lang.* by default.
                     Name x10 = new Name(nf, ts, pos(), "x10");
                     Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
+                    int token_pos = (ImportDeclarationsopt.size() == 0
+                                         ? TypeDeclarationsopt.size() == 0
+                                               ? super.getSize() - 1
+                                               : getPrevious(getRhsFirstTokenIndex($TypeDeclarationsopt))
+                                     : getRhsLastTokenIndex($ImportDeclarationsopt)
+                                );
                     Import x10LangImport = 
-                    nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, x10Lang.toString());
+                    nf.Import(pos(token_pos), Import.PACKAGE, x10Lang.toString());
                     ImportDeclarationsopt.add(x10LangImport);
                     setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()), PackageDeclarationopt, ImportDeclarationsopt, TypeDeclarationsopt));
           $EndJava
@@ -669,7 +675,9 @@ $Rules
                          MethodBody = MethodBody.statements(ss);
                          MethodHeader = MethodHeader.flags(f.clear(X10Flags.ATOMIC));
                     }
-                    setResult(MethodHeader.body(MethodBody));
+                    JPGPosition old_pos = (JPGPosition) MethodHeader.position();
+                    setResult(MethodHeader.body(MethodBody)
+                              .position(pos(old_pos.getLeftIToken().getTokenIndex(), getRightSpan())));
           $EndJava
         ./
     
