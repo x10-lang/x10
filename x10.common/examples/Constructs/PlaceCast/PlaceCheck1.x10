@@ -1,3 +1,6 @@
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+
 import java.util.Iterator;
 import harness.x10Test;
 
@@ -45,11 +48,12 @@ public class PlaceCheck1 extends x10Test {
 			// System.out.println("DEBUG - creating object in place p = " + here);
 			place other_place = getNotHere();
 			finish async (other_place) {
-				int xxx = obj_here.foo;
+				int xxx;
+				atomic { xxx = obj_here.foo; }
 				if (xxx != 123)
 					System.out.println(xxx);
 			};
-			System.out.println("WARN - expected BadPlaceException in field access");
+			System.out.println("WARN - expected exception/error for remote field read in atomic");
 		} catch (BadPlaceException e) {
 			System.out.println("OK - got BadPlaceException in field access");
 			ret = true;
@@ -63,9 +67,9 @@ public class PlaceCheck1 extends x10Test {
 			final PlaceCheck1 obj_here = new PlaceCheck1();
 			place other_place = getNotHere();
 			finish async (other_place) {
-				obj_here.foo = 123;
+				atomic { obj_here.foo = 123; }
 			};
-			System.out.println("WARN - expected BadPlaceException for field assign");
+			System.out.println("WARN - expected exception/error for remote field write in atomic");
 		} catch (BadPlaceException e) {
 			System.out.println("OK - got BadPlaceException for in field assign");
 			ret = true;
@@ -79,9 +83,9 @@ public class PlaceCheck1 extends x10Test {
 			final PlaceCheck1 obj_here = new PlaceCheck1();
 			place other_place = getNotHere();
 			finish async (other_place) {
-				obj_here.foo_method();
+				atomic { obj_here.foo_method(); }
 			};
-			System.out.println("WARN - expected BadPlaceException in method call");
+			System.out.println("WARN - expected exception/error for remote method call in atomic");
 		} catch (BadPlaceException e) {
 			System.out.println("OK - got BadPlaceException for method call");
 			ret = true;
@@ -95,8 +99,8 @@ public class PlaceCheck1 extends x10Test {
 		final int[d] arr = new int[d] (point [p]) { return 123; };
 		try {
 			place other_place = getNotHere();
-			arr[other_place.id] = 123;
-			System.out.println("WARN - expected BadPlaceException in array access");
+			atomic { arr[other_place.id] = 123; }
+			System.out.println("WARN - expected exception/error for remote array element write in atomic");
 		} catch (BadPlaceException e) {
 			System.out.println("OK - got BadPlaceException in array access");
 			ret = true;
@@ -110,10 +114,11 @@ public class PlaceCheck1 extends x10Test {
 		final int[d] arr = new int[d] (point [p]) { return 123; };
 		try {
 			place other_place = getNotHere();
-			int xxx = arr[other_place.id];
+			int xxx;
+			atomic { xxx = arr[other_place.id];}
 			if (xxx != 123)
 				System.out.println(xxx);
-			System.out.println("WARN - expected BadPlaceException in array access");
+			System.out.println("WARN - expected exception/error for remote array element read in atomic");
 		} catch (BadPlaceException e) {
 			System.out.println("OK - got BadPlaceException in array access");
 			ret = true;
