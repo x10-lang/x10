@@ -54,8 +54,8 @@ public final class Configuration extends x10.runtime.util.Configuration {
 	public static boolean ABSTRACT_EXECUTION_TIMES = false;
 	private static final String ABSTRACT_EXECUTION_TIMES_desc = "If dumping out statistics, also dump out unblocked execution times";
 
-	/** this check does not work -- it causes spurious warnings */
-	public static boolean BAD_PLACE_RUNTIME_CHECK = true;
+	// Set BAD_PLACE_RUNTIME_CHECK = false as the default value in support of implicit-place syntax
+    public static boolean BAD_PLACE_RUNTIME_CHECK = false;
 	private static final String BAD_PLACE_RUNTIME_CHECK_desc = "Perform runtime place checks";
 
 	/**
