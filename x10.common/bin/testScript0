@@ -4,7 +4,7 @@
 # Simple script to run test cases
 # until a better solution is found.
 
-MYDIR=`dirname $0`
+MYDIR="`dirname $0`"
 
 declare -a pat
 
@@ -26,7 +26,6 @@ usage() {
 chkArgs 0 "$@"
 
 echo "
-
 Usage:
 
 testScript [-clean] [-cleanOnly] [-f] [-t timeLimit] [-shiftLog] [ -m userEmail]
@@ -57,7 +56,7 @@ static void main(String args[])\" method.  The run method must
 contain the actual test and must return true if the test passed.
 run() must throw an exception or return false to indicate failure.
 The main method must create the class with an empty constructor,
-invoke its run method, print  the result (Test succeeded or Test
+invoke its run method, print the result (Test succeeded or Test
 failed), and exit with a zero return code if the test succeeded,
 and a nonzero return code otherwise.  This makes the test case
 compatible with both the x10c/x10 command (which invokes the main
@@ -70,17 +69,13 @@ reduce the chances of accidentally deleting *.{java,class} files
 elsewehere.  To run testScript in the current directory, even if
 this file is not present, you can specify the -f option (force).
 
-The file hierarchy starting at the top test directory is scanned
-in a pre-order (depth-first) enumeration.  Top level directories
-that do not contain *.x10 files are considered organizational
-directories, not containing packages or test cases. As soon
-as a directory containing any *.x10 files, is encountered in
-the pre-order traversal, all the .x10 files containing \"public
-static void main\" methods in this directory and subdirecties are
-executed (using the preorder enumeration) as test cases, with the
-x10 classpath set to this directory.  The subdirectories may have a
-package/subpackage organization as in java.  Files and directories
-in a given directory are processed in alphabetical name order.
+Test cases are found recursively starting at the top test
+directory, and are executed in the same order as returned by GNU
+find.
+
+To avoid treating an *.x10 file as a test case, do not put a
+\"public static void main\" method in it.  This is the way to
+define auxiliary classes that are not themselves test cases.
 
 It is possible to specify that a test case must fail. You
 can specify the kind of expected failure in the file
@@ -90,10 +85,6 @@ test case must succeed.  Each test case is expected to meet
 the specified expectation (Succeed, FailCompile, FailRun, and
 FailTimeout). The \"log\" script reports the test cases that did
 not meet expectations.
-
-To avoid running an *.x10 file as a test case, do not put a
-\"public static void main\" method in it.  This is the way to
-define auxiliary classes that are not themselves test cases.
 
 It is also possible to declare a test case as an implementation
 limitation. Just use \"//LIMITATION:\" as the first line of
@@ -241,8 +232,8 @@ clean() {
 }
 
 testForMain() {
-# test that tail is of the form *.x10 and
-# there is a main method in file f
+# test if there is a main method in file f
+# and filename is of the form *.x10
 
     chkArgs 2 "$@"
     local f="$1"
@@ -257,7 +248,7 @@ extractPackage() {
 
     chkArgs 1 "$@"
     local f="$1"
-    RESULT="`sed -ne '/^\s*package /{s|^\s*package \([^;]*\);|\1|;s|\.|/|g;p}' "$f"`"
+    RESULT="`sed -ne 's|\.|/|g' -e 's|^\s*package \([^;]*\);|\1|p' "$f"`"
 }
 
 removeDotSlash() {
@@ -282,7 +273,6 @@ testForEligibility() {
     local tail="$2"
     testForMain "$f" "$tail"
 }
-
 
 genTest() {
 # Top level call will be: genTest "."
@@ -380,7 +370,6 @@ runWithTimeLimit() {
 # The output of $cmd is saved in the logDetail.$tdir.$className
 # file.
 
-
   chkArgs 5 "$@"
   local tdir="$1" # the current directory
   local className="$2" # the class name
@@ -415,7 +404,6 @@ runWithTimeLimit() {
   return  $rcMain2    #return (possibly corrected) exit code of main job
 
 }
-
 
 msgBoth() {
 # write a message to the indicated log file and screen
@@ -515,7 +503,6 @@ writeLogLine() {
   msg logSummary0 "$str	$firstDate"
 }
 
-
 determineExpectedResult() {
 # determine the expected result of the test from the name
 
@@ -598,18 +585,16 @@ recordTestResult() {
   fi
 }
 
-
 changeSlashToDot() {
-# convert a/b/c to a.b.c , but ./foo becomes foo
+# convert a/b/c to a.b.c, but ./foo becomes foo
 
   chkArgs 1 "$@"
   local str=$1
   str=${str#\.\/}
   #str=${str//\//\.}
   str=`echo "$str" | sed -e 's/\//\./g'`
-  RESULT=$str
+  RESULT="$str"
 }
-
 
 doTest() {
 	# TODO: run test via TestHarness instead.
@@ -641,7 +626,6 @@ doTest() {
   else
     echo "++++++ Compilation succeeded." >> logDetail.$tdir.$className
   fi
-
 
   # the output must contain 'Test succeeded'
   # the output must not contain a java stack traceback
@@ -749,7 +733,6 @@ makeReadableDate() {
   time=`echo "$time" | sed -e 's/\./\:/g' `
   RESULT="$date $time"
 }
-
 
 mailDiffFromLastRun() {
 # mail differences from last run
@@ -876,14 +859,12 @@ printInfo() {
 
 
 main() {
-# main program
-
   checkUsage "$@" # check arguments and current directory
   [ -n "$clean" ] && clean    # clean any leftover files
   [ -n "$cleanOnly" ] && exit 0
   initAll
   printInfo "$@"
-  genTest "." #run all tests in current directory and subdirectories
+  genTest "." # run all tests in current directory and subdirectories
   generateAndMailFinalLog
   finalCleanUp
   exit 0
