@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import x10.cluster.ClusterConfig;
+import x10.cluster.ClusterRunner;
 import x10.cluster.ClusterRuntime;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
@@ -156,14 +157,22 @@ public abstract class Runtime {
     }
     
     /* this is called from inside the array library */
-    public static void hereCheckPlace(place p) {        
-        if (p != ((PoolRunner)Thread.currentThread()).place) {
-        	//cluster situation
-        	if(ClusterConfig.multi && ClusterRuntime.isLocal(p)) 
-        		; //good
-        	else 
-        		throw new BadPlaceException(p, here());
-        }
+    public static void hereCheckPlace(place p) {  
+    	Thread cur = Thread.currentThread();
+    	if(cur instanceof PoolRunner) {
+    		if (p != ((PoolRunner)cur).place) {
+    			//cluster situation
+    			if(ClusterConfig.multi && ClusterRuntime.isLocal(p)) 
+    				; //good
+    			else 
+    				throw new BadPlaceException(p, here());
+    		}
+    	} else if(cur instanceof ClusterRunner) {
+    		if(! ClusterRuntime.isLocal(p))
+    			throw new BadPlaceException(p, here());
+    	} else {
+    		throw new Error("Runtime: hereCheckPlace error");
+    	}
     }
 
     /* this is called from the code snippet for field and array access */

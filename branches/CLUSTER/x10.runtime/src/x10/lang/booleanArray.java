@@ -1,5 +1,7 @@
 package x10.lang;
 
+import java.io.Serializable;
+
 
 /** The class of all multidimensional, distributed int arrays in X10. Has no mutable data.
  * Specialized from array by replacing the type parameter with int.
@@ -17,7 +19,7 @@ abstract public class booleanArray extends x10Array{
 		super(D);
 	}
 	
-	public static interface binaryOp {
+	public static interface binaryOp extends Serializable {
 		boolean apply(boolean r, boolean s);
 	}
 	
@@ -31,7 +33,7 @@ abstract public class booleanArray extends x10Array{
     
     public static final unaryOp neg = new unaryOp() { public boolean apply(boolean r) { return !r;}};
     
-	public static interface pointwiseOp/*(region r)*/ {
+	public static interface pointwiseOp/*(region r)*/ extends Serializable {
 		boolean apply(point/*(r)*/ p);
 	}
 	

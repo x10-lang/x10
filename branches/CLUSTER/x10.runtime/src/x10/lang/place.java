@@ -192,6 +192,7 @@ implements TypeArgument, ValueType{
 	/**
 	 * Get the dynamically created 'place' instance by its id, if not existing,
 	 * then create one.
+	 * XXX move to another type, should be masked from programmer API.
 	 * @param id
 	 * @return
 	 */
