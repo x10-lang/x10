@@ -1,2 +1,2 @@
 // SYNOPSIS: new short[#0] {#1} #2=is_safe #3=is_value
-new x10.array.sharedmemory.ShortArray_c(#0,#1,#2,!#3)
+x10.cluster.array.DistArrayManager.createShortArray(#0,#1,#2,(!#3))

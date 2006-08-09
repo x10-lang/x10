@@ -1,2 +1,2 @@
 // SYNOPSIS: new boolean[#0] {#1} #2=is_safe #3=is_value
-new x10.array.sharedmemory.BooleanArray_c(#0,#1,#2,!#3)
+x10.cluster.array.DistArrayManager.createBooleanArray(#0,#1,#2,(!#3))

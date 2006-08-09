@@ -28,8 +28,8 @@ import x10.runtime.Configuration;
  */
 public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneable {
 
-    private final boolean safe_;
-    private final MemoryBlock arr_;
+    protected final boolean safe_;
+    protected final MemoryBlock arr_;
     public final boolean mutable_;
     
     public boolean valueEquals(Indexable other) {

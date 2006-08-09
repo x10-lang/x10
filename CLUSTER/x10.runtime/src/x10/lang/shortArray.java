@@ -1,5 +1,7 @@
 package x10.lang;
 
+import java.io.Serializable;
+
 
 /** The class of all multidimensional, distributed int arrays in X10. Has no mutable data.
  * Specialized from array by replacing the type parameter with int.
@@ -16,7 +18,7 @@ abstract public class shortArray extends x10Array{
 		super(D);
 	}
 	
-	public static interface binaryOp {
+	public static interface binaryOp  extends Serializable {
 		int apply(short r, short s);
 	}
 	public static final binaryOp sub = new binaryOp() { public int apply(short r, short s) { return r-s;}};
@@ -29,7 +31,7 @@ abstract public class shortArray extends x10Array{
 	}
 	public static final unaryOp abs = new unaryOp() { public int apply(short r) { return Math.abs(r);}};
 	
-	public static interface pointwiseOp/*(region r)*/ {
+	public static interface pointwiseOp/*(region r)*/ extends Serializable  {
 		short apply(point/*(r)*/ p);
 	}
 	

@@ -25,10 +25,10 @@ import x10.runtime.Configuration;
 /**
  * @author Christian Grothoff, Christoph von Praun
  */
-public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Cloneable {
+public class BooleanArray_c extends BooleanArray implements UnsafeContainer/*, Cloneable*/ {
 
-    private final boolean safe_;
-    private final MemoryBlock arr_;
+    protected final boolean safe_;
+    protected final MemoryBlock arr_;
     public final boolean mutable_;
     
     public boolean valueEquals(Indexable other) {
