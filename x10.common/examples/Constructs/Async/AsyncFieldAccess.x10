@@ -20,10 +20,14 @@ public class AsyncFieldAccess {
 				t = NewT;
 			}
 		}
-		finish async ( t ) {
-			atomic t.i = 3;
+		System.out.println(here+": 't' = "+t);
+		final T tt = t;
+		finish async ( tt ) {
+			atomic {
+				tt.i = 3;
+			}
 		}
-		return 3 == future(t){t.i}.force();
+		return 3 == future(tt){tt.i}.force();
 	}
 	
     public static void main(String[] args) {
