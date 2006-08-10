@@ -87,7 +87,7 @@ while(true) {
   final int[.] temp= new int[D_inner]
     (point p[i,j]) 
     {return b2i(((isAlive[i,j]!=0) && (nn[i,j]==2)) || (nn[i,j]==3));};
-  pr("temp",temp);
+  //pr("temp",temp);
   if (((isAlive | D_inner)-temp).abs().sum()==0) break;
   isAlive.update(temp);
   nIter++;
