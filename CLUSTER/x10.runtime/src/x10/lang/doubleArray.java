@@ -126,6 +126,11 @@ abstract public class doubleArray extends x10Array{
 	abstract /*value*/ public double get(int p, int q, int r, int s);
     abstract public double get(int[] p);
     
+    //called from high level array operations
+	public double get(int d0, boolean chkPl) {return get(d0); }
+	public double get(int d0, int d1, boolean chkPl) {return get(d0, d1); }
+	public double get(point pos, boolean chkPl) {return get(pos); }
+	
     /** Convenience method for returning the sum of the array.
      * @return sum of the array.
      */

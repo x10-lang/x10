@@ -246,17 +246,17 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     public IntReferenceArray scan( IntArray.binaryOp op, int unit ) {
         int temp = unit;
         x10.lang.IntReferenceArray result = newInstance(distribution);
-        //place here = x10.lang.Runtime.runtime.currentPlace();
+        place here = x10.lang.Runtime.runtime.currentPlace();
         try {
             for (Iterator it = distribution.region.iterator(); it.hasNext();) {
                 point p = (point) it.next();
-                //place pl = distribution.get(p);
-                //x10.lang.Runtime.runtime.setCurrentPlace(pl);
+                place pl = distribution.get(p);
+                x10.lang.Runtime.runtime.setCurrentPlace(pl);
                 temp = op.apply(this.get(p), temp);
                 result.set(temp, p);
             }
         } finally {
-            //x10.lang.Runtime.runtime.setCurrentPlace(here);
+            x10.lang.Runtime.runtime.setCurrentPlace(here);
         }
         return result;
     }

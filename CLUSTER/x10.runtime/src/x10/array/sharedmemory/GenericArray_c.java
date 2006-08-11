@@ -31,7 +31,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 
     private final boolean safe_;
     protected final MemoryBlock arr_;
-    private final boolean mutable_;
+    protected final boolean mutable_;
     private final boolean refsToValues_;
     
     public boolean valueEquals(Indexable other) {
