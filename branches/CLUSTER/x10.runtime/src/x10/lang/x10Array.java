@@ -3,6 +3,7 @@ package x10.lang;
 import java.util.Iterator;
 
 import x10.compilergenerated.Parameter1;
+import x10.runtime.Configuration;
 
 /**
  * 
@@ -38,6 +39,18 @@ abstract public class x10Array implements Indexable, Unsafe, Parameter1 {
 		this.distribution = this.localDist = D;
 		this.region = this.localRegion = D.region;
 		this.rank = D.rank;
+	}
+	
+	/**
+	 * Place check for array element accesses.   If array is not 'mutable_' then, 
+	 * value array is implied.
+	 * XXX two cases:
+	 * - individual get/set operations from programmers;
+	 * - get/set from high level array operations (for which chkPl is set to 'false');
+	 */
+	public void checkPlace(final place p, final boolean chkPl, final boolean mutable_) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(p);
 	}
 	
 	/**
