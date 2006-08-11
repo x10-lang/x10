@@ -162,9 +162,8 @@ public abstract class Runtime {
     	if(cur instanceof PoolRunner) {
     		if (p != ((PoolRunner)cur).place) {
     			//cluster situation
-    			if(ClusterConfig.multi && ClusterRuntime.isLocal(p)) 
-    				; //good
-    			else 
+    			//if(ClusterConfig.multi && ClusterRuntime.isLocal(p)) ; //good
+    			//else 
     				throw new BadPlaceException(p, here());
     		}
     	} else if(cur instanceof ClusterRunner) {

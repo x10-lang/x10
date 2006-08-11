@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import x10.lang.Indexable;
+import x10.lang.RankMismatchException;
 import x10.lang.Runtime;
 import x10.lang.dist;
 import x10.lang.place;
@@ -422,6 +423,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		/** Returns the place to which the point p in region is mapped.
 		 */
 		public place get(point/*(region)*/ p) {
+			if (p.rank != rank)
+                throw new RankMismatchException(p, rank);
 			if (!region.contains(p))
 				throw new ArrayIndexOutOfBoundsException();
 			else
@@ -561,6 +564,9 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		/** Returns the place to which the point p in region is mapped.
 		 */
 		public place get(point/*(region)*/ p) {
+			assert (p!= null);
+			if (p.rank != rank)
+                throw new RankMismatchException(p, rank);
 			if (!region.contains(p)) {
 				throw new ArrayIndexOutOfBoundsException();
 			} else
@@ -635,6 +641,9 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		 * @see x10.lang.distribution#get(x10.lang.point)
 		 */
 		public place get(point p) {
+			assert(p != null);
+			if (p.rank != rank)
+                throw new RankMismatchException(p, rank);
 			place ret = null;
 			for (int i=0; ret == null && i < members_.length; ++i) {
 				if (members_[i].region.contains(p)) {
@@ -792,6 +801,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		 */
 		public place get(point/*(region)*/ p) {
 			assert p != null;
+			if (p.rank != rank)
+                throw new RankMismatchException(p, rank);			
 			place ret = (place) map_.get(p);
 			if (ret == null)
 				throw new ArrayIndexOutOfBoundsException();
