@@ -62,7 +62,7 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
      * Whether this activity is spawned from <code>rootNode_</code>'s home node.
      */
     private boolean fromRoot = false;
-     
+
     /** Create an activity with the given set of clocks.  
      * 
      * @param clocks
@@ -107,7 +107,7 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
      * Called from child Activity context after X10Serializer.deserilizeAsync
      * The other half: 
      * 	Activity is registered with the clock during serialization of "clocks_" field.
-     * 
+     * @author xinb
      */
     public void registerWithClock() {
     	if(Report.should_report("cluster", Debug.comm))
@@ -115,23 +115,30 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     	
     	for(Iterator it = clocks_.iterator(); it.hasNext();) {
     		Clock c = ((Clock)it.next());
-    		c.register(this);
+    		synchronized(c) {
+    			if(c.activityCount() == 0)
+    				c.addChild(this);
+
+    			c.register(this);
+    		}
     	}
     }
     /**
      * Increase parent's child count for the clock passed to child activity. 
      * Called from parent Activity context, right before a child is shipped away,
      * replacing call to LocalPlace_c.prepareActivity
+     * @author xinb
      */
     public void initRemoteActivity(Activity child) {
+    	/*
     	if(Report.should_report("cluster", Debug.comm))
     		Report.report(Debug.comm, "Activity.initRemoteActivity>>> addChild to: "+child.clocks_);
     	
     	Iterator it = child.clocks_.iterator();
     	while (it.hasNext()) {
     		Clock c = (Clock) it.next(); 
-    		c.addChild();
-    	}
+    		c.addChild(child);
+    	}*/
     }
     
     public /*mySpawningThread*/ void setRootActivityFinishState (FinishStateOps root ) {    	
