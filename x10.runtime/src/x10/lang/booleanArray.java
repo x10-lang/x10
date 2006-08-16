@@ -37,6 +37,11 @@ abstract public class booleanArray extends x10Array{
 		boolean apply(point/*(r)*/ p);
 	}
 	
+	//called from high level array operations
+	public boolean get(int d0, boolean chkPl) {return get(d0); }
+	public boolean get(int d0, int d1, boolean chkPl) {return get(d0, d1); }
+	public boolean get(point pos, boolean chkPl) {return get(pos); }
+	
 	abstract public static /*value*/ class factory {
 		/** Return the unique boolean value array initialized with false 
 		 * and defined over the distribution 0..k-1 -> here.
