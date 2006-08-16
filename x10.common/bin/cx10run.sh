@@ -14,7 +14,8 @@
 # and x10 classes are compiled in current directory.
 CLASSDIR=`pwd`
 cur_user=`whoami`
-X10=../bin/x10
+X10=/scratch/xinb/cluster2/x10.common/bin/x10
+SSH="ssh -x"
 
 testrun=0  # test the command sequences in this file
 printhelp=0
@@ -23,6 +24,7 @@ args=""
 numargs=0
 cfg_file=""
 standard_cfg=""
+x10_opts=""
 
 #
 # Command line processing ...
@@ -33,6 +35,7 @@ while true; do
 	-h) printhelp="1"; shift;;
 	-t) testrun="1"; shift;;
 	-q) quitvms="1"; shift;; 
+	-p) shift; x10_opts="$x10_opts -Dcx10.prof='$1'"; shift;;
 	-f) shift; cfg_file="$1"; shift;;
 	-s) shift; standard_cfg="$1"; shift;;
 	*) args="$args '$1'"; numargs=$((${numargs}+1)); shift;;
@@ -149,14 +152,21 @@ fi
 
 IFS=$old_IFS # restor IFS
 
+machinelist="${machinelist} ${IFS}"
+# DEBUG
+#echo "$machinelist"
+#echo "$vmidlist"
+#echo "$mainvm $mainhost"
+
 # Force quite in case of failure. Need a more platform independent way.
 force_quit() {
-    for host in $machinelist ; do
+    echo "$machinelist"
+    for host in $machinelist; do
 	if [ "$testrun" -ne "0" ] ; then
-	    echo "cx10: ssh $host \"pkill -u $cur_user x10\""
+	    echo "cx10: $SSH} -f $host \"pkill -u $cur_user java\""
 	else
 	    echo "cx10: terminate $host ..."
-	    `ssh $host \"/usr/bin/pkill -u $cur_user x10\"`
+	    ${SSH} -f $host "pkill -u $cur_user java"
 	fi
     done
 }
@@ -169,9 +179,9 @@ fi
 #
 # Main loop to lauch all the CX10 VMs
 #
-#echo "$machinelist"
-#echo "$vmidlist"
-#echo "$mainvm $mainhost"
+
+X10_ARGS="$standard_opt -Dx10.cluster.cfgfile=$cfg_file $x10_opts $MAINCLASS"
+
 cnt=0
 for host in $machinelist; do
     cnt=`expr 1 + $cnt`
@@ -182,12 +192,12 @@ for host in $machinelist; do
     fi
     
     if [ "$testrun" -ne "0" ] ; then
-	echo "ssh -f $host \"cd $CLASSDIR; $X10 -multi $vmid $standard_opt -Dx10.cluster.cfgfile=$cfg_file $MAINCLASS\""
+	echo "${SSH} -f $host \"cd $CLASSDIR; $X10 -multi $vmid $X10_ARGS\""
     else
-	ssh -f $host "cd $CLASSDIR; $X10 -multi $vmid $standard_opt -Dx10.cluster.cfgfile=$cfg_file $MAINCLASS"
+	${SSH} -f $host "cd $CLASSDIR; $X10 -multi $vmid $X10_ARGS"
 	
 	# wait till the VM is started
-	vm_started=`ssh $host "ps -eo comm | grep x10"`
+	vm_started=`${SSH} $host "ps -eo comm | grep x10"`
 	while [ -z "$vm_started" ] ; do
 	    sleep 1
 	done
@@ -197,9 +207,9 @@ done
 
 # Lauch main VM
 if [ "$testrun" -ne "0" ] ; then
-    echo "ssh $mainhost \"cd $CLASSDIR; $X10 -multi $mainvm $standard_opt -Dx10.cluster.cfgfile=$cfg_file $MAINCLASS\""
+    echo "${SSH} $mainhost \"cd $CLASSDIR; $X10 -multi $mainvm $X10_ARGS\""
 else
-    ssh $mainhost "cd $CLASSDIR; $X10 -multi $mainvm $standard_opt -Dx10.cluster.cfgfile=$cfg_file $MAINCLASS"
+    ${SSH} $mainhost "cd $CLASSDIR; $X10 -multi $mainvm $X10_ARGS"
 fi
 
 
