@@ -2,6 +2,7 @@ package x10.runtime;
 
 import java.util.Stack;
 
+import x10.cluster.Debug;
 import x10.lang.Future;
 /**
  * A LocalPlace_c is an implementation of a place
@@ -163,6 +164,8 @@ public class LocalPlace_c extends Place {
 						a.run();
 					}
 				} catch (Throwable e) {
+					if(Report.should_report("cluster", Debug.except))
+						e.printStackTrace();
 					a.finalizeTermination(e);
 					return;
 				}

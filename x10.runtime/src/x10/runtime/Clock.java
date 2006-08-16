@@ -4,12 +4,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import x10.cluster.ClusterConfig;
+import x10.cluster.ClusterRuntime;
 import x10.cluster.Debug;
 import x10.cluster.HasResult;
 import x10.cluster.X10RemoteRef;
 import x10.cluster.X10Runnable;
 import x10.cluster.comm.RPCHelper;
 import x10.cluster.message.MessageType;
+import x10.cluster.replication.RTReplication;
+import x10.cluster.replication.RTReplication.IDType;
 import x10.lang.ClockUseException;
 import x10.lang.Runtime;
 import x10.lang.clock;
@@ -151,7 +154,6 @@ public /* final */ class Clock extends clock {
 	private final Set nextResumed_ = new HashSet(); // <Activity>
 	private int nextResumedCount_ = 0;
 	
-
 	/**
 	 * The first registered advance listener.  null if none is
 	 * registered.
@@ -174,45 +176,110 @@ public /* final */ class Clock extends clock {
 	/**
 	 * tree implementation of distributed clock.
 	 */
+	private long uniqueId_;
 	private int childCnt_ = 0;
-	private int childResumedCnt_ = 0; //Set childResumed_ = new HashSet();
+	private int childResumedCnt_ = 0; 
+	private Set<Long> childResumed_ = new HashSet<Long>();
 	private int childNextResumedCnt_ = 0;
+	private Set<Long> childNextResumed_= new HashSet<Long>(); 
 	private int childNextCnt_ = 0;
+	private Set<Long> childNext_= new HashSet<Long>();
 	private int childNextNextCnt_ = 0;
-	private X10RemoteRef rref_p = null;
-	private boolean advancedParent = false;
-	public static final int dbg_level = 3;
+	private Set<Long> childNextNext_= new HashSet<Long>();
 	
-	public synchronized void addChild() {
-		childCnt_++;
+	private boolean isRoot_ = true;
+	private boolean advancedParent = false;
+	public static final int dbg_level = Debug.clock;
+	
+	public boolean getSplitState() { return splitPhase_; }
+	public int getPhase() { return phase_; }
+	public int setPhase(int ph) { int old = phase_;  phase_ = ph; return old; }
+	
+	/**
+	 * Inform the root clock node of a new child clock node.
+	 * 
+	 * @param child
+	 */
+	public void addChild(Activity child) {
+		assert(rref != null);
+		final X10RemoteRef pclock = rref;
+		RPCHelper.serializeCodeW(pclock.getPlace().id, new HasResult(MessageType.CLK) {
+			public void run() {
+				synchronized(Clock.this) { 
+					((Clock)pclock.getObject()).childCnt_ ++;
+				}
+			}
+			public Object getResult() { return null; }
+		});
+		//child_.add(child.getId());
 	}
 	
-	public synchronized void signalResume(int ph) {
+	public synchronized void signalResume(long id) {
 		if(Report.should_report("cluster", Clock.dbg_level))
-			Report.report(Clock.dbg_level, "Clock.signalResumet>>> before: "+this);
+			Report.report(Clock.dbg_level, "Clock.signalResumet>>> before: "+this+" by "+id);
 		
 		if(splitPhase_) {
-			childNextResumedCnt_ ++;
-			return;
+			if(childNextResumed_.add(new Long(id))) //filter duplicates
+				childNextResumedCnt_ ++;
+			//return;
 		} else {
-			childResumedCnt_++; //childResumed_.add(child);
+			if(childResumed_.add(new Long(id))) { //filter duplicates
+				childResumedCnt_++; 
+				tryMoveToSplit_();
+			}
 		}
-		tryMoveToSplit_();
 		
 		if(Report.should_report("cluster", Clock.dbg_level))
 			Report.report(Clock.dbg_level, "Clock.signalResume>>> after: "+this);
 	}
 	
-	public synchronized void signalNext(int ph) {
+	public synchronized void signalDrop(long id, int curPh, boolean dropped, boolean isSplit) {
+		if(dropped) { //regardless of child clock's phase or split state
+			childCnt_ --;
+			boolean test = false;
+			if(childResumed_.remove(new Long(id))) { childResumedCnt_ --; test = true; }
+			if(childNext_.remove(new Long(id))) { childNextCnt_ --;test = true;  }
+			if(childNextResumed_.remove(new Long(id))) { childNextResumedCnt_ --;test = true;} 
+			if(childNextNext_.remove(new Long(id))) { childNextNextCnt_ --;test = true; }
+			assert(childCnt_ >= childResumedCnt_ && childCnt_ >= childNextCnt_);
+		
+			assert(isRoot_);
+			tryChangeSplitState();
+		} else {
+			if(isSplit) 
+				; //do nothing
+			else {
+				if(! childResumed_.contains(new Long(id)))
+					signalResume(id);
+				if(! childNext_.contains(new Long(id)))
+					signalNext(id, curPh);
+			}
+		}
+	}
+	
+	/**
+	 * Inform root node that a shadow node wants to advance. 
+	 * 
+	 * splitPhase_ = false:  assert(ph == phase_)  childNextCnt_++
+	 * splitPhase_ = true: ph < phase_ ? childNextCnt_++ : childNextNextCnt++
+	 * 
+	 */
+	public synchronized void signalNext(long id, int ph) {
 		if(Report.should_report("cluster", Clock.dbg_level))
-			Report.report(Clock.dbg_level, "Clock.signalNext>>> before: "+this);
+			Report.report(Clock.dbg_level, "Clock.signalNext>>> before: "+this+" "+splitPhase_+" "+ph+" "+phase_);
+		
+		assert(splitPhase_ || ph == phase_);
+		assert(ph == phase_ || ph+1 == phase_);
 		
 		if((!splitPhase_) || ph < phase_) {//2): child call resume, and then call next
-			childNextCnt_ ++;
-			if((activityCount_ +childCnt_) > (resumedCount_ +childResumedCnt_) && ph == phase_) 
-				block_();
-		} else { //splitPhase_ //&& ph > phase_
-			childNextNextCnt_ ++;
+			if(childNext_.add(new Long(id)))
+				childNextCnt_ ++;
+			if(splitPhase_) ; //non-block
+			else if((activityCount_ +childCnt_) == (resumedCount_ +childResumedCnt_)) ; //non-block 
+			else block_();
+		} else { //(splitPhase_ && ph == phase_)
+			if(childNextNext_.add(new Long(id)))
+				childNextNextCnt_ ++;
 			block_();
 		}
 		
@@ -221,18 +288,22 @@ public /* final */ class Clock extends clock {
 		if(Report.should_report("cluster", Clock.dbg_level))
 			Report.report(Clock.dbg_level, "Clock.signalNext>>> after: "+this);
 	}
+	
 	/**
 	 * This constructor is used to contruct a shadow Clock when a clock is
 	 * distributed.  Shadow clocks has its parent pointer 'rref_p' set, and
 	 * every non-leaf clock node maintain a 'childCount_'.
 	 */
 	private Clock(X10RemoteRef p, int phase) {
-		this.rref_p = p;
+		this.rref = p;
 		this.phase_ = phase;
 		this.name_ = "shadow clock";
 		synchronized (getClass()) {
 			id_ = nextId_++;
 		}
+		this.isRoot_ = false;
+		uniqueId_ = RTReplication.getUniqueID(IDType.CLOCK);
+		//Debug.printStack();
 		
 		//try { throw new Exception(); } catch (Exception e) { e.printStackTrace(); }
 		//To be initialized in the right context: moved to initDistribution()
@@ -253,15 +324,15 @@ public /* final */ class Clock extends clock {
 		synchronized (getClass()) {
 			id_ = nextId_++;
 		}
-             
-                    Activity a = Runtime.getCurrentActivity();
-                    a.addClock(this);
-                    activities_.add(a);
-                    activityCount_++;
-                    if (Report.should_report("clock",3)) {
+
+		Activity a = Runtime.getCurrentActivity();
+		a.addClock(this);
+		activities_.add(a);
+		activityCount_++;
+		if (Report.should_report("clock",3)) {
 			Report.report(3, PoolRunner.logString() + " " + this + " created by " + a +".");
-                    }
-                
+		}
+
 	}
 	
 	/**
@@ -381,9 +452,15 @@ public /* final */ class Clock extends clock {
 	 * 
 	 */
 	public void drop() {
+		if(Report.should_report("cluster", Clock.dbg_level))
+			Report.report(Clock.dbg_level, "Clock.drop>>> before: "+this);
+		
 		Activity a = Runtime.getCurrentActivity();
 		if (drop(a))
 			a.dropClock( this );
+		
+		if(Report.should_report("cluster", Clock.dbg_level))
+			Report.report(Clock.dbg_level, "Clock.drop>>> after: "+this);
 	}
 	
 	/**
@@ -402,50 +479,65 @@ public /* final */ class Clock extends clock {
 	 *   clock (or if it never was registered).
 	 */
 	public synchronized boolean drop(Activity a) {
-	   
+	    //assert(activities_.contains(a)); //must have a
 		boolean ret = activities_.remove(a);
 		if (ret) activityCount_--;
 		if (resumed_.remove(a)) resumedCount_--;
 		if (nextResumed_.remove(a)) nextResumedCount_--;
-		tryMoveToSplit_();
-		 if (Report.should_report("clock", 3)) {
+		
+		if (ret) 
+			tryChangeSplitState();
+		
+		if (Report.should_report("clock", 3)) {
 			Report.report(3, this + " drops " + a +").");
 		 }
 		return ret;        
 	}
 	
 	/**
-	 * Advance to the next phase.  Increments the phase counter,
-	 * calls all advance listeners and then signals the activities
-	 * that are waiting to get them going again.
+	 * Change the state of this Clock after a 'drop' call.  If this is root, move to
+	 * split or whole accordingly;
+	 * If this is a shadow node, there are a few scenarios: 
+	 * - splitPhase_ = true:  signalNext not sent; some/no others waiting
+	 *                        signalNext sent;  some/no others waiting
+	 * - splitPhase_ = false: signalNext not sent; some/no others waiting
+	 *                        signalNext sent; some/no others waiting  
+	 * XXX revist
 	 */
-	synchronized boolean tryMoveToSplit_() {
-	    if (Report.should_report("clock", 3)) {
-			Report.report(3, PoolRunner.logString() + " " + this + ".tryMoveToSplit_()");
+	synchronized void tryChangeSplitState() {
+		if(isRoot_) {
+			if(splitPhase_) 
+				tryMoveToWhole_();
+			else
+				if((activityCount_ == resumedCount_ && childCnt_ == childResumedCnt_))
+					moveToSplit_();
+		} else { //shadow node 
+			/* splitPhase = true: assert(phase_ == root.phase_), if(!dropped) do nothing
+			 * splitPhase = false: if(!dropped) { signalResume; signalNext }
+			 */			
+			if ( (activityCount_ == resumedCount_ && childCnt_ == childResumedCnt_)) {
+				if(! splitPhase_) 
+					moveToSplit_();
+				//for a shadow node, this only means it's locally quiescent
+				final boolean dropped = (activityCount_ + childCnt_) == 0 ? true : false;
+				final long clockId = uniqueId_;
+				final int curPh = phase_;
+				final boolean isSplit = splitPhase_;
+				final X10RemoteRef pclock = rref;
+				RPCHelper.serializeCodeW(pclock.getPlace().id, new HasResult(MessageType.CLK) {
+					public void run() {
+						Clock o = ((Clock)pclock.getObject());
+						o.signalDrop(clockId, curPh, dropped, isSplit);
+					}
+					public Object getResult() { return null; }
+				});
+				this.notifyAll(); //
 			}
-		
-		if (! (activityCount_ == resumedCount_ && childCnt_ == childResumedCnt_)) {
-		    if (Report.should_report("clock", 3)) {
-				Report.report(3, "...fails");
-				}
-			return false;
 		}
-		if (Report.should_report("clock", 3)) {
-			Report.report(3, "...succeeds");
-			}
-		if(rref_p != null && !advancedParent ) {
-			//child lock node
-			final int curPhase = phase_;			
-			final X10RemoteRef pclock = rref_p;
-			//asynchronously is fine
-			RPCHelper.serializeCode(pclock.getPlace().id, new X10Runnable(MessageType.CLK) {
-				public void run() {
-					((Clock)pclock.getObject()).signalResume(curPhase); //Has to be called on the right Clock object
-				}
-			});
-			return false;
-		} else {
-			//root clock node
+	}
+	
+	synchronized boolean moveToSplit_() {
+		if(!splitPhase_) {
 			splitPhase_ = true;
 			this.phase_++;
 
@@ -460,21 +552,51 @@ public /* final */ class Clock extends clock {
 			}
 			this.notifyAll();
 			return true;
-		}		
-	}
-	private synchronized boolean tryMoveToWhole_() {
-	    if (Report.should_report("clock", 3)) {
-			Report.report(3, PoolRunner.logString() + " " + this+".tryMoveToWhole_()");
-			}
-		if (resumedCount_ != 0 || childNextCnt_ != childCnt_) {
-		    if (Report.should_report("clock", 3)) {
-				Report.report(3, this+"...fails.");
-				}
+		} else {
+			assert(false);
+			//tryMoveToWhole_(); //XXX
 			return false;
 		}
-		if (Report.should_report("clock", 3)) {
-			Report.report(3, this+"...succeeds.");
-			}
+	}
+	
+	/**
+	 * First check if this clock node is locally quiescent, if no, return false;
+	 * Otherwise, if this is a root node, the clock is globally quiescent, split the phase;
+	 * if this is a shadow node, send an aggregated 'resume' message to root;
+	 * 
+	 * @author xinb
+	 */
+	synchronized boolean tryMoveToSplit_() {
+		if (! (activityCount_ == resumedCount_ && childCnt_ == childResumedCnt_)) {
+			return false;
+		}
+		//locally quiescent already
+		
+	    if(isRoot_) 
+	    	return moveToSplit_();
+	    else {
+	    	//if(advancedParent) {
+			//child lock node
+			//final int curPhase = phase_;
+			final long clockId = uniqueId_;
+			final X10RemoteRef pclock = rref;
+			//need synchronous call
+			RPCHelper.serializeCodeW(pclock.getPlace().id, new HasResult(MessageType.CLK) {
+				public void run() {
+					((Clock)pclock.getObject()).signalResume(clockId); //Has to be called on the right Clock object
+				}
+				public Object getResult() { return null; }
+			});
+			return false;
+			//}
+	    }
+	}
+	
+	private synchronized boolean tryMoveToWhole_() {
+		if (resumedCount_ != 0 || childNextCnt_ != childCnt_) {
+			return false;
+		}
+
 		splitPhase_ = false;
 		resumed_.addAll(nextResumed_);
 		nextResumed_.clear();
@@ -482,11 +604,15 @@ public /* final */ class Clock extends clock {
 		nextResumedCount_ = 0;
 		
 		advancedParent = false;
-		childResumedCnt_ = 0;
-		childNextCnt_ = 0;
+		childResumed_.clear();
+		childResumed_.addAll(childNextResumed_);
 		childResumedCnt_ = childNextResumedCnt_;
-		childNextResumedCnt_ = 0;
+		childNext_.clear();
+		childNext_.addAll(childNextNext_);
 		childNextCnt_ = childNextNextCnt_;
+		childNextResumed_.clear();
+		childNextNext_.clear();
+		childNextResumedCnt_ = 0;
 		childNextNextCnt_ = 0;
 		
 		return true;
@@ -517,43 +643,33 @@ public /* final */ class Clock extends clock {
 	
     
 	public void doNext(Activity a) {
-		// do not acquire lock earlier - otherwise deadlock can happen
-		// because the lock used to protected aip_.getCurrentActivity
-		// is also held when terminating activities drop locks ...
-		if (Report.should_report("clock", 5)) {
-			Report.report(5, PoolRunner.logString() + " " + this+".doNext(" + a + ") called.");
-		}
 		synchronized (this) {
 			assert activities_.contains(a);
 			assert nextResumed_.contains(a) || resumed_.contains(a);
-			if (!splitPhase_ || nextResumed_.contains(a)){
-				if (Report.should_report("clock", 3)) {
-					Report.report(3, PoolRunner.logString() + " " + this+".doNext(" + a + ") blocks.");
-				}
-				
-				if(rref_p != null && !advancedParent && ((activityCount_ +childCnt_) == (resumedCount_ +childResumedCnt_))) {
+			if (!splitPhase_ || nextResumed_.contains(a)) {				
+				if(!isRoot_ && !advancedParent && ((activityCount_ +childCnt_) == (resumedCount_ +childResumedCnt_))) {
 					//child clock node, haven't inform parent, all activity resumed locally
 					final int curPhase = phase_;
-					final X10RemoteRef pclock = rref_p;
+					final long clockId = uniqueId_;
+					final X10RemoteRef pclock = rref;
 					//blocking call
+					advancedParent = true; //remember we have signal the parent
 					RPCHelper.serializeCodeW(pclock.getPlace().id, new HasResult(MessageType.CLK) /*Runnable()*/ {
 						public void run() {
-							((Clock)pclock.getObject()).signalNext(curPhase);
+							((Clock)pclock.getObject()).signalNext(clockId, curPhase);
 						}
 						public Object getResult() { return null;}
 					});
 					
-					advancedParent = true;
-					tryMoveToSplit_(); //split postponed until fist doNext, instead of last resume
+					//advancedParent = true;
+					moveToSplit_(); //split postponed until fist doNext, instead of last resume
 				} else {
 					//root clock node
 					//or child node before locally quiescent, or waiting from parent
 					block_();
 				}
 			}
-			if (Report.should_report("clock", 3)) {
-				Report.report(3, PoolRunner.logString() + " " + this+".doNext(" + a + ") continues.");
-			}			
+			
 			assert resumed_.contains(a);
 			resumed_.remove(a);
 			resumedCount_ --;
@@ -561,22 +677,13 @@ public /* final */ class Clock extends clock {
 			return;
 		}
 	}
-
-        public native long establishGlobalRefAddr_();
-        public void establishGlobalRefAddr() {
-            globalRefAddr_ = establishGlobalRefAddr_();
-        }
-        public void clearGlobalRefAddr() {
-            globalRefAddr_ = 0;
-        }
-        public long getGlobalRefAddr() { return globalRefAddr_; }
-        private long globalRefAddr_;
+	
 	/**
 	 * Register a callback that is to be called whenever the clock
 	 * advances into the next phase.
 	 * 
 	 * @param al the listener to notify
-	 
+	 */
 	public synchronized void registerAdvanceListener(AdvanceListener al) {
 		if (this.listener1_ == null) {
 			this.listener1_ = al;
@@ -586,7 +693,7 @@ public /* final */ class Clock extends clock {
 			this.listeners_.add(al);
 		}
 	}
-	*/
+	
 	/**
 	 * Callback method used by the Clock to notify all listeners
 	 * that the Clock is advancing into the next phase.
@@ -606,8 +713,7 @@ public /* final */ class Clock extends clock {
 		+ "," + childCnt_
 		+ "," + childResumedCnt_
 		+ "," + childNextCnt_
-		
-                + ((globalRefAddr_ == 0) ? "" : ("," + Long.toHexString(globalRefAddr_)))
+
 		+ ")";
 	}
 	
