@@ -11,7 +11,6 @@ import x10.array.Helper;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
-import x10.base.MemoryBlockSafeObjectArray;
 import x10.base.UnsafeContainer;
 import x10.compilergenerated.Parameter1;
 import x10.lang.GenericReferenceArray;
@@ -118,7 +117,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
             scan(this, f);
     }
     
-    private GenericArray_c( dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
+    protected GenericArray_c( dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
     	super(d);
         assert (safe); // just to be GC-safe ;-)
     	this.arr_ = Allocator.allocSafeObjectArray( a);
@@ -135,10 +134,6 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     public static GenericArray_c GenericArray_c( Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new GenericArray_c(d, a, safe, mutable, ref_to_values);
-    }
-    
-    public Object[] getBackingArray() {
-    	return ((MemoryBlockSafeObjectArray)arr_).getBackingArray();
     }
     
     public void keepItLive() {}

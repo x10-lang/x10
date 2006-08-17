@@ -38,6 +38,11 @@ abstract public class longArray extends x10Array {
 	
     public static final unaryOp abs = new unaryOp() { public long apply(long r) { return Math.abs(r);}};
 	
+    //called from high level array operations
+	public long get(int d0, boolean chkPl) {return get(d0); }
+	public long get(int d0, int d1, boolean chkPl) {return get(d0, d1); }
+	public long get(point pos, boolean chkPl) {return get(pos); }
+	
 	abstract public static /*value*/ class factory {
 		
 		/** Return the unique long value array initialized with 0 

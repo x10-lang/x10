@@ -31,6 +31,7 @@ public class MemoryBlockSafeBooleanArray extends MemoryBlockSafe {
         arr_ = a;
     }
     
+    public boolean[] getBackingArray() { return arr_; }
     public int count() { 
         return arr_.length;
      }
