@@ -2,6 +2,7 @@ package x10.runtime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import x10.cluster.ClusterConfig;
 import x10.cluster.ClusterRuntime;
@@ -234,6 +235,9 @@ public /* final */ class Clock extends clock {
 	}
 	
 	public synchronized void signalDrop(long id, int curPh, boolean dropped, boolean isSplit) {
+		if(Report.should_report("cluster", Clock.dbg_level))
+			Report.report(Clock.dbg_level, "Clock.signalDrop>>> before: "+this+" by "+isSplit+" "+curPh+" "+dropped);
+		
 		if(dropped) { //regardless of child clock's phase or split state
 			childCnt_ --;
 			boolean test = false;
@@ -247,11 +251,11 @@ public /* final */ class Clock extends clock {
 			tryChangeSplitState();
 		} else {
 			if(isSplit) 
-				; //do nothing
+				; 
 			else {
-				if(! childResumed_.contains(new Long(id)))
+				//if(! childResumed_.contains(new Long(id)))
 					signalResume(id);
-				if(! childNext_.contains(new Long(id)))
+				//if(! childNext_.contains(new Long(id)))
 					signalNext(id, curPh);
 			}
 		}
@@ -516,22 +520,28 @@ public /* final */ class Clock extends clock {
 			 * splitPhase = false: if(!dropped) { signalResume; signalNext }
 			 */			
 			if ( (activityCount_ == resumedCount_ && childCnt_ == childResumedCnt_)) {
-				if(! splitPhase_) 
-					moveToSplit_();
 				//for a shadow node, this only means it's locally quiescent
 				final boolean dropped = (activityCount_ + childCnt_) == 0 ? true : false;
 				final long clockId = uniqueId_;
 				final int curPh = phase_;
 				final boolean isSplit = splitPhase_;
 				final X10RemoteRef pclock = rref;
-				RPCHelper.serializeCodeW(pclock.getPlace().id, new HasResult(MessageType.CLK) {
-					public void run() {
-						Clock o = ((Clock)pclock.getObject());
-						o.signalDrop(clockId, curPh, dropped, isSplit);
-					}
-					public Object getResult() { return null; }
-				});
-				this.notifyAll(); //
+				if( (!splitPhase_ && !advancedParent) ||    //everyone else has call doNext before locally quiescent, or 
+						dropped) {  						//drop this child node
+					advancedParent = true;
+					
+					RPCHelper.serializeCodeWP(pclock.getPlace().id, new HasResult(MessageType.CLK) {
+						public void run() {
+							Clock o = ((Clock)pclock.getObject());
+							o.signalDrop(clockId, curPh, dropped, isSplit);
+						}
+						public Object getResult() { return null; }
+					}, this);
+				 
+					moveToSplit_();
+				}
+				
+				//this.notifyAll(); //
 			}
 		}
 	}
@@ -581,12 +591,12 @@ public /* final */ class Clock extends clock {
 			final long clockId = uniqueId_;
 			final X10RemoteRef pclock = rref;
 			//need synchronous call
-			RPCHelper.serializeCodeW(pclock.getPlace().id, new HasResult(MessageType.CLK) {
+			RPCHelper.serializeCodeWP(pclock.getPlace().id, new HasResult(MessageType.CLK) {
 				public void run() {
 					((Clock)pclock.getObject()).signalResume(clockId); //Has to be called on the right Clock object
 				}
 				public Object getResult() { return null; }
-			});
+			}, this);
 			return false;
 			//}
 	    }
@@ -642,40 +652,42 @@ public /* final */ class Clock extends clock {
 	
 	
     
-	public void doNext(Activity a) {
-		synchronized (this) {
-			assert activities_.contains(a);
-			assert nextResumed_.contains(a) || resumed_.contains(a);
-			if (!splitPhase_ || nextResumed_.contains(a)) {				
-				if(!isRoot_ && !advancedParent && ((activityCount_ +childCnt_) == (resumedCount_ +childResumedCnt_))) {
-					//child clock node, haven't inform parent, all activity resumed locally
-					final int curPhase = phase_;
-					final long clockId = uniqueId_;
-					final X10RemoteRef pclock = rref;
-					//blocking call
-					advancedParent = true; //remember we have signal the parent
-					RPCHelper.serializeCodeW(pclock.getPlace().id, new HasResult(MessageType.CLK) /*Runnable()*/ {
-						public void run() {
-							((Clock)pclock.getObject()).signalNext(clockId, curPhase);
-						}
-						public Object getResult() { return null;}
-					});
-					
-					//advancedParent = true;
-					moveToSplit_(); //split postponed until fist doNext, instead of last resume
-				} else {
-					//root clock node
-					//or child node before locally quiescent, or waiting from parent
-					block_();
-				}
+	public synchronized void doNext(Activity a) {
+		assert activities_.contains(a);
+		assert nextResumed_.contains(a) || resumed_.contains(a);
+		if (!splitPhase_ || nextResumed_.contains(a)) {				
+			if(!isRoot_ && !advancedParent && ((activityCount_ +childCnt_) == (resumedCount_ +childResumedCnt_))) {
+				//child clock node, haven't inform parent, all activity resumed locally
+				final int curPhase = phase_;
+				final long clockId = uniqueId_;
+				final X10RemoteRef pclock = rref;
+				//blocking call
+				advancedParent = true; //remember we have signal the parent
+				/* The following call can block, thus it is important to release the lock on the 
+				 * current Clock object. 
+				 * XXX a better way might be to have RPCHelper spawn another thread to do serialization and wait
+				 */
+				RPCHelper.serializeCodeWP(pclock.getPlace().id, new HasResult(MessageType.CLK) /*Runnable()*/ {
+					public void run() {
+						((Clock)pclock.getObject()).signalNext(clockId, curPhase);
+					}
+					public Object getResult() { return null;}
+				}, this);
+				
+				//advancedParent = true;
+				moveToSplit_(); //split postponed until fist doNext, instead of last resume
+			} else {
+				//root clock node
+				//or child node before locally quiescent, or waiting from parent
+				block_();
 			}
-			
-			assert resumed_.contains(a);
-			resumed_.remove(a);
-			resumedCount_ --;
-			tryMoveToWhole_();
-			return;
 		}
+		
+		assert resumed_.contains(a);
+		resumed_.remove(a);
+		resumedCount_ --;
+		tryMoveToWhole_();
+		return;
 	}
 	
 	/**
