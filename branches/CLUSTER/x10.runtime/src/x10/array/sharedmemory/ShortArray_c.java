@@ -124,7 +124,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
             scan(this, f);
     }
     
-    private ShortArray_c( dist d, short[] a, boolean safe, boolean mutable) {
+    protected ShortArray_c( dist d, short[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;

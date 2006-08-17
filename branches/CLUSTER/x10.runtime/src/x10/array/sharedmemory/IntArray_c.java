@@ -12,7 +12,6 @@ import x10.array.IntArray;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
-import x10.base.MemoryBlockSafeIntArray;
 import x10.base.UnsafeContainer;
 import x10.lang.Indexable;
 import x10.lang.IntReferenceArray;
@@ -127,9 +126,6 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
             this.arr_ =Allocator.allocSafeIntArray(a); // Allocator.allocSafe(count, Integer.TYPE);
         }
     }
-    public int[] getBackingArray() { return (arr_ instanceof MemoryBlockSafeIntArray) ?
-    		((MemoryBlockSafeIntArray) arr_).getBackingArray()
-			: null; }
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a

@@ -118,7 +118,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer/*, C
             scan(this, f);
     }
     
-    private BooleanArray_c( dist d, boolean[] a, boolean safe, boolean mutable) {
+    protected BooleanArray_c( dist d, boolean[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;

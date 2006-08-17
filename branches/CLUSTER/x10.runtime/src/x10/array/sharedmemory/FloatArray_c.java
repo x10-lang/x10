@@ -121,7 +121,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
             scan(this, f);
     }
     
-    private FloatArray_c( dist d, float[] a, boolean safe, boolean mutable) {
+    protected FloatArray_c( dist d, float[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;

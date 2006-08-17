@@ -30,6 +30,7 @@ public class MemoryBlockSafeLongArray extends MemoryBlockSafe {
         arr_ = a;
     }
     
+    public long[] getBackingArray() { return arr_; }
     public int count() { 
         return arr_.length;
      }
