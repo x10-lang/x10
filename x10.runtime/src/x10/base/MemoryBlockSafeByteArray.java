@@ -29,6 +29,7 @@ public class MemoryBlockSafeByteArray extends MemoryBlockSafe {
         arr_ = a;
     }
     
+    public byte[] getBackingArray() { return arr_; }
     public int count() { 
         return arr_.length;
      }

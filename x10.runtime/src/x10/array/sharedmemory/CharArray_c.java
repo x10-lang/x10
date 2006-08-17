@@ -11,7 +11,6 @@ import x10.array.Helper;
 import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
-import x10.base.MemoryBlockSafeCharArray;
 import x10.base.UnsafeContainer;
 import x10.lang.CharReferenceArray;
 import x10.lang.Indexable;
@@ -134,12 +133,6 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
         }
         this.mutable_ = mutable;
     }
-    public char[] getBackingArray() { 
-    	return (arr_ instanceof MemoryBlockSafeCharArray) ?
-        		((MemoryBlockSafeCharArray) arr_).getBackingArray()
-    			: null; 
-    }
-
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
      * @param a

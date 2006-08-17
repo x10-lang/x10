@@ -119,7 +119,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
             scan(this, f);
     }
     
-    private ByteArray_c( dist d, byte[] a, boolean safe, boolean mutable) {
+    protected ByteArray_c( dist d, byte[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;

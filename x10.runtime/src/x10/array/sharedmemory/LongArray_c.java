@@ -119,10 +119,22 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     }
     
     private LongArray_c( dist d, long[] a) {
+    	this(d, a, true, true);
+    }
+    protected LongArray_c( dist d, long[] a, boolean safe, boolean mutable) {
     	super(d);
-    	this.arr_ = Allocator.allocSafeLongArray( a);
-        this.safe_ = true;
-        this.mutable_ = true;
+        this.mutable_ = mutable;
+        this.safe_ = safe;
+        int count =  d.region.size();
+        if (!safe) {
+            int rank = d.region.rank;
+            int ranks[] = new int[rank];
+            for (int i = 0; i < rank; ++i) 
+                ranks[i] = d.region.rank(i).size();
+            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
+        } else {
+            this.arr_ =Allocator.allocSafeLongArray(a);
+        }
     }
     /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * 
