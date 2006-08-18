@@ -113,7 +113,7 @@ public class DefaultRuntime_c extends Runtime {
 	 */
 	protected void run(String[] args) {
 
-		if (Report.should_report("activity", 5)) {
+		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Thread t = Thread.currentThread();
 			int tCount = Thread.activeCount();
 			Report.report(5, Thread.currentThread() + ":" + System.currentTimeMillis() +" starts in group " + t.getThreadGroup()
@@ -134,7 +134,7 @@ public class DefaultRuntime_c extends Runtime {
 		java.lang.Object[] tmp = { args };
 		Activity atmp = null;
 		try {
-			if (Report.should_report("activity", 5)) {
+			if (Report.should_report(Report.ACTIVITY, 5)) {
 				Report.report(5, Thread.currentThread()  + ":" + System.currentTimeMillis() + " " + this + " starting user class |"
 				              + Configuration.MAIN_CLASS_NAME+ "|.");
 			}
@@ -155,17 +155,17 @@ public class DefaultRuntime_c extends Runtime {
 				return "Boot activity";
 			}
 			public void run() {
-				if (Report.should_report("activity", 5)) {
+				if (Report.should_report(Report.ACTIVITY, 5)) {
 					Report.report(5, PoolRunner.logString() + " starts running the Boot Activity.");
 				}
 				try {
-					finishRun(appMain);
+					runWithinFinish(appMain);
 				} catch (Throwable z) {
 					// Exception thrown by the activity!
 					z.printStackTrace();
 				}
 
-				if (Report.should_report("activity", 5)) {
+				if (Report.should_report(Report.ACTIVITY, 5)) {
 					Report.report(5, PoolRunner.logString() + " finishes running the Boot Activity.");
 
 				}
@@ -173,14 +173,14 @@ public class DefaultRuntime_c extends Runtime {
 				// and now the shutdown sequence!
 				// places_[] should have been initialized by now ...
 				for (int i=getPlaces().length-1; i >= 0;i--) {
-					if (Report.should_report("activity", 5)) {
+					if (Report.should_report(Report.ACTIVITY, 5)) {
 						Report.report(5, PoolRunner.logString() + " shutting down " + getPlaces()[i]);
 
 					}
 					getPlaces()[i].shutdown();
 				}
 
-				if (Report.should_report("activity", 5)) {
+				if (Report.should_report(Report.ACTIVITY, 5)) {
 					Report.report(5, PoolRunner.logString() + " terminates.");
 
 				}

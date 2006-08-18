@@ -166,7 +166,7 @@ public final class Configuration extends x10.runtime.util.Configuration {
 		int aa = args.length-pos;
 		String[] appArgs = new String[aa];
 		System.arraycopy(args, pos, appArgs, 0, aa);
-		if (Report.should_report("activity", 3)) {
+		if (Report.should_report(Report.ACTIVITY, 3)) {
 			Report.report(3, Thread.currentThread() +  " user class is |"
 					+ Configuration.MAIN_CLASS_NAME+ "|.");
 		}
