@@ -100,6 +100,12 @@ abstract public class charArray extends x10Array{
 		/*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray( dist D, 
 				pointwiseOp/*(D.region)*/ init);
 	}
+	
+	//called from high level array operations
+	public char get(int d0, boolean chkPl) {return get(d0); }
+	public char get(int d0, int d1, boolean chkPl) {return get(d0, d1); }
+	public char get(point pos, boolean chkPl) {return get(pos); }
+	
 	public static final factory factory = Runtime.factory.getCharArrayFactory();
 	
 	/** Return the value of the array at the given point in the

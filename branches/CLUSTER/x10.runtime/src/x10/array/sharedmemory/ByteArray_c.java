@@ -27,7 +27,7 @@ import x10.runtime.Configuration;
  */
 public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable {
 
-    private final boolean safe_;
+    protected final boolean safe_;
     protected /*private*/ final MemoryBlock arr_;
     public final boolean mutable_;
     
