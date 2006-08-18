@@ -121,4 +121,39 @@
             <zipfileset prefix="lib" dir="${lib}" includes="*.jar"/>
         </zip>
     </target>
+    <target name="tags" depends="init">
+      <!-- create a blank tags file -->
+      <exec dir="${x10.home}" executable="ctags" failonerror="true">
+        <arg value="-ftags"/>
+        <arg value="."/>
+      </exec>
+      <exec dir="${x10.home}" executable="ctags" failonerror="true">
+        <arg value="-f-"/>
+        <arg value="--langdef=xcd"/>
+        <arg value="--langmap=xcd:.xcd"/>
+        <arg value="--languages=xcd"/>
+        <arg value="--extra=+f"/>
+        <arg value="-R"/>
+        <arg value="--exclude=classes"/>
+        <arg value="x10.compiler"/>
+        <redirector output="${x10.home}/tags" logError="true" append="true">
+          <outputfilterchain>
+            <replaceregex pattern="^(\S+)\.xcd" replace="\1"/>
+            <replaceregex pattern="(;.\t)F$" replace="\1t"/>
+            <replaceregex pattern="(;.\t)file$" replace="\1template"/>
+          </outputfilterchain>
+        </redirector>
+      </exec>
+      <exec dir="${x10.home}" executable="ctags" failonerror="true">
+        <arg value="-ftags"/>
+        <arg value="--append=yes"/>
+        <arg value="--languages=java"/>
+        <arg value="-R"/>
+        <arg value="--exclude=classes"/>
+        <arg value="lpg"/>
+        <arg value="polyglot2"/>
+        <arg value="x10.compiler"/>
+        <arg value="x10.runtime"/>
+      </exec>
+    </target>
 </project>
