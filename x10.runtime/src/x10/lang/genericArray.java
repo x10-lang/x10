@@ -104,6 +104,11 @@ extends x10Array {
 	}
 	public static final factory factory = Runtime.factory.getGenericArrayFactory();
 	
+	//called from high level array operations
+	public Parameter1 get(int d0, boolean chkPl) {return get(d0); }
+	public Parameter1 get(int d0, int d1, boolean chkPl) {return get(d0, d1); }
+	public Parameter1 get(point pos, boolean chkPl) {return get(pos); }
+	
 	/** Return the value of the array at the given point in the
 	 * region.
 	 */

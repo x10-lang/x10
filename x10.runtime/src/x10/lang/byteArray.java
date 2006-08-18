@@ -34,6 +34,11 @@ abstract public class byteArray extends x10Array{
 		byte apply(point/*(r)*/ p);
 	}
 	
+	//called from high level array operations
+	public byte get(int d0, boolean chkPl) {return get(d0); }
+	public byte get(int d0, int d1, boolean chkPl) {return get(d0,d1); }
+	public byte get(point pos, boolean chkPl) {return get(pos); }
+	
 	abstract public static /*value*/ class factory {
 		/** Return the unique int value array initialized with 0 
 		 * and defined over the distribution 0..k-1 -> here.
