@@ -6,7 +6,7 @@
 		 #2__.hasNext(); )
 	{
 		#0 #1 #2 = (#1) #2__.next();
-		((x10.runtime.Place) #2__distCopy.get(#2)).runAsyncLater
+		((x10.runtime.Place) #2__distCopy.get(#2)).runAsync
 			(new x10.runtime.Activity(#5) {
 				public void run() {
 					#4
