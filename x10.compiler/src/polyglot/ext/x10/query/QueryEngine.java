@@ -9,6 +9,14 @@ import polyglot.ast.Call;
 import polyglot.ast.Field;
 import polyglot.types.Type;
 import polyglot.ext.x10.types.X10Type;
+/*
+import polyglot.ext.x10.ast.X10ArrayAccess1;
+import polyglot.ext.x10.ast.X10ArrayAccess;
+import polyglot.ext.x10.ast.X10ArrayAccessAssign1;
+import polyglot.ext.x10.ast.X10ArrayAccessAssign;
+import polyglot.ext.x10.ast.X10ArrayAccessUnary1;
+import polyglot.ext.x10.ast.X10ArrayAccessUnary;
+*/
 
 /**
  * A query engine for analysis results and other properties of various program
@@ -31,22 +39,47 @@ public class QueryEngine {
 		this.ext = ext;
 	}
 
-	public boolean needsHereCheck(Call c) {
+	protected boolean needsHereCheck(Type t) {
 		if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
 			return false;
-		Type t = c.target().type();
 		if (t instanceof X10Type && ((X10Type)t).isValueType())
 			return false;
 		return true;
 	}
 
-	public boolean needsHereCheck(Field f) {
-		if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
-			return false;
-		Type t = f.target().type();
-		if (t instanceof X10Type && ((X10Type)t).isValueType())
-			return false;
-		return true;
+	public boolean needsHereCheck(Call c) {
+		return needsHereCheck(c.target().type());
 	}
+
+	public boolean needsHereCheck(Field f) {
+		return needsHereCheck(f.target().type());
+	}
+
+	/*
+	// TODO: consolidate the below with one interface
+	public boolean needsHereCheck(X10ArrayAccess1 a) {
+		return needsHereCheck(a.array().type());
+	}
+
+	public boolean needsHereCheck(X10ArrayAccess a) {
+		return needsHereCheck(a.array().type());
+	}
+
+	public boolean needsHereCheck(X10ArrayAccessAssign1 a) {
+		return needsHereCheck(a.left().array().type());
+	}
+
+	public boolean needsHereCheck(X10ArrayAccessAssign a) {
+		return needsHereCheck(a.left().array().type());
+	}
+
+	public boolean needsHereCheck(X10ArrayAccessUnary1 a) {
+		return needsHereCheck(a.expr().array().type());
+	}
+
+	public boolean needsHereCheck(X10ArrayAccessUnary a) {
+		return needsHereCheck(a.expr().array().type());
+	}
+	*/
 }
 
