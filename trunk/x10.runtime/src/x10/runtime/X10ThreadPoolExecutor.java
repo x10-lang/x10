@@ -25,12 +25,9 @@ public class X10ThreadPoolExecutor extends ThreadPoolExecutor {
 	/** Should it be atomic? 
 	 *  Call this method when you are blocked on finish, force, next*/
 	
-	public synchronized void addPool () {
-		int poolSize=getCorePoolSize();
-	
-		setCorePoolSize ( poolSize + 1 );
+	public synchronized void increasePoolSize () {
+		setCorePoolSize ( getCorePoolSize() + 1 );
 		setMaximumPoolSize ( getMaximumPoolSize () + 1);
-		
 	}
 
 
@@ -38,9 +35,10 @@ public class X10ThreadPoolExecutor extends ThreadPoolExecutor {
 	 * Call this method when you are out of the blocked operation
 	 */
 
-	public void removePool () {
-		setCorePoolSize ( getCorePoolSize () - 1 );
-		setMaximumPoolSize ( getMaximumPoolSize () - 1);
+	public synchronized void decreasePoolSize () {
+	// TODO this code is likely to crash some non regression test
+	//		setCorePoolSize ( getCorePoolSize () - 1 );
+	//		setMaximumPoolSize ( getMaximumPoolSize () - 1);
 	}
 	
 	
@@ -51,26 +49,13 @@ public class X10ThreadPoolExecutor extends ThreadPoolExecutor {
 		return getQueue().size();
 	}
 	
-	/**
-	 * Add to threads if queue is non-empty
-	 * successful addition returns +1 else -1
-	 */
-	public int addPoolIfQueuePositive() {
-		if(queueSize() > 0) {
-			addPool();
-			return 1;
-		}
-		return -1;
-	}
-	
 	/** TODO */
 	public void beforeExecute (Thread t, Runnable r) {
-		
+		super.beforeExecute(t,r);
 	}
 	
 	/** TODO */
-	public void afterExecute (Thread t, Runnable r) {
-		
+	public void afterExecute (Runnable r, Throwable t) {
+		super.afterExecute(r,t);	
 	}
-
 }
