@@ -102,6 +102,7 @@ public class X10ArrayAccessUnary_c extends Unary_c
 	}
     /** Write the expression to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+		assert false;
       X10ArrayAccess a = (X10ArrayAccess) expr;
         printSubExpr(a.array(), w, tr);
         w.write ("." + opString(op)+"(");

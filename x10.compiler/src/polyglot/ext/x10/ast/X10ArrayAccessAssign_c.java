@@ -189,6 +189,7 @@ implements X10ArrayAccessAssign {
     
     /** Write the expression to an output file. */
   public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+	  assert false;
       Expr array = ((X10ArrayAccess) left).array();
       List indices = ((X10ArrayAccess) left).index();
         X10Type pt = ( X10Type) type;

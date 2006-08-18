@@ -194,6 +194,7 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 
 	/** Write the expression to an output file. */
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+		assert false;
         X10Type at = ( X10Type) array.type();
        
         if (at.isParametric()) {
