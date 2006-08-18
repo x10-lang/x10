@@ -16,7 +16,7 @@ public class X10ThreadPoolExecutor extends ThreadPoolExecutor {
 	/** Fix nThreads to 1 for best results */
 	public X10ThreadPoolExecutor ( int nThreads ) { 
 		super ( nThreads,nThreads, 
-				0L, TimeUnit.MILLISECONDS,
+				1000L, TimeUnit.MILLISECONDS,
 				new LinkedBlockingQueue (),
 				new X10ThreadFactory ()); 
                 prestartAllCoreThreads();
