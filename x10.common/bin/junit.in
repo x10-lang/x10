@@ -1,8 +1,0 @@
-classpath="${TOP}${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}lpg.jar${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}junit.jar${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}java_cup.jar${ext_cp}${extra_cp}"
-
-PATH="./lib/${PLATFORM}:$PATH"
-LIBPATH="./lib/${PLATFORM}"
-command="\"$JAVA\" -classpath \"$classpath\" TestX10"
-
-eval "$command"
-exit $?
