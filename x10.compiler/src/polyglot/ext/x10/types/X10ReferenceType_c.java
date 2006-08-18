@@ -45,7 +45,7 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
             Report.report(5,"X10ReferenceType_c.makeVariant: " + this + " creates " + n + "|");
         return n;
     }
-    
+    public DepParameterExpr depClause() { return depClause; }
    
     public boolean equalsImpl(TypeObject o) {
         // Report.report(3,"X10ReferenceType_c: equals |" + this + "| and |" + o+"|");

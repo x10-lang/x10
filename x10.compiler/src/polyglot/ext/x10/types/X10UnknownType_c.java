@@ -43,6 +43,7 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
         n.depClause = d;
         return n;
     }
+    public DepParameterExpr depClause() { return depClause; }
    
     public boolean equalsImpl(TypeObject o) {
         //    Report.report(3,"X10ParsedClassType_c: equals |" + this + "| and |" + o+"|");

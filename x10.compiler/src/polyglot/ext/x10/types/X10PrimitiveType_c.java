@@ -51,7 +51,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
             Report.report(5,"X10PrimitiveType_c.makeVariant: " + this + " creates |" + n + "|");
         return n;
     }
-
+    public DepParameterExpr depClause() { return depClause; }
     
     public boolean equalsImpl(Object o) {
         if (! (o instanceof X10PrimitiveType_c)) return false;

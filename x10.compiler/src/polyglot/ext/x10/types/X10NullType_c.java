@@ -39,7 +39,7 @@ public class X10NullType_c extends NullType_c implements X10NullType {
         n.depClause = d;
         return n;
     }
-    
+    public DepParameterExpr depClause() { return depClause; }
     
     public boolean equalsImpl(TypeObject o) {
         if (o == this) return true;

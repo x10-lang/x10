@@ -131,7 +131,11 @@ public interface X10Type extends Type {
      * @return
      */
     X10Type makeVariant(DepParameterExpr d, List g);
-    X10Type  baseType();
+    X10Type baseType();
+    /**
+     * Return the depclause of this type or null if none.
+     */
+    DepParameterExpr depClause();
     List typeParameters();
     boolean isParametric();
     
