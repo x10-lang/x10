@@ -2,6 +2,7 @@ package x10.runtime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import x10.lang.ClockUseException;
 import x10.lang.Runtime;
@@ -115,7 +116,7 @@ import x10.lang.clock;
    I allow RemoteClock to extend this class. */
 public /* final */ class Clock extends clock {
 	
-	private static int nextId_ = 0;
+	private static AtomicInteger nextId_ = new AtomicInteger(-1);
 	private int id_;
 	private final String name_;
 
@@ -175,17 +176,16 @@ public /* final */ class Clock extends clock {
 	public Clock() {
 		this( "");
 	}
+	
 	public Clock( String name) {
 		this.name_ = name;
-		synchronized (getClass()) {
-			id_ = nextId_++;
-		}
+		id_ = Clock.nextId_.addAndGet(1);
                
         Activity a = Runtime.getCurrentActivity();
 		a.addClock(this);
 		activities_.add(a);
 		activityCount_++;
-		if (Report.should_report("clock", 3)) {
+		if (Report.should_report(Report.CLOCK, 3)) {
 			Report.report(3, PoolRunner.logString() + " " + this
 					+ " created by " + a + ".");
 
@@ -206,19 +206,23 @@ public /* final */ class Clock extends clock {
 	/**
 	 * Register the current activity with this clock.
 	 */
-	public synchronized void register(Activity a ) {
+	public void register(Activity a ) {
+		
                 Activity authorizer = Runtime.getCurrentActivity();
-                if (Report.should_report("clock", 5)) {
+                
+                if (Report.should_report(Report.CLOCK, 5)) {
                    Report.report(5, PoolRunner.logString() + " " + this + ".register:" + authorizer + " registering " + a);
                 }
 		synchronized (this) {
                    if (inactive(authorizer))	
 				throw new ClockUseException(authorizer + "is not active on " + this + "; cannot transmit.");
-			if (activities_.contains(a)) return;
+                   
+			if (activities_.contains(a)) 
+				return;
 			activities_.add(a);
 			activityCount_++;
 		}
-		if (Report.should_report("clock", 3)) {
+		if (Report.should_report(Report.CLOCK, 3)) {
 			Report.report(3, PoolRunner.logString() + " " + this + "...done.(activityCount_=" + activityCount_+").");
 		}
 	}
@@ -235,9 +239,10 @@ public /* final */ class Clock extends clock {
 	public void resume() {
            resume(Runtime.getCurrentActivity());
         }
+	
 	public void resume(Activity a) {
 		// do not lock earlier - see comment in doNext
-		if (Report.should_report("clock", 5)) {
+		if (Report.should_report(Report.CLOCK, 5)) {
 			Report.report(5, PoolRunner.logString() + " " + this + ".resume(" + a  +")");
 		}
 		synchronized (this) {
@@ -245,7 +250,7 @@ public /* final */ class Clock extends clock {
 				throw new ClockUseException(a + "is not registered with " + this +"; cannot execute 'resume'.");
 			
 			if (quiescent(a)) {
-				if (Report.should_report("clock", 5)) {
+				if (Report.should_report(Report.CLOCK, 5)) {
 					Report.report(5, PoolRunner.logString() + " " + this + "...returned (noop).");
 				}
 				return; 
@@ -253,14 +258,14 @@ public /* final */ class Clock extends clock {
 			if (splitPhase_) {
 				nextResumed_.add(a);
 				nextResumedCount_++;
-				if (Report.should_report("clock", 5)) {
+				if (Report.should_report(Report.CLOCK, 5)) {
 					Report.report(5, PoolRunner.logString() + " " + this + "...added to nextResumed.");
 				}
 				return;
 			}
 			resumed_.add(a);
 			resumedCount_++;
-			if (Report.should_report("clock", 3)) {
+			if (Report.should_report(Report.CLOCK, 3)) {
 				Report.report(3, PoolRunner.logString() + " " + this + "...added to resumed.");
 			}
 			tryMoveToSplit_();
@@ -322,7 +327,7 @@ public /* final */ class Clock extends clock {
 		if (resumed_.remove(a)) resumedCount_--;
 		if (nextResumed_.remove(a)) nextResumedCount_--;
 		tryMoveToSplit_();
-		 if (Report.should_report("clock", 3)) {
+		 if (Report.should_report(Report.CLOCK, 3)) {
 			Report.report(3, this + " drops " + a +").");
 		 }
 		return ret;        
@@ -334,17 +339,17 @@ public /* final */ class Clock extends clock {
 	 * that are waiting to get them going again.
 	 */
 	synchronized boolean tryMoveToSplit_() {
-	    if (Report.should_report("clock", 3)) {
+	    if (Report.should_report(Report.CLOCK, 3)) {
 			Report.report(3, PoolRunner.logString() + " " + this + ".tryMoveToSplit_()");
 			}
 		
 		if (! (activityCount_ == resumedCount_ )) {
-		    if (Report.should_report("clock", 3)) {
+		    if (Report.should_report(Report.CLOCK, 3)) {
 				Report.report(3, "...fails");
 				}
 			return false;
 		}
-		if (Report.should_report("clock", 3)) {
+		if (Report.should_report(Report.CLOCK, 3)) {
 			Report.report(3, "...succeeds");
 			}
 		splitPhase_ = true;
@@ -364,16 +369,16 @@ public /* final */ class Clock extends clock {
 		
 	}
 	private synchronized boolean tryMoveToWhole_() {
-	    if (Report.should_report("clock", 3)) {
+	    if (Report.should_report(Report.CLOCK, 3)) {
 			Report.report(3, PoolRunner.logString() + " " + this+".tryMoveToWhole_()");
 			}
 		if (resumedCount_ != 0) {
-		    if (Report.should_report("clock", 3)) {
+		    if (Report.should_report(Report.CLOCK, 3)) {
 				Report.report(3, this+"...fails.");
 				}
 			return false;
 		}
-		if (Report.should_report("clock", 3)) {
+		if (Report.should_report(Report.CLOCK, 3)) {
 			Report.report(3, this+"...succeeds.");
 			}
 		splitPhase_ = false;
@@ -389,7 +394,7 @@ public /* final */ class Clock extends clock {
 		int start = phase_;
 		
 		Thread t = Thread.currentThread();
-		((PoolRunner) t).addPoolNew();
+		((PoolRunner) t).getPlace().threadBlockedNotification();
 		
 		while (start == phase_) { // signal might be random in Java, check!
 			try {
@@ -398,7 +403,7 @@ public /* final */ class Clock extends clock {
 				throw new Error(ie); // that was unexpected...
 			}
 		}
-		((PoolRunner) t).getPlace().decNumBlocked();
+		((PoolRunner) t).getPlace().threadUnblockedNotification();
 	}
 	
 	public void doNext() {
@@ -408,11 +413,11 @@ public /* final */ class Clock extends clock {
         /* An activity on a remote VM has done a next on this clock */
        
     
-	public void doNext(Activity a) {
+	private void doNext(Activity a) {
 		// do not acquire lock earlier - otherwise deadlock can happen
 		// because the lock used to protected aip_.getCurrentActivity
 		// is also held when terminating activities drop locks ...
-		if (Report.should_report("clock", 5)) {
+		if (Report.should_report(Report.CLOCK, 5)) {
 			Report.report(5, PoolRunner.logString() + " " + this+".doNext(" + a + ") called.");
 		}
 		
@@ -428,12 +433,14 @@ public /* final */ class Clock extends clock {
 	    	}
 			
 			if (!splitPhase_ || nextResumed_.contains(a)){
-				if (Report.should_report("clock", 3)) {
+				if (Report.should_report(Report.CLOCK, 3)) {
 					Report.report(3, PoolRunner.logString() + " " + this+".doNext(" + a + ") blocks.");
 				}
+				System.out.println("Clock "+this+"is going to be block ");
 				block_();
+				System.out.println("Clock "+this+"is unblocked ");
 			}
-			if (Report.should_report("clock", 3)) {
+			if (Report.should_report(Report.CLOCK, 3)) {
 				Report.report(3, PoolRunner.logString() + " " + this+".doNext(" + a + ") continues.");
 			}
 			assert resumed_.contains(a);
