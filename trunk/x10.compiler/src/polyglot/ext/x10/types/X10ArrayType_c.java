@@ -34,6 +34,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ReferenceType {
         n.depClause = d;
         return n;
     }
+    public DepParameterExpr depClause() { return depClause; }
     
     public boolean equalsImpl(TypeObject o) {
         //Report.report(3,"X10ArrayType_c: equals |" + this + "| and |" + o+"|");

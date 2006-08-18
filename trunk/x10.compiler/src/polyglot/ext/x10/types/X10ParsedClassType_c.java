@@ -83,6 +83,7 @@ public class X10ParsedClassType_c extends ParsedClassType_c
                     + ") created with l=|" + l + "|");
 	    return n;
 	}
+    public DepParameterExpr depClause() { return depClause; }
 
    public boolean equalsImpl(TypeObject o) {
        

@@ -31,7 +31,7 @@ public abstract class X10Type_c extends Type_c implements X10Type {
     public void setDepClause(DepParameterExpr d) { depClause = d; }
     public boolean isParametric() { return (typeParameters == null) || ! typeParameters.isEmpty();}
     public List typeParameters() {return typeParameters;}
-    public DepParameterExpr depClause() { return depClause();}
+    public DepParameterExpr depClause() { return depClause; }
     
 	// TODO: Extend this for other kinds of X10 arrays
 	public static boolean isPrimitiveTypeArray(X10Type me) {
