@@ -1,9 +1,12 @@
 package x10.runtime;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import x10.lang.Future;
 import x10.lang.Object;
 import x10.lang.Runtime;
 import x10.lang.place;
+import x10.runtime.abstractmetrics.AbstractMetrics;
 
 
 /**
@@ -15,7 +18,7 @@ import x10.lang.place;
  * The implementation ensures that each place's thread pool has at least numBlocked+INIT_THREADS_PER_PLACE threads.
  */
 public abstract class Place extends place 
-implements Comparable {
+implements Comparable, AbstractMetrics {
 	
 	/**
 	 * Executor Service which provides the thread pool: starts 
@@ -27,15 +30,14 @@ implements Comparable {
 	/**
 	 * Number of activities that can possibly wait at a given moment
 	 */
-	protected int numBlocked=0;
+	protected AtomicInteger nbThreadBlocked= new AtomicInteger(0);
 	
 	public abstract void runAsync(Activity a);
 	public abstract void runBootAsync(Activity a);
-	public abstract void runAsyncLater(Activity a);
 	public abstract X10ThreadPoolExecutor getThreadPool();
-	public abstract int getNumBlocked();
-	public abstract void incNumBlocked();
-	public abstract void decNumBlocked();
+	public abstract int getNbThreadBlocked();
+	public abstract void threadBlockedNotification();
+	public abstract void threadUnblockedNotification();
 	
 	/**
 	 * We return an Activity.Result here to force the programmer
@@ -96,23 +98,7 @@ implements Comparable {
         // works because every place has unique id
         return this == o;
     }
-    
-	/**
-	 * Start of code to support abstract execution model
-	 */
-	public abstract long getTotalOps();	
-	public abstract long getCritPathOps();
-	public abstract void addLocalOps(long n);
-	public abstract void maxCritPathOps(long n);
-	
-	public abstract long getTotalUnblockedTime();
-	public abstract long getCritPathTime();
-	public abstract void addUnblockedTime(long t);
-	public abstract void maxCritPathTime(long t);
-	/**
-	 * End of code to support abstract execution model
-	 */
-		
+
 
 } // end of Place
 
