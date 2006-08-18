@@ -1,18 +1,14 @@
 package x10.runtime;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
 import x10.lang.ClockUseException;
 import x10.lang.MultipleExceptions;
+import x10.runtime.abstractmetrics.AbstractMetrics;
+import x10.runtime.abstractmetrics.AbstractMetricsFactory;
+import x10.runtime.clock.ClockManager;
+import x10.runtime.clock.ClockManagerFactory;
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -31,7 +27,7 @@ import x10.lang.MultipleExceptions;
  * <p> A method on an object O is annotated someThread if there is no constraint on the thread
  * that may invoke it.
  * <p> A method on an object O is annotated mySpawningThread if the only thread that can invoke
- * the method is the one executing the activity, and the thread can inoke this method only before
+ * the method is the one executing the activity, and the thread can invoke this method only before
  * it has invoked the activity's run method, i.e. initiated the activity.
  * <p> Note that an Activity object is created by a different thread than the one that executes it. 
  * We require that the initiating thread not invoke any methods on the Activity object and merely
@@ -42,22 +38,23 @@ import x10.lang.MultipleExceptions;
  * 3/6/2006: inserted addPoolCalled flag in support of JCU implementation 
  * to ensure that addPool() is called at most once per activity.
  */
-public abstract class Activity implements Runnable {
+public abstract class Activity implements Runnable, AbstractMetrics {
 
-	/**
+
+	/*
 	 * The place on which this activity runs. 
 	 * 
 	 */
 	protected Place place_;
 
-	protected List clocks_;
-
 	protected FinishState finishState_ = null;
-
-	protected Stack finishStack_ = new Stack();
-
-	protected boolean addPoolCalled = false;
-
+	
+	// The finishStack is lazily created
+	protected Stack finishStack_ = null;
+	
+	// The clockManager is lazily created
+	protected ClockManager activityClockManager;
+	
 	/**
 	 * Exception collector for this activity. This is field is used by the default
 	 * runtime to manage activities.  The stack is a stack of Throwables.
@@ -69,37 +66,45 @@ public abstract class Activity implements Runnable {
 	 */
 	protected FinishState rootNode_;
 
+	// abstract metrics manager
+	private AbstractMetrics abstractMetricsManager;
+
+	
+	/********** ACTIVITY CREATION AND INITIALIZATION **********/
+	
+	
 	/**
-	 * Create an activity with the given set of clocks.  
+	 * Create an activity.
+	 * @thread mySpawningThread
+	 */
+	public Activity() {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
+		this.initializeActivity();
+	}
+	
+	/**
+	 * Create an activity with the given set of clocks.
+	 * @thread mySpawningThread  
 	 * @param clocks
 	 */
 	public Activity(List clocks) {
-		assert (clocks != null);
-		if (!clocks.isEmpty()) {
-			if (Report.should_report("activity", 3)) {
-				Report.report(3, PoolRunner.logString() + " adding clocks "
-						+ clocks + " to " + this);
-			}
-		}
-		this.clocks_ = clocks;
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
+		this.activityClockManager = ClockManagerFactory.getClockManager(this, clocks);
+		this.initializeActivity();
 	}
 
 	/**
-	 * Create an activity with the given clock.  
+	 * Create an activity with the given clock.
+	 * @thread mySpawningThread  
 	 * @param clock
 	 */
 	public Activity(Clock clock) {
-		assert (clock != null);
-		this.clocks_ = new LinkedList();
-		if (Report.should_report("activity", 3)) {
-			Report.report(3, PoolRunner.logString() + " adding clock "
-					+ clock + " to " + this);
-		}
-		this.clocks_.add(clock);
-	}
-
-	public Activity() {
-		this.clocks_ = new LinkedList();
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
+		this.activityClockManager = ClockManagerFactory.getClockManager(this, clock);
+		this.initializeActivity();
 	}
 
 	/**
@@ -107,65 +112,61 @@ public abstract class Activity implements Runnable {
 	 * Perform whatever initialization is necessary,
 	 * informing whoever is interested. Must be performed by the thread
 	 * that will spawn this activity onto another thread.
-	 *
+	 * @thread mySpawningThread
 	 */
-	public/*mySpawningThread*/void initializeActivity() {
-		if (Report.should_report("activity", 5)) {
+	private void initializeActivity() {
+		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Report.report(5, PoolRunner.logString()
 					+ " Activity: initializing " + this);
 		}
-
-		Iterator it = clocks_.iterator();
-		while (it.hasNext()) {
-			Clock c = (Clock) it.next();
-			c.register(this);
-		}
+		
+		if(this.activityClockManager != null)
+			this.activityClockManager.registerClocks();
 		
 		if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) 
 			// Record time at which activity was started
 			setResumeTime();
 	}
-
-	public/*mySpawningThread*/void setRootActivityFinishState(FinishState root) {
+	
+	/**
+	 * @thread mySpawningThread
+	 * @param root
+	 */
+	public void setRootActivityFinishState(FinishState root) {
 		this.rootNode_ = root;
 	}
-
-	public/*mySpawningThread*/void setPlace(Place p) {
+	
+	/**
+	 * Set the place where the activity is executed
+	 * @thread mySpawningThread
+	 * @param p The place.
+	 */
+	public void setPlace(Place p) {
 		this.place_ = p;
 	}
 
 	public Place getPlace() {
 		return place_;
 	}
-
+	
+	
+	/********** FINISH ACTIVITY MANAGEMENT **********/
+	
+	
 	/**
-	 * Start executing a finish operation.
-	 *
+	 * Start executing this activity synchronously 
+	 * (i.e. with a finish statement).
+	 * @thread myThread
 	 */
-	public/*myThread*/void startFinish() {
+	public void startFinish() {
 		if (finishState_ != null) {
-			finishStack_.push(finishState_);
+			this.getFinishStack().push(finishState_);
 		}
 		finishState_ = new FinishState(this);
-
-		if (Report.should_report("activity", 3)) {
+		if (Report.should_report(Report.ACTIVITY, 3)) {
 			Report.report(3, PoolRunner.logString() + " " + this
 					+ " starts finish " + finishState_);
 		}
-
-	}
-
-	/** Push the exception thrown while executing s in a finish s, onto the finish state.
-	 * 
-	 * @param t
-	 */
-	public/*myThread*/void pushException(Throwable t) {
-		if (Report.should_report("activity", 3)) {
-			Report.report(3, PoolRunner.logString() + " " + this
-					+ " pushing exception " + t + " onto " + finishState_);
-		}
-
-		finishState_.pushException(t);
 	}
 
 	/**
@@ -176,33 +177,36 @@ public abstract class Activity implements Runnable {
 	 */
 	public void stopFinish() {
 
-		if (Report.should_report("activity", 5)) {
+		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Report.report(5, PoolRunner.logString() + " " + this
 					+ " enters stopfinish ");
 		}
 		finishState_.waitForFinish();
-		if (Report.should_report("activity", 5)) {
+		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Report.report(5, PoolRunner.logString() + " " + this
 					+ " continues stopfinish ");
 		}
-		FinishState state = null;
-
-		synchronized (this) {
-			state = finishState_;
-			// Update finishState_ before throwing an exception.
-			if (finishStack_.empty()) {
-				finishState_ = null;
-			} else {
-				finishState_ = (FinishState) finishStack_.pop();
-			}
+		// NOTE SYNCHRONIZATION : It is not necessary to synchronize this code as being
+		// here implies all spawned activity are terminated.
+		
+		FinishState state = finishState_;
+		// Update finishState_ before throwing an exception.
+		if (finishStack_ == null){
+			finishState_ = null;
+			//else we are sure finishStack_ is defined != null
+		} else if (!finishStack_.isEmpty()){
+			finishState_ = (FinishState) this.finishStack_.pop();
 		}
+		
+		// END NOTE SYNCHRONIZATION
 		// Do not reference finishState_ below, instead reference state.
 
 		Stack result = state.exceptions();
-		if (!result.empty()) {
+
+		if ((result != null) && (!result.empty())){
 			if (result.size() == 1) {
 				Throwable t = (Throwable) result.pop();
-				if (Report.should_report("activity", 3)) {
+				if (Report.should_report(Report.ACTIVITY, 3)) {
 					Report.report(3, PoolRunner.logString() + " " + this
 							+ " throws  " + t);
 				}
@@ -213,36 +217,30 @@ public abstract class Activity implements Runnable {
 			}
 			throw new MultipleExceptions(result);
 		}
-		if (Report.should_report("activity", 3)) {
+		if (Report.should_report(Report.ACTIVITY, 3)) {
 			Report.report(3, PoolRunner.logString() + " " + this
 					+ " exits from finish.");
 		}
-
+	}
+	
+	/**
+	 * Stack must be only access throught this method that lazily creates it.
+	 * @return a new stack if non has been ever created.
+	 */
+	private Stack getFinishStack()
+	{
+		if (this.finishStack_ == null)
+			this.finishStack_ = new Stack();
+		
+		return this.finishStack_;		
 	}
 
 	/** Is this activity currently executing a finish?
-	 * 
+	 * @thread myThread
 	 * @return true iff the activity is executing a finish.
 	 */
-	public/*myThread*/boolean inFinish() {
+	private boolean inFinish() {
 		return finishState_ != null;
-	}
-
-	/** Check whether it is ok to use the given clock c (by spawning an async
-	 * registered on the clock), throwing a ClockUseException if it is not.
-	 * Checks that the clock has not been resumed or dropped, and that the 
-	 * async is not being spawned inside a finish.
-	 * Invoked from code generated from the X10 source by the translator.
-	 * @param c -- The clock being checked for.
-	 */
-	public/*myThread*/Clock checkClockUse(Clock c) {
-		if (c.dropped())
-			throw new ClockUseException("Cannot transmit dropped clock.");
-		if (c.quiescent())
-			throw new ClockUseException("Cannot transmit resumed clock.");
-		if (inFinish())
-			throw new ClockUseException("Finish cannot spawn clocked async.");
-		return c;
 	}
 
 	/**
@@ -250,189 +248,254 @@ public abstract class Activity implements Runnable {
 	 * Thus it throws an exception iff this activity or some activity asynchronously
 	 * spawned by it (transitively, and not within the scope of another finish)
 	 * throws an exception.
-	 *
+	 * @thread myThread
+	 * @param r The runnable activity to run
 	 */
-	public/*myThread*/void finishRun() {
-		if (Report.should_report("activity", 5)) {
-			Report.report(5, PoolRunner.logString() + " " + this
-					+ ".finishRun() started.");
-		}
-
-		finishRun(this);
-	}
-
-	public/*myThread*/void finishRun(Runnable r) {
-
+	public void runWithinFinish(Runnable r) {
 		try {
-			startFinish();
+			this.startFinish();
 			assert (r != null);
 			r.run();
 		} catch (Throwable t) {
-			//System.out.println(x10.lang.Runtime.here()+":in finish run exception:"+t);
-			pushException(t);
+			this.pushException(t);
 		}
-		stopFinish();
-
+		this.stopFinish();
 	}
 
-	/** Add a clock to this activity's clock list. (Called when
-	 * this activity creates a new clock.)
+	/** Push the exception thrown while executing s in a finish s, onto the finish state.
 	 * 
-	 * @param c
+	 * @param t
 	 */
-	public/*myThread*/void addClock(Clock c) {
-		if (Report.should_report("clock", 3)) {
-			Report.report(3, PoolRunner.logString() + " " + this + " adds " + c
-					+ ".");
+	public/*myThread*/void pushException(Throwable t) {
+		if (Report.should_report(Report.ACTIVITY, 3)) {
+			Report.report(3, PoolRunner.logString() + " " + this
+					+ " pushing exception " + t + " onto " + finishState_);
 		}
-		clocks_.add(c);
+		finishState_.pushException(t);
 	}
-
-	/**
-	 * Drop a clock from this activity's clock list.
-	 * @param c
+	
+	
+	/********** CLOCK MANAGER DELEGATION **********/
+	
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.clock.ClockManager#addClock(x10.runtime.Clock)
+	 * @thread myThread
 	 */
-	public/*myThread*/void dropClock(Clock c) {
+	public void addClock(Clock c) {
+		if(this.activityClockManager != null)
+			this.activityClockManager.addClock(c);
+		else 
+			this.activityClockManager = ClockManagerFactory.getClockManager(this,c);
+	}
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.clock.ClockManager#dropClock(x10.runtime.Clock)
+	 * @thread myThread
+	 */
+	public void dropClock(Clock c) {
+		if(this.activityClockManager != null)
+		{
+			this.activityClockManager.dropClock(c);
+			if (this.activityClockManager.getNbRegisteredClocks() == 0)
+				this.activityClockManager = null;
+		} else {
 		if (Report.should_report("clock", 3)) {
-			Report.report(3, PoolRunner.logString() + " " + this + " drops "
+			Report.report(3, PoolRunner.logString() + " " + this + 
+					" dropClock attempt failed because no clocks are registered in this activity "
 					+ c + ".");
 		}
-		clocks_.remove(c);
+		}
 	}
 
-	/**
-	 * Drop all clocks associated with this activity, and deregister this
-	 * activity from all these clocks.
-	 *
+	/* (non-Javadoc)
+	 * @see x10.runtime.clock.ClockManager#dropAllClocks()
+	 * @thread myThread
 	 */
-	protected/*myThread*/void dropAllClocks() {
-		for (Iterator it = clocks_.iterator(); it.hasNext();) {
-			Clock c = (Clock) it.next();
-			c.drop(this);
-		}
-		if (Report.should_report("clock", 3)) {
-			Report.report(3, PoolRunner.logString() + " " + this
-					+ " drops all clocks.");
+	protected void dropAllClocks() {
+		if(this.activityClockManager != null) {
+			this.activityClockManager.dropAllClocks();
+			this.activityClockManager = null;
+		} else {
+			if (Report.should_report("clock", 3)) {
+				Report.report(3, PoolRunner.logString() + 
+						" dropAllClock attempt failed because no clocks are registered in this activity ");
+			}
 		}
 	}
-
-	/**
-	 * Implement next; for an activity. Blocks until each clock 
-	 * this activity is registered on has moved to the next phase.
-	 *
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.clock.ClockManager#doNext()
+	 * @thread myThread
 	 */
-	public/*myThread*/void doNext() {
-		if (Report.should_report("activity", 3)) {
-			Report.report(3, PoolRunner.logString() + " " + this
-					+ ".doNext() on " + clocks_);
-		}
-		Iterator it = clocks_.iterator();
-		while (it.hasNext()) {
-
-			Clock c = (Clock) it.next();
-			c.resume();
-		}
-
-		it = clocks_.iterator();
-		while (it.hasNext()) {
-			Clock c = (Clock) it.next();
-			c.doNext();
+	public void doNext() {
+		if(this.activityClockManager != null)
+			this.activityClockManager.doNext();
+		else {
+			if (Report.should_report("clock", 3)) {
+				Report.report(3, PoolRunner.logString() + 
+						" doNext attempt failed because no clocks are registered in this activity ");
+			}
 		}
 	}
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.clock.ClockManager#checkClockUse(x10.runtime.Clock)
+	 * @thread myThread
+	 */
+	public Clock checkClockUse(Clock c) {
+		if (c.dropped())
+			throw new ClockUseException("Cannot transmit dropped clock.");
+		if (c.quiescent())
+			throw new ClockUseException("Cannot transmit resumed clock.");
+		if (this.inFinish())
+			throw new ClockUseException("Finish cannot spawn clocked async.");
+		return c;
+	}
 
-	ArrayList asl_ = new ArrayList();
+	/* (non-Javadoc)
+	 * @see x10.runtime.clock.ClockManager#getNbRegisteredClocks
+	 */
+	public int getNbRegisteredClocks() {
+	if (this.activityClockManager == null)
+		return 0;
+	else
+		return this.activityClockManager.getNbRegisteredClocks();
+	}
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.clock.ClockManager#registerClocks()
+	 */
+	public void registerClocks() {
+		if(this.activityClockManager != null) {
+			this.activityClockManager.registerClocks();
+		}
+	}
+	
+	
+	/********** ABSTRACT METRICS MANAGER DELEGATION **********/
+	
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#getTotalOps()
+	 */
+	public long getTotalOps() { return this.abstractMetricsManager.getTotalOps(); }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#getCritPathOps()
+	 */
+	public long getCritPathOps() { return this.abstractMetricsManager.getCritPathOps(); }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#addLocalOps(long)
+	 */
+	public void addLocalOps(long n) { this.abstractMetricsManager.addLocalOps(n); }
+		
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#maxCritPathOps(long)
+	 */
+	public void maxCritPathOps(long n) {this.abstractMetricsManager.maxCritPathOps(n);}
 
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#getTotalUnblockedTime()
+	 */
+	public long getTotalUnblockedTime() { return this.abstractMetricsManager.getTotalUnblockedTime(); }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#getCritPathTime()
+	 */
+	public long getCritPathTime() { return this.abstractMetricsManager.getCritPathTime(); }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#maxCritPathTime(long)
+	 */
+	public void maxCritPathTime(long t) { this.abstractMetricsManager.maxCritPathTime(t); }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#getResumeTime()
+	 */
+	public long getResumeTime() { return this.abstractMetricsManager.getResumeTime(); }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#setResumeTime()
+	 */
+	public void setResumeTime() { this.abstractMetricsManager.setResumeTime(); }
+
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#updateIdealTime()
+	 */
+	public void updateIdealTime() {
+		this.abstractMetricsManager.updateIdealTime();
+	}
+
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#getCurrentTime()
+	 */
+	public long getCurrentTime() { return this.abstractMetricsManager.getCurrentTime(); }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#addUnblockedTime(long)
+	 */
+	public void addUnblockedTime(long t) {
+		this.abstractMetricsManager.addUnblockedTime(t);
+	}
+	
+
+	/********** ACTIVITY SPAWNING TERMINATION **********/
+
+	
 	/** This activity has spawned child. Properly link child
 	 * into the finish termination chain and notify all listeners.
-	 * 
+	 * @thread myThread
 	 * @param child -- the activity being spawned.
 	 */
-	public/*myThread*/Activity finalizeActivitySpawn(final Activity child) {
-		if (Report.should_report("activity", 3)) {
+	public Activity finalizeActivitySpawn(final Activity child) {
+		if (Report.should_report(Report.ACTIVITY, 3)) {
 			Report.report(3, PoolRunner.logString() + " " + this + " spawns "
 					+ child);
 		}
 		FinishState target = finishState_ == null ? rootNode_ : finishState_;
 		child.setRootActivityFinishState(target);
 		target.notifySubActivitySpawn();
-		ArrayList myASL = null;
-		synchronized (this) {
-			myASL = asl_;
-		}
-		if (myASL != null) {
-			for (int j = 0; j < myASL.size(); j++) {
-				// tell other activities that want to know that this has spawned child
-				ActivitySpawnListener asl = (ActivitySpawnListener) myASL
-						.get(j);
-				asl.notifyActivitySpawn(child, this);
-			}
-		}
 		return child;
-	}
-
-	/** Register an activity spawn listener for this activity.
-	 * 
-	 * @param a
-	 */
-	public synchronized void registerActivitySpawnListener(
-			ActivitySpawnListener a) {
-		if (asl_ == null) {
-			asl_ = new ArrayList(2);
-		}
-		asl_.add(a);
 	}
 
 	/**
 	 * This activity has terminated normally. Now clean up. (Notify the finish ancestor,
 	 * if any, and any other listeners (e.g. Sample listeners).
-	 *
+	 * @thread myThread
 	 */
-	public/*myThread*/void finalizeTermination() {
-		if (Report.should_report("activity", 5)) {
+	public void finalizeTermination() {
+		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Report.report(5, PoolRunner.logString() + " " + this
 					+ "terminates.");
 		}
 		finalizeTerminationCleanup();
                 if (rootNode_ != null)
                    rootNode_.notifySubActivityTermination();
-                if (asl_ != null) {
-                   for (int j = 0; j < asl_.size(); j++) {
-                      // tell other activities that want to know that this has spawned child
-                      ActivitySpawnListener asl = (ActivitySpawnListener) asl_
-                         .get(j);
-                      asl.notifyActivityTerminated(this);
-                   }
-                }
 	}
 
 	/**
 	 * This activity has terminated abruptly. Now clean up. (Notify the finish ancestor, if any, and
 	 * any other listeners (e.g. Sample listeners).
+	 * @thread myThread
 	 * @param t -- the reason for the abrupt termination.
 	 */
-
-	public/*myThread*/void finalizeTermination(Throwable t) {
-		if (Report.should_report("activity", 5)) {
+	public void finalizeTermination(Throwable t) {
+		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Report.report(5, Thread.currentThread() + " " + this
 					+ " terminates abruptly with " + t);
 		}
 		finalizeTerminationCleanup();
 		if (rootNode_ != null)
 			rootNode_.notifySubActivityTermination(t);
-		if (asl_ != null) {
-			for (int j = 0; j < asl_.size(); j++) {
-				// tell other activities that want to know that this has spawned child
-				ActivitySpawnListener asl = (ActivitySpawnListener) asl_.get(j);
-				asl.notifyActivityTerminated(this);
-			}
-		}
 	}
 	
 	/**
 	 * Helper method called by finalizeTermination() and finalizeTermination(t)
+	 * @thread myThread
 	 */
-
-	public/*myThread*/void finalizeTerminationCleanup() {
+	public void finalizeTerminationCleanup() {
 		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
 		    x10.lang.Runtime.here().maxCritPathOps(getCritPathOps());
 		    x10.lang.Runtime.here().addLocalOps(getTotalOps());
@@ -444,13 +507,16 @@ public abstract class Activity implements Runnable {
 			}
 		}
 		dropAllClocks();
-		if (Report.should_report("activity", 5)) {
+		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Report.report(5, Thread.currentThread() + " " + this
 					+ " drops clocks, has rootNode_ " + rootNode_);
 		}
 	}
 
-
+	
+	/********** UTILS METHODS **********/
+	
+	
 	/** The short name for the activity. Used in logging.
 	 * 
 	 * @return -- the short name for the activity.
@@ -470,77 +536,12 @@ public abstract class Activity implements Runnable {
 		return rv;
 	}
 
-	/* A short descriptor for the activity.
-	 * 
+	/** 
+	 * A short descriptor for the activity.
 	 */
 	public String shortString() {
 		return "<" + myName() + ">";
 	}
-
-	/**
-	 * Set AddPoolCalled boolean Flag ( is this activity has added a thread already into the pool )
-	 */
-	public void setAddPoolCalled() {
-		addPoolCalled = true;
-	}
-
-	/**
-	 * Get AddPoolCalled boolean flag ( if this activity has added a thread already or not )
-	 */
-	public boolean getAddPoolCalled() {
-		return addPoolCalled;
-	}
-
-	/**
-	 * Start of code to support abstract execution model
-	 */
-	
-	/*
-	 * totalOps and critPathOps keep track of operations defined by user by calls to x10.lang.perf.addLocalOps()
-	 */
-	private long totalOps = 0; // Total unblocked work done by this activity (in units of user-defined ops)
-	private long critPathOps = 0; // Critical path length for this activity, including dependences due to child activities (in units of user-defined ops)
-	
-	synchronized public long getTotalOps() { return totalOps; }
-	
-	synchronized public long getCritPathOps() { return critPathOps; }
-	
-	synchronized public void addLocalOps(long n) { totalOps += n; critPathOps += n; }
-	
-	synchronized public void maxCritPathOps(long n) { critPathOps = Math.max(critPathOps, n); }
-	
-	/*
-	 * totalTime, critPathTime, and resumeTime keep tracks of actual unblocked execution in each activity.  The time that an activity is spent blocked
-	 * in the X10 runtime is not counted.  However, this is still an approximate estimate because it does account for time that an activity is not
-	 * executing because its Java thread in the thread pool does not have an available processor.
-	 */
-	private long totalUnblockedTime = 0; // Total unblocked time done by this activity (in milliseconds)
-	private long critPathTime = 0; // Critical path length for this activity, including dependences due to child activities (in milliseconds)
-	private long resumeTime = 0; // Time at which activity was started or unblocked (whichever is most recent)
-	
-	synchronized public long getTotalUnblockedTime() { return totalUnblockedTime; }
-	
-	synchronized public long getCritPathTime() { return critPathTime; }
-	
-	synchronized public void maxCritPathTime(long t) { critPathTime = Math.max(critPathTime, t); }
-	
-	synchronized public long getResumeTime() { return resumeTime; }
-	
-	synchronized public void setResumeTime() { resumeTime = getCurrentTime(); }
-
-	synchronized public void updateIdealTime() {
-		long delta = getCurrentTime() - getResumeTime();
-		totalUnblockedTime += delta;
-		critPathTime += delta;
-	}
-	
-	// Use System.currentTimeMillis() for now to measure ideal execution time.
-	// This can be changed in the future
-	public long getCurrentTime() { return System.currentTimeMillis(); }
-	
-	/**
-	 * End of code to support abstract execution model
-	 */
 
 	/**
 	 * An activity used to implement an X10 future.
