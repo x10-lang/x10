@@ -5,6 +5,7 @@ import java.util.Stack;
 
 import x10.lang.Future;
 import x10.lang.place;
+import x10.runtime.abstractmetrics.AbstractMetrics;
 /**
  * A LocalPlace_c is an implementation of a place
  * that runs on this Java Virtual Machine.  In the
@@ -18,38 +19,32 @@ import x10.lang.place;
  * 3/6/2006: add runBootAsync() method, which is like runAsync() except that it is only used for the boot activity
  */
 public class LocalPlace_c extends Place {
-	
-	
-	
-	
+
 	/**
 	 * Is this place shutdown?
 	 */
 	boolean shutdown;
+	private AbstractMetrics jitTimeAnalyzer;
 	
 	
-	public void runAsync(final Activity a) {
-           prepareAsync(a);
-           runAsync( a, false);	
-	}
+	/********** ACTIVITY RUNNING **********/
+	
 	
 	/*
      * runBootAsync is a special version of runAsync reserved for only the boot activity
      */
 	public void runBootAsync(final Activity a) {
-           a.initializeActivity();
-           runAsync( a, false);	
+		// the boot activity is runned by a classical 
+		// java Thread (i.e. not a ActivityRunner)
+		// cf prepareAsync method
+           this.runActivity(a);	
 	}
 	
+	public void runAsync(final Activity a) {
+		this.runActivity(a);	
+	}
+
 	
-   
-	public void runAsyncLater(Activity a) {
-		if (Configuration.OPTIMIZE_FOREACH) {
-                   prepareAsync(a);
-		} else {
-                   runAsync(a);
-		}
-	}	
 	/**
 	 * TODO -- CHANGE THE CODE
 	 * @param a
@@ -61,51 +56,36 @@ public class LocalPlace_c extends Place {
 			Activity parent =  ((ActivityRunner) t).getActivity();
 			parent.finalizeActivitySpawn(a);
 		}
-		a.initializeActivity();
 	}
-    
+
 	/**
-	 * Run this activity asynchronously, as if it is wrapped in a finish.
-	 * That is, wait for its global termination.
-	 * @param a
+	 * @param activity
 	 */
-	public void finishAsync( final Activity a) {
-		prepareAsync(a);
-		runAsync( a, true);
-	}
-	
-	protected void runAsync(final Activity a, final boolean finish) {
-		
+	protected void runActivity(final Activity activity) {
+        this.prepareAsync(activity);
 		threadPoolService.execute(new Runnable() {
 			public void run() {
 				// Get a thread to run this activity.
-				Thread t = Thread.currentThread();
-				if (Report.should_report("activity", 5)) {
-					Report.report(5, t + " is running " + this);
+				PoolRunner activityRunner = (PoolRunner) Thread.currentThread();
+				if (Report.should_report(Report.ACTIVITY, 5)) {
+					Report.report(5, activityRunner + " is running " + this);
 				}
 				
 				// Install the activity.
-				((PoolRunner)t).setActivity(a);
-				((PoolRunner)t).setPlace(LocalPlace_c.this); // TODO Remove this later
-				
-				a.setPlace(LocalPlace_c.this);
-				
+				activityRunner.setActivity(activity);
+				activityRunner.setPlace(LocalPlace_c.this); // TODO Remove this later
+				activity.setPlace(LocalPlace_c.this);
 
 				try {
-					if (finish) {
-						a.finishRun();
-					} else {
-						a.run();
-					}
+						activity.run();
 				} catch (Throwable e) {
-					a.finalizeTermination(e);
+					activity.finalizeTermination(e);
 					return;
 				}
 				
-				a.finalizeTermination(); //should not throw an exception.
+				activity.finalizeTermination(); //should not throw an exception.
 			}
-			public String toString() { return "<Executor " + a + ">";}
-			
+			public String toString() { return "<Executor " + activity + ">";}
 		});
 	}
 	
@@ -138,7 +118,6 @@ public class LocalPlace_c extends Place {
 	 * Shutdown this place, the current X10 runtime will exit.
 	 */
 	public synchronized void shutdown () {
-		//System.out.println("Shutdown Place="+this+"::==>#of threads="+threadPoolService.getCorePoolSize());
 	    threadPoolService.shutdownNow();
 	    shutdown=true;
 	}
@@ -154,60 +133,102 @@ public class LocalPlace_c extends Place {
 	 * get number of blocking threads at the current 
 	 * 
 	 */
-	public synchronized int getNumBlocked() {
-		return numBlocked;
+	public int getNbThreadBlocked() {
+		return nbThreadBlocked.get();
 	}
 	
 	/**
-	 * increase number of blocking threads
-	 * 
+	 * Increase place's number of blocked threads counter.
+	 * Add a new thread to the pool only if number of threads 
+     * waiting is greater or equal to corepoolsize
 	 */
-	public synchronized void incNumBlocked() {
-		numBlocked++;
+	public void threadBlockedNotification() {
+		nbThreadBlocked.addAndGet(1);
+	
+		if(this.getNbThreadBlocked() >= this.getThreadPool().getCorePoolSize()) 
+    		this.getThreadPool().increasePoolSize();
 	}
 	
 	/**
 	 * 
 	 * Decrease number of blocking threads 
 	 */
-	public synchronized void decNumBlocked() {
-		numBlocked--;
+	public void threadUnblockedNotification() {
+		nbThreadBlocked.addAndGet(-1);
+		this.getThreadPool().decreasePoolSize();
 	}
 		
 	public boolean isShutdown() { 
 		return shutdown; 
 	}
+
 	
 	/**
 	 * Start of code to support abstract execution model
 	 */
-	
-	/*
-	 * totalOps and critPathOps keep track of operations defined by user by calls to x10.lang.perf.addLocalOps()
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#addUnblockedTime(long)
 	 */
-	private long totalOps = 0; // Total unblocked work done by this activity (in units of user-defined ops)
-	private long critPathOps = 0; // Critical path length for this activity, including dependences due to child activities (in units of user-defined ops)
-	
-	synchronized public long getTotalOps() { return totalOps; }
-	
-	synchronized public long getCritPathOps() { return critPathOps; }
-	
-	synchronized public void addLocalOps(long n) { totalOps += n; }
-	
-	synchronized public void maxCritPathOps(long n) { critPathOps = Math.max(critPathOps, n); }
-	
-	private long totalUnblockedTime = 0; // Total unblocked work done at this place
-	private long critPathTime = 0; // Ideal time = max critical path length of all activities executed at this place
+	public void addUnblockedTime(long t) {
+		this.jitTimeAnalyzer.addUnblockedTime(t);
+	}
 
-	synchronized public long getTotalUnblockedTime() { return totalUnblockedTime; }
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#getTotalOps()
+	 */
+	public long getTotalOps() { return this.jitTimeAnalyzer.getTotalOps(); }
 	
-	synchronized public long getCritPathTime() { return critPathTime; }
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#getCritPathOps()
+	 */
+	public long getCritPathOps() { return this.jitTimeAnalyzer.getCritPathOps(); }
 	
-	synchronized public void addUnblockedTime(long t) { totalUnblockedTime += t; }
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#addLocalOps(long)
+	 */
+	public void addLocalOps(long n) { this.jitTimeAnalyzer.addLocalOps(n); }
+		
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#maxCritPathOps(long)
+	 */
+	public void maxCritPathOps(long n) {this.jitTimeAnalyzer.maxCritPathOps(n);}
+
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#getTotalUnblockedTime()
+	 */
+	public long getTotalUnblockedTime() { return this.jitTimeAnalyzer.getTotalUnblockedTime(); }
 	
-	synchronized public void maxCritPathTime(long t) { 
-		critPathTime = Math.max(critPathTime, t); 
-		}
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#getCritPathTime()
+	 */
+	public long getCritPathTime() { return this.jitTimeAnalyzer.getCritPathTime(); }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#maxCritPathTime(long)
+	 */
+	public void maxCritPathTime(long t) { this.jitTimeAnalyzer.maxCritPathTime(t); }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#getResumeTime()
+	 */
+	public long getResumeTime() { return this.jitTimeAnalyzer.getResumeTime(); }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#setResumeTime()
+	 */
+	public void setResumeTime() { this.jitTimeAnalyzer.setResumeTime(); }
+
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#updateIdealTime()
+	 */
+	public void updateIdealTime() {
+		this.jitTimeAnalyzer.updateIdealTime();
+	}
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.JITTimeAnalyzer#getCurrentTime()
+	 */
+	public long getCurrentTime() { return this.jitTimeAnalyzer.getCurrentTime(); }
 
 	/**
 	 * End of code to support abstract execution model
