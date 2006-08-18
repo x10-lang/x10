@@ -25,15 +25,15 @@ public class PoolRunner extends Thread implements ActivityRunner{
 	/**
 	 * Current activity being run by this thread 
 	 */
-	private Activity act;
+	private Activity activity;
 	
-	/** the pace where this runner currently executed - can be different from 
-	 *  homePlace, e.g inside an array initiizer, see also 
+	/** the place where this runner currently executed - can be different from 
+	 *  homePlace, e.g inside an array initializer, see also 
 	 *  DefaultRuntime_c.setCurrentPlace(place p) */
 	private Place place;
 	
 	
-    PoolRunner(ThreadGroup group, Runnable r, String namePrefix) {
+    public PoolRunner(ThreadGroup group, Runnable r, String namePrefix) {
     	super(group, r, namePrefix, 0);
     }
     
@@ -55,43 +55,22 @@ public class PoolRunner extends Thread implements ActivityRunner{
      * Set Activity
      */
     public void setActivity(Activity a) {
-    	act = a;
+    	activity = a;
     }
     
     /**
      * Get Activity
      */
     public Activity getActivity() {
-    	return act;
-    }
-      
-    
-    /**
-     * This thread adds to pool dynamically if  
-     */
-    public void addPoolQueuePositive() {
-		if(!act.getAddPoolCalled()) {
-			int ret=place.getThreadPool().addPoolIfQueuePositive();
-			if (ret > 0) act.setAddPoolCalled();
-		}
-	}
-    
-    /**
-     * Add to pool only if number of threads waiting is greater or equal to corepoolsize
-     *
-     */
-    public void addPoolNew() {
-    	place.incNumBlocked();
-    	if(place.getNumBlocked() >= place.getThreadPool().getCorePoolSize()) 
-    		place.getThreadPool().addPool();
+    	return activity;
     }
     
-    public String thisThreadString() {
+    private String thisThreadString() {
        	return Thread.currentThread() +  "@" + place + ":" + System.currentTimeMillis();
     }
     
     public static String logString() {
-       	return ( (PoolRunner)Thread.currentThread()).thisThreadString();
+       	return ((PoolRunner)Thread.currentThread()).thisThreadString();
     }
        
     public String toString() {
