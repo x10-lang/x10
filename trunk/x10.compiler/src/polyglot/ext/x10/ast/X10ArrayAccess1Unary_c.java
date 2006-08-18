@@ -99,6 +99,11 @@ public class X10ArrayAccess1Unary_c extends Unary_c
 	}
     /** Write the expression to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+		if (true) {
+			super.prettyPrint(w, tr);
+			return;
+		}
+		assert false;
         
         if (! (expr instanceof X10ArrayAccess1 || expr instanceof ArrayAccess))
             throw new InternalCompilerError("X10ArrayAccess1Unary has an illegal argument " + expr);
