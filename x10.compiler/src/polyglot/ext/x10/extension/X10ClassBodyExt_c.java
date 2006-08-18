@@ -218,8 +218,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	/**
 	 * replace '_' with '_1'
 	 *         '<unicode>' with '_0<unicode>'
-	 *         ';' with '_2
-	 *         '[' with _3
+	 *         ';' with '_2'
+	 *         '[' with '_3'
 	 * @param inName
 	 * @return
 	 */
