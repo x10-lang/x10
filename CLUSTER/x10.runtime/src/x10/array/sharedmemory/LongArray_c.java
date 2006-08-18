@@ -393,7 +393,6 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
                 point p = (point) it.next();
                 place pl = distribution.get(p);
                 x10.lang.Runtime.runtime.setCurrentPlace(pl);
-                long val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
                 set(d.get(p), p);
             }
         } finally {

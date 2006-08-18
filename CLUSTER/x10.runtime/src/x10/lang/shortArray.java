@@ -34,6 +34,10 @@ abstract public class shortArray extends x10Array{
 	public static interface pointwiseOp/*(region r)*/ extends Serializable  {
 		short apply(point/*(r)*/ p);
 	}
+	//called from high level array operations
+	public short get(int d0, boolean chkPl) {return get(d0); }
+	public short get(int d0, int d1, boolean chkPl) {return get(d0, d1); }
+	public short get(point pos, boolean chkPl) {return get(pos); }
 	
 	abstract public static /*value*/ class factory {
 		/** Return the unique int value array initialized with 0 
