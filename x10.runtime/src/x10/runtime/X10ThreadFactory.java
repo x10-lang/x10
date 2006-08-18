@@ -10,13 +10,13 @@ import java.util.concurrent.atomic.*;
 	 * 3/6/2006: X10 thread factory for JCU implementation
 	 */
 
-class X10ThreadFactory implements ThreadFactory {
+public class X10ThreadFactory implements ThreadFactory {
     static final AtomicInteger poolNumber = new AtomicInteger(1);
     final ThreadGroup group;
     final AtomicInteger threadNumber = new AtomicInteger(1);
     final String namePrefix;
 
-    X10ThreadFactory() {
+    public X10ThreadFactory() {
         SecurityManager s = System.getSecurityManager();
         group = (s != null)? s.getThreadGroup() :
                              Thread.currentThread().getThreadGroup();
