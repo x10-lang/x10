@@ -792,8 +792,6 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			super(r);
 			map_ = m;
 			places.addAll(m.values());
-			this._indexMap = generateIndexMap(this,m);
-			this._distributionType = ARBITRARY;
 		}
 		
 		
