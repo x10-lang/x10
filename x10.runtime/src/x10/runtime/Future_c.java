@@ -80,16 +80,16 @@ public final class Future_c extends Future {
      * @see x10.runtime.Activity.Result#force()
      */
     public Object force() {
-	Thread t = Thread.currentThread();
+    	PoolRunner t = (PoolRunner) Thread.currentThread();
 	if (cdl.getCount() > 0) {
-	    ((PoolRunner) t).addPoolNew();
+		((PoolRunner) t).getPlace().threadBlockedNotification();
 	    try {
 		cdl.await();
 	    } catch (InterruptedException ie) {
 		System.err.println("Future_c::force - unexpected exception e" + ie);
 		throw new Error(ie); // this should never happen...
 	    }
-	    ((PoolRunner) t).getPlace().decNumBlocked();
+	    ((PoolRunner) t).getPlace().threadUnblockedNotification();
 	}
 	if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
 		x10.lang.Runtime.getCurrentActivity().maxCritPathOps(getCritPathOps());
@@ -105,7 +105,6 @@ public final class Future_c extends Future {
 		throw (RuntimeException) exception_;
 	    assert false;
 	}
-			
 	return result_;
     }
     
