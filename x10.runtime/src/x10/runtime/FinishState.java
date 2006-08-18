@@ -25,7 +25,8 @@ import x10.lang.place;
  */
 public class FinishState {
 
-	protected Stack finish_ = new Stack();
+	// Exception Stack is lazily created
+	private Stack finish_;
 
 	protected Activity parent; // not really needed, used in toString().
 
@@ -43,8 +44,8 @@ public class FinishState {
 		if (mcdl.getCount() == 0)
 			return;
 
-		Thread t = Thread.currentThread();
-		((PoolRunner) t).addPoolNew();
+		PoolRunner activityRunner = (PoolRunner) Thread.currentThread();
+		 activityRunner.getPlace().threadBlockedNotification();
 
 		try {
 			mcdl.await();
@@ -57,13 +58,12 @@ public class FinishState {
 			}
 		} catch (InterruptedException z) {
 		}
-
-		((PoolRunner) t).getPlace().decNumBlocked();
+		activityRunner.getPlace().threadUnblockedNotification();
 	}
 
 	public void notifySubActivitySpawn() {
 		mcdl.updateCount();
-		if (Report.should_report("activity", 5)) {
+		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Report.report(5, " updating " + toString());
 		}
 	}
@@ -73,10 +73,18 @@ public class FinishState {
 	 * inline code, not a spawned activity.
 	 * @param t
 	 */
-	public synchronized void pushException(Throwable t) {
-		finish_.push(t);
+	public void pushException(Throwable t) {
+		synchronized(this) {
+			this.getFinishStack().push(t);
+		}
 	}
 
+	private Stack getFinishStack() {
+		if(finish_ == null)
+			finish_ = new Stack();
+		return finish_;
+	}
+	
 	/** An activity created under this finish has terminated. Decrement the count
 	 * associated with the finish and notify the parent activity if it is waiting.
 	 */
@@ -91,9 +99,7 @@ public class FinishState {
 	 * @param t -- The exception thrown by the activity that terminated abruptly.
 	 */
 	public void notifySubActivityTermination(Throwable t) {
-		synchronized (this) {
-			finish_.push(t);
-		}
+		this.pushException(t);
 		notifySubActivityTermination();
 	}
 
@@ -101,7 +107,7 @@ public class FinishState {
 	 * 
 	 * @return -- stack of exceptions recorded for this finish.
 	 */
-	public synchronized Stack exceptions() {
+	public Stack exceptions() {
 		return finish_;
 	}
 
