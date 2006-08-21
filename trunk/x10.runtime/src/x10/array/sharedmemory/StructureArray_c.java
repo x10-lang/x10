@@ -1012,6 +1012,11 @@ public class StructureArray_c extends StructureArray implements UnsafeContainer,
 	public boolean isValue() {
 		return ! this.mutable_;
 	}
+
+	public Object toJava() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 }
