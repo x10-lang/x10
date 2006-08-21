@@ -3,7 +3,6 @@ package x10.lang;
  * @author cmd
  */
 
-import java.util.Iterator; 
 
 abstract public class structureArray /*( distribution distribution )*/ 
 /*implements Cloneable, Serializable */
@@ -15,16 +14,9 @@ extends x10Array {
 	final protected int getStartingElementIndex(int userIndex){
 		return userIndex * _elementSize;
 	}
-	public final dist distribution;
-
-	public dist getDistribution() { return distribution;}
-	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
-	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
 	
 	protected structureArray( dist D,int elSize) {
-		this.distribution = D;
-		this.region = D.region;
-		this.rank = D.rank;
+		super(D);
 		this._elementSize = elSize;
 	}
 	
@@ -232,11 +224,4 @@ extends x10Array {
 	
 	
 	abstract public structureArray toValueArray();
-	
-	public Iterator iterator() {
-	 	return region.iterator();
-	 }
-	public dist toDistribution() {
-		return distribution;
-	}
 }
