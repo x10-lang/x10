@@ -123,5 +123,10 @@ public class DoubleProxyArray extends DoubleReferenceArray {
 	
 	public DoubleReferenceArray restrictShallow (region r) {
 		return realArray_.restrictShallow(r);
+	}
+
+	public Object toJava() {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 }
