@@ -31,7 +31,7 @@ abstract public class doubleArray extends x10Array{
 	public static final unaryOp abs = new unaryOp() { public double apply(double r) { return Math.abs(r);}};
 	public static final unaryOp id = new unaryOp() { public double apply(double r) { return r;}};
 	
-	public static interface pointwiseOp/*(region r)*/ extends Serializable {
+	public static interface pointwiseOp/*(region r)*/ extends pointwiseOpTag, Serializable {
 		double apply(point/*(r)*/ p);
 	}
 	
