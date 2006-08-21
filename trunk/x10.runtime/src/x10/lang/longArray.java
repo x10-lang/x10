@@ -1,6 +1,5 @@
 package x10.lang;
 
-import java.util.Iterator;
 
 /** The base class for all (value or reference) multidimensional,
  * distributed long arrays in X10.  Is a subclass-only mutable class
@@ -13,14 +12,8 @@ import java.util.Iterator;
  */
 
 abstract public class longArray extends x10Array {
-	public final dist distribution;
-	/*parameter*/ public final /*nat*/long rank /*= distribution.rank*/;
-	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
-	  public dist getDistribution() { return distribution;}	
 	protected longArray( dist D) {
-		this.distribution = D;
-		this.region = D.region;
-		this.rank = D.rank;
+		super(D);
 	}
 	
 	public static interface binaryOp {
@@ -268,11 +261,4 @@ abstract public class longArray extends x10Array {
 	 * @return an immutable version of this array.
 	 */
 	abstract public longArray toValueArray();
-	
-	public Iterator iterator() {
-	 	return region.iterator();
-	 }
-	public dist toDistribution() {
-		return this.distribution;
-	}
 }
