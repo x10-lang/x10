@@ -1,0 +1,2 @@
+// SYNOPSIS: new short[#0] {#1} #2=is_safe #3=is_value
+x10.cluster.array.DistArrayManager.createShortArray(#0,#1,#2,(!#3))
