@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import x10.cluster.array.CombinedRegion;
 import x10.lang.Indexable;
 import x10.lang.RankMismatchException;
 import x10.lang.Runtime;
@@ -677,11 +678,17 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			dist [] newDists = new dist[members_.length];
 			int count=0;
 			int i;
+			boolean mappedToSingle = true;
 			for (i=0; i < members_.length; ++i) {
 				Distribution_c mem_ = members_[i];
 				for(int j=0; j<toPls_.length; j++)
 					if(mem_.places.contains(toPls_[j])) { //if this member contain any place in 'Ps'
-						dist d_ = mem_.restriction(Ps);
+						dist d_ = null; 
+						if(mem_.places.size() != 1) {
+							mappedToSingle = false;
+							d_ = mem_.restriction(Ps);
+						} else
+							d_ = mem_;
 						if(! (d_ instanceof Empty)) 
 							newDists[count++] = d_;
 						break;
@@ -689,6 +696,16 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			}
 			if(count == 0) return new Empty(this.rank);
 			if(count == 1) return newDists[0];
+			if(mappedToSingle && count <= 8 && count >0) {
+				//XXX revist: when 'count' is small, using 'CombinedRegion' can be profit
+				region[] rs = new region[count];
+				Distribution_c[] ds = new Distribution_c[count];
+				for(int j=0; j<count; j++) {
+					rs[j] = newDists[j].region;
+					ds[j] = (Distribution_c) newDists[j];
+				}
+				return new Combined(new CombinedRegion(rs), ds);
+			}
 			
 			//System.out.println("optimizing dist.restriction(Set): 2");
 			//now we may not have saved by specializing this method for 'Combined'
