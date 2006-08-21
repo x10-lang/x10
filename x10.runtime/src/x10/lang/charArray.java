@@ -1,5 +1,7 @@
 package x10.lang;
 
+import java.io.Serializable;
+
 
 /** The class of all multidimensional, distributed int arrays in X10. Has no mutable data.
  * Specialized from array by replacing the type parameter with int.
@@ -25,7 +27,7 @@ abstract public class charArray extends x10Array{
 	}
 
 	
-	public static interface pointwiseOp/*(region r)*/ {
+	public static interface pointwiseOp/*(region r)*/ extends pointwiseOpTag, Serializable {
 		char apply(point/*(r)*/ p);
 	}
 	

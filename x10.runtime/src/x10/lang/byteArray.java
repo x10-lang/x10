@@ -11,6 +11,8 @@ package x10.lang;
 
 import java.io.Serializable;
 
+import x10.lang.x10Array.pointwiseOpTag;
+
 abstract public class byteArray extends x10Array{
 
 	protected byteArray( dist D) {
@@ -30,7 +32,7 @@ abstract public class byteArray extends x10Array{
 	}
 	public static final unaryOp abs = new unaryOp() { public int apply(byte r) { return Math.abs(r);}};
 	
-	public static interface pointwiseOp/*(region r)*/ {
+	public static interface pointwiseOp/*(region r)*/ extends pointwiseOpTag, Serializable {
 		byte apply(point/*(r)*/ p);
 	}
 	

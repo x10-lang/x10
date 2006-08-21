@@ -27,7 +27,7 @@ extends x10Array {
 		Parameter1 apply(Parameter1 r);
 	}
 	
-	public static interface pointwiseOp/*(region r)*/ extends Serializable {
+	public static interface pointwiseOp/*(region r)*/ extends pointwiseOpTag, Serializable {
 		Parameter1 apply(point/*(r)*/ p);
 	}
 	

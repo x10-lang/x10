@@ -69,4 +69,6 @@ abstract public class x10Array implements Indexable, Unsafe, Parameter1 {
 	public Iterator iterator() {
 		return region.iterator();
 	}	
+	
+	public static interface pointwiseOpTag {} 
 }

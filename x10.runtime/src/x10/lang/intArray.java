@@ -28,7 +28,7 @@ abstract public class intArray extends x10Array{
 	public static final binaryOp div = new binaryOp() { public int apply(int r, int s) { return r/s;}};
 	public static final binaryOp max = new binaryOp() { public int apply(int r, int s) { return Math.max(r,s);}};
 	public static final unaryOp abs = new unaryOp() { public int apply(int r) { return Math.abs(r);}};
-	public static interface pointwiseOp/*(region r)*/ extends Serializable { 
+	public static interface pointwiseOp/*(region r)*/ extends pointwiseOpTag, Serializable { 
 		int apply(point/*(r)*/ p);
 	}
 	
