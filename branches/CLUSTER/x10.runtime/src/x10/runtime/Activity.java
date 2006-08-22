@@ -77,6 +77,17 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     	this.clocks_ = clocks;
     }
     
+    /**
+	 * Create an activity with the given clock.
+	 * @thread mySpawningThread  
+	 * @param clock
+	 */
+	public Activity(Clock clock) {
+		this.clocks_ = new LinkedList();
+		if(clock != null) 
+			this.clocks_.add(clock);
+	}
+	
     public Activity() {
 	this.clocks_ = new LinkedList();
 	
