@@ -1,5 +1,9 @@
 #!/bin/bash
 
+TOP="$(cd "$(dirname $0)/.." && pwd)"
+if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
+
+
 # NOTE: this script assumes cx10 is installed on a network file system
 # that is mounted the same way in all physical nodes involved.  Also,
 # 'java' command can be found in the same directory on these nodes.
@@ -14,7 +18,7 @@
 # and x10 classes are compiled in current directory.
 CLASSDIR=`pwd`
 cur_user=`whoami`
-X10=/scratch/xinb/cluster2/x10.common/bin/x10
+X10="${TOP}${FILE_SEP}bin${FILE_SEP}x10"
 SSH="ssh -x"
 
 testrun=0  # test the command sequences in this file
@@ -42,7 +46,7 @@ while true; do
     esac
 done
 
-if [ "$printhelp" -eq "1" -o "$numargs" -eq "0" ] ; then
+if [ "$printhelp" -eq "1" -o "$quitvms" -eq "1" -o "$numargs" -eq "0" ] ; then
     echo "NAME"
     echo "    cx10run.sh  script to launch an X10 program on a cluster."
     echo ""
