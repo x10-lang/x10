@@ -1,84 +1,110 @@
+UNAME=`uname -s`
+FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\'; fi
+PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
+[ -n "$X10_PLATFORM" ] || \
+case "$UNAME" in
+  CYGWIN*) X10_PLATFORM='win32_x86';;
+  Linux) X10_PLATFORM='linux_x86';;
+  *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
+esac
+
+TOP="$(cd "$(dirname $0)/.." && pwd)"
+if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
+
 help=""
-numargs=0
 time=""
+verbose=""
 extra_cp=""
 extra_lib=""
 mx=""
 defs=""
+dev=""
+java_args=""
+args=""
 
-while true; do
+parse=true
+while [ -n "$1" ]; do
+    if [ -z "$parse" ]; then
+        args="$args '$1'"
+        shift
+        continue
+    fi
     case "$1" in
         "") break;;
-        -v) verbose="1"; shift;;
-      	-verbose) verbose="1"; shift;;
-	-t) time="time "; shift;;
-	-time) time="time "; shift;;
-	-h) help="1"; shift;;
-	-help) help="1"; shift;;
-	-mx) shift; mx="$1"; shift;;
-	-D*) defs="${defs} $1"; shift;;
-	-classpath) extra_cp="$2"; shift; shift;;
-	-libpath) extra_lib="$2"; shift; shift;;
-	-multi) multivm="-Dx10.runtime=x10.cluster.ClusterRuntime"; shift; vmid="-Dx10.vmid=$1"; shift;;
-        *) args="$args '$1'"; numargs=$((${numargs}+1)); shift;;
-    esac
+	    -h|-help|--help) help="1"; break;;
+        -v|-verbose|--verbose) verbose="1";;
+        -t|-time) time="time ";;
+        -mx) shift; mx="$1";;
+        -D*) defs="${defs} $1";;
+        -classpath|-cp) shift; extra_cp="$1";;
+        -libpath) shift; extra_lib="$1";;
+        -multi) multivm="-Dx10.runtime=x10.cluster.ClusterRuntime"; shift; vmid="-Dx10.vmid=$1"; shift;;
+        -dev) shift; dev="true";;
+        -J*) java_args="${java_args} '${1##-J}'";;
+        --) parse=;;
+        *) args="$args '$1'";;
+    	esac
+    shift
 done
 
-if [ -n "$help" -o $numargs = 0 ]
-then
-    echo "Usage: x10 [options] <main-class> [arg0 arg1 ...]"
-    echo "where [options] includes:"
-    echo "    -t -time                 display execution time"
-    echo "    -v -verbose              print verbose debugging information"
-    echo "    -h -help                 print this message"
-    echo "    -mx <size>               set max heap size, e.g., -mx 200M"
-    echo "    -classpath <path>        search path for class files"
-    echo "    -libpath <path>          search path for native libraries"
-    echo " "
-    echo "X10 configuration:"
-    echo "    -NUMBER_OF_LOCAL_PLACES=<int>  number of places (default 4)"
-    echo "    -LOAD=<shared-lib>             load specified shared library"
-    echo "    -PE_FILE=<path>                output for PE tool (default x10.pem)"
-    echo "    -SAMPLING_FREQUENCY_MS=<int>   default 50ms"
-    echo "    -DUMP_STATS_ON_EXIT=<bool>     print statistics on exit"
-    echo "    -STATISTICS_DISABLE=<stats>    disable selected runtime statistics"
-    echo "                                   currently supported: all, none"
+if [ -n "$help" -o -z "$args" ]; then
+    cat << EOF
+Usage: x10 [options] <main-class> [arg0 arg1 ...]
+where [options] includes:
+    -t -time                 display execution time
+    -v -verbose --verbose    print verbose debugging information
+    -h -help --help          print this message
+    -mx <size>               set max heap size, e.g., -mx 200M
+    -classpath <path>        search path for class files
+    -libpath <path>          search path for native libraries
+    -dev                     developer mode (use unpackaged X10 libraries)
+    -J<arg>                  pass <arg> to java.
+        e.g., use -J-verbose to make java execution verbose.
+
+    Use "x10 -- -help" to get help on X10 runtime configuration options
+EOF
     exit 1
 fi
 
-classpath=".${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes"
+if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+elif [ -n "$JRE_HOME" -a -e "$JRE_HOME/bin/java" ]; then
+    JAVA="$JRE_HOME/bin/java"
+else
+    echo "JAVA_HOME ($JAVA_HOME) is not pointing to a JRE or a JDK"
+    exit 1
+fi
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
 
-if [ -n "$extra_cp" ]
-then
+LIB_DIR="${TOP}${FILE_SEP}lib"
+
+classpath=""
+[ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
+classpath=".${PATH_SEP}${classpath}${LIB_DIR}${FILE_SEP}x10.jar"
+
+if [ -n "$extra_cp" ]; then
    classpath="$extra_cp${PATH_SEP}$classpath"
 fi
 
 externpath="${TOP}${FILE_SEP}lib${FILE_SEP}${X10_PLATFORM}"
-if [ -n "$extra_lib" ] 
-then
+if [ -n "$extra_lib" ]; then
    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
 
-java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\""
+java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\" ${java_args}"
 
-if [ -n "$mx" ]
-then
+if [ -n "$mx" ]; then
    java_args="-Xmx$mx $java_args"
 fi
 java_args="${java_args} ${defs}"
 
-rmi_args="-Djava.rmi.server.codebase=file://${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes/"
-rmi_args=`echo ${rmi_args// /%20}|tr -s '\\\\' /`
-
 cluster_args="$multivm $vmid"
 
-command="\"$JAVA\" $java_args ${rmi_args} ${cluster_args} x10.lang.Runtime $args"
+command="\"$JAVA\" $java_args ${cluster_args} x10.lang.Runtime $args"
 
-if [ -n "$verbose" ]
-then
-  echo "$command"
-fi
-
+[ -n "$verbose" ] && echo "$command"
 
 eval "$time$command"
 exit $?
+
