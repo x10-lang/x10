@@ -12,7 +12,7 @@ public class JGFSORBenchSizeA {
 	
 	public boolean run(){
 		
-		JGFInstrumentor.printHeader(2,0, place.MAX_PLACES);
+		JGFInstrumentor.printHeader(2,3, place.MAX_PLACES);
 		
 		JGFSORBench sor = new JGFSORBench(); 
 		sor.JGFrun(3);
