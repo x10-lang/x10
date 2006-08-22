@@ -30,7 +30,6 @@ while [ -n "$1" ]; do
         continue
     fi
     case "$1" in
-        "") break;;
 	    -h|-help|--help) help="1"; break;;
         -v|-verbose|--verbose) verbose="1";;
         -t|-time) time="time ";;
