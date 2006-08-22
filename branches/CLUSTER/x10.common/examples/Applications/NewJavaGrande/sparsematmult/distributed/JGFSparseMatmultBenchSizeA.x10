@@ -27,10 +27,10 @@ public class JGFSparseMatmultBenchSizeA {
     public  boolean run() {
 	
 	int nthreads = place.MAX_PLACES;
-	JGFInstrumentor.printHeader(2,0);
+	JGFInstrumentor.printHeader(2,3);
 
 	JGFSparseMatmultBench smm = new JGFSparseMatmultBench(); 
-	smm.JGFrun(0);
+	smm.JGFrun(3);
 	return true;
  
     }

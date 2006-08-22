@@ -18,11 +18,11 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 	private static final long RANDOM_SEED = 10101010;
 	
 	// reduced data sizes for test suite
-	private static final int[] datasizes_M = {50000,100000,500000};
+	private static final int[] datasizes_M = {50000,100000,500000, 100};
 	//private static final int[] datasizes_M = {100,100000,500000};
-	private static final int[] datasizes_N = {50000,100000,500000};
+	private static final int[] datasizes_N = {50000,100000,500000, 100};
 	//private static final int[] datasizes_N = {100,100000,500000};
-	private static final int[] datasizes_nz = {250000,500000,2500000};
+	private static final int[] datasizes_nz = {250000,500000,2500000, 500};
 	//private static final int[] datasizes_nz = {500,500000,2500000};
 	private static final int SPARSE_NUM_ITER = 200;
 	
@@ -126,7 +126,7 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2{
 	
 	public void JGFvalidate(){
 		
-		double refval[] = {75.02484945753453,150.0130719633895,749.5245870753752};
+		double refval[] = {75.02484945753453,150.0130719633895,749.5245870753752, 0.1436496372119012};
 		//double refval[] = {0.1436496372119012,150.0130719633895,749.5245870753752}; //reduced size
 		double dev = Math.abs(ytotal.val - refval[size]);
 		if (dev > 1.0e-10 ){
