@@ -3,9 +3,8 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.Expr;
@@ -13,8 +12,8 @@ import polyglot.ast.IntLit;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.TypeNode;
 import polyglot.ast.Stmt;
+import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Formal_c;
 import polyglot.types.Context;
 import polyglot.types.Flags;
@@ -25,8 +24,6 @@ import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.TypeBuilder;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.types.X10TypeSystem;
 
 /**
  * An immutable representation of an X10Formal, which is of the form

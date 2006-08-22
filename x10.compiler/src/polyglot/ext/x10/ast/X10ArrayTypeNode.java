@@ -5,9 +5,8 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.TypeNode;
 import polyglot.ast.Expr;
-import polyglot.types.Type;
+import polyglot.ast.TypeNode;
 
 
 /**

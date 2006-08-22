@@ -6,10 +6,10 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Formal;
 import polyglot.ast.Loop;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
-import polyglot.ast.Formal;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.FlowGraph;

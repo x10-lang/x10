@@ -8,6 +8,8 @@ import java.util.Iterator;
 import x10.lang.RankMismatchException;
 import x10.lang.point;
 import x10.lang.region;
+import x10.lang.point;
+import x10.lang.RankMismatchException;
 
 /**
  * Implementation of Region. Instance of this class are immutable!
@@ -270,7 +272,7 @@ public class MultiDimRegion extends region {
 
 	public boolean isConvex() {
 		boolean ret = true;
-		for (int i = 0; ret & i < rank && ret; ++i) {
+		for (int i = 0; i < rank && ret; ++i) {
 			ret &= dims_[i].isConvex();
 		}
 		return ret;
@@ -290,7 +292,5 @@ public class MultiDimRegion extends region {
 		}
 		return point.factory.point(ret);
 	}
-
-
 }
 

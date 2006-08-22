@@ -5,28 +5,19 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ast.ForInit;
-import polyglot.ast.LocalDecl;
+import polyglot.ast.Expr;
 import polyglot.ast.Node;
-import polyglot.ast.Stmt;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.Eval_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
-import polyglot.ast.Expr;
 
 /**
  * @author vj Feb 4, 2005

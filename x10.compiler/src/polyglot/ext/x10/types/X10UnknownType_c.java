@@ -3,9 +3,14 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 import polyglot.ext.jl.types.UnknownType_c;
-import polyglot.main.Report;
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 
 /**
@@ -22,36 +27,54 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
         super(ts);
     }
 
-	
+    protected DepParameterExpr depClause;
+    protected List/*<GenParameterExpr>*/ typeParameters;
+    protected X10Type baseType = this;
+    public X10Type baseType() { return baseType;}
+    public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
+    public List typeParameters() { return typeParameters;}
+    
+    public X10Type makeVariant(DepParameterExpr d, List l) { 
+        if (d == null && (l == null || l.isEmpty()))
+                return this;
+        X10UnknownType_c n = (X10UnknownType_c) copy();
+        // n.baseType = baseType; // this may not be needed.
+        n.typeParameters = l;
+        n.depClause = d;
+        return n;
+    }
+   
+    public boolean equalsImpl(TypeObject o) {
+        //    Report.report(3,"X10ParsedClassType_c: equals |" + this + "| and |" + o+"|");
+        if (o == this) return true;
+        if (! (o instanceof X10UnknownType_c)) return false;
+        X10UnknownType_c other = (X10UnknownType_c) o;
+        if ( baseType != other.baseType) return false;
+        
+        if (depClause == null && other.depClause != null) return false;
+        if (depClause != null && ! depClause.equals(other.depClause)) return false;
+        
+        if (typeParameters == null) return other.typeParameters == null;
+        if (typeParameters.isEmpty()) return other.typeParameters == null || other.typeParameters.isEmpty();
+        if (typeParameters.size() != other.typeParameters.size()) return false;
+        Iterator it1 = typeParameters.iterator();
+        Iterator it2 = other.typeParameters.iterator();
+        while (it1.hasNext()) {
+            Type t1 = (Type) it1.next();
+            Type t2 = (Type) it2.next();
+            if (!t1.equals(t2)) return false;
+        }
+        return true;
+    }
+   
 //	 ----------------------------- begin manual mixin code from X10Type_c
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.types.X10Type#isNullable()
 	 */
-	public boolean isNullable() {
-			return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isFuture()
-	 */
-	public boolean isFuture() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#toNullable()
-	 */
-	public NullableType toNullable() {
-			return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#toFuture()
-	 */
-	public FutureType toFuture() {
-			return null;
-	}
-
+	public boolean isNullable() { return false;}
+	public boolean isFuture() { return false;}
+	public NullableType toNullable() { return null;}
+	public FutureType toFuture() {	return null;}
 	public boolean isDistribution() { return false; }
 	public boolean isDistributedArray() { return false; }
 	public boolean isPrimitiveTypeArray() { return false; }
@@ -68,36 +91,8 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 	public boolean isPlace() { return false;}
 	public boolean isPoint() { return false; }
 	public boolean isX10Array() { return false; }
-
-
-	public  boolean isSubtypeImpl( Type t) {
-    	X10Type target = (X10Type) t;
-    	
-    	if (Report.should_report("debug", 5))
-			Report.report( 5, "[X10UnknownType_c] isSubTypeImpl |" + this +  "| of |" + t + "|?");	
-    	
-    	boolean result = ts.equals(this, target) || ts.descendsFrom(this, target);
-    	
-       	if (result) {
-       		if (Report.should_report("debug", 5))
-    			Report.report( 5, "[X10UnknownType_c] ..." + result+".");	
-     		return result;
-    	}
-    	if (target.isNullable()) {
-    		NullableType toType = target.toNullable();
-    		Type baseType = toType.base();
-    		result = isSubtypeImpl( baseType );
-    		if (Report.should_report("debug", 5))
-    			Report.report( 5, "[X10UnknownType_c] ..." + result+".");	
-    		return result;
-    	}
-    	if (Report.should_report("debug", 5))
-			Report.report( 5, "[X10UnknownType_c] ..." + result+".");	
-    	return false;
-    }
-	// ----------------------------- end manual mixin code from X10Type_c
-	
-	public boolean isValueType() {
-		return false;
-	}
+    public boolean isValueType() { return false;}
+    public boolean isSubtypeImpl(  Type other) { return X10Type_c.isSubtypeImpl(this, other);}
+    public List properties() { return Collections.EMPTY_LIST;}
+    
 }

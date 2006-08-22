@@ -4,32 +4,24 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.Field_c;
-import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Expr_c;
-import polyglot.util.Position;
-import polyglot.util.CodeWriter;
-
-
-import polyglot.visit.CFGBuilder;
-import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
-import polyglot.visit.AscriptionVisitor;
-import polyglot.visit.PrettyPrinter;
-
+import polyglot.ext.x10.types.FutureType_c;
+import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.util.TypedList;
-import java.util.ArrayList;
-
-import polyglot.ext.x10.types.FutureType_c;
-import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.util.CodeWriter;
+import polyglot.util.Position;
+import polyglot.visit.AscriptionVisitor;
+import polyglot.visit.CFGBuilder;
+import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeChecker;
 
 
 /** A <code>Future </code> is a representation of the X10 future construct:
@@ -112,14 +104,15 @@ public class Future_c extends Expr_c
     /** Type check the expression. */
     public Node typeCheck( TypeChecker tc ) throws SemanticException {
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
     	Type placeType = place.type();
     	Expr newPlace = place;
     	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
-		if ( ! placeIsPlace ) {
-			newPlace = (Expr) (new X10Field_c(position(), place, "location")).typeCheck( tc );
-		}
+    	if ( ! placeIsPlace ) {
+    	    newPlace = (Expr) nf.Field(position(), place, "location").typeCheck(tc);
+    	}
     	
-       	return ((Future_c) place(newPlace)).type( new FutureType_c( tc.typeSystem(), position(), body.type() ));
+    	return ((Future_c) place(newPlace)).type( ts.createFutureType(position(), body.type()));
     }
     
     public Type childExpectedType(Expr child, AscriptionVisitor av) {

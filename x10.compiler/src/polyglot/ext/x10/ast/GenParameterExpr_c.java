@@ -1,21 +1,20 @@
 package polyglot.ext.x10.ast;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
-import polyglot.ast.ArrayInit;
-import polyglot.ast.Node;
-import polyglot.ast.Receiver;
-import polyglot.ast.Term;
 import polyglot.ast.Expr;
+import polyglot.ast.Node;
+import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -56,6 +55,18 @@ public class GenParameterExpr_c extends Expr_c implements GenParameterExpr {
 	    return reconstruct(arguments);
 	  }
 	
+    public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
+        if (args == null || args.isEmpty())
+            return this;
+        List newArgs = new LinkedList();
+        Iterator it = args.iterator();
+        while (it.hasNext()) {
+            TypeNode t = (TypeNode) it.next();
+            newArgs.add(t.disambiguate(ar));
+        }
+        return args(newArgs);
+        
+    }
 	/** Type check the statement. 
 	 * TODO: Implement type checking.
 	 * Nothing to do for type checking?

@@ -32,10 +32,6 @@ import x10.runtime.Report;
  */
 public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	
-	private int _blockSize;
-	private int _cycleSize;
-	
-	
 	public boolean isValue() {
 		return true;
 	}
@@ -289,7 +285,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	}
 	
 	static final class Empty extends Distribution_c {
-		
+
 		Empty() {
 			this(1);
 		}
@@ -402,9 +398,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
         	places.add(place_);
         }
 
-
-   
-		Constant(region r, place p) {
+        Constant(region r, place p) {
 			super(r);
 			this.places.add(p);
 			place_ = p;
@@ -534,7 +528,6 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	static class Unique extends Distribution_c {
 		transient place[] placeseq;
 		
-
         private void writeObject(ObjectOutputStream out) throws IOException {
         	out.defaultWriteObject();
         	int[] pids = new int[placeseq.length];
@@ -554,15 +547,16 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
         		places.add(placeseq[i]);
         	}
         }
-        
-         Unique(place[] ps) {
-            super(new ContiguousRange(0, ps.length - 1));
-            this.placeseq = ps;
-            for (int i=0;i<placeseq.length;i++) 
-                places.add(ps[i]);
-        }
 		
-		/** Returns the place to which the point p in region is mapped.
+		Unique(place[] ps) {
+			super(new ContiguousRange(0, ps.length - 1));
+			this.placeseq = ps;
+			for (int i=0; i<placeseq.length; i++)
+				places.add(ps[i]);
+		}
+
+		/**
+		 * Returns the place to which the point p in region is mapped.
 		 */
 		public place get(point/*(region)*/ p) {
 			assert (p!= null);
@@ -622,7 +616,6 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 				places.addAll( members_[i].places());
 			}
 		}
-		
 		
 		/**
 		 * @param r
@@ -800,9 +793,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			
 			if(Report.should_report("cluster", x10.cluster.Debug.distarr))
 				Report.report(x10.cluster.Debug.distarr, "Arbitrary.readObject: "+ this);
-		}
-		
-		
+		}		
 		
 		
 		Arbitrary(region r, Map m) {

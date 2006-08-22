@@ -10,20 +10,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Formal;
+import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
-import polyglot.ast.Node;
-import polyglot.ast.Formal;
-import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.Stmt_c;
-import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10Type;
-
-import polyglot.util.Position;
-import polyglot.visit.CFGBuilder;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
+import polyglot.util.Position;
+import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 
@@ -95,7 +93,6 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
 
 	public Expr getDomain(Expr d) {
 		return new Field_c(position(), d, "region");
-		//return new Call_c(position(), d, "getRegion", new LinkedList());
 	}
 
 	/* (non-Javadoc)

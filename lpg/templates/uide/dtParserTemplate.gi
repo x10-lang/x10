@@ -8,8 +8,8 @@
 --
 %Options programming_language=java,margin=4
 %Options table,error_maps,scopes
-%options prefix=TK_,
-%options action=("*.java", "/.", "./")
+%options prefix=TK_
+%options action_block=("*.java", "/.", "./")
 %options ParseTable=lpg.lpgjavaruntime.ParseTable
 
 --

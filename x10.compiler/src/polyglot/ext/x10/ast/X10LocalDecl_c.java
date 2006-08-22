@@ -21,7 +21,7 @@ public class X10LocalDecl_c extends LocalDecl_c {
         }
 
         public String shortToString() {
-             return "<LocalDecl_c #" + hashCode() 
+             return "<X10LocalDecl_c #" + hashCode() 
         	     // + " flags= |" + flags + "|"
         	 	+(type() == null ? "" : " <TypeNode #" + type().hashCode()+"type=" + type().type() + ">")
         		+ " name=|" + name() + "|"

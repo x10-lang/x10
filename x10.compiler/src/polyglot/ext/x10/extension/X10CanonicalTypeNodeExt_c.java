@@ -9,6 +9,7 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ArrayType;
 import polyglot.types.Type;
+import polyglot.frontend.ExtensionInfo;
 
 public class X10CanonicalTypeNodeExt_c extends X10Ext_c {
 	private Type boxType(X10Type t, X10TypeSystem ts) {
@@ -33,7 +34,7 @@ public class X10CanonicalTypeNodeExt_c extends X10Ext_c {
 		}
 		return t;
 	}
-	public Node rewrite(X10TypeSystem ts, NodeFactory nf) {
+	public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
 		CanonicalTypeNode n = (CanonicalTypeNode) node();
 		X10Type type = (X10Type) n.type();
 		Type t = boxNullable(type, ts);

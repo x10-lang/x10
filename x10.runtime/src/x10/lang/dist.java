@@ -12,22 +12,8 @@ package x10.lang;
 import java.util.Iterator;
 import java.util.Set;
 
-
 abstract public /*value*/ class dist/*( region region )*/ extends Object 
 implements Indexable, ValueType, java.io.Serializable {
-	
-	/* used to create distributions remotely */
-        public final static int UNKNOWN=0;
-	public final static int BLOCK_CYCLIC=1;
-	public final static int BLOCK=2;
-	public final static int CONSTANT=3;
-	public final static int CYCLIC=4;
-	public final static int UNIQUE=5;
-        public final static int ARBITRARY=6; 
-	public int _distributionType=UNKNOWN;
-	public int _cyclicValue;
-        public int getDistributionType() {return _distributionType;}
-        public int getCyclicValue() {return _cyclicValue;}
 	
 	public final region region;
 	public region getRegion() { return region; }
@@ -47,6 +33,12 @@ implements Indexable, ValueType, java.io.Serializable {
 	 * this.valueAt(p)==P.
 	 */
 	abstract public Set/*<place>*/ places(); // consider making this a parameter?
+	public place[] placesArray() {
+		java.lang.Object[] a = places().toArray();
+		place[] res = new place[a.length];
+		System.arraycopy(a,0,res,0,a.length);
+		return res;
+	}
 
 	protected dist(region R) {
 		this.region = R;
@@ -89,8 +81,7 @@ implements Indexable, ValueType, java.io.Serializable {
 		
 		public 
 		/*(region R)*/ dist/*(R)*/block() {
-                        dist result = this.block(x10.lang.region.factory.region(0, place.MAX_PLACES-1));
-                        result._distributionType=BLOCK;
+			dist result = this.block(x10.lang.region.factory.region(0, place.MAX_PLACES-1));
 			return result;
 		}
 		
@@ -100,7 +91,6 @@ implements Indexable, ValueType, java.io.Serializable {
 		public 
 		/*(region R)*/ dist/*(R)*/ block( final region R ) {
 			final dist/*(R)*/ result = this.block/*(R)*/(R, x10.lang.place.places);
-                        result._distributionType = BLOCK;
 			assert result.region.equals(R); 
 			return result;
 		}
@@ -112,6 +102,13 @@ implements Indexable, ValueType, java.io.Serializable {
 		abstract public  
 		/*(region R)*/ dist/*(R)*/ block( region R, Set/*<place>*/ s);
 		
+		public 
+		/*(region R)*/ dist/*(R)*/ block( final region base, final region[] R ) {
+			final dist/*(R)*/ result = this.block/*(R)*/(base, R, x10.lang.place.places);
+			//assert result.region.equals(R); 
+			return result;
+		}
+		abstract public dist block(region base, region[] R, Set/*<places>*/ s);
 		
 		/** Returns the cyclic distribution over the given region, and over
 		 * all places.
@@ -120,8 +117,7 @@ implements Indexable, ValueType, java.io.Serializable {
                       
 			/*final*/ dist result = this.cyclic/*(R)*/(R, x10.lang.place.places);
 			assert result.region.equals(R);
-                        result._distributionType = CYCLIC;
-			return result;
+       		return result;
 		}
 		
 		abstract public /*(region R)*/ dist/*(R)*/ cyclic( region R, Set/*<place>*/ s);
