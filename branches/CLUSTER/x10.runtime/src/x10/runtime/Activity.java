@@ -242,10 +242,11 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
      * Invoked from code generated from the X10 source by the translator.
      * @param c -- The clock being checked for.
      */
-    public /*myThread*/ void checkClockUse(Clock c) {
+    public /*myThread*/ Clock checkClockUse(Clock c) {
     	if (c.dropped()) throw new ClockUseException("Cannot transmit dropped clock.");
     	if (c.quiescent()) throw new ClockUseException("Cannot transmit resumed clock.");
     	if (inFinish()) throw new ClockUseException("Finish cannot spawn clocked async.");
+    	return c;
     }
     /**
      * Execute this activity as if it is executed within a finish. 

@@ -4,6 +4,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.FieldDecl_c;
+import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
@@ -11,14 +12,15 @@ import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.TypeChecker;
 
-import polyglot.ext.x10.types.X10ReferenceType;
-
 public class X10FieldDecl_c extends FieldDecl_c {
 
-	public X10FieldDecl_c(Position pos, Flags flags, TypeNode type,
+    // TODO: Use this during type-checking.
+    TypeNode thisClause;
+	public X10FieldDecl_c(Position pos, TypeNode thisClause, Flags flags, TypeNode type,
 						  String name, Expr init)
 	{
 		super(pos, flags, type, name, init);
+        this.thisClause = thisClause;
 	}
 
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
@@ -43,7 +45,9 @@ public class X10FieldDecl_c extends FieldDecl_c {
 		if (f.flags().isFinal())
 			return f;
 		FieldInstance fi = f.fieldInstance();
-		if (!((X10ReferenceType) fi.container()).isValueType())
+        X10ReferenceType ref = (X10ReferenceType) fi.container();
+       // Report.report(5, "[X10FieldDecl_c] disambiguate: " + fi + " " + ref + ref.getClass());
+		if (!(ref.isValueType()))
 			return f;
 		fi.setFlags(fi.flags().Final());
 		return f.flags(f.flags().Final());

@@ -3,10 +3,10 @@
  */
 package polyglot.ext.x10.ast;
 
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Conditional;
 import polyglot.ast.JL;
 import polyglot.ast.Node;
-import polyglot.ast.CanonicalTypeNode;
 import polyglot.ext.jl.ast.AbstractDelFactory_c;
 import polyglot.ext.jl.ast.JL_c;
 import polyglot.ext.x10.types.X10Type;

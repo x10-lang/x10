@@ -31,6 +31,7 @@ import x10.cluster.HasResult;
 import x10.cluster.X10Node;
 import x10.cluster.comm.RPCHelper;
 import x10.cluster.message.MessageType;
+import x10.runtime.Activity;
 import x10.runtime.LocalPlace_c;
 
 public /*value*/ abstract class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 

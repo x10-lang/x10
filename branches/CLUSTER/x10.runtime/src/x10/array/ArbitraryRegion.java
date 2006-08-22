@@ -14,7 +14,6 @@ import x10.lang.point;
 import x10.lang.region;
 import x10.runtime.Report;
 
-
 /**
  * @author Christoph von Praun
  */
@@ -372,7 +371,5 @@ public class ArbitraryRegion extends region {
 		sb.append("}");
 		return sb.toString();
 	}
-
-
 }
 

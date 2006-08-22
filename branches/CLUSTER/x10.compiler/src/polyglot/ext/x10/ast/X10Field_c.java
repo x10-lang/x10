@@ -5,23 +5,13 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import polyglot.ast.Call;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
-import polyglot.ast.Term;
-import polyglot.ext.jl.ast.Call_c;
-import polyglot.ext.jl.parse.Name;
 import polyglot.ext.jl.ast.Field_c;
-import polyglot.types.SemanticException;
-
-import polyglot.util.Position;
-
-import polyglot.visit.TypeChecker;
 import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.ast.X10NodeFactory_c;
+import polyglot.types.SemanticException;
+import polyglot.util.Position;
+import polyglot.visit.TypeChecker;
 
 
 /** An immutable representation of an X10 Field access. It is the same as a Java

@@ -6,31 +6,23 @@ package polyglot.ext.x10.ast;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
 
-import polyglot.ext.jl.ast.Stmt_c;
-
-import polyglot.ast.Block;
 import polyglot.ast.CompoundStmt;
-import polyglot.ast.Stmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.Stmt;
 import polyglot.ast.Term;
-
+import polyglot.ext.jl.ast.Stmt_c;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
-import polyglot.types.Type;
-
-import polyglot.util.TypedList;
-import polyglot.util.Position;
 import polyglot.util.CodeWriter;
-
+import polyglot.util.Position;
+import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeChecker;
 
 /**
  * An immutable representation of the when statement.

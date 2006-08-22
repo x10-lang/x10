@@ -4,19 +4,17 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import polyglot.main.Report;
 import polyglot.types.FieldInstance;
 import polyglot.types.Resolver;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.TypeObject;
-
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
-import java.util.Collections;
-import java.util.ArrayList;
-
-import polyglot.main.Report;
 
 
 /** Implementation of Future type constructor.
@@ -197,5 +195,11 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	public boolean isValueType() {
 		return true;
 	}
+    /**
+     * future<T> has no properties.
+     */
+    public List properties() {
+        return Collections.EMPTY_LIST;
+    }
 }
 

@@ -10,15 +10,16 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.ArrayAccess_c;
-import polyglot.ext.jl.ast.Call_c;
-import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.x10.types.NullableType_c;
-import polyglot.ext.x10.types.ParametricType_c;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.main.Report;
+import polyglot.types.ClassType;
 import polyglot.types.Flags;
+import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -128,62 +129,89 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 						"Subscript can only follow an array type.", position());
 		}
 
-		//System.out.println("X10ArrayAccess1_c: Checking if |" + this + "| should be an ArrayAccess.");
 		// [IP] TODO: Huh?  Didn't we just check for this?
 		if (type instanceof NullableType_c) {
 			type = ((NullableType_c)type).base();
 		}
 		if (type.isArray()) {
-			// System.out.println("X10ArrayAccess1_c: yes, |" + this + "| should.");
 			return nf.ArrayAccess(position(), array, index).typeCheck(tc);
 		}
-		//System.out.println("X10ArrayAccess1_c: no, |" + this + "| isn't.");
 		if (!ts.isImplicitCastValid(index.type(), ts.point()) &&
 			(!index.type().isInt()))
 		{
 			throw new SemanticException(
 					"Array subscript |" + toString() + "| must be an integer or a point.", position());
 		}
+        
 		List args = new LinkedList();
 		args.add(index);
-		if (type instanceof ParametricType_c) {
-			ParametricType_c pt = (ParametricType_c) type;
-			return
-				nf.Cast(position(),
-						nf.CanonicalTypeNode(position(),
-							(Type) pt.getTypeParameters().get(0)).type((Type) pt.getTypeParameters().get(0)),
-						(Expr) nf.Call(position(), array, "get", args).typeCheck(tc)).typeCheck(tc);
-
+        X10Type pt = (X10Type) type;
+		if (pt.isParametric()) {
+            List params = pt.typeParameters();
+            Type param = (Type) params.get(0);
+            return type(param);
 		}
-			return nf.Call(position(), array, "get", args).typeCheck(tc);
-			// 		return type(((X10Type) type).toX10Array().base());
-
+        // find the return type by finding the return type of the get(index) method on type.
+        
+        X10ClassType refType = (X10ClassType) type;
+        String name = "get";
+        List argTypes = new LinkedList();
+        argTypes.add(index.type());
+        // fake this since you know the method is public.
+        ClassType currType= refType; 
+        
+        // May throw a semantic exception. Should prolly be caught and rethrown 
+        // as an InternalError.
+        MethodInstance m = ts.findMethod(refType, name, argTypes, currType); 
+        Type retType = m.returnType();
+        return type(retType);
 	}
 
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		TypeSystem ts = av.typeSystem();
-		/* FIXME vj-> vj. Treat the int as a shortform for new point(expr).
+		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
+		/* FIXME vj-> vj. Treat the int as a shortform for new point(expr).*/
 		if (child == index) {
 			return ts.Int();
 		}
-		*/
+		
 		if (child == array) {
-			return ts.arrayOf(this.type);
+			return ts.array(this.type);
 		}
 
 		return child.type();
 	}
 
 	public String toString() {
-		return array + "[" + index + "]";
+	    X10Type pt = ( X10Type) type;
+        String result = "";
+	    if (pt.isParametric()) {
+	        Type type = (Type) pt.typeParameters().get(0);
+	        result = "(" + type + ")";
+	    }
+	    return  result + array + ".get("  + index + ")";
 	}
+	
 
 	/** Write the expression to an output file. */
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-		printSubExpr(array, w, tr);
-		w.write ("[");
-		printBlock(index, w, tr);
-		w.write ("]");
+        X10Type at = ( X10Type) array.type();
+       
+        if (at.isParametric()) {
+            Type result = (Type) at.typeParameters().get(0);
+            w.write("((");
+            print(new X10CanonicalTypeNode_c(Position.COMPILER_GENERATED,result), w, tr);
+            w.write(")");
+            printSubExpr(array, w, tr);
+            w.write (".get(");
+            printBlock(index, w, tr);
+            w.write ("))");
+            return;
+        }
+        printSubExpr(array, w, tr);
+        w.write (".get(");
+        printBlock(index, w, tr);
+        w.write (")");
+            
 	}
 
 	public Term entry() {
@@ -200,5 +228,6 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		return CollectionUtil.list(ts.OutOfBoundsException(),
 								   ts.NullPointerException());
 	}
+    
 }
 

@@ -45,13 +45,6 @@ $Headers
             kwLexer = new $kw_lexer_class(getInputChars(), $_IDENTIFIER);
         }
         
-        final void makeComment(int kind)
-        {
-            int startOffset = getLeftSpan(),
-                endOffset = getRightSpan();
-            super.getPrsStream().makeAdjunct(startOffset, endOffset, kind);
-        }
-
         private static int LINES = 0,
                            TOKENS = 1,
                            JAVA = 2,

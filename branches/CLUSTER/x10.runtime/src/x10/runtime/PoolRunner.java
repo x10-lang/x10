@@ -11,6 +11,8 @@
 */
 package x10.runtime;
 
+import x10.lang.place;
+
 public final  class PoolRunner extends Thread 
 	implements ActivityRunner {
    /**
@@ -26,6 +28,8 @@ public final  class PoolRunner extends Thread
     *  homePlace, e.g inside an array initiizer, see also 
     *  DefaultRuntime_c.setCurrentPlace(place p) */
    public LocalPlace_c place; 
+   public LocalPlace_c getPlace() { return place; }
+   public void setPlace(place p) { place = (LocalPlace_c) p; }
    
    /* the pace to which this worker thread belongs */
    public final LocalPlace_c homePlace;

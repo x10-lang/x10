@@ -3,12 +3,9 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.Node;
-import polyglot.ast.Call;
 import polyglot.ast.Receiver;
 import polyglot.ext.jl.ast.Call_c;
-import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 

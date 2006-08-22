@@ -7,16 +7,15 @@ package polyglot.ext.x10.ast;
 
 import java.util.List;
 
-import polyglot.ast.Block;
+import polyglot.ast.Node;
+import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Stmt_c;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
-import polyglot.visit.PrettyPrinter;
-import polyglot.ast.Stmt;
-import polyglot.ast.Node;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 
 /** An immutable class representing the X10 finish S construct.
  *  No special type-checking rules. 
