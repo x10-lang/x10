@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# tricks borrowed from 'x10' script
+UNAME=`uname -s`
+FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\'; fi
+PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
+
 TOP="$(cd "$(dirname $0)/.." && pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
 
