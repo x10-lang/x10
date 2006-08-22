@@ -6,17 +6,17 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.List;
+
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.types.Type;
 
 
 /**
  * @author vj
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public interface X10Type extends Type {
-	
     
     /** Added for the X10 type system. Returns true if the type is of the form nullable X, for some type X.
      * @author vj
@@ -123,5 +123,22 @@ public interface X10Type extends Type {
     
     boolean isValueType();
     
+    /** Return a subtype of the basetype with the given
+     * depclause and type parameters.
+     * 
+     * @param d
+     * @param g
+     * @return
+     */
+    X10Type makeVariant(DepParameterExpr d, List g);
+    X10Type  baseType();
+    List typeParameters();
+    boolean isParametric();
+    
+    /** The list of properties of the class.
+     
+     * @return
+     */
+    List/*<PropertyInstance>*/ properties();
 
 }

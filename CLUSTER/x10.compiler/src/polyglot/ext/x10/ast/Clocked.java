@@ -4,8 +4,8 @@
 package polyglot.ext.x10.ast;
 
 import java.util.List;
+
 import polyglot.ast.CompoundStmt;
-import polyglot.ast.Stmt;
 
 /**
  * The node constructed for [ateach,foreach,async] clocked (C) [stmt].

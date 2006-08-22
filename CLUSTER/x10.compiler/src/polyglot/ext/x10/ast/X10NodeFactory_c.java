@@ -1,35 +1,36 @@
 package polyglot.ext.x10.ast;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.AmbExpr;
+import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
+import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Cast;
 import polyglot.ast.ClassBody;
+import polyglot.ast.ClassDecl;
+import polyglot.ast.ConstructorDecl;
+import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
-import polyglot.ast.Call;
 import polyglot.ast.ExtFactory;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Instanceof;
-import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
-import polyglot.ast.NodeFactory;
+import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.ext.jl.ast.Call_c;
-import polyglot.ext.jl.ast.CanonicalTypeNode_c;
-import polyglot.ext.jl.ast.Field_c;
+import polyglot.ext.jl.ast.Disamb_c;
+import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.jl.parse.Name;
@@ -37,11 +38,8 @@ import polyglot.ext.x10.extension.X10InstanceofDel_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.Flags;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.TypedList;
-import x10.parser.X10VarDeclarator;
 
 /**
  * NodeFactory for X10 extension.
@@ -56,19 +54,42 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	private static X10NodeFactory_c factory = null;
 
-	public static X10NodeFactory_c getFactory() {
+    public Disamb disamb() {
+        return new Disamb_c();
+    }
+	public static X10NodeFactory_c getNodeFactory() {
 		return factory;
 	}
+    public static X10NodeFactory_c setNodeFactory(X10NodeFactory_c nf) {
+        factory = nf;
+        return factory;
+    }
 
 	public X10NodeFactory_c() {
 		super(new X10ExtFactory_c(), new X10DelFactory_c());
-		factory = this;
+		//factory = this;
 	}
 
 	protected X10NodeFactory_c(ExtFactory extFact) {
 		super(extFact);
 	}
+    
+     public AmbTypeNode AmbTypeNode(Position pos, QualifierNode qualifier, String name) {
+            AmbTypeNode n = new X10AmbTypeNode_c(pos, qualifier, name);
+            n = (AmbTypeNode)n.ext(extFactory().extAmbTypeNode());
+            n = (AmbTypeNode)n.del(delFactory().delAmbTypeNode());
+            return n;
+        }
+     public AmbTypeNode AmbTypeNode(Position pos, QualifierNode qualifier, String name,
+             DepParameterExpr d) {
+         AmbTypeNode n = new X10AmbTypeNode_c(pos, qualifier, name,d);
+         n = (AmbTypeNode)n.ext(extFactory().extAmbTypeNode());
+         n = (AmbTypeNode)n.del(delFactory().delAmbTypeNode());
+         return n;
+     }
 
+
+       
 	public Instanceof Instanceof(Position pos, Expr expr, TypeNode type) {
 		Instanceof n = new Instanceof_c(pos, expr, type);
 		n = (Instanceof) n.ext(extFactory().extInstanceof());
@@ -139,12 +160,26 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
+    public ClassDecl ClassDecl(Position pos, Flags flags,
+            String name, List properties, Expr ci, TypeNode superClass,
+            List interfaces, ClassBody body)
+    {
+        ClassDecl n = X10ClassDecl_c.make(pos, flags, name, properties, ci, superClass, interfaces,
+                body);
+        n = (ClassDecl)n.ext(extFactory().extClassDecl());
+        n = (ClassDecl)n.del(delFactory().delClassDecl());
+        return n;
+        
+    }
 	public ValueClassDecl ValueClassDecl(Position pos, Flags flags,
-										 String name, TypeNode superClass,
-										 List interfaces, ClassBody body)
+            String name, List properties,  Expr ci, TypeNode superClass,
+            List interfaces, ClassBody body)
 	{
-		return new ValueClassDecl_c(pos, flags, name, superClass, interfaces,
-									body);
+        ValueClassDecl n = new ValueClassDecl_c(pos, flags, name, properties, ci, superClass, interfaces,
+                body);
+        n = (ValueClassDecl)n.ext(extFactory().extClassDecl());
+        n = (ValueClassDecl)n.del(delFactory().delClassDecl());
+        return n;
 	}
 
 	public Await Await(Position pos, Expr expr) {
@@ -277,20 +312,24 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		GenParameterExpr gen = new GenParameterExpr_c(pos, l);
 		gen = (GenParameterExpr) gen.ext(extFactory().extStmt());
 		gen = (GenParameterExpr) gen.del(delFactory().delStmt());
-		TypeNode tn =
-			this.CanonicalTypeNode(pos,
-				X10TypeSystem_c.getFactory().GenericArrayPointwiseOp());
-		return ParametricTypeNode(pos, tn, gen, null);
+		X10TypeNode tn =
+			(X10TypeNode) this.CanonicalTypeNode(pos,
+				X10TypeSystem_c.getFactory().GenericArrayPointwiseOp(),gen,null);
+		return tn;
 	}
 
-	public ParametricTypeNode ParametricTypeNode(Position pos,
-												 TypeNode node,
+	public X10TypeNode ParametricTypeNode(Position pos,
+												 X10TypeNode t,
 												 GenParameterExpr g,
 												 DepParameterExpr d)
 	{
-		ParametricTypeNode n = new ParametricTypeNode_c(pos, node, g, d);
-		n = (ParametricTypeNode) n.ext(extFactory().extTypeNode());
-		return (ParametricTypeNode) n.del(delFactory().delTypeNode());
+	
+       return t.dep(g,d);
+	}
+	public TypeNode TypeNode(Position pos) {
+	    TypeNode n = new X10TypeNode_c(pos);
+	    n = (TypeNode) n.ext(extFactory().extTypeNode());
+	    return (TypeNode) n.del(delFactory().delTypeNode());
 	}
 
 	public X10ArrayTypeNode X10ArrayTypeNode(Position pos, TypeNode base,
@@ -496,10 +535,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public FieldDecl FieldDecl(Position pos, Flags flags, TypeNode type,
+	public FieldDecl FieldDecl(Position pos, TypeNode thisClause, Flags flags, TypeNode type,
 							   String name, Expr init)
 	{
-		FieldDecl n = new X10FieldDecl_c(pos, flags, type, name, init);
+		FieldDecl n = new X10FieldDecl_c(pos, thisClause, flags, type, name, init);
 		n = (FieldDecl) n.ext(extFactory().extFieldDecl());
 		n = (FieldDecl) n.del(delFactory().delFieldDecl());
 		return n;
@@ -512,16 +551,17 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public MethodDecl MethodDecl(Position pos, Flags flags,
-								 TypeNode returnType, String name,
-								 List formals, List throwTypes, Block body)
-	{
-		MethodDecl n = new X10MethodDecl_c(pos, flags, returnType, name,
-										   formals, throwTypes, body);
-		n = (MethodDecl)n.ext(extFactory().extMethodDecl());
-		n = (MethodDecl)n.del(delFactory().delMethodDecl());
-		return n;
-	}
+    
+    public MethodDecl MethodDecl(Position pos, TypeNode thisClause, Flags flags,
+             TypeNode returnType, String name,
+             List formals, Expr whereClause, List throwTypes, Block body)
+    {
+        MethodDecl n = new X10MethodDecl_c(pos, thisClause, flags, returnType, name,
+                formals, whereClause, throwTypes, body);
+        n = (MethodDecl)n.ext(extFactory().extMethodDecl());
+        n = (MethodDecl)n.del(delFactory().delMethodDecl());
+        return n;
+    }
 
 	public LocalDecl LocalDecl(Position pos, Flags flags, TypeNode type,
 							   String name, Expr init)
@@ -531,5 +571,55 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (LocalDecl)n.del(delFactory().delLocalDecl());
 		return n;
 	}
+     public ConstructorDecl ConstructorDecl(Position pos, Flags flags, 
+             String name,  List formals, List throwTypes, Block body) {
+            ConstructorDecl n = new X10ConstructorDecl_c(pos, flags, name,  formals, throwTypes, body);
+            n = (ConstructorDecl)n.ext(extFactory().extConstructorDecl());
+            n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
+            return n;
+        }
+    public ConstructorDecl ConstructorDecl(Position pos, Flags flags, 
+            String name, Expr retWhereClause, 
+            List formals, Expr argWhereClause, 
+            List throwTypes, Block body) {
+        ConstructorDecl n = 
+            new X10ConstructorDecl_c(pos, flags, 
+                    name, retWhereClause, 
+                    formals, argWhereClause, 
+                    throwTypes, body);
+        n = (ConstructorDecl)n.ext(extFactory().extConstructorDecl());
+        n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
+        return n;
+    }
+    public CanonicalTypeNode CanonicalTypeNode(Position pos, Type type) {
+       // Report.report(1,"X10NodeFactory_c: Golden:" + type + type.getClass());
+        if (! type.isCanonical()) {
+            throw new InternalCompilerError("Cannot construct a canonical " +
+                "type node for a non-canonical type.");
+        }
+
+        CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type);
+        n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
+        n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
+        return n;
+    }
+    public CanonicalTypeNode CanonicalTypeNode(Position pos, Type type, GenParameterExpr gen, DepParameterExpr dep) {
+        // Report.report(1,"X10NodeFactory_c: Golden:" + type + type.getClass());
+         if (! type.isCanonical()) {
+             throw new InternalCompilerError("Cannot construct a canonical " +
+                 "type node for a non-canonical type.");
+         }
+
+         CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type,gen,dep);
+         n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
+         n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
+         return n;
+     }
+    public PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, String name) {
+        PropertyDecl n = new PropertyDecl_c(pos, flags, type, name);
+        n = (PropertyDecl)n.ext(extFactory().extFieldDecl());
+        n = (PropertyDecl)n.del(delFactory().delFieldDecl());
+        return n;
+    }
 }
 

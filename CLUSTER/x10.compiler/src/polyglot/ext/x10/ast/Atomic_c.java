@@ -4,27 +4,23 @@
 package polyglot.ext.x10.ast;
 
 import java.util.List;
-import polyglot.ast.Stmt;
+
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.Stmt;
 import polyglot.ast.Term;
-
-
 import polyglot.ext.jl.ast.Stmt_c;
-import polyglot.util.Position;
-import polyglot.util.CodeWriter;
-
-import polyglot.visit.CFGBuilder;
-import polyglot.visit.FlowGraph;
-import polyglot.visit.NodeVisitor;
-import polyglot.visit.TypeChecker;
-import polyglot.visit.AscriptionVisitor;
-import polyglot.visit.PrettyPrinter;
-
-import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
-import polyglot.types.Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.util.CodeWriter;
+import polyglot.util.Position;
+import polyglot.visit.AscriptionVisitor;
+import polyglot.visit.CFGBuilder;
+import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeChecker;
 
 /**
  * @author Philippe Charles

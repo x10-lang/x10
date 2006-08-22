@@ -6,9 +6,9 @@ package polyglot.ext.x10.types;
 
 import polyglot.ext.jl.types.ClassType_c;
 import polyglot.main.Report;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
-import polyglot.types.Type;
 
 
 /**

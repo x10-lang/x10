@@ -7,7 +7,6 @@ import polyglot.ext.jl.ast.Cast_c;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 

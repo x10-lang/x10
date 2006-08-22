@@ -29,8 +29,6 @@ public final class point_c extends point implements Comparable {
 		}
 	}
 
-	
-
 	final int[] val;
 	final int hash_;
 

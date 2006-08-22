@@ -13,7 +13,7 @@
 --
 %Options Programming_Language=java,margin=4
 %Options table
-%options action=("*.java", "/.", "./")
+%options action_block=("*.java", "/.", "./")
 %options ParseTable=lpg.lpgjavaruntime.ParseTable
 %Options prefix=Char_
 

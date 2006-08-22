@@ -11,12 +11,8 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
-import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Expr_c;
-import polyglot.main.Report;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
@@ -112,12 +108,12 @@ public class PlaceCast_c extends Expr_c implements PlaceCast {
 		n.expr = expr;
 		return n;
 	}
-	 public Node typeCheck(TypeChecker tc) throws SemanticException
-	    {
-	        TypeSystem ts = tc.typeSystem();
+	public Node typeCheck(TypeChecker tc) throws SemanticException {
+	    TypeSystem ts = tc.typeSystem();
 
-	        
-		return type(expr.type());
-	    }
-
+	    return type(expr.type());
+	}
+	public String toString() {
+	    return "(@" + place + ") " + expr;
+	}
 }

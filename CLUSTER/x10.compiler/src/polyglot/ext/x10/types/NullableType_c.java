@@ -3,19 +3,16 @@
  */
 package polyglot.ext.x10.types;
 
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 
-import polyglot.types.ReferenceType;
-import polyglot.ext.jl.types.ReferenceType_c;
+import polyglot.types.ArrayType;
+import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Resolver;
 import polyglot.types.Type;
-import polyglot.types.ArrayType;
-import polyglot.types.ClassType;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
-
 import polyglot.util.Position;
 
 /**
@@ -198,5 +195,9 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 	public boolean isValueType() {
 		return base.isValueType();
 	}
+    
+    public List properties() {
+        return base.properties();
+    }
 }
 

@@ -8,30 +8,31 @@ package polyglot.ext.x10.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
+import polyglot.ast.Call;
 import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
-import polyglot.ast.Call;
-
-import polyglot.ext.jl.ast.Assign_c;
 import polyglot.ext.jl.ast.ArrayAccessAssign_c;
-import polyglot.ext.jl.ast.Call_c;
-import polyglot.ast.ArrayAccess;
-import polyglot.ast.Assign.Operator;
 import polyglot.ext.jl.ast.ArrayAccess_c;
+import polyglot.ext.jl.ast.Assign_c;
+import polyglot.ext.jl.ast.Call_c;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-
 import polyglot.visit.CFGBuilder;
-import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
+
 
 /** An immutable representation of the X10 array assignment a[ index ] = e.
  * a[index] is represented by an X10ArrayAccess1.
@@ -41,6 +42,7 @@ import polyglot.visit.TypeChecker;
 public class X10ArrayAccess1Assign_c extends Assign_c implements
 		X10ArrayAccess1Assign {
 
+    
 	/**
 	 * @param pos
 	 * @param left
@@ -78,14 +80,7 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		}
 		 Type t = left.type();
 		 Type s = right.type();
-//		 Now it must be an X10ArrayAccess1 which has now resolved into a Call_c.
-			// Use the information in the call to construct the real set call.
-                 Expr left = (this.left instanceof Cast) ? ((Cast)this.left).expr() : this.left;                        
-			Call call = (Call) left;
-			Expr receiver = (Expr) call.target();
-			List args = TypedList.copyAndCheck(call.arguments(), Expr.class, false);
-			args.add( 0, right);
-			
+		
 		if (op == ASSIGN) {
 		      if (! ts.isImplicitCastValid(s, t) &&
 		          ! ts.equals(s, t) &&
@@ -94,7 +89,8 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		        throw new SemanticException("Cannot assign " + s + " to " + t + ".",
 		                                    position());
 		      }
-		      return new Call_c(position(), receiver, "set", args).del().typeCheck(tc);
+              return type(s);
+		      
 		    }
 
 		    if (op == ADD_ASSIGN) {
@@ -104,7 +100,7 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		      }
 
 		      if (t.isNumeric() && s.isNumeric()) {
-		      	 return new Call_c(position(), receiver, "addSet", args).del().typeCheck(tc);
+                  return type(s);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -115,7 +111,7 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		    if (op == SUB_ASSIGN || op == MUL_ASSIGN ||
 		        op == DIV_ASSIGN || op == MOD_ASSIGN) {
 		      if (t.isNumeric() && s.isNumeric()) {
-		      	 return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
+                  return type(s);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -125,12 +121,12 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 
 		    if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
 		      if (t.isBoolean() && s.isBoolean()) {
-		      	return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
+                  return type(s);
 		      }
 
 		      if (ts.isImplicitCastValid(t, ts.Long()) &&
 		          ts.isImplicitCastValid(s, ts.Long())) {
-		      	return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
+                  return type(s);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -142,7 +138,7 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 		      if (ts.isImplicitCastValid(t, ts.Long()) &&
 		          ts.isImplicitCastValid(s, ts.Long())) {
 		        // Only promote the left of a shift.
-		      	return new Call_c(position(), receiver, opString(op), args).del().typeCheck(tc);
+                  return type(s);
 		      }
 
 		      throw new SemanticException("The " + op + " operator must have "
@@ -209,4 +205,29 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 	  public boolean throwsArrayStoreException() {
 	    return op == ASSIGN && left.type().isReference();
 	  }
+      public String toString() {
+          Expr array = ((X10ArrayAccess1) left).array();
+          Expr index = ((X10ArrayAccess1) left).index();
+          return array + ".set(" + right + "," + index + ")";
+      }
+      
+      /** Write the expression to an output file. */
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        Expr array = ((X10ArrayAccess1) left).array();
+        Expr index = ((X10ArrayAccess1) left).index();
+          X10Type pt = ( X10Type) type;
+          if (pt.isParametric()) {
+              Type result = (Type) pt.typeParameters().get(0);
+              w.write("(");
+              print(new X10CanonicalTypeNode_c(Position.COMPILER_GENERATED,result), w, tr);
+              w.write(")");
+          }
+          printSubExpr(array, w, tr);
+          w.write ("." + opString(op) + "(");
+          printSubExpr(right, w, tr);
+          w.write(",");
+          printSubExpr(index, w, tr);
+          w.write(")");
+              
+    }
 }

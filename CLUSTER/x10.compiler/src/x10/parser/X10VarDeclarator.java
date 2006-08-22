@@ -1,10 +1,14 @@
+//
+// Licensed Material 
+// (C) Copyright IBM Corp, 2006
+//
+
 /*
  * Created by vj on Jan 23, 2005
  */
 package x10.parser;
 
 import java.util.List;
-import java.util.Iterator;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ext.jl.parse.Name;

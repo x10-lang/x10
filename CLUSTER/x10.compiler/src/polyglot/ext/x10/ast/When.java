@@ -3,10 +3,11 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.List;
+
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 import polyglot.util.Position;
-import java.util.List;
 
 /**
  * The AST node representing the X10 construct when (c) {S} or (c) {S} ...

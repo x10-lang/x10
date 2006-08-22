@@ -11,8 +11,8 @@ import polyglot.ast.Expr;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.util.Position;
-import polyglot.visit.CFGBuilder;
 import polyglot.util.TypedList;
+import polyglot.visit.CFGBuilder;
 
 /** An immutable representation of a point in a region. May be used in array access.
  * @author vj Dec 9, 2004
