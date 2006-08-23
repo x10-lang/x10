@@ -25,7 +25,6 @@ public interface ArrayConstructor extends Expr {
 	ArrayConstructor arrayBaseType( TypeNode t);
 	ArrayConstructor distribution( Expr e);
 	ArrayConstructor initializer( Expr e);
-	boolean hasLocal1DimDistribution();
     boolean isSafe();
     boolean isValue();
 	//TODO: vj Determine if this needs a CodeInstance as well.

@@ -126,13 +126,6 @@ implements ArrayConstructor {
 	public boolean isValue() {
 		return isValue;
 	}
-	/** Is the expression between the square brackets of type int.
-	 *  Valid only after type checking.
-	 * @return
-	 */
-	public boolean hasLocal1DimDistribution() {
-		return distribution.type().isInt();
-	}
 	/** Reconstruct the statement. */
 	protected ArrayConstructor reconstruct( TypeNode base, Expr distribution, Expr init ) {
 		if ( this.base == base && this.distribution == distribution && this.initializer == init ) 
