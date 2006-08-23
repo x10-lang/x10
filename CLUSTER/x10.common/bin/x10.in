@@ -39,7 +39,7 @@ while [ -n "$1" ]; do
         -classpath|-cp) shift; extra_cp="$1";;
         -libpath) shift; extra_lib="$1";;
         -multi) multivm="-Dx10.runtime=x10.cluster.ClusterRuntime"; shift; vmid="-Dx10.vmid=$1";;
-        -dev) shift; dev="true";;
+        -dev) dev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
         *) args="$args '$1'";;
