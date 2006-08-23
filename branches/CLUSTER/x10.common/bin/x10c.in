@@ -5,6 +5,7 @@ PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
 case "$UNAME" in
   CYGWIN*) X10_PLATFORM='win32_x86';;
   Linux) X10_PLATFORM='linux_x86';;
+  Darwin) X10_PLATFORM='osx_ppc';;
   *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
 esac
 
