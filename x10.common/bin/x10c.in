@@ -37,7 +37,7 @@ while [ -n "$1" ]; do
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
         -ext) shift; ext=$1;;
-        -dev) shift; dev="true";;
+        -dev) dev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
         *) args="$args '$1'";;
@@ -94,8 +94,12 @@ fi
 extargs="-ext ${ext}"
 
 classpath=""
-[ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot2${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
-classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}polyglot2.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}lpg.jar${ext_cp}${extra_cp}"
+if [ -n "$dev" ] 
+then
+	classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot2${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}lpg${FILE_SEP}lib${FILE_SEP}lpg.jar"
+else
+	classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}polyglot2.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}lpg.jar${ext_cp}${extra_cp}"
+fi
 
 command="\"$JAVA\" -Xmx128m $config $profile -classpath \"$classpath\" ${java_args} polyglot.main.Main $extargs $args"
 
