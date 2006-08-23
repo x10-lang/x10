@@ -35,9 +35,6 @@ public class X10ImplicitDeclarationExpander extends ContextVisitor
 	{
 		if (n instanceof MethodDecl)
 			return visitMethodDecl((MethodDecl) n);
-		if (n instanceof X10ClockedLoop)
-			return visitClockedLoop((X10ClockedLoop) n);
-		// WARNING: this has to come after the previous "if"!
 		if (n instanceof X10Loop)
 			return visitLoop((X10Loop) n);
 		return n;
@@ -59,21 +56,11 @@ public class X10ImplicitDeclarationExpander extends ContextVisitor
 		return n.body(b.statements(stmts));
 	}
 
-	private Node visitClockedLoop(X10ClockedLoop n) {
-		X10Formal f = (X10Formal) n.formal();
-		if (!f.hasExplodedVars())
-			return n;
-		n = (X10ClockedLoop) visitLoop(n);
-		return n.locals(f.explode(nf, ts));
-	}
-
 	private Node visitLoop(X10Loop n) {
 		X10Formal f = (X10Formal) n.formal();
 		if (!f.hasExplodedVars())
 			return n;
-		Stmt b = n.body();
-		Position p = b.position();
-		return n.body(nf.Block(p, f.explode(nf, ts, b)));
+		return n.locals(f.explode(nf, ts));
 	}
 }
 
