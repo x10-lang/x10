@@ -51,7 +51,7 @@ while true; do
     esac
 done
 
-if [ "$printhelp" -eq "1" -o "$quitvms" -eq "1" -o "$numargs" -eq "0" ] ; then
+if [ "$printhelp" -eq "1" -o "$numargs" -eq "0" -a "$quitvms" -ne "1" ] ; then
     echo "NAME"
     echo "    cx10run.sh  script to launch an X10 program on a cluster."
     echo ""
