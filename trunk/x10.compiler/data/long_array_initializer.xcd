@@ -1,2 +1,0 @@
-// SYNOPSIS: new long[N] {#0} #1=is_safe #2=is_value
-new x10.array.sharedmemory.LongArray_c.LongArray_c(new long[]#0,#1,!#2)
