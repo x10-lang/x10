@@ -191,7 +191,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		assert (null != a.clocks());
 		Object clocks = null;
 		if (a.clocks().isEmpty())
-			clocks = "";
+			clocks = null;
 		else if (a.clocks().size() == 1)
 			clocks = new Template("clock", a.clocks().get(0));
 		else {
@@ -234,7 +234,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 						 f.formal().type(),
 						 f.formal().name(),
 						 f.domain(),
-						 f.body()
+						 new Join("\n", new Join("\n", f.locals()), f.body())
 					 }).expand();
 	}
 
@@ -247,7 +247,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 						 l.formal().type(),
 						 l.formal().name(),
 						 l.domain(),
-						 l.body(),
+						 new Join("\n", new Join("\n", l.locals()), l.body()),
 						 new Template("clocked",
 							 new Join("\n",
 								 new Join("\n", l.locals()),
@@ -331,20 +331,6 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	private void processArrayConstructor(String template, ArrayConstructor_c a) {
-		if (a.hasLocal1DimDistribution()) {
-			if (a.hasInitializer()) {
-				new Template(template+"_array_initializer",
-							 a.initializer(),
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue())).expand();
-				return;
-			}
-			new Template(template+"_array_local",
-						 a.distribution(),
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())).expand();
-			return;
-		}
 		Object init = a.initializer();
 		new Template(template+"_array_dist_op",
 					 new Object[] {
@@ -394,26 +380,6 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		if (! base_type.isPrimitive()) { // this is a User-defined[?] ? array
 			boolean refs_to_values = (base_type instanceof X10Type &&
 									  ((X10Type) base_type).isValueType());
-			if (a.hasLocal1DimDistribution()) {
-				if (a.hasInitializer()) {
-					new Template("generic_array_initializer",
-								 new Object[] {
-									 a.initializer(),
-									 new Boolean(a.isSafe()),
-									 new Boolean(a.isValue()),
-									 new Boolean(refs_to_values)
-								 }).expand();
-					return;
-				}
-				new Template("generic_array_local",
-							 new Object[] {
-								 a.distribution(),
-								 new Boolean(a.isSafe()),
-								 new Boolean(a.isValue()),
-								 new Boolean(refs_to_values)
-							 }).expand();
-				return;
-			}
 			Object init = a.initializer();
 			// [IP] FIXME: is the cast below needed at all?
 			new Template("generic_array_dist_op",
@@ -440,7 +406,9 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(X10ArrayAccess1_c a) {
-		Template template = new Template("array_get", a.array(), a.index());
+		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
+						  ? "array_get" : "array_get"; //"array_get_noplacecheck";
+		Template template = new Template(tmpl, a.array(), a.index());
 		TypeNode elt_type = getParameterType((X10Type)a.array().type());
 		if (elt_type != null)
 			template = new Template("parametric", elt_type, template);
@@ -448,20 +416,12 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		//new Template("array_get", a.array(), a.index()).expand();
 	}
 
-	// [IP] TODO: is this used?
-	public void visit(PlaceCast_c a) {
-		assert false : "Not used";
-		System.out.println("Visit:" + a + "," + a.expr() + "," + a.placeCastType());
-		new Template("cast_place",
-					 a.expr(),
-					 a.placeCastType(),
-					 new CanonicalTypeNode_c(a.position(), a.expr().type())).expand();
-	}
-
 	public void visit(X10ArrayAccess_c a) {
 		List index = a.index();
 		assert index.size() > 1;
-		Template template = new Template("array_get", a.array(), new Join(",", index));
+		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
+						  ? "array_get" : "array_get"; //"array_get_noplacecheck";
+		Template template = new Template(tmpl, a.array(), new Join(",", index));
 		TypeNode elt_type = getParameterType((X10Type)a.array().type());
 		if (elt_type != null)
 			template = new Template("parametric", elt_type, template);
@@ -470,8 +430,10 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(X10ArrayAccess1Assign_c a) {
+		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
+						  ? "array_set" : "array_set"; //"array_set_noplacecheck";
 		X10ArrayAccess1_c left = (X10ArrayAccess1_c) a.left();
-		Template template = new Template("array_set",
+		Template template = new Template(tmpl,
 										 new Object[] {
 											 left.array(), left.index(),
 											 a.right(),
@@ -489,10 +451,12 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(X10ArrayAccessAssign_c a) {
+		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
+						  ? "array_set" : "array_set"; //"array_set_noplacecheck";
 		X10ArrayAccess_c left = (X10ArrayAccess_c) a.left();
 		List index = left.index();
 		assert index.size() > 1;
-		Template template = new Template("array_set",
+		Template template = new Template(tmpl,
 										 new Object[] {
 											 left.array(), new Join(",", index),
 											 a.right(),
@@ -514,8 +478,10 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			a.prettyPrint(w, pp);
 			return;
 		}
+		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
+						  ? "array_unary" : "array_unary"; //"array_unary_noplacecheck";
 		X10ArrayAccess1_c expr = (X10ArrayAccess1_c) a.expr();
-		Template template = new Template("array_unary",
+		Template template = new Template(tmpl,
 										 expr.array(), expr.index(),
 										 a.opString(a.operator()));
 		TypeNode elt_type = getParameterType((X10Type)a.type());
@@ -532,10 +498,12 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			a.prettyPrint(w, pp);
 			return;
 		}
+		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
+						  ? "array_unary" : "array_unary"; //"array_unary_noplacecheck";
 		X10ArrayAccess_c expr = (X10ArrayAccess_c) a.expr();
 		List index = expr.index();
 		assert index.size() > 1;
-		Template template = new Template("array_unary",
+		Template template = new Template(tmpl,
 										 expr.array(), new Join(",", index),
 										 a.opString(a.operator()));
 		TypeNode elt_type = getParameterType((X10Type)a.type());
