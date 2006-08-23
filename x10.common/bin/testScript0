@@ -450,6 +450,9 @@ findSinceWhenMsgKeptOccurring() {
 
 # Slow algorithm,
 # but fine for nightly test runs
+#
+# TODO: rewrite me to use the (chronologically) last file NOT matching the line
+# (using egrep -L)
 
   chkArgs 3 "$@"
   local str="$1"
@@ -463,22 +466,28 @@ findSinceWhenMsgKeptOccurring() {
   if [[ -d "$testLogs" ]]; then
     #ensure that there is an imaginary first test log
     #where this message did not appear
-    echo "2000.01.01_00.00.00" > $allTestLogDates
+    echo "2000.01.01_00.00.00" > "$allTestLogDates"
 
-    egrep "$str" $testLogs/logSummary.* |  sed -e 's/^.*logSummary\.//;s/:.*$//' > $buggyTestLogDates
-    ls $testLogs/logSummary.* |  sed -e 's/^.*logSummary\.//' >> $allTestLogDates
+    # FIXME: assumes a particular order, but will do for now
+    # FIXME: use egrep -l instead here
+    find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" -print | \
+      xargs -r egrep -H "$str" | \
+      sed -e 's/^.*logSummary\.//;s/:.*$//' > "$buggyTestLogDates"
+    find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" -print | \
+      sed -e 's/^.*logSummary\.//' >> "$allTestLogDates"
     reverseFile "$allTestLogDates"
     reverseFile "$buggyTestLogDates"
 
-    local n=`diff $allTestLogDates $buggyTestLogDates | sed -n -e 's/^\([0-9]\+\).*$/\1/p' | head -1`
+    local n=`diff "$allTestLogDates" "$buggyTestLogDates" | sed -n -e 's/^\([0-9]\+\).*$/\1/p' | head -1`
     if [[ -n "$n" && "$n" -gt 1 ]]; then
        let "n = (( $n - 1 ))"
-       RESULT=`sed -n -e "${n},${n}p" $allTestLogDates`
+       RESULT=`sed -n -e "${n},${n}p" "$allTestLogDates"`
     else
        RESULT="$startDate"
        if [[ -n "$altstr" ]]; then
-         local old_logSummary=`ls $testLogs/logSummary.* |tail -1`
-         if grep  "$altstr" $old_logSummary > /dev/null ; then
+	 # FIXME: assumes a particular order, but will do for now
+	 local old_logSummary=`find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" | tail -1`
+         if grep "$altstr" $old_logSummary > /dev/null ; then
              NewFailures="$NewFailures $test";
          fi
        fi
@@ -487,8 +496,8 @@ findSinceWhenMsgKeptOccurring() {
     RESULT="$startDate"
   fi
 
-  rm -f $allTestLogDates
-  rm -f $buggyTestLogDates
+  rm -f "$allTestLogDates"
+  rm -f "$buggyTestLogDates"
   return
 }
 
@@ -746,7 +755,8 @@ mailDiffFromLastRun() {
   makeTempFile "logDiff"
   local logDiff="$RESULT"
 
-  local old_logSummary=`ls $testLogs/logSummary.* | tail -1`
+  # FIXME: assumes a particular order, but will do for now
+  local old_logSummary=`find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" | tail -1`
   if [[ -n "$old_logSummary" ]]; then
 
     local oldStartDate=${old_logSummary#*logSummary.}
