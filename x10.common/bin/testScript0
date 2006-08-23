@@ -3,6 +3,8 @@
 # Author: igor, 7/2006
 # Simple script to run test cases
 # until a better solution is found.
+#
+# Note: stderr has been redirected, but the original stderr is saved as &3
 
 MYDIR="`dirname $0`"
 
@@ -16,7 +18,7 @@ chkArgs() {
 local num="$1"
 shift
 if [[ $# -ne $num ]]; then
-	echo >&2 "Argument count error, expecting $num, found $#"
+	echo >&3 "Argument count error, expecting $num, found $#"
 	exit 1
 fi
 }
@@ -25,7 +27,7 @@ usage() {
 # print usage message and exit with nonzero return code
 chkArgs 0 "$@"
 
-echo >&2 "
+echo >&3 "
 Usage:
 
 testScript [-clean] [-cleanOnly] [-f] [-t timeLimit] [-shiftLog] [ -m userEmail]
@@ -131,7 +133,7 @@ chkArgs 1 "$@"
     if ! "$tool" --version &> /dev/null; then
       TOOL=`type -p $tool`
       [ -n "$TOOL" ] && TOOLLOC="; $tool is $TOOL"
-      echo >&2 "Cannot find GNU $tool in the PATH$TOOLLOC"
+      echo >&3 "Cannot find GNU $tool in the PATH$TOOLLOC"
       exit 2
     fi
 }
@@ -191,16 +193,16 @@ checkUsage() {
       x10lib="$2"
       shift 2
     elif [[ "$1" = -* ]]; then
-      echo >&2 "unrecognized flag $1, or missing argument"
+      echo >&3 "unrecognized flag $1, or missing argument"
       usage
     else
-      echo >&2 "extraneous argument $1"
+      echo >&3 "extraneous argument $1"
       usage
     fi
   done
   if [[ ! -e .ThisIsAnX10TestDirectory && -z "$force" ]] ; then
-    echo >&2 "You must be in an X10 test directory to run this script"
-    echo >&2 "The file .ThisIsAnX10TestDirectory must be present"
+    echo >&3 "You must be in an X10 test directory to run this script"
+    echo >&3 "The file .ThisIsAnX10TestDirectory must be present"
     usage
   fi
 
