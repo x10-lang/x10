@@ -15,6 +15,7 @@ import polyglot.types.TypeSystem;
  * @author vj Jan 23, 2005
  */
 public interface X10Formal extends Formal {
+   boolean isUnnamed();
    boolean hasExplodedVars();
 
    /** Get the local instances of the bound variables. */

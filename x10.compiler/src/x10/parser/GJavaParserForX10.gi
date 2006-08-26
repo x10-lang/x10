@@ -612,8 +612,7 @@ $Rules
         ./
                            | [ IdentifierList ] 
         /.$BeginJava
-                    String name = polyglot.ext.x10.visit.X10PrettyPrinterVisitor.getId();
-                    setResult(new X10VarDeclarator(pos(), name, IdentifierList));
+                    setResult(new X10VarDeclarator(pos(), IdentifierList));
           $EndJava
         ./
     

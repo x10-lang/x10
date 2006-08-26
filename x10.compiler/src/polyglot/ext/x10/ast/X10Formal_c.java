@@ -25,6 +25,8 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.TypeBuilder;
 
+import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
+
 /**
  * An immutable representation of an X10Formal, which is of the form
  *   Flag Type VarDeclaratorId
@@ -42,11 +44,19 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	     lis != null && lis.length == vars.length */
     protected LocalInstance[] lis;
 
+	boolean unnamed;
+
 	public X10Formal_c(Position pos, Flags flags, TypeNode type,
 	                   String name, AmbExpr[] vars)
 	{
-		super(pos, flags, type, name);
+		super(pos, flags, type,
+				name == null ? X10PrettyPrinterVisitor.getId() : name);
 		this.vars = (vars == null) ? NO_VARS : vars;
+		this.unnamed = name == null;
+	}
+
+	public boolean isUnnamed() {
+		return unnamed;
 	}
 
 	public boolean isDisambiguated() {
