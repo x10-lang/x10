@@ -30,6 +30,12 @@ public class X10VarDeclarator extends VarDeclarator {
 		this(pos, name, null);
 	}
 
+	public X10VarDeclarator(JPGPosition pos, List/*<Name>*/ paramList) {
+		//this(pos, polyglot.ext.x10.visit.X10PrettyPrinterVisitor.getId(), paramList);
+		// TODO: use the below instead
+		this(pos, null, paramList);
+	}
+
 	public X10VarDeclarator(JPGPosition pos, String name, List/*<Name>*/ paramList) {
 		super(pos, name);
         this.position = pos;
@@ -42,7 +48,7 @@ public class X10VarDeclarator extends VarDeclarator {
 	}
 
 	public void setFlag(Flags flags) {
-		boolean allCapitals = name.equals(name.toUpperCase());
+		boolean allCapitals = name != null && name.equals(name.toUpperCase());
 		// vj: disable until we have more support for declarative programming in X10.
 		this.flags = (false && (allCapitals || hasExplodedVars())) ? flags.set(Flags.FINAL) : flags;
 	}
