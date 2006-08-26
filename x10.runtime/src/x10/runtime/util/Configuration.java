@@ -235,8 +235,8 @@ public abstract class Configuration {
 	}
 
 	/**
-	 * Return an array of (option,description) pairs for the given
-	 * configuration class.
+	 * Return an array of (option,type,description,default_value) tuples for
+	 * the given configuration class.
 	 * The options are public static non-final fields, and the descriptions
 	 * are private final String fields named OPTION_desc, where OPTION is the
 	 * corresponding option field.
@@ -286,7 +286,7 @@ public abstract class Configuration {
 			}
 			if (!t.isPrimitive() && v != null)
 				v = "\"" + v + "\"";
-			opts[j++] = new String[] { "-"+f.getName()+"="+type, desc+"(default = "+v+")" };
+			opts[j++] = new String[] { f.getName(), type, desc, ""+v };
 		}
 		return opts;
 	}

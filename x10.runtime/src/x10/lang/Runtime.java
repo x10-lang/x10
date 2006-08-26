@@ -113,12 +113,15 @@ public abstract class Runtime {
 	public static void usage(PrintStream out, ConfigurationError err) {
 		if (err != null)
 			out.println("Error: "+err.getMessage());
-        out.println("Usage: " + LANGUAGE + " [options] " +
-                           "<main-class> [arg0 arg1 ...]");
-        out.println("where [options] includes:");
+		out.println("Usage: " + LANGUAGE + " [options] " +
+				"<main-class> [arg0 arg1 ...]");
+		out.println("where [options] includes:");
 		String[][] options = Configuration.options();
 		for (int i = 0; i < options.length; i++) {
-			usageForFlag(out, options[i][0], options[i][1]);
+			String[] optinfo = options[i];
+			String optflag = "-"+optinfo[0]+"="+optinfo[1];
+			String optdesc = optinfo[2]+"(default = "+optinfo[3]+")";
+			usageForFlag(out, optflag, optdesc);
 		}
 	}
 

@@ -39,7 +39,10 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		super.usage(out);
 		String[][] options = Configuration.options();
 		for (int i = 0; i < options.length; i++) {
-			usageForFlag(out, options[i][0], options[i][1]);
+			String[] optinfo = options[i];
+			String optflag = "-"+optinfo[0]+"="+optinfo[1];
+			String optdesc = optinfo[2]+"(default = "+optinfo[3]+")";
+			usageForFlag(out, optflag, optdesc);
 		}
 	}
 }
