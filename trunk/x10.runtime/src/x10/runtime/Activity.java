@@ -68,7 +68,6 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 
 	// abstract metrics manager
 	private AbstractMetrics abstractMetricsManager;
-
 	
 	/********** ACTIVITY CREATION AND INITIALIZATION **********/
 	
@@ -88,7 +87,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @thread mySpawningThread  
 	 * @param clocks
 	 */
-	public Activity(List clocks) {
+	public Activity(List<Clock> clocks) {
 		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
 		this.activityClockManager = ClockManagerFactory.getClockManager(this, clocks);
@@ -123,7 +122,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 		if(this.activityClockManager != null)
 			this.activityClockManager.registerClocks();
 		
-		if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) 
+		if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES)
 			// Record time at which activity was started
 			setResumeTime();
 	}
@@ -392,6 +391,11 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	public void addLocalOps(long n) { this.abstractMetricsManager.addLocalOps(n); }
 		
 	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#addLocalOps(long)
+	 */
+	public void addCritPathOps(long n) { this.abstractMetricsManager.addCritPathOps(n); }
+	
+	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#maxCritPathOps(long)
 	 */
 	public void maxCritPathOps(long n) {this.abstractMetricsManager.maxCritPathOps(n);}
@@ -457,6 +461,10 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 		FinishState target = finishState_ == null ? rootNode_ : finishState_;
 		child.setRootActivityFinishState(target);
 		target.notifySubActivitySpawn();
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+			// Initialize this activity's critical path time to that of its parent
+			child.maxCritPathOps(getCritPathOps());
+		}
 		return child;
 	}
 
