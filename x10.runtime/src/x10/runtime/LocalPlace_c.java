@@ -6,6 +6,7 @@ import java.util.Stack;
 import x10.lang.Future;
 import x10.lang.place;
 import x10.runtime.abstractmetrics.AbstractMetrics;
+import x10.runtime.abstractmetrics.AbstractMetricsFactory;
 /**
  * A LocalPlace_c is an implementation of a place
  * that runs on this Java Virtual Machine.  In the
@@ -24,7 +25,7 @@ public class LocalPlace_c extends Place {
 	 * Is this place shutdown?
 	 */
 	boolean shutdown;
-	private AbstractMetrics jitTimeAnalyzer;
+	private AbstractMetrics abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
 	
 	
 	/********** ACTIVITY RUNNING **********/
@@ -170,65 +171,70 @@ public class LocalPlace_c extends Place {
 	 * @see x10.runtime.JITTimeAnalyzer#addUnblockedTime(long)
 	 */
 	public void addUnblockedTime(long t) {
-		this.jitTimeAnalyzer.addUnblockedTime(t);
+		this.abstractMetricsManager.addUnblockedTime(t);
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#getTotalOps()
 	 */
-	public long getTotalOps() { return this.jitTimeAnalyzer.getTotalOps(); }
+	public long getTotalOps() { return this.abstractMetricsManager.getTotalOps(); }
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#getCritPathOps()
 	 */
-	public long getCritPathOps() { return this.jitTimeAnalyzer.getCritPathOps(); }
+	public long getCritPathOps() { return this.abstractMetricsManager.getCritPathOps(); }
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#addLocalOps(long)
 	 */
-	public void addLocalOps(long n) { this.jitTimeAnalyzer.addLocalOps(n); }
+	public void addLocalOps(long n) { this.abstractMetricsManager.addLocalOps(n); }
 		
+	/* (non-Javadoc)
+	 * @see x10.runtime.AbstractMetrics#addLocalOps(long)
+	 */
+	public void addCritPathOps(long n) { this.abstractMetricsManager.addCritPathOps(n); }
+	
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#maxCritPathOps(long)
 	 */
-	public void maxCritPathOps(long n) {this.jitTimeAnalyzer.maxCritPathOps(n);}
+	public void maxCritPathOps(long n) {this.abstractMetricsManager.maxCritPathOps(n);}
 
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#getTotalUnblockedTime()
 	 */
-	public long getTotalUnblockedTime() { return this.jitTimeAnalyzer.getTotalUnblockedTime(); }
+	public long getTotalUnblockedTime() { return this.abstractMetricsManager.getTotalUnblockedTime(); }
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#getCritPathTime()
 	 */
-	public long getCritPathTime() { return this.jitTimeAnalyzer.getCritPathTime(); }
+	public long getCritPathTime() { return this.abstractMetricsManager.getCritPathTime(); }
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#maxCritPathTime(long)
 	 */
-	public void maxCritPathTime(long t) { this.jitTimeAnalyzer.maxCritPathTime(t); }
+	public void maxCritPathTime(long t) { this.abstractMetricsManager.maxCritPathTime(t); }
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#getResumeTime()
 	 */
-	public long getResumeTime() { return this.jitTimeAnalyzer.getResumeTime(); }
+	public long getResumeTime() { return this.abstractMetricsManager.getResumeTime(); }
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#setResumeTime()
 	 */
-	public void setResumeTime() { this.jitTimeAnalyzer.setResumeTime(); }
+	public void setResumeTime() { this.abstractMetricsManager.setResumeTime(); }
 
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#updateIdealTime()
 	 */
 	public void updateIdealTime() {
-		this.jitTimeAnalyzer.updateIdealTime();
+		this.abstractMetricsManager.updateIdealTime();
 	}
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.JITTimeAnalyzer#getCurrentTime()
 	 */
-	public long getCurrentTime() { return this.jitTimeAnalyzer.getCurrentTime(); }
+	public long getCurrentTime() { return this.abstractMetricsManager.getCurrentTime(); }
 
 	/**
 	 * End of code to support abstract execution model
