@@ -24,52 +24,58 @@ public class AbstractMetricsImpl implements AbstractMetrics {
 	
 	
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#getTotalOps()
+	 * @see x10.runtime.abstractMetricsManager#getTotalOps()
 	 */
 	synchronized public long getTotalOps() { return totalOps; }
 	
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#getCritPathOps()
+	 * @see x10.runtime.abstractMetricsManager#getCritPathOps()
 	 */
 	synchronized public long getCritPathOps() { return critPathOps; }
 	
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#addLocalOps(long)
+	 * @see x10.runtime.abstractMetricsManager#addLocalOps(long)
 	 */
-	synchronized public void addLocalOps(long n) { totalOps += n; critPathOps += n; }
+	synchronized public void addLocalOps(long n) { totalOps += n; }
 		
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#maxCritPathOps(long)
+	 * @see x10.runtime.abstractMetricsManager#addLocalOps(long)
+	 * Should only be called for an activity's metrics, not for a place's metrics
+	 */
+	synchronized public void addCritPathOps(long n) { critPathOps += n; }
+	
+	/* (non-Javadoc)
+	 * @see x10.runtime.abstractMetricsManager#maxCritPathOps(long)
 	 */
 	synchronized public void maxCritPathOps(long n) { critPathOps = Math.max(critPathOps, n); }
 	
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#getTotalUnblockedTime()
+	 * @see x10.runtime.abstractMetricsManager#getTotalUnblockedTime()
 	 */
 	synchronized public long getTotalUnblockedTime() { return totalUnblockedTime; }
 	
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#getCritPathTime()
+	 * @see x10.runtime.abstractMetricsManager#getCritPathTime()
 	 */
 	synchronized public long getCritPathTime() { return critPathTime; }
 	
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#maxCritPathTime(long)
+	 * @see x10.runtime.abstractMetricsManager#maxCritPathTime(long)
 	 */
 	synchronized public void maxCritPathTime(long t) { critPathTime = Math.max(critPathTime, t); }
 	
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#getResumeTime()
+	 * @see x10.runtime.abstractMetricsManager#getResumeTime()
 	 */
 	synchronized public long getResumeTime() { return resumeTime; }
 	
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#setResumeTime()
+	 * @see x10.runtime.abstractMetricsManager#setResumeTime()
 	 */
 	synchronized public void setResumeTime() { resumeTime = getCurrentTime(); }
 
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#updateIdealTime()
+	 * @see x10.runtime.abstractMetricsManager#updateIdealTime()
 	 */
 	synchronized public void updateIdealTime() {
 		long delta = getCurrentTime() - getResumeTime();
@@ -80,7 +86,7 @@ public class AbstractMetricsImpl implements AbstractMetrics {
 	// Use System.currentTimeMillis() for now to measure ideal execution time.
 	// This can be changed in the future
 	/* (non-Javadoc)
-	 * @see x10.runtime.JITTimeAnalyzer#getCurrentTime()
+	 * @see x10.runtime.abstractMetricsManager#getCurrentTime()
 	 */
 	public long getCurrentTime() { return System.currentTimeMillis(); }
 	
