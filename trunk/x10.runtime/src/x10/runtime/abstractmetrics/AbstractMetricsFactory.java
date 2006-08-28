@@ -1,5 +1,7 @@
 package x10.runtime.abstractmetrics;
 
+import x10.runtime.JITTimeConstants;
+
 /**
  * The default implementation of the AbstractMetrics interface
  * 
@@ -13,7 +15,8 @@ public class AbstractMetricsFactory {
 	 * @return A newly created AbstractMetrics class
 	 */
 	public static AbstractMetrics getAbstractMetricsManager() {
-		return new AbstractMetricsImpl();
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) return new AbstractMetricsImpl();
+		else return null;
 	}
 
 }
