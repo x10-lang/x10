@@ -7,5 +7,6 @@ package x10.lang;
 public final class perf {
 	public static void addLocalOps(long n) { 
 		x10.lang.Runtime.getCurrentActivity().addLocalOps(n); 
+		x10.lang.Runtime.getCurrentActivity().addCritPathOps(n); 
 	}
 }
