@@ -126,12 +126,10 @@ public abstract class Activity implements Runnable/*, Serializable*/ {
     	
     	for(Iterator it = clocks_.iterator(); it.hasNext();) {
     		Clock c = ((Clock)it.next());
-    		synchronized(c) {
-    			if(c.activityCount() == 0)
-    				c.addChild(this);
-
+    		//synchronized(c) {
+    			c.addChild(this); //distributed aspect
     			c.register(this);
-    		}
+    		//}
     	}
     }
     /**
