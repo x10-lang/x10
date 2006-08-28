@@ -7,6 +7,8 @@ public interface AbstractMetrics {
 	public abstract long getCritPathOps();
 
 	public abstract void addLocalOps(long n);
+	
+	public abstract void addCritPathOps(long n);
 
 	public abstract void maxCritPathOps(long n);
 
