@@ -41,24 +41,25 @@ public class FinishState {
 	}
 
 	public void waitForFinish() {
-		if (mcdl.getCount() == 0)
-			return;
-
-		PoolRunner activityRunner = (PoolRunner) Thread.currentThread();
-		 activityRunner.getPlace().threadBlockedNotification();
-
-		try {
-			mcdl.await();
-			if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
-				x10.lang.Runtime.getCurrentActivity().maxCritPathOps(mcdl.getCritPathOps());
-				if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
-					x10.lang.Runtime.getCurrentActivity().maxCritPathTime(mcdl.getIdealTime());
-					x10.lang.Runtime.getCurrentActivity().setResumeTime();
-				}
+		if (mcdl.getCount() > 0) {
+			// Need to wait till count becomes zero
+			PoolRunner activityRunner = (PoolRunner) Thread.currentThread();
+			activityRunner.getPlace().threadBlockedNotification(); // Notify runtime that thread executing current activity will be blocked
+			try {
+				mcdl.await();
+			} catch (InterruptedException z) {
 			}
-		} catch (InterruptedException z) {
+			activityRunner.getPlace().threadUnblockedNotification(); // Notify runtime that thread executing current activity has become unblocked
 		}
-		activityRunner.getPlace().threadUnblockedNotification();
+		
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+			// Update abstract execution statististics before exiting from finisj
+			x10.lang.Runtime.getCurrentActivity().maxCritPathOps(mcdl.getCritPathOps());
+			if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+				x10.lang.Runtime.getCurrentActivity().maxCritPathTime(mcdl.getIdealTime());
+				x10.lang.Runtime.getCurrentActivity().setResumeTime();
+			}
+		}
 	}
 
 	public void notifySubActivitySpawn() {
