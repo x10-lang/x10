@@ -62,6 +62,9 @@ import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
+import polyglot.ext.x10.ast.X10Formal;
+import polyglot.types.LocalInstance;
+
 
 /**
  * Visitor on the AST nodes that for some X10 nodes triggers the template
@@ -70,6 +73,7 @@ import polyglot.visit.PrettyPrinter;
  *
  * @author Christian Grothoff
  * @author Igor Peshansky (template classes)
+ * @author Rajkishore Barik 26th Aug 2006 (added loop optimizations)
  */
 public class X10PrettyPrinterVisitor extends Runabout {
 
@@ -227,12 +231,64 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(ForLoop_c f) {
-		// System.out.println("X10PrettyPrinter.visit(ForLoop c): |" + f.formal().flags().translate() + "|");
+
+      X10Formal form = (X10Formal) f.formal();
+      
+      /* TODO: case: for (point p:D) -- discuss with vj */
+      /* handled cases: exploded syntax like: for (point p[i,j]:D) and for (point [i,j]:D) */
+      if (Configuration.LOOP_OPTIMIZATIONS &&  form.hasExplodedVars() ) {
+        
+        String regVar = getId();
+        List idxs = new ArrayList();
+        LocalInstance[] lis = form.localInstances();
+		int rank = lis.length;
+
+		for (int i = 0; i < rank; i++) 
+		idxs.add(lis[i].name());
+        
+        Object body = f.body();
+        if (!form.isUnnamed())
+          body = new Join("\n",
+                  new Template("point-create",
+                      new Object[] {
+                          form.flags().translate(),
+                          form.type(),
+                          form.name(),
+                          new Join(",", idxs)
+                      }), body);
+
+		Template template = null;
+		for (int i = rank - 1; i >= 0; i --) 
+			template = new Template("forloop-mult-each",
+               		       new Object[] {
+						     getId(),
+						     regVar,
+						     new Integer(i),
+						     idxs.get(i),
+						     i == rank-1 ? body : template
+						});
+
+        new Template("forloop-mult",
+                   new Object[] {
+                       f.domain(),
+                       regVar,
+                       template,
+                       new Template("forloop",
+                           new Object[] {
+                               form.flags().translate(),
+                               form.type(),
+                               form.name(),
+                               regVar,
+                               new Join("\n", new Join("\n", f.locals()), f.body())
+                       })
+           }).expand();
+      }
+      else
 		new Template("forloop",
 					 new Object[] {
-						 f.formal().flags().translate(),
-						 f.formal().type(),
-						 f.formal().name(),
+						 form.flags().translate(),
+						 form.type(),
+						 form.name(),
 						 f.domain(),
 						 new Join("\n", new Join("\n", f.locals()), f.body())
 					 }).expand();

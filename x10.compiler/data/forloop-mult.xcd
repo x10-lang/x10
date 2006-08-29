@@ -1,0 +1,9 @@
+// SYNOPSIS: #0=region_expr #1=region_var #2=rect_for_header_body #3=regular_for_iterator
+
+region #1 = (region) #0;
+if (#1 instanceof x10.array.MultiDimRegion) {
+	#2
+} else {
+	#3
+}
+

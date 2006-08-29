@@ -21,6 +21,9 @@ import x10.runtime.util.ConfigurationError;
  * @see x10.runtime.util.Configuration
  *
  * @author Christian Grothoff
+ * 
+ * @author barikr
+ * @desc added LOOP_OPTIMIZATION 26th Aug 2006
  */
 public final class Configuration extends x10.runtime.util.Configuration {
 
@@ -35,6 +38,9 @@ public final class Configuration extends x10.runtime.util.Configuration {
 
 	public static boolean BAD_PLACE_RUNTIME_CHECK = true;
 	private static final String BAD_PLACE_RUNTIME_CHECK_desc = "Generate runtime place checks";
+    
+  public static boolean LOOP_OPTIMIZATIONS = true;
+  private static final String LOOP_OPTIMIZATIONS_desc = "Generate specialized Java version of for-loop X10 code";
 
 	/**
 	 * Parses one argument from the command line.  This allows the user
