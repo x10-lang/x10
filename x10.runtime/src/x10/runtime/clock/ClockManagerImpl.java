@@ -20,7 +20,7 @@ public class ClockManagerImpl implements ClockManager {
 
 	protected Activity activity;
 	private Clock singleClock;
-	private List<Clock> clockList;
+	private List clockList;
 
 	public ClockManagerImpl(Activity activity)
 	{
@@ -32,7 +32,7 @@ public class ClockManagerImpl implements ClockManager {
 	 * @param activity The activity to associates with.
 	 * @param clocks The clock list to register.
 	 */
-	public ClockManagerImpl(Activity activity, List<Clock> clocks) {
+	public ClockManagerImpl(Activity activity, List clocks) {
 		this(activity);
 		if (Report.should_report(Report.ACTIVITY, 3)) {
 			Report.report(3, PoolRunner.logString() + " adding clocks "
@@ -61,7 +61,7 @@ public class ClockManagerImpl implements ClockManager {
 	 */
 	private void switchFromSingleToListStrategy()
 	{
-		this.clockList = new LinkedList<Clock>();
+		this.clockList = new LinkedList();
 		this.clockList.add(this.singleClock);
 		this.singleClock = null;
 	}
