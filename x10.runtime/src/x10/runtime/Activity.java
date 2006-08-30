@@ -87,7 +87,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @thread mySpawningThread  
 	 * @param clocks
 	 */
-	public Activity(List<Clock> clocks) {
+	public Activity(List clocks) {
 		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
 		this.activityClockManager = ClockManagerFactory.getClockManager(this, clocks);
@@ -378,70 +378,111 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#getTotalOps()
 	 */
-	public long getTotalOps() { return this.abstractMetricsManager.getTotalOps(); }
+	public long getTotalOps() {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			return this.abstractMetricsManager.getTotalOps();
+		return 0;
+	}
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#getCritPathOps()
 	 */
-	public long getCritPathOps() { return this.abstractMetricsManager.getCritPathOps(); }
+	public long getCritPathOps() {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			return this.abstractMetricsManager.getCritPathOps();
+		return 0;
+	}
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#addLocalOps(long)
 	 */
-	public void addLocalOps(long n) { this.abstractMetricsManager.addLocalOps(n); }
+	public void addLocalOps(long n) {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			this.abstractMetricsManager.addLocalOps(n);
+	}
 		
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#addLocalOps(long)
 	 */
-	public void addCritPathOps(long n) { this.abstractMetricsManager.addCritPathOps(n); }
+	public void addCritPathOps(long n) {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			this.abstractMetricsManager.addCritPathOps(n);
+	}
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#maxCritPathOps(long)
 	 */
-	public void maxCritPathOps(long n) {this.abstractMetricsManager.maxCritPathOps(n);}
+	public void maxCritPathOps(long n) {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			this.abstractMetricsManager.maxCritPathOps(n);
+	}
 
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#getTotalUnblockedTime()
 	 */
-	public long getTotalUnblockedTime() { return this.abstractMetricsManager.getTotalUnblockedTime(); }
+	public long getTotalUnblockedTime() {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			return this.abstractMetricsManager.getTotalUnblockedTime();
+		return 0;
+	}
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#getCritPathTime()
 	 */
-	public long getCritPathTime() { return this.abstractMetricsManager.getCritPathTime(); }
+	public long getCritPathTime() {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			return this.abstractMetricsManager.getCritPathTime();
+		return 0;
+	}
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#maxCritPathTime(long)
 	 */
-	public void maxCritPathTime(long t) { this.abstractMetricsManager.maxCritPathTime(t); }
+	public void maxCritPathTime(long t) {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			this.abstractMetricsManager.maxCritPathTime(t);
+	}
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#getResumeTime()
 	 */
-	public long getResumeTime() { return this.abstractMetricsManager.getResumeTime(); }
+	public long getResumeTime() {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			return this.abstractMetricsManager.getResumeTime();
+		return 0;
+	}
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#setResumeTime()
 	 */
-	public void setResumeTime() { this.abstractMetricsManager.setResumeTime(); }
+	public void setResumeTime() {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			this.abstractMetricsManager.setResumeTime();
+	}
 
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#updateIdealTime()
 	 */
 	public void updateIdealTime() {
-		this.abstractMetricsManager.updateIdealTime();
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			this.abstractMetricsManager.updateIdealTime();
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#getCurrentTime()
 	 */
-	public long getCurrentTime() { return this.abstractMetricsManager.getCurrentTime(); }
+	public long getCurrentTime() {
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			return this.abstractMetricsManager.getCurrentTime();
+		return 0;
+	}
 	
 	/* (non-Javadoc)
 	 * @see x10.runtime.AbstractMetrics#addUnblockedTime(long)
 	 */
 	public void addUnblockedTime(long t) {
-		this.abstractMetricsManager.addUnblockedTime(t);
+		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+			this.abstractMetricsManager.addUnblockedTime(t);
 	}
 	
 
