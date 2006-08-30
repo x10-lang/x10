@@ -1,5 +1,6 @@
 package x10.array;
 
+import x10.annotations.NoSideEffects;
 import x10.lang.Indexable;
 import x10.lang.point;
 import x10.lang.region;
@@ -8,30 +9,11 @@ import x10.lang.RankMismatchException;
 public final class point_c extends point implements Comparable {
 
 	public static class factory extends point.factory {
-		public point/*(region)*/ point(int[/*rank*/] val) {
+		public @NoSideEffects point/*(region)*/ point(int[/*rank*/] val) {
 			point p = new point_c(val);
 			return p;
 		}
-		public point point(int i) {
-			return point(new int[] { i });
-		}
-		public point point(int i, int j) {
-			return point(new int[] { i, j });
-		}
-		public point point(int i, int j, int k) {
-			return point(new int[] { i, j, k });
-		}
-		public point point(int i, int j, int k , int l) {
-			return point(new int[] { i, j, k, l });
-		}
-		public point point(int i, int j, int k , int l, int m) {
-			return point(new int[] { i, j, k, l, m});
-		}
 	}
-
-	
-
-	
 
 	final int[] val;
 	final int hash_;

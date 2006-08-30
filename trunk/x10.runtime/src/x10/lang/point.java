@@ -1,5 +1,7 @@
 package x10.lang;
 
+import x10.annotations.NoSideEffects;
+
 abstract public /*value*/ class point/*(region region)*/ extends java.lang.Object
 	implements Indexable, ValueType
 {
@@ -11,32 +13,42 @@ abstract public /*value*/ class point/*(region region)*/ extends java.lang.Objec
 		/**
 		 * Return a point with the given coordinates.
 		 */
-		abstract public point point(int[/*rank*/] val);
+		abstract public @NoSideEffects point point(int[/*rank*/] val);
 		/**
-		 * Return a point of rank 1 with the given coordinates, created in the smallest region
-		 * that can enclose it.
+		 * Return a point of rank 1 with the given coordinates, created in the
+		 * smallest region that can enclose it.
 		 */
-		abstract public point point(int v1);
+		public @NoSideEffects point point(int v1) {
+			return point(new int[] { v1 });
+		}
 		/**
-		 * Return a point of rank 2 with the given coordinates, created in the smallest region
-		 * that can enclose it.
+		 * Return a point of rank 2 with the given coordinates, created in the
+		 * smallest region that can enclose it.
 		 */
-		abstract public point point(int v1, int v2);
+		public @NoSideEffects point point(int v1, int v2) {
+			return point(new int[] { v1, v2 });
+		}
 		/**
-		 * Return a point of rank 3 with the given coordinates, created in the smallest region
-		 * that can enclose it.
+		 * Return a point of rank 3 with the given coordinates, created in the
+		 * smallest region that can enclose it.
 		 */
-		abstract public point point(int v1, int v2, int v3);
+		public @NoSideEffects point point(int v1, int v2, int v3) {
+			return point(new int[] { v1, v2, v3 });
+		}
 		/**
-		 * Return a point of rank 4 with the given coordinates, created in the smallest region
-		 * that can enclose it.
+		 * Return a point of rank 4 with the given coordinates, created in the
+		 * smallest region that can enclose it.
 		 */
-		abstract public point point(int v1, int v2, int v3, int v4);
+		public @NoSideEffects point point(int v1, int v2, int v3, int v4) {
+			return point(new int[] { v1, v2, v3, v4 });
+		}
 		/**
-		 * Return a point of rank 5 with the given coordinates, created in the smallest region
-		 * that can enclose it.
+		 * Return a point of rank 5 with the given coordinates, created in the
+		 * smallest region that can enclose it.
 		 */
-		abstract public point point(int v1, int v2, int v3, int v4, int v5);
+		public @NoSideEffects point point(int v1, int v2, int v3, int v4, int v5) {
+			return point(new int[] { v1, v2, v3, v4, v5 });
+		}
 	}
 	public static final factory factory = Runtime.factory.getPointFactory();
 
