@@ -231,67 +231,67 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(ForLoop_c f) {
+		X10Formal form = (X10Formal) f.formal();
 
-      X10Formal form = (X10Formal) f.formal();
-      
-      /* TODO: case: for (point p:D) -- discuss with vj */
-      /* handled cases: exploded syntax like: for (point p[i,j]:D) and for (point [i,j]:D) */
-      if (Configuration.LOOP_OPTIMIZATIONS &&  form.hasExplodedVars() ) {
-        
-        String regVar = getId();
-        List idxs = new ArrayList();
-        LocalInstance[] lis = form.localInstances();
-		int rank = lis.length;
+		/* TODO: case: for (point p:D) -- discuss with vj */
+		/* handled cases: exploded syntax like: for (point p[i,j]:D) and for (point [i,j]:D) */
+		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars()) {
 
-		for (int i = 0; i < rank; i++) 
-		idxs.add(lis[i].name());
-        
-        Object body = f.body();
-        if (!form.isUnnamed())
-          body = new Join("\n",
-                  new Template("point-create",
-                      new Object[] {
-                          form.flags().translate(),
-                          form.type(),
-                          form.name(),
-                          new Join(",", idxs)
-                      }), body);
+			String regVar = getId();
+			List idxs = new ArrayList();
+			LocalInstance[] lis = form.localInstances();
+			int rank = lis.length;
 
-		Template template = null;
-		for (int i = rank - 1; i >= 0; i --) 
-			template = new Template("forloop-mult-each",
-               		       new Object[] {
-						     getId(),
-						     regVar,
-						     new Integer(i),
-						     idxs.get(i),
-						     i == rank-1 ? body : template
-						});
+			for (int i = 0; i < rank; i++)
+				idxs.add(lis[i].name());
 
-        new Template("forloop-mult",
-                   new Object[] {
-                       f.domain(),
-                       regVar,
-                       template,
-                       new Template("forloop",
-                           new Object[] {
-                               form.flags().translate(),
-                               form.type(),
-                               form.name(),
-                               regVar,
-                               new Join("\n", new Join("\n", f.locals()), f.body())
-                       })
-           }).expand();
-      }
-      else
-		new Template("forloop",
-					 new Object[] {
-						 form.flags().translate(),
-						 form.type(),
-						 form.name(),
-						 f.domain(),
-						 new Join("\n", new Join("\n", f.locals()), f.body())
-					 }).expand();
+			Object body = f.body();
+			if (!form.isUnnamed())
+				body = new Join("\n",
+								new Template("point-create",
+											 new Object[] {
+												 form.flags().translate(),
+												 form.type(),
+												 form.name(),
+												 new Join(",", idxs)
+											 }),
+								body);
+
+			// Wrap the body in loops, inner to outer
+			for (int i = rank - 1; i >= 0; i--)
+				body = new Template("forloop-mult-each",
+									new Object[] {
+										getId(),
+										regVar,
+										new Integer(i),
+										getId(),
+										idxs.get(i),
+										body
+									});
+
+			new Template("forloop-mult",
+						 new Object[] {
+							 f.domain(),
+							 regVar,
+							 body,
+							 new Template("forloop",
+								 new Object[] {
+									 form.flags().translate(),
+									 form.type(),
+									 form.name(),
+									 regVar,
+									 new Join("\n", new Join("\n", f.locals()), f.body())
+								 })
+						 }).expand();
+		} else
+			new Template("forloop",
+						 new Object[] {
+							 form.flags().translate(),
+							 form.type(),
+							 form.name(),
+							 f.domain(),
+							 new Join("\n", new Join("\n", f.locals()), f.body())
+						 }).expand();
 	}
 
 	private void processClockedLoop(String template, X10ClockedLoop l) {
