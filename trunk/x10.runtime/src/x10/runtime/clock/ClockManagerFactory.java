@@ -18,7 +18,7 @@ public class ClockManagerFactory {
 	 * @param clocks The list of clock to register
 	 * @return A newly created instance of a ClockManager
 	 */
-	public static ClockManager getClockManager(Activity activity, List<Clock> clocks) {
+	public static ClockManager getClockManager(Activity activity, List clocks) {
 		assert (clocks != null);
 		if(!clocks.isEmpty())
 			return new ClockManagerImpl(activity, clocks);
