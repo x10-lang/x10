@@ -436,9 +436,7 @@ public /* final */ class Clock extends clock {
 				if (Report.should_report(Report.CLOCK, 3)) {
 					Report.report(3, PoolRunner.logString() + " " + this+".doNext(" + a + ") blocks.");
 				}
-				System.out.println("Clock "+this+"is going to be block ");
 				block_();
-				System.out.println("Clock "+this+"is unblocked ");
 			}
 			if (Report.should_report(Report.CLOCK, 3)) {
 				Report.report(3, PoolRunner.logString() + " " + this+".doNext(" + a + ") continues.");
