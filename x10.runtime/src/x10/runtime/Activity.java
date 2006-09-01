@@ -2,7 +2,6 @@ package x10.runtime;
 
 import java.util.List;
 import java.util.Stack;
-
 import x10.lang.ClockUseException;
 import x10.lang.MultipleExceptions;
 import x10.runtime.abstractmetrics.AbstractMetrics;
@@ -40,8 +39,7 @@ import x10.runtime.clock.ClockManagerFactory;
  */
 public abstract class Activity implements Runnable, AbstractMetrics {
 
-
-	/*
+	/**
 	 * The place on which this activity runs. 
 	 * 
 	 */
@@ -113,7 +111,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * that will spawn this activity onto another thread.
 	 * @thread mySpawningThread
 	 */
-	private void initializeActivity() {
+	void initializeActivity() {
 		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Report.report(5, PoolRunner.logString()
 					+ " Activity: initializing " + this);
@@ -250,13 +248,26 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @thread myThread
 	 * @param r The runnable activity to run
 	 */
+	public void finishRun() {
+		if (Report.should_report("activity", 5)) {
+			Report.report(5, PoolRunner.logString() + " " + this
+					+ ".finishRun() started.");
+		}
+
+		this.runWithinFinish(this);
+	}
+
 	public void runWithinFinish(Runnable r) {
 		try {
 			this.startFinish();
 			assert (r != null);
+			if (r instanceof Activity)
+			    Thread.currentThread().setName(((Activity) r).myName());
 			r.run();
 		} catch (Throwable t) {
 			this.pushException(t);
+		} finally {
+		    Thread.currentThread().setName(myName());
 		}
 		this.stopFinish();
 	}
