@@ -239,13 +239,21 @@ public class X10PrettyPrinterVisitor extends Runabout {
 
 			String regVar = getId();
 			List idxs = new ArrayList();
+			List lims = new ArrayList();
+			List idx_vars = new ArrayList();
+			List vals = new ArrayList();
 			LocalInstance[] lis = form.localInstances();
 			int rank = lis.length;
 
-			for (int i = 0; i < rank; i++)
-				idxs.add(lis[i].name());
+			for (int i = 0; i < rank; i++) {
+				idxs.add(getId());
+				lims.add(getId());
+				idx_vars.add(lis[i].name());
+				vals.add(new Integer(i));
+			}
 
 			Object body = f.body();
+
 			if (!form.isUnnamed())
 				body = new Join("\n",
 								new Template("point-create",
@@ -257,22 +265,15 @@ public class X10PrettyPrinterVisitor extends Runabout {
 											 }),
 								body);
 
-			// Wrap the body in loops, inner to outer
-			for (int i = rank - 1; i >= 0; i--)
-				body = new Template("forloop-mult-each",
-									new Object[] {
-										getId(),
-										regVar,
-										new Integer(i),
-										getId(),
-										idxs.get(i),
-										body
-									});
+			body = new Join("\n",
+							new Loop("final-var-assign", new CircularList("int"), idx_vars, idxs),
+							body);
 
 			new Template("forloop-mult",
 						 new Object[] {
 							 f.domain(),
 							 regVar,
+							 new Loop("forloop-mult-each", idxs, new CircularList(regVar), vals, lims),
 							 body,
 							 new Template("forloop",
 								 new Object[] {
@@ -686,6 +687,9 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		}
 		public Loop(String id, List arg1, List arg2, List arg3) {
 			this(id, new List[] { arg1, arg2, arg3 });
+		}
+		public Loop(String id, List arg1, List arg2, List arg3, List arg4) {
+			this(id, new List[] { arg1, arg2, arg3, arg4 });
 		}
 		public Loop(String id, List[] components) {
 			this.id = id;
