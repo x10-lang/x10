@@ -37,6 +37,7 @@ while [ -n "$1" ]; do
         -D*) defs="${defs} $1";;
         -classpath|-cp) shift; extra_cp="$1";;
         -libpath) shift; extra_lib="$1";;
+        -config) shift; config="$1.cfg";;
         -dev) shift; dev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
@@ -55,6 +56,7 @@ where [options] includes:
     -mx <size>               set max heap size, e.g., -mx 200M
     -classpath <path>        search path for class files
     -libpath <path>          search path for native libraries
+    -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
     -dev                     developer mode (use unpackaged X10 libraries)
     -J<arg>                  pass <arg> to java.
         e.g., use -J-verbose to make java execution verbose.
@@ -75,7 +77,10 @@ fi
 if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
 if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
 
+CONFIG_DIR="${TOP}${FILE_SEP}etc"
 LIB_DIR="${TOP}${FILE_SEP}lib"
+
+[ -n "$config" ] && config="-Dx10.configuration=\"${CONFIG_DIR}${FILE_SEP}${config}\""
 
 classpath=""
 [ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
@@ -97,7 +102,7 @@ if [ -n "$mx" ]; then
 fi
 java_args="${java_args} ${defs}"
 
-command="\"$JAVA\" $java_args x10.lang.Runtime $args"
+command="\"$JAVA\" $java_args $config x10.lang.Runtime $args"
 
 [ -n "$verbose" ] && echo "$command"
 
