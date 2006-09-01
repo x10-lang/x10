@@ -28,7 +28,7 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
     }
 
     protected TypeInference makeTypeInference(IR ir, ClassHierarchy cha) {
-	TypeInference ti= new AstX10TypeInference(ir, cha);
+	TypeInference ti= new AstX10TypeInference(ir, cha, true);
 	ti.solve();
 
 	if (DEBUG_TYPE_INFERENCE) {

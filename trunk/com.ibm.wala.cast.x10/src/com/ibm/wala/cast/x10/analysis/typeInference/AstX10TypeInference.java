@@ -20,8 +20,8 @@ import com.ibm.domo.types.TypeReference;
 
 public class AstX10TypeInference extends AstJavaTypeInference {
 
-    public AstX10TypeInference(IR ir, ClassHierarchy cha) {
-	super(ir, cha);
+    public AstX10TypeInference(IR ir, ClassHierarchy cha, boolean doPrimitives) {
+	super(ir, cha, doPrimitives);
     }
 
     protected class AstX10TypeOperatorFactory extends AstJavaTypeOperatorFactory implements AstX10InstructionVisitor {
