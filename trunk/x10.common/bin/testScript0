@@ -301,7 +301,7 @@ genTest() {
   #for f in `eval "find $findpat -type f -name '*.x10' -print"`; do
   #TESTS="`eval "find '$topDir' -type f -name '*.x10' $findpat -print"`"
   TESTS="`eval "find $findpat -type d -name CVS -prune -o -type f -name '*.x10' -print"`"
-  echo 2>&1 "Running tests: $TESTS"
+  #echo 2>&1 "Running tests: $TESTS"
   while read f; do
     file="${f##*/}"    # if f is a/b/c file will be c
     path="${f%/$file}" # if f is a/b/c path will be a/b
@@ -313,7 +313,7 @@ genTest() {
       path="${path%/$pkg}"
       [ -n "$pkg" ] || pkg='.'
       doTest "$pkg" "$path" "${file%.x10}" # run an actual x10 test case
-      echo 2>&1 "Done with $path/$pkg/$file"
+      #echo 2>&1 "Done with $path/$pkg/$file"
     fi
   done <<<"$TESTS"
   return 0
@@ -673,7 +673,7 @@ initAll() {
   touch logSummary0              # ensure file exists
   rm -f logBegin                # Header file
   startDate=`date '+%Y.%m.%d_%H.%M.%S'`
-  testLogs="../../x10web/html/testLogs"
+  testLogs="../../x10.web/html/testLogs"
   if [[ -d "$testLogs" ]]; then
     (cd $testLogs; cvs -q up -dPA)
   else
