@@ -10,12 +10,10 @@ import harness.x10Test;
  * Compiler can issue a warning when it detects that
  * a BadPlaceException will always occur or will likely
  * occur, but the error is still caught at run time.
- * Accordingly, this test is being renamed
- * *_MustFailRun
  *
  * @author Kemal 4/2005
  */
-public class AsyncTest3_MustFailRun extends x10Test {
+public class AsyncTest3 extends x10Test {
 
 	public boolean run() {
 		final int[.] A = new int[dist.factory.unique()];
@@ -41,8 +39,12 @@ public class AsyncTest3_MustFailRun extends x10Test {
 
 		// Compiler: YES, Actual: YES
 		//==> Compiler errors expected
-		finish async(here) { A[1] += 1; }
-		A[1] += 1;
+		try {
+			finish async(here) { A[1] += 1; }
+			A[1] += 1;
+			return false;
+		} catch (BadPlaceException e) {
+		}
 
 		// Compiler: MAYBE; Actual: NO
 		//==> Compiler error expected here
@@ -52,18 +54,26 @@ public class AsyncTest3_MustFailRun extends x10Test {
 		// Compiler: MAYBE; Actual: YES
 		// for lvalue A[X.one()]
 		//==> Compiler errors expected here
-		finish async(here) { A[0] += A[x.one()]; }
-		A[0] += A[x.one()];
+		try {
+			finish async(here) { A[0] += A[x.one()]; }
+			A[0] += A[x.one()];
+			return false;
+		} catch (BadPlaceException e) {
+		}
 
 		// Compiler YES: Actual: YES (for lvalue A[1])
 		// ==> Compiler errors expected on next line
-		chk(A[0] == 8 && A[1] == 2);
+		try {
+			chk(A[0] == 8 && A[1] == 2);
+			return false;
+		} catch (BadPlaceException e) {
+		}
 
 		return true;
 	}
 
 	public static void main(String[] args) {
-		new AsyncTest3_MustFailRun().execute();
+		new AsyncTest3().execute();
 	}
 
 	/**

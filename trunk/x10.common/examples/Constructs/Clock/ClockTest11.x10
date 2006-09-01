@@ -18,25 +18,30 @@ import harness.x10Test;
  * clock use exceptions will
  * definitely occur, or will likely occur.
  *
- * Hence this file is renamed as *MustFailRun.x10
- *
  * @author kemal 4/2005
  */
-public class ClockTest11_MustFailRun extends x10Test {
+public class ClockTest11 extends x10Test {
 
 	public boolean run() {
-		finish async {
-			final clock c = clock.factory.clock();
-			final clock d = clock.factory.clock();
-			async clocked(d) {
-				async clocked(c) { System.out.println("hello"); }
+		try {
+			finish async {
+				final clock c = clock.factory.clock();
+				final clock d = clock.factory.clock();
+				async clocked(d) {
+					async clocked(c) { System.out.println("hello"); }
+				}
 			}
+			return false;
+		} catch (MultipleExceptions e) {
+			// Expecting only one exception
+			return false;
+		} catch (ClockUseException e) {
 		}
 		return true;
 	}
 
 	public static void main(String[] args) {
-		new ClockTest11_MustFailRun().execute();
+		new ClockTest11().execute();
 	}
 }
 

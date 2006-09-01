@@ -1,5 +1,7 @@
 import harness.x10Test;
 
+import java.util.Iterator;
+
 /**
  * This code (from the PSC experiment) yielded a SEVERE ERROR and then deadlocked,
  * on the code dated 2005/05/25 16:00:00 EDT.
@@ -7,7 +9,7 @@ import harness.x10Test;
  * A 2D region is being accessed with a 1D point in line 96.
  * But we should not see a severe error.
  */
-public class SevereError_MustFailRun extends x10Test {
+public class SevereError extends x10Test {
 	public boolean run() {
 		long startTime = System.currentTimeMillis();
 		final int N = 10;
@@ -15,13 +17,21 @@ public class SevereError_MustFailRun extends x10Test {
 		Random r = new Random(1);
 		RandCharStr c1 = new RandCharStr(r,N);
 		RandCharStr c2 = new RandCharStr(r,M);
-		EditDistMatrixParallelGetError m = new EditDistMatrixParallelGetError(c1,c2);
-		m.printMatrix();
+		try {
+			EditDistMatrixParallelGetError m = new EditDistMatrixParallelGetError(c1,c2);
+			m.printMatrix();
+			return false;
+		} catch (RankMismatchException e) {
+		} catch (MultipleExceptions e) {
+			for (Iterator it = e.exceptions.iterator(); it.hasNext(); )
+				if (!(it.next() instanceof RankMismatchException))
+					return false;
+		}
 		return true;
 	}
 
 	public static void main(String[] args) {
-		new SevereError_MustFailRun().execute();
+		new SevereError().execute();
 	}
 
 	static class EditDistMatrixParallelGetError {
