@@ -291,7 +291,13 @@ public abstract class Runtime {
 
 	public abstract Activity currentActivity();
 
-	public abstract Place[] getPlaces();
+	protected abstract Place[] getPlaces();
+
+	public abstract void prepareForBoot();
+
+	public abstract void shutdown();
+
+	public abstract void run(final Activity appMain);
 
 	/**
 	 * @return The place of the thread executing the current activity. 
