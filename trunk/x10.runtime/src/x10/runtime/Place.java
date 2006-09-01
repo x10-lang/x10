@@ -25,7 +25,7 @@ implements Comparable, AbstractMetrics {
 	 * with # threads = INIT_THREADS_PER_PLACE, and increases the pool as and when the threads 
 	 * block themselves 
 	 */
-	protected X10ThreadPoolExecutor threadPoolService = new X10ThreadPoolExecutor(Configuration.INIT_THREADS_PER_PLACE);
+	protected X10ThreadPoolExecutor threadPoolService;
 	
 	/**
 	 * Number of activities that can possibly wait at a given moment
@@ -34,7 +34,6 @@ implements Comparable, AbstractMetrics {
 	
 	public abstract void runAsync(Activity a);
 	public abstract void runBootAsync(Activity a);
-	public abstract X10ThreadPoolExecutor getThreadPool();
 	public abstract int getNbThreadBlocked();
 	public abstract void threadBlockedNotification();
 	public abstract void threadUnblockedNotification();
@@ -59,11 +58,34 @@ implements Comparable, AbstractMetrics {
 	 * @return the placeholder for the future result.
 	 */
 	public abstract Future runFuture(Activity.Expr a); 
+
+	public Place() {
+	    startup();
+	}
+
+	/**
+	 * Get threadpool
+	 */
+	public final X10ThreadPoolExecutor getThreadPool() {
+		return threadPoolService;
+	}
 	
+	public final void startup() {
+	    threadPoolService = new X10ThreadPoolExecutor(Configuration.INIT_THREADS_PER_PLACE);
+	    customStartup();
+	}
+
+	protected void customStartup() { }
+
+	public final void shutdown() {
+	    customShutdown();
+	    threadPoolService.shutdownNow();
+	}
+
 	/**
 	 * Shutdown this place, the current X10 runtime will exit.
 	 */
-	public abstract void shutdown();
+	public void customShutdown() { }
 	
 	public static Place[] places() {
 		return Runtime.places();
@@ -98,7 +120,6 @@ implements Comparable, AbstractMetrics {
         // works because every place has unique id
         return this == o;
     }
-
 
 } // end of Place
 
