@@ -33,7 +33,7 @@ public class PoolRunner extends Thread implements ActivityRunner{
 	private Place place;
 	
 	
-    public PoolRunner(ThreadGroup group, Runnable r, String namePrefix) {
+    PoolRunner(ThreadGroup group, Runnable r, String namePrefix) {
     	super(group, r, namePrefix, 0);
     }
     
@@ -56,6 +56,7 @@ public class PoolRunner extends Thread implements ActivityRunner{
      */
     public void setActivity(Activity a) {
     	activity = a;
+    	setName(a.myName());
     }
     
     /**
