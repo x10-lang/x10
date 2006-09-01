@@ -72,17 +72,13 @@
 	</target>
 
 	<target name="bin-deps">
-		<dependset>
-			<srcfileset dir="${bin}" includes="x10c.in"/>
-			<targetfileset dir="${bin}" includes="x10c"/>
-		</dependset>
 		<condition property="bin.up-to-date">
 			<and>
-				<available file="${bin}/x10"/>
-				<available file="${bin}/x10c"/>
-				<available file="${bin}/junit"/>
-				<available file="${bin}/dotest"/>
-				<available file="${bin}/dounittest"/>
+				<uptodate targetfile="${bin}/x10" srcfile="${bin}/x10.in"/>
+				<uptodate targetfile="${bin}/x10c" srcfile="${bin}/x10c.in"/>
+				<uptodate targetfile="${bin}/junit" srcfile="${bin}/junit.in"/>
+				<uptodate targetfile="${bin}/dotest" srcfile="${bin}/dotest.in"/>
+				<uptodate targetfile="${bin}/dounittest" srcfile="${bin}/dounittest.in"/>
 			</and>
 		</condition>
 	</target>
