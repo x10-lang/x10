@@ -68,21 +68,58 @@ import x10.lang.structureArray;
  * Also call runBootAsync() instead of runAsync() for boot activity.
  */
 public class DefaultRuntime_c extends Runtime {
+    private final class BootActivity extends Activity {
+	private final Activity fMain;
+
+	protected Throwable fBootException;
+
+	private BootActivity(Activity main) {
+	    super();
+	    fMain= main;
+	}
+
+	public String myName() {
+	    return "Boot activity";
+	}
+
+	public void run() {
+	    if (Report.should_report("activity", 5)) {
+		Report.report(5, PoolRunner.logString() + " starts running the Boot Activity.");
+	    }
+	    try {
+		runWithinFinish(fMain);
+		if (Report.should_report("activity", 5)) {
+		    Report.report(5, PoolRunner.logString() + " finished running the Boot Activity.");
+		}
+	    } catch (Error e) {
+		// Exception thrown by the activity!
+		fBootException= e;
+	    } catch (RuntimeException re) {
+		// Exception thrown by the activity!
+		fBootException= re;
+	    } finally {
+//		shutdown();
+		synchronized (this) {
+		    this.notifyAll();
+		}
+	    }
+	}
+    }
 
 	/**
 	 * The places of this X10 Runtime (for now a constant set).
 	 */
-	protected /*final*/ Place[] places_;
+	private Place[] places_;
 
 	public DefaultRuntime_c() {
-		this.places_ = new Place[Configuration.NUMBER_OF_LOCAL_PLACES];
 	}
 
 	/**
 	 * Initialize the places in the XVM.
 	 */
-	protected synchronized void createPlaces() {
+	private synchronized void createPlaces() {
 		int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
+		this.places_ = new Place[pc];
 		x10.lang.place.MAX_PLACES = pc;
 		for (int i=0;i<pc;i++)
 			places_[i] = new LocalPlace_c();
@@ -90,10 +127,7 @@ public class DefaultRuntime_c extends Runtime {
 	}
 
 	protected synchronized void initialize() {
-		// do it only once
-		if (places_[0] == null) {
-			createPlaces();
-		}
+	    createPlaces();
 	}
 
 	protected synchronized void loadAndInitLibs() {
@@ -104,224 +138,108 @@ public class DefaultRuntime_c extends Runtime {
 		}
 	}
 
+	public void prepareForBoot() {
+	    initialize();
+	    if (Report.should_report("activity", 5)) {
+	    	Thread t = Thread.currentThread();
+	    	int tCount = Thread.activeCount();
+	    	Report.report(5, Thread.currentThread() + ":" + System.currentTimeMillis() +" starts in group " + t.getThreadGroup()
+	    	              + " with " + tCount + " threads active.");
+	    	Thread[] a = new Thread[tCount];
+	    	int count = Thread.enumerate(a);
+
+	    	for (int i = 0; i < count; i++) {
+	    		Report.report(5, "Thread " + (a[i] == null ? "null" : a[i].getName()) + " is active.");
+	    	}
+	    }
+	    // first: load libraries!
+	    loadAndInitLibs();
+//		// then: initialize the runtime
+//		initialize();
+	}
+
+	public void shutdown() {
+	    shutdownAllPlaces();
+	    if (Report.should_report("activity", 5)) {
+		Report.report(5, PoolRunner.logString() + " terminates.");
+	    }
+	    finalizeAndTermLibs();
+	    // Dump abstract execution statistics on stderr if requested to do so.
+	    // Should be safe to do so after shutting down all places, thread pool, and libs (in theory - kaBOOM).
+	    dumpStatistics();
+	}
+
+	private void shutdownAllPlaces() {
+	    for (int i= 0; i < places_.length; i++) {
+		places_[i].shutdown();
+//		places_[i]= null;
+	    }
+	}
+	
 	protected void finalizeAndTermLibs() {
 	}
 
 	private static final Class[] STRING_ARRAYS = new Class[] { String[].class };
+
 	/**
 	 * Run the X10 application.
 	 */
 	protected void run(String[] args) {
+	    prepareForBoot();
+	    try {
+		run(createMainActivity(args));
+	    } catch (Throwable e) {
+		e.printStackTrace();
+	    }
+	    shutdown();
+	}
 
-		if (Report.should_report(Report.ACTIVITY, 5)) {
-			Thread t = Thread.currentThread();
-			int tCount = Thread.activeCount();
-			Report.report(5, Thread.currentThread() + ":" + System.currentTimeMillis() +" starts in group " + t.getThreadGroup()
-			              + " with " + tCount + " threads active.");
-			Thread[] a = new Thread[tCount];
-			int count = Thread.enumerate(a);
+	/**
+	 * Run the X10 application.
+	 * @throws Throwable 
+	 */
+	public void run(final Activity appMain) {
+	    // Create the boot activity
+	    BootActivity boot = new BootActivity(appMain);
 
-			for (int i = 0; i < count; i++) {
-				Report.report(5, "Thread " + (a[i] == null ? "null" : a[i].getName()) + " is active.");
-			}
-		}
-		// first: load libraries!
-		loadAndInitLibs();
-//		// then: initialize the runtime
-//		initialize();
+	    // Run the boot activity.
+	    Runtime.runBootAsync(boot);
 
-		// Find the applications main activity.
-		java.lang.Object[] tmp = { args };
-		Activity atmp = null;
+	    synchronized(boot) {
 		try {
-			if (Report.should_report(Report.ACTIVITY, 5)) {
-				Report.report(5, Thread.currentThread()  + ":" + System.currentTimeMillis() + " " + this + " starting user class |"
-				              + Configuration.MAIN_CLASS_NAME+ "|.");
-			}
-			Class main = Class.forName(Configuration.MAIN_CLASS_NAME + "$Main");
-			if (Configuration.PRELOAD_CLASSES)
-				PreLoader.preLoad(main, Configuration.PRELOAD_STRINGS);
-			atmp = (Activity) main.getDeclaredConstructor(STRING_ARRAYS).newInstance(tmp);
-		} catch (Exception e) {
-			System.err.println("Could not find default constructor of main class '"
-			                   + Configuration.MAIN_CLASS_NAME+ "$Main" + "'!");
-			throw new Error(e);
+		    boot.wait();
+		} catch (InterruptedException e) {
+		    // NOTREACHED
+		    e.printStackTrace();
 		}
-		final Activity appMain = atmp;
-
-		// Create the boot activity
-		Activity boot = new Activity() {
-			public String myName() {
-				return "Boot activity";
-			}
-			public void run() {
-				if (Report.should_report(Report.ACTIVITY, 5)) {
-					Report.report(5, PoolRunner.logString() + " starts running the Boot Activity.");
-				}
-				try {
-					runWithinFinish(appMain);
-				} catch (Throwable z) {
-					// Exception thrown by the activity!
-					z.printStackTrace();
-				}
-
-				if (Report.should_report(Report.ACTIVITY, 5)) {
-					Report.report(5, PoolRunner.logString() + " finishes running the Boot Activity.");
-
-				}
-
-				// and now the shutdown sequence!
-				// places_[] should have been initialized by now ...
-				for (int i=getPlaces().length-1; i >= 0;i--) {
-					if (Report.should_report(Report.ACTIVITY, 5)) {
-						Report.report(5, PoolRunner.logString() + " shutting down " + getPlaces()[i]);
-
-					}
-					getPlaces()[i].shutdown();
-				}
-
-				if (Report.should_report(Report.ACTIVITY, 5)) {
-					Report.report(5, PoolRunner.logString() + " terminates.");
-
-				}
-
-				// Dump abstract execution statistics on stderr if requested to
-				// do so
-				if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
-					System.err
-							.println("\n#### START OF ABSTRACT EXECUTION STATISTICS (EXCLUDING MAIN ACTIVITY) ####");
-
-					{
-						// PRINT STATISTICS ON NUMBER OF ACTIVITES
-						{
-							long sum = 0;
-							for (int i = 0; i <= getPlaces().length - 1; i++) {
-								sum += getPlaces()[i].getThreadPool()
-										.getCompletedTaskCount();
-							}
-
-							System.err
-									.println("  TOTAL NUMBER OF ACTIVITIES = "
-											+ sum);
-
-							System.err
-									.print("  TOTAL NUMBER OF ACTIVITIES PER PLACE = [ ");
-							for (int i = 0; i <= getPlaces().length - 1; i++) {
-								System.err.print(getPlaces()[i].getThreadPool()
-										.getCompletedTaskCount()
-										+ " ");
-							}
-							System.err.println("]");
-						}
-
-						// PRINT STATISTICS ON NUMBER OF OPS DEFINED BY CALLS TO
-						// x10.lang.perf.addLocalOps()
-						long sum = 0;
-						for (int i = 0; i <= getPlaces().length - 1; i++) {
-							sum += getPlaces()[i].getTotalOps();
-						}
-
-						System.err
-								.println("\n  TOTAL NUMBER OF OPS DEFINED BY CALLS TO x10.lang.perf.addLocalOps() = "
-										+ sum);
-
-						System.err
-								.print("  TOTAL NUMBER OF OPS PER PLACE = [ ");
-						for (int i = 0; i <= getPlaces().length - 1; i++) {
-							System.err
-									.print(getPlaces()[i].getTotalOps() + " ");
-						}
-						System.err.println("]");
-
-						// PRINT STATISTICS ON CRITICAL PATH LENGTHS OF OPS
-						// DEFINED BY CALLS TO x10.lang.perf.addLocalOps()
-						long max = 0;
-						for (int i = 0; i <= getPlaces().length - 1; i++) {
-							max = Math
-									.max(max, getPlaces()[i].getCritPathOps());
-						}
-
-						System.err
-								.println("\n  CRITICAL PATH LENGTH OF OPS DEFINED BY CALLS TO x10.lang.perf.addLocalOps() = "
-										+ max);
-
-						System.err
-								.print("  CRITICAL PATH LENGTH OF OPS PER PLACE = [ ");
-						for (int i = 0; i <= getPlaces().length - 1; i++) {
-							System.err.print(getPlaces()[i].getCritPathOps()
-									+ " ");
-						}
-						System.err.println("]");
-						
-						double speedup = (double) max > 0 ? (double) sum / (double) max : 0;
-						System.err.println("\n  IDEAL SPEEDUP IN NUMBER OF OPS, (TOTAL NUMBER) / (CRIT PATH LENGTH) = " + speedup);
-					}
-
-					if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
-						// PRINT STATISTICS ON TOTAL UNBLOCKED EXECUTION TIME
-
-						long sum = 0;
-						for (int i = 0; i <= getPlaces().length - 1; i++) {
-							sum += getPlaces()[i].getTotalUnblockedTime();
-						}
-
-						System.err
-								.println("\n  TOTAL UNBLOCKED TIME FOR ALL ACTIVITIES (in milliseconds) = "
-										+ sum);
-
-						System.err
-								.print("  TOTAL UNBLOCKED TIME PER PLACE = [ ");
-						for (int i = 0; i <= getPlaces().length - 1; i++) {
-							System.err.print(getPlaces()[i]
-									.getTotalUnblockedTime()
-									+ " ");
-						}
-						System.err.println("]");
-
-						// PRINT STATISTICS ON ESTIMATED EXECUTION TIMES
-						long max = 0;
-						for (int i = 0; i <= getPlaces().length - 1; i++) {
-							max = Math.max(max, getPlaces()[i]
-									.getCritPathTime());
-						}
-
-						System.err
-								.println("\n  CRITICAL PATH LENGTH OF ALL ACTIVITIES (in milliseconds) = "
-										+ max);
-
-						System.err
-								.print("  CRITICAL PATH LENGTH PER PLACE = [ ");
-						for (int i = 0; i <= getPlaces().length - 1; i++) {
-							System.err.print(getPlaces()[i].getCritPathTime()
-									+ " ");
-						}
-						System.err.println("]");
-						
-						double speedup = (double) max > 0 ? (double) sum / (double) max : 0;
-						System.err.println("\n  IDEAL SPEEDUP IN EXECUTION TIME,(TOTAL TIME) / (CRIT PATH LENGTH) = " + speedup);
+	    }
+	    if (boot.fBootException instanceof Error)
+		throw (Error) boot.fBootException;
+	    else if (boot.fBootException instanceof RuntimeException)
+		throw (RuntimeException) boot.fBootException;
+	    return;
+	}
 	
-					}
-
-					System.err
-							.println("#### END OF ABSTRACT EXECUTION STATISTICS (EXCLUDING MAIN ACTIVITY) ####");
-				}
-				
-
-				// The VM goes bye bye.
-				finalizeAndTermLibs();
-				Runtime.x10Exit();
-			}
-		};
-
-		// Run the boot activity.
-		Runtime.runBootAsync(boot);
-
-		finalizeAndTermLibs();
-
-		//
-		// Main thread terminates. bootActivity will now carry on.
-		// VM terminates when bootActivity terminates.
-		return;
+	private Activity createMainActivity(String[] args) throws Error {
+	    // Find the applications main activity.
+	    java.lang.Object[] tmp = { args };
+	    Activity atmp = null;
+	    try {
+	    	if (Report.should_report("activity", 5)) {
+	    		Report.report(5, Thread.currentThread()  + ":" + System.currentTimeMillis() + " " + this + " starting user class |"
+	    		              + Configuration.MAIN_CLASS_NAME+ "|.");
+	    	}
+	    	Class main = Class.forName(Configuration.MAIN_CLASS_NAME + "$Main");
+	    	if (Configuration.PRELOAD_CLASSES)
+	    		PreLoader.preLoad(main, Configuration.PRELOAD_STRINGS);
+	    	atmp = (Activity) main.getDeclaredConstructor(STRING_ARRAYS).newInstance(tmp);
+	    } catch (Exception e) {
+	    	System.err.println("Could not find default constructor of main class '"
+	    	                   + Configuration.MAIN_CLASS_NAME+ "$Main" + "'!");
+	    	throw new Error(e);
+	    }
+	    final Activity appMain = atmp;
+	    return appMain;
 	}
 
 	/**
@@ -344,8 +262,6 @@ public class DefaultRuntime_c extends Runtime {
 	 * @see setCurrentPlace(place)
 	 */
 	public synchronized Place currentPlace() {
-		if (getPlaces()[0] == null)
-			initialize();
 		if (getPlaces().length == 1)
 			return getPlaces()[0]; // fast path for simple test environments!
 		Thread t = Thread.currentThread();
@@ -374,19 +290,10 @@ public class DefaultRuntime_c extends Runtime {
 	/**
 	 * Should be used only internally to the XVM. Should not
 	 * be exposed to the X10 programmer.
-	 *  @see x10.lang.place
+	 * @see x10.lang.place
 	 * @return All places available in this VM.
 	 */
-	public Place[] getPlaces() {
-		if (places_[0] == null)
-			initialize();
-		// return defensive copy
-		Place[] p = new Place[places_.length];
-		System.arraycopy(places_, 0, p, 0, places_.length);
-
-		// the following does not work on the IBM JDK 1.4.2
-		// return (Place[]) places_.clone();
-
+	protected Place[] getPlaces() {
 		return places_;
 	}
 
@@ -602,14 +509,12 @@ public class DefaultRuntime_c extends Runtime {
 				return new place.factory() {
 					public place place(int i ) {
 						int index =( i %  place.MAX_PLACES);
-						if (places_[index] == null) initialize();
 						return places_[index];
 					}
 					/**
 					 * Return the set of places from place(0) to place(last) (inclusive).
 					 */
 					public Set/*<place>*/ places (int last) {
-						if (places_[0] == null) initialize();
 						Set result = new TreeSet();
 						for (int i=0; i <= last % (place.MAX_PLACES); i++)
 							result.add(places_[i]);
@@ -622,6 +527,80 @@ public class DefaultRuntime_c extends Runtime {
 			}
 		};
 		return f;
+	}
+
+	private void dumpStatistics() {
+	    if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+		System.err.println("\n#### START OF ABSTRACT EXECUTION STATISTICS (EXCLUDING MAIN ACTIVITY) ####");
+		{
+		    // PRINT STATISTICS ON NUMBER OF ACTIVITES
+		    {
+			long sum= 0;
+			for(int i= 0; i <= getPlaces().length - 1; i++) {
+			    sum+= getPlaces()[i].getThreadPool().getCompletedTaskCount();
+			}
+			System.err.println("  TOTAL NUMBER OF ACTIVITIES = " + sum);
+			System.err.print("  TOTAL NUMBER OF ACTIVITIES PER PLACE = [ ");
+			for(int i= 0; i <= getPlaces().length - 1; i++) {
+			    System.err.print(getPlaces()[i].getThreadPool().getCompletedTaskCount() + " ");
+			}
+			System.err.println("]");
+		    }
+		    // PRINT STATISTICS ON NUMBER OF OPS DEFINED BY CALLS TO
+		    // x10.lang.perf.addLocalOps()
+		    long sum= 0;
+		    for(int i= 0; i <= getPlaces().length - 1; i++) {
+			sum+= getPlaces()[i].getTotalOps();
+		    }
+		    System.err.println("\n  TOTAL NUMBER OF OPS DEFINED BY CALLS TO x10.lang.perf.addLocalOps() = " + sum);
+		    System.err.print("  TOTAL NUMBER OF OPS PER PLACE = [ ");
+		    for(int i= 0; i <= getPlaces().length - 1; i++) {
+			System.err.print(getPlaces()[i].getTotalOps() + " ");
+		    }
+		    System.err.println("]");
+		    // PRINT STATISTICS ON CRITICAL PATH LENGTHS OF OPS
+		    // DEFINED BY CALLS TO x10.lang.perf.addLocalOps()
+		    long max= 0;
+		    for(int i= 0; i <= getPlaces().length - 1; i++) {
+			max= Math.max(max, getPlaces()[i].getCritPathOps());
+		    }
+		    System.err.println("\n  CRITICAL PATH LENGTH OF OPS DEFINED BY CALLS TO x10.lang.perf.addLocalOps() = " + max);
+		    System.err.print("  CRITICAL PATH LENGTH OF OPS PER PLACE = [ ");
+		    for(int i= 0; i <= getPlaces().length - 1; i++) {
+			System.err.print(getPlaces()[i].getCritPathOps() + " ");
+		    }
+		    System.err.println("]");
+		    double speedup= (double) max > 0 ? (double) sum / (double) max : 0;
+		    System.err.println("\n  IDEAL SPEEDUP IN NUMBER OF OPS, (TOTAL NUMBER) / (CRIT PATH LENGTH) = " + speedup);
+		}
+		if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+		    // PRINT STATISTICS ON TOTAL UNBLOCKED EXECUTION TIME
+		    long sum= 0;
+		    for(int i= 0; i <= getPlaces().length - 1; i++) {
+			sum+= getPlaces()[i].getTotalUnblockedTime();
+		    }
+		    System.err.println("\n  TOTAL UNBLOCKED TIME FOR ALL ACTIVITIES (in milliseconds) = " + sum);
+		    System.err.print("  TOTAL UNBLOCKED TIME PER PLACE = [ ");
+		    for(int i= 0; i <= getPlaces().length - 1; i++) {
+			System.err.print(getPlaces()[i].getTotalUnblockedTime() + " ");
+		    }
+		    System.err.println("]");
+		    // PRINT STATISTICS ON ESTIMATED EXECUTION TIMES
+		    long max= 0;
+		    for(int i= 0; i <= getPlaces().length - 1; i++) {
+			max= Math.max(max, getPlaces()[i].getCritPathTime());
+		    }
+		    System.err.println("\n  CRITICAL PATH LENGTH OF ALL ACTIVITIES (in milliseconds) = " + max);
+		    System.err.print("  CRITICAL PATH LENGTH PER PLACE = [ ");
+		    for(int i= 0; i <= getPlaces().length - 1; i++) {
+			System.err.print(getPlaces()[i].getCritPathTime() + " ");
+		    }
+		    System.err.println("]");
+		    double speedup= (double) max > 0 ? (double) sum / (double) max : 0;
+		    System.err.println("\n  IDEAL SPEEDUP IN EXECUTION TIME,(TOTAL TIME) / (CRIT PATH LENGTH) = " + speedup);
+		}
+		System.err.println("#### END OF ABSTRACT EXECUTION STATISTICS (EXCLUDING MAIN ACTIVITY) ####");
+	    }
 	}
 } // end of DefaultRuntime_c
 
