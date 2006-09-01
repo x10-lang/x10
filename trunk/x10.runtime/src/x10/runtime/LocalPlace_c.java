@@ -30,21 +30,20 @@ public class LocalPlace_c extends Place {
 	
 	/********** ACTIVITY RUNNING **********/
 	
+	public void runAsync(final Activity a) {
+           this.prepareAsync(a);
+           this.runActivity( a, false);
+	}
+	
 	
 	/*
      * runBootAsync is a special version of runAsync reserved for only the boot activity
      */
 	public void runBootAsync(final Activity a) {
-		// the boot activity is runned by a classical 
-		// java Thread (i.e. not a ActivityRunner)
-		// cf prepareAsync method
-           this.runActivity(a);	
+           a.initializeActivity();
+           this.runActivity( a, false);	
 	}
 	
-	public void runAsync(final Activity a) {
-		this.runActivity(a);	
-	}
-
 	
 	/**
 	 * TODO -- CHANGE THE CODE
@@ -57,13 +56,24 @@ public class LocalPlace_c extends Place {
 			Activity parent =  ((ActivityRunner) t).getActivity();
 			parent.finalizeActivitySpawn(a);
 		}
+		a.initializeActivity();
 	}
 
 	/**
+	 * Run this activity asynchronously, as if it is wrapped in a finish.
+	 * That is, wait for its global termination.
+	 * @param a
+	 */
+	public void finishAsync( final Activity a) {
+		this.prepareAsync(a);
+		this.runActivity( a, true);
+	}
+	
+	/**
 	 * @param activity
 	 */
-	protected void runActivity(final Activity activity) {
-        this.prepareAsync(activity);
+	protected void runActivity(final Activity activity, final boolean finish) {
+		
 		threadPoolService.execute(new Runnable() {
 			public void run() {
 				// Get a thread to run this activity.
@@ -78,7 +88,11 @@ public class LocalPlace_c extends Place {
 				activity.setPlace(LocalPlace_c.this);
 
 				try {
+					if (finish) {
+						activity.finishRun();
+					} else {
 						activity.run();
+					}
 				} catch (Throwable e) {
 					activity.finalizeTermination(e);
 					return;
@@ -106,30 +120,17 @@ public class LocalPlace_c extends Place {
 		return this.toString() + "(shutdown="+shutdown+")";
 	}
 	
-	public static void shutdownAll() {
-		Place[] places = x10.lang.Runtime.places();
-		for (int i=places.length-1;i>=0;i--) {
-			if (places[i] instanceof LocalPlace_c) {
-				((LocalPlace_c) places[i]).shutdown();
-			}
-		}
-	}
-	
 	/**
 	 * Shutdown this place, the current X10 runtime will exit.
 	 */
-	public synchronized void shutdown () {
-	    threadPoolService.shutdownNow();
+	public synchronized void customShutdown () {
+	    // System.out.println("Shutdown Place="+this+"::==>#of threads="+threadPoolService.getCorePoolSize());
+	    if (Report.should_report("activity", 5)) {
+		Report.report(5, PoolRunner.logString() + " shutting down " + this);
+	    }
 	    shutdown=true;
 	}
 
-	/**
-	 * Get threadpool
-	 */
-	public X10ThreadPoolExecutor getThreadPool() {
-		return threadPoolService;
-	}
-	
 	/**
 	 * get number of blocking threads at the current 
 	 * 
@@ -162,7 +163,6 @@ public class LocalPlace_c extends Place {
 	public boolean isShutdown() { 
 		return shutdown; 
 	}
-
 	
 	/**
 	 * Start of code to support abstract execution model
