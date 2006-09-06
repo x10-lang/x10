@@ -18,9 +18,9 @@ import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
  */
 public class X10IRPass extends AbstractPass {
     private final Job fJob;
-    private final JavaSourceLoaderImpl fLoader;
+    private final X10SourceLoaderImpl fLoader;
 
-    public X10IRPass(Goal goal, Job job, JavaSourceLoaderImpl loader) {
+    public X10IRPass(Goal goal, Job job, X10SourceLoaderImpl loader) {
 	super(goal);
 	this.fJob= job;
 	fLoader= loader;
