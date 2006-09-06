@@ -5,10 +5,13 @@ package com.ibm.domo.ast.x10.translator.polyglot;
 
 import java.io.PrintWriter;
 
+import sun.security.action.GetLongAction;
+
 import com.ibm.capa.ast.CAstEntity;
 import com.ibm.capa.ast.CAstNode;
 import com.ibm.capa.ast.CAstType;
 import com.ibm.capa.ast.visit.*;
+import com.ibm.capa.ast.visit.CAstVisitor.Context;
 import com.ibm.domo.ast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.domo.ast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.domo.ast.java.types.JavaPrimitiveTypeMap;
@@ -34,9 +37,10 @@ import com.ibm.capa.util.debug.Trace;
 
 import com.ibm.domo.ast.translator.AstTranslator.WalkContext;
 import com.ibm.domo.ast.translator.AstTranslator.DefaultContext;
+import com.ibm.domo.classLoader.NewSiteReference;
 
 public class X10CAst2IRTranslator extends X10CAstVisitor {
-    public X10CAst2IRTranslator(CAstEntity sourceFileEntity, JavaSourceLoaderImpl loader) {
+    public X10CAst2IRTranslator(CAstEntity sourceFileEntity, X10SourceLoaderImpl loader) {
 	this(new JavaCAst2IRTranslator(sourceFileEntity, loader));
     }
 
@@ -45,6 +49,46 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     private X10CAst2IRTranslator(JavaCAst2IRTranslator translator) {
 	super(translator);
 	this.translator = translator;
+    }
+
+    protected boolean visitFunctionExpr(CAstNode n, Context c, CAstVisitor visitor) {
+	// No need to do anything here; all taken care of in leaveFunctionExpr().
+	CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
+
+	declareAsync(fn, (WalkContext) c);
+	return false;
+    }
+
+    protected void leaveFunctionExpr(CAstNode n, Context c, CAstVisitor visitor) {
+        int result= processAsyncExpr(n, c);
+        translator.setValue(n, result);
+    }
+
+    private int processAsyncExpr(CAstNode n, Context c) {
+	WalkContext context= (WalkContext) c;
+	CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
+//	declareAsync(fn, context);
+	int result= context.scope().allocateTempValue();
+	int ex= context.scope().allocateTempValue();
+	doMaterializeAsync(context, result, ex, fn);
+	return result;
+    }
+
+    private void doMaterializeAsync(WalkContext context, int result, int ex, CAstEntity fn) {
+	TypeReference asyncRef= asyncTypeReference(fn);
+
+	context.cfg().addInstruction(SSAInstructionFactory.NewInstruction(result,
+		NewSiteReference.make(context.cfg().getCurrentInstruction(), asyncRef)));
+    }
+
+    private void declareAsync(CAstEntity fn, WalkContext context) {
+	TypeReference asyncRef= asyncTypeReference(fn);
+
+	((X10SourceLoaderImpl) translator.loader()).defineAsync(fn, asyncRef, context.file());
+    }
+
+    private TypeReference asyncTypeReference(CAstEntity fn) {
+	return TypeReference.findOrCreate(translator.loader().getReference(), "LA" + fn.getName());
     }
 
     public MethodReference asyncEntityToMethodReference(CAstEntity asyncEntity) {
@@ -63,7 +107,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     protected boolean visitAsyncInvoke(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveAsyncInvoke(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
-	CAstEntity bodyEntity = (CAstEntity) n.getChild(1).getValue();
+	CAstEntity bodyEntity = (CAstEntity) n.getChild(1).getChild(0).getValue();
 	// Figure out whether this is a future or an async
 	int exceptValue = context.scope().allocateTempValue();
 	AsyncCallSiteReference acsr = new AsyncCallSiteReference(asyncEntityToMethodReference(bodyEntity), context.cfg().getCurrentInstruction());
@@ -139,6 +183,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
 
     protected boolean visitAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
 	translator.initFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
+	((X10SourceLoaderImpl) translator.loader()).defineAsync(n, asyncTypeReference(n), translator.sourceFileEntity().getName());
 	return false;
     }
     protected void leaveAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
