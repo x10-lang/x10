@@ -9,7 +9,9 @@ import java.util.List;
 
 import com.ibm.domo.ast.java.test.IRTests;
 import com.ibm.domo.ast.java.translator.polyglot.IRTranslatorExtension;
+import com.ibm.domo.ast.java.translator.polyglot.PolyglotClassLoaderFactory;
 import com.ibm.domo.ast.x10.ipa.callgraph.X10ZeroXCFABuilder;
+import com.ibm.domo.ast.x10.translator.polyglot.X10ClassLoaderFactory;
 import com.ibm.domo.ast.x10.translator.polyglot.X10IRTranslatorExtension;
 import com.ibm.domo.ipa.callgraph.AnalysisOptions;
 import com.ibm.domo.ipa.callgraph.CallGraphBuilder;
@@ -30,6 +32,10 @@ public class X10IRTests extends IRTests {
 
     public X10IRTests(String name) {
 	super(name);
+    }
+
+    protected PolyglotClassLoaderFactory getClassLoaderFactory(final WarningSet warnings, IRTranslatorExtension extInfo) {
+	return new X10ClassLoaderFactory(null, warnings, extInfo);
     }
 
     protected IRTranslatorExtension getPolyglotExtension() {
