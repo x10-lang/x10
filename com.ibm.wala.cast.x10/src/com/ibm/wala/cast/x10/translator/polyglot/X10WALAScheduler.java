@@ -24,7 +24,7 @@ public class X10DOMOScheduler extends DOMOScheduler {
     }
 
     public Goal IRGenerated(Job job) {
-	JavaSourceLoaderImpl loader= ((X10ExtensionInfo) job.extensionInfo()).getSourceLoader();
+	X10SourceLoaderImpl loader= ((X10ExtensionInfo) job.extensionInfo()).getSourceLoader();
 	Goal g= internGoal(new X10IRGoal(job, loader));
 
 	return g;

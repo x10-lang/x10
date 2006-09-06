@@ -16,13 +16,13 @@ import com.ibm.domo.ast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 import com.ibm.domo.types.ClassLoaderReference;
 
 public abstract class X10ExtensionInfo extends ExtensionInfo {
-    protected PolyglotSourceLoaderImpl fSourceLoader;
+    protected X10SourceLoaderImpl fSourceLoader;
 
     public void setSourceLoader(PolyglotSourceLoaderImpl sourceLoader) {
-	fSourceLoader = sourceLoader;
+	fSourceLoader = (X10SourceLoaderImpl) sourceLoader;
     }
 
-    public PolyglotSourceLoaderImpl getSourceLoader() {
+    public X10SourceLoaderImpl getSourceLoader() {
         return fSourceLoader;
     }
 

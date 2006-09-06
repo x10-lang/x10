@@ -16,9 +16,9 @@ import com.ibm.domo.ast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
 
 public class X10IRGoal extends AbstractGoal implements EndGoal {
-    private JavaSourceLoaderImpl fSourceLoader;
+    private X10SourceLoaderImpl fSourceLoader;
 
-    public X10IRGoal(Job job, JavaSourceLoaderImpl sourceLoader) {
+    public X10IRGoal(Job job, X10SourceLoaderImpl sourceLoader) {
 	super(job);
 	fSourceLoader = sourceLoader;
 
