@@ -29,6 +29,8 @@ import com.ibm.capa.ast.CAstNode;
 import com.ibm.capa.ast.CAstNodeTypeMap;
 import com.ibm.capa.ast.CAstSourcePositionMap;
 import com.ibm.capa.ast.CAstType;
+import com.ibm.capa.ast.visit.CAstVisitor;
+import com.ibm.capa.ast.visit.CAstVisitor.Context;
 import com.ibm.capa.impl.debug.Assertions;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotTypeDictionary;
@@ -167,7 +169,8 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	    CAstNode asyncNode= fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
 		    walkNodes(a.place(), context),
-		    fFactory.makeConstant(bodyEntity));
+		    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
+		    fFactory.makeNode(CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
 
 	    context.addScopedEntity(asyncNode, bodyEntity);
 	    return asyncNode;
@@ -187,7 +190,8 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	    final CAstNode bodyNode= fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
 					    fFactory.makeNode(X10CastNode.HERE),
-					    fFactory.makeConstant(bodyEntity));
+					    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
+					    fFactory.makeNode(CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
 
 	    context.addScopedEntity(bodyNode, bodyEntity);
 	    return walkRegionIterator(f, bodyNode, context);
@@ -244,7 +248,8 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    final CAstNode bodyNode=
 		fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
 			fFactory.makeNode(X10CastNode.PLACE_OF_POINT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), walkNodes(a.formal(), context)),
-			fFactory.makeConstant(bodyEntity));
+			    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
+			fFactory.makeNode(CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
 
 	    context.addScopedEntity(bodyNode, bodyEntity);
 	    return fFactory.makeNode(CAstNode.LOCAL_SCOPE,
@@ -261,7 +266,8 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), context);
 	    CAstNode bodyNode= fFactory.makeNode(X10CastNode.ASYNC_INVOKE,
 		    walkNodes(f.place(), context),
-		    fFactory.makeConstant(bodyEntity));
+		    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
+		    fFactory.makeNode(CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
 
 	    context.addScopedEntity(bodyNode, bodyEntity);
 	    return bodyNode;
