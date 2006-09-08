@@ -14,6 +14,7 @@ $End
 
 $Notice
 /.
+//#line $next_line "$input_file$"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
@@ -23,6 +24,7 @@ $End
 
 $Globals
     /.
+    //#line $next_line "$input_file$"
     import java.util.Collections;
     import java.util.Iterator;
     import java.util.LinkedList;
@@ -249,6 +251,7 @@ $End
 
 $Headers
     /.
+        //#line $next_line "$input_file$"
         private ErrorQueue eq;
         private X10TypeSystem ts;
         private X10NodeFactory nf;
