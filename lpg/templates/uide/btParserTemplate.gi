@@ -35,15 +35,18 @@ $Define
 
     $BeginAction
     /. $Header
-                case $rule_number: {./
+                case $rule_number: {
+                    //#line $next_line "$input_file$"./
 
     $EndAction
     /.          break;
                 }./
 
     $BeginJava
-    /.$BeginAction
-                    $symbol_declarations./
+    /. $Header
+                case $rule_number: {
+                    $symbol_declarations
+                    //#line $next_line "$input_file$"./
 
     $EndJava /.$EndAction./
 
@@ -82,7 +85,8 @@ $Define
 	    public void ruleAction$rule_number(int ruleNumber)
 	    {
 	        switch (ruleNumber)
-	        {./
+	        {
+	            //#line $next_line "$input_file$"./
 
     $EndActions
     /.
