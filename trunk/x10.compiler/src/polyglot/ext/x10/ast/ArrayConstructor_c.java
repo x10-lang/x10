@@ -199,45 +199,11 @@ implements ArrayConstructor {
 				// ((ArrayInit) initializer).typeCheckElements(base.type());
 			}
 			
-			// TODO: vj/cg: The following is hardwired for int, double and long arrays. Other primitives will fail.
+			// TODO: igor: The following is hardwired.
 			Type initType = initializer.type();
-			if ( newBaseType.isInt()){
-				if (! ts.isImplicitCastValid(initType, ts.IntArrayPointwiseOp()))
-					throw new SemanticException("Array initializer must be of type x10.lang.intArray.pointwiseOp" 
+			if (! ts.isImplicitCastValid(initType, ts.OperatorPointwise()))
+				throw new SemanticException("Array initializer must be of type x10.array.Operator.Pointwise" 
 							+ position());
-			} else if ( newBaseType.isDouble()) {
-				if (! ts.isImplicitCastValid(initType, ts.DoubleArrayPointwiseOp()))
-					throw new SemanticException("Array initializer must be of type x10.lang.doubleArray.pointwiseOp" 
-							+ position());
-			} else if (newBaseType.isLong()) {
-				if (! ts.isImplicitCastValid(initType, ts.LongArrayPointwiseOp()))
-					throw new SemanticException("Array initializer must be of type x10.lang.longArray.pointwiseOp" 
-							+ position());
-			} else if ( newBaseType.isBoolean()) {
-                if (! ts.isImplicitCastValid(initType, ts.BooleanArrayPointwiseOp()))
-                    throw new SemanticException("Array initializer must be of type x10.lang.booleanArray.pointwiseOp" 
-                            + position());
-            } else if ( newBaseType.isByte()) {
-                if (! ts.isImplicitCastValid(initType, ts.ByteArrayPointwiseOp()))
-                    throw new SemanticException("Array initializer must be of type x10.lang.byteArray.pointwiseOp" 
-                            + position());
-            } else if ( newBaseType.isChar()) {
-                if (! ts.isImplicitCastValid(initType, ts.CharArrayPointwiseOp())) {
-                    throw new SemanticException("Array initializer must be of type x10.lang.charArray.pointwiseOp" 
-                            + position()); }
-            } else if ( newBaseType.isShort()) {
-                if (! ts.isImplicitCastValid(initType, ts.ShortArrayPointwiseOp()))
-                    throw new SemanticException("Array initializer must be of type x10.lang.shortArray.pointwiseOp" 
-                            + position());
-            } else if ( newBaseType.isFloat()) {
-                if (! ts.isImplicitCastValid(initType, ts.FloatArrayPointwiseOp()))
-                    throw new SemanticException("Array initializer must be of type x10.lang.floatArray.pointwiseOp" 
-                            + position());
-            } else {
-			    Type toType = ts.GenericArrayPointwiseOp((X10ReferenceType)newBaseType);
-			    if (! ts.isImplicitCastValid(initType, toType))
-			        throw new SemanticException("Array initializer must be of type " + toType.toString()+ " at " + position());
-			}                     
 		}
 		Type t = ts.array( newBaseType, isValue );
 		// System.out.println("ArrayConstructor_c: t=" + t);
