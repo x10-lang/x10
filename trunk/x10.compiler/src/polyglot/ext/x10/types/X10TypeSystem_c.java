@@ -231,55 +231,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return runtimeType_;
 	}
 
-	protected ClassType booleanArrayPointwiseOpType_;
-	public ClassType BooleanArrayPointwiseOp() {
-		if (booleanArrayPointwiseOpType_ == null)
-			booleanArrayPointwiseOpType_ = load("x10.lang.booleanArray$pointwiseOp"); // java file
-		return booleanArrayPointwiseOpType_;
-	}
-
-	protected ClassType charArrayPointwiseOpType_;
-	public ClassType CharArrayPointwiseOp() {
-		if (charArrayPointwiseOpType_ == null)
-			charArrayPointwiseOpType_ = load("x10.lang.charArray$pointwiseOp"); // java file
-		return charArrayPointwiseOpType_;
-	}
-
-	protected ClassType byteArrayPointwiseOpType_;
-	public ClassType ByteArrayPointwiseOp() {
-		if (byteArrayPointwiseOpType_ == null)
-			byteArrayPointwiseOpType_ = load("x10.lang.byteArray$pointwiseOp"); // java file
-		return byteArrayPointwiseOpType_;
-	}
-
-	protected ClassType shortArrayPointwiseOpType_;
-	public ClassType ShortArrayPointwiseOp() {
-		if (shortArrayPointwiseOpType_ == null)
-			shortArrayPointwiseOpType_ = load("x10.lang.shortArray$pointwiseOp"); // java file
-		return shortArrayPointwiseOpType_;
-	}
-
-	protected ClassType intArrayPointwiseOpType_;
-	public ClassType IntArrayPointwiseOp() {
-		if (intArrayPointwiseOpType_ == null) {
-			intArray(); // ensure that intArray is loaded.
-			intArrayPointwiseOpType_ = load("x10.lang.intArray$pointwiseOp"); // java file
-		}
-		return intArrayPointwiseOpType_;
-	}
-
-	protected ClassType floatArrayPointwiseOpType_;
-	public ClassType FloatArrayPointwiseOp() {
-		if (floatArrayPointwiseOpType_ == null)
-			floatArrayPointwiseOpType_ = load("x10.lang.floatArray$pointwiseOp"); // java file
-		return floatArrayPointwiseOpType_;
-	}
-
-	protected ClassType doubleArrayPointwiseOpType_;
-	public ClassType DoubleArrayPointwiseOp() {
-		if (doubleArrayPointwiseOpType_ == null)
-			doubleArrayPointwiseOpType_ = load("x10.lang.doubleArray$pointwiseOp"); // java file
-		return doubleArrayPointwiseOpType_;
+	protected ClassType operatorPointwiseType_;
+	public ClassType OperatorPointwise() {
+		if (operatorPointwiseType_ == null)
+			operatorPointwiseType_ = load("x10.array.Operator$Pointwise"); // java file
+		return operatorPointwiseType_;
 	}
 
 	/**
@@ -571,23 +527,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			longReferenceArrayType_ = (X10ParsedClassType) load("x10.lang.LongReferenceArray"); // java file
 		// return longReferenceArrayType_.setParameter("distribution", distribution);
         X10ClassType result = longReferenceArrayType_;
-        return result;
-	}
-
-	protected X10ReferenceType genericArrayPointwiseOpType_;
-	public X10ReferenceType GenericArrayPointwiseOp() {
-		if (genericArrayPointwiseOpType_ == null)
-			genericArrayPointwiseOpType_
-				= (X10ReferenceType) load("x10.lang.genericArray$pointwiseOp"); // java file
-		X10ReferenceType result = genericArrayPointwiseOpType_;
-        return genericArrayPointwiseOpType_;
-	}
-
-	public ReferenceType GenericArrayPointwiseOp(Type typeParam) {
-		List l = new LinkedList();
-		l.add(typeParam);
-        
-        X10ReferenceType result = (X10ReferenceType) GenericArrayPointwiseOp().makeVariant(null, l);
         return result;
 	}
 
