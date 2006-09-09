@@ -28,8 +28,7 @@ public class ArrayDecl extends x10Test {
 		//Examples similar to section 10.3 of X10 reference manual
 
 		final double[.] data1 = new double[[0:16]->here]
-			new doubleArray.pointwiseOp()
-			{ public double apply(point p[i]) { return (double)i; } };
+			(point p[i]) { return (double)i; };
 		chk(data1.distribution.equals([0:16]->here));
 		for (point [i]: data1) chk(data1[i] == (double)i);
 

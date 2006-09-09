@@ -13,7 +13,7 @@ public class Unsafe extends x10Test {
 		int [.] x = new int [d]; // ok
 		int [.] y = new int unsafe[d]; //ok
 		int value [.] y1 = new int value unsafe[d]; // ok
-		int [.] zz = new int unsafe[d] new intArray.pointwiseOp() { public int apply(point p) { return 41; } }; //bad
+		int [.] zz = new int unsafe[d] (point p) { return 41; }; //bad
 		return true;
 	}
 

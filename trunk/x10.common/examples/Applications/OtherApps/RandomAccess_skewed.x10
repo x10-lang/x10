@@ -93,10 +93,7 @@ public class RandomAccess_skewed extends x10Test {
 	// A small value table that will be copied to all processors
 	// Used in generating the update value
 	private static final long value[.] smallTable = new long value[value(SMALL_TABLE_SIZE)]
-		new longArray.pointwiseOp()
-		{ public long apply(point p)
-			{ return p[0]*SMALL_TABLE_INIT; }
-		};
+		(point p[i]) { return i*SMALL_TABLE_INIT; };
 
 	/**
 	 * main GUPS routine
