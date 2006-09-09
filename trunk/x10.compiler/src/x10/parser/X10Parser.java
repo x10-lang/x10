@@ -391,19 +391,18 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         return null;
     }
 
-    /** Pretend to have parsed new <T>Array.pointwiseOp
-     * { public <T> apply(Formal) MethodBody }
+    /**
+     * Pretend to have parsed
+	 * <code>
+     * new Operator.Pointwise() { public <T> apply(Formal, <T> _) MethodBody }
+	 * </code>
      * instead of (Formal) MethodBody. Note that Formal may have
      * exploded vars.
      * @author vj
     */
-
-    private New makeInitializer( Position pos, TypeNode resultType,
-                                 X10Formal f, Block body ) {
+    private Expr makeInitializer(Position pos, TypeNode resultType,
+                                 X10Formal f, Block body) {
       Flags flags = Flags.PUBLIC;
-      // resulttype is a.
-      List l1 = new TypedList(new LinkedList(), X10Formal.class, false);
-      l1.add(f);
       TypeNode appResultType = resultType;
       if (!(resultType instanceof CanonicalTypeNode)) {
         Name x10 = new Name(nf, ts, pos, "x10");
@@ -411,29 +410,26 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         Name x10CGP1 = new Name(nf, ts, pos, x10CG, "Parameter1");
         appResultType = x10CGP1.toType();
       }
+      // resultType is a.
+      List l1 = new TypedList(new LinkedList(), X10Formal.class, false);
+      l1.add(f);
+      l1.add(nf.Formal(pos, Flags.FINAL, appResultType, "_"));
       MethodDecl decl = nf.MethodDecl(pos, flags, appResultType,
                                     "apply", l1,
                                       new LinkedList(), body);
       //  new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
-      String prefix = !(resultType instanceof CanonicalTypeNode) ?
-                        "generic" : resultType.toString();
       Name x10 = new Name(nf, ts, pos, "x10");
-      Name x10Lang = new Name(nf, ts, pos, x10, "lang");
-      Name tArray
-          = new Name(nf, ts, pos, x10Lang, prefix + "Array");
-      Name tXArray
-      = new Name(nf, ts, pos, x10Lang, "x10.lang." + prefix + "Array");
-      Name tArrayPointwiseOp = new Name(nf, ts, pos, tArray, "pointwiseOp");
+      Name x10Array = new Name(nf, ts, pos, x10, "array");
+      Name tOperator = new Name(nf, ts, pos, x10Array, "Operator");
+      Name tOperatorPointwise = new Name(nf, ts, pos, tOperator, "Pointwise");
       List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
       classDecl.add( decl );
-      TypeNode t = !(resultType instanceof CanonicalTypeNode) ?
-               (TypeNode) nf.GenericArrayPointwiseOpTypeNode(pos, resultType) :
-               (TypeNode) tArrayPointwiseOp.toType();
+      TypeNode t = (TypeNode) tOperatorPointwise.toType();
 
       New initializer = nf.New(pos,
-                      t,
-                      new LinkedList(),
-                             nf.ClassBody( pos, classDecl ) );
+                               t,
+                               new LinkedList(),
+                               nf.ClassBody( pos, classDecl ) );
       return initializer;
     }
 
@@ -4287,7 +4283,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 IToken lparen = (IToken) getRhsIToken(8);
                 X10Formal FormalParameter = (X10Formal) getRhsSym(9);
                 Block MethodBody = (Block) getRhsSym(11);
-                New initializer = makeInitializer( pos(getRhsFirstTokenIndex(8), getRightSpan()), ArrayBaseType, FormalParameter, MethodBody );
+                Expr initializer = makeInitializer( pos(getRhsFirstTokenIndex(8), getRightSpan()), ArrayBaseType, FormalParameter, MethodBody );
                 setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, initializer));
                 break;
             }
