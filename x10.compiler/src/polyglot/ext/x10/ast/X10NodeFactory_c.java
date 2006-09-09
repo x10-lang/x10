@@ -293,31 +293,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (DepParameterExpr) n.del(delFactory().delStmt());
 	}
 
-	public GenParameterExpr GenParameterExpr(Position pos, List l) {
-		List cpy = new LinkedList();
-		Iterator it = l.iterator();
-		while (it.hasNext()) {
-			cpy.add(this.CanonicalTypeNode(pos, (Type) it.next()));
-		}
-		GenParameterExpr n = new GenParameterExpr_c(pos, cpy);
-		n = (GenParameterExpr) n.ext(extFactory().extStmt());
-		return (GenParameterExpr) n.del(delFactory().delStmt());
-	}
-
-	public TypeNode GenericArrayPointwiseOpTypeNode(Position pos,
-													TypeNode typeParam)
-	{
-		List l = new LinkedList();
-		l.add(typeParam);
-		GenParameterExpr gen = new GenParameterExpr_c(pos, l);
-		gen = (GenParameterExpr) gen.ext(extFactory().extStmt());
-		gen = (GenParameterExpr) gen.del(delFactory().delStmt());
-		X10TypeNode tn =
-			(X10TypeNode) this.CanonicalTypeNode(pos,
-				X10TypeSystem_c.getFactory().GenericArrayPointwiseOp(),gen,null);
-		return tn;
-	}
-
 	public X10TypeNode ParametricTypeNode(Position pos,
 												 X10TypeNode t,
 												 GenParameterExpr g,
