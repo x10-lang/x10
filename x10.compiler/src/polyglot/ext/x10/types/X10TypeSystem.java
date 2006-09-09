@@ -64,16 +64,7 @@ public interface X10TypeSystem extends TypeSystem {
 	ClassType clock();
 	ClassType value();
 	ClassType Runtime();
-	ClassType BooleanArrayPointwiseOp();
-	ClassType CharArrayPointwiseOp();
-	ClassType ByteArrayPointwiseOp();
-	ClassType ShortArrayPointwiseOp();
-	ClassType IntArrayPointwiseOp();
-	ClassType DoubleArrayPointwiseOp();
-	ClassType FloatArrayPointwiseOp();
-	ClassType LongArrayPointwiseOp();
-	ReferenceType GenericArrayPointwiseOp(Type baseType);
-
+	ClassType OperatorPointwise();
 	CodeInstance asyncCodeInstance();
 
 	/**
