@@ -77,9 +77,7 @@ public interface X10NodeFactory extends NodeFactory {
 	DepParameterExpr DepParameterExpr(Position pos, List args, Expr cond);
 	DepParameterExpr DepParameterExpr(Position pos, List args);
 	DepParameterExpr DepParameterExpr(Position pos, Expr cond);
-	GenParameterExpr GenParameterExpr(Position pos, List args);
-	TypeNode GenericArrayPointwiseOpTypeNode(Position pos, TypeNode typeParam);
-    MethodDecl MethodDecl(Position pos, TypeNode thisClause,
+	MethodDecl MethodDecl(Position pos, TypeNode thisClause,
             Flags flags, TypeNode returnType, String name,
             List formals, Expr where, List throwTypes, Block body);
     FieldDecl FieldDecl(Position pos, TypeNode thisClause, Flags flags, TypeNode type, String name, Expr init);
