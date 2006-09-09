@@ -26,10 +26,6 @@ public class ZeroBasedIntArray_c extends IntArray_c {
         super( d, c, true, mutable);
     }
     
-    protected ZeroBasedIntArray_c(Distribution_c d, boolean safe) {
-        super(d,safe);
-    }
-    
     public ZeroBasedIntArray_c( dist d, int[] a, boolean safe, 
             boolean mutable ) {
         super(d,a,safe,mutable);
