@@ -64,6 +64,7 @@ import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.types.LocalInstance;
+import polyglot.types.PrimitiveType.Kind;
 
 
 /**
@@ -387,70 +388,46 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		new Template("finish", a.body(), getUniqueId_()).expand();
 	}
 
-	private void processArrayConstructor(String template, ArrayConstructor_c a) {
-		Object init = a.initializer();
-		new Template(template+"_array_dist_op",
-					 new Object[] {
-						 a.distribution(),
-						 init != null ? init : "null",
-						 new Boolean(a.isSafe()),
-						 new Boolean(a.isValue())
-					 }).expand();
-		return;
+	private static final String USER_DEFINED = "user-defined";
+	private static final HashMap/*<String,String>*/ arrayTypeToClassName = new HashMap();
+	static {
+		arrayTypeToClassName.put("boolean", "BooleanArray_c");
+		arrayTypeToClassName.put("byte", "ByteArray_c");
+		arrayTypeToClassName.put("char", "CharArray_c");
+		arrayTypeToClassName.put("short", "ShortArray_c");
+		arrayTypeToClassName.put("int", "IntArray_c");
+		arrayTypeToClassName.put("long", "LongArray_c");
+		arrayTypeToClassName.put("float", "FloatArray_c");
+		arrayTypeToClassName.put("double", "DoubleArray_c");
+		arrayTypeToClassName.put(USER_DEFINED, "GenericArray_c");
 	}
 
 	public void visit(ArrayConstructor_c a) {
 		Type base_type = a.arrayBaseType().type();
+		String kind = null;
+		boolean refs_to_values = false;
 
-		if (base_type.isBoolean()) { // this is a boolean[?] ? array
-			processArrayConstructor("boolean", a);
-			return;
+		if (base_type.isPrimitive()) {
+			kind = base_type.toPrimitive().kind().toString();
 		}
-		if (base_type.isChar()) { // this is a char[?] ? array
-			processArrayConstructor("char", a);
-			return;
+		else { // this is a User-defined[?] ? array
+			kind = USER_DEFINED;
+			refs_to_values = (base_type instanceof X10Type &&
+								 ((X10Type) base_type).isValueType());
 		}
-		if (base_type.isByte()) { // this is a byte[?] ? array
-			processArrayConstructor("byte", a);
-			return;
-		}
-		if (base_type.isShort()) { // this is a short[?] ? array
-			processArrayConstructor("short", a);
-			return;
-		}
-		if (base_type.isInt()) { // this is an int[?] ? array
-			processArrayConstructor("int", a);
-			return;
-		}
-		if (base_type.isFloat()) { // this is a float[?] ? array
-			processArrayConstructor("float", a);
-			return;
-		}
-		if (base_type.isDouble()) { // this is a double[?] ? array
-			processArrayConstructor("double", a);
-			return;
-		}
-		if (base_type.isLong()) { // this is a long[?] ? array
-			processArrayConstructor("long", a);
-			return;
-		}
-		if (! base_type.isPrimitive()) { // this is a User-defined[?] ? array
-			boolean refs_to_values = (base_type instanceof X10Type &&
-									  ((X10Type) base_type).isValueType());
-			Object init = a.initializer();
-			// [IP] FIXME: is the cast below needed at all?
-			new Template("generic_array_dist_op",
-						 new Object[] {
-							 a.distribution(),
-							 init != null ? init : "(x10.compilergenerated.Parameter1)null",
-							 new Boolean(a.isSafe()),
-							 new Boolean(a.isValue()),
-							 new Boolean(refs_to_values)
-						 }).expand();
-			return;
-		}
-
-		throw new Error("Unknown array type.");
+		String className = (String) arrayTypeToClassName.get(kind);
+		if (className == null)
+			throw new Error("Unknown array type.");
+		Object init = a.initializer();
+		new Template("array_new_init",
+					 new Object[] {
+						 className,
+						 a.distribution(),
+						 init != null ? init : "(x10.array.Operator.Pointwise)null",
+						 new Boolean(a.isSafe()),
+						 new Boolean(!a.isValue()),
+						 new Boolean(refs_to_values)
+					 }).expand();
 	}
 
 	private TypeNode getParameterType(X10Type at) {
