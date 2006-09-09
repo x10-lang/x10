@@ -37,19 +37,20 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
     }
     
     /**
-     *  This constructor must not be used directly by an application programmer.
+     * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    protected FloatArray_c(Distribution_c d, boolean safe) {
-        this(d, (Operator.Pointwise) null, safe);
+
+    protected FloatArray_c(dist d, Operator.Pointwise c, boolean safe) {
+    	this(d, c, safe, true);
     }
-    
-    protected FloatArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
-    	this( d, c, safe, true);
+    public FloatArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ignored) {
+        this(d, c, safe, mutable);
     }
-    protected FloatArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+    protected FloatArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
+        assert (d instanceof Distribution_c);
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
@@ -60,7 +61,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
                 ranks[i] = d.region.rank(i).size();
             this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_FLOAT);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Float.TYPE);
+            this.arr_ = Allocator.allocSafe(count, Float.TYPE);
         }
         if (c != null)
             pointwise(this, c);
@@ -72,13 +73,13 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
      * @param c
      * @param safe
      */
-    public FloatArray_c( dist d, float c) {
+    public FloatArray_c(dist d, float c) {
         this(d, c, true);
     }
-    public FloatArray_c( dist d, float c, boolean safe ) {
+    public FloatArray_c(dist d, float c, boolean safe) {
     	this(d, c, safe, true);
 }
-    public FloatArray_c( dist d, float c, boolean safe, boolean mutable ) {
+    public FloatArray_c(dist d, float c, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -95,10 +96,10 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
         scan(this, new Assign(c));
     	
     }
-    public FloatArray_c( dist d, FloatArray.pointwiseOp f) {
+    public FloatArray_c(dist d, FloatArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public FloatArray_c( dist d, FloatArray.pointwiseOp f, boolean safe) {
+    public FloatArray_c(dist d, FloatArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
     
@@ -121,7 +122,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
             scan(this, f);
     }
     
-    private FloatArray_c( dist d, float[] a, boolean safe, boolean mutable) {
+    private FloatArray_c(dist d, float[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -141,9 +142,9 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
      * @param a
      * @return
      */
-    public static FloatArray_c FloatArray_c( float[] a, boolean safe, boolean mutable ) {
+    public static FloatArray_c FloatArray_c(float[] a, boolean safe, boolean mutable) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
-    	return new FloatArray_c(d, a, safe, mutable );
+    	return new FloatArray_c(d, a, safe, mutable);
     }
     
     public void keepItLive() {}
@@ -180,17 +181,17 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
 	protected FloatArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
-		return new FloatArray_c((Distribution_c) d, safe_);	
+		return new FloatArray_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
 	protected FloatArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
-		return new FloatArray_c((Distribution_c) d, c, safe_);	
+		return new FloatArray_c(d, c, safe_);	
 	}
 	
 
-	public FloatReferenceArray lift( FloatArray.binaryOp op, x10.lang.floatArray arg ) {
+	public FloatReferenceArray lift(FloatArray.binaryOp op, x10.lang.floatArray arg) {
 	    assert arg.distribution.equals(distribution); 
 	    FloatArray arg1 = (FloatArray)arg;
 	    FloatArray result = newInstance(distribution);
@@ -208,7 +209,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
 	    return result;
 	}
     
-	public FloatReferenceArray lift( FloatArray.unaryOp op ) {
+	public FloatReferenceArray lift(FloatArray.unaryOp op) {
 	    FloatArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try {
@@ -224,7 +225,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
 	    return result;
 	}
     
-	public float reduce( FloatArray.binaryOp op, float unit ) {
+	public float reduce(FloatArray.binaryOp op, float unit) {
 	    float result = unit;
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try {
@@ -240,7 +241,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
 	    return result;
 	}
 
-	public FloatReferenceArray scan( binaryOp op, float unit ) {
+	public FloatReferenceArray scan(binaryOp op, float unit) {
 	    float temp = unit;
 	    FloatArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
@@ -363,7 +364,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
      public float get(int[] pos) {return get(pos,true,true);}
         
     public float get(int[] pos,boolean chkPl,boolean chkAOB) {
-        final point p = Runtime.factory.getPointFactory().point( pos);
+        final point p = Runtime.factory.getPointFactory().point(pos);
     	return get(p);
     }
     

@@ -42,19 +42,16 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     }
     
     /**
-     *  This constructor must not be used directly by an application programmer.
+     * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    protected GenericArray_c(Distribution_c d, boolean safe) {
-        this(d, (Operator.Pointwise) null, safe);
+    protected GenericArray_c(dist d, Operator.Pointwise c, boolean safe) {
+    	this(d, c, safe, true, false);
     }
-    
-    protected GenericArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
-    	this( d, c, safe, true, false);
-    }
-    protected GenericArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ref_to_values) {
+    public GenericArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ref_to_values) {
         super(d);
+        assert (d instanceof Distribution_c);
         this.mutable_ = mutable;
         this.refsToValues_ = ref_to_values;
         safe = true; // just to be GC-safe ;-)
@@ -79,16 +76,17 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
      * @param c
      * @param safe
      */
-    public GenericArray_c( dist d, Parameter1 c) {
+    public GenericArray_c(dist d, Parameter1 c) {
         this(d, c, true);
     }
-    public GenericArray_c( dist d, Parameter1 c, boolean safe ) {
+    public GenericArray_c(dist d, Parameter1 c, boolean safe) {
     	this(d, c, safe, true, false);
-}
-    public GenericArray_c( dist d, int c, boolean safe, boolean mutable, boolean ref_to_values) {
-        this(d, (Parameter1) null, safe, mutable, ref_to_values);
     }
-    public GenericArray_c( dist d, Parameter1 c, boolean safe, boolean mutable, boolean ref_to_values) {
+    public GenericArray_c(dist d, int c, boolean safe, boolean mutable, boolean ref_to_values) {
+        this(d, (Parameter1) null, safe, mutable, ref_to_values);
+    	assert (false);
+    }
+    public GenericArray_c(dist d, Parameter1 c, boolean safe, boolean mutable, boolean ref_to_values) {
         super(d);
         assert (safe); // just to be GC-safe ;-)
         this.mutable_ = mutable;
@@ -104,7 +102,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     public GenericArray_c( dist d, GenericArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true, false);
     }
-    public GenericArray_c( dist d, GenericArray.pointwiseOp f, boolean safe, boolean mutable, boolean ref_to_values) {
+    public GenericArray_c(dist d, GenericArray.pointwiseOp f, boolean safe, boolean mutable, boolean ref_to_values) {
     	super(d);
         assert (safe); // just to be GC-safe ;-)
     	this.mutable_ = mutable;
@@ -116,7 +114,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
             scan(this, f);
     }
     
-    private GenericArray_c( dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
+    private GenericArray_c(dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
     	super(d);
         assert (safe); // just to be GC-safe ;-)
     	this.arr_ = Allocator.allocSafeObjectArray( a);
@@ -129,7 +127,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
      * @param a
      * @return
      */
-    public static GenericArray_c GenericArray_c( Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
+    public static GenericArray_c GenericArray_c(Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new GenericArray_c(d, a, safe, mutable, ref_to_values);
     }
@@ -168,17 +166,17 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 	protected GenericArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
-		return new GenericArray_c((Distribution_c) d, safe_);	
+		return new GenericArray_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
 	protected GenericArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
-		return new GenericArray_c((Distribution_c) d, c, safe_);	
+		return new GenericArray_c(d, c, safe_);	
 	}
 	
 
-	public GenericReferenceArray lift( GenericArray.binaryOp op, x10.lang.genericArray arg ) {
+	public GenericReferenceArray lift(GenericArray.binaryOp op, x10.lang.genericArray arg) {
 	    assert arg.distribution.equals(distribution); 
 	    GenericArray arg1 = (GenericArray)arg;
 	    GenericArray result = newInstance(distribution);
@@ -196,7 +194,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 	    return result;
 	}
     
-	public GenericReferenceArray lift( GenericArray.unaryOp op ) {
+	public GenericReferenceArray lift(GenericArray.unaryOp op) {
 	    GenericArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try {
@@ -212,7 +210,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 	    return result;
 	}
     
-	public Parameter1 reduce( GenericArray.binaryOp op, Parameter1 unit ) {
+	public Parameter1 reduce(GenericArray.binaryOp op, Parameter1 unit) {
 	    Parameter1 result = unit;
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try {
@@ -228,7 +226,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 	    return result;
 	}
 
-	public GenericReferenceArray scan( binaryOp op, Parameter1 unit ) {
+	public GenericReferenceArray scan(binaryOp op, Parameter1 unit) {
 	    Parameter1 temp = unit;
 	    GenericArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
@@ -345,7 +343,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     
     public Parameter1 get(int[] pos) {return get(pos,true,true);}
     public Parameter1 get(int[] pos,boolean chkPl,boolean chkAOB) {
-        final point p = Runtime.factory.getPointFactory().point( pos);
+        final point p = Runtime.factory.getPointFactory().point(pos);
     	return get(p);
     }
     

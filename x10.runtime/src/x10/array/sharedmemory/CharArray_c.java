@@ -37,19 +37,19 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     }
     
     /**
-     *  This constructor must not be used directly by an application programmer.
+     * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    protected CharArray_c(Distribution_c d, boolean safe) {
-        this(d, (Operator.Pointwise) null, safe);
+    protected CharArray_c(dist d, Operator.Pointwise c, boolean safe) {
+    	this(d, c, safe, true);
     }
-    
-    protected CharArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
-    	this( d, c, safe, true);
-    }
-    protected CharArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+    public CharArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ignored) {
+		this(d, c, safe, mutable);
+	}
+    protected CharArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
+        assert (d instanceof Distribution_c);
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
@@ -72,13 +72,13 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
      * @param c
      * @param safe
      */
-    public CharArray_c( dist d, char c) {
+    public CharArray_c(dist d, char c) {
         this(d, c, true);
     }
-    public CharArray_c( dist d, char c, boolean safe ) {
+    public CharArray_c(dist d, char c, boolean safe) {
     	this(d, c, safe, true);
 }
-    public CharArray_c( dist d, char c, boolean safe, boolean mutable ) {
+    public CharArray_c(dist d, char c, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -95,13 +95,13 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
         scan(this, new Assign(c));
     	
     }
-    public CharArray_c( dist d, CharArray.pointwiseOp f) {
+    public CharArray_c(dist d, CharArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public CharArray_c( dist d, CharArray.pointwiseOp f, boolean safe) {
+    public CharArray_c(dist d, CharArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public CharArray_c( dist d, CharArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public CharArray_c(dist d, CharArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -119,7 +119,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
             scan(this, f);
     }
     
-    private CharArray_c( dist d, char[] a, boolean safe, boolean mutable) {
+    private CharArray_c(dist d, char[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -139,9 +139,9 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
      * @param a
      * @return
      */
-    public static CharArray_c CharArray_c( char[] a, boolean safe, boolean mutable ) {
+    public static CharArray_c CharArray_c(char[] a, boolean safe, boolean mutable) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
-    	return new CharArray_c(d, a, safe, mutable );
+    	return new CharArray_c(d, a, safe, mutable);
     }
     
     public void keepItLive() {}
@@ -178,17 +178,17 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
 	protected CharArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
-		return new CharArray_c((Distribution_c) d, safe_);	
+		return new CharArray_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
 	protected CharArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
-		return new CharArray_c((Distribution_c) d, c, safe_);	
+		return new CharArray_c(d, c, safe_);	
 	}
 	
 
-	public CharReferenceArray lift (CharArray.binaryOp op, x10.lang.charArray arg ) {
+	public CharReferenceArray lift (CharArray.binaryOp op, x10.lang.charArray arg) {
 	    assert arg.distribution.equals(distribution); 
 	    CharArray arg1 = (CharArray)arg;
 	    CharArray result = newInstance(distribution);
@@ -206,7 +206,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
 	    return result;
 	}
     
-	public CharReferenceArray lift (CharArray.unaryOp op ) {
+	public CharReferenceArray lift (CharArray.unaryOp op) {
 	    CharArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try {
@@ -222,7 +222,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
 	    return result;
 	}
     
-	public char reduce (CharArray.binaryOp op, char unit ) {
+	public char reduce (CharArray.binaryOp op, char unit) {
 	    char result = unit;
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try {
@@ -238,7 +238,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
 	    return result;
 	}
 
-	public CharReferenceArray scan( binaryOp op, char unit ) {
+	public CharReferenceArray scan(binaryOp op, char unit) {
 	    char temp = unit;
 	    CharArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
@@ -354,7 +354,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
     
     public char get(int[] pos) {return get(pos,true,true);}
     public char get(int[] pos,boolean chkPl,boolean chkAOB) {
-        final point p = Runtime.factory.getPointFactory().point( pos);
+        final point p = Runtime.factory.getPointFactory().point(pos);
     	return get(p);
     }
     

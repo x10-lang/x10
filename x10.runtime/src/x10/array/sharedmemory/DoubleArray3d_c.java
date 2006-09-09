@@ -42,16 +42,11 @@ public class DoubleArray3d_c extends DoubleArray_c {
 	 * Arrays are constructed by the corresponding factory methods in
 	 * x10.lang.Runtime. Assume the distribution is 3d.
 	 */
-	public DoubleArray3d_c(dist d) { this(d, (DoubleArray.pointwiseOp) null, true, false); }
-	public DoubleArray3d_c(Distribution_c d, boolean safe) {
-		this(d, (Operator.Pointwise) null, safe);
+	protected DoubleArray3d_c(dist d, Operator.Pointwise c, boolean safe) {
+		this(d, c, safe, true);
 	}
 
-	protected DoubleArray3d_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
-		this( d, c, safe, true);
-	}
-
-	protected DoubleArray3d_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+	protected DoubleArray3d_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
 		super(d, c, safe, mutable);
 		if (d.rank != 3)
 			throw new RankMismatchException(d, 3);
@@ -68,15 +63,15 @@ public class DoubleArray3d_c extends DoubleArray_c {
 	 * @param d
 	 * @param c
 	 */
-	public DoubleArray3d_c( dist d, double c) {
+	public DoubleArray3d_c(dist d, double c) {
 		this(d, c, true);
 	}
 
-	public DoubleArray3d_c( dist d, double c, boolean safe ) {
+	public DoubleArray3d_c(dist d, double c, boolean safe) {
 		this(d, c, safe, true);
 	}
 
-	public DoubleArray3d_c( dist d, double c, boolean safe, boolean mutable ) {
+	public DoubleArray3d_c(dist d, double c, boolean safe, boolean mutable) {
 		super(d, c, safe, mutable);
 		if (d.rank != 3)
 			throw new RankMismatchException(d, 3);
@@ -86,15 +81,15 @@ public class DoubleArray3d_c extends DoubleArray_c {
 		K = d.region.rank(2).high()+1;
 	}
 
-	public DoubleArray3d_c( dist d, DoubleArray.pointwiseOp f) {
+	public DoubleArray3d_c(dist d, DoubleArray.pointwiseOp f) {
 		this(d, f, true);
 	}
 
-	public DoubleArray3d_c( dist d, DoubleArray.pointwiseOp f, boolean safe) {
+	public DoubleArray3d_c(dist d, DoubleArray.pointwiseOp f, boolean safe) {
 		this(d, f, safe, true);
 	}
 
-	public DoubleArray3d_c( dist d, DoubleArray.pointwiseOp f, boolean safe, boolean mutable) {
+	public DoubleArray3d_c(dist d, DoubleArray.pointwiseOp f, boolean safe, boolean mutable) {
 		super(d, f, safe, mutable);
 		if (d.rank != 3)
 			throw new RankMismatchException(d, 3);
@@ -122,9 +117,9 @@ public class DoubleArray3d_c extends DoubleArray_c {
 	 * @param mutable
 	 * @return
 	 */
-	public static DoubleArray3d_c DoubleArray3d_c( double[] a, boolean safe, boolean mutable ) {
+	public static DoubleArray3d_c DoubleArray3d_c(double[] a, boolean safe, boolean mutable) {
 		dist d = Runtime.factory.getDistributionFactory().local(a.length);
-		return 	new DoubleArray3d_c(d, a, safe, mutable );
+		return 	new DoubleArray3d_c(d, a, safe, mutable);
 	}
 
 	protected void assign(DoubleArray rhs) {
@@ -135,12 +130,12 @@ public class DoubleArray3d_c extends DoubleArray_c {
 	protected DoubleArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		assert d.region instanceof Region3D0Base;
-		return new DoubleArray3d_c((Distribution_c) d, safe_);
+		return new DoubleArray3d_c(d, (Operator.Pointwise) null, safe_);
 	}
 
 	protected DoubleArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
-		return new DoubleArray3d_c((Distribution_c) d, c, safe_);
+		return new DoubleArray3d_c(d, c, safe_);
 	}
 
 	/* (non-Javadoc)
@@ -176,7 +171,7 @@ public class DoubleArray3d_c extends DoubleArray_c {
 		throw new ArrayIndexOutOfBoundsException("3darray");
 	}
 	public double set(double v, int d0, int d1, int d2) {
-		return arr_.setDouble(v, (d2 + K*(d1 + J*d0)));
+		return set(v, d0, d1, d2, true, true);
 	}
 	public double set(double v, int d0, int d1, int d2, boolean chkPl, boolean chkAOB) {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
@@ -187,7 +182,7 @@ public class DoubleArray3d_c extends DoubleArray_c {
 		}
 		return arr_.setDouble(v, (d2 + K*(d1 + J*d0)));
 	}
-	public int ord(int i, int j, int k ) { return k+K*(j+J*i); }
+	public int ord(int i, int j, int k) { return k+K*(j+J*i); }
 	public int[] coord(int p) { int[] r = new int[3]; r[2]= p%K; p=p/K; r[1]=p%J; r[0]=p; return r; }
 
 	/* (non-Javadoc)

@@ -35,20 +35,24 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     }
     
     /**
-     *  This constructor must not be used directly by an application programmer.
+     * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    protected ShortArray_c(Distribution_c d, boolean safe) {
+    protected ShortArray_c(dist d, boolean safe) {
         this(d, (Operator.Pointwise) null, safe);
     }
     
-    protected ShortArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
-    	this( d, c, safe, true);
+    protected ShortArray_c(dist d, Operator.Pointwise c, boolean safe) {
+    	this(d, c, safe, true);
     }
     
-    protected ShortArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+    public ShortArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ignored) {
+        this(d, c, safe, mutable);
+    }
+    protected ShortArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
+        assert (d instanceof Distribution_c);
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
@@ -71,15 +75,15 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
      * @param c
      * @param safe
      */
-    public ShortArray_c( dist d, short c) {
+    public ShortArray_c(dist d, short c) {
         this(d, c, true);
     }
     
-    public ShortArray_c( dist d, short c, boolean safe ) {
+    public ShortArray_c(dist d, short c, boolean safe) {
     	this(d, c, safe, true);
     }
     
-    public ShortArray_c( dist d, short c, boolean safe, boolean mutable ) {
+    public ShortArray_c(dist d, short c, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -97,15 +101,15 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     	
     }
     
-    public ShortArray_c( dist d, ShortArray.pointwiseOp f) {
+    public ShortArray_c(dist d, ShortArray.pointwiseOp f) {
         this(d, f, true);
     }
     
-    public ShortArray_c( dist d, ShortArray.pointwiseOp f, boolean safe) {
+    public ShortArray_c(dist d, ShortArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
     
-    public ShortArray_c( dist d, ShortArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public ShortArray_c(dist d, ShortArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -123,7 +127,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
             scan(this, f);
     }
     
-    private ShortArray_c( dist d, short[] a, boolean safe, boolean mutable) {
+    private ShortArray_c(dist d, short[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -144,7 +148,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
      * @param a
      * @return
      */
-    public static ShortArray_c ShortArray_c( short[] a, boolean safe, boolean mutable ) {
+    public static ShortArray_c ShortArray_c(short[] a, boolean safe, boolean mutable) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new ShortArray_c(d, a, safe, mutable);
     }
@@ -183,16 +187,16 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
 	protected ShortArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
-		return new ShortArray_c((Distribution_c) d, safe_);	
+		return new ShortArray_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
 	protected ShortArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
-		return new ShortArray_c((Distribution_c) d, c, safe_);	
+		return new ShortArray_c(d, c, safe_);	
 	}
 	
-	public ShortReferenceArray lift( ShortArray.binaryOp op, x10.lang.shortArray arg ) {
+	public ShortReferenceArray lift(ShortArray.binaryOp op, x10.lang.shortArray arg) {
 	    assert arg.distribution.equals(distribution); 
 	    ShortArray arg1 = (ShortArray)arg;
 	    ShortArray result = newInstance(distribution);
@@ -210,7 +214,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
 	    return result;
 	}
     
-	public ShortReferenceArray lift( ShortArray.unaryOp op ) {
+	public ShortReferenceArray lift(ShortArray.unaryOp op) {
 	    ShortArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try { 
@@ -226,7 +230,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
 	    return result;
 	}
     
-	public int reduce( ShortArray.binaryOp op, short unit ) {
+	public int reduce(ShortArray.binaryOp op, short unit) {
 	    int result = unit;
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try { 
@@ -242,7 +246,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
 	    return result;
 	}
 
-	public ShortReferenceArray scan( binaryOp op, short unit ) {
+	public ShortReferenceArray scan(binaryOp op, short unit) {
 	    short temp = unit;
 	    ShortArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
@@ -362,7 +366,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
     
     public short get(int[] pos) {return get(pos,true,true);}
     public short get(int[] pos,boolean chkPl,boolean chkAOB) {
-        final point p = Runtime.factory.getPointFactory().point( pos);
+        final point p = Runtime.factory.getPointFactory().point(pos);
     	return get(p);
     }
     
