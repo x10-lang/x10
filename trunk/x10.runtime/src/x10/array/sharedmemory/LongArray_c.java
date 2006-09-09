@@ -39,14 +39,13 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    protected LongArray_c(Distribution_c d, boolean safe) {
-        this(d, (Operator.Pointwise) null, safe);
+    protected LongArray_c(dist d, Operator.Pointwise c, boolean safe) {
+    	this(d, c, safe, true);
     }
-    
-    protected LongArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
-    	this( d, c, safe, true);
+    public LongArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ignored) {
+        this(d, c, safe, mutable);
     }
-    protected LongArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+    protected LongArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
         this.mutable_ = mutable;
         this.safe_ = safe;
@@ -70,13 +69,13 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
      * @param c
      * @param safe
      */
-    public LongArray_c( dist d, long c) {
+    public LongArray_c(dist d, long c) {
         this(d, c, true);
     }
-    public LongArray_c( dist d, long c, boolean safe ) {
+    public LongArray_c(dist d, long c, boolean safe) {
     	this(d, c, safe, true);
 }
-    public LongArray_c( dist d, long c, boolean safe, boolean mutable ) {
+    public LongArray_c(dist d, long c, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -93,13 +92,13 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
     	scan(this, new Assign(c));
     	
     }
-    public LongArray_c( dist d, LongArray.pointwiseOp f) {
+    public LongArray_c(dist d, LongArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public LongArray_c( dist d, LongArray.pointwiseOp f, boolean safe) {
+    public LongArray_c(dist d, LongArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public LongArray_c( dist d, LongArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public LongArray_c(dist d, LongArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -117,9 +116,9 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
             scan(this, f);
     }
     
-    private LongArray_c( dist d, long[] a) {
+    private LongArray_c(dist d, long[] a) {
     	super(d);
-    	this.arr_ = Allocator.allocSafeLongArray( a);
+    	this.arr_ = Allocator.allocSafeLongArray(a);
         this.safe_ = true;
         this.mutable_ = true;
     }
@@ -128,7 +127,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
      * @param a
      * @return
      */
-    public static LongArray_c LongArray_c( long[] a) {
+    public static LongArray_c LongArray_c(long[] a) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new LongArray_c(d, a);
     }
@@ -167,16 +166,16 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 	protected LongArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
-		return new LongArray_c((Distribution_c) d, safe_);	
+		return new LongArray_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
 	protected LongArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
-		return new LongArray_c((Distribution_c) d, c, safe_);	
+		return new LongArray_c(d, c, safe_);	
 	}
 	
-	public LongReferenceArray lift( LongArray.binaryOp op, x10.lang.longArray arg ) {
+	public LongReferenceArray lift(LongArray.binaryOp op, x10.lang.longArray arg) {
 	    assert arg.distribution.equals(distribution); 
 	    LongArray arg1 = (LongArray)arg;
 	    LongArray result = newInstance(distribution);
@@ -194,7 +193,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 	    return result;
 	}
     
-	public LongReferenceArray lift( LongArray.unaryOp op ) {
+	public LongReferenceArray lift(LongArray.unaryOp op) {
 	    LongArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try { 
@@ -210,7 +209,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         return result;
 	}
     
-	public long reduce( LongArray.binaryOp op, long unit ) {
+	public long reduce(LongArray.binaryOp op, long unit) {
 	    long result = unit;
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try { 
@@ -226,7 +225,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
         return result;
     }
 
-	public LongReferenceArray scan( binaryOp op, long unit ) {
+	public LongReferenceArray scan(binaryOp op, long unit) {
 	    long temp = unit;
 	    LongArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();

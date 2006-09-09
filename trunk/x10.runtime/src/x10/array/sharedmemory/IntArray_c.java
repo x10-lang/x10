@@ -47,28 +47,19 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         return arr_.getUnsafeDescriptor();
     }
     
-    /**
-     * This constructor must not be used directly by an application programmer.
-     * Arrays are constructed by the corresponding factory methods in 
-     * x10.lang.Runtime.
-     */
-    protected IntArray_c(Distribution_c d, boolean safe) {
-        this(d, (Operator.Pointwise) null, safe);
-    }
-    
     /** Create a new array per the given distribution, initialized to c.
      * 
      * @param d
      * @param c
      * @param safe
      */
-    public IntArray_c( dist d, int c) {
+    public IntArray_c(dist d, int c) {
 	this(d, c, true, true);
     }
-    public IntArray_c( dist d, int c, boolean mutable ) {
-    	this( d, c, true, mutable);
+    public IntArray_c(dist d, int c, boolean mutable) {
+    	this(d, c, true, mutable);
     }
-    public IntArray_c( dist d, int c, boolean safe, boolean mutable) {
+    public IntArray_c(dist d, int c, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
         this.safe_ = safe;
@@ -85,15 +76,15 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	scan(this, new Assign(c));
     	
     }
-    public IntArray_c( dist d, IntArray.pointwiseOp f){
+    public IntArray_c(dist d, IntArray.pointwiseOp f){
 	this(d, f, true, true);
     }
     
-    public IntArray_c( dist d, IntArray.pointwiseOp f, boolean mutable ){
+    public IntArray_c(dist d, IntArray.pointwiseOp f, boolean mutable){
     	this(d, f, true, mutable);
     }
     
-    public IntArray_c( dist d, IntArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public IntArray_c(dist d, IntArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
         this.safe_ = safe;
@@ -111,7 +102,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     	    scan(this, f);
     }
     
-    protected IntArray_c( dist d, int[] a, boolean safe, boolean mutable ) {
+    protected IntArray_c(dist d, int[] a, boolean safe, boolean mutable) {
     	super(d);
         this.mutable_ = mutable;
         this.safe_ = safe;
@@ -134,14 +125,27 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
      * @param a
      * @return
      */
-    public static IntArray_c IntArray_c(int[] a, boolean safe, boolean mutable ) {
+    public static IntArray_c IntArray_c(int[] a, boolean safe, boolean mutable) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
-    	return new IntArray_c(d, a, safe, mutable );
+    	return new IntArray_c(d, a, safe, mutable);
     }
-    protected IntArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
+
+    /**
+     * This constructor must not be used directly by an application programmer.
+     * Arrays are constructed by the corresponding factory methods in 
+     * x10.lang.Runtime.
+     */
+    protected IntArray_c(dist d, Operator.Pointwise c, boolean safe) {
+        this(d, c, safe, true);
+    }
+    public IntArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ignored) {
+        this(d, c, safe, mutable);
+    }
+    protected IntArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
+        assert (d instanceof Distribution_c);
         int count = d.region.size();
-        this.mutable_ = true;
+        this.mutable_ = mutable;
         this.safe_ = safe;
         if (!safe) {
             int rank = d.region.rank;
@@ -169,7 +173,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
     
   
     
-    public IntReferenceArray lift( IntArray.binaryOp op, x10.lang.intArray arg ) {
+    public IntReferenceArray lift(IntArray.binaryOp op, x10.lang.intArray arg) {
         assert arg.distribution.equals(distribution);
         IntReferenceArray result = newInstance(distribution);
         place here = x10.lang.Runtime.runtime.currentPlace();
@@ -185,7 +189,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         }
         return result;
     }
-    public IntReferenceArray lift( IntArray.unaryOp op ) {
+    public IntReferenceArray lift(IntArray.unaryOp op) {
         IntReferenceArray result = newInstance(distribution);
         place here = x10.lang.Runtime.runtime.currentPlace();
         try {
@@ -226,7 +230,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		return result;
     }	
 		
-    public int reduce( IntArray.binaryOp op, int unit ) {
+    public int reduce(IntArray.binaryOp op, int unit) {
         int result = unit;
         place here = x10.lang.Runtime.runtime.currentPlace();
         try {
@@ -242,7 +246,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         return result;
     }
 
-    public IntReferenceArray scan( IntArray.binaryOp op, int unit ) {
+    public IntReferenceArray scan(IntArray.binaryOp op, int unit) {
         int temp = unit;
         x10.lang.IntReferenceArray result = newInstance(distribution);
         place here = x10.lang.Runtime.runtime.currentPlace();
@@ -277,12 +281,12 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 
 	protected IntArray newInstance(dist d) {
 		assert d instanceof Distribution_c;		
-		return new IntArray_c((Distribution_c) d, safe_);	
+		return new IntArray_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
-	protected IntArray newInstance( dist d, Operator.Pointwise p) {
+	protected IntArray newInstance(dist d, Operator.Pointwise p) {
 		assert d instanceof Distribution_c;		
-		return new IntArray_c((Distribution_c) d, p, safe_);	
+		return new IntArray_c(d, p, safe_);	
 	}
     
 	public int set(int v, point pos) {
@@ -405,7 +409,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
 			Runtime.hereCheckPlace(distribution.get(pos));
 		
-		final point p = Runtime.factory.getPointFactory().point( pos);
+		final point p = Runtime.factory.getPointFactory().point(pos);
 		return get(p);
 	}
 	
@@ -464,7 +468,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
         return ret;
     }
     
-    public IntReferenceArray restriction( dist d) {
+    public IntReferenceArray restriction(dist d) {
         return restriction(d.region);
     }
     

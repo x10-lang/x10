@@ -39,19 +39,20 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
 
     
     /**
-     *  This constructor must not be used directly by an application programmer.
+     * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    protected ByteArray_c(Distribution_c d, boolean safe) {
-        this(d, (Operator.Pointwise) null, safe);
-    }
     
-    protected ByteArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
-    	this( d, c, safe, true);
+    protected ByteArray_c(dist d, Operator.Pointwise c, boolean safe) {
+    	this(d, c, safe, true);
     }
-    protected ByteArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+    public ByteArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ignored) {
+		this(d, c, safe, mutable);
+	}
+    protected ByteArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
+        assert (d instanceof Distribution_c);
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
@@ -74,13 +75,13 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
      * @param c
      * @param safe
      */
-    public ByteArray_c( dist d, byte c) {
+    public ByteArray_c(dist d, byte c) {
         this(d, c, true);
     }
-    public ByteArray_c( dist d, byte c, boolean safe ) {
+    public ByteArray_c(dist d, byte c, boolean safe) {
     	this(d, c, safe, true);
 }
-    public ByteArray_c( dist d, byte c, boolean safe, boolean mutable ) {
+    public ByteArray_c(dist d, byte c, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -97,13 +98,13 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
         scan(this, new Assign(c));
     	
     }
-    public ByteArray_c( dist d, ByteArray.pointwiseOp f) {
+    public ByteArray_c(dist d, ByteArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public ByteArray_c( dist d, ByteArray.pointwiseOp f, boolean safe) {
+    public ByteArray_c(dist d, ByteArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public ByteArray_c( dist d, ByteArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public ByteArray_c(dist d, ByteArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -121,7 +122,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
             scan(this, f);
     }
     
-    private ByteArray_c( dist d, byte[] a, boolean safe, boolean mutable) {
+    private ByteArray_c(dist d, byte[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -141,7 +142,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
      * @param a
      * @return
      */
-    public static ByteArray_c ByteArray_c( byte[] a, boolean safe, boolean mutable ) {
+    public static ByteArray_c ByteArray_c(byte[] a, boolean safe, boolean mutable) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new ByteArray_c(d, a, safe, mutable );
     }
@@ -180,16 +181,16 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
 	protected ByteArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
-		return new ByteArray_c((Distribution_c) d, safe_);	
+		return new ByteArray_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
 	protected ByteArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
-		return new ByteArray_c((Distribution_c) d, c, safe_);	
+		return new ByteArray_c(d, c, safe_);	
 	}	
 
-	public ByteReferenceArray lift( ByteArray.binaryOp op, x10.lang.byteArray arg ) {
+	public ByteReferenceArray lift(ByteArray.binaryOp op, x10.lang.byteArray arg) {
 	    assert arg.distribution.equals(distribution); 
 	    ByteArray arg1 = (ByteArray)arg;
 	    ByteArray result = newInstance(distribution);
@@ -207,7 +208,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
 	    return result;
 	}
     
-	public ByteReferenceArray lift( ByteArray.unaryOp op ) {
+	public ByteReferenceArray lift(ByteArray.unaryOp op) {
 	    ByteArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try {
@@ -223,7 +224,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
 	    return result;
 	}
     
-	public int reduce( ByteArray.binaryOp op, byte unit ) {
+	public int reduce(ByteArray.binaryOp op, byte unit) {
 	    byte result = unit;
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try {
@@ -239,7 +240,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
 	    return result;
 	}
 	
-	public ByteReferenceArray scan( binaryOp op, byte unit ) {
+	public ByteReferenceArray scan(binaryOp op, byte unit) {
 	    byte temp = unit;
 	    ByteArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();

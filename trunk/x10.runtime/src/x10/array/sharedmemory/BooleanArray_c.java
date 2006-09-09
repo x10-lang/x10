@@ -36,19 +36,19 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     }
     
     /**
-     *  This constructor must not be used directly by an application programmer.
+     * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    protected BooleanArray_c(Distribution_c d, boolean safe) {
-        this(d, (Operator.Pointwise) null, safe);
-    }
-    
-    protected BooleanArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
+    protected BooleanArray_c(dist d, Operator.Pointwise c, boolean safe) {
     	this( d, c, safe, true);
     }
-    protected BooleanArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+    public BooleanArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ignored) {
+		this(d, c, safe, mutable);
+	}
+    protected BooleanArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
+        assert (d instanceof Distribution_c);
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
@@ -59,25 +59,25 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
                 ranks[i] = d.region.rank(i).size();
             this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BOOLEAN);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Boolean.TYPE);
+            this.arr_ = Allocator.allocSafe(count, Boolean.TYPE);
         }
         if (c != null)
             pointwise(this, c);
     }
     
-    /** Create a new array per the given distribution, initialized to c.
-     * 
+    /**
+     * Create a new array per the given distribution, initialized to c.
      * @param d
      * @param c
      * @param safe
      */
-    public BooleanArray_c( dist d, boolean c) {
+    public BooleanArray_c(dist d, boolean c) {
         this(d, c, true);
     }
-    public BooleanArray_c( dist d, boolean c, boolean safe ) {
+    public BooleanArray_c(dist d, boolean c, boolean safe) {
     	this(d, c, safe, true);
 }
-    public BooleanArray_c( dist d, boolean c, boolean safe, boolean mutable ) {
+    public BooleanArray_c(dist d, boolean c, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -94,13 +94,13 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     	scan(this, new Assign(c));
     	
     }
-    public BooleanArray_c( dist d, BooleanArray.pointwiseOp f) {
+    public BooleanArray_c(dist d, BooleanArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public BooleanArray_c( dist d, BooleanArray.pointwiseOp f, boolean safe) {
+    public BooleanArray_c(dist d, BooleanArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public BooleanArray_c( dist d, BooleanArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public BooleanArray_c(dist d, BooleanArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -118,7 +118,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
             scan(this, f);
     }
     
-    private BooleanArray_c( dist d, boolean[] a, boolean safe, boolean mutable) {
+    private BooleanArray_c(dist d, boolean[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -133,12 +133,12 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
         }
         this.mutable_ = mutable;
     }
-    /** Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
-     * 
+    /**
+     * Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * @param a
      * @return
      */
-    public static BooleanArray_c BooleanArray_c( boolean[] a, boolean safe, boolean mutable ) {
+    public static BooleanArray_c BooleanArray_c(boolean[] a, boolean safe, boolean mutable) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
     	return new BooleanArray_c(d, a, safe, mutable );
     }
@@ -177,17 +177,17 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
 	protected BooleanArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
-		return new BooleanArray_c((Distribution_c) d, safe_);	
+		return new BooleanArray_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
 	protected BooleanArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
-		return new BooleanArray_c((Distribution_c) d, c, safe_);	
+		return new BooleanArray_c(d, c, safe_);	
 	}
 	
 
-	public BooleanReferenceArray lift( BooleanArray.binaryOp op, x10.lang.booleanArray arg ) {
+	public BooleanReferenceArray lift(BooleanArray.binaryOp op, x10.lang.booleanArray arg) {
 	    assert arg.distribution.equals(distribution); 
 	    BooleanArray arg1 = (BooleanArray)arg;
 	    BooleanArray result = newInstance(distribution);
@@ -204,7 +204,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
         }  
 	    return result;
 	}
-	public BooleanReferenceArray lift( BooleanArray.unaryOp op ) {
+	public BooleanReferenceArray lift(BooleanArray.unaryOp op) {
 	    BooleanArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
         try {
@@ -219,7 +219,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
         }   
 	    return result;
 	}
-	public boolean reduce( BooleanArray.binaryOp op, boolean unit ) {
+	public boolean reduce(BooleanArray.binaryOp op, boolean unit) {
 	    boolean result = unit;
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try {
@@ -235,7 +235,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
 	    return result;
 	}
 
-    public BooleanReferenceArray scan( binaryOp op, boolean unit ) {
+    public BooleanReferenceArray scan(binaryOp op, boolean unit) {
         boolean temp = unit;
         BooleanArray result = newInstance(distribution);
         place here = x10.lang.Runtime.runtime.currentPlace();

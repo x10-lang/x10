@@ -40,22 +40,19 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     	mutable_ = mutable;
     }
     /**
-     *  This constructor must not be used directly by an application programmer.
+     * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    public DoubleArray_c(dist d) {
-    	this(d, (DoubleArray.pointwiseOp) null, true, false);
+    protected DoubleArray_c(dist d, Operator.Pointwise c, boolean safe) {
+    	this(d, c, safe, true);
     }
-    protected DoubleArray_c(Distribution_c d, boolean safe) {
-        this(d, (Operator.Pointwise) null, safe);
-    }
-    
-    protected DoubleArray_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
-    	this( d, c, safe, true);
-    }
-    protected DoubleArray_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+    public DoubleArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ignored) {
+		this(d, c, safe, mutable);
+	}
+    protected DoubleArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
+        assert (d instanceof Distribution_c);
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size();
@@ -78,13 +75,13 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @param c
      * @param safe
      */
-    public DoubleArray_c( dist d, double c) {
+    public DoubleArray_c(dist d, double c) {
         this(d, c, true);
     }
-    public DoubleArray_c( dist d, double c, boolean safe ) {
+    public DoubleArray_c(dist d, double c, boolean safe) {
     	this(d, c, safe, true);
 }
-    public DoubleArray_c( dist d, double c, boolean safe, boolean mutable ) {
+    public DoubleArray_c(dist d, double c, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -101,13 +98,13 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         scan(this, new Assign(c));
     	
     }
-    public DoubleArray_c( dist d, DoubleArray.pointwiseOp f) {
+    public DoubleArray_c(dist d, DoubleArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public DoubleArray_c( dist d, DoubleArray.pointwiseOp f, boolean safe) {
+    public DoubleArray_c(dist d, DoubleArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public DoubleArray_c( dist d, DoubleArray.pointwiseOp f, boolean safe, boolean mutable) {
+    public DoubleArray_c(dist d, DoubleArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -125,7 +122,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
             scan(this, f);
     }
     
-    protected DoubleArray_c( dist d, double[] a, boolean safe, boolean mutable) {
+    protected DoubleArray_c(dist d, double[] a, boolean safe, boolean mutable) {
     	super(d);
         int count =  d.region.size();
     	this.safe_ = safe;
@@ -145,9 +142,9 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
      * @param a
      * @return
      */
-    public static DoubleArray_c DoubleArray_c( double[] a, boolean safe, boolean mutable ) {
+    public static DoubleArray_c DoubleArray_c(double[] a, boolean safe, boolean mutable) {
     	dist d = Runtime.factory.getDistributionFactory().local(a.length);
-    	return 	new DoubleArray_c(d, a, safe, mutable );
+    	return 	new DoubleArray_c(d, a, safe, mutable);
     }
     
     public void keepItLive() {}
@@ -184,17 +181,17 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
 	protected DoubleArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
-		return new DoubleArray_c((Distribution_c) d, safe_);	
+		return new DoubleArray_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
 	protected DoubleArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
-		return new DoubleArray_c((Distribution_c) d, c, safe_);	
+		return new DoubleArray_c(d, c, safe_);	
 	}
 	
 
-	public DoubleReferenceArray lift( DoubleArray.binaryOp op, x10.lang.doubleArray arg ) {
+	public DoubleReferenceArray lift(DoubleArray.binaryOp op, x10.lang.doubleArray arg) {
 	    assert arg.distribution.equals(distribution); 
 	    DoubleArray arg1 = (DoubleArray)arg;
 	    DoubleArray result = newInstance(distribution);
@@ -211,7 +208,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         }
 	    return result;
 	}
-	public DoubleReferenceArray lift( DoubleArray.unaryOp op ) {
+	public DoubleReferenceArray lift(DoubleArray.unaryOp op) {
 	    DoubleArray result = newInstance(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
         try {
@@ -230,7 +227,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
 	/**
 	 * Assume that r is contained in distribution.region.
 	 */
-    public double reduce( DoubleArray.binaryOp op, double unit, region r ) {
+    public double reduce(DoubleArray.binaryOp op, double unit, region r) {
         double result = unit;
         place here = x10.lang.Runtime.runtime.currentPlace();
         try {
@@ -246,7 +243,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
         return result;
     }
 
-    public DoubleReferenceArray scan( binaryOp op, double unit ) {
+    public DoubleReferenceArray scan(binaryOp op, double unit) {
         double temp = unit;
         DoubleArray result = newInstance(distribution);
         place here = x10.lang.Runtime.runtime.currentPlace();
@@ -367,7 +364,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
     
     public double get(int[] pos) {return get(pos,true,true);}
     public double get(int[] pos,boolean chkPl,boolean chkAOB) {
-        final point p = Runtime.factory.getPointFactory().point( pos);
+        final point p = Runtime.factory.getPointFactory().point(pos);
     	return get(p);
     }
     

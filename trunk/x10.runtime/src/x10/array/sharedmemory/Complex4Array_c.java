@@ -38,19 +38,19 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
 
     
     /**
-     *  This constructor must not be used directly by an application programmer.
+     * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
      * x10.lang.Runtime.
      */
-    protected Complex4Array_c(Distribution_c d, boolean safe) {
-        this(d, (Operator.Pointwise) null, safe);
-    }
-    
-    protected Complex4Array_c(Distribution_c d, Operator.Pointwise c, boolean safe) {
+    protected Complex4Array_c(dist d, Operator.Pointwise c, boolean safe) {
     	this( d, c, safe, true);
     }
-    protected Complex4Array_c(Distribution_c d, Operator.Pointwise c, boolean safe, boolean mutable) {
+    public Complex4Array_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ignored) {
+        this(d, c, safe, mutable);
+    }
+    protected Complex4Array_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
         super(d);
+        assert (d instanceof Distribution_c);
         this.mutable_ = mutable;
         this.safe_ = safe;
         int count =  d.region.size() * 2;
@@ -186,13 +186,13 @@ public class Complex4Array_c extends Complex4Array implements UnsafeContainer, C
 	protected Complex4Array newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
-		return new Complex4Array_c((Distribution_c) d, safe_);	
+		return new Complex4Array_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
 	protected Complex4Array newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
-		return new Complex4Array_c((Distribution_c) d, c, safe_);	
+		return new Complex4Array_c(d, c, safe_);	
 	}
 	
 
