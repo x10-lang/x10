@@ -14,10 +14,8 @@ public class ArrayInitializer extends x10Test {
 
 		final int value [d] ia =
 			new int value [d]
-			new intArray.pointwiseOp() {
-				public int apply(point [i,j,k]) {
-					return i;
-				}
+			(point [i,j,k]) {
+				return i;
 			};
 
 		for (point [i,j,k]: d) chk(ia[i,j,k] == i);
