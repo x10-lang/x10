@@ -9,6 +9,7 @@ import polyglot.ast.Precedence;
 import polyglot.ext.jl.ast.Unary_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10Type_c;
 import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
@@ -36,7 +37,8 @@ public class X10Unary_c extends Unary_c {
 	public Precedence precedence() {
 		/* [IP] TODO: This should be the real precedence */
 		X10Type l = (X10Type) expr.type();
-		if (l.isPoint()) {
+        X10TypeSystem xts = (X10TypeSystem) l.typeSystem();
+		if (xts.isPoint(l)) {
 			return Precedence.LITERAL;
 		}
 		return super.precedence();
@@ -56,7 +58,7 @@ public class X10Unary_c extends Unary_c {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10Type t = (X10Type) expr.type();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		if ((op == NEG || op == POS) && t.isPoint()) {
+		if ((op == NEG || op == POS) && ts.isPoint(t)) {
 			return type(t);
 		}
 
@@ -65,7 +67,8 @@ public class X10Unary_c extends Unary_c {
 
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		X10Type t = (X10Type) expr.type();
-		if ((op == NEG || op == POS) && t.isPoint()) {
+        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		if ((op == NEG || op == POS) && ts.isPoint(t)) {
 			printSubExpr(expr, true, w, tr);
 			if (op == NEG) {
 				w.write(".neg()");

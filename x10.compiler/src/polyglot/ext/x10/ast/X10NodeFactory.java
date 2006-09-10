@@ -14,6 +14,7 @@ import polyglot.ast.Instanceof;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.parse.Name;
@@ -77,10 +78,11 @@ public interface X10NodeFactory extends NodeFactory {
 	DepParameterExpr DepParameterExpr(Position pos, List args, Expr cond);
 	DepParameterExpr DepParameterExpr(Position pos, List args);
 	DepParameterExpr DepParameterExpr(Position pos, Expr cond);
-	MethodDecl MethodDecl(Position pos, TypeNode thisClause,
+	GenParameterExpr GenParameterExpr(Position pos, List args);
+    MethodDecl MethodDecl(Position pos, DepParameterExpr thisClause,
             Flags flags, TypeNode returnType, String name,
             List formals, Expr where, List throwTypes, Block body);
-    FieldDecl FieldDecl(Position pos, TypeNode thisClause, Flags flags, TypeNode type, String name, Expr init);
+    FieldDecl FieldDecl(Position pos, DepParameterExpr thisClause, Flags flags, TypeNode type, String name, Expr init);
 	X10ArrayTypeNode X10ArrayTypeNode(Position pos, TypeNode base,
 									  boolean isValueType,
 									  DepParameterExpr indexedSet);
@@ -98,5 +100,7 @@ public interface X10NodeFactory extends NodeFactory {
     ConstructorDecl ConstructorDecl(Position pos, Flags flags, String name,
             Expr retWhereClause, List formals, Expr argWhereClause, List throwTypes, Block body);
     PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, String name);
+    Special Self(Position pos);
+    FieldDecl CompilerTest(Position pos);
 }
 

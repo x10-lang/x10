@@ -61,7 +61,7 @@ public class BMResults implements Serializable {
 	public boolean serial;
 	public int pid;
 	public int verified;
-	public nullable BufferedWriter out = null;
+	public nullable<BufferedWriter> out = null;
 
 	public BMResults() { }
 
@@ -285,7 +285,7 @@ public class BMResults implements Serializable {
 	}
 
 	public int getFromFile(String filename) {
-		nullable BufferedReader in = null;
+		nullable<BufferedReader> in = null;
 		verified =-1;
 		try {
 			in = new BufferedReader(new FileReader(filename));
@@ -293,7 +293,7 @@ public class BMResults implements Serializable {
 			System.err.println("BMResults.getFromFile: filename "+e.toString());
 			return 0;
 		}
-		nullable String line = new String();
+		nullable<String> line = new String();
 		String keyword;
 		int idx1;
 		try {

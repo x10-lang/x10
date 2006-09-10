@@ -29,12 +29,12 @@ public abstract value class Primitive {
 	public Primitive() {
 		surf = new Surface();
 	}
-	public Primitive(nullable Surface s) {
+	public Primitive(nullable<Surface> s) {
 		surf = ((s == null) ? new Surface() : (Surface) s);
 	}
 
 	public abstract Vec normal(Vec pnt);
-	public abstract nullable Isect intersect(Ray ry);
+	public abstract nullable<Isect> intersect(Ray ry);
 	public abstract String toString();
 	public abstract Vec getCenter();
 	//public abstract void setCenter(Vec c);

@@ -11,6 +11,8 @@ import polyglot.ast.Precedence;
 import polyglot.ext.jl.ast.Binary_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.types.X10Type_c;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
@@ -31,6 +33,7 @@ import x10.lang.region;
  */
 public class X10Binary_c extends Binary_c {
 
+    X10TypeSystem xts = X10TypeSystem_c.getTypeSystem();
 	/**
 	 * @param pos
 	 * @param left
@@ -39,14 +42,16 @@ public class X10Binary_c extends Binary_c {
 	 */
 	public X10Binary_c(Position pos, Expr left, Operator op, Expr right) {
 		super(pos, left, op, right);
+     
 	}
 
 	/** Get the precedence of the expression. */
 	public Precedence precedence() {
 		/* [IP] TODO: This should be the real precedence */
 		X10Type l = (X10Type) left.type();
-		if (l.isPoint() || l.isPlace() || l.isDistribution() || l.isRegion() ||
-			l.isPrimitiveTypeArray() || l.isDistributedArray())
+		if (xts.isPoint(l) || xts.isPlace(l) || xts.isDistribution(l) 
+                || xts.isRegion(l) ||
+			xts.isPrimitiveTypeArray(l) || xts.isDistributedArray(l))
 		{
 			return Precedence.LITERAL;
 		}
@@ -62,8 +67,8 @@ public class X10Binary_c extends Binary_c {
 		X10Type rt = (X10Type) right.type();
 		if (lt == null || rt == null)
 			return false;
-		return (lt.isNull() && !rt.isNullable()) ||
-			   (!lt.isNullable() && rt.isNull());
+		return (lt.isNull() && ! xts.isNullable(rt)) ||
+			   (!xts.isNullable(lt) && rt.isNull());
 	}
 
 	// TODO: take care of the base cases for regions, distributions, points and places.
@@ -82,28 +87,28 @@ public class X10Binary_c extends Binary_c {
 
 		// [IP] An optimization: an object of a non-nullable type and "null"
 		// can never be equal.
-		assert (!(op == EQ || op == NE) || (lt.isNull() && !rt.isNullable()) ||
-				(!lt.isNullable() && rt.isNull()));
+		assert (!(op == EQ || op == NE) || (lt.isNull() && !xts.isNullable(rt)) ||
+				(!xts.isNullable(lt) && rt.isNull()));
 		if (op == EQ) return Boolean.FALSE;
 		if (op == NE) return Boolean.TRUE;
 
 		try {
-			if (lt.isDistribution()) {
+			if (xts.isDistribution(lt)) {
 				dist l = (dist) lv;
-				if (lt.isDistribution()) {
+				if (xts.isDistribution(rt)) {
 					if (op == COND_OR) return l.union((dist) rv);
 				}
-				if (rt.isPlace()) {
+				if (xts.isPlace(rt)) {
 					if (op == BIT_OR) return l.restriction((place) rv);
 				}
-				if (rt.isRegion()) {
+				if (xts.isRegion(rt)) {
 					if (op == BIT_OR) return l.restriction((region) rv);
 					if (op == SUB) return l.difference((region) rv);
 				}
 			}
-			if (lt.isRegion()) {
+			if (xts.isRegion(lt)) {
 				region l = (region) lv;
-				if (rt.isRegion()) {
+				if (xts.isRegion(rt)) {
 					region r = (region) rv;
 					if (op == SUB) return l.difference(r);
 					if (op == COND_OR) return l.union(r);
@@ -128,14 +133,15 @@ public class X10Binary_c extends Binary_c {
 
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		// TODO: define these operations for arrays as well, with the same distribution.
-		if ((op == GT || op == LT || op == GE || op == LE) && (l.isPoint() || l.isPlace())) {
-			if (l.isPlace()) {
-				if (!r.isPlace())
+		if ((op == GT || op == LT || op == GE || op == LE) && (xts.isPoint(l)
+                || xts.isPlace(l))) {
+			if (xts.isPlace(l)) {
+				if (!xts.isPlace(r))
 					throw new SemanticException("The " + op +
 							" operator instance must have a place operand.", right.position());
 			}
-			if (l.isPoint()) {
-				if (!r.isPoint())
+			if (xts.isPoint(l)) {
+				if (!xts.isPoint(r))
 					throw new SemanticException("The " + op +
 							" operator instance must have a point operand.", right.position());
 			}
@@ -143,73 +149,73 @@ public class X10Binary_c extends Binary_c {
 		}
 		// TODO: Check that the underlying regions are disjoint.
 
-		if (op == COND_OR && l.isDistributedArray()) { // || -- <T>array.union(<T>array right)
+		if (op == COND_OR && xts.isDistributedArray(l)) { // || -- <T>array.union(<T>array right)
 			if (!(l.equals(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have distributed array operands of the same base type ", right.position());
 			}
 			return type(l);
 		}
-		if (op == COND_OR && l.isRegion()) { // region.union(region r)
-			if (!(r.isRegion())) {
+		if (op == COND_OR && xts.isRegion(l)) { // region.union(region r)
+			if (!(xts.isRegion(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a region operand.", right.position());
 			}
 			return type(ts.region());
 		}
-		if (op == COND_OR && l.isDistribution()) { // || distribution.union(distribution r)
-			if (!(r.isDistribution())) {
+		if (op == COND_OR && xts.isDistribution(l)) { // || distribution.union(distribution r)
+			if (!(xts.isDistribution(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a distribution operand.", right.position());
 			}
 			return type(ts.distribution());
 		}
-		if (op == COND_AND && l.isRegion()) { // && region.intersection(region r)
-			if (!(r.isRegion())) {
+		if (op == COND_AND && xts.isRegion(l)) { // && region.intersection(region r)
+			if (!(xts.isRegion(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a region operand.", right.position());
 			}
 			return type(ts.region());
 		}
-		if (op == COND_AND && l.isDistribution()) { // && distribution.intersection(distribution r)
-			if (!(r.isDistribution())) {
+		if (op == COND_AND && xts.isDistribution(l)) { // && distribution.intersection(distribution r)
+			if (!(xts.isDistribution(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a distribution operand.", right.position());
 			}
 			return type(ts.distribution());
 		}
 
-		if (op == BIT_OR && l.isDistributedArray()) { // | array.restriction(distribution or region or place)
-			if (!(r.isDistribution() || r.isRegion() || r.isPlace())) {
+		if (op == BIT_OR && xts.isDistributedArray(l)) { // | array.restriction(distribution or region or place)
+			if (!(xts.isDistribution(r) || xts.isRegion(r) || xts.isPlace(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a distribution operand.", right.position());
 			}
 			return type(l);
 		}
-		if (op == BIT_OR && l.isDistribution()) {
+		if (op == BIT_OR && xts.isDistribution(l)) {
 			// distribution.restriction(place p) or distribution.restriction(region r)
-			if (!(r.isPlace() || r.isRegion()))
+			if (!(xts.isPlace(r) || xts.isRegion(r)))
 				throw new SemanticException("This " + op +
 						" operator instance must have a place or region operand.", right.position());
 			return type(ts.distribution());
 		}
 
-		if (op == SUB && l.isDistribution()) { //distribution.difference(region r)
-			if (!(r.isRegion() || r.isDistribution())) {
+		if (op == SUB && xts.isDistribution(l)) { //distribution.difference(region r)
+			if (!(xts.isRegion(r) || xts.isDistribution(r))) {
 				throw new SemanticException("The " + op +
 						" operator must have a region or distribution operand.", right.position());
 			}
 			return type(ts.distribution());
 		}
-		if (op == SUB && l.isRegion()) { // distribution.difference(region r)
-			if (!r.isRegion()) {
+		if (op == SUB && xts.isRegion(l)) { // distribution.difference(region r)
+			if (!xts.isRegion(r)) {
 				throw new SemanticException("The " + op +
 						" operator must have a region operands.", right.position());
 			}
 			return type(ts.region());
 		}
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
-				l.isPrimitiveTypeArray()) {
+                xts.isPrimitiveTypeArray(l)) {
 			// FIXME: allow strings here
 			// pointwise numerical operations. TODO: Check that one type can be numerically coerced to the other.
 			if (!l.equals(r)) {
@@ -220,16 +226,16 @@ public class X10Binary_c extends Binary_c {
 		}
 
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
-			l.isPoint() && !ts.equals(r, ts.String()))
+                xts.isPoint(l) && !ts.equals(r, ts.String()))
 		{
-			if (!r.isPoint() && !r.isIntOrLess())
+			if (!xts.isPoint(r) && !r.isIntOrLess())
 				throw new SemanticException("The " + op +
 						" operator instance must have a point or integer operand.", right.position());
 			return type(l);
 		}
 
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
-			r.isPoint() && !ts.equals(l, ts.String()))
+                xts.isPoint(r) && !ts.equals(l, ts.String()))
 		{
 			if (!l.isIntOrLess())
 				throw new SemanticException("The " + op +
@@ -256,7 +262,7 @@ public class X10Binary_c extends Binary_c {
 		X10Type r = (X10Type) right.type();
 		TypeSystem ts = l.typeSystem();
 
-		if ((op == GT || op == LT || op == GE || op == LE) & (l.isPoint() || l.isPlace())) {
+		if ((op == GT || op == LT || op == GE || op == LE) & (xts.isPoint(l) || xts.isPlace(l))) {
 			printSubExpr(left, true, w, tr);
 			w.write(".");
 			w.write(op == GT ? "gt" : (op == LT ? "lt" : (op == GE ? "ge" : "le")));
@@ -266,14 +272,15 @@ public class X10Binary_c extends Binary_c {
 			return;
 		}
 
-		if (op == COND_OR && (l.isDistribution() || l.isRegion() || l.isPrimitiveTypeArray())) {
+		if (op == COND_OR && (xts.isDistribution(l) 
+                || xts.isRegion(l) || xts.isPrimitiveTypeArray(l))) {
 			printSubExpr(left, true, w, tr);
 			w.write(".union(");
 			printSubExpr(right, false, w, tr);
 			w.write(")");
 			return;
 		}
-		if (op == COND_AND && (l.isRegion() || l.isDistribution())) {
+		if (op == COND_AND && (xts.isRegion(l) || xts.isDistribution(l))) {
 			printSubExpr(left, true, w, tr);
 			w.write(".intersection(");
 			printSubExpr(right, false, w, tr);
@@ -282,7 +289,8 @@ public class X10Binary_c extends Binary_c {
 		}
 
 		// New for X10.
-		if (op == BIT_OR && (l.isDistribution() || l.isDistributedArray() || l.isPlace())) {
+		if (op == BIT_OR && (xts.isDistribution(l) 
+                || xts.isDistributedArray(l) || xts.isPlace(l))) {
 			printSubExpr(left, true, w, tr);
 			w.write(".restriction(");
 			printSubExpr(right, false, w, tr);
@@ -291,14 +299,14 @@ public class X10Binary_c extends Binary_c {
 		}
 
 		// Modified for X10.
-		if (op == SUB && (l.isDistribution() || l.isRegion())) {
+		if (op == SUB && (xts.isDistribution(l) || xts.isRegion(l))) {
 			printSubExpr(left, true, w, tr);
 			w.write(".difference(");
 			printSubExpr(right, false, w, tr);
 			w.write(")");
 			return;
 		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && l.isPrimitiveTypeArray()) {
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPrimitiveTypeArray(l)) {
 			printSubExpr(left, true, w, tr);
 			w.write(".");
 			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
@@ -307,7 +315,7 @@ public class X10Binary_c extends Binary_c {
 			w.write(")");
 			return;
 		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && l.isPoint() && !ts.equals(r, ts.String())) {
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !ts.equals(r, ts.String())) {
 			printSubExpr(left, true, w, tr);
 			w.write(".");
 			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
@@ -316,7 +324,7 @@ public class X10Binary_c extends Binary_c {
 			w.write(")");
 			return;
 		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && r.isPoint() && !ts.equals(l, ts.String())) {
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !ts.equals(l, ts.String())) {
 			printSubExpr(right, true, w, tr);
 			w.write(".inv");
 			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");

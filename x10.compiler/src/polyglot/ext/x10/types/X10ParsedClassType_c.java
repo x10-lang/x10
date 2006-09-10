@@ -85,9 +85,19 @@ public class X10ParsedClassType_c extends ParsedClassType_c
 	}
     public DepParameterExpr depClause() { return depClause; }
 
+    public boolean typeEqualsImpl(Type o) {
+        return equalsImpl(o);
+    }
+    public int hashCode() {
+        return 
+          (baseType == this ? super.hashCode() : baseType.hashCode() ) 
+        + (depClause != null ? depClause.hashCode() : 0)
+        + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
+        
+    }
    public boolean equalsImpl(TypeObject o) {
        
-        if ( Report.should_report("debug", 5))
+        if (  Report.should_report("debug", 5))
             Report.report(5,"X10ParsedClassType_c: equals |" + this + "| and |" + o+"|?");
        
         boolean result = false;
@@ -334,44 +344,16 @@ public class X10ParsedClassType_c extends ParsedClassType_c
     
   // Uncomment the method below for debugging only. The output will confuse the post compiler (javac).
     
-  /*  public String toString() { 
+    public String toString() { 
         //Report.report(5,"X10ParsedClassType: toString |" + super.toString() + "|(#" 
         //        + this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
         return  
         ((baseType == this) ? super.toString() : ((X10ParsedClassType_c) baseType).toString())
-        + (isParametric() ? typeParameters.toString()  : "") 
-        + (depClause == null ? "" :  depClause.toString());
+        + (isParametric() ? "/*" + typeParameters.toString() + "*/"  : "") 
+        + (depClause == null ? "" : "/*" + depClause.toString() + "*/");
       //  + "(#" + hashCode() + ")";
-    }*/
+    }
         
-//	 ----------------------------- begin manual mixin code from X10Type_c
-	public boolean isNullable() { return false; }
-	public boolean isFuture() { return false; }
-	public FutureType toFuture() { return null; }
-	public NullableType toNullable() { return null;}
-	public boolean isPrimitiveTypeArray() { return X10Type_c.isPrimitiveTypeArray(this);}
-	public boolean isX10Array() { 
-        return X10Type_c.isX10Array(this);
-        }
-	public boolean isDistributedArray() { return X10Type_c.isPrimitiveTypeArray(this);}
-	public boolean isBooleanArray() { return X10Type_c.isBooleanArray(this);}
-	public boolean isCharArray() { return X10Type_c.isCharArray(this);}
-	public boolean isByteArray() { return X10Type_c.isByteArray(this); }
-	public boolean isShortArray() { return X10Type_c.isShortArray(this);}
-	public boolean isIntArray() { return X10Type_c.isIntArray(this); }
-	public boolean isLongArray() { return X10Type_c.isLongArray(this);}
-	public boolean isFloatArray() { return X10Type_c.isFloatArray(this);}
-	public boolean isDoubleArray() { return X10Type_c.isDoubleArray(this);}
-	public boolean isClock() { return X10Type_c.isClock(this);}
-	public boolean isPoint() { return X10Type_c.isPoint(this);}
-	public boolean isPlace() { return X10Type_c.isPlace(this);}
-	public boolean isRegion() { return X10Type_c.isRegion(this);}
-	public boolean isDistribution() { return X10Type_c.isDistribution(this);}
-	public boolean isSubtypeImpl(  Type other) { return X10Type_c.isSubtypeImpl(this, other);}
-    public boolean isValueType() { return X10Type_c.isValueType(this);}
-  
-   // boolean f = descendsFromImpl(this);
-	// ----------------------------- end manual mixin code from X10Type_c
 
 	// ugh... toString() is being used to write out code..!!
 
@@ -382,19 +364,27 @@ public class X10ParsedClassType_c extends ParsedClassType_c
                     + toType+"(#" + toType.hashCode() + "|?");
 		if (toType.isArray()) return false;
 		X10Type targetType = (X10Type) toType;
-         if ( Report.should_report("debug", 5))
+        NullableType realTarget = targetType.toNullable();
+         if (  Report.should_report("debug", 5))
                 Report.report(5,"X10ParsedClassType_c: ... isClass? "  
                         + targetType.isClass()
-                        + " isNullable? " + targetType.isNullable());
-		if (!targetType.isClass() && !targetType.isNullable())
-			return false;
-       
+                        + " not isNullable? " + (realTarget == null));
+		if ( Report.should_report("debug", 5) && !targetType.isClass() && realTarget == null) {
+            Report.report(5,"X10ParsedClassType_c: ... returning false");
+            return false;
+        }
+		
 		boolean result = ts.isSubtype( this, targetType);
-         if ( Report.should_report("debug", 5))
-             Report.report(5,"X10ParsedClassType_c: ...  " +
-                     this  + (result ? "is a subtype of " : "is not a subtype of ")
-                     + targetType
-                     +".");
+       
+        if (result) { 
+           
+            return result;
+        }
+        
+        if (realTarget != null) {
+            result = ts.isSubtype( this, realTarget.base());
+        }
+         
 		return result;
 	}
 
@@ -405,11 +395,12 @@ public class X10ParsedClassType_c extends ParsedClassType_c
 
 		boolean result = (toType.isPrimitive() && ts.isCastValid(xts.X10Object(), this));
 		if (result) return result;
-		if (targetType.isNullable()) {
-			NullableType type = targetType.toNullable();
+        NullableType type = targetType.toNullable();
+		if (type !=null) {
 			return isCastValidImpl(type.base());
 		}
-		if (targetType.isFuture()) {
+        FutureType f = targetType.toFuture();
+		if (f !=null) {
 			// If we can cast the Future into this type, we can do the reverse
 			return targetType.isCastValidImpl(this);
 		}
@@ -455,7 +446,8 @@ public class X10ParsedClassType_c extends ParsedClassType_c
         return properties;
      
     }
-
+    public NullableType toNullable() { return X10Type_c.toNullable(this);}
+    public FutureType toFuture() { return X10Type_c.toFuture(this);}
 
 }
 

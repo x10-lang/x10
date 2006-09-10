@@ -17,6 +17,7 @@ import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.Stmt_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10Type_c;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
@@ -84,7 +85,7 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
 
 		Expr newDomain = domain;
 		X10Type domainType = (X10Type) domain.type();
-		if (domainType.isX10Array())
+		if (ts.isX10Array(domainType))
 			newDomain = (Expr) getDomain(domain).typeCheck(tc);
 
 		return domain(newDomain);

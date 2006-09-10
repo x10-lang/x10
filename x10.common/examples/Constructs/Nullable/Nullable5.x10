@@ -13,8 +13,8 @@ public class Nullable5 extends x10Test {
 	public boolean run() {
 		boolean gotNull = false;
 		try {
-			nullable nullable Nullable5 x = X.mynull();
-			nullable Nullable5 y = (nullable Nullable5) x;
+			nullable<nullable<Nullable5>> x = X.mynull();
+			nullable<Nullable5>y = (nullable<Nullable5>) x;
 			// x and y are of the same type
 			if (x == y) X.use(y);
 			// y and use2 argument are of the same type
@@ -30,9 +30,9 @@ public class Nullable5 extends x10Test {
 	}
 
 	static class X {
-		public static void use(nullable Nullable5 y) { }
-		public static void use2(nullable nullable nullable Nullable5 y) { }
-		public static nullable nullable Nullable5 mynull() { return null; }
+		public static void use(nullable<Nullable5> y) { }
+		public static void use2(nullable<nullable<nullable<Nullable5> > > y) { }
+		public static nullable<nullable<Nullable5> > mynull() { return null; }
 	}
 }
 

@@ -6,7 +6,7 @@ import harness.x10Test;
 /**
  * Class cast test for nullable types.
  *
- * In X10, nullable Object is a proper supertype of Object
+ * In X10, nullable<Object>is a proper supertype of Object
  * (the latter does not include null, the former does).
  *
  * Tests miscellaneous classcast behavior with nullable types.
@@ -18,7 +18,7 @@ public class NullableObject3 extends x10Test {
 
 	public boolean run() {
 		x10.lang.Object x = new x10.lang.Object();
-		nullable x10.lang.Object y = null;
+		nullable<x10.lang.Object> y = null;
 		boolean castable = true;
 
 		x = new boxedInt(1);
@@ -32,10 +32,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// x can be cast to (nullable x10.lang.Object)
+		// x can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)x;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)x;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -52,10 +52,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// x can be cast to (nullable boxedInt)
+		// x can be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)x;
+			nullable<boxedInt> __y = (nullable<boxedInt>)x;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -72,10 +72,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// x can not be cast to (nullable boxedLong)
+		// x can not be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)x;
+			nullable<boxedLong> __y = (nullable<boxedLong>)x;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -93,10 +93,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// x can be cast to (nullable x10.lang.Object)
+		// x can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)x;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)x;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -113,10 +113,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// x can not be cast to (nullable boxedInt)
+		// x can not be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)x;
+			nullable<boxedInt> __y = (nullable<boxedInt>)x;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -133,10 +133,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// x can be cast to (nullable boxedLong)
+		// x can be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)x;
+			nullable<boxedLong> __y = (nullable<boxedLong>)x;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -154,10 +154,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// x can be cast to (nullable x10.lang.Object)
+		// x can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)x;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)x;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -174,10 +174,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// x can not be cast to (nullable boxedInt)
+		// x can not be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)x;
+			nullable<boxedInt> __y = (nullable<boxedInt>)x;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -194,10 +194,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// x can not be cast to (nullable boxedLong)
+		// x can not be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)x;
+			nullable<boxedLong> __y = (nullable<boxedLong>)x;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -215,10 +215,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// y can be cast to (nullable x10.lang.Object)
+		// y can be cast to (nullable<x10>.lang.Object)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)y;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -235,10 +235,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// y can be cast to (nullable boxedInt)
+		// y can be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)y;
+			nullable<boxedInt> __y = (nullable<boxedInt>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -255,10 +255,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// y can be cast to (nullable boxedLong)
+		// y can be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)y;
+			nullable<boxedLong>__y = (nullable<boxedLong>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -276,10 +276,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// y can be cast to (nullable x10.lang.Object)
+		// y can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)y;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -296,10 +296,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// y can be cast to (nullable boxedInt)
+		// y can be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)y;
+			nullable<boxedInt>__y = (nullable<boxedInt>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -316,10 +316,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// y can not be cast to (nullable boxedLong)
+		// y can not be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)y;
+			nullable<boxedLong>__y = (nullable<boxedLong>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -337,10 +337,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// y can be cast to (nullable x10.lang.Object)
+		// y can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)y;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -357,10 +357,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// y can not be cast to (nullable boxedInt)
+		// y can not be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)y;
+			nullable<boxedInt>__y = (nullable<boxedInt>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -377,10 +377,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// y can be cast to (nullable boxedLong)
+		// y can be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)y;
+			nullable<boxedLong>__y = (nullable<boxedLong>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -398,10 +398,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// y can be cast to (nullable x10.lang.Object)
+		// y can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)y;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -418,10 +418,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// y can not be cast to (nullable boxedInt)
+		// y can not be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)y;
+			nullable<boxedInt>__y = (nullable<boxedInt>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -438,10 +438,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// y can not be cast to (nullable boxedLong)
+		// y can not be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)y;
+			nullable<boxedLong>__y = (nullable<boxedLong>)y;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -459,10 +459,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// i can be cast to (nullable x10.lang.Object)
+		// i can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)i;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)i;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -479,17 +479,17 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// i can be cast to (nullable boxedInt)
+		// i can be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)i;
+			nullable<boxedInt>__y = (nullable<boxedInt>)i;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
 		}
 		if (!castable) throw new Error();
 
-		nullable boxedInt j = null;
+		nullable<boxedInt>j = null;
 		// j can not be cast to (x10.lang.Object)
 		castable = true;
 		try {
@@ -500,10 +500,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// j can be cast to (nullable x10.lang.Object)
+		// j can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)j;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)j;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -520,20 +520,20 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// j can be cast to (nullable boxedInt)
+		// j can be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)j;
+			nullable<boxedInt>__y = (nullable<boxedInt>)j;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
 		}
 		if (!castable) throw new Error();
 
-		// (nullable x10.lang.Object)j can be cast to (nullable boxedLong)
+		// (nullable<x10.lang.Object>)j can be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)(nullable x10.lang.Object)j;
+			nullable<boxedLong>__y = (nullable<boxedLong>)(nullable<x10.lang.Object>)j;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -551,10 +551,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// j can be cast to (nullable x10.lang.Object)
+		// j can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)j;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)j;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -571,10 +571,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// j can be cast to (nullable boxedInt)
+		// j can be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)j;
+			nullable<boxedInt>__y = (nullable<boxedInt>)j;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -592,10 +592,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// l can be cast to (nullable x10.lang.Object)
+		// l can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)l;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)l;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -612,17 +612,17 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// l can be cast to (nullable boxedLong)
+		// l can be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)l;
+			nullable<boxedLong>__y = (nullable<boxedLong>)l;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
 		}
 		if (!castable) throw new Error();
 
-		nullable boxedLong m = null;
+		nullable<boxedLong>m = null;
 		// m can not be cast to (x10.lang.Object)
 		castable = true;
 		try {
@@ -633,20 +633,20 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// m can be cast to (nullable x10.lang.Object)
+		// m can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)m;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)m;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
 		}
 		if (!castable) throw new Error();
 
-		// (nullable x10.lang.Object)m can be cast to (nullable boxedInt)
+		// (nullable<x10.lang.Object>)m can be cast to (nullable<boxedInt>)
 		castable = true;
 		try {
-			nullable boxedInt __y = (nullable boxedInt)(nullable x10.lang.Object)m;
+			nullable<boxedInt>__y = (nullable<boxedInt>)(nullable<x10.lang.Object>)m;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -663,10 +663,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (castable) throw new Error();
 
-		// m can be cast to (nullable boxedLong)
+		// m can be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)m;
+			nullable<boxedLong>__y = (nullable<boxedLong>)m;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -684,10 +684,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// m can be cast to (nullable x10.lang.Object)
+		// m can be cast to (nullable<x10.lang.Object>)
 		castable = true;
 		try {
-			nullable x10.lang.Object __y = (nullable x10.lang.Object)m;
+			nullable<x10.lang.Object> __y = (nullable<x10.lang.Object>)m;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -704,10 +704,10 @@ public class NullableObject3 extends x10Test {
 		}
 		if (!castable) throw new Error();
 
-		// m can be cast to (nullable boxedLong)
+		// m can be cast to (nullable<boxedLong>)
 		castable = true;
 		try {
-			nullable boxedLong __y = (nullable boxedLong)m;
+			nullable<boxedLong>__y = (nullable<boxedLong>)m;
 			X.use(__y);
 		} catch (ClassCastException e) {
 			castable = false;
@@ -738,7 +738,7 @@ public class NullableObject3 extends x10Test {
 	}
 
 	static class X {
-		static void use( nullable java.lang.Object y) { }
+		static void use( nullable<java.lang.Object> y) { }
 	}
 }
 

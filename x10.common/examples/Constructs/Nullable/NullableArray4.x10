@@ -1,3 +1,4 @@
+
 //Generated automatically by
 //m4 NullableArray4.m4 > NullableArray4.x10
 //Do not edit
@@ -21,25 +22,25 @@ public class NullableArray4 extends x10Test {
 		boolean gotException = false;
 
 		Sub[.] subarr00 = new Sub[[0:3]];
-		(nullable Sub)[.] subarr01 = new (nullable Sub)[[0:3]];
-		nullable Sub[.] subarr10 = null;
+		nullable<Sub>[.] subarr01 = new nullable<Sub>[[0:3]];
+		nullable<Sub[.]> subarr10 = null;
 		subarr10 = subarr00;
-		nullable (nullable Sub)[.] subarr11 = null;
+		nullable <nullable<Sub>[.]> subarr11 = null;
 		subarr11 = subarr01;
 
 		Sup[.] suparr00 = subarr00;
-		(nullable Sup)[.] suparr01 = subarr00;
+		nullable<Sup>[.] suparr01 = subarr00;
 		suparr01 = subarr01;
 		suparr01 = suparr00;
 
-		nullable Sup[.] suparr10 = subarr00;
+		nullable<Sup[.]> suparr10 = subarr00;
 
 		//suparr10 = subarr01; //illegal
 		suparr10 = subarr10;
 		suparr10 = suparr00;
 		//suparr10 = suparr01; //illegal
 
-		nullable (nullable Sup)[.] suparr11 = subarr00;
+		nullable<nullable<Sup>[.]> suparr11 = subarr00;
 		suparr11 = subarr01;
 
 		suparr11 = subarr10;
@@ -189,9 +190,9 @@ public class NullableArray4 extends x10Test {
 		//what about java classes?
 
 		String[] sa00 = new String[3];
-		(nullable String)[] sa01 = new (nullable String)[3];
-		nullable String[] sa10 = null;
-		nullable (((nullable String)[])) sa11 = null;
+		nullable<String>[] sa01 = new nullable<String>[3];
+		nullable<String[]> sa10 = null;
+		nullable<nullable<String>[]> sa11 = null;
 
 		sa01 = sa00;
 		sa10 = sa00;

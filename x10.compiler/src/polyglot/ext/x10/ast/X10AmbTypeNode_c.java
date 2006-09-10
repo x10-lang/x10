@@ -50,7 +50,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
         X10AmbTypeNode_c n = (X10AmbTypeNode_c) copy();
         n.gen=g;
         n.dep=d;
-        Report.report(1, "X10AmbType: Adding a dep |" + d + "|, g=|" + g + "| => " + n);
+        //Report.report(1, "X10AmbType: Adding a dep |" + d + "|, g=|" + g + "| => " + n + "(#" + n.hashCode() +")");
         return n;
     }
     
@@ -65,10 +65,10 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
     }
    
     public Node disambiguate(AmbiguityRemover sc) throws SemanticException {
-       // Report.report(5, "X10AmbTypeNode_c: disambiguate (#" + this.hashCode() + ")|" + this + "| type=|" + type()+"|");
+    //    Report.report(3, "X10AmbTypeNode_c: disambiguate (#" + this.hashCode() + ")|" + this + "| type=|" + type()+"|");
         TypeNode result = (TypeNode) X10TypeNode_c.disambiguateDepClause(this, sc);
-        // TypeNode result = (TypeNode) super.disambiguate(sc);
-       //Report.report(5,"X10AmbTypeNode_c: (#" + this.hashCode()+")... returns |" + result + "| type=|" + result.type() + "|");
+        //TypeNode result = (TypeNode) super.disambiguate(sc);
+     // Report.report(3,"X10AmbTypeNode_c: (#" + this.hashCode()+")... returns |" + result + "| type=|" + result.type() + "|");
         return result;
     }
     public Node disambiguateBase(AmbiguityRemover sc) throws SemanticException {

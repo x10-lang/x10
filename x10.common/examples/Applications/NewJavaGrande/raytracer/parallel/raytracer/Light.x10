@@ -24,7 +24,7 @@ package raytracer;
 
 //ok
 public value class Light {
-	final public nullable Vec pos;
+	final public nullable<Vec> pos;
 	final public double	brightness;
 
 	public Light() {

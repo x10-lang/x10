@@ -104,7 +104,7 @@ public class AppDemo extends Universal {
 	double avgExpectedReturnRateMC = 0.0;
 	double avgVolatilityMC = 0.0;
 
-	nullable ToInitAllTasks initAllTasks = null;
+	nullable<ToInitAllTasks> initAllTasks = null;
 
 	/**
 	 * Single point of contact for running this increasingly bloated

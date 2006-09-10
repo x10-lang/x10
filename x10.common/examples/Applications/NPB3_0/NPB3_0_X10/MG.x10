@@ -73,7 +73,7 @@ public class MG extends MGBase {
 	}
 
 	public static void entryPoint(String argv[]) {
-		nullable MG mg = null;
+		nullable<MG> mg = null;
 
 		BMArgs.ParseCmdLineArgs(argv, BMName);
 		char CLSS = BMArgs.CLASS.val;

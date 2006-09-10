@@ -6,10 +6,11 @@ import harness.x10Test;
 public class FutureNullable1Boxed extends x10Test {
 	public boolean run() {
 		final boolean b = X.t();
-		future<nullable future<FutureNullable1Boxed>> x =
+		future<nullable<future<FutureNullable1Boxed> > > x =
 			future {
-				b ? (( nullable future<FutureNullable1Boxed> ) null)
-				  : (( nullable future<FutureNullable1Boxed> ) future { new FutureNullable1Boxed() } )
+				b ? (( nullable<future<FutureNullable1Boxed>> ) null)
+				  : (( nullable<future<FutureNullable1Boxed>> ) future { 
+				      new FutureNullable1Boxed() } )
 			};
 		return x.force() == null;
 	}

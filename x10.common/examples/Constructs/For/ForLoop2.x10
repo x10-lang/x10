@@ -19,7 +19,7 @@ public class ForLoop2 extends x10Test {
 
 		//Ensure iterator works in lexicographic order
 		int n = 0;
-		nullable point prev = null;
+		nullable<point> prev = null;
 		for (point p: d3) {
 			if (!successor(prev, p)) return false;
 			prev = p;
@@ -36,7 +36,7 @@ public class ForLoop2 extends x10Test {
 	 * i.e. we expect the order (0,0,0), (0,0,1),(0,0,2)
 	 *  (0,1,0) ... (2,2,2) (row-major order)
 	 */
-	static boolean successor(nullable point prev, point p) {
+	static boolean successor(nullable<point> prev, point p) {
 		if (prev == null) return true;
 		int i = prev[0];
 		int j = prev[1];

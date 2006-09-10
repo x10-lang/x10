@@ -9,7 +9,7 @@ public class Nullable0Ref extends x10Test {
 	public boolean run() {
 		boolean gotNull = false;
 		try {
-			nullable Nullable0Ref x = X.mynull();
+			nullable<Nullable0Ref> x = X.mynull();
 			Nullable0Ref y = (Nullable0Ref) x;
 			X.use(y);
 		} catch (ClassCastException e) {
@@ -23,7 +23,7 @@ public class Nullable0Ref extends x10Test {
 	}
 
 	static class X {
-		public static nullable Nullable0Ref mynull() { return null; }
+		public static nullable<Nullable0Ref> mynull() { return null; }
 		public static void use(Nullable0Ref y) { }
 	}
 }

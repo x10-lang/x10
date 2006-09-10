@@ -28,9 +28,10 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 
 	/** Used for deserializing types. */
     protected X10PrimitiveType_c() { }
-
+protected X10TypeSystem xts;
     public X10PrimitiveType_c(TypeSystem ts, Kind kind) {
         super(ts, kind);
+        xts = (X10TypeSystem) ts;
     }
     
     protected DepParameterExpr depClause;
@@ -39,7 +40,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
     public X10Type baseType() { return baseType;}
     public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
     public List typeParameters() { return typeParameters;}
-    
+    public DepParameterExpr depClause() { return depClause; }
     public X10Type makeVariant(DepParameterExpr d, List/*<GenParameterExpr>*/ l) { 
         if (d == null && (l == null || l.isEmpty()))
             return this;
@@ -51,8 +52,17 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
             Report.report(5,"X10PrimitiveType_c.makeVariant: " + this + " creates |" + n + "|");
         return n;
     }
-    public DepParameterExpr depClause() { return depClause; }
-    
+
+    public boolean typeEqualsImpl(Type o) {
+        return equalsImpl(o);
+    }
+    public int hashCode() {
+        return 
+          (baseType == this ? super.hashCode() : baseType.hashCode() ) 
+        + (depClause != null ? depClause.hashCode() : 0)
+        + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
+        
+    }
     public boolean equalsImpl(Object o) {
         if (! (o instanceof X10PrimitiveType_c)) return false;
         X10PrimitiveType_c other = (X10PrimitiveType_c) o;
@@ -74,16 +84,26 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
     }
 
     /** Return true if this type can be assigned to <code>toType</code>. */
-    public boolean isImplicitCastValidImpl(Type toType) {
+    public boolean isImplicitCastValidImpl(Type origType) {
         // System.out.println( "[PrimitiveType_c] isImplicitCastValid |" + this + "| to |" + toType + "|?");
     	X10TypeSystem xts = (X10TypeSystem) ts;
-        return ts.equals(toType, xts.X10Object()) ||
+        X10Type toType = (X10Type) origType;
+        NullableType targetType = toType.toNullable();
+        if (targetType != null) {
+            toType = targetType.base();
+        }
+
+        return xts.equals(toType, xts.X10Object()) ||
                super.isImplicitCastValidImpl(toType);
     }
 
     /** Returns true iff a cast from this to <code>toType</code> is valid. */
-    public boolean isCastValidImpl(Type toType) {
+    public boolean isCastValidImpl(Type origType) {
     	X10TypeSystem xts = (X10TypeSystem) ts;
+        X10Type toType = (X10Type) origType;
+        NullableType nullType = toType.toNullable();
+        if (nullType != null) 
+            toType = nullType.base();
         return ts.equals(toType, xts.Object()) || super.isCastValidImpl(toType);
     }
     
@@ -97,34 +117,16 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
         + "(#" + hashCode() + ")";
     }*/
     
-//	 ----------------------------- begin manual mixin code from X10Type_c
-	public boolean isNullable() { return false; }
-	public boolean isFuture() { return false; }
-	public NullableType toNullable() { return null;}
-	public FutureType toFuture() { return null; }
-	public boolean isDistribution() { return false; }
-	public boolean isDistributedArray() { return false; }
-	public boolean isPrimitiveTypeArray() { return false; }
-	public boolean isBooleanArray() { return false; }
-    public boolean isCharArray() { return false; }
-    public boolean isByteArray() { return false; }
-    public boolean isShortArray() { return false; }
-    public boolean isLongArray() { return false; }
-	public boolean isIntArray() { return false; }
-    public boolean isFloatArray() { return false; }
-	public boolean isDoubleArray() { return false; }
-	public boolean isClock() { return false; }
-	public boolean isRegion() { return false; }
-	public boolean isPlace() { return false;}
-	public boolean isPoint() { return false; }
-	public boolean isX10Array() { return false; }
+
     
     /**
      * Note that this (general) mix-in code correctly takes care of ensuring that
      * int is a subtype of nullable int as well as x10.lang.X10Object.
      */
     public boolean isSubtypeImpl(  Type other) { return X10Type_c.isSubtypeImpl(this, other);}
-    public boolean isValueType() { return X10Type_c.isValueType(this); }
+    public boolean isValueType() { return xts.isValueType(this); }
     public List properties() { return Collections.EMPTY_LIST;}
+    public NullableType toNullable() { return X10Type_c.toNullable(this);}
+    public FutureType toFuture() { return X10Type_c.toFuture(this);}
 	// ----------------------------- end manual mixin code from X10Type_c
 }

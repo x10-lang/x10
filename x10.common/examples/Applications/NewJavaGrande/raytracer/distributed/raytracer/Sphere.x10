@@ -39,7 +39,7 @@ public value class Sphere extends Primitive {
 		this(center, radius, new Surface());
 	}
 	
-	public nullable Isect intersect(Ray ry) {
+	public nullable<Isect> intersect(Ray ry) {
 		Vec v=Vec.sub(c, ry.p);
 		double b = Vec.dot(v, ry.d);
 		double disc = b*b - Vec.dot(v, v) + r2;

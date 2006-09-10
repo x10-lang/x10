@@ -13,15 +13,16 @@
  *
  * @author grothoff 01/2006
  */
-class NullableOverriding {
+ import harness.x10Test;
+class NullableOverriding extends x10Test {
 
 	public boolean run() {
 		NullableOverriding a = new NullableOverriding();
-		nullable NullableOverriding b = new NullableOverriding();
+		nullable<NullableOverriding> b = new NullableOverriding();
 		return 3 == m(a) + m(b);
 	}
 
-	public static int m(nullable NullableOverriding o) {
+	public static int m(nullable<NullableOverriding> o) {
 		return 1;
 	}
 

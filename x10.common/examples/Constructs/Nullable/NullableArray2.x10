@@ -8,16 +8,16 @@ import harness.x10Test;
 public class NullableArray2 extends x10Test {
 
 	public boolean run() {
-		(nullable int)[] ia1 = new (nullable int)[2];
+		nullable<int>[] ia1 = new nullable<int>[2];
 		if (ia1[1] != null) return false;
 
-		nullable (nullable int)[] ia2 = null;
+		nullable<nullable<int>[]> ia2 = null;
 		if (ia2 != null) return false;
 
-		nullable (nullable int)[.] ia3 = null;
+		nullable<nullable<int>[.]> ia3 = null;
 		if (ia3 != null) return false;
 
-		ia3 = new (nullable int)[[0:2]->here];
+		ia3 = new nullable<int>[[0:2]->here];
 		if (ia3[2] != null) return false;
 
 		if (X.trueFun()) {
@@ -27,27 +27,27 @@ public class NullableArray2 extends x10Test {
 
 		// cannot assign a nullable int y to an element
 		// of an array of int's, unless y is not null
-		nullable int y = null;
+		nullable<int> y = null;
 		boolean gotException = false;
 		try { ia3[0] = y; }
 		catch (ClassCastException e) { gotException = true; }
 		if (!gotException) return false;
 
-		(nullable mycomplex)[.] ia4 =
-			new (nullable mycomplex)[[0:2]->here]
+		nullable<mycomplex>[.] ia4 =
+			new nullable<mycomplex>[[0:2]->here]
 			(point [i]) { return new mycomplex(); };
 		if (ia4[2].im != 0) return false;
 
-		nullable (nullable mycomplex)[.] ia5 =
-			new (nullable mycomplex)[[0:2]->here]
+		nullable<nullable<mycomplex>[.]> ia5 =
+			new nullable<mycomplex>[[0:2]->here]
 			(point [i]) { return new mycomplex(); };
 		if (ia5[2].im != 0) return false;
 
-		nullable (nullable mycomplex)[.] ia7 = null;
+		nullable<nullable<mycomplex>[.]> ia7 = null;
 		if (ia7 != null) return false;
 
-		nullable (nullable mycomplex)[.] ia9 =
-			new (nullable mycomplex)[[0:2]->here];
+		nullable<nullable<mycomplex>[.]> ia9 =
+			new nullable<mycomplex>[[0:2]->here];
 		if (ia9[2] != null) return false;
 
 		return true;

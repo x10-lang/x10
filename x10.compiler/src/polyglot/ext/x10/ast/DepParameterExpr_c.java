@@ -5,21 +5,30 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
+import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.main.Report;
+import polyglot.types.Flags;
+import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
 /** An immutable representation of the parameter list of a parameteric type.
@@ -47,12 +56,13 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         this(pos, l, null);
     }
     public DepParameterExpr_c(Position pos, Expr cond) {
-        this(pos, null, cond);
+        this(pos, Collections.EMPTY_LIST, cond);
     }
     public DepParameterExpr_c(Position pos, List l, Expr cond) {
         super(pos);
         this.args =  TypedList.copyAndCheck(l, Expr.class, false);
         this.condition = cond;
+        //Report.report(1, "DepParameterExpr_c: created " + l + " cond=" + cond);
     }
     
     public Expr condition() {
@@ -79,18 +89,52 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         return n;
     }
     public Node visitChildren(NodeVisitor v) {
+        //Report.report(1, "DepParameterExpr_c:  " + v + " visits " + this);
+        //if (v.toString().startsWith("AmbiguityRemover")) {
+           // new Exception().printStackTrace();
+        //}
         List arguments = visitList(this.args, v);
         Expr condition = (Expr) visitChild(this.condition, v);
         return reconstruct(arguments, condition);
     }
     
+  
+    public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
+        //Report.report(1, "DepParameterExpr_c: Disambiguate " + this);
+     // new Exception().printStackTrace();
+        List newArgs = new ArrayList();
+        
+        for(Iterator i = args.iterator(); i.hasNext();) {
+            Expr e = (Expr) i.next();
+            Node n = e.disambiguate(ar);
+            
+            if (n instanceof Expr) {
+                newArgs.add(n);
+                continue;
+              }
+          throw new SemanticException("Could not find field or local " +
+                                      "variable \"" + e + "\".", position());
+        }
+        
+        if (condition == null)
+            return args(newArgs);
+        
+        Node newCond = condition.disambiguate(ar);
+        
+        if (newCond instanceof Expr) {
+            return reconstruct(newArgs, (Expr) newCond);
+        }
+        throw new SemanticException("Could not disambiguate " 
+                + condition + "\".", position());
+        
+    }
     /** Type check the statement. 
      * TODO: Implement type checking.
      * The boolean expression must only access parameter fields, and must only invoke specified methods.
      */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        
+        Report.report(1, "DepParameterExpr: Typechecking " + this);
         return this;
     }
     /* (non-Javadoc)

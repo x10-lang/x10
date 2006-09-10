@@ -8,7 +8,7 @@ import harness.x10Test;
 public class NullableIntArray extends x10Test {
 
 	public boolean run() {
-		final nullable int[] A = { 3, 2, 1 };
+		final nullable<int[]> A = { 3, 2, 1 };
 		int v = (A[1] == 2) ? 1 : 0;
 		return v == 1;
 	}

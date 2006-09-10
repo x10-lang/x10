@@ -34,11 +34,11 @@ public class X10Field_c extends Field_c {
 		
 	}
 
-	 public Node typeCheck(TypeChecker tc) throws SemanticException {
+/* public Node typeCheck(TypeChecker tc) throws SemanticException {
 	 
 	 	if (name.equals("location") && ((X10Type) target.type()).isValueType()) {
 	 		return new X10NodeFactory_c().Here(position()).typeCheck(tc);
 	 	}
 	 	return super.typeCheck( tc );
-	 }
+	 }*/
 }

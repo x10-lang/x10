@@ -44,7 +44,7 @@ public class Exceptions2 extends x10Test {
 
 	static class Node2 {
 		int data;
-		nullable Node2 next;
+		nullable<Node2> next;
 	}
 
 	static class X {

@@ -405,7 +405,6 @@ $Headers
             }
             return null;
         }
-
         /**
          * Pretend to have parsed
          * <code>
@@ -768,6 +767,14 @@ $Rules -- Overridden rules from GJavaParser
        result[1] = WhereClauseopt;
        setResult(result);
      $EndJava ./
+              | ( WhereClause )
+       /.$BeginJava
+       Object[] result = new Object[2];
+       result[0] = null;
+       result[1] = WhereClause;
+       setResult(result);
+     $EndJava ./
+            
 
        Properties ::= Property
         /.$BeginJava
@@ -782,23 +789,22 @@ $Rules -- Overridden rules from GJavaParser
                     // setResult(FormalParameters);
           $EndJava
         ./
-
-
+    
+    
     Property ::=  Type identifier
         /.$BeginJava
-
+        
                     setResult(nf.PropertyDecl(pos(), Flags.PUBLIC.Final(), Type,
                     identifier.getIdentifier()));
-
+                  
           $EndJava
         ./
-    MethodHeader ::= MethodModifiersopt ResultType MethodDeclarator Throwsopt
+    MethodHeader ::= ThisClauseopt MethodModifiersopt ResultType MethodDeclarator Throwsopt
         /.$BeginJava
           Name c = (Name) MethodDeclarator[0];
           List d = (List) MethodDeclarator[1];
           Integer e = (Integer) MethodDeclarator[2];
           Expr where = (Expr) MethodDeclarator[3];
-          TypeNode thisClause = (TypeNode) MethodDeclarator[4];
           if (ResultType.type() == ts.Void() && e.intValue() > 0)
              {
                // TODO: error!!!
@@ -806,7 +812,7 @@ $Rules -- Overridden rules from GJavaParser
              }
 
            setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($MethodDeclarator)),
-              thisClause,
+              ThisClauseopt,
               MethodModifiersopt,
               nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e.intValue()),
               c.toString(),
@@ -841,7 +847,7 @@ $Rules -- Overridden rules from GJavaParser
     NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier PropertyListopt ExtendsInterfacesopt InterfaceBody
         /.$BeginJava
           checkTypeName(identifier);
-          List/*<PropertyDecl>*/ props = PropertyListopt == null ? null
+          List/*<PropertyDecl>*/ props = PropertyListopt == null ? null 
                       : (List) PropertyListopt[0];
           Expr ci = PropertyListopt == null ? null : (Expr) PropertyListopt[1];
           setResult(nf.ClassDecl(pos(),
@@ -855,13 +861,13 @@ $Rules -- Overridden rules from GJavaParser
           $EndJava
         ./
 
-    AbstractMethodDeclaration ::= AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt ;
+    AbstractMethodDeclaration ::= ThisClauseopt AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt ;
         /.$BeginJava
          Name c = (Name) MethodDeclarator[0];
          List d = (List) MethodDeclarator[1];
          Integer e = (Integer) MethodDeclarator[2];
          Expr where = (Expr) MethodDeclarator[3];
-         TypeNode thisClause = (TypeNode) MethodDeclarator[4];
+         
          if (ResultType.type() == ts.Void() && e.intValue() > 0)
             {
               // TODO: error!!!
@@ -869,7 +875,7 @@ $Rules -- Overridden rules from GJavaParser
             }
 
          setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($MethodDeclarator)),
-                    thisClause,
+                    ThisClauseopt,
                     AbstractMethodModifiersopt ,
                     nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e.intValue()),
                     c.toString(),
@@ -925,28 +931,25 @@ $Rules
 
     -------------------------------------- Section:::Types
 
-    Type ::= DataType
+    Type ::= DataType 
         /.$BeginJava
                   setResult(DataType);
           $EndJava
         ./
-            | nullable Type
+            | nullable < Type > DepParametersopt
         /.$BeginJava
-                    setResult(nf.Nullable(pos(), Type));
+                    X10TypeNode t = nf.Nullable(pos(), Type);
+                    setResult(DepParametersopt == null ? t 
+                    : t.dep(null, DepParametersopt));
+          
           $EndJava
         ./
-            | future < Type >
+            | future < Type > 
         /.$BeginJava
                     setResult(nf.Future(pos(), Type));
           $EndJava
         ./
-            | ( Type ) DepParametersopt
-             /.$BeginJava
-               //System.out.println("Parser: parsed (Type) DepParmetersopt |" + Type + "| |" + DepParametersopt +"|");
-                    setResult(DepParametersopt == null ? Type
-                    : ((X10TypeNode) Type).dep(null, DepParametersopt));
-          $EndJava
-        ./
+            
 
     --
     -- TODO: 12/28/2004 ... This rule is a temporary patch that allows
@@ -969,29 +972,29 @@ $Rules
                    | boolean DepParametersopt
        /.$BeginJava
                     X10TypeNode res = (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(DepParametersopt == null
-                               ? res
+                    setResult(DepParametersopt==null 
+                               ? res 
                                : res.dep(null, DepParametersopt));
          $EndJava
         ./
     PlaceTypeSpecifier ::= @ PlaceType
 
     PlaceType ::= any
-                | current
+                | current 
                 | PlaceExpression
 
-    ClassOrInterfaceType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
+    ClassOrInterfaceType ::= TypeName DepParametersopt PlaceTypeSpecifieropt 
         /.$BeginJava
-					X10TypeNode type;
-
-					if (ts.isPrimitiveTypeName(TypeName.name)) {
-						try {
-							type= (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.primitiveForName(TypeName.name));
-						} catch (SemanticException e) {
-							throw new InternalCompilerError("Unable to create primitive type for '" + TypeName.name + "'!");
-						}
-					} else
-						type= (X10TypeNode) TypeName.toType();
+                X10TypeNode type;
+                
+                if (ts.isPrimitiveTypeName(TypeName.name)) {
+                    try {
+			type= (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.primitiveForName(TypeName.name));
+		    } catch (SemanticException e) {
+			throw new InternalCompilerError("Unable to create primitive type for '" + TypeName.name + "'!");
+		    }
+                } else
+                    type= (X10TypeNode) TypeName.toType();
                //  System.out.println("Parser: parsed ClassOrInterfaceType |" + TypeName + "| |" + DepParametersopt +"|");
                     setResult(DepParametersopt == null
                                    ? type
@@ -1016,11 +1019,244 @@ $Rules
           $EndJava
         ./
 
-    WhereClause ::= : Expression
-        /.$BeginJava
-                    setResult(Expression);
+    WhereClause ::= : ConstExpression
+    /.$BeginJava
+                    setResult(ConstExpression);
           $EndJava
         ./
+    
+-- May want to permit ArrayAccess as well.      
+    ConstPrimary ::= Literal
+        /.$BeginJava
+                    setResult(Literal);
+          $EndJava
+        ./        
+                        | Type . class
+        /.$BeginJava
+                    if (Type instanceof Name)
+                    {
+                        Name a = (Name) Type;
+                        setResult(nf.ClassLit(pos(), a.toType()));
+                    }
+                    else if (Type instanceof TypeNode)
+                    {
+                        setResult(nf.ClassLit(pos(), Type));
+                    }
+                    else if (Type instanceof CanonicalTypeNode)
+                    {
+                        CanonicalTypeNode a = (CanonicalTypeNode) Type;
+                        setResult(nf.ClassLit(pos(), a));
+                    }
+                    else assert(false);
+          $EndJava
+        ./
+                        | void . class
+        /.$BeginJava
+                    setResult(nf.ClassLit(pos(),
+                                         nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
+          $EndJava
+        ./
+                        | this
+        /.$BeginJava
+                    setResult(nf.This(pos()));
+          $EndJava
+        ./
+                        | ClassName . this
+        /.$BeginJava
+                    setResult(nf.This(pos(), ClassName.toType()));
+          $EndJava
+        ./
+                        | ( ConstExpression )
+        /.$BeginJava
+                    setResult(ConstExpression);
+          $EndJava
+        ./        
+                   | ConstFieldAccess
+                   | self 
+        /.$BeginJava
+                    setResult(nf.Self(pos()));
+          $EndJava
+        ./        
+ 
+                
+    ConstPostfixExpression  ::= 
+                    ConstPrimary 
+                /.$BeginJava
+                    setResult(ConstPrimary);
+                  $EndJava
+               ./
+                  |  ExpressionName
+        /.$BeginJava
+                    setResult(ExpressionName.toExpr());
+          $EndJava
+        ./
+    ConstUnaryExpression ::= ConstPostfixExpression
+     /.$BeginJava
+                    setResult(ConstPostfixExpression);
+                  $EndJava
+               ./
+                 | + ConstUnaryExpression 
+        /.$BeginJava
+                    setResult(nf.Unary(pos(), Unary.POS, ConstUnaryExpression));
+          $EndJava
+        ./
+                  | - ConstUnaryExpression
+        /.$BeginJava
+                    setResult(nf.Unary(pos(), Unary.NEG, ConstUnaryExpression));
+          $EndJava
+        ./
+                  | ! ConstUnaryExpression
+        /.$BeginJava
+                    setResult(nf.Unary(pos(), Unary.NOT, ConstUnaryExpression));
+          $EndJava
+        ./
+
+    ConstMultiplicativeExpression ::= ConstUnaryExpression
+        /.$BeginJava
+                    setResult(ConstUnaryExpression);
+          $EndJava
+        ./
+                               | ConstMultiplicativeExpression * ConstUnaryExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.MUL, ConstUnaryExpression));
+          $EndJava
+        ./
+                               | ConstMultiplicativeExpression / ConstUnaryExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.DIV, ConstUnaryExpression));
+          $EndJava
+        ./
+                               | ConstMultiplicativeExpression % ConstUnaryExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.MOD, ConstUnaryExpression));
+          $EndJava
+        ./
+
+    ConstAdditiveExpression ::= ConstMultiplicativeExpression
+        /.$BeginJava
+                    setResult(ConstMultiplicativeExpression);
+          $EndJava
+        ./
+                         | ConstAdditiveExpression + ConstMultiplicativeExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstAdditiveExpression, Binary.ADD, ConstMultiplicativeExpression));
+          $EndJava
+        ./
+                         | ConstAdditiveExpression - ConstMultiplicativeExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstAdditiveExpression, Binary.SUB, ConstMultiplicativeExpression));
+          $EndJava
+        ./
+
+    ConstRelationalExpression ::=
+                   ConstAdditiveExpression
+        /.$BeginJava
+                    setResult(ConstAdditiveExpression);
+          $EndJava
+        ./
+                 | ConstRelationalExpression < ConstAdditiveExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.LT, ConstAdditiveExpression));
+          $EndJava
+        ./
+                 | ConstRelationalExpression > ConstAdditiveExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.GT, ConstAdditiveExpression));
+          $EndJava
+        ./
+                 | ConstRelationalExpression <= ConstAdditiveExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.LE, ConstAdditiveExpression));
+          $EndJava
+        ./
+                 | ConstRelationalExpression > = ConstAdditiveExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.GE, ConstAdditiveExpression));
+          $EndJava
+        ./
+    ConstEqualityExpression ::= 
+                   ConstRelationalExpression
+        /.$BeginJava
+                    setResult(ConstRelationalExpression);
+          $EndJava
+        ./
+                 | ConstEqualityExpression == ConstRelationalExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstEqualityExpression, Binary.EQ, ConstRelationalExpression));
+          $EndJava
+        ./
+                 | ConstEqualityExpression != ConstRelationalExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstEqualityExpression, Binary.NE, ConstRelationalExpression));
+          $EndJava
+        ./
+
+    ConstAndExpression ::= ConstEqualityExpression
+        /.$BeginJava
+                    setResult(ConstEqualityExpression);
+          $EndJava
+        ./
+                    | ConstAndExpression && ConstEqualityExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstAndExpression, Binary.COND_AND, ConstEqualityExpression));
+          $EndJava
+        ./
+
+    ConstExclusiveOrExpression ::= ConstAndExpression
+        /.$BeginJava
+                    setResult(ConstAndExpression);
+          $EndJava
+        ./
+                            | ConstExclusiveOrExpression ^ ConstAndExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstExclusiveOrExpression, Binary.BIT_XOR, ConstAndExpression));
+          $EndJava
+        ./
+
+    ConstInclusiveOrExpression ::= ConstExclusiveOrExpression
+        /.$BeginJava
+                    setResult(ConstExclusiveOrExpression);
+          $EndJava
+        ./
+                            | ConstInclusiveOrExpression || ConstExclusiveOrExpression
+        /.$BeginJava
+                    setResult(nf.Binary(pos(), ConstInclusiveOrExpression, Binary.COND_OR, ConstExclusiveOrExpression));
+          $EndJava
+        ./
+
+    ConstExpression ::= ConstInclusiveOrExpression
+        /.$BeginJava
+                    setResult(ConstInclusiveOrExpression);
+          $EndJava
+        ./
+                            | ConstInclusiveOrExpression ? ConstExpression$first : ConstExpression
+        /.$BeginJava
+                    setResult(nf.Conditional(pos(), ConstInclusiveOrExpression, first, ConstExpression));
+          $EndJava
+        ./
+
+
+    ConstFieldAccess ::= ConstPrimary . identifier
+        /.$BeginJava
+                    setResult(nf.Field(pos(), ConstPrimary, identifier.getIdentifier()));
+          $EndJava
+        ./
+                  | super . identifier
+        /.$BeginJava
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), identifier.getIdentifier()));
+          $EndJava
+        ./
+                  | ClassName . super$sup . identifier
+        /.$BeginJava
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), identifier.getIdentifier()));
+          $EndJava
+        ./
+
+--    PropAccess ::= ConstTerm . identifier
+--        /.$BeginJava
+--        setResult(nf.Call(pos(), ConstTerm, identifier.getIdentifier(), Collections.EMPTY_LIST));
+--          $EndJava
+--        ./
 
 -- Not supporting jagged arrays for now.
 -- We will support a special translation for the case in which
@@ -1076,7 +1312,7 @@ $Rules
         List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
         Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
         setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-        ClassModifiersopt, identifier.getIdentifier(),
+        ClassModifiersopt, identifier.getIdentifier(), 
         props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
@@ -1086,7 +1322,7 @@ $Rules
         List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
         Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
         setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-                                  ClassModifiersopt, identifier.getIdentifier(),
+                                  ClassModifiersopt, identifier.getIdentifier(), 
                                   props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
@@ -1096,11 +1332,11 @@ $Rules
          Name a = (Name) ConstructorDeclarator[1];
          DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
          List b = (List) ConstructorDeclarator[3];
-         Expr e = (Expr) ConstructorDeclarator[4];
+         Expr e = (Expr) ConstructorDeclarator[4];              
          setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), c, b, e, Throwsopt, ConstructorBody));
          $EndJava
        ./
-
+       
     ConstructorDeclarator ::=  SimpleTypeName DepParametersopt ( FormalParameterListopt WhereClauseopt )
        /.$BeginJava
                  Object[] a = new Object[5];
@@ -1111,17 +1347,23 @@ $Rules
                  setResult(a);
          $EndJava
        ./
-    ThisClause ::= this DepParameters
-
-    MethodDeclarator ::= ThisClauseopt identifier ( FormalParameterListopt  WhereClauseopt )
+    ThisClause ::= this DepParameters 
+      /.$BeginJava
+                    setResult(DepParameters);
+          $EndJava
+        ./
+    
+    
+    
+    MethodDeclarator ::=  identifier ( FormalParameterListopt  WhereClauseopt )
        /.$BeginJava
-                    // vj: TODO -- add processing of ThisClause, the this-restriction.
+                //   System.out.println("Parsing methoddeclarator...");
                     Object[] a = new Object[5];
                    a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
                     a[1] = FormalParameterListopt;
                    a[2] = new Integer(0);
                    a[3] = WhereClauseopt;
-                   a[4] = ThisClauseopt;
+                 
                     setResult(a);
           $EndJava
         ./
@@ -1132,7 +1374,13 @@ $Rules
          $EndJava
         ./
 
-    FieldDeclaration ::= FieldModifiersopt ThisClauseopt Type VariableDeclarators ;
+     FieldDeclaration ::= compilertest . 
+      /.$BeginJava
+        List l = new TypedList(new LinkedList(), ClassMember.class, false);
+        l.add(nf.CompilerTest(pos()));
+        setResult(l);
+      $EndJava ./
+    FieldDeclaration ::= ThisClauseopt FieldModifiersopt Type  VariableDeclarators ;
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
@@ -1215,7 +1463,7 @@ $Rules
 
     ArrayBaseType ::= PrimitiveType
                     | ClassOrInterfaceType
-                    | nullable  Type
+                    | nullable < Type >
         /.$BeginJava
                     setResult(nf.Nullable(pos(), Type));
           $EndJava
@@ -1451,6 +1699,10 @@ $Rules
 
     -- The type-checker will ensure that the identifier names a variable declared as a clock.
     Clock ::= Expression
+                /.$BeginJava
+        setResult(Expression);
+          $EndJava
+        ./
 --
 --      Clock ::= identifier
 --        /.$BeginJava
@@ -1655,7 +1907,7 @@ $Rules
 ThisClauseopt ::= $Empty
        /.$NullAction./
                             | ThisClause
-
+                            
     PlaceTypeSpecifieropt ::= $Empty
        /.$NullAction./
                             | PlaceTypeSpecifier
@@ -1666,7 +1918,7 @@ ThisClauseopt ::= $Empty
     PropertyListopt ::=  $Empty
         /.$NullAction./
                        | PropertyList
-
+                       
     WhereClauseopt ::= $Empty
         /.$NullAction./
                      | WhereClause
@@ -1728,7 +1980,6 @@ $Types
 
     SourceFile ::= CompilationUnit
     polyglot.ast.Lit ::= Literal
-    TypeNode ::= ThisClause | ThisClauseopt
     TypeNode ::= Type
     TypeNode ::= PrimitiveType | NumericType
     TypeNode ::= IntegralType | FloatingPointType
@@ -1780,7 +2031,7 @@ $Types
     X10VarDeclarator ::= VariableDeclaratorId | TraditionalVariableDeclaratorId
     Expr ::= VariableInitializer
     MethodDecl ::= MethodDeclaration | MethodHeader
-    List ::= FormalParameterListopt | FormalParameterList
+    List ::= FormalParameterListopt | FormalParameterList 
     X10Formal ::= FormalParameter
     List ::= Throwsopt | Throws
     Block ::= MethodBody
@@ -1833,25 +2084,32 @@ $Types
     Block ::= Finally
     Assert ::= AssertStatement
     Expr ::= Primary | PrimaryNoNewArray
+    Expr ::= ConstPrimary
     Expr ::= ClassInstanceCreationExpression
     List ::= ArgumentListopt | ArgumentList
     NewArray ::= ArrayCreationExpression
     List ::= DimExprs
     Expr ::= DimExpr
     Integer ::= Dimsopt | Dims
-    Field ::= FieldAccess
+    Field ::= FieldAccess | ConstFieldAccess
     Call ::= MethodInvocation
     ArrayAccess ::= ArrayAccess
     Expr ::= PostfixExpression
+    Expr ::= ConstPostfixExpression
     Unary ::= PostIncrementExpression | PostDecrementExpression
     Expr ::= UnaryExpression | UnaryExpressionNotPlusMinus
     Unary ::= PreIncrementExpression | PreDecrementExpression
+    Expr ::= ConstUnaryExpression 
     Cast ::= CastExpression
     Expr ::= MultiplicativeExpression | AdditiveExpression
+    Expr ::= ConstMultiplicativeExpression | ConstAdditiveExpression
     Expr ::= ShiftExpression | RelationalExpression | EqualityExpression
+    Expr ::= ConstRelationalExpression | ConstEqualityExpression
     Expr ::= AndExpression | ExclusiveOrExpression | InclusiveOrExpression
+    Expr ::= ConstAndExpression | ConstExclusiveOrExpression | ConstInclusiveOrExpression
     Expr ::= ConditionalAndExpression | ConditionalOrExpression
     Expr ::= ConditionalExpression | AssignmentExpression
+    Expr ::= ConstExpression
     Expr ::= Assignment
     Expr ::= LeftHandSide
     Assign.Operator ::= AssignmentOperator
@@ -1923,7 +2181,8 @@ $Types
     DepParameterExpr ::= DepParametersopt
                        | DepParameters
                        | DepParameterExpr
-    List ::= Properties
+    List ::= Properties 
     Object[] ::=  PropertyList | PropertyListopt
     PropertyDecl ::= Property
+    DepParameterExpr ::= ThisClause | ThisClauseopt
 $End

@@ -23,7 +23,6 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Binary_c;
 import polyglot.ext.jl.ast.Call_c;
-import polyglot.ext.jl.ast.CanonicalTypeNode_c;
 import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.MethodDecl_c;
@@ -40,31 +39,29 @@ import polyglot.ext.x10.ast.Future_c;
 import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.Now_c;
-import polyglot.ext.x10.ast.PlaceCast_c;
 import polyglot.ext.x10.ast.RemoteCall_c;
 import polyglot.ext.x10.ast.When_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1Unary_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1Assign_c;
+import polyglot.ext.x10.ast.X10ArrayAccess1Unary_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1_c;
-import polyglot.ext.x10.ast.X10ArrayAccessUnary_c;
 import polyglot.ext.x10.ast.X10ArrayAccessAssign_c;
+import polyglot.ext.x10.ast.X10ArrayAccessUnary_c;
 import polyglot.ext.x10.ast.X10ArrayAccess_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
+import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10ArrayType_c;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.LocalInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
-import polyglot.ext.x10.ast.X10Formal;
-import polyglot.types.LocalInstance;
-import polyglot.types.PrimitiveType.Kind;
 
 
 /**
@@ -412,8 +409,9 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		}
 		else { // this is a User-defined[?] ? array
 			kind = USER_DEFINED;
+            X10TypeSystem xt = (X10TypeSystem) base_type.typeSystem();
 			refs_to_values = (base_type instanceof X10Type &&
-								 ((X10Type) base_type).isValueType());
+								 (xt.isValueType(base_type)));
 		}
 		String className = (String) arrayTypeToClassName.get(kind);
 		if (className == null)

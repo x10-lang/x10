@@ -13,11 +13,10 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.Call_c;
-import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
@@ -114,17 +113,17 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 	 * TOOD: vj Check the dimensionality of the array and the number of dimensions is the same.
 	 * */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		TypeSystem ts = tc.typeSystem();
+		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Type type = array.type();
 		if (type.isArray())
 			throw new SemanticException(
 					"Multiple subscript cannot follow an array of rank 1.", position());
 		if ( Report.should_report("debug",3))
         Report.report(3,"X10ArrayAccess_c: typeCheck type="  + type + " |" 
-                + type.getClass() + "|" + ((X10Type) type).isX10Array());
+                + type.getClass() + "|" + ts.isX10Array(type));
         
 		X10Type target = (X10Type) type;
-		if (! target.isX10Array()) {
+		if (! ts.isX10Array(target)) {
 			throw new SemanticException(
 					"Multiple subscripts can only follow an array of rank > 1.", position());
 		}

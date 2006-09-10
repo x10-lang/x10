@@ -14,7 +14,7 @@ import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 
-/**
+/** This is simply the X10 representation for a Java ([]) array.
  * @author Christian Grothoff
  */
 public class X10ArrayType_c extends ArrayType_c implements X10ReferenceType {
@@ -34,8 +34,18 @@ public class X10ArrayType_c extends ArrayType_c implements X10ReferenceType {
         n.depClause = d;
         return n;
     }
-    public DepParameterExpr depClause() { return depClause; }
     
+    public boolean typeEqualsImpl(Type o) {
+        return equalsImpl(o);
+    }
+    public int hashCode() {
+        return 
+          (baseType == this ? base.hashCode() : baseType.hashCode() ) 
+        + (depClause != null ? depClause.hashCode() : 0)
+        + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
+        
+    }
+        public DepParameterExpr depClause() { return depClause; }
     public boolean equalsImpl(TypeObject o) {
         //Report.report(3,"X10ArrayType_c: equals |" + this + "| and |" + o+"|");
         if (o == this) return true;
@@ -60,6 +70,19 @@ public class X10ArrayType_c extends ArrayType_c implements X10ReferenceType {
         return true;
     }
     
+   /*public boolean isImplicitCastValidImpl(Type toType) {
+      
+        if (! (toType instanceof X10ArrayType_c)) {
+            // toType is not an array, but this is.  Check if the array
+            // is a subtype of the toType.  This happens when toType
+            // is java.lang.Object.
+           
+            return ts.isSubtype(this,toType);
+        }
+        X10ArrayType_c other = (X10ArrayType_c) toType;
+        return ts.typeEquals(base(), other.base());
+       
+    }*/
 	/**
 	 * 
 	 */
@@ -67,47 +90,11 @@ public class X10ArrayType_c extends ArrayType_c implements X10ReferenceType {
     public X10ArrayType_c(TypeSystem ts, Position pos, Type base) {
         super(ts, pos, base);
     }
-    
-    public boolean isArray() {return true;}
-    public boolean isX10Array() {return true;}
-	public boolean isNullable() {return false; }
-	public boolean isFuture() {return false;}
-	public NullableType toNullable() {
-	     return X10TypeSystem_c.getFactory().createNullableType(Position.COMPILER_GENERATED, this);
-	}
-	public FutureType toFuture() {
-		return X10TypeSystem_c.getFactory().createFutureType(Position.COMPILER_GENERATED, this);
-	}
-	public boolean isBooleanArray() {return base.isBoolean();}
-	public boolean isCharArray() {return base.isChar();}
-	public boolean isByteArray() {return base.isByte();}
-	public boolean isShortArray() {return base.isShort();}
-	public boolean isLongArray() {return base.isLong();}
-	public boolean isIntArray() {return base.isInt();}
-	public boolean isFloatArray() {return  base.isFloat();	}
-	public boolean isDoubleArray() {return base.isDouble();}
-	public boolean isPrimitiveTypeArray() {return base.isPrimitive();}
-    //  vj TODO: check whether the depclause says so 
-	public boolean isDistributedArray() {return true; } 
-	public boolean isPoint() {return false;}
-	public boolean isPlace() {return false;}
-
-   //FIXME: should the array be identified with its distribution?
-    // vj: NO. A distribution is indexable, so itself an array.
-	public boolean isDistribution() {return false; }
-
-//   FIXME: should the array be identified with its region?
-    // vj: No.
-	public boolean isRegion() {return false; }
-	public boolean isClock() {return false; }
-
-    // FIXME: Its a value type if the array declaration says so.
-    
-	public boolean isValueType() {
-	   return false;
-		//throw new RuntimeException("Internal compiler error: isValueType() on " + this);
-	}
+   
+  
     // TODO: Remove this class.
     public List properties() { return Collections.EMPTY_LIST;}
+    public NullableType toNullable() { return X10Type_c.toNullable(this);}
+    public FutureType toFuture() { return X10Type_c.toFuture(this);}
    
 }

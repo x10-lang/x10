@@ -26,12 +26,12 @@ import harness.x10Test;
  * @author kemal 4/2005
  */
 public class FutureDeadlock_MustFailTimeout extends x10Test {
-	nullable future<int> f1 = null;
-	nullable future<int> f2 = null;
+	nullable<future<int>> f1 = null;
+	nullable<future<int>> f2 = null;
 
 	int a1() {
 		x10.lang.Runtime.sleep(5000); // to make deadlock occur deterministically
-		nullable future<int> tmpf = null;
+		nullable<future<int>> tmpf = null;
 		atomic tmpf = f2;
 		System.out.println("Activity #1 about to force "+tmpf+" to wait for #2 to complete");
 		return ((future<int>)tmpf).force();
@@ -39,7 +39,7 @@ public class FutureDeadlock_MustFailTimeout extends x10Test {
 
 	int a2() {
 		x10.lang.Runtime.sleep(5000); // to make deadlock occur deterministically
-		nullable future<int> tmpf = null;
+		nullable<future<int>> tmpf = null;
 		atomic tmpf = f1;
 		System.out.println("Activity #2 about to force "+tmpf+" to wait for #1 to complete");
 		return ((future<int>)tmpf).force();
