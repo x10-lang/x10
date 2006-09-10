@@ -64,7 +64,9 @@ public interface X10TypeSystem extends TypeSystem {
 	ClassType clock();
 	ClassType value();
 	ClassType Runtime();
-	ClassType OperatorPointwise();
+    ClassType OperatorPointwise();
+
+
 	CodeInstance asyncCodeInstance();
 
 	/**
@@ -229,18 +231,18 @@ public interface X10TypeSystem extends TypeSystem {
 	public boolean isPrimitiveTypeName(String name);
 
 	/** Return the method instance for runtime.Primitive.equals */
-	public MethodInstance primitiveEquals();
+	 MethodInstance primitiveEquals();
 
 	/** Return the method instance for runtime.T.tValue() */
-	public MethodInstance getter(PrimitiveType t);
+	 MethodInstance getter(PrimitiveType t);
 
 	/** Return the constructor instance for runtime.T.T(t) */
-	public ConstructorInstance wrapper(PrimitiveType t);
+	 ConstructorInstance wrapper(PrimitiveType t);
 
 	/** Return boxed type runtime.T for primitive t. */
-	public Type boxedType(PrimitiveType t);
+	 Type boxedType(PrimitiveType t);
     
-	/** Create a property instance. A property is a public final instance field
+	/** Create a property instance. A property is a  final instance field
 	 * that can be used to construct deptypes.
 	 * @param pos Position of the field.
 	 * @param container Containing type of the field.
@@ -252,5 +254,26 @@ public interface X10TypeSystem extends TypeSystem {
                                 Flags flags, Type type, String name);
 
 
+  boolean isPrimitiveTypeArray(Type me);
+     boolean isNullable(Type me) ;
+     boolean isFuture(Type me) ;
+      boolean isX10Array(Type me) ;
+      boolean isBooleanArray(Type me);
+     boolean isCharArray(Type me) ;
+     boolean isByteArray(Type me) ;
+      boolean isShortArray(Type me) ;
+      boolean isIntArray(Type me) ;
+      boolean isLongArray(Type me) ;
+     boolean isFloatArray(Type me);
+      boolean isDoubleArray(Type me);
+      boolean isClock(Type me) ;
+      boolean isPoint(Type me);
+      boolean isPlace(Type me);
+      boolean isRegion(Type me);
+      boolean isDistribution(Type me);
+      boolean isDistributedArray(Type me);
+     boolean isValueType( Type me);
+   
+   
 } // end of X10TypeSystem
 

@@ -9,7 +9,7 @@ public class Nullable2 extends x10Test {
 	public boolean run() {
 		gotNull = false;
 		try {
-			nullable String x = "May the force be with you!";
+			nullable<String> x = "May the force be with you!";
 			String y = X.chkForNull(x);
 			X.use(y);
 		} catch (ClassCastException e) {
@@ -26,7 +26,7 @@ public class Nullable2 extends x10Test {
 	static class X {
 		public static void use(String y) { }
 
-		public static String chkForNull(nullable String x) {
+		public static String chkForNull(nullable<String> x) {
 			return (String)x;
 		}
 	}

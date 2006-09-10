@@ -29,102 +29,102 @@ public class NullableObject3 extends x10Test {
 
 	public boolean run() {
 		x10.lang.Object x = new x10.lang.Object();
-		nullable x10.lang.Object y = null;
+		nullable<x10.lang.Object> y = null;
 		boolean castable = true;
 
 		x = new boxedInt(1);
 		isCastable(x,x10.lang.Object,yes)
 		isCastable(x,nullable x10.lang.Object,yes)
 		isCastable(x,boxedInt,yes)
-		isCastable(x,nullable boxedInt,yes)
+		isCastable(x,nullable<boxedInt>,yes)
 		isCastable(x,boxedLong,no)
 		isCastable(x,nullable boxedLong,no)
 
 		x = new boxedLong(1);
 		isCastable(x,x10.lang.Object,yes)
-		isCastable(x,nullable x10.lang.Object,yes)
+		isCastable(x,nullable<x10.lang.Object>,yes)
 		isCastable(x,boxedInt,no)
-		isCastable(x,nullable boxedInt,no)
+		isCastable(x,nullable<boxedInt>,no)
 		isCastable(x,boxedLong,yes)
-		isCastable(x,nullable boxedLong,yes)
+		isCastable(x,nullable<boxedLong>,yes)
 
 		x = new x10.lang.Object();
 		isCastable(x,x10.lang.Object,yes)
-		isCastable(x,nullable x10.lang.Object,yes)
+		isCastable(x,nullable<x10.lang.Object>,yes)
 		isCastable(x,boxedInt,no)
-		isCastable(x,nullable boxedInt,no)
+		isCastable(x,nullable<boxedInt>,no)
 		isCastable(x,boxedLong,no)
-		isCastable(x,nullable boxedLong,no)
+		isCastable(x,nullable<boxedLong>,no)
 
 		y = null;
 		isCastable(y,x10.lang.Object,no)
-		isCastable(y,nullable x10.lang.Object,yes)
+		isCastable(y,nullable<x10.lang.Object,yes)
 		isCastable(y,boxedInt,no)
-		isCastable(y,nullable boxedInt,yes)
+		isCastable(y,nullable<boxedInt,yes)
 		isCastable(y,boxedLong,no)
-		isCastable(y,nullable boxedLong,yes)
+		isCastable(y,nullable<boxedLong,yes)
 
 		y = new boxedInt(1);
 		isCastable(y,x10.lang.Object,yes)
-		isCastable(y,nullable x10.lang.Object,yes)
+		isCastable(y,nullable<x10.lang.Object,yes)
 		isCastable(y,boxedInt,yes)
-		isCastable(y,nullable boxedInt,yes)
+		isCastable(y,nullable<boxedInt,yes)
 		isCastable(y,boxedLong,no)
-		isCastable(y,nullable boxedLong,no)
+		isCastable(y,nullable<boxedLong,no)
 
 		y = new boxedLong(1);
 		isCastable(y,x10.lang.Object,yes)
-		isCastable(y,nullable x10.lang.Object,yes)
+		isCastable(y,nullable<x10.lang.Object>,yes)
 		isCastable(y,boxedInt,no)
-		isCastable(y,nullable boxedInt,no)
+		isCastable(y,nullable<boxedInt>,no)
 		isCastable(y,boxedLong,yes)
-		isCastable(y,nullable boxedLong,yes)
+		isCastable(y,nullable<boxedLong>,yes)
 
 		y = new x10.lang.Object();
-		isCastable(y,x10.lang.Object,yes)
-		isCastable(y,nullable x10.lang.Object,yes)
+		isCastable(y,x10.lang.Object>,yes)
+		isCastable(y,nullable<x10.lang.Object>,yes)
 		isCastable(y,boxedInt,no)
-		isCastable(y,nullable boxedInt,no)
+		isCastable(y,nullable<boxedInt>,no)
 		isCastable(y,boxedLong,no)
-		isCastable(y,nullable boxedLong,no)
+		isCastable(y,nullable<boxedLong>,no)
 
 		boxedInt i = new boxedInt(1);
 		isCastable(i,x10.lang.Object,yes)
-		isCastable(i,nullable x10.lang.Object,yes)
+		isCastable(i,nullable<x10.lang.Object>,yes)
 		isCastable(i,boxedInt,yes)
-		isCastable(i,nullable boxedInt,yes)
+		isCastable(i,nullable<boxedInt>,yes)
 
 		nullable boxedInt j = null;
 		isCastable(j,x10.lang.Object,no)
-		isCastable(j,nullable x10.lang.Object,yes)
+		isCastable(j,nullable<x10.lang.Object>,yes)
 		isCastable(j,boxedInt,no)
-		isCastable(j,nullable boxedInt,yes)
-		isCastable((nullable x10.lang.Object)j,nullable boxedLong,yes)
+		isCastable(j,nullable<boxedInt>,yes)
+		isCastable((nullable<x10.lang.Object>)j,nullable boxedLong,yes)
 
 		j = new boxedInt(1);
 		isCastable(j,x10.lang.Object,yes)
-		isCastable(j,nullable x10.lang.Object,yes)
+		isCastable(j,nullable<x10.lang.Object>,yes)
 		isCastable(j,boxedInt,yes)
-		isCastable(j,nullable boxedInt,yes)
+		isCastable(j,nullable<boxedInt>,yes)
 
 		boxedLong l = new boxedLong(1);
 		isCastable(l,x10.lang.Object,yes)
-		isCastable(l,nullable x10.lang.Object,yes)
+		isCastable(l,nullable<x10.lang.Object>,yes)
 		isCastable(l,boxedLong,yes)
-		isCastable(l,nullable boxedLong,yes)
+		isCastable(l,nullable<boxedLong>,yes)
 
 		nullable boxedLong m = null;
 		isCastable(m,x10.lang.Object,no)
-		isCastable(m,nullable x10.lang.Object,yes)
-		isCastable((nullable x10.lang.Object)m,nullable boxedInt,yes)
+		isCastable(m,nullable<x10.lang.Object>,yes)
+		isCastable((nullable<x10.lang.Object>)m,nullable boxedInt,yes)
 		isCastable(m,boxedLong,no)
-		isCastable(m,nullable boxedLong,yes)
+		isCastable(m,nullable<boxedLong>,yes)
 
 		m = new boxedLong(1);
 		isCastable(m,x10.lang.Object,yes)
-		isCastable(m,nullable x10.lang.Object,yes)
+		isCastable(m,nullable<x10.lang.Object>,yes)
 		isCastable(m,boxedLong,yes)
-		isCastable(m,nullable boxedLong,yes)
+		isCastable(m,nullable<boxedLong>,yes)
 
 		return true;
 	}

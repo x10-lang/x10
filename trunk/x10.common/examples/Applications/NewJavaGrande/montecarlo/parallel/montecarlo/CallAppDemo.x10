@@ -10,7 +10,7 @@ public class CallAppDemo {
 	// protected int[] datasizes = { 10000, 60000 };
 	protected int[] datasizes = { 1000, 60000 };
 	int input[] = new int[2];
-	nullable AppDemo ap = null;
+	nullable<AppDemo> ap = null;
 
 	public void initialise() {
 

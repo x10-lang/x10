@@ -15,6 +15,7 @@ import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 
+
 /**
  * Implementation of the nullable type constructor.
  *
@@ -23,6 +24,7 @@ import polyglot.util.Position;
 public class NullableType_c extends X10ReferenceType_c implements NullableType {
 
 	protected X10Type base;
+    
 	// RMF 11/2/2005 --
 	// Attempting to initialize these (unused) fields at construction time causes a
 	// chicken-and-egg problem for any recursive type with a nullable field of the
@@ -68,37 +70,7 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 //		this.interfaces = base.interfaces();
 	}
 
-	public boolean isNullable() {
-		return true;
-	}
-
-	public boolean isX10Array() {
-		return base.isX10Array();
-	}
-
-	public boolean isArray() {
-		return base.isArray();
-	}
-
-	public ArrayType toArray() {
-		return base.toArray();
-	}
-
-	public boolean isClass() {
-		return base.isClass();
-	}
-
-	public ClassType toClass() {
-		return base.toClass();
-	}
-
-	public boolean isFuture() {
-		return base.isFuture();
-	}
-
-	public NullableType toNullable() {
-		return this;
-	}
+	
 
 	public X10Type base() {
 		return this.base;
@@ -162,10 +134,17 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 		return Collections.EMPTY_LIST;
 	}
 
-	// vj TODO: check if this is the right thing to do.
-	public int hashCode() {
-		return base.hashCode() << 2;
-	}
+    public boolean typeEqualsImpl(Type o) {
+        return equalsImpl(o);
+    }
+    public int hashCode() {
+        return 
+          (baseType == this ? base.hashCode() << 2 : baseType.hashCode() ) 
+        + (depClause != null ? depClause.hashCode() : 0)
+        + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
+        
+    }
+	
 
 	public boolean equalsImpl(TypeObject t) {
 		if (t instanceof NullableType) {
@@ -176,28 +155,31 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 	}
 
 	public boolean isImplicitCastValidImpl(Type toType) {
-		X10Type targetType = (X10Type) toType;
-		if (targetType.isNullable()) {
-			NullableType target = targetType.toNullable();
+		X10Type other = (X10Type) toType;
+        X10TypeSystem xts = (X10TypeSystem) other.typeSystem();
+		if (xts.isNullable(other)) {
+			NullableType target = X10Type_c.toNullable(other);
 			return base.isImplicitCastValidImpl(target.base());
 		}
 		return super.isImplicitCastValidImpl(toType);
 	}
 
-	// [IP] FIXME: This seems just plain wrong -- we need to check whether we
-	// can cast the bases appropriately.  See isImplicitCastValidImpl above.
-	// [IP] Also, this is the place to allow casting nullable stuff into
-	// non-nullable (by compiling this down to a null check)
 	public boolean isCastValidImpl(Type toType) {
-		return ((X10Type) toType).isNullable() || base.isCastValidImpl(toType);
-	}
-
-	public boolean isValueType() {
-		return base.isValueType();
-	}
+        X10Type other  = (X10Type) toType;
+        X10TypeSystem xts = (X10TypeSystem) other.typeSystem();
+		return (xts.isNullable(other) && base.isCastValidImpl(X10Type_c.toNullable(other).base()));
+    }
+	
+	public boolean isArray() {
+     return base.isArray();   
+    }
+    public ArrayType toArray() { return base.toArray();}
     
     public List properties() {
         return base.properties();
     }
+    
+    public NullableType toNullable() { return this;}
+    public FutureType toFuture() { return X10Type_c.toFuture(this);}
 }
 

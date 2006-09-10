@@ -45,8 +45,8 @@ public class X10ClassDecl_c extends ClassDecl_c {
     public static X10ClassDecl_c make(Position pos, Flags flags, String name, 
             List/*<PropertyDecl>*/ properties, Expr ci,
             TypeNode superClass, List interfaces, ClassBody body) {
-        body = flags.isInterface() ? PropertyDecl_c.addProperties(properties, body)
-                : PropertyDecl_c.addGetters(properties, body);
+        body = flags.isInterface() ? PropertyDecl_c.addGetters(properties, body)
+                : PropertyDecl_c.addProperties(properties, body);
         X10ClassDecl_c result = new X10ClassDecl_c(pos, flags, name, properties,  ci, superClass, 
                 interfaces, body);
         return result;

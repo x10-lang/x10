@@ -121,7 +121,7 @@ public value class QueensList3 extends x10Test {
 	 * Need this class since we cannot store java objects in x10 arrays
 	 */
 	static class BoxedRandom {
-		nullable Random val;
+		nullable<Random> val;
 		public BoxedRandom(long x) {
 			val = new Random(x);
 		}

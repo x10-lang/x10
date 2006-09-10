@@ -8,7 +8,7 @@ public class Nullable1 extends x10Test {
 	public boolean run() {
 		boolean gotNull = false;
 		try {
-			nullable String x = null;
+			nullable<String> x = null;
 			String y = (String)x;
 			X.use(y);
 		} catch (ClassCastException e) {

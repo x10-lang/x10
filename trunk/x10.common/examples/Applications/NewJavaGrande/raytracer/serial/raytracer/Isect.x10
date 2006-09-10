@@ -25,8 +25,8 @@ package raytracer;
 public class Isect {
 	public double	t;
 	public int		enter;
-	public nullable Primitive	prim;
-	public nullable Surface		surf;
+	public nullable<Primitive>	prim;
+	public nullable<Surface>		surf;
 
 	public Isect() {
 		t = 0.0;
@@ -35,7 +35,7 @@ public class Isect {
 		surf = null;
 	}
 
-	public Isect(double t_, int enter_, nullable Primitive prim_, nullable Surface surf_) {
+	public Isect(double t_, int enter_, nullable<Primitive> prim_, nullable<Surface> surf_) {
 		t = t_;
 		enter = enter_;
 		prim = prim_;

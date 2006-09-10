@@ -8,7 +8,7 @@ public class NullableInt extends x10Test {
 
 	public boolean run() {
 		final int[] A = { 3, 2, 1 };
-		nullable int v = (A[1] == 2) ? null : 0;
+		nullable<int> v = (A[1] == 2) ? null : 0;
 		return v == null;
 	}
 

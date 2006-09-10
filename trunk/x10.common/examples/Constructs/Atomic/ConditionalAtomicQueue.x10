@@ -84,7 +84,7 @@ public class ConditionalAtomicQueue extends x10Test {
 			// spawn a single consumer activity in place P0
 			async( this ) {
 				for (point p: D2) {
-					nullable T t;
+					nullable<T> t;
 					when (!empty()) { t = remove(); }
 					final T t1 = (T)t;
 					async(t1) { t1.consume(); } // consume the T

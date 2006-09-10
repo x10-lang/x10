@@ -26,6 +26,7 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -293,6 +294,19 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (DepParameterExpr) n.del(delFactory().delStmt());
 	}
 
+	public GenParameterExpr GenParameterExpr(Position pos, List l) {
+		List cpy = new LinkedList();
+		Iterator it = l.iterator();
+		while (it.hasNext()) {
+			cpy.add(this.CanonicalTypeNode(pos, (Type) it.next()));
+		}
+		GenParameterExpr n = new GenParameterExpr_c(pos, cpy);
+		n = (GenParameterExpr) n.ext(extFactory().extStmt());
+		return (GenParameterExpr) n.del(delFactory().delStmt());
+	}
+
+	
+
 	public X10TypeNode ParametricTypeNode(Position pos,
 												 X10TypeNode t,
 												 GenParameterExpr g,
@@ -510,7 +524,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public FieldDecl FieldDecl(Position pos, TypeNode thisClause, Flags flags, TypeNode type,
+	public FieldDecl FieldDecl(Position pos, DepParameterExpr thisClause, Flags flags, TypeNode type,
 							   String name, Expr init)
 	{
 		FieldDecl n = new X10FieldDecl_c(pos, thisClause, flags, type, name, init);
@@ -527,7 +541,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
     
-    public MethodDecl MethodDecl(Position pos, TypeNode thisClause, Flags flags,
+    public MethodDecl MethodDecl(Position pos, DepParameterExpr thisClause, Flags flags,
              TypeNode returnType, String name,
              List formals, Expr whereClause, List throwTypes, Block body)
     {
@@ -595,6 +609,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         n = (PropertyDecl)n.ext(extFactory().extFieldDecl());
         n = (PropertyDecl)n.del(delFactory().delFieldDecl());
         return n;
+    }
+    public final Special Self(Position pos) {
+        return Special(pos, X10Special.SELF, null);
+    }
+    public FieldDecl CompilerTest(Position pos) {
+        return new CompilerTest_c(pos);
     }
 }
 

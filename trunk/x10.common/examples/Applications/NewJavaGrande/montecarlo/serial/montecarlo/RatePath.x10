@@ -385,7 +385,7 @@ public class RatePath extends PathId {
 	 * @exception DemoException thrown if there was a problem with the data
 	 *                          file.
 	 */
-	private void readRatesFile(nullable String ndirName, String filename) throws DemoException {
+	private void readRatesFile(nullable<String> ndirName, String filename) throws DemoException {
 		String dirName = (String) ndirName;
 		java.io.File ratesFile = new File(dirName, filename);
 		java.io.BufferedReader in;
@@ -401,7 +401,7 @@ public class RatePath extends PathId {
 		// Proceed to read all the lines of data into a Vector object.
 		int iLine = 0, initNlines = 100, nLines = 0;
 
-		nullable String naLine;
+		nullable<String> naLine;
 		java.util.Vector allLines = new Vector(initNlines);
 		try {
 			while ((naLine = in.readLine()) != null) {

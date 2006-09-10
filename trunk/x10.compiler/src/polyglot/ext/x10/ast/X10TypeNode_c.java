@@ -61,12 +61,12 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         }
     public static Node disambiguateDepClause(X10TypeNode me, AmbiguityRemover sc) throws SemanticException {
    
-      if (Report.should_report("debug", 5)) {
+      if ( Report.should_report("debug", 5)) {
             Report.report(5,"[X10TypeNode_c static, (#" + me.hashCode() + ")] " + me.getClass() + "|");
         }
         Node newTypeNode1 =  me.disambiguateBase(sc);
         
-        if (Report.should_report("debug", 5)) {
+        if ( Report.should_report("debug", 5)) {
             Report.report(5,"[X10TypeNode_c static] " + me.hashCode() 
                     + " ... yields type |" + newTypeNode1 + "| (" + newTypeNode1.getClass()+")|"); 
         }
@@ -88,7 +88,7 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
             }
             return newType; // bail... canonicalization needs to be done first.
         }
-       
+        
         DepParameterExpr newParameter = me.dep() == null? null : (DepParameterExpr) me.dep().disambiguate( sc );
         
         GenParameterExpr newTParameter =  me.gen()==null ? null : (GenParameterExpr) me.gen().disambiguate( sc );
@@ -126,24 +126,25 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
      * @throws SemanticException
      */
     public static Node typeCheckDepClause( X10TypeNode me, TypeChecker tc) throws SemanticException {
-        if ( Report.should_report("debug", 5)) {
+        if (  Report.should_report("debug", 5)) {
             Report.report(5,"[X10TypeNode static] Type checking  |" + me 
-                    +"| " + me.getClass() + "|");
+                    +"| " + "(#" + me.hashCode() +")" + me.dep() + "|");
         }
         Node n = me.typeCheckBase( tc );
-        if ( Report.should_report("debug", 5)) {
+        if ( me.toString().startsWith("Temp") || Report.should_report("debug", 5)) {
             Report.report(5,"[X10TypeNode static] ... yields node |" + n.getClass() 
                     +"| of type |" + ((X10TypeNode) n).type() + "|");
         }
         if (! (n instanceof X10TypeNode)) 
-            throw new SemanticException("Argument to parametric type node does not type-check" + me.position());
+            throw new SemanticException("Argument to parametric type node does not type-check" 
+                    + me.position());
        
         X10TypeNode arg = (X10TypeNode) n;
         X10Type argType = (X10Type) arg.type();
         
         if (me.dep() == null && me.gen() == null) {
          //   new Exception().printStackTrace();
-            if ( Report.should_report("debug", 5)) {
+            if ( me.toString().startsWith("Temp") || Report.should_report("debug", 5)) {
                 Report.report(5,"[X10TypeNode_c static] ..returning with |" + arg + "|.");
             }
             return arg;
@@ -155,8 +156,13 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
             while (it.hasNext())
                 tParameters.add(((TypeNode)it.next()).type());
         }
-        DepParameterExpr d = me.dep();
-       
+        if ( Report.should_report("debug", 5)) {
+            Report.report(5,"[X10TypeNode_c static] ..dep is |" + me.dep() + "|.");
+        }
+        DepParameterExpr d = (DepParameterExpr) me.dep().typeCheck(tc);
+        if (  Report.should_report("debug", 5)) {
+            Report.report(5,"[X10TypeNode_c static] ..typechecking ==> |" + d + "|.");
+        }
         X10Type newArgType = argType.makeVariant(d, tParameters);
         /*
         parent.setType(ts.createParametricType( position(),

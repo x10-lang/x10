@@ -17,7 +17,7 @@ import harness.x10Test;
 public class NullableArrayAssign extends x10Test {
 
         public boolean run() {
-	    final (nullable Object)[.] table = new (nullable Object)[[1:5]];
+	    final nullable<Object>[.] table = new nullable<Object>[[1:5]];
 	       foreach ( point p[i] : table )
 			table[i] = null;
 		return true;

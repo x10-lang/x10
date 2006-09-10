@@ -2,7 +2,7 @@ import harness.x10Test;
 
 public class DoubleToNullableDoubleTest extends x10Test {
 	public boolean run() {
-		nullable double data = 1.0;
+		nullable<double> data = 1.0;
 		return true;
 	}
 

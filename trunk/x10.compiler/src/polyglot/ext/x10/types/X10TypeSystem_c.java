@@ -231,13 +231,63 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return runtimeType_;
 	}
 
-	protected ClassType operatorPointwiseType_;
-	public ClassType OperatorPointwise() {
-		if (operatorPointwiseType_ == null)
-			operatorPointwiseType_ = load("x10.array.Operator$Pointwise"); // java file
-		return operatorPointwiseType_;
+    protected ClassType operatorPointwiseType_;
+    public ClassType OperatorPointwise() {
+        if (operatorPointwiseType_ == null)
+            operatorPointwiseType_ = load("x10.array.Operator$Pointwise"); // java file
+        return operatorPointwiseType_;
+    }
+	/*protected ClassType booleanArrayPointwiseOpType_;
+	public ClassType BooleanArrayPointwiseOp() {
+		if (booleanArrayPointwiseOpType_ == null)
+			booleanArrayPointwiseOpType_ = load("x10.lang.booleanArray$pointwiseOp"); // java file
+		return booleanArrayPointwiseOpType_;
 	}
 
+	protected ClassType charArrayPointwiseOpType_;
+	public ClassType CharArrayPointwiseOp() {
+		if (charArrayPointwiseOpType_ == null)
+			charArrayPointwiseOpType_ = load("x10.lang.charArray$pointwiseOp"); // java file
+		return charArrayPointwiseOpType_;
+	}
+
+	protected ClassType byteArrayPointwiseOpType_;
+	public ClassType ByteArrayPointwiseOp() {
+		if (byteArrayPointwiseOpType_ == null)
+			byteArrayPointwiseOpType_ = load("x10.lang.byteArray$pointwiseOp"); // java file
+		return byteArrayPointwiseOpType_;
+	}
+
+	protected ClassType shortArrayPointwiseOpType_;
+	public ClassType ShortArrayPointwiseOp() {
+		if (shortArrayPointwiseOpType_ == null)
+			shortArrayPointwiseOpType_ = load("x10.lang.shortArray$pointwiseOp"); // java file
+		return shortArrayPointwiseOpType_;
+	}
+
+	protected ClassType intArrayPointwiseOpType_;
+	public ClassType IntArrayPointwiseOp() {
+		if (intArrayPointwiseOpType_ == null) {
+			intArray(); // ensure that intArray is loaded.
+			intArrayPointwiseOpType_ = load("x10.lang.intArray$pointwiseOp"); // java file
+		}
+		return intArrayPointwiseOpType_;
+	}
+
+	protected ClassType floatArrayPointwiseOpType_;
+	public ClassType FloatArrayPointwiseOp() {
+		if (floatArrayPointwiseOpType_ == null)
+			floatArrayPointwiseOpType_ = load("x10.lang.floatArray$pointwiseOp"); // java file
+		return floatArrayPointwiseOpType_;
+	}
+
+	protected ClassType doubleArrayPointwiseOpType_;
+	public ClassType DoubleArrayPointwiseOp() {
+		if (doubleArrayPointwiseOpType_ == null)
+			doubleArrayPointwiseOpType_ = load("x10.lang.doubleArray$pointwiseOp"); // java file
+		return doubleArrayPointwiseOpType_;
+	}
+*/
 	/**
 	 * Factory method for ArrayTypes.
 	 * Called only from jl.types.TypeSystem_c.
@@ -257,6 +307,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		if (type.isLong())    return longArray(isValueType, distribution);
         List list = new LinkedList();
         list.add(type);
+        //Report.report(1, "X10TypeSystem_c: GOLDEN " + type );
         ReferenceType result = genericArray(isValueType, distribution, list);
         return result;
 	}
@@ -530,6 +581,23 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return result;
 	}
 
+	/*protected X10ReferenceType genericArrayPointwiseOpType_;
+	public X10ReferenceType GenericArrayPointwiseOp() {
+		if (genericArrayPointwiseOpType_ == null)
+			genericArrayPointwiseOpType_
+				= (X10ReferenceType) load("x10.lang.genericArray$pointwiseOp"); // java file
+		X10ReferenceType result = genericArrayPointwiseOpType_;
+        return genericArrayPointwiseOpType_;
+	}
+
+	public ReferenceType GenericArrayPointwiseOp(Type typeParam) {
+		List l = new LinkedList();
+		l.add(typeParam);
+        
+        X10ReferenceType result = (X10ReferenceType) GenericArrayPointwiseOp().makeVariant(null, l);
+        return result;
+	}*/
+
 	public ClassType genericArray(boolean isValueType, Expr distribution, List types) {
 		return isValueType
 			? genericValueArray(distribution, types)
@@ -562,11 +630,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 
 	private ClassType GenericReferenceArray() {
+      
 		return GenericReferenceArray(null, new LinkedList());
 	}
 
 	protected X10ParsedClassType genericReferenceArrayType_;
 	private ClassType GenericReferenceArray(Expr distribution, List typeParams) {
+       
 	    if (genericReferenceArrayType_ == null) {
 	        genericReferenceArrayType_ = (X10ParsedClassType) load("x10.lang.GenericReferenceArray"); // java file
         }
@@ -761,9 +831,89 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 //	/**
 //	 * Allow all explicit casts (for experimental purposes).
 //	 **/
-//	public boolean isCastValid(Type fromType, Type toType) {
-//		return true || super.isCastValid(fromType, toType);
-//	}
+	public boolean isCastValid(Type fromType, Type toType) {
+		return true || super.isCastValid(fromType, toType);
+}
+    
+//   TODO: Extend this for other kinds of X10 arrays
+    public  boolean isPrimitiveTypeArray(Type me1) {
+        X10Type me = (X10Type) me1;
+        return 
+        isBooleanArray(me) || 
+        isCharArray(me) || 
+        isByteArray(me) || 
+        isShortArray(me) || 
+        isIntArray(me) || 
+        isLongArray(me) || 
+        isFloatArray(me) || 
+        isDoubleArray(me);
+    }
+    
+    public  boolean isNullable(Type me) {
+        return (me instanceof NullableType);
+    }
+    public  boolean isFuture(Type me) {
+        NullableType r = ((X10Type) me).toNullable();
+        if (r != null) me = r.base();
+        return (me instanceof FutureType);
+       
+    }
+    protected boolean isX10Subtype(Type me, Type sup) {
+        NullableType r = ((X10Type) me).toNullable();
+        if (r != null) me = r.base();
+        boolean result = isSubtype(me, sup);        
+        return result;
+    }
+    public  boolean isX10Array(Type me) { 
+        return isX10Subtype(me, Indexable()); 
+    }
+    
+    public  boolean isBooleanArray(Type me) {
+        return isX10Subtype(me, booleanArray()); 
+    }
+    public boolean isCharArray(Type me) {
+        return isX10Subtype(me, charArray()); 
+    }
+    public boolean isByteArray(Type me) {
+        return isX10Subtype(me, byteArray()); 
+    }
+    public  boolean isShortArray(Type me) {
+        return isX10Subtype(me, shortArray()); 
+    }
+    public  boolean isIntArray(Type me) {
+        return isX10Subtype(me,intArray()); 
+    }
+    public  boolean isLongArray(Type me) {
+        return isX10Subtype(me, longArray()); 
+    }
+    public boolean isFloatArray(Type me) {
+        return isX10Subtype(me,floatArray()); 
+    }
+    public  boolean isDoubleArray(Type me) {
+        return isX10Subtype(me, doubleArray()); 
+    }
+    public  boolean isClock(Type me) {
+        return isX10Subtype(me, clock()); 
+    }
+    public  boolean isPoint(Type me) {
+        return isX10Subtype(me, point()); 
+    }
+    public  boolean isPlace(Type me) {
+        return isX10Subtype(me, place());
+    }
+    public  boolean isRegion(Type me) {
+        return isX10Subtype(me, region());
+    }
+    public  boolean isDistribution(Type me) {
+        return isX10Subtype(me, distribution());
+    }
+    public  boolean isDistributedArray(Type me) {
+        return isX10Array(me);
+    }
+    public  boolean isValueType( Type me) {
+        return isX10Subtype((X10Type) me,value());
+    }
+  
 
 } // end of X10TypeSystem_c
 

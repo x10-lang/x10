@@ -9,8 +9,8 @@ public value class ClassCast1 extends x10Test {
 
 	public boolean run() {
 		try {
-			final (nullable ClassCast1)[] A = { null, new ClassCast1() };
-			nullable ClassCast1 val = (A[0] == null) ? null : A[1];
+			final nullable<ClassCast1>[] A = { null, new ClassCast1() };
+			nullable<ClassCast1> val = (A[0] == null) ? null : A[1];
 			return new ClassCast1() == (ClassCast1) val; // should throw a ClassCastException
 		} catch (ClassCastException e) { // Per Sec 11.4.1, v 0.409 of the manual
 			return true;

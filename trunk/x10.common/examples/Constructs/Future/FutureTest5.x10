@@ -8,7 +8,7 @@ import harness.x10Test;
  */
 public class FutureTest5 extends x10Test {
 
-	nullable future<int> fut;
+	nullable<future<int>> fut;
 
 	/**
 	 * Create a future in one activity, and then
@@ -34,7 +34,7 @@ public class FutureTest5 extends x10Test {
 			if (del)
 				x10.lang.Runtime.sleep(500);
 		};
-		nullable future<int> t2;
+		nullable<future<int>> t2;
 		when (fut != null) { t2 = fut; }
 		int fortytwo = t2.force();
 		System.out.println("up done");
@@ -65,7 +65,7 @@ public class FutureTest5 extends x10Test {
 				x10.lang.Runtime.sleep(500);
 		}
 		finish async (here) {
-			nullable future<int> t2;
+			nullable<future<int>> t2;
 			when (fut != null) { t2 = fut; }
 			int fortytwo = t2.force();
 			System.out.println("sibling done");

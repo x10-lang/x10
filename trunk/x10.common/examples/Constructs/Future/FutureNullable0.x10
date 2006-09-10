@@ -6,7 +6,7 @@ import harness.x10Test;
  */
 public class FutureNullable0 extends x10Test {
 	public boolean run() {
-		future<nullable FutureNullable0> x = future(here) { null };
+		future<nullable<FutureNullable0>> x = future(here) { null };
 		return (x.force()) == null;
 	}
 

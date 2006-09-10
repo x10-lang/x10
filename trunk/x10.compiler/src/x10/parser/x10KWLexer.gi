@@ -33,6 +33,7 @@ $Export
     await
     boxed
     clocked
+    compilertest
     current 
     extern
     finish
@@ -49,6 +50,7 @@ $Export
     or
     placelocal
     reference
+    self
     unsafe
     value
     when
@@ -90,6 +92,11 @@ $Rules
         | c l o c k e d
         /.$BeginAction
                     $setResult($_clocked);
+          $EndAction
+        ./
+         | c o m p i l e r t e s t
+        /.$BeginAction
+                    $setResult($_compilertest);
           $EndAction
         ./
               | c u r r e n t
@@ -170,6 +177,11 @@ $Rules
               | r e f e r e n c e
         /.$BeginAction
                     $setResult($_reference);
+          $EndAction
+        ./
+              | s e l f
+        /.$BeginAction
+                    $setResult($_self);
           $EndAction
         ./
               | u n s a f e

@@ -101,7 +101,7 @@ public value class Vec {
 	/**
 	 * Substracs two vectors
 	 */
-	public static Vec sub(nullable Vec a, nullable Vec b) {
+	public static Vec sub(nullable<Vec> a, nullable<Vec> b) {
 		return new Vec(a.x - b.x, a.y - b.y, a.z - b.z);
 	}
 

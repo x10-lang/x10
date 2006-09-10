@@ -72,9 +72,9 @@ public class ClockPascal2 extends x10Test {
 		final dist Dboundary = D-Dinner;
 		final int[.] A = new int[D](point [i,j]) { return Dboundary.contains([i,j]) ? 1 : 0; };
 		finish async {
-			final (nullable clock)[.] N = new (nullable clock)[D];
+			final nullable<clock>[.] N = new nullable<clock>[D];
 			for (point [i,j]: D) { N[i,j] = clock.factory.clock(); }
-			final (nullable clock)[.] W = new (nullable clock)[D];
+			final nullable<clock>[.] W = new nullable<clock>[D];
 			for (point [i,j]: D) { W[i,j] = clock.factory.clock(); }
 
 			foreach (point [i,j]: Dinner)

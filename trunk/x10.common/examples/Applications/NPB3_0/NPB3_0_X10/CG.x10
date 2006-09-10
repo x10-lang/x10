@@ -161,7 +161,7 @@ public class CG {
 	}
 
 	public static void entryPoint(String argv[]) {
-		nullable CG cg = null;
+		nullable<CG>cg = null;
 
 		BMArgs.ParseCmdLineArgs(argv, BMName);
 		char CLSS = BMArgs.CLASS.val;

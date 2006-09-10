@@ -15,9 +15,11 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.jl.ast.MethodDecl_c;
+import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.types.PropertyInstance;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
@@ -41,10 +43,19 @@ public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
     * @return body, with properties and getters added.
     */
     public static ClassBody addProperties(List/*<PropertyDecl>*/ properties, ClassBody body) {
+       
         if (properties != null && ! properties.isEmpty()) {
+           // Report.report(1, "PropertyDecl_c: Adding " + properties + " to " + body);
             for (Iterator e = properties.iterator(); e.hasNext();) {
                 PropertyDecl  p = (PropertyDecl) e.next();
-                body = body.addMember(p.getter()).addMember(p);
+                MethodDecl getter = p.getter();
+               // Report.report(1, "PropertyDecl_c: Adding " + getter);
+                        
+                body = body.addMember(getter);
+                //Report.report(1, "PropertyDecl_c: Adding " + p);
+                
+                body = body.addMember(p);
+                
             }
             body = body.addMember(PropertyDecl_c.makePropertyNamesField(properties));
         }
@@ -80,16 +91,6 @@ public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
        final Position pos = Position.COMPILER_GENERATED;
        X10TypeSystem ts =  X10TypeSystem_c.getTypeSystem();
        X10NodeFactory nf = X10NodeFactory_c.getNodeFactory();
-       /*
-       TypeNode tn  = nf.ArrayTypeNode(pos, nf.CanonicalTypeNode(pos, ts.String()));
-       // get the initial value.
-       List l = new TypedList(new LinkedList(), Expr.class, false);
-       for (Iterator e = properties.iterator(); e.hasNext(); ) {
-           PropertyDecl p = (PropertyDecl) e.next();
-           l.add(nf.StringLit(pos, p.name()));
-       }
-       ArrayInit init = nf.ArrayInit(pos, l);
-       FieldDecl f = new FieldDecl_c(pos, Flags.PUBLIC.Static().Final(), tn, propFieldName, init);*/
        
        TypeNode tn  = nf.CanonicalTypeNode(pos, ts.String());
        // get the initial value.
@@ -109,11 +110,14 @@ public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
    
     public MethodDecl getter() {
         X10NodeFactory nf = X10NodeFactory_c.getNodeFactory();
+        X10TypeSystem ts = X10TypeSystem_c.getTypeSystem();
         Position pos = Position.COMPILER_GENERATED;
         Flags flags = Flags.PUBLIC.Final();
         List formals = Collections.EMPTY_LIST;
         List throwTypes = Collections.EMPTY_LIST;
-        Expr e = nf.Field(pos, name);
+        Expr e = new Name(nf, ts, pos, name).toExpr();
+        Report.report(1, "PropertyDecl_c: GOLDEN e=|" + e + " " + e.getClass());
+        
         Stmt s = nf.Return(pos, e);
         Block body = nf.Block(pos, s);
         MethodDecl result = new MethodDecl_c(pos, flags, type, name, formals, throwTypes, body);

@@ -10,7 +10,7 @@ public class ArrayArrayInitializerShorthand extends x10Test {
 	public boolean run() {
 		final dist d = [1:10,1:10]->here;
 		final int[.] a = new int[d];
-		final (int[.])[.] ia = new (int[.])[d] (point [i,j]){ return a; };
+		final int[.][.] ia = new int[.][d] (point [i,j]){ return a; };
 		for (point [i,j]: ia) chk(ia[i,j] == a);
 		return true;
 	}

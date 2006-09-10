@@ -34,6 +34,8 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     public X10Type baseType() { return baseType;}
     public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
     public List typeParameters() { return typeParameters;}
+    public DepParameterExpr depClause() { return depClause; }
+    
     public X10Type makeVariant(DepParameterExpr d, List l) { 
         if (d == null && (l == null || l.isEmpty()))
                 return this;
@@ -45,8 +47,17 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
             Report.report(5,"X10ReferenceType_c.makeVariant: " + this + " creates " + n + "|");
         return n;
     }
-    public DepParameterExpr depClause() { return depClause; }
-   
+    
+    public boolean typeEqualsImpl(Type o) {
+        return equalsImpl(o);
+    }
+    public int hashCode() {
+        return 
+          (baseType == this ? super.hashCode() : baseType.hashCode() ) 
+        + (depClause != null ? depClause.hashCode() : 0)
+        + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
+        
+    }
     public boolean equalsImpl(TypeObject o) {
         // Report.report(3,"X10ReferenceType_c: equals |" + this + "| and |" + o+"|");
       
@@ -84,30 +95,6 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
         return true;
         
     }    
-	// ----------------------------- begin manual mixin code from X10Type_c
-    public boolean isNullable() { return false; }
-    public boolean isFuture() { return false; }
-    public FutureType toFuture() { return null; }
-    public NullableType toNullable() { return null;}
-    public boolean isPrimitiveTypeArray() { return X10Type_c.isPrimitiveTypeArray(this);}
-    public boolean isX10Array() { return X10Type_c.isX10Array(this);}
-    public boolean isDistributedArray() { return false;}
-    public boolean isBooleanArray() { return X10Type_c.isBooleanArray(this);}
-    public boolean isCharArray() { return X10Type_c.isCharArray(this);}
-    public boolean isByteArray() { return X10Type_c.isByteArray(this); }
-    public boolean isShortArray() { return X10Type_c.isShortArray(this);}
-    public boolean isIntArray() { return X10Type_c.isIntArray(this); }
-    public boolean isLongArray() { return X10Type_c.isLongArray(this);}
-    public boolean isFloatArray() { return X10Type_c.isFloatArray(this);}
-    public boolean isDoubleArray() { return X10Type_c.isDoubleArray(this);}
-    public boolean isClock() { return X10Type_c.isClock(this);}
-    public boolean isPoint() { return X10Type_c.isPoint(this);}
-    public boolean isPlace() { return X10Type_c.isPlace(this);}
-    public boolean isRegion() { return X10Type_c.isRegion(this);}
-    public boolean isDistribution() { return X10Type_c.isDistribution(this);}
-    public boolean isValueType() { return X10Type_c.isValueType(this);}
-    public boolean isSubtypeImpl(  Type other) { return X10Type_c.isSubtypeImpl(this, other);}
-  
     
 	public boolean descendsFromImpl(Type ancestor) {
 		// Check subtype relation for supertype.

@@ -30,7 +30,7 @@ import polyglot.util.Position;
 public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	protected X10Type base;
 	protected List methods;
-	
+	protected X10TypeSystem xts;
 	protected FutureType_c() {}
 	
 	/** We type base to Type instead of X10Type because we wish to reuse code from
@@ -51,7 +51,8 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 				base,
 				"force",
 				Collections.EMPTY_LIST,
-				Collections.EMPTY_LIST	));				
+				Collections.EMPTY_LIST	));	
+        xts = (X10TypeSystem) ts;
 	}
 	
 	public boolean isFuture() {
@@ -127,13 +128,13 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 		}
 
 		X10Type toType = (X10Type) origType;
-		if (toType.isNullable()) {
-			NullableType targetType = toType.toNullable();
+        NullableType targetType = toType.toNullable();
+		if (targetType != null) {
 			toType = targetType.base();
 		}
 
-		if (toType.isFuture()) {
-			FutureType target = toType.toFuture();
+        FutureType target = toType.toFuture();
+		if (target != null) {
 			boolean result = base().isImplicitCastValidImpl( target.base() );
 			if ( Report.should_report("debug", 5) )  {
 				Report.report(5, "[FutureType_c] ..." + result);
@@ -155,13 +156,12 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 		}
 
 		X10Type toType = (X10Type) origType;
-		if (toType.isNullable()) {
-			NullableType nullType = toType.toNullable();
+        NullableType nullType = toType.toNullable();
+		if (nullType != null) 
 			toType = nullType.base();
-		}
-
-		if (toType.isFuture()) {
-			FutureType target = toType.toFuture();
+		
+        FutureType target = X10Type_c.toFuture(toType);
+		if (target != null) {
 			boolean result = base().isCastValidImpl( target.base() );
 			if (Report.should_report("debug", 5)) {
 				Report.report(5, "[FutureType_c] ... target=|" +  target + "|.");
@@ -178,13 +178,22 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 		return result;
 	}
 
-	/*
-	 * [IP] Cannot use the default pointer equality, since we're creating too many
-	 * of these.  This makes all Futures the same -- may be wrong.
-	 * [IP] FIXME: make sure only one instance at a time is created instead.
-	 */
+     
+     public boolean typeEqualsImpl(Type o) {
+         return equalsImpl(o);
+     }
+     public int hashCode() {
+         return 
+           (baseType == this ? base.hashCode() << 2 : baseType.hashCode() ) 
+         + (depClause != null ? depClause.hashCode() : 0)
+         + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
+         
+     }
 	public boolean equalsImpl(TypeObject t) {
-		return t instanceof FutureType_c;
+        if (! (t instanceof FutureType)) 
+            return false;
+        FutureType other = (FutureType) t;
+		return ts.typeEquals(base(), other.base());
 	}
 
 	/** Returns true iff the type is canonical. */
@@ -201,5 +210,9 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
     public List properties() {
         return Collections.EMPTY_LIST;
     }
+    public NullableType toNullable() { 
+        return X10Type_c.toNullable(this);
+    }
+   
 }
 

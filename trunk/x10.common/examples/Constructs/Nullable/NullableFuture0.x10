@@ -17,7 +17,7 @@ import harness.x10Test;
 public class NullableFuture0 extends x10Test {
 
 	public boolean run() {
-		nullable future <int> x;
+		nullable<future <int>> x;
 		if (X.t()) {
 			x = future { 42 };
 		} else {

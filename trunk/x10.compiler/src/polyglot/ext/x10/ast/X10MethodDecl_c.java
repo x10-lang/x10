@@ -20,7 +20,7 @@ import polyglot.visit.Translator;
  */
 public class X10MethodDecl_c extends MethodDecl_c {
     // The representation of this( DepParameterExpr ) in the production.
-    TypeNode thisClause;
+    DepParameterExpr thisClause;
     // The reprsentation of the : Constraint in the parameter list.
     Expr whereClause;
      /*   public X10MethodDecl_c(Position pos, 
@@ -28,7 +28,7 @@ public class X10MethodDecl_c extends MethodDecl_c {
                 String name, List formals, List throwTypes, Block body) {
                 super(pos, flags, returnType, name, formals, throwTypes, body);
         }*/
-        public X10MethodDecl_c(Position pos, TypeNode thisClause, 
+        public X10MethodDecl_c(Position pos, DepParameterExpr thisClause, 
                 Flags flags, TypeNode returnType,
                 String name, List formals, Expr e, List throwTypes, Block body) {
         super(pos, flags, returnType, name, formals, throwTypes, body);

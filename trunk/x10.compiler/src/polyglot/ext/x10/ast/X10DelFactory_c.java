@@ -11,6 +11,7 @@ import polyglot.ext.jl.ast.AbstractDelFactory_c;
 import polyglot.ext.jl.ast.JL_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10Type_c;
 import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -74,9 +75,10 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 		return new JL_c() {
 			private void printType(CodeWriter w, Type type) {
 				X10Type t = (X10Type) type;
-				if (t.isNullable()) {
+                X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+				if (ts.isNullable(t)) {
 					w.write("/*nullable*/");
-					printType(w, t.toNullable().base());
+					printType(w, X10Type_c.toNullable(t).base());
 				} else if (t.isArray()) {
 					printType(w, t.toArray().base());
 					w.write("[]");

@@ -40,6 +40,17 @@ public class X10NullType_c extends NullType_c implements X10NullType {
         return n;
     }
     public DepParameterExpr depClause() { return depClause; }
+
+    public boolean typeEqualsImpl(Type o) {
+        return equalsImpl(o);
+    }
+    public int hashCode() {
+        return 
+          (baseType == this ? super.hashCode() : baseType.hashCode() ) 
+        + (depClause != null ? depClause.hashCode() : 0)
+        + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
+        
+    }
     
     public boolean equalsImpl(TypeObject o) {
         if (o == this) return true;
@@ -71,7 +82,7 @@ public class X10NullType_c extends NullType_c implements X10NullType {
      */
     public boolean isImplicitCastValidImpl(Type toType) {
     	X10Type targetType = (X10Type) toType;
-    	return toType.isNull() || targetType.isNullable();
+    	return toType.isNull() || ((X10TypeSystem) ts).isNullable(targetType);
     }	
 
     /** 
@@ -92,34 +103,12 @@ public class X10NullType_c extends NullType_c implements X10NullType {
      **/
     public boolean isCastValidImpl(Type toType) {
     	X10Type targetType = (X10Type) toType;
-        return toType.isNull() || targetType.isNullable();
+        return toType.isNull() || ((X10TypeSystem) ts).isNullable(targetType);
     }
 
-//	 ----------------------------- begin manual mixin code from X10Type_c
-	public boolean isNullable() { return false;}
-	public boolean isFuture() { return false;}
-	public NullableType toNullable() { return null;}
-	public FutureType toFuture() { return null;}
-	public boolean isDistribution() { return false; }
-	public boolean isDistributedArray() { return false; }
-	public boolean isPrimitiveTypeArray() { return false; }
-	public boolean isBooleanArray() { return false; }
-    public boolean isCharArray() { return false; }
-    public boolean isByteArray() { return false; }
-    public boolean isShortArray() { return false; }
-    public boolean isLongArray() { return false; }
-    public boolean isIntArray() { return false; }
-    public boolean isFloatArray() { return false; }
-    public boolean isDoubleArray() { return false; }
-	public boolean isClock() { return false; }
-	public boolean isRegion() { return false; }
-	public boolean isPlace() { return false;}
-	public boolean isPoint() { return false; }
-	public boolean isX10Array() { return false; }
-    public boolean isSubtypeImpl(  Type other) { return X10Type_c.isSubtypeImpl(this, other);}
-    public boolean isValueType() { return true;}
     public List properties() { return Collections.EMPTY_LIST;}
-	// ----------------------------- end manual mixin code from X10Type_c
-	
+    
+    public NullableType toNullable() { return X10Type_c.toNullable(this);}
+    public FutureType toFuture() { return X10Type_c.toFuture(this);}
 	
 }

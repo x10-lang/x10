@@ -38,42 +38,20 @@ public abstract class X10ClassType_c extends ClassType_c implements
 	public X10ClassType_c(TypeSystem ts, Position pos) {
 		super(ts, pos);
 	}
-//	 ----------------------------- begin manual mixin code from X10Type_c
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isNullable()
-	 */
-	public boolean isNullable() {
-			return false;
-	}
 
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#isFuture()
-	 */
-	public boolean isFuture() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#toNullable()
-	 */
-	public NullableType toNullable() {
-			return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.X10Type#toFuture()
-	 */
-	public FutureType toFuture() {
-			return null;
-	}
 
 	 public boolean isImplicitCastValidImpl(Type toType) {
 	 	X10Type targetType = (X10Type) toType;
-        if (! targetType.isClass() && ! targetType.isNullable()) 
+        if (! targetType.isClass() && targetType.toNullable() != null) 
         	return false;
         boolean result = ts.isSubtype(this, targetType);
         return result;
     }
+     
+     public boolean typeEqualsImpl(Type o) {
+            return equalsImpl(o);
+        }
+      
 	
 	public  boolean isSubtypeImpl( Type t) {
     	X10Type target = (X10Type) t;
@@ -88,8 +66,8 @@ public abstract class X10ClassType_c extends ClassType_c implements
     			Report.report( 5, "[X10ClassType_c] ..." + result+".");	
      		return result;
     	}
-    	if (target.isNullable()) {
-    		NullableType toType = target.toNullable();
+        NullableType toType = target.toNullable();
+    	if (toType != null) {
     		Type baseType = toType.base();
     		result = isSubtypeImpl( baseType );
     		if (Report.should_report("debug", 5))
@@ -100,6 +78,8 @@ public abstract class X10ClassType_c extends ClassType_c implements
 			Report.report( 5, "[X10ClassType_c] ..." + result+".");	
     	return false;
     }
+     public NullableType toNullable() { return X10Type_c.toNullable(this);}
+        public FutureType toFuture() { return X10Type_c.toFuture(this);}
 	// ----------------------------- end manual mixin code from X10Type_c
 	
 }

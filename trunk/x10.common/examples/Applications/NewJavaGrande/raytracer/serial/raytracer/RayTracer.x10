@@ -181,7 +181,7 @@ public class RayTracer {
 	}
 
 	boolean intersect(Ray r, double maxt, Isect inter) {
-		nullable Isect tp;
+		nullable<Isect> tp;
 		int i, nhits;
 
 		nhits = 0;
@@ -222,7 +222,7 @@ public class RayTracer {
 	/**
 	 * Return the Vector's transmission direction
 	 */
-	nullable Vec TransDir(nullable Surface m1, nullable Surface m2, Vec I, Vec N) {
+	nullable<Vec> TransDir(nullable<Surface> m1, nullable<Surface> m2, Vec I, Vec N) {
 		double n1 = m1 == null ? 1.0 : m1.ior;
 		double n2 = m2 == null ? 1.0 : m2.ior;
 		double eta = n1/n2;
@@ -238,7 +238,7 @@ public class RayTracer {
 	 */
 	Vec shade(int level, double weight, Vec P, Vec N, Vec I, Isect hit, Ray tRay) {
 
-		nullable Surface surf = hit.surf;
+		nullable<Surface> surf = hit.surf;
 		Vec bigr = new Vec();
 		if (surf.shine > 1e-6) {
 			bigr = SpecularDirection(I, N);

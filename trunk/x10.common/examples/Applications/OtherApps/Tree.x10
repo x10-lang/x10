@@ -19,15 +19,15 @@ import harness.x10Test;
  * but at the same place as its parent at the lower levels
  */
 public class Tree extends x10Test {
-	nullable Tree left; // depending on localleft
-	nullable Tree right; // always current
-	nullable Tree next; // mixed for lists
+	nullable<Tree> left; // depending on localleft
+	nullable<Tree> right; // always current
+	nullable<Tree> next; // mixed for lists
 	int size;
 	boolean localLeft; // if true then left child is at current
 
 	private Tree() { }
 
-	public Tree(boolean ll, nullable Tree l, nullable Tree r, int s) {
+	public Tree(boolean ll, nullable<Tree> l, nullable<Tree> r, int s) {
 		left = l; right = r; next = null; localLeft = ll; size = s;
 	}
 
@@ -55,7 +55,7 @@ public class Tree extends x10Test {
 	}
 
 	// Create a binary tree on span places
-	public static nullable Tree build(final int count, final int span) {
+	public static nullable<Tree> build(final int count, final int span) {
 		if (count == 0) return null;
 		boolean ll = (span/2 == 0);
 		return new Tree(ll, (ll? build(count/2, span/2) :

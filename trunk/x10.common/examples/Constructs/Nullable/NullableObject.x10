@@ -10,7 +10,7 @@ public class NullableObject extends x10Test {
 	public boolean run() {
 		boolean gotNull = false;
 		try {
-			nullable x10.lang.Object x = X.mynull();
+			nullable<x10.lang.Object> x = X.mynull();
 			x10.lang.Object y = (x10.lang.Object) x;
 			X.use(y);
 		} catch (ClassCastException e) {
@@ -24,7 +24,7 @@ public class NullableObject extends x10Test {
 	}
 
 	static class X {
-		public static nullable x10.lang.Object mynull() { return null; }
+		public static nullable<x10.lang.Object> mynull() { return null; }
 		public static void use(x10.lang.Object y) { }
 	}
 }
