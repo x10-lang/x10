@@ -1,5 +1,5 @@
 
-//#line 19 "x10.g"
+//#line 18 "c:\eclipse\workspace-3.1\x10.compiler\src\x10\parser\x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
@@ -69,7 +69,6 @@ public interface X10Parsersym {
       TK_GREATER = 56,
       TK_ELLIPSIS = 115,
       TK_ARROW = 27,
-      TK_ErrorId = 84,
       TK_abstract = 52,
       TK_assert = 69,
       TK_boolean = 5,
@@ -161,6 +160,7 @@ public interface X10Parsersym {
       TK_UNSIGNED_RIGHT_SHIFT = 141,
       TK_RIGHT_SHIFT_EQUAL = 142,
       TK_UNSIGNED_RIGHT_SHIFT_EQUAL = 143,
+      TK_ErrorId = 84,
       TK_any = 129,
       TK_ERROR_TOKEN = 144;
 

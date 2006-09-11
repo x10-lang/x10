@@ -30,6 +30,17 @@ public class X10Lexerprs implements lpg.lpgjavaruntime.ParseTable, X10Lexersym {
     public final static byte isNullable[] = IsNullable.isNullable;
     public final boolean isNullable(int index) { return isNullable[index] != 0; }
 
+    public interface ProsthesesIndex {
+        public final static byte prosthesesIndex[] = {0,
+            25,26,33,29,30,31,14,19,21,28,
+            32,20,22,27,36,40,2,3,4,5,
+            6,7,8,9,10,11,12,13,15,16,
+            17,18,23,24,34,35,37,38,1,39
+        };
+    };
+    public final static byte prosthesesIndex[] = ProsthesesIndex.prosthesesIndex;
+    public final int prosthesesIndex(int index) { return prosthesesIndex[index]; }
+
     public interface IsKeyword {
         public final static byte isKeyword[] = {0,
             0,0,0,0,0,0,0,0,0,0,
