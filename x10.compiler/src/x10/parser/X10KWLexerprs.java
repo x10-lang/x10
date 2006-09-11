@@ -18,6 +18,14 @@ public class X10KWLexerprs implements lpg.lpgjavaruntime.ParseTable, X10KWLexers
     public final static byte isNullable[] = IsNullable.isNullable;
     public final boolean isNullable(int index) { return isNullable[index] != 0; }
 
+    public interface ProsthesesIndex {
+        public final static byte prosthesesIndex[] = {0,
+            2,1
+        };
+    };
+    public final static byte prosthesesIndex[] = ProsthesesIndex.prosthesesIndex;
+    public final int prosthesesIndex(int index) { return prosthesesIndex[index]; }
+
     public interface IsKeyword {
         public final static byte isKeyword[] = {0,
             0,0,0,0,0,0,0,0,0,0,

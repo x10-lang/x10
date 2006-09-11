@@ -18,10 +18,8 @@ import java.util.ArrayList;
 public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym, RuleAction
 {
     private static ParseTable prs = new X10Lexerprs();
-    private PrsStream prsStream;
     private LexParser lexParser = new LexParser(this, prs, this);
 
-    public PrsStream getPrsStream() { return prsStream; }
     public int getToken(int i) { return lexParser.getToken(i); }
     public int getRhsFirstTokenIndex(int i) { return lexParser.getFirstToken(i); }
     public int getRhsLastTokenIndex(int i) { return lexParser.getLastToken(i); }
@@ -59,7 +57,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
         if (getInputChars() == null)
             throw new NullPointerException("LexStream was not initialized");
 
-        this.prsStream = prsStream;
+        setPrsStream(prsStream);
 
         prsStream.makeToken(0, 0, 0); // Token list must start with a bad token
             
