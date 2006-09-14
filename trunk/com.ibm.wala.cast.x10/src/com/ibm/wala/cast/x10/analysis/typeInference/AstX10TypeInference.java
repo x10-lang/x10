@@ -1,6 +1,6 @@
 package com.ibm.domo.ast.x10.analysis.typeInference;
 
-import com.ibm.wala.impl.debug.Assertions;
+import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.analysis.typeInference.ConeType;
 import com.ibm.wala.analysis.typeInference.PointType;
 import com.ibm.domo.ast.java.analysis.typeInference.AstJavaTypeInference;

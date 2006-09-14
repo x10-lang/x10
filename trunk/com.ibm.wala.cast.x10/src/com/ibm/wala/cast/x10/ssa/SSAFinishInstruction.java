@@ -5,7 +5,7 @@ package com.ibm.domo.ast.x10.ssa;
 
 import java.util.Collection;
 import java.util.Collections;
-import com.ibm.wala.impl.debug.Assertions;
+import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.ssa.ValueDecorator;

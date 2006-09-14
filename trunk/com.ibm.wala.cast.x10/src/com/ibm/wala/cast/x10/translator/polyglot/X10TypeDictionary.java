@@ -12,7 +12,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 
 import com.ibm.capa.ast.CAstType;
-import com.ibm.wala.impl.debug.Assertions;
+import com.ibm.wala.util.debug.Assertions;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotTypeDictionary;
 
