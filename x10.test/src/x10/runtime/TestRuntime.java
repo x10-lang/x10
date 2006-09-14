@@ -26,7 +26,6 @@ import java.util.LinkedList;
 public class TestRuntime extends TestCase {
 
     static {
-        Configuration.parseCommandLine(null);
         Runtime.init();
     }
     

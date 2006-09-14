@@ -19,7 +19,6 @@ import x10.runtime.Configuration;
 public class TestRegion extends TestCase {
 	
 	static {
-		Configuration.parseCommandLine(null);
 		Runtime.init();
 	}    
 	

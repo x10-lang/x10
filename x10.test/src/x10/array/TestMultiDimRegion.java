@@ -20,7 +20,6 @@ import x10.runtime.Configuration;
 public class TestMultiDimRegion extends TestCase {
     
     static {
-        Configuration.parseCommandLine(null);
         Runtime.init();
     }
     
