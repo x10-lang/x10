@@ -2,10 +2,10 @@ package com.ibm.domo.ast.x10.ssa;
 
 import java.util.Collection;
 import java.util.Collections;
-import com.ibm.capa.impl.debug.Assertions;
-import com.ibm.domo.ssa.SSAInstruction;
-import com.ibm.domo.ssa.SymbolTable;
-import com.ibm.domo.ssa.ValueDecorator;
+import com.ibm.wala.impl.debug.Assertions;
+import com.ibm.wala.ssa.SSAInstruction;
+import com.ibm.wala.ssa.SymbolTable;
+import com.ibm.wala.ssa.ValueDecorator;
 
 public class SSAHereInstruction extends SSAInstruction {
     private final int retValue;

@@ -3,8 +3,8 @@
  */
 package com.ibm.domo.ast.x10.ssa;
 
-import com.ibm.domo.classLoader.CallSiteReference;
-import com.ibm.domo.types.MethodReference;
+import com.ibm.wala.classLoader.CallSiteReference;
+import com.ibm.wala.types.MethodReference;
 
 public class AsyncCallSiteReference extends CallSiteReference {
     // this must be distinct from java invoke codes.

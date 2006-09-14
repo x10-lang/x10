@@ -12,15 +12,15 @@ import com.ibm.domo.ast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 import com.ibm.domo.ast.loader.AstMethod.DebuggingInformation;
 import com.ibm.domo.ast.loader.AstMethod.LexicalInformation;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
-import com.ibm.domo.cfg.AbstractCFG;
-import com.ibm.domo.classLoader.IClass;
-import com.ibm.domo.classLoader.IClassLoader;
-import com.ibm.domo.ipa.callgraph.impl.SetOfClasses;
-import com.ibm.domo.ipa.cha.ClassHierarchy;
-import com.ibm.domo.ssa.SymbolTable;
-import com.ibm.domo.types.ClassLoaderReference;
-import com.ibm.domo.types.TypeReference;
-import com.ibm.domo.util.warnings.WarningSet;
+import com.ibm.wala.cfg.AbstractCFG;
+import com.ibm.wala.classLoader.IClass;
+import com.ibm.wala.classLoader.IClassLoader;
+import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
+import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ssa.SymbolTable;
+import com.ibm.wala.types.ClassLoaderReference;
+import com.ibm.wala.types.TypeReference;
+import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
     public X10SourceLoaderImpl(ClassLoaderReference loaderRef, IClassLoader parent, SetOfClasses exclusions,

@@ -2,10 +2,10 @@ package com.ibm.domo.ast.x10.ssa;
 
 import java.util.Collection;
 import java.util.Collections;
-import com.ibm.domo.ssa.SSAAbstractUnaryInstruction;
-import com.ibm.domo.ssa.SSAInstruction;
-import com.ibm.domo.ssa.SymbolTable;
-import com.ibm.domo.ssa.ValueDecorator;
+import com.ibm.wala.ssa.SSAAbstractUnaryInstruction;
+import com.ibm.wala.ssa.SSAInstruction;
+import com.ibm.wala.ssa.SymbolTable;
+import com.ibm.wala.ssa.ValueDecorator;
 
 public class SSARegionIterHasNextInstruction extends SSAAbstractUnaryInstruction {
 

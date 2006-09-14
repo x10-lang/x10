@@ -13,11 +13,11 @@ import com.ibm.domo.ast.java.translator.polyglot.PolyglotClassLoaderFactory;
 import com.ibm.domo.ast.x10.ipa.callgraph.X10ZeroXCFABuilder;
 import com.ibm.domo.ast.x10.translator.polyglot.X10ClassLoaderFactory;
 import com.ibm.domo.ast.x10.translator.polyglot.X10IRTranslatorExtension;
-import com.ibm.domo.ipa.callgraph.AnalysisOptions;
-import com.ibm.domo.ipa.callgraph.CallGraphBuilder;
-import com.ibm.domo.ipa.callgraph.propagation.cfa.ZeroXInstanceKeys;
-import com.ibm.domo.ipa.cha.ClassHierarchy;
-import com.ibm.domo.util.warnings.WarningSet;
+import com.ibm.wala.ipa.callgraph.AnalysisOptions;
+import com.ibm.wala.ipa.callgraph.CallGraphBuilder;
+import com.ibm.wala.ipa.callgraph.propagation.cfa.ZeroXInstanceKeys;
+import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10IRTests extends IRTests {
     protected static List/*<String>*/ x10RTJar;

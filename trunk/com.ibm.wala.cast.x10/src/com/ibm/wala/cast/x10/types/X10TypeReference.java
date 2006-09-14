@@ -1,8 +1,8 @@
 package com.ibm.domo.ast.x10.types;
 
-import com.ibm.domo.types.ClassLoaderReference;
-import com.ibm.domo.types.TypeName;
-import com.ibm.domo.types.TypeReference;
+import com.ibm.wala.types.ClassLoaderReference;
+import com.ibm.wala.types.TypeName;
+import com.ibm.wala.types.TypeReference;
 
 public class X10TypeReference {
     private final static TypeName x10LangPointName = TypeName.string2TypeName("Lx10/lang/point");

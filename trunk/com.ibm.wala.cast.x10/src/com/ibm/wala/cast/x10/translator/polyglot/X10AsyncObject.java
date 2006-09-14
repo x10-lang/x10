@@ -4,9 +4,9 @@
 package com.ibm.domo.ast.x10.translator.polyglot;
 
 import com.ibm.domo.ast.loader.AstFunctionClass;
-import com.ibm.domo.classLoader.IClassLoader;
-import com.ibm.domo.classLoader.IMethod;
-import com.ibm.domo.types.TypeReference;
+import com.ibm.wala.classLoader.IClassLoader;
+import com.ibm.wala.classLoader.IMethod;
+import com.ibm.wala.types.TypeReference;
 
 /**
  * Represents the synthesized type that contains a single synthesized method that houses the async code body

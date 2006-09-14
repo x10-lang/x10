@@ -9,13 +9,13 @@ import com.ibm.domo.ast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.domo.ast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotClassLoaderFactory;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotSourceLoaderImpl;
-import com.ibm.domo.classLoader.ClassLoaderImpl;
-import com.ibm.domo.classLoader.IClassLoader;
-import com.ibm.domo.ipa.callgraph.AnalysisScope;
-import com.ibm.domo.ipa.callgraph.impl.SetOfClasses;
-import com.ibm.domo.ipa.cha.ClassHierarchy;
-import com.ibm.domo.types.ClassLoaderReference;
-import com.ibm.domo.util.warnings.WarningSet;
+import com.ibm.wala.classLoader.ClassLoaderImpl;
+import com.ibm.wala.classLoader.IClassLoader;
+import com.ibm.wala.ipa.callgraph.AnalysisScope;
+import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
+import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.types.ClassLoaderReference;
+import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10ClassLoaderFactory extends PolyglotClassLoaderFactory {
 

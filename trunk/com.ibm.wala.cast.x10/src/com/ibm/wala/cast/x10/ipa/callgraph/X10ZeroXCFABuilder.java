@@ -1,16 +1,16 @@
 package com.ibm.domo.ast.x10.ipa.callgraph;
 
 import com.ibm.domo.ast.java.ipa.callgraph.JavaScopeMappingInstanceKeys;
-import com.ibm.domo.ipa.callgraph.AnalysisOptions;
-import com.ibm.domo.ipa.callgraph.ContextSelector;
-import com.ibm.domo.ipa.callgraph.ReflectionSpecification;
-import com.ibm.domo.ipa.callgraph.impl.DefaultContextSelector;
-import com.ibm.domo.ipa.callgraph.impl.DelegatingContextSelector;
-import com.ibm.domo.ipa.callgraph.propagation.DefaultPropagationContextSelector;
-import com.ibm.domo.ipa.callgraph.propagation.SSAContextInterpreter;
-import com.ibm.domo.ipa.callgraph.propagation.cfa.ZeroXInstanceKeys;
-import com.ibm.domo.ipa.cha.ClassHierarchy;
-import com.ibm.domo.util.warnings.WarningSet;
+import com.ibm.wala.ipa.callgraph.AnalysisOptions;
+import com.ibm.wala.ipa.callgraph.ContextSelector;
+import com.ibm.wala.ipa.callgraph.ReflectionSpecification;
+import com.ibm.wala.ipa.callgraph.impl.DefaultContextSelector;
+import com.ibm.wala.ipa.callgraph.impl.DelegatingContextSelector;
+import com.ibm.wala.ipa.callgraph.propagation.DefaultPropagationContextSelector;
+import com.ibm.wala.ipa.callgraph.propagation.SSAContextInterpreter;
+import com.ibm.wala.ipa.callgraph.propagation.cfa.ZeroXInstanceKeys;
+import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10ZeroXCFABuilder extends X10CFABuilder {
 

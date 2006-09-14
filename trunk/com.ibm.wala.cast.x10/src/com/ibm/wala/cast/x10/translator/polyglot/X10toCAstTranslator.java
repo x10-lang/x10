@@ -31,15 +31,15 @@ import com.ibm.capa.ast.CAstSourcePositionMap;
 import com.ibm.capa.ast.CAstType;
 import com.ibm.capa.ast.visit.CAstVisitor;
 import com.ibm.capa.ast.visit.CAstVisitor.Context;
-import com.ibm.capa.impl.debug.Assertions;
+import com.ibm.wala.impl.debug.Assertions;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.domo.ast.java.translator.polyglot.TranslatingVisitor;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.domo.ast.x10.translator.X10CastNode;
-import com.ibm.domo.types.ClassLoaderReference;
-import com.ibm.domo.types.TypeReference;
-import com.ibm.domo.util.IteratorPlusOne;
+import com.ibm.wala.types.ClassLoaderReference;
+import com.ibm.wala.types.TypeReference;
+import com.ibm.wala.util.IteratorPlusOne;
 
 public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, TypeSystem ts) {

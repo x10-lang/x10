@@ -27,17 +27,17 @@ import com.ibm.domo.ast.x10.translator.X10CAstEntity;
 import com.ibm.domo.ast.x10.translator.X10CAstPrinter;
 import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.domo.ast.x10.visit.X10CAstVisitor;
-import com.ibm.domo.ssa.SSAInstructionFactory;
-import com.ibm.domo.types.Descriptor;
-import com.ibm.domo.types.MethodReference;
-import com.ibm.domo.types.TypeName;
-import com.ibm.domo.types.TypeReference;
-import com.ibm.domo.util.Atom;
-import com.ibm.capa.util.debug.Trace;
+import com.ibm.wala.ssa.SSAInstructionFactory;
+import com.ibm.wala.types.Descriptor;
+import com.ibm.wala.types.MethodReference;
+import com.ibm.wala.types.TypeName;
+import com.ibm.wala.types.TypeReference;
+import com.ibm.wala.util.Atom;
+import com.ibm.wala.util.debug.Trace;
 
 import com.ibm.domo.ast.translator.AstTranslator.WalkContext;
 import com.ibm.domo.ast.translator.AstTranslator.DefaultContext;
-import com.ibm.domo.classLoader.NewSiteReference;
+import com.ibm.wala.classLoader.NewSiteReference;
 
 public class X10CAst2IRTranslator extends X10CAstVisitor {
     public X10CAst2IRTranslator(CAstEntity sourceFileEntity, X10SourceLoaderImpl loader) {
