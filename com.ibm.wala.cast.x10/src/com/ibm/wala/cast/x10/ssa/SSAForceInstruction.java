@@ -2,11 +2,11 @@ package com.ibm.domo.ast.x10.ssa;
 
 import java.util.Collection;
 import java.util.Collections;
-import com.ibm.domo.ssa.SSAAbstractUnaryInstruction;
-import com.ibm.domo.ssa.SSAInstruction;
-import com.ibm.domo.ssa.SymbolTable;
-import com.ibm.domo.ssa.ValueDecorator;
-import com.ibm.domo.types.TypeReference;
+import com.ibm.wala.ssa.SSAAbstractUnaryInstruction;
+import com.ibm.wala.ssa.SSAInstruction;
+import com.ibm.wala.ssa.SymbolTable;
+import com.ibm.wala.ssa.ValueDecorator;
+import com.ibm.wala.types.TypeReference;
 
 public class SSAForceInstruction extends SSAAbstractUnaryInstruction {
 

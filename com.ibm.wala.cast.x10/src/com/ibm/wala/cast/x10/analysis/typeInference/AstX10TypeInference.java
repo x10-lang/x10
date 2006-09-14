@@ -1,8 +1,8 @@
 package com.ibm.domo.ast.x10.analysis.typeInference;
 
-import com.ibm.capa.impl.debug.Assertions;
-import com.ibm.domo.analysis.typeInference.ConeType;
-import com.ibm.domo.analysis.typeInference.PointType;
+import com.ibm.wala.impl.debug.Assertions;
+import com.ibm.wala.analysis.typeInference.ConeType;
+import com.ibm.wala.analysis.typeInference.PointType;
 import com.ibm.domo.ast.java.analysis.typeInference.AstJavaTypeInference;
 import com.ibm.domo.ast.x10.ssa.AstX10InstructionVisitor;
 import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
@@ -13,10 +13,10 @@ import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
 import com.ibm.domo.ast.x10.types.X10TypeReference;
-import com.ibm.domo.classLoader.IClass;
-import com.ibm.domo.ipa.cha.ClassHierarchy;
-import com.ibm.domo.ssa.IR;
-import com.ibm.domo.types.TypeReference;
+import com.ibm.wala.classLoader.IClass;
+import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ssa.IR;
+import com.ibm.wala.types.TypeReference;
 
 public class AstX10TypeInference extends AstJavaTypeInference {
 

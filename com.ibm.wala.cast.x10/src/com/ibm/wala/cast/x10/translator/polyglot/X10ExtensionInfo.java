@@ -13,7 +13,7 @@ import polyglot.frontend.goals.Goal;
 
 import com.ibm.domo.ast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotSourceLoaderImpl;
-import com.ibm.domo.types.ClassLoaderReference;
+import com.ibm.wala.types.ClassLoaderReference;
 
 public abstract class X10ExtensionInfo extends ExtensionInfo {
     protected X10SourceLoaderImpl fSourceLoader;

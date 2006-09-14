@@ -8,7 +8,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
 import com.ibm.capa.ast.CAstEntity;
-import com.ibm.capa.impl.debug.Assertions;
+import com.ibm.wala.impl.debug.Assertions;
 import com.ibm.domo.ast.x10.analysis.AnalysisJobExt;
 import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
 

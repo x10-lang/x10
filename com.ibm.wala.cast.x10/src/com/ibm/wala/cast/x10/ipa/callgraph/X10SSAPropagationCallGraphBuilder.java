@@ -1,8 +1,8 @@
 package com.ibm.domo.ast.x10.ipa.callgraph;
 
-import com.ibm.capa.impl.debug.Assertions;
-import com.ibm.capa.util.debug.Trace;
-import com.ibm.domo.analysis.typeInference.TypeInference;
+import com.ibm.wala.impl.debug.Assertions;
+import com.ibm.wala.util.debug.Trace;
+import com.ibm.wala.analysis.typeInference.TypeInference;
 import com.ibm.domo.ast.java.ipa.callgraph.AstJavaSSAPropagationCallGraphBuilder;
 import com.ibm.domo.ast.x10.analysis.typeInference.AstX10TypeInference;
 import com.ibm.domo.ast.x10.ssa.AstX10InstructionVisitor;
@@ -13,13 +13,13 @@ import com.ibm.domo.ast.x10.ssa.SSAHereInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
-import com.ibm.domo.ipa.callgraph.AnalysisOptions;
-import com.ibm.domo.ipa.callgraph.impl.ExplicitCallGraph;
-import com.ibm.domo.ipa.callgraph.propagation.PointerKeyFactory;
-import com.ibm.domo.ipa.cha.ClassHierarchy;
-import com.ibm.domo.ssa.DefUse;
-import com.ibm.domo.ssa.IR;
-import com.ibm.domo.util.warnings.WarningSet;
+import com.ibm.wala.ipa.callgraph.AnalysisOptions;
+import com.ibm.wala.ipa.callgraph.impl.ExplicitCallGraph;
+import com.ibm.wala.ipa.callgraph.propagation.PointerKeyFactory;
+import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ssa.DefUse;
+import com.ibm.wala.ssa.IR;
+import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCallGraphBuilder {
 

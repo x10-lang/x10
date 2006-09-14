@@ -9,7 +9,7 @@ import polyglot.frontend.goals.Goal;
 
 import com.ibm.domo.ast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.domo.ast.x10.analysis.AsyncAnalysisGoal;
-import com.ibm.domo.types.ClassLoaderReference;
+import com.ibm.wala.types.ClassLoaderReference;
 
 public class X10DOMOScheduler extends DOMOScheduler {
     public X10DOMOScheduler(ExtensionInfo extInfo) {
