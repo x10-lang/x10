@@ -30,8 +30,7 @@ import x10.runtime.Place;
  */
 public class TestXXArray_c extends TestCase {
     
-	static {
-        Configuration.parseCommandLine(null);
+    static {
         Runtime.init();
     }
     

@@ -17,7 +17,6 @@ import x10.runtime.Configuration;
 public class TestArray extends TestCase {
     
     static {
-        Configuration.parseCommandLine(null);
         Runtime.init();
     }
     

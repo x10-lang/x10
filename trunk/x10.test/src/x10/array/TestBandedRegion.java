@@ -14,7 +14,6 @@ import junit.framework.TestCase;
 public class TestBandedRegion extends TestCase {
 
     static {
-        Configuration.parseCommandLine(null);
         Runtime.init();
     }
     
