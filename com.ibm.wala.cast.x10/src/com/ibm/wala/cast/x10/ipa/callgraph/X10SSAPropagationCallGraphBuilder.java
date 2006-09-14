@@ -1,6 +1,6 @@
 package com.ibm.domo.ast.x10.ipa.callgraph;
 
-import com.ibm.wala.impl.debug.Assertions;
+import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.util.debug.Trace;
 import com.ibm.wala.analysis.typeInference.TypeInference;
 import com.ibm.domo.ast.java.ipa.callgraph.AstJavaSSAPropagationCallGraphBuilder;

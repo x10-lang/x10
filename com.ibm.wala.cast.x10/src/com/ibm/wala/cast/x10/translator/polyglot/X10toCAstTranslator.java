@@ -31,7 +31,7 @@ import com.ibm.capa.ast.CAstSourcePositionMap;
 import com.ibm.capa.ast.CAstType;
 import com.ibm.capa.ast.visit.CAstVisitor;
 import com.ibm.capa.ast.visit.CAstVisitor.Context;
-import com.ibm.wala.impl.debug.Assertions;
+import com.ibm.wala.util.debug.Assertions;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.domo.ast.java.translator.polyglot.TranslatingVisitor;
