@@ -8,7 +8,7 @@ import harness.x10Test;
  */
 public class ObjectEquality extends x10Test {
 
-	nullable java.lang.Object objField;
+	nullable<java.lang.Object> objField;
 
 	public boolean run() {
 		final java.lang.Object obj = new java.lang.Object();
