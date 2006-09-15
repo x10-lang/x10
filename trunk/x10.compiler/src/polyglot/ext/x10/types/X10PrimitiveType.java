@@ -12,6 +12,6 @@ import polyglot.types.PrimitiveType;
  * @author vj
  *
  */
-public interface X10PrimitiveType extends PrimitiveType, X10Type {
+public interface X10PrimitiveType extends PrimitiveType, X10Type, X10NamedType {
 
 }

@@ -9,6 +9,7 @@ import polyglot.ast.JL;
 import polyglot.ast.Node;
 import polyglot.ext.jl.ast.AbstractDelFactory_c;
 import polyglot.ext.jl.ast.JL_c;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10Type_c;
@@ -60,9 +61,9 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 				Type t1 = c.consequent().type();
 				Type t2 = c.alternative().type();
 				if (t1.isNull() && t2.isNumeric())
-					return c.type(ts.createNullableType(t2.position(), (X10Type) t2));
+					return c.type(ts.createNullableType(t2.position(), (X10NamedType) t2));
 				if (t1.isNumeric() && t2.isNull())
-					return c.type(ts.createNullableType(t1.position(), (X10Type) t1));
+					return c.type(ts.createNullableType(t1.position(), (X10NamedType) t1));
 				return c.typeCheck(tc);
 			}
 		};

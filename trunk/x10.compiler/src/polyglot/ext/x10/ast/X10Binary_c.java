@@ -12,7 +12,7 @@ import polyglot.ext.jl.ast.Binary_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.ext.x10.types.X10Type_c;
+import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
@@ -69,6 +69,12 @@ public class X10Binary_c extends Binary_c {
 			return false;
 		return (lt.isNull() && ! xts.isNullable(rt)) ||
 			   (!xts.isNullable(lt) && rt.isNull());
+	}
+	public boolean isDisambiguated() {
+		boolean val = super.isDisambiguated() && 
+		(left == null || left.isDisambiguated()) &&
+		(right == null || right.isDisambiguated());
+		return val;
 	}
 
 	// TODO: take care of the base cases for regions, distributions, points and places.

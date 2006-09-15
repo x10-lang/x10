@@ -7,7 +7,8 @@ package polyglot.ext.x10.types;
 import java.util.List;
 
 import polyglot.ext.jl.types.Type_c;
-import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
 import polyglot.types.Type;
 
@@ -25,15 +26,15 @@ import polyglot.types.Type;
  */
 public abstract class X10Type_c extends Type_c implements X10Type {
 	
-    protected DepParameterExpr depClause;
+    protected Constraint depClause;
     protected List/*<GenParameterExpr>*/ typeParameters;
     public void setTypeParameters(List t) { typeParameters = t; }
-    public void setDepClause(DepParameterExpr d) { depClause = d; }
+    public void setDepClause(Constraint d) { depClause = d; }
     protected X10Type baseType = this;
     public X10Type baseType() { return baseType;}
     public boolean isParametric() { return (typeParameters == null) || ! typeParameters.isEmpty();}
     public List typeParameters() {return typeParameters;}
-    public DepParameterExpr depClause() { return depClause();}
+    public Constraint depClause() { return depClause();}
     protected X10TypeSystem xts = (X10TypeSystem) ts;
     
     public boolean typeEqualsImpl(Type o) {

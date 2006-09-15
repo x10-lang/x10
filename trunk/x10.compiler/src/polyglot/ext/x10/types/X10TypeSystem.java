@@ -4,15 +4,16 @@
 package polyglot.ext.x10.types;
 
 import polyglot.ast.Expr;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
-import polyglot.types.PrimitiveType;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.VarInstance;
 import polyglot.util.Position;
 
 /**
@@ -47,8 +48,8 @@ public interface X10TypeSystem extends TypeSystem {
 	 */
 	// X10ArrayType x10arrayOf(Position pos, Type base, boolean isValue, DepParameterExpr expr);
 
-	NullableType createNullableType(Position p, X10Type t);
-	FutureType createFutureType(Position p, Type t);
+	NullableType createNullableType(Position p, X10NamedType t);
+	FutureType createFutureType(Position p, X10NamedType t);
 	/*ParametricType createParametricType(Position pos,
 										X10ReferenceType type,
 										List typeparameters,
@@ -234,13 +235,13 @@ public interface X10TypeSystem extends TypeSystem {
 	 MethodInstance primitiveEquals();
 
 	/** Return the method instance for runtime.T.tValue() */
-	 MethodInstance getter(PrimitiveType t);
+	 MethodInstance getter(X10PrimitiveType t);
 
 	/** Return the constructor instance for runtime.T.T(t) */
-	 ConstructorInstance wrapper(PrimitiveType t);
+	 ConstructorInstance wrapper(X10PrimitiveType t);
 
 	/** Return boxed type runtime.T for primitive t. */
-	 Type boxedType(PrimitiveType t);
+	 X10NamedType boxedType(X10PrimitiveType t);
     
 	/** Create a property instance. A property is a  final instance field
 	 * that can be used to construct deptypes.
@@ -274,6 +275,9 @@ public interface X10TypeSystem extends TypeSystem {
       boolean isDistributedArray(Type me);
      boolean isValueType( Type me);
    
-   
+   VarInstance createSelf(X10Type t);
+   TypeTranslator typeTranslator();
+   boolean equivClause(X10Type m, X10Type o);
+   boolean entailsClause(X10Type me, X10Type other);
 } // end of X10TypeSystem
 

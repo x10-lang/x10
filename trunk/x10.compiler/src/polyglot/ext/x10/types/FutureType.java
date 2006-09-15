@@ -11,7 +11,7 @@ package polyglot.ext.x10.types;
  *
  * 
  */
-public interface FutureType extends X10ReferenceType {
+public interface FutureType extends X10ReferenceType, X10NamedType {
 	X10Type base();
 
 }

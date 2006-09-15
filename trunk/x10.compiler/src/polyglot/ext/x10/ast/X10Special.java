@@ -5,4 +5,5 @@ import polyglot.ast.Special.Kind;
 
 public interface X10Special extends Special {
     public static final Kind SELF = new Kind("self");
+    boolean isSelf();
 }

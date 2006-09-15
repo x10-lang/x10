@@ -11,12 +11,13 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.ExtensionInfo;
+import polyglot.main.Report;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Type;
-import polyglot.main.Report;
-import polyglot.frontend.ExtensionInfo;
 
 public class X10BinaryExt_c extends X10Ext_c {
 	// Rewrite == and != to invoke Primitive.equals(o, p).
@@ -39,7 +40,7 @@ public class X10BinaryExt_c extends X10Ext_c {
 				Type rtype = r.type();
 				if (rtype.isPrimitive()) {
 					// Box
-					ConstructorInstance ci = ts.wrapper(rtype.toPrimitive());
+					ConstructorInstance ci = ts.wrapper((X10PrimitiveType) rtype.toPrimitive());
 
 					List args = new ArrayList(1);
 					args.add(r);

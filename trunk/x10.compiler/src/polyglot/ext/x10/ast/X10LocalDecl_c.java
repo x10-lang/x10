@@ -8,6 +8,7 @@ import polyglot.ext.jl.ast.LocalDecl_c;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.TypeBuilder;
@@ -62,16 +63,18 @@ public class X10LocalDecl_c extends LocalDecl_c {
                 return result;
         }
         public Node typeCheck(TypeChecker tc) throws SemanticException {
-                // System.out.println("[LocalDecl_c] Type checking |" + this.shortToString() + ":");
-                // System.out.println("[LocalDecl_c] ... i.e.|" + this + "|.");
-                // System.out.println("[LocalDecl_c] ... li is |" + li + "|.");
-                // System.out.println("[LocalDecl_c] ... init.type() is |" + init.type() + "|.");
-                // System.out.println("[LocalDecl_c] ... type.type() is |" + type.type() + "|.");
-                // System.out.println("[LocalDecl_c] ... li.iflags().isFinal() is |" + this.li.flags().isFinal() + "|.");
-                // System.out.println("[LocalDecl_c] ... init.isConstant() is |" + init.isConstant() + "|.");
-                Node result= super.typeCheck(tc);
-                // System.out.println("[LocalDecl_c] ... li is |" + result.localInstance() + "|.");
-                // System.out.println("[LocalDecl_c] ... returns with li=|" + li + "|(#" + li.hashCode()+")).");
-                return result;
+               /* System.out.println("[LocalDecl_c] Type checking |" + this.shortToString() + ":");
+                System.out.println("[LocalDecl_c] ... i.e.|" + this + "|.");
+                System.out.println("[LocalDecl_c] ... li is |" + li + "|.");
+                 System.out.println("[LocalDecl_c] ... init.type() is |" + init.type() + "|.");
+                System.out.println("[LocalDecl_c] ... type.type() is |" + type.type() + "|.");
+                System.out.println("[LocalDecl_c] ... li.iflags().isFinal() is |" + this.li.flags().isFinal() + "|.");
+                System.out.println("[LocalDecl_c] ... init.isConstant() is |" + init.isConstant() + "|.");
+                */
+        	  TypeSystem ts = tc.typeSystem();
+                LocalDecl result= (LocalDecl) super.typeCheck(tc);
+                LocalInstance nli = ts.localInstance(li.position(), li.flags(), type.type(), li.name());
+               // System.out.println("[LocalDecl_c] ... li is |" + li + "|.");
+                return result.localInstance(nli);
         }
 }

@@ -9,14 +9,18 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Expr;
+import polyglot.ext.jl.types.LocalInstance_c;
 import polyglot.ext.jl.types.MethodInstance_c;
 import polyglot.ext.jl.types.TypeSystem_c;
+import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LazyClassInitializer;
 import polyglot.types.MethodInstance;
@@ -27,6 +31,7 @@ import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.UnknownType;
+import polyglot.types.VarInstance;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
@@ -69,7 +74,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	public boolean isPrimitiveTypeName(String name) {
 	    return primitiveTypeNames.contains(name);
 	}
-
+	public Context createContext() {
+		return new X10Context_c(this);
+	    }
 	/**
 	 * Requires: all type arguments are canonical.
 	 *
@@ -97,7 +104,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	 * Return a nullable type based on a given type.
 	 * TODO: rename this to nullableType() -- the name is misleading.
 	 */
-	public NullableType createNullableType(Position pos, X10Type type) {
+	public NullableType createNullableType(Position pos, X10NamedType type) {
 		NullableType t = (NullableType) nullableMap.get(type);
 		if (t == null) {
 			t = NullableType_c.makeNullable(this, pos, type);
@@ -106,7 +113,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return t;
 	}
 
-	public FutureType createFutureType(Position pos, Type type) {
+	public FutureType createFutureType(Position pos, X10NamedType type) {
 		return new FutureType_c(this, pos, type);
 	}
 
@@ -769,7 +776,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		throw new InternalCompilerError("Could not find equals method.");
 	}
 
-	public MethodInstance getter(PrimitiveType t) {
+	public MethodInstance getter(X10PrimitiveType t) {
 		String methodName = t.toString() + "Value";
 		ConstructorInstance ci = wrapper(t);
 
@@ -783,11 +790,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		throw new InternalCompilerError("Could not find getter for " + t);
 	}
 
-	public Type boxedType(PrimitiveType t) {
-		return wrapper(t).container();
+	public X10NamedType boxedType(X10PrimitiveType t) {
+		return (X10NamedType) wrapper(t).container();
 	}
 
-	public ConstructorInstance wrapper(PrimitiveType t) {
+	public ConstructorInstance wrapper(X10PrimitiveType t) {
 		String name = WRAPPER_PACKAGE + ".Boxed" + wrapperTypeString(t).substring("java.lang.".length());
 
 		try {
@@ -913,7 +920,48 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public  boolean isValueType( Type me) {
         return isX10Subtype((X10Type) me,value());
     }
-  
+    
+    public VarInstance createSelf(X10Type t) {
+    	VarInstance v = new LocalInstance_c(this,Position.COMPILER_GENERATED, Flags.PUBLIC, t, "self");
+    	return v;
+    }
+    protected TypeTranslator eval = new TypeTranslator();
+    public TypeTranslator typeTranslator() {
+    	return eval;
+    }
+    public boolean equivClause(X10Type me, X10Type other) {
+    	boolean result = true;
+    	X10Type bt1 = me.baseType(), bt2 = other.baseType();
+    	result &= bt1 == bt2;
+    	if (!result) return result;
+    	
+    	Constraint c1 = me.depClause(), c2=other.depClause();
+    	result = (c1==null) ? ((c2==null) ? true : c2.valid())
+    			: c1.equiv(c2);
+    	if (! result) return result;
+    	
+    	List tp1 = me.typeParameters(), tp2 = other.typeParameters();
+    	if (tp1 == null) return tp2 == null;
+    	if (tp1.isEmpty()) return tp2 == null || tp2.isEmpty();
+    	int n = tp1.size();
+    	if (n > 0 && (tp2==null ||  n != tp2.size())) return false;
+    	Iterator it1 = tp1.iterator();
+    	Iterator it2 = tp2.iterator();
+    	while (it1.hasNext()) {
+    		Type t1 = (Type) it1.next();
+    		Type t2 = (Type) it2.next();
+    		result &= t1.equals(t2);
+    		if (!result) return result;
+    	}
+    	return result;
+    }
+    public boolean entailsClause(X10Type me, X10Type other) {
+    	Constraint c1 = me.depClause(), c2=other.depClause();
+    	boolean result = c1==null ? (c2==null || c2.valid()) : c1.entails(c2);
+    	return result;
+    	
+    }
+   
 
 } // end of X10TypeSystem_c
 

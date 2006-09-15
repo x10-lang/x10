@@ -34,6 +34,7 @@ import polyglot.ext.jl.ast.Disamb_c;
 import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
+import polyglot.ext.jl.ast.Special_c;
 import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -56,7 +57,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	private static X10NodeFactory_c factory = null;
 
     public Disamb disamb() {
-        return new Disamb_c();
+        return new X10Disamb_c();
     }
 	public static X10NodeFactory_c getNodeFactory() {
 		return factory;
@@ -613,6 +614,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     public final Special Self(Position pos) {
         return Special(pos, X10Special.SELF, null);
     }
+    public Special Special(Position pos, Special.Kind kind, TypeNode outer) {
+        Special n = new X10Special_c(pos, kind, outer);
+       n = (Special)n.ext(extFactory().extSpecial());
+       n = (Special)n.del(delFactory().delSpecial());
+       return n;
+   }
+
     public FieldDecl CompilerTest(Position pos) {
         return new CompilerTest_c(pos);
     }

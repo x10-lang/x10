@@ -3,8 +3,9 @@ package polyglot.ext.x10.extension;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.frontend.ExtensionInfo;
+import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Type;
 
 public class X10InstanceofExt_c extends X10Ext_c {
@@ -13,7 +14,7 @@ public class X10InstanceofExt_c extends X10Ext_c {
       Type rtype = n.compareType().type();
 
       if (rtype.isPrimitive()) {
-          Type t = ts.boxedType(rtype.toPrimitive());
+          Type t = ts.boxedType((X10PrimitiveType) rtype.toPrimitive());
           return n.compareType(nf.CanonicalTypeNode(n.compareType().position(), t));
       }
 

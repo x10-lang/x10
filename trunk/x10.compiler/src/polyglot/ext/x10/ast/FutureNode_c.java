@@ -7,9 +7,14 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10NamedType;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
@@ -54,6 +59,14 @@ public class FutureNode_c extends X10TypeNode_c implements FutureNode {
 		return type(ts.unknownType(position()));
 	}
 
+	  public Context enterChildScope(Node child, Context c) {
+	        if (child == this.dep) {
+	            TypeSystem ts = c.typeSystem();
+	            if (type instanceof X10ParsedClassType)
+	            c = ((X10Context) c).pushDepType((X10ParsedClassType) type);
+	        }
+	        return super.enterChildScope(child, c);
+	    }
 	public Node visitChildren( NodeVisitor v ) {
 		TypeNode base = (TypeNode) visitChild(this.base, v);
 		return ((FutureNode_c) super.visitChildren(v)).reconstruct( base );
@@ -63,8 +76,8 @@ public class FutureNode_c extends X10TypeNode_c implements FutureNode {
 		// Report.report(5,"[FutureNode_c] Disambiguating |" + this + "|(#" + this.hashCode() +"):");
 		TypeNode newType = (TypeNode) base.disambiguate( sc );
 		// Report.report(5,"[FutureNode_c] ... yields type |" + type + "|.");
-		Type baseType = newType.type();
-
+		
+		Type baseType =  newType.type();
 		// RMF 11/2/2005 - Don't proceed further if the base type hasn't yet been disambiguated...
 		if (!baseType.isCanonical())
 			return this;
@@ -73,8 +86,9 @@ public class FutureNode_c extends X10TypeNode_c implements FutureNode {
 			throw new SemanticException("The type constructor future cannot be applied to a <null> type",
 					position());
 		}
+	
 		X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
-		this.type = ts.createFutureType( position(), baseType );
+		this.type = ts.createFutureType( position(), (X10NamedType) baseType );
 		Node result = reconstruct( newType );
 		// Report.report(5,"[FutureNode_c] ... returns |" + result +"|(#" + result.hashCode() +").");
 		return result;
@@ -89,7 +103,7 @@ public class FutureNode_c extends X10TypeNode_c implements FutureNode {
 		// Report.report(5,"[FutureNode_c] ... yields node |" + n +"|.");
 		if (n instanceof TypeNode) {
 			TypeNode arg = (TypeNode) n;
-			Type argType = arg.type();
+			X10NamedType argType = (X10NamedType) arg.type();
 
 			X10TypeSystem ts = (X10TypeSystem) argType.typeSystem();
 			this.type = ts.createFutureType( position(), argType );

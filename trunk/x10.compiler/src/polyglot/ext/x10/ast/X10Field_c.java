@@ -5,13 +5,10 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ext.jl.ast.Field_c;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.types.SemanticException;
+import polyglot.main.Report;
 import polyglot.util.Position;
-import polyglot.visit.TypeChecker;
 
 
 /** An immutable representation of an X10 Field access. It is the same as a Java
@@ -41,4 +38,11 @@ public class X10Field_c extends Field_c {
 	 	}
 	 	return super.typeCheck( tc );
 	 }*/
+	public boolean equals(Object o ) {
+		if (! (o instanceof Field_c)) return false;
+		Field_c other = (Field_c) o;
+		Report.report(1, "target=? " + target.equals(other.target()) + target.getClass() + 
+				"other.getClass() " + other.target().getClass());
+		return target.equals(other.target()) && name.equals(other.name());
+	}
 }

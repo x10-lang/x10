@@ -9,8 +9,8 @@ package polyglot.ext.x10.types;
 /**
  * @author vj
  */
-public interface NullableType extends X10ReferenceType {
-	X10Type base();
-	NullableType base(X10Type base);
+public interface NullableType extends X10ReferenceType, X10NamedType {
+	X10NamedType base();
+	NullableType base(X10NamedType base);
 }
 
