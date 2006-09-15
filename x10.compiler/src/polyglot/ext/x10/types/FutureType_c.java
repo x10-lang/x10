@@ -28,7 +28,7 @@ import polyglot.util.Position;
  *
  */
 public class FutureType_c extends X10ReferenceType_c implements FutureType {
-	protected X10Type base;
+	protected X10NamedType base;
 	protected List methods;
 	protected X10TypeSystem xts;
 	protected FutureType_c() {}
@@ -41,9 +41,9 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	 * @param pos
 	 * @param base
 	 */
-	public FutureType_c( TypeSystem ts, Position pos, Type base ) {
+	public FutureType_c( TypeSystem ts, Position pos, X10NamedType base ) {
 		super( ts, pos);
-		this.base = (X10Type) base;
+		this.base =  base;
 		this.methods = new ArrayList(1);
 		this.methods.add(ts.methodInstance( position(),
 				this,
@@ -62,6 +62,8 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	public FutureType toFuture() {
 		return this;
 	}
+	public String name() { return base.name();}
+	public String fullName() { return base.fullName();}
 	
 	/* The only method is: public <base> force().
 	 * @see polyglot.types.ReferenceType#methods()

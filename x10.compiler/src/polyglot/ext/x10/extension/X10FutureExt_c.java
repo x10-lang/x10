@@ -3,15 +3,16 @@ package polyglot.ext.x10.extension;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.Node;
-import polyglot.ast.Expr;
 import polyglot.ast.NodeFactory;
-import polyglot.frontend.ExtensionInfo;
+import polyglot.ext.x10.ast.Future;
+import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Type;
-import polyglot.ext.x10.ast.Future;
 
 public class X10FutureExt_c extends X10Ext_c {
     // Rewrite == and != to invoke Primitive.equals(o, p).
@@ -22,7 +23,7 @@ public class X10FutureExt_c extends X10Ext_c {
         
         if (body_t.isPrimitive()) {
             // BOX, i.e., cast that body to the corresponding object type
-            ConstructorInstance ci = ts.wrapper(body_t.toPrimitive());
+            ConstructorInstance ci = ts.wrapper((X10PrimitiveType) body_t.toPrimitive());
             List args = new ArrayList(1);
             args.add(body_e);
             New x = nf.New(b.position(),

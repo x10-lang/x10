@@ -9,11 +9,12 @@ import polyglot.ast.Cast;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Type;
-import polyglot.frontend.ExtensionInfo;
 
 public class X10CastExt_c extends X10Ext_c {
 	// Insert boxing and unboxing code.
@@ -28,7 +29,7 @@ public class X10CastExt_c extends X10Ext_c {
 
 		if (ltype.isPrimitive() && rtype.isReference()) {
 			// Unbox
-			MethodInstance mi = ts.getter(ltype.toPrimitive());
+			MethodInstance mi = ts.getter((X10PrimitiveType) ltype.toPrimitive());
 
 			Cast x = nf.Cast(c.position(),
 							 nf.CanonicalTypeNode(c.position(), mi.container()),
@@ -43,7 +44,7 @@ public class X10CastExt_c extends X10Ext_c {
 		}
 		else if (ltype.isReference() && rtype.isPrimitive()) {
 			// Box
-			ConstructorInstance ci = ts.wrapper(rtype.toPrimitive());
+			ConstructorInstance ci = ts.wrapper((X10PrimitiveType) rtype.toPrimitive());
 
 			List args = new ArrayList(1);
 			args.add(c.expr());

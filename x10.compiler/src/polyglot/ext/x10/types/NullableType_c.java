@@ -23,7 +23,7 @@ import polyglot.util.Position;
  */
 public class NullableType_c extends X10ReferenceType_c implements NullableType {
 
-	protected X10Type base;
+	protected X10NamedType base;
     
 	// RMF 11/2/2005 --
 	// Attempting to initialize these (unused) fields at construction time causes a
@@ -34,10 +34,18 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 //	protected List methods;
 	// IP 2/9/2006 -- This is unused
 //	protected List interfaces;
+	
+	// TODO: vj add dep clauses.
 
 	/** Used for deserializing types. */
 	protected NullableType_c() { }
 
+	public String name() {
+		return base.name();
+	}
+	public String fullName() {
+		return base.fullName();
+	}
 	/**
 	 * Factory method for producing nullable types. Implements nullable nullable X = nullable X.
 	 *
@@ -46,7 +54,7 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 	 * @param base -- the base type for the nullable type.
 	 * @return
 	 */
-	public static NullableType makeNullable(TypeSystem ts, Position pos, X10Type base) {
+	public static NullableType makeNullable(TypeSystem ts, Position pos, X10NamedType base) {
 		if (base instanceof NullableType)
 			return (NullableType) base;
 		//System.out.println("NullableType_c:makeNullable: base=" + base);
@@ -60,7 +68,7 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 	 * @param pos
 	 * @param base
 	 */
-	private NullableType_c(TypeSystem ts, Position pos, X10Type base) {
+	private NullableType_c(TypeSystem ts, Position pos, X10NamedType base) {
 		super(ts, pos);
 		this.base = base;
 		assert base != null;
@@ -72,12 +80,12 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 
 	
 
-	public X10Type base() {
+	public X10NamedType base() {
 		return this.base;
 	}
 
 	/** Set the base type. */
-	public NullableType base(X10Type base) {
+	public NullableType base(X10NamedType base) {
 		if (base == this.base)
 			return this;
 		NullableType_c n = (NullableType_c) copy();
@@ -152,6 +160,7 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 			return ts.equals(base, a.base());
 		}
 		return false;
+		
 	}
 
 	public boolean isImplicitCastValidImpl(Type toType) {

@@ -6,12 +6,11 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.extension.X10Ext;
+import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10Type_c;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
-import polyglot.types.PrimitiveType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -58,7 +57,7 @@ public class X10Boxer extends AscriptionVisitor
 			X10Type target_t = (X10Type) call_n.target().type();
 			if (m_name.equals("force") && xts.isFuture(target_t)) {
 				if (fromType.isPrimitive()) {
-					Type boxed_t = ((X10TypeSystem) ts).boxedType((PrimitiveType) fromType);
+					Type boxed_t = ((X10TypeSystem) ts).boxedType((X10PrimitiveType) fromType);
 					call_n = (Call) call_n.type(boxed_t);
 					ret_notype = nf.Cast(p, nf.CanonicalTypeNode(p, fromType), call_n);
 				} else {

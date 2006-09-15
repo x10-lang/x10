@@ -116,7 +116,7 @@ public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
         List formals = Collections.EMPTY_LIST;
         List throwTypes = Collections.EMPTY_LIST;
         Expr e = new Name(nf, ts, pos, name).toExpr();
-        Report.report(1, "PropertyDecl_c: GOLDEN e=|" + e + " " + e.getClass());
+        //Report.report(1, "PropertyDecl_c: GOLDEN e=|" + e + " " + e.getClass());
         
         Stmt s = nf.Return(pos, e);
         Block body = nf.Block(pos, s);

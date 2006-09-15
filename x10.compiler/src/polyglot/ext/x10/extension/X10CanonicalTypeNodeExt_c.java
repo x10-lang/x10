@@ -4,25 +4,29 @@ import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.types.NullableType;
+import polyglot.ext.x10.types.X10ArrayType;
+import polyglot.ext.x10.types.X10NamedType;
+import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10Type_c;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ArrayType;
+import polyglot.types.Named;
 import polyglot.types.Type;
 
 public class X10CanonicalTypeNodeExt_c extends X10Ext_c {
-	private Type boxType(X10Type t, X10TypeSystem ts) {
+	private X10NamedType boxType(X10NamedType t, X10TypeSystem ts) {
 		if (t.isArray()) {
-			ArrayType at = t.toArray();
-			return at.base(boxType((X10Type) at.base(), ts));
+			X10ArrayType at = (X10ArrayType) t.toArray();
+			X10NamedType n = boxType((X10NamedType) at.baseType(), ts);
+			return (X10NamedType) at.base(n);
 		}
         NullableType nt = t.toNullable();
         if (nt !=null) {
-			return nt.base((X10Type) boxType(nt.base(), ts));
+			return nt.base((X10NamedType) boxType(nt.base(), ts));
 		} 
         if (t.isPrimitive()) {
-			return ts.boxedType(t.toPrimitive());
+			return ts.boxedType((X10PrimitiveType) t.toPrimitive());
 		}
 		return t;
 	}
@@ -33,7 +37,7 @@ public class X10CanonicalTypeNodeExt_c extends X10Ext_c {
 		} 
         NullableType nt = t.toNullable();
         if (nt !=null) {
-			return nt.base((X10Type) boxType(nt.base(), ts));
+			return nt.base((X10NamedType) boxType(nt.base(), ts));
 		}
 		return t;
 	}

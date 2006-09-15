@@ -228,7 +228,7 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 	    return l;
 	}
 	public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
-//	    System.out.println("Creating pass for X10Expanded goal...");
+	    
 	    return super.createPass(extInfo);
 	}
     }

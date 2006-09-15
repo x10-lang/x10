@@ -9,12 +9,17 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import polyglot.ast.Eval;
+import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.TypeNode_c;
 import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
@@ -59,43 +64,28 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
      public boolean isDisambiguated() {
             return super.isDisambiguated() && dep == null && gen == null;
         }
+     /**
+      * This method may throw MissingDependencyExceptions, and may therefore need to be retried.
+      * @param me
+      * @param sc
+      * @return
+      * @throws SemanticException
+      */
     public static Node disambiguateDepClause(X10TypeNode me, AmbiguityRemover sc) throws SemanticException {
-   
-      if ( Report.should_report("debug", 5)) {
-            Report.report(5,"[X10TypeNode_c static, (#" + me.hashCode() + ")] " + me.getClass() + "|");
-        }
         Node newTypeNode1 =  me.disambiguateBase(sc);
-        
-        if ( Report.should_report("debug", 5)) {
-            Report.report(5,"[X10TypeNode_c static] " + me.hashCode() 
-                    + " ... yields type |" + newTypeNode1 + "| (" + newTypeNode1.getClass()+")|"); 
-        }
-        
         X10TypeNode newType = (X10TypeNode) newTypeNode1;
         X10Type baseType = (X10Type) newType.type();
-      
-        
-        if (Report.should_report("debug", 5)) {
-            Report.report(5,"[X10TypeNode_c static] "+ me.hashCode() + " ... of type |" 
-                    + baseType + "| " // + baseType.getClass() + "| canonical=|" +  baseType.isCanonical()
-                    + "| parameter=|" + me.dep() + "| typeparamater=|" + me.gen() + "| " + me.gen().getClass());
-        }
-        
         if ( !baseType.isCanonical()) {
-            if ( Report.should_report("debug", 5)) {
-                Report.report(5,"[X10TypeNode_c static] " + me.hashCode() +" ... bailing early with |" + newType+"|(#" 
-                        + newType.hashCode() +").");
-            }
             return newType; // bail... canonicalization needs to be done first.
         }
-        
-        DepParameterExpr newParameter = me.dep() == null? null : (DepParameterExpr) me.dep().disambiguate( sc );
+        assert me.dep() == null || me.dep().isDisambiguated();
+        X10TypeSystem xt = (X10TypeSystem) me.type().typeSystem();
+        TypeTranslator eval = xt.typeTranslator();
+        DepParameterExpr dep = me.dep();
+        Constraint newParameter = dep == null ? null : eval.constraint(me.dep().condition());
+        // TODO: Fold in the args as well.
         
         GenParameterExpr newTParameter =  me.gen()==null ? null : (GenParameterExpr) me.gen().disambiguate( sc );
-        
-        if ( Report.should_report("debug", 5)) {
-            Report.report(1,"[X10TypeNode_c static] newParameter="+ newParameter );
-        }
         X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
         List typeParameters = new LinkedList(); 
         if (newTParameter != null) {
@@ -106,18 +96,9 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
                     typeParameters.add(((TypeNode)it.next()).type());
             }
         }
-        // At this point we have information to augment the type information stored in the parent node.
-        // So there should be no need to store the DepTypeHandler. 
         X10Type newBaseType = baseType.makeVariant(newParameter, typeParameters);
-       
         Node  result = ((X10TypeNode) newType.type(newBaseType)).dep(null,null);
-        if ( Report.should_report("debug", 5)) {
-            Report.report(5,"[X10TypeNode_c static] disambiguate (#" + me +") ... returns |" + result +"|(#" 
-                    + result.hashCode() +").");
-        }
-        
         return result; 
-     
     }
     /**
      * A delegated call from the parent.
@@ -126,64 +107,40 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
      * @throws SemanticException
      */
     public static Node typeCheckDepClause( X10TypeNode me, TypeChecker tc) throws SemanticException {
-        if (  Report.should_report("debug", 5)) {
-            Report.report(5,"[X10TypeNode static] Type checking  |" + me 
-                    +"| " + "(#" + me.hashCode() +")" + me.dep() + "|");
-        }
         Node n = me.typeCheckBase( tc );
-        if ( me.toString().startsWith("Temp") || Report.should_report("debug", 5)) {
-            Report.report(5,"[X10TypeNode static] ... yields node |" + n.getClass() 
-                    +"| of type |" + ((X10TypeNode) n).type() + "|");
-        }
         if (! (n instanceof X10TypeNode)) 
             throw new SemanticException("Argument to parametric type node does not type-check" 
                     + me.position());
        
         X10TypeNode arg = (X10TypeNode) n;
         X10Type argType = (X10Type) arg.type();
-        
-        if (me.dep() == null && me.gen() == null) {
-         //   new Exception().printStackTrace();
-            if ( me.toString().startsWith("Temp") || Report.should_report("debug", 5)) {
-                Report.report(5,"[X10TypeNode_c static] ..returning with |" + arg + "|.");
-            }
-            return arg;
-        }
         X10TypeSystem ts = (X10TypeSystem) argType.typeSystem();
+        
+        if (arg.dep() == null && arg.gen() == null) return arg;
+        
+      
         List tParameters = new LinkedList();
         if (me.gen()!=null && me.gen().args() !=null) {
             Iterator it = me.gen().args().iterator();
             while (it.hasNext())
                 tParameters.add(((TypeNode)it.next()).type());
         }
-        if ( Report.should_report("debug", 5)) {
-            Report.report(5,"[X10TypeNode_c static] ..dep is |" + me.dep() + "|.");
-        }
-        DepParameterExpr d = (DepParameterExpr) me.dep().typeCheck(tc);
-        if (  Report.should_report("debug", 5)) {
-            Report.report(5,"[X10TypeNode_c static] ..typechecking ==> |" + d + "|.");
-        }
-        X10Type newArgType = argType.makeVariant(d, tParameters);
-        /*
-        parent.setType(ts.createParametricType( position(),
-                (X10ReferenceType) argType,
-                tParameters,
-                parameter));
-        */
-        // TODO: vj Check that the parameter is in fact a boolean expression, and uses only the fields 
-        // of the base class that are marked as parameters.
+        DepParameterExpr d = arg.dep();
+       
+        
         // TODO: vj Need to add self to the context, with type parent, and now treat field references
         // in the type as automatically prefixed with "self."
         
         // splice the information into the right places.
-    
-        TypeNode result = arg.type(newArgType);
+       
+        TypeTranslator eval = ts.typeTranslator();
+        Constraint term = eval.constraint(d.condition());
+        X10Type newArgType = argType.makeVariant(term, tParameters);
+        X10TypeNode result = (X10TypeNode) arg.type(newArgType);
         if (Report.should_report("debug", 5)) {
-            Report.report(5,"[X10TypeNode_c static] ... done |" + result + "|.");
+            Report.report(1,"[X10TypeNode_c static] typeChecker... returning |" + result + "|.");
         }
-        
-        return result;
-        
+        return result.dep(null,null);
     }
   
     

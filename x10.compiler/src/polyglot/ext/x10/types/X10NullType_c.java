@@ -9,7 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ext.jl.types.NullType_c;
-import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -24,31 +25,35 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     protected X10NullType_c() {}
     public X10NullType_c( TypeSystem ts ) {super(ts);}
    
-    protected DepParameterExpr depClause;
+    protected Constraint depClause;
     protected List/*<GenParameterExpr>*/ typeParameters;
     protected X10Type baseType = this;
     public X10Type baseType() { return baseType;}
     public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
     public List typeParameters() { return typeParameters;}
-    public X10Type makeVariant(DepParameterExpr d, List l) { 
-        if (d == null && (l == null || l.isEmpty()))
-                return this;
+    public Constraint depClause() { return depClause; }
+    public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
+    public X10Type makeVariant(Constraint d, List l) { 
+        if (d == null && (l == null || l.isEmpty())) return this;
         X10NullType_c n = (X10NullType_c) copy();
-        // n.baseType = baseType; // this may not be needed.
         n.typeParameters = l;
         n.depClause = d;
         return n;
     }
-    public DepParameterExpr depClause() { return depClause; }
-
+    public String name() { return "NULL_TYPE";}
+    public String fullName() { return "NULL_TYPE";}
+    
+    public C_Term propVal(String name) {
+		return (depClause==null) ? null : depClause.find(name);
+	}
     public boolean typeEqualsImpl(Type o) {
         return equalsImpl(o);
     }
     public int hashCode() {
         return 
           (baseType == this ? super.hashCode() : baseType.hashCode() ) 
-        + (depClause != null ? depClause.hashCode() : 0)
-        + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
+          + (isConstrained() ? depClause.hashCode() : 0)
+  		+ (isParametric() ? typeParameters.hashCode() :0);
         
     }
     

@@ -4,8 +4,14 @@ import polyglot.ast.Node;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.AmbTypeNode_c;
+import polyglot.ext.jl.ast.TypeNode_c;
+import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.main.Report;
+import polyglot.types.Context;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
@@ -46,14 +52,21 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
     
     public X10TypeNode dep(GenParameterExpr g, DepParameterExpr d) {
         if (g == gen && d==dep) return this;
-        
         X10AmbTypeNode_c n = (X10AmbTypeNode_c) copy();
         n.gen=g;
         n.dep=d;
-        //Report.report(1, "X10AmbType: Adding a dep |" + d + "|, g=|" + g + "| => " + n + "(#" + n.hashCode() +")");
         return n;
     }
     
+    public Context enterChildScope(Node child, Context c) {
+        if (child == this.dep) {
+            TypeSystem ts = c.typeSystem();
+            if (lookaheadType instanceof X10ParsedClassType)
+            c = ((X10Context) c).pushDepType((X10ParsedClassType) lookaheadType);
+        }
+        Context cc = super.enterChildScope(child, c);
+        return cc;
+    }
     public Node visitChildren( NodeVisitor v ) {
         GenParameterExpr gen = (GenParameterExpr) visitChild( this.gen, v);
         DepParameterExpr dep = (DepParameterExpr) visitChild( this.dep, v);
@@ -61,20 +74,27 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
     }
       
     public boolean isDisambiguated() {
-        return super.isDisambiguated() && dep == null && gen == null;
+        boolean val = super.isDisambiguated() 
+        && (dep == null || dep.isDisambiguated()) 
+        && (gen == null || gen.isDisambiguated());
+        return val;
     }
    
+    Type lookaheadType = null;
+    public AmbiguityRemover disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
+    	lookaheadType = ((TypeNode_c) super.disambiguate(sc)).type();
+    	return sc;
+    }
     public Node disambiguate(AmbiguityRemover sc) throws SemanticException {
-    //    Report.report(3, "X10AmbTypeNode_c: disambiguate (#" + this.hashCode() + ")|" + this + "| type=|" + type()+"|");
-        TypeNode result = (TypeNode) X10TypeNode_c.disambiguateDepClause(this, sc);
-        //TypeNode result = (TypeNode) super.disambiguate(sc);
-     // Report.report(3,"X10AmbTypeNode_c: (#" + this.hashCode()+")... returns |" + result + "| type=|" + result.type() + "|");
-        return result;
+    	boolean val = (dep != null && ! dep.isDisambiguated()) || (gen !=null && ! gen.isDisambiguated());
+    	if (val) return this;
+    	assert (dep == null || dep.isDisambiguated());
+    	Node result = disambiguateBase(sc);
+        return ((X10TypeNode) result).dep(gen, dep);
     }
     public Node disambiguateBase(AmbiguityRemover sc) throws SemanticException {
-       //Report.report(5, "X10AmbTypeNode_c: disambiguateBase (#" + this.hashCode() + ")|" + this+"| type=|" + type()+"|");
         TypeNode result = (TypeNode) super.disambiguate(sc);
-        //Report.report(5,"X10AmbTypeNode_c: (#" + this.hashCode()+")... returns |" + result + "| type=|" + result.type() + "|");
+      //  Report.report(1, "X10AmbTypeNode_c returns " + result.getClass());
         return result;
     }
     

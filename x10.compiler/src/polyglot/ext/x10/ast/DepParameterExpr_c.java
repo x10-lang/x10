@@ -5,7 +5,6 @@
  */
 package polyglot.ext.x10.ast;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -13,14 +12,11 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
-import polyglot.types.Flags;
-import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
+import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -28,7 +24,6 @@ import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
 /** An immutable representation of the parameter list of a parameteric type.
@@ -98,35 +93,15 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         return reconstruct(arguments, condition);
     }
     
-  
-    public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
-        //Report.report(1, "DepParameterExpr_c: Disambiguate " + this);
-     // new Exception().printStackTrace();
-        List newArgs = new ArrayList();
-        
-        for(Iterator i = args.iterator(); i.hasNext();) {
-            Expr e = (Expr) i.next();
-            Node n = e.disambiguate(ar);
-            
-            if (n instanceof Expr) {
-                newArgs.add(n);
-                continue;
-              }
-          throw new SemanticException("Could not find field or local " +
-                                      "variable \"" + e + "\".", position());
-        }
-        
-        if (condition == null)
-            return args(newArgs);
-        
-        Node newCond = condition.disambiguate(ar);
-        
-        if (newCond instanceof Expr) {
-            return reconstruct(newArgs, (Expr) newCond);
-        }
-        throw new SemanticException("Could not disambiguate " 
-                + condition + "\".", position());
-        
+    public boolean isDisambiguated() {
+    	boolean val = (condition == null) || condition.isDisambiguated();
+    	return val;
+    }
+   
+    public Node disambiguate(AmbiguityRemover sc) throws SemanticException {
+    	Node n = super.disambiguate(sc);
+    	//Report.report(1, "DepParameterExpr.disambiguated |" + condition +"|");
+    	return n;
     }
     /** Type check the statement. 
      * TODO: Implement type checking.
@@ -134,8 +109,12 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
      */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        Report.report(1, "DepParameterExpr: Typechecking " + this);
-        return this;
+        //Report.report(1, "DepParameterExpr: Typechecking " + this);
+        Type t = condition.type();
+        
+        if (! ts.equals(t, ts.Boolean()))
+        	throw new SemanticException("The argument of a deptype must be a boolean expression.", position());
+        return type(t);
     }
     /* (non-Javadoc)
      * @see polyglot.ast.Term#entry()

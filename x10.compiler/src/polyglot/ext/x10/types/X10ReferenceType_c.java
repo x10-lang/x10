@@ -7,7 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ext.jl.types.ReferenceType_c;
-import polyglot.ext.x10.ast.DepParameterExpr;
+import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
@@ -28,15 +29,15 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     public X10ReferenceType_c(TypeSystem ts) { this(ts, null);}
     public X10ReferenceType_c(TypeSystem ts, Position pos) { super(ts, pos);}
     
-    protected DepParameterExpr depClause;
+    protected Constraint depClause;
     protected List/*<GenParameterExpr>*/ typeParameters;
     protected X10Type baseType = this;
     public X10Type baseType() { return baseType;}
     public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
     public List typeParameters() { return typeParameters;}
-    public DepParameterExpr depClause() { return depClause; }
-    
-    public X10Type makeVariant(DepParameterExpr d, List l) { 
+    public Constraint depClause() { return depClause; }
+    public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
+    public X10Type makeVariant(Constraint d, List l) { 
         if (d == null && (l == null || l.isEmpty()))
                 return this;
         X10ReferenceType_c n = (X10ReferenceType_c) copy();
@@ -47,15 +48,17 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
             Report.report(5,"X10ReferenceType_c.makeVariant: " + this + " creates " + n + "|");
         return n;
     }
-    
+    public C_Term propVal(String name) {
+		return (depClause==null) ? null : depClause.find(name);
+	}
     public boolean typeEqualsImpl(Type o) {
         return equalsImpl(o);
     }
     public int hashCode() {
         return 
           (baseType == this ? super.hashCode() : baseType.hashCode() ) 
-        + (depClause != null ? depClause.hashCode() : 0)
-        + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
+          + (isConstrained() ? depClause.hashCode() : 0)
+  		+ (isParametric() ? typeParameters.hashCode() :0);
         
     }
     public boolean equalsImpl(TypeObject o) {
@@ -64,23 +67,7 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
         if (o == this) return true;
         if (! (o instanceof X10ReferenceType_c)) return false;
         X10ReferenceType_c other = (X10ReferenceType_c) o;
-        //Report.report(3,"X10ReferenceType_c: baseType |" + baseType + "| and |" + other.baseType +"|");
-        if (! baseType.equalsImpl(other.baseType)) return false;
-        
-        if (depClause == null && other.depClause != null) return false;
-        if (depClause != null && ! depClause.equals(other.depClause)) return false;
-        
-        if (typeParameters == null) return other.typeParameters == null;
-        if (typeParameters.isEmpty()) return other.typeParameters == null || other.typeParameters.isEmpty();
-        if (typeParameters.size() != other.typeParameters.size()) return false;
-        Iterator it1 = typeParameters.iterator();
-        Iterator it2 = other.typeParameters.iterator();
-        while (it1.hasNext()) {
-            Type t1 = (Type) it1.next();
-            Type t2 = (Type) it2.next();
-            if (!t1.equals(t2)) return false;
-        }
-        return true;
+       return ((X10TypeSystem) typeSystem()).equivClause(this, other);
     }
    
     public boolean isCanonical() {
