@@ -13,7 +13,7 @@ import harness.x10Test;
 public class InitNonNullable_MustFailCompile extends x10Test {
 
 	public boolean run() {
-		nullable BoxedNode bn = new BoxedNode();
+		nullable<BoxedNode> bn = new BoxedNode();
 		chk(bn != null);
 		Node tmp1 = (Node)(bn.val);
 		chk(bn.val.data == 19);
@@ -24,7 +24,7 @@ public class InitNonNullable_MustFailCompile extends x10Test {
 		Node tmp4 = (Node)(bn.val.next.next.next);
 		chk(bn.val.next.next.next.data == 19);
 
-		nullable BoxedNodeArray bna = new BoxedNodeArray();
+		nullable<BoxedNodeArray> bna = new BoxedNodeArray();
 		chk(bna != null);
 		Node[.] tmp5 = (Node[[0:9]->here])(bna.val);
 		Node tmp6 = (Node)(bna.val[9]);
