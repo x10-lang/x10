@@ -19,7 +19,7 @@ import polyglot.types.SemanticException;
  */
 public class Constraint_c implements Constraint {
 
-	private Map<C_Var,C_Term> bindings;
+	private Map bindings;
 	
 	boolean consistent = true;
 	boolean valid = true;
@@ -49,7 +49,7 @@ public class Constraint_c implements Constraint {
 	 */
 	public Constraint addBinding(C_Var var, C_Term val) {
 		if (!consistent ) return this; 
-		if (bindings == null) bindings = new HashMap<C_Var,C_Term>();
+		if (bindings == null) bindings = new HashMap();
 		C_Term prev = (C_Term) bindings.get(var);
 		if (prev != null) {
 			consistent &= prev.equals(val);
@@ -100,14 +100,14 @@ public class Constraint_c implements Constraint {
 		if (! consistent) return true;
 		if (! other.consistent()) return false;
 		// now both are consistent
-		Set<Map.Entry<C_Var, C_Term>> keys = other.bindings().entrySet();
+		Set keys = other.bindings().entrySet();
 		//Report.report(1, "Constraint: set is |" + keys + "|");
 		boolean result = true;
-		for (Iterator<Map.Entry<C_Var,C_Term>> it = keys.iterator(); result && it.hasNext();) {
-			Map.Entry<C_Var,C_Term> i = it.next();
-			C_Term val = i.getValue();
-			C_Var var = i.getKey();
-			C_Term val2 = bindings.get(var);
+		for (Iterator it = keys.iterator(); result && it.hasNext();) {
+			Map.Entry i = (Map.Entry) it.next();
+			C_Term val = (C_Term) i.getValue();
+			C_Var var = (C_Var) i.getKey();
+			C_Term val2 = (C_Term) bindings.get(var);
 			//Report.report(1, "Constraint.entails: |" + val + "|" + val2 + "|" + val.equals(val2));
 			result &=val.equals(val2);
 		}
@@ -128,13 +128,13 @@ public class Constraint_c implements Constraint {
 	}
 	public C_Term find(String varName) {
 		if ((! consistent) || bindings ==null) return null;
-		Set<Map.Entry<C_Var, C_Term>> keys = bindings().entrySet();
+		Set keys = bindings().entrySet();
 		//Report.report(1, "Constraint: set is |" + keys + "|");
-		for (Iterator<Map.Entry<C_Var,C_Term>> it = keys.iterator(); it.hasNext();) {
-			Map.Entry<C_Var,C_Term> i = it.next();
-			C_Var var = i.getKey();
+		for (Iterator it = keys.iterator(); it.hasNext();) {
+			Map.Entry i = (Map.Entry) it.next();
+			C_Var var = (C_Var) i.getKey();
 			if (var.name().equals(varName))
-				return i.getValue();
+				return (C_Term) i.getValue();
 		}
 		return null;
 		
