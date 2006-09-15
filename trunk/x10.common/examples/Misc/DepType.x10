@@ -3,9 +3,8 @@
  *
  */
  
-public class DepType {
-    final int i;
-    final int j;
+public class DepType(int i, int j) {
+   
     class Test extends DepType {
         int k;
         Test(int kk) {
@@ -38,7 +37,7 @@ public class DepType {
 	return true;
     }
 	
-    public boolean this(3) run3() {
+   this(3)  public boolean  run3() {
         System.out.println("i (=3?) = " + i);
         return true;
     }

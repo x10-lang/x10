@@ -13,23 +13,21 @@ public class List(int(:self >=0) n) {
         n=0;
        
     }
-    this(0) public  List(l.n) a(List l) {
-        return l;
+     public  List(l.n) a(List l) {
+    	
+        return (n==0) ? l : new List(value, tail.append(l));
     }
-    this(:n>0) public  List(n+l.nn) a(List l) {
-        
-        return  new List( value, tail.append(l)); 
-    }
+   
     public  List(n+l.n) append(List l) {
         final int nn =n;
         return n==0? ((List(0))this).a(l) : ((List(:nn>0)) this).a(l);
     }
     
-    this(:n>0) public  Object nth( int(: k >= 1 & k <= n) k) {
+    this(:n>0) public  Object nth( int(: self >= 1 && self <= n) k) {
         return k==1 ? (Object) value : tail.nth(k-1);
     }
   
-    public List(k) gen(int(: k >= 0) k) {
+    public List(k) gen(final int(: self >= 0) k) {
         return k==0 ? new List() : new List(k, gen(k-1));
     }
   
