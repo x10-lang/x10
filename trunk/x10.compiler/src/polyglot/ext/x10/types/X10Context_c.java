@@ -283,6 +283,6 @@ public class X10Context_c extends Context_c implements X10Context {
 		return v;
 	}
 	 public String toString() {
-	        return "(" + (isDepType ? "depType" : kind) + " " + mapsToString() + " " + outer + ")";
+	        return "(" + (isDepType ? "depType" : kind.toString()) + " " + mapsToString() + " " + outer + ")";
 	    }
 }

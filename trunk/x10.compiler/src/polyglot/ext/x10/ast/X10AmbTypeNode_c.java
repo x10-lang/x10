@@ -81,7 +81,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
     }
    
     Type lookaheadType = null;
-    public AmbiguityRemover disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
+    public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
     	lookaheadType = ((TypeNode_c) super.disambiguate(sc)).type();
     	return sc;
     }

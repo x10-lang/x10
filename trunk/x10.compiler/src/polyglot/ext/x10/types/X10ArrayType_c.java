@@ -24,7 +24,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	protected Constraint depClause;
 	protected List/*<GenParameterExpr>*/ typeParameters;
 	protected X10NamedType baseType = this;
-	public X10NamedType baseType() { return baseType;}
+	public X10Type baseType() { return baseType;}
 	public boolean isParametric() { return typeParameters != null && !  typeParameters.isEmpty();}
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }

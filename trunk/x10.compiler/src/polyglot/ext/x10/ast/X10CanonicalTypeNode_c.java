@@ -70,11 +70,11 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     }
     
     Type lookaheadType = null;
-    public AmbiguityRemover disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
+    public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
     	lookaheadType = ((TypeNode_c) super.disambiguate(sc)).type();
     	return sc;
     }
-    public TypeChecker typeCheckEnter(TypeChecker tc) throws SemanticException {
+    public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
     	//Report.report(1, "X10CanonicalType: typecheckEnter " + this + " dep=|" + this.dep + "|");
     	lookaheadType = ((TypeNode_c) super.typeCheck(tc)).type();
     	return tc;
