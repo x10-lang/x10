@@ -219,14 +219,9 @@ public class DefaultRuntime_c extends Runtime {
 
 	    synchronized(boot) {
 		try {
-			// first check if the boot activity has finished before
+			// check if the boot activity has finished before
 			// the main thread has called the wait method
-	    	if (boot.isFinished()) {
-	    		// if so exit
-	    		return;
-	    	}
-	    	else {
-	    		// else wait for boot activity to finish
+	    	if (!boot.isFinished()) {
 	    		boot.wait();
 	    	}
 		} catch (InterruptedException e) {
