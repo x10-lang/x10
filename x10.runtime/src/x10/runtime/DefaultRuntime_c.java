@@ -2,6 +2,7 @@ package x10.runtime;
 
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Semaphore;
 
 import x10.array.BooleanArray;
 import x10.array.ByteArray;
@@ -70,8 +71,8 @@ import x10.lang.structureArray;
 public class DefaultRuntime_c extends Runtime {
     private final class BootActivity extends Activity {
 	private final Activity fMain;
-
 	protected Throwable fBootException;
+	private boolean ended;
 
 	private BootActivity(Activity main) {
 	    super();
@@ -98,11 +99,22 @@ public class DefaultRuntime_c extends Runtime {
 		// Exception thrown by the activity!
 		fBootException= re;
 	    } finally {
-//		shutdown();
 		synchronized (this) {
 		    this.notifyAll();
+		    // boolean assign is protected from race condition  
+		    // with main thread by the synchronized block
+		    this.ended = true;
 		}
 	    }
+	}
+	
+	/**
+	 * Check if boot activity has ended
+	 * @return true if boot activit has ended
+	 */
+	public boolean isFinished()
+	{
+		return this.ended;
 	}
     }
 
@@ -110,7 +122,7 @@ public class DefaultRuntime_c extends Runtime {
 	 * The places of this X10 Runtime (for now a constant set).
 	 */
 	private Place[] places_;
-
+	
 	public DefaultRuntime_c() {
 	}
 
@@ -207,12 +219,22 @@ public class DefaultRuntime_c extends Runtime {
 
 	    synchronized(boot) {
 		try {
-		    boot.wait();
+			// first check if the boot activity has finished before
+			// the main thread has called the wait method
+	    	if (boot.isFinished()) {
+	    		// if so exit
+	    		return;
+	    	}
+	    	else {
+	    		// else wait for boot activity to finish
+	    		boot.wait();
+	    	}
 		} catch (InterruptedException e) {
 		    // NOTREACHED
 		    e.printStackTrace();
 		}
 	    }
+	    	
 	    if (boot.fBootException instanceof Error)
 		throw (Error) boot.fBootException;
 	    else if (boot.fBootException instanceof RuntimeException)
