@@ -124,7 +124,7 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		Type type = array.type();
 		if (!type.isArray()) {
 			X10Type target = (X10Type) type;
-			if (!ts.isX10Array(target))
+			if (!ts.isIndexable(target))
 				throw new SemanticException(
 						"Subscript can only follow an array type.", position());
 		}
