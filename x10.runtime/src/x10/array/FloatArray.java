@@ -19,7 +19,7 @@ public abstract class FloatArray extends FloatReferenceArray {
         super(d);
     }
     
-    public static class Assign extends Operator.Scan {
+    public static class Assign extends Operator.Unary {
         private final float c_;
 
         public Assign(float c) {
@@ -108,7 +108,7 @@ public abstract class FloatArray extends FloatReferenceArray {
 	    }
 	}
 	
-	public void scan(FloatArray res, Operator.Scan op) {
+	public void scan(FloatArray res, Operator.Unary op) {
 	    assert res.distribution.equals(distribution);
 	    
 	    place here = x10.lang.Runtime.runtime.currentPlace();
@@ -145,10 +145,6 @@ public abstract class FloatArray extends FloatReferenceArray {
 	    }
 	}
     
-	
-	public void circshift (int[] args) {
-		throw new RuntimeException("TODO");
-	}
 	
     /**
      * Generic flat access.

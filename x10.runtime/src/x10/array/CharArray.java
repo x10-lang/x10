@@ -19,7 +19,7 @@ public abstract class CharArray extends CharReferenceArray {
         super(d);
     }
     
-    public static class Assign extends Operator.Scan {
+    public static class Assign extends Operator.Unary {
         private final char c_;
 
         public Assign(char c) {
@@ -107,7 +107,7 @@ public abstract class CharArray extends CharReferenceArray {
 	    }
 	}
 	
-	public void scan(CharArray res, Operator.Scan op) {
+	public void scan(CharArray res, Operator.Unary op) {
 	    assert res.distribution.equals(distribution);
 	    
 	    place here = x10.lang.Runtime.runtime.currentPlace();
@@ -145,11 +145,7 @@ public abstract class CharArray extends CharReferenceArray {
     }
     
 	
-	public void circshift (int[] args) {
-		throw new RuntimeException("TODO");
-	}
-	
-    /**
+	/**
      * Generic flat access.
      */
     public abstract char set(char v, point pos);

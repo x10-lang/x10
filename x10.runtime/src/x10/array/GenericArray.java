@@ -19,7 +19,7 @@ import x10.lang.place;
  */
 public abstract class GenericArray extends x10.lang.GenericReferenceArray {
 
-    public static class Assign extends Operator.Scan {
+    public static class Assign extends Operator.Unary {
         private final Parameter1 c_;
 
         public Assign(Parameter1 c) {
@@ -131,7 +131,7 @@ public abstract class GenericArray extends x10.lang.GenericReferenceArray {
     }
 
     /* operations are performed in canonical order */
-    public void scan( GenericArray res, Operator.Scan op ) {
+    public void scan( GenericArray res, Operator.Unary op ) {
         assert res == null || res instanceof GenericArray;
         assert res.distribution.equals(distribution);
         place here = x10.lang.Runtime.runtime.currentPlace();
@@ -172,10 +172,6 @@ public abstract class GenericArray extends x10.lang.GenericReferenceArray {
         }
     }
     
-    public void circshift(Parameter1[] args) {
-        throw new RuntimeException("TODO");
-    }
-
     /**
      * Generic flat access.
      */
