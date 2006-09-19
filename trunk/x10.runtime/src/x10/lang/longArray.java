@@ -1,6 +1,7 @@
 package x10.lang;
 
 
+
 /** The base class for all (value or reference) multidimensional,
  * distributed long arrays in X10.  Is a subclass-only mutable class
  * (has no mutable state, and all methods are value methods).
@@ -35,82 +36,6 @@ abstract public class longArray extends x10Array {
     }
 	
     public static final unaryOp abs = new unaryOp() { public long apply(long r) { return Math.abs(r);}};
-	
-	abstract public static /*value*/ class factory {
-		
-		/** Return the unique long value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * vj: Note that in this implementation, returns longArray rather than
-		 * longValueArray.
-		 * @param k
-		 * @return
-		 */
-		public longArray longValueArray( /*nat*/ int k) {
-			return longValueArray(k, 0);
-		}
-		/** Return the unique long value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public longArray/*(:rank=1)*/  longValueArray(/*nat*/ int k, long initVal) { 
-			return longValueArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique long value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public longArray/*(:rank=1)*/ longValueArray(/*nat*/ int k, pointwiseOp init) {
-			return longValueArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		abstract public 
-		/*(distribution D)*/ longArray/*(D)*/ longValueArray(dist D, long init);
-		abstract public 
-		/*(distribution D)*/ longArray/*(D)*/ longValueArray(dist D, pointwiseOp/*(D.region)*/ init);
-		
-		
-		/** Return the unique long value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public LongReferenceArray LongReferenceArray( /*nat*/ int k) {
-			return LongReferenceArray(k, 0);
-		}
-		/** Return the unique long value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public LongReferenceArray/*(:rank=1)*/  LongReferenceArray(/*nat*/ int k, long initVal) { 
-			return LongReferenceArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique long value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public LongReferenceArray/*(:rank=1)*/ LongReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return LongReferenceArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		
-		abstract public 
-		/*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(dist D, long init);
-		abstract public 
-		/*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(dist D, 
-				pointwiseOp/*(D.region)*/ init);
-		
-	}
-	
-	public static final factory factory = Runtime.factory.getLongArrayFactory();
 	
 	/** Return the value of the array at the given point in the
 	 * region.

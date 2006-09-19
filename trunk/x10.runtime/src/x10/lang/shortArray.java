@@ -1,6 +1,7 @@
 package x10.lang;
 
 
+
 /** The class of all multidimensional, distributed int arrays in X10. Has no mutable data.
  * Specialized from array by replacing the type parameter with int.
  
@@ -32,79 +33,6 @@ abstract public class shortArray extends x10Array{
 	public static interface pointwiseOp/*(region r)*/ {
 		short apply(point/*(r)*/ p);
 	}
-	
-	abstract public static /*value*/ class factory {
-		/** Return the unique int value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public shortArray shortValueArray( /*nat*/ int k) {
-			return shortValueArray(k, (short) 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public shortArray/*(:rank=1)*/  shortValueArray(/*nat*/ int k, short initVal) { 
-			return shortValueArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public shortArray/*(:rank=1)*/ shortValueArray(/*nat*/ int k, pointwiseOp init) {
-			return shortValueArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		abstract public 
-		/*(distribution D)*/ shortArray/*(D)*/ shortValueArray(dist D, short init);
-		abstract public 
-		/*(distribution D)*/ shortArray/*(D)*/ shortValueArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
-		/** Return the unique int value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public ShortReferenceArray ShortReferenceArray( /*nat*/ int k) {
-			return ShortReferenceArray(k, (short) 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public ShortReferenceArray/*(:rank=1)*/  ShortReferenceArray(/*nat*/ int k, short initVal) { 
-			return ShortReferenceArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public ShortReferenceArray/*(:rank=1)*/ ShortReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return ShortReferenceArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		public ShortReferenceArray ShortReferenceArray( dist D) {
-			return ShortReferenceArray( D, (short) 0);
-		}
-		abstract public 
-		/*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray(dist D, short init);
-		abstract public 
-		/*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
-	}
-	public static final factory factory = Runtime.factory.getShortArrayFactory();
 	
 	/** Return the value of the array at the given point in the
 	 * region.

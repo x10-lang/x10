@@ -1,6 +1,7 @@
 package x10.lang;
 
 
+
 /** The base class for all (value or reference) multidimensional,
  * distributed int arrays in X10.  Is a subclass-only mutable class
  * (has no mutable state, and all methods are value methods).
@@ -34,88 +35,6 @@ abstract public class intArray extends x10Array{
 	public static interface unaryOp {
 		int apply(int r);
 	}
-	
-	abstract public static /*value*/ class factory {
-		
-		/** Return the unique int value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * vj: Note that in this implementation, returns intArray rather than
-		 * intValueArray.
-		 * @param k
-		 * @return
-		 */
-		public intArray intValueArray( /*nat*/ int k) {
-			return intValueArray(k, 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public intArray/*(:rank=1)*/  intValueArray(/*nat*/ int k, int initVal) { 
-			return intValueArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public intArray/*(:rank=1)*/ intValueArray(/*nat*/ int k, pointwiseOp init) {
-			return intValueArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		abstract public 
-		/*(distribution D)*/ intArray/*(D)*/ intValueArray(dist D, int init);
-		abstract public 
-		/*(distribution D)*/ intArray/*(D)*/ intValueArray(dist D, pointwiseOp/*(D.region)*/ init);
-		/**
-		 * Return a double value array initialized with the given 1-d 0:n-1 array.
-		 * @param a
-		 * @return
-		 */
-		abstract public intArray intValueArray(int[] a);
-		
-		
-		/** Return the unique int value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public IntReferenceArray IntReferenceArray( /*nat*/ int k) {
-			return IntReferenceArray(k, 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public IntReferenceArray/*(:rank=1)*/  IntReferenceArray(/*nat*/ int k, int initVal) { 
-			return IntReferenceArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public IntReferenceArray/*(:rank=1)*/ IntReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return IntReferenceArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		
-		abstract public 
-		/*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(dist D, int init);
-		abstract public 
-		/*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(dist D, 
-				pointwiseOp/*(D.region)*/ init);
-		
-	}
-	
-	public static final factory factory = Runtime.factory.getIntArrayFactory();
 	
 	/** Return the value of the array at the given point in the
 	 * region.

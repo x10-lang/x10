@@ -1,6 +1,7 @@
 package x10.lang;
 
 
+
 /** The class of all multidimensional, distributed int arrays in X10. Has no mutable data.
  * Specialized from array by replacing the type parameter with int.
  
@@ -32,79 +33,6 @@ abstract public class floatArray extends x10Array{
 	public static interface pointwiseOp/*(region r)*/ {
 		float apply(point/*(r)*/ p);
 	}
-	
-	abstract public static /*value*/ class factory {
-		/** Return the unique int value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public floatArray floatValueArray( /*nat*/ int k) {
-			return floatValueArray(k, 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public floatArray/*(:rank=1)*/  floatValueArray(/*nat*/ int k, float initVal) { 
-			return floatValueArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public floatArray/*(:rank=1)*/ floatValueArray(/*nat*/ int k, pointwiseOp init) {
-			return floatValueArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		abstract public 
-		/*(distribution D)*/ floatArray/*(D)*/ floatValueArray(dist D, float init);
-		abstract public 
-		/*(distribution D)*/ floatArray/*(D)*/ floatValueArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
-		/** Return the unique int value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public FloatReferenceArray FloatReferenceArray( /*nat*/ int k) {
-			return FloatReferenceArray(k, 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public FloatReferenceArray/*(:rank=1)*/  FloatReferenceArray(/*nat*/ int k, float initVal) { 
-			return FloatReferenceArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public FloatReferenceArray/*(:rank=1)*/ FloatReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return FloatReferenceArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		public FloatReferenceArray FloatReferenceArray( dist D) {
-			return FloatReferenceArray( D, 0);
-		}
-		abstract public 
-		/*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray(dist D, float init);
-		abstract public 
-		/*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
-	}
-	public static final factory factory = Runtime.factory.getFloatArrayFactory();
 	
 	/** Return the value of the array at the given point in the
 	 * region.
