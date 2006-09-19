@@ -1,6 +1,7 @@
 package x10.lang;
 
 
+
 /** The class of all multidimensional, distributed int arrays in X10. Has no mutable data.
  * Specialized from array by replacing the type parameter with int.
  
@@ -33,85 +34,6 @@ abstract public class doubleArray extends x10Array{
 	public static interface pointwiseOp/*(region r)*/ {
 		double apply(point/*(r)*/ p);
 	}
-	
-	abstract public static /*value*/ class factory {
-		/** Return the unique int value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public doubleArray doubleValueArray( /*nat*/ int k) {
-			return doubleValueArray(k, 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public doubleArray/*(:rank=1)*/  doubleValueArray(/*nat*/ int k, double initVal) { 
-			return doubleValueArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public doubleArray/*(:rank=1)*/ doubleValueArray(/*nat*/ int k, pointwiseOp init) {
-			return doubleValueArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		abstract public 
-		/*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray(dist D, double init);
-		/**
-		 * Return a double value array initialized with the given 1-d 0:n-1 array.
-		 * @param a
-		 * @return
-		 */
-		abstract public doubleArray doubleValueArray(double[] a);
-		abstract public 
-		/*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
-		/** Return the unique int value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public DoubleReferenceArray DoubleReferenceArray( /*nat*/ int k) {
-			return DoubleReferenceArray(k, 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public DoubleReferenceArray/*(:rank=1)*/  DoubleReferenceArray(/*nat*/ int k, double initVal) { 
-			return DoubleReferenceArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public DoubleReferenceArray/*(:rank=1)*/ DoubleReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return DoubleReferenceArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		public DoubleReferenceArray DoubleReferenceArray( dist D) {
-			return DoubleReferenceArray( D, 0);
-		}
-		abstract public 
-		/*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleReferenceArray(dist D, double init);
-		abstract public 
-		/*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleReferenceArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
-	}
-	public static final factory factory = Runtime.factory.getDoubleArrayFactory();
 	
 	/** Return the value of the array at the given point in the
 	 * region.
@@ -240,18 +162,6 @@ abstract public class doubleArray extends x10Array{
 	
 	public DoubleReferenceArray restriction(place P) {
 		return restriction(distribution.restriction(P));
-	}
-	
-	abstract public /*(region(rank) R)*/
-	DoubleReferenceArray/*(distribution.restriction(R)())*/  restrictShallow(region R);	
-	
-	public  /*(distribution(:rank=this.rank) D)*/ 
-	DoubleReferenceArray/*(distribution.restriction(D.region)())*/ restrictShallow(dist D) {
-	 return restrictShallow(D.region);
-	}
-	
-	public DoubleReferenceArray restrictShallow(place P) {
-		return restrictShallow(distribution.restriction(P));
 	}
 	
 	/** Take as parameter a distribution D of the same rank as *
