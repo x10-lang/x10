@@ -3,7 +3,6 @@
  */
 package x10.array.sharedmemory;
 
-import java.util.Iterator;
 
 import x10.array.BooleanArray;
 import x10.array.Helper;
@@ -11,13 +10,11 @@ import x10.array.Operator;
 import x10.base.Allocator;
 import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
-import x10.lang.BooleanReferenceArray;
+import x10.lang.ArrayOperations;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.dist;
-import x10.lang.place;
 import x10.lang.point;
-import x10.lang.region;
 import x10.runtime.Configuration;
 import x10.array.Distribution_c;
 
@@ -34,7 +31,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     public boolean valueEquals(Indexable other) {
         return arr_.valueEquals(((BooleanArray_c)other).arr_);
     }
-    
+
     /**
      * This constructor must not be used directly by an application programmer.
      * Arrays are constructed by the corresponding factory methods in 
@@ -47,22 +44,9 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
 		this(d, c, safe, mutable);
 	}
     protected BooleanArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable) {
-        super(d);
-        assert (d instanceof Distribution_c);
-        this.mutable_ = mutable;
-        this.safe_ = safe;
-        int count =  d.region.size();
-        if (!safe) {
-            int rank = d.region.rank;
-            int ranks[] = new int[rank];
-            for (int i = 0; i < rank; ++i) 
-                ranks[i] = d.region.rank(i).size();
-            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BOOLEAN);
-        } else {
-            this.arr_ = Allocator.allocSafe(count, Boolean.TYPE);
-        }
+        this(d, safe, mutable, null);
         if (c != null)
-            pointwise(this, c);
+            ArrayOperations.scan(this, c, this);
     }
     
     /**
@@ -78,50 +62,26 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     	this(d, c, safe, true);
 }
     public BooleanArray_c(dist d, boolean c, boolean safe, boolean mutable) {
-    	super(d);
-    	this.mutable_ = mutable;
-    	int count =  d.region.size();
-        this.safe_ = safe;
-        if (!safe) {
-            int rank = d.region.rank;
-            int ranks[] = new int[rank];
-            for (int i = 0; i < rank; ++i) 
-                ranks[i] = d.region.rank(i).size();
-            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BOOLEAN);
-        } else {
-            this.arr_ =Allocator.allocSafe(count, Boolean.TYPE);
-        }
-    	scan(this, new Assign(c));
-    	
+    	this(d, safe, mutable, null);
+    	ArrayOperations.scan(this, new Constant(c), this);
     }
-    public BooleanArray_c(dist d, BooleanArray.pointwiseOp f) {
-        this(d, f, true);
-    }
-    public BooleanArray_c(dist d, BooleanArray.pointwiseOp f, boolean safe) {
-    	this(d, f, safe, true);
-    }
-    public BooleanArray_c(dist d, BooleanArray.pointwiseOp f, boolean safe, boolean mutable) {
-    	super(d);
-    	this.mutable_ = mutable;
-    	int count =  d.region.size();
-        this.safe_ = safe;
-        if (!safe) {
-            int rank = d.region.rank;
-            int ranks[] = new int[rank];
-            for (int i = 0; i < rank; ++i) 
-                ranks[i] = d.region.rank(i).size();
-            this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BOOLEAN);
-        } else {
-            this.arr_ =Allocator.allocSafe(count, Boolean.TYPE);
-        }
-        if (f != null)
-            scan(this, f);
-    }
-    
+
     private BooleanArray_c(dist d, boolean[] a, boolean safe, boolean mutable) {
-    	super(d);
+        this(d, safe, mutable, null);
+    }
+
+	/**
+	 * @param d
+	 * @param safe
+	 * @param mutable
+	 * @param arr TODO
+	 */
+	private BooleanArray_c(dist d, boolean safe, boolean mutable, boolean[] arr) {
+		super(d);
+        assert (d instanceof Distribution_c);
+		this.mutable_ = mutable;
+        this.safe_ = safe;
         int count =  d.region.size();
-    	this.safe_ = safe;
         if (!safe) {
             int rank = d.region.rank;
             int ranks[] = new int[rank];
@@ -129,10 +89,9 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
                 ranks[i] = d.region.rank(i).size();
             this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BOOLEAN);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Boolean.TYPE);
+            this.arr_ = Allocator.allocSafe(count, Boolean.TYPE);
         }
-        this.mutable_ = mutable;
-    }
+	}
     /**
      * Return a safe IntArray_c initialized with the given local 1-d (Java) int array.
      * @param a
@@ -174,86 +133,19 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     		super.assign(rhs);
     }
 
-	protected BooleanArray newInstance(dist d) {
+	public BooleanArray newInstance(dist d) {
 		assert d instanceof Distribution_c;
 		
 		return new BooleanArray_c(d, (Operator.Pointwise) null, safe_);	
 	}
 	
-	protected BooleanArray newInstance(dist d, Operator.Pointwise c) {
+	public BooleanArray newInstance(dist d, Operator.Pointwise c) {
 		assert d instanceof Distribution_c;
 		
 		return new BooleanArray_c(d, c, safe_);	
 	}
-	
 
-	public BooleanReferenceArray lift(BooleanArray.binaryOp op, x10.lang.booleanArray arg) {
-	    assert arg.distribution.equals(distribution); 
-	    BooleanArray arg1 = (BooleanArray)arg;
-	    BooleanArray result = newInstance(distribution);
-	    place here = x10.lang.Runtime.runtime.currentPlace();
-        try {
-            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-                point p = (point) it.next();
-                place pl = distribution.get(p);
-                x10.lang.Runtime.runtime.setCurrentPlace(pl);
-                result.set(op.apply(this.get(p), arg1.get(p)),p);
-            }
-        } finally {
-            x10.lang.Runtime.runtime.setCurrentPlace(here);
-        }  
-	    return result;
-	}
-	public BooleanReferenceArray lift(BooleanArray.unaryOp op) {
-	    BooleanArray result = newInstance(distribution);
-	    place here = x10.lang.Runtime.runtime.currentPlace();
-        try {
-            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-                point p = (point) it.next();
-                place pl = distribution.get(p);
-                x10.lang.Runtime.runtime.setCurrentPlace(pl);
-                result.set((boolean) op.apply(this.get(p)),p);
-            }
-        } finally {
-            x10.lang.Runtime.runtime.setCurrentPlace(here);
-        }   
-	    return result;
-	}
-	public boolean reduce(BooleanArray.binaryOp op, boolean unit) {
-	    boolean result = unit;
-	    place here = x10.lang.Runtime.runtime.currentPlace();
-	    try {
-	        for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-	            point p = (point) it.next();
-	            place pl = distribution.get(p);
-	            x10.lang.Runtime.runtime.setCurrentPlace(pl);
-	            result = op.apply(this.get(p), result);
-	        }
-	    } finally {
-	        x10.lang.Runtime.runtime.setCurrentPlace(here);
-	    }   
-	    return result;
-	}
-
-    public BooleanReferenceArray scan(binaryOp op, boolean unit) {
-        boolean temp = unit;
-        BooleanArray result = newInstance(distribution);
-        place here = x10.lang.Runtime.runtime.currentPlace();
-        try {
-            for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-                point p = (point) it.next();
-                place pl = distribution.get(p);
-                x10.lang.Runtime.runtime.setCurrentPlace(pl);
-                temp = op.apply(this.get(p), temp);
-                result.set(temp, p);
-            }
-        } finally {
-            x10.lang.Runtime.runtime.setCurrentPlace(here);
-        }   
-        return result;
-    }
-   
-    public boolean set(boolean v, point pos) {return set(v,pos,true,true);}
+	public boolean set(boolean v, point pos) {return set(v,pos,true,true);}
     /* (non-Javadoc)
      * @see x10.lang.BooleanArray#set(int, int[])
      */
@@ -347,79 +239,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
         final point p = Runtime.factory.getPointFactory().point( pos);
     	return get(p);
     }
-    
-    public x10.lang.BooleanReferenceArray overlay(x10.lang.booleanArray d) {
-        dist dist = distribution.overlay(d.distribution);
-        BooleanArray_c ret = new BooleanArray_c(dist, false, safe_);
-        place here = x10.lang.Runtime.runtime.currentPlace();
-        try {
-            for (Iterator it = dist.iterator(); it.hasNext(); ) {
-                point p = (point) it.next();
-                place pl = dist.get(p);
-                x10.lang.Runtime.runtime.setCurrentPlace(pl);
-                boolean val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
-                ret.set(val, p);
-            }
-        } finally {
-            x10.lang.Runtime.runtime.setCurrentPlace(here);
-        }   
-        return ret;
-    }
-    
-    public void update(x10.lang.booleanArray d) {
-        assert (region.contains(d.region));
-        place here = x10.lang.Runtime.runtime.currentPlace();
-        try {
-            for (Iterator it = d.iterator(); it.hasNext(); ) {
-                point p = (point) it.next();
-                place pl = distribution.get(p);
-                x10.lang.Runtime.runtime.setCurrentPlace(pl);
-                set(d.get(p), p);
-            }
-        } finally {
-            x10.lang.Runtime.runtime.setCurrentPlace(here);
-        }   
-    }
-    
-    public BooleanReferenceArray union(x10.lang.booleanArray d) {
-        dist dist = distribution.union(d.distribution);
-        BooleanArray_c ret = new BooleanArray_c(dist, false, safe_);
-        place here = x10.lang.Runtime.runtime.currentPlace();
-        try {
-            for (Iterator it = dist.iterator(); it.hasNext(); ) {
-                point p = (point) it.next();
-                place pl = dist.get(p);
-                x10.lang.Runtime.runtime.setCurrentPlace(pl);
-                boolean val = (distribution.region.contains(p)) ? get(p) : d.get(p);
-                ret.set(val, p);
-            }
-        } finally {
-            x10.lang.Runtime.runtime.setCurrentPlace(here);
-        }   
-        return ret;
-    }
-    
-    public BooleanReferenceArray restriction(dist d) {
-        return restriction(d.region);
-    }
-    
-    public BooleanReferenceArray restriction(region r) {
-        dist dist = distribution.restriction(r);
-        BooleanArray_c ret = new BooleanArray_c(dist, false, safe_);
-        place here = x10.lang.Runtime.runtime.currentPlace();
-        try {
-            for (Iterator it = dist.iterator(); it.hasNext(); ) {
-                point p = (point) it.next();
-                place pl = dist.get(p);
-                x10.lang.Runtime.runtime.setCurrentPlace(pl);
-                ret.set(get(p), p);
-            }
-        } finally {
-            x10.lang.Runtime.runtime.setCurrentPlace(here);
-        }   
-        return ret;
-    }
-    
+
     public x10.lang.booleanArray toValueArray() {
     	if (! mutable_) return this;
     	throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");   
@@ -427,6 +247,4 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
     public boolean isValue() {
         return ! this.mutable_;
     }
-
-    
 }
