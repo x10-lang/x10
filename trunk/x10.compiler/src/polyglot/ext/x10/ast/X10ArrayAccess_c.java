@@ -120,10 +120,10 @@ public class X10ArrayAccess_c extends Expr_c implements X10ArrayAccess {
 					"Multiple subscript cannot follow an array of rank 1.", position());
 		if ( Report.should_report("debug",3))
         Report.report(3,"X10ArrayAccess_c: typeCheck type="  + type + " |" 
-                + type.getClass() + "|" + ts.isX10Array(type));
+                + type.getClass() + "|" + ts.isIndexable(type));
         
 		X10Type target = (X10Type) type;
-		if (! ts.isX10Array(target)) {
+		if (! ts.isIndexable(target)) {
 			throw new SemanticException(
 					"Multiple subscripts can only follow an array of rank > 1.", position());
 		}
