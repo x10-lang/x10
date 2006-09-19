@@ -65,8 +65,10 @@ public interface X10TypeSystem extends TypeSystem {
 	ClassType clock();
 	ClassType value();
 	ClassType Runtime();
-    ClassType OperatorPointwise();
-
+	ClassType OperatorPointwise();
+	ClassType OperatorBinary();
+	ClassType OperatorUnary();
+	ClassType ArrayOperations();
 
 	CodeInstance asyncCodeInstance();
 
@@ -212,6 +214,11 @@ public interface X10TypeSystem extends TypeSystem {
 	 */
 	ClassType Indexable();
 
+	/**
+	 * Return the ClassType object for the x10.lang.Array interface.
+	 */
+	ClassType Array();
+
 	// RMF 7/11/2006 - Added so that the parser can create a canonical type node
 	// for "primitive types", which otherwise will cause disambiguation to fail.
 	//
@@ -258,6 +265,7 @@ public interface X10TypeSystem extends TypeSystem {
   boolean isPrimitiveTypeArray(Type me);
      boolean isNullable(Type me) ;
      boolean isFuture(Type me) ;
+     boolean isIndexable(Type me) ;
       boolean isX10Array(Type me) ;
       boolean isBooleanArray(Type me);
      boolean isCharArray(Type me) ;
@@ -274,6 +282,7 @@ public interface X10TypeSystem extends TypeSystem {
       boolean isDistribution(Type me);
       boolean isDistributedArray(Type me);
      boolean isValueType( Type me);
+	Type baseType(Type theType);
    
    VarInstance createSelf(X10Type t);
    TypeTranslator typeTranslator();
