@@ -4,21 +4,13 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
 
-import x10.array.BooleanArray;
-import x10.array.ByteArray;
-import x10.array.CharArray;
+import x10.array.ArrayFactory;
 import x10.array.DistributionFactory;
-import x10.array.DoubleArray;
-import x10.array.FloatArray;
-import x10.array.GenericArray;
-import x10.array.IntArray;
-import x10.array.ShortArray;
-import x10.array.StructureArray;
+import x10.array.Operator;
 import x10.array.point_c;
 import x10.array.sharedmemory.BooleanArray_c;
 import x10.array.sharedmemory.ByteArray_c;
 import x10.array.sharedmemory.CharArray_c;
-import x10.array.sharedmemory.Complex4Array_c;
 import x10.array.sharedmemory.DoubleArray_c;
 import x10.array.sharedmemory.FloatArray_c;
 import x10.array.sharedmemory.GenericArray_c;
@@ -26,12 +18,10 @@ import x10.array.sharedmemory.IntArray_c;
 import x10.array.sharedmemory.LongArray_c;
 import x10.array.sharedmemory.RegionFactory;
 import x10.array.sharedmemory.ShortArray_c;
-import x10.array.sharedmemory.StructureArray_c;
 import x10.compilergenerated.Parameter1;
 import x10.lang.BooleanReferenceArray;
 import x10.lang.ByteReferenceArray;
 import x10.lang.CharReferenceArray;
-import x10.lang.Complex4ReferenceArray;
 import x10.lang.DoubleReferenceArray;
 import x10.lang.FloatReferenceArray;
 import x10.lang.GenericReferenceArray;
@@ -39,12 +29,10 @@ import x10.lang.IntReferenceArray;
 import x10.lang.LongReferenceArray;
 import x10.lang.Runtime;
 import x10.lang.ShortReferenceArray;
-import x10.lang.StructureReferenceArray;
 import x10.lang.booleanArray;
 import x10.lang.byteArray;
 import x10.lang.charArray;
 import x10.lang.clock;
-import x10.lang.complex4Array;
 import x10.lang.dist;
 import x10.lang.doubleArray;
 import x10.lang.floatArray;
@@ -54,7 +42,6 @@ import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
 import x10.lang.shortArray;
-import x10.lang.structureArray;
 
 /**
  * Default implementation of Runtime. Considerably revised 5/16 by vj
@@ -339,193 +326,128 @@ public class DefaultRuntime_c extends Runtime {
 					}
 				};
 			}
-			public booleanArray.factory getBooleanArrayFactory() {
-				return new BooleanArray.factory() {
+			public ArrayFactory getArrayFactory() {
+				return new ArrayFactory() {
 					public BooleanReferenceArray BooleanReferenceArray(dist d, boolean c) {
-						return new BooleanArray_c( d, c, true);
+						return new BooleanArray_c(d, c, true);
 					}
-					public BooleanReferenceArray BooleanReferenceArray(dist d, booleanArray.pointwiseOp f) {
-						return new BooleanArray_c( d, f, true);
+					public BooleanReferenceArray BooleanReferenceArray(dist d, Operator.Pointwise f) {
+						return new BooleanArray_c(d, f, true, true, false);
 					}
 					public booleanArray booleanValueArray(dist d, boolean c) {
 						return new BooleanArray_c(d, c, true, false);
 					}
-					public booleanArray booleanValueArray(dist d, booleanArray.pointwiseOp f) {
-						return new BooleanArray_c(d, f, true, false);
+					public booleanArray booleanValueArray(dist d, Operator.Pointwise f) {
+						return new BooleanArray_c(d, f, true, false, false);
 					}
-				};
-			}
-			public charArray.factory getCharArrayFactory() {
-				return new CharArray.factory() {
-					public CharReferenceArray CharReferenceArray(dist d, char c) {
-						return new CharArray_c( d, c, true);
-					}
-					public CharReferenceArray CharReferenceArray(dist d, charArray.pointwiseOp f) {
-						return new CharArray_c( d, f, true);
-					}
-					public charArray charValueArray(dist d, char c) {
-						return new CharArray_c(d, c, true, false);
-					}
-					public charArray charValueArray(dist d, charArray.pointwiseOp f) {
-						return new CharArray_c(d, f, true, false);
-					}
-				};
-			}
-			public byteArray.factory getByteArrayFactory() {
-				return new ByteArray.factory() {
 					public ByteReferenceArray ByteReferenceArray(dist d, byte c) {
-						return new ByteArray_c( d, c, true);
+						return new ByteArray_c(d, c, true);
 					}
-					public ByteReferenceArray ByteReferenceArray(dist d, byteArray.pointwiseOp f) {
-						return new ByteArray_c( d, f, true);
+					public ByteReferenceArray ByteReferenceArray(dist d, Operator.Pointwise f) {
+						return new ByteArray_c(d, f, true, true, false);
 					}
 					public byteArray byteValueArray(dist d, byte c) {
 						return new ByteArray_c(d, c, true, false);
 					}
-					public byteArray byteValueArray(dist d, byteArray.pointwiseOp f) {
-						return new ByteArray_c(d, f, true, false);
+					public byteArray byteValueArray(dist d, Operator.Pointwise f) {
+						return new ByteArray_c(d, f, true, false, false);
 					}
-				};
-			}
-			public shortArray.factory getShortArrayFactory() {
-				return new ShortArray.factory() {
+					public CharReferenceArray CharReferenceArray(dist d, char c) {
+						return new CharArray_c(d, c, true);
+					}
+					public CharReferenceArray CharReferenceArray(dist d, Operator.Pointwise f) {
+						return new CharArray_c(d, f, true, true, false);
+					}
+					public charArray charValueArray(dist d, char c) {
+						return new CharArray_c(d, c, true, false);
+					}
+					public charArray charValueArray(dist d, Operator.Pointwise f) {
+						return new CharArray_c(d, f, true, false, false);
+					}
 					public ShortReferenceArray ShortReferenceArray(dist d, short c) {
-						return new ShortArray_c( d, c, true);
+						return new ShortArray_c(d, c, true);
 					}
-					public ShortReferenceArray ShortReferenceArray(dist d, shortArray.pointwiseOp f) {
-						return new ShortArray_c( d, f, true);
+					public ShortReferenceArray ShortReferenceArray(dist d, Operator.Pointwise f) {
+						return new ShortArray_c(d, f, true, true, false);
 					}
 					public shortArray shortValueArray(dist d, short c) {
 						return new ShortArray_c(d, c, true, false);
 					}
-					public shortArray shortValueArray(dist d, shortArray.pointwiseOp f) {
-						return new ShortArray_c(d, f, true, false);
+					public shortArray shortValueArray(dist d, Operator.Pointwise f) {
+						return new ShortArray_c(d, f, true, false, false);
 					}
-				};
-			}
-			public intArray.factory getIntArrayFactory() {
-				return new IntArray.factory() {
-					public IntReferenceArray IntReferenceArray(dist d, int c) {
-						return new IntArray_c( d, c, true);
-					}
-					public IntReferenceArray IntReferenceArray(dist d, intArray.pointwiseOp f) {
-						return new IntArray_c( d, f, true);
-					}
-					public intArray intValueArray(dist d, int c) {
-						return new IntArray_c(d, c, true, false);
-					}
-					public intArray intValueArray(dist d, intArray.pointwiseOp f) {
-						return new IntArray_c(d, f, true, false);
-					}
-					public intArray intValueArray(int[] a) {
-						return IntArray_c.IntArray_c(a, true, false);
-					}
-				};
-			}
-			public StructureArray.factory getStructureArrayFactory() {
-				return new StructureArray.factory() {
-					public StructureReferenceArray StructureReferenceArray(dist d, int c,int elSize) {
-						return new StructureArray_c( d, c, true,elSize);
-					}
-					public StructureReferenceArray StructureReferenceArray(dist d, structureArray.pointwiseOp f,int elSize) {
-						return new StructureArray_c( d, f, true,elSize);
-					}
-					public structureArray structureValueArray(dist d, int c,int elSize) {
-						return new StructureArray_c(d, c, true, false,elSize);
-					}
-					public structureArray structureValueArray(dist d, structureArray.pointwiseOp f,int elSize) {
-						return new StructureArray_c(d, f, true, false,elSize);
-					}
-				};
-			}
-			public complex4Array.factory getComplex4ArrayFactory() {
-				return new complex4Array.factory() {
-					public Complex4ReferenceArray Complex4ReferenceArray(dist d, float c) {
-						return new Complex4Array_c( d, c, true);
-					}
-					public Complex4ReferenceArray Complex4ReferenceArray(dist d, complex4Array.pointwiseOp f) {
-						return new Complex4Array_c( d, f, true);
-					}
-					public complex4Array complex4ValueArray(dist d, float c) {
-						return new Complex4Array_c(d, c, true, false);
-					}
-					public complex4Array complex4ValueArray(dist d, complex4Array.pointwiseOp f) {
-						return new Complex4Array_c(d, f, true, false);
-					}
-				};
-			}
-			public longArray.factory getLongArrayFactory() {
-				return new longArray.factory() {
-					public LongReferenceArray LongReferenceArray(dist d, long c) {
-						return new LongArray_c( d, c, true);
-					}
-					public LongReferenceArray LongReferenceArray(dist d, longArray.pointwiseOp f) {
-						return new LongArray_c( d, f, true);
-					}
-					public longArray longValueArray(dist d, long c) {
-						return new LongArray_c(d, c, true, false);
-					}
-					public longArray longValueArray(dist d, longArray.pointwiseOp f) {
-						return new LongArray_c(d, f, true, false);
-					}
-				};
-			}
-			public FloatArray.factory getFloatArrayFactory() {
-				return new floatArray.factory() {
-					public FloatReferenceArray FloatReferenceArray(dist d, float c) {
-						return new FloatArray_c( d, c, true);
-					}
-					public FloatReferenceArray FloatReferenceArray(dist d, floatArray.pointwiseOp f) {
-						return new FloatArray_c( d, f, true);
-					}
-					public floatArray floatValueArray(dist d, float c) {
-						return new FloatArray_c(d, c, true, false);
-					}
-					public floatArray floatValueArray(dist d, floatArray.pointwiseOp f) {
-						return new FloatArray_c(d, f, true, false);
-					}
-				};
-			}
-			public DoubleArray.factory getDoubleArrayFactory() {
-				return new doubleArray.factory() {
 					public DoubleReferenceArray DoubleReferenceArray(dist d, double c) {
-						return new DoubleArray_c( d, c, true);
+						return new DoubleArray_c(d, c, true);
 					}
-
-					public DoubleReferenceArray DoubleReferenceArray(dist d, doubleArray.pointwiseOp f) {
-						return new DoubleArray_c( d, f, true);
+					public DoubleReferenceArray DoubleReferenceArray(dist d, Operator.Pointwise f) {
+						return new DoubleArray_c(d, f, true, true, false);
 					}
 					public doubleArray doubleValueArray(dist d, double c) {
 						return new DoubleArray_c(d, c, true, false);
 					}
-					public doubleArray doubleValueArray(dist d, doubleArray.pointwiseOp f) {
-						return new DoubleArray_c(d, f, true, false);
+					public doubleArray doubleValueArray(dist d, Operator.Pointwise f) {
+						return new DoubleArray_c(d, f, true, false, false);
 					}
 					public doubleArray doubleValueArray(double[] a) {
 						return DoubleArray_c.DoubleArray_c(a, true, false);
 					}
-				};
-			}
-			public GenericArray.factory getGenericArrayFactory() {
-				return new x10.lang.genericArray.factory() {
-					public GenericReferenceArray GenericReferenceArray(dist d, Parameter1 c) {
-						return new GenericArray_c( d, c, true);
+					public FloatReferenceArray FloatReferenceArray(dist d, float c) {
+						return new FloatArray_c(d, c, true);
 					}
-					public GenericReferenceArray GenericReferenceArray(dist d, x10.lang.genericArray.pointwiseOp f) {
-						return new GenericArray_c( d, f, true);
+					public FloatReferenceArray FloatReferenceArray(dist d, Operator.Pointwise f) {
+						return new FloatArray_c(d, f, true, true, false);
+					}
+					public floatArray floatValueArray(dist d, float c) {
+						return new FloatArray_c(d, c, true, false);
+					}
+					public floatArray floatValueArray(dist d, Operator.Pointwise f) {
+						return new FloatArray_c(d, f, true, false, false);
+					}
+					public IntReferenceArray IntReferenceArray(dist d, int c) {
+						return new IntArray_c(d, c, true);
+					}
+					public IntReferenceArray IntReferenceArray(dist d, Operator.Pointwise f) {
+						return new IntArray_c(d, f, true, true, false);
+					}
+					public intArray intValueArray(dist d, int c) {
+						return new IntArray_c(d, c, true, false);
+					}
+					public intArray intValueArray(dist d, Operator.Pointwise f) {
+						return new IntArray_c(d, f, true, false, false);
+					}
+					public intArray intValueArray(int[] a) {
+						return IntArray_c.IntArray_c(a, true, false);
+					}
+					public LongReferenceArray LongReferenceArray(dist d, long c) {
+						return new LongArray_c(d, c, true);
+					}
+					public LongReferenceArray LongReferenceArray(dist d, Operator.Pointwise f) {
+						return new LongArray_c(d, f, true, true, false);
+					}
+					public longArray longValueArray(dist d, long c) {
+						return new LongArray_c(d, c, true, false);
+					}
+					public longArray longValueArray(dist d, Operator.Pointwise f) {
+						return new LongArray_c(d, f, true, false, false);
+					}
+					public GenericReferenceArray GenericReferenceArray(dist d, Parameter1 c) {
+						return new GenericArray_c(d, c, true);
+					}
+					public GenericReferenceArray GenericReferenceArray(dist d, Operator.Pointwise f) {
+						return new GenericArray_c(d, f, true, true, false);
 					}
 					public x10.lang.genericArray GenericValueArray(dist d, Parameter1 c, boolean refs_to_values) {
 						return new GenericArray_c(d, c, true, false, refs_to_values);
 					}
-					public x10.lang.genericArray GenericValueArray(dist d, x10.lang.genericArray.pointwiseOp f, boolean refs_to_values) {
+					public x10.lang.genericArray GenericValueArray(dist d, Operator.Pointwise f, boolean refs_to_values) {
 						return new GenericArray_c(d, f, true, false, refs_to_values);
 					}
 				};
 			}
 			public place.factory getPlaceFactory() {
 				return new place.factory() {
-					public place place(int i ) {
-						int index =( i %  place.MAX_PLACES);
+					public place place(int i) {
+						int index =(i % place.MAX_PLACES);
 						return places_[index];
 					}
 					/**
