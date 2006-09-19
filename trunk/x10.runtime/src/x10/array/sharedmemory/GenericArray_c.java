@@ -146,7 +146,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
     public void reduction(Operator.Reduction op) {
         int count = arr_.count();
         for (int i  = 0; i < count; ++i) 
-            op.apply(arr_.get(i));
+            op.apply((Parameter1) arr_.get(i));
     }
     
     /* Overrides the superclass method - this implementation is more efficient */
