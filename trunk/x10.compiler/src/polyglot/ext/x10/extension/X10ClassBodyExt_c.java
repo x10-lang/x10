@@ -117,29 +117,13 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			return typeToCType(theType.toArray().base())+"*";
 		else // theType.isClass()
 		{
-			ClassType klass = theType.toClass();
-			// [IP] FIXME: ugly, ugly hack
-			Package x10_lang = null;
-			try {
-				x10_lang = typeSystem.packageForName("x10.lang");
-				String name = klass.name();
-				if (klass.package_().equals(x10_lang) && name.endsWith("Array")) {
-					if (name.startsWith("Generic"))
-						return "jobject*";
-					int idx = name.indexOf("ReferenceArray");
-					String ret = null;
-					if (idx == -1) // regular array
-						ret = name.substring(0, name.indexOf("Array"));
-					else
-						ret = name.substring(0, idx).toLowerCase();
-					return typeToCString(typeSystem.primitiveForName(ret))+"*";
-				}
-				else
-					return "jobject";
-			} catch (SemanticException e) {
-				// If we catch this, something went horribly wrong
-				throw new Error("Finita la comedia", e);
+			if (typeSystem.isX10Array(theType)) {
+				Type base = typeSystem.baseType(theType);
+				if (!base.isPrimitive())
+					return "jobject*";
+				return typeToCString(base)+"*";
 			}
+			return "jobject";
 		}
 	}
 
