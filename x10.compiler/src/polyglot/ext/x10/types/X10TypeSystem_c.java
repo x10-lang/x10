@@ -217,11 +217,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return futureActivityType_;
 	}
 
-	protected ClassType arrayType_;
+	protected ClassType x10ArrayType_;
 	public ClassType array() {
-		if (arrayType_ == null)
-			arrayType_ = load("x10.lang.array"); // java file
-		return arrayType_;
+		if (x10ArrayType_ == null)
+			x10ArrayType_ = load("x10.lang.x10Array"); // java file
+		return x10ArrayType_;
 	}
 
 	protected ClassType clockType_;
@@ -240,10 +240,32 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     protected ClassType operatorPointwiseType_;
     public ClassType OperatorPointwise() {
-        if (operatorPointwiseType_ == null)
-            operatorPointwiseType_ = load("x10.array.Operator$Pointwise"); // java file
-        return operatorPointwiseType_;
-    }
+	    if (operatorPointwiseType_ == null)
+	        operatorPointwiseType_ = load("x10.array.Operator$Pointwise"); // java file
+	    return operatorPointwiseType_;
+	}
+
+    protected ClassType operatorBinaryType_;
+	public ClassType OperatorBinary() {
+		if (operatorBinaryType_ == null)
+			operatorBinaryType_ = load("x10.array.Operator$Binary"); // java file
+	    return operatorBinaryType_;
+	}
+
+    protected ClassType operatorUnaryType_;
+	public ClassType OperatorUnary() {
+		if (operatorUnaryType_ == null)
+			operatorUnaryType_ = load("x10.array.Operator$Unary"); // java file
+	    return operatorUnaryType_;
+	}
+
+    protected ClassType arrayOperationsType_;
+	public ClassType ArrayOperations() {
+		if (arrayOperationsType_ == null)
+			arrayOperationsType_ = load("x10.lang.ArrayOperations"); // java file
+	    return arrayOperationsType_;
+	}
+
 	/*protected ClassType booleanArrayPointwiseOpType_;
 	public ClassType BooleanArrayPointwiseOp() {
 		if (booleanArrayPointwiseOpType_ == null)
@@ -752,6 +774,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return indexableType_;
 	}
 
+	protected ClassType arrayType_ = null;
+	public ClassType Array() {
+		if (arrayType_ == null)
+			arrayType_ = load("x10.lang.Array"); // java file
+		return arrayType_;
+	}
+
 	public MethodInstance primitiveEquals() {
 		String name = WRAPPER_PACKAGE + ".BoxedNumber";
 
@@ -871,10 +900,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         boolean result = isSubtype(me, sup);        
         return result;
     }
-    public  boolean isX10Array(Type me) { 
+    public  boolean isIndexable(Type me) { 
         return isX10Subtype(me, Indexable()); 
     }
-    
+    public  boolean isX10Array(Type me) { 
+        return isX10Subtype(me, Array()); 
+    }
     public  boolean isBooleanArray(Type me) {
         return isX10Subtype(me, booleanArray()); 
     }
@@ -920,7 +951,29 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public  boolean isValueType( Type me) {
         return isX10Subtype((X10Type) me,value());
     }
-    
+	public Type baseType(Type theType) {
+        Type me = theType;
+		if (isBooleanArray(me))
+        	return Boolean();
+        if (isByteArray(me))
+        	return Byte();
+        if (isCharArray(me))
+        	return Char();
+        if (isShortArray(me))
+        	return Short();
+        if (isIntArray(me))
+        	return Int();
+        if (isLongArray(me))
+        	return Long();
+        if (isFloatArray(me))
+        	return Float();
+        if (isDoubleArray(me))
+        	return Double();
+        if (!isX10Array(me))
+        	return null;
+        return ((X10Type)me).baseType();
+	}
+
     public VarInstance createSelf(X10Type t) {
     	VarInstance v = new LocalInstance_c(this,Position.COMPILER_GENERATED, Flags.PUBLIC, t, "self");
     	return v;
@@ -961,7 +1014,5 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     	return result;
     	
     }
-   
-
 } // end of X10TypeSystem_c
 
