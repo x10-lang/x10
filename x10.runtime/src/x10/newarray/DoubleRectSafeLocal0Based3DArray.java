@@ -1,5 +1,10 @@
 package x10.newarray;
 
+/**
+ * @author donawa
+ *
+ * TODO: Move this to x10.array.sharedmemory.specialized
+ */
 final public class DoubleRectSafeLocal0Based3DArray {
 
     // i is most slowly varying index.
