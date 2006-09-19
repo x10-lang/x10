@@ -20,7 +20,7 @@ public abstract class DoubleArray extends DoubleReferenceArray {
         super(d);
     }
     
-    public static class Assign extends Operator.Scan {
+    public static class Assign extends Operator.Unary {
         private final double c_;
 
         public Assign(double c) {
@@ -110,7 +110,7 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 	    } 
 	}
 	
-	public void scan(DoubleArray res, Operator.Scan op) {
+	public void scan(DoubleArray res, Operator.Unary op) {
 		assert res.distribution.equals(distribution);
 		place here = x10.lang.Runtime.runtime.currentPlace();
         
@@ -149,10 +149,6 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 		
 	}
     
-	
-	public void circshift (int[] args) {
-		throw new RuntimeException("TODO");
-	}
 	
     /**
      * Generic flat access.
@@ -205,11 +201,6 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 
     public abstract double get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
     public abstract double get(int[] p,boolean chkPl,boolean chkAOB);
-    
-    public DoubleReferenceArray restrictShallow (region r) {
-    	dist dist = distribution.restriction(r);
-    	return new DoubleProxyArray(dist, this);    	
-    }
     
     public Object toJava() {        
         final int[] dims_tmp = new int[distribution.rank];       
