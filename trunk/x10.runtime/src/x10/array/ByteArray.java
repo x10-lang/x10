@@ -19,7 +19,7 @@ public abstract class ByteArray extends ByteReferenceArray {
         super(d);
     }
     
-    public static class Assign extends Operator.Scan {
+    public static class Assign extends Operator.Unary {
         private final byte c_;
 
         public Assign(byte c) {
@@ -107,7 +107,7 @@ public abstract class ByteArray extends ByteReferenceArray {
 	    }
 	}
 	
-	public void scan(ByteArray res, Operator.Scan op) {
+	public void scan(ByteArray res, Operator.Unary op) {
 	    assert res.distribution.equals(distribution);
 	    place here = x10.lang.Runtime.runtime.currentPlace();
 	    try {
@@ -144,11 +144,7 @@ public abstract class ByteArray extends ByteReferenceArray {
     }
     
 	
-	public void circshift (int[] args) {
-		throw new RuntimeException("TODO");
-	}
-	
-    /**
+	/**
      * Generic flat access.
      */
     public abstract byte set(byte v, point pos,boolean cPl,boolean chkAOB);
@@ -206,23 +202,6 @@ public abstract class ByteArray extends ByteReferenceArray {
             }
         });
         return ret;
-    }
-    
-    /* for debugging */
-    public static void printArray(String prefix, byte[][] a) {
-        System.out.print(prefix + "{");
-        for (int i = 0; i < a.length; ++i) {
-            System.out.print("{");
-            for (int j = 0; j < a[i].length; ++ j) {
-                System.out.print(a[i][j]);
-                if (j < a[i].length - 1)
-                    System.out.print(", ");
-            }
-            System.out.print("}");
-            if (i < a.length - 1)
-                System.out.print(", ");
-        }
-        System.out.println("}");
     }
 
 }
