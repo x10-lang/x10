@@ -8,11 +8,15 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Loop;
+import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.FlowGraph;
+import polyglot.visit.TypeChecker;
 
 /**
  * An immutable representation of an X10 for loop: for (i : D) S
@@ -47,6 +51,16 @@ public class ForLoop_c extends X10Loop_c implements Loop {
 						   FlowGraph.EDGE_KEY_FALSE, this);
 		v.push(this).visitCFG(body, continueTarget());
 		return succs;
+	}
+
+	/** Type check the statement. */
+	public Node typeCheck(TypeChecker tc) throws SemanticException {
+		ForLoop_c n = (ForLoop_c) super.typeCheck(tc);
+		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		Expr newDomain = n.domain;
+		if (ts.isDistribution(n.domain.type()))
+			newDomain = (Expr) tc.nodeFactory().Field(n.position(), n.domain, "region").typeCheck(tc);
+		return n.domain(newDomain);
 	}
 
 	public Term continueTarget() {
