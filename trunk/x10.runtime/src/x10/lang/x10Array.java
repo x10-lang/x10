@@ -3,10 +3,12 @@ import java.util.Iterator;
 
 import x10.lang.place;
 
+import x10.array.ArrayFactory;
 import x10.compilergenerated.Parameter1;
 
 /* root for all array classes */
-abstract public class x10Array extends x10.lang.Object implements Indexable, Unsafe, Parameter1, ValueType  {
+abstract public class x10Array extends x10.lang.Object implements Array, Unsafe, Parameter1, ValueType {
+	public static final ArrayFactory factory = Runtime.factory.getArrayFactory();
 	public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
