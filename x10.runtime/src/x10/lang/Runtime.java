@@ -1,17 +1,17 @@
 package x10.lang;
 
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.io.PrintStream;
 import java.util.StringTokenizer;
 
+import x10.array.ArrayFactory;
 import x10.runtime.Activity;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
 import x10.runtime.Place;
 import x10.runtime.PoolRunner;
 import x10.runtime.Report;
-
 import x10.runtime.util.ConfigurationError;
 import x10.runtime.util.ShowUsageNotification;
 
@@ -253,29 +253,9 @@ public abstract class Runtime {
 
 		public abstract clock.factory getClockFactory();
 
-		public abstract booleanArray.factory getBooleanArrayFactory();
-
-		public abstract charArray.factory getCharArrayFactory();
-
-		public abstract byteArray.factory getByteArrayFactory();
-
-		public abstract shortArray.factory getShortArrayFactory();
-
-		public abstract intArray.factory getIntArrayFactory();
-
-		public abstract longArray.factory getLongArrayFactory();
-
-		public abstract floatArray.factory getFloatArrayFactory();
-
-		public abstract doubleArray.factory getDoubleArrayFactory();
-
-		public abstract genericArray.factory getGenericArrayFactory();
-
-		public abstract structureArray.factory getStructureArrayFactory();
-
-		public abstract complex4Array.factory getComplex4ArrayFactory();
-
 		public abstract place.factory getPlaceFactory();
+
+		public abstract ArrayFactory getArrayFactory();
 	}
 
 	public abstract Factory getFactory();
