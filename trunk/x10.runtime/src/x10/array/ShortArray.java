@@ -19,7 +19,7 @@ public abstract class ShortArray extends ShortReferenceArray {
         super(d);
     }
     
-    public static class Assign extends Operator.Scan {
+    public static class Assign extends Operator.Unary {
         private final short c_;
 
         public Assign(short c) {
@@ -107,7 +107,7 @@ public abstract class ShortArray extends ShortReferenceArray {
         }
     }
 	
-    public void scan(ShortArray res, Operator.Scan op) {
+    public void scan(ShortArray res, Operator.Unary op) {
         assert res.distribution.equals(distribution);
         
         place here = x10.lang.Runtime.runtime.currentPlace();
@@ -144,11 +144,6 @@ public abstract class ShortArray extends ShortReferenceArray {
         }
     }
     
-	
-	public void circshift (int[] args) {
-		throw new RuntimeException("TODO");
-	}
-	
     /**
      * Generic flat access.
      */

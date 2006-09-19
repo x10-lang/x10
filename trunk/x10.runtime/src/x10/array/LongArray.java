@@ -19,7 +19,7 @@ public abstract class LongArray extends LongReferenceArray {
         super(d);
     }
     
-    public static class Assign extends Operator.Scan {
+    public static class Assign extends Operator.Unary {
         private final long c_;
 
         public Assign(long c) {
@@ -109,7 +109,7 @@ public abstract class LongArray extends LongReferenceArray {
 	    }
 	}
 	
-	public void scan(LongArray res, Operator.Scan op) {
+	public void scan(LongArray res, Operator.Unary op) {
 	    assert res != null;
         assert res.distribution.equals(distribution);
         place here = x10.lang.Runtime.runtime.currentPlace();
@@ -147,11 +147,6 @@ public abstract class LongArray extends LongReferenceArray {
         }
     }
     
-	
-	public void circshift (int[] args) {
-		throw new RuntimeException("TODO");
-	}
-	
     /**
      * Generic flat access.
      */

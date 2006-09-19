@@ -22,7 +22,7 @@ import x10.lang.Runtime;
  */
 public abstract class IntArray extends x10.lang.IntReferenceArray {
 
-    public static class Assign extends Operator.Scan {
+    public static class Assign extends Operator.Unary {
         private final int c_;
 
         public Assign(int c) {
@@ -136,7 +136,7 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
 
 
     /* operations are performed in canonical order */
-    public void scan(region targetRegion, IntArray res, Operator.Scan op ) {
+    public void scan(region targetRegion, IntArray res, Operator.Unary op ) {
     	assert res == null || res instanceof IntArray;
     	assert res.distribution.equals(distribution);
     	place here = x10.lang.Runtime.runtime.currentPlace();
@@ -157,7 +157,7 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
     	}
     }
     /* operations are performed in canonical order */
-    public void scan( IntArray res, Operator.Scan op ) {
+    public void scan( IntArray res, Operator.Unary op ) {
     	assert res == null || res instanceof IntArray;
     	assert res.distribution.equals(distribution);
     	place here = x10.lang.Runtime.runtime.currentPlace();
@@ -198,11 +198,6 @@ public abstract class IntArray extends x10.lang.IntReferenceArray {
     }
     
   
-    public void circshift(int[] args) {
-        throw new RuntimeException("TODO");
-    }
-    
-
     /**
      * Generic flat access.
      */
