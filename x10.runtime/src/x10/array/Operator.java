@@ -56,10 +56,6 @@ public abstract class Operator {
 			throw new RuntimeException(ERR_);
 		}
 
-		public Object apply(point p, Object i) {
-		    throw new RuntimeException(ERR_);
-		}
-
 		public Parameter1 apply(point p, Parameter1 i) {
 		    throw new RuntimeException(ERR_);
 		}
@@ -96,19 +92,16 @@ public abstract class Operator {
 			throw new RuntimeException(ERR_);
 		}
 
-        public Object apply(point p, Object i, Object j) {
-            throw new RuntimeException(ERR_);
+        public Parameter1 apply(point p, Parameter1 i, Parameter1 j) {
+        	throw new RuntimeException(ERR_);
         }
-    public Parameter1 apply(point p, Parameter1 i, Parameter1 j) {
-        throw new RuntimeException(ERR_);
-    }
 	}
 	
 	/**
 	 * The operation performed must be fully associative and cumulative. It is
 	 * the user's obligation to make sure that both conditions are met.
 	 */
-	public static abstract class Scan extends Operator {
+	public static abstract class Unary extends Operator {
 		public boolean apply(boolean i) {
 			throw new RuntimeException(ERR_);
 		}
@@ -141,12 +134,52 @@ public abstract class Operator {
 			throw new RuntimeException(ERR_);
 		}
 
-        public Object apply(Object o) {
-            throw new RuntimeException(ERR_);
+        public Parameter1 apply(Parameter1 o) {
+        	throw new RuntimeException(ERR_);
         }
-    public Parameter1 apply(Parameter1 o) {
-        throw new RuntimeException(ERR_);
-    }
+	}
+	
+	/**
+	 * The operation performed must be functional, i.e. stateless. It is the
+	 * user's obligation to make sure that both conditions are met. The argument of the
+	 * apply function is the current value at the current position in the array. 
+	 */
+	public static abstract class Binary extends Operator {
+		public boolean apply(boolean i, boolean j) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public byte apply(byte i, byte j) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public char apply(char i, char j) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public short apply(short i, short j) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public int apply(int i, int j) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public long apply(long i, long j) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public float apply(float i, float j) {
+			throw new RuntimeException(ERR_);
+		}
+
+		public double apply(double i, double j) {
+			throw new RuntimeException(ERR_);
+		}
+
+        public Parameter1 apply(Parameter1 i, Parameter1 j) {
+        	throw new RuntimeException(ERR_);
+        }
 	}
 	
 	/**
@@ -187,7 +220,7 @@ public abstract class Operator {
 			throw new RuntimeException(ERR_);
 		}
 
-		public void apply(Object i) {
+		public void apply(Parameter1 i) {
 			throw new RuntimeException(ERR_);
 		}
 		
@@ -220,6 +253,10 @@ public abstract class Operator {
 		}
 		
 		public double getDoubleResult() {
+			throw new RuntimeException(ERR_);
+		}
+		
+		public Parameter1 getGenericResult() {
 			throw new RuntimeException(ERR_);
 		}
 		
