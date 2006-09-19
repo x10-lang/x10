@@ -3,16 +3,19 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ext.jl.ast.Binary_c;
+import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
+import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
@@ -33,7 +36,9 @@ import x10.lang.region;
  */
 public class X10Binary_c extends Binary_c {
 
-    X10TypeSystem xts = X10TypeSystem_c.getTypeSystem();
+	private final X10TypeSystem xts = X10TypeSystem_c.getTypeSystem();
+	private final X10NodeFactory_c xnf = X10NodeFactory_c.getNodeFactory();
+
 	/**
 	 * @param pos
 	 * @param left
@@ -42,15 +47,15 @@ public class X10Binary_c extends Binary_c {
 	 */
 	public X10Binary_c(Position pos, Expr left, Operator op, Expr right) {
 		super(pos, left, op, right);
-     
+
 	}
 
 	/** Get the precedence of the expression. */
 	public Precedence precedence() {
 		/* [IP] TODO: This should be the real precedence */
 		X10Type l = (X10Type) left.type();
-		if (xts.isPoint(l) || xts.isPlace(l) || xts.isDistribution(l) 
-                || xts.isRegion(l) ||
+		if (xts.isPoint(l) || xts.isPlace(l) || xts.isDistribution(l)
+				|| xts.isRegion(l) ||
 			xts.isPrimitiveTypeArray(l) || xts.isDistributedArray(l))
 		{
 			return Precedence.LITERAL;
@@ -140,7 +145,7 @@ public class X10Binary_c extends Binary_c {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		// TODO: define these operations for arrays as well, with the same distribution.
 		if ((op == GT || op == LT || op == GE || op == LE) && (xts.isPoint(l)
-                || xts.isPlace(l))) {
+				|| xts.isPlace(l))) {
 			if (xts.isPlace(l)) {
 				if (!xts.isPlace(r))
 					throw new SemanticException("The " + op +
@@ -221,7 +226,7 @@ public class X10Binary_c extends Binary_c {
 			return type(ts.region());
 		}
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
-                xts.isPrimitiveTypeArray(l)) {
+				xts.isPrimitiveTypeArray(l)) {
 			// FIXME: allow strings here
 			// pointwise numerical operations. TODO: Check that one type can be numerically coerced to the other.
 			if (!l.equals(r)) {
@@ -232,7 +237,7 @@ public class X10Binary_c extends Binary_c {
 		}
 
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
-                xts.isPoint(l) && !ts.equals(r, ts.String()))
+				xts.isPoint(l) && !ts.equals(r, ts.String()))
 		{
 			if (!xts.isPoint(r) && !r.isIntOrLess())
 				throw new SemanticException("The " + op +
@@ -241,7 +246,7 @@ public class X10Binary_c extends Binary_c {
 		}
 
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
-                xts.isPoint(r) && !ts.equals(l, ts.String()))
+				xts.isPoint(r) && !ts.equals(l, ts.String()))
 		{
 			if (!l.isIntOrLess())
 				throw new SemanticException("The " + op +
@@ -266,80 +271,101 @@ public class X10Binary_c extends Binary_c {
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		X10Type l = (X10Type) left.type();
 		X10Type r = (X10Type) right.type();
-		TypeSystem ts = l.typeSystem();
 
 		if ((op == GT || op == LT || op == GE || op == LE) & (xts.isPoint(l) || xts.isPlace(l))) {
-			printSubExpr(left, true, w, tr);
-			w.write(".");
-			w.write(op == GT ? "gt" : (op == LT ? "lt" : (op == GE ? "ge" : "le")));
-			w.write("(");
-			printSubExpr(right, false, w, tr);
-			w.write(")");
+			String name = op == GT ? "gt" : op == LT ? "lt" : op == GE ? "ge" : "le";
+			generateInstanceCall(w, tr, left, name, right);
 			return;
 		}
 
-		if (op == COND_OR && (xts.isDistribution(l) 
-                || xts.isRegion(l) || xts.isPrimitiveTypeArray(l))) {
-			printSubExpr(left, true, w, tr);
-			w.write(".union(");
-			printSubExpr(right, false, w, tr);
-			w.write(")");
+		if (op == COND_OR && (xts.isDistribution(l) ||
+				xts.isRegion(l) || xts.isPrimitiveTypeArray(l)))
+		{
+			generateStaticOrInstanceCall(w, tr, left, "union", right);
 			return;
 		}
 		if (op == COND_AND && (xts.isRegion(l) || xts.isDistribution(l))) {
-			printSubExpr(left, true, w, tr);
-			w.write(".intersection(");
-			printSubExpr(right, false, w, tr);
-			w.write(")");
+			generateStaticOrInstanceCall(w, tr, left, "intersection", right);
 			return;
 		}
 
 		// New for X10.
-		if (op == BIT_OR && (xts.isDistribution(l) 
-                || xts.isDistributedArray(l) || xts.isPlace(l))) {
-			printSubExpr(left, true, w, tr);
-			w.write(".restriction(");
-			printSubExpr(right, false, w, tr);
-			w.write(")");
+		if (op == BIT_OR && (xts.isDistribution(l) ||
+					xts.isDistributedArray(l) || xts.isPlace(l))) {
+			generateStaticOrInstanceCall(w, tr, left, "restriction", right);
 			return;
 		}
 
 		// Modified for X10.
 		if (op == SUB && (xts.isDistribution(l) || xts.isRegion(l))) {
-			printSubExpr(left, true, w, tr);
-			w.write(".difference(");
-			printSubExpr(right, false, w, tr);
-			w.write(")");
+			generateInstanceCall(w, tr, left, "difference", right);
 			return;
 		}
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPrimitiveTypeArray(l)) {
-			printSubExpr(left, true, w, tr);
-			w.write(".");
-			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
-			w.write("(");
-			printSubExpr(right, false, w, tr);
-			w.write(")");
+			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
+			generateInstanceCall(w, tr, left, name, right);
 			return;
 		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !ts.equals(r, ts.String())) {
-			printSubExpr(left, true, w, tr);
-			w.write(".");
-			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
-			w.write("(");
-			printSubExpr(right, false, w, tr);
-			w.write(")");
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !xts.equals(r, xts.String())) {
+			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
+			generateInstanceCall(w, tr, left, name, right);
 			return;
 		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !ts.equals(l, ts.String())) {
-			printSubExpr(right, true, w, tr);
-			w.write(".inv");
-			w.write(op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
-			w.write("(");
-			printSubExpr(left, false, w, tr);
-			w.write(")");
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !xts.equals(l, xts.String())) {
+			String name = "inv" + (op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
+			generateInstanceCall(w, tr, right, name, left);
 			return;
 		}
 		super.prettyPrint(w, tr);
+	}
+
+	/**
+	 * @param w
+	 * @param tr
+	 * @param left TODO
+	 * @param name
+	 * @param right TODO
+	 */
+	private void generateStaticOrInstanceCall(CodeWriter w, PrettyPrinter tr, Expr left, String name, Expr right) {
+		X10Type l = (X10Type) left.type();
+		X10Type r = (X10Type) right.type();
+		try {
+			X10ReferenceType aType = (X10ReferenceType) l;
+			xts.findMethod(aType, name, Collections.singletonList(r), xts.Object());
+		} catch (NoMemberException e) {
+			xnf.Call(position(), xnf.CanonicalTypeNode(position(), xts.ArrayOperations()),
+					name, left, right).prettyPrint(w, tr);
+//			w.write("x10.lang.ArrayOperations.");
+//			w.write(name);
+//			w.write("(");
+//			printSubExpr(left, false, w, tr);
+//			w.write(", ");
+//			printSubExpr(right, false, w, tr);
+//			w.write(")");
+			return;
+		} catch (SemanticException e) {
+			assert (false);
+			throw new RuntimeException(e);
+		}
+		generateInstanceCall(w, tr, left, name, right);
+		return;
+	}
+
+	/**
+	 * @param w
+	 * @param tr
+	 * @param left TODO
+	 * @param name
+	 * @param right TODO
+	 */
+	private void generateInstanceCall(CodeWriter w, PrettyPrinter tr, Expr left, String name, Expr right) {
+		xnf.Call(position(), left, name, right).prettyPrint(w, tr);
+//		printSubExpr(left, true, w, tr);
+//		w.write(".");
+//		w.write(name);
+//		w.write("(");
+//		printSubExpr(right, false, w, tr);
+//		w.write(")");
 	}
 }
 
