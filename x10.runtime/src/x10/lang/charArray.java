@@ -1,6 +1,7 @@
 package x10.lang;
 
 
+
 /** The class of all multidimensional, distributed int arrays in X10. Has no mutable data.
  * Specialized from array by replacing the type parameter with int.
  
@@ -10,9 +11,9 @@ package x10.lang;
  */
 
 
-abstract public class charArray extends x10Array{
+abstract public class charArray extends x10Array {
 
-	protected charArray( dist D) {
+	protected charArray(dist D) {
 		super(D);
 	}
 	
@@ -28,79 +29,6 @@ abstract public class charArray extends x10Array{
 	public static interface pointwiseOp/*(region r)*/ {
 		char apply(point/*(r)*/ p);
 	}
-	
-	abstract public static /*value*/ class factory {
-		/** Return the unique char value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public charArray charValueArray( /*nat*/ int k) {
-			return charValueArray(k, (char) 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public charArray/*(:rank=1)*/  charValueArray(/*nat*/ int k, char initVal) { 
-			return charValueArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public charArray/*(:rank=1)*/ charValueArray(/*nat*/ int k, pointwiseOp init) {
-			return charValueArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		abstract public 
-		/*(distribution D)*/ charArray/*(D)*/ charValueArray(dist D, char init);
-		abstract public 
-		/*(distribution D)*/ charArray/*(D)*/ charValueArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
-		/** Return the unique char value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public CharReferenceArray CharReferenceArray( /*nat*/ int k) {
-			return CharReferenceArray(k, (char)0);
-		}
-		/** Return the unique char value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public CharReferenceArray/*(:rank=1)*/  CharReferenceArray(/*nat*/ int k, char initVal) { 
-			return CharReferenceArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique char value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public CharReferenceArray/*(:rank=1)*/ CharReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return CharReferenceArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		public CharReferenceArray CharReferenceArray( dist D) {
-			return CharReferenceArray( D, (char) 0);
-		}
-		abstract public 
-		/*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray(dist D, char init);
-		abstract public 
-		/*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
-	}
-	public static final factory factory = Runtime.factory.getCharArrayFactory();
 	
 	/** Return the value of the array at the given point in the
 	 * region.

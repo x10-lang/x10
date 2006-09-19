@@ -1,6 +1,7 @@
 package x10.lang;
 
 
+
 /** The class of all multidimensional, distributed int arrays in X10. Has no mutable data.
  * Specialized from array by replacing the type parameter with int.
  
@@ -32,79 +33,6 @@ abstract public class byteArray extends x10Array{
 	public static interface pointwiseOp/*(region r)*/ {
 		byte apply(point/*(r)*/ p);
 	}
-	
-	abstract public static /*value*/ class factory {
-		/** Return the unique int value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public byteArray byteValueArray( /*nat*/ int k) {
-			return byteValueArray(k, (byte) 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public byteArray/*(:rank=1)*/  byteValueArray(/*nat*/ int k, byte initVal) { 
-			return byteValueArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public byteArray/*(:rank=1)*/ byteValueArray(/*nat*/ int k, pointwiseOp init) {
-			return byteValueArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		abstract public 
-		/*(distribution D)*/ byteArray/*(D)*/ byteValueArray(dist D, byte init);
-		abstract public 
-		/*(distribution D)*/ byteArray/*(D)*/ byteValueArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
-		/** Return the unique int value array initialized with 0 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public ByteReferenceArray ByteReferenceArray( /*nat*/ int k) {
-			return ByteReferenceArray(k, (byte) 0);
-		}
-		/** Return the unique int value array initialized with initVal 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public ByteReferenceArray/*(:rank=1)*/  ByteReferenceArray(/*nat*/ int k, byte initVal) { 
-			return ByteReferenceArray(x10.lang.dist.factory.local(k), initVal);
-		}
-		/** Return the unique int value array initialized with init 
-		 * and defined over the distribution 0..k-1 -> here.
-		 * 
-		 * @param k
-		 * @return
-		 */
-		public ByteReferenceArray/*(:rank=1)*/ ByteReferenceArray(/*nat*/ int k, pointwiseOp init) {
-			return ByteReferenceArray( x10.lang.dist.factory.local(k), init);
-		}
-		
-		public ByteReferenceArray ByteReferenceArray( dist D) {
-			return ByteReferenceArray( D, (byte) 0);
-		}
-		abstract public 
-		/*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray(dist D, byte init);
-		abstract public 
-		/*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray( dist D, 
-				pointwiseOp/*(D.region)*/ init);
-	}
-	public static final factory factory = Runtime.factory.getByteArrayFactory();
 	
 	/** Return the value of the array at the given point in the
 	 * region.
