@@ -90,18 +90,18 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
                 ranks[i] = d.region.rank(i).size();
             this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_CHAR);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Character.TYPE);
+            this.arr_ = Allocator.allocSafe(count, Character.TYPE);
         }
         scan(this, new Assign(c));
     	
     }
-    public CharArray_c(dist d, CharArray.pointwiseOp f) {
+    private CharArray_c(dist d, CharArray.pointwiseOp f) {
         this(d, f, true);
     }
-    public CharArray_c(dist d, CharArray.pointwiseOp f, boolean safe) {
+    private CharArray_c(dist d, CharArray.pointwiseOp f, boolean safe) {
     	this(d, f, safe, true);
     }
-    public CharArray_c(dist d, CharArray.pointwiseOp f, boolean safe, boolean mutable) {
+    private CharArray_c(dist d, CharArray.pointwiseOp f, boolean safe, boolean mutable) {
     	super(d);
     	this.mutable_ = mutable;
     	int count =  d.region.size();
@@ -113,7 +113,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
                 ranks[i] = d.region.rank(i).size();
             this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_CHAR);
         } else {
-            this.arr_ =Allocator.allocSafe(count, Character.TYPE);
+            this.arr_ = Allocator.allocSafe(count, Character.TYPE);
         }
         if (f != null)
             scan(this, f);
