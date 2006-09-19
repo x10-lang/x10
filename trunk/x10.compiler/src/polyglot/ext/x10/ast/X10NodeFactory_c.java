@@ -24,6 +24,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Instanceof;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
+import polyglot.ast.New;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
@@ -33,6 +34,7 @@ import polyglot.ast.Unary;
 import polyglot.ext.jl.ast.Disamb_c;
 import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.jl.ast.Instanceof_c;
+import polyglot.ext.jl.ast.New_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.jl.ast.Special_c;
 import polyglot.ext.jl.parse.Name;
@@ -246,6 +248,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		Call n = new X10Call_c(pos, target, name, args);
 		n = (Call) n.ext(extFactory().extExpr());
 		return (Call) n.del(delFactory().delExpr());
+	}
+
+	public New New(Position pos, Expr outer, TypeNode objectType, List args, ClassBody body) {
+		New n = new X10New_c(pos, outer, objectType, args, body);
+		n = (New) n.ext(extFactory().extExpr());
+		return (New) n.del(delFactory().delExpr());
 	}
 
 	public X10Loop AtEach(Position pos, Formal formal, Expr domain,
