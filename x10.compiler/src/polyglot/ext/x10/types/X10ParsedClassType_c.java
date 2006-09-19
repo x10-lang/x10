@@ -303,9 +303,9 @@ implements X10ParsedClassType
 					+ this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
 		return  
 		((baseType == this) ? super.toString() : ((X10ParsedClassType_c) baseType).toString())
-		+ (isParametric() ? "" + typeParameters.toString() + ""  : "") 
-		+ (depClause == null ? "" :  "(:" +  depClause.toString() + ")");
-		//  + "(#" + hashCode() + ")";
+		+ (isParametric() ? "/"+"*" + typeParameters.toString() + "*"+"/"  : "") 
+		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
+		//  + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
 	}
 	
 	

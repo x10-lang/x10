@@ -108,9 +108,9 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	  //        + this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
 	   return  
 	   ((baseType == this) ? super.toString() : ((X10PrimitiveType_c) baseType).toString())
-	   + (isParametric() ? typeParameters.toString()  : "") 
-	   + (depClause == null ? "" :  depClause.toString())
-	   + "(#" + hashCode() + ")";
+	   + (isParametric() ? "/"+"*" + typeParameters.toString() + "*"+"/" : "") 
+	   + (depClause == null ? "" : "/"+"*" + depClause.toString() + "*"+"/")
+	   + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
 	   }*/
 	
 	

@@ -94,7 +94,7 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 	}
 
 	public String toString() {
-		return "nullable<" + base.toString() + ">";
+		return "/"+"*"+" nullable<" +"*"+"/" + base.toString() + "/"+"*"+">"+"*"+"/";
 	}
 
 	/**
