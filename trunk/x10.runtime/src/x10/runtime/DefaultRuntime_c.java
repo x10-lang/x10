@@ -97,9 +97,11 @@ public class DefaultRuntime_c extends Runtime {
 	
 	/**
 	 * Check if boot activity has ended
-	 * @return true if boot activit has ended
+	 * @return true if boot activity has ended
+	 * Needs to be synchronized or this.ended needs to be declared volatile
+	 * since this.ended is going to be touched by two different threads.
 	 */
-	public boolean isFinished()
+	public synchronized boolean isFinished()
 	{
 		return this.ended;
 	}
