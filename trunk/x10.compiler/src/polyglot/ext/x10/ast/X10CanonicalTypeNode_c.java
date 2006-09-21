@@ -61,8 +61,8 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     public Context enterChildScope(Node child, Context c) {
     	if (child == this.dep) {
     		TypeSystem ts = c.typeSystem();
-    		if (lookaheadType instanceof X10ParsedClassType) {
-    			c = ((X10Context) c).pushDepType((X10ParsedClassType) lookaheadType);
+    		if (lookaheadType instanceof X10NamedType) {
+    			c = ((X10Context) c).pushDepType((X10NamedType) lookaheadType);
     		}
     	}
     	Context cc = super.enterChildScope(child, c);

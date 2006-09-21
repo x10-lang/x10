@@ -4,6 +4,7 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Special_c;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.SemanticException;
@@ -44,12 +45,12 @@ public class X10Special_c extends Special_c implements X10Special {
         ClassType t = null;
         
         if (isSelf) {
-    		t = c.currentDepType();
-    		if (t == null) {
+    		X10NamedType tt = c.currentDepType();
+    		if (tt == null) {
     			   throw new SemanticException("self may only be used within a dependent type", 
     					   position());
     		}
-    		return type(t);
+    		return type(tt);
     	}
         if (qualifier == null) {
             // an unqualified "this" 
