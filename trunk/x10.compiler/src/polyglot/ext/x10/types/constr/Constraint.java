@@ -1,5 +1,6 @@
 package polyglot.ext.x10.types.constr;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import polyglot.types.SemanticException;
@@ -13,7 +14,7 @@ import polyglot.types.SemanticException;
  * @author vj
  *
  */
-public interface Constraint {
+public interface Constraint extends Serializable {
 	/**
 	 * Is the consistent consistent? That is, does it have a solution?
 	 * @return true iff the constraint is consistent.

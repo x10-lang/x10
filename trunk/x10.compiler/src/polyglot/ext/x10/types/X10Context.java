@@ -24,10 +24,10 @@ public interface X10Context extends Context {
     ClassType findPropertyScope(String name) throws SemanticException;
     
     /** Enter the scope of a deptype. */
-    Context pushDepType(X10ParsedClassType t);
+    Context pushDepType(X10NamedType t);
     
     /** Return the current deptype, null if there is none. */
-    X10ParsedClassType currentDepType();
+    X10NamedType currentDepType();
     boolean isDepType();
 
 }

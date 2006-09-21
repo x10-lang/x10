@@ -13,6 +13,7 @@ import polyglot.ext.jl.types.PrimitiveType_c;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
+import polyglot.types.PrimitiveType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 
@@ -29,7 +30,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	
 	/** Used for deserializing types. */
 	protected X10PrimitiveType_c() { }
-	public X10PrimitiveType_c(TypeSystem ts, Kind kind) {
+	public X10PrimitiveType_c(TypeSystem ts, PrimitiveType.Kind kind) {
 		super(ts, kind);
 	}
 	
@@ -108,9 +109,9 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	  //        + this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
 	   return  
 	   ((baseType == this) ? super.toString() : ((X10PrimitiveType_c) baseType).toString())
-	   + (isParametric() ? "/"+"*" + typeParameters.toString() + "*"+"/" : "") 
-	   + (depClause == null ? "" : "/"+"*" + depClause.toString() + "*"+"/")
-	   + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
+	   + (isParametric() ? typeParameters.toString()  : "") 
+	   + (depClause == null ? "" :  depClause.toString())
+	   + "(#" + hashCode() + ")";
 	   }*/
 	
 	

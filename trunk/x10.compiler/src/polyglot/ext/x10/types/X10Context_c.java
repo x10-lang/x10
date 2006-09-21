@@ -6,18 +6,38 @@ package polyglot.ext.x10.types;
  * properties can be referenced inside a deptype, i.e. in
  * the depClause in  [[Foo(: depClause)]].
  * 
+ * We implement as follows. Since we want to reuse the mechanism for pushing
+ * popping scopes as we enter a depClause, we shall implement pushDepType
+ * as a pushing of a context, rather than as adding extra structure to 
+ * the current context.
+ * 
+ * To push a deptype we push a class. However
+ * we delegate certain methods, such as currentClass() to outer, since
+ * pushing a deptype does not change the meaning of "this", only introduces
+ * a meaning for "self". Thus jl code should continue to work -- it does not "see" 
+ * the deptype pushed onto the context.
+ * 
  * While processing depClause the only variables of the surrounding scope 
  * that are visible are the final variables. Inside depClause no new scopes
  * can be entered, e.g. inner classes, or method declarations or even depTypes.
  * This is a property of the X10 language.
  * 
+ * Certain methods should not be called if depType is set, e.g. methods to add names,
+ * push scopes etc. These through an assertion error.
+ * 
+ * Certain methods can be alled within a deptype, but the result should be as if they are called 
+ * on the outer context. So this is easily dealt with using the pattern
+ * depType == null ? super.Foo(..) : pop.Foo(...)
+ * That is, if this context is not  deptype context, run the usual code. Otherwise
+ * delegate to the outer context. 
+ * 
+ * 
+ * 
  * @author vj
  * @see Context
  */
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import polyglot.ext.jl.types.Context_c;
 import polyglot.main.Report;
@@ -29,9 +49,7 @@ import polyglot.types.ImportTable;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
-import polyglot.types.NoMemberException;
 import polyglot.types.ParsedClassType;
-import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
@@ -45,17 +63,17 @@ public class X10Context_c extends Context_c implements X10Context {
 	
 	// Invariant: isDepType => outer != null.
 	
-	boolean isDepType = false;
-	public boolean isDepType() { return isDepType; }
+	protected X10NamedType depType = null;
+	public boolean isDepType() { return depType !=null; }
 	
 	protected Context_c push() {
         X10Context_c v = (X10Context_c) super.push();
-        v.isDepType = false;
+        v.depType = null;
         return v;
     }
 	
-	public X10ParsedClassType currentDepType() {
-		return isDepType ? (X10ParsedClassType) super.currentClass() : null;
+	public X10NamedType currentDepType() {
+		return depType;
 	}
 	private static final Collection TOPICS = 
 		CollectionUtil.list(Report.types, Report.context);
@@ -66,7 +84,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * classes.
 	 */
 	public boolean isLocal(String name) {
-		return isDepType ? pop().isLocal(name) : super.isLocal(name);
+		return depType == null ? super.isLocal(name): pop().isLocal(name) ;
 	}
 	
 	/**
@@ -74,14 +92,15 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * "argTypes".
 	 */
 	public MethodInstance findMethod(String name, List argTypes) throws SemanticException {
-		return isDepType ? pop().findMethod(name, argTypes) : super.findMethod(name, argTypes);
+		return depType == null ? super.findMethod(name, argTypes) :pop().findMethod(name, argTypes);
 	}
 	
 	/**
 	 * Gets a local variable of a particular name.
 	 */
 	public LocalInstance findLocal(String name) throws SemanticException {
-		return isDepType ? pop().findLocal(name) : super.findLocal(name);
+		//Report.report(1, "X10Context_c: Looking for |" + name + "| in " + hashCode());
+		return depType ==null ? super.findLocal(name) : pop().findLocal(name) ;
 	}
 	
 	/**
@@ -92,28 +111,29 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 	
 	/** Finds the class which added a method to the scope. Do not
-	 * search the current class if isDepType, since that does not contribute methods.
+	 * search the current scope if depType !=null, since that does not contribute methods.
 	 * In fact, it should be an error for this method to be called when
 	 * deptype is true.
 	 */
 	public ClassType findMethodScope(String name) throws SemanticException {
-		return isDepType ? pop().findMethodScope(name) : super.findMethodScope(name);
+		return depType==null ? super.findMethodScope(name) : pop().findMethodScope(name);
 	}
 	
 	/**
 	 * Gets a field of a particular name.
 	 */
 	public FieldInstance findField(String name) throws SemanticException {
+		//Report.report(1, "X10Context_c: GOLDEN:: findVariable | "  + name + "|");
 		return super.findField(name);
 	}
+	
 	
 	/**
 	 * Gets a local or field of a particular name.
 	 */
 	public VarInstance findVariable(String name) throws SemanticException {
 		VarInstance vi = super.findVariable(name);
-		if (name.startsWith("n")) 
-		Report.report(1, "X10Context_c: GOLDEN:: findVariable | "  + name + "| = " + vi);
+		//Report.report(1, "X10Context_c: GOLDEN:: findVariable | "  + name + "| = " + vi);
 		return vi;
 	}
 	
@@ -129,7 +149,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Finds the definition of a particular type.
 	 */
 	public Named find(String name) throws SemanticException {
-		assert (! isDepType);
+		assert (depType==null);
 		return super.find(name);
 	}
 	
@@ -137,12 +157,12 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Push a source file scope.
 	 */
 	public Context pushSource(ImportTable it) { 
-		assert (! isDepType);
+		assert (depType == null);
 		return super.pushSource(it);
 	}
 	
 	public Context pushClass(ParsedClassType classScope, ClassType type) {
-		assert (! isDepType);
+		assert (depType == null);
 		return super.pushClass(classScope, type);
 	}
 	
@@ -150,7 +170,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * pushes an additional block-scoping level.
 	 */
 	public Context pushBlock() {
-		assert (! isDepType);
+		assert (depType == null);
 		return super.pushBlock();
 	}
 	
@@ -158,7 +178,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * pushes an additional static scoping level.
 	 */
 	public Context pushStatic() {
-		assert (! isDepType);
+		assert (depType==null);
 		return super.pushStatic();
 	}
 	
@@ -166,7 +186,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * enters a method
 	 */
 	public Context pushCode(CodeInstance ci) {
-		assert (! isDepType);
+		assert (depType==null);
 		return super.pushCode(ci);
 	}
 	
@@ -174,7 +194,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Gets the current method
 	 */
 	public CodeInstance currentCode() {
-		return isDepType ? pop().currentCode() : super.currentCode();
+		return depType==null ? super.currentCode() : pop().currentCode() ;
 	}
 	
 	/**
@@ -182,32 +202,32 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * innermost method.
 	 */
 	public boolean inCode() {
-		return isDepType ? pop().inCode() : super.inCode();
+		return depType==null ? super.inCode() : pop().inCode();
 	}
 	
 	public boolean inStaticContext() {
-		return isDepType ? pop().inStaticContext() : super.inStaticContext();
+		return depType ==null?  super.inStaticContext() : pop().inStaticContext();
 	}
 	
 	/**
 	 * Gets current class
 	 */
 	public ClassType currentClass() {
-		return isDepType ? pop().currentClass() : super.currentClass();
+		return depType==null ? super.currentClass() : pop().currentClass();
 	}
 	
 	/**
 	 * Gets current class scope
 	 */
 	public ParsedClassType currentClassScope() {
-		return isDepType ? pop().currentClassScope() : super.currentClassScope();
+		return depType==null ? super.currentClassScope() : pop().currentClassScope();
 	}
 	
 	/**
 	 * Adds a symbol to the current scoping level.
 	 */
 	public void addVariable(VarInstance vi) {
-		assert (! isDepType);
+		assert (depType==null);
 		super.addVariable(vi);
 	}
 	
@@ -215,45 +235,53 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Adds a named type object to the current scoping level.
 	 */
 	public void addNamed(Named t) {
-		assert (! isDepType);
+		assert (depType==null);
 		super.addNamed(t);
 	}
 	
 
 	public Named findInThisScope(String name) {
-		assert (! isDepType);
+		assert (depType==null);
 		return super.findInThisScope(name);
 	}
 	
 	public void addNamedToThisScope(Named type) {
-		assert (! isDepType);
+		assert (depType==null);
 		super.addNamedToThisScope(type);
 	}
 	
 	public ClassType findMethodContainerInThisScope(String name) {
-		assert (! isDepType);
+		assert (depType==null);
 		return super.findMethodContainerInThisScope(name);
 	
 	}
 	
 	public VarInstance findVariableInThisScope(String name) {
-		if (isDepType) {
-			VarInstance vi = ((X10Context_c) pop()).findVariableInThisScope(name);
-			if (vi instanceof LocalInstance)
-				return vi;
-			// otherwise it is a FieldInstance (might be a PropertyInstance, which is a FieldInstance)
-			// See if the currentDepType has a field of this name. If so, that gets priority
-			// and should be returned. The receiver must treat it as the reference
-			// self.name. 
-			VarInstance myVi = super.findVariableInThisScope(name);
-			return myVi != null ? myVi : vi;
-		}
-		// the usual case.
-		return super.findVariableInThisScope(name);
+		//if (name.startsWith("j")) Report.report(1, "X10Context_c: searching for |" + name + " in " + this);
+		if (depType ==null) return super.findVariableInThisScope(name);
+		
+		VarInstance vi =  ((X10Context_c) pop()).findVariableInThisScope(name);
+		
+		if (vi instanceof LocalInstance) return vi;
+		// otherwise it is a FieldInstance (might be a PropertyInstance, which is a FieldInstance)
+		// See if the currentDepType has a field of this name. If so, that gets priority
+		// and should be returned. The receiver must treat it as the reference
+		// self.name. 
+		try {
+			if (depType instanceof X10ClassType) {
+				X10ClassType dep = (X10ClassType) this.depType;
+				VarInstance myVi=ts.findField(dep, name, dep);
+				if (myVi !=null) {
+					//if (name.equals("j")) Report.report(1, "X10Context_c: ==> " + myVi);
+					return myVi;
+				}
+			} 
+		} catch (SemanticException e) {}
+		return   vi;
 	}
-	
+		
 	public void addVariableToThisScope(VarInstance var) {
-		assert (! isDepType);
+		assert (depType==null);
 		super.addVariableToThisScope(var);
 	}
 	
@@ -276,13 +304,16 @@ public class X10Context_c extends Context_c implements X10Context {
 	 *TODO: Make this work with any X10NamedType, not just X10ParsedClassType.
 	 * 
 	 */
-	public Context pushDepType(X10ParsedClassType type) {
-		X10Context_c v = (X10Context_c) pushClass(type, type);
-		v.isDepType = true;
+	public Context pushDepType(X10NamedType type) {
+		
+		X10Context_c v = (X10Context_c) push();
+		v.depType = type;
+		v.type = type instanceof ClassType ? (ClassType) type : null;
 		v.inCode = false;
+		//Report.report(1, "X10Context_c: Pushing deptype |" + type + "|" + v.hashCode());
 		return v;
 	}
 	 public String toString() {
-	        return "(" + (isDepType ? "depType" : kind.toString()) + " " + mapsToString() + " " + outer + ")";
+	        return "(" + (depType !=null ? "depType" + depType : kind.toString()) + " " + mapsToString() + " " + outer + ")";
 	    }
 }

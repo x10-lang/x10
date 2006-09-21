@@ -4,7 +4,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.types.Type;
 
-public class C_Special_c extends C_Term_c implements C_Special {
+public class C_Special_c extends C_Var_c implements C_Special {
 	
 	public final Type qualifier;
 	public final C_Kind kind;

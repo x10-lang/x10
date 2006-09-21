@@ -1,5 +1,7 @@
 package polyglot.ext.x10.types.constr;
 
+import java.io.Serializable;
+
 import polyglot.ast.Binary;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -18,7 +20,7 @@ import polyglot.types.SemanticException;
  * @author vj
  *
  */
-public class TypeTranslator {
+public class TypeTranslator implements Serializable {
 
 	public TypeTranslator( ) {
 		super();
@@ -27,6 +29,7 @@ public class TypeTranslator {
 		return new C_UnaryTerm_c(t.operator().toString(), trans(t.expr()), t.type());
 	}
 	public C_Field trans(Field t) throws SemanticException{
+		Report.report(1, "TypeTranslator: translating Field " + t);
 		return new C_Field_c(t, trans(t.target()));
 	}
 	public C_Special trans(X10Special t)throws SemanticException {
@@ -48,33 +51,53 @@ public class TypeTranslator {
 		return new C_BinaryTerm_c(op, trans(left), trans(right), t.type());
 	}
 	public C_Var trans(Variable term) throws SemanticException {
-		//Report.report(1, "TypeTranslator: translating Variable " + term);
+		Report.report(1, "TypeTranslator: translating Variable " + term);
 		if (term instanceof Field) return trans((Field) term);
 		if (term instanceof X10Special) return trans((X10Special) term);
 		if (term instanceof Local) return trans((Local) term);
 		throw new SemanticException("Cannot translate term |" + term + "| into a constraint."
 				+ "It must be a field, special or local.");
 	}
+	
 	public  C_Term trans(Receiver term) throws SemanticException {
-		//Report.report(1, "TypeTranslator: translating " + term);
+		Report.report(1, "TypeTranslator: translating Receiver " + term);
 		if (term == null) return null;
 		if (term instanceof Lit) return trans((Lit) term);
 		if (term instanceof Variable) return trans((Variable) term);
+		if (term instanceof X10Special) return trans((X10Special) term);
 		if (term instanceof Unary) return trans((Unary) term);
 		if (term instanceof Binary) return trans((Binary) term);
-		if (term instanceof X10Special) return trans((X10Special) term);
-		throw new SemanticException("Cannot translate term |" + term + "(" + term.getClass().getName()+") to a term.");
+		
+		throw new SemanticException("Cannot translate term |" + term + "(" + term.getClass().getName()+")" +
+				" to a term.");
 	}
 	public Constraint constraint(Binary term, Constraint c) throws SemanticException {
-	//	Report.report(1, "TypeTranslator: translating to constraint " + term);
+		Report.report(1, "TypeTranslator: translating to constraint " + term);
 		String op = term.operator().toString();
 		Expr left = term.left();
 		Expr right = term.right();
+		Report.report(1, "TypeTranslator: translating to constraint left=|" + left 
+				+ "| op=|" + op + "| right=|" + right + "|");
 		if (op.equals("==")) {
-			if (left instanceof Variable) 
+			if (left instanceof Variable) {
+				Report.report(1, "TypeTranslator: translating to constraint left=|" + left 
+						+ "| is a variable.");
 				return c.addBinding(trans((Variable) left), trans(right));
+			}
+			if (left instanceof X10Special) {
+				X10Special s = (X10Special) left;
+				if (! s.kind().toString().equals("self"))
+					throw new SemanticException("Cannot constrain this.");
+				return c.addBinding(trans(s), trans(right));
+			}
 			if (right instanceof Variable) 
 				return c.addBinding(trans((Variable) right), trans(left));
+			if (right instanceof X10Special) {
+				X10Special s = (X10Special) right;
+				if (! s.kind().toString().equals("self"))
+					throw new SemanticException("Cannot constrain this.");
+				return c.addBinding(trans(s), trans(left));
+			}
 		}
 		if (op.equals("&&")) {
 			c = constraint(left, c);
@@ -95,7 +118,8 @@ public class TypeTranslator {
 	 */
 	public Constraint constraint(Expr term, Constraint c) throws SemanticException {
 		if (term == null) return c;
-		X10TypeSystem ts = C_Term.typeSystem;
+		X10TypeSystem ts = (X10TypeSystem) term.type().typeSystem();
+			
 		if (! ts.typeEquals(term.type(),ts.Boolean() )) 
 			throw new SemanticException("Cannot build constraint from expression of type " 
 					+ term.type()+ " (not Boolean).");

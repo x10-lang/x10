@@ -67,7 +67,7 @@ public class Constraint_c implements Constraint {
 	 * @param term
 	 */
 	public Constraint addTerm(C_Term term) throws SemanticException {
-		return addTerm(term, C_Lit.TRUE);
+		return addTerm(term, C_Lit_c.TRUE);
 	}
 	public Constraint addTerm(C_Term term, C_Lit val) throws SemanticException {
 		if (term instanceof C_Lit) {
@@ -111,13 +111,15 @@ public class Constraint_c implements Constraint {
 			//Report.report(1, "Constraint.entails: |" + val + "|" + val2 + "|" + val.equals(val2));
 			result &=val.equals(val2);
 		}
-		//Report.report(1, "Constraint: " + this + " entails " + other + "? " + result);
+	//Report.report(1, "Constraint: " + this + " entails " + other + "? " + result);
 		return result;
 	}
 
 	public boolean equiv(Constraint other) {
+		//Report.report(1, "Constraint: " + this + " equiv " + other + "? " );
 		boolean result = entails(other);
 		if (result) result = (other==null)? valid : other.entails(this);
+		//Report.report(1, "Constraint: " + this + " equiv " + other + "? " + result);
 		return result;
 	}
 	
