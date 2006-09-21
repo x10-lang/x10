@@ -290,6 +290,13 @@ public abstract class Runtime {
 		return (Place) p;
 	}
 
+	/**
+	 * @return The given place if non-null, or 'here'.
+	 */
+	public static Place asPlace(place p) {
+		return p == null ? here() : p;
+	}
+
 	/* this is called from inside the array library */
 	public static void hereCheckPlace(place p) {
 		if (p != ((PoolRunner) Thread.currentThread()).getPlace())
