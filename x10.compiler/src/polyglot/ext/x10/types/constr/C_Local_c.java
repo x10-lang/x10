@@ -30,5 +30,5 @@ public class C_Local_c extends C_Var_c implements C_Local {
 		boolean val = name.equals(other.name) && li.equals(other.li);
 		return val;
 	}
-
+	public String toString() { return  name;}
 }

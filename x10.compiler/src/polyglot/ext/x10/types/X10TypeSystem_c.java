@@ -1,5 +1,6 @@
 package polyglot.ext.x10.types;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +43,7 @@ import polyglot.util.Position;
  * @author Christoph von Praun
  * @author vj
  */
-public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
+public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Serializable {
 
 	private static X10TypeSystem_c factory = null;
 	public static X10TypeSystem_c getFactory() {

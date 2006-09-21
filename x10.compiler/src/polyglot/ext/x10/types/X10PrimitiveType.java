@@ -6,12 +6,13 @@
  */
 package polyglot.ext.x10.types;
 
+import polyglot.types.ClassType;
 import polyglot.types.PrimitiveType;
 
 /**
  * @author vj
  *
  */
-public interface X10PrimitiveType extends PrimitiveType, X10Type, X10NamedType {
+public interface X10PrimitiveType extends PrimitiveType, /* ClassType,*/ X10NamedType {
 
 }

@@ -313,7 +313,7 @@ implements X10ParsedClassType
 		X10Type other = (X10Type) toType;
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		X10Type tb = this.baseType(), ob = other.baseType();
-		boolean result = (tb==this) ? super.equalsImpl(ob): tb.equalsImpl(ob)
+		boolean result = ((tb==this) ? super.equalsImpl(ob): tb.equalsImpl(ob))
 				&& xts.equivClause(this, other);
 		return result;
 		
