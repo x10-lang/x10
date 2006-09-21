@@ -293,7 +293,7 @@ public abstract class Runtime {
 	/**
 	 * @return The given place if non-null, or 'here'.
 	 */
-	public static Place asPlace(place p) {
+	public static place asPlace(place p) {
 		return p == null ? here() : p;
 	}
 
