@@ -31,19 +31,16 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
             X10Context xc = (X10Context) c;
            
             if (xc.isDepType()) {
-            	if (! ts.equals(scope, xc.currentDepType())) {
-            		r = nf.This(pos, nf.CanonicalTypeNode(pos, scope));
-            	} else {
-            		r = ((X10NodeFactory) nf).Self(pos);
-            	}
-            } else 
-            	if (! ts.equals(scope, c.currentClass())) {
-            		r = nf.This(pos, nf.CanonicalTypeNode(pos, scope));
-            	} else {
-            		
-            		r =  nf.This(pos);
-            		
-            	}
+            	boolean result = ts.equals(scope, xc.currentDepType());
+            	//Report.report(1, "X10Disamb_c: Making missing field target for " + fi + " field scope =|"
+            	//		+ scope +"| deptype=|"+ xc.currentDepType() + " " + result);
+            	r = result ? ((X10NodeFactory) nf).Self(pos) : 
+            		nf.This(pos, nf.CanonicalTypeNode(pos, scope));
+            	
+            } else {
+            	boolean result = ts.equals(scope, c.currentClass());
+            	r = result ? nf.This(pos)  : nf.This(pos, nf.CanonicalTypeNode(pos, scope));
+            }
         }
       
         		

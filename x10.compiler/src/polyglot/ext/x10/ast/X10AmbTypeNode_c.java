@@ -6,8 +6,8 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.AmbTypeNode_c;
 import polyglot.ext.jl.ast.TypeNode_c;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10ParsedClassType;
-import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -61,8 +61,8 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
     public Context enterChildScope(Node child, Context c) {
         if (child == this.dep) {
             TypeSystem ts = c.typeSystem();
-            if (lookaheadType instanceof X10ParsedClassType)
-            c = ((X10Context) c).pushDepType((X10ParsedClassType) lookaheadType);
+            if (lookaheadType instanceof X10NamedType)
+            c = ((X10Context) c).pushDepType((X10NamedType) lookaheadType);
         }
         Context cc = super.enterChildScope(child, c);
         return cc;
@@ -86,7 +86,8 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
     	return sc;
     }
     public Node disambiguate(AmbiguityRemover sc) throws SemanticException {
-    	boolean val = (dep != null && ! dep.isDisambiguated()) || (gen !=null && ! gen.isDisambiguated());
+    	boolean val = (dep != null && ! dep.isDisambiguated())
+    	|| (gen !=null && ! gen.isDisambiguated());
     	if (val) return this;
     	assert (dep == null || dep.isDisambiguated());
     	Node result = disambiguateBase(sc);
