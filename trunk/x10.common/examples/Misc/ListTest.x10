@@ -8,8 +8,8 @@ import x10.lang.Integer;
 public class ListTest extends x10Test {
 	public static class List {
 		public final int n;
-		protected (nullable Integer) value;
-		protected (nullable List) tail;
+		protected nullable<Integer> value;
+		protected nullable<List> tail;
   
 		public List(Integer o, List t) {
 			n=t.n+1;
@@ -27,8 +27,8 @@ public class ListTest extends x10Test {
 		public Integer nth(int k) {
 			// vj: Replacing the line below with the line after that removes the
 			// infinite loop in the compiler.
-			return k==1 ? value : tail.nth(k-1);
-			//return k==1 ? (Integer) value : tail.nth(k-1);
+			//return k==1 ? value : tail.nth(k-1);
+			return k==1 ? (Integer) value : tail.nth(k-1);
      
 		}
  

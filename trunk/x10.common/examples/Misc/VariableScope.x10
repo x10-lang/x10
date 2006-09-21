@@ -20,7 +20,7 @@ public class VariableScope extends x10Test {
 			}
 
 		for (point p: d) {
-			nullable point q = null;
+			nullable<point> q = null;
 			n++;
 		}
 
