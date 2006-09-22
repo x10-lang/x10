@@ -65,6 +65,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	
 	protected X10NamedType depType = null;
 	public boolean isDepType() { return depType !=null; }
+	public boolean inDepType() { return depType !=null;}
 	
 	protected Context_c push() {
         X10Context_c v = (X10Context_c) super.push();

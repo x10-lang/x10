@@ -30,4 +30,6 @@ public interface X10Context extends Context {
     X10NamedType currentDepType();
     boolean isDepType();
 
+    /** Return whether innermost scope is a deptype scope. */
+    boolean inDepType();
 }
