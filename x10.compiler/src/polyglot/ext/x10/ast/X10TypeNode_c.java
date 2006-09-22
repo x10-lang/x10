@@ -208,7 +208,7 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
 	
 	
 	public String toString() {
-		return "/*nullable*/" + super.toString() + "/*<"+gen+">(" + dep+")";
+		return "/*nullable*/" + super.toString() + "/*<"+gen+">("+dep+")*/";
 	}
 	/**
 	 * Write out Java code for this node.
