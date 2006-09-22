@@ -49,16 +49,17 @@ public class X10Field_c extends Field_c {
 		}
 		*/
 		try {
+			X10Field_c result = (X10Field_c) super.typeCheck(tc);
 			// Check that field accesses in dep clauses refer to final fields.
 			X10Context xtc = (X10Context) tc.context();
 			if (xtc.inDepType()) {
-				if (! this.fieldInstance().flags().contains(Flags.FINAL))
+				if (! result.fieldInstance().flags().contains(Flags.FINAL))
 					throw 
-					new SemanticException("Field " + this.fieldInstance().name() 
+					new SemanticException("Field " + result.fieldInstance().name() 
 							+ ": field must be final in a depclause.", 
 							position());
 			}
-			return super.typeCheck(tc);
+			return result;
         } catch (NoMemberException e) {
             if (e.getKind() != NoMemberException.FIELD || this.target == null)
                 throw e;

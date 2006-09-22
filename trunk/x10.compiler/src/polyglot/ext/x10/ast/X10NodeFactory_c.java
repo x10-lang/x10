@@ -22,6 +22,7 @@ import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Instanceof;
+import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
@@ -34,6 +35,7 @@ import polyglot.ast.Unary;
 import polyglot.ext.jl.ast.Disamb_c;
 import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.jl.ast.Instanceof_c;
+import polyglot.ext.jl.ast.Local_c;
 import polyglot.ext.jl.ast.New_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.jl.ast.Special_c;
@@ -631,6 +633,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
     public FieldDecl CompilerTest(Position pos) {
         return new CompilerTest_c(pos);
+    }
+    public Local Local(Position pos, String name) {
+        Local n = new X10Local_c(pos, name);
+        n = (Local)n.ext(extFactory().extLocal());
+        n = (Local)n.del(delFactory().delLocal());
+        return n;
     }
 }
 
