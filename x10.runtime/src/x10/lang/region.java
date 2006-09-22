@@ -1,6 +1,7 @@
 package x10.lang;
 
 import java.util.Iterator;
+
 import x10.base.TypeArgument;
 
 /**
@@ -149,15 +150,17 @@ public abstract /*value*/ class region extends Object
 
 	/**
 	 * Return the low bound for a 1-dimensional region. Can only be
-	 * invoked on 1-dimensional objects.
+	 * invoked on 1-dimensional objects. Throws an exception if
+	 * size of the region is 0.
 	 */
-	abstract public /*(:rank==1)*/ int low();
+	abstract public /*(:rank==1)*/ int low() throws UnsupportedOperationException;
 
 	/**
 	 * Return the high bound for a 1-dimensional region. Can only be
-	 * invoked on 1-dimensional objects.
+	 * invoked on 1-dimensional objects. Thrwos an exception if
+	 * size of the region is 0.
 	 */
-	abstract public /*(:rank==1)*/ int high();
+	abstract public /*(:rank==1)*/ int high() throws UnsupportedOperationException;
 
 	abstract public region/*(rank)*/ union(region/*(rank)*/ r);
 	abstract public region/*(rank)*/ intersection(region/*(rank)*/ r);
