@@ -29,10 +29,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 
-/** Implements dependent and generic type functionality by using a helper object.
- * The helper object points back to this object through the parent field.
- * Care must be taken to ensure that these two way pointers are properly updated
- * when a new version of this object or the hepler is created by modifying fields.
+/** Implements dependent and generic type functionality.
  * @author vj Jan 9, 2005
  * @author Chrisitan Grothoff (added GenParameterExpr)
  */
@@ -126,21 +123,19 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
                 tParameters.add(((TypeNode)it.next()).type());
         }
         DepParameterExpr d = arg.dep();
-       
-        
-        // TODO: vj Need to add self to the context, with type parent, and now treat field references
-        // in the type as automatically prefixed with "self."
         
         // splice the information into the right places.
        
         TypeTranslator eval = ts.typeTranslator();
         Constraint term = eval.constraint(d.condition());
+        
         X10Type newArgType = argType.makeVariant(term, tParameters);
         X10TypeNode result = (X10TypeNode) arg.type(newArgType);
-        if (Report.should_report("debug", 5)) {
+        result = result.dep(null,null);
+        if ( Report.should_report("debug", 5)) {
             Report.report(1,"[X10TypeNode_c static] typeChecker... returning |" + result + "|.");
         }
-        return result.dep(null,null);
+        return result;
     }
   
     

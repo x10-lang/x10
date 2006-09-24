@@ -8,7 +8,7 @@ import polyglot.ext.jl.ast.ConstructorDecl_c;
 import polyglot.types.Flags;
 import polyglot.util.Position;
 
-public class X10ConstructorDecl_c extends ConstructorDecl_c {
+public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10ConstructorDecl {
     protected Expr retWhereClause;
     protected Expr argWhereClause;
     

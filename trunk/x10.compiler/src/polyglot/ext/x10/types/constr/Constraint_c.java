@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import polyglot.ext.x10.ast.X10Special;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
 
@@ -25,6 +26,16 @@ public class Constraint_c implements Constraint {
 	boolean valid = true;
 	public Constraint_c() {
 		super();
+	}
+	public static Constraint makeBinding(C_Var var, C_Term val) {
+		Constraint c = new Constraint_c();
+		return c.addBinding(var,val);
+	}
+	
+	public static Constraint addSelfBinding(C_Term val, Constraint c) {
+		c = (c==null) ? new Constraint_c() : c;
+		C_Special self = C_Special_c.self;
+		return c.addBinding(self, val);
 	}
 	String name = "";
 	/**
@@ -62,6 +73,7 @@ public class Constraint_c implements Constraint {
 		}
 		return this;
 	}
+
 	/**
 	 * Add a boolean term.
 	 * @param term
@@ -109,7 +121,7 @@ public class Constraint_c implements Constraint {
 			C_Var var = (C_Var) i.getKey();
 			C_Term val2 = (C_Term) bindings.get(var);
 			//Report.report(1, "Constraint.entails: |" + val + "|" + val2 + "|" + val.equals(val2));
-			result &=val.equals(val2);
+			result &= val==val2 || val.equals(val2);
 		}
 	//Report.report(1, "Constraint: " + this + " entails " + other + "? " + result);
 		return result;

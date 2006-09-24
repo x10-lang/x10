@@ -19,6 +19,7 @@ public class C_UnaryTerm_c extends C_Term_c implements C_UnaryTerm {
 		return ((op == null) ? 0 : op.hashCode()) + (arg==null ?  0 : arg.hashCode());
 	}
 	public boolean equals(Object o) {
+		if (this==o) return true;
 		if (! (o instanceof C_UnaryTerm_c)) return false;
 		C_UnaryTerm_c other = (C_UnaryTerm_c) o;
 		return op.equals(other.op) && arg.equals(other.arg);

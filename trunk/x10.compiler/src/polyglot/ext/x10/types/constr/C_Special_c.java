@@ -14,6 +14,12 @@ public class C_Special_c extends C_Var_c implements C_Special {
 		TypeNode tn = t.qualifier();
 		qualifier = tn==null? null : tn.type();
 	}
+	public C_Special_c(X10Special.Kind k, Type t) {
+		super(t);
+		kind= C_Special.C_Kind.trans(k);
+		qualifier=null;
+	}
+	public static final C_Special self = new C_Special_c(X10Special.SELF, null);
 	
 	public C_Kind kind() {
 		return kind;
@@ -26,6 +32,7 @@ public class C_Special_c extends C_Var_c implements C_Special {
 		return ((qualifier == null) ? 0 : qualifier.hashCode()) + (kind==null ?  0 : kind.hashCode());
 	}
 	public boolean equals(Object o) {
+		if (this==o) return true;
 		if (! (o instanceof C_Special_c))
 			return false;
 		if (o == null) return false;
