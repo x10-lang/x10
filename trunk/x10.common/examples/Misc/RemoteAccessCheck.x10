@@ -19,6 +19,7 @@ public class RemoteAccessCheck extends x10Test {
 		int error2 = future(d[1]) { checkMethod(a) }.force();
 		if (error2 != 0)
 			System.out.println(error2);
+			System.out.println("error=" + error + " error2=" + error2);
 		return error == 0 && error2 == 0;
 	}
 
