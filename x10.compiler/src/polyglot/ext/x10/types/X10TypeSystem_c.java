@@ -92,8 +92,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	public boolean isImplicitCastValid(Type fromType, Type toType) {
 		assert_(fromType);
 		assert_(toType);
-		if (Report.should_report("debug", 5))
-			Report.report(5, "[X10TypeSystem_c] isImplicitCastValid |" + fromType + "| to |" + toType + "|?");
+		if ( Report.should_report("debug", 5))
+			Report.report(5, "[X10TypeSystem_c] isImplicitCastValid |" + fromType.getClass() + "| to |" + toType + "|?");
 		boolean result = fromType.isImplicitCastValidImpl(toType);
 		if (Report.should_report("debug", 5))
 			Report.report(5, "[X10TypeSystem_c] ... " + result);
@@ -988,12 +988,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
     	X10Type bt1 = me.baseType(), bt2 = other.baseType();
     	result &= bt1 == bt2;
     	if (!result) return result;
-    	
-    	Constraint c1 = me.depClause(), c2=other.depClause();
-    	result = (c1==null) ? ((c2==null) ? true : c2.valid())
-    			: c1.equiv(c2);
-    	if (! result) return result;
-    	
     	List tp1 = me.typeParameters(), tp2 = other.typeParameters();
     	if (tp1 == null) return tp2 == null;
     	if (tp1.isEmpty()) return tp2 == null || tp2.isEmpty();
@@ -1007,12 +1001,26 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
     		result &= t1.equals(t2);
     		if (!result) return result;
     	}
+    	if (! result) return result;
+    	result = equivClause(me.depClause(), other.depClause());
+    	return result;
+    	
+    	
+    }
+    
+    public boolean equivClause(Constraint c1, Constraint c2) {
+    	boolean result = (c1==null) ? ((c2==null) ? true : c2.valid())
+    			: c1.equiv(c2);
     	return result;
     }
-    public boolean entailsClause(X10Type me, X10Type other) {
-    	Constraint c1 = me.depClause(), c2=other.depClause();
+    
+    public boolean entailsClause(Constraint c1, Constraint c2) {
     	boolean result = c1==null ? (c2==null || c2.valid()) : c1.entails(c2);
     	return result;
+    	
+    }
+    public boolean entailsClause(X10Type me, X10Type other) {
+    	return entailsClause(me.depClause(), other.depClause());
     	
     }
 } // end of X10TypeSystem_c

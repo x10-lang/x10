@@ -9,6 +9,7 @@ import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
+import polyglot.ast.BooleanLit;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Cast;
@@ -32,6 +33,7 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.ext.jl.ast.BooleanLit_c;
 import polyglot.ext.jl.ast.Disamb_c;
 import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.jl.ast.Instanceof_c;
@@ -638,6 +640,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         Local n = new X10Local_c(pos, name);
         n = (Local)n.ext(extFactory().extLocal());
         n = (Local)n.del(delFactory().delLocal());
+        return n;
+    }
+    public BooleanLit BooleanLit(Position pos, boolean value) {
+        BooleanLit n = new X10BooleanLit_c(pos, value);
+        n = (BooleanLit)n.ext(extFactory().extBooleanLit());
+        n = (BooleanLit)n.del(delFactory().delBooleanLit());
         return n;
     }
 }

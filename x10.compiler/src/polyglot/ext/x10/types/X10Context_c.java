@@ -258,7 +258,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 	
 	public VarInstance findVariableInThisScope(String name) {
-		//if (name.startsWith("j")) Report.report(1, "X10Context_c: searching for |" + name + " in " + this);
+		//if (name.startsWith("val")) Report.report(1, "X10Context_c: searching for |" + name + " in " + this);
 		if (depType ==null) return super.findVariableInThisScope(name);
 		
 		VarInstance vi =  ((X10Context_c) pop()).findVariableInThisScope(name);
@@ -273,7 +273,7 @@ public class X10Context_c extends Context_c implements X10Context {
 				X10ClassType dep = (X10ClassType) this.depType;
 				VarInstance myVi=ts.findField(dep, name, dep);
 				if (myVi !=null) {
-					//if (name.equals("j")) Report.report(1, "X10Context_c: ==> " + myVi);
+				//	if (name.equals("val")) Report.report(1, "X10Context_c: ==> " + myVi);
 					return myVi;
 				}
 			} 

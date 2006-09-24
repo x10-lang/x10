@@ -4,6 +4,7 @@
 package polyglot.ext.x10.types;
 
 import polyglot.ast.Expr;
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
@@ -287,6 +288,8 @@ public interface X10TypeSystem extends TypeSystem {
    VarInstance createSelf(X10Type t);
    TypeTranslator typeTranslator();
    boolean equivClause(X10Type m, X10Type o);
+   boolean equivClause(Constraint m, Constraint o);
    boolean entailsClause(X10Type me, X10Type other);
+   boolean entailsClause(Constraint me, Constraint other);
 } // end of X10TypeSystem
 

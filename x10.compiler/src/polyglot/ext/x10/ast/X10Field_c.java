@@ -10,9 +10,11 @@ import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Field_c;
+import polyglot.ext.x10.types.PropertyInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
@@ -49,15 +51,26 @@ public class X10Field_c extends Field_c {
 		}
 		*/
 		try {
+			//Report.report(1, "X10Field_c.tpeCheck: context" + tc.context());
 			X10Field_c result = (X10Field_c) super.typeCheck(tc);
 			// Check that field accesses in dep clauses refer to final fields.
 			X10Context xtc = (X10Context) tc.context();
 			if (xtc.inDepType()) {
-				if (! result.fieldInstance().flags().contains(Flags.FINAL))
+				FieldInstance fi = result.fieldInstance();
+				if (! fi.flags().contains(Flags.FINAL))
 					throw 
-					new SemanticException("Field " + result.fieldInstance().name() 
-							+ ": field must be final in a depclause.", 
+					new SemanticException("Field " + fi.name() 
+							+ " is not final. Only final fields are permitted in a depclause.", 
 							position());
+				if ((target instanceof X10Special) &&
+						((X10Special)target).kind()==X10Special.SELF) {
+					// The fieldInstance must be a property.
+					if (! (fi instanceof PropertyInstance))
+						throw new SemanticException("Field \"" + fi.name() 
+								+  "\" is not a property. " 
+								+ "Only properties may appear unqualified or prefixed with self in a depclause."
+								);
+				}
 			}
 			return result;
         } catch (NoMemberException e) {

@@ -48,42 +48,24 @@ public abstract class X10Type_c extends Type_c implements X10Type {
         
     }
     public  static boolean isSubtypeImpl( Type me, Type other) {
-        
         X10Type target = (X10Type) other;
-        X10TypeSystem ts=X10TypeSystem_c.getTypeSystem();
+        X10Type xme = (X10Type) me;
+        X10TypeSystem ts= (X10TypeSystem) xme.typeSystem();
+        X10Type tb = xme.baseType(), ob = target.baseType();
+        boolean result = false;
         
-        boolean result1 = ts.equals(me, target); 
-        boolean result2 = ts.descendsFrom(me, target);
-        if (  Report.should_report("debug", 3))
-            Report.report( 3, "[X10Type_c] isSubTypeImpl: |" 
-                    + me  +  "|(#" + me.hashCode()+")"  +") descends from |" 
-                    + target + "(#" + target.hashCode() + ")|? " + result1 );  
-        boolean result = result1 || result2;
-        if (result) {
-            if (  Report.should_report("debug", 3))
-                Report.report( 3, "[X10Type_c] isSubTypeImpl: |" 
-                        + me  +  "|(#" + me.hashCode()+") is a subtype of |" 
-                        + target + "(#" + target.hashCode() + ")|.");  
-             
-            return result;
-        }
+        result = (ts.equals(tb, ob) || ts.descendsFrom(tb, ob)) 
+        && ts.entailsClause(xme, target);
+        if (result) return result;
+        
         if (ts.isNullable(target)) {
-            NullableType toType = toNullable(target);
-            Type baseType = toType.base();
-            result = me.isSubtypeImpl( baseType );
-            if (Report.should_report("debug", 3))
-                Report.report( 3, "[X10Type_c] isSubTypeImpl: |" 
-                        + me  +  "|(#" + me.hashCode()+") is" + (result ? "" : " not") + " a subtype of |" 
-                        + target + "(#" + target.hashCode() + ").");  
-               
-            return result;
+        	NullableType toType = toNullable(target);
+        	Type baseType = toType.base();
+        	result = me.isSubtypeImpl( baseType );
+        	return result;
         }
-        if ( Report.should_report("debug", 3))
-            Report.report( 3, "[X10Type_c] isSubTypeImpl: |"
-                    + me  +  "|(#" + me.hashCode()+") is not a subtype of |" 
-                    + target + "(#" + target.hashCode() + ")|.");  
-        
-        return false;
+        return result;
+       
     }
     
 

@@ -28,6 +28,10 @@ public class X10FieldDecl_c extends FieldDecl_c {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		Node result = super.typeCheck(tc);
 
+		// Ensure that the FieldInstance type is updated to reflect
+		// any deptype.
+		this.fi.setType(declType());
+		
 		//
 		// Any occurrence of a non-final static field in X10
 		// should be reported as an error.

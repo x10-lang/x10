@@ -10,8 +10,14 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ext.jl.types.PrimitiveType_c;
+import polyglot.ext.x10.ast.X10Special;
+import polyglot.ext.x10.types.constr.C_Lit;
+import polyglot.ext.x10.types.constr.C_Lit_c;
+import polyglot.ext.x10.types.constr.C_Special;
+import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.main.Report;
 import polyglot.types.PrimitiveType;
 import polyglot.types.Type;
@@ -48,7 +54,8 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		n.typeParameters = l;
 		n.depClause = d;
 		if (  Report.should_report("debug", 5))
-			Report.report(5,"X10PrimitiveType_c.makeVariant: " + this + " creates |" + n + "|");
+			Report.report(5,"X10PrimitiveType_c.makeVariant: " 
+					+ this + " creates |" + n + "| d=|" + d+"|");
 		return n;
 	}
 	public C_Term propVal(String name) {
@@ -56,7 +63,9 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	}
 	
 	public boolean typeEqualsImpl(Type o) {
-		return equalsImpl(o);
+		boolean result = equalsImpl(o) && 
+		((X10TypeSystem) typeSystem()).equivClause((X10Type) this, (X10Type) o);
+		return result;
 	}
 	public int hashCode() {
 		return 
@@ -81,18 +90,34 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	}
 	
 	/** Return true if this type can be assigned to <code>toType</code>. */
-	public boolean isImplicitCastValidImpl(Type origType) {
-		// System.out.println( "[PrimitiveType_c] isImplicitCastValid |" + this + "| to |" + toType + "|?");
-		X10TypeSystem xts = (X10TypeSystem) ts;
-		X10Type toType = (X10Type) origType;
-		NullableType targetType = toType.toNullable();
-		if (targetType != null) {
-			toType = targetType.base();
+	public boolean isImplicitCastValidImpl(Type toType) {
+		if (false)
+			Report.report(1, "PrimitiveType: is implicitcast valid this="+this+ " to " + toType);
+		X10Type targetType = (X10Type) toType;
+		boolean result = false;
+		try {
+			if (toType.isArray()) return false;
+			//X10Type tb = this.baseType(), ob = ((X10Type) toType).baseType();
+			result = ts.isSubtype( this, targetType);
+			if (result) return result;
+			
+			NullableType realTarget = targetType.toNullable();
+			if (realTarget != null) {
+				result = ts.isSubtype( this, realTarget.base());
+			}
+			if (result) return result;
+			X10TypeSystem xts = (X10TypeSystem) this.typeSystem();
+			X10Type other = (X10Type) toType;
+			result = super.isImplicitCastValidImpl(toType) 
+			&& xts.entailsClause(this.depClause(),other.depClause() );
+			return result;
+		} finally {
+			if (false)
+				Report.report(1, "PrimitiveType: is implicitcast valid ? " + result);
 		}
 		
-		return xts.equals(toType, xts.X10Object()) ||
-		super.isImplicitCastValidImpl(toType);
 	}
+	
 	
 	/** Returns true iff a cast from this to <code>toType</code> is valid. */
 	public boolean isCastValidImpl(Type origType) {
@@ -104,6 +129,16 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		return ts.equals(toType, xts.Object()) || super.isCastValidImpl(toType);
 	}
 	
+	public String toString() { 
+		if (false)
+			Report.report(5,"X10PrimitiveType_c: toString |" + super.toString() + "|(#" 
+					+ this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
+		return  
+		((baseType == this) ? super.toString() : ((X10PrimitiveType_c) baseType).toString())
+		+ (isParametric() ? "/"+"*" + typeParameters.toString() + "*"+"/"  : "") 
+		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
+		//  + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
+	}
 	/*   public String toString() { 
 	 //Report.report(5,"X10ParsedClassType: toString |" + super.toString() + "|(#" 
 	  //        + this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
@@ -114,7 +149,29 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	   + "(#" + hashCode() + ")";
 	   }*/
 	
-	
+	public boolean numericConversionValidImpl(Object value) {
+		
+		X10Type xme = (X10Type) this;
+		X10TypeSystem ts= (X10TypeSystem) xme.typeSystem();
+		boolean result = false;
+		try {
+			X10Type tb = xme.baseType();
+			if (xme==tb) {
+				result = super.numericConversionValidImpl(value);
+				return result;
+			}
+			result = super.numericConversionValidImpl(value);
+			if (result==false) return result;
+			C_Special self = new C_Special_c(X10Special.SELF, tb);
+			C_Lit val = new C_Lit_c(value, tb);
+			Constraint c = Constraint_c.makeBinding(self,val);
+			result = ts.entailsClause(xme.depClause(), c);
+			return result;
+		} finally {
+			
+		}
+		
+	}
 	
 	/**
 	 * Note that this (general) mix-in code correctly takes care of ensuring that

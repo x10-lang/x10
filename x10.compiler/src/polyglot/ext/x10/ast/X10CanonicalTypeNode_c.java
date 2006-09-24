@@ -121,6 +121,6 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
    
     public String toString() {
         return super.toString() + (gen ==null ? "" : "/*T:"+gen+"*/") 
-        + (dep == null ? "" : "/*(" + dep+")*/");
+        + (dep == null ? "" : "/*" + dep+"*/");
     }
 }

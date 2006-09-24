@@ -12,7 +12,7 @@ import polyglot.ast.Unary;
 import polyglot.ast.Variable;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.main.Report;
+import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
 
 /**
@@ -29,13 +29,13 @@ public class TypeTranslator implements Serializable {
 		return new C_UnaryTerm_c(t.operator().toString(), trans(t.expr()), t.type());
 	}
 	public C_Field trans(Field t) throws SemanticException{
-		Report.report(1, "TypeTranslator: translating Field " + t);
+		//Report.report(1, "TypeTranslator: translating Field " + t);
 		return new C_Field_c(t, trans(t.target()));
 	}
 	public C_Special trans(X10Special t)throws SemanticException {
 		return new C_Special_c(t);
 	}
-	public C_Local trans(Local t)throws SemanticException {
+	public C_Local trans(LocalInstance t)throws SemanticException {
 		return new C_Local_c(t);
 	}
 	
@@ -51,16 +51,20 @@ public class TypeTranslator implements Serializable {
 		return new C_BinaryTerm_c(op, trans(left), trans(right), t.type());
 	}
 	public C_Var trans(Variable term) throws SemanticException {
-		Report.report(1, "TypeTranslator: translating Variable " + term);
+		//Report.report(1, "TypeTranslator: translating Variable " + term);
 		if (term instanceof Field) return trans((Field) term);
 		if (term instanceof X10Special) return trans((X10Special) term);
-		if (term instanceof Local) return trans((Local) term);
+		if (term instanceof Local) {
+			LocalInstance li = ((Local) term).localInstance();
+			return trans(li);
+		}
+		
 		throw new SemanticException("Cannot translate term |" + term + "| into a constraint."
 				+ "It must be a field, special or local.");
 	}
 	
 	public  C_Term trans(Receiver term) throws SemanticException {
-		Report.report(1, "TypeTranslator: translating Receiver " + term);
+		//Report.report(1, "TypeTranslator: translating Receiver " + term);
 		if (term == null) return null;
 		if (term instanceof Lit) return trans((Lit) term);
 		if (term instanceof Variable) return trans((Variable) term);
@@ -72,16 +76,16 @@ public class TypeTranslator implements Serializable {
 				" to a term.");
 	}
 	public Constraint constraint(Binary term, Constraint c) throws SemanticException {
-		Report.report(1, "TypeTranslator: translating to constraint " + term);
+		//Report.report(1, "TypeTranslator: translating to constraint " + term);
 		String op = term.operator().toString();
 		Expr left = term.left();
 		Expr right = term.right();
-		Report.report(1, "TypeTranslator: translating to constraint left=|" + left 
-				+ "| op=|" + op + "| right=|" + right + "|");
+		//Report.report(1, "TypeTranslator: translating to constraint left=|" + left 
+		//		+ "| op=|" + op + "| right=|" + right + "|");
 		if (op.equals("==")) {
 			if (left instanceof Variable) {
-				Report.report(1, "TypeTranslator: translating to constraint left=|" + left 
-						+ "| is a variable.");
+				//Report.report(1, "TypeTranslator: translating to constraint left=|" + left 
+				//		+ "| is a variable.");
 				return c.addBinding(trans((Variable) left), trans(right));
 			}
 			if (left instanceof X10Special) {
@@ -121,7 +125,8 @@ public class TypeTranslator implements Serializable {
 		X10TypeSystem ts = (X10TypeSystem) term.type().typeSystem();
 			
 		if (! ts.typeEquals(term.type(),ts.Boolean() )) 
-			throw new SemanticException("Cannot build constraint from expression of type " 
+			throw new SemanticException("Cannot build constraint from expression |" + term 
+					+ "| of type " 
 					+ term.type()+ " (not Boolean).");
 		if (term instanceof Binary) return constraint((Binary) term, c);
 		C_Term t = trans(term);

@@ -1,5 +1,7 @@
 package polyglot.ext.x10.types.constr;
 
+import polyglot.ext.x10.ast.X10Special;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.Type;
@@ -10,13 +12,21 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	
 	Object val;
 	public static final  transient X10TypeSystem typeSystem = X10TypeSystem_c.getTypeSystem();
-	public static final transient C_Lit_c FALSE 
-	= new C_Lit_c(new Boolean(false), typeSystem.Boolean());
-	public static final transient C_Lit_c TRUE 
-	= new C_Lit_c(new Boolean(true), typeSystem.Boolean());
+	public static final transient C_Lit_c FALSE = new C_Lit_c(false);
+	public static final transient C_Lit_c TRUE = new C_Lit_c(true);
+	
+	
+	public C_Lit_c(boolean b) {
+		super(typeSystem.Boolean());
+		val = new Boolean(b);
+		
+	}
 	public C_Lit_c(Object l, Type t) {
 		super(t);
 		val = l;
+	}
+	private C_Lit type(X10Type t) {
+		return new C_Lit_c(val, t);
 	}
 	
 	public Object val() {
@@ -32,6 +42,7 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 		return equals(C_Lit_c.TRUE) ? C_Lit_c.FALSE : C_Lit_c.TRUE;
 	}
 	public boolean equals(Object o) {
+		if (this==o) return true;
 		if (! (o instanceof C_Lit_c)) return false;
 		C_Lit_c other = (C_Lit_c) o;
 		return  val.equals(other.val);
