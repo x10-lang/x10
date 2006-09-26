@@ -154,6 +154,7 @@ checkUsage() {
   force=""
   pat=(.)
   x10lib="./x10lib"
+  verbose=""
   NewFailures=""
   while [[ $# -gt 0 ]]; do
     if [[ "$1" = "-t"  && $# -ge 2 ]]; then
@@ -167,7 +168,7 @@ checkUsage() {
           pat=("${pat[@]}" "$line")
       done < "$2"
       shift 2
-    elif [[ "$1" = "-test"  && $# -ge 2 ]]; then
+    elif [[ "$1" = "-test"  && $# -ge 2 ]]; then  # TODO: eliminate me
       shift
       pat=("$@")
       break
@@ -192,6 +193,9 @@ checkUsage() {
     elif [[ "$1" = "-x10lib" && $# -ge 2 ]]; then
       x10lib="$2"
       shift 2
+    elif [[ "$1" = "-verbose" || "$1" = "-v" || "$1" = "--verbose" ]]; then
+      verbose="yes"
+      shift
     elif [[ "$1" = -* ]]; then
       echo >&3 "unrecognized flag $1, or missing argument"
       usage
@@ -595,6 +599,9 @@ recordTestResult() {
     if [[ -z "$limitation" ]]; then
       let "nFail = (( $nFail + 1 ))"
     fi
+  fi
+  if [ -n "$verbose" ]; then
+    cat logDetail.$tdir.$className
   fi
 }
 
