@@ -161,6 +161,7 @@ checkUsage() {
       timeLimit="$2"
       shift 2
     elif [[ "$1" = "-testList"  && $# -ge 2 && -r "$2" ]]; then
+      pat=()
       while IFS='' read -r line; do
 	#remove comments and blank lines
 	line="${line##[[:space:]]}"
