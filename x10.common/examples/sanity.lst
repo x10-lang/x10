@@ -1,14 +1,11 @@
 # A smaller list of tests, for a quicker sanity check.  
-
 # Run:
-
 #  testScript -testList sanity.lst 
-
 # in the examples directory
 
-Applications/Edmiston_Parallel9.x10
-Applications/Jacobi.x10
-Applications/RandomAccess.x10
+Applications/OtherApps/Edmiston_Parallel9.x10
+Applications/OtherApps/Jacobi.x10
+Applications/OtherApps/RandomAccess.x10
 Constructs/Array/ArrayAlgebra.x10
 Constructs/Array/ArrayBounds1D.x10
 Constructs/Array/ArrayCopy3.x10
