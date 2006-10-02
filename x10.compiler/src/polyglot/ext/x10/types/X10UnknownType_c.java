@@ -71,4 +71,8 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
     
     public NullableType toNullable() { return X10Type_c.toNullable(this);}
     public FutureType toFuture() { return X10Type_c.toFuture(this);}
+    /** 
+     * The unknwon type has unknown safety status -- defaults to false.
+     */
+    public boolean safe() { return false;}
 }

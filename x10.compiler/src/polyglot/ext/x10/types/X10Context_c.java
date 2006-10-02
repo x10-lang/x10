@@ -67,9 +67,25 @@ public class X10Context_c extends Context_c implements X10Context {
 	public boolean isDepType() { return depType !=null; }
 	public boolean inDepType() { return depType !=null;}
 	
+	protected boolean inSafeCode;
+	protected boolean inSequentialCode;
+	protected boolean inLocalCode;
+	protected boolean inNonBlockingCode;
+	
+	public boolean inSafeCode() { return inSafeCode;}
+	public boolean inSequentialCode() { return inSequentialCode;}
+	public boolean inNonBlockingCode() { return inNonBlockingCode;}
+	public boolean inLocalCode() { return inLocalCode;}
+	
+	public void setSafeCode() { inSafeCode = true;}
+	public void  setSequentialCode() { inSequentialCode=true;}
+	public void setNonBlockingCode() { inNonBlockingCode=true;}
+	public void setLocalCode() { inLocalCode=true;}
+	
 	protected Context_c push() {
         X10Context_c v = (X10Context_c) super.push();
         v.depType = null;
+        // Do not set the inXXXCode attributes to false, inherit them from parent.
         return v;
     }
 	
@@ -173,6 +189,14 @@ public class X10Context_c extends Context_c implements X10Context {
 	public Context pushBlock() {
 		assert (depType == null);
 		return super.pushBlock();
+	}
+	public X10Context pushAtomicBlock() {
+		assert (depType == null);
+		X10Context c = (X10Context) super.pushBlock();
+		c.setLocalCode();
+		c.setNonBlockingCode();
+		c.setSequentialCode();
+		return c;
 	}
 	
 	/**
@@ -305,7 +329,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 *TODO: Make this work with any X10NamedType, not just X10ParsedClassType.
 	 * 
 	 */
-	public Context pushDepType(X10NamedType type) {
+	public X10Context pushDepType(X10NamedType type) {
 		
 		X10Context_c v = (X10Context_c) push();
 		v.depType = type;

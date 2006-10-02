@@ -182,5 +182,9 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public List properties() { return Collections.EMPTY_LIST;}
 	public NullableType toNullable() { return X10Type_c.toNullable(this);}
 	public FutureType toFuture() { return X10Type_c.toFuture(this);}
+	
+	/** All primitive types are safe. */
+	
+	public boolean safe() { return true; }
 	// ----------------------------- end manual mixin code from X10Type_c
 }

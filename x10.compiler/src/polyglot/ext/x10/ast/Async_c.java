@@ -12,6 +12,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Stmt_c;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
 import polyglot.types.Context;
@@ -137,7 +138,10 @@ public class Async_c extends Stmt_c implements Async, Clocked {
 		if (! placeIsPlace) {
 			newPlace = (Expr) new X10Field_c(position(), place, "location").typeCheck(tc);
 		}
-
+		X10Context c = (X10Context) tc.context();
+		if (c.inSequentialCode())
+			throw new SemanticException("async may not be invoked in sequential code.", position());
+			
         for (Iterator i = clocks().iterator(); i.hasNext(); ) {
             Expr tn = (Expr) i.next();
             Type t = tn.type();

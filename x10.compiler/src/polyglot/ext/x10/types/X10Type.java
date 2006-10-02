@@ -19,6 +19,17 @@ import polyglot.types.Type;
  */
 public interface X10Type extends Type {
 
+	/**
+	 * An X10Type is said to be safe if all its methods are safe, i.e. sequential, local and nonblocking.
+	 * All primitive types (int, boolean, double, short, long, byte) are safe.
+	 * All Java array types are safe.
+	 * A future type is not safe. Its only operation, force, is blocking.
+	 * A nullable type is safe if its base type is safe.
+	 * A ParsedClass type (user-defined interface or class type) is safe if the user annotates it so.
+	 * The compiler will check that all its methods are safe.
+	 * @return
+	 */
+    boolean safe();
     
     /** Return a subtype of the basetype with the given
      * depclause and type parameters.

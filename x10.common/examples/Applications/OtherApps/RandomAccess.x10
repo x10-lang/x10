@@ -28,7 +28,7 @@ public class RandomAccess extends x10Test {
 	// MAX_PLACES = 4
 	const long EXPECTED_RESULT = 1973902911463121104L;
 
-	static value class ranNum extends x10.lang.Object {
+	static safe value class ranNum extends x10.lang.Object {
 		long val;
 
 		/**

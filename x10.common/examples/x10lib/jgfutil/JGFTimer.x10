@@ -9,7 +9,7 @@ package jgfutil;
   * 1) Extend x10.lang.Object
   */
   
-  public class JGFTimer extends x10.lang.Object {
+  public safe class JGFTimer extends x10.lang.Object  {
 
   public String name; 
   public String opname; 
@@ -40,25 +40,25 @@ package jgfutil;
 
 
 
-  public void start(){
+  public  void start(){
     if (on) System.out.println("Warning timer " + name + " was already turned on");
     on = true; 
     start_time = System.currentTimeMillis();
   }
 
 
-  public void stop(){
+  public  void stop(){
     time += (double) (System.currentTimeMillis()-start_time) / 1000.;
     if (!on) System.out.println("Warning timer " + name + " wasn't turned on");
     calls++;
     on = false;  
   }
 
-  public void addops(double count){
+  public  void addops(double count){
     opcount += count;
   } 
 
-  public void reset(){
+  public  void reset(){
     time = 0.0; 
     calls = 0; 
     opcount = 0; 

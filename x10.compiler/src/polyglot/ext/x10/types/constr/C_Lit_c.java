@@ -2,8 +2,6 @@ package polyglot.ext.x10.types.constr;
 
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 
@@ -11,13 +9,12 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	
 	
 	Object val;
-	public static final  transient X10TypeSystem typeSystem = X10TypeSystem_c.getTypeSystem();
 	public static final transient C_Lit_c FALSE = new C_Lit_c(false);
 	public static final transient C_Lit_c TRUE = new C_Lit_c(true);
 	
 	
 	public C_Lit_c(boolean b) {
-		super(typeSystem.Boolean());
+		super(Constraint_c.typeSystem.Boolean());
 		val = new Boolean(b);
 		
 	}

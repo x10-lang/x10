@@ -104,5 +104,6 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	public List properties() { return Collections.EMPTY_LIST;}
 	public NullableType toNullable() { return X10Type_c.toNullable(this);}
 	public FutureType toFuture() { return X10Type_c.toFuture(this);}
+	public boolean safe() { return true;}
 	
 }

@@ -13,6 +13,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Stmt_c;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
@@ -101,14 +102,11 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		TypeSystem ts = tc.typeSystem();
 
-		/*
-		if (!ts.isSubtype(expr.type(), ts.Object())) {
-			throw new SemanticException(
-					"Cannot synchronize on an expression of type \"" +
-					expr.type() + "\".", expr.position());
-		}
-		*/
-		return super.typeCheck(tc);// this;
+    	X10Context c = (X10Context) tc.context();
+    	if (c.inNonBlockingCode())
+    		throw new SemanticException("The when statement cannot be used in nonblocking code.", position());
+    	return super.typeCheck(tc);
+		
 	}
 
 	public String toString() {

@@ -6,19 +6,26 @@ import polyglot.types.Type;
 
 public class C_Special_c extends C_Var_c implements C_Special {
 	
+	
 	public final Type qualifier;
 	public final C_Kind kind;
+	
 	public C_Special_c(X10Special t) {
 		super(t.type());
 		kind= C_Special.C_Kind.trans(t.kind());
 		TypeNode tn = t.qualifier();
 		qualifier = tn==null? null : tn.type();
 	}
+	
+
 	public C_Special_c(X10Special.Kind k, Type t) {
 		super(t);
 		kind= C_Special.C_Kind.trans(k);
 		qualifier=null;
 	}
+	
+    // Type is null for SELF. The type that this constraint is attached to
+	// is the type of self. This helps avoid cyclic equality checks.
 	public static final C_Special self = new C_Special_c(X10Special.SELF, null);
 	
 	public C_Kind kind() {

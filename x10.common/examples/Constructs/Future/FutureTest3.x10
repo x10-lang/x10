@@ -131,7 +131,7 @@ public class FutureTest3 extends x10Test {
 	/**
 	 * True iff x logically implies y
 	 */
-	static boolean imp(boolean x, boolean y) {
+	static safe boolean imp(boolean x, boolean y) {
 		return (!x||y);
 	}
 

@@ -45,12 +45,15 @@ $Export
     method
     mutable
     next
+    nonblocking
     now
     nullable 
     or
     placelocal
     reference
+    safe
     self
+    sequential
     unsafe
     value
     when
@@ -154,6 +157,11 @@ $Rules
                     $setResult($_next);
           $EndAction
         ./
+              | n o n b l o c k i n g
+        /.$BeginAction
+                    $setResult($_nonblocking);
+          $EndAction
+        ./
               | n o w
         /.$BeginAction
                     $setResult($_now);
@@ -179,9 +187,19 @@ $Rules
                     $setResult($_reference);
           $EndAction
         ./
+               | s a f e 
+        /.$BeginAction
+                    $setResult($_safe);
+          $EndAction
+        ./
               | s e l f
         /.$BeginAction
                     $setResult($_self);
+          $EndAction
+        ./
+                     | s e q u e n t i a l
+        /.$BeginAction
+                    $setResult($_sequential);
           $EndAction
         ./
               | u n s a f e

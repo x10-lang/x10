@@ -78,6 +78,54 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	public Context createContext() {
 		return new X10Context_c(this);
 	    }
+	  /** All flags allowed for a method. */
+    public Flags legalMethodFlags() {
+    	X10Flags x = X10Flags.toX10Flags( legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP());
+    	x = x.Safe().Local().NonBlocking().Sequential();
+    	
+        return x;
+       
+    }
+    /** All flags allowed for a top-level class. */
+    public Flags legalTopLevelClassFlags() {
+        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Safe();
+    }
+   
+    protected final X10Flags X10_TOP_LEVEL_CLASS_FLAGS = (X10Flags) legalTopLevelClassFlags();
+
+    /** All flags allowed for an interface. */
+    public Flags legalInterfaceFlags() {
+        return X10Flags.toX10Flags(super.legalInterfaceFlags()).Safe();
+    }
+    
+    protected final X10Flags X10_INTERFACE_FLAGS = (X10Flags) legalInterfaceFlags();
+
+    /** All flags allowed for a member class. */
+    public Flags legalMemberClassFlags() {
+        return X10Flags.toX10Flags(super.legalMemberClassFlags()).Safe();
+    }
+    
+    protected final Flags X10_MEMBER_CLASS_FLAGS = (X10Flags) legalMemberClassFlags();
+
+    /** All flags allowed for a local class. */
+    public Flags legalLocalClassFlags() {
+        return X10Flags.toX10Flags(super.legalLocalClassFlags()).Safe();
+    }
+
+    protected final X10Flags X10_LOCAL_CLASS_FLAGS = (X10Flags) legalLocalClassFlags();
+
+    public MethodInstance methodInstance(Position pos,
+    		ReferenceType container, Flags flags,
+    		Type returnType, String name,
+    		List argTypes, List excTypes) {
+    	
+    	assert_(container);
+    	assert_(returnType);
+    	assert_(argTypes);
+    	assert_(excTypes);
+    	return new X10MethodInstance_c(this, pos, container, flags,
+    			returnType, name, argTypes, excTypes);
+    }
 	/**
 	 * Requires: all type arguments are canonical.
 	 *
@@ -168,7 +216,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 			x10ObjectType_ = load("x10.lang.Object"); // java file
 		return x10ObjectType_;
 	}
-
+	
 	protected ClassType placeType_;
 	public ClassType place() {
 		if (placeType_ == null)
@@ -1023,5 +1071,82 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
     	return entailsClause(me.depClause(), other.depClause());
     	
     }
+    public Flags createNewFlag(String name, Flags after) {
+        Flags f = X10Flags.createFlag(name, after);
+        flagsForName.put(name, f);
+        return f;
+    }
+    protected void initFlags() {
+    	super.initFlags();
+        flagsForName.put("local", X10Flags.LOCAL);
+        flagsForName.put("nonblocking", X10Flags.NON_BLOCKING);
+        flagsForName.put("safe", X10Flags.SAFE);
+        flagsForName.put("sequential", X10Flags.SEQUENTIAL);
+        
+    }
+    public Flags Local() { return X10Flags.LOCAL;}
+    public Flags Sequential() { return X10Flags.SEQUENTIAL;}
+    public Flags Safe() { return X10Flags.SAFE;}
+    public Flags NonBlocking() { return X10Flags.NON_BLOCKING;}
+   
+    
+    protected final Flags X10_METHOD_FLAGS = legalMethodFlags();
+    
+    public void checkMethodFlags(Flags f) throws SemanticException {
+    	//Report.report(1, "X10TypeSystem_c:method_flags are |" + X10_METHOD_FLAGS + "|");
+      	if (! f.clear(X10_METHOD_FLAGS).equals(Flags.NONE)) {
+	    throw new SemanticException(
+		"Cannot declare method with flags " +
+		f.clear(X10_METHOD_FLAGS) + ".");
+	}
+
+        if (f.isAbstract() && ! f.clear(ABSTRACT_METHOD_FLAGS).equals(Flags.NONE)) {
+	    throw new SemanticException(
+		"Cannot declare abstract method with flags " +
+		f.clear(ABSTRACT_METHOD_FLAGS) + ".");
+        }
+
+	checkAccessFlags(f);
+    }
+    public void checkTopLevelClassFlags(Flags f) throws SemanticException {
+      	if (! f.clear(X10_TOP_LEVEL_CLASS_FLAGS).equals(Flags.NONE)) {
+	    throw new SemanticException(
+		"Cannot declare a top-level class with flag(s) " +
+		f.clear(X10_TOP_LEVEL_CLASS_FLAGS) + ".");
+      	}
+      	
+      	
+      	if (f.isInterface() && ! f.clear(X10_INTERFACE_FLAGS).equals(Flags.NONE)) {
+      	    throw new SemanticException("Cannot declare interface with flags " +
+      	                                f.clear(X10_INTERFACE_FLAGS) + ".");
+      	}
+
+	checkAccessFlags(f);
+    }
+
+    public void checkMemberClassFlags(Flags f) throws SemanticException {
+      	if (! f.clear(X10_MEMBER_CLASS_FLAGS).equals(Flags.NONE)) {
+	    throw new SemanticException(
+		"Cannot declare a member class with flag(s) " +
+		f.clear(X10_MEMBER_CLASS_FLAGS) + ".");
+	}
+
+	checkAccessFlags(f);
+    }
+
+    public void checkLocalClassFlags(Flags f) throws SemanticException {
+        if (f.isInterface()) {
+            throw new SemanticException("Cannot declare a local interface.");
+        }
+
+      	if (! f.clear(X10_LOCAL_CLASS_FLAGS).equals(Flags.NONE)) {
+	    throw new SemanticException(
+		"Cannot declare a local class with flag(s) " +
+		f.clear(X10_LOCAL_CLASS_FLAGS) + ".");
+	}
+
+	checkAccessFlags(f);
+    }
+
 } // end of X10TypeSystem_c
 
