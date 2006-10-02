@@ -13,7 +13,7 @@ import java.util.*;
 public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
 {
     private char[] inputChars;
-    private final int keywordKind[] = new int[81 + 1];
+    private final int keywordKind[] = new int[84 + 1];
 
     public int[] getKeywordKinds() { return keywordKind; }
 
@@ -519,57 +519,75 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
       
     
         //
-        // Rule 73:  KeyWord ::= n o w
+        // Rule 73:  KeyWord ::= n o n b l o c k i n g
         //
-                keywordKind[73] = (TK_now);
+                keywordKind[73] = (TK_nonblocking);
       
     
         //
-        // Rule 74:  KeyWord ::= n u l l a b l e
+        // Rule 74:  KeyWord ::= n o w
         //
-                keywordKind[74] = (TK_nullable);
+                keywordKind[74] = (TK_now);
       
     
         //
-        // Rule 75:  KeyWord ::= o r
+        // Rule 75:  KeyWord ::= n u l l a b l e
         //
-                keywordKind[75] = (TK_or);
+                keywordKind[75] = (TK_nullable);
       
     
         //
-        // Rule 76:  KeyWord ::= p l a c e l o c a l
+        // Rule 76:  KeyWord ::= o r
         //
-                keywordKind[76] = (TK_placelocal);
+                keywordKind[76] = (TK_or);
       
     
         //
-        // Rule 77:  KeyWord ::= r e f e r e n c e
+        // Rule 77:  KeyWord ::= p l a c e l o c a l
         //
-                keywordKind[77] = (TK_reference);
+                keywordKind[77] = (TK_placelocal);
       
     
         //
-        // Rule 78:  KeyWord ::= s e l f
+        // Rule 78:  KeyWord ::= r e f e r e n c e
         //
-                keywordKind[78] = (TK_self);
+                keywordKind[78] = (TK_reference);
       
     
         //
-        // Rule 79:  KeyWord ::= u n s a f e
+        // Rule 79:  KeyWord ::= s a f e
         //
-                keywordKind[79] = (TK_unsafe);
+                keywordKind[79] = (TK_safe);
       
     
         //
-        // Rule 80:  KeyWord ::= v a l u e
+        // Rule 80:  KeyWord ::= s e l f
         //
-                keywordKind[80] = (TK_value);
+                keywordKind[80] = (TK_self);
       
     
         //
-        // Rule 81:  KeyWord ::= w h e n
+        // Rule 81:  KeyWord ::= s e q u e n t i a l
         //
-                keywordKind[81] = (TK_when);
+                keywordKind[81] = (TK_sequential);
+      
+    
+        //
+        // Rule 82:  KeyWord ::= u n s a f e
+        //
+                keywordKind[82] = (TK_unsafe);
+      
+    
+        //
+        // Rule 83:  KeyWord ::= v a l u e
+        //
+                keywordKind[83] = (TK_value);
+      
+    
+        //
+        // Rule 84:  KeyWord ::= w h e n
+        //
+                keywordKind[84] = (TK_when);
       
     
 

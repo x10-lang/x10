@@ -56,6 +56,7 @@ public interface X10TypeSystem extends TypeSystem {
 										List typeparameters,
 										DepParameterExpr expr);*/
 	ClassType X10Object();
+	
 	ClassType place();
 	ClassType region();
 	ClassType point();
@@ -264,6 +265,7 @@ public interface X10TypeSystem extends TypeSystem {
 
 
   boolean isPrimitiveTypeArray(Type me);
+ 
      boolean isNullable(Type me) ;
      boolean isFuture(Type me) ;
      boolean isIndexable(Type me) ;

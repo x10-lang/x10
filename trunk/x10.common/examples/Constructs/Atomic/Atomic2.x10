@@ -10,6 +10,7 @@ public class Atomic2 extends x10Test {
 
 	int x = 0;
 
+
 	public boolean run() {
 		finish async(this) atomic x++;
 		atomic chk(x == 1);

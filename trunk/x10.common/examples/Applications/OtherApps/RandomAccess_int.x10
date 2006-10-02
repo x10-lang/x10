@@ -55,7 +55,7 @@ public class RandomAccess_int extends x10Test {
 	/**
 	 * Return a new int exclusively-oring this value with k.
 	 */
-	private static int update(int val, int k) {
+	private static safe int update(int val, int k) {
 		return val^k;
 	}
 

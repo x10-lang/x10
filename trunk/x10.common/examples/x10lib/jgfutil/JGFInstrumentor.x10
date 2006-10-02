@@ -12,7 +12,7 @@ package jgfutil;
     
 import java.util.*;
 
-  public class JGFInstrumentor extends x10.lang.Object {
+  public safe class JGFInstrumentor extends x10.lang.Object {
 
   private static final Hashtable timers;
   private static final Hashtable data; 
@@ -139,11 +139,11 @@ import java.util.*;
       obj = (x10.lang.Object) data.get(name); 
   }
   
-  public static atomic void printHeader(int section, int size) {
+  public static atomic safe void printHeader(int section, int size) {
   	printHeader(section, size, 1);
   }
 
-  public static atomic void printHeader(int section, int size,int nthreads) {
+  public static atomic safe void printHeader(int section, int size,int nthreads) {
 
     String header, base;
 

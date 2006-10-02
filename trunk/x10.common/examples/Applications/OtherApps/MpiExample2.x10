@@ -90,7 +90,7 @@ public class MpiExample2 extends x10Test {
 		/**
 		 * a delay loop
 		 */
-		private void delayLoop(int n) {
+		private safe void delayLoop(int n) {
 			int s = 0;
 			for (int i = 0; i < n; i++) s += i;
 			use(s); // prevent dead code elim.

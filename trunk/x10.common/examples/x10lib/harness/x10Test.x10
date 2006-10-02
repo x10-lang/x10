@@ -54,7 +54,7 @@ public abstract class x10Test {
 	/**
 	 * Check if a given condition is true, and throw an error if not.
 	 */
-	public static void chk(boolean b) {
+	public static safe void chk(boolean b) {
 		if (!b) throw new Error();
 	}
 
@@ -62,7 +62,7 @@ public abstract class x10Test {
 	 * Check if a given condition is true, and throw an error with a given
 	 * message if not.
 	 */
-	public static void chk(boolean b, String s) {
+	public static safe void chk(boolean b, String s) {
 		if (!b) throw new Error(s);
 	}
 

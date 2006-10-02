@@ -14,6 +14,7 @@ import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
+import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyClassInitializer;
@@ -318,8 +319,36 @@ implements X10ParsedClassType
 		return result;
 		
 	}
+	public X10ClassType superClassRoot() {
+		X10TypeSystem xt = (X10TypeSystem) typeSystem();
+		X10ClassType x10LangObj = (X10ClassType) xt.X10Object();
+		X10ClassType result = this;
+		X10ClassType next = (X10ClassType) result.superType();
+		while (next != null   ) {
+			boolean value = xt.equals(x10LangObj, result);
+			if (value)
+				return x10LangObj;
+			result=next;
+			next=(X10ClassType) result.superType();
+		}
+		return result;
+	}
+	
+	public boolean isJavaType() {
+		TypeSystem ts = typeSystem();
+		return ts.equals(superClassRoot(), ts.Object());
+	}
+	/**
+	 * A parsed class is safe iff it explicitly has a flag saying so.
+	 */
+	public boolean safe() {
+		return X10Flags.toX10Flags(flags()).isSafe();
+		
+	}
+	
 	
 	public boolean isSubtypeImpl(Type toType ) {
+	  
 		X10Type other = (X10Type) toType;
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		X10Type tb = this.baseType(), ob = other.baseType();

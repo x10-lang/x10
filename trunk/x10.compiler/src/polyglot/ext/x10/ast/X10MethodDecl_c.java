@@ -12,10 +12,10 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.MethodDecl_c;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.Flags;
-import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
@@ -45,11 +45,18 @@ public class X10MethodDecl_c extends MethodDecl_c {
                 String name, List formals, Expr e, List throwTypes, Block body) {
         super(pos, flags, returnType, name, formals, throwTypes, body);
         whereClause = e;
+   
 }
         public void translate(CodeWriter w, Translator tr) {
+        	
                 Context c = tr.context();
                 Flags flags = flags();
-
+                
+                // Hack to ensure that X10Flags are not printed out .. javac will
+                // not know what to do with them.
+                
+               this.flags = X10Flags.toX10Flags(flags);
+               
                 if (c.currentClass().flags().isInterface()) {
                     flags = flags.clearPublic();
                     flags = flags.clearAbstract();
@@ -57,6 +64,17 @@ public class X10MethodDecl_c extends MethodDecl_c {
                 this.del().prettyPrint(w, tr);
         }
      
+        public Node typeCheck(TypeChecker tc) throws SemanticException {
+       	  if ( Report.should_report(TOPICS, 5))
+       		    Report.report(5, "X10MethodDecl_c: typechecking " + name);
+       	 Node result = super.typeCheck(tc);
+
+       
+       	 if ( Report.should_report(TOPICS, 5))
+    		    Report.report(5, "X10MethodDecl_c: typechecking returning " + result);
+       	 return result;
+       	 
+        }
         public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
         	MethodDecl nn = this;
             MethodDecl old = nn;
@@ -83,6 +101,7 @@ public class X10MethodDecl_c extends MethodDecl_c {
             	}
             	//nn = nn.formals(newFormals);
             	nn.methodInstance().setFormalTypes(formalTypes);
+            	 // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
             }
  
             // Step II. Check the return tpe. 
@@ -100,9 +119,9 @@ public class X10MethodDecl_c extends MethodDecl_c {
             if (! nn.returnType().type().isCanonical()) {
                 return nn;
             }
-            // Update the methodInstance with the declause-enriched returnType.
+            // Update the methodInstance with the depclause-enriched returnType.
            	nn.methodInstance().setReturnType(nn.returnType().type());
-           	
+           // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
            	// Step III. Check the body. 
            	// We must do it with the correct mi -- the return type will be
            	// checked by return e; statements in the body.
@@ -114,7 +133,9 @@ public class X10MethodDecl_c extends MethodDecl_c {
            	// Now process the body.
             nn = (MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
             if (childtc2.hasErrors()) throw new SemanticException();
-            // nn = (MethodDecl) childtc2.leave(parent, old, nn, childtc2);
+             nn = (MethodDecl) childtc2.leave(parent, old, nn, childtc2);
+            //Report.report(1, "X10MethodDecl_c: typeoverride returns " + nn);
+            //Report.report(1, "X10MethodDecl_c: typeoverride returns mi=" + nn.methodInstance());
             return nn;
         }
        

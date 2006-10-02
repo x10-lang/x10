@@ -745,18 +745,37 @@ $Rules -- Overridden rules from GJavaParser
           $EndJava
         ./
 
-    NormalClassDeclaration ::= ClassModifiersopt class identifier PropertyListopt  Superopt Interfacesopt ClassBody
+    NormalClassDeclaration ::= X10ClassModifiersopt class identifier PropertyListopt  Superopt Interfacesopt ClassBody
         /.$BeginJava
           checkTypeName(identifier);
-          //Report.report(1, "Parser: Golden Creating class with properties |" + PropertyListopt + "|");
           List/*<PropertyDecl>*/ props = PropertyListopt == null ? null
                       : (List) PropertyListopt[0];
           Expr ci = PropertyListopt == null ? null : (Expr) PropertyListopt[1];
-          setResult(X10Flags.isValue(ClassModifiersopt)
+          setResult(X10Flags.isValue(X10ClassModifiersopt)
              ? nf.ValueClassDecl(pos(),
-                  ClassModifiersopt, identifier.getIdentifier(), props, ci, Superopt, Interfacesopt, ClassBody)
+                  X10ClassModifiersopt, identifier.getIdentifier(), props, ci, Superopt, Interfacesopt, ClassBody)
              : nf.ClassDecl(pos(),
-                  ClassModifiersopt, identifier.getIdentifier(), props, ci, Superopt, Interfacesopt, ClassBody));
+                  X10ClassModifiersopt, identifier.getIdentifier(), props, ci, Superopt, Interfacesopt, ClassBody));
+          $EndJava
+        ./
+
+    X10ClassModifiers ::= X10ClassModifier
+                     | X10ClassModifiers X10ClassModifier
+        /.$BeginJava
+           X10Flags result = X10ClassModifiers.setX(X10ClassModifier);
+                    setResult(result);
+                   
+          $EndJava
+        ./
+
+    X10ClassModifier ::= ClassModifier 
+        /.$BeginJava
+                    setResult(X10Flags.toX10Flags(ClassModifier));
+          $EndJava
+        ./
+                    | safe
+        /.$BeginJava
+                    setResult(X10Flags.SAFE);
           $EndJava
         ./
 
@@ -1303,26 +1322,46 @@ $Rules
                     setResult(Flags.NATIVE);
           $EndJava
         ./
+                     | safe
+        /.$BeginJava
+                    setResult(X10Flags.SAFE);
+          $EndJava
+        ./
+                       | sequential
+        /.$BeginJava
+                    setResult(X10Flags.SEQUENTIAL);
+          $EndJava
+        ./
+                       | local
+        /.$BeginJava
+                    setResult(X10Flags.LOCAL);
+          $EndJava
+        ./
+                       | nonblocking
+        /.$BeginJava
+                    setResult(X10Flags.NON_BLOCKING);
+          $EndJava
+        ./
 
     ClassDeclaration ::= ValueClassDeclaration
 
-    ValueClassDeclaration ::= ClassModifiersopt value identifier PropertyListopt  Superopt Interfacesopt ClassBody
+    ValueClassDeclaration ::= X10ClassModifiersopt value identifier PropertyListopt  Superopt Interfacesopt ClassBody
         /.$BeginJava
         checkTypeName(identifier);
         List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
         Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
         setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-        ClassModifiersopt, identifier.getIdentifier(), 
+        X10ClassModifiersopt, identifier.getIdentifier(), 
         props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
-      | ClassModifiersopt value class identifier PropertyListopt Superopt Interfacesopt ClassBody
+      | X10ClassModifiersopt value class identifier PropertyListopt Superopt Interfacesopt ClassBody
         /.$BeginJava
                     checkTypeName(identifier);
         List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
         Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
         setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-                                  ClassModifiersopt, identifier.getIdentifier(), 
+                                  X10ClassModifiersopt, identifier.getIdentifier(), 
                                   props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
@@ -1939,6 +1978,12 @@ ThisClauseopt ::= $Empty
         /.$NullAction./
                       | ArgumentList
 
+    X10ClassModifiersopt ::= $Empty
+        /.$BeginJava
+             setResult(X10Flags.toX10Flags(Flags.NONE));
+          $EndJava ./
+          | X10ClassModifiers
+          
     DepParametersopt ::= $Empty
         /.$NullAction./
                        | DepParameters
@@ -1995,6 +2040,9 @@ $Types
     Import ::= SingleTypeImportDeclaration
     Import ::= TypeImportOnDemandDeclaration
     ClassDecl ::= TypeDeclaration
+    X10Flags ::= X10ClassModifier
+            | X10ClassModifiers
+            | X10ClassModifiersopt
     Flags ::= AbstractMethodModifier
             | AbstractMethodModifiers
             | AbstractMethodModifiersopt

@@ -215,6 +215,9 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
     public NullableType toNullable() { 
         return X10Type_c.toNullable(this);
     }
+    public boolean safe() {
+    	return false;
+    }
    
 }
 

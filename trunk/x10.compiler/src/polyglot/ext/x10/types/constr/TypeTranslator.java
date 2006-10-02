@@ -10,6 +10,7 @@ import polyglot.ast.Local;
 import polyglot.ast.Receiver;
 import polyglot.ast.Unary;
 import polyglot.ast.Variable;
+import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.LocalInstance;
@@ -67,6 +68,7 @@ public class TypeTranslator implements Serializable {
 		//Report.report(1, "TypeTranslator: translating Receiver " + term);
 		if (term == null) return null;
 		if (term instanceof Lit) return trans((Lit) term);
+		if (term instanceof Here) return C_Here_c.here;
 		if (term instanceof Variable) return trans((Variable) term);
 		if (term instanceof X10Special) return trans((X10Special) term);
 		if (term instanceof Unary) return trans((Unary) term);
@@ -113,7 +115,8 @@ public class TypeTranslator implements Serializable {
 			
 	}
 	/**
-	 * Translate an expression into a constraint, throwing SemanticExceptions if this is not possible.
+	 * Translate an expression into a constraint, throwing SemanticExceptions 
+	 * if this is not possible.
 	 * This must be called after type-checking of Expr.
 	 * @param term
 	 * @param c

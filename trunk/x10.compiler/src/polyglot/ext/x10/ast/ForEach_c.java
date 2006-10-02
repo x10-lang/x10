@@ -3,14 +3,21 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ast.Node;
 import polyglot.ast.Stmt;
+import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeChecker;
 
 /**
  * An immutable representation of the X10 statement: foreach (i : D) S
@@ -40,7 +47,7 @@ public class ForEach_c extends X10ClockedLoop_c implements ForEach, Clocked {
 	public String toString() {
 		return "foreach (" + formal + ":" + domain + ")" + body;
 	}
-
+	
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		w.write("foreach(");
 		printBlock(formal, w, tr);

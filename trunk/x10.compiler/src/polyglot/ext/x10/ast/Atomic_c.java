@@ -10,7 +10,10 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Stmt_c;
+import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -101,6 +104,15 @@ implements Atomic {
 		return this;
 	}
 	
+	public Context enterScope(Context c) {
+		X10Context cc = (X10Context) super.enterScope(c);
+		 cc = cc.pushAtomicBlock();
+		
+		
+		
+		return cc;
+		    
+	}
 	// not sure how this works.. vj. Copied from Synchronized_c.
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
 		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();

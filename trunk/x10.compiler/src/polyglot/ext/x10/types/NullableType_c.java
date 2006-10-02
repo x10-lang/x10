@@ -190,5 +190,6 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
     
     public NullableType toNullable() { return this;}
     public FutureType toFuture() { return X10Type_c.toFuture(this);}
+    public boolean safe() { return base.safe();}
 }
 

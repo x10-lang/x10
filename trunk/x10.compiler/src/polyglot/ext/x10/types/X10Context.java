@@ -24,7 +24,7 @@ public interface X10Context extends Context {
     ClassType findPropertyScope(String name) throws SemanticException;
     
     /** Enter the scope of a deptype. */
-    Context pushDepType(X10NamedType t);
+    X10Context pushDepType(X10NamedType t);
     
     /** Return the current deptype, null if there is none. */
     X10NamedType currentDepType();
@@ -32,4 +32,20 @@ public interface X10Context extends Context {
 
     /** Return whether innermost scope is a deptype scope. */
     boolean inDepType();
+    
+    /**
+     * Enter the scope of an atomic block. The body of such a block must be local,
+     * sequential and nonblocking.
+     * @return a new context
+     */
+    X10Context pushAtomicBlock(); 
+    
+    void setSafeCode();
+    void setNonBlockingCode();
+    void setSequentialCode();
+    void setLocalCode();
+    boolean inSafeCode();
+    boolean inLocalCode();
+    boolean inSequentialCode();
+    boolean inNonBlockingCode();
 }

@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 import polyglot.ext.x10.ast.X10Special;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
 
@@ -20,7 +22,19 @@ import polyglot.types.SemanticException;
  */
 public class Constraint_c implements Constraint {
 
-	private Map bindings;
+	// Map from variables to values for positive bindings.
+	protected Map bindings;
+	
+	// Map from variables to values for negative bindings.
+	protected Map negBindings;
+	
+	// The place clause for this type.
+	protected boolean placePossiblyNull; // true if loc could be null.
+	protected boolean placeIsHere; // true if loc could be here.
+	protected C_Term_c placeTerm;        // if non null, place could be here or some placeTerm.
+	
+	// For representation of T(:self == o), selfBinding is o.
+	protected C_Term selfBinding;
 	
 	boolean consistent = true;
 	boolean valid = true;
@@ -38,6 +52,8 @@ public class Constraint_c implements Constraint {
 		return c.addBinding(self, val);
 	}
 	String name = "";
+
+	public static final  transient X10TypeSystem typeSystem = X10TypeSystem_c.getTypeSystem();
 	/**
 	 * Is the constraint consistent? i.e. X=s and X=t have not been added to it,
 	 * where s and t are not equal.
@@ -49,6 +65,8 @@ public class Constraint_c implements Constraint {
 	 */
 	public boolean valid() { return valid;}
 	public Map bindings() { return bindings; }
+	public boolean isLocal() { return placePossiblyNull || placeIsHere; }
+	public boolean isPossiblyRemote() { return ! isLocal();}
 	
 	/**
 	 * Add X=t to the constraint, unless it is inconsistent. 

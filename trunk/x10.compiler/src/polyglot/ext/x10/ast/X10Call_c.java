@@ -7,7 +7,12 @@ import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Call_c;
+import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.main.Report;
+import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -40,7 +45,31 @@ public class X10Call_c extends Call_c {
         }
 
         try {
-            return super.typeCheck(tc);
+        	X10Call_c result = (X10Call_c) super.typeCheck(tc);
+        	
+        	  if (! ((Call_c) result).target().type().isCanonical()) {
+                  return result;
+              }
+        	X10Context c = (X10Context) tc.context();
+        
+        	X10MethodInstance mi = (X10MethodInstance) result.methodInstance();
+        	//Report.report(1, "X10Call_c.typeCheck:" + this + " methodInstance=|" + mi+"|");
+        	if (mi !=null) {
+        		X10Flags flags = X10Flags.toX10Flags(mi.flags());
+        		if (c.inNonBlockingCode() 
+        				&& ! (mi.isJavaMethod() || mi.isSafe() || flags.isNonBlocking()))
+        			throw new SemanticException(mi + ": Only nonblocking methods can be called from nonblocking code.", 
+        					position());
+        		if (c.inSequentialCode() 
+        				&& ! (mi.isJavaMethod()|| mi.isSafe() || flags.isSequential()))
+        			throw new SemanticException(mi + ": Only sequential methods can be called from sequential code.", 
+        					position());
+        		if (c.inLocalCode() 
+        				&& ! (mi.isJavaMethod() || mi.isSafe() || flags.isLocal()))
+        			throw new SemanticException(mi + ": Only local methods can be called from local code.", 
+        					position());
+        	}
+            return result;
         } catch (NoMemberException e) {
             if (e.getKind() != NoMemberException.METHOD || this.target == null)
                 throw e;
