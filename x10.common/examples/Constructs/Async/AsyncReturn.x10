@@ -2,7 +2,6 @@ import harness.x10Test;
 
 /**
  * Testing returns in an async body.
- * Should succeed, but fails at compile time.
  *
  * @author vj
  */
