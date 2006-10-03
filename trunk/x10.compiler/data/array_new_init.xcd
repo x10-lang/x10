@@ -1,2 +1,2 @@
 // SYNOPSIS: new #0[#1] {#2} #3=is_safe #4=is_value #5=value_elements
-new x10.array.sharedmemory.#0(#1,#2,#3,#4,#5)
+x10Array.factory.#0(#1,#2,#3,#4,#5)
