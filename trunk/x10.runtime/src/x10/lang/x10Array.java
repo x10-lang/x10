@@ -17,7 +17,7 @@ abstract public class x10Array extends x10.lang.Object implements Array, Unsafe,
 		rank = d.rank;
 		region = d.region;
 	}
-	
+
 	// TODO: Remove me
 	public final dist getDistribution() { return distribution; }
 
