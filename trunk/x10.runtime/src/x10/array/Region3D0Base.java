@@ -10,7 +10,7 @@ import x10.lang.RankMismatchException;
  * Represents [0:I,0:J,0:K].
  * @author vj
  */
-public class Region3D0Base extends MultiDimRegion {
+public class Region3D0Base extends MultiDimRegion implements Region0Base {
 
 	public final int I, J, K;
 
