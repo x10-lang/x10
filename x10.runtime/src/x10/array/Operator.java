@@ -7,12 +7,12 @@ import x10.compilergenerated.Parameter1;
 import x10.lang.point;
 
 /**
- * Base class for reduction and scan operations on arrays. Implementations
- * override one of the methods. The default implementation of each operator throws a
- * runtime exception.
- *
- *
+ * Base class for all operation classes. Implementations override one of the
+ * methods. The default implementation of each operator throws a runtime
+ * exception.
+ * 
  * @author Christoph von Praun
+ * @author Igor Peshansky (added Unary and Binary)
  */
 public abstract class Operator {
 
