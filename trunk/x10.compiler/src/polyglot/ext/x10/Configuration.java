@@ -42,7 +42,7 @@ public final class Configuration extends x10.runtime.util.Configuration {
 	public static boolean LOOP_OPTIMIZATIONS = true;
 	private static final String LOOP_OPTIMIZATIONS_desc = "Generate specialized Java version of for-loop X10 code";
 
-	public static boolean ARRAY_OPTIMIZATIONS = false;
+	public static boolean ARRAY_OPTIMIZATIONS = true;
 	private static final String ARRAY_OPTIMIZATIONS_desc = "Generate allocation of specialized Java array classes";
 
 	/**
