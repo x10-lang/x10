@@ -189,7 +189,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	{
 		if (d.rank != th.rank)
 			throw new RankMismatchException(d, th.rank);
-		assert d.region.disjoint(th.region); // assume
+		if (!d.region.disjoint(th.region))
+			throw new IllegalArgumentException("Non-disjoint region in a disjoint union");
 
 		region reg = d.region.union(th.region);
 		HashMap hm = new HashMap();
