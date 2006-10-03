@@ -66,23 +66,24 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2 
 		final region r_nthreads = [0 : nthreads-1];
 		final dist d_M = dist.factory.block([0 : ds_M-1], place.places);
 
-		double[] xin = init(new double[ds_N], R);
-		x = doubleArray.factory.doubleValueArray(xin); // value array.
+		final double[] xin = init(new double[ds_N], R);
+		x = new double value[[0:xin.length-1]->here] (point [i]) { return xin[i]; };
+		//x = doubleArray.factory.doubleValueArray(xin); // value array.
 		y = new double[d_M];      // distributed -- cvp
 
 		int [] ilow = new int[nthreads];
 		int [] iup = new int[nthreads];
 		int [] sum = new int[nthreads+1];
-		int [] rowt = new int[ds_nz];
-		int [] colt = new int[ds_nz];
-		double [] valt = new double[ds_nz];
+		final int [] rowt = new int[ds_nz];
+		final int [] colt = new int[ds_nz];
+		final double [] valt = new double[ds_nz];
 		int sect = (ds_M + nthreads-1)/nthreads;
 
 		int[] rowin = new int[ds_nz];
 		int[] colin = new int[ds_nz];
 		double[] valin = new double[ds_nz];
-		int[] lowsumin = new int[nthreads];
-		int[] highsumin = new int[nthreads];
+		final int[] lowsumin = new int[nthreads];
+		final int[] highsumin = new int[nthreads];
 
 		for (point [i] : [0:ds_nz-1]) {
 			rowin[i] = Math.abs(R.nextInt()) % ds_M;
@@ -118,11 +119,16 @@ public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2 
 					highsumin[j]++;
 				}
 
-		row = intArray.factory.intValueArray(rowt);
-		col = intArray.factory.intValueArray(colt);
-		val = doubleArray.factory.doubleValueArray(valt);
-		lowsum = intArray.factory.intValueArray(lowsumin);
-		highsum = intArray.factory.intValueArray(highsumin);
+		row = new int value[[0:rowt.length-1]->here] (point [i]) { return rowt[i]; };
+		col = new int value[[0:colt.length-1]->here] (point [i]) { return colt[i]; };
+		val = new double value[[0:valt.length-1]->here] (point [i]) { return valt[i]; };
+		lowsum = new int value[[0:lowsumin.length-1]->here] (point [i]) { return lowsumin[i]; };
+		highsum = new int value[[0:highsumin.length-1]->here] (point [i]) { return highsumin[i]; };
+		//row = intArray.factory.intValueArray(rowt);
+		//col = intArray.factory.intValueArray(colt);
+		//val = doubleArray.factory.doubleValueArray(valt);
+		//lowsum = intArray.factory.intValueArray(lowsumin);
+		//highsum = intArray.factory.intValueArray(highsumin);
 	}
 
 	public void JGFkernel() {

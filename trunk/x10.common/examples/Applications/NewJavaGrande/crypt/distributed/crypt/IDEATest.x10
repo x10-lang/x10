@@ -170,8 +170,8 @@ public class IDEATest {
 				& 0xFFFF;
 		}
 
-		//Z = new int value[Z1.distribution]  (point [i]) { return Z1[i]; };
-		ZR = intArray.factory.intValueArray(Z);
+		ZR = new int value[[0:Z.length-1]->here] (point [i]) { return Z[i]; };
+		//ZR = intArray.factory.intValueArray(Z);
 	}
 
 	/**
@@ -224,8 +224,8 @@ public class IDEATest {
 		DK[j--] = t2;
 		DK[j--] = t1;
 
-		//DK = new int value[DK1.distribution](point [i]) { return DK1[i]; };
-		DKR = intArray.factory.intValueArray(DK);
+		DKR = new int value[[0:DK.length-1]->here] (point [i]) { return DK[i]; };
+		//DKR = intArray.factory.intValueArray(DK);
 	}
 
 	/**
