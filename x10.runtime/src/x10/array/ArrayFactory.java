@@ -100,6 +100,15 @@ abstract public /*value*/ class ArrayFactory {
 	abstract public /*(distribution D)*/ BooleanReferenceArray/*(D)*/ BooleanReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
 
 	/**
+	 * Return the unique boolean array initialized with init and defined
+	 * over the distribution D.
+	 *
+	 * @param safe     whether to create a safe array
+	 * @param mutable  whether to create a mutable (reference) array
+	 */
+	abstract public /*(distribution D)*/ BooleanReferenceArray/*(D)*/ BooleanArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ignored);
+
+	/**
 	 * Return the unique byte value array initialized with 0
 	 * and defined over the distribution [0..k-1]->here.
 	 */
@@ -169,6 +178,15 @@ abstract public /*value*/ class ArrayFactory {
 	 * and defined over the distribution D.
 	 */
 	abstract public /*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+
+	/**
+	 * Return the unique byte array initialized with init and defined
+	 * over the distribution D.
+	 *
+	 * @param safe     whether to create a safe array
+	 * @param mutable  whether to create a mutable (reference) array
+	 */
+	abstract public /*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ignored);
 
 	/**
 	 * Return the unique char value array initialized with 0
@@ -242,6 +260,15 @@ abstract public /*value*/ class ArrayFactory {
 	abstract public /*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
 
 	/**
+	 * Return the unique char array initialized with init and defined
+	 * over the distribution D.
+	 *
+	 * @param safe     whether to create a safe array
+	 * @param mutable  whether to create a mutable (reference) array
+	 */
+	abstract public /*(distribution D)*/ CharReferenceArray/*(D)*/ CharArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ignored);
+
+	/**
 	 * Return the unique int value array initialized with 0
 	 * and defined over the distribution [0..k-1]->here.
 	 * vj: Note that in this implementation, returns intArray rather than
@@ -312,6 +339,15 @@ abstract public /*value*/ class ArrayFactory {
 	abstract public /*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
 
 	/**
+	 * Return the unique int array initialized with init and defined
+	 * over the distribution D.
+	 *
+	 * @param safe     whether to create a safe array
+	 * @param mutable  whether to create a mutable (reference) array
+	 */
+	abstract public /*(distribution D)*/ IntReferenceArray/*(D)*/ IntArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ignored);
+
+	/**
 	 * Return the unique long value array initialized with 0
 	 * and defined over the distribution [0..k-1]->here.
 	 * vj: Note that in this implementation, returns longArray rather than
@@ -377,6 +413,15 @@ abstract public /*value*/ class ArrayFactory {
 	 * and defined over the distribution D.
 	 */
 	abstract public /*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+
+	/**
+	 * Return the unique long array initialized with init and defined
+	 * over the distribution D.
+	 *
+	 * @param safe     whether to create a safe array
+	 * @param mutable  whether to create a mutable (reference) array
+	 */
+	abstract public /*(distribution D)*/ LongReferenceArray/*(D)*/ LongArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ignored);
 
 	/**
 	 * Return the unique short value array initialized with 0
@@ -450,6 +495,15 @@ abstract public /*value*/ class ArrayFactory {
 	abstract public /*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
 
 	/**
+	 * Return the unique short array initialized with init and defined
+	 * over the distribution D.
+	 *
+	 * @param safe     whether to create a safe array
+	 * @param mutable  whether to create a mutable (reference) array
+	 */
+	abstract public /*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ignored);
+
+	/**
 	 * Return the unique float value array initialized with 0
 	 * and defined over the distribution [0..k-1]->here.
 	 */
@@ -518,6 +572,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * and defined over the distribution D.
 	 */
 	abstract public /*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+
+	/**
+	 * Return the unique float array initialized with init and defined
+	 * over the distribution D.
+	 *
+	 * @param safe     whether to create a safe array
+	 * @param mutable  whether to create a mutable (reference) array
+	 */
+	abstract public /*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ignored);
+
 	/**
 	 * Return the unique double value array initialized with 0
 	 * and defined over the distribution [0..k-1]->here.
@@ -591,6 +655,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * and defined over the distribution D.
 	 */
 	abstract public /*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+
+	/**
+	 * Return the unique double array initialized with init and defined
+	 * over the distribution D.
+	 *
+	 * @param safe     whether to create a safe array
+	 * @param mutable  whether to create a mutable (reference) array
+	 */
+	abstract public /*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ignored);
+
 	/**
 	 * Return the unique generic value array initialized with 0
 	 * and defined over the distribution [0..k-1]->here.
@@ -662,4 +736,14 @@ abstract public /*value*/ class ArrayFactory {
 	 * and defined over the distribution D.
 	 */
 	abstract public /*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+
+	/**
+	 * Return the unique boolean array initialized with init and defined
+	 * over the distribution D.
+	 *
+	 * @param safe           whether to create a safe array
+	 * @param mutable        whether to create a mutable (reference) array
+	 * @param ref_to_values  whether the elements of this array will be values
+	 */
+	abstract public /*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ref_to_values);
 }
