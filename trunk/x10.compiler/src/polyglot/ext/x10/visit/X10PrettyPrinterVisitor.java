@@ -234,7 +234,6 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		/* TODO: case: for (point p:D) -- discuss with vj */
 		/* handled cases: exploded syntax like: for (point p[i,j]:D) and for (point [i,j]:D) */
 		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars()) {
-
 			String regVar = getId();
 			List idxs = new ArrayList();
 			List lims = new ArrayList();
@@ -386,17 +385,17 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	private static final String USER_DEFINED = "user-defined";
-	private static final HashMap/*<String,String>*/ arrayTypeToClassName = new HashMap();
+	private static final HashMap/*<String,String>*/ arrayTypeToRuntimeName = new HashMap();
 	static {
-		arrayTypeToClassName.put("boolean", "BooleanArray_c");
-		arrayTypeToClassName.put("byte", "ByteArray_c");
-		arrayTypeToClassName.put("char", "CharArray_c");
-		arrayTypeToClassName.put("short", "ShortArray_c");
-		arrayTypeToClassName.put("int", "IntArray_c");
-		arrayTypeToClassName.put("long", "LongArray_c");
-		arrayTypeToClassName.put("float", "FloatArray_c");
-		arrayTypeToClassName.put("double", "DoubleArray_c");
-		arrayTypeToClassName.put(USER_DEFINED, "GenericArray_c");
+		arrayTypeToRuntimeName.put("boolean", "BooleanArray");
+		arrayTypeToRuntimeName.put("byte", "ByteArray");
+		arrayTypeToRuntimeName.put("char", "CharArray");
+		arrayTypeToRuntimeName.put("short", "ShortArray");
+		arrayTypeToRuntimeName.put("int", "IntArray");
+		arrayTypeToRuntimeName.put("long", "LongArray");
+		arrayTypeToRuntimeName.put("float", "FloatArray");
+		arrayTypeToRuntimeName.put("double", "DoubleArray");
+		arrayTypeToRuntimeName.put(USER_DEFINED, "GenericArray");
 	}
 
 	public void visit(ArrayConstructor_c a) {
@@ -413,13 +412,15 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			refs_to_values = (base_type instanceof X10Type &&
 								 (xt.isValueType(base_type)));
 		}
-		String className = (String) arrayTypeToClassName.get(kind);
-		if (className == null)
+		String runtimeName = (String) arrayTypeToRuntimeName.get(kind);
+		if (runtimeName == null)
 			throw new Error("Unknown array type.");
 		Object init = a.initializer();
-		new Template("array_new_init",
+		String tmpl = Configuration.ARRAY_OPTIMIZATIONS ?
+				"array_specialized_init" : "array_new_init";
+		new Template(tmpl,
 					 new Object[] {
-						 className,
+						 runtimeName,
 						 a.distribution(),
 						 init != null ? init : "(x10.array.Operator.Pointwise)null",
 						 new Boolean(a.isSafe()),
