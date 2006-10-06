@@ -11,8 +11,8 @@ public class AllArrayExternUnsafe extends x10Test {
 	                                char[.] yyc,
 	                                byte[.] yyb,
 	                                float[.] yyf,
-	                                double[.] yyd,
-	                                boolean[.] yybool);
+	                                double[.] yyd);//,
+	                                //boolean[.] yybool); unsupported for now as boolean is an interface
 
 	static { System.loadLibrary("AllArrayExternUnsafe"); }
 
@@ -41,9 +41,7 @@ public class AllArrayExternUnsafe extends x10Test {
 		}
 		
 
-System.out.println("about to call howdy");
-		howdy(yint,yshort,ylong,ychar,ybyte,yfloat,ydouble,yboolean);
-System.out.println("post about to call howdy");
+		howdy(yint,yshort,ylong,ychar,ybyte,yfloat,ydouble);//,yboolean);
 
 		for (int j = 0; j < 10; ++j) {
 			if(!compare(j,(int)yint[j],"int")) return false;
@@ -53,10 +51,12 @@ System.out.println("post about to call howdy");
 			if(!compare(j,(int)ybyte[j],"byte")) return false;
 			if(!compare(j,(int)ychar[j],"char")) return false;
 			if(!compare(j,(int)ylong[j],"long")) return false;
+			/*
 			if(!yboolean[j]){
 			   System.out.println("yboolean["+j+"] is false");
 			   return false;
 			}
+			*/
 			//System.out.println("y["+j+"]:"+(y[j]));
 		}
 		return true;

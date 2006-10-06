@@ -37,8 +37,8 @@ extern void   AllArrayExternUnsafe_howdy(signed int* yyi_x10PoInTeR, int* yyi_x1
        signed short* yyc_x10PoInTeR, int* yyc_x10DeScRiPtOr, 
        signed char* yyb_x10PoInTeR, int* yyb_x10DeScRiPtOr, 
        float* yyf_x10PoInTeR, int* yyf_x10DeScRiPtOr, 
-       double* yyd_x10PoInTeR, int* yyd_x10DeScRiPtOr, 
-       unsigned char* yybool_x10PoInTeR, int* yybool_x10DeScRiPtOr);
+       double* yyd_x10PoInTeR, int* yyd_x10DeScRiPtOr); 
+       //unsigned char* yybool_x10PoInTeR, int* yybool_x10DeScRiPtOr);
 
   void AllArrayExternUnsafe_howdy(int intarray[], int intdescriptor[],
                                   signed short shortarray[], int shortdescriptor[],
@@ -46,8 +46,8 @@ extern void   AllArrayExternUnsafe_howdy(signed int* yyi_x10PoInTeR, int* yyi_x1
                                   signed short chararray[], int chardescriptor[],
                                   signed char bytearray[], int bytedescriptor[],
                                   float floatarray[], int floatdescriptor[],
-                                  double doublearray[], int doubledescriptor[],
-                                  unsigned char booleanarray[], int booleandescriptor[]) {
+                                  double doublearray[], int doubledescriptor[]){
+     //                             unsigned char booleanarray[], int booleandescriptor[]) {
     int i;	
     int size;
     if(!checkDescriptor(intdescriptor)) return;
@@ -57,7 +57,7 @@ extern void   AllArrayExternUnsafe_howdy(signed int* yyi_x10PoInTeR, int* yyi_x1
     if(!checkDescriptor(bytedescriptor)) return;
     if(!checkDescriptor(floatdescriptor)) return;
     if(!checkDescriptor(doubledescriptor)) return;
-    if(!checkDescriptor(booleandescriptor)) return;
+    //if(!checkDescriptor(booleandescriptor)) return;
 
     size = intdescriptor[1];
 
@@ -67,7 +67,7 @@ extern void   AllArrayExternUnsafe_howdy(signed int* yyi_x10PoInTeR, int* yyi_x1
     if(!checkSize(chardescriptor,size,"char")) return;
     if(!checkSize(floatdescriptor,size,"float")) return;
     if(!checkSize(doubledescriptor,size,"double")) return;
-    if(!checkSize(booleandescriptor,size,"boolean")) return;
+    //if(!checkSize(booleandescriptor,size,"boolean")) return;
 
 
     for(i = 0; i < size; ++i) {
@@ -78,7 +78,7 @@ extern void   AllArrayExternUnsafe_howdy(signed int* yyi_x10PoInTeR, int* yyi_x1
       chararray[i] += 100;
       floatarray[i] += 100;
       doublearray[i] += 100;
-      booleanarray[i] = 1;
+      //booleanarray[i] = 1;
       //printf("[%d]:%d (%p=%d)\n",i,intarray[i],&(intarray[i]),&(intarray[i]));
     }
   }
