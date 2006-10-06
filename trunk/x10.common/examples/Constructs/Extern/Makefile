@@ -23,6 +23,7 @@ endif
 
 all:	$(LIBPFX)BasicExtern1.$(LIBEXT) \
 	$(LIBPFX)IntArrayExternUnsafe.$(LIBEXT) \
+	$(LIBPFX)AllArrayExternUnsafe.$(LIBEXT) \
 	$(LIBPFX)JacobiExtern.$(LIBEXT) \
 	$(LIBPFX)RandomAccessLong.$(LIBEXT)
 
@@ -48,7 +49,7 @@ CXX=g++ $(CCEXTRA)
 CXXFLAGS=$(CFLAGS)
 
 $(LIBPFX)%.$(LIBEXT):	checkjava
-	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o $@ $(filter %.o,$^)
+	$(CXX) $(CFLAGS)  -shared $(LDFLAGS) -o $@ $(filter %.o,$^)
 
 ifneq ($(UNAME),AIX)
 ifneq ($(UNAME),Linux)
@@ -100,6 +101,9 @@ $(LIBPFX)BasicExtern1.$(LIBEXT):	BasicExternTest1Impl.o \
 
 $(LIBPFX)IntArrayExternUnsafe.$(LIBEXT):	IntArrayExternUnsafeImpl.o \
 	IntArrayExternUnsafe_x10stub.c
+
+$(LIBPFX)AllArrayExternUnsafe.$(LIBEXT):	AllArrayExternUnsafeImpl.o \
+	AllArrayExternUnsafe_x10stub.c
 
 $(LIBPFX)JacobiExtern.$(LIBEXT):	JacobiExternImpl.o \
 	JacobiExtern_x10stub.c
