@@ -17,6 +17,8 @@ public class MemoryBlockSafeObjectArray extends MemoryBlockSafe {
         } else
             return false;
     }
+
+    public Object[] getBackingArray() { return arr_; }
     
     public boolean valueEquals(MemoryBlock other) {
         MemoryBlockSafeObjectArray m = (MemoryBlockSafeObjectArray) other;

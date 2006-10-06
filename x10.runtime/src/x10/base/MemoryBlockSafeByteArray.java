@@ -20,6 +20,8 @@ public class MemoryBlockSafeByteArray extends MemoryBlockSafe {
         } else
             return false;
     }
+
+    public byte[] getBackingArray() { return arr_; }
     
     MemoryBlockSafeByteArray(int count) {
         arr_ = new byte[count];

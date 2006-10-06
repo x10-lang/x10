@@ -22,6 +22,8 @@ public class MemoryBlockSafeCharArray extends MemoryBlockSafe {
     }
     
 
+    public char[] getBackingArray() { return arr_; }
+
     
     MemoryBlockSafeCharArray(int count) {
         arr_ = new char[count];

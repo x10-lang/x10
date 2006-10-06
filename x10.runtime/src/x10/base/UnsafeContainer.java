@@ -18,4 +18,6 @@ public interface UnsafeContainer {
     
     public long getUnsafeDescriptor();
     
+    public int[] getDescriptor();
+
 }

@@ -22,6 +22,8 @@ public class MemoryBlockSafeShortArray extends MemoryBlockSafe {
     }
     
 
+    public short[] getBackingArray() { return arr_; }
+
     
     MemoryBlockSafeShortArray(int count) {
         arr_ = new short[count];

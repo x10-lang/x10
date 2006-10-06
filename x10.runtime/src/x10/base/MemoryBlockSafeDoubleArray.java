@@ -22,6 +22,8 @@ public class MemoryBlockSafeDoubleArray extends MemoryBlockSafe {
     }
     
 
+    public double[] getBackingArray() { return arr_; }
+
     
     MemoryBlockSafeDoubleArray(int count) {
         arr_ = new double[count];

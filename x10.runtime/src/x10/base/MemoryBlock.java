@@ -15,6 +15,7 @@ public abstract class MemoryBlock implements UnsafeContainer {
     
     public abstract int count(); 
     
+   
     /**
      * @param other
      * @return true if these objects are value-equals
