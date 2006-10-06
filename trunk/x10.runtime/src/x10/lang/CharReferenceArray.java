@@ -15,6 +15,8 @@ public abstract class CharReferenceArray extends charArray {
 		super( D );
 	}
 
+	public char[] getBackingArray() { throw new Error("should not be called");}
+
 	abstract public char set( char v, point/*(region)*/ p);
 	abstract /*value*/ public char set(char v, int p);
 	abstract /*value*/ public char set(char v, int p, int q);

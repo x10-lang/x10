@@ -15,6 +15,8 @@ public abstract class FloatReferenceArray extends floatArray {
 		super( D );
 	}
 
+	public float[] getBackingArray() { throw new Error("should not be called");}
+
 	abstract public float set( float v, point/*(region)*/ p);
 	abstract /*value*/ public float set(float v, int p);
 	abstract /*value*/ public float set(float v, int p, int q);

@@ -34,5 +34,6 @@ abstract public class x10Array extends x10.lang.Object implements Array, Unsafe,
 	/**
 	 * Create a multi-dimensional Java array.
 	 */
-	public abstract java.lang.Object toJava();
+	public abstract java.lang.Object toJava();   
+
 }
