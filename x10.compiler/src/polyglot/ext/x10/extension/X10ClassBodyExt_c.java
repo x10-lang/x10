@@ -577,7 +577,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		if (isOverloaded)
 			newName += "__" + generateJavaSignature(nativeMethod);
 
-		String jniCall, wrapperCall, wrapperDecl, returnTheValue = "";
+		String jniCall, wrapperCall, wrapperDecl, saveTheValue = "";
 
 		wrapperCall = "  "+newName + "(";
 		wrapperDecl = "extern " + typeToCType(nativeMethod.methodInstance().returnType()) + " ";
@@ -592,8 +592,13 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				+ typeToJNIString(nativeMethod.methodInstance().returnType())
 				+ " JNICALL\n" + newName + "(JNIEnv *env, " + parm;
 
-		if (!nativeMethod.methodInstance().returnType().isVoid())
-			returnTheValue = "return " + maybeUncast(nativeMethod.methodInstance().returnType());
+		String returnedValue="";
+		if (!nativeMethod.methodInstance().returnType().isVoid()){
+			String tempName="_x10ReTuRnVaL";
+			saveTheValue = nativeMethod.methodInstance().returnType() + " "+ tempName+"="+
+			maybeUncast(nativeMethod.methodInstance().returnType());
+			returnedValue="return "+tempName+";\n";
+		}
 		String commaString = "";
                 String releaseStmts="";
                 String acquireStmts="";
@@ -672,9 +677,11 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                 String getcrit="/*call get critical section*/\n";
 			wrapperFile.write("\n/* * * * * * * */\n"+wrapperDecl + "\n"+jniCall + " {\n" +
                                           acquireStmts+"\n"+
-                                          returnTheValue + wrapperCall
-                                          + ";\n"+
+					  "\n"+
+                                          saveTheValue + wrapperCall
+                                          + ";\n\n"+
                                           releaseStmts+
+					  returnedValue+
                                           "}\n" + jniAlias);
 		} catch (IOException e) {
 			e.printStackTrace();
