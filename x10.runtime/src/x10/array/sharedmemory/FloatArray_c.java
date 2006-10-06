@@ -88,7 +88,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
 		}
 	}
 
-	public FloatArray_c(dist d, float[] a, boolean safe, boolean mutable) {
+	private FloatArray_c(dist d, float[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 

@@ -98,7 +98,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		}
 	}
 
-	public IntArray_c(dist d, int[] a, boolean safe, boolean mutable) {
+	protected IntArray_c(dist d, int[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 

@@ -88,7 +88,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 		}
 	}
 
-	public LongArray_c(dist d, long[] a, boolean safe, boolean mutable) {
+	private LongArray_c(dist d, long[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 

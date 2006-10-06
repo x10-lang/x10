@@ -99,7 +99,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 		}
 	}
 
-	public GenericArray_c(dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
+	private GenericArray_c(dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
 		this(d, safe, mutable, ref_to_values, a);
 	}
 

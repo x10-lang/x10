@@ -94,7 +94,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
 		}
 	}
 
-	public ByteArray_c(dist d, byte[] a, boolean safe, boolean mutable) {
+	private ByteArray_c(dist d, byte[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 
