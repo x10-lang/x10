@@ -94,7 +94,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
 		}
 	}
 
-	public CharArray_c(dist d, char[] a, boolean safe, boolean mutable) {
+	private CharArray_c(dist d, char[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 

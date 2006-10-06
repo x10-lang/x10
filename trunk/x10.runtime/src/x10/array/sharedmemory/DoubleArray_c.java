@@ -95,7 +95,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
 		}
 	}
 
-	public DoubleArray_c(dist d, double[] a, boolean safe, boolean mutable) {
+	private DoubleArray_c(dist d, double[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 

@@ -88,7 +88,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
 		}
 	}
 
-	public BooleanArray_c(dist d, boolean[] a, boolean safe, boolean mutable) {
+	protected BooleanArray_c(dist d, boolean[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 

@@ -93,7 +93,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
 		}
 	}
 
-	public ShortArray_c(dist d, short[] a, boolean safe, boolean mutable) {
+	private ShortArray_c(dist d, short[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 
