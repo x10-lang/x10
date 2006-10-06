@@ -561,7 +561,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
             return stmt;
          }
        private String generateReleaseStmt(String arrayName,String ptrName) {
-            String stmt ="  (*env)->ReleasePrimitiveArrayCritical(env,"+arrayName+","+ptrName+",JNI_ABORT);\n";
+            String stmt ="  (*env)->ReleasePrimitiveArrayCritical(env,"+arrayName+","+ptrName+",0);\n";
             return stmt;
          }
 
