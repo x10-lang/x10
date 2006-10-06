@@ -21,6 +21,8 @@ public abstract class LongReferenceArray extends longArray {
 	abstract public long set(long v, int p, int q);
 	abstract public long set(long v, int p, int q, int r);
 	abstract public long set(long v, int p, int q, int r, int s);
+
+	public long[] getBackingArray() { throw new Error("should not be called");}
 	
 	public long addSet( long v, point/*(region)*/ p) {
 		return set(get(p)+v,p);
