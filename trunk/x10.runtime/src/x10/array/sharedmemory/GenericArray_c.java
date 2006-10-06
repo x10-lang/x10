@@ -3,6 +3,7 @@
  */
 package x10.array.sharedmemory;
 
+import x10.base.MemoryBlockSafeIntArray;
 import java.util.Iterator;
 import x10.array.Helper;
 import x10.array.GenericArray;
@@ -90,7 +91,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 			int ranks[] = new int[rank];
 			for (int i = 0; i < rank; ++i)
 				ranks[i] = d.region.rank(i).size();
-			this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_PTR);
+			this.arr_ = Allocator.allocUnsafe(count, ranks, Parameter1.class);
 		} else if (a != null) {
 			this.arr_ = Allocator.allocSafeObjectArray(a);
 		} else {
@@ -98,7 +99,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 		}
 	}
 
-	private GenericArray_c(dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
+	public GenericArray_c(dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
 		this(d, safe, mutable, ref_to_values, a);
 	}
 
@@ -123,6 +124,14 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 	public long getUnsafeDescriptor() {
 		return arr_.getUnsafeDescriptor();
 	}
+        public int[] getBackingArray() { 
+        return (arr_ instanceof MemoryBlockSafeIntArray) ?
+    		((MemoryBlockSafeIntArray) arr_).getBackingArray()
+			: null; }
+
+       public int[] getDescriptor() {
+          return arr_.getDescriptor();
+       }
 
 	/* Overrides the superclass method - this implementation is more efficient */
 	public void reduction(Operator.Reduction op) {

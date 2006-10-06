@@ -5,6 +5,7 @@ package x10.array.sharedmemory;
 
 import java.util.Iterator;
 
+import x10.base.MemoryBlockSafeFloatArray;
 import x10.array.FloatArray;
 import x10.array.Helper;
 import x10.array.Operator;
@@ -81,13 +82,13 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
 			int ranks[] = new int[rank];
 			for (int i = 0; i < rank; ++i)
 				ranks[i] = d.region.rank(i).size();
-			this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_FLOAT);
+			this.arr_ = Allocator.allocUnsafe(count, ranks, Float.TYPE);
 		} else {
 			this.arr_ = Allocator.allocSafe(count, Float.TYPE);
 		}
 	}
 
-	private FloatArray_c(dist d, float[] a, boolean safe, boolean mutable) {
+	public FloatArray_c(dist d, float[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 
@@ -105,6 +106,14 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
 	}
 
 	public void keepItLive() {}
+        public float[] getBackingArray() { 
+        return (arr_ instanceof MemoryBlockSafeFloatArray) ?
+    		((MemoryBlockSafeFloatArray) arr_).getBackingArray()
+			: null; }
+
+       public int[] getDescriptor() {
+          return arr_.getDescriptor();
+       }
 
 	public long getUnsafeAddress() {
 		return arr_.getUnsafeAddress();

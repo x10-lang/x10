@@ -15,6 +15,7 @@ import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.place;
 import x10.lang.point;
+import x10.base.MemoryBlockSafeDoubleArray;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.DoubleReferenceArray;
@@ -86,7 +87,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
 			int ranks[] = new int[rank];
 			for (int i = 0; i < rank; ++i)
 				ranks[i] = d.region.rank(i).size();
-			this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_DOUBLE);
+			this.arr_ = Allocator.allocUnsafe(count, ranks, Double.TYPE);
 		} else if (a == null) {
 			this.arr_ = Allocator.allocSafe(count, Double.TYPE);
 		} else {
@@ -94,7 +95,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
 		}
 	}
 
-	protected DoubleArray_c(dist d, double[] a, boolean safe, boolean mutable) {
+	public DoubleArray_c(dist d, double[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 
@@ -110,6 +111,15 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
 	}
 
 	public void keepItLive() {}
+
+        public double[] getBackingArray() { 
+        return (arr_ instanceof MemoryBlockSafeDoubleArray) ?
+    		((MemoryBlockSafeDoubleArray) arr_).getBackingArray()
+			: null; }
+
+       public int[] getDescriptor() {
+          return arr_.getDescriptor();
+       }
 
 	public long getUnsafeAddress() {
 		return arr_.getUnsafeAddress();
