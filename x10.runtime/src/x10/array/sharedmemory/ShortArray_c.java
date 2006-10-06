@@ -15,6 +15,7 @@ import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.place;
 import x10.lang.point;
+import x10.base.MemoryBlockSafeShortArray;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.ShortReferenceArray;
@@ -86,13 +87,13 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
 			int ranks[] = new int[rank];
 			for (int i = 0; i < rank; ++i)
 				ranks[i] = d.region.rank(i).size();
-			this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_SHORT);
+			this.arr_ = Allocator.allocUnsafe(count, ranks, Short.TYPE);
 		} else {
 			this.arr_ = Allocator.allocSafe(count, Short.TYPE);
 		}
 	}
 
-	private ShortArray_c(dist d, short[] a, boolean safe, boolean mutable) {
+	public ShortArray_c(dist d, short[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 
@@ -110,6 +111,14 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
 	}
 
 	public void keepItLive() {}
+        public short[] getBackingArray() { 
+        return (arr_ instanceof MemoryBlockSafeShortArray) ?
+    		((MemoryBlockSafeShortArray) arr_).getBackingArray()
+			: null; }
+
+       public int[] getDescriptor() {
+          return arr_.getDescriptor();
+       }
 
 	public long getUnsafeAddress() {
 		return arr_.getUnsafeAddress();

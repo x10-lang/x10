@@ -14,6 +14,7 @@ import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.place;
 import x10.lang.point;
+import x10.base.MemoryBlockSafeLongArray;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.LongReferenceArray;
@@ -79,7 +80,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 			int ranks[] = new int[rank];
 			for (int i = 0; i < rank; ++i)
 				ranks[i] = d.region.rank(i).size();
-			this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_LONG);
+			this.arr_ = Allocator.allocUnsafe(count, ranks, Long.TYPE);
 		} else if (a != null) {
 			this.arr_ = Allocator.allocSafeLongArray(a);
 		} else {
@@ -87,7 +88,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 		}
 	}
 
-	private LongArray_c(dist d, long[] a, boolean safe, boolean mutable) {
+	public LongArray_c(dist d, long[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 
@@ -104,6 +105,15 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 	}
 
 	public void keepItLive() {}
+
+        public long[] getBackingArray() { 
+        return (arr_ instanceof MemoryBlockSafeLongArray) ?
+    		((MemoryBlockSafeLongArray) arr_).getBackingArray()
+			: null; }
+
+       public int[] getDescriptor() {
+          return arr_.getDescriptor();
+       }
 
 	public long getUnsafeAddress() {
 		return arr_.getUnsafeAddress();

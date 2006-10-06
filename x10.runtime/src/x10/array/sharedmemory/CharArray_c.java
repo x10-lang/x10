@@ -17,6 +17,7 @@ import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.place;
 import x10.lang.point;
+import x10.base.MemoryBlockSafeCharArray;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.lang.CharReferenceArray;
@@ -87,13 +88,13 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
 			int ranks[] = new int[rank];
 			for (int i = 0; i < rank; ++i)
 				ranks[i] = d.region.rank(i).size();
-			this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_CHAR);
+			this.arr_ = Allocator.allocUnsafe(count, ranks, Character.TYPE);
 		} else {
 			this.arr_ =Allocator.allocSafe(count, Character.TYPE);
 		}
 	}
 
-	private CharArray_c(dist d, char[] a, boolean safe, boolean mutable) {
+	public CharArray_c(dist d, char[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 
@@ -109,6 +110,14 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
 		return new CharArray_c(d, a, safe, mutable);
 	}
 
+        public char[] getBackingArray() { 
+        return (arr_ instanceof MemoryBlockSafeCharArray) ?
+    		((MemoryBlockSafeCharArray) arr_).getBackingArray()
+			: null; }
+
+       public int[] getDescriptor() {
+          return arr_.getDescriptor();
+       }
 	public void keepItLive() {}
 
 	public long getUnsafeAddress() {

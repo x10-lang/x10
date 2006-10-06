@@ -4,6 +4,7 @@
 package x10.array.sharedmemory;
 
 import x10.array.BooleanArray;
+import x10.base.MemoryBlockSafeBooleanArray;
 import x10.array.Helper;
 import x10.array.Operator;
 import x10.base.Allocator;
@@ -70,7 +71,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
 	 * @param mutable
 	 * @param ignored
 	 */
-	private BooleanArray_c(dist d, boolean safe, boolean mutable, boolean[] ignored) {
+	public BooleanArray_c(dist d, boolean safe, boolean mutable, boolean[] ignored) {
 		super(d);
 		assert (d instanceof Distribution_c);
 		this.safe_ = safe;
@@ -81,13 +82,13 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
 			int ranks[] = new int[rank];
 			for (int i = 0; i < rank; ++i)
 				ranks[i] = d.region.rank(i).size();
-			this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BOOLEAN);
+			this.arr_ = Allocator.allocUnsafe(count, ranks, Boolean.TYPE);
 		} else {
 			this.arr_ = Allocator.allocSafe(count, Boolean.TYPE);
 		}
 	}
 
-	private BooleanArray_c(dist d, boolean[] a, boolean safe, boolean mutable) {
+	public BooleanArray_c(dist d, boolean[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 
@@ -112,6 +113,14 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
 	public long getUnsafeDescriptor() {
 		return arr_.getUnsafeDescriptor();
 	}
+        public boolean[] getBackingArray() { 
+        return (arr_ instanceof MemoryBlockSafeBooleanArray) ?
+    		((MemoryBlockSafeBooleanArray) arr_).getBackingArray()
+			: null; }
+
+       public int[] getDescriptor() {
+          return arr_.getDescriptor();
+       }
 
 	/* Overrides the superclass method - this implementation is more efficient */
 	public void reduction(Operator.Reduction op) {

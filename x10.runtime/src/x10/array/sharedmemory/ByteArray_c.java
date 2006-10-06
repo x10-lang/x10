@@ -6,7 +6,7 @@ package x10.array.sharedmemory;
 import java.util.Iterator;
 
 
-
+import x10.base.MemoryBlockSafeByteArray;
 import x10.array.Distribution_c;
 import x10.array.ByteArray;
 import x10.array.Operator;
@@ -88,13 +88,13 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
 			int ranks[] = new int[rank];
 			for (int i = 0; i < rank; ++i)
 				ranks[i] = d.region.rank(i).size();
-			this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_BYTE);
+			this.arr_ = Allocator.allocUnsafe(count, ranks, Byte.TYPE);
 		} else {
 			this.arr_ = Allocator.allocSafe(count, Byte.TYPE);
 		}
 	}
 
-	private ByteArray_c(dist d, byte[] a, boolean safe, boolean mutable) {
+	public ByteArray_c(dist d, byte[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 
@@ -115,6 +115,14 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
 	public long getUnsafeAddress() {
 		return arr_.getUnsafeAddress();
 	}
+        public byte[] getBackingArray() { 
+        return (arr_ instanceof MemoryBlockSafeByteArray) ?
+    		((MemoryBlockSafeByteArray) arr_).getBackingArray()
+			: null; }
+
+       public int[] getDescriptor() {
+          return arr_.getDescriptor();
+       }
 
 	public long getUnsafeDescriptor() {
 		return arr_.getUnsafeDescriptor();

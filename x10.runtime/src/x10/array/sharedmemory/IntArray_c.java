@@ -90,7 +90,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 			int ranks[] = new int[rank];
 			for (int i = 0; i < rank; ++i)
 				ranks[i] = d.region.rank(i).size();
-			this.arr_ = Allocator.allocUnsafe(count, ranks, Allocator.SIZE_INT);
+			this.arr_ = Allocator.allocUnsafe(count, ranks, Integer.TYPE);
 		} else if (a != null) {
 			this.arr_ = Allocator.allocSafeIntArray(a); // Allocator.allocSafe(count, Integer.TYPE);
 		} else {
@@ -98,7 +98,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		}
 	}
 
-	protected IntArray_c(dist d, int[] a, boolean safe, boolean mutable) {
+	public IntArray_c(dist d, int[] a, boolean safe, boolean mutable) {
 		this(d, safe, mutable, a);
 	}
 
@@ -118,6 +118,10 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 		return (arr_ instanceof MemoryBlockSafeIntArray) ?
 			((MemoryBlockSafeIntArray) arr_).getBackingArray() : null;
 	}
+
+       public int[] getDescriptor() {
+          return arr_.getDescriptor();
+       }
 
 	/* Overrides the superclass method - this implementation is more efficient */
 	public void reduction(Operator.Reduction op) {
