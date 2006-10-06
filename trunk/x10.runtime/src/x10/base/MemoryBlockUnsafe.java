@@ -19,6 +19,7 @@ public class MemoryBlockUnsafe extends MemoryBlock {
 
     private static final Unsafe unsafe_ = getUnsafe(); // for sun.misc.Unsafe
 
+
     public boolean valueEquals(MemoryBlock other) {
         MemoryBlockUnsafe m = (MemoryBlockUnsafe) other;
         if (m.size_ == size_) {
@@ -64,6 +65,12 @@ public class MemoryBlockUnsafe extends MemoryBlock {
         assert (descriptor_ != 0);
         return descriptor_;
     }
+
+    public int[] getDescriptor() {
+     throw new Error("should not be called");
+
+     }
+    public void setDescriptor(int[] x) { throw new Error("should not be called");}
 
     public int count() { 
        return count_;

@@ -21,6 +21,8 @@ public class MemoryBlockSafeLongArray extends MemoryBlockSafe {
             return false;
     }
 
+
+    public long[] getBackingArray() { return arr_; }
     
     MemoryBlockSafeLongArray(int count) {
         arr_ = new long[count];

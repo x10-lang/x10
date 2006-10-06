@@ -9,10 +9,71 @@ package x10.base;
  */
 public final class Allocator {
 
-    public static final MemoryBlock allocUnsafe(int count, int[] ranks, long size) {
-        assert (size > 0);
+private static final boolean useSunMiscUnsafe =false;
+    public static final MemoryBlock allocUnsafe(int count, int[] ranks, Class cl) {
+     
         assert (count >= 0);
-        return new MemoryBlockUnsafe(count, ranks, size); 
+        if(useSunMiscUnsafe)
+           {
+           long size;
+           if (cl == Boolean.TYPE) 
+              size = Allocator.SIZE_BOOLEAN;
+           else if (cl == Character.TYPE) 
+              size = Allocator.SIZE_CHAR;
+           else if (cl == Byte.TYPE) 
+              size = Allocator.SIZE_BYTE;
+           else if (cl == Short.TYPE) 
+              size = Allocator.SIZE_SHORT;
+           else if (cl == Integer.TYPE) 
+              size = Allocator.SIZE_INT;
+           else if (cl == Float.TYPE)
+              size = Allocator.SIZE_FLOAT;
+           else if (cl == Double.TYPE)
+              size = Allocator.SIZE_DOUBLE;
+           else if (cl == Long.TYPE)
+              size = Allocator.SIZE_LONG;
+           else if (! cl.isPrimitive()) 
+              size = Allocator.SIZE_LONG;
+           else
+              {
+              throw new Error("Allocator:: size not unknown " + cl + "'");
+              }
+           return new MemoryBlockUnsafe(count, ranks, size); 
+           }
+        else 
+           {
+           assert (count < Integer.MAX_VALUE);
+        
+           MemoryBlockSafe mb;
+           if (cl == Boolean.TYPE) 
+              mb = new MemoryBlockSafeBooleanArray((int) count);
+           else if (cl == Character.TYPE) 
+              mb = new MemoryBlockSafeCharArray((int) count);
+           else if (cl == Byte.TYPE) 
+              mb = new MemoryBlockSafeByteArray((int) count);
+           else if (cl == Short.TYPE) 
+              mb = new MemoryBlockSafeShortArray((int) count);
+           else if (cl == Integer.TYPE) 
+              mb = new MemoryBlockSafeIntArray((int) count);
+           else if (cl == Float.TYPE)
+              mb = new MemoryBlockSafeFloatArray((int) count);
+           else if (cl == Double.TYPE)
+              mb = new MemoryBlockSafeDoubleArray((int) count);
+           else if (cl == Long.TYPE)
+              mb = new MemoryBlockSafeLongArray((int) count);
+           else if (! cl.isPrimitive()) 
+              mb = new MemoryBlockSafeObjectArray((int) count);
+           else
+              {
+              mb = null;
+              throw new Error("Allocator:: allocSafe not unknown " + cl + "'");
+              }
+           int[] descriptor = new int[ranks.length+1];
+	   descriptor[0] = ranks.length;
+	   for(int i=0;i < ranks.length;++i) descriptor[1+i] = ranks[i];
+           mb.setDescriptor(descriptor);
+           return mb; 
+           }
     }
     
     

@@ -26,6 +26,8 @@ public class MemoryBlockSafeBooleanArray extends MemoryBlockSafe {
     MemoryBlockSafeBooleanArray(int count) {
         arr_ = new boolean[count];
     }
+
+    public boolean[] getBackingArray() { return arr_; }
     
     MemoryBlockSafeBooleanArray(boolean[] a) {
         arr_ = a;

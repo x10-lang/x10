@@ -22,6 +22,8 @@ public class MemoryBlockSafeFloatArray extends MemoryBlockSafe {
     }
     
 
+    public float[] getBackingArray() { return arr_; }
+
     
     MemoryBlockSafeFloatArray(int count) {
         arr_ = new float[count];

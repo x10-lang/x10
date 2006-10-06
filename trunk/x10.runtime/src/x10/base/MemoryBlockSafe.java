@@ -16,5 +16,8 @@ public abstract class MemoryBlockSafe extends MemoryBlock {
     
     public long getUnsafeDescriptor() {
         throw new Error("MemoryBlockSafe: no descriptor for safe memory.");
-    }
+    } 
+   public int[] getDescriptor() {return descriptor_;}
+   public void setDescriptor(int rank[]) { descriptor_ = rank;};
+   private int[] descriptor_;
 }
