@@ -595,7 +595,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		String returnedValue="";
 		if (!nativeMethod.methodInstance().returnType().isVoid()){
 			String tempName="_x10ReTuRnVaL";
-			saveTheValue = nativeMethod.methodInstance().returnType() + " "+ tempName+"="+
+			saveTheValue = typeToCType(nativeMethod.methodInstance().returnType()) + 
+			" "+ tempName+"="+
 			maybeUncast(nativeMethod.methodInstance().returnType());
 			returnedValue="return "+tempName+";\n";
 		}
