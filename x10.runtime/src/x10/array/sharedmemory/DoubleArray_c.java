@@ -27,7 +27,7 @@ import x10.runtime.Configuration;
 public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Cloneable {
 
 	protected final boolean safe_;
-	protected final MemoryBlock arr_;
+	public final MemoryBlock arr_;
 	protected final boolean mutable_;
 
 	public boolean valueEquals(Indexable other) {
@@ -89,7 +89,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
 				ranks[i] = d.region.rank(i).size();
 			this.arr_ = Allocator.allocUnsafe(count, ranks, Double.TYPE);
 		} else if (a == null) {
-			this.arr_ = Allocator.allocSafe(count, Double.TYPE);
+			this.arr_ = Allocator.allocSafe(count, Double.TYPE, d);
 		} else {
 			this.arr_ = Allocator.allocSafeDoubleArray(a);
 		}

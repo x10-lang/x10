@@ -84,7 +84,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 		} else if (a != null) {
 			this.arr_ = Allocator.allocSafeLongArray(a);
 		} else {
-			this.arr_ = Allocator.allocSafe(count, Long.TYPE);
+			this.arr_ = Allocator.allocSafe(count, Long.TYPE, d);
 		}
 	}
 

@@ -90,7 +90,7 @@ public class ByteArray_c extends ByteArray implements UnsafeContainer, Cloneable
 				ranks[i] = d.region.rank(i).size();
 			this.arr_ = Allocator.allocUnsafe(count, ranks, Byte.TYPE);
 		} else {
-			this.arr_ = Allocator.allocSafe(count, Byte.TYPE);
+			this.arr_ = Allocator.allocSafe(count, Byte.TYPE, d);
 		}
 	}
 

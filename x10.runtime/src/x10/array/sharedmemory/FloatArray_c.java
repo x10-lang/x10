@@ -84,7 +84,7 @@ public class FloatArray_c extends FloatArray implements UnsafeContainer, Cloneab
 				ranks[i] = d.region.rank(i).size();
 			this.arr_ = Allocator.allocUnsafe(count, ranks, Float.TYPE);
 		} else {
-			this.arr_ = Allocator.allocSafe(count, Float.TYPE);
+			this.arr_ = Allocator.allocSafe(count, Float.TYPE, d);
 		}
 	}
 

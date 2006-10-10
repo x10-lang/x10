@@ -89,7 +89,7 @@ public class ShortArray_c extends ShortArray implements UnsafeContainer, Cloneab
 				ranks[i] = d.region.rank(i).size();
 			this.arr_ = Allocator.allocUnsafe(count, ranks, Short.TYPE);
 		} else {
-			this.arr_ = Allocator.allocSafe(count, Short.TYPE);
+			this.arr_ = Allocator.allocSafe(count, Short.TYPE, d);
 		}
 	}
 
