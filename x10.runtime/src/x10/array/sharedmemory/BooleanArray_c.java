@@ -84,7 +84,7 @@ public class BooleanArray_c extends BooleanArray implements UnsafeContainer, Clo
 				ranks[i] = d.region.rank(i).size();
 			this.arr_ = Allocator.allocUnsafe(count, ranks, Boolean.TYPE);
 		} else {
-			this.arr_ = Allocator.allocSafe(count, Boolean.TYPE);
+			this.arr_ = Allocator.allocSafe(count, Boolean.TYPE, d);
 		}
 	}
 

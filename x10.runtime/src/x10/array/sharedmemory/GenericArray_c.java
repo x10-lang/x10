@@ -95,7 +95,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 		} else if (a != null) {
 			this.arr_ = Allocator.allocSafeObjectArray(a);
 		} else {
-			this.arr_ = Allocator.allocSafe(count, Parameter1.class);
+			this.arr_ = Allocator.allocSafe(count, Parameter1.class, d);
 		}
 	}
 
