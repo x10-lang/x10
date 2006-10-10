@@ -139,6 +139,10 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 		//  + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
 	}
+	public String typeName() { 
+		return  
+		((baseType == this) ? super.toString() : ((X10PrimitiveType_c) baseType).toString());
+	}
 	/*   public String toString() { 
 	 //Report.report(5,"X10ParsedClassType: toString |" + super.toString() + "|(#" 
 	  //        + this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");

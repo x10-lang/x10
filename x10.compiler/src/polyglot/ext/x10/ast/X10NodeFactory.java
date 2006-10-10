@@ -101,6 +101,7 @@ public interface X10NodeFactory extends NodeFactory {
             Expr retWhereClause, List formals, Expr argWhereClause, List throwTypes, Block body);
     PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, String name);
     Special Self(Position pos);
-    FieldDecl CompilerTest(Position pos);
+    
+    StmtSeq StmtSeq(Position pos, List/*<Stmt>*/ l);
 }
 

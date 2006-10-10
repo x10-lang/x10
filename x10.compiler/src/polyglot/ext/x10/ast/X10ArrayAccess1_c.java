@@ -184,7 +184,7 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 	public String toString() {
 	    X10Type pt = ( X10Type) type;
         String result = "";
-	    if (pt.isParametric()) {
+	    if (pt != null && pt.isParametric()) {
 	        Type type = (Type) pt.typeParameters().get(0);
 	        result = "(" + type + ")";
 	    }

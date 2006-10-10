@@ -1,8 +1,9 @@
-// SYNOPSIS: future(#0) #1
+// SYNOPSIS: future(#0) #1 #2
 (x10.lang.Runtime.asPlace(#0)).runFuture(new x10.runtime.Activity.Expr() {
   private x10.lang.Object x10_result_;
   public void runSource() {
-     this.x10_result_ = (#1);
+     #1
+     this.x10_result_ = (#2);
   }
   public x10.lang.Object getResult() {
      return x10_result_;

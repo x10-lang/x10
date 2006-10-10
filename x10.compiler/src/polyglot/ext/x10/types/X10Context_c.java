@@ -37,8 +37,10 @@ package polyglot.ext.x10.types;
  * @see Context
  */
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
+import polyglot.ast.Stmt;
 import polyglot.ext.jl.types.Context_c;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
@@ -341,4 +343,10 @@ public class X10Context_c extends Context_c implements X10Context {
 	 public String toString() {
 	        return "(" + (depType !=null ? "depType" + depType : kind.toString()) + " " + mapsToString() + " " + outer + ")";
 	    }
+	 static protected int varCount=0;
+	 public String getNewVarName() {
+		 return MAGIC_VAR_PREFIX + (varCount++);
+	 }
+	
+	 
 }

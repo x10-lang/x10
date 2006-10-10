@@ -5471,7 +5471,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 
                 //#line 1418 "x10.g"
     List l = new TypedList(new LinkedList(), ClassMember.class, false);
-    l.add(nf.CompilerTest(pos()));
+   // l.add(nf.CompilerTest(pos()));
     setResult(l);
             break;
             }  

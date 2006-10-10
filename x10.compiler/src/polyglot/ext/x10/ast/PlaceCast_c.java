@@ -12,6 +12,8 @@ import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
+import polyglot.ext.x10.visit.ExprFlattener;
+import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
@@ -19,7 +21,7 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 
-/**
+/** An immutable representation of the X10 construct (@place) expr. 
  * @author vj May 18, 2005
  * 
  */
@@ -52,7 +54,11 @@ public class PlaceCast_c extends Expr_c implements PlaceCast {
 	public Node visitChildren(NodeVisitor v) {
 		Expr place = (Expr) visitChild(this.place, v);
 		Expr expr = (Expr) visitChild(this.expr, v);
-		return reconstruct(place, expr);
+		Node result = reconstruct(place, expr);
+		if (v instanceof ExprFlattener.Flattener ) {
+			Report.report(1, "PlaceCast_c flattened to |" + result + "|");
+		}
+		return result;
 	}
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
