@@ -11,8 +11,8 @@ public class Unsafe extends x10Test {
 		dist d = dist.factory.constant(r, here);
 
 		int [.] x = new int [d]; // ok
-		int [.] y = new int unsafe[d]; //ok
-		int value [.] y1 = new int value unsafe[d]; // ok
+		int [.] y = new int [d]; //ok
+		int value [.] y1 = new int value [d]; // ok
 		int [.] zz = new int[d] (point p) { return 41; }; //bad
 		return true;
 	}
