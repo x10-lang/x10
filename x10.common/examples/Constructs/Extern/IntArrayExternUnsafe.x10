@@ -12,7 +12,7 @@ public class IntArrayExternUnsafe extends x10Test {
 		int high = 10;
 		boolean verified = false;
 		dist d = [0:high]->here;
-		int[.] y = new int unsafe[d];
+		int[.] y = new int[d];
 
 		for (int j = 0; j < 10; ++j) {
 			y[j] = j;
