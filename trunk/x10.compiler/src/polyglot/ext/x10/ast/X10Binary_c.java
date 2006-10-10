@@ -6,15 +6,30 @@ package polyglot.ext.x10.ast;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.Assign;
+import polyglot.ast.Binary;
 import polyglot.ast.Expr;
+import polyglot.ast.Local;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
+import polyglot.ast.Stmt;
+import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
+import polyglot.ast.Binary.Operator;
 import polyglot.ext.jl.ast.Binary_c;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.visit.ExprFlattener;
+import polyglot.ext.x10.visit.ExprFlattener.Flattener;
 import polyglot.main.Report;
+import polyglot.types.Context;
+import polyglot.types.Flags;
+import polyglot.types.LocalInstance;
 import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
@@ -34,7 +49,7 @@ import x10.lang.region;
  *
  * @author vj Jan 21, 2005
  */
-public class X10Binary_c extends Binary_c {
+public class X10Binary_c extends Binary_c implements X10Binary {
 
 	private final X10TypeSystem xts = X10TypeSystem_c.getTypeSystem();
 	private final X10NodeFactory_c xnf = X10NodeFactory_c.getNodeFactory();
@@ -257,6 +272,58 @@ public class X10Binary_c extends Binary_c {
 		return super.typeCheck(tc);
 	}
 
+	 /** Flatten the expressions in place and body, creating stmt if necessary.
+     * The place field must be visited by the given flattener since those statements must be executed outside
+     * the future. Howeever, the body must be visited in a new flattener and the statements produced
+     * captured and stored in stmt. 
+     * Note that this works by side-effecting the current node. This is necessary
+     * because the method is called from within an enter call for a Visitor. I dont know
+     * of any way of making the enter call return a copy of the node. 
+     * @param fc
+     * @return
+     */
+	public Expr flatten(ExprFlattener.Flattener fc) {
+		Report.report(1, "X10Binary_c: entering X10Binary " + this);
+		assert (op== Binary.COND_AND || op==Binary.COND_OR);
+		X10Context xc = (X10Context) fc.context();
+		
+		
+		final String resultVarName = xc.getNewVarName();
+		final NodeFactory nf = fc.nodeFactory();
+		final TypeSystem ts = fc.typeSystem();
+		final Position pos = position();
+		final TypeNode tn = nf.CanonicalTypeNode(pos,type);
+		Flags flags = Flags.NONE;
+		
+		final LocalInstance li = ts.localInstance(pos, flags, type, resultVarName);
+		// Evaluate the left.
+		Expr nLeft = (Expr) left.visit(fc);
+		final LocalDecl ld = nf.LocalDecl(pos, flags, tn, resultVarName, nLeft).localInstance(li);
+		fc.add(ld);
+		
+		final Local ldRef = (Local) nf.Local(pos,resultVarName).localInstance(li).type(type);
+		Flattener newVisitor = (Flattener) new ExprFlattener.Flattener(fc.job(), ts, nf, this).context(xc);
+		Expr nRight = (Expr) right.visit(newVisitor);
+		List condBody = newVisitor.stmtList(); 
+		Expr assign = nf.Assign(pos, ldRef, Assign.ASSIGN, nRight ).type(type);
+		Stmt eval = nf.Eval(pos, assign);
+		condBody.add(eval);
+		final Local ldRef2 = (Local) nf.Local(pos,resultVarName).localInstance(li).type(type);
+		
+		if (op == Binary.COND_AND) {
+			final Stmt ifStm = nf.If(pos, ldRef2, nf.Block(pos, condBody));
+			fc.add(ifStm);
+		} else {
+			Expr cond = nf.Unary(pos, ldRef2, Unary.NOT).type(type);
+			final Stmt ifStm = nf.If(pos, cond, nf.Block(pos, condBody));
+			fc.add(ifStm);
+		}
+		
+		final Local ldRef3 = (Local) nf.Local(pos,resultVarName).localInstance(li).type(type);
+		Report.report(1, "X10Binary_c: returning " + ldRef3);
+		return ldRef3;
+		
+	}
 	public List acceptCFG(CFGBuilder v, List succs) {
 		if ((op == COND_OR && (left instanceof dist || left instanceof region))
 				|| (op == COND_AND && left instanceof region))

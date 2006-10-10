@@ -225,7 +225,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(Future_c f) {
-		new Template("Future", f.place(), f.body()).expand();
+		new Template("Future", f.place(), f.stmt(), f.body()).expand();
 	}
 
 	public void visit(ForLoop_c f) {

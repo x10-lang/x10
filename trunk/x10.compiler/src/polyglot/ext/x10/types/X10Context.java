@@ -1,12 +1,20 @@
 package polyglot.ext.x10.types;
 
+import java.util.List;
+
+import polyglot.ast.Stmt;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 
 public interface X10Context extends Context {
-	
+	/**
+	 * The prefix for compiler generated variables. No user-specified
+	 * type or package or parameter name or local variable should begin
+	 * with this prefix.
+	 */
+	String MAGIC_VAR_PREFIX = "x10$__var";
 	// Use addVariable to add a PropertyInstance to the context.
 	
 	/**
@@ -48,4 +56,7 @@ public interface X10Context extends Context {
     boolean inLocalCode();
     boolean inSequentialCode();
     boolean inNonBlockingCode();
+    
+    String getNewVarName();
+   
 }

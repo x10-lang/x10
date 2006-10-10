@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Block;
+import polyglot.ast.CompoundStmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
@@ -37,7 +38,7 @@ import polyglot.visit.TypeChecker;
  * @author vj
  */
 
-public class Async_c extends Stmt_c implements Async, Clocked {
+public class Async_c extends Stmt_c implements Async, Clocked, CompoundStmt {
 
 	public Expr place;
 	public Stmt body;

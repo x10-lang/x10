@@ -1,5 +1,6 @@
 package polyglot.ext.x10.ast;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +22,9 @@ import polyglot.ast.Expr;
 import polyglot.ast.ExtFactory;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.For;
 import polyglot.ast.Formal;
+import polyglot.ast.If;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -33,9 +36,12 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.ext.jl.ast.Block_c;
 import polyglot.ext.jl.ast.BooleanLit_c;
 import polyglot.ext.jl.ast.Disamb_c;
 import polyglot.ext.jl.ast.FieldDecl_c;
+import polyglot.ext.jl.ast.For_c;
+import polyglot.ext.jl.ast.If_c;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.jl.ast.Local_c;
 import polyglot.ext.jl.ast.New_c;
@@ -104,13 +110,25 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (Instanceof) n.del(new X10InstanceofDel_c());
 	}
 
+	// Wrap the body of the async in a Block so as to ease further code transforamtions.
 	public Async Async(Position pos, Expr place, List clocks, Stmt body) {
+		if (body != null) {
+			List l= new ArrayList();
+			l.add(body);
+			body = Block(body.position(), l);
+		}
 		Async a = new Async_c(pos, place, clocks, body);
 		a = (Async) a.ext(extFactory().extExpr());
 		return (Async) a.del(delFactory().delExpr());
 	}
 
+	// Wrap the body of an atomic in a block to facilitate code transformation.
 	public Atomic Atomic(Position pos, Expr place, Stmt body) {
+		if (body != null) {
+			List l = new ArrayList();
+			l.add(body);
+			body = Block(body.position(), l);
+		}
 		Atomic a = new Atomic_c(pos, place, body);
 		a = (Atomic) a.ext(extFactory().extExpr());
 		return (Atomic) a.del(delFactory().delExpr());
@@ -129,7 +147,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (Here) f.del(delFactory().delStmt());
 	}
 
+	// Wrap the body of a When in a conditional to facilitate code transformations
 	public When When(Position pos, Expr expr, Stmt statement) {
+		if (statement != null) {
+			List l = new ArrayList();
+			l.add(statement);
+			statement = Block(statement.position(), l);
+		}
 		When w = new When_c(pos, expr, statement);
 		w = (When) w.ext(extFactory().extStmt());
 		return (When) w.del(delFactory().delStmt());
@@ -260,30 +284,66 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (New) n.del(delFactory().delExpr());
 	}
 
+//	 Wrap the body in a block to facilitate code transformations
 	public X10Loop AtEach(Position pos, Formal formal, Expr domain,
 						  List clocks, Stmt body)
 	{
+		if (body != null) {
+			List l = new ArrayList();
+			l.add(body);
+			body = Block(body.position(), l);
+		}
 		X10Loop n = new AtEach_c(pos, formal, domain, clocks, body);
 		n = (X10Loop) n.ext(extFactory().extStmt());
 		return (X10Loop) n.del(delFactory().delStmt());
 	}
 
+	public For For(Position pos, List inits, Expr cond, List iters, Stmt body) {
+		if (body != null) {
+			List l = new ArrayList();
+			l.add(body);
+			body = Block(body.position(), l);
+		}
+        For n = new For_c(pos, inits, cond, iters, body);
+        n = (For)n.ext(extFactory().extFor());
+        n = (For)n.del(delFactory().delFor());
+        return n;
+    }
+
+//	 Wrap the body in a block to facilitate code transformations
 	public X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body)
 	{
+		if (body != null) {
+			List l = new ArrayList();
+			l.add(body);
+			body = Block(body.position(), l);
+		}
 		X10Loop n = new ForLoop_c(pos, formal, domain, body);
 		n = (X10Loop) n.ext(extFactory().extStmt());
 		return (X10Loop) n.del(delFactory().delStmt());
 	}
 
+//	 Wrap the body in a block to facilitate code transformations
 	public X10Loop ForEach(Position pos, Formal formal, Expr domain,
 						   List clocks, Stmt body)
 	{
+		if (body != null) {
+			List l = new ArrayList();
+			l.add(body);
+			body = Block(body.position(), l);
+		}
 		X10Loop n = new ForEach_c(pos, formal, domain, clocks, body);
 		n = (X10Loop) n.ext(extFactory().extStmt());
 		return (X10Loop) n.del(delFactory().delStmt());
 	}
 
+	// Wrap the body in a block to facilitate code transformations
 	public Finish Finish(Position pos, Stmt body) {
+		if (body != null) {
+			List l = new ArrayList();
+			l.add(body);
+			body = Block(body.position(), l);
+		}
 		Finish n = new Finish_c(pos, body);
 		n = (Finish) n.ext(extFactory().extStmt());
 		return (Finish) n.del(delFactory().delStmt());
@@ -633,9 +693,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
        return n;
    }
 
-    public FieldDecl CompilerTest(Position pos) {
-        return new CompilerTest_c(pos);
-    }
+    
     public Local Local(Position pos, String name) {
         Local n = new X10Local_c(pos, name);
         n = (Local)n.ext(extFactory().extLocal());
@@ -646,6 +704,32 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         BooleanLit n = new X10BooleanLit_c(pos, value);
         n = (BooleanLit)n.ext(extFactory().extBooleanLit());
         n = (BooleanLit)n.del(delFactory().delBooleanLit());
+        return n;
+    }
+    public StmtSeq StmtSeq(Position pos, List statements) {
+        StmtSeq n = new StmtSeq_c(pos, statements);
+        n = (StmtSeq)n.ext(extFactory().extBlock());
+        n = (StmtSeq)n.del(delFactory().delBlock());
+        return n;
+    }
+    // Place the consequent and the alternative in blocks to ease
+    // further rewrites of the AST.
+    public If If(Position pos, Expr cond, Stmt consequent, Stmt alternative) {
+    	if (consequent != null) {
+    		List l = new ArrayList();
+    		l.add(consequent);
+    		consequent = Block(consequent.position(), l);
+    	}
+    	
+    	if (alternative != null) {
+    		List l2 = new ArrayList();
+    		l2.add(alternative);
+    		alternative = Block(alternative.position(), l2);
+    	}
+    	
+        If n = new If_c(pos, cond, consequent, alternative);
+        n = (If)n.ext(extFactory().extIf());
+        n = (If)n.del(delFactory().delIf());
         return n;
     }
 }

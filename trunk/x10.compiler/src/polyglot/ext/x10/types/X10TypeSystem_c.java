@@ -855,7 +855,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	}
 
 	public MethodInstance getter(X10PrimitiveType t) {
-		String methodName = t.toString() + "Value";
+		String methodName = t.typeName() + "Value";
 		ConstructorInstance ci = wrapper(t);
 
 		for (Iterator i = ci.container().methods().iterator(); i.hasNext(); ) {

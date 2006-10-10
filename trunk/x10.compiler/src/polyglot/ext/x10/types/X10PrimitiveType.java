@@ -14,5 +14,5 @@ import polyglot.types.PrimitiveType;
  *
  */
 public interface X10PrimitiveType extends PrimitiveType, /* ClassType,*/ X10NamedType {
-
+   String typeName();
 }
