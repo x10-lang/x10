@@ -90,7 +90,7 @@ public class CharArray_c extends CharArray implements UnsafeContainer, Cloneable
 				ranks[i] = d.region.rank(i).size();
 			this.arr_ = Allocator.allocUnsafe(count, ranks, Character.TYPE);
 		} else {
-			this.arr_ =Allocator.allocSafe(count, Character.TYPE);
+			this.arr_ =Allocator.allocSafe(count, Character.TYPE, d);
 		}
 	}
 
