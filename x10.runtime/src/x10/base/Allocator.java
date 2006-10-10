@@ -3,6 +3,8 @@
  */
 package x10.base;
 
+import x10.lang.dist;
+
 /**
  * @author Christoph von Praun
  *
@@ -84,11 +86,16 @@ private static final boolean useSunMiscUnsafe =false;
     }
     
     public static final MemoryBlock allocSafe(long size, Class cl) {
+        // at some point, delete this method!!
+        return allocSafe(size, cl, null);
+    }
+    
+    public static final MemoryBlock allocSafe(long size, Class cl, dist d) {
         assert (cl != null);
         assert (size >= 0);
         assert (size < Integer.MAX_VALUE);
         
-        MemoryBlock mb;
+        MemoryBlockSafe mb;
         if (cl == Boolean.TYPE) 
             mb = new MemoryBlockSafeBooleanArray((int) size);
         else if (cl == Character.TYPE) 
@@ -111,9 +118,18 @@ private static final boolean useSunMiscUnsafe =false;
             mb = null;
             throw new Error("Allocator:: allocSafe not unknown " + cl + "'");
         }
+        // at some point, assert d != null
+        if (d != null) {
+            int[] desc = new int[d.region.rank+1];
+            desc[0] = d.region.rank;
+            for (int i = 0; i < d.region.rank; ++i) {
+                desc[i+1] = d.region.rank(i).size();
+            }
+            mb.setDescriptor(desc);
+        }
         return mb;
     }
-    public static final MemoryBlock allocSafeIntArray(int[] a) {      
+    public static final MemoryBlock allocSafeIntArray(int[] a) {
         return new MemoryBlockSafeIntArray( a );
     }
     
