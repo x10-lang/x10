@@ -93,7 +93,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 				ranks[i] = d.region.rank(i).size();
 			this.arr_ = Allocator.allocUnsafe(count, ranks, Parameter1.class);
 		} else if (a != null) {
-			this.arr_ = Allocator.allocSafeObjectArray(a);
+			this.arr_ = Allocator.allocSafeObjectArray(a,d);
 		} else {
 			this.arr_ = Allocator.allocSafe(count, Parameter1.class, d);
 		}

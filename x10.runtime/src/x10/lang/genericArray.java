@@ -19,6 +19,8 @@ extends x10Array {
 		super(D);
 	}
 
+	abstract public int[] getBackingArray();
+
 	/**
 	 * Return the value of the array at the given point in the
 	 * region.

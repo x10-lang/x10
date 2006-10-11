@@ -17,8 +17,6 @@ public abstract class GenericReferenceArray extends genericArray {
 		super( D );
 	}
 
-	public int[] getBackingArray() { throw new Error("should not be called");}
-
 	abstract public Parameter1 set( Parameter1 v, point/*(region)*/ p);
 	abstract /*value*/ public Parameter1 set(Parameter1 v, int p);
 	abstract /*value*/ public Parameter1 set(Parameter1 v, int p, int q);

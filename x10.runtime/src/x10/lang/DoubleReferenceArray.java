@@ -15,8 +15,6 @@ public abstract class DoubleReferenceArray extends doubleArray {
 		super( D );
 	}
 
-	public double[] getBackingArray() { throw new Error("should not be called");}
-
 	abstract public double set( double v, point/*(region)*/ p);
 	abstract /*value*/ public double set(double v, int p);
 	abstract /*value*/ public double set(double v, int p, int q);

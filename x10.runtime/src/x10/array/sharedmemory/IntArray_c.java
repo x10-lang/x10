@@ -27,7 +27,7 @@ import x10.runtime.Configuration;
 public class IntArray_c extends IntArray implements UnsafeContainer {
 
 	protected final boolean safe_;
-	private final MemoryBlock arr_;
+	protected final MemoryBlock arr_;
 	public final boolean mutable_;
 
 	public boolean valueEquals(Indexable other) {
@@ -92,7 +92,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 				ranks[i] = d.region.rank(i).size();
 			this.arr_ = Allocator.allocUnsafe(count, ranks, Integer.TYPE);
 		} else if (a != null) {
-			this.arr_ = Allocator.allocSafeIntArray(a); // Allocator.allocSafe(count, Integer.TYPE);
+			this.arr_ = Allocator.allocSafeIntArray(a,d); // Allocator.allocSafe(count, Integer.TYPE);
 		} else {
 			this.arr_ = Allocator.allocSafe(count, Integer.TYPE, d);		}
 	}

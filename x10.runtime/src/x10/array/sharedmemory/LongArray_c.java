@@ -82,7 +82,7 @@ public class LongArray_c extends LongArray implements UnsafeContainer {
 				ranks[i] = d.region.rank(i).size();
 			this.arr_ = Allocator.allocUnsafe(count, ranks, Long.TYPE);
 		} else if (a != null) {
-			this.arr_ = Allocator.allocSafeLongArray(a);
+			this.arr_ = Allocator.allocSafeLongArray(a,d);
 		} else {
 			this.arr_ = Allocator.allocSafe(count, Long.TYPE, d);
 		}

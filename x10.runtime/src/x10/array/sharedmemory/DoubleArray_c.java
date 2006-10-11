@@ -91,7 +91,7 @@ public class DoubleArray_c extends DoubleArray implements UnsafeContainer, Clone
 		} else if (a == null) {
 			this.arr_ = Allocator.allocSafe(count, Double.TYPE, d);
 		} else {
-			this.arr_ = Allocator.allocSafeDoubleArray(a);
+			this.arr_ = Allocator.allocSafeDoubleArray(a,d);
 		}
 	}
 

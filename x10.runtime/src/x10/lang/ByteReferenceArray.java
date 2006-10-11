@@ -15,8 +15,6 @@ public abstract class ByteReferenceArray extends byteArray {
 		super( D );
 	}
 
-	public byte[] getBackingArray() { throw new Error("should not be called");}
-
 	abstract public byte set( byte v, point/*(region)*/ p);
 	abstract /*value*/ public byte set(byte v, int p);
 	abstract /*value*/ public byte set(byte v, int p, int q);

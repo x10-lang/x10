@@ -23,8 +23,6 @@ public abstract class IntReferenceArray extends intArray {
 	abstract public int set(int v, int p, int q, int r);
 	abstract public int set(int v, int p, int q, int r, int s);
 
-	public int[] getBackingArray() { throw new Error("should not be called");}
-	
 	public int addSet( int v, point/*(region)*/ p) {
 		return set(get(p)+v,p);
 	}

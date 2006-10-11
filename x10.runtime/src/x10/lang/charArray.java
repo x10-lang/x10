@@ -17,6 +17,8 @@ abstract public class charArray extends x10Array {
 		super(D);
 	}
 
+	abstract public char[] getBackingArray();
+
 	/**
 	 * Return the value of the array at the given point in the
 	 * region.

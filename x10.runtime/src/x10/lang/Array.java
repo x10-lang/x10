@@ -10,5 +10,6 @@ package x10.lang;
 public interface Array extends Indexable {
 	public static interface binaryOp { }
 	public static interface unaryOp { }
-	public static interface pointwiseOp { }
+	public static interface pointwiseOp { } 
+        public int[] getDescriptor();
 }

@@ -12,7 +12,6 @@ package x10.lang;
  * @author igor 09/13/2006 -- made an interface
  */
 public interface BooleanReferenceArray extends booleanArray {
-	//public boolean[] getBackingArray() { throw new Error("should not be called");} cannot use this approach since igor changed this to an interface--unsupported for now
 	abstract public boolean set( boolean v, point/*(region)*/ p);
 	abstract /*value*/ public boolean set(boolean v, int p);
 	abstract /*value*/ public boolean set(boolean v, int p, int q);
