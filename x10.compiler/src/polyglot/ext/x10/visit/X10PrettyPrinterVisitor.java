@@ -32,6 +32,7 @@ import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
 import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Await_c;
+import polyglot.ext.x10.ast.Clocked;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
 import polyglot.ext.x10.ast.ForLoop_c;
@@ -189,22 +190,26 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			dec.prettyPrint(w, pp);
 	}
 
-	public void visit(Async_c a) {
-		assert (null != a.clocks());
-		Object clocks = null;
-		if (a.clocks().isEmpty())
+	private Template processClocks(Clocked c) {
+		assert (null != c.clocks());
+		Template clocks = null;
+		if (c.clocks().isEmpty())
 			clocks = null;
-		else if (a.clocks().size() == 1)
-			clocks = new Template("clock", a.clocks().get(0));
+		else if (c.clocks().size() == 1)
+			clocks = new Template("clock", c.clocks().get(0));
 		else {
 			Integer id = getUniqueId_();
 			clocks = new Template("clocked",
-								  new Loop("clocked-loop", a.clocks(), new CircularList(id)),
+								  new Loop("clocked-loop", c.clocks(), new CircularList(id)),
 								  id);
 		}
+		return clocks;
+	}
+
+	public void visit(Async_c a) {
 		new Template("Async",
 					 a.place(),
-					 clocks,
+					 processClocks(a),
 					 a.body()).expand();
 	}
 
@@ -293,8 +298,6 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	private void processClockedLoop(String template, X10ClockedLoop l) {
-		assert (null != l.clocks());
-		Integer id = getUniqueId_();
 		new Template(template,
 					 new Object[] {
 						 l.formal().flags().translate(),
@@ -302,11 +305,8 @@ public class X10PrettyPrinterVisitor extends Runabout {
 						 l.formal().name(),
 						 l.domain(),
 						 new Join("\n", new Join("\n", l.locals()), l.body()),
-						 new Template("clocked",
-							 new Join("\n",
-								 new Join("\n", l.locals()),
-								 new Loop("clocked-loop", l.clocks(), new CircularList(id))),
-							 id)
+						 processClocks(l),
+						 new Join("\n", l.locals())
 					 }).expand();
 	}
 
