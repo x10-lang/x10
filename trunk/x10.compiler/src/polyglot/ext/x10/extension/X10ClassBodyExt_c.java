@@ -377,16 +377,44 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		return newNative;
 	}
 
+/* search for the given method.  The method is expected to be found in the regular hierarchy,
+ * but it may be in an interface--if initial search fails, start looking in the interfaces
+ */
         private  MethodInstance findMethod(ClassType_c theClass,String targetName){
 		MethodInstance targetMI=null,memberMI=null;
 		final boolean trace=false;
-		List methods = theClass.methods();
-		for(ListIterator j = methods.listIterator();j.hasNext();){
-			memberMI = (MethodInstance)j.next();
-			if(trace) System.out.println("inspecting member:"+memberMI.name());
-			if (memberMI.name().equals(targetName))
-			   return memberMI;
-		}
+                ClassType_c currentClass=theClass;
+                while(currentClass!=null) {
+                   if(trace) System.out.println("Searching class "+currentClass);
+   		   List methods = currentClass.methods();
+                   for(ListIterator j = methods.listIterator();j.hasNext();){
+                   memberMI = (MethodInstance)j.next();
+                   if(trace) System.out.println("inspecting member:"+memberMI.name());
+                   if (memberMI.name().equals(targetName))
+                      return memberMI;
+                   }
+                   currentClass = (ClassType_c)currentClass.superType();
+                }
+                /* now start looking in the interfaces...*/ 
+                if(trace) System.out.println("Search the interfaces....");
+                currentClass = theClass;
+                while(currentClass!=null) {
+                   List interfaceMethods = currentClass.interfaces();
+
+                   for (ListIterator j = interfaceMethods.listIterator(); j.hasNext();) {
+                      ClassType_c implementationClass = (ClassType_c)j.next();
+                      if(trace)System.out.println("looking at interface "+implementationClass);
+                      List methods = implementationClass.methods();
+
+                      for(ListIterator k = methods.listIterator();k.hasNext();){
+                         memberMI = (MethodInstance)k.next();
+                         if(trace) System.out.println("inspecting member:"+memberMI.name());
+                         if (memberMI.name().equals(targetName))
+                            return memberMI;
+                      }
+                   }
+                   currentClass = (ClassType_c)currentClass.superType();
+                }
 		return null;
         }
 
@@ -443,10 +471,13 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				MethodInstance unsafeBufferMI = null, arrayDescriptorMI = null, backingArrayMI=null;
 				ClassType_c currentClass = ct;
 				boolean doneSearch = false;
+                               
 				while (currentClass != null && !doneSearch) {
 					List interfaceMethods = currentClass.interfaces();
+                               
 					for (ListIterator j = interfaceMethods.listIterator(); j.hasNext();) {
 						ClassType_c implementationClass = (ClassType_c)j.next();
+                                                if(trace)System.out.println("looking at interface "+implementationClass);
 						List methods = implementationClass.methods();
 						for (ListIterator k = methods.listIterator(); k.hasNext();) {
 							memberMI = (MethodInstance) k.next();
@@ -455,11 +486,16 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 								unsafeBufferMI = memberMI;
 							if (memberMI.name().equals(descriptorName))
 								arrayDescriptorMI = memberMI;
+                                                        if(memberMI.name().equals(KgetBackingArrayMethod))
+                                                           backingArrayMI = memberMI;
+                                                         
+
                                                         if(arrayDescriptorMI!=null && (!useSunMiscUnsafe || unsafeBufferMI!=null))
 								break;
 							
 						}
 					}
+
                                         /* look for getBackingArray method.  Note that it is not an interface */
 					if(!useSunMiscUnsafe && backingArrayMI == null){
                                            backingArrayMI = findMethod(currentClass,KgetBackingArrayMethod);
