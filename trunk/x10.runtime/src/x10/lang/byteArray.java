@@ -17,6 +17,8 @@ abstract public class byteArray extends x10Array {
 		super(D);
 	}
 	
+	abstract public byte[] getBackingArray();
+
 	public static final Operator.Binary sub = new Operator.Binary() { public byte apply(byte r, byte s) { return (byte)(r-s); }};
 	public static final Operator.Binary add = new Operator.Binary() { public byte apply(byte r, byte s) { return (byte)(r+s); }};
 	public static final Operator.Binary mul = new Operator.Binary() { public byte apply(byte r, byte s) { return (byte)(r*s); }};

@@ -16,6 +16,8 @@ abstract public class shortArray extends x10Array {
 		super(D);
 	}
 
+	abstract public short[] getBackingArray();
+
 	public static final Operator.Binary sub = new Operator.Binary() { public short apply(short r, short s) { return (short)(r-s); }};
 	public static final Operator.Binary add = new Operator.Binary() { public short apply(short r, short s) { return (short)(r+s); }};
 	public static final Operator.Binary mul = new Operator.Binary() { public short apply(short r, short s) { return (short)(r*s); }};

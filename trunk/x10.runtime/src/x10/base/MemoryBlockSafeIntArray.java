@@ -2,7 +2,7 @@
  * Created on Nov 14, 2004
  */
 package x10.base;
-
+import x10.lang.dist;
 /**
  * @author Christoph von Praun
  * @author vj

@@ -20,7 +20,6 @@ public abstract class ShortReferenceArray extends shortArray {
 	abstract /*value*/ public short set(short v, int p, int q);
 	abstract /*value*/ public short set(short v, int p, int q, int r);
 	abstract /*value*/ public short set(short v, int p, int q, int r, int s);
-	public short[] getBackingArray() { throw new Error("should not be called");}
 	
 	public short addSet( short v, point/*(region)*/ p) {
 		return set((short) (get(p)+v),p);

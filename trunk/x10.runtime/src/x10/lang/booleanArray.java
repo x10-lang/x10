@@ -14,6 +14,8 @@ import x10.array.Operator.Unary;
  * @author igor 09/13/2006 -- made an interface
  */
 public interface booleanArray extends Array {
+        abstract public boolean[] getBackingArray();
+        abstract public int[]  getDescriptor();
 	/**
 	 * Return the value of the array at the given point in the
 	 * region.

@@ -114,28 +114,32 @@ private static final boolean useSunMiscUnsafe =false;
             throw new Error("Allocator:: allocSafe not unknown " + cl + "'");
         }
         assert d != null;
-        int[] desc = new int[d.region.rank+1];
-        desc[0] = d.region.rank;
-        for (int i = 0; i < d.region.rank; ++i) {
-            desc[i+1] = d.region.rank(i).size();
-        }
-        mb.setDescriptor(desc);
+       
+        mb.setDescriptor(d);
         return mb;
     }
-    public static final MemoryBlock allocSafeIntArray(int[] a) {
-        return new MemoryBlockSafeIntArray( a );
+    public static final MemoryBlock allocSafeIntArray(int[] a,dist d) {
+      MemoryBlockSafe mb = new MemoryBlockSafeIntArray( a );
+      mb.setDescriptor(d);
+      return mb;
     }
     
-    public static final MemoryBlock allocSafeLongArray(long[] a) {      
-        return new MemoryBlockSafeLongArray( a );
+    public static final MemoryBlock allocSafeLongArray(long[] a, dist d) {      
+        MemoryBlockSafe mb = new MemoryBlockSafeLongArray( a );
+        mb.setDescriptor(d);
+        return mb;
     }
     
-    public static final MemoryBlock allocSafeDoubleArray(double[] a) {      
-        return new MemoryBlockSafeDoubleArray( a );
+    public static final MemoryBlock allocSafeDoubleArray(double[] a, dist d) {      
+        MemoryBlockSafe mb =  new MemoryBlockSafeDoubleArray( a );
+        mb.setDescriptor(d);
+        return mb;
     }
     
-    public static final MemoryBlock allocSafeObjectArray(Object[] a) {      
-        return new MemoryBlockSafeObjectArray( a );
+    public static final MemoryBlock allocSafeObjectArray(Object[] a, dist d) {      
+        MemoryBlockSafe mb =  new MemoryBlockSafeObjectArray( a );
+        mb.setDescriptor(d);
+        return mb;
     }
     
     public static final int SIZE_BOOLEAN = 1; 

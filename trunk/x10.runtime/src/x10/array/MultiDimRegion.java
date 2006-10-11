@@ -110,7 +110,7 @@ public class MultiDimRegion extends region {
 	 * @return range in the i-th dimension.
 	 */
 	public region rank(/*nat*/int i) {
-		assert i < dims_.length;
+      		assert i < dims_.length;
 		assert i >= 0;
 
 		return dims_[i];

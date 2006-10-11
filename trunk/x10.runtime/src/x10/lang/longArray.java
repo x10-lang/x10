@@ -17,6 +17,8 @@ abstract public class longArray extends x10Array {
 		super(D);
 	}
 
+	abstract public long[] getBackingArray();
+	
 	public static final Operator.Binary sub = new Operator.Binary() { public long apply(long r, long s) { return r-s; }};
 	public static final Operator.Binary add = new Operator.Binary() { public long apply(long r, long s) { return r+s; }};
 	public static final Operator.Binary mul = new Operator.Binary() { public long apply(long r, long s) { return r*s; }};
