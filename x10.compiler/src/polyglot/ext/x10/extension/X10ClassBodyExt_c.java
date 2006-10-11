@@ -593,11 +593,19 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 
        private String generateAcquireStmt(String arrayName,String ptrName) {
-            String stmt ="  void *"+ptrName+" = (*env)->GetPrimitiveArrayCritical(env,"+arrayName+",0);\n";
-            return stmt;
-         }
+          String stmt ="#ifdef __cplusplus\n";
+          stmt +="  void *"+ptrName+" = (env)->GetPrimitiveArrayCritical("+arrayName+",0);\n";
+          stmt += "#else\n";
+          stmt +="  void *"+ptrName+" = (*env)->GetPrimitiveArrayCritical(env,"+arrayName+",0);\n";
+          stmt += "#endif\n";
+          return stmt;
+       }
        private String generateReleaseStmt(String arrayName,String ptrName) {
-            String stmt ="  (*env)->ReleasePrimitiveArrayCritical(env,"+arrayName+","+ptrName+",0);\n";
+             String stmt = "#ifdef __cplusplus\n";
+             stmt +="  (env)->ReleasePrimitiveArrayCritical("+arrayName+","+ptrName+",0);\n"; 
+             stmt += "#else\n";
+             stmt +="  (*env)->ReleasePrimitiveArrayCritical(env,"+arrayName+","+ptrName+",0);\n";
+             stmt += "#endif\n";
             return stmt;
          }
 
