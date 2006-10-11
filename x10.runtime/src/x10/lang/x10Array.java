@@ -18,6 +18,15 @@ abstract public class x10Array extends x10.lang.Object implements Array, Unsafe,
 		region = d.region;
 	}
 
+        /**
+         * @return low bound for a 1D array else throw and exception
+         */
+        public final int low0(){
+           if(rank != 1) throw new Error("low0 can only be called for 1D arrays:"+region);
+           int lowBound = region.rank(0).low();
+           //System.out.println("low bound is:"+lowBound);
+           return lowBound;
+        }
 	// TODO: Remove me
 	public final dist getDistribution() { return distribution; }
 
