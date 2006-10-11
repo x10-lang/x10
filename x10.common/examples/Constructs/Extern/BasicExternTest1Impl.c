@@ -69,8 +69,8 @@ extern "C" {
     else return 44;
   }
 
-  signed int BasicExternTest1_alltypes(unsigned char bool, signed char bt, signed short ch, signed short sh, signed int i, jlong l, float f, double d) {
-    if (!bool) return 9;
+  signed int BasicExternTest1_alltypes(unsigned char b, signed char bt, signed short ch, signed short sh, signed int i, jlong l, float f, double d) {
+    if (!b) return 9;
     if (bt != 1) return 10; 
     if (ch != 2) return 11; 
     if (sh != 3) return 12; 
