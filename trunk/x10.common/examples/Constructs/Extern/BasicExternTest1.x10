@@ -8,7 +8,7 @@ public class BasicExternTest1 extends x10Test {
 	static extern int doit();
 	static extern int overload(float f);
 	static extern int overload(long l);
-	static extern int alltypes(boolean bool, byte bt, char ch, short sh, int i, long l, float f, double d);
+	static extern int alltypes(boolean b, byte bt, char ch, short sh, int i, long l, float f, double d);
 	static extern boolean returnBoolean(int x);
 	static extern byte returnByte(int x);
 	static extern long returnLong(int x);
