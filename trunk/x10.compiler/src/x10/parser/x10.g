@@ -1416,7 +1416,7 @@ $Rules
      FieldDeclaration ::= compilertest . 
       /.$BeginJava
         List l = new TypedList(new LinkedList(), ClassMember.class, false);
-        l.add(nf.CompilerTest(pos()));
+        // l.add(nf.CompilerTest(pos()));
         setResult(l);
       $EndJava ./
     FieldDeclaration ::= ThisClauseopt FieldModifiersopt Type  VariableDeclarators ;
