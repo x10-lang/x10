@@ -189,6 +189,43 @@ $Headers
         public int getEOFTokenKind() { return $prs_type.EOFT_SYMBOL; }
         public PrsStream getParseStream() { return (PrsStream) this; }
 
+        /**
+         * When constructing a SAFARI parser, a handler for error messages
+         * can be passed to the parser.
+         */
+        private IMessageHandler handler = null;
+        public void setMessageHandler(IMessageHandler handler)
+        {
+            this.handler = handler;
+        }
+        
+        //
+        // Report error message for given error_token.
+        //
+        public final void reportErrorTokenMessage(int error_token, String msg)
+        {
+            if (this.handler == null)
+            {
+                int firsttok = super.getFirstRealToken(error_token),
+                    lasttok = super.getLastRealToken(error_token);
+                String location = super.getFileName() + ':' +
+                                  (firsttok > lasttok
+                                            ? (super.getEndLine(lasttok) + ":" + super.getEndColumn(lasttok))
+                                            : (super.getLine(error_token) + ":" +
+                                               super.getColumn(error_token) + ":" +
+                                               super.getEndLine(error_token) + ":" +
+                                               super.getEndColumn(error_token)))
+                                  + ": ";
+                super.reportError((firsttok > lasttok ? ParseErrorCodes.INSERTION_CODE : ParseErrorCodes.SUBSTITUTION_CODE), location, msg);
+            }
+            else 
+            {
+                handler.handleMessage(super.getStartOffset(error_token),
+                                      super.getTokenLength(error_token),
+                                      msg);
+            }
+        }
+
         public $ast_class parser()
         {
             return parser(null, 0);
