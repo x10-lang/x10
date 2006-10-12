@@ -35,10 +35,12 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
       setContextInterpreter(contextInterpreter);
 
       ContextSelector def = new DefaultContextSelector(cha, options.getMethodTargetSelector());
-      ContextSelector contextSelector = new DelegatingContextSelector(appContextSelector, def);
-      DefaultPropagationContextSelector I = new DefaultPropagationContextSelector(contextSelector, cha);
+      ContextSelector contextSelector =
+	appContextSelector == null? 
+	def: 
+        new DelegatingContextSelector(appContextSelector, def);
 
-      setContextSelector(I);
+      setContextSelector(contextSelector);
 
       setInstanceKeys(
         new JavaScopeMappingInstanceKeys(cha, this, 
