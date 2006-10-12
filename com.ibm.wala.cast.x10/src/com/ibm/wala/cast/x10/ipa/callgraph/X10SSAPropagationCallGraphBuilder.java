@@ -13,12 +13,12 @@ import com.ibm.domo.ast.x10.ssa.SSAHereInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
-import com.ibm.wala.ipa.callgraph.AnalysisOptions;
+import com.ibm.wala.ipa.callgraph.*;
 import com.ibm.wala.ipa.callgraph.impl.ExplicitCallGraph;
-import com.ibm.wala.ipa.callgraph.propagation.PointerKeyFactory;
+import com.ibm.wala.ipa.callgraph.propagation.*;
 import com.ibm.wala.ipa.cha.ClassHierarchy;
-import com.ibm.wala.ssa.DefUse;
-import com.ibm.wala.ssa.IR;
+import com.ibm.wala.ssa.*;
+import com.ibm.wala.ssa.SSACFG.BasicBlock;
 import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCallGraphBuilder {
@@ -125,4 +125,67 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
     protected ConstraintVisitor makeVisitor(ExplicitCallGraph.ExplicitNode node, IR ir, DefUse du, ExplicitCallGraph callGraph) {
 	return new AstX10ConstraintVisitor(node, ir, callGraph, du);
     }
+
+
+  /////////////////////////////////////////////////////////////////////////////
+  //
+  // specialized pointer analysis
+  //
+  /////////////////////////////////////////////////////////////////////////////
+
+  protected class AstX10PointerFlowGraph extends AstJavaPointerFlowGraph {
+    
+    protected class AstX10PointerFlowVisitor
+      extends AstJavaPointerFlowVisitor 
+      implements AstX10InstructionVisitor
+    {
+      protected AstX10PointerFlowVisitor(CGNode node, IR ir, BasicBlock bb) {
+	super(node, ir, bb);
+      }
+
+      public void visitAtomic(SSAAtomicInstruction instruction) {
+	  
+      }
+
+      public void visitFinish(SSAFinishInstruction instruction) {
+
+      }
+
+      public void visitForce(SSAForceInstruction instruction) {
+
+      }
+
+      public void visitRegionIterInit(SSARegionIterInitInstruction instruction) {
+      }
+
+      public void visitRegionIterHasNext(SSARegionIterHasNextInstruction instruction) {
+
+      }
+
+      public void visitRegionIterNext(SSARegionIterNextInstruction instruction) {
+
+      }
+
+      public void visitHere(SSAHereInstruction instruction) {
+
+      }
+    }
+
+    protected AstX10PointerFlowGraph(PointerAnalysis pa, CallGraph cg) {
+      super(pa,cg);
+    }
+
+    protected InstructionVisitor makeInstructionVisitor(CGNode node, IR ir, BasicBlock bb) {
+      return new AstX10PointerFlowVisitor(node,ir, bb);
+    }
+  }
+
+  public PointerFlowGraphFactory getPointerFlowGraphFactory() {
+    return new PointerFlowGraphFactory() {
+      public PointerFlowGraph make(PointerAnalysis pa, CallGraph cg) {
+	return new AstX10PointerFlowGraph(pa, cg);
+      }
+    };
+  }
+
 }
