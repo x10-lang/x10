@@ -37,7 +37,19 @@ public class QueryEngine {
 	private QueryEngine(ExtensionInfo ext) {
 		this.ext = ext;
 	}
+	
+	public boolean isRectangularRankOneLowZero(X10ArrayAccess1 a) {
+		return Configuration.RECT_RANK_1_LOW_0_ARRAYS;
+	}
 
+	public boolean isRectangularRankOneLowZero(X10ArrayAccess1Assign a) {
+		return Configuration.RECT_RANK_1_LOW_0_ARRAYS;
+	}
+
+	public boolean isRectangularRankOneLowZero(X10ArrayAccess1Unary a) {
+		return Configuration.RECT_RANK_1_LOW_0_ARRAYS;
+	}
+	
 	protected boolean needsHereCheck(Type t) {
 		/*if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
 			return false;*//* Removed by RAJ to disable compile time BAD_PLACE_CHECK option*/
