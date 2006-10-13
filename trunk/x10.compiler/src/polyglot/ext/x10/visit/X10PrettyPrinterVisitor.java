@@ -42,6 +42,7 @@ import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.Now_c;
 import polyglot.ext.x10.ast.RemoteCall_c;
 import polyglot.ext.x10.ast.When_c;
+import polyglot.ext.x10.ast.X10ArrayAccess1;
 import polyglot.ext.x10.ast.X10ArrayAccess1Assign_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1Unary_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1_c;
@@ -439,8 +440,8 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(X10ArrayAccess1_c a) {
-		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
-						  ? "array_get" : "array_get"; //"array_get_noplacecheck";
+		String tmpl = QueryEngine.INSTANCE().isRectangularRankOneLowZero(a)
+						  ? "array_get_rect_rank_1_low_0" : "array_get" ;
 		Template template = new Template(tmpl, a.array(), a.index());
 		TypeNode elt_type = getParameterType((X10Type)a.array().type());
 		if (elt_type != null)
@@ -463,14 +464,22 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(X10ArrayAccess1Assign_c a) {
-		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
-						  ? "array_set" : "array_set"; //"array_set_noplacecheck";
+		String tmpl;
+		String operator;
+		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(a) ) {
+			tmpl = "array_set_rect_rank_1_low_0";
+			operator = a.operator().toString();
+		}
+		else {
+		  	tmpl = "array_set" ;
+		  	operator = a.opString(a.operator());
+		}
 		X10ArrayAccess1_c left = (X10ArrayAccess1_c) a.left();
 		Template template = new Template(tmpl,
 										 new Object[] {
 											 left.array(), left.index(),
 											 a.right(),
-											 a.opString(a.operator())
+											 operator
 										 });
 		TypeNode elt_type = getParameterType((X10Type)a.type());
 		if (elt_type != null)
