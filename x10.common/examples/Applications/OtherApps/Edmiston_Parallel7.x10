@@ -60,13 +60,13 @@ public class Edmiston_Parallel7 extends x10Test {
 			M = c2.s.length-1;
 			B = dist.factory.block([0:N]);
 			// Construct a [block,*] distribution in D
-			dist D = [0:-1,0:-1]->here;  // Initialize to empty distribution
+			dist(:rank==2) D = [0:-1,0:-1]->here;  // Initialize to empty distribution
 			for (point [i]: [0:N]) D = D||([i:i,0:M]->B[i]);
 
 			// D_inner is the distribution for the
 			// inner part of the matrix,
 			// with row 0 and column 0 missing.
-			final dist D_inner = D|[1:N,1:M];
+			final dist(:rank==2) D_inner = D|[1:N,1:M];
 
 			// D_boundary applies to just row 0 and column 0.
 			final dist D_boundary = D-D_inner;

@@ -19,8 +19,8 @@ public class Jacobi_skewed extends x10Test {
 	const double epsilon = 0.1;
 	const double epsilon2 = 0.00000001;
 	final region R = [0:N+1];
-	final region RInner = [1:N];
-	final dist D = createDist(R);
+	final region(:rank==1) RInner = [1:N];
+	final dist(:rank==1) D = createDist(R);
 	final dist DInner = D | RInner;
 	final dist DBoundary = D - RInner;
 	const int EXPECTED_ITERS = 72;
@@ -53,10 +53,10 @@ public class Jacobi_skewed extends x10Test {
 	/**
 	 * Create either a blocked or a custom skewed dist
 	 */
-	dist createDist(region r) {
+	dist(:rank==1) createDist(region r) {
 		return SKEWED?
-			createSkewedDist(r.rank(0).high()-1, 2):
-				dist.factory.block(r);
+			(dist(:rank==1)) createSkewedDist(r.rank(0).high()-1, 2):
+				(dist(:rank==1)) dist.factory.block(r);
 	}
 
 	/**

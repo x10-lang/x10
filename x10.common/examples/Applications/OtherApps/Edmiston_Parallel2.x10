@@ -28,7 +28,7 @@ public class Edmiston_Parallel2 extends x10Test {
 		final char value[.] c2 = new char value[[0:M]->here]
 			(point[i]) { return (i == 0) ? '-' : randomChar(N+i); };
 		final dist D = dist.factory.block([0:N,0:M]);
-		final dist Dinner = D|[1:N,1:M];
+		final dist(:rank==D.rank) Dinner = D|[1:N,1:M];
 		final dist Dboundary = D-Dinner;
 		//  Boundary of e is initialized to:
 		//  0     1*gapPen     2*gapPen     3*gapPen ...

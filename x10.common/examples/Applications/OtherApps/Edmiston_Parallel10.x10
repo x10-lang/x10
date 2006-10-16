@@ -68,7 +68,7 @@ public class Edmiston_Parallel10 extends x10Test {
 			N = c1.s.region.high();
 			M = c2.s.region.high();
 
-			final dist D = starBlock([0:N], [0:M]);
+			final dist(:rank==2) D = (dist(:rank==2)) starBlock([0:N], [0:M]);
 
 			e = new int[D];
 
@@ -79,11 +79,11 @@ public class Edmiston_Parallel10 extends x10Test {
 			// parallel independent computation at each place
 			finish ateach (point [p]: dist.factory.unique(D.places())) {
 				// get sub-distribution for this place
-				final dist myD = D|here;
+				final dist(:rank==2) myD = D | here;
 				// extend it on the left with extra overlap columns
 				int origStartColumn = myD.region.rank(1).low();
-				final dist myExtendedD =
-					myD||([0:N,Math.max(0, origStartColumn-overlap):(origStartColumn-1)]->here);
+				final dist(:rank==2) myExtendedD =
+					myD || ([0:N,Math.max(0, origStartColumn-overlap):(origStartColumn-1)]->here);
 
 				// Create a local array including overlap columns
 				final int [.] B = new int[myExtendedD];
@@ -160,9 +160,9 @@ public class Edmiston_Parallel10 extends x10Test {
 		 * Return a (*,block) distribution for
 		 * the region (r1*r2)
 		 */
-		static dist starBlock(region r1, region r2) {
+		static dist(:rank==2) starBlock(region(:rank==1) r1, region(:rank==1) r2) {
 			dist column2Place = dist.factory.block(r2);
-			dist d = [0:-1,0:-1]->here; // a dist. with empty domain
+			dist(:rank==2) d = [0:-1,0:-1]->here; // a dist. with empty domain
 			for (point [j]: r2) d = d || ([r1,j:j]->column2Place[j]);
 			return d;
 		}

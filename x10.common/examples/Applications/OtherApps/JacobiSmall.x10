@@ -18,13 +18,13 @@ public class JacobiSmall extends x10Test {
 	static final int N = 7;
 	static final double epsilon = 0.002;
 	static final double epsilon2 = 0.000000001;
-	final region R1 = region.factory.region(0, N+1);
-	final region R2 = region.factory.region(1, N);
-	final region R = region.factory.region(R1, R1);
-	final region R_inner = region.factory.region(R2, R2);
-	final dist D = dist.factory.block(R);
-	final dist D_inner = D.restriction(R_inner);
-	final dist D_Boundary = D.difference(D_inner.region);
+	final region(:rank==1) R1 = [0:N+1];
+	final region(:rank==1) R2 = [1:N];
+	final region(:rank==2) R = [R1,R1];
+	final region(:rank==2) R_inner = [R2,R2];
+	final dist(:rank==2)  D = (dist(:rank==2)) dist.factory.block(R);
+	final dist(:rank==2) D_inner = D | R_inner;
+	final dist(:rank==2) D_Boundary = D - D_inner.region;
 	static final int EXPECTED_ITERS = 131;
 	static final double EXPECTED_ERR = 0.0019977310907846046;
 
@@ -32,14 +32,14 @@ public class JacobiSmall extends x10Test {
 
 		int iters = 0;
 
-		final double[D] a = new double[D];
+		final double[.] a = new double[D];
 		finish ateach (final point p: D_inner) { a[p] = (double)(p.get(0)-1)*N+(p.get(1)-1); }
 		finish ateach (final point p: D_Boundary) { a[p] = (N-1)/2; }
 		double err;
-		double[D] x = a;
+		double[.] x = a;
 		while (true) {
-			final double[D] b = x;
-			final double[D_inner] temp = new double[D_inner];
+			final double[.] b = x;
+			final double[.] temp = new double[D_inner];
 			finish ateach (final point p: D_inner) {
 				int i = p.get(0);
 				int j = p.get(1);

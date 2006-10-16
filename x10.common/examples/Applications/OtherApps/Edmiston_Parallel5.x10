@@ -76,7 +76,7 @@ public class Edmiston_Parallel5 extends x10Test {
 			// Distribution of matrix not including row or column 0.
 			Dinner = D|[1:N,1:M];
 			// Distribution of row 0 and column 0.
-			Dboundary = D-Dinner;
+			Dboundary = (dist(:rank==2)) D- (dist(:rank==2))Dinner;
 
 			// create initial matrix.
 			e = new int[D];
@@ -137,7 +137,7 @@ public class Edmiston_Parallel5 extends x10Test {
 			}
 		}
 
-		const dist emptyDist = [0:-1,0:-1]->here;
+		const dist(:rank==2) emptyDist = [0:-1,0:-1]->here;
 
 		/**
 		 * Create a [0:N,0:M] (block,*) distribution.
@@ -150,7 +150,7 @@ public class Edmiston_Parallel5 extends x10Test {
 			//Last place may have less rows than others
 			int nRowsPerPlace = (N+place.MAX_PLACES)/place.MAX_PLACES;
 			// Emulate the (block,*) distribution
-			dist d1 = emptyDist;
+			dist(:rank==2) d1 = emptyDist;
 
 			for (point [i]: P)
 				d1 = d1||

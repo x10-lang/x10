@@ -18,11 +18,11 @@ public class Jacobi extends x10Test {
 	const int N = 6;
 	const double epsilon = 0.002;
 	const double epsilon2 = 0.000000001;
-	const region R = [0:N+1, 0:N+1];
-	const region RInner = [1:N, 1:N];
-	const dist D = dist.factory.block(R);
-	const dist DInner = D | RInner;
-	const dist DBoundary = D - RInner;
+	const region(:rank==2) R = [0:N+1, 0:N+1];
+	const region(:rank==2) RInner = [1:N, 1:N];
+	const dist(:rank==2) D = (dist(:rank==2)) dist.factory.block(R);
+	const dist(:rank==2) DInner = D | RInner;
+	const dist(:rank==2) DBoundary = D - RInner;
 	const int EXPECTED_ITERS = 97;
 	const double EXPECTED_ERR = 0.0018673382039402497;
 

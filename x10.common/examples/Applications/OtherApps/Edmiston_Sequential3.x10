@@ -66,7 +66,7 @@ public class Edmiston_Sequential3 extends x10Test {
 
 			// All elements of the matrix are mapped to place 'here' in the serial version
 			final dist D = [0:N,0:M]->here;
-			final dist D_inner = D | [1:N,1:M];
+			final dist(:rank==D.rank) D_inner = D | [1:N,1:M];
 			final dist D_boundary = D - D_inner; // Boundary consists of row 0 and column 0
 			e = new int[D];
 
