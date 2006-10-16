@@ -71,7 +71,7 @@ public class Exceptions_BadPlace extends x10Test {
 	}
 
 	// CVP -- if this class is declared as value class, then case 3 succeeds.
-	static value class boxedInt {
+	static value class boxedInt extends x10.lang.Object {
 		int val = 0;
 	}
 }

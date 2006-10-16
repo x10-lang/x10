@@ -17,7 +17,7 @@ public class FlattenFutureCall extends x10Test {
     }
     
 	public boolean run() {
-	 boolean x = future(a.distribution[1,1]){ true}.force()
+	 boolean x = future(a.distribution[1,1]){ true}.force();
 	    return x;
 	}
 

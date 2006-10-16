@@ -68,7 +68,7 @@ public class ClockPascal2 extends x10Test {
 	const int DELAY = 2000;
 	public boolean run() {
 		final dist D = [0:N-1,0:N-1]->here;
-		final dist Dinner = D|[1:N-1,1:N-1];
+		final dist(:rank==D.rank) Dinner = D|[1:N-1,1:N-1];
 		final dist Dboundary = D-Dinner;
 		final int[.] A = new int[D](point [i,j]) { return Dboundary.contains([i,j]) ? 1 : 0; };
 		finish async {

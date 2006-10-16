@@ -14,9 +14,11 @@ public class ArrayTypeCheck extends x10Test {
 	public boolean run() {
 		int [.] a1 = new int[[0:2,0:3]->here](point p[i]){ return i; };
 		System.out.println("1");
-		int [.] a2 = (int[[-1:-2]->here])a1;
+		final dist E = [-1:-2]->here;
+		int [.] a2 = (int[:distribution==E])a1;
 		System.out.println("2");
-		int [.] a3 = (int[dist.factory.unique()])a2;
+		final dist D = dist.factory.unique();
+		int [.] a3 = (int[:distribution == D])a2;
 		System.out.println("3");
 		int i = 1;
 		int j = 2;

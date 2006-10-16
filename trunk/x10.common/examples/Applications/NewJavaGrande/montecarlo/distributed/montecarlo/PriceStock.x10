@@ -87,7 +87,7 @@ public class PriceStock extends Universal {
 	 *
 	 * @param obj Object representing data which are common to all tasks.
 	 */
-	public void setInitAllTasks(x10.lang.Object obj) {
+	public void setInitAllTasks(ToInitAllTasks obj) {
 		final ToInitAllTasks initAllTasks = (ToInitAllTasks) obj;
 		finish async (mcPath) {
 			mcPath.set_name(initAllTasks.get_name());

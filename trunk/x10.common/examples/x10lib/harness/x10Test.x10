@@ -6,7 +6,7 @@ import java.util.Random;
  * Test harness abstract class.
  * FIXME: remove the ugly hack of relying on Java Threads
  */
-public abstract class x10Test {
+public abstract class x10Test  extends x10.lang.Object {
 
 	/**
 	 * The body of the test.

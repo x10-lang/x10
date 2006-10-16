@@ -32,7 +32,7 @@ import java.text.NumberFormat;
  *
  * @author kemal 3/2005
  */
-public class md {
+public class md extends x10.lang.Object {
 
 	public const int ITERS = 100;
 	public const double LENGTH = 50e-10;

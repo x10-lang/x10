@@ -56,7 +56,7 @@ public class ArrayCopy2 extends x10Test {
 			ateach (point x: D_1) {
 				final place px = D_1[x];
 				chk(px == here);
-				final dist D_local= (D | px);
+				final dist(:rank==D.rank) D_local= (D | px);
 				for (point i : D_local) {
 					// assignment to A[i] may need to be atomic
 					// unless disambiguator has high level
@@ -70,7 +70,7 @@ public class ArrayCopy2 extends x10Test {
 				}
 				// check if dist ops are working
 
-				final dist D_nonlocal= D - D_local;
+				final dist(:rank==D.rank) D_nonlocal= D - D_local;
 				chk((D_local || D_nonlocal).equals(D));
 				for(point k: D_local) {
 					chk(outOfRange(D_nonlocal, k));

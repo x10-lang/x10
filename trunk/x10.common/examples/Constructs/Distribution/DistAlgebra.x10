@@ -38,32 +38,32 @@ public class DistAlgebra extends x10Test {
 
 	public boolean run() {
 		final dist P = dist.factory.unique();
-		final region R1 = [0:1,0:7]; // horizontal strip
+		final region(:rank==2) R1 = [0:1,0:7]; // horizontal strip
 		pr("R1", R1);
-		final region R2 = [4:5,0:7]; // horizontal strip
+		final region(:rank==2) R2 = [4:5,0:7]; // horizontal strip
 		pr("R2", R2);
-		final region R3 = [0:7,4:5]; // vertical strip
+		final region(:rank==2) R3 = [0:7,4:5]; // vertical strip
 		pr("R3", R3);
-		final region R1orR2 = (R1 || R2);
+		final region(:rank==2) R1orR2 = (R1 || R2);
 		pr("R1orR2", R1orR2);
-		final region R1orR2andR3 = R1orR2 && R3;
+		final region(:rank==2) R1orR2andR3 = R1orR2 && R3;
 		pr("R1orR2andR3", R1orR2andR3);
 		chk(R1orR2andR3.equals([0:1,4:5] || [4:5,4:5]));
 		chk(R1orR2.contains(R1orR2andR3) && R3.contains(R1orR2andR3));
-		final region R1orR2orR3 = R1 || R2 || R3;
+		final region(:rank==2) R1orR2orR3 = R1 || R2 || R3;
 		pr("R1orR2orR3", R1orR2orR3);
 		chk(R1orR2orR3.equals([0:1,0:7] || [4:5,0:7] ||
 					[2:3,4:5] || [6:7,4:5]));
 		chk(R1orR2orR3.contains(R1) &&  R1orR2orR3.contains(R2) &&
 				R1orR2orR3.contains(R3));
-		final region R1orR2minusR3 = R1orR2 - R3;
+		final region(:rank==2) R1orR2minusR3 = R1orR2 - R3;
 		pr("R1orR2minusR3", R1orR2minusR3);
 		chk(R1orR2minusR3.equals([0:1,0:3] || [0:1,6:7] ||
 					[4:5,0:3] || [4:5,6:7]));
 		chk(R1orR2.contains(R1orR2minusR3) && R1orR2minusR3.disjoint(R3));
 
 		//Cyclic dist of R1||R2||R3
-		final dist DR1orR2orR3 = dist.factory.cyclic(R1orR2orR3);
+		final dist(:rank==2) DR1orR2orR3 = (dist(:rank==2)) dist.factory.cyclic(R1orR2orR3);
 		pr("DR1orR2orR3", DR1orR2orR3);
 		int placeNum = 0;
 		int offsetWithinPlace = 0;
@@ -89,14 +89,14 @@ public class DistAlgebra extends x10Test {
 		}
 
 		//DR1orR2andR3 is restriction of DR1orR2orR3 to (R1||R2)&&R3
-		final dist DR1orR2andR3 = DR1orR2orR3 | R1orR2andR3;
+		final dist(:rank==2) DR1orR2andR3 = DR1orR2orR3 | R1orR2andR3;
 		pr("DR1orR2andR3", DR1orR2andR3);
 		//DR1orR2minusR3 is restr. of DR1orR2orR3 to (R1||R2)-R3
-		final dist DR1orR2minusR3 = DR1orR2orR3 | R1orR2minusR3;
+		final dist(:rank==2) DR1orR2minusR3 = DR1orR2orR3 | R1orR2minusR3;
 		pr("DR1orR2minusR3", DR1orR2minusR3);
 		final dist TD1 = DR1orR2orR3 - DR1orR2minusR3;
 		pr("TD1", TD1);
-		final dist DR3 = DR1orR2orR3 | R3;
+		final dist(:rank==2) DR3 = DR1orR2orR3 | R3;
 		pr("DR3", DR3);
 		chk(TD1.equals(DR3));
 
@@ -120,10 +120,9 @@ public class DistAlgebra extends x10Test {
 
 		// overlay with common points not
 		// necessarily mapping to same place
-		final dist TD9 =
-			dist.factory.constant(R1orR2andR3, P[0]);
+		final dist TD9 = dist.factory.constant(R1orR2andR3, P[0]);
 		pr("TD9", TD9);
-		final dist Doverlay = DR1orR2orR3.overlay(TD9);
+		final dist(:rank==2) Doverlay = (dist(:rank==2)) (DR1orR2orR3.overlay(TD9));
 		pr("Doverlay", Doverlay);
 		for (point [i,j]: Doverlay) {
 			if (R1orR2andR3.contains([i,j])) {
@@ -143,7 +142,7 @@ public class DistAlgebra extends x10Test {
 		// Otherwise, the point is not included in
 		// intersection.
 
-		final dist Dintersect = DR1orR2orR3&&Doverlay;
+		final dist(:rank==2) Dintersect = DR1orR2orR3&&Doverlay;
 		pr("Dintersect", Dintersect);
 		for (point [i,j]: [0:7,0:7]) {
 			chk(
