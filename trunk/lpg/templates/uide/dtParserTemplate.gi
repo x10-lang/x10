@@ -200,6 +200,37 @@ $Headers
         }
         
         //
+        // Redirect syntax error message to proper recipient.
+        //
+        public void reportError(int error_code, String location_info, int left_token, int right_token, String token_text)
+        {
+            if (this.handler == null)
+                super.reportError(error_code,
+                                  location_info,
+                                  left_token,
+                                  right_token,
+                                  token_text);
+            else 
+            {
+                int start_offset = super.getStartOffset(left_token),
+                    end_offset = (right_token > left_token 
+                                              ? super.getEndOffset(right_token)
+                                              : super.getEndOffset(left_token));
+
+                String msg = ((error_code == DELETION_CODE ||
+                               error_code == MISPLACED_CODE ||
+                               token_text.equals(""))
+                                           ? ""
+                                           : (token_text + " ")) +
+                             errorMsgText[error_code];
+
+                handler.handleMessage(start_offset,
+                                      end_offset - start_offset + 1,
+                                      msg);
+            }
+        }
+
+        //
         // Report error message for given error_token.
         //
         public final void reportErrorTokenMessage(int error_token, String msg)
