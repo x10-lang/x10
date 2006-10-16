@@ -107,9 +107,9 @@ public class Edmiston_Parallel11 extends x10Test {
 		 * Return a (*,block) distribution for
 		 * the region (r1*r2)
 		 */
-		static dist starBlock(region r1, region r2) {
+		static dist starBlock(region(:rank==1) r1, region(:rank==1) r2) {
 			dist column2Place = dist.factory.block(r2);
-			dist d = [0:-1,0:-1]->here;
+			dist(:rank==2) d = [0:-1,0:-1]->here;
 			for (point [j]: r2) d = d|| ([r1,j:j]->column2Place[j]);
 			return d;
 		}

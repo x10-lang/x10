@@ -34,18 +34,18 @@ public class GameOfLife extends x10Test {
 		final int N = 6;
 
 		final region R = [0:(N+1),0:(N+1)];
-		final region R_inner = [1:N,1:N];
+		final region(:rank==2) R_inner = [1:N,1:N];
 
 		// Distribution D includes in its domain the
 		// boundary rows and columns, as well as the inner
 		// region of the cell matrix.
 
-		final dist D = dist.factory.block(R);
+		final dist(:rank==2) D = (dist(:rank==2)) dist.factory.block(R);
 
 		// Distribution D_inner implements the same index->place
 		// mapping as D, but does not include boundaries in its domain.
 
-		final dist D_inner = D | R_inner;
+		final dist(:rank==2) D_inner = D | R_inner;
 
 		// D_boundary is (D-D_inner)
 

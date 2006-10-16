@@ -97,18 +97,18 @@ public class RandomAccess_int extends x10Test {
 	public boolean run() {
 		// distributed histogram table
 		final dist d = block(TABLE_SIZE);
-		final int[d] table = new int[d];
+		final int[.] table = new int[d];
 		finish ateach (point p: d) { table[p] = p[0]; }
 
 		// random number starting seeds for each place
 		final dist d2 = unique();
-		final int[d2] ranStarts = new int[d2];
+		final int[.] ranStarts = new int[d2];
 		finish ateach (point p: d2) { ranStarts[p] = C.starts(N_UPDATES_PER_PLACE*p[0]); }
 
 		// A small value table that will be copied to all processors
 		// Used in generating the update value
 		final dist d3 = [0: (SMALL_TABLE_SIZE-1)]->here;
-		final int value[d3] smallTable = new int value[d3]
+		final int value[.] smallTable = new int value[d3]
 			(point p) { return p[0]*SMALL_TABLE_INIT; };
 		// for (point p: d3) { smallTable[p] = i0(p)*SMALL_TABLE_INIT; }
 

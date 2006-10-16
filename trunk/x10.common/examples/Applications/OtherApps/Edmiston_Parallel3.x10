@@ -55,8 +55,8 @@ public class Edmiston_Parallel3 extends x10Test {
 			c2 = cSeq2;
 			N = c1.s.region.high();
 			M = c2.s.region.high();
-			final dist D = dist.factory.block([0:N,0:M]);
-			final dist Dinner = D|[1:N,1:M];
+			final dist(:rank==2) D = (dist(:rank==2))dist.factory.block([0:N,0:M]);
+			final dist(:rank==2) Dinner = D|[1:N,1:M];
 			final dist Dboundary = D-Dinner;
 			//  Boundary of e is initialized to:
 			//  0     1*gapPen     2*gapPen     3*gapPen ...

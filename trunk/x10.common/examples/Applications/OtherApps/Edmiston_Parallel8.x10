@@ -63,7 +63,7 @@ public class Edmiston_Parallel8 extends x10Test {
 			N = c1.s.length-1;
 			M = c2.s.length-1;
 
-			final dist D = starBlock([0:N], [0:M]);
+			final dist(:rank==2) D =  starBlock((region(:rank==1)) [0:N], (region(:rank==1))[0:M]);
 
 			e = new int[D];
 
@@ -74,7 +74,7 @@ public class Edmiston_Parallel8 extends x10Test {
 			// SPMD computation at each place
 			finish ateach (point [p]: dist.factory.unique(D.places())) {
 				// get sub-distribution for this place
-				final dist myD = D|here;
+				final dist(:rank==2) myD = D|here;
 				// extend it on the left with extra overlap columns
 				int begin = myD.region.rank(1).low();
 				int lb = Math.max(0, begin-overlap);
@@ -102,9 +102,9 @@ public class Edmiston_Parallel8 extends x10Test {
 		 * Return a (*,block) distribution for
 		 * the region (r1*r2)
 		 */
-		static dist starBlock(region r1, region r2) {
+		static dist(:rank==2) starBlock(region(:rank==1) r1, region(:rank==1) r2) {
 			dist column2Place = dist.factory.block(r2);
-			dist d = [0:-1,0:-1]->here;
+			dist(:rank==2) d = [0:-1,0:-1]->here;
 			for (point [j]: r2) d = d|| ([r1,j:j]->column2Place[j]);
 			return d;
 		}
