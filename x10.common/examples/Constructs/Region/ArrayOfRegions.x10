@@ -14,10 +14,10 @@ public class ArrayOfRegions extends x10Test {
 
 	public boolean run() {
 		final int N = 3;
-		final region[.] ra = new region[[0:N-1]] (point[i]) { return [1:0]; };
+		final region(:rank==1)[.] ra = new region[[0:N-1]] (point[i]) { return [1:0]; };
 		for (point[i]:ra)  {
-			ra[i] = ra[i] || [10*i:10*i+9];
-			ra[i] = ra[i] && [10*i+1:10*i+21];
+			ra[i] = ((region(:rank==1)) ra[i]) || [10*i:10*i+9]; //TODOVJ -- Remove Cast
+			ra[i] = ((region(:rank==1)) ra[i]) && [10*i+1:10*i+21];
 		}
 		for (point[i]:ra)
 			System.out.println("ra["+i+"] = "+ra[i]);

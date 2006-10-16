@@ -59,7 +59,7 @@ public class SevereError extends x10Test {
 			}
 			final int blockWidth = (int)(Math.ceil(1.5*(double)shortSeqLength));
 			final dist D = ([0:N,0:M])->here;
-			final dist D_inner = D | [1:N,1:M];
+			final dist(:rank==D.rank) D_inner = D | [1:N,1:M];
 			final dist D_boundary = D - D_inner;
 			e = new int[D];
 			for (point[i,j] : D_boundary) e[i,j] = 0;

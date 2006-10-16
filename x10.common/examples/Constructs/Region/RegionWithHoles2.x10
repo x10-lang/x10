@@ -4,9 +4,9 @@ public class RegionWithHoles2 extends x10Test {
 
 	public boolean run() {
 		// all of those are contiguous
-		region r = [0:10];
-		region r1 = [1:2];
-		region r2 = [5:6];
+		region(:rank==1) r = [0:10];
+		region(:rank==1) r1 = [1:2];
+		region(:rank==1) r2 = [5:6];
 
 		// create wholes in r
 		r = r - r1;

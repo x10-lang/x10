@@ -4,9 +4,9 @@ public class RegionWithHoles extends x10Test {
 
 	boolean test1D() {
 		// all of those are contiguous
-		region r = [0:10];
-		region r1 = [1:2];
-		region r2 = [5:6];
+		region(:rank==1) r = [0:10];
+		region(:rank==1) r1 = [1:2];
+		region(:rank==1) r2 = [5:6];
 
 		// create holes in r
 		r = r - r1;
@@ -38,9 +38,9 @@ public class RegionWithHoles extends x10Test {
 	boolean test2D() {
 		System.out.println("testing 2d");
 		// all of those are contiguous
-		region r = [0:10,0:3];
-		region r1 = [1:2,0:3];
-		region r2 = [5:6,0:3];
+		region(:rank==2) r = [0:10,0:3];
+		region(:rank==2) r1 = [1:2,0:3];
+		region(:rank==2) r2 = [5:6,0:3];
 
 		// create holes in r
 		r = r - r1;
@@ -67,9 +67,9 @@ public class RegionWithHoles extends x10Test {
 
 	boolean test3D() {
 		// all of those are contiguous
-		region r = [0:10,0:3,0:0];
-		region r1 = [1:2,0:3,0:0];
-		region r2 = [5:6,0:3,0:0];
+		region(:rank==3) r = [0:10,0:3,0:0];
+		region(:rank==3) r1 = [1:2,0:3,0:0];
+		region(:rank==3) r2 = [5:6,0:3,0:0];
 
 		// create holes in r
 		r = r - r1;
@@ -95,9 +95,9 @@ public class RegionWithHoles extends x10Test {
 
 	boolean test4D() {
 		// all of those are contiguous
-		region r = [0:0,0:10,0:3,0:0];
-		region r1 = [0:0,1:2,0:3,0:0];
-		region r2 = [0:0,5:6,0:3,0:0];
+		region(:rank==4) r = [0:0,0:10,0:3,0:0];
+		region(:rank==4) r1 = [0:0,1:2,0:3,0:0];
+		region(:rank==4) r2 = [0:0,5:6,0:3,0:0];
 
 		// create holes in r
 		r = r - r1;
@@ -131,9 +131,9 @@ public class RegionWithHoles extends x10Test {
 	boolean testPoint() {
 		System.out.println("testing point");
 		// all of those are contiguous
-		region r = [0:10];
-		region r1 = [1:2];
-		region r2 = [5:6];
+		region(:rank==1) r = [0:10];
+		region(:rank==1) r1 = [1:2];
+		region(:rank==1) r2 = [5:6];
 
 		// create holes in r
 		r = r - r1;

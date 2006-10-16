@@ -32,7 +32,7 @@ public class NullableArray extends x10Test {
 		new NullableArray().execute();
 	}
 
-	static class mycomplex {
+	static class mycomplex  {
 		int re;
 		int im;
 	}
