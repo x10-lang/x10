@@ -21,8 +21,14 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.jl.ast.NewArray_c;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Lit;
+import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -166,9 +172,9 @@ implements ArrayConstructor {
 		TypeNode newBase = (TypeNode) n;
 		Type newBaseType = newBase.type();
 		Expr newDistribution = distribution;
-		
-		
 		if (this.distribution != null) {
+	
+			//Report.report(1, "ArrayConstructor dist is " + distribution.type());
 			Type distType = distribution.type();
 			boolean distributionIsInt = ts.isImplicitCastValid(distType, ts.Int());
 			if (distributionIsInt) {
@@ -190,7 +196,7 @@ implements ArrayConstructor {
 					throw new SemanticException("Array distribution specifier must be of type int or distribution" 
 							+ position());
 			}
-		}
+	}
 		
 		if (initializer != null) {
 			if (initializer instanceof ArrayInit) {
@@ -205,12 +211,43 @@ implements ArrayConstructor {
 				throw new SemanticException("Array initializer must be of type x10.array.Operator.Pointwise" 
 							+ position());
 		}
-		Type t = ts.array( newBaseType, isValue );
+		// Transfer the attributes from the dist to the array. This is in lieu of reading the
+		// dependent type for the constructor from an X10 source file.
+		X10ParsedClassType p = ((X10ParsedClassType) ((X10ParsedClassType) ts.array(newBaseType, isValue)).
+				makeVariant(new Constraint_c(), null));
+		X10ParsedClassType t = transferAttributes(p, (X10ParsedClassType) newDistribution.type());
 		// System.out.println("ArrayConstructor_c: t=" + t);
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);
 		
 		return n1.distribution( newDistribution ).arrayBaseType( newBase );
 		
+	}
+	
+	private X10ParsedClassType transferAttributes(X10ParsedClassType t, X10ParsedClassType distType) {
+		//Report.report(1, "ArrayConstructor: transferring attributes from " + distType
+		//		+ " to " + t);
+		C_Term self = distType.self();
+		if (self != null) {
+			t.setDistribution(self);
+		}
+		C_Term onePlace = distType.onePlace();
+		if (onePlace !=null) {
+			t.setOnePlace(onePlace);
+			//Report.report(1, "Setting oneplace result is "  + t);
+		}
+		boolean isRect = distType.isRect();
+		if (isRect) t.setRect();
+		boolean zeroBased = distType.isZeroBased();
+		//Report.report(1, "ArrayConstructor zeroBased? "  + zeroBased);
+		if (zeroBased){
+			t.setZeroBased();
+		}
+		C_Term rank = distType.rank();
+		if (rank !=null) t.setRank(rank);
+		if (t.hasLocalProperty() && zeroBased && isRect && C_Lit.ONE.equals(rank)) 
+			t.setRail();
+		//Report.report(1, "t is now " + t);
+		return t;
 	}
 	
 	public Context enterChildScope(Node child, Context c) {

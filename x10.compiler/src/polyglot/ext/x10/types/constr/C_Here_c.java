@@ -8,7 +8,7 @@ public class C_Here_c extends C_Term_c {
 	private C_Here_c() {
 		super(Constraint_c.typeSystem.place());
 	}
-	public String toString() { return "here"; }
+	public String toString() { return "C_here"; }
 	public boolean equals(Object o) { 
 		if (o == this) return true;
 		if (! (o instanceof C_Here_c)) return false;

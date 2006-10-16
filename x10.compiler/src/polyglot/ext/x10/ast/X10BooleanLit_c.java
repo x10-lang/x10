@@ -6,6 +6,7 @@ package polyglot.ext.x10.ast;
 import polyglot.ast.Node;
 import polyglot.ext.jl.ast.BooleanLit_c;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
@@ -33,8 +34,8 @@ public class X10BooleanLit_c extends BooleanLit_c {
 	  public Node typeCheck(TypeChecker tc) throws SemanticException {
 		  X10Type Boolean = (X10Type) tc.typeSystem().Boolean();
 		 
-			C_Lit_c literal = value ? C_Lit_c.TRUE : C_Lit_c.FALSE;
-			Constraint c = Constraint_c.addSelfBinding(literal,null);
+			C_Lit_c literal = value ? C_Lit.TRUE : C_Lit.FALSE;
+			Constraint c = Constraint_c.addVarWhoseTypeThisIs(literal,null);
 		  X10Type newType  = Boolean.makeVariant(c, null);
 	    return type(newType);
 	  }

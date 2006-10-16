@@ -54,9 +54,11 @@ import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.NullableType;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.main.Report;
 import polyglot.types.LocalInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
@@ -416,6 +418,15 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		String runtimeName = (String) arrayTypeToRuntimeName.get(kind);
 		if (runtimeName == null)
 			throw new Error("Unknown array type.");
+		
+		// vj: Code illustrating type-driven dispatch
+		X10ParsedClassType type = (X10ParsedClassType) a.type();
+		
+		if (runtimeName.equals("DoubleArray") && type.isRect() &&  type.isRankThree() && type.isZeroBased()) {
+			runtimeName += "3d";
+		}
+		//Report.report(1, "GOLDEN: X10PrettyPrintVisitor type is " + type + "runtimeName is " + runtimeName);
+		// End typs-driven dispatch.s
 		Object init = a.initializer();
 		String tmpl = Configuration.ARRAY_OPTIMIZATIONS ?
 				"array_specialized_init" : "array_new_init";

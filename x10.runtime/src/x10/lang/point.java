@@ -21,6 +21,9 @@ abstract public /*value*/ class point/*(region region)*/ extends java.lang.Objec
 		public @NoSideEffects point point(int v1) {
 			return point(new int[] { v1 });
 		}
+		public @NoSideEffects point allZero(int d) {
+			return point(new int[d]);
+		}
 		/**
 		 * Return a point of rank 2 with the given coordinates, created in the
 		 * smallest region that can enclose it.

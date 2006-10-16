@@ -98,6 +98,7 @@ public class TypeTranslator implements Serializable {
 			}
 			if (right instanceof Variable) 
 				return c.addBinding(trans((Variable) right), trans(left));
+		
 			if (right instanceof X10Special) {
 				X10Special s = (X10Special) right;
 				if (! s.kind().toString().equals("self"))

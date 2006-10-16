@@ -41,10 +41,12 @@ public  class RegionFactory extends region.factory {
 	 * arguments to the constructor.
 	 */
 	public region/*(regions.length)*/ region(region/*(1)*/[] regions ) {
-		return new MultiDimRegion( regions );
+		boolean zeroBased = true;
+		for (int i=0; i<regions.length; i++) zeroBased &= regions[i].zeroBased;
+		return new MultiDimRegion( regions, zeroBased );
 	}
 	public region/*(2)*/ region(region a, region b) {
-		return new MultiDimRegion( new region[] {a, b});
+		return new MultiDimRegion( new region[] {a, b}, a.zeroBased&&b.zeroBased);
 	}
 	
 	/** Return an \code{upperTriangular} Region_c for a dim-rankal
@@ -89,7 +91,7 @@ public  class RegionFactory extends region.factory {
         else {
             ContiguousRange cr =  new ContiguousRange(0, size-1);
             region[] r = new region[] {cr, cr};
-            ret = new BandedRegion(r, width);
+            ret = new BandedRegion(r, width, true);
         }
         return ret;
 	}

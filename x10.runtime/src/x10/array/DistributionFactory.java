@@ -79,7 +79,7 @@ public class DistributionFactory extends dist.factory {
 			for (int i=0; i < chunks; i++) {
 				dists[i] = new Distribution_c.Constant(sub[i], (place) q[i % q.length]);
 			}
-			ret = new Distribution_c.Combined(r, dists);
+			ret = new Distribution_c.Combined(r, dists, q.length==1 ? (place) q[0] : null);
 			
 		} else if (sz == n && dim_to_split > 0 && qsize == r.rank(dim_to_split-1).size()){
 			// blocking entire rows
@@ -101,7 +101,7 @@ public class DistributionFactory extends dist.factory {
 				adjustment+= sub[i].size();
 				dists[i] = new Distribution_c.Constant(sub[i],(place)q[i%chunks]);
 			}
-			ret = new Distribution_c.Combined(r,dists);
+			ret = new Distribution_c.Combined(r,dists, q.length==1?(place) q[0] : null);
 			
 			
 			
@@ -121,7 +121,8 @@ public class DistributionFactory extends dist.factory {
 			hm.put(p, places[(offset / bf) % places.length]);
 			offset++;
 		}
-		Distribution_c.Arbitrary ret = new Distribution_c.Arbitrary(r, hm); 
+		Distribution_c.Arbitrary ret = new Distribution_c.Arbitrary(r, hm, 
+				places.length==1? (place) places[0] : null); 
 		
 		return ret;
 	}
@@ -166,7 +167,7 @@ public class DistributionFactory extends dist.factory {
 		for (int i=0; i < n; i++) {
 			dists[i]= new Distribution_c.Constant(r[i],(place)q[i]);
 		}
-		return new Distribution_c.Combined(base,dists);
+		return new Distribution_c.Combined(base,dists, null);
 	}
 	/**
 	 * Create a Distribution where the given Region is distributed
@@ -211,7 +212,7 @@ public class DistributionFactory extends dist.factory {
 				adjustment+= sub[i].size();
 				dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
 			}
-			ret =  new Distribution_c.Combined(r, dists);
+			ret =  new Distribution_c.Combined(r, dists, n==1? (place) q[0] : null);
 			
 		} else {
 			
@@ -245,7 +246,8 @@ public class DistributionFactory extends dist.factory {
 					adjustmentOffset[blockNum]=adjustment;
 			}           
 		}
-		Distribution_c.Arbitrary ret = new Distribution_c.Arbitrary(r, hm); 
+		Distribution_c.Arbitrary ret = new Distribution_c.Arbitrary(r, hm, 
+				places.length==1? (place) places[0] : null); 
 		
 		return ret;
 	}

@@ -103,5 +103,9 @@ public interface X10NodeFactory extends NodeFactory {
     Special Self(Position pos);
     
     StmtSeq StmtSeq(Position pos, List/*<Stmt>*/ l);
+    ConstantDistMaker ConstantDistMaker(Position pos, Expr left, Expr right);
+    RegionMaker RegionMaker(Position pos, Expr left, Expr right);
+    RectRegionMaker RectRegionMaker(Position pos, Receiver receiver, String name, List args);
+    
 }
 

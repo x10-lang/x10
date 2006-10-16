@@ -16,7 +16,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.jl.ast.MethodDecl_c;
 import polyglot.ext.jl.parse.Name;
-import polyglot.ext.x10.types.PropertyInstance;
+import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
@@ -28,7 +28,7 @@ import polyglot.util.Position;
 import polyglot.visit.TypeBuilder;
 
 public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
-    public static final String propFieldName = "propertyNames$";
+   
     public PropertyDecl_c(Position pos, Flags flags, TypeNode type,
             String name) {
         super(pos, flags, type, name, null);
@@ -45,14 +45,14 @@ public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
     public static ClassBody addProperties(List/*<PropertyDecl>*/ properties, ClassBody body) {
        
         if (properties != null && ! properties.isEmpty()) {
-           // Report.report(1, "PropertyDecl_c: Adding " + properties + " to " + body);
+           
             for (Iterator e = properties.iterator(); e.hasNext();) {
                 PropertyDecl  p = (PropertyDecl) e.next();
                 MethodDecl getter = p.getter();
-               // Report.report(1, "PropertyDecl_c: Adding " + getter);
+               
                         
                 body = body.addMember(getter);
-                //Report.report(1, "PropertyDecl_c: Adding " + p);
+               
                 
                 body = body.addMember(p);
                 
@@ -102,9 +102,8 @@ public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
            
        }
        
-       FieldDecl f = new FieldDecl_c(pos, Flags.PUBLIC.Static().Final(), tn, propFieldName, 
+       FieldDecl f = new FieldDecl_c(pos, Flags.PUBLIC.Static().Final(), tn, X10FieldInstance.MAGIC_PROPERTY_NAME,
                nf.StringLit(pos, s.toString()));
-       
        return f;
    }
    
@@ -130,15 +129,12 @@ public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
 
         ParsedClassType ct = tb.currentClass();
 
-        // vj: No idea why this clause is in here.. its from FieldDecl_c.
         if (ct == null) {
             return this;
         }
 
-       
-
         // XXX: MutableFieldInstance
-        PropertyInstance fi = ((X10TypeSystem) ts).propertyInstance(position(), ct, flags,
+        X10FieldInstance fi = ((X10TypeSystem) ts).propertyInstance(position(), ct, flags,
                                             ts.unknownType(position()), name);
         ct.addField(fi);
 

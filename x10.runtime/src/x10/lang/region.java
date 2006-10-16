@@ -28,7 +28,15 @@ public abstract /*value*/ class region extends Object
 	public static final int TRIANGULAR = 5;
 
 	// nat is translated to int for now.
-	public final /*nat*/ /*long*/ int rank;
+	/*property*/ public final /*nat*/ /*long*/ int rank;
+	/*property*/ public final boolean rect;
+	/**
+	 * A k-ary region is zeroBased if it is declared to be a
+	 * rectangular region (of rank k), and [0,...0] is the smallest point
+	 * in it.
+	 */
+	/*property*/ public final boolean zeroBased;
+	public static final String propertyNames$ = " rank rect zeroBased ";
 
 	public static abstract /*value*/ class factory implements ValueType {
 		/**
@@ -126,9 +134,11 @@ public abstract /*value*/ class region extends Object
 
 	public static final factory factory = Runtime.factory.getRegionFactory();
 
-	protected region(/*nat long*/ int rank) {
+	protected region(/*nat long*/ int rank, boolean rect, boolean zeroB) {
 		assert rank >= 1;
 		this.rank = rank;
+		this.rect = rect;
+		this.zeroBased = zeroB;
 	}
 
 	/**

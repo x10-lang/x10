@@ -23,7 +23,7 @@ public interface X10Context extends Context {
 	 * @return
 	 * @throws SemanticException
 	 */
-	PropertyInstance findProperty(String name) throws SemanticException;
+	X10FieldInstance findProperty(String name) throws SemanticException;
 	
 	/**
      * Finds the type which added a property to the scope.

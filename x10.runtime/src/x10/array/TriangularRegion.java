@@ -20,7 +20,7 @@ public class TriangularRegion extends region {
 	 * @param is_lower
 	 */
 	public TriangularRegion(region[] dims, boolean is_lower) {
-		super(2); // rank must be == 2
+		super(2, false, false); // rank must be == 2
 		// all regions must be one dimensional and have the same size > 0
 		assert (dims != null && dims.length == 2);
 		int size = dims[0].size();
@@ -28,6 +28,7 @@ public class TriangularRegion extends region {
 		for (int i = 0; i < dims.length; ++i) {
 			assert (dims[i] instanceof ContiguousRange);
 			assert (dims[i].size() == size);
+			if (zeroBased) assert dims[i].zeroBased;
 		}
 		size_ = gauss_(size);
 		isLower_ = is_lower;

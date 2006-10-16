@@ -41,13 +41,16 @@ public class StridedRange extends Range {
 		if (r.rank != 1)
 			throw new RankMismatchException(r, 1);
 		HashSet set = new HashSet();
+	
 		for (Iterator it = iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			set.add(p);
+			
 		}
 		for (Iterator it = r.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			set.add(p);
+			
 		}
 		return new ArbitraryRegion(1, set);
 	}
@@ -56,10 +59,13 @@ public class StridedRange extends Range {
 		if (r.rank != 1)
 			throw new RankMismatchException(r, 1);
 		HashSet set = new HashSet();
+		
 		for (Iterator it = iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
-			if (contains(p))
+			if (contains(p)) {
 				set.add(p);
+				
+			}
 		}
 		return new ArbitraryRegion(1, set);
 	}

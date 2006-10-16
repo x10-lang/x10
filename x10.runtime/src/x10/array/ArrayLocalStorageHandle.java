@@ -26,7 +26,7 @@ public class ArrayLocalStorageHandle   {
     public ArrayLocalStorageHandle(x10Array destArray,x10Array srcArray,int start,int end) {
        _destArray = destArray;
        _srcArray = srcArray;
-       _localRegion = _srcArray.getDistribution().restrictToRegion(Runtime.here());
+       _localRegion = _srcArray.distribution.restrictToRegion(Runtime.here());
        _startIndex=start;
        _endIndex = end;
     }
@@ -37,7 +37,7 @@ public class ArrayLocalStorageHandle   {
 
    // a nop in distributed mode
    public void transferDataToArray(){
-      region localRegion = _destArray.getDistribution().restrictToRegion(Runtime.here());
+      region localRegion = _destArray.distribution.restrictToRegion(Runtime.here());
 
       if(_destArray instanceof IntArray_c){
 	  IntArray_c src = (IntArray_c) _srcArray;

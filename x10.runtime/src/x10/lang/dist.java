@@ -17,14 +17,22 @@ import x10.lang.GlobalIndexMap;
 abstract public /*value*/ class dist/*( region region )*/ extends Object 
 implements Indexable, ValueType {
 	
-	public final region region;
+	/*parameter*/ public final region region;
 	/** The parameter dimension may be used in constructing types derived
 	 * from the class distribution. For instance,
 	 * distribution(dimension=k) is the type of all k-dimensional
 	 * distributions.
 	 */
 	/*parameter*/ public final /*nat*/ int rank;
+	/**
+	 * Does the distribution map all points in its region to a single place, onePlace?
+	 * If not, onePlace is null.
+	 */
+	/*parameter*/ public final place onePlace;
+    /*parameter*/ public final boolean rect;
+    /*parameter*/ public final boolean zeroBased;
     
+	public static final String propertyNames$ = " region rank onePlace rect zeroBased ";
     /* disrtibution is Indexable and as such regarded by the compiler as an X10array.
      * Hence it must have a field 'distrubution' (see ateach construct) */
     public final dist distribution;
@@ -34,6 +42,7 @@ implements Indexable, ValueType {
 	 * this.valueAt(p)==P.
 	 */
 	abstract public Set/*<place>*/ places(); // consider making this a parameter?
+	
 	public place[] placesArray() {
 		java.lang.Object[] a = places().toArray();
 		place[] res = new place[a.length];
@@ -41,10 +50,14 @@ implements Indexable, ValueType {
 		return res;
 	}
 
-	protected dist(region R) {
+	protected dist(region R, place onePlace) {
 		this.region = R;
 		this.rank = R.rank;
         this.distribution = this;
+        this.zeroBased = R.zeroBased;
+        this.rect = R.rect;
+        this.onePlace = onePlace;
+       
     //    _indexMap = null;
     	   	
 	}
@@ -239,7 +252,8 @@ public
 	union(dist/*(:region.disjoint(this.region) &&
 	rank=this.rank)*/ D);
 	
-	abstract public dist/*(:rank=this.rank)*/ intersection( dist /*(:rank=this.rank)*/D);
+	abstract public dist/*(:rank=this.rank)*/ 
+	intersection( dist /*(:rank=this.rank)*/D);
     
 	/** Returns a distribution defined on region.union(R): it
 	 takes on D.get(p) for all points p in R, and this.get(p) for

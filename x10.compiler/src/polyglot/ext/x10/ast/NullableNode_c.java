@@ -58,7 +58,6 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 	
 	public Context enterChildScope(Node child, Context c) {
 		if (child == this.dep) {
-			TypeSystem ts = c.typeSystem();
 			if (type instanceof X10ParsedClassType)
 				c = ((X10Context) c).pushDepType((X10ParsedClassType) type);
 		}

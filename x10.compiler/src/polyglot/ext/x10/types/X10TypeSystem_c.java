@@ -10,10 +10,16 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Expr;
+import polyglot.ext.jl.types.FieldInstance_c;
 import polyglot.ext.jl.types.LocalInstance_c;
 import polyglot.ext.jl.types.MethodInstance_c;
 import polyglot.ext.jl.types.TypeSystem_c;
+import polyglot.ext.x10.types.constr.C_Field_c;
+import polyglot.ext.x10.types.constr.C_Special;
+import polyglot.ext.x10.types.constr.C_Special_c;
+import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
@@ -22,6 +28,7 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyClassInitializer;
 import polyglot.types.MethodInstance;
@@ -905,14 +912,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return sf;
 	}
 
-	public PropertyInstance propertyInstance(Position pos,
+	public FieldInstance fieldInstance(Position pos,
 	        ReferenceType container, Flags flags,
 	        Type type, String name) {
 	    assert_(container);
 	    assert_(type);
-	    return new PropertyInstance_c(this, pos, container, flags, type, name);
+	    return new X10FieldInstance_c(this, pos, container, flags, type, name);
 	}
 
+	public X10FieldInstance propertyInstance(Position pos,
+			ReferenceType container, Flags flags,
+			Type type, String name) {
+		assert_(container);
+		assert_(type);
+		return new X10FieldInstance_c(this, pos, container, flags, type, name);
+}
 //	/**
 //	 * Allow all explicit casts (for experimental purposes).
 //	 **/
@@ -955,6 +969,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
     public  boolean isX10Array(Type me) { 
         return isX10Subtype(me, Array()); 
     }
+    
+    Constraint rect;
+   
+    
     public  boolean isBooleanArray(Type me) {
         return isX10Subtype(me, booleanArray()); 
     }
@@ -1032,7 +1050,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
     	return eval;
     }
     public boolean equivClause(X10Type me, X10Type other) {
+    	//Report.report(1, "X10TypeSystem_c.equivClause" + me + " " + other);
     	boolean result = true;
+    	try {
+    	
     	X10Type bt1 = me.baseType(), bt2 = other.baseType();
     	result &= bt1 == bt2;
     	if (!result) return result;
@@ -1052,7 +1073,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
     	if (! result) return result;
     	result = equivClause(me.depClause(), other.depClause());
     	return result;
-    	
+    	} finally {
+    		//Report.report(1, "X10TypeSystem_c.equivClause" +result);
+    	}
     	
     }
     

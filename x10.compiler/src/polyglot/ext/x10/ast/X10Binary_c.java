@@ -20,14 +20,21 @@ import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
 import polyglot.ext.jl.ast.Binary_c;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.types.constr.C_Field_c;
+import polyglot.ext.x10.types.constr.C_Here_c;
+import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.ExprFlattener.Flattener;
 import polyglot.main.Report;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.NoMemberException;
@@ -156,7 +163,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10Type l = (X10Type) left.type();
 		X10Type r = (X10Type) right.type();
-
+		//Report.report(1, "X10Binary_c: l=" + l + " r=" + r);
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		// TODO: define these operations for arrays as well, with the same distribution.
 		if ((op == GT || op == LT || op == GE || op == LE) && (xts.isPoint(l)
@@ -187,43 +194,68 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 				throw new SemanticException("This " + op +
 						" operator instance must have a region operand.", right.position());
 			}
-			return type(ts.region());
+			return type(checkRanks(l,r, (X10ParsedClassType) ts.region()));
 		}
 		if (op == COND_OR && xts.isDistribution(l)) { // || distribution.union(distribution r)
 			if (!(xts.isDistribution(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a distribution operand.", right.position());
 			}
-			return type(ts.distribution());
+			// Cannot return l since all the properties of l, e.g. region, may not be preserved.
+			return type(checkRanks(l,r, (X10ParsedClassType) ts.distribution()));
 		}
 		if (op == COND_AND && xts.isRegion(l)) { // && region.intersection(region r)
 			if (!(xts.isRegion(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a region operand.", right.position());
 			}
-			return type(ts.region());
+			return type(checkRanks(l,r, (X10ParsedClassType) ts.region()));
 		}
-		if (op == COND_AND && xts.isDistribution(l)) { // && distribution.intersection(distribution r)
+		if (op == COND_AND && xts.isDistribution(l)) { 
+			// && distribution.intersection(distribution r)
 			if (!(xts.isDistribution(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a distribution operand.", right.position());
 			}
-			return type(ts.distribution());
+			
+			return type(checkRanks(l,r, (X10ParsedClassType) ts.distribution()));
 		}
 
-		if (op == BIT_OR && xts.isDistributedArray(l)) { // | array.restriction(distribution or region or place)
+		if (op == BIT_OR && xts.isDistributedArray(l)) { 
+			// | array.restriction(distribution or region or place)
 			if (!(xts.isDistribution(r) || xts.isRegion(r) || xts.isPlace(r))) {
 				throw new SemanticException("This " + op +
 						" operator instance must have a distribution operand.", right.position());
 			}
-			return type(l);
+			X10ParsedClassType lType = (X10ParsedClassType) l;
+			X10ParsedClassType type = (X10ParsedClassType) lType.makeVariant();
+			//Report.report(1, "X10Binary_c: dist | r or p or d, lType = " + lType);
+			C_Term rank = lType.rank();
+			
+			if (rank != null) type.setRank(rank);
+			if (xts.isPlace(r) && r instanceof Here) 
+				type.setOnePlace(C_Here_c.here);
+			
+			return type(type);
 		}
 		if (op == BIT_OR && xts.isDistribution(l)) {
 			// distribution.restriction(place p) or distribution.restriction(region r)
 			if (!(xts.isPlace(r) || xts.isRegion(r)))
 				throw new SemanticException("This " + op +
 						" operator instance must have a place or region operand.", right.position());
-			return type(ts.distribution());
+		
+			
+			X10ParsedClassType lType = (X10ParsedClassType) l;
+			X10ParsedClassType type = (X10ParsedClassType) 
+			((X10ParsedClassType) ts.distribution()).makeVariant();
+			C_Term rank = lType.rank();
+			
+			type.setRank(rank);
+			
+			if (xts.isPlace(r) && r instanceof Here) 
+				type.setOnePlace(C_Here_c.here);
+			//Report.report(1, "X10Binary_c. " + this + " type is " + type + "(#" + type.hashCode()+")");
+			return type(type);
 		}
 
 		if (op == SUB && xts.isDistribution(l)) { //distribution.difference(region r)
@@ -231,14 +263,14 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 				throw new SemanticException("The " + op +
 						" operator must have a region or distribution operand.", right.position());
 			}
-			return type(ts.distribution());
+			return type(checkRanks(l,r, (X10ParsedClassType) ts.distribution()));
 		}
-		if (op == SUB && xts.isRegion(l)) { // distribution.difference(region r)
+		if (op == SUB && xts.isRegion(l)) { // region.difference(region r)
 			if (!xts.isRegion(r)) {
 				throw new SemanticException("The " + op +
 						" operator must have a region operands.", right.position());
 			}
-			return type(ts.region());
+			return type(checkRanks(l,r, (X10ParsedClassType) ts.region()));
 		}
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
 				xts.isPrimitiveTypeArray(l)) {
@@ -248,6 +280,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 				throw new SemanticException("The " + op
 						+ " operator must have arrays of the same base type as operands.", right.position());
 			}
+			// vj: Check that they are defined over the same region?
 			return type(l);
 		}
 
@@ -271,6 +304,27 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
 		return super.typeCheck(tc);
 	}
+	
+	
+	public X10Type checkRanks(X10Type l, X10Type r, X10ParsedClassType result) throws SemanticException {
+		result = (X10ParsedClassType) result.makeVariant();
+		X10ParsedClassType lType = (X10ParsedClassType) l;
+		X10ParsedClassType rType = (X10ParsedClassType) r;
+		
+		C_Term lRank = lType.rank();
+		C_Term rRank = rType.rank();
+		//Report.report(1, "X10Binary_c: entering lRank=" + lRank + " rRank=" + rRank);
+		if (lRank==null || ! lRank.equals(rRank)) {
+		//	Report.report(1, "X10Binary_c: lRank=" + lRank + " rRank=" + rRank);
+			throw new SemanticException("The argument " + left +  " (of type " +  l + " " + l.getClass() + ") has rank " 
+					+ lRank + " and " +
+					right + " (of type " + r + ") has rank " + rRank + "; these must be equal.");
+		}
+		
+		result.setRank(lRank);
+		//Report.report(1, "X10Binary_c: exiting lRank=" + lRank + " rRank=" + rRank);
+		return result;
+	}
 
 	 /** Flatten the expressions in place and body, creating stmt if necessary.
      * The place field must be visited by the given flattener since those statements must be executed outside
@@ -283,7 +337,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
      * @return
      */
 	public Expr flatten(ExprFlattener.Flattener fc) {
-		Report.report(1, "X10Binary_c: entering X10Binary " + this);
+		//Report.report(1, "X10Binary_c: entering X10Binary " + this);
 		assert (op== Binary.COND_AND || op==Binary.COND_OR);
 		X10Context xc = (X10Context) fc.context();
 		
@@ -320,7 +374,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		}
 		
 		final Local ldRef3 = (Local) nf.Local(pos,resultVarName).localInstance(li).type(type);
-		Report.report(1, "X10Binary_c: returning " + ldRef3);
+		//Report.report(1, "X10Binary_c: returning " + ldRef3);
 		return ldRef3;
 		
 	}

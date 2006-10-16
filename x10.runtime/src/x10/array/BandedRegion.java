@@ -22,8 +22,8 @@ public class BandedRegion extends region {
 	 * @param dims
 	 * @param bands
 	 */
-	public BandedRegion(region[] dims, int bands) {
-		super(2); // rank must be == 2
+	public BandedRegion(region[] dims, int bands, boolean zeroBased) {
+		super(2, false,zeroBased); // rank must be == 2
 		// all regions must be one dimensional and have the same size > 0
 		assert (dims != null && dims.length == 2);
 		int size, tmp_offset, tmp_size = dims[0].size();
@@ -32,6 +32,7 @@ public class BandedRegion extends region {
 		for (int i = 0; i < dims.length; ++i) {
 			assert (dims[i] instanceof ContiguousRange);
 			assert (dims[i].size() == tmp_size);
+			if (zeroBased) assert(dims[i].low()==0);
 		}
 
 		// number of bands must be odd

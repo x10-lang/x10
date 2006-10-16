@@ -260,7 +260,7 @@ public interface X10TypeSystem extends TypeSystem {
 	 * @param type The field's type.
 	 * @param name The field's name.
 	 */
-    PropertyInstance propertyInstance(Position pos, ReferenceType container,
+    X10FieldInstance propertyInstance(Position pos, ReferenceType container,
                                 Flags flags, Type type, String name);
 
 

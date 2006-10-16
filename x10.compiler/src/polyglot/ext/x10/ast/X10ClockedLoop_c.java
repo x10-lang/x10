@@ -69,7 +69,6 @@ public class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 		return ((Clocked) reconstruct(formal, domain, body)).clocks(clocks);
 	}
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())

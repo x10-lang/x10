@@ -45,6 +45,12 @@ public interface Constraint extends Serializable {
 	 * @return
 	 */
 	boolean entails(C_Var var, C_Term val);
+	
+	/**
+	 * Return the term this variable is bound to in the constraint, and null if there is no such term.
+	 * @param varName
+	 * @return
+	 */
 	C_Term find(String varName);
 	/**
 	 * Return the set of bindings in the constraint. null is retained if 
@@ -66,4 +72,6 @@ public interface Constraint extends Serializable {
 	 * @throws SemanticException
 	 */
 	Constraint addTerm(C_Term term) throws SemanticException;
+	C_Term varWhoseTypeIsThis();
+	void setVarWhoseTypeThisIs(C_Term val);
 }

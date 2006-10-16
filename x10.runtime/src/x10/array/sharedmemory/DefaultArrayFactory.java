@@ -250,6 +250,9 @@ public class DefaultArrayFactory extends ArrayFactory {
 	public DoubleReferenceArray DoubleArray(dist d, Operator.Pointwise init, boolean safe, boolean mutable, boolean ignored) {
 		return new DoubleArray_c(d, init, safe, mutable, ignored);
 	}
+	public DoubleReferenceArray DoubleArray3d(dist d, Operator.Pointwise init, boolean safe, boolean mutable, boolean ignored) {
+		return new DoubleArray3d_c(d, init, safe, mutable, ignored);
+	}
 
 	public GenericReferenceArray GenericArray(dist d, Operator.Pointwise init, boolean safe, boolean mutable, boolean ref_to_values) {
 		return new GenericArray_c(d, init, safe, mutable, ref_to_values);

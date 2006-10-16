@@ -9,10 +9,6 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	
 	
 	Object val;
-	public static final transient C_Lit_c FALSE = new C_Lit_c(false);
-	public static final transient C_Lit_c TRUE = new C_Lit_c(true);
-	
-	
 	public C_Lit_c(boolean b) {
 		super(Constraint_c.typeSystem.Boolean());
 		val = new Boolean(b);
@@ -36,7 +32,7 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	public C_Lit not() {
 		TypeSystem ts = type().typeSystem();
 		assert (type().equals(ts.Boolean()));
-		return equals(C_Lit_c.TRUE) ? C_Lit_c.FALSE : C_Lit_c.TRUE;
+		return equals(C_Lit.TRUE) ? C_Lit.FALSE : C_Lit.TRUE;
 	}
 	public boolean equals(Object o) {
 		if (this==o) return true;

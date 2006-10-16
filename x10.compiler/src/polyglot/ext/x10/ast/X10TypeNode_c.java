@@ -83,7 +83,6 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         // TODO: Fold in the args as well.
         
         GenParameterExpr newTParameter =  me.gen()==null ? null : (GenParameterExpr) me.gen().disambiguate( sc );
-        X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
         List typeParameters = new LinkedList(); 
         if (newTParameter != null) {
             List args = newTParameter.args();
@@ -104,12 +103,15 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
      * @throws SemanticException
      */
     public static Node typeCheckDepClause( X10TypeNode me, TypeChecker tc) throws SemanticException {
-        Node n = me.typeCheckBase( tc );
-        if (! (n instanceof X10TypeNode)) 
+    	  if (  Report.should_report("debug", 5)) {
+              Report.report(1,"[X10TypeNode_c static] typeCheckDepClause... entering|" 
+            		  + me + " " + me.getClass() + "|.");
+          }
+        if (! (me instanceof X10TypeNode)) 
             throw new SemanticException("Argument to parametric type node does not type-check" 
                     + me.position());
        
-        X10TypeNode arg = (X10TypeNode) n;
+        X10TypeNode arg = (X10TypeNode) me;
         X10Type argType = (X10Type) arg.type();
         X10TypeSystem ts = (X10TypeSystem) argType.typeSystem();
         
@@ -132,8 +134,8 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         X10Type newArgType = argType.makeVariant(term, tParameters);
         X10TypeNode result = (X10TypeNode) arg.type(newArgType);
         result = result.dep(null,null);
-        if ( Report.should_report("debug", 5)) {
-            Report.report(1,"[X10TypeNode_c static] typeChecker... returning |" + result + "|.");
+        if (  Report.should_report("debug", 5)) {
+            Report.report(1,"[X10TypeNode_c static] typeCheckDepClause... returning |" + result + "|.");
         }
         return result;
     }
@@ -186,7 +188,8 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
 	 */
 	
 	public Node typeCheck( TypeChecker tc) throws SemanticException {
-        return X10TypeNode_c.typeCheckDepClause(this, tc);
+		 X10TypeNode n = (X10TypeNode) typeCheckBase( tc );
+        return X10TypeNode_c.typeCheckDepClause(n, tc);
 	}
     
     public Node typeCheckBase(TypeChecker tc) throws SemanticException {

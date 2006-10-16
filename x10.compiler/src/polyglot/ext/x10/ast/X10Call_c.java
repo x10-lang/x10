@@ -36,6 +36,7 @@ public class X10Call_c extends Call_c {
      * array types, otherwise leave alone.
      */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
+    	
         X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         if (this.target != null && this.target.type().isPrimitive() &&
@@ -53,7 +54,7 @@ public class X10Call_c extends Call_c {
         	X10Context c = (X10Context) tc.context();
         
         	X10MethodInstance mi = (X10MethodInstance) result.methodInstance();
-        	//Report.report(1, "X10Call_c.typeCheck:" + this + " methodInstance=|" + mi+"|");
+        	
         	if (mi !=null) {
         		X10Flags flags = X10Flags.toX10Flags(mi.flags());
         		if (c.inNonBlockingCode() 

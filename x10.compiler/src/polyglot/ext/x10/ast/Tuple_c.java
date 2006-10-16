@@ -7,13 +7,21 @@ package polyglot.ext.x10.ast;
 
 import java.util.List;
 
+import polyglot.ast.Call;
 import polyglot.ast.Expr;
+import polyglot.ast.IntLit;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.jl.parse.Name;
+import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Lit_c;
+import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.main.Report;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -51,7 +59,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 		this.regionName = regionName;
 		this.args = args;
 		assert (args.size() > 0);
-		//System.out.println("Tuple_c created:" + pointName + "| " + regionName + "| " + args);
+		//Report.report(1, "Tuple_c created:" + pointName + "| " + regionName + "| " + args);
 	}
 	
 	
@@ -61,14 +69,16 @@ public class Tuple_c extends Expr_c implements Tuple {
 	 * 
 	 * */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		//System.out.println("Tuple_c.typeCheck:" + args);
+		//Report.report(1, "Tuple_c.typeCheck:***" + args);
 		Type argType = ((Expr) args.get(0)).type();
 		if (argType.isInt()) {
 			// This is a point construction.
 			return pointName.nf.Call(position(), pointReceiver, "point", args).del().typeCheck(tc);
 		}
-		return regionName.nf.Call(position(), regionReceiver, "region", args).del().typeCheck(tc);
+		RectRegionMaker result= 
+			(RectRegionMaker) ((X10NodeFactory) regionName.nf).RectRegionMaker(position(), regionReceiver, "region", args).del().typeCheck(tc);
+		
+		return result;
 	}
 	
 	/* (non-Javadoc)
@@ -101,13 +111,14 @@ public class Tuple_c extends Expr_c implements Tuple {
 		n.pointReceiver = pointR;
 		n.regionReceiver = regionR;
 		n.args = args;
+		//Report.report(1, "Tuple_c returning (#" + n.hashCode() + ") " + n.args );
 		return n;
 		
 	}
 
 	/** Visit the children -- the two receivers and the argument list. */
 	public Node visitChildren(NodeVisitor v) {
-		//System.out.println("Tuple_c:" + this + " visited by " + v);
+	//	Report.report(1, "Tuple_c: (#" + hashCode() + ")" + this + " visited by " + v);
 		Receiver pointR = (Receiver) visitChild(this.pointReceiver, v);
 		Receiver regionR = (Receiver) visitChild(this.regionReceiver, v);
 		List args = visitList(this.args, v);
