@@ -14,7 +14,9 @@
     <path id="mainproject.classpath">
         <pathelement location="${basedir}/lib/${jar}"/>
     </path>
-    <target name="init"/>
+    <target name="init">
+        <mkdir dir="${build}"/>
+    </target>
     <target name="clean"/>
     <target name="dist" depends="jar" description="generate part of the distribution">
         <mkdir dir="${lib}"/>
