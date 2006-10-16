@@ -8,7 +8,7 @@ import harness.x10Test;
 public class Array1b extends x10Test {
 
 	public boolean run() {
-		final region e = [1:10];
+		final region(:rank==1) e = [1:10];
 		final region r = [e,e];
 		chk(r.equals([1:10,1:10]));
 		//final dist d = r->here;

@@ -84,7 +84,7 @@ public class JGFSORBench extends SOR implements JGFSection2 {
 		finish async(t.distribution[i,j]) t[i,j] = v;
 	}
 
-	private static dist blockStar(final region r1, final region r2) {
+	private static dist blockStar(final region r1, final region(:rank==1) r2) {
 		final dist d1 = dist.factory.block(r1);
 		return distTimesRegion(d1, r2);
 	}
@@ -99,9 +99,9 @@ public class JGFSORBench extends SOR implements JGFSection2 {
 	 *
 	 * For all i, For all j, (d*r)[i,j] = d[i]
 	 */
-	private static dist distTimesRegion(dist d, region r) {
-		dist d0 = [1:0,1:0]->here;
-		for (place p: d.places()) d0 = d0 || ([(d|p).region,r]->p);
+	private static dist distTimesRegion(dist d, region(:rank==1) r) {
+		dist(:rank==2) d0 = [1:0,1:0]->here;
+		for (place p: d.places()) d0 = d0 || ([(region(:rank==1))(d|p).region,r]->p);
 		return d0;
 	}
 }

@@ -10,7 +10,7 @@ public class ArrayDecl extends x10Test {
 	const int N = 24;
 
 	public boolean run() {
-		final int[.] ia0 = new int[[0:N-1]->here];
+		final int[:onePlace==here] ia0 = new int[[0:N-1]->here];
 		final place p = here;
 		chk(ia0.distribution.equals([0:N-1]->p));
 		chk(ia0.distribution.equals([0:N-1]->p));
@@ -48,13 +48,13 @@ public class ArrayDecl extends x10Test {
 		for (point [i]: data3) chk(data3[i] == (long)i*i);
 
 		final dist D = dist.factory.random([0:9]);
-		final float[D] d = new float[D]
+		final float[:distribution==D] d = new float[D]
 			(point [i]) { return (float)(10.0*i); };
 		chk(d.distribution.equals(D));
 		finish ateach (point [i]: d) chk(d[i] == (float)(10.0*i));
 
 		final dist E = dist.factory.random([1:7,0:1]);
-		final short[E] result1 = new short[E]
+		final short[:distribution==E] result1 = new short[E]
 			(point [i,j]) { return (short)(i+j); };
 		chk(result1.distribution.equals(E));
 		finish ateach (point [i,j]: E) chk(result1[i,j] == (short)(i+j));
@@ -71,7 +71,7 @@ public class ArrayDecl extends x10Test {
 		new ArrayDecl().execute();
 	}
 
-	final static value complex {
+	final static value complex extends x10.lang.Object {
 		int re;
 		int im;
 		public complex(int re, int im) { this.re = re; this.im = im; }

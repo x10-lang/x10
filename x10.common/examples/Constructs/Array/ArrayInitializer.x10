@@ -6,13 +6,13 @@ import harness.x10Test;
 public class ArrayInitializer extends x10Test {
 
 	public boolean run() {
-		region e = [0:9];
+		region(:rank==1) e = [0:9];
 		region r = [e, e, e];
 		//TODO: next line causes runtime error
 		//dist d=r->here;
-		dist d = [0:9,0:9,0:9]->here;
+		final dist d = [0:9,0:9,0:9]->here;
 
-		final int value [d] ia =
+		final int value [:distribution==d] ia =
 			new int value [d]
 			(point [i,j,k]) {
 				return i;

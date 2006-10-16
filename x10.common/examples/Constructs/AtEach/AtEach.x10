@@ -10,7 +10,7 @@ public class AtEach extends x10Test {
 
     public boolean run() {
         final dist d = dist.factory.unique(place.places);
-        final int[d] disagree = new int[d];
+        final int[.] disagree = new int[d];
         finish ateach (final point p: d) {
             // remember if here and d[p] disagree
             // at any activity at any place

@@ -34,14 +34,14 @@ public class JacobiExtern extends x10Test {
 
 		int iters = 0;
 
-		final double[D] a = new double[D];
+		final double[.] a = new double[D];
 		finish ateach (point p: D_inner) { a[p] = (double)(p[0]-1)*N + (p[1]-1); }
 		finish ateach (point p: D_Boundary) { a[p] = (N-1)/2; }
 		double err, x10err;
-		double[D] x = a;
+		double[.] x = a;
 		while (true) {
-			final double[D] b = x;
-			final double[D_inner] temp = new double[D_inner];
+			final double[.] b = x;
+			final double[.] temp = new double[D_inner];
 			finish ateach ( point p: D_inner ) {
 				int i = p[0];
 				int j = p[1];

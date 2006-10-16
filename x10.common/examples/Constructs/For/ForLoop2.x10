@@ -10,7 +10,7 @@ public class ForLoop2 extends x10Test {
 	const int N = 3;
 
 	public boolean run() {
-		region r = [0:N-1];
+		region(:rank==1) r = [0:N-1];
 		region r3 = [r,r,r];
 		place P0 = here;
 		dist d3 = r3->P0;

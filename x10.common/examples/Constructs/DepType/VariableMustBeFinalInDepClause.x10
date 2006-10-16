@@ -14,9 +14,9 @@ public class VariableMustBeFinalInDepClause extends x10Test {
 	}
 	
 	public boolean run() {
-	final int ii = 42;
-	   Test  a = (Test(:self.i==ii+10)) new Test(52);
-	    return true;
+	   final int ii = 42;
+	   Test(:i==52)  a =  new Test(52);
+	   return true;
 	}
 	public static void main(String[] args) {
 		new VariableMustBeFinalInDepClause().execute();

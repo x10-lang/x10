@@ -75,7 +75,7 @@ public class UserArrayBounds2D extends x10Test {
 		new UserArrayBounds2D().execute();
 	}
 
-	static class boxedInt {
+	static class boxedInt extends x10.lang.Object {
 		int val;
 		public boxedInt(int x) { val = x; }
 		public boolean equals(boxedInt other) {

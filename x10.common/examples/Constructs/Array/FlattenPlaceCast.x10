@@ -16,7 +16,7 @@ public class FlattenPlaceCast extends x10Test {
       d = new place[[1:10]] (point [i]) { return here;};
     }
    
-    static class Test {};
+    static class Test extends x10.lang.Object {};
 	public boolean run() {
 		Test x = (@d[1].next()) a[1,1];
 	
