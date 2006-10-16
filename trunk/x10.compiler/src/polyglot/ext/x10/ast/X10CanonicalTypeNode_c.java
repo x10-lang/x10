@@ -46,7 +46,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     
     public X10TypeNode dep( DepParameterExpr expr) {
         if (expr == this.dep)  return this;
-        X10TypeNode_c n = (X10TypeNode_c) copy();
+        X10CanonicalTypeNode_c n = (X10CanonicalTypeNode_c) copy();
         n.dep = expr;
         return n;
         }  
@@ -81,10 +81,14 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     }
     public Node visitChildren( NodeVisitor v ) {
         GenParameterExpr gen = (GenParameterExpr) visitChild( this.gen, v);
-      //  if (dep != null)
-        //	Report.report(1, "X10CanonicalTypeNode_c: Visiting children |" + this.dep + "| with " + v);
-        DepParameterExpr dep = (DepParameterExpr) visitChild( this.dep, v);
-        return dep(gen,dep);
+     // if (dep != null)
+      // Report.report(1, "X10CanonicalTypeNode_c: Visiting children |" + this.dep + "| of " + this + " with " + v);
+        DepParameterExpr dep2 = (DepParameterExpr) visitChild( this.dep, v);
+        Node result =  dep(gen,dep2);
+     //   if (dep != null)
+     //   Report.report(1, "X10CanonicalTypeNode_c: Returning from dep with dep=|" 
+     //  		+ dep2 + "| of  type" + dep2.type());
+        return result;
     }
     
     public Node disambiguateBase(AmbiguityRemover sc) throws SemanticException {
@@ -97,8 +101,8 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     	boolean result = 
     		type != null && type.typeSystem().isCanonical(type) 
     		&& dep == null;
-    	//if (type.toString().startsWith("Test"))
-    	//Report.report(1, "X10CanonicalTypeNode_c: isTypeChecked " + this + " = " + result + " type=" + type.getClass());
+    	//if (type.toString().startsWith("x10.lang.Dou"))
+    	//Report.report(1, "X10CanonicalTypeNode_c: isTypeChecked " + this + type().getClass() );
     	return result;
     }
     public boolean isDisambiguated() {
@@ -114,13 +118,15 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
          return result.dep(gen,dep);
      }
     public Node typeCheck(TypeChecker tc) throws SemanticException {
-    //	if (type.toString().startsWith("Test"))
-    	//Report.report(1, "X10CanonicalType: typechecking: " + this + " dep=|" + this.dep + "|");
-        return X10TypeNode_c.typeCheckDepClause(this, tc);
+    	if (isTypeChecked()) return this;
+    	X10TypeNode me = (X10TypeNode) typeCheckBase(tc);
+    	Node n=X10TypeNode_c.typeCheckDepClause(me, tc);
+    	Report.report(1, "X10canonicalType is now typechecked " + this);
+        return n;
     }
    
     public String toString() {
         return super.toString() + (gen ==null ? "" : "/*T:"+gen+"*/") 
-        + (dep == null ? "" : "/*" + dep+"*/");
+        + (dep == null ? "" : "/*dep" + dep+"*/");
     }
 }

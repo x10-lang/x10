@@ -2,6 +2,7 @@ package polyglot.ext.x10.types.constr;
 
 import polyglot.ast.Special;
 import polyglot.ast.Special.Kind;
+import polyglot.ext.x10.ast.X10Special;
 import polyglot.types.Type;
 import polyglot.util.Enum;
 
@@ -21,6 +22,11 @@ public interface C_Special extends C_Var {
     public static final C_Kind SUPER = new C_Kind("super");
     public static final C_Kind THIS  = new C_Kind("this");
     public static final C_Kind SELF  = new C_Kind("self");
+    
+    // Type is null for SELF. The type that this constraint is attached to
+	// is the type of self. This helps avoid cyclic equality checks.
+	public static final C_Special self = new C_Special_c(X10Special.SELF, null);
+	
 
     /** Get the kind of expression: SUPER or THIS or SELF. */
     C_Kind kind();

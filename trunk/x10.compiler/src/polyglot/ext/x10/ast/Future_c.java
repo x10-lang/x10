@@ -169,7 +169,7 @@ public class Future_c extends Expr_c
      * @return
      */
    public Future flatten(ExprFlattener.Flattener fc) {
-	   Report.report(1, "ExprFlattener: entering future " + this);
+	   //Report.report(1, "Future_c: entering future " + this);
 		
 		place = (Expr) place.visit(fc);
 		
@@ -190,7 +190,7 @@ public class Future_c extends Expr_c
 			}
 			
 		}
-		Report.report(1, "ExprFlatter: returning " + this);
+		//Report.report(1, "Future_c: returning " + this);
 		return this;
 		
    }

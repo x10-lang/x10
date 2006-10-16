@@ -4,21 +4,33 @@ import java.util.Iterator;
 import x10.lang.place;
 
 import x10.array.ArrayFactory;
+import x10.array.ContiguousRange;
+import x10.array.MultiDimRegion;
 import x10.compilergenerated.Parameter1;
 
 /* root for all array classes */
 abstract public class x10Array extends x10.lang.Object implements Array, Unsafe, Parameter1, ValueType {
+	
 	public static final ArrayFactory factory = Runtime.factory.getArrayFactory();
-	public final dist distribution;
+	/*parameter*/ public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
-	protected x10Array(dist d) {
-		distribution = d;
-		rank = d.rank;
-		region = d.region;
-	}
-
-        /**
+	/*parameter*/ public final boolean rect;
+	/*parameter*/ public final boolean rail;
+	/*parameter*/ public final place onePlace;
+	/*parameter*/ public final boolean zeroBased;
+	public static final String propertyNames$ = "distribution rank region rect rail onePlace zeroBased ";
+    protected x10Array(dist d) {
+        distribution = d;
+        rank = d.rank;
+        region = d.region;
+        rect = region instanceof MultiDimRegion ;
+        onePlace = d.onePlace;
+        zeroBased = d.zeroBased;
+        rail = (rank==1) && onePlace!=null && region.zeroBased;
+        
+    }
+         /**
          * @return low bound for a 1D array else throw and exception
          */
         public final int low0(){
@@ -27,8 +39,6 @@ abstract public class x10Array extends x10.lang.Object implements Array, Unsafe,
            //System.out.println("low bound is:"+lowBound);
            return lowBound;
         }
-	// TODO: Remove me
-	public final dist getDistribution() { return distribution; }
 
 	/**
 	 * Return an iterator over the array's region.

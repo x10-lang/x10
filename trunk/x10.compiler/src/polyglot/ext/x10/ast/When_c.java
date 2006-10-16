@@ -100,7 +100,6 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 	/** Type check the statement. */
 	// TODO: cvp -> vj implement this
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		TypeSystem ts = tc.typeSystem();
 
     	X10Context c = (X10Context) tc.context();
     	if (c.inNonBlockingCode())

@@ -45,7 +45,7 @@ public class BlockIJK extends Distribution_c {
 	final int x,y,z;
 	final int sizeX,sizeY,sizeZ;
 	public BlockIJK(region r, int P) {
-		super(r);
+		super(r, place.places(P));
 		assert r instanceof MultiDimRegion;
 		int p=log2(P);
 		final int loX=r.rank(0).low(), hiX=r.rank(0).high(), I=hiX-loX+1;
@@ -61,7 +61,7 @@ public class BlockIJK extends Distribution_c {
 		
 		procGrid = new MultiDimRegion(new region[]{ new ContiguousRange(0,x-1), 
 			new ContiguousRange(0,y-1),
-			new ContiguousRange(0,z-1)});
+			new ContiguousRange(0,z-1)}, true);
 		
 				
 		for (int pp=0; pp < p; pp++) {
@@ -72,7 +72,7 @@ public class BlockIJK extends Distribution_c {
 			// (i,j,k) in procGrid
 			regions[pp]= new MultiDimRegion(new region[] { new ContiguousRange(sizeX*i+loX+1,sizeX*(i+1)+loX),
 					new ContiguousRange(sizeY*j+loY+1,sizeY*(j+1)+loY),
-					new ContiguousRange(sizeZ*k+loZ+1,sizeZ*(k+1)+loZ)});
+					new ContiguousRange(sizeZ*k+loZ+1,sizeZ*(k+1)+loZ)}, false);
 		}
 		
 	}

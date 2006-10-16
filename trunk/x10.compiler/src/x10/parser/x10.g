@@ -70,10 +70,12 @@ $Globals
     import polyglot.ext.x10.ast.X10Formal;
     import polyglot.ext.x10.ast.X10Formal_c;
     import polyglot.ext.x10.ast.X10Loop;
+    import polyglot.ext.x10.ast.ConstantDistMaker;
     import polyglot.ext.x10.ast.X10NodeFactory;
     import polyglot.ext.x10.types.X10TypeSystem;
     import polyglot.ext.x10.types.X10TypeSystem_c;
     import polyglot.ext.x10.ast.PropertyDecl;
+    import polyglot.ext.x10.ast.RegionMaker;
     import polyglot.frontend.FileSource;
     import polyglot.frontend.Parser;
     import polyglot.lex.BooleanLiteral;
@@ -1080,6 +1082,11 @@ $Rules
                     setResult(nf.This(pos()));
           $EndJava
         ./
+                        | here
+        /.$BeginJava
+                    setResult(nf.Here(pos()));
+          $EndJava
+        ./
                         | ClassName . this
         /.$BeginJava
                     setResult(nf.This(pos(), ClassName.toType()));
@@ -1413,12 +1420,7 @@ $Rules
          $EndJava
         ./
 
-     FieldDeclaration ::= compilertest . 
-      /.$BeginJava
-        List l = new TypedList(new LinkedList(), ClassMember.class, false);
-        // l.add(nf.CompilerTest(pos()));
-        setResult(l);
-      $EndJava ./
+     
     FieldDeclaration ::= ThisClauseopt FieldModifiersopt Type  VariableDeclarators ;
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -1808,7 +1810,7 @@ $Rules
     RegionExpression ::= Expression
                        | Expression$expr1 : Expression$expr2
         /.$BeginJava
-                    Name x10 = new Name(nf, ts, pos(), "x10");
+                    /*Name x10 = new Name(nf, ts, pos(), "x10");
                     Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
 
                     Name x10LangRegion = new Name(nf, ts, pos(), x10Lang, "region");
@@ -1817,7 +1819,9 @@ $Rules
                     List l = new TypedList(new LinkedList(), Expr.class, false);
                     l.add(expr1);
                     l.add(expr2);
-                    Call regionCall = nf.Call( pos(), x10LangRegionFactoryRegion.prefix.toReceiver(), "region", l  );
+                     Call regionCall = nf.Call( pos(), x10LangRegionFactoryRegion.prefix.toReceiver(), "region", l  );
+                    */
+                    Call regionCall = nf.RegionMaker(pos(), expr1, expr2);
                     setResult(regionCall);
           $EndJava
         ./
@@ -1854,19 +1858,7 @@ $Rules
 
     AssignmentExpression ::= Expression$expr1 '->' Expression$expr2
         /.$BeginJava
-                    //System.out.println("Distribution:" + a + "|" + b + "|");
-                    // x10.lang.region.factory.region(  ArgumentList )
-                    // Construct the MethodName
-                    Name x10 = new Name(nf, ts, pos(), "x10");
-                    Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
-
-                    Name x10LangDistribution = new Name(nf, ts, pos(), x10Lang, "dist");
-                    Name x10LangDistributionFactory = new Name(nf, ts, pos(), x10LangDistribution, "factory");
-                    Name x10LangDistributionFactoryConstant = new Name(nf, ts, pos(), x10LangDistributionFactory, "constant");
-                    List l = new TypedList(new LinkedList(), Expr.class, false);
-                    l.add(expr1);
-                    l.add(expr2);
-                    Call call = nf.Call(pos(), x10LangDistributionFactoryConstant.prefix.toReceiver(), "constant", l);
+                    ConstantDistMaker call = nf.ConstantDistMaker(pos(), expr1, expr2);
                     setResult(call);
           $EndJava
         ./

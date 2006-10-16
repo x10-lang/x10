@@ -56,8 +56,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		return places;
 	}
 
-	public Distribution_c(region r) {
-		super(r);
+	public Distribution_c(region r, place onePlace) {
+		super(r, onePlace);
 		this.places = new HashSet();
 	}
 
@@ -82,10 +82,14 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 
 		Set points = new HashSet();
+		boolean zeroBased = false;
+		point allZero = point.factory.point(new int[th.rank]);
 		for (Iterator it = th.region.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
-			if (th.get(p) == pl)
+			if (th.get(p) == pl) {
 				points.add(p);
+				zeroBased |= p.equals(allZero);
+			}
 		}
 		region ret = new ArbitraryRegion(th.region.rank, points);
 		return ret;
@@ -104,16 +108,20 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	{
 		HashMap hm = new HashMap();
 		Set points = new HashSet();
+		boolean zeroBased = false;
+		point allZero = point.factory.allZero(th.rank);
 		for (Iterator it = th.region.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			place pl = th.get(p);
 			if (Ps.contains(pl)) {
 				points.add(p);
 				hm.put(p, pl);
+				zeroBased |= p.equals(allZero);
 			}
 		}
 		region reg = new ArbitraryRegion(th.rank, points);
-		dist ret = new Arbitrary(reg, hm);
+		place onePlace = Ps.size() == 1 ? (place) Ps.toArray()[0] : null;
+		dist ret = new Arbitrary(reg, hm, onePlace);
 		return ret;
 	}
 
@@ -134,15 +142,23 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 		HashMap hm = new HashMap();
 		Set points = new HashSet();
+		boolean isSet = false;
+		place onePlace = null;
 		for (Iterator it = th.region.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			if (r.contains(p)) {
+				place place = (place) th.get(p);
+				onePlace = isSet ? 
+						(onePlace==null ? null : (onePlace.equals(place) ? onePlace : null)) 
+						: place;
+				isSet = true;
 				points.add(p);
 				hm.put(p, th.get(p));
+				
 			}
 		}
 		region reg = new ArbitraryRegion(th.rank, points);
-		dist ret = new Arbitrary(reg, hm);
+		dist ret = new Arbitrary(reg, hm, onePlace);
 		return ret;
 	}
 
@@ -151,7 +167,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	}
 
 	/**
-	 * Returns the restriction of this to the domain region.difference(R),
+	 * Returns the restriction of this with the domain region.difference(R),
 	 * where parameter R is a region with the same dimension.
 	 */
 	protected static /*(region(rank) R)*/ dist/*(region.difference(R))*/
@@ -161,11 +177,22 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			throw new RankMismatchException(r, th.rank);
 		region reg = th.region.difference(r);
 		HashMap hm = new HashMap();
+		boolean isSet = false;
+		place onePlace = null;
 		for (Iterator it = reg.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
+			place place = th.get(p);
+			if (isSet) {
+				if (onePlace !=null)
+					onePlace = onePlace.equals(place) ?onePlace : null;
+			} else {
+				onePlace=place;
+			}
+			
+			isSet = true;
 			hm.put(p, th.get(p));
 		}
-		dist ret = new Arbitrary(reg, hm);
+		dist ret = new Arbitrary(reg, hm, onePlace);
 		return ret;
 	}
 
@@ -202,7 +229,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			point p = (point) it.next();
 			hm.put(p, d.get(p));
 		}
-		dist ret = new Arbitrary(reg, hm);
+		dist ret = new Arbitrary(reg, hm, 
+				th.onePlace==null? null : (th.onePlace.equals(d.onePlace) ? th.onePlace: null));
 		return ret;
 		
 	}
@@ -234,6 +262,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 		region reg = r.union(th.region);
 		HashMap hm = new HashMap();
+		boolean isSet = false;
+		place onePlace = null;
 		for (Iterator it = reg.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			place pl;
@@ -244,11 +274,13 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 				pl = th.get(p);
 				assert (pl != null);
 			}
+			onePlace = isSet? (pl.equals(onePlace) ? onePlace:null) : pl;
+			isSet=true;
 			hm.put(p, pl);
 		}
 		// TODO: *must* try to convert this to a recognized form (constant? Unique?)
 		// otherwise serialization will have to send the entire hashtable over
-		dist ret = new Arbitrary(reg, hm);
+		dist ret = new Arbitrary(reg, hm, onePlace);
 		return ret;
 	}
 
@@ -266,16 +298,20 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		region reg = th.region.intersection(d.region);
 		HashMap hm = new HashMap();
 		Set points = new HashSet();
+		boolean isSet = false;
+		place onePlace = null;
 		for (Iterator it = reg.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			place pl;
 			if ((pl = th.get(p)).equals(d.get(p))) {
+				onePlace = isSet ? (pl.equals(onePlace) ? onePlace : null) : pl;
 				hm.put(p, pl);
 				points.add(p);
+				
 			}
 		}
 		region reg_new = new ArbitraryRegion(th.rank, points);
-		dist ret = new Arbitrary(reg_new, hm);
+		dist ret = new Arbitrary(reg_new, hm, onePlace);
 		return ret;
 	}
 
@@ -322,7 +358,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		 */
 		Empty(/*nat*/int k) {
 			// get an empty region of rank 0
-			super(Runtime.factory.getRegionFactory().emptyRegion(k));
+			super(Runtime.factory.getRegionFactory().emptyRegion(k), null);
 		}
 
 		/**
@@ -422,7 +458,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		place place_;
 
 		Constant(region r, place p) {
-			super(r);
+			super(r,p);
 			this.places.add(p);
 			place_ = p;
 		}
@@ -534,7 +570,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 				arr[0] = this;
 				arr[1] = (Distribution_c) D;
 				region r = region.union(D.region);
-				ret = new Distribution_c.Combined(r, arr);
+				ret = new Distribution_c.Combined(r, arr, 
+						arr[0].onePlace==arr[1].onePlace? arr[0].onePlace : null);
 			}
 			return ret;
 		}
@@ -553,11 +590,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	static class Unique extends Distribution_c {
 
 		place[] placeseq;
-
-		
-
 		Unique(place[] ps) {
-			super(new ContiguousRange(0, ps.length - 1));
+			super(new ContiguousRange(0, ps.length - 1), ps.length==1?ps[0] : null);
 			this.placeseq = ps;
 			for (int i=0; i<placeseq.length; i++)
 				places.add(ps[i]);
@@ -615,8 +649,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		 * @param r
 		 */
 		// [IP] FIXME: should this verify that all members have the same rank?
-		Combined(region r, Distribution_c[] members_) {
-			super(r);
+		Combined(region r, Distribution_c[] members_, place onePlace) {
+			super(r, onePlace);
 			assert members_ != null;
 			// defensive copy
 			this.members_ = (Distribution_c[]) members_.clone();
@@ -673,10 +707,13 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			// now must merge results--may or may not be as cheap as
 			// a Distribution_c.restiction
 			Set points = new HashSet();
+			boolean zeroBased = false;
+			point allZero = point.factory.allZero(rank);
 			for (i=0; i < count; ++i) {
 				for (Iterator it = newRegions[i].iterator(); it.hasNext(); ) {
 					point p = (point) it.next();
 					points.add(p);
+					zeroBased |= p.equals(allZero);
 				}
 			}
 
@@ -696,8 +733,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 		private final Map map_;
 
-		Arbitrary(region r, Map m) {
-			super(r);
+		Arbitrary(region r, Map m, place onePlace) {
+			super(r, onePlace);
 			map_ = m;
 			places.addAll(m.values());
 		//	this._indexMap = generateIndexMap(this, m);

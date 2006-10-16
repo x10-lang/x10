@@ -3,6 +3,7 @@
  */
 package polyglot.ext.x10.types;
 
+import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.types.ParsedClassType;
 
 /**
@@ -21,12 +22,57 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	 * @return
 	 */
 	X10ClassType superClassRoot();
-	
+	X10ParsedClassType makeVariant();
 	
 	/** Returns true iff superClassRoot() equals ts.Object().
 	 * @return
 	 */
 	boolean isJavaType();
+	
+	/**
+	 * Returns true iff this type is an X10 array.
+	 * @return
+	 */
+	boolean isX10Array();
+	
+	/**
+	 * Returns true iff this type is an X10 array defined over a rectangular region.
+	 * @return
+	 */
+	boolean isRect();
+	void setRect();
+	
+	/**
+	 * Returns true iff this type is an X10 array defined over a local distribution.
+	 */
+	boolean hasLocalProperty();
+	C_Term onePlace();
+	void setOnePlace(C_Term t);
+	
+	/** 
+	 * Returns true iff this type is an X10 array defined over a region that starts with zero in each dimension.
+	 * @return
+	 */
+	boolean isZeroBased();
+	void setZeroBased();
+	
+	boolean isRail();
+	void setRail();
+	/**
+	 * If this type is an array/region/distribution, returns the rank of the array. Returns null if rank is not 
+	 * defined for this type.
+	 * @return
+	 */
+	C_Term rank();
+	void setRank(C_Term rank);
+	
+	boolean isRankOne();
+	boolean isRankTwo();
+	boolean isRankThree();
+	
+	C_Term self();
+	
+	void setDistribution(C_Term dist);
 	
 	
 }

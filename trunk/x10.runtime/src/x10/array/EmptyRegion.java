@@ -20,7 +20,7 @@ public class EmptyRegion extends region {
 	 * @param rank
 	 */
 	public EmptyRegion(/*long*/ int rank) {
-		super(rank);
+		super(rank, true,true);
 	}
 
 	/* (non-Javadoc)

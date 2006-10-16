@@ -23,10 +23,10 @@ import polyglot.types.SemanticException;
 public class Constraint_c implements Constraint {
 
 	// Map from variables to values for positive bindings.
-	protected Map bindings;
+	protected Map bindings = new HashMap();
 	
 	// Map from variables to values for negative bindings.
-	protected Map negBindings;
+	// protected Map negBindings;
 	
 	// The place clause for this type.
 	protected boolean placePossiblyNull; // true if loc could be null.
@@ -34,22 +34,53 @@ public class Constraint_c implements Constraint {
 	protected C_Term_c placeTerm;        // if non null, place could be here or some placeTerm.
 	
 	// For representation of T(:self == o), selfBinding is o.
-	protected C_Term selfBinding;
+	protected C_Term varWhoseTypeThisIs;
 	
 	boolean consistent = true;
 	boolean valid = true;
 	public Constraint_c() {
 		super();
 	}
+	/** Copy this constraint. */
+	
+	public Constraint_c copy() {
+		return copyInto(new Constraint_c());
+	}
+	/**
+	 * Return the result of copying this into c.
+	 * @param c
+	 * @return
+	 */
+	public Constraint_c copyInto(Constraint_c c) {
+		
+		Set keys = bindings.entrySet();
+		for (Iterator it = keys.iterator(); it.hasNext();) {
+			Map.Entry i = (Map.Entry) it.next();
+			c.addBinding((C_Var) i.getKey(), (C_Term) i.getValue());
+		
+		}
+		c.placePossiblyNull = placePossiblyNull;
+		c.placeIsHere = placeIsHere;
+		c.placeTerm = placeTerm;
+		// represent varWhoseTypeThisIs via a self==this constraint.
+	
+		
+		return c;
+	}
 	public static Constraint makeBinding(C_Var var, C_Term val) {
 		Constraint c = new Constraint_c();
 		return c.addBinding(var,val);
 	}
-	
-	public static Constraint addSelfBinding(C_Term val, Constraint c) {
+	public C_Term varWhoseTypeIsThis() {
+		return varWhoseTypeThisIs;
+	}
+	public static Constraint addVarWhoseTypeThisIs(C_Term val, Constraint c) {
 		c = (c==null) ? new Constraint_c() : c;
-		C_Special self = C_Special_c.self;
-		return c.addBinding(self, val);
+		((Constraint_c) c).varWhoseTypeThisIs = val;
+		return c;
+	}
+	public void setVarWhoseTypeThisIs(C_Term val) {
+		varWhoseTypeThisIs = val;
 	}
 	String name = "";
 
@@ -85,6 +116,7 @@ public class Constraint_c implements Constraint {
 			return this;
 		}
 		if (! var.equals(val)) {
+			// New information has been added.
 			bindings.put(var, val);
 			name = name + (name.equals("") ? "" : ",") + var + "=" + val;
 			valid = false;
@@ -97,7 +129,7 @@ public class Constraint_c implements Constraint {
 	 * @param term
 	 */
 	public Constraint addTerm(C_Term term) throws SemanticException {
-		return addTerm(term, C_Lit_c.TRUE);
+		return addTerm(term, C_Lit.TRUE);
 	}
 	public Constraint addTerm(C_Term term, C_Lit val) throws SemanticException {
 		if (term instanceof C_Lit) {
@@ -139,7 +171,14 @@ public class Constraint_c implements Constraint {
 			C_Var var = (C_Var) i.getKey();
 			C_Term val2 = (C_Term) bindings.get(var);
 			//Report.report(1, "Constraint.entails: |" + val + "|" + val2 + "|" + val.equals(val2));
-			result &= val==val2 || val.equals(val2);
+			result = val==val2 || val.equals(val2);
+			if ((!result) && (var instanceof C_Special)) {
+//				 check the selfbinding
+				C_Special s = (C_Special) var;
+				if (s.kind().equals(C_Special.SELF)) {
+					result = (val==varWhoseTypeThisIs || val.equals(varWhoseTypeThisIs));
+				}
+			}
 		}
 	//Report.report(1, "Constraint: " + this + " entails " + other + "? " + result);
 		return result;

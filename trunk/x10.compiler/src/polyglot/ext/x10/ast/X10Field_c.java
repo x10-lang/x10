@@ -10,9 +10,15 @@ import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Field_c;
-import polyglot.ext.x10.types.PropertyInstance;
+import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Field;
+import polyglot.ext.x10.types.constr.C_Field_c;
+import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -53,10 +59,13 @@ public class X10Field_c extends Field_c {
 		try {
 			//Report.report(1, "X10Field_c.tpeCheck: context" + tc.context());
 			X10Field_c result = (X10Field_c) super.typeCheck(tc);
+			if (! result.isTypeChecked()) return result;
 			// Check that field accesses in dep clauses refer to final fields.
 			X10Context xtc = (X10Context) tc.context();
 			if (xtc.inDepType()) {
 				FieldInstance fi = result.fieldInstance();
+			
+						
 				if (! fi.flags().contains(Flags.FINAL))
 					throw 
 					new SemanticException("Field " + fi.name() 
@@ -65,13 +74,16 @@ public class X10Field_c extends Field_c {
 				if ((target instanceof X10Special) &&
 						((X10Special)target).kind()==X10Special.SELF) {
 					// The fieldInstance must be a property.
-					if (! (fi instanceof PropertyInstance))
+					
+					if (! (fi instanceof X10FieldInstance && ((X10FieldInstance) fi).isProperty()))
 						throw new SemanticException("Field \"" + fi.name() 
-								+  "\" is not a property. " 
+								+  "\" is not a property of " + fi.container() + ". "
 								+ "Only properties may appear unqualified or prefixed with self in a depclause."
 								);
 				}
 			}
+			result = checkArrayFields(result);
+			//Report.report(1, "X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
         } catch (NoMemberException e) {
             if (e.getKind() != NoMemberException.FIELD || this.target == null)
@@ -89,6 +101,51 @@ public class X10Field_c extends Field_c {
         }
 	}
 
+	protected X10Field_c checkArrayFields(X10Field_c result) {
+		X10Type aType = (X10Type) result.target.type();
+		X10TypeSystem xts = (X10TypeSystem) aType.typeSystem();
+		if (result.name.equals("distribution") && xts.isX10Array(aType)) {
+			X10ParsedClassType aType1 = (X10ParsedClassType) aType;
+			X10ParsedClassType type = ((X10ParsedClassType) result.type()).makeVariant();
+			//Report.report(1, "X10Field_c aType1=" + aType1 + " " + aType1.getClass());
+			type.setRank(aType1.rank());
+			if (aType1.isRect()) type.setRect();
+			if (aType1.isZeroBased()) type.setZeroBased();
+			type.setOnePlace(aType1.onePlace());
+			Constraint c = aType1.depClause(); 
+			if (c != null) {
+				C_Term me = aType1.depClause().varWhoseTypeIsThis();
+				if (me !=null) {
+					C_Field f = new C_Field_c(result.fieldInstance(), me);
+					Constraint myC = type.depClause();
+					myC.setVarWhoseTypeThisIs(f);
+				}
+			}
+			result = (X10Field_c) result.fieldInstance(result.fieldInstance().type(type)).type(type);
+			return result;
+		}
+		if (name.equals("region") && (xts.isX10Array(aType) || xts.isDistribution(aType)) ) {
+			X10ParsedClassType aType1 = (X10ParsedClassType) aType;
+			X10ParsedClassType type = ((X10ParsedClassType) result.type()).makeVariant();
+			type.setRank(aType1.rank());
+			if (aType1.isRect()) type.setRect();
+			if (aType1.isZeroBased()) type.setZeroBased();
+			
+			Constraint c = aType1.depClause(); 
+			if (c != null) {
+				C_Term me = aType1.depClause().varWhoseTypeIsThis();
+				if (me !=null) {
+					C_Field f = new C_Field_c(result.fieldInstance(), me);
+					Constraint myC = type.depClause();
+					myC.setVarWhoseTypeThisIs(f);
+				}
+			}
+			result = (X10Field_c) result.fieldInstance(result.fieldInstance().type(type)).type(type);
+			return result;
+		}
+		return result;
+		
+	}
 
 	public boolean equals(Object o) {
 		if (!(o instanceof Field_c)) return false;

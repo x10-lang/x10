@@ -109,8 +109,12 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
      */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        //Report.report(1, "DepParameterExpr: Typechecking " + this);
+      //Report.report(1, "DepParameterExpr: Typechecking " + this + this.getClass() + " " + condition);
         
+      if (condition == null) {
+    	  throw new SemanticException("The condition of a dependent type clause must be non-empty.", 
+    			  position());
+      }
         Type t = condition.type();
         
         if (! ts.equals(t, ts.Boolean()))

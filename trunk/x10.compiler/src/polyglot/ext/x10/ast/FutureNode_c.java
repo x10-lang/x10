@@ -61,7 +61,6 @@ public class FutureNode_c extends X10TypeNode_c implements FutureNode {
 
 	  public Context enterChildScope(Node child, Context c) {
 	        if (child == this.dep) {
-	            TypeSystem ts = c.typeSystem();
 	            if (type instanceof X10ParsedClassType)
 	            c = ((X10Context) c).pushDepType((X10ParsedClassType) type);
 	        }
@@ -78,15 +77,15 @@ public class FutureNode_c extends X10TypeNode_c implements FutureNode {
 		// Report.report(5,"[FutureNode_c] ... yields type |" + type + "|.");
 		
 		Type baseType =  newType.type();
-		// RMF 11/2/2005 - Don't proceed further if the base type hasn't yet been disambiguated...
-		if (!baseType.isCanonical())
-			return this;
-
 		if (null == baseType) {
 			throw new SemanticException("The type constructor future cannot be applied to a <null> type",
 					position());
 		}
-	
+		
+//		 RMF 11/2/2005 - Don't proceed further if the base type hasn't yet been disambiguated...
+		if (!baseType.isCanonical())
+			return this;
+		
 		X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
 		this.type = ts.createFutureType( position(), (X10NamedType) baseType );
 		Node result = reconstruct( newType );

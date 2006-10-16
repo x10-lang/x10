@@ -31,9 +31,7 @@ public class Next_c extends Stmt_c implements Next {
         // TODO:
         return succs;
     }
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
-    	TypeSystem ts = tc.typeSystem();
-    	
+    public Node typeCheck(TypeChecker tc) throws SemanticException {    	
     	X10Context c = (X10Context) tc.context();
     	if (c.inNonBlockingCode())
     		throw new SemanticException("The next statement cannot be used in nonblocking code.", position());

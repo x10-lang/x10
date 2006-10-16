@@ -9,6 +9,12 @@ import polyglot.types.FieldInstance;
  * @author vj
  *
  */
-public interface PropertyInstance extends FieldInstance {
+public interface X10FieldInstance extends FieldInstance {
+	
+	public static final String MAGIC_PROPERTY_NAME = "propertyNames$";
+	/** Is this field a property? */
+	
+	boolean isProperty();
+	void setProperty();
 
 }

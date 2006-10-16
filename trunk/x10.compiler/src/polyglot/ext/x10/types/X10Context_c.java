@@ -314,11 +314,11 @@ public class X10Context_c extends Context_c implements X10Context {
 	
 	// New lookup methods added for deptypes.
 	
-	public PropertyInstance findProperty(String name) throws SemanticException {
-		PropertyInstance pi=null;
+	public X10FieldInstance findProperty(String name) throws SemanticException {
+		X10FieldInstance pi=null;
 		FieldInstance fi = findField(name);
-		if (fi instanceof PropertyInstance) {
-			pi = (PropertyInstance) pi;
+		if (fi instanceof X10FieldInstance) {
+			pi = (X10FieldInstance) pi;
 		}
 		return pi;
 	}

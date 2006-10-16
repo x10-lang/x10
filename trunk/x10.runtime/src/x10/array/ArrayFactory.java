@@ -664,7 +664,7 @@ abstract public /*value*/ class ArrayFactory {
 	 * @param mutable  whether to create a mutable (reference) array
 	 */
 	abstract public /*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ignored);
-
+	abstract public /*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleArray3d(dist D, Operator.Pointwise/*(D.region)*/ init, boolean safe, boolean mutable, boolean ignored);
 	/**
 	 * Return the unique generic value array initialized with 0
 	 * and defined over the distribution [0..k-1]->here.

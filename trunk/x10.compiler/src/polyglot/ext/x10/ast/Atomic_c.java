@@ -91,9 +91,7 @@ implements Atomic {
 	}
 	
 	/** Type check the statement. */
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		TypeSystem ts = tc.typeSystem();
-		
+	public Node typeCheck(TypeChecker tc) throws SemanticException {		
 		/*
 		 if (! ts.isSubtype(expr.type(), ts.Object()) ) {
 		 throw new SemanticException(

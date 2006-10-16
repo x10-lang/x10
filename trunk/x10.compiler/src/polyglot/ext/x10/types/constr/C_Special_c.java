@@ -24,9 +24,7 @@ public class C_Special_c extends C_Var_c implements C_Special {
 		qualifier=null;
 	}
 	
-    // Type is null for SELF. The type that this constraint is attached to
-	// is the type of self. This helps avoid cyclic equality checks.
-	public static final C_Special self = new C_Special_c(X10Special.SELF, null);
+ 
 	
 	public C_Kind kind() {
 		return kind;
@@ -42,7 +40,6 @@ public class C_Special_c extends C_Var_c implements C_Special {
 		if (this==o) return true;
 		if (! (o instanceof C_Special_c))
 			return false;
-		if (o == null) return false;
 		C_Special_c other = (C_Special_c) o;
 		boolean val = (qualifier == null ?  other.qualifier==null : qualifier.equals(other.qualifier))
 		&& kind.equals(other.kind);

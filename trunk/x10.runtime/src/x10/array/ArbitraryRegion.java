@@ -19,20 +19,16 @@ public class ArbitraryRegion extends region {
 
 	private final SortedSet points_;
 
-	private ArbitraryRegion(int rank) {
-		super(rank);
-		rankCache_ = new ArbitraryRegion[rank];
-		points_ = new TreeSet();
-	}
-
 	public ArbitraryRegion(region[] dims) {
-		super(dims.length);
+		super(dims.length, false, false);
 		int sz = dims[0].size();
 		int sz_total = sz;
 		for (int i = 1; i < dims.length; ++i) {
 			assert dims[i].size() == sz;
 			if (dims[i].rank != 1)
 				throw new RankMismatchException(dims[i], 1);
+			if (zeroBased)
+				assert dims[i].zeroBased;
 		}
 		rankCache_ = new ArbitraryRegion[dims.length];
 		points_ = new TreeSet();
@@ -59,8 +55,15 @@ public class ArbitraryRegion extends region {
 		}
 	}
 
+	/**
+	 * Create a new ArbitraryRegion of the given rank, with the given set of points.
+	 * Assume that if zeroBased is true then points contains the all-zero point of rank rank.
+	 * @param rank
+	 * @param points
+	 * @param zeroBased
+	 */
 	public ArbitraryRegion(int rank, Set points) {
-		super(rank);
+		super(rank, false, false);
 		assert (points != null);
 
 		for (Iterator it = points.iterator(); it.hasNext(); ) {
@@ -73,6 +76,7 @@ public class ArbitraryRegion extends region {
 		rankCache_ = new ArbitraryRegion[rank];
 		points_ = new TreeSet();
 		points_.addAll(points);
+		
 	}
 
 	/* modifies this region - this method should be only called during the
@@ -106,17 +110,20 @@ public class ArbitraryRegion extends region {
 			ret = rankCache_[index];
 		}
 		if (ret == null) {
-			ret = new ArbitraryRegion(1);
+			TreeSet points = new TreeSet();
+			
 			for (Iterator it = iterator(); it.hasNext(); ) {
 				point p = (point) it.next();
 				point p_onedim = point.factory.point(new int[] { p.get(index) });
-				ret.add_(p_onedim);
+				
+				points.add(p_onedim);
 			}
 			// add it to rankCache_ only after it is initialized
 			// race on rankCache possible_!
 			synchronized (this) {
 				rankCache_[index] = ret;
 			}
+			ret = new ArbitraryRegion(1, points);
 		}
 		return ret;
 	}
@@ -180,16 +187,16 @@ public class ArbitraryRegion extends region {
 		if (r1.rank != r2.rank)
 			throw new RankMismatchException(r2, r1.rank);
 
-		ArbitraryRegion ret = new ArbitraryRegion(r1.rank);
+		TreeSet points = new TreeSet();
 		for (Iterator it = r1.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
-			ret.add_(p);
+			points.add(p);
 		}
 		for (Iterator it = r2.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
-			ret.add_(p);
+			points.add(p);
 		}
-		return ret;
+		return new ArbitraryRegion(r1.rank, points);
 	}
 
 	/*
@@ -210,13 +217,13 @@ public class ArbitraryRegion extends region {
 			r1 = tmp;
 		}
 
-		ArbitraryRegion ret = new ArbitraryRegion(r1.rank);
+		TreeSet points = new TreeSet();
 		for (Iterator it = r1.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			if (r2.contains(p))
-				ret.add_(p);
+				points.add(p);
 		}
-		return ret;
+		return new ArbitraryRegion(r1.rank, points);
 	}
 
 	/* (non-Javadoc)
@@ -232,12 +239,14 @@ public class ArbitraryRegion extends region {
 		if (r1.rank != r2.rank)
 			throw new RankMismatchException(r2, r1.rank);
 
-		ArbitraryRegion ret = new ArbitraryRegion(r1.rank);
+		
+		TreeSet points = new TreeSet();
 		for (Iterator it = r1.iterator(); it.hasNext(); ) {
 			point p = (point) it.next();
 			if (! r2.contains(p))
-				ret.add_(p);
+				points.add(p);
 		}
+		ArbitraryRegion ret = new ArbitraryRegion(r1.rank, points);
 		return ret;
 	}
 
@@ -255,10 +264,12 @@ public class ArbitraryRegion extends region {
 			}
 
 			region[] dims = new region[rank];
+			boolean zeroBased = true;
 			for (int i = 0; i < rank; ++i) {
 				dims[i] = new ContiguousRange(mins[i], maxs[i]);
+				zeroBased &= mins[i]==0;
 			}
-			ret = new MultiDimRegion(dims);
+			ret = new MultiDimRegion(dims, zeroBased);
 		}
 		return ret;
 	}

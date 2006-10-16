@@ -164,6 +164,7 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
         // as an InternalError.
         MethodInstance m = ts.findMethod(refType, name, argTypes, currType); 
         Type retType = m.returnType();
+        //Report.report(1, "X10ArrayAcces1 arraytype " + array.type() + "(" + array.type().getClass() + " for " + this);
         return type(retType);
 	}
 

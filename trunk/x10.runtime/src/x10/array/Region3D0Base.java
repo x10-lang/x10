@@ -15,7 +15,7 @@ public class Region3D0Base extends MultiDimRegion implements Region0Base {
 	public final int I, J, K;
 
 	public Region3D0Base(region[] d) {
-		super(d);
+		super(d, true);
 		assert (d.length == 3);
 		assert (d[0].low() == 0 && d[1].low() == 0 && d[2].low() == 0);
 		I = d[0].high(); J = d[1].high(); K = d[2].high();

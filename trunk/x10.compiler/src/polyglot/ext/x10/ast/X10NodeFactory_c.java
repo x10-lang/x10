@@ -30,6 +30,7 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
@@ -49,11 +50,15 @@ import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.jl.ast.Special_c;
 import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.TypedList;
 
 /**
  * NodeFactory for X10 extension.
@@ -196,7 +201,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
             String name, List properties, Expr ci, TypeNode superClass,
             List interfaces, ClassBody body)
     {
-        ClassDecl n = X10ClassDecl_c.make(pos, flags, name, properties, ci, superClass, interfaces,
+    	X10TypeSystem ts = X10TypeSystem_c.getTypeSystem();
+        superClass = (superClass ==null && ! flags.isInterface()) ? CanonicalTypeNode(Position.COMPILER_GENERATED, 
+        		ts.X10Object()) : superClass;
+    	ClassDecl n = X10ClassDecl_c.make(pos, flags, name, properties, ci, superClass, interfaces,
                 body);
         n = (ClassDecl)n.ext(extFactory().extClassDecl());
         n = (ClassDecl)n.del(delFactory().delClassDecl());
@@ -276,6 +284,25 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		Call n = new X10Call_c(pos, target, name, args);
 		n = (Call) n.ext(extFactory().extExpr());
 		return (Call) n.del(delFactory().delExpr());
+	}
+	public ConstantDistMaker ConstantDistMaker(Position pos, Expr e1, Expr e2) {
+		NodeFactory nf = this;
+		TypeSystem ts = X10TypeSystem_c.getTypeSystem();
+		
+		  Name x10 = new Name(nf, ts, pos, "x10");
+          Name x10Lang = new Name(nf, ts, pos, x10, "lang");
+
+          Name x10LangDistribution = new Name(nf, ts, pos, x10Lang, "dist");
+          Name x10LangDistributionFactory = new Name(nf, ts, pos, x10LangDistribution, "factory");
+          Name x10LangDistributionFactoryConstant = new Name(nf, ts, pos, x10LangDistributionFactory, "constant");
+          List l = new TypedList(new LinkedList(), Expr.class, false);
+          l.add(e1);
+          l.add(e2);
+         ConstantDistMaker n = new ConstantDistMaker_c(pos, 
+        		  x10LangDistributionFactoryConstant.prefix.toReceiver(), 
+        		  "constant", l);
+		n = (ConstantDistMaker) n.ext(extFactory().extExpr());
+		return (ConstantDistMaker) n.del(delFactory().delExpr());
 	}
 
 	public New New(Position pos, Expr outer, TypeNode objectType, List args, ClassBody body) {
@@ -542,6 +569,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	public Tuple Tuple(Position pos, Name p, Name r, List a) {
+		//Report.report(1, "X10NodeFactory_c making tuple " + p + " " + r + " " + a);
 		Tuple n = new Tuple_c(pos, p, r, a);
 		n = (Tuple) n.ext(extFactory().extCall());
 		n = (Tuple) n.del(delFactory().delCall());
@@ -732,5 +760,30 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         n = (If)n.del(delFactory().delIf());
         return n;
     }
+    public RegionMaker RegionMaker(Position pos, Expr e1, Expr e2) {
+		NodeFactory nf = this;
+		TypeSystem ts = X10TypeSystem_c.getTypeSystem();
+		
+		Name x10 = new Name(nf, ts, pos, "x10");
+        Name x10Lang = new Name(nf, ts, pos, x10, "lang");
+
+        Name x10LangRegion = new Name(nf, ts, pos, x10Lang, "region");
+        Name x10LangRegionFactory = new Name(nf, ts, pos, x10LangRegion, "factory");
+        Name x10LangRegionFactoryRegion = new Name(nf, ts, pos, x10LangRegionFactory, "region");
+        List l = new TypedList(new LinkedList(), Expr.class, false);
+        l.add(e1);
+        l.add(e2);
+        RegionMaker n = new RegionMaker_c( pos, x10LangRegionFactoryRegion.prefix.toReceiver(), "region", l  );
+		
+		n = (RegionMaker) n.ext(extFactory().extExpr());
+		return (RegionMaker) n.del(delFactory().delExpr());
+	}
+    public RectRegionMaker RectRegionMaker(Position pos, Receiver receiver, String name, List args) {
+		
+        RectRegionMaker n = new RectRegionMaker_c( pos, receiver, name, args );
+		
+		n = (RectRegionMaker) n.ext(extFactory().extExpr());
+		return (RectRegionMaker) n.del(delFactory().delExpr());
+	}
 }
 

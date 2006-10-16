@@ -25,9 +25,14 @@ extends region/*(1)*/ {
 	public final int size;
 	public final int lo;
 	public final int hi;
-	
+	public Range(int h) {
+		this(0, h, h);
+	}
+	public Range(int l, int h) {
+		this(l, h, h-l+1);
+	}
 	public Range (int l, int h, int c) {
-		super(1);
+		super(1, true, l==0);
 		lo = l;
 		hi = h;
 		size = c;

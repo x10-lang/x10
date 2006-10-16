@@ -30,13 +30,12 @@ public class X10Special_c extends Special_c implements X10Special {
 	public boolean equals(Object other) {
 		if (! (other instanceof X10Special_c)) return false;
 		X10Special_c o = (X10Special_c) other;
-		Report.report(1, "X10Special_c:" + isSelf + " " + kind + " " + qualifier);
-				
-		Report.report(1, "X10Special_c:" + o.isSelf + " " + o.kind + " " + o.qualifier);
 		return isSelf == o.isSelf && kind.equals(o.kind) && 
-		((qualifier == null && o.qualifier==null) || qualifier.equals(o));
+		(qualifier == null ? o.qualifier==null : qualifier.equals(o.qualifier));
 	}
-	
+	public int hashCode() {
+		return kind.hashCode();
+	}
 	 /** Type check the expression. */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();

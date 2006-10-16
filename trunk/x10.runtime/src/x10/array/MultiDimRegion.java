@@ -25,13 +25,34 @@ public class MultiDimRegion extends region {
 	final int[] base_;
 	final int card;
 
-	public MultiDimRegion(final region[] d) {
-		super(d.length);
+	public MultiDimRegion(final region[] d, boolean zeroBased) {
+		super(d.length, true,zeroBased);
+		assert d != null;
+		// assert that all dims are actually Ranges
+		dims_ = new region[d.length];
+		for (int i = 0; i < dims_.length; ++i) {
+			dims_[i] = d[i];
+			if (zeroBased) assert d[i].zeroBased;
+		}
+
+		
+		int tmp_card = 1;
+		base_ = new int[dims_.length];
+		// row major ordering (C conventions)
+		for (int i = rank-1; i >= 0; --i) {
+			base_[i] = tmp_card;
+			tmp_card *= dims_[i].size();
+		}
+		card = tmp_card;
+	}
+	/** Creates zero based region, zero to d[i], inclusive. */
+	public MultiDimRegion(final int[] d) {
+		super(d.length, true, true);
 		assert d != null;
 		// assert that all dims are actually Ranges
 		dims_ = new region[d.length];
 		for (int i = 0; i < dims_.length; ++i)
-			dims_[i] = d[i];
+			dims_[i] = new ContiguousRange(d[i]);
 
 		int tmp_card = 1;
 		base_ = new int[dims_.length];
@@ -68,13 +89,17 @@ public class MultiDimRegion extends region {
 				if (split_dim[i].size() == 0)
 					ret[i] = new EmptyRegion(rank);
 				else {
+					boolean zeroBased = true;
 					region[] new_dims = new region[rank];
 					new_dims[dim_to_split] = split_dim[i];
+					zeroBased &= new_dims[dim_to_split].zeroBased;
 					for (int j = 0; j < rank; ++j) {
-						if (j != dim_to_split)
+						if (j != dim_to_split) {
 							new_dims[j] = dims_[j];
+							zeroBased &= new_dims[j].zeroBased;
+						}
 					}
-					ret[i] = new MultiDimRegion(new_dims);
+					ret[i] = new MultiDimRegion(new_dims, zeroBased);
 				}
 			}
 		}
@@ -110,7 +135,7 @@ public class MultiDimRegion extends region {
 	 * @return range in the i-th dimension.
 	 */
 	public region rank(/*nat*/int i) {
-      		assert i < dims_.length;
+		assert i < dims_.length;
 		assert i >= 0;
 
 		return dims_[i];
@@ -228,14 +253,17 @@ public class MultiDimRegion extends region {
 			if (rank == 1) {
 				ret = new ContiguousRange(low(), high());
 			} else {
+			
 				region[] dims = new region[rank];
 				for (int i = 0; i < rank; ++i) {
 					if (dims_[i].isConvex())
 						dims[i] = dims_[i];
 					else
 						dims[i] = dims_[i].convexHull();
+					
+					
 				}
-				ret = new MultiDimRegion(dims);
+				ret = new MultiDimRegion(dims, zeroBased);
 			}
 		}
 		return ret;
