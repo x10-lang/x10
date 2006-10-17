@@ -131,6 +131,10 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return new String[] { "<place>" };
 	}
 
+	public CAstNode[] getArgumentDefaults() {
+	  return new CAstNode[0];
+	}
+
 	public int getArgumentCount() {
 	    return 1;
 	}
