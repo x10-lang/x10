@@ -13,8 +13,8 @@ import x10.array.Operator;
  * @author vj 12/24/2004
  */
 abstract public class longArray extends x10Array {
-	protected longArray(dist D) {
-		super(D);
+	protected longArray(dist D, boolean mutable) {
+		super(D, mutable);
 	}
 
 	abstract public long[] getBackingArray();
@@ -29,6 +29,12 @@ abstract public class longArray extends x10Array {
 		long apply(point/*(r)*/ p);
 	}
 
+	public static class Constant extends Operator.Pointwise {
+		private final long c_;
+		public Constant(long c) { c_ = c; }
+		public long apply(point p, long i) { return c_; }
+	}
+
 	public static final Operator.Unary abs = new Operator.Unary() { public long apply(long r) { return Math.abs(r);}};
 
 	/**
@@ -36,12 +42,13 @@ abstract public class longArray extends x10Array {
 	 * region.
 	 */
 	abstract /*value*/ public long get(point/*(region)*/ p);
+	abstract public long getOrdinal(int p);
 	//TODO: interim support for multi-index access.
 	abstract /*value*/ public long get(int p);
 	abstract /*value*/ public long get(int p, int q);
 	abstract /*value*/ public long get(int p, int q, int r);
 	abstract /*value*/ public long get(int p, int q, int r, int s);
-	abstract public long get(int[] p);
+//	abstract public long get(int[] p);
 
 
 

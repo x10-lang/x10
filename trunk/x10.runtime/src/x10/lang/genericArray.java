@@ -15,11 +15,17 @@ abstract public class genericArray /*(distribution distribution)*/
 /*implements Cloneable, Serializable */
 extends x10Array {
 
-	protected genericArray(dist D) {
-		super(D);
+	public static class Constant extends Operator.Pointwise {
+		private final Parameter1 c_;
+		public Constant(Parameter1 c) { c_ = c; }
+		public Parameter1 apply(point p, Parameter1 i) { return c_; }
 	}
 
-	abstract public int[] getBackingArray();
+	protected genericArray(dist D, boolean mutable) {
+		super(D, mutable);
+	}
+
+	abstract public Parameter1[] getBackingArray();
 
 	/**
 	 * Return the value of the array at the given point in the
@@ -30,7 +36,7 @@ extends x10Array {
 	abstract /*value*/ public Parameter1 get(int p, int q);
 	abstract /*value*/ public Parameter1 get(int p, int q, int r);
 	abstract /*value*/ public Parameter1 get(int p, int q, int r, int s);
-	abstract public Parameter1 get(int[] p);
+//	abstract public Parameter1 get(int[] p);
 
 	/**
 	 * Return the value obtained by reducing the given array with the
