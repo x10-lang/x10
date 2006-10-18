@@ -609,6 +609,41 @@ public class X10ClassBodyExt_c extends X10Ext_c {
             return stmt;
          }
 
+
+      /**
+       * scan args and ensure they conform.  
+       * @param nativeMethod
+       */
+       private void parseArgsForCorrectness(MethodDecl_c nativeMethod) {
+		for (ListIterator i = nativeMethod.formals().listIterator();
+				i.hasNext();)
+		{
+			Formal_c parameter = (Formal_c) i.next();
+			if(parameter.declType().isArray()){
+			  if(!parameter.declType().toArray().base().isPrimitive()){
+			      System.out.println("ERROR"+parameter.position()+":Native call parameter \""+parameter+
+			                         "\" is invalid.  Only primitives, arrays of primitives and X10 arrays are allowable arguments.");
+			      System.exit(2);
+			  }
+			      System.out.println("ERROR"+parameter.position()+":Native call parameter \""+parameter+
+			                         "\" is invalid.  For now, java arrays are unsupported.");
+			      System.exit(2);
+
+			}
+			else if(!parameter.declType().isPrimitive()){
+			   ClassType_c ct = (ClassType_c)parameter.declType().toClass();
+			   if(true)System.out.println("looking at parm type:"+ct);
+
+			   if(!typeSystem.isX10Array(ct)) {
+			      System.out.println("ERROR"+parameter.position()+":Native call parameter \""+parameter+
+			                         "\" is invalid.  Only primitives and X10 arrays are allowable arguments.");
+			      System.exit(2);
+			   }
+
+			}
+			   
+		}
+       }
 	/**
 	 * Create C stub that user will later compile into a dynamic library
 	 * contains JNI signature C code which calls the expected X10 routine
@@ -821,6 +856,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					newListOfMembers.add(o);
 					continue;
 				}
+
+				parseArgsForCorrectness(md);
 
 				if (!seenNativeMethodDecl) {
 					// JNI signature changes depends on whether the method
