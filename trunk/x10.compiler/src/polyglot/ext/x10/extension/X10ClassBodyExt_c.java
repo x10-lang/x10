@@ -632,7 +632,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			}
 			else if(!parameter.declType().isPrimitive()){
 			   ClassType_c ct = (ClassType_c)parameter.declType().toClass();
-			   if(true)System.out.println("looking at parm type:"+ct);
+			   if(false)System.out.println("looking at parm type:"+ct);
 
 			   if(!typeSystem.isX10Array(ct)) {
 			      System.out.println("ERROR"+parameter.position()+":Native call parameter \""+parameter+
