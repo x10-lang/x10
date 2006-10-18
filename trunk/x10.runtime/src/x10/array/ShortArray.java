@@ -4,33 +4,164 @@
 package x10.array;
 
 import java.util.Iterator;
+
+import x10.lang.ShortReferenceArray;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
-import x10.lang.ShortReferenceArray;
+import x10.lang.region;
+import x10.lang.Runtime;
+import x10.runtime.Configuration;
 
 /**
- * @author Christoph von Praun
+ * Short arrays.
  *
- * Short Arrays are currently not implemented.
+ * @author Christoph von Praun
+ * @author Igor Peshansky
  */
 public abstract class ShortArray extends ShortReferenceArray {
-	public ShortArray(dist d) {
-		super(d);
+
+	public ShortArray(dist d, boolean mutable) {
+		super(d, mutable);
 	}
 
-	public static class Constant extends Operator.Unary {
-		private final short c_;
-		public Constant(short c) { c_ = c; }
-		public short apply(short i) { return c_; }
+	protected abstract ShortArray newInstance(dist d);
+	protected abstract ShortArray newInstance(dist d, short c);
+	protected final ShortArray newInstance(dist d, Operator.Pointwise p) {
+		ShortArray res = newInstance(d);
+		if (p != null)
+			scan(res, p);
+		return res;
+	}
+
+	/**
+	 * Return the element at position rawIndex in the backing store.
+	 * The canonical index has already be calculated and adjusted.
+	 * Can be used by any dimensioned array.
+	 */
+	public abstract short getOrdinal(int rawIndex);
+
+	/**
+	 * Set the element at position rawIndex in the backing store to v.
+	 * The canonical index has already be calculated and adjusted.
+	 * Can be used by any dimensioned array.
+	 */
+	public abstract short setOrdinal(short v, int rawIndex);
+
+	public short set(short v, point pos) { return set(v,pos,true,true); }
+	public short set(short v, point pos,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(pos));
+		int theIndex = Helper.ordinal(distribution,pos,chkAOB);
+		return setOrdinal(v, theIndex);
+	}
+
+	public short set(short v, int d0) { return set(v,d0,true,true); }
+	public short set(short v, int d0,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0));
+		int theIndex = Helper.ordinal(distribution,d0,chkAOB);
+		return setOrdinal(v, theIndex);
+	}
+
+	public short set(short v, int d0,int d1) { return set(v,d0,d1,true,true); }
+	public short set(short v, int d0, int d1,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1));
+		int theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+		return setOrdinal(v, theIndex);
+	}
+
+	public short set(short v, int d0,int d1,int d2) {return set(v,d0,d1,d2,true,true);}
+	public short set(short v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+		int theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+		return setOrdinal(v, theIndex);
+	}
+
+	public short set(short v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
+	public short set(short v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+		int theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+		return setOrdinal(v, theIndex);
+	}
+
+	public short get(point pos) {return get(pos,true,true);}
+	public short get(point pos,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(pos));
+		int theIndex = Helper.ordinal(distribution,pos,chkAOB);
+		return getOrdinal(theIndex);
+	}
+
+	public short get(int d0) {return get(d0,true,true);}
+	public short get(int d0,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0));
+		int theIndex = Helper.ordinal(distribution,d0,chkAOB);
+		return getOrdinal(theIndex);
+	}
+
+	public short get(int d0,int d1) {return get(d0,d1,true,true);}
+	public short get(int d0, int d1,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1));
+		int theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+		return getOrdinal(theIndex);
+	}
+
+	public short get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
+	public short get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+		int theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+		return getOrdinal(theIndex);
+	}
+
+	public short get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
+	public short get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+		int theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+		return getOrdinal(theIndex);
+	}
+
+//	public short get(int[] pos) {return get(pos,true,true);}
+//	public short get(int[] pos,boolean chkPl,boolean chkAOB) {
+//		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+//			Runtime.hereCheckPlace(distribution.get(pos));
+//		final point p = Runtime.factory.getPointFactory().point(pos);
+//		return get(p);
+//	}
+
+	public boolean valueEquals(Indexable other) {
+		ShortArray o = (ShortArray)other;
+		if (!o.distribution.equals(distribution))
+			return false;
+		try {
+			for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+				point pos = (point) it.next();
+				place pl = distribution.get(pos);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				if (get(i) != o.get(i))
+					return false;
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return true;
 	}
 
 	protected void assign(ShortArray rhs) {
 		assert rhs instanceof ShortArray;
+		assert rhs.distribution.equals(distribution);
+
 		place here = x10.lang.Runtime.runtime.currentPlace();
-		ShortArray rhs_t =  rhs;
+		ShortArray rhs_t = rhs;
 		try {
-			for (Iterator it = rhs_t.distribution.region.iterator(); it.hasNext();) {
+			for (Iterator it = rhs_t.distribution.region.iterator(); it.hasNext(); ) {
 				point pos = (point) it.next();
 				place pl = distribution.get(pos);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
@@ -46,21 +177,21 @@ public abstract class ShortArray extends ShortReferenceArray {
 	 * can of course do without the Iterator.
 	 */
 	public void pointwise(ShortArray res, Operator.Pointwise op, ShortArray arg) {
-		assert res.distribution.equals(distribution);
+		assert res == null || res.distribution.equals(distribution);
+		assert arg != null;
 		assert arg.distribution.equals(distribution);
 
 		place here = x10.lang.Runtime.runtime.currentPlace();
-		ShortArray arg_t =  arg;
-		ShortArray res_t = res;
 		try {
 			for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 				point p = (point) it.next();
 				place pl = distribution.get(p);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
 				short arg1 = get(p);
-				short arg2 = arg_t.get(p);
+				short arg2 = arg.get(p);
 				short val = op.apply(p, arg1, arg2);
-				res_t.set(val, p);
+				if (res != null)
+					res.set(val, p);
 			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
@@ -86,6 +217,7 @@ public abstract class ShortArray extends ShortReferenceArray {
 		}
 	}
 
+	/* operations can be performed in any order */
 	public void reduction(Operator.Reduction op) {
 		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
@@ -101,7 +233,9 @@ public abstract class ShortArray extends ShortReferenceArray {
 		}
 	}
 
+	/* operations are performed in canonical order */
 	public void scan(ShortArray res, Operator.Unary op) {
+		assert res == null || res instanceof ShortArray;
 		assert res.distribution.equals(distribution);
 
 		place here = x10.lang.Runtime.runtime.currentPlace();
@@ -111,86 +245,194 @@ public abstract class ShortArray extends ShortReferenceArray {
 				place pl = distribution.get(p);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
 				short arg1 = get(p);
-				res.set(op.apply(arg1), p);
+				short val = op.apply(arg1);
+				if (res != null)
+					res.set(val, p);
 			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
 	}
 
+	/* operations are performed in canonical order */
 	public void scan(ShortArray res, Operator.Pointwise op) {
 		assert res == null || res instanceof ShortArray;
 		assert res.distribution.equals(distribution);
 
 		place here = x10.lang.Runtime.runtime.currentPlace();
-		ShortArray res_t = (res == null) ? null : (ShortArray) res;
 		try {
-			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+			for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 				point p = (point) it.next();
 				place pl = distribution.get(p);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
 				short val = op.apply(p, (short)0);
-				if (res_t != null)
-					res_t.set(val, p);
+				if (res != null)
+					res.set(val, p);
 			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
 	}
 
+	public ShortReferenceArray lift(Operator.Binary op, x10.lang.shortArray arg) {
+		assert arg.distribution.equals(distribution);
+		ShortArray result = newInstance(distribution);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+				point p = (point) it.next();
+				place pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				result.set(op.apply(this.get(p), arg.get(p)),p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return result;
+	}
+	public ShortReferenceArray lift(Operator.Unary op) {
+		ShortReferenceArray result = newInstance(distribution);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+				point p = (point) it.next();
+				place pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				result.set(op.apply(this.get(p)),p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return result;
+	}
+
 	/**
-	 * Generic flat access.
+	 * Assume that r is contained in distribution.region.
 	 */
-	public abstract short set(short v, point pos);
+	public int reduce(Operator.Binary op, short unit) {
+		short result = unit;
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+				point p = (point) it.next();
+				place pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				result = op.apply(this.get(p), result);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return result;
+	}
 
-	public abstract short set(short v, int d0);
+	public ShortReferenceArray scan(Operator.Binary op, short unit) {
+		short temp = unit;
+		ShortArray result = newInstance(distribution);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+				point p = (point) it.next();
+				place pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				temp = op.apply(this.get(p), temp);
+				result.set(temp, p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return result;
+	}
 
-	public abstract short set(short v, int d0, int d1);
-
-	public abstract short set(short v, int d0, int d1, int d2);
-
-	public abstract short set(short v, int d0, int d1, int d2, int d3);
-
-	public abstract short set(short v, point pos,boolean chkPl,boolean chkAOB);
-
-	public abstract short set(short v, int d0,boolean chkPl,boolean chkAOB);
-
-	public abstract short set(short v, int d0, int d1,boolean chkPl,boolean chkAOB);
-
-	public abstract short set(short v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB);
-
-	public abstract short set(short v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
-
-	/**
-	 * Generic flat access.
+	/*
+	 * FIXME: this could be made much more efficient with knowledge of overlay() semantics.
 	 */
-	public abstract short get(point pos);
+	public x10.lang.ShortReferenceArray overlay(x10.lang.shortArray d) {
+		dist dist = distribution.overlay(d.distribution);
+		ShortArray ret = newInstance(dist, (short)0);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = dist.iterator(); it.hasNext(); ) {
+				point p = (point) it.next();
+				place pl = dist.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				short val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+				ret.set(val, p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return ret;
+	}
 
-	public abstract short get(int d0);
+	/*
+	 * FIXME: this could use the fact that d is rectangular
+	 * FIXME: (in fact, why are we even iterating over the unknown array here?)
+	 */
+	public void update(x10.lang.shortArray d) {
+		assert (region.contains(d.region));
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = d.iterator(); it.hasNext(); ) {
+				point p = (point) it.next();
+				place pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				set(d.get(p), p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+	}
 
-	public abstract short get(int d0, int d1);
+	/*
+	 * FIXME: this could be made much more efficient with knowledge of union() semantics.
+	 */
+	public ShortReferenceArray union(x10.lang.shortArray d) {
+		dist dist = distribution.union(d.distribution);
+		ShortArray ret = newInstance(dist, (short)0);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = dist.iterator(); it.hasNext(); ) {
+				point p = (point) it.next();
+				place pl = dist.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				short val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+				ret.set(val, p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return ret;
+	}
 
-	public abstract short get(int d0, int d1, int d2);
+	public ShortReferenceArray restriction(dist d) {
+		return restriction(d.region);
+	}
 
-	public abstract short get(int d0, int d1, int d2, int d3);
-	public abstract short get(int[] p);
-
-	public abstract short get(point pos,boolean chkPl,boolean chkAOB);
-
-	public abstract short get(int d0,boolean chkPl,boolean chkAOB);
-
-	public abstract short get(int d0, int d1,boolean chkPl,boolean chkAOB);
-
-	public abstract short get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB);
-
-	public abstract short get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
-	public abstract short get(int[] p,boolean chkPl,boolean chkAOB);
+	/*
+	 * FIXME: this could use the fact that the region is rectangular
+	 * FIXME: (in fact, why are we even iterating over the unknown array here?)
+	 */
+	public ShortReferenceArray restriction(region r) {
+		dist dist = distribution.restriction(r);
+		ShortArray ret = newInstance(dist, (short)0);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = dist.iterator(); it.hasNext(); ) {
+				point p = (point) it.next();
+				place pl = dist.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				ret.set(get(p), p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return ret;
+	}
 
 	public Object toJava() {
 		final int[] dims_tmp = new int[distribution.rank];
-		for (int i = 0; i < distribution.rank; ++i) {
+		for (int i = 0; i < distribution.rank; ++i)
 			dims_tmp[i] = distribution.region.rank(i).high() + 1;
-		}
 
 		final Object ret = java.lang.reflect.Array.newInstance(Short.TYPE, dims_tmp);
 		pointwise(null, new Operator.Pointwise() {
@@ -205,6 +447,11 @@ public abstract class ShortArray extends ShortReferenceArray {
 			}
 		});
 		return ret;
+	}
+
+	public x10.lang.shortArray toValueArray() {
+		if (!mutable_) return this;
+		throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
 	}
 
 	/* for debugging */
@@ -224,3 +471,4 @@ public abstract class ShortArray extends ShortReferenceArray {
 		System.out.println("}");
 	}
 }
+

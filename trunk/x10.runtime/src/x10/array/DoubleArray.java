@@ -4,30 +4,159 @@
 package x10.array;
 
 import java.util.Iterator;
+
+import x10.lang.DoubleReferenceArray;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
-import x10.lang.DoubleReferenceArray;
+import x10.lang.Runtime;
+import x10.runtime.Configuration;
 
 /**
- * @author Christoph von Praun
+ * Double arrays.
  *
- * Double Arrays are currently not implemented.
+ * @author Christoph von Praun
+ * @author Igor Peshansky
  */
 public abstract class DoubleArray extends DoubleReferenceArray {
-	public DoubleArray(dist d) {
-		super(d);
+
+	public DoubleArray(dist d, boolean mutable) {
+		super(d, mutable);
 	}
 
-	public static class Constant extends Operator.Unary {
-		private final double c_;
-		public Constant(double c) { c_ = c; }
-		public double apply(double i) { return c_; }
+	protected abstract DoubleArray newInstance(dist d);
+	protected abstract DoubleArray newInstance(dist d, double c);
+	protected final DoubleArray newInstance(dist d, Operator.Pointwise p) {
+		DoubleArray res = newInstance(d);
+		if (p != null)
+			scan(res, p);
+		return res;
+	}
+
+	/**
+	 * Return the element at position rawIndex in the backing store.
+	 * The canonical index has already be calculated and adjusted.
+	 * Can be used by any dimensioned array.
+	 */
+	public abstract double getOrdinal(int rawIndex);
+
+	/**
+	 * Set the element at position rawIndex in the backing store to v.
+	 * The canonical index has already be calculated and adjusted.
+	 * Can be used by any dimensioned array.
+	 */
+	public abstract double setOrdinal(double v, int rawIndex);
+
+	public double set(double v, point pos) { return set(v,pos,true,true); }
+	public double set(double v, point pos,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(pos));
+		int theIndex = Helper.ordinal(distribution,pos,chkAOB);
+		return setOrdinal(v, theIndex);
+	}
+
+	public double set(double v, int d0) { return set(v,d0,true,true); }
+	public double set(double v, int d0,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0));
+		int theIndex = Helper.ordinal(distribution,d0,chkAOB);
+		return setOrdinal(v, theIndex);
+	}
+
+	public double set(double v, int d0,int d1) { return set(v,d0,d1,false,false); }
+	public double set(double v, int d0, int d1,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1));
+		int theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+		return setOrdinal(v, theIndex);
+	}
+
+	public double set(double v, int d0,int d1,int d2) {return set(v,d0,d1,d2,false,false);}
+	public double set(double v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+		int theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+		return setOrdinal(v, theIndex);
+	}
+
+	public double set(double v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
+	public double set(double v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+		int theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+		return setOrdinal(v, theIndex);
+	}
+
+	public double get(point pos) {return get(pos,true,true);}
+	public double get(point pos,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(pos));
+		int theIndex = Helper.ordinal(distribution,pos,chkAOB);
+		return getOrdinal(theIndex);
+	}
+
+	public double get(int d0) {return get(d0,true,true);}
+	public double get(int d0,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0));
+		int theIndex = Helper.ordinal(distribution,d0,chkAOB);
+		return getOrdinal(theIndex);
+	}
+
+	public double get(int d0,int d1) {return get(d0,d1,true,true);}
+	public double get(int d0, int d1,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1));
+		int theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
+		return getOrdinal(theIndex);
+	}
+
+	public double get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
+	public double get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
+		int theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
+		return getOrdinal(theIndex);
+	}
+
+	public double get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
+	public double get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
+		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+			Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
+		int theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
+		return getOrdinal(theIndex);
+	}
+
+//	public double get(int[] pos) {return get(pos,true,true);}
+//	public double get(int[] pos,boolean chkPl,boolean chkAOB) {
+//		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
+//			Runtime.hereCheckPlace(distribution.get(pos));
+//		final point p = Runtime.factory.getPointFactory().point(pos);
+//		return get(p);
+//	}
+
+	public boolean valueEquals(Indexable other) {
+		DoubleArray o = (DoubleArray)other;
+		if (!o.distribution.equals(distribution))
+			return false;
+		try {
+			for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+				point pos = (point) it.next();
+				place pl = distribution.get(pos);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				if (get(i) != o.get(i))
+					return false;
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return true;
 	}
 
 	protected void assign(DoubleArray rhs) {
 		assert rhs instanceof DoubleArray;
+		assert rhs.distribution.equals(distribution);
 
 		place here = x10.lang.Runtime.runtime.currentPlace();
 		DoubleArray rhs_t = rhs;
@@ -48,21 +177,21 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 	 * can of course do without the Iterator.
 	 */
 	public void pointwise(DoubleArray res, Operator.Pointwise op, DoubleArray arg) {
-		assert res.distribution.equals(distribution);
+		assert res == null || res.distribution.equals(distribution);
+		assert arg != null;
 		assert arg.distribution.equals(distribution);
 
 		place here = x10.lang.Runtime.runtime.currentPlace();
-		DoubleArray arg_t = arg;
-		DoubleArray res_t = res;
 		try {
 			for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 				point p = (point) it.next();
 				place pl = distribution.get(p);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
 				double arg1 = get(p);
-				double arg2 = arg_t.get(p);
+				double arg2 = arg.get(p);
 				double val = op.apply(p, arg1, arg2);
-				res_t.set(val, p);
+				if (res != null)
+					res.set(val, p);
 			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
@@ -88,6 +217,7 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 		}
 	}
 
+	/* operations can be performed in any order */
 	public void reduction(Operator.Reduction op) {
 		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
@@ -103,103 +233,206 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 		}
 	}
 
+	/* operations are performed in canonical order */
 	public void scan(DoubleArray res, Operator.Unary op) {
+		assert res == null || res instanceof DoubleArray;
 		assert res.distribution.equals(distribution);
-		place here = x10.lang.Runtime.runtime.currentPlace();
 
+		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
 			for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 				point p = (point) it.next();
 				place pl = distribution.get(p);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
 				double arg1 = get(p);
-				res.set(op.apply(arg1), p);
+				double val = op.apply(arg1);
+				if (res != null)
+					res.set(val, p);
 			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
 	}
 
-
+	/* operations are performed in canonical order */
 	public void scan(DoubleArray res, Operator.Pointwise op) {
 		assert res == null || res instanceof DoubleArray;
 		assert res.distribution.equals(distribution);
 
 		place here = x10.lang.Runtime.runtime.currentPlace();
-		DoubleArray res_t = (res == null) ? null : (DoubleArray) res;
+		try {
+			for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
+				point p = (point) it.next();
+				place pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				double val = op.apply(p, 0.);
+				if (res != null)
+					res.set(val, p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+	}
+
+	public DoubleReferenceArray lift(Operator.Binary op, x10.lang.doubleArray arg) {
+		assert arg.distribution.equals(distribution);
+		DoubleReferenceArray result = newInstance(distribution);
+		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
 			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
 				point p = (point) it.next();
 				place pl = distribution.get(p);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				double val = op.apply(p, (double)0.);
-				if (res_t != null)
-					res_t.set(val, p);
+				result.set(op.apply(this.get(p), arg.get(p)),p);
 			}
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
-
+		return result;
+	}
+	public DoubleReferenceArray lift(Operator.Unary op) {
+		DoubleReferenceArray result = newInstance(distribution);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+				point p = (point) it.next();
+				place pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				result.set(op.apply(this.get(p)),p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return result;
 	}
 
-
 	/**
-	 * Generic flat access.
+	 * Assume that r is contained in distribution.region.
 	 */
-	public abstract double setOrdinal(double v, int i);
+	public double reduce(Operator.Binary op, double unit, region r) {
+		double result = unit;
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = r.iterator(); it.hasNext();) {
+				point p = (point) it.next();
+				place pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				result = op.apply(this.get(p), result);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return result;
+	}
 
-	public abstract double set(double v, point pos);
+	public DoubleReferenceArray scan(Operator.Binary op, double unit) {
+		double temp = unit;
+		DoubleArray result = newInstance(distribution);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
+				point p = (point) it.next();
+				place pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				temp = op.apply(this.get(p), temp);
+				result.set(temp, p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return result;
+	}
 
-	public abstract double set(double v, int d0);
-
-	public abstract double set(double v, int d0, int d1);
-
-	public abstract double set(double v, int d0, int d1, int d2);
-
-	public abstract double set(double v, int d0, int d1, int d2, int d3);
-
-	public abstract double set(double v, point pos,boolean chkPl,boolean chkAOB);
-
-	public abstract double set(double v, int d0,boolean chkPl,boolean chkAOB);
-
-	public abstract double set(double v, int d0, int d1,boolean chkPl,boolean chkAOB);
-
-	public abstract double set(double v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB);
-
-	public abstract double set(double v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
-
-	/**
-	 * Generic flat access.
+	/*
+	 * FIXME: this could be made much more efficient with knowledge of overlay() semantics.
 	 */
-	public abstract double get(point pos);
+	public x10.lang.DoubleReferenceArray overlay(x10.lang.doubleArray d) {
+		dist dist = distribution.overlay(d.distribution);
+		DoubleArray ret = newInstance(dist, 0.);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = dist.iterator(); it.hasNext(); ) {
+				point p = (point) it.next();
+				place pl = dist.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				double val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
+				ret.set(val, p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return ret;
+	}
 
-	public abstract double getOrdinal(int i);
+	/*
+	 * FIXME: this could use the fact that d is rectangular
+	 * FIXME: (in fact, why are we even iterating over the unknown array here?)
+	 */
+	public void update(x10.lang.doubleArray d) {
+		assert (region.contains(d.region));
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = d.iterator(); it.hasNext(); ) {
+				point p = (point) it.next();
+				place pl = distribution.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				set(d.get(p), p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+	}
 
-	public abstract double get(int d0);
+	/*
+	 * FIXME: this could be made much more efficient with knowledge of union() semantics.
+	 */
+	public DoubleReferenceArray union(x10.lang.doubleArray d) {
+		dist dist = distribution.union(d.distribution);
+		DoubleArray ret = newInstance(dist, 0.);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = dist.iterator(); it.hasNext(); ) {
+				point p = (point) it.next();
+				place pl = dist.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				double val = (distribution.region.contains(p)) ? get(p) : d.get(p);
+				ret.set(val, p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return ret;
+	}
 
-	public abstract double get(int d0, int d1);
+	public DoubleReferenceArray restriction(dist d) {
+		return restriction(d.region);
+	}
 
-	public abstract double get(int d0, int d1, int d2);
-
-	public abstract double get(int d0, int d1, int d2, int d3);
-	public abstract double get(int[] p);
-
-	public abstract double get(point pos,boolean chkPl,boolean chkAOB);
-
-	public abstract double get(int d0,boolean chkPl,boolean chkAOB);
-
-	public abstract double get(int d0, int d1,boolean chkPl,boolean chkAOB);
-
-	public abstract double get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB);
-
-	public abstract double get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB);
-	public abstract double get(int[] p,boolean chkPl,boolean chkAOB);
+	/*
+	 * FIXME: this could use the fact that the region is rectangular
+	 * FIXME: (in fact, why are we even iterating over the unknown array here?)
+	 */
+	public DoubleReferenceArray restriction(region r) {
+		dist dist = distribution.restriction(r);
+		DoubleArray ret = newInstance(dist, 0.);
+		place here = x10.lang.Runtime.runtime.currentPlace();
+		try {
+			for (Iterator it = dist.iterator(); it.hasNext(); ) {
+				point p = (point) it.next();
+				place pl = dist.get(p);
+				x10.lang.Runtime.runtime.setCurrentPlace(pl);
+				ret.set(get(p), p);
+			}
+		} finally {
+			x10.lang.Runtime.runtime.setCurrentPlace(here);
+		}
+		return ret;
+	}
 
 	public Object toJava() {
 		final int[] dims_tmp = new int[distribution.rank];
-		for (int i = 0; i < distribution.rank; ++i) {
+		for (int i = 0; i < distribution.rank; ++i)
 			dims_tmp[i] = distribution.region.rank(i).high() + 1;
-		}
 
 		final Object ret = java.lang.reflect.Array.newInstance(Double.TYPE, dims_tmp);
 		pointwise(null, new Operator.Pointwise() {
@@ -214,6 +447,11 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 			}
 		});
 		return ret;
+	}
+
+	public x10.lang.doubleArray toValueArray() {
+		if (!mutable_) return this;
+		throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
 	}
 
 	/* for debugging */
@@ -232,5 +470,5 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 		}
 		System.out.println("}");
 	}
-
 }
+
