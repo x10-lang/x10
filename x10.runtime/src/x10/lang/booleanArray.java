@@ -1,5 +1,6 @@
 package x10.lang;
 
+import x10.array.Operator;
 import x10.array.Operator.Binary;
 import x10.array.Operator.Unary;
 
@@ -13,19 +14,32 @@ import x10.array.Operator.Unary;
  * @author vj 12/24/2004
  * @author igor 09/13/2006 -- made an interface
  */
-public interface booleanArray extends Array {
-        abstract public boolean[] getBackingArray();
-        abstract public int[]  getDescriptor();
-	/**
+public abstract class booleanArray extends x10Array {
+	
+	public static class Constant extends Operator.Pointwise {
+	    private final boolean c_;
+	    public Constant(boolean c) { c_ = c; }
+	    public boolean apply(point p, boolean i) { return c_; }
+	}
+
+	protected booleanArray(dist d, boolean mutable) {
+		super(d, mutable);
+	}
+
+	abstract public boolean[] getBackingArray();
+	abstract public int[]  getDescriptor();
+
+    /**
 	 * Return the value of the array at the given point in the
 	 * region.
 	 */
 	abstract public boolean get(point/*(region)*/ p);
+	abstract public boolean getOrdinal(int p);
 	abstract /*value*/ public boolean get(int p);
 	abstract /*value*/ public boolean get(int p, int q);
 	abstract /*value*/ public boolean get(int p, int q, int r);
 	abstract /*value*/ public boolean get(int p, int q, int r, int s);
-	abstract public boolean get(int[] p);
+//	abstract public boolean get(int[] p);
 
 	public static final Binary xor = new Binary() { public boolean apply(boolean r, boolean s) { return r ^ s; }};
 	public static final Binary or = new Binary() { public boolean apply(boolean r, boolean s) { return r | s; }};
