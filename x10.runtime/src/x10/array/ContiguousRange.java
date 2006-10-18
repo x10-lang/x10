@@ -15,7 +15,7 @@ import x10.lang.Runtime;
  * @author praun
  * @author vj
  */
-public class ContiguousRange extends Range {
+public class ContiguousRange extends Range implements Rectangular {
 
 	/**
 	 * Range that starts at 0 to hi (including!).
