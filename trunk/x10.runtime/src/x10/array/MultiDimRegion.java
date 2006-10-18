@@ -19,7 +19,7 @@ import x10.lang.RankMismatchException;
  * @author Christian Grothoff
  * @author vj
  */
-public class MultiDimRegion extends region {
+public class MultiDimRegion extends region implements Rectangular {
 
 	final region[] dims_;
 	final int[] base_;
