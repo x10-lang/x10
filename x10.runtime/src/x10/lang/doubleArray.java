@@ -13,8 +13,14 @@ import x10.array.Operator;
  */
 abstract public class doubleArray extends x10Array {
 
-	protected doubleArray(dist D) {
-		super(D);
+	public static class Constant extends Operator.Pointwise {
+		private final double c_;
+		public Constant(double c) { c_ = c; }
+		public double apply(point p, double i) { return c_; }
+	}
+
+	protected doubleArray(dist D, boolean mutable) {
+		super(D, mutable);
 	}
 
 	abstract public double[] getBackingArray();
@@ -38,7 +44,7 @@ abstract public class doubleArray extends x10Array {
 	abstract /*value*/ public double get(int p, int q);
 	abstract /*value*/ public double get(int p, int q, int r);
 	abstract /*value*/ public double get(int p, int q, int r, int s);
-	abstract public double get(int[] p);
+//	abstract public double get(int[] p);
 
 	/**
 	 * Convenience method for returning the sum of the array.

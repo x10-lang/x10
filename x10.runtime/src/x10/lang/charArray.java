@@ -13,8 +13,14 @@ import x10.array.Operator;
  */
 abstract public class charArray extends x10Array {
 
-	protected charArray(dist D) {
-		super(D);
+	public static class Constant extends Operator.Pointwise {
+		private final char c_;
+		public Constant(char c) { c_ = c; }
+		public char apply(point p, char i) { return c_; }
+	}
+
+	protected charArray(dist D, boolean mutable) {
+		super(D, mutable);
 	}
 
 	abstract public char[] getBackingArray();
@@ -24,11 +30,12 @@ abstract public class charArray extends x10Array {
 	 * region.
 	 */
 	abstract public char get(point/*(region)*/ p);
+	abstract public char getOrdinal(int p);
 	abstract /*value*/ public char get(int p);
 	abstract /*value*/ public char get(int p, int q);
 	abstract /*value*/ public char get(int p, int q, int r);
 	abstract /*value*/ public char get(int p, int q, int r, int s);
-	abstract public char get(int[] p);
+//	abstract public char get(int[] p);
 
 	/** Return the value obtained by reducing the given array with the
 	 function fun, which is assumed to be associative and

@@ -13,8 +13,14 @@ import x10.array.Operator;
  */
 abstract public class byteArray extends x10Array {
 
-	protected byteArray(dist D) {
-		super(D);
+	public static class Constant extends Operator.Pointwise {
+		private final byte c_;
+		public Constant(byte c) { c_ = c; }
+		public byte apply(point p, byte i) { return c_; }
+	}
+
+	protected byteArray(dist D, boolean mutable) {
+		super(D, mutable);
 	}
 	
 	abstract public byte[] getBackingArray();
@@ -31,11 +37,12 @@ abstract public class byteArray extends x10Array {
 	 * region.
 	 */
 	abstract public byte get(point/*(region)*/ p);
+	abstract public byte getOrdinal(int p);
 	abstract /*value*/ public byte get(int p);
 	abstract /*value*/ public byte get(int p, int q);
 	abstract /*value*/ public byte get(int p, int q, int r);
 	abstract /*value*/ public byte get(int p, int q, int r, int s);
-    abstract public byte get(int[] p);
+//    abstract public byte get(int[] p);
     
     /** Convenience method for returning the sum of the array.
      * @return sum of the array.

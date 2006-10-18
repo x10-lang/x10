@@ -12,8 +12,14 @@ import x10.array.Operator;
  */
 abstract public class floatArray extends x10Array {
 
-	protected floatArray(dist D) {
-		super(D);
+	public static class Constant extends Operator.Pointwise {
+		private final float c_;
+		public Constant(float c) { c_ = c; }
+		public float apply(point p, float i) { return c_; }
+	}
+
+	protected floatArray(dist D, boolean mutable) {
+		super(D, mutable);
 	}
 
 	abstract public float[] getBackingArray();
@@ -30,11 +36,12 @@ abstract public class floatArray extends x10Array {
 	 * region.
 	 */
 	abstract public float get(point/*(region)*/ p);
+	abstract public float getOrdinal(float p);
 	abstract /*value*/ public float get(int p);
 	abstract /*value*/ public float get(int p, int q);
 	abstract /*value*/ public float get(int p, int q, int r);
 	abstract /*value*/ public float get(int p, int q, int r, int s);
-	abstract public float get(int[] p);
+//	abstract public float get(int[] p);
 
 	/**
 	 * Convenience method for returning the sum of the array.

@@ -12,8 +12,8 @@ import x10.array.Operator;
  */
 abstract public class shortArray extends x10Array {
 
-	protected shortArray(dist D) {
-		super(D);
+	protected shortArray(dist D, boolean mutable) {
+		super(D, mutable);
 	}
 
 	abstract public short[] getBackingArray();
@@ -29,15 +29,22 @@ abstract public class shortArray extends x10Array {
 		short apply(point/*(r)*/ p);
 	}
 
+	public static class Constant extends Operator.Pointwise {
+		private final short c_;
+		public Constant(short c) { c_ = c; }
+		public short apply(point p, short i) { return c_; }
+	}
+
 	/** Return the value of the array at the given point in the
 	 * region.
 	 */
 	abstract public short get(point/*(region)*/ p);
+	abstract public short getOrdinal(int p);
 	abstract /*value*/ public short get(int p);
 	abstract /*value*/ public short get(int p, int q);
 	abstract /*value*/ public short get(int p, int q, int r);
 	abstract /*value*/ public short get(int p, int q, int r, int s);
-	abstract public short get(int[] p);
+//	abstract public short get(int[] p);
 
 	/** Convenience method for returning the sum of the array.
 	 * @return sum of the array.

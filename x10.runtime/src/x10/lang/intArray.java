@@ -13,8 +13,8 @@ import x10.array.Operator;
  * @author vj 12/24/2004
  */
 abstract public class intArray extends x10Array {
-	protected intArray(dist D) {
-		super(D);
+	protected intArray(dist D, boolean mutable) {
+		super(D, mutable);
 	}
 
 	abstract public int[] getBackingArray();
@@ -30,17 +30,24 @@ abstract public class intArray extends x10Array {
 		int apply(point/*(r)*/ p);
 	}
 
+	public static class Constant extends Operator.Pointwise {
+		private final int c_;
+		public Constant(int c) { c_ = c; }
+		public int apply(point p, int i) { return c_; }
+	}
+
 	/**
 	 * Return the value of the array at the given point in the
 	 * region.
 	 */
 	abstract /*value*/ public int get(point/*(region)*/ p);
+	abstract public int getOrdinal(int p);
 	//TODO: interim support for multi-index access.
 	abstract /*value*/ public int get(int p);
 	abstract /*value*/ public int get(int p, int q);
 	abstract /*value*/ public int get(int p, int q, int r);
 	abstract /*value*/ public int get(int p, int q, int r, int s);
-	abstract public int get(int[] p);
+//	abstract public int get(int[] p);
 
 	/**
 	 * Convenience method for returning the sum of the array.
