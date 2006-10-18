@@ -3,42 +3,31 @@
  */
 package x10.array.sharedmemory;
 
-import x10.base.MemoryBlockSafeIntArray;
-import java.util.Iterator;
-import x10.array.Helper;
+import x10.array.Distribution_c;
 import x10.array.GenericArray;
 import x10.array.Operator;
-import x10.base.Allocator;
-import x10.array.Distribution_c;
-import x10.base.MemoryBlock;
 import x10.base.UnsafeContainer;
 import x10.compilergenerated.Parameter1;
-import x10.lang.GenericReferenceArray;
 import x10.lang.Indexable;
 import x10.lang.Runtime;
 import x10.lang.dist;
-import x10.lang.place;
-import x10.lang.point;
-import x10.lang.region;
 import x10.runtime.Configuration;
 
 /**
- * @author Christian Grothoff, Christoph von Praun
+ * @author Christian Grothoff, Christoph von Praun, Igor Peshansky
  */
 public class GenericArray_c extends GenericArray implements UnsafeContainer, Cloneable {
 
-	private final boolean safe_;
-	private final MemoryBlock arr_;
-	private final boolean mutable_;
-	private final boolean refsToValues_;
+	public final Parameter1[] arr_;
+	public final int[] descriptor_;
 
-	public boolean valueEquals(Indexable other) {
-		boolean ret;
-		if (refsToValues_)
-			ret = arr_.deepEquals(((GenericArray_c)other).arr_);
-		else
-			ret = arr_.valueEquals(((GenericArray_c)other).arr_);
-		return ret;
+	/**
+	 * Constructor that implements constant promotion (Chap. 10.4.2).
+	 * @param d  Distribution of the array
+	 * @param c  constant used to intialize all values of the array
+	 */
+	public GenericArray_c(dist d, Parameter1 c, boolean mutable, boolean refs_to_values) {
+		this(d, new Constant(c), mutable, refs_to_values);
 	}
 
 	/**
@@ -46,380 +35,107 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 	 * Arrays are constructed by the corresponding factory methods in
 	 * x10.lang.Runtime.
 	 */
-	protected GenericArray_c(dist d, Operator.Pointwise c, boolean safe) {
-		this(d, c, safe, true, false);
-	}
-	public GenericArray_c(dist d, Operator.Pointwise c, boolean safe, boolean mutable, boolean ref_to_values) {
-		this(d, safe, mutable, ref_to_values, null);
+	public GenericArray_c(dist d, Operator.Pointwise c, boolean mutable, boolean refs_to_values) {
+		this(d, mutable, refs_to_values, null);
 		if (c != null)
 			scan(this, c);
 	}
 
-	/**
-	 * Create a new array per the given distribution, initialized to c.
-	 *
-	 * @param d
-	 * @param c
-	 * @param safe
-	 */
-	public GenericArray_c(dist d, Parameter1 c) {
-		this(d, c, true);
-	}
-	public GenericArray_c(dist d, Parameter1 c, boolean safe) {
-		this(d, c, safe, true, false);
-	}
-	public GenericArray_c(dist d, int c, boolean safe, boolean mutable, boolean ref_to_values) {
-		this(d, (Parameter1) null, safe, mutable, ref_to_values);
-		assert (false);
-	}
-	public GenericArray_c(dist d, Parameter1 c, boolean safe, boolean mutable, boolean ref_to_values) {
-		this(d, safe, mutable, ref_to_values, null);
-		scan(this, new Constant(c));
-	}
-
-	private GenericArray_c(dist d, boolean safe, boolean mutable, boolean ref_to_values, Parameter1[] a) {
-		super(d);
+	private GenericArray_c(dist d, boolean mutable, boolean refs_to_values, Parameter1[] a) {
+		super(d, mutable);
 		assert (d instanceof Distribution_c);
-		safe = true; // just to be GC-safe ;-)
-		assert (safe);  // TODO: for now
-		this.safe_ = safe;
-		this.mutable_ = mutable;
-		this.refsToValues_ = ref_to_values;
 		int count = d.region.size();
-		if (!safe) {
-			int rank = d.region.rank;
-			int ranks[] = new int[rank];
-			for (int i = 0; i < rank; ++i)
-				ranks[i] = d.region.rank(i).size();
-			this.arr_ = Allocator.allocUnsafe(count, ranks, Parameter1.class);
-		} else if (a != null) {
-			this.arr_ = Allocator.allocSafeObjectArray(a,d);
+		int rank = d.region.rank;
+		descriptor_ = new int[rank+1];
+		descriptor_[0] = rank;
+		for (int i = 1; i <= rank; ++i)
+			descriptor_[i] = d.region.rank(i-1).size();
+		if (a != null) {
+			this.arr_ = a;
 		} else {
-			this.arr_ = Allocator.allocSafe(count, Parameter1.class, d);
+			this.arr_ = new Parameter1[count];
 		}
 	}
 
-	private GenericArray_c(dist d, Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
-		this(d, safe, mutable, ref_to_values, a);
+	private GenericArray_c(dist d, Parameter1[] a, boolean mutable, boolean refs_to_values) {
+		this(d, mutable, refs_to_values, a);
 	}
 
 	/**
-	 * Return a safe GenericArray_c initialized with the given local 1-d (Java) Object array.
+	 * Return a GenericArray_c initialized with the given local 1-d (Java) Object array.
 	 * TODO: Expose this through the factory class.
 	 *
 	 * @param a
 	 * @return
 	 */
-	public static GenericArray_c GenericArray_c(Parameter1[] a, boolean safe, boolean mutable, boolean ref_to_values) {
+	public static GenericArray_c GenericArray_c(Parameter1[] a, boolean mutable, boolean refs_to_values) {
 		dist d = Runtime.factory.getDistributionFactory().local(a.length);
-		return new GenericArray_c(d, a, safe, mutable, ref_to_values);
+		return new GenericArray_c(d, a, mutable, refs_to_values);
 	}
 
-	public void keepItLive() {}
-
-	public long getUnsafeAddress() {
-		return arr_.getUnsafeAddress();
+	public boolean valueEquals(Indexable other) {
+		GenericArray_c o = (GenericArray_c) other;
+		if (o.arr_.length != arr_.length)
+			return false;
+		if (refsToValues_) {
+			for (int i = arr_.length-1; i >= 0; i--) 
+				if (!x10.lang.Runtime.equalsequals(arr_[i], o.arr_[i]))
+					return false;
+		} else {
+			for (int i = arr_.length-1; i >= 0; i--) 
+				if (arr_[i] != o.arr_[i])
+					return false;
+		}
+		return true;
 	}
 
-	public long getUnsafeDescriptor() {
-		return arr_.getUnsafeDescriptor();
+	public Parameter1[] getBackingArray() {
+		return arr_;
 	}
-        public int[] getBackingArray() { 
-        return (arr_ instanceof MemoryBlockSafeIntArray) ?
-    		((MemoryBlockSafeIntArray) arr_).getBackingArray()
-			: null; }
 
-       public int[] getDescriptor() {
-          return arr_.getDescriptor();
-       }
+	public int[] getDescriptor() {
+		return descriptor_;
+	}
 
-	/* Overrides the superclass method - this implementation is more efficient */
-	public void reduction(Operator.Reduction op) {
-		int count = arr_.count();
-		for (int i  = 0; i < count; ++i)
-			op.apply((Parameter1) arr_.get(i));
+	public Parameter1 setOrdinal(Parameter1 v, int rawIndex) {
+		return arr_[rawIndex] = v;
+	}
+
+	public Parameter1 getOrdinal(int rawIndex) {
+		return arr_[rawIndex];
+	}
+
+	protected GenericArray newInstance(dist d) {
+		return new GenericArray_c(d, (Operator.Pointwise) null, true, false);
+	}
+
+	protected GenericArray newInstance(dist d, Parameter1 c) {
+		return new GenericArray_c(d, c, true, false);
 	}
 
 	/* Overrides the superclass method - this implementation is more efficient */
 	protected void assign(GenericArray rhs) {
-		assert rhs instanceof GenericArray_c;
+		assert rhs.getClass() == this.getClass();
 
 		GenericArray_c rhs_t = (GenericArray_c) rhs;
-		if (rhs.distribution.equals(distribution)) {
-			int count = arr_.count();
-			for (int i  = 0; i < count; ++i)
-				arr_.set(rhs_t.arr_.get(i), i);
+		if (!Configuration.BAD_PLACE_RUNTIME_CHECK &&
+				rhs.distribution.equals(distribution)) {
+			int count = arr_.length;
+			for (int i = 0; i < count; ++i)
+				arr_[i] = rhs_t.arr_[i];
 		} else
 			// fall back to generic implementation
 			super.assign(rhs);
 	}
 
-	protected GenericArray newInstance(dist d) {
-		assert d instanceof Distribution_c;
-
-		return new GenericArray_c(d, (Operator.Pointwise) null, safe_);
-	}
-
-	protected GenericArray newInstance(dist d, Operator.Pointwise c) {
-		assert d instanceof Distribution_c;
-
-		return new GenericArray_c(d, c, safe_);
-	}
-
-
-	public GenericReferenceArray lift(Operator.Binary op, x10.lang.genericArray arg) {
-		assert arg.distribution.equals(distribution);
-		GenericArray arg1 = (GenericArray)arg;
-		GenericArray result = newInstance(distribution);
-		place here = x10.lang.Runtime.runtime.currentPlace();
-		try {
-			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-				point p = (point) it.next();
-				place pl = distribution.get(p);
-				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				result.set(op.apply(this.get(p), arg1.get(p)),p);
-			}
-		} finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here);
+	/* Overrides the superclass method - this implementation is more efficient */
+	public void reduction(Operator.Reduction op) {
+		if (!Configuration.BAD_PLACE_RUNTIME_CHECK) {
+			int count = arr_.length;
+			for (int i = 0; i < count; ++i)
+				op.apply(arr_[i]);
+		} else {
+			super.reduction(op);
 		}
-		return result;
-	}
-
-	public GenericReferenceArray lift(Operator.Unary op) {
-		GenericArray result = newInstance(distribution);
-		place here = x10.lang.Runtime.runtime.currentPlace();
-		try {
-			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-				point p = (point) it.next();
-				place pl = distribution.get(p);
-				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				result.set(op.apply(this.get(p)),p);
-			}
-		} finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here);
-		}
-		return result;
-	}
-
-	public Parameter1 reduce(Operator.Binary op, Parameter1 unit) {
-		Parameter1 result = unit;
-		place here = x10.lang.Runtime.runtime.currentPlace();
-		try {
-			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-				point p = (point) it.next();
-				place pl = distribution.get(p);
-				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				result = op.apply(this.get(p), result);
-			}
-		} finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here);
-		}
-		return result;
-	}
-
-	public GenericReferenceArray scan(Operator.Binary op, Parameter1 unit) {
-		Parameter1 temp = unit;
-		GenericArray result = newInstance(distribution);
-		place here = x10.lang.Runtime.runtime.currentPlace();
-		try {
-			for (Iterator it = distribution.region.iterator(); it.hasNext();) {
-				point p = (point) it.next();
-				place pl = distribution.get(p);
-				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				temp = op.apply(this.get(p), temp);
-				result.set(temp, p);
-			}
-		} finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here);
-		}
-		return result;
-	}
-
-	/* (non-Javadoc)
-	 * @see x10.lang.GenericArray#set(int, int[])
-	 */
-	public Parameter1 set(Parameter1 v, point pos) {return set(v,pos,true,true);}
-	public Parameter1 set(Parameter1 v, point pos,boolean chkPl,boolean chkAOB) {
-		if (Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-			Runtime.hereCheckPlace(distribution.get(pos));
-		return (Parameter1) arr_.set(v, (int) distribution.region.ordinal(pos));
-	}
-
-	public Parameter1 setOrdinal(Parameter1 v, int rawIndex) {
-		return (Parameter1) arr_.set(v,rawIndex);
-	}
-
-	public Parameter1 set(Parameter1 v, int d0) {return set(v,d0,true,true);}
-
-	public Parameter1 set(Parameter1 v, int d0,boolean chkPl,boolean chkAOB) {
-		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-			Runtime.hereCheckPlace(distribution.get(d0));
-		int	theIndex = Helper.ordinal(distribution,d0,chkAOB);
-		return (Parameter1) setOrdinal(v, theIndex);
-	}
-
-	public Parameter1 set(Parameter1 v, int d0,int d1) {return set(v,d0,d1,true,true);}
-	public Parameter1 set(Parameter1 v, int d0, int d1,boolean chkPl,boolean chkAOB) {
-		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-			Runtime.hereCheckPlace(distribution.get(d0, d1));
-		int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
-		return (Parameter1) setOrdinal(v, theIndex);
-	}
-	public Parameter1 set(Parameter1 v, int d0,int d1,int d2) {return set(v,d0,d1,d2,true,true);}
-	public Parameter1 set(Parameter1 v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
-		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-			Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
-
-		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
-		return (Parameter1) setOrdinal(v, theIndex);
-	}
-
-	public Parameter1 set(Parameter1 v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
-
-	public Parameter1 set(Parameter1 v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
-		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-			Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
-
-		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,d3,chkAOB);
-		return (Parameter1)  setOrdinal(v, theIndex);
-
-	}
-
-	/* (non-Javadoc)
-	 * @see x10.lang.GenericArray#get(int[])
-	 */
-	public Parameter1 get(point pos) {return get(pos,true,true);}
-	public Parameter1 get(point pos,boolean chkPl,boolean chkAOB) {
-		return (Parameter1)  arr_.get((int) distribution.region.ordinal(pos));
-	}
-
-	public Parameter1 getOrdinal(int rawIndex) {
-		return (Parameter1) arr_.get(rawIndex);
-	}
-
-	public Parameter1 get(int d0) {return get(d0,true,true);}
-	public Parameter1 get(int d0,boolean chkPl,boolean chkAOB) {
-		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-			Runtime.hereCheckPlace(distribution.get(d0));
-		d0 = Helper.ordinal(distribution,d0,chkAOB);
-		return getOrdinal(d0);
-	}
-
-	public Parameter1 get(int d0,int d1) {return get(d0,d1,true,true);}
-	public Parameter1 get(int d0, int d1,boolean chkPl,boolean chkAOB) {
-		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-			Runtime.hereCheckPlace(distribution.get(d0, d1));
-		int	theIndex = Helper.ordinal(distribution,d0,d1,chkAOB);
-		return getOrdinal(theIndex);
-	}
-
-	public Parameter1 get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
-
-	public Parameter1 get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
-		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-			Runtime.hereCheckPlace(distribution.get(d0, d1, d2));
-
-		int	theIndex = Helper.ordinal(distribution,d0,d1,d2,chkAOB);
-		return getOrdinal(theIndex);
-	}
-
-	public Parameter1 get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
-
-	public Parameter1 get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
-		if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
-			Runtime.hereCheckPlace(distribution.get(d0, d1, d2, d3));
-		int	theIndex = Helper.ordinal(distribution,d0, d1, d2, d3,chkAOB);
-		return getOrdinal(theIndex);
-	}
-
-	public Parameter1 get(int[] pos) {return get(pos,true,true);}
-	public Parameter1 get(int[] pos,boolean chkPl,boolean chkAOB) {
-		final point p = Runtime.factory.getPointFactory().point(pos);
-		return get(p);
-	}
-
-	public x10.lang.GenericReferenceArray overlay(x10.lang.genericArray d) {
-		dist dist = distribution.overlay(d.distribution);
-		GenericArray_c ret = new GenericArray_c(dist, (Parameter1)null, safe_);
-		place here = x10.lang.Runtime.runtime.currentPlace();
-		try {
-			for (Iterator it = dist.iterator(); it.hasNext(); ) {
-				point p = (point) it.next();
-				place pl = dist.get(p);
-				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				Parameter1 val = (d.distribution.region.contains(p)) ? d.get(p) : get(p);
-				ret.set(val, p);
-			}
-		} finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here);
-		}
-		return ret;
-	}
-
-	public void update(x10.lang.genericArray d) {
-		assert (region.contains(d.region));
-		place here = x10.lang.Runtime.runtime.currentPlace();
-		try {
-			for (Iterator it = d.iterator(); it.hasNext(); ) {
-				point p = (point) it.next();
-				place pl = distribution.get(p);
-				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				set(d.get(p), p);
-			}
-		} finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here);
-		}
-	}
-
-	public GenericReferenceArray union(x10.lang.genericArray d) {
-		dist dist = distribution.union(d.distribution);
-		GenericArray_c ret = new GenericArray_c(dist, (Parameter1)null, safe_);
-		place here = x10.lang.Runtime.runtime.currentPlace();
-		try {
-			for (Iterator it = dist.iterator(); it.hasNext(); ) {
-				point p = (point) it.next();
-				place pl = dist.get(p);
-				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				Parameter1 val = (distribution.region.contains(p)) ? get(p) : d.get(p);
-				ret.set(val, p);
-			}
-		} finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here);
-		}
-		return ret;
-	}
-
-	public GenericReferenceArray restriction(dist d) {
-		return restriction(d.region);
-	}
-
-	public GenericReferenceArray restriction(region r) {
-		dist dist = distribution.restriction(r);
-		GenericArray_c ret = new GenericArray_c(dist, (Parameter1)null, safe_);
-		place here = x10.lang.Runtime.runtime.currentPlace();
-		try {
-			for (Iterator it = dist.iterator(); it.hasNext(); ) {
-				point p = (point) it.next();
-				place pl = dist.get(p);
-				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				ret.set(get(p), p);
-			}
-		} finally {
-			x10.lang.Runtime.runtime.setCurrentPlace(here);
-		}
-		return ret;
-	}
-
-	public x10.lang.genericArray toValueArray() {
-		if (! mutable_) return this;
-		try {
-			return (x10.lang.genericArray) this.clone();
-		} catch (CloneNotSupportedException x) {
-			throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
-		}
-
-	}
-	public boolean isValue() {
-		return ! this.mutable_;
 	}
 }
