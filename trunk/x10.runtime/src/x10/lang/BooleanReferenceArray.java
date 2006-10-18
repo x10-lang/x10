@@ -11,28 +11,34 @@ package x10.lang;
  * @author vj 1/9/2005
  * @author igor 09/13/2006 -- made an interface
  */
-public interface BooleanReferenceArray extends booleanArray {
-	abstract public boolean set( boolean v, point/*(region)*/ p);
+public abstract class BooleanReferenceArray extends booleanArray {
+
+	protected BooleanReferenceArray(dist d, boolean mutable) {
+		super(d, mutable);
+	}
+
+	abstract public boolean set(boolean v, point/*(region)*/ p);
+	abstract public boolean setOrdinal(boolean v, int p);
 	abstract /*value*/ public boolean set(boolean v, int p);
 	abstract /*value*/ public boolean set(boolean v, int p, int q);
 	abstract /*value*/ public boolean set(boolean v, int p, int q, int r);
 	abstract /*value*/ public boolean set(boolean v, int p, int q, int r, int s);
 
-	boolean bitAndSet(boolean v, point/*(region)*/p);
-	boolean bitAndSet(boolean v, int p);
-	boolean bitAndSet(boolean v, int p, int q);
-	boolean bitAndSet(boolean v, int p, int q, int r);
-	boolean bitAndSet(boolean v, int p, int q, int r, int s);
+	abstract public boolean bitAndSet(boolean v, point/*(region)*/p);
+	abstract public boolean bitAndSet(boolean v, int p);
+	abstract public boolean bitAndSet(boolean v, int p, int q);
+	abstract public boolean bitAndSet(boolean v, int p, int q, int r);
+	abstract public boolean bitAndSet(boolean v, int p, int q, int r, int s);
 
-	boolean bitOrSet(boolean v, point/*(region)*/p);
-	boolean bitOrSet(boolean v, int p);
-	boolean bitOrSet(boolean v, int p, int q);
-	boolean bitOrSet(boolean v, int p, int q, int r);
-	boolean bitOrSet(boolean v, int p, int q, int r, int s);
+	abstract public boolean bitOrSet(boolean v, point/*(region)*/p);
+	abstract public boolean bitOrSet(boolean v, int p);
+	abstract public boolean bitOrSet(boolean v, int p, int q);
+	abstract public boolean bitOrSet(boolean v, int p, int q, int r);
+	abstract public boolean bitOrSet(boolean v, int p, int q, int r, int s);
 
-	boolean bitXorSet(boolean v, point/*(region)*/p);
-	boolean bitXorSet(boolean v, int p);
-	boolean bitXorSet(boolean v, int p, int q);
-	boolean bitXorSet(boolean v, int p, int q, int r);
-	boolean bitXorSet(boolean v, int p, int q, int r, int s);
+	abstract public boolean bitXorSet(boolean v, point/*(region)*/p);
+	abstract public boolean bitXorSet(boolean v, int p);
+	abstract public boolean bitXorSet(boolean v, int p, int q);
+	abstract public boolean bitXorSet(boolean v, int p, int q, int r);
+	abstract public boolean bitXorSet(boolean v, int p, int q, int r, int s);
 }
