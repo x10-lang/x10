@@ -6,12 +6,14 @@ import x10.lang.place;
 import x10.array.ArrayFactory;
 import x10.array.ContiguousRange;
 import x10.array.MultiDimRegion;
+import x10.array.Rectangular;
 import x10.compilergenerated.Parameter1;
 
 /* root for all array classes */
-abstract public class x10Array extends x10.lang.Object implements Array, Unsafe, Parameter1, ValueType {
+abstract public class x10Array extends x10.lang.Object implements Array, Parameter1, ValueType {
 	
 	public static final ArrayFactory factory = Runtime.factory.getArrayFactory();
+	protected final boolean mutable_;
 	/*parameter*/ public final dist distribution;
 	/*parameter*/ public final /*nat*/int rank /*= distribution.rank*/;
 	/*parameter*/ public final region/*(rank)*/ region /*= distribution.region*/;
@@ -20,15 +22,15 @@ abstract public class x10Array extends x10.lang.Object implements Array, Unsafe,
 	/*parameter*/ public final place onePlace;
 	/*parameter*/ public final boolean zeroBased;
 	public static final String propertyNames$ = "distribution rank region rect rail onePlace zeroBased ";
-    protected x10Array(dist d) {
+    protected x10Array(dist d, boolean mutable) {
+        mutable_ = mutable;
         distribution = d;
         rank = d.rank;
         region = d.region;
-        rect = region instanceof MultiDimRegion ;
+        rect = region instanceof Rectangular;
         onePlace = d.onePlace;
         zeroBased = d.zeroBased;
         rail = (rank==1) && onePlace!=null && region.zeroBased;
-        
     }
          /**
          * @return low bound for a 1D array else throw and exception
@@ -53,6 +55,8 @@ abstract public class x10Array extends x10.lang.Object implements Array, Unsafe,
 	/**
 	 * Create a multi-dimensional Java array.
 	 */
-	public abstract java.lang.Object toJava();   
-
+	public abstract java.lang.Object toJava();
+	public boolean isValue() {
+		return !this.mutable_;
+	}
 }
