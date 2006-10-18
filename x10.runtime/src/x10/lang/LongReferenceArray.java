@@ -1,11 +1,13 @@
 package x10.lang;
 
-/** The class of all multidimensional, settable distributed long arrays
+
+/**
+ * The class of all multidimensional, settable distributed long arrays
  * in X10.  Declares a non-"value" method, set (hence is not subclass-only 
  * immutable, hence name is capitalized).
  * Specialized from ReferenceArray by replacing the type parameter
  * with long.
- 
+ * 
  * Handtranslated from the X10 code in x10/lang/LongReferenceArray.x10
  * 
  * @author vj 1/9/2005
@@ -13,16 +15,17 @@ package x10.lang;
 
 public abstract class LongReferenceArray extends longArray {
 	
-	public LongReferenceArray( dist D) {
-		super( D );
+	public LongReferenceArray(dist D, boolean mutable) {
+		super(D, mutable);
 	}
-	abstract public long set( long v, point/*(region)*/ p );
+	abstract public long set(long v, point/*(region)*/ p);
+	abstract public long setOrdinal(long v, int p);
 	abstract public long set(long v, int p);
 	abstract public long set(long v, int p, int q);
 	abstract public long set(long v, int p, int q, int r);
 	abstract public long set(long v, int p, int q, int r, int s);
-
-	public long addSet( long v, point/*(region)*/ p) {
+	
+	public long addSet(long v, point/*(region)*/ p) {
 		return set(get(p)+v,p);
 	}
 	public long addSet(long v, int p) {
@@ -38,7 +41,7 @@ public abstract class LongReferenceArray extends longArray {
 		return set(get(p,q,r,s)+v,p,q,r,s);
 	}
 	
-	public long mulSet( long v, point/*(region)*/ p) {
+	public long mulSet(long v, point/*(region)*/ p) {
 		return set(get(p)*v,p);
 	}
 	public long mulSet(long v, int p) {
@@ -53,7 +56,7 @@ public abstract class LongReferenceArray extends longArray {
 	public long mulSet(long v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s)*v,p,q,r,s);
 	}
-	public long subSet( long v, point/*(region)*/ p) {
+	public long subSet(long v, point/*(region)*/ p) {
 		return set(get(p)-v,p);
 	}
 	public long subSet(long v, int p) {
@@ -68,7 +71,7 @@ public abstract class LongReferenceArray extends longArray {
 	public long subSet(long v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s)-v,p,q,r,s);
 	}
-	public long divSet( long v, point/*(region)*/ p) {
+	public long divSet(long v, point/*(region)*/ p) {
 		return set(get(p)/v,p);
 	}
 	public long divSet(long v, int p) {
@@ -83,7 +86,7 @@ public abstract class LongReferenceArray extends longArray {
 	public long divSet(long v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s)/v,p,q,r,s);
 	}
-	public long modSet( long v, point/*(region)*/ p) {
+	public long modSet(long v, point/*(region)*/ p) {
 		return set(get(p)%v,p);
 	}
 	public long modSet(long v, int p) {
@@ -98,7 +101,7 @@ public abstract class LongReferenceArray extends longArray {
 	public long modSet(long v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s)%v,p,q,r,s);
 	}
-	public long bitAndSet( long v, point/*(region)*/ p) {
+	public long bitAndSet(long v, point/*(region)*/ p) {
 		return set(get(p)&v,p);
 	}
 	public long bitAndSet(long v, int p) {
@@ -113,7 +116,7 @@ public abstract class LongReferenceArray extends longArray {
 	public long bitAndSet(long v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s)&v,p,q,r,s);
 	}
-	public long bitOrSet( long v, point/*(region)*/ p) {
+	public long bitOrSet(long v, point/*(region)*/ p) {
 		return set(get(p)|v,p);
 	}
 	public long bitOrSet(long v, int p) {
@@ -128,7 +131,7 @@ public abstract class LongReferenceArray extends longArray {
 	public long bitOrSet(long v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s)|v,p,q,r,s);
 	}
-	public long bitXorSet( long v, point/*(region)*/ p) {
+	public long bitXorSet(long v, point/*(region)*/ p) {
 		return set(get(p)^v,p);
 	}
 	public long bitXorSet(long v, int p) {
@@ -143,7 +146,7 @@ public abstract class LongReferenceArray extends longArray {
 	public long bitXorSet(long v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s)^v,p,q,r,s);
 	}
-	public long shlSet( long v, point/*(region)*/ p) {
+	public long shlSet(long v, point/*(region)*/ p) {
 		return set(get(p) << v,p);
 	}
 	public long shlSet(long v, int p) {
@@ -159,7 +162,7 @@ public abstract class LongReferenceArray extends longArray {
 		return set(get(p,q,r,s) << v,p,q,r,s);
 	}
 	
-	public long shrSet( long v, point/*(region)*/ p) {
+	public long shrSet(long v, point/*(region)*/ p) {
 		return set(get(p) >> v,p);
 	}
 	public long shrSet(long v, int p) {
@@ -174,7 +177,7 @@ public abstract class LongReferenceArray extends longArray {
 	public long shrSet(long v, int p, int q, int r, int s) {
 		return set(get(p,q,r,s) >> v,p,q,r,s);
 	}
-	public long ushrSet( long v, point/*(region)*/ p) {
+	public long ushrSet(long v, point/*(region)*/ p) {
 		return set(get(p) >>> v,p);
 	}
 	public long ushrSet(long v, int p) {
