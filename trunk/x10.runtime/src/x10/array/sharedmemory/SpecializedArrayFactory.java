@@ -25,7 +25,7 @@ public class SpecializedArrayFactory extends DefaultArrayFactory {
 	 */
 	public DoubleReferenceArray DoubleArray(dist d, Operator.Pointwise init, boolean safe, boolean mutable, boolean ignored) {
 		if (d.region instanceof Region3D0Base)
-			return new DoubleArray3d_c(d, init, safe, mutable, ignored);
+			return new DoubleArray3d_c(d, init, mutable, ignored);
 		return super.DoubleArray(d, init, safe, mutable, ignored);
 	}
 
@@ -35,7 +35,7 @@ public class SpecializedArrayFactory extends DefaultArrayFactory {
 	 */
 	public IntReferenceArray IntArray(dist d, Pointwise init, boolean safe, boolean mutable, boolean ignored) {
 		if (d.region instanceof Region0Base)
-			return new ZeroBasedIntArray_c(d, init, safe, mutable, ignored);
+			return new ZeroBasedIntArray_c(d, init, mutable, ignored);
 		return super.IntArray(d, init, safe, mutable, ignored);
 	}
 }
