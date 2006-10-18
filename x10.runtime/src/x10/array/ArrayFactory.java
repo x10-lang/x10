@@ -53,12 +53,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique boolean value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ booleanArray/*(D)*/ booleanValueArray(dist D, boolean init);
+	public /*(distribution D)*/ booleanArray/*(D)*/ booleanValueArray(dist D, boolean init) {
+		return BooleanArray(D, new booleanArray.Constant(init), true, false, false);
+	}
 	/**
 	 * Return the unique boolean value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ booleanArray/*(D)*/ booleanValueArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ booleanArray/*(D)*/ booleanValueArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return BooleanArray(D, init, true, false, false);
+	}
 
 	/**
 	 * Return the unique boolean reference array initialized with false
@@ -92,12 +96,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique boolean reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ BooleanReferenceArray/*(D)*/ BooleanReferenceArray(dist D, boolean init);
+	public /*(distribution D)*/ BooleanReferenceArray/*(D)*/ BooleanReferenceArray(dist D, boolean init) {
+		return BooleanArray(D, new booleanArray.Constant(init), true, true, false);
+	}
 	/**
 	 * Return the unique boolean reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ BooleanReferenceArray/*(D)*/ BooleanReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ BooleanReferenceArray/*(D)*/ BooleanReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return BooleanArray(D, init, true, true, false);
+	}
 
 	/**
 	 * Return the unique boolean array initialized with init and defined
@@ -133,12 +141,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique byte value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ byteArray/*(D)*/ byteValueArray(dist D, byte init);
+	public /*(distribution D)*/ byteArray/*(D)*/ byteValueArray(dist D, byte init) {
+		return ByteArray(D, new byteArray.Constant(init), true, false, false);
+	}
 	/**
 	 * Return the unique byte value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ byteArray/*(D)*/ byteValueArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ byteArray/*(D)*/ byteValueArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return ByteArray(D, init, true, false, false);
+	}
 
 	/**
 	 * Return the unique byte reference array initialized with 0
@@ -172,12 +184,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique byte reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray(dist D, byte init);
+	public /*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray(dist D, byte init) {
+		return ByteArray(D, new byteArray.Constant(init), true, true, false);		
+	}
 	/**
 	 * Return the unique byte reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ ByteReferenceArray/*(D)*/ ByteReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return ByteArray(D, init, true, true, false);
+	}
 
 	/**
 	 * Return the unique byte array initialized with init and defined
@@ -213,12 +229,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique char value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ charArray/*(D)*/ charValueArray(dist D, char init);
+	public /*(distribution D)*/ charArray/*(D)*/ charValueArray(dist D, char init) {
+		return CharArray(D, new charArray.Constant(init), true, false, false);
+	}
 	/**
 	 * Return the unique char value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ charArray/*(D)*/ charValueArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ charArray/*(D)*/ charValueArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return CharArray(D, init, true, false, false);
+	}
 
 	/**
 	 * Return the unique char reference array initialized with 0
@@ -252,12 +272,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique char reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray(dist D, char init);
+	public /*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray(dist D, char init) {
+		return CharArray(D, new charArray.Constant(init), true, true, false);
+	}
 	/**
 	 * Return the unique char reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ CharReferenceArray/*(D)*/ CharReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return CharArray(D, init, true, true, false);
+	}
 
 	/**
 	 * Return the unique char array initialized with init and defined
@@ -295,12 +319,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique int value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ intArray/*(D)*/ intValueArray(dist D, int init);
+	public /*(distribution D)*/ intArray/*(D)*/ intValueArray(dist D, int init) {
+		return IntArray(D, new intArray.Constant(init), true, false, false);
+	}
 	/**
 	 * Return the unique int value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ intArray/*(D)*/ intValueArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ intArray/*(D)*/ intValueArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return IntArray(D, init, true, false, false);
+	}
 	/**
 	 * Return an int value array initialized with the given 1-d 0:n-1 array a.
 	 */
@@ -331,12 +359,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique int reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(dist D, int init);
+	public /*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(dist D, int init) {
+		return IntArray(D, new intArray.Constant(init), true, true, false);
+	}
 	/**
 	 * Return the unique int reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ IntReferenceArray/*(D)*/ IntReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return IntArray(D, init, true, true, false);
+	}
 
 	/**
 	 * Return the unique int array initialized with init and defined
@@ -376,12 +408,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique long value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ longArray/*(D)*/ longValueArray(dist D, long init);
+	public /*(distribution D)*/ longArray/*(D)*/ longValueArray(dist D, long init) {
+		return LongArray(D, new longArray.Constant(init), true, false, false);
+	}
 	/**
 	 * Return the unique long value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ longArray/*(D)*/ longValueArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ longArray/*(D)*/ longValueArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return LongArray(D, init, true, false, false);
+	}
 
 	/**
 	 * Return the unique long reference array initialized with 0
@@ -407,12 +443,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique long reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(dist D, long init);
+	public /*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(dist D, long init) {
+		return LongArray(D, new longArray.Constant(init), true, true, false);
+	}
 	/**
 	 * Return the unique long reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ LongReferenceArray/*(D)*/ LongReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return LongArray(D, init, true, true, false);
+	}
 
 	/**
 	 * Return the unique long array initialized with init and defined
@@ -448,12 +488,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique short value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ shortArray/*(D)*/ shortValueArray(dist D, short init);
+	public /*(distribution D)*/ shortArray/*(D)*/ shortValueArray(dist D, short init) {
+		return ShortArray(D, new shortArray.Constant(init), true, false, false);
+	}
 	/**
 	 * Return the unique short value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ shortArray/*(D)*/ shortValueArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ shortArray/*(D)*/ shortValueArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return ShortArray(D, init, true, false, false);
+	}
 
 	/**
 	 * Return the unique short reference array initialized with 0
@@ -487,12 +531,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique short reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray(dist D, short init);
+	public /*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray(dist D, short init) {
+		return ShortArray(D, new shortArray.Constant(init), true, true, false);
+	}
 	/**
 	 * Return the unique short reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ ShortReferenceArray/*(D)*/ ShortReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return ShortArray(D, init, true, true, false);
+	}
 
 	/**
 	 * Return the unique short array initialized with init and defined
@@ -528,12 +576,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique float value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ floatArray/*(D)*/ floatValueArray(dist D, float init);
+	public /*(distribution D)*/ floatArray/*(D)*/ floatValueArray(dist D, float init) {
+		return FloatArray(D, new floatArray.Constant(init), true, false, false);
+	}
 	/**
 	 * Return the unique float value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ floatArray/*(D)*/ floatValueArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ floatArray/*(D)*/ floatValueArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return FloatArray(D, init, true, false, false);
+	}
 	/**
 	 * Return the unique float reference array initialized with 0
 	 * and defined over the distribution [0..k-1]->here.
@@ -566,12 +618,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique float reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray(dist D, float init);
+	public /*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray(dist D, float init) {
+		return FloatArray(D, new floatArray.Constant(init), true, true, false);
+	}
 	/**
 	 * Return the unique float reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ FloatReferenceArray/*(D)*/ FloatReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return FloatArray(D, init, true, true, false);
+	}
 
 	/**
 	 * Return the unique float array initialized with init and defined
@@ -607,12 +663,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique double value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray(dist D, double init);
+	public /*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray(dist D, double init) {
+		return DoubleArray(D, new doubleArray.Constant(init), true, false, false);
+	}
 	/**
 	 * Return the unique double value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ doubleArray/*(D)*/ doubleValueArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return DoubleArray(D, init, true, false, false);
+	}
 	/**
 	 * Return a double value array initialized with the given 1-d 0:n-1 array a.
 	 */
@@ -649,12 +709,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique double reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleReferenceArray(dist D, double init);
+	public /*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleReferenceArray(dist D, double init) {
+		return DoubleArray(D, new doubleArray.Constant(init), true, true, false);
+	}
 	/**
 	 * Return the unique double reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ DoubleReferenceArray/*(D)*/ DoubleReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return DoubleArray(D, init, true, true, false);
+	}
 
 	/**
 	 * Return the unique double array initialized with init and defined
@@ -690,13 +754,17 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique generic value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public
-	/*(distribution D)*/ genericArray/*(D)*/ GenericValueArray(dist D, Parameter1 init, boolean refs_to_values);
+	public
+	/*(distribution D)*/ genericArray/*(D)*/ GenericValueArray(dist D, Parameter1 init, boolean refs_to_values) {
+		return GenericArray(D, new genericArray.Constant(init), true, false, refs_to_values);
+	}
 	/**
 	 * Return the unique generic value array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ genericArray/*(D)*/ GenericValueArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean refs_to_values);
+	public /*(distribution D)*/ genericArray/*(D)*/ GenericValueArray(dist D, Operator.Pointwise/*(D.region)*/ init, boolean refs_to_values) {
+		return GenericArray(D, init, true, false, refs_to_values);
+	}
 
 	/**
 	 * Return the unique generic reference array initialized with null
@@ -730,12 +798,16 @@ abstract public /*value*/ class ArrayFactory {
 	 * Return the unique generic reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericReferenceArray(dist D, Parameter1 init);
+	public /*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericReferenceArray(dist D, Parameter1 init) {
+		return GenericArray(D, new genericArray.Constant(init), true, true, false);
+	}
 	/**
 	 * Return the unique generic reference array initialized with init
 	 * and defined over the distribution D.
 	 */
-	abstract public /*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init);
+	public /*(distribution D)*/ GenericReferenceArray/*(D)*/ GenericReferenceArray(dist D, Operator.Pointwise/*(D.region)*/ init) {
+		return GenericArray(D, init, true, true, false);
+	}
 
 	/**
 	 * Return the unique boolean array initialized with init and defined
