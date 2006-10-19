@@ -6,6 +6,7 @@ package x10.array;
 import java.util.Iterator;
 
 import x10.lang.LongReferenceArray;
+import x10.lang.Indexable;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
@@ -140,12 +141,13 @@ public abstract class LongArray extends LongReferenceArray {
 		LongArray o = (LongArray)other;
 		if (!o.distribution.equals(distribution))
 			return false;
+		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
 			for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 				point pos = (point) it.next();
 				place pl = distribution.get(pos);
 				x10.lang.Runtime.runtime.setCurrentPlace(pl);
-				if (get(i) != o.get(i))
+				if (get(pos) != o.get(pos))
 					return false;
 			}
 		} finally {

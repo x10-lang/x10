@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import x10.compilergenerated.Parameter1;
 import x10.lang.GenericReferenceArray;
+import x10.lang.Indexable;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
@@ -145,13 +146,14 @@ public abstract class GenericArray extends GenericReferenceArray {
 		GenericArray o = (GenericArray)other;
 		if (!o.distribution.equals(distribution))
 			return false;
+		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
 			if (refsToValues_) {
 				for (Iterator it = distribution.region.iterator(); it.hasNext(); ) {
 					point pos = (point) it.next();
 					place pl = distribution.get(pos);
 					x10.lang.Runtime.runtime.setCurrentPlace(pl);
-					if (!x10.lang.Runtime.equalsequals(get(i), o.get(i)))
+					if (!x10.lang.Runtime.equalsequals(get(pos), o.get(pos)))
 						return false;
 				}
 			} else {
@@ -159,7 +161,7 @@ public abstract class GenericArray extends GenericReferenceArray {
 					point pos = (point) it.next();
 					place pl = distribution.get(pos);
 					x10.lang.Runtime.runtime.setCurrentPlace(pl);
-					if (get(i) != o.get(i))
+					if (get(pos) != o.get(pos))
 						return false;
 				}
 			}
