@@ -9,6 +9,7 @@ import java.util.Stack;
 
 import x10.cluster.ClusterRuntime;
 import x10.cluster.HasResult;
+import x10.cluster.RTRemoteTag;
 import x10.cluster.X10RemoteRef;
 import x10.cluster.X10Runnable;
 import x10.cluster.comm.RPCHelper;
@@ -28,7 +29,7 @@ import x10.cluster.message.MessageType;
  * @xinb
  * 	extension for distributed scenario.
  */
-public class FinishState implements FinishStateOps {
+public class FinishState implements FinishStateOps, RTRemoteTag {
 	/**
 	 * After <code>waitForFinish</code> returns, the life cycle of this object
 	 * ends.  Furthur call on this object signifies error.  
@@ -241,5 +242,11 @@ public class FinishState implements FinishStateOps {
     	finishCount+","+shadowCount+","+remoteChild+"," + 
     	finish_ +">";
     }
+	public X10RemoteRef getRref() {
+		return rref;
+	}
+	public void setRref(X10RemoteRef r) {
+		rref = r;
+	}
 
 }
