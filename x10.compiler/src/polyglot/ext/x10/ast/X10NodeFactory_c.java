@@ -197,6 +197,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
+    public ClassBody ClassBody(Position pos, List members){
+       ClassBody n = new X10ClassBody_c(pos,members);
+       n = (ClassBody)n.ext(extFactory().extClassBody());
+       n = (ClassBody)n.del(delFactory().delClassBody());
+       return n;
+    }
+
     public ClassDecl ClassDecl(Position pos, Flags flags,
             String name, List properties, Expr ci, TypeNode superClass,
             List interfaces, ClassBody body)
