@@ -42,7 +42,7 @@ public class GenericArray_c extends GenericArray implements UnsafeContainer, Clo
 	}
 
 	private GenericArray_c(dist d, boolean mutable, boolean refs_to_values, Parameter1[] a) {
-		super(d, mutable);
+		super(d, mutable, refs_to_values);
 		assert (d instanceof Distribution_c);
 		int count = d.region.size();
 		int rank = d.region.rank;
