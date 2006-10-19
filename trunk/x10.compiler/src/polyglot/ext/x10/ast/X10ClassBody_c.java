@@ -1,0 +1,65 @@
+package polyglot.ext.x10.ast;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import polyglot.types.SemanticException;
+import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.List;
+import polyglot.util.Position;
+import polyglot.ast.Node;
+import polyglot.ast.MethodDecl;
+import polyglot.ext.jl.ast.MethodDecl_c;
+import polyglot.ext.jl.ast.Formal_c;
+import polyglot.ext.jl.types.ClassType_c;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.types.MethodInstance;
+import polyglot.util.TypedList;
+import polyglot.visit.TypeChecker;
+import polyglot.ext.jl.ast.ClassBody_c;
+
+public class X10ClassBody_c extends ClassBody_c {
+   public X10ClassBody_c(Position pos,java.util.List members){
+     super(pos,members);
+  }
+
+   public Node typeCheck(TypeChecker tc) throws SemanticException{
+     X10ClassBody_c result = (X10ClassBody_c) super.typeCheck(tc);
+     X10TypeSystem typeSystem=null;
+
+     ClassBody_c cb = (ClassBody_c) result.node();
+     for(ListIterator i = cb.members().listIterator();i.hasNext();){
+	Object o = i.next();
+	if(o instanceof MethodDecl) {
+	   MethodDecl_c md = (MethodDecl_c) o;
+	   MethodInstance mi = md.methodInstance();
+	   if(mi.flags().isNative()){
+	      
+	      for(ListIterator j = md.formals().listIterator();j.hasNext();){
+		Formal_c parameter = (Formal_c)j.next();
+		if(!parameter.declType().isPrimitive()){
+                  boolean isOk=true;
+                  if(parameter.declType().isArray()) { 
+                     isOk=false;
+                  }
+                  else {
+		     if(typeSystem == null) typeSystem = X10TypeSystem_c.getTypeSystem();
+   		     ClassType_c ct = (ClassType_c)parameter.declType().toClass();
+                     isOk = typeSystem.isX10Array(ct);
+                  }
+                  if(!isOk)
+		    throw new SemanticException(parameter+
+			    ":parameters to extern calls must be either X10 arrays or primitives.",
+						 parameter.position());
+		}
+	      }
+	   }
+	}
+     }
+     return result;
+   }
+
+   
+   
+}
