@@ -36,7 +36,7 @@ abstract public class floatArray extends x10Array {
 	 * region.
 	 */
 	abstract public float get(point/*(region)*/ p);
-	abstract public float getOrdinal(float p);
+	abstract public float getOrdinal(int p);
 	abstract /*value*/ public float get(int p);
 	abstract /*value*/ public float get(int p, int q);
 	abstract /*value*/ public float get(int p, int q, int r);
