@@ -574,7 +574,7 @@ implements X10ParsedClassType
 			// build the synthetic term.
 			C_Term var = c.varWhoseTypeIsThis();
 			if (var !=null) {
-				FieldInstance fi = definedFieldName("rank");
+				FieldInstance fi = definedFieldNamed("rank");
 				//Report.report(1, "X10ParsedClassType: rank is " + rank + " var.type is " + var.type());
 				rank = new C_Field_c(fi, var);
 			}
@@ -611,7 +611,7 @@ implements X10ParsedClassType
 			// build the synthetic term.
 			C_Term var = c.varWhoseTypeIsThis();
 			if (var !=null) {
-				FieldInstance fi = definedFieldName("distribution");
+				FieldInstance fi = definedFieldNamed("distribution");
 				
 				dist = new C_Field_c(fi, var);
 			}
@@ -642,7 +642,7 @@ implements X10ParsedClassType
 	 * properties of referenced types, e.g. an array is zeroBased if its region is. */
 	protected void setProperty(String propName) {
 		try {
-			X10FieldInstance fi = definedFieldName(propName);
+			X10FieldInstance fi = definedFieldNamed(propName);
 			//Report.report(1, "X10ParsedClassType setting property " + propName + " found fi=" + fi);
 			if (fi != null &&  fi.isProperty()) {
 				C_Term term = new C_Field_c(fi, C_Special.self);
@@ -656,7 +656,7 @@ implements X10ParsedClassType
 	}
 	
 	protected void setProperty(String propName, C_Term val) {
-		X10FieldInstance fi = definedFieldName(propName);
+		X10FieldInstance fi = definedFieldNamed(propName);
 		//Report.report(1, "X10Parsedclass.setting property " + propName + " on " + this + "found fi=" + fi);
 		if (fi != null &&  fi.isProperty()) {
 			C_Var var = new C_Field_c(fi, C_Special.self);
@@ -667,7 +667,7 @@ implements X10ParsedClassType
 		}
 	}
 	
-	protected X10FieldInstance definedFieldName(String name) {
+	protected X10FieldInstance definedFieldNamed(String name) {
 		ReferenceType x = this;
 		
 		X10FieldInstance fi = (X10FieldInstance) fieldNamed(name);
@@ -678,17 +678,22 @@ implements X10ParsedClassType
 		return fi;
 	}
 	protected boolean amIProperty(String propName) {
+		boolean result = false;
 		try {
-			X10FieldInstance fi = (X10FieldInstance) fieldNamed(propName);
+			X10FieldInstance fi = (X10FieldInstance) definedFieldNamed(propName);
+		
 			if (fi != null &&  fi.isProperty()) {
+				
 				C_Term term = new C_Field_c(fi, C_Special.self);
 				
 				Constraint c = new Constraint_c();
 				c.addTerm(term);
-				return depClause().entails(c);
+				return result = depClause().entails(c);
 			}
+			
 		} catch (SemanticException z) {}
-		return false;
+		
+		return result;
 	}
 	
 	
