@@ -68,8 +68,8 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
 	WalkContext context= (WalkContext) c;
 	CAstEntity fn= (CAstEntity) n.getChild(0).getValue();
 //	declareAsync(fn, context);
-	int result= context.scope().allocateTempValue();
-	int ex= context.scope().allocateTempValue();
+	int result= context.currentScope().allocateTempValue();
+	int ex= context.currentScope().allocateTempValue();
 	doMaterializeAsync(context, result, ex, fn);
 	return result;
     }
@@ -109,13 +109,13 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
 	WalkContext context = (WalkContext)c;
 	CAstEntity bodyEntity = (CAstEntity) n.getChild(1).getChild(0).getValue();
 	// Figure out whether this is a future or an async
-	int exceptValue = context.scope().allocateTempValue();
+	int exceptValue = context.currentScope().allocateTempValue();
 	AsyncCallSiteReference acsr = new AsyncCallSiteReference(asyncEntityToMethodReference(bodyEntity), context.cfg().getCurrentInstruction());
 
 	if (((CAstType.Function) bodyEntity.getType()).getReturnType() == JavaPrimitiveTypeMap.VoidType)
 	    context.cfg().addInstruction(SSAInstructionFactory.InvokeInstruction(new int[0], exceptValue, acsr));
 	else {
-	    int retValue = context.scope().allocateTempValue();
+	    int retValue = context.currentScope().allocateTempValue();
 
 	    context.cfg().addInstruction(SSAInstructionFactory.InvokeInstruction(retValue, new int[0], exceptValue, acsr));
 	    translator.setValue(n, retValue);
@@ -145,7 +145,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     protected void leaveForce(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
 	int targetValue = translator.getValue(n.getChild(0));
-	int retValue = context.scope().allocateTempValue();
+	int retValue = context.currentScope().allocateTempValue();
 	context.cfg().addInstruction(new SSAForceInstruction(retValue, targetValue, (TypeReference) n.getChild(1).getValue()));
 	translator.setValue(n, retValue);
     }
@@ -153,7 +153,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     protected void leaveRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
 	int targetValue = translator.getValue(n.getChild(0));
-	int retValue = context.scope().allocateTempValue();
+	int retValue = context.currentScope().allocateTempValue();
 	context.cfg().addInstruction(new SSARegionIterInitInstruction(retValue, targetValue));
 	translator.setValue(n, retValue);
     }
@@ -161,7 +161,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     protected void leaveRegionIterHasNext(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
 	int targetValue = translator.getValue(n.getChild(0));
-	int retValue = context.scope().allocateTempValue();
+	int retValue = context.currentScope().allocateTempValue();
 	context.cfg().addInstruction(new SSARegionIterHasNextInstruction(retValue, targetValue));
 	translator.setValue(n, retValue);
     }
@@ -169,14 +169,14 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     protected void leaveRegionIterNext(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
 	int targetValue = translator.getValue(n.getChild(0));
-	int retValue = context.scope().allocateTempValue();
+	int retValue = context.currentScope().allocateTempValue();
 	context.cfg().addInstruction(new SSARegionIterNextInstruction(retValue, targetValue));
 	translator.setValue(n, retValue);
     }
     protected boolean visitHere(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveHere(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
-	int retValue = context.scope().allocateTempValue();
+	int retValue = context.currentScope().allocateTempValue();
 	context.cfg().addInstruction(new SSAHereInstruction(retValue));
 	translator.setValue(n, retValue);
     }
