@@ -57,36 +57,36 @@ public class X10IRTests extends IRTests {
 
     public void testAsync1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions());
+		new GraphAssertions(), null);
     }
 
     public void testFuture1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions());
+		new GraphAssertions(), null);
     }
 
     public void testFinish1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions());
+		new GraphAssertions(), null);
     }
 
     public void testFor1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions());
+		new GraphAssertions(), null);
     }
 
     public void testForEach1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions());
+		new GraphAssertions(), null);
     }
 
     public void testAtEach1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions());
+		new GraphAssertions(), null);
     }
 
     public void testWhen1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions());
+		new GraphAssertions(), null);
     }
 }
