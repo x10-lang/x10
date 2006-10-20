@@ -48,17 +48,11 @@ import polyglot.util.Position;
  */
 public class X10ClassBodyExt_c extends X10Ext_c {
 
-       private final boolean useSunMiscUnsafe=false;
 	private BufferedWriter wrapperFile;
 	X10TypeSystem typeSystem;
 
-	/* name of unsafe array method used to pass address to native calls */
-	private final String KgetUnsafeAddressMethod = "getUnsafeAddress";
 	private final String KgetBackingArrayMethod = "getBackingArray";
 
-	/* name of unsafe array descriptor (itself an array) */
-	private final String KgetUnsafeDescriptorMethod = "getUnsafeDescriptor";
-       /* alternative descriptor used when not implemented with sun.misc.unsafe */
         private final String KgetDescriptorMethod =  "getDescriptor";
 	private final String KdescriptorNameSuffix = "_x10DeScRiPtOr";
 	private final String KPtrNameSuffix = "_x10PoInTeR";
@@ -159,14 +153,11 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			throw new Error("Unexpected type" + theType.toString());
 		}
 		else {
-                   if(useSunMiscUnsafe)
-			return "jlong";//xlated to long getUnsafeAddress();
-                   else {
-                      if(!theType.isArray()) throw new Error("Unexpected type"+theType.toString());
-                      Type baseType = theType.toArray().base();
-                      if(!baseType.isPrimitive()) throw new Error("Only primitive arrays are supported, not "+theType.toString());
-                      return typeToCString(baseType)+"Array";
-                   }
+                   if(!theType.isArray()) throw new Error("Unexpected type"+theType.toString());
+                   Type baseType = theType.toArray().base();
+                   if(!baseType.isPrimitive()) throw new Error("Only primitive arrays are supported, not "+theType.toString());
+                   return typeToCString(baseType)+"Array";
+                   
                 }
 	}
 
@@ -194,14 +185,11 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				return "V";
 			throw new Error("Unexpected type" + theType.toString());
 		} else {
-                   if(useSunMiscUnsafe)
-                      return "J";// should have been xlated to long getUnsafeAddress();
-                   else {
-                      if(!theType.toArray().isArray()) throw new Error("Unexpected type"+theType.toString());
-                      Type baseType = theType.toArray().base();
-                      if(!baseType.isPrimitive()) throw new Error("Only primitive arrays are supported, not "+theType.toString()); 
-                      return "]"+typeToJavaSigString(baseType);
-                   }
+                   if(!theType.toArray().isArray()) throw new Error("Unexpected type"+theType.toString());
+                   Type baseType = theType.toArray().base();
+                   if(!baseType.isPrimitive()) throw new Error("Only primitive arrays are supported, not "+theType.toString()); 
+                   return "]"+typeToJavaSigString(baseType);
+                   
                 }
 	}
 
@@ -319,10 +307,6 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	}
 
 	/**
-	 * if use sun.misc.unsafe then
-	 * change the name of native Method and any non-primitive parameters
-	 * to type long, with a following long to hold the descriptor (it's
-	 * assumed non-primitives will only be arrays)
 	 * if instead we use JNI methods to get the base address, then pass
 	 * the array object and the descriptor (an array of ints) to the native method
 	 * @param nativeMethod
@@ -341,12 +325,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		TypeNode arrayOfIntType = nf.CanonicalTypeNode(nativeMethod.position(), 
 							       typeSystem.arrayOf(nativeMethod.position(),typeSystem.Int()));
 		boolean seenNonPrimitive = false;
-		/* for sun.misc.unsafe,
-		 * any objects that are not primitive will be unsafe arrays and
-		 * transformed to getUnsafeAddress calls, so just map to type long
-		 * else pass the array object and add in the descriptor one
-                 * 
-                 * otherwise: determine type of backing array as pass it as well
+		/* 
+                 * determine type of backing array as pass it as well
                  * as the descriptor array (an array of ints)
 		 */
 		for (ListIterator i = nativeMethod.formals().listIterator(); i.hasNext();) {
@@ -354,21 +334,14 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			if (parameter.declType().isPrimitive())
 				newFormals.add(parameter);
 			else {
-				seenNonPrimitive = true;
-				if(useSunMiscUnsafe) {
-				  newFormals.add(parameter.type(longType)); //one for array
-				  Formal_c paramDescriptor = (Formal_c)parameter.name(parameter.name() + KdescriptorNameSuffix);
-				  newFormals.add(paramDescriptor.type(longType)); // another for descriptor
-				}
-				else {
-				  ClassType_c ct = (ClassType_c)parameter.declType().toClass();
-				  MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
-				  if(null == backingMethod) throw new Error("Could not find "+KgetBackingArrayMethod+" in class "+ct);
-				  TypeNode theReturnType = nf.CanonicalTypeNode(nativeMethod.position(),backingMethod.returnType());
-				  newFormals.add(parameter.type(theReturnType));
-				  Formal_c paramDescriptor = (Formal_c)parameter.name(parameter.name() + KdescriptorNameSuffix);
-				  newFormals.add(paramDescriptor.type(arrayOfIntType)); // another for descriptor
-				}
+			  seenNonPrimitive = true;
+			  ClassType_c ct = (ClassType_c)parameter.declType().toClass();
+			  MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
+			  if(null == backingMethod) throw new Error("Could not find "+KgetBackingArrayMethod+" in class "+ct);
+			  TypeNode theReturnType = nf.CanonicalTypeNode(nativeMethod.position(),backingMethod.returnType());
+			  newFormals.add(parameter.type(theReturnType));
+			  Formal_c paramDescriptor = (Formal_c)parameter.name(parameter.name() + KdescriptorNameSuffix);
+			  newFormals.add(paramDescriptor.type(arrayOfIntType)); // another for descriptor
 			}
 		}
 		if (seenNonPrimitive) {
@@ -441,7 +414,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		jniCall = (Call_c)jniCall.targetImplicit(true);
 		jniCall = (Call_c)jniCall.methodInstance(mi);
 
-                String descriptorName = useSunMiscUnsafe?KgetUnsafeDescriptorMethod:KgetDescriptorMethod;
+                String descriptorName = KgetDescriptorMethod;
 	
 		ArrayList args = new ArrayList();
 		for (ListIterator i = nativeMethod.formals().listIterator(); i.hasNext();) {
@@ -459,16 +432,16 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			} else {
 				ClassType_c ct = (ClassType_c)parameter.declType().toClass();
 				if (null == ct)
-					throw new Error("Problems with unsafe array "+parameter.name());
+					throw new Error("Problems with array "+parameter.name());
 
 				if (trace)System.out.println("Processing "+parameter.name()+"::"+parameter);
 
 				/**
-				 * Look for the implementation of the Unsafe interface.  Start in this method
+				 * Look for the implementation of the getbackingarray method interface.  Start in this method
 				 * and keep looking up inheritance tree.
 				 */
 				MethodInstance memberMI = null;
-				MethodInstance unsafeBufferMI = null, arrayDescriptorMI = null, backingArrayMI=null;
+				MethodInstance  arrayDescriptorMI = null, backingArrayMI=null;
 				ClassType_c currentClass = ct;
 				boolean doneSearch = false;
                                
@@ -482,36 +455,30 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 						for (ListIterator k = methods.listIterator(); k.hasNext();) {
 							memberMI = (MethodInstance) k.next();
 							if (trace) System.out.println("inspecting interface member:"+ memberMI.name());
-							if (memberMI.name().equals(KgetUnsafeAddressMethod))
-								unsafeBufferMI = memberMI;
 							if (memberMI.name().equals(descriptorName))
 								arrayDescriptorMI = memberMI;
                                                         if(memberMI.name().equals(KgetBackingArrayMethod))
                                                            backingArrayMI = memberMI;
                                                          
-
-                                                        if(arrayDescriptorMI!=null && (!useSunMiscUnsafe || unsafeBufferMI!=null))
+                                                        if(arrayDescriptorMI!=null)
 								break;
 							
 						}
 					}
 
                                         /* look for getBackingArray method.  Note that it is not an interface */
-					if(!useSunMiscUnsafe && backingArrayMI == null){
+					if(backingArrayMI == null){
                                            backingArrayMI = findMethod(currentClass,KgetBackingArrayMethod);
 					}
 
-					if (arrayDescriptorMI != null && 
-					    (useSunMiscUnsafe?(unsafeBufferMI != null):(backingArrayMI !=null))){
+					if (arrayDescriptorMI != null && (backingArrayMI !=null)){
 						doneSearch = true;
 					}
 					currentClass = (ClassType_c)currentClass.superType();
 				}
-				if (useSunMiscUnsafe && null == unsafeBufferMI)
-					throw new Error("Could not find "+KgetUnsafeAddressMethod+" in class "+ ct.fullName());
 				if (null == arrayDescriptorMI) 
 					throw new Error("Could not find "+descriptorName+" in class "+ ct.fullName());
-				if (!useSunMiscUnsafe && null == backingArrayMI)
+				if (null == backingArrayMI)
 					throw new Error("Could not find "+KgetBackingArrayMethod+" in class "+ ct.fullName());
 				
 
@@ -526,25 +493,13 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                                                                                                             getAddrTarget.type(), 
                                                                                                             getAddrTarget.name()));
 				
-                                if(useSunMiscUnsafe){
-                                   Call getAddr = nf.Call(pos, getAddrTarget,KgetUnsafeAddressMethod);
-                                   getAddr = (Call_c)getAddr.methodInstance(unsafeBufferMI);
-                                   // RMF 11/3/2005 - Set the type of getAddr call. This would
-                                   // normally be handled by type-checking, but we're past that
-                                   // point now...
-                                   getAddr = (Call) getAddr.type(unsafeBufferMI.returnType());
-                                   args.add(getAddr);
-                                }
-                                else {
-                                   Call getAddr = nf.Call(pos, getAddrTarget, KgetBackingArrayMethod);
-                                   getAddr = (Call_c)getAddr.methodInstance(backingArrayMI);
-                                   // RMF 11/3/2005 - Set the type of getAddr call. This would
-                                   // normally be handled by type-checking, but we're past that
-                                   // point now...
-                                   getAddr = (Call) getAddr.type(backingArrayMI.returnType());
-                                   args.add(getAddr);
-                                }
-		     
+                                Call getAddr = nf.Call(pos, getAddrTarget, KgetBackingArrayMethod);
+                                getAddr = (Call_c)getAddr.methodInstance(backingArrayMI);
+                                // RMF 11/3/2005 - Set the type of getAddr call. This would
+                                // normally be handled by type-checking, but we're past that
+                                // point now...
+                                getAddr = (Call) getAddr.type(backingArrayMI.returnType());
+                                args.add(getAddr);
 
 
 				Call getDescriptor = nf.Call(pos, getAddrTarget, descriptorName);
@@ -653,7 +608,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				i.hasNext();)
 		{
 			Formal_c parameter = (Formal_c) i.next();
-			if (useSunMiscUnsafe || parameter.declType().isPrimitive()) { 
+			if (parameter.declType().isPrimitive()) { 
 			   jniCall += ", " + typeToJNIString(parameter.declType())
 					   + " " + parameter.name();
 			   wrapperDecl += commaString
@@ -681,24 +636,14 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 			// if we see an array type there must be a descriptor right after
 			if (!parameter.declType().isPrimitive()) {
-                           if(useSunMiscUnsafe){
-                              String descriptorName = parameter.name()+KdescriptorNameSuffix;
-                              jniCall += ", jlong " + descriptorName;
-                              wrapperCall += ", (int*)" + descriptorName;
-                              wrapperDecl += ", int* " + descriptorName;
-                           }
-                           else {
-                              String descriptorName = parameter.name()+KdescriptorNameSuffix;
-                              String descriptorPtrName = descriptorName+KPtrNameSuffix;
-                              jniCall += ", jintArray " + descriptorName;
-                              acquireStmts += generateAcquireStmt(descriptorName,descriptorPtrName);
-                              releaseStmts = generateReleaseStmt(descriptorName,descriptorPtrName)+ releaseStmts;
+                           String descriptorName = parameter.name()+KdescriptorNameSuffix;
+                           String descriptorPtrName = descriptorName+KPtrNameSuffix;
+                           jniCall += ", jintArray " + descriptorName;
+                           acquireStmts += generateAcquireStmt(descriptorName,descriptorPtrName);
+                           releaseStmts = generateReleaseStmt(descriptorName,descriptorPtrName)+ releaseStmts;
   
-                              wrapperCall += ", (int*) "+descriptorPtrName;
-                              wrapperDecl += ", int* " + descriptorName;  
-
-                           }
-
+                           wrapperCall += ", (int*) "+descriptorPtrName;
+                           wrapperDecl += ", int* " + descriptorName;  
 			}
 
 			commaString = ", ";
@@ -737,9 +682,6 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 	/**
 	 * Primitive types get translated to their corresponding JNI type.
-	 * Any non-primitive type should be an unsafe memory type,
-	 * and get translated to a call to getUnsafeAddress, which
-	 * returns an address, which we will put into a long
 	 * @param theType
 	 * @return JNI name for the type
 	 */
@@ -766,11 +708,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				return "void";
                         throw new Error("Unhandled type:"+theType);
 		} else {
-		   if(useSunMiscUnsafe)
-			return "jlong";// should be a call to long getUnsafeAddress()
-		   else if(theType.isArray())
-		       return typeToJNIString((theType.toArray()).base())+"Array";
-		   
+		   if(theType.isArray())
+		      return typeToJNIString((theType.toArray()).base())+"Array";
                 }
 	
 		return "<unknown>";
