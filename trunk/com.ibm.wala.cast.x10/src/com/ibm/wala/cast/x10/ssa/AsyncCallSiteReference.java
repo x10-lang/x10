@@ -8,7 +8,7 @@ import com.ibm.wala.shrikeBT.IInvokeInstruction;
 import com.ibm.wala.types.MethodReference;
 
 public class AsyncCallSiteReference extends CallSiteReference {
-    public static enum Dispath implements IInvokeInstruction.IDispatch {
+    public static enum Dispatch implements IInvokeInstruction.IDispatch {
       ASYNC_CALL;
     }
 
