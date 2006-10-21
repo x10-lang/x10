@@ -4,7 +4,7 @@
 package com.ibm.domo.ast.x10.ssa;
 
 import com.ibm.wala.classLoader.CallSiteReference;
-import com.ibm/.wala.shrikeBT.IInvokeInstruction;
+import com.ibm.wala.shrikeBT.IInvokeInstruction;
 import com.ibm.wala.types.MethodReference;
 
 public class AsyncCallSiteReference extends CallSiteReference {
