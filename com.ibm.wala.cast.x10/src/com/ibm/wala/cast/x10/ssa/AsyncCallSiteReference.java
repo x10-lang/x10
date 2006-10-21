@@ -4,19 +4,20 @@
 package com.ibm.domo.ast.x10.ssa;
 
 import com.ibm.wala.classLoader.CallSiteReference;
+import com.ibm/.wala.shrikeBT.IInvokeInstruction;
 import com.ibm.wala.types.MethodReference;
 
 public class AsyncCallSiteReference extends CallSiteReference {
-    // this must be distinct from java invoke codes.
-    // see com.ibm.shrikeBT.BytecodeConstants
-    public static final byte ASYNC_CALL = 4;
+    public static enum Dispath implements IInvokeInstruction.IDispatch {
+      ASYNC_CALL;
+    }
 
     public AsyncCallSiteReference(MethodReference ref, int pc) {
       super(pc, ref);
     }
 
-    public byte getInvocationCode() {
-      return ASYNC_CALL;
+    public IInvokeInstruction.IDispatch getInvocationCode() {
+      return Dispatch.ASYNC_CALL;
     }
 
     public boolean isStatic() {
