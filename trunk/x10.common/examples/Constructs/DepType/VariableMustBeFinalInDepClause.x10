@@ -1,25 +1,19 @@
-import harness.x10Test;
+//import harness.x10Test;
 
 /**
  * The test checks that final local variables can be accessed in a depclause.
  *
  * @author vj
  */
-public class VariableMustBeFinalInDepClause extends x10Test {
+public class VariableMustBeFinalInDepClause { 
 	class Test(int i) {
-	   public boolean bad;
-	   public Test(int ii) {
-	     i = ii;
-	   }
+		public Test(int ii) {
+			i = ii;
+		}
+	}
+	public void m(Test t) {
+		 Test(:i==52)  a =  (Test(:i==52)) t;
 	}
 	
-	public boolean run() {
-	   final int ii = 42;
-	   Test(:i==52)  a =  new Test(52);
-	   return true;
-	}
-	public static void main(String[] args) {
-		new VariableMustBeFinalInDepClause().execute();
-	}
 }
 

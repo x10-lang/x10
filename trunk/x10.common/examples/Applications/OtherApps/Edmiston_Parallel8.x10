@@ -63,7 +63,7 @@ public class Edmiston_Parallel8 extends x10Test {
 			N = c1.s.length-1;
 			M = c2.s.length-1;
 
-			final dist(:rank==2) D =  starBlock((region(:rank==1)) [0:N], (region(:rank==1))[0:M]);
+			final dist(:rank==2) D =  (dist(:rank==2)) starBlock((region(:rank==1)) [0:N], (region(:rank==1))[0:M]);
 
 			e = new int[D];
 

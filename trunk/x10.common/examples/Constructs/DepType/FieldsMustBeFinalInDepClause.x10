@@ -14,7 +14,7 @@ public class FieldsMustBeFinalInDepClause extends x10Test {
 	}
 	
 	public boolean run() {
-	   Test (:i==52) a = (Test(:i==52)) new Test(52);
+	   Test (:self.i==52) a =  (Test(:self.i==52)) new Test(52);
 	    return true;
 	}
 	public static void main(String[] args) {
