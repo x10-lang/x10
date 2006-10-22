@@ -450,19 +450,55 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		}
 		return null;
 	}
+	
+	private String runtimeClassNameForPrimitiveArray(X10TypeSystem xt, Type base_type) {
+		String arrayClass;
+		if (xt.isBooleanArray(base_type)) arrayClass = "x10.array.sharedmemory.BooleanArray_c";
+		else if (xt.isCharArray(base_type)) arrayClass = "x10.array.sharedmemory.CharArray_c";
+		else if (xt.isByteArray(base_type)) arrayClass = "x10.array.sharedmemory.ByteArray_c";
+		else if (xt.isShortArray(base_type)) arrayClass = "x10.array.sharedmemory.ShortArray_c";
+		else if (xt.isIntArray(base_type)) arrayClass = "x10.array.sharedmemory.IntArray_c";
+		else if (xt.isLongArray(base_type)) arrayClass = "x10.array.sharedmemory.LongArray_c";
+		else if (xt.isFloatArray(base_type)) arrayClass = "x10.array.sharedmemory.FloatArray_c";
+		else if (xt.isDoubleArray(base_type)) arrayClass = "x10.array.sharedmemory.DoubleArray_c";
+		else throw new Error("Unknown primitive array type.");
+		return arrayClass;
+	}
 
 	public void visit(X10ArrayAccess1_c a) {
-		X10Type at = (X10Type) a.array().type();
-		X10TypeSystem xts = (X10TypeSystem) at.typeSystem();
-		if (xts.isNullable(at)) 
-			at = ((NullableType) at).base();
 		
-		X10ParsedClassType t = (X10ParsedClassType) at;
+
 		
-		// TODO: check that index expression is an int rather than a point
-		String tmpl = QueryEngine.INSTANCE().isRectangularRankOneLowZero(a)
-						  ? "array_get_rect_rank_1_low_0" : "array_get" ;
-		Template template = new Template(tmpl, a.array(), a.index());
+		Template template;
+		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(a) && a.index().type().isPrimitive() ) {
+			// Array being accesses has isZeroBased = isRankOne = isRect = true, and array index is an int (not a point)
+			Type at = a.array().type();
+			X10TypeSystem xts = (X10TypeSystem) at.typeSystem();
+			if (xts.isNullable(at)) 
+				at = ((NullableType) at).base();
+			
+			if (xts.isPrimitiveTypeArray(at)) {
+				// Create template optimized for primitive base type with direct access to arr_ field
+				String arrayClass = runtimeClassNameForPrimitiveArray(xts, at);
+				template = new Template("array_get_primitive_rect_rank_1_low_0", a.array(), a.index(), arrayClass);
+			}
+			else if ( xts.isX10Array(at)) {
+				// Create template with call to getBackingArray()
+				template = new Template("array_get_rect_rank_1_low_0", a.array(), a.index());
+			}
+			else
+				// Some other kind of array e.g., distribution ==> use general template
+				template = new Template("array_get", a.array(), a.index());
+		}
+		else {
+			// Use general template
+			template = new Template("array_get", a.array(), a.index());
+		}
+
+
+		
+
+
 		TypeNode elt_type = getParameterType((X10Type)a.array().type());
 		if (elt_type != null)
 			template = new Template("parametric", elt_type, template);
@@ -484,27 +520,37 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(X10ArrayAccess1Assign_c a) {
-		String tmpl;
-		String operator;
-		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(a) ) {
-			tmpl = "array_set_rect_rank_1_low_0";
-			operator = a.operator().toString();
+		String operator = a.operator().toString();
+		X10ArrayAccess1_c left = (X10ArrayAccess1_c)a.left();
+		Template template;
+		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(left) && left.index().type().isPrimitive() ) {
+			// Array being accesses has isZeroBased = isRankOne = isRect = true, and array index is an int (not a point)
+			Type base_type = left.array().type();
+			X10TypeSystem xt = (X10TypeSystem) base_type.typeSystem();
+			
+			if (xt.isPrimitiveTypeArray(base_type)) {
+//				 Create template optimized for primitive base type with direct access to arr_ field
+				String arrayClass = runtimeClassNameForPrimitiveArray(xt, base_type);
+				template = new Template("array_set_primitive_rect_rank_1_low_0", new Object[] { left.array(), left.index(), a.right(), operator, arrayClass});
+			}
+			else if ( xt.isX10Array(base_type)) {
+				// Create template with call to getBackingArray()
+				template = new Template("array_set_rect_rank_1_low_0", new Object[] { left.array(), left.index(), a.right(), operator});
+			}
+			else 
+				// Some other kind of array e.g., distribution ==> use general template
+				template = new Template("array_set", new Object[] { left.array(), left.index(), a.right(), a.opString(a.operator())});
 		}
 		else {
-		  	tmpl = "array_set" ;
-		  	operator = a.opString(a.operator());
+			// Use general template
+			template = new Template("array_set", new Object[] { left.array(), left.index(), a.right(), a.opString(a.operator())});
 		}
-		X10ArrayAccess1_c left = (X10ArrayAccess1_c) a.left();
-		Template template = new Template(tmpl,
-										 new Object[] {
-											 left.array(), left.index(),
-											 a.right(),
-											 operator
-										 });
+
 		TypeNode elt_type = getParameterType((X10Type)a.type());
 		if (elt_type != null)
 			template = new Template("parametric", elt_type, template);
 		template.expand();
+		
 		//new Template("array_set",
 		//			 new Object[] {
 		//				 left.array(), left.index(), a.right(),
@@ -540,12 +586,36 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			a.prettyPrint(w, pp);
 			return;
 		}
-String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
-						  ? "array_unary" : "array_unary"; //"array_unary_noplacecheck";
+	
+		String operator = a.operator().toString();
+
 		X10ArrayAccess1_c expr = (X10ArrayAccess1_c) a.expr();
-		Template template = new Template(tmpl,
-										 expr.array(), expr.index(),
-										 a.opString(a.operator()));
+		Template template;
+		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(expr) && expr.index().type().isPrimitive() ) {
+			// Array being accesses has isZeroBased = isRankOne = isRect = true, and array index is an int (not a point)
+			Type base_type = expr.array().type();
+			X10TypeSystem xt = (X10TypeSystem) base_type.typeSystem();
+			
+			if (xt.isPrimitiveTypeArray(base_type)) {
+				// Create template optimized for primitive base type with direct access to arr_ field
+				String arrayClass = runtimeClassNameForPrimitiveArray(xt, base_type);
+				String tmpl = a.operator().isPrefix() ? "array_unary_prefix_primitive_rect_rank_1_low_0" : "array_unary_postfix_primitive_rect_rank_1_low_0" ;
+				template = new Template(tmpl, new Object[]{expr.array(), expr.index(), arrayClass, operator});
+			}
+			else if ( xt.isX10Array(base_type)) {
+				// Create template with call to getBackingArray()
+				String tmpl = a.operator().isPrefix() ? "array_unary_prefix_rect_rank_1_low_0" : "array_unary_postfix_rect_rank_1_low_0" ;
+				template = new Template(tmpl, expr.array(), expr.index(), operator);
+			}
+			else 
+				// Some other kind of array e.g., distribution ==> use general template
+				template = new Template("array_unary", expr.array(), expr.index(), a.opString(a.operator()));
+		}
+		else {
+			// Use general template
+			template = new Template("array_unary", expr.array(), expr.index(), a.opString(a.operator()));
+		}
+		
 		TypeNode elt_type = getParameterType((X10Type)a.type());
 		if (elt_type != null)
 			template = new Template("parametric", elt_type, template);
