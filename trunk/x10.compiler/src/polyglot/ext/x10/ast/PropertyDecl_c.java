@@ -27,11 +27,16 @@ import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.TypeBuilder;
 
-public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
+public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
    
     public PropertyDecl_c(Position pos, Flags flags, TypeNode type,
             String name) {
-        super(pos, flags, type, name, null);
+        this(pos, flags, type, name, null);
+        
+    }
+    private PropertyDecl_c(Position pos, Flags flags, TypeNode type,
+            String name, Expr init) {
+        super(pos, flags, type, name,  init);
         
     }
    /**
@@ -102,8 +107,12 @@ public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
            
        }
        
-       FieldDecl f = new FieldDecl_c(pos, Flags.PUBLIC.Static().Final(), tn, X10FieldInstance.MAGIC_PROPERTY_NAME,
-               nf.StringLit(pos, s.toString()));
+       FieldDecl f = new PropertyDecl_c(pos, 
+    		   Flags.PUBLIC.Static().Final(), tn, 
+    		   X10FieldInstance.MAGIC_PROPERTY_NAME,
+               nf.StringLit(pos, s.toString()).type(ts.String()))
+               .type(nf.CanonicalTypeNode(pos, ts.String()));
+      
        return f;
    }
    
@@ -124,21 +133,6 @@ public class PropertyDecl_c extends FieldDecl_c  implements PropertyDecl {
         return result;
     }
    
-    public Node buildTypes(TypeBuilder tb) throws SemanticException {
-        TypeSystem ts = tb.typeSystem();
-
-        ParsedClassType ct = tb.currentClass();
-
-        if (ct == null) {
-            return this;
-        }
-
-        // XXX: MutableFieldInstance
-        X10FieldInstance fi = ((X10TypeSystem) ts).propertyInstance(position(), ct, flags,
-                                            ts.unknownType(position()), name);
-        ct.addField(fi);
-
-        return this.fieldInstance(fi);
-    }
+   
 
 }

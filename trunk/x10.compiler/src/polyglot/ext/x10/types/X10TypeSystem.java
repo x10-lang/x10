@@ -9,6 +9,7 @@ import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
@@ -293,5 +294,7 @@ public interface X10TypeSystem extends TypeSystem {
    boolean equivClause(Constraint m, Constraint o);
    boolean entailsClause(X10Type me, X10Type other);
    boolean entailsClause(Constraint me, Constraint other);
+   FieldInstance fieldInstance(Position pos, ReferenceType container,
+           Flags flags, String name, String initValue);
 } // end of X10TypeSystem
 

@@ -10,25 +10,20 @@ import java.util.List;
 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
-import polyglot.ast.Call;
-import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.ArrayAccessAssign_c;
 import polyglot.ext.jl.ast.ArrayAccess_c;
 import polyglot.ext.jl.ast.Assign_c;
-import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
@@ -205,7 +200,17 @@ public class X10ArrayAccess1Assign_c extends Assign_c implements
 	  public boolean throwsArrayStoreException() {
 	    return op == ASSIGN && left.type().isReference();
 	  }
+	  /**
+	   * This may be called before typeChecking, so before
+	   * its been figured out that this is really an ArrayAccess1Assign in disguise.
+	   */
       public String toString() {
+    	  if (left instanceof ArrayAccess) {
+    		  ArrayAccess l = (ArrayAccess) left;
+    		  Expr array = l.array();
+              Expr index = l.index();
+              return array + "[" + index + "]= " + right ;
+    	  }
           Expr array = ((X10ArrayAccess1) left).array();
           Expr index = ((X10ArrayAccess1) left).index();
           return array + ".set(" + right + "," + index + ")";

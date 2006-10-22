@@ -33,6 +33,10 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     public List typeParameters() { return typeParameters;}
     public Constraint depClause() { return depClause; }
     public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
+    public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
+		depClause = d;
+		typeParameters = l;
+	}
     public X10Type makeVariant(Constraint d, List l) { 
         if (d == null && (l == null || l.isEmpty())) return this;
         X10NullType_c n = (X10NullType_c) copy();

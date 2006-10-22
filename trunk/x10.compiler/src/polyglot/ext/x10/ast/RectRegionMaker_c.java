@@ -7,6 +7,7 @@ import java.util.List;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
+import polyglot.ast.Local;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -17,6 +18,8 @@ import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.main.Report;
+import polyglot.types.Context;
+import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
@@ -51,16 +54,17 @@ public class RectRegionMaker_c extends X10Call_c implements RectRegionMaker {
 		boolean isZeroBased=true;
 		for (int i=0; i < arguments.size(); i++) {
 			Expr e = (Expr) arguments.get(i);
+			
 			X10Type t = (X10Type) e.type();
 			
 			if (! xts.equals(t, xts.region())) {
-				throw new SemanticException("Expected a value of type region instead of " + t
+				throw new SemanticException("The argument, " + e + ", should be of type region instead of " + t
 						+".", position());
 			}
 			X10ParsedClassType tp = (X10ParsedClassType) t;
 			C_Term rank = tp.rank();
 			if (! C_Lit_c.ONE.equals(rank)) {
-				throw new SemanticException("Expected a value of type region(:rank==1) instead of " + t
+				throw new SemanticException("The argument, " + e + ", should be of type region(:rank==1) instead of " + t
 						+".", position());
 			}
 			isZeroBased &= tp.isZeroBased();

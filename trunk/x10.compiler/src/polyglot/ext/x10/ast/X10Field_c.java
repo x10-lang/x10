@@ -59,6 +59,8 @@ public class X10Field_c extends Field_c {
 		try {
 			//Report.report(1, "X10Field_c.tpeCheck: context" + tc.context());
 			X10Field_c result = (X10Field_c) super.typeCheck(tc);
+		
+			
 			if (! result.isTypeChecked()) return result;
 			// Check that field accesses in dep clauses refer to final fields.
 			X10Context xtc = (X10Context) tc.context();
@@ -74,7 +76,9 @@ public class X10Field_c extends Field_c {
 				if ((target instanceof X10Special) &&
 						((X10Special)target).kind()==X10Special.SELF) {
 					// The fieldInstance must be a property.
-					
+					//Report.report(1, "X10Field_c checking " + fi  + " is a property. ");
+				    // The following is going to look for property propertyNames$
+					// and may throw a MissingDependencyException asking for the field to be set.
 					if (! (fi instanceof X10FieldInstance && ((X10FieldInstance) fi).isProperty()))
 						throw new SemanticException("Field \"" + fi.name() 
 								+  "\" is not a property of " + fi.container() + ". "

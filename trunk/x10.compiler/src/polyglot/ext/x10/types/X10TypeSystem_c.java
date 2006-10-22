@@ -203,7 +203,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	}
 
 	public ParsedClassType createClassType(LazyClassInitializer init, Source fromSource) {
-        if (Report.should_report("debug",3))
+        if ( Report.should_report("debug",3))
         Report.report(3, "X10TypeSystem_c: Creating Class fromSource =|" + fromSource + "|");
 		return new X10ParsedClassType_c(this, init, fromSource);
 	}
@@ -1169,6 +1169,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	}
 
 	checkAccessFlags(f);
+    }
+    public FieldInstance fieldInstance(Position pos,
+    		ReferenceType container, Flags flags,
+    		String name, String initValue) {
+    	assert_(container);
+    	
+    	return new X10FieldInstance_c(this, pos, container, flags,  name, initValue);
     }
 
 } // end of X10TypeSystem_c

@@ -106,6 +106,8 @@ public interface X10NodeFactory extends NodeFactory {
     ConstantDistMaker ConstantDistMaker(Position pos, Expr left, Expr right);
     RegionMaker RegionMaker(Position pos, Expr left, Expr right);
     RectRegionMaker RectRegionMaker(Position pos, Receiver receiver, String name, List args);
-    
+    MethodDecl AtomicMethodDecl(Position pos, DepParameterExpr thisClause,
+            Flags flags, TypeNode returnType, String name,
+            List formals, Expr where, List throwTypes, Block body);
 }
 

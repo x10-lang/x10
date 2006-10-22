@@ -666,14 +666,6 @@ $Rules
     
     MethodDeclaration ::= MethodHeader MethodBody
         /.$BeginJava
-                    List l = MethodHeader.formals();
-                    Flags f = MethodHeader.flags();
-                    if (f.contains(X10Flags.ATOMIC)) {
-                         List ss = new TypedList(new LinkedList(), Stmt.class, false);
-                         ss.add(nf.Atomic(pos(), nf.Here(pos()), MethodBody));
-                         MethodBody = MethodBody.statements(ss);
-                         MethodHeader = MethodHeader.flags(f.clear(X10Flags.ATOMIC));
-                    }
                     JPGPosition old_pos = (JPGPosition) MethodHeader.position();
                     setResult(MethodHeader.body(MethodBody)
                               .position(pos(old_pos.getLeftIToken().getTokenIndex(), getRightSpan())));

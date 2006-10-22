@@ -46,6 +46,10 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
   		+ (isParametric() ? typeParameters.hashCode() :0);
         
     }
+    public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
+		depClause = d;
+		typeParameters = l;
+	}
     public X10Type makeVariant(Constraint d, List l) { 
         if (d == null && (l == null || l.isEmpty()))
                 return this;

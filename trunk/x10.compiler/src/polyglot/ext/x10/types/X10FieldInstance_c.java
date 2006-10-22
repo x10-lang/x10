@@ -28,8 +28,14 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
             ReferenceType container, Flags flags, Type type, String name) {
         super(ts, pos, container, flags, type, name);
         
-        
     }
+    
+    public X10FieldInstance_c(TypeSystem ts, Position pos,
+			   ReferenceType container,
+	                   Flags flags,  String name, String initValue) {
+     super(ts, pos, container, flags, ts.String(), name);
+     setConstantValue(initValue);
+ }
     /**
      * A PropertyInstance is equal to another TypeObject only if the other TypeObject
      * represents a property, and the two are equal when viewed as fields.

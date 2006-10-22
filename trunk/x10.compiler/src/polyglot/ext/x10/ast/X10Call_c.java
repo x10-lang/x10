@@ -48,6 +48,7 @@ public class X10Call_c extends Call_c {
         try {
         	X10Call_c result = (X10Call_c) super.typeCheck(tc);
         	
+        	
         	  if (! ((Call_c) result).target().type().isCanonical()) {
                   return result;
               }

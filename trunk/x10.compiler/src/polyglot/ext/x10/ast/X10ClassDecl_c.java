@@ -19,15 +19,19 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.ClassDecl_c;
 import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Flags;
+import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.AmbiguityRemover;
+import polyglot.visit.TypeBuilder;
 /**
  * The same as a Java class, except that it needs to handle properties.
  * Properties are converted into public final instance fields immediately.
@@ -59,6 +63,7 @@ public class X10ClassDecl_c extends ClassDecl_c {
        
         X10ClassDecl_c result = new X10ClassDecl_c(pos, flags, name, properties,  ci, superClass, 
                 interfaces, body);
+       // Report.report(1, "X10ClassDecl_c: Added synthetic field to "  + result);
         return result;
     }
    
@@ -101,5 +106,6 @@ public class X10ClassDecl_c extends ClassDecl_c {
     	return n;
     }
     
-   
-}
+    
+    		
+} 

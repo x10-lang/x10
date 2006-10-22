@@ -1,17 +1,23 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.Expr;
+import polyglot.ast.FieldDecl;
 import polyglot.ast.Node;
+import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.FieldDecl_c;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.main.Report;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.InitializerInstance;
+import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
+import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
 public class X10FieldDecl_c extends FieldDecl_c {
@@ -23,6 +29,10 @@ public class X10FieldDecl_c extends FieldDecl_c {
 	{
 		super(pos, flags, type, name, init);
         this.thisClause = thisClause;
+	}
+	protected X10FieldDecl_c(Position pos,  Flags flags, TypeNode type,
+			  String name, Expr init) {
+		this(pos, null, flags, type, name, init);
 	}
 
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
@@ -42,6 +52,53 @@ public class X10FieldDecl_c extends FieldDecl_c {
 		}
 		return result;
 	}
+	 public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	        X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
+
+	        ParsedClassType ct = tb.currentClass();
+
+	        if (ct == null) {
+	            return this;
+	        }
+
+	        Flags f = flags;
+
+	        if (ct.flags().isInterface()) {
+	            f = f.Public().Static().Final();
+	        }
+	        
+	        FieldDecl n;
+
+	        if (init != null) {
+	            Flags iflags = f.isStatic() ? Flags.STATIC : Flags.NONE;
+	            InitializerInstance ii = ts.initializerInstance(init.position(),
+	                                                            ct, iflags);
+	            n = initializerInstance(ii);
+	        }
+	        else {
+	            n = this;
+	        }
+
+	        // XXX: MutableFieldInstance
+	        FieldInstance fi = ts.fieldInstance(position(), ct, f,
+                    ts.unknownType(position()), name);
+	       
+	        // vj - shortcut and initialize the field instance if the decl has an initializer
+	        // 
+	       boolean isString =false;
+	        if (type != null && type.type() != null && init instanceof StringLit) {
+	        	String val = ((StringLit) init).value();
+	        	fi = ts.fieldInstance(position(), ct, f, name, val);
+	        	fi.constantValue(val);
+	        	fi = fi.type(ts.String());
+	        	//Report.report(1, "X10FieldDecl_c: ****GOLDEN initialized field instance |" + fi + "|");
+	        	isString = true;
+	        } 	        	
+	        	
+	        ct.addField(fi);
+	        FieldDecl result = (FieldDecl) n.flags(f).fieldInstance(fi);
+	        return isString? result.type(new X10CanonicalTypeNode_c(Position.COMPILER_GENERATED,ts.String())) : result;
+	    }
 
 	public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
 		X10FieldDecl_c f = (X10FieldDecl_c) super.disambiguate(ar);
