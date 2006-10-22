@@ -45,10 +45,6 @@ public final class Configuration extends x10.runtime.util.Configuration {
 	public static boolean ARRAY_OPTIMIZATIONS = true;
 	private static final String ARRAY_OPTIMIZATIONS_desc = "Generate allocation of specialized Java array classes";
 
-	public static boolean RECT_RANK_1_LOW_0_ARRAYS = false;
-	private static final String RECT_RANK_1_LOW_0_ARRAYS_desc = "Assume that all arrays are dense with rank = 1 and low bound = 0";
-
-	
 	/**
 	 * Parses one argument from the command line.  This allows the user
 	 * to specify options also on the command line (in addition to the
