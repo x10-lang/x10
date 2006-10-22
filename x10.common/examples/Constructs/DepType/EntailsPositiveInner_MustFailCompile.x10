@@ -6,7 +6,7 @@ import harness.x10Test;
  *
  * @author vj
  */
-public class EntailsPositiveInnerMustFailCompile extends x10Test {
+public class EntailsPositiveInner_MustFailCompile extends x10Test {
     class Test(int i, int j) {
        public Test(int i, int j) { this.i=i; this.j=j;}
     }
@@ -17,7 +17,7 @@ public class EntailsPositiveInnerMustFailCompile extends x10Test {
 	    return true;
 	}
 	public static void main(String[] args) {
-		new EntailsPositiveInnerMustFailCompile().execute();
+		new EntailsPositiveInner_MustFailCompile().execute();
 	}
 }
 
