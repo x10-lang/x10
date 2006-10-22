@@ -50,6 +50,7 @@ import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.jl.ast.Special_c;
 import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
@@ -653,12 +654,29 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
              TypeNode returnType, String name,
              List formals, Expr whereClause, List throwTypes, Block body)
     {
-        MethodDecl n = new X10MethodDecl_c(pos, thisClause, flags, returnType, name,
+        if (flags != null && flags.contains(X10Flags.ATOMIC)) 
+        	return AtomicMethodDecl(pos, thisClause, flags, returnType, name, formals, 
+        			whereClause, throwTypes, body);
+    	MethodDecl n = new X10MethodDecl_c(pos, thisClause, flags, returnType, name,
                 formals, whereClause, throwTypes, body);
         n = (MethodDecl)n.ext(extFactory().extMethodDecl());
         n = (MethodDecl)n.del(delFactory().delMethodDecl());
         return n;
     }
+    public MethodDecl AtomicMethodDecl(Position pos, DepParameterExpr thisClause, Flags flags,
+            TypeNode returnType, String name,
+            List formals, Expr whereClause, List throwTypes, Block body)
+   {
+       flags = flags.clear(X10Flags.ATOMIC).set(X10Flags.SAFE);
+       List ss = new TypedList(new LinkedList(), Stmt.class, false);
+       ss.add(Atomic(pos, Here(pos), body));
+       body = Block(pos, ss);
+    	MethodDecl n = new AtomicMethodDecl_c(pos, thisClause, flags, returnType, name,
+               formals, whereClause, throwTypes, body);
+       n = (MethodDecl)n.ext(extFactory().extMethodDecl());
+       n = (MethodDecl)n.del(delFactory().delMethodDecl());
+       return n;
+   }
 
 	public LocalDecl LocalDecl(Position pos, Flags flags, TypeNode type,
 							   String name, Expr init)

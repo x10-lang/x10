@@ -3,6 +3,8 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.List;
+
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.types.ParsedClassType;
 
@@ -23,6 +25,8 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	 */
 	X10ClassType superClassRoot();
 	X10ParsedClassType makeVariant();
+	
+	
 	
 	/** Returns true iff superClassRoot() equals ts.Object().
 	 * @return

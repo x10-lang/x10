@@ -85,19 +85,26 @@ implements X10ParsedClassType
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
 	public boolean isConstrained() { return depClause != null && ! depClause.valid();}
+	public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
+		Report.report(1, "X10ParsedClassType_c: settingDepGen on "  + this  + "(# + this.hashCode() " +
+				" to " + d + " " + l);
+		depClause = d;
+		typeParameters = l;
+	}
 	public X10ParsedClassType makeVariant() {
 		
 		return (X10ParsedClassType) makeVariant(new Constraint_c(), null);
 	}
 	
 	public X10Type makeVariant(Constraint d, List/*<GenParameterExpr>*/ l) { 
-	
+		
 		if (d == null && (l == null || l.isEmpty())) return this;
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
-		n.typeParameters = l;
-		n.depClause = d;
+		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+		n.depClause = (d==null) ? depClause : d;
 		n.isDistSet = n.isRankSet = n.isOnePlaceSet = n.isRailSet = n.isSelfSet
 		= n.isX10ArraySet = n.isZeroBasedSet = false;
+		
 		return n;
 	}
 	public C_Term propVal(String name) {
@@ -229,7 +236,7 @@ implements X10ParsedClassType
 			MethodInstance ci = (MethodInstance) it.next();
 			MethodInstance m = translateTypes(ci);
 			lo.add(m);
-			// Report.report(5, "X10ParsedClassTypes_c: ... |" + m + "|:");
+			//Report.report(5, "X10ParsedClassTypes_c: ... |" + m + "|:");
 		}
 		
 		return lo;
@@ -447,6 +454,7 @@ implements X10ParsedClassType
 	
 	
 	List properties = null;
+	
 	public List properties() {
 		//Report.report(1, "X10ParsedClassType_c entering properties() on "  + this);
 		if (properties != null) 
@@ -695,7 +703,22 @@ implements X10ParsedClassType
 		
 		return result;
 	}
-	
+	boolean fieldsInitialized = false;
+	 public List fields() {
+		// Report.report(1, "***X10ParsedClassTypes fields() invoked on " + this + " " + init.getClass());
+		 if (fieldsInitialized) 
+			 return fields;
+		 try {
+	        init.initFields();
+	        init.canonicalFields();
+	       // Report.report(1, "X10ParsedClassTypes " + this + ".fields() returning " + fields);
+	        fieldsInitialized=true;
+	        return Collections.unmodifiableList(fields);
+		 } catch (Throwable z) {
+			//Report.report(1, "X10ParsedClassTypes caught  " + z);
+		 }
+		 return  Collections.unmodifiableList(fields);
+	    }
 	
 	
 }

@@ -121,7 +121,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     	if (isTypeChecked()) return this;
     	X10TypeNode me = (X10TypeNode) typeCheckBase(tc);
     	Node n=X10TypeNode_c.typeCheckDepClause(me, tc);
-    	Report.report(1, "X10canonicalType is now typechecked " + this);
+    	//Report.report(1, "X10canonicalType is now typechecked " + this);
         return n;
     }
    

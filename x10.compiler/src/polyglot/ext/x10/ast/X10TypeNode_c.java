@@ -92,7 +92,8 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
                     typeParameters.add(((TypeNode)it.next()).type());
             }
         }
-        X10Type newBaseType = baseType.makeVariant(newParameter, typeParameters);
+        baseType.setDepGen(newParameter, typeParameters);
+        X10Type newBaseType = baseType; // baseType.makeVariant(newParameter, typeParameters);
         Node  result = ((X10TypeNode) newType.type(newBaseType)).dep(null,null);
         return result; 
     }

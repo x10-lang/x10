@@ -155,9 +155,9 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     	public Goal X10Expanded(final Job job) {
     		return X10Expanded.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
     	}
-    	public Goal X10ExprFlattened(final Job job) {
+    	/*public Goal X10ExprFlattened(final Job job) {
     		return X10ExprFlattened.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
-    	}
+    	}*/
     	public Goal TypeElaborated(final Job job) {
     		return TypeElaborated.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
     	}
@@ -177,8 +177,9 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     		X10Scheduler x10Sched= (X10Scheduler) scheduler;
     		List l = new ArrayList();
     		l.add(x10Sched.X10Boxed(job));
-    		//l.add(x10Sched.X10ExprFlattened(job));
+    	//	l.add(x10Sched.X10ExprFlattened(job));
     		l.add(x10Sched.X10Qualified(job));
+    		l.add(x10Sched.TypeElaborated(job));
     		l.add(x10Sched.X10Expanded(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
@@ -261,11 +262,13 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     	
     	public Collection prerequisiteGoals(Scheduler scheduler) {
     		List l = new ArrayList();
+    		l.add(scheduler.Disambiguated(job));
+    		l.add(scheduler.SupertypesDisambiguated(job));
     		l.add(scheduler.SignaturesDisambiguated(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
     	}
-    	
+    	 
     }
 
     static class X10Qualified extends VisitorGoal {

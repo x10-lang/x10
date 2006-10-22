@@ -1750,14 +1750,6 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
                 //#line 667 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block MethodBody = (Block) getRhsSym(2);
                 //#line 669 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
-                List l = MethodHeader.formals();
-                Flags f = MethodHeader.flags();
-                if (f.contains(X10Flags.ATOMIC)) {
-                     List ss = new TypedList(new LinkedList(), Stmt.class, false);
-                     ss.add(nf.Atomic(pos(), nf.Here(pos()), MethodBody));
-                     MethodBody = MethodBody.statements(ss);
-                     MethodHeader = MethodHeader.flags(f.clear(X10Flags.ATOMIC));
-                }
                 JPGPosition old_pos = (JPGPosition) MethodHeader.position();
                 setResult(MethodHeader.body(MethodBody)
                           .position(pos(old_pos.getLeftIToken().getTokenIndex(), getRightSpan())));
@@ -1769,7 +1761,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 101: {
                 
-                //#line 688 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 680 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Void()));
                 break;
             }
@@ -1778,9 +1770,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 102:  FormalParameterList ::= LastFormalParameter
             //
             case 102: {
-                //#line 708 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 700 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Formal LastFormalParameter = (Formal) getRhsSym(1);
-                //#line 710 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 702 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(LastFormalParameter);
                 setResult(l);
@@ -1791,11 +1783,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 103:  FormalParameterList ::= FormalParameters , LastFormalParameter
             //
             case 103: {
-                //#line 715 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 707 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FormalParameters = (List) getRhsSym(1);
-                //#line 715 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 707 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Formal LastFormalParameter = (Formal) getRhsSym(3);
-                //#line 717 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 709 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 FormalParameters.add(LastFormalParameter);
                 // setResult(FormalParameters);
                 break;
@@ -1805,9 +1797,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 104:  FormalParameters ::= FormalParameter
             //
             case 104: {
-                //#line 722 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 714 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 724 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 716 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -1818,11 +1810,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 105:  FormalParameters ::= FormalParameters , FormalParameter
             //
             case 105: {
-                //#line 729 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 721 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FormalParameters = (List) getRhsSym(1);
-                //#line 729 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 721 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 731 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 723 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 FormalParameters.add(FormalParameter);
                 // setResult(FormalParameters);
                 break;
@@ -1832,13 +1824,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 106:  FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
             //
             case 106: {
-                //#line 736 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 728 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags VariableModifiersopt = (Flags) getRhsSym(1);
-                //#line 736 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 728 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 736 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 728 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(3);
-                //#line 738 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 730 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex(2), getRhsLastTokenIndex(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
                 break;
             }
@@ -1847,11 +1839,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 108:  VariableModifiers ::= VariableModifiers VariableModifier
             //
             case 108: {
-                //#line 743 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 735 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags VariableModifiers = (Flags) getRhsSym(1);
-                //#line 743 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 735 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags VariableModifier = (Flags) getRhsSym(2);
-                //#line 745 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 737 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(VariableModifiers.set(VariableModifier));
                 break;
             }
@@ -1861,7 +1853,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 109: {
                 
-                //#line 751 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 743 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.FINAL);
                 break;
             }
@@ -1870,15 +1862,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 110:  LastFormalParameter ::= VariableModifiersopt Type ...opt$opt VariableDeclaratorId
             //
             case 110: {
-                //#line 757 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 749 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags VariableModifiersopt = (Flags) getRhsSym(1);
-                //#line 757 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 749 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 757 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 749 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Object opt = (Object) getRhsSym(3);
-                //#line 757 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 749 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(4);
-                //#line 759 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 751 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 assert(opt == null);
                 setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex(2), getRhsLastTokenIndex(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
                 break;
@@ -1888,11 +1880,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 112:  MethodModifiers ::= MethodModifiers MethodModifier
             //
             case 112: {
-                //#line 771 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 763 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags MethodModifiers = (Flags) getRhsSym(1);
-                //#line 771 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 763 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags MethodModifier = (Flags) getRhsSym(2);
-                //#line 773 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 765 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(MethodModifiers.set(MethodModifier));
                 break;
             }
@@ -1902,7 +1894,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 113: {
                 
-                //#line 781 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 773 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -1912,7 +1904,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 114: {
                 
-                //#line 786 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 778 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PROTECTED);
                 break;
             }
@@ -1922,7 +1914,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 115: {
                 
-                //#line 791 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 783 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PRIVATE);
                 break;
             }
@@ -1932,7 +1924,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 116: {
                 
-                //#line 796 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 788 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.ABSTRACT);
                 break;
             }
@@ -1942,7 +1934,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 117: {
                 
-                //#line 801 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 793 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STATIC);
                 break;
             }
@@ -1952,7 +1944,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 118: {
                 
-                //#line 806 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 798 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.FINAL);
                 break;
             }
@@ -1962,7 +1954,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 119: {
                 
-                //#line 816 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 808 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NATIVE);
                 break;
             }
@@ -1972,7 +1964,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 120: {
                 
-                //#line 821 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 813 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STRICTFP);
                 break;
             }
@@ -1981,9 +1973,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 121:  Throws ::= throws ExceptionTypeList
             //
             case 121: {
-                //#line 825 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 817 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ExceptionTypeList = (List) getRhsSym(2);
-                //#line 827 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 819 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ExceptionTypeList);
                 break;
             }
@@ -1992,9 +1984,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 122:  ExceptionTypeList ::= ExceptionType
             //
             case 122: {
-                //#line 831 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 823 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 833 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 825 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -2005,11 +1997,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 123:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
             case 123: {
-                //#line 838 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 830 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ExceptionTypeList = (List) getRhsSym(1);
-                //#line 838 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 830 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 840 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 832 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ExceptionTypeList.add(ExceptionType);
                 // setResult(ExceptionTypeList);
                 break;
@@ -2026,9 +2018,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 128:  StaticInitializer ::= static Block
             //
             case 128: {
-                //#line 860 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 852 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 862 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 854 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Block);
                 break;
             }
@@ -2037,9 +2029,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 129:  SimpleTypeName ::= identifier
             //
             case 129: {
-                //#line 877 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 869 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 879 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 871 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -2048,11 +2040,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 131:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
             case 131: {
-                //#line 884 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 876 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ConstructorModifiers = (Flags) getRhsSym(1);
-                //#line 884 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 876 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ConstructorModifier = (Flags) getRhsSym(2);
-                //#line 886 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 878 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ConstructorModifiers.set(ConstructorModifier));
                 break;
             }
@@ -2062,7 +2054,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 132: {
                 
-                //#line 894 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 886 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -2072,7 +2064,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 133: {
                 
-                //#line 899 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 891 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PROTECTED);
                 break;
             }
@@ -2082,7 +2074,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 134: {
                 
-                //#line 904 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 896 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PRIVATE);
                 break;
             }
@@ -2091,11 +2083,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 135:  ConstructorBody ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
             case 135: {
-                //#line 908 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 900 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 908 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 900 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 910 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 902 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l;
                 if (ExplicitConstructorInvocationopt == null)
                     l = BlockStatementsopt;
@@ -2113,9 +2105,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 136:  Arguments ::= ( ArgumentListopt )
             //
             case 136: {
-                //#line 941 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 933 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 943 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 935 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ArgumentListopt);
                 break;
             }
@@ -2124,11 +2116,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 139:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
             case 139: {
-                //#line 959 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 951 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags InterfaceModifiers = (Flags) getRhsSym(1);
-                //#line 959 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 951 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags InterfaceModifier = (Flags) getRhsSym(2);
-                //#line 961 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 953 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(InterfaceModifiers.set(InterfaceModifier));
                 break;
             }
@@ -2138,7 +2130,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 140: {
                 
-                //#line 969 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 961 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -2148,7 +2140,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 141: {
                 
-                //#line 974 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 966 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PROTECTED);
                 break;
             }
@@ -2158,7 +2150,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 142: {
                 
-                //#line 979 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 971 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PRIVATE);
                 break;
             }
@@ -2168,7 +2160,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 143: {
                 
-                //#line 984 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 976 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.ABSTRACT);
                 break;
             }
@@ -2178,7 +2170,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 144: {
                 
-                //#line 989 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 981 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STATIC);
                 break;
             }
@@ -2188,7 +2180,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 145: {
                 
-                //#line 994 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 986 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STRICTFP);
                 break;
             }
@@ -2197,9 +2189,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 146:  ExtendsInterfaces ::= extends InterfaceType
             //
             case 146: {
-                //#line 998 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 990 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(2);
-                //#line 1000 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 992 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(InterfaceType);
                 setResult(l);
@@ -2210,11 +2202,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 147:  ExtendsInterfaces ::= ExtendsInterfaces , InterfaceType
             //
             case 147: {
-                //#line 1005 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 997 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ExtendsInterfaces = (List) getRhsSym(1);
-                //#line 1005 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 997 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(3);
-                //#line 1007 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 999 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ExtendsInterfaces.add(InterfaceType);
                 // setResult(ExtendsInterfaces);
                 break;
@@ -2224,9 +2216,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 148:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
             case 148: {
-                //#line 1017 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1009 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
-                //#line 1019 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1011 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                 break;
             }
@@ -2235,11 +2227,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 150:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
             case 150: {
-                //#line 1024 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1016 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
-                //#line 1024 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1016 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
-                //#line 1026 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1018 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                 break;
@@ -2249,9 +2241,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 152:  InterfaceMemberDeclaration ::= AbstractMethodDeclaration
             //
             case 152: {
-                //#line 1032 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1024 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 MethodDecl AbstractMethodDeclaration = (MethodDecl) getRhsSym(1);
-                //#line 1034 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1026 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(AbstractMethodDeclaration);
                 setResult(l);
@@ -2262,9 +2254,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 153:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
             case 153: {
-                //#line 1039 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1031 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1041 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1033 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -2275,9 +2267,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 154:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
             case 154: {
-                //#line 1046 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1038 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1048 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1040 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -2289,7 +2281,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 155: {
                 
-                //#line 1055 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1047 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -2298,13 +2290,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 156:  ConstantDeclaration ::= ConstantModifiersopt Type VariableDeclarators
             //
             case 156: {
-                //#line 1059 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1051 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ConstantModifiersopt = (Flags) getRhsSym(1);
-                //#line 1059 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1051 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1059 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1051 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 1061 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1053 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
                 {
@@ -2326,11 +2318,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 158:  ConstantModifiers ::= ConstantModifiers ConstantModifier
             //
             case 158: {
-                //#line 1079 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1071 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ConstantModifiers = (Flags) getRhsSym(1);
-                //#line 1079 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1071 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ConstantModifier = (Flags) getRhsSym(2);
-                //#line 1081 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1073 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ConstantModifiers.set(ConstantModifier));
                 break;
             }
@@ -2340,7 +2332,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 159: {
                 
-                //#line 1089 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1081 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -2350,7 +2342,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 160: {
                 
-                //#line 1094 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1086 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STATIC);
                 break;
             }
@@ -2360,7 +2352,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 161: {
                 
-                //#line 1099 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1091 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.FINAL);
                 break;
             }
@@ -2369,11 +2361,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 163:  AbstractMethodModifiers ::= AbstractMethodModifiers AbstractMethodModifier
             //
             case 163: {
-                //#line 1106 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1098 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags AbstractMethodModifiers = (Flags) getRhsSym(1);
-                //#line 1106 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1098 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags AbstractMethodModifier = (Flags) getRhsSym(2);
-                //#line 1108 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1100 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(AbstractMethodModifiers.set(AbstractMethodModifier));
                 break;
             }
@@ -2383,7 +2375,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 164: {
                 
-                //#line 1116 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1108 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -2393,7 +2385,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 165: {
                 
-                //#line 1121 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1113 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.ABSTRACT);
                 break;
             }
@@ -2402,9 +2394,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 166:  SimpleName ::= identifier
             //
             case 166: {
-                //#line 1177 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1169 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1179 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1171 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -2413,11 +2405,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 167:  ArrayInitializer ::= { VariableInitializersopt ,opt$opt }
             //
             case 167: {
-                //#line 1206 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1198 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableInitializersopt = (List) getRhsSym(2);
-                //#line 1206 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1198 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Object opt = (Object) getRhsSym(3);
-                //#line 1208 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1200 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (VariableInitializersopt == null)
                      setResult(nf.ArrayInit(pos()));
                 else setResult(nf.ArrayInit(pos(), VariableInitializersopt));
@@ -2428,9 +2420,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 168:  VariableInitializers ::= VariableInitializer
             //
             case 168: {
-                //#line 1214 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1206 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
-                //#line 1216 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1208 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
                 setResult(l);
@@ -2441,11 +2433,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 169:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
             case 169: {
-                //#line 1221 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1213 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableInitializers = (List) getRhsSym(1);
-                //#line 1221 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1213 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 1223 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1215 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VariableInitializers.add(VariableInitializer);
                 //setResult(VariableInitializers);
                 break;
@@ -2455,9 +2447,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 170:  Block ::= { BlockStatementsopt }
             //
             case 170: {
-                //#line 1242 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1234 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 1244 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1236 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                 break;
             }
@@ -2466,9 +2458,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 171:  BlockStatements ::= BlockStatement
             //
             case 171: {
-                //#line 1248 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1240 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatement = (List) getRhsSym(1);
-                //#line 1250 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1242 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -2479,11 +2471,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 172:  BlockStatements ::= BlockStatements BlockStatement
             //
             case 172: {
-                //#line 1255 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1247 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatements = (List) getRhsSym(1);
-                //#line 1255 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1247 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatement = (List) getRhsSym(2);
-                //#line 1257 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1249 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                 break;
@@ -2493,9 +2485,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 174:  BlockStatement ::= ClassDeclaration
             //
             case 174: {
-                //#line 1263 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1255 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1265 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1257 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -2506,9 +2498,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 175:  BlockStatement ::= Statement
             //
             case 175: {
-                //#line 1270 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1262 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 1272 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1264 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -2519,13 +2511,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 177:  LocalVariableDeclaration ::= VariableModifiersopt Type VariableDeclarators
             //
             case 177: {
-                //#line 1280 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1272 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags VariableModifiersopt = (Flags) getRhsSym(1);
-                //#line 1280 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1272 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1280 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1272 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 1282 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1274 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
                 List s = new TypedList(new LinkedList(), Stmt.class, false);
                 for (Iterator i = VariableDeclarators.iterator(); i.hasNext(); )
@@ -2548,11 +2540,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 201:  IfThenStatement ::= if ( Expression ) Statement
             //
             case 201: {
-                //#line 1341 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1333 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1341 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1333 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1343 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1335 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.If(pos(), Expression, Statement));
                 break;
             }
@@ -2561,13 +2553,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 202:  IfThenElseStatement ::= if ( Expression ) StatementNoShortIf else Statement
             //
             case 202: {
-                //#line 1347 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1339 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1347 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1339 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1347 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1339 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1349 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1341 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.If(pos(), Expression, StatementNoShortIf, Statement));
                 break;
             }
@@ -2576,13 +2568,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 203:  IfThenElseStatementNoShortIf ::= if ( Expression ) StatementNoShortIf$true_stmt else StatementNoShortIf$false_stmt
             //
             case 203: {
-                //#line 1353 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1345 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1353 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1345 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt true_stmt = (Stmt) getRhsSym(5);
-                //#line 1353 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1345 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt false_stmt = (Stmt) getRhsSym(7);
-                //#line 1355 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1347 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.If(pos(), Expression, true_stmt, false_stmt));
                 break;
             }
@@ -2592,7 +2584,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 204: {
                 
-                //#line 1361 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1353 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Empty(pos()));
                 break;
             }
@@ -2601,11 +2593,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 205:  LabeledStatement ::= identifier : Statement
             //
             case 205: {
-                //#line 1365 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1357 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1365 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1357 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1367 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1359 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Labeled(pos(), identifier.getIdentifier(), Statement));
                 break;
             }
@@ -2614,11 +2606,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 206:  LabeledStatementNoShortIf ::= identifier : StatementNoShortIf
             //
             case 206: {
-                //#line 1371 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1363 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1371 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1363 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(3);
-                //#line 1373 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1365 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Labeled(pos(), identifier.getIdentifier(), StatementNoShortIf));
                 break;
             }
@@ -2627,9 +2619,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 207:  ExpressionStatement ::= StatementExpression ;
             //
             case 207: {
-                //#line 1376 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1368 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1378 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1370 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Eval(pos(), StatementExpression));
                 break;
             }
@@ -2638,9 +2630,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 215:  AssertStatement ::= assert Expression ;
             //
             case 215: {
-                //#line 1399 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1391 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1401 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1393 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Assert(pos(), Expression));
                 break;
             }
@@ -2649,11 +2641,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 216:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
             case 216: {
-                //#line 1404 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1396 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 1404 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1396 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 1406 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1398 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                 break;
             }
@@ -2662,11 +2654,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 217:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
             case 217: {
-                //#line 1410 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1402 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1410 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1402 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlock = (List) getRhsSym(5);
-                //#line 1412 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1404 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                 break;
             }
@@ -2675,11 +2667,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 218:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
             case 218: {
-                //#line 1416 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1408 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
-                //#line 1416 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1408 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchLabelsopt = (List) getRhsSym(3);
-                //#line 1418 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1410 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                 break;
@@ -2689,11 +2681,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 220:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
             case 220: {
-                //#line 1424 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1416 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
-                //#line 1424 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1416 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
-                //#line 1426 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1418 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                 break;
@@ -2703,11 +2695,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 221:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
             case 221: {
-                //#line 1431 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1423 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1431 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1423 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatements = (List) getRhsSym(2);
-                //#line 1433 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1425 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -2719,9 +2711,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 222:  SwitchLabels ::= SwitchLabel
             //
             case 222: {
-                //#line 1440 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1432 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 1442 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1434 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -2732,11 +2724,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 223:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
             case 223: {
-                //#line 1447 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1439 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1447 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1439 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 1449 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1441 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                 break;
@@ -2746,9 +2738,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 224:  SwitchLabel ::= case ConstantExpression :
             //
             case 224: {
-                //#line 1454 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1446 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 1456 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1448 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                 break;
             }
@@ -2758,7 +2750,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 225: {
                 
-                //#line 1463 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1455 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Default(pos()));
                 break;
             }
@@ -2767,11 +2759,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 226:  WhileStatement ::= while ( Expression ) Statement
             //
             case 226: {
-                //#line 1470 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1462 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1470 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1462 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1472 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1464 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                 break;
             }
@@ -2780,11 +2772,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 227:  WhileStatementNoShortIf ::= while ( Expression ) StatementNoShortIf
             //
             case 227: {
-                //#line 1476 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1468 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1476 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1468 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1478 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1470 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.While(pos(), Expression, StatementNoShortIf));
                 break;
             }
@@ -2793,11 +2785,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 228:  DoStatement ::= do Statement while ( Expression ) ;
             //
             case 228: {
-                //#line 1482 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1474 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1482 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1474 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1484 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1476 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                 break;
             }
@@ -2806,15 +2798,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 231:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
             case 231: {
-                //#line 1491 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1483 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1491 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1483 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1491 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1483 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1491 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1483 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 1493 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1485 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                 break;
             }
@@ -2823,15 +2815,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 232:  ForStatementNoShortIf ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) StatementNoShortIf
             //
             case 232: {
-                //#line 1497 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1489 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1497 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1489 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1497 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1489 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1497 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1489 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(9);
-                //#line 1499 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1491 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, StatementNoShortIf));
                 break;
             }
@@ -2840,9 +2832,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 234:  ForInit ::= LocalVariableDeclaration
             //
             case 234: {
-                //#line 1504 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1496 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
-                //#line 1506 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1498 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -2853,9 +2845,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 236:  StatementExpressionList ::= StatementExpression
             //
             case 236: {
-                //#line 1514 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1506 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1516 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1508 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -2866,11 +2858,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 237:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
             case 237: {
-                //#line 1521 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1513 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List StatementExpressionList = (List) getRhsSym(1);
-                //#line 1521 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1513 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 1523 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1515 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                 //setResult(StatementExpressionList);
                 break;
@@ -2880,9 +2872,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 238:  BreakStatement ::= break identifieropt ;
             //
             case 238: {
-                //#line 1531 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1523 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name identifieropt = (Name) getRhsSym(2);
-                //#line 1533 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1525 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (identifieropt == null)
                      setResult(nf.Break(pos()));
                 else setResult(nf.Break(pos(), identifieropt.toString()));
@@ -2893,9 +2885,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 239:  ContinueStatement ::= continue identifieropt ;
             //
             case 239: {
-                //#line 1539 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1531 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name identifieropt = (Name) getRhsSym(2);
-                //#line 1541 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1533 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (identifieropt == null)
                      setResult(nf.Continue(pos()));
                 else setResult(nf.Continue(pos(), identifieropt.toString()));
@@ -2906,9 +2898,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 240:  ReturnStatement ::= return Expressionopt ;
             //
             case 240: {
-                //#line 1547 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1539 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 1549 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1541 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                 break;
             }
@@ -2917,9 +2909,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 241:  ThrowStatement ::= throw Expression ;
             //
             case 241: {
-                //#line 1553 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1545 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1555 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1547 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Throw(pos(), Expression));
                 break;
             }
@@ -2928,11 +2920,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 242:  TryStatement ::= try Block Catches
             //
             case 242: {
-                //#line 1565 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1557 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1565 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1557 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Catches = (List) getRhsSym(3);
-                //#line 1567 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1559 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Try(pos(), Block, Catches));
                 break;
             }
@@ -2941,13 +2933,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 243:  TryStatement ::= try Block Catchesopt Finally
             //
             case 243: {
-                //#line 1570 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1562 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1570 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1562 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Catchesopt = (List) getRhsSym(3);
-                //#line 1570 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1562 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Finally = (Block) getRhsSym(4);
-                //#line 1572 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1564 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                 break;
             }
@@ -2956,9 +2948,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 244:  Catches ::= CatchClause
             //
             case 244: {
-                //#line 1576 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1568 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 1578 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1570 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -2969,11 +2961,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 245:  Catches ::= Catches CatchClause
             //
             case 245: {
-                //#line 1583 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1575 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Catches = (List) getRhsSym(1);
-                //#line 1583 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1575 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 1585 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1577 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                 break;
@@ -2983,11 +2975,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 246:  CatchClause ::= catch ( FormalParameter ) Block
             //
             case 246: {
-                //#line 1590 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1582 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1590 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1582 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1592 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1584 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                 break;
             }
@@ -2996,9 +2988,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 247:  Finally ::= finally Block
             //
             case 247: {
-                //#line 1596 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1588 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1598 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1590 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Block);
                 break;
             }
@@ -3007,9 +2999,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 251:  PrimaryNoNewArray ::= Type . class
             //
             case 251: {
-                //#line 1616 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1608 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1618 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1610 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (Type instanceof Name)
                 {
                     Name a = (Name) Type;
@@ -3033,7 +3025,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 252: {
                 
-                //#line 1637 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1629 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ClassLit(pos(),
                                      nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
                 break;
@@ -3044,7 +3036,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 253: {
                 
-                //#line 1643 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1635 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.This(pos()));
                 break;
             }
@@ -3053,9 +3045,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 254:  PrimaryNoNewArray ::= ClassName . this
             //
             case 254: {
-                //#line 1646 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1638 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1648 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1640 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
@@ -3064,9 +3056,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 255:  PrimaryNoNewArray ::= ( Expression )
             //
             case 255: {
-                //#line 1651 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1643 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1653 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1645 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                 break;
             }
@@ -3075,9 +3067,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 260:  Literal ::= IntegerLiteral$IntegerLiteral
             //
             case 260: {
-                //#line 1661 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1653 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken IntegerLiteral = (IToken) getRhsIToken(1);
-                //#line 1663 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1655 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.IntegerLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().intValue()));
                 break;
@@ -3087,9 +3079,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 261:  Literal ::= LongLiteral$LongLiteral
             //
             case 261: {
-                //#line 1667 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1659 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken LongLiteral = (IToken) getRhsIToken(1);
-                //#line 1669 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1661 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                 break;
@@ -3099,9 +3091,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 262:  Literal ::= FloatingPointLiteral$FloatLiteral
             //
             case 262: {
-                //#line 1673 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1665 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken FloatLiteral = (IToken) getRhsIToken(1);
-                //#line 1675 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1667 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                 break;
@@ -3111,9 +3103,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 263:  Literal ::= DoubleLiteral$DoubleLiteral
             //
             case 263: {
-                //#line 1679 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1671 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken DoubleLiteral = (IToken) getRhsIToken(1);
-                //#line 1681 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1673 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                 break;
@@ -3123,9 +3115,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 264:  Literal ::= BooleanLiteral
             //
             case 264: {
-                //#line 1685 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1677 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 1687 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1679 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                 break;
             }
@@ -3134,9 +3126,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 265:  Literal ::= CharacterLiteral$CharacterLiteral
             //
             case 265: {
-                //#line 1690 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1682 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken CharacterLiteral = (IToken) getRhsIToken(1);
-                //#line 1692 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1684 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                 break;
@@ -3146,9 +3138,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 266:  Literal ::= StringLiteral$str
             //
             case 266: {
-                //#line 1696 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1688 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 1698 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1690 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                 break;
@@ -3159,7 +3151,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 267: {
                 
-                //#line 1704 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1696 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.NullLit(pos()));
                 break;
             }
@@ -3168,9 +3160,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 268:  BooleanLiteral ::= true$trueLiteral
             //
             case 268: {
-                //#line 1708 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1700 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 1710 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1702 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -3179,9 +3171,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 269:  BooleanLiteral ::= false$falseLiteral
             //
             case 269: {
-                //#line 1713 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1705 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 1715 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1707 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -3190,9 +3182,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 270:  ArgumentList ::= Expression
             //
             case 270: {
-                //#line 1728 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1720 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1730 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1722 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -3203,11 +3195,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 271:  ArgumentList ::= ArgumentList , Expression
             //
             case 271: {
-                //#line 1735 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1727 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 1735 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1727 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1737 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1729 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ArgumentList.add(Expression);
                 //setResult(ArgumentList);
                 break;
@@ -3217,9 +3209,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 272:  DimExprs ::= DimExpr
             //
             case 272: {
-                //#line 1771 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1763 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr DimExpr = (Expr) getRhsSym(1);
-                //#line 1773 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1765 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(DimExpr);
                 setResult(l);
@@ -3230,11 +3222,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 273:  DimExprs ::= DimExprs DimExpr
             //
             case 273: {
-                //#line 1778 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1770 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List DimExprs = (List) getRhsSym(1);
-                //#line 1778 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1770 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr DimExpr = (Expr) getRhsSym(2);
-                //#line 1780 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1772 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 DimExprs.add(DimExpr);
                 //setResult(DimExprs);
                 break;
@@ -3244,9 +3236,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 274:  DimExpr ::= [ Expression ]
             //
             case 274: {
-                //#line 1785 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1777 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1787 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1779 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Expression.position(pos()));
                 break;
             }
@@ -3256,7 +3248,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 275: {
                 
-                //#line 1793 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1785 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Integer(1));
                 break;
             }
@@ -3265,9 +3257,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 276:  Dims ::= Dims [ ]
             //
             case 276: {
-                //#line 1796 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1788 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Integer Dims = (Integer) getRhsSym(1);
-                //#line 1798 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1790 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Integer(Dims.intValue() + 1));
                 break;
             }
@@ -3276,11 +3268,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 277:  FieldAccess ::= Primary . identifier
             //
             case 277: {
-                //#line 1802 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1794 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1802 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1794 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1804 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1796 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Field(pos(), Primary, identifier.getIdentifier()));
                 break;
             }
@@ -3289,9 +3281,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 278:  FieldAccess ::= super . identifier
             //
             case 278: {
-                //#line 1807 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1799 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1809 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1801 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), identifier.getIdentifier()));
                 break;
             }
@@ -3300,13 +3292,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 279:  FieldAccess ::= ClassName . super$sup . identifier
             //
             case 279: {
-                //#line 1812 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1804 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1812 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1804 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 1812 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1804 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
-                //#line 1814 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1806 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), identifier.getIdentifier()));
                 break;
             }
@@ -3315,11 +3307,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 280:  MethodInvocation ::= MethodName ( ArgumentListopt )
             //
             case 280: {
-                //#line 1818 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1810 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name MethodName = (Name) getRhsSym(1);
-                //#line 1818 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1810 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 1820 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1812 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, ArgumentListopt));
@@ -3330,9 +3322,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 282:  PostfixExpression ::= ExpressionName
             //
             case 282: {
-                //#line 1843 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1835 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 1845 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1837 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -3341,9 +3333,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 285:  PostIncrementExpression ::= PostfixExpression ++
             //
             case 285: {
-                //#line 1851 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1843 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 1853 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1845 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                 break;
             }
@@ -3352,9 +3344,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 286:  PostDecrementExpression ::= PostfixExpression --
             //
             case 286: {
-                //#line 1857 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1849 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 1859 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1851 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                 break;
             }
@@ -3363,9 +3355,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 289:  UnaryExpression ::= + UnaryExpression
             //
             case 289: {
-                //#line 1865 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1857 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1867 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1859 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpression));
                 break;
             }
@@ -3374,9 +3366,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 290:  UnaryExpression ::= - UnaryExpression
             //
             case 290: {
-                //#line 1870 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1862 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1872 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1864 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpression));
                 break;
             }
@@ -3385,9 +3377,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 292:  PreIncrementExpression ::= ++ UnaryExpression
             //
             case 292: {
-                //#line 1877 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1869 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1879 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1871 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpression));
                 break;
             }
@@ -3396,9 +3388,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 293:  PreDecrementExpression ::= -- UnaryExpression
             //
             case 293: {
-                //#line 1883 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1875 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1885 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1877 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpression));
                 break;
             }
@@ -3407,9 +3399,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 295:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
             case 295: {
-                //#line 1890 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1882 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1892 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1884 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                 break;
             }
@@ -3418,9 +3410,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 296:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
             case 296: {
-                //#line 1895 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1887 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1897 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1889 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                 break;
             }
@@ -3429,11 +3421,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 299:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
             case 299: {
-                //#line 1909 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1901 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1909 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1901 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 1911 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1903 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                 break;
             }
@@ -3442,11 +3434,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 300:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
             case 300: {
-                //#line 1914 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1906 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1914 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1906 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 1916 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1908 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                 break;
             }
@@ -3455,11 +3447,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 301:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
             case 301: {
-                //#line 1919 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1911 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1919 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1911 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 1921 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1913 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                 break;
             }
@@ -3468,11 +3460,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 303:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
             case 303: {
-                //#line 1926 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1918 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1926 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1918 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 1928 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1920 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                 break;
             }
@@ -3481,11 +3473,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 304:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
             case 304: {
-                //#line 1931 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1923 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1931 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1923 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 1933 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1925 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                 break;
             }
@@ -3494,11 +3486,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 306:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
             case 306: {
-                //#line 1938 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1930 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 1938 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1930 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1940 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1932 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                 break;
             }
@@ -3507,11 +3499,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 307:  ShiftExpression ::= ShiftExpression > > AdditiveExpression
             //
             case 307: {
-                //#line 1943 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1935 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 1943 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1935 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(4);
-                //#line 1945 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1937 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                 break;
@@ -3521,11 +3513,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 308:  ShiftExpression ::= ShiftExpression > > > AdditiveExpression
             //
             case 308: {
-                //#line 1949 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1941 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 1949 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1941 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(5);
-                //#line 1951 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1943 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                 break;
@@ -3535,11 +3527,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 310:  RelationalExpression ::= RelationalExpression < ShiftExpression
             //
             case 310: {
-                //#line 1957 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1949 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1957 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1949 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 1959 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1951 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
                 break;
             }
@@ -3548,11 +3540,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 311:  RelationalExpression ::= RelationalExpression > ShiftExpression
             //
             case 311: {
-                //#line 1962 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1954 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1962 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1954 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 1964 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1956 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
                 break;
             }
@@ -3561,11 +3553,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 312:  RelationalExpression ::= RelationalExpression <= ShiftExpression
             //
             case 312: {
-                //#line 1967 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1959 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1967 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1959 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 1969 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1961 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
                 break;
             }
@@ -3574,11 +3566,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 313:  RelationalExpression ::= RelationalExpression > = ShiftExpression
             //
             case 313: {
-                //#line 1972 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1964 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1972 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1964 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(4);
-                //#line 1974 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1966 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, ShiftExpression));
                 break;
@@ -3588,11 +3580,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 315:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
             case 315: {
-                //#line 1988 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1980 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 1988 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1980 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 1990 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1982 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                 break;
             }
@@ -3601,11 +3593,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 316:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
             case 316: {
-                //#line 1993 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1985 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 1993 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1985 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 1995 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1987 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                 break;
             }
@@ -3614,11 +3606,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 318:  AndExpression ::= AndExpression & EqualityExpression
             //
             case 318: {
-                //#line 2000 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1992 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 2000 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1992 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 2002 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1994 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                 break;
             }
@@ -3627,11 +3619,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 320:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
             case 320: {
-                //#line 2007 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1999 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 2007 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1999 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 2009 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2001 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                 break;
             }
@@ -3640,11 +3632,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 322:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
             case 322: {
-                //#line 2014 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2006 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 2014 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2006 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 2016 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2008 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                 break;
             }
@@ -3653,11 +3645,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 324:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
             case 324: {
-                //#line 2021 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2013 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 2021 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2013 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 2023 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2015 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                 break;
             }
@@ -3666,11 +3658,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 326:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
             case 326: {
-                //#line 2028 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2020 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 2028 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2020 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 2030 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2022 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                 break;
             }
@@ -3679,13 +3671,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 328:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
             case 328: {
-                //#line 2035 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2027 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 2035 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2027 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2035 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2027 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 2037 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2029 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                 break;
             }
@@ -3694,13 +3686,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 331:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
             case 331: {
-                //#line 2044 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2036 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 2044 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2036 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 2044 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2036 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 2046 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2038 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                 break;
             }
@@ -3709,9 +3701,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 332:  LeftHandSide ::= ExpressionName
             //
             case 332: {
-                //#line 2050 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2042 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 2052 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2044 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -3721,7 +3713,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 335: {
                 
-                //#line 2060 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2052 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.ASSIGN);
                 break;
             }
@@ -3731,7 +3723,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 336: {
                 
-                //#line 2065 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2057 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.MUL_ASSIGN);
                 break;
             }
@@ -3741,7 +3733,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 337: {
                 
-                //#line 2070 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2062 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.DIV_ASSIGN);
                 break;
             }
@@ -3751,7 +3743,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 338: {
                 
-                //#line 2075 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2067 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.MOD_ASSIGN);
                 break;
             }
@@ -3761,7 +3753,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 339: {
                 
-                //#line 2080 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2072 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.ADD_ASSIGN);
                 break;
             }
@@ -3771,7 +3763,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 340: {
                 
-                //#line 2085 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2077 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.SUB_ASSIGN);
                 break;
             }
@@ -3781,7 +3773,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 341: {
                 
-                //#line 2090 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2082 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.SHL_ASSIGN);
                 break;
             }
@@ -3791,7 +3783,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 342: {
                 
-                //#line 2095 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2087 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(Assign.SHR_ASSIGN);
                 break;
@@ -3802,7 +3794,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 343: {
                 
-                //#line 2101 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2093 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(Assign.USHR_ASSIGN);
                 break;
@@ -3813,7 +3805,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 344: {
                 
-                //#line 2107 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2099 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                 break;
             }
@@ -3823,7 +3815,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 345: {
                 
-                //#line 2112 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2104 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                 break;
             }
@@ -3833,7 +3825,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 346: {
                 
-                //#line 2117 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2109 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                 break;
             }
@@ -3843,7 +3835,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 349: {
                 
-                //#line 2130 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2122 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Integer(0));
                 break;
             }
@@ -3853,7 +3845,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 351: {
                 
-                //#line 2137 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2129 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
@@ -3869,9 +3861,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 354:  identifieropt ::= identifier
             //
             case 354: {
-                //#line 2144 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2136 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 2146 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2138 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -3881,7 +3873,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 355: {
                 
-                //#line 2152 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2144 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                 break;
             }
@@ -3898,7 +3890,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 359: {
                 
-                //#line 2163 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2155 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                 break;
             }
@@ -3908,7 +3900,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 361: {
                 
-                //#line 2170 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2162 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                 break;
             }
@@ -3918,7 +3910,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 363: {
                 
-                //#line 2177 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2169 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                 break;
             }
@@ -3928,7 +3920,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 365: {
                 
-                //#line 2184 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2176 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -3945,7 +3937,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 369: {
                 
-                //#line 2214 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2206 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -3955,7 +3947,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 371: {
                 
-                //#line 2221 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2213 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -3965,7 +3957,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 373: {
                 
-                //#line 2228 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2220 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -3975,7 +3967,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 375: {
                 
-                //#line 2235 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2227 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -3985,7 +3977,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 377: {
                 
-                //#line 2242 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2234 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -4022,7 +4014,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 385: {
                 
-                //#line 2272 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2264 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
@@ -4032,7 +4024,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 387: {
                 
-                //#line 2279 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2271 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                 break;
             }
@@ -4049,7 +4041,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 391: {
                 
-                //#line 2290 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2282 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -4066,7 +4058,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 395: {
                 
-                //#line 2301 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2293 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
@@ -4076,7 +4068,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 397: {
                 
-                //#line 2308 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2300 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4086,7 +4078,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 399: {
                 
-                //#line 2315 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2307 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -4096,7 +4088,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 401: {
                 
-                //#line 2322 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2314 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -4106,7 +4098,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 403: {
                 
-                //#line 2329 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2321 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -4116,7 +4108,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 405: {
                 
-                //#line 2336 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2328 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4126,7 +4118,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 407: {
                 
-                //#line 2343 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2335 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                setResult(new Name(nf, ts, pos(), "x10.lang.Object").toType());
                 break;
             }
@@ -4136,7 +4128,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 409: {
                 
-                //#line 2354 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2346 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -4146,7 +4138,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 411: {
                 
-                //#line 2366 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2358 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                 break;
             }
@@ -4156,7 +4148,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 413: {
                 
-                //#line 2373 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2365 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                 break;
             }

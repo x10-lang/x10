@@ -65,8 +65,11 @@ public class X10MethodDecl_c extends MethodDecl_c {
         }
      
         public Node typeCheck(TypeChecker tc) throws SemanticException {
-       	  if ( Report.should_report(TOPICS, 5))
+       	  if ( name.startsWith("toArray") || Report.should_report(TOPICS, 5)) {
        		    Report.report(5, "X10MethodDecl_c: typechecking " + name);
+       		    Formal first  = (Formal) formals.get(0);
+       		 Report.report(5, "X10MethodDecl_c: first arg's type is " + first.type().type());
+       	  }
        	 Node result = super.typeCheck(tc);
 
        

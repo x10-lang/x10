@@ -29,6 +29,10 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
 	public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
+	public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
+		depClause = d;
+		typeParameters = l;
+	}
 	public X10Type makeVariant(Constraint d, List l) { 
 		if (d == null && (l == null || l.isEmpty()))
 			return this;

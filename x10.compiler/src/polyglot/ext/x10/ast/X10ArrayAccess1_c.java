@@ -13,9 +13,9 @@ import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
 import polyglot.ext.x10.types.NullableType_c;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
@@ -122,20 +122,20 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		Type type = array.type();
-		if (!type.isArray()) {
-			X10Type target = (X10Type) type;
-			if (!ts.isIndexable(target))
-				throw new SemanticException(
-						"Subscript can only follow an array type.", position());
-		}
-
-		// [IP] TODO: Huh?  Didn't we just check for this?
 		if (type instanceof NullableType_c) {
 			type = ((NullableType_c)type).base();
 		}
-		if (type.isArray()) {
-			return nf.ArrayAccess(position(), array, index).typeCheck(tc);
+		
+		boolean isArray = type.isArray();
+		boolean isIndexable = ts.isIndexable(type);
+		//Report.report(1, "X10ArrayAccess_1 |" + this + "| type=" + type.getClass() + " isArray()= " + type.isArray());
+		if (! (isArray || isIndexable)) {
+				throw new SemanticException(
+						"Subscript can only follow an array type, and not " + type+".", position());
 		}
+		if ( isArray)
+			return nf.ArrayAccess(position(), array, index).typeCheck(tc);
+		
 		if (!ts.isImplicitCastValid(index.type(), ts.point()) &&
 			(!index.type().isInt()))
 		{

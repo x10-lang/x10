@@ -69,26 +69,40 @@ public class X10LocalDecl_c extends LocalDecl_c {
 	}
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10LocalDecl_c result= (X10LocalDecl_c) super.typeCheck(tc);
-		result= result.updateLI(tc);
+		result.updateLI(tc);
 		//Report.report(1, "X10LocalDecl_c: returning node with type " + name + " " + result.type() + "(#" + result.hashCode() + ")");
 		return result;
 	}
-	public X10LocalDecl_c updateLI(TypeChecker tc) throws SemanticException {
+	public void pickUpTypeFromTypeNode(TypeChecker tc) {
+		X10Type newType = (X10Type) type.type();
+		if (li.flags().isFinal()) {
+			Constraint c = Constraint_c.addVarWhoseTypeThisIs(C_Local_c.makeSelfVar(li),newType.depClause());
+			 newType = newType.makeVariant(c,newType.typeParameters());
+		
+			//nli  = nli.type(newType);
+		}
+		li.setType(newType);
+	//	X10LocalDecl_c result =  (X10LocalDecl_c) localInstance(nli);
+		
+		
+	}
+	public void  updateLI(TypeChecker tc)  {
 		TypeSystem ts = tc.typeSystem();
 		// Ensure that the LocalInstance is updated with the 
 		// possibly new type (w/ depclause)
-		LocalInstance tli = ts.localInstance(li.position(),li.flags(), type.type(), li.name());
-		LocalInstance nli = tli;
+		
+		//LocalInstance tli = ts.localInstance(li.position(),li.flags(), type.type(), li.name());
+		//LocalInstance nli = tli;
 		// If the local variable is final, replace T by T(:self==t)
 		if (li.flags().isFinal()) {
+			X10Type oldType = (X10Type) li.type();
 			
-			X10Type oldType = (X10Type) tli.type();
-			Constraint c = Constraint_c.addVarWhoseTypeThisIs(C_Local_c.makeSelfVar(tli),oldType.depClause());
+			Constraint c = Constraint_c.addVarWhoseTypeThisIs(C_Local_c.makeSelfVar(li),oldType.depClause());
 			X10Type newType = oldType.makeVariant(c,oldType.typeParameters());
-			nli  = nli.type(newType);
+			li.setType(newType);
+			//nli  = nli.type(newType);
 		}
-		X10LocalDecl_c result =  (X10LocalDecl_c) localInstance(nli);
-		//Report.report(1, "X10LocalDecl_c: after updating li, returning |" + nli + "|(#" + nli.hashCode()+")");
-		return result;
+	//	X10LocalDecl_c result =  (X10LocalDecl_c) localInstance(nli);
+	
 	}
 }

@@ -17,6 +17,7 @@ import polyglot.ast.Do;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.For;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -66,6 +67,7 @@ import polyglot.frontend.Job;
  */
 public class ExprFlattener extends ContextVisitor  {
 	public static final Position pos = Position.COMPILER_GENERATED;
+	final static NodeVisitor done = new PruningVisitor();
 	public static final Flags flags = Flags.FINAL;
 	public ExprFlattener(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
@@ -80,7 +82,7 @@ public class ExprFlattener extends ContextVisitor  {
 	 */
 	public static class NeedsFlatteningVisitor extends NodeVisitor {
 		boolean needsFlattening = false;
-		NodeVisitor done = new PruningVisitor();
+		
 		protected Node root;
 		public NeedsFlatteningVisitor(Node root) { 
 			super();
@@ -92,12 +94,11 @@ public class ExprFlattener extends ContextVisitor  {
 			// Do not enter the body of a conditional.
 			// TODO: Fix this. First flatten the conditional into a series
 			// of IF statements and then perform this transformation again.
-			if (p instanceof Conditional) 
-				return done;
+			if (p instanceof Conditional) return done;
 			if (p instanceof Do) return done;
+			if (p instanceof For) return done;
 			// Do not enter  a statement.
-			 if (n instanceof Stmt && n != root)
-				return done;
+			 if (n instanceof Stmt && n != root) return done;
 			needsFlattening = (n instanceof X10ArrayAccess || n instanceof X10ArrayAccess1)                     
 			&& ! (p instanceof LocalDecl);
 			return needsFlattening ? done : this;
@@ -197,7 +198,10 @@ public class ExprFlattener extends ContextVisitor  {
 		n.visit(v);
 		return v.needsFlattening();
 	}
-		
+	public NodeVisitor enter(Node p, Node n) {
+		if (p instanceof For) return done;
+		return this;
+	}
 	public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
 		if ((! (n instanceof Stmt))) {// || n instanceof CompoundStmt) {
 			

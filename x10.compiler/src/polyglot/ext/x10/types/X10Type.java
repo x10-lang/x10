@@ -39,6 +39,11 @@ public interface X10Type extends Type {
      * @return
      */
     X10Type makeVariant(Constraint d, List g);
+    /*
+     * Destructively set the depclause and parameter list to be d and g respectively.
+     * 
+     */
+    void setDepGen(Constraint d, List g);
     X10Type  baseType();
     List typeParameters();
     boolean isParametric();

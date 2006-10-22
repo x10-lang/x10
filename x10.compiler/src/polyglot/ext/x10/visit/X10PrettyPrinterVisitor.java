@@ -21,6 +21,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
 import polyglot.ext.jl.ast.Binary_c;
 import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Cast_c;
@@ -451,6 +452,14 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(X10ArrayAccess1_c a) {
+		X10Type at = (X10Type) a.array().type();
+		X10TypeSystem xts = (X10TypeSystem) at.typeSystem();
+		if (xts.isNullable(at)) 
+			at = ((NullableType) at).base();
+		
+		X10ParsedClassType t = (X10ParsedClassType) at;
+		
+		// TODO: check that index expression is an int rather than a point
 		String tmpl = QueryEngine.INSTANCE().isRectangularRankOneLowZero(a)
 						  ? "array_get_rect_rank_1_low_0" : "array_get" ;
 		Template template = new Template(tmpl, a.array(), a.index());
@@ -531,7 +540,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 			a.prettyPrint(w, pp);
 			return;
 		}
-		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
+String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
 						  ? "array_unary" : "array_unary"; //"array_unary_noplacecheck";
 		X10ArrayAccess1_c expr = (X10ArrayAccess1_c) a.expr();
 		Template template = new Template(tmpl,
@@ -543,6 +552,47 @@ public class X10PrettyPrinterVisitor extends Runabout {
 		template.expand();
 		//new Template("array_unary", expr.array(), expr.index(),
 		//			 a.opString(a.operator())).expand();
+		/****
+		String tmpl;
+		String operator;
+		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(a) ) {
+			Unary.Operator op = a.operator();
+		    if ( op == Unary.BIT_NOT ) {
+		    }
+		    else if ( op == Unary.NEG     ) {
+		    }
+		    else if ( op == Unary.POST_INC ) {
+		    }
+		    else if ( op == Unary.POST_DEC ) {
+		    }
+		    else if ( op == Unary.PRE_INC ) {
+		    }
+		    else if ( op == Unary.PRE_DEC ) {
+		    }
+		    else if ( op == Unary.POS     ) {
+		    }
+		    else if ( op == Unary.NOT     ) {
+		    }
+
+			tmpl = "array_set_rect_rank_1_low_0";
+			operator = a.operator().toString();
+		}
+		else {
+		  	tmpl = "array_unary" ;
+		  	operator = a.opString(a.operator());
+		}
+
+		X10ArrayAccess1_c expr = (X10ArrayAccess1_c) a.expr();
+		Template template = new Template(tmpl,
+										 expr.array(), expr.index(),
+										 a.opString(a.operator()));
+		TypeNode elt_type = getParameterType((X10Type)a.type());
+		if (elt_type != null)
+			template = new Template("parametric", elt_type, template);
+		template.expand();
+		//new Template("array_unary", expr.array(), expr.index(),
+		//			 a.opString(a.operator())).expand();
+	    ****/
 	}
 
 	public void visit(X10ArrayAccessUnary_c a) {
