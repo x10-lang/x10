@@ -35,6 +35,10 @@ public class X10ClassBody_c extends ClassBody_c {
 	   MethodDecl_c md = (MethodDecl_c) o;
 	   MethodInstance mi = md.methodInstance();
 	   if(mi.flags().isNative()){
+
+	      if(!mi.returnType().isPrimitive())
+		throw new SemanticException("extern return type \""+mi.returnType()+"\" is not a primitive type.",
+			md.position());
 	      
 	      for(ListIterator j = md.formals().listIterator();j.hasNext();){
 		Formal_c parameter = (Formal_c)j.next();
