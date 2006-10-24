@@ -34,7 +34,9 @@ public class X10FieldDecl_c extends FieldDecl_c {
 			  String name, Expr init) {
 		this(pos, null, flags, type, name, init);
 	}
-
+	   public boolean isDisambiguated() {
+	        return (type == null || type.isDisambiguated()) && super.isDisambiguated();
+	    }
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		Node result = super.typeCheck(tc);
 

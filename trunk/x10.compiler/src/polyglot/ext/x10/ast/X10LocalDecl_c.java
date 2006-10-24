@@ -5,10 +5,12 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.LocalDecl_c;
+import polyglot.ext.jl.types.LocalInstance_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
@@ -25,7 +27,11 @@ public class X10LocalDecl_c extends LocalDecl_c {
 			String name, Expr init) {
 		super(pos, flags, type, name, init);
 	}
-	
+	  
+    public boolean isDisambiguated() {
+        return (type == null || type.isDisambiguated()) 
+        && li != null && li.isCanonical() && super.isDisambiguated();
+    }
 	public String shortToString() {
 		return "<X10LocalDecl_c #" + hashCode() 
 		// + " flags= |" + flags + "|"
@@ -58,23 +64,27 @@ public class X10LocalDecl_c extends LocalDecl_c {
 		return result;
 	}
 	public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
-		// System.out.println("[LocalDecl_c] Disambiguating |" + this.shortToString() + ":");
+		// Report.report(1, "[X10LocalDecl_c] Disambiguating |" + this.shortToString() + ":");
 		// System.out.println("[LocalDecl_c] ... i.e. |" + this + "|.");
 		// System.out.println("[LocalDecl_c] ... declType=|" + declType() + "|.");
 		// System.out.println("[LocalDecl_c] ... li=|" + li + "|.");
-		Node result= super.disambiguate(ar);
+		LocalDecl result= (LocalDecl) super.disambiguate(ar);
 		// System.out.println("[LocalDecl_c] ... returning with li=|" + result.localInstance() + "|.");
-		// System.out.println("[LocalDecl_c] ... returning node |" + result + "|.");
+		// Report.report(1, "[X10LocalDecl_c] ... returning node |" + result + "| " + result.type().getClass());
 		return result;
 	}
+	
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10LocalDecl_c result= (X10LocalDecl_c) super.typeCheck(tc);
 		result.updateLI(tc);
-		//Report.report(1, "X10LocalDecl_c: returning node with type " + name + " " + result.type() + "(#" + result.hashCode() + ")");
+		
+		
 		return result;
 	}
 	public void pickUpTypeFromTypeNode(TypeChecker tc) {
+		
 		X10Type newType = (X10Type) type.type();
+		
 		if (li.flags().isFinal()) {
 			Constraint c = Constraint_c.addVarWhoseTypeThisIs(C_Local_c.makeSelfVar(li),newType.depClause());
 			 newType = newType.makeVariant(c,newType.typeParameters());
@@ -82,6 +92,7 @@ public class X10LocalDecl_c extends LocalDecl_c {
 			//nli  = nli.type(newType);
 		}
 		li.setType(newType);
+	
 	//	X10LocalDecl_c result =  (X10LocalDecl_c) localInstance(nli);
 		
 		

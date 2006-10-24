@@ -59,7 +59,8 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
 	}
 
      public boolean isDisambiguated() {
-            return super.isDisambiguated() && dep == null && gen == null;
+            return (dep == null || dep.isDisambiguated()) && 
+            (gen == null || gen.isDisambiguated()) && super.isDisambiguated() ;
         }
      /**
       * This method may throw MissingDependencyExceptions, and may therefore need to be retried.
@@ -135,7 +136,7 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         X10Type newArgType = argType.makeVariant(term, tParameters);
         X10TypeNode result = (X10TypeNode) arg.type(newArgType);
         result = result.dep(null,null);
-        if (  Report.should_report("debug", 5)) {
+        if ( true || Report.should_report("debug", 5)) {
             Report.report(1,"[X10TypeNode_c static] typeCheckDepClause... returning |" + result + "|.");
         }
         return result;

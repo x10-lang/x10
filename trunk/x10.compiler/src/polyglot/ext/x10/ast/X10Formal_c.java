@@ -66,7 +66,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	}
 
 	public boolean isDisambiguated() {
-		return lis != null && super.isDisambiguated();
+		return (type == null || type.isDisambiguated()) && lis != null && super.isDisambiguated();
 	}
 
 	/** Get the local instances of the bound variables. */

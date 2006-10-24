@@ -98,7 +98,7 @@ X10ArrayTypeNode {
 		return this.distribution;
 	}
 	
-	protected X10ArrayTypeNode_c reconstruct(TypeNode base,  Expr indexedSet) {
+	public X10ArrayTypeNode reconstruct(TypeNode base,  Expr indexedSet) {
 		if (base != this.base || (isValueType != this.isValueType) 
 				|| (indexedSet != this.distribution)) {
 			X10ArrayTypeNode_c n = (X10ArrayTypeNode_c) copy();
@@ -135,7 +135,7 @@ X10ArrayTypeNode {
 		X10ArrayTypeNode n = (X10ArrayTypeNode) super.visitChildren(v);
 		TypeNode base = (TypeNode) n.visitChild(this.base, v);
 		Expr indexedSet = (Expr) n.visitChild(this.distribution, v);
-		return reconstruct(base, indexedSet);
+		return n.reconstruct(base, indexedSet);
 	}
 	
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
@@ -192,7 +192,8 @@ X10ArrayTypeNode {
 	public String toString() {
 		return base.toString() 
 		+ (isValueType ? " value " : "")
-		+ "[." + (distribution == null ? "" : distribution.toString()) + "]";
+		+ "[" + (dep == null ? "." + (distribution==null ? "" : distribution.toString()) : dep.toString()) + "]";
+		
 	}
 	
 }
