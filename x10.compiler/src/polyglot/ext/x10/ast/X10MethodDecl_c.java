@@ -18,6 +18,7 @@ import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -47,6 +48,29 @@ public class X10MethodDecl_c extends MethodDecl_c {
         whereClause = e;
    
 }
+        
+        protected boolean listIsDisambiguated(List l) {
+        	for (Iterator i = l.iterator(); i.hasNext(); ) {
+        	    Node o = (Node) i.next();
+        	    if (! o.isDisambiguated()) {
+        		return false;
+        	    }
+        	}
+
+        	return true;
+            }
+        /**
+         * A methoddecl is disambiguated if its formals are disambiguated. Note that we cannot
+         * just check that the mi is disambiguated since the formal types in there dont yet
+         * reflect deptypes.
+         */
+        public boolean isDisambiguated() {
+        	
+            return  listIsDisambiguated(formals)
+            && (thisClause == null || thisClause.isDisambiguated() )
+            && (whereClause == null || whereClause.isDisambiguated())
+            && super.isDisambiguated();
+        }
         public void translate(CodeWriter w, Translator tr) {
         	
                 Context c = tr.context();

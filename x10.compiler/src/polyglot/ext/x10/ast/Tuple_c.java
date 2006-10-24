@@ -125,7 +125,9 @@ public class Tuple_c extends Expr_c implements Tuple {
 		return reconstruct(pointR, regionR, args);
 	}
 	public void dump(CodeWriter w) {
-		throw new InternalError("Ambiguous Node cannot be rewritten.");
+		w.write("Tuple: ");
+		super.dump(w);
+		// throw new InternalError("Ambiguous Node cannot be rewritten.");
 	}
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		throw new InternalError("Ambiguous Node cannot be rewritten.");

@@ -29,4 +29,6 @@ public interface X10ArrayTypeNode /*extends ArrayTypeNode*/ extends TypeNode {
 	 *
 	 */
 	Expr distribution();
+	
+	X10ArrayTypeNode reconstruct(TypeNode base,  Expr indexedSet);
 }

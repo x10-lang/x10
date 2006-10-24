@@ -6,6 +6,8 @@ package polyglot.ext.x10.visit;
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
 import polyglot.ast.Call;
+import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.LocalDecl;
@@ -16,8 +18,10 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.VarDecl;
 import polyglot.ext.x10.ast.X10ArrayAccess;
 import polyglot.ext.x10.ast.X10ArrayAccess1;
+import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10LocalDecl_c;
 import polyglot.frontend.Job;
+import polyglot.frontend.goals.Goal;
 import polyglot.main.Report;
 import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
@@ -53,17 +57,19 @@ public class TypeElaborator extends TypeChecker {
 		// a null return indicates that node processing is *not* being overriden.
 		// a non-null value indicates overriding, with the returned node being
 		// the result of running this visitor on n.
+		Node result = null;
 		if (parent instanceof LocalDecl) 
-			return (n instanceof TypeNode) ? null : n;
+			return result = (n instanceof TypeNode) ? null : n;
 		if (parent instanceof FieldDecl) 
-			return (n instanceof TypeNode) ? null : n;
+			return result = (n instanceof TypeNode) ? null : n;
 		if (parent instanceof Formal) 
-			return (n instanceof TypeNode) ? null : n;
+			return result = (n instanceof TypeNode) ? null : n;
 		// Bypass all nodes which cannot have a type declaration under them.
 		
 		  
 		// Otherwise, proceed as usual.
-        return super.override(parent, n);
+        return result = super.override(parent, n);
+		
     }
  
 	protected static class AmbChecker extends NodeVisitor {
@@ -71,18 +77,16 @@ public class TypeElaborator extends TypeChecker {
         
         public Node override(Node n) {   
             if (! n.isDisambiguated() || ! n.isTypeChecked()) {
-               // Report.report(3, "  !!!!! no type at " + n + " (" + n.getClass().getName() + ")");
-             //   if (n instanceof Expr)  
-              //      Report.report(3, "   !!!! n.type = " + ((Expr) n).type());
+              //  Report.report(3, "  !!!!! no type at " + n + " (" + n.getClass().getName() + ")");
+              // if (n instanceof Expr)  
+               //     Report.report(3, "   !!!! " + n  + ".type = " + ((Expr) n).type());
                 amb = true;
             }
             return n;
         }
     }
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (   Report.should_report(Report.visit, 2))
-            Report.report(2, ">> " + this + "::leave " + n);
-
+       
         
         if (n instanceof ArrayAccess || n instanceof X10ArrayAccess
         		|| n instanceof X10ArrayAccess1) {
@@ -95,35 +99,27 @@ public class TypeElaborator extends TypeChecker {
         if (n instanceof Return) {
         	return n;
         }
-       
+        if (n instanceof LocalDecl) {
+    		X10LocalDecl_c result = (X10LocalDecl_c) n;
+    		result.pickUpTypeFromTypeNode(this);
+    	}
         AmbChecker ac = new AmbChecker();
         n.visitChildren(ac);
-        
         Node m = n;
         boolean  disambiguated = ! ac.amb && m.isDisambiguated();
         if (disambiguated ) {
         //  Report.report(3, "running typeCheck for " + m);
             m = m.del().typeCheck((TypeChecker) v);
             
-          
         }
        // else do nothing. 
         else {
-        	if (m instanceof LocalDecl) {
-        		X10LocalDecl_c result = (X10LocalDecl_c) m;
-        		result.pickUpTypeFromTypeNode(this);
-            	LocalInstance li = result.localInstance();
-         	  
-        	}
         	
               //  Report.report(1, "TypeElaborator.leaveCall:  no type at " + m + "(#"+ m.hashCode() 
               // 		 + ")" + ac.amb + " " + m.isDisambiguated());
             //Goal g = job.extensionInfo().scheduler().currentGoal();
            // g.setUnreachableThisRun();
         }
-        
-        if (   Report.should_report(Report.visit, 2))
-            Report.report(2, "<< " + this + "::leave " + n + " -> " + m);
         
         return m;
     }   

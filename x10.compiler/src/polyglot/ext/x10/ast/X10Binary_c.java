@@ -176,6 +176,15 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 				
 					return type(ts.Boolean());
 				}
+			if (op == COND_AND ) {
+				 if (! (ts.equals(l, ts.Boolean()) && ts.equals(r, ts.Boolean()))) {
+						throw new SemanticException("The " + op +
+						    " operator must have operands of similar type.",
+						    position());
+					    }
+				
+					return type(ts.Boolean());
+				}
 				
 			// No other binary op  is allowed in a deptype.
 			return this;
