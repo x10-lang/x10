@@ -27,9 +27,11 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
+import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.ext.x10.visit.ExprFlattener.Flattener;
@@ -259,6 +261,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			if (rank != null) type.setRank(rank);
 			if (xts.isPlace(r) && r instanceof Here) 
 				type.setOnePlace(C_Here_c.here);
+			if (TypeTranslator.isPureTerm(right))
+					type.setDistribution(TypeTranslator.translate(right));
+			
 			Expr result = type(type);
 			//Report.report(1, "X10Binary_c: returning " + result + " of type " + result.type());
 			return result;
@@ -302,9 +307,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 				xts.isPrimitiveTypeArray(l)) {
 			// FIXME: allow strings here
 			// pointwise numerical operations. TODO: Check that one type can be numerically coerced to the other.
-			if (!l.equals(r)) {
-				throw new SemanticException("The " + op
-						+ " operator must have arrays of the same base type as operands.", right.position());
+			if (!l.typeEquals(r)) {
+				throw new SemanticException("The types of operands to " + op
+						+ " are " + l + " and " + r + "; these types should be equal.", right.position());
 			}
 			// vj: Check that they are defined over the same region?
 			return type(l);

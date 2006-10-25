@@ -8,6 +8,7 @@ import polyglot.ast.Field;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.Receiver;
+import polyglot.ast.Term;
 import polyglot.ast.Unary;
 import polyglot.ast.Variable;
 import polyglot.ext.x10.ast.Here;
@@ -141,5 +142,16 @@ public class TypeTranslator implements Serializable {
 		//Report.report(1, "TypeTranslator: translating to constraint " + e);
 		Constraint c = new Constraint_c();
 		return constraint(e, c);
+	}
+	public static C_Term translate(Receiver r) throws SemanticException {
+		return new TypeTranslator().trans(r);
+	}
+	public static boolean isPureTerm(Term t) {
+		boolean result=false;
+		if (t instanceof Variable) {
+			Variable v = (Variable) t;
+			result = v.flags().isFinal();
+		}
+		return result;
 	}
 }
