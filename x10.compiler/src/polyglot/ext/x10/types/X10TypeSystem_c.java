@@ -1058,19 +1058,25 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
     	result &= bt1 == bt2;
     	if (!result) return result;
     	List tp1 = me.typeParameters(), tp2 = other.typeParameters();
-    	if (tp1 == null) return tp2 == null;
-    	if (tp1.isEmpty()) return tp2 == null || tp2.isEmpty();
-    	int n = tp1.size();
-    	if (n > 0 && (tp2==null ||  n != tp2.size())) return false;
-    	Iterator it1 = tp1.iterator();
-    	Iterator it2 = tp2.iterator();
-    	while (it1.hasNext()) {
-    		Type t1 = (Type) it1.next();
-    		Type t2 = (Type) it2.next();
-    		result &= t1.equals(t2);
-    		if (!result) return result;
+   
+    	if (tp1 == null || tp1.isEmpty()) {
+    		if (tp2 != null && ! tp2.isEmpty())
+    		return result=false;
+    	} else {
+    		int n = tp1.size();
+    		if (n > 0) {
+    			if (tp2==null ||  n != tp2.size()) return result=false;
+    			Iterator it1 = tp1.iterator();
+    			Iterator it2 = tp2.iterator();
+    			while (it1.hasNext()) {
+    				Type t1 = (Type) it1.next();
+    				Type t2 = (Type) it2.next();
+    				result &= t1.equals(t2);
+    				if (!result) return result;
+    			}
+    			if (! result) return result;
+    		}
     	}
-    	if (! result) return result;
     	result = equivClause(me.depClause(), other.depClause());
     	return result;
     	} finally {
