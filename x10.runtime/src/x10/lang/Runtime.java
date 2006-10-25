@@ -1,6 +1,7 @@
 package x10.lang;
 
 import java.io.PrintStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.StringTokenizer;
@@ -401,6 +402,15 @@ public abstract class Runtime {
 					if (f.getType().isPrimitive()) {
 						if (!f.get(o1).equals(f.get(o2)))
 							return false;
+					} else if (f.getType().isArray()) {
+						java.lang.Object a1 = f.get(o1);
+						java.lang.Object a2 = f.get(o2);
+						int len = Array.getLength(a1);
+						if (len != Array.getLength(a2))
+							return false;
+						for (int j = 0; j < len; j++)
+							if (!Array.get(a1, j).equals(Array.get(a2, j)))
+								return false;
 					} else {
 						// I assume here that value types are immutable
 						// and can thus not contain mutually recursive
