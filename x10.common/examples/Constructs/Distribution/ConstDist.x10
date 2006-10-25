@@ -5,7 +5,7 @@ public class ConstDist extends x10Test {
 
 public boolean run() {
 	
-	region(:rank==2&&zeroBased) R = (region(:rank==2)) [0:9,0:9];
+	region(:rank==2&&zeroBased) R =  [0:9,0:9];
 	dist(:rank==2&&onePlace==here) D = R->here;
 	double[:rank==2&&onePlace==here&&zeroBased] a =  new double[R->here];
 	double[:rank==2&&onePlace==here&&zeroBased] b  =  new double[R->here];
