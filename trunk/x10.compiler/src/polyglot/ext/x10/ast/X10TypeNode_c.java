@@ -136,7 +136,7 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         X10Type newArgType = argType.makeVariant(term, tParameters);
         X10TypeNode result = (X10TypeNode) arg.type(newArgType);
         result = result.dep(null,null);
-        if ( true || Report.should_report("debug", 5)) {
+        if (  Report.should_report("debug", 5)) {
             Report.report(1,"[X10TypeNode_c static] typeCheckDepClause... returning |" + result + "|.");
         }
         return result;
