@@ -57,7 +57,7 @@ public class RectRegionMaker_c extends X10Call_c implements RectRegionMaker {
 			
 			X10Type t = (X10Type) e.type();
 			
-			if (! xts.equals(t, xts.region())) {
+			if (! xts.isSubtype(t, xts.region())) {
 				throw new SemanticException("The argument, " + e + ", should be of type region instead of " + t
 						+".", position());
 			}
