@@ -32,7 +32,7 @@ public class Jacobi_skewed extends x10Test {
 	public boolean run() {
 		int iters = 0;
 		double err;
-		final double[.] Temp = new double[DInner];
+		final double[:distribution==this.DInner] Temp = (double[:distribution==this.DInner]) new double[DInner];
 		while (true) {
 			finish ateach (point p[i]: DInner)
 			{ Temp[i] = (read(i-1)+read(i+1))/2.0; }

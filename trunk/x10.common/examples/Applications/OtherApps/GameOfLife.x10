@@ -76,7 +76,7 @@ public class GameOfLife extends x10Test {
 			// Now recompute if each cell is still alive.
 			// A live cell survives iff it has exactly 2 or 3 live neighbors.
 			// A dead cell is born again iff it has exactly 3 live neighbors.
-			final int[.] temp = new int[D_inner]
+			final int[:distribution==D_inner] temp = new int[D_inner]
 				(point p[i,j])
 				{ return b2i(((isAlive[i,j] != 0) & (nn[i,j] == 2)) | (nn[i,j] == 3)); };
 			pr("temp", temp);
