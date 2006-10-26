@@ -24,8 +24,9 @@ public class C_Special_c extends C_Var_c implements C_Special {
 		qualifier=null;
 	}
 	
- 
-	
+	public C_Var findRootVar() {
+		return this;
+	}
 	public C_Kind kind() {
 		return kind;
 	}

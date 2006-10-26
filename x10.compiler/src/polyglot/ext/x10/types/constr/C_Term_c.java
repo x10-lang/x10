@@ -12,7 +12,8 @@ public abstract class C_Term_c implements C_Term {
 	}
 	public Type type() { return type;}
 	
-	
-	
+	public C_Term substitute(C_Term value, C_Term var) {
+		 return equals(var) ? value : this;
+		}
 	
 }

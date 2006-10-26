@@ -35,7 +35,7 @@ public class X10BooleanLit_c extends BooleanLit_c {
 		  X10Type Boolean = (X10Type) tc.typeSystem().Boolean();
 		 
 			C_Lit_c literal = value ? C_Lit.TRUE : C_Lit.FALSE;
-			Constraint c = Constraint_c.addVarWhoseTypeThisIs(literal,null);
+			Constraint c = Constraint_c.addSelfBinding(literal,null);
 		  X10Type newType  = Boolean.makeVariant(c, null);
 	    return type(newType);
 	  }
