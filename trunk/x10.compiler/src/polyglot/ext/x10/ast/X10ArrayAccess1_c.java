@@ -11,6 +11,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ext.jl.ast.Expr_c;
+import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.NullableType_c;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -153,7 +154,8 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 		}
         // find the return type by finding the return type of the get(index) method on type.
         
-        X10ClassType refType = (X10ClassType) type;
+		   X10ClassType refType 
+	        = (X10ClassType) (type instanceof NullableType ? ((NullableType) type).base() : type);
         String name = "get";
         List argTypes = new LinkedList();
         argTypes.add(index.type());

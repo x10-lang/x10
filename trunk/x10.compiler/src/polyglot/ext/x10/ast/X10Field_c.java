@@ -10,6 +10,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Field_c;
+import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -17,6 +18,7 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Field;
 import polyglot.ext.x10.types.constr.C_Field_c;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
@@ -118,7 +120,7 @@ public class X10Field_c extends Field_c {
 			type.setOnePlace(aType1.onePlace());
 			Constraint c = aType1.depClause(); 
 			if (c != null) {
-				C_Term me = aType1.depClause().varWhoseTypeIsThis();
+				C_Var me = aType1.depClause().varWhoseTypeIsThis();
 				if (me !=null) {
 					C_Field f = new C_Field_c(result.fieldInstance(), me);
 					Constraint myC = type.depClause();
@@ -129,7 +131,8 @@ public class X10Field_c extends Field_c {
 			return result;
 		}
 		if (name.equals("region") && (xts.isX10Array(aType) || xts.isDistribution(aType)) ) {
-			X10ParsedClassType aType1 = (X10ParsedClassType) aType;
+			X10ParsedClassType aType1 = (X10ParsedClassType) (aType instanceof NullableType ? 
+					((NullableType) aType).base() : aType);
 			X10ParsedClassType type = ((X10ParsedClassType) result.type()).makeVariant();
 			type.setRank(aType1.rank());
 			if (aType1.isRect()) type.setRect();
@@ -137,7 +140,7 @@ public class X10Field_c extends Field_c {
 			
 			Constraint c = aType1.depClause(); 
 			if (c != null) {
-				C_Term me = aType1.depClause().varWhoseTypeIsThis();
+				C_Var me = aType1.depClause().varWhoseTypeIsThis();
 				if (me !=null) {
 					C_Field f = new C_Field_c(result.fieldInstance(), me);
 					Constraint myC = type.depClause();
