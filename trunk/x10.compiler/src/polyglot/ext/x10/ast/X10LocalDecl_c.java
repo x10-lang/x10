@@ -86,7 +86,7 @@ public class X10LocalDecl_c extends LocalDecl_c {
 		X10Type newType = (X10Type) type.type();
 		
 		if (li.flags().isFinal()) {
-			Constraint c = Constraint_c.addVarWhoseTypeThisIs(C_Local_c.makeSelfVar(li),newType.depClause());
+			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),newType.depClause());
 			 newType = newType.makeVariant(c,newType.typeParameters());
 		
 			//nli  = nli.type(newType);
@@ -108,7 +108,7 @@ public class X10LocalDecl_c extends LocalDecl_c {
 		if (li.flags().isFinal()) {
 			X10Type oldType = (X10Type) li.type();
 			
-			Constraint c = Constraint_c.addVarWhoseTypeThisIs(C_Local_c.makeSelfVar(li),oldType.depClause());
+			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),oldType.depClause());
 			X10Type newType = oldType.makeVariant(c,oldType.typeParameters());
 			li.setType(newType);
 			//nli  = nli.type(newType);

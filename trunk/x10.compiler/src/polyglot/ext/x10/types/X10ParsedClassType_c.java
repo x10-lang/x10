@@ -14,6 +14,7 @@ import polyglot.ext.jl.types.ParsedClassType_c;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Lit;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
@@ -580,7 +581,7 @@ implements X10ParsedClassType
 		rank = c.find("rank");
 		if (rank == null) {
 			// build the synthetic term.
-			C_Term var = c.varWhoseTypeIsThis();
+			C_Var var = c.varWhoseTypeIsThis();
 			if (var !=null) {
 				FieldInstance fi = definedFieldNamed("rank");
 				//Report.report(1, "X10ParsedClassType: rank is " + rank + " var.type is " + var.type());
@@ -617,7 +618,7 @@ implements X10ParsedClassType
 		dist = c.find("distribution");
 		if (dist == null) {
 			// build the synthetic term.
-			C_Term var = c.varWhoseTypeIsThis();
+			C_Var var = c.varWhoseTypeIsThis();
 			if (var !=null) {
 				FieldInstance fi = definedFieldNamed("distribution");
 				

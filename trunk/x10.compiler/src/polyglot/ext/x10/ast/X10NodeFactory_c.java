@@ -37,6 +37,7 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.ast.While;
 import polyglot.ext.jl.ast.Block_c;
 import polyglot.ext.jl.ast.BooleanLit_c;
 import polyglot.ext.jl.ast.Disamb_c;
@@ -48,6 +49,7 @@ import polyglot.ext.jl.ast.Local_c;
 import polyglot.ext.jl.ast.New_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
 import polyglot.ext.jl.ast.Special_c;
+import polyglot.ext.jl.ast.While_c;
 import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.extension.X10InstanceofDel_c;
 import polyglot.ext.x10.types.X10Flags;
@@ -780,7 +782,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     		alternative = Block(alternative.position(), l2);
     	}
     	
-        If n = new If_c(pos, cond, consequent, alternative);
+        If n = new X10If_c(pos, cond, consequent, alternative);
         n = (If)n.ext(extFactory().extIf());
         n = (If)n.del(delFactory().delIf());
         return n;
@@ -810,5 +812,11 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (RectRegionMaker) n.ext(extFactory().extExpr());
 		return (RectRegionMaker) n.del(delFactory().delExpr());
 	}
+    public While While(Position pos, Expr cond, Stmt body) {
+        While n = new X10While_c(pos, cond, body);
+        n = (While)n.ext(extFactory().extWhile());
+        n = (While)n.del(delFactory().delWhile());
+        return n;
+    }
 }
 

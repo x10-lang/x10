@@ -32,7 +32,7 @@ public class TypeTranslator implements Serializable {
 	}
 	public C_Field trans(Field t) throws SemanticException{
 		//Report.report(1, "TypeTranslator: translating Field " + t);
-		return new C_Field_c(t, trans(t.target()));
+		return new C_Field_c(t, (C_Var) trans(t.target()));
 	}
 	public C_Special trans(X10Special t)throws SemanticException {
 		return new C_Special_c(t);

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import polyglot.ext.x10.ast.X10Special;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
@@ -34,7 +35,7 @@ public class Constraint_c implements Constraint {
 	protected C_Term_c placeTerm;        // if non null, place could be here or some placeTerm.
 	
 	// For representation of T(:self == o), selfBinding is o.
-	protected C_Term varWhoseTypeThisIs;
+	protected C_Var varWhoseTypeThisIs;
 	
 	boolean consistent = true;
 	boolean valid = true;
@@ -71,16 +72,26 @@ public class Constraint_c implements Constraint {
 		Constraint c = new Constraint_c();
 		return c.addBinding(var,val);
 	}
-	public C_Term varWhoseTypeIsThis() {
+	public C_Var varWhoseTypeIsThis() {
 		return varWhoseTypeThisIs;
 	}
-	public static Constraint addVarWhoseTypeThisIs(C_Term val, Constraint c) {
+	/**
+	 * Add the constraint self==val.
+	 * @param val
+	 * @param c
+	 * @return
+	 */
+	public static Constraint addSelfBinding(C_Term val, Constraint c) {
 		c = (c==null) ? new Constraint_c() : c;
-		((Constraint_c) c).varWhoseTypeThisIs = val;
+		if (val instanceof C_Var) {
+			c.setVarWhoseTypeThisIs((C_Var) val);
+			return c;
+		}
+		c =  c.addBinding(C_Special.self, val);
 		return c;
 	}
-	public void setVarWhoseTypeThisIs(C_Term val) {
-		varWhoseTypeThisIs = val;
+	public void setVarWhoseTypeThisIs(C_Var var) {
+		varWhoseTypeThisIs = var;
 	}
 	String name = "";
 
@@ -99,13 +110,24 @@ public class Constraint_c implements Constraint {
 	public boolean isLocal() { return placePossiblyNull || placeIsHere; }
 	public boolean isPossiblyRemote() { return ! isLocal();}
 	
+	public boolean impliedBySelfBinding(C_Var var, C_Term val) {
+		if (varWhoseTypeThisIs == null)
+			return false;
+		C_Term val1 = val.substitute(varWhoseTypeThisIs, C_Special.self);
+		C_Var var1 = (C_Var) var.substitute(varWhoseTypeThisIs, C_Special.self);
+		return var1.equals(val1);
+	}
+	
+
+	
 	/**
 	 * Add X=t to the constraint, unless it is inconsistent. 
 	 * If there is already a binding X=s, check that s.equals(t), otherwise the constraint
 	 * is inconsistent.
 	 * Else, check that t is not equal to X before adding it.
-	 * @param var
-	 * @param val
+	 * Finally,add the binding only if it is not implied by self=varWhoseTypeIsThis.
+	 * @param var X -- the variable being bound
+	 * @param val t -- the term the variable is being bound to
 	 */
 	public Constraint addBinding(C_Var var, C_Term val) {
 		if (!consistent ) return this; 
@@ -115,6 +137,8 @@ public class Constraint_c implements Constraint {
 			consistent &= prev.equals(val);
 			return this;
 		}
+		if (impliedBySelfBinding(var, val))
+			return this;
 		if (! var.equals(val)) {
 			// New information has been added.
 			bindings.put(var, val);
@@ -169,21 +193,18 @@ public class Constraint_c implements Constraint {
 			Map.Entry i = (Map.Entry) it.next();
 			C_Term val = (C_Term) i.getValue();
 			C_Var var = (C_Var) i.getKey();
-			C_Term val2 = (C_Term) bindings.get(var);
-			//Report.report(1, "Constraint.entails: |" + val + "|" + val2 + "|" + val.equals(val2));
-			result = val==val2 || val.equals(val2);
-			if ((!result) && (var instanceof C_Special)) {
-//				 check the selfbinding
-				C_Special s = (C_Special) var;
-				if (s.kind().equals(C_Special.SELF)) {
-					result = (val==varWhoseTypeThisIs || val.equals(varWhoseTypeThisIs));
-				}
-			}
+			result = entails(var, val);
 		}
 	//Report.report(1, "Constraint: " + this + " entails " + other + "? " + result);
 		return result;
 	}
 
+	protected boolean checkSelfEntails(C_Var var, C_Term val) {
+		if (varWhoseTypeThisIs == null) return false;
+		C_Var var1 = (C_Var) var.substitute(varWhoseTypeThisIs, C_Special.self);
+		boolean result = var1.equals(val);
+		return result;
+	}
 	public boolean equiv(Constraint other) {
 		//Report.report(1, "Constraint: " + this + " equiv " + other + "? " );
 		boolean result = entails(other);
@@ -194,7 +215,26 @@ public class Constraint_c implements Constraint {
 	
 	public boolean entails(C_Var var, C_Term val) {
 		if (! consistent) return true;
-		boolean result = val.equals(bindings.get(var));
+		C_Term val2 = (C_Term) bindings.get(var);
+		boolean result = val.equals(val2) || checkSelfEntails(var, val);
+		if ((! result) && (val2 instanceof C_Var)) {
+			C_Var indirect = (C_Var) val2;
+			C_Var rootVar = indirect.findRootVar();
+			X10Type type = (X10Type) rootVar.type();
+			Constraint c = rootVar.equals(C_Special.self) ? this : type.depClause();
+			if (c!=null) {
+			C_Var val2self = (C_Var) val2.substitute(C_Special.self, rootVar);
+			result = c.entails(val2self, val);
+			/*	if ((!result) && (var instanceof C_Special)) {
+//			 check the selfbinding
+			C_Special s = (C_Special) var;
+			if (s.kind().equals(C_Special.SELF)) {
+				result = (val==varWhoseTypeThisIs || val.equals(varWhoseTypeThisIs));
+			}
+			
+		}*/
+			}
+		}
 		return result;
 	}
 	public C_Term find(String varName) {

@@ -72,6 +72,6 @@ public interface Constraint extends Serializable {
 	 * @throws SemanticException
 	 */
 	Constraint addTerm(C_Term term) throws SemanticException;
-	C_Term varWhoseTypeIsThis();
-	void setVarWhoseTypeThisIs(C_Term val);
+	C_Var varWhoseTypeIsThis();
+	void setVarWhoseTypeThisIs(C_Var val);
 }
