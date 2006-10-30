@@ -20,5 +20,5 @@ public interface C_Term extends Serializable {
 	 */
 	
 	C_Term substitute(C_Term value, C_Term var);
-	
+
 }

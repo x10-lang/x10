@@ -24,9 +24,16 @@ public class C_Special_c extends C_Var_c implements C_Special {
 		qualifier=null;
 	}
 	
-	public C_Var findRootVar() {
+	public C_Var rootVar() {
 		return this;
 	}
+	protected Path path = new Path(new String[0]);
+	protected C_Var[] vars = new C_Var[] { this };
+	public C_Var[] vars() { return vars; }
+	public Path path() {
+		return path;
+	}
+	
 	public C_Kind kind() {
 		return kind;
 	}

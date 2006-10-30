@@ -22,9 +22,13 @@ public class C_Local_c extends C_Var_c implements C_Local {
 	public static final C_Local makeSelfVar(LocalInstance li) {
 		return new C_Local_c(li, true);
 	}
-	public C_Var findRootVar() {
-		return this;
+	
+	protected Path path = new Path(new String[0]);
+	public Path path() {
+		return path;
 	}
+	protected C_Var[] vars = new C_Var[] { this };
+	public C_Var[] vars() { return vars; }
 	public int hashCode() {
 		String name = name();
 		return ((name == null) ? 0 : name.hashCode()) + (li==null ?  0 : li.hashCode());

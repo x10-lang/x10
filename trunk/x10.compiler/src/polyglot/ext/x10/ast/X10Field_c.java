@@ -114,7 +114,11 @@ public class X10Field_c extends Field_c {
 			X10ParsedClassType aType1 = (X10ParsedClassType) aType;
 			X10ParsedClassType type = ((X10ParsedClassType) result.type()).makeVariant();
 			//Report.report(1, "X10Field_c aType1=" + aType1 + " " + aType1.getClass());
-			type.setRank(aType1.rank());
+			C_Term rank = aType1.rank();
+			if (rank != null) {
+				type.setRank(rank);
+				//Report.report(1, "X10Field_c: set rank of .distribution to " + rank);
+			}
 			if (aType1.isRect()) type.setRect();
 			if (aType1.isZeroBased()) type.setZeroBased();
 			type.setOnePlace(aType1.onePlace());

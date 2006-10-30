@@ -24,4 +24,7 @@ public class C_UnaryTerm_c extends C_Term_c implements C_UnaryTerm {
 		C_UnaryTerm_c other = (C_UnaryTerm_c) o;
 		return op.equals(other.op) && arg.equals(other.arg);
 	}
+	public Promise toPromise() {
+		throw new Error("Not implemented yet.");
+	}
 }

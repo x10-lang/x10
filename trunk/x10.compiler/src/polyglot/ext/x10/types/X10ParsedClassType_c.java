@@ -20,6 +20,7 @@ import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Failure;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
@@ -660,19 +661,29 @@ implements X10ParsedClassType
 				}
 				depClause = depClause.addTerm(term);
 			}
-		} catch (SemanticException z) {}
+		} catch (Failure z) {
+			throw new InternalCompilerError("Caught a failure " + z 
+					+ " when setting property " + propName + " on " + depClause);
+			
+		}
 		
 	}
 	
-	protected void setProperty(String propName, C_Term val) {
-		X10FieldInstance fi = definedFieldNamed(propName);
-		//Report.report(1, "X10Parsedclass.setting property " + propName + " on " + this + "found fi=" + fi);
-		if (fi != null &&  fi.isProperty()) {
-			C_Var var = new C_Field_c(fi, C_Special.self);
-			if (depClause == null) {
-				depClause = new Constraint_c();
+	protected void setProperty(String propName, C_Term val)  {
+		try { 
+			X10FieldInstance fi = definedFieldNamed(propName);
+			//Report.report(1, "X10Parsedclass.setting property " + propName + " on " + this + "found fi=" + fi);
+			if (fi != null &&  fi.isProperty()) {
+				C_Var var = new C_Field_c(fi, C_Special.self);
+				if (depClause == null) {
+					depClause = new Constraint_c();
+				}
+				depClause = depClause.addBinding(var, val);
 			}
-			depClause = depClause.addBinding(var, val);
+		} catch (Failure z) {
+			throw new InternalCompilerError("Caught a failure " + z 
+					+ " when setting property " + propName + " with value " 
+					+ val + " on " + depClause);
 		}
 	}
 	
