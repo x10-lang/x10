@@ -196,7 +196,7 @@ public class RayTracer {
 				nhits++;
 			}
 		}
-		return nhits > 0 ? true : false;
+		return nhits > 0 ? (boolean) true : (boolean) false;
 	}
 
 	/**
