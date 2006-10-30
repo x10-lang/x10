@@ -21,9 +21,7 @@ public class C_Field_c extends C_Var_c implements C_Field {
 		this.fi=fi;
 		this.r = receiver;
 	}
-	public C_Var findRootVar() {
-		return  r==null? this : r.findRootVar();
-	}
+	
 	public int hashCode() {
 		return ((name == null) ? 0 : name.hashCode()) + (r==null ?  0 : r.hashCode());
 	}
@@ -51,5 +49,33 @@ public class C_Field_c extends C_Var_c implements C_Field {
 		
 		}
 	
-
+	// memoize rootVar and path.
+	protected Path path;
+	protected C_Var[] vars;
+	public C_Var[] vars() { 
+		if (vars == null) initVars();
+		return vars;
+	}
+	public Path path() {
+		if (vars == null) initVars();
+		return path;
+	}
+	
+	protected void initVars() {
+		int count=0;
+		C_Var source  = this;
+		for (; source instanceof C_Field; source = ((C_Field) source).receiver())
+			count++;
+	//	Report.report(1, "C_Field_c: Count for " + this + " is " + count + ".");
+		vars = new C_Var[count+1];
+		C_Var f = this;
+		for (int i =count; i >= 0; i--) {
+		//	Report.report(1, "C_Field_c.initVars setting vars["+i+"] to " + f +  ".");
+			vars[i]= f;
+			if (i > 0) 
+				f = ((C_Field) f).receiver();
+		}
+		
+	}
+	
 }

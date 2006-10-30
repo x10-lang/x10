@@ -32,4 +32,7 @@ public class C_BinaryTerm_c extends C_Term_c implements C_BinaryTerm {
 		C_BinaryTerm_c other = (C_BinaryTerm_c) o;
 		return left.equals(other.left) && right.equals(other.right) && op.equals(other.op);
 	}
+	public Promise toPromise() {
+		throw new Error("Not implemented yet.");
+	}
 }

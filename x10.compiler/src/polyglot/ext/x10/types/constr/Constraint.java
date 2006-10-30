@@ -32,6 +32,7 @@ public interface Constraint extends Serializable {
 	 * @return
 	 */
 	boolean entails(Constraint t);
+	boolean entailedBy(Constraint t);
 	/**
 	 * Do the two constraints entail each other?
 	 * @param t
@@ -44,7 +45,7 @@ public interface Constraint extends Serializable {
 	 * @param t
 	 * @return
 	 */
-	boolean entails(C_Var var, C_Term val);
+	boolean entails(C_Term var, C_Term val);
 	
 	/**
 	 * Return the term this variable is bound to in the constraint, and null if there is no such term.
@@ -52,26 +53,37 @@ public interface Constraint extends Serializable {
 	 * @return
 	 */
 	C_Term find(String varName);
+	
 	/**
-	 * Return the set of bindings in the constraint. null is retained if 
-	 * there are no bindings.
-	 * @return the set of bindings, null if there are none.
-	 */
-	Map bindings();
-	/**
-	 * Add a binding var=val to the constraint.
+	 * Add t1=t2 to the constraint.
 	 * @param var
 	 * @param t
-	 * @return new constraint with var=val added.
+	 * @return new constraint with t1=t2 added.
 	 */
-	Constraint addBinding(C_Var var, C_Term val);
+	Constraint addBinding(C_Term var, C_Term val) throws Failure;
 	/**
 	 * Add the binding term=true to the constraint.
 	 * @param term -- must be of type Boolean.
 	 * @return new constraint with term=true added.
 	 * @throws SemanticException
 	 */
-	Constraint addTerm(C_Term term) throws SemanticException;
+	Constraint addTerm(C_Term term) throws Failure;
 	C_Var varWhoseTypeIsThis();
 	void setVarWhoseTypeThisIs(C_Var val);
+	
+	/** Return the promise obtained by interning this term in the constraint.
+	 * This may result in new promises being added to the graph maintained
+	 * by the constraint. 
+	 * term: Literal -- return the literal.
+	 * term: LocalVariable, Special, Here Check if term is already in the roots maintained by
+	 * the constraint. If so, return the root, if not add a promise to the roots
+	 * and return it.
+	 * term: C_Field. Start with the rootVar x and follow the path f1...fk, if term=x.f1...fk.
+	 * If the graph contains no nodes after fi, for some i < k, add promises into the
+	 * graph from fi+1...fk. Return the last promise.
+	 * @param term
+	 * @return
+	 */
+	Promise intern(C_Term term);
+	
 }
