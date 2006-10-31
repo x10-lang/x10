@@ -214,7 +214,7 @@ implements ArrayConstructor {
 		// Transfer the attributes from the dist to the array. This is in lieu of reading the
 		// dependent type for the constructor from an X10 source file.
 		X10ParsedClassType p = ((X10ParsedClassType) ((X10ParsedClassType) ts.array(newBaseType, isValue)).
-				makeVariant(new Constraint_c(), null));
+				makeVariant());
 		X10ParsedClassType t = transferAttributes(p, (X10ParsedClassType) newDistribution.type());
 		// System.out.println("ArrayConstructor_c: t=" + t);
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);

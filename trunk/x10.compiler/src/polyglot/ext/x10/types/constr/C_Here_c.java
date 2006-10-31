@@ -40,10 +40,13 @@ public class C_Here_c extends C_Term_c implements Promise {
 	public void dump(HashMap result) {
 		// nothing to dump.
 	}
+	public void dump(HashMap result, C_Term newSelf, C_Term newThis) {
+		// nothing to dump.
+	}
 	public Promise lookup( C_Var[] vars, int index) {
 		if (index==vars.length) 
 			return this;
-			return null;
+		return null;
 	}
 	public Promise lookup(String s) {
 		return null;

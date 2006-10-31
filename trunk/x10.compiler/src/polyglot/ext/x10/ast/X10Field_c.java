@@ -124,7 +124,7 @@ public class X10Field_c extends Field_c {
 			type.setOnePlace(aType1.onePlace());
 			Constraint c = aType1.depClause(); 
 			if (c != null) {
-				C_Var me = aType1.depClause().varWhoseTypeIsThis();
+				C_Var me = c.varWhoseTypeIsThis();
 				if (me !=null) {
 					C_Field f = new C_Field_c(result.fieldInstance(), me);
 					Constraint myC = type.depClause();
@@ -138,13 +138,14 @@ public class X10Field_c extends Field_c {
 			X10ParsedClassType aType1 = (X10ParsedClassType) (aType instanceof NullableType ? 
 					((NullableType) aType).base() : aType);
 			X10ParsedClassType type = ((X10ParsedClassType) result.type()).makeVariant();
-			type.setRank(aType1.rank());
+			C_Term aRank = aType1.rank();
+			if (aRank !=null) type.setRank(aRank);
 			if (aType1.isRect()) type.setRect();
 			if (aType1.isZeroBased()) type.setZeroBased();
 			
 			Constraint c = aType1.depClause(); 
 			if (c != null) {
-				C_Var me = aType1.depClause().varWhoseTypeIsThis();
+				C_Var me = c.varWhoseTypeIsThis();
 				if (me !=null) {
 					C_Field f = new C_Field_c(result.fieldInstance(), me);
 					Constraint myC = type.depClause();
@@ -155,7 +156,6 @@ public class X10Field_c extends Field_c {
 			return result;
 		}
 		return result;
-		
 	}
 
 	public boolean equals(Object o) {

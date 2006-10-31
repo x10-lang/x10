@@ -5,6 +5,7 @@ package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +15,7 @@ import polyglot.ext.jl.types.ParsedClassType_c;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Lit;
+import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Term;
@@ -75,6 +77,16 @@ implements X10ParsedClassType
 	 
 	 */  
 	protected Constraint depClause;
+	/**
+	 * The realClause is the conjunction of the depClause and the depClause
+	 * for the underlying base class. Each instance of this class satisfies
+	 * the realClause. When checking that A(:c) is a subtype of B(:d), check
+	 * that A is a subtype of B, and that the real clause of A(:c) implies d. 
+	 * (The real clause of A(:c), i.e. the depClause for A, will always imply
+	 * the depClause for B if A is a subtype of B.)
+	 */
+	protected Constraint realClause; 
+	protected boolean realClauseSet = false;
 	protected List/*<GenParameterExpr>*/ typeParameters;
 	
 	/** Initially this points to itself. When a copy is made
@@ -86,31 +98,105 @@ implements X10ParsedClassType
 	public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
-	public boolean isConstrained() { return depClause != null && ! depClause.valid();}
+	public Constraint realClause() {
+		if (! realClauseSet)
+			initRealClause();
+		return realClause;
+		
+	}
+	private void ensureClauses() {
+		Constraint rc = realClause(); // forces it to be initialized.
+		if (rc == null) {
+			realClause = new Constraint_c();
+		}
+		if (depClause == null) 
+			depClause = new Constraint_c();
+	}
+	private void initRealClause() {
+		// Force properties to be initialized.
+		properties();
+		Type type = superType();
+		HashMap result = new HashMap();
+		
+		if (type instanceof X10Type && type != null) {
+			X10Type xType = (X10Type) type;
+			Constraint rs = xType.realClause();
+			// no need to change self, and no occurrence of this is possible in 
+			// a type's base constraint.
+			if (rs != null)
+				result = rs.constraints(result); 
+		}
+		C_Term newThis = C_Special.Self;
+		for (Iterator it = properties.iterator(); it.hasNext();) {
+			FieldInstance fi = (FieldInstance) it.next();
+			type = fi.type();
+			if (type instanceof X10Type) {
+				X10Type xType = (X10Type) type;
+				Constraint rs = xType.realClause();
+				if (rs !=null) {
+					C_Term newSelf = new C_Field_c(fi, C_Special.Self);
+					result = rs.constraints(result, newSelf, newThis); 
+				}
+			}
+		}
+		if (! result.isEmpty()) {
+			if (realClause==null) realClause = new Constraint_c();
+			realClause = realClause.addBindings(result);
+		}
+		if (depClause !=null) {
+			if (realClause==null) realClause = new Constraint_c();
+			realClause = realClause.addIn(depClause);
+		}
+		realClauseSet = true;
+	}
+	private void addBinding(C_Term t1, C_Term t2) {
+		ensureClauses();
+		depClause = depClause.addBinding(t1, t2);
+		realClause = realClause.addBinding(t1,t2);
+	}
+	public boolean isConstrained() { 
+		Constraint rc = realClause();
+		return rc != null && ! rc.valid();}
 	public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
-		Report.report(1, "X10ParsedClassType_c: settingDepGen on "  + this  + "(# + this.hashCode() " +
-				" to " + d + " " + l);
+		//Report.report(1, "X10ParsedClassType_c: settingDepGen on "  + this  + "(# + this.hashCode() " +
+		//		" to " + d + " " + l);
 		depClause = d;
+		Constraint rc = realClause();
+		rc = (rc==null) ? d : rc.addIn(d);
 		typeParameters = l;
 	}
 	public X10ParsedClassType makeVariant() {
-		
 		return (X10ParsedClassType) makeVariant(new Constraint_c(), null);
+	}
+	public X10ParsedClassType makeVariant(Constraint c) {
+		return (X10ParsedClassType) makeVariant(c, null);
 	}
 	
 	public X10Type makeVariant(Constraint d, List/*<GenParameterExpr>*/ l) { 
-		
-		if (d == null && (l == null || l.isEmpty())) return this;
+		//assert (d!=null || (l !=null && ! l.isEmpty()));
+		 if (d == null && (l == null || l.isEmpty())) return this;
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
 		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
-		n.depClause = (d==null) ? depClause : d;
+		if (d == null) {
+			n.depClause = depClause.copy();
+			Constraint rc = realClause();
+			n.realClause = rc==null? null : rc.copy();
+			n.realClauseSet = true;
+		} else {
+			n.depClause =  d;
+			Constraint rc = baseType.realClause();
+			n.realClause = rc==null ? n.depClause : rc.copy().addIn(d);
+			n.realClauseSet = true;
+		}
+	
+		// hack, forced by decision to explicitly represent dist/region/array type logic.
 		n.isDistSet = n.isRankSet = n.isOnePlaceSet = n.isRailSet = n.isSelfSet
 		= n.isX10ArraySet = n.isZeroBasedSet = false;
 		
 		return n;
 	}
 	public C_Term propVal(String name) {
-		return (depClause==null) ? null : depClause.find(name);
+		return (realClause==null) ? null : realClause.find(name);
 	}
 	
 	public boolean typeEqualsImpl(Type o) {
@@ -119,7 +205,7 @@ implements X10ParsedClassType
 	public int hashCode() {
 		return 
 		(baseType == this ? super.hashCode() : baseType.hashCode() ) 
-		+ (isConstrained() ? depClause.hashCode() : 0)
+	//	+ (isConstrained() ? depClause.hashCode() : 0)
 		+ (isParametric() ? typeParameters.hashCode() :0);
 		
 	}
@@ -348,7 +434,7 @@ implements X10ParsedClassType
 	
 	// Uncomment the method below for debugging only. The output will confuse the post compiler (javac).
 	
-	public String toString() { 
+	public String toStringUnused() { 
 		if (false)
 			Report.report(5,"X10ParsedClassType: toString |" + super.toString() + "|(#" 
 					+ this.hashCode() + ") baseType = " + ( baseType.toString()) + " dep=" + depClause);
@@ -358,6 +444,14 @@ implements X10ParsedClassType
 		
 		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 		//  + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
+	}
+	public String toString() { 
+		
+		return  
+		((baseType == this) ? super.toString() : ((X10ParsedClassType_c) baseType).toString())
+		+ (isParametric() ? typeParameters.toString()  : "") 
+		
+		+ (depClause == null ? "" :  "(:" +  depClause.toString() + ")");
 	}
 	
 	
@@ -453,9 +547,7 @@ implements X10ParsedClassType
 		return result;
 	}
 	
-	
-	
-	List properties = null;
+	List/*<FieldInstance>*/ properties = null;
 	
 	public List properties() {
 		//Report.report(1, "X10ParsedClassType_c entering properties() on "  + this);
@@ -510,7 +602,7 @@ implements X10ParsedClassType
 	public boolean isRect() {
 		if (isRectSet) return isRect;
 		isRectSet = true;
-		Constraint c = depClause();
+		Constraint c = realClause();
 		return isRect= c==null ? false : amIProperty("rect");
 	}
 	public void setRect() {
@@ -523,7 +615,7 @@ implements X10ParsedClassType
 	public C_Term onePlace() {
 		if (isOnePlaceSet) return onePlace;
 		isOnePlaceSet = true;
-		Constraint c = depClause();
+		Constraint c = realClause();
 		return onePlace= c==null ? null : c.find("onePlace");
 	}
 	public void setOnePlace(C_Term onePlace) {
@@ -543,7 +635,7 @@ implements X10ParsedClassType
 		//Report.report(1, "X10ParsedClassType_c: isZerobased" + isZeroBasedSet + " " + isZeroBased);
 		if (isZeroBasedSet) return isZeroBased;
 		
-		Constraint c = depClause();
+		Constraint c = realClause();
 		isZeroBased= c==null ? false : amIProperty("zeroBased");
 		//Report.report(1, "X10ParsedClassType_c: isZerobased set to " + isZeroBased);
 		isZeroBasedSet = true;
@@ -560,7 +652,7 @@ implements X10ParsedClassType
 	public boolean isRail() {
 		if (isRailSet) return isRail;
 		isRailSet = true;
-		Constraint c = depClause();
+		Constraint c = realClause();
 		return isRail=c == null? false : isX10Array() && amIProperty("zeroBased");
 	}
 	public void setRail() {
@@ -574,7 +666,7 @@ implements X10ParsedClassType
 		
 		if (isRankSet) return rank;
 		
-		Constraint c = depClause();
+		Constraint c = realClause();
 		if (c == null) {
 			isRankSet = true;
 			return rank = null;
@@ -594,6 +686,7 @@ implements X10ParsedClassType
 		return rank;
 	}
 	public void setRank(C_Term rank) {
+		assert(rank !=null);
 		setProperty("rank", rank);
 		isRankSet=true;
 		this.rank = rank;
@@ -613,7 +706,7 @@ implements X10ParsedClassType
 	public C_Term distribution() {
 		if (isDistSet) return dist;
 		isDistSet = true;
-		Constraint c = depClause();
+		Constraint c = realClause();
 		if (c == null)
 			return dist = null;
 		dist = c.find("distribution");
@@ -638,7 +731,7 @@ implements X10ParsedClassType
 	boolean isSelfSet;
 	public C_Term self() {
 		if (isSelfSet) return self;
-		Constraint c = depClause();
+		Constraint c = realClause();
 		if (c == null) return self=null;
 		self = c.find("self");
 		if (self == null) {
@@ -647,43 +740,21 @@ implements X10ParsedClassType
 		}
 		return self;
 	}
-	/** Set the value of this property destructively. Should be called
+	/** Set the value of this property on the constraints of this type. Should be called
 	 * only within code that is transferring properties to this type from 
-	 * properties of referenced types, e.g. an array is zeroBased if its region is. */
+	 * properties of referenced types, e.g. an array is zeroBased if its region is. 
+	 * 
+	 * */
 	protected void setProperty(String propName) {
-		try {
-			X10FieldInstance fi = definedFieldNamed(propName);
-			//Report.report(1, "X10ParsedClassType setting property " + propName + " found fi=" + fi);
-			if (fi != null &&  fi.isProperty()) {
-				C_Term term = new C_Field_c(fi, C_Special.self);
-				if (depClause == null) {
-					depClause = new Constraint_c();
-				}
-				depClause = depClause.addTerm(term);
-			}
-		} catch (Failure z) {
-			throw new InternalCompilerError("Caught a failure " + z 
-					+ " when setting property " + propName + " on " + depClause);
-			
-		}
-		
+		setProperty(propName, C_Lit.TRUE);
 	}
 	
 	protected void setProperty(String propName, C_Term val)  {
-		try { 
-			X10FieldInstance fi = definedFieldNamed(propName);
-			//Report.report(1, "X10Parsedclass.setting property " + propName + " on " + this + "found fi=" + fi);
-			if (fi != null &&  fi.isProperty()) {
-				C_Var var = new C_Field_c(fi, C_Special.self);
-				if (depClause == null) {
-					depClause = new Constraint_c();
-				}
-				depClause = depClause.addBinding(var, val);
-			}
-		} catch (Failure z) {
-			throw new InternalCompilerError("Caught a failure " + z 
-					+ " when setting property " + propName + " with value " 
-					+ val + " on " + depClause);
+		X10FieldInstance fi = definedFieldNamed(propName);
+		//Report.report(1, "X10Parsedclass.setting property " + propName + " on " + this + "found fi=" + fi);
+		if (fi != null &&  fi.isProperty()) {
+			C_Var var = new C_Field_c(fi, C_Special.Self);
+			addBinding(var, val);
 		}
 	}
 	
@@ -701,14 +772,11 @@ implements X10ParsedClassType
 		boolean result = false;
 		try {
 			X10FieldInstance fi = (X10FieldInstance) definedFieldNamed(propName);
-		
 			if (fi != null &&  fi.isProperty()) {
-				
-				C_Term term = new C_Field_c(fi, C_Special.self);
-				
+				C_Term term = new C_Field_c(fi, C_Special.Self);
 				Constraint c = new Constraint_c();
 				c.addTerm(term);
-				return result = depClause().entails(c);
+				return result = realClause().entails(c);
 			}
 			
 		} catch (SemanticException z) {}
@@ -716,21 +784,21 @@ implements X10ParsedClassType
 		return result;
 	}
 	boolean fieldsInitialized = false;
-	 public List fields() {
+	public List fields() {
 		// Report.report(1, "***X10ParsedClassTypes fields() invoked on " + this + " " + init.getClass());
-		 if (fieldsInitialized) 
-			 return fields;
-		 try {
-	        init.initFields();
-	        init.canonicalFields();
-	       // Report.report(1, "X10ParsedClassTypes " + this + ".fields() returning " + fields);
-	        fieldsInitialized=true;
-	        return Collections.unmodifiableList(fields);
-		 } catch (Throwable z) {
+		if (fieldsInitialized) 
+			return fields;
+		try {
+			init.initFields();
+			init.canonicalFields();
+			// Report.report(1, "X10ParsedClassTypes " + this + ".fields() returning " + fields);
+			fieldsInitialized=true;
+			return Collections.unmodifiableList(fields);
+		} catch (Throwable z) {
 			//Report.report(1, "X10ParsedClassTypes caught  " + z);
-		 }
-		 return  Collections.unmodifiableList(fields);
-	    }
+		}
+		return  Collections.unmodifiableList(fields);
+	}
 	
 	
 }

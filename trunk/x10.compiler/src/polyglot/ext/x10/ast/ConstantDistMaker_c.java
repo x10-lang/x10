@@ -44,7 +44,7 @@ public class ConstantDistMaker_c extends X10Call_c implements ConstantDistMaker 
         X10ParsedClassType lType = (X10ParsedClassType) left.type();
        // Report.report(1, "ConstantDistMaker..ltype " + left+ "(#" + left.hashCode() + ") is " + lType);
 		X10ParsedClassType type = (X10ParsedClassType) ((X10ParsedClassType) xts.distribution())
-		.makeVariant(new Constraint_c(), null);
+		.makeVariant();
 		C_Term rank = ((X10ParsedClassType) lType).rank();
 		if (rank != null) type.setRank(rank);
 		type.setOnePlace(C_Here_c.here);

@@ -47,7 +47,7 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
         if (! n.type().isCanonical()) 
         	return this;
         X10ParsedClassType type = (X10ParsedClassType) ((X10ParsedClassType) n.type())
-        .makeVariant(new Constraint_c(), null);
+        .makeVariant();
         type.setRank(C_Lit.ONE);
         type.setRect();
         // vj: Also may wish to check for the type being int(:self==0).

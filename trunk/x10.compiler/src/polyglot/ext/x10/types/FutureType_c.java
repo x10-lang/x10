@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
 import polyglot.types.FieldInstance;
 import polyglot.types.Resolver;
@@ -55,6 +56,9 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
         xts = (X10TypeSystem) ts;
 	}
 	
+	public Constraint realClause() {
+		return null;
+	}
 	public boolean isFuture() {
 		return true;
 	}

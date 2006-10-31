@@ -56,6 +56,10 @@ public class C_Field_c extends C_Var_c implements C_Field {
 		if (vars == null) initVars();
 		return vars;
 	}
+	public C_Var rootVar() { 
+		if (vars == null) initVars();
+		return vars[0];
+	}
 	public Path path() {
 		if (vars == null) initVars();
 		return path;

@@ -28,6 +28,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	public boolean isParametric() { return typeParameters != null && !  typeParameters.isEmpty();}
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
+	public Constraint realClause() { return depClause; }
 	public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
 	public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
 		depClause = d;
@@ -38,8 +39,8 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 			return this;
 		X10ArrayType_c n = (X10ArrayType_c) copy();
 		// n.baseType = baseType; // this may not be needed.
-		n.typeParameters = l;
-		n.depClause = d;
+		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+		n.depClause = (d==null) ? depClause.copy() : d;
 		return n;
 	}
 	public String name() { return ((Named) base).name();}

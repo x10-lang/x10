@@ -25,7 +25,8 @@ public interface C_Special extends C_Var {
     
     // Type is null for SELF. The type that this constraint is attached to
 	// is the type of self. This helps avoid cyclic equality checks.
-	public static final C_Special self = new C_Special_c(X10Special.SELF, null);
+	public static final C_Special Self = new C_Special_c(X10Special.SELF, null);
+	public static final C_Special This = new C_Special_c(X10Special.THIS, null);
 	
 
     /** Get the kind of expression: SUPER or THIS or SELF. */

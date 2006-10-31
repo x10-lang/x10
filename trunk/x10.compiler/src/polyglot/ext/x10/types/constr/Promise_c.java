@@ -54,18 +54,27 @@ public class Promise_c implements Promise, Serializable {
 	public boolean hasChildren() {
 		return fields !=null;
 	}
+	
+	int lookupReturnValue;
+	public int lookupReturnValue() {
+		return lookupReturnValue;
+	}
 	public Promise lookup( C_Var[] vars, int index) {
 		// follow the eq link if there is one.
 		if (value != null) return value.lookup(vars, index);
 		if (index==vars.length) 
 			return this;
-		if (fields == null)
-			return null;
+		if (fields == null) {
+			lookupReturnValue = index;
+			return this;
+		}
 		String s = vars[index].name();
 		// check this edge already exists.
 		Promise p = (Promise) fields.get(s);
-		if (p == null) 
-			return null;
+		if (p == null) {
+			lookupReturnValue = index;
+			return this;
+		}
 		return p.lookup(vars, index+1);
 	}
 	public Promise lookup() {
@@ -145,9 +154,22 @@ public class Promise_c implements Promise, Serializable {
 			}
 		return false;
 	}
-	public void  dump(HashMap/*<C_Term,C_Term>*/ result) {
+	public void dump(HashMap result) {
+		dump(result, null, null);
+	}
+	public void  dump(HashMap/*<C_Term,C_Term>*/ result, C_Term newSelf, C_Term newThis) {
 		if (value != null) {
 			C_Term t1 = term(), t2=value.term();
+			if (newSelf != null) {
+				t1 = t1.substitute(newSelf, C_Special.Self);
+				t2 = t2.substitute(newSelf, C_Special.Self);
+			}
+			if (newThis != null) {
+				t1 = t1.substitute(newThis, C_Special.This);
+				t2 = t2.substitute(newThis, C_Special.This);
+			}
+			
+			
 		//	Report.report(1, "Promise_c: dumping " + t1 + "=" + t2);
 			result.put(t1,t2);
 			return;
@@ -155,7 +177,7 @@ public class Promise_c implements Promise, Serializable {
 		if (fields != null) 
 			for (Iterator it = fields.values().iterator(); it.hasNext();) {
 				Promise q = (Promise) it.next();
-				q.dump(result);
+				q.dump(result, newSelf, newThis);
 			}
 	}
 	public String toString() {

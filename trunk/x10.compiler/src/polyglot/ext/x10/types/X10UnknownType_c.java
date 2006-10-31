@@ -35,6 +35,8 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
     public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
     public List typeParameters() { return typeParameters;}
     public Constraint depClause() { return depClause; }
+    public Constraint realClause() { return depClause; }
+    
     public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
     public boolean typeEqualsImpl(Type o) {
         return equalsImpl(o);
@@ -55,8 +57,8 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
                 return this;
         X10UnknownType_c n = (X10UnknownType_c) copy();
         // n.baseType = baseType; // this may not be needed.
-        n.typeParameters = l;
-        n.depClause = d;
+        n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+		n.depClause = (d==null) ? depClause : d;
         return n;
     }
     public C_Term propVal(String name) {

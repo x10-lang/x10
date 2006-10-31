@@ -1077,7 +1077,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
     			if (! result) return result;
     		}
     	}
-    	result = equivClause(me.depClause(), other.depClause());
+    	result = entailsClause(me, other) && entailsClause(other, me);
     	return result;
     	} finally {
     		//Report.report(1, "X10TypeSystem_c.equivClause" +result);
@@ -1097,7 +1097,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
     	
     }
     public boolean entailsClause(X10Type me, X10Type other) {
-    	return entailsClause(me.depClause(), other.depClause());
+    	Constraint c1 = me.realClause(), c2=other.depClause();
+    	return entailsClause(c1,c2);
     	
     }
     public Flags createNewFlag(String name, Flags after) {
