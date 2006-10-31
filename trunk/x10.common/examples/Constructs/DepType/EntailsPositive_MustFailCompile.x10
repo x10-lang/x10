@@ -1,7 +1,7 @@
 import harness.x10Test;
 
 /**
- * The test checks that property syntax is accepted.
+ * 
  *
  * @author vj
  */
@@ -13,7 +13,7 @@ public class EntailsPositiveMustFailCompile(int i, int j) extends x10Test {
 	    return true;
 	}
 	public static void main(String[] args) {
-		new EntailsPositiveMustFailCompile().execute();
+		new EntailsPositiveMustFailCompile(1,2).execute();
 	}
 }
 
