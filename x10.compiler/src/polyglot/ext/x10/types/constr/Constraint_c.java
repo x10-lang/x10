@@ -202,7 +202,7 @@ public class Constraint_c implements Constraint {
 			throw new InternalCompilerError("Adding binding " + t1 + "=" + t2 + " to " + this 
 					+ " has made it inconsistent.");
 		} finally {
-			Report.report(1, "Constraint_c: Adding " + t1 + "=" + t2 + " to (:" + oldString +") yields (:" + result+").");
+			//Report.report(1, "Constraint_c: Adding " + t1 + "=" + t2 + " to (:" + oldString +") yields (:" + result+").");
 		}
 		return result;
 	}
@@ -423,8 +423,8 @@ public class Constraint_c implements Constraint {
 			}
 			return result=true;
 	} finally {
-		Report.report(1, "Constraint_c: (:" + this + (result? ") entails " : ") does not entail ") 
-				+ t1 + "=" + t2+ ".");
+		//Report.report(1, "Constraint_c: (:" + this + (result? ") entails " : ") does not entail ") 
+		//		+ t1 + "=" + t2+ ".");
 	}
 		
 		

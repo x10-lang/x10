@@ -178,7 +178,7 @@ implements X10ParsedClassType
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
 		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
 		if (d == null) {
-			n.depClause = depClause.copy();
+			n.depClause = depClause==null ? depClause : depClause.copy();
 			Constraint rc = realClause();
 			n.realClause = rc==null? null : rc.copy();
 			n.realClauseSet = true;
