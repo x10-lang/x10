@@ -36,6 +36,7 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
     public List typeParameters() { return typeParameters;}
     public Constraint depClause() { return depClause; }
+    public Constraint realClause() { return depClause; }
     public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
     public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
 		depClause = d;
@@ -46,8 +47,8 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
                 return this;
         X10ReferenceType_c n = (X10ReferenceType_c) copy();
         // n.baseType = baseType; // this may not be needed.
-        n.typeParameters = l;
-        n.depClause = d;
+        n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+		n.depClause = (d==null) ? depClause : d;
         if (  Report.should_report("debug", 5))
             Report.report(5,"X10ReferenceType_c.makeVariant: " + this + " creates " + n + "|");
         return n;

@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
@@ -67,6 +68,9 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	public boolean forwarded() { return false;}
 	public boolean hasChildren() { return false;}
 	public boolean bind(Promise target) throws Failure {
+		if (target.term() instanceof C_Var) {
+			return target.bind(this);
+		}
 		if (! equals(target))
 		throw new Failure("Cannot bind literal " + this + " to " + target);
 		return false;
@@ -78,6 +82,9 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 		return this;
 	}
 	public void dump(HashMap result) {
+		// nothing to dump.
+	}
+	public void dump(HashMap result, C_Term newSelf, C_Term newThis) {
 		// nothing to dump.
 	}
 	public void addIn(String s, Promise orphan) {

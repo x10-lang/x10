@@ -47,6 +47,8 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
+	public Constraint realClause() { return depClause; }
+	
 	public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
 	public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
 		depClause = d;
@@ -55,8 +57,8 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public X10Type makeVariant(Constraint d, List/*<GenParameterExpr>*/ l) { 
 		if (d == null && (l == null || l.isEmpty())) return this;
 		X10PrimitiveType_c n = (X10PrimitiveType_c) copy();
-		n.typeParameters = l;
-		n.depClause = d;
+		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+		n.depClause = (d==null) ? depClause : d;
 		if (  Report.should_report("debug", 5))
 			Report.report(5,"X10PrimitiveType_c.makeVariant: " 
 					+ this + " creates |" + n + "| d=|" + d+"|");
@@ -113,7 +115,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			X10TypeSystem xts = (X10TypeSystem) this.typeSystem();
 			X10Type other = (X10Type) toType;
 			result = super.isImplicitCastValidImpl(toType) 
-			&& xts.entailsClause(this.depClause(),other.depClause() );
+			&& xts.entailsClause(this,other );
 			return result;
 		} finally {
 			if (false)
@@ -173,7 +175,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			C_Special self = new C_Special_c(X10Special.SELF, tb);
 			C_Lit val = new C_Lit_c(value, tb);
 			Constraint c = Constraint_c.makeBinding(self,val);
-			result = ts.entailsClause(xme.depClause(), c);
+			result = ts.entailsClause(xme.realClause(), c);
 			return result;
 		} finally {
 			

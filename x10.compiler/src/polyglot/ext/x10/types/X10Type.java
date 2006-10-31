@@ -31,9 +31,11 @@ public interface X10Type extends Type {
 	 */
     boolean safe();
     
-    /** Return a subtype of the basetype with the given
-     * depclause and type parameters.
-     * 
+    /** Return a subtype of the basetype with specified depclause and type parameters. 
+     *  If d==null, then the specified depclause is this.depClause,
+     *  if g==null, then the specified type parameter is this.typeParameter.
+     *  The realclause of the new type is the realclause of the basetype,
+     *  with the specified depclause added in.
      * @param d
      * @param g
      * @return
@@ -49,7 +51,23 @@ public interface X10Type extends Type {
     boolean isParametric();
     NullableType toNullable();
     FutureType toFuture();
+    /**
+     * Return the depClause, if any defined for this type.
+     * @return
+     */
     Constraint depClause();
+    /**
+     * Return the realClause for this type. The realClause is the conjunction of the
+     * depClause and the baseClause for the type -- it represents all the constraints
+     * that are satisfied by an instance of this type. The baseClause is the invariant for
+     * the base type. If the base type C has defined properties P1 p1, ..., Pk pk, 
+     * and inherits from type B, then the baseClause for C is the baseClause for B
+     * conjoined with r1[self.p1/self, self/this] && ... && rk[self.pk/self, self/this]
+     * where ri is the realClause for Pi.
+     * 
+     * @return
+     */
+    Constraint realClause();
     /**
      * Is this is a constrained type?
      * @return true iff depClause()==null or depClause().valid();

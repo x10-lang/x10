@@ -82,6 +82,7 @@ public interface Promise {
 	 * @param result
 	 */
 	void dump(HashMap/*<C_Term,C_Term>*/ result);
+	void dump(HashMap/*<C_Term, C_Term>*/ reuslt, C_Term newSelf, C_Term newThis);
 	
 	/**
 	 * Return the term that labels this promise.
