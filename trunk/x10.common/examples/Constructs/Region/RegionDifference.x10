@@ -1,6 +1,6 @@
 import harness.x10Test;
 /**
-** The partition method of region is called, which should not be. Whether the run time error occors or not
+** The partition method of region is called, which should never be. Whether the run time error occurs or not
 ** depends on the number of places  used (for instance, 3)and the value of k. 
 ** @author Tong
 ** @date 10/31/06
