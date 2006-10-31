@@ -22,11 +22,14 @@ import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
+import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 
@@ -60,34 +63,30 @@ public class X10Field_c extends Field_c {
 		*/
 		try {
 			//Report.report(1, "X10Field_c.tpeCheck: context" + tc.context());
-			X10Field_c result = (X10Field_c) super.typeCheck(tc);
-		
+			Context c = tc.context();
+			TypeSystem ts = tc.typeSystem();
+			
+			if (! target.type().isReference()) 
+				throw new SemanticException("Cannot access field \"" + name +
+						"\" " + (target instanceof Expr
+								? "on an expression "
+										: "") +
+										"of non-reference type \"" +
+										target.type() + "\".", target.position());
+			
+			FieldInstance fi = ts.findField(target.type().toReference(), name, c.currentClass());
+			
+			if (fi == null) {
+				throw new InternalCompilerError("Cannot access field on node of type " +
+						target.getClass().getName() + ".");
+			}
+			
+			X10Field_c result = (X10Field_c)fieldInstance(fi).type(fi.type());  
+			result.checkConsistency(c);
 			
 			if (! result.isTypeChecked()) return result;
-			// Check that field accesses in dep clauses refer to final fields.
-			X10Context xtc = (X10Context) tc.context();
-			if (xtc.inDepType()) {
-				FieldInstance fi = result.fieldInstance();
+			checkFieldAccessesInDepClausesAreFinal(result, tc);
 			
-						
-				if (! fi.flags().contains(Flags.FINAL))
-					throw 
-					new SemanticException("Field " + fi.name() 
-							+ " is not final. Only final fields are permitted in a depclause.", 
-							position());
-				if ((target instanceof X10Special) &&
-						((X10Special)target).kind()==X10Special.SELF) {
-					// The fieldInstance must be a property.
-					//Report.report(1, "X10Field_c checking " + fi  + " is a property. ");
-				    // The following is going to look for property propertyNames$
-					// and may throw a MissingDependencyException asking for the field to be set.
-					if (! (fi instanceof X10FieldInstance && ((X10FieldInstance) fi).isProperty()))
-						throw new SemanticException("Field \"" + fi.name() 
-								+  "\" is not a property of " + fi.container() + ". "
-								+ "Only properties may appear unqualified or prefixed with self in a depclause."
-								);
-				}
-			}
 			result = checkArrayFields(result);
 			//Report.report(1, "X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
@@ -107,6 +106,33 @@ public class X10Field_c extends Field_c {
         }
 	}
 
+	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, TypeChecker tc) 
+	throws SemanticException {
+//		 Check that field accesses in dep clauses refer to final fields.
+		X10Context xtc = (X10Context) tc.context();
+		if (xtc.inDepType()) {
+			FieldInstance fi = result.fieldInstance();
+		
+					
+			if (! fi.flags().contains(Flags.FINAL))
+				throw 
+				new SemanticException("Field " + fi.name() 
+						+ " is not final. Only final fields are permitted in a depclause.", 
+						position());
+			if ((target instanceof X10Special) &&
+					((X10Special)target).kind()==X10Special.SELF) {
+				// The fieldInstance must be a property.
+				//Report.report(1, "X10Field_c checking " + fi  + " is a property. ");
+			    // The following is going to look for property propertyNames$
+				// and may throw a MissingDependencyException asking for the field to be set.
+				if (! (fi instanceof X10FieldInstance && ((X10FieldInstance) fi).isProperty()))
+					throw new SemanticException("Field \"" + fi.name() 
+							+  "\" is not a property of " + fi.container() + ". "
+							+ "Only properties may appear unqualified or prefixed with self in a depclause."
+							);
+			}
+		}
+	}
 	protected X10Field_c checkArrayFields(X10Field_c result) {
 		X10Type aType = (X10Type) result.target.type();
 		X10TypeSystem xts = (X10TypeSystem) aType.typeSystem();
