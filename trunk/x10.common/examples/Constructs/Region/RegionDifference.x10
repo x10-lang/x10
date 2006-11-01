@@ -11,7 +11,7 @@ public class RegionDifference extends x10Test {
 		final int size=10;
 	    	final int k=5;
 	    	final int factor=8;
-	    	final region r=[k:size-1, k:k];
+	    	final region(:rank==2) r=[k:size-1, k:k];
 	    	//System.out.println(([k:k+factor-1,k:k]-r).toString());
 	    	final dist d=dist.factory.cyclic([k:k+factor-1,k:k]-r);
 	    	
