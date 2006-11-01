@@ -10,7 +10,7 @@ import harness.x10Test;
 public class JavaArrayInitializer extends x10Test {
 
         public boolean run() {
-            final int size=3;
+            final int size=4;
 	    /*The following statment does not function as expected. 
 	    After its execution, the elements of Jarray are still zeros*/
             final int [] Jarray=new int [size] (point [i]) {return i;};
