@@ -9,12 +9,9 @@ package x10.lang;
 import java.util.Iterator;
 
 import x10.array.BooleanArray;
-import x10.array.BooleanArrayOperations;
 import x10.array.Operator;
-import x10.array.Operator.Binary;
-import x10.array.Operator.Reduction;
-import x10.array.Operator.Unary;
 import x10.array.sharedmemory.BooleanArray_c;
+import x10.compilergenerated.Parameter1;
 
 /**
  * Helper routines for array manipulation.
@@ -237,7 +234,7 @@ public final class ArrayOperations {
 	 * containing fun(a.atValue(p),b.atValue(p)) for each p in
 	 * dist.region.
 	 */
-	public static BooleanReferenceArray lift(booleanArray left, Binary op, booleanArray right) {
+	public static BooleanReferenceArray lift(booleanArray left, Operator.Binary op, booleanArray right) {
 		BooleanArray_c l = ((BooleanArray_c) left);
 		assert ((x10Array)right).distribution.equals(l.distribution); 
 		BooleanArray r = (BooleanArray)right;
@@ -263,7 +260,7 @@ public final class ArrayOperations {
 	 * containing fun(a.atValue(p)) for each p in
 	 * dist.region.
 	 */
-	public static BooleanReferenceArray lift(Unary op, booleanArray arg) {
+	public static BooleanReferenceArray lift(Operator.Unary op, booleanArray arg) {
 		BooleanArray_c a = ((BooleanArray_c) arg);
 		BooleanArray result = a.newInstance(a.distribution);
 		place here = x10.lang.Runtime.runtime.currentPlace();
@@ -285,7 +282,7 @@ public final class ArrayOperations {
 	 * function op, which is assumed to be associative and commutative.
 	 * unit should satisfy op(unit,x)=x=op(x,unit).
 	 */
-	public static boolean reduce(booleanArray a, Binary op, boolean unit) {
+	public static boolean reduce(booleanArray a, Operator.Binary op, boolean unit) {
 		boolean result = unit;
 		place here = x10.lang.Runtime.runtime.currentPlace();
 		try {
@@ -306,7 +303,7 @@ public final class ArrayOperations {
 	 * scanning this with the function op, and unit unit.
 	 */
 	public static BooleanReferenceArray/*(a.distribution)*/
-	scan(booleanArray arg, Binary op, boolean unit)
+	scan(booleanArray arg, Operator.Binary op, boolean unit)
 	{
 		BooleanArray_c a = ((BooleanArray_c) arg);
 		boolean temp = unit;
@@ -367,5 +364,59 @@ public final class ArrayOperations {
 		} finally {
 			x10.lang.Runtime.runtime.setCurrentPlace(here);
 		}
+	}
+
+	public static boolean[] arrayInit(boolean[] arr, Operator.Pointwise init) {
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = init.apply(point.factory.point(i), false);
+		return arr;
+	}
+
+	public static byte[] arrayInit(byte[] arr, Operator.Pointwise init) {
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = init.apply(point.factory.point(i), (byte)0);
+		return arr;
+	}
+
+	public static char[] arrayInit(char[] arr, Operator.Pointwise init) {
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = init.apply(point.factory.point(i), (char)0);
+		return arr;
+	}
+
+	public static short[] arrayInit(short[] arr, Operator.Pointwise init) {
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = init.apply(point.factory.point(i), (short)0);
+		return arr;
+	}
+
+	public static int[] arrayInit(int[] arr, Operator.Pointwise init) {
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = init.apply(point.factory.point(i), 0);
+		return arr;
+	}
+
+	public static long[] arrayInit(long[] arr, Operator.Pointwise init) {
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = init.apply(point.factory.point(i), (long)0);
+		return arr;
+	}
+
+	public static float[] arrayInit(float[] arr, Operator.Pointwise init) {
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = init.apply(point.factory.point(i), (float)0.);
+		return arr;
+	}
+
+	public static double[] arrayInit(double[] arr, Operator.Pointwise init) {
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = init.apply(point.factory.point(i), 0.);
+		return arr;
+	}
+
+	public static java.lang.Object[] arrayInit(java.lang.Object[] arr, Operator.Pointwise init) {
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = init.apply(point.factory.point(i), (Parameter1)null);
+		return arr;
 	}
 }

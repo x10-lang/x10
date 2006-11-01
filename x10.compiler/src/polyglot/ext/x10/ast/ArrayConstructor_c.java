@@ -18,9 +18,8 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.jl.ast.Expr_c;
-import polyglot.ext.jl.ast.NewArray_c;
+import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
@@ -163,8 +162,9 @@ implements ArrayConstructor {
 	 */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		
-		Node n = this.base.typeCheck( tc );
+		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+
+		Node n = this.base.typeCheck(tc);
 		
 		if (! (n instanceof TypeNode))
 			throw new SemanticException("Array constructor base type |" + n + "| is not a type." + position());
@@ -173,31 +173,38 @@ implements ArrayConstructor {
 		Type newBaseType = newBase.type();
 		Expr newDistribution = distribution;
 		if (this.distribution != null) {
-	
 			//Report.report(1, "ArrayConstructor dist is " + distribution.type());
 			Type distType = distribution.type();
 			boolean distributionIsInt = ts.isImplicitCastValid(distType, ts.Int());
 			if (distributionIsInt) {
 				// This is a NewArray in disguise. Unmask it and bail.
 				List l = new LinkedList();
-				l.add( distribution );
-				return new NewArray_c( position(), newBase, l, 0, null).typeCheck( tc );
+				l.add(distribution);
+				Expr newArray = (Expr) nf.NewArray(position(), newBase, l, 0, null).typeCheck(tc);
+				if (initializer != null) {
+					assert (!(initializer instanceof ArrayInit));
+					TypeNode arr_ops = nf.CanonicalTypeNode(position(), ts.ArrayOperations());
+					TypeNode arr_type = nf.array(newBase, position(), 1);
+					newArray = (Expr) nf.Call(position(), arr_ops, "arrayInit", newArray, initializer).typeCheck(tc);
+					// [IP] Need the cast because arrayInit(java.lang.Object[]) returns java.lang.Object[]
+					newArray = (Expr) nf.Cast(position(), arr_type, newArray).typeCheck(tc);
+				}
+				return newArray;
 			}
 			boolean distributionIsRegion = ts.isImplicitCastValid(distType, ts.region());
 			if (distributionIsRegion) {
 				// convert this region to a distribution.
-				
-				newDistribution = (Expr) (new Call_c(position(), distribution, "toDistribution", new LinkedList())).typeCheck( tc );
+				newDistribution = (Expr) nf.Call(position(), distribution, "toDistribution").typeCheck(tc);
 			} else {
 				// it must be a distribution.
 				boolean distributionIsDist = ts.isImplicitCastValid(distType, ts.distribution());
 				// System.out.println("ArrayConstructor_c: distributionIsDist = " + distributionIsDist + " " + distType );
-				if ( ! distributionIsDist)
+				if (!distributionIsDist)
 					throw new SemanticException("Array distribution specifier must be of type int or distribution" 
 							+ position());
 			}
-	}
-		
+		}
+
 		if (initializer != null) {
 			if (initializer instanceof ArrayInit) {
 				throw new InternalError("ArrayConstructor_c should really have been NewArray_c" + this);
