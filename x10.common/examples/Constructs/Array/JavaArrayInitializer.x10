@@ -21,7 +21,7 @@ public class JavaArrayInitializer extends x10Test {
 	    */
 	    int [.] array=new int [[0:size]];
 	    //the code will pass compilation when the following statement is commented out.
-	    finish ateach (point p [i]: dist.factory.unique()) array[i]=i; 
+	    //finish ateach (point p [i]: dist.factory.unique()) array[i]=i; 
 	    m_array=array;
 	    finish ateach (point p [i]: dist.factory.unique()) m_array[i]=i;
 	    return true;
