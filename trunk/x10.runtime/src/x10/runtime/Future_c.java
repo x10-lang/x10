@@ -48,9 +48,9 @@ public final class Future_c extends Future {
     public void setResult(Object result) {
 	this.result_ = result;
 	if (cdl.getCount() > 0) cdl.countDown();
-	if ( JITTimeConstants.ABSTRACT_EXECUTION_STATS ) {
+	if ( VMInterface.ABSTRACT_EXECUTION_STATS ) {
 		maxCritPathOps(x10.lang.Runtime.getCurrentActivity().getCritPathOps());
-		if ( JITTimeConstants.ABSTRACT_EXECUTION_TIMES ) {
+		if ( VMInterface.ABSTRACT_EXECUTION_TIMES ) {
 			x10.lang.Runtime.getCurrentActivity().updateIdealTime();
 			maxIdealTime(x10.lang.Runtime.getCurrentActivity().getCritPathTime());
 		}
@@ -67,9 +67,9 @@ public final class Future_c extends Future {
     public void setException(Throwable t) {
 	this.exception_ = t;
 	if (cdl.getCount() > 0) cdl.countDown();
-	if ( JITTimeConstants.ABSTRACT_EXECUTION_STATS ) {
+	if ( VMInterface.ABSTRACT_EXECUTION_STATS ) {
 		maxCritPathOps(x10.lang.Runtime.getCurrentActivity().getCritPathOps());
-		if ( JITTimeConstants.ABSTRACT_EXECUTION_TIMES ) {
+		if ( VMInterface.ABSTRACT_EXECUTION_TIMES ) {
 			x10.lang.Runtime.getCurrentActivity().updateIdealTime();
 			maxIdealTime(x10.lang.Runtime.getCurrentActivity().getCritPathTime());
 		}
@@ -91,9 +91,9 @@ public final class Future_c extends Future {
 	    }
 	    ((PoolRunner) t).getPlace().threadUnblockedNotification();
 	}
-	if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+	if (VMInterface.ABSTRACT_EXECUTION_STATS) {
 		x10.lang.Runtime.getCurrentActivity().maxCritPathOps(getCritPathOps());
-		if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+		if (VMInterface.ABSTRACT_EXECUTION_TIMES) {
 			x10.lang.Runtime.getCurrentActivity().maxCritPathTime(getIdealTime());
 			x10.lang.Runtime.getCurrentActivity().setResumeTime();
 		}

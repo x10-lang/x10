@@ -424,9 +424,9 @@ public /* final */ class Clock extends clock {
 		synchronized (this) {
 			assert activities_.contains(a);
 			assert nextResumed_.contains(a) || resumed_.contains(a);
-	    	if ( JITTimeConstants.ABSTRACT_EXECUTION_STATS ) {
+	    	if ( VMInterface.ABSTRACT_EXECUTION_STATS ) {
 	    		maxCritPathOps(x10.lang.Runtime.getCurrentActivity().getCritPathOps());
-	    		if ( JITTimeConstants.ABSTRACT_EXECUTION_TIMES ) {
+	    		if ( VMInterface.ABSTRACT_EXECUTION_TIMES ) {
 	    			x10.lang.Runtime.getCurrentActivity().updateIdealTime();
 	    			maxIdealTime(x10.lang.Runtime.getCurrentActivity().getCritPathTime());
 	    		}
@@ -446,9 +446,9 @@ public /* final */ class Clock extends clock {
 			resumedCount_ --;
 			tryMoveToWhole_();
 			
-			if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+			if (VMInterface.ABSTRACT_EXECUTION_STATS) {
 				x10.lang.Runtime.getCurrentActivity().maxCritPathOps(getCritPathOps());
-				if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+				if (VMInterface.ABSTRACT_EXECUTION_TIMES) {
 					x10.lang.Runtime.getCurrentActivity().maxCritPathTime(getIdealTime());
 					x10.lang.Runtime.getCurrentActivity().setResumeTime();
 				}

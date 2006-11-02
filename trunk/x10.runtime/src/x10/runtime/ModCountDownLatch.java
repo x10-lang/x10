@@ -151,11 +151,11 @@ public class ModCountDownLatch {
      * happens.
      */
     public void countDown() {
-    	if ( JITTimeConstants.ABSTRACT_EXECUTION_STATS ) {
+    	if ( VMInterface.ABSTRACT_EXECUTION_STATS ) {
 		    // Method finalizeTermination() in Activity.java ensures that the activity's ideal execution ops & time values are updated 
 		    // before the call to notifySubActivityTermination() occurs
     		maxCritPathOps(x10.lang.Runtime.getCurrentActivity().getCritPathOps());
-    		if ( JITTimeConstants.ABSTRACT_EXECUTION_TIMES )
+    		if ( VMInterface.ABSTRACT_EXECUTION_TIMES )
     			maxIdealTime(x10.lang.Runtime.getCurrentActivity().getCritPathTime());
     	}
         sync.releaseShared(1);

@@ -52,10 +52,10 @@ public class FinishState {
 			activityRunner.getPlace().threadUnblockedNotification(); // Notify runtime that thread executing current activity has become unblocked
 		}
 		
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+		if (VMInterface.ABSTRACT_EXECUTION_STATS) {
 			// Update abstract execution statististics before exiting from finisj
 			x10.lang.Runtime.getCurrentActivity().maxCritPathOps(mcdl.getCritPathOps());
-			if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+			if (VMInterface.ABSTRACT_EXECUTION_TIMES) {
 				x10.lang.Runtime.getCurrentActivity().maxCritPathTime(mcdl.getIdealTime());
 				x10.lang.Runtime.getCurrentActivity().setResumeTime();
 			}

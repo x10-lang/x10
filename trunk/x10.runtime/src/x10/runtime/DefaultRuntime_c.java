@@ -329,7 +329,7 @@ public class DefaultRuntime_c extends Runtime {
 	}
 
 	private void dumpStatistics() {
-	    if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+	    if (VMInterface.ABSTRACT_EXECUTION_STATS) {
 		System.err.println("\n#### START OF ABSTRACT EXECUTION STATISTICS (EXCLUDING MAIN ACTIVITY) ####");
 		{
 		    // PRINT STATISTICS ON NUMBER OF ACTIVITES
@@ -372,7 +372,7 @@ public class DefaultRuntime_c extends Runtime {
 		    double speedup= (double) max > 0 ? (double) sum / (double) max : 0;
 		    System.err.println("\n  IDEAL SPEEDUP IN NUMBER OF OPS, (TOTAL NUMBER) / (CRIT PATH LENGTH) = " + speedup);
 		}
-		if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+		if (VMInterface.ABSTRACT_EXECUTION_TIMES) {
 		    // PRINT STATISTICS ON TOTAL UNBLOCKED EXECUTION TIME
 		    long sum= 0;
 		    for(int i= 0; i <= getPlaces().length - 1; i++) {

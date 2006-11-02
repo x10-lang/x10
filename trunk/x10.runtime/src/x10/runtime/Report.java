@@ -39,7 +39,7 @@ public class Report {
    * this flag to bypass a lot of the checking. When the options are processed,
    * this flag should be changed.
    */
-   // Replaced by a JITTimeConstants ENABLE_REPORTING
+   // Replaced by a VMInterface ENABLE_REPORTING
     protected static boolean noReporting = true;
   
   /** Report topics understood by the runtime system. */
