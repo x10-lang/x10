@@ -75,7 +75,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @thread mySpawningThread
 	 */
 	public Activity() {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
 		this.initializeActivity();
 	}
@@ -86,7 +86,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @param clocks
 	 */
 	public Activity(List clocks) {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
 		this.activityClockManager = ClockManagerFactory.getClockManager(this, clocks);
 		this.initializeActivity();
@@ -98,7 +98,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @param clock
 	 */
 	public Activity(Clock clock) {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
 		this.activityClockManager = ClockManagerFactory.getClockManager(this, clock);
 		this.initializeActivity();
@@ -120,7 +120,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 		if(this.activityClockManager != null)
 			this.activityClockManager.registerClocks();
 		
-		if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES)
+		if (VMInterface.ABSTRACT_EXECUTION_TIMES)
 			// Record time at which activity was started
 			setResumeTime();
 	}
@@ -390,7 +390,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#getTotalOps()
 	 */
 	public long getTotalOps() {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			return this.abstractMetricsManager.getTotalOps();
 		return 0;
 	}
@@ -399,7 +399,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#getCritPathOps()
 	 */
 	public long getCritPathOps() {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			return this.abstractMetricsManager.getCritPathOps();
 		return 0;
 	}
@@ -408,7 +408,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#addLocalOps(long)
 	 */
 	public void addLocalOps(long n) {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager.addLocalOps(n);
 	}
 		
@@ -416,7 +416,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#addLocalOps(long)
 	 */
 	public void addCritPathOps(long n) {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager.addCritPathOps(n);
 	}
 	
@@ -424,7 +424,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#maxCritPathOps(long)
 	 */
 	public void maxCritPathOps(long n) {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager.maxCritPathOps(n);
 	}
 
@@ -432,7 +432,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#getTotalUnblockedTime()
 	 */
 	public long getTotalUnblockedTime() {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			return this.abstractMetricsManager.getTotalUnblockedTime();
 		return 0;
 	}
@@ -441,7 +441,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#getCritPathTime()
 	 */
 	public long getCritPathTime() {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			return this.abstractMetricsManager.getCritPathTime();
 		return 0;
 	}
@@ -450,7 +450,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#maxCritPathTime(long)
 	 */
 	public void maxCritPathTime(long t) {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager.maxCritPathTime(t);
 	}
 	
@@ -458,7 +458,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#getResumeTime()
 	 */
 	public long getResumeTime() {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			return this.abstractMetricsManager.getResumeTime();
 		return 0;
 	}
@@ -467,7 +467,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#setResumeTime()
 	 */
 	public void setResumeTime() {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager.setResumeTime();
 	}
 
@@ -475,7 +475,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#updateIdealTime()
 	 */
 	public void updateIdealTime() {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager.updateIdealTime();
 	}
 
@@ -483,7 +483,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#getCurrentTime()
 	 */
 	public long getCurrentTime() {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			return this.abstractMetricsManager.getCurrentTime();
 		return 0;
 	}
@@ -492,7 +492,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @see x10.runtime.AbstractMetrics#addUnblockedTime(long)
 	 */
 	public void addUnblockedTime(long t) {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS)
+		if (VMInterface.ABSTRACT_EXECUTION_STATS)
 			this.abstractMetricsManager.addUnblockedTime(t);
 	}
 	
@@ -513,7 +513,7 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 		FinishState target = finishState_ == null ? rootNode_ : finishState_;
 		child.setRootActivityFinishState(target);
 		target.notifySubActivitySpawn();
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+		if (VMInterface.ABSTRACT_EXECUTION_STATS) {
 			// Initialize this activity's critical path time to that of its parent
 			child.maxCritPathOps(getCritPathOps());
 		}
@@ -556,11 +556,11 @@ public abstract class Activity implements Runnable, AbstractMetrics {
 	 * @thread myThread
 	 */
 	public void finalizeTerminationCleanup() {
-		if (JITTimeConstants.ABSTRACT_EXECUTION_STATS) {
+		if (VMInterface.ABSTRACT_EXECUTION_STATS) {
 		    x10.lang.Runtime.here().maxCritPathOps(getCritPathOps());
 		    x10.lang.Runtime.here().addLocalOps(getTotalOps());
 		    
-		    if (JITTimeConstants.ABSTRACT_EXECUTION_TIMES) {
+		    if (VMInterface.ABSTRACT_EXECUTION_TIMES) {
 				updateIdealTime();
 				x10.lang.Runtime.here().addUnblockedTime(getTotalUnblockedTime());
 				x10.lang.Runtime.here().maxCritPathTime(getCritPathTime());

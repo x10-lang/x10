@@ -13,7 +13,7 @@ package x10.runtime;
  * 
  * @author Vivek Sarkar (based on ideas suggested by Allan Kielstra, Igor Peshansky, Chris Donawa, Raj Barik)
  */
-public final class JITTimeConstants {
+public final class VMInterface {
 
     public static final int NUMBER_OF_LOCAL_PLACES = Configuration.NUMBER_OF_LOCAL_PLACES;
     
