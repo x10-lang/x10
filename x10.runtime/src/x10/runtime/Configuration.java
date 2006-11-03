@@ -54,8 +54,8 @@ public final class Configuration extends x10.runtime.util.Configuration {
 	public static boolean ABSTRACT_EXECUTION_TIMES = false;
 	private static final String ABSTRACT_EXECUTION_TIMES_desc = "If dumping out statistics, also dump out unblocked execution times";
 
-        public static boolean ASSIGN_WORKER_THREADS_TO_CPUS = false;
-        public static final String ASSIGN_WORKER_THREADS_TO_CPUS_desc = "As threads are created to support activities, assign them to specific CPUs";
+        public static boolean BIND_THREADS = false;
+        public static final String BIND_THREADS_desc = "As threads are created to support activities, assign them to specific CPUs";
     
 	// Set Bad_PLACE_RUNTIME_CHECK = false as the default value in support of implicit-place syntax
         public static boolean BAD_PLACE_RUNTIME_CHECK = false;
