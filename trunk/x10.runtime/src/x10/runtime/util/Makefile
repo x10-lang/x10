@@ -4,7 +4,7 @@ CLASSES	= $(X10)/x10.runtime/classes
 LIBDIR = $(X10)/x10.common/lib
 CCC	= xlC_r
 CCC_OPTS= -g -O2 -qnolm -qnoeh -qnotempinc -bM:SHR -bnoentry -bexpall -I$(CLASSES) -I$(JAVA_HOME)/bin/include -I$(JAVA_HOME)/include
-LIB_SUFFIX=a
+LIB_SUFFIX=so
 
 default: $(LIBDIR)/$(X10_PLATFORM)/libX10ThreadSupp.$(LIB_SUFFIX)
 
@@ -13,7 +13,7 @@ $(LIBDIR)/$(X10_PLATFORM)/libX10ThreadSupp.$(LIB_SUFFIX): X10ThreadSupp.cpp ../V
 	$(CCC) $(CCC_OPTS) -o $@ X10ThreadSupp.cpp
 
 clobber: clean
-	rm $(LIBDIR)/$(X10_PLATFORM)/libX10ThreadSupp.$(LIB_SUFFIX)
+	rm -f $(LIBDIR)/$(X10_PLATFORM)/libX10ThreadSupp.$(LIB_SUFFIX)
 
 clean:
-	rm x10_runtime_VMInterface.h
+	rm -f x10_runtime_VMInterface.h
