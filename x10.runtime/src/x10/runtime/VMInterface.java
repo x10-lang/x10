@@ -82,7 +82,7 @@ public final class VMInterface {
                 final int numCPUsInThisPlace = (placeNumber == Configuration.NUMBER_OF_LOCAL_PLACES-1) ? (numCPUs - firstCPUInThisPlace) : CPUsPerPlace;
                 return new Runnable() {
                         public void run() {
-                            putMeOnCPU(workerWithinPool % numCPUsInThisPlace);
+                            putMeOnCPU(firstCPUInThisPlace + workerWithinPool % numCPUsInThisPlace);
                             workerRunnable.run();
                         }
                     };
