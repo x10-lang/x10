@@ -84,7 +84,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     private void declareAsync(CAstEntity fn, WalkContext context) {
 	TypeReference asyncRef= asyncTypeReference(fn);
 
-	((X10SourceLoaderImpl) translator.loader()).defineAsync(fn, asyncRef, context.file());
+	((X10SourceLoaderImpl) translator.loader()).defineAsync(fn, asyncRef, fn.getPosition());
     }
 
     private TypeReference asyncTypeReference(CAstEntity fn) {
@@ -183,7 +183,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
 
     protected boolean visitAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
 	translator.initFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
-	((X10SourceLoaderImpl) translator.loader()).defineAsync(n, asyncTypeReference(n), translator.sourceFileEntity().getName());
+	((X10SourceLoaderImpl) translator.loader()).defineAsync(n, asyncTypeReference(n), n.getPosition());
 	return false;
     }
     protected void leaveAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {

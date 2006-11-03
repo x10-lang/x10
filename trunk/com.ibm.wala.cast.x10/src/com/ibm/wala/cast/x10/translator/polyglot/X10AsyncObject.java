@@ -3,6 +3,7 @@
  */
 package com.ibm.domo.ast.x10.translator.polyglot;
 
+import com.ibm.capa.ast.*;
 import com.ibm.domo.ast.loader.AstFunctionClass;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.IMethod;
@@ -13,11 +14,11 @@ import com.ibm.wala.types.TypeReference;
  * @author rfuhrer
  */
 public class X10AsyncObject extends AstFunctionClass {
-    public X10AsyncObject(TypeReference reference, TypeReference superReference, IClassLoader loader, String fileName) {
+    public X10AsyncObject(TypeReference reference, TypeReference superReference, IClassLoader loader, CAstSourcePositionMap.Position fileName) {
 	super(reference, superReference, loader, fileName);
     }
 
-    public X10AsyncObject(TypeReference reference, IClassLoader loader, String fileName) {
+    public X10AsyncObject(TypeReference reference, IClassLoader loader, CAstSourcePositionMap.Position fileName) {
 	super(reference, loader, fileName);
     }
 
