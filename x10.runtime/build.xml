@@ -54,15 +54,16 @@
     </target>
     <target name="buildall" depends="build,thread-support"
             description="Use this target to build thread support libraries"/>
-    <!-- the following lines have only ever been tested on AIX -->
+    <!-- the following lines will only run on AIX -->
     <!-- they build the LAPI support library -->
-    <target name="thread-support">
+    <target name="thread-support" depends="build">
         <echo message="OS: ${os.name}"/>
         <property name="make" value="make"/>
+        <property name="X10" location="${x10.home}"/> <!-- make absolute -->
         <exec dir="${src}/x10/runtime/util" executable="${make}" os="AIX">
-            <env key="X10" value="${x10.home}"/>
-            <env key="CLASSES" value="${build}"/>
-            <env key="LIBDIR" value="${lib}"/>
+            <arg value="X10=${X10}"/>
+            <arg value="CLASSES=${build}"/>
+            <arg value="LIBDIR=${lib}"/>
             <env key="JAVA_HOME" value="${env.JAVA_HOME}"/>
             <env key="X10_PLATFORM" value="${env.X10_PLATFORM}"/>
         </exec>
