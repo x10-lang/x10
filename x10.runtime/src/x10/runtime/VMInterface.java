@@ -48,6 +48,18 @@ public final class VMInterface {
     //    arr[(x)] only with no bounds check
     public static final int noBoundsCheck(int i) { return i; }
 
+    // When the JIT sees something like:
+    //    checkLowBound(i,low)
+    // it can inline the following method body, and treat this method as an intrinsic that is a candidate for redundancy optimizations
+    public static int checkLowBound(int i, int low)  { if (i < low) throw new ArrayIndexOutOfBoundsException(); return i; }
+
+    // When the JIT sees something like:
+    //    checkHighBound(i,high)
+    // it can inline the following method body, and treat this method as an intrinsic that is a candidate for redundancy optimizations
+    public static int checkHighBound(int i, int high) { if (i > high) throw new ArrayIndexOutOfBoundsException(); return i; }
+
+    // NOTE: we can later evaluate if we want to also create an optimized combined call for low and high bounds, as Igor suggested
+
     // When the Testarossa JIT (in J9) sees something like:
     //    noNullCheck(x)
     // it will treat it as:
