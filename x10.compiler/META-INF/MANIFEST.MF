@@ -13,6 +13,5 @@ Export-Package: org.ovmj.util,
  polyglot.ext.x10.extension,
  polyglot.ext.x10.types,
  polyglot.ext.x10.visit,
- polyglot.ext.x10.visit.mrcanalysis,
  x10.parser
 Bundle-Vendor: rfuhrer@watson.ibm.com
