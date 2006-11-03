@@ -5,7 +5,7 @@ package com.ibm.domo.ast.x10.translator.polyglot;
 
 import java.io.IOException;
 
-import com.ibm.capa.ast.CAstEntity;
+import com.ibm.capa.ast.*;
 import com.ibm.domo.ast.java.translator.SourceModuleTranslator;
 import com.ibm.domo.ast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotSourceLoaderImpl;
@@ -28,7 +28,7 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
 	super(loaderRef, parent, exclusions, cha, warnings, extInfo);
     }
 
-    public void defineAsync(CAstEntity fn, TypeReference asyncRef, String fileName) {
+    public void defineAsync(CAstEntity fn, TypeReference asyncRef, CAstSourcePositionMap.Position fileName) {
 	fTypeMap.put(fn, new X10AsyncObject(asyncRef, this, fileName));
     }
 

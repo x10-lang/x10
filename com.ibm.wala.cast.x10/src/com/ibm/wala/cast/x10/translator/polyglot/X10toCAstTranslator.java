@@ -119,6 +119,10 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    fBodyast= bodyast;
 	}
 
+	public CAstSourcePositionMap.Position getPosition() {
+	  return makePosition( fNode.position() );
+	}
+
 	public int getKind() {
 	    return X10CAstEntity.ASYNC_BODY;
 	}
