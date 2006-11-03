@@ -57,11 +57,5 @@
 	   <arg line="buildLAPISupport.ksh"/>
 	</exec>
     </target>
-    <target name="thrdSupp" depends="build"
-            description="Builds support to place threads on specific CPUs">
-	<exec dir="thrdSupp" executable="/usr/bin/ksh">
-	   <arg line="buildThrdSupp.ksh"/>
-	</exec>
-    </target>
     <!-- the preceding lines have only ever been tested on AIX -->
 </project>
