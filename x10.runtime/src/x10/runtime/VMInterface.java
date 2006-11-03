@@ -62,12 +62,40 @@ public final class VMInterface {
 
     // Given a j.u.c Worker Runnable, construct a Runnable that will first
     // ensure that the Worker thread runs on "the right" CPU
-    static final Runnable mapPoolThreadToCPU(final Runnable workerRunnable, final int poolNumber, final int workerWithinPool) {
+    static final Runnable mapPoolThreadToCPU(final Runnable workerRunnable, final int placeNumber, final int workerWithinPool) {
         if (ASSIGN_WORKER_THREADS_TO_CPUS && (numCPUs != 0)) {
-            final int y = globalThreadNumber.getAndIncrement();
+            final int CPUsPerPlace = numCPUs / Configuration.NUMBER_OF_LOCAL_PLACES;
+            if (CPUsPerPlace >= 2) {
+                final int firstCPUInThisPlace = (numCPUs / Configuration.NUMBER_OF_LOCAL_PLACES) * placeNumber;
+                final int numCPUsInThisPlace = (placeNumber == Configuration.NUMBER_OF_LOCAL_PLACES-1) ? (numCPUs - firstCPUInThisPlace) : CPUsPerPlace;
+                return new Runnable() {
+                        public void run() {
+                            putMeOnCPU(workerWithinPool % numCPUsInThisPlace);
+                            workerRunnable.run();
+                        }
+                    };
+            } else {
+                // Too many places ... assign Worker round robin.
+                final int y = globalThreadNumber.getAndIncrement();
+                return new Runnable() {
+                        public void run() {
+                            putMeOnCPU(y % numCPUs);
+                            workerRunnable.run();
+                        }
+                    };
+            }
+        } else {
+            return workerRunnable;
+        }
+    }
+    
+    // Given a j.u.c Worker Runnable, construct a Runnable that will first
+    // ensure that the Worker thread runs on the specified CPU
+    static final Runnable mapRunnableToCPU(final Runnable workerRunnable, final int cpu) {
+        if (ASSIGN_WORKER_THREADS_TO_CPUS && (numCPUs != 0)) {
             return new Runnable() {
                     public void run() {
-                        putMeOnCPU(y % numCPUs);
+                        putMeOnCPU(cpu);
                         workerRunnable.run();
                     }
                 };
