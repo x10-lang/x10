@@ -23,7 +23,7 @@ public final class VMInterface {
 
     // Set to true if individual PoolRunners should be pre-assigned to
     // CPUs on an SMP system.
-    public static final boolean ASSIGN_WORKER_THREADS_TO_CPUS = Configuration.ASSIGN_WORKER_THREADS_TO_CPUS;
+    public static final boolean BIND_THREADS = Configuration.BIND_THREADS;
 
     // The following methods are all specially treated by the Testarossa
     // JIT and may be specially treated by any JIT.
@@ -63,7 +63,7 @@ public final class VMInterface {
     // Given a j.u.c Worker Runnable, construct a Runnable that will first
     // ensure that the Worker thread runs on "the right" CPU
     static final Runnable mapPoolThreadToCPU(final Runnable workerRunnable, final int placeNumber, final int workerWithinPool) {
-        if (ASSIGN_WORKER_THREADS_TO_CPUS && (numCPUs != 0)) {
+        if (BIND_THREADS && (numCPUs != 0)) {
             final int CPUsPerPlace = numCPUs / Configuration.NUMBER_OF_LOCAL_PLACES;
             if (CPUsPerPlace >= 2) {
                 final int firstCPUInThisPlace = (numCPUs / Configuration.NUMBER_OF_LOCAL_PLACES) * placeNumber;
@@ -92,7 +92,7 @@ public final class VMInterface {
     // Given a j.u.c Worker Runnable, construct a Runnable that will first
     // ensure that the Worker thread runs on the specified CPU
     static final Runnable mapRunnableToCPU(final Runnable workerRunnable, final int cpu) {
-        if (ASSIGN_WORKER_THREADS_TO_CPUS && (numCPUs != 0)) {
+        if (BIND_THREADS && (numCPUs != 0)) {
             return new Runnable() {
                     public void run() {
                         putMeOnCPU(cpu);
