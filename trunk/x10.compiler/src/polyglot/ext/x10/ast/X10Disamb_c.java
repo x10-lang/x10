@@ -7,6 +7,8 @@ import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
+import polyglot.util.Position;
+import x10.parser.X10Parser;
 
 public class X10Disamb_c extends Disamb_c implements X10Disamb {
 
@@ -18,7 +20,7 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
         Receiver r;
 
         if (fi.flags().isStatic()) {
-            r = nf.CanonicalTypeNode(pos, fi.container());
+            r = nf.CanonicalTypeNode(pos.startOf(), fi.container());
         } else {
             // The field is non-static, so we must prepend with
         	// self or 
@@ -35,11 +37,11 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
             	//Report.report(1, "X10Disamb_c: Making missing field target for " + fi + " field scope =|"
             	//		+ scope +"| deptype=|"+ xc.currentDepType() + " " + result);
             	r = result ? ((X10NodeFactory) nf).Self(pos) : 
-            		nf.This(pos, nf.CanonicalTypeNode(pos, scope));
+            		nf.This(pos.startOf(), nf.CanonicalTypeNode(pos.startOf(), scope));
             	
             } else {
             	boolean result = ts.equals(scope, c.currentClass());
-            	r = result ? nf.This(pos)  : nf.This(pos, nf.CanonicalTypeNode(pos, scope));
+            	r = result ? nf.This(pos.startOf())  : nf.This(pos.startOf(), nf.CanonicalTypeNode(pos.startOf(), scope));
             }
         }
       

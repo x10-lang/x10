@@ -289,7 +289,8 @@ $Headers
             {
                 super(path, filename,
                       leftToken.getLine(), leftToken.getColumn(),
-                      rightToken.getEndLine(), rightToken.getEndColumn());
+                      rightToken.getEndLine(), rightToken.getEndColumn(),
+                      leftToken.getStartOffset(), rightToken.getEndOffset());
                 this.leftIToken = leftToken;
                 this.rightIToken = rightToken;
             }
@@ -300,22 +301,8 @@ $Headers
             public String toText()
             {
                 PrsStream prsStream = leftIToken.getPrsStream();
-                return new String(prsStream.getInputChars(),
-                                  leftIToken.getStartOffset(),
-                                  rightIToken.getEndOffset() - leftIToken.getStartOffset() + 1);
+                return new String(prsStream.getInputChars(), offset(), endOffset() - offset() + 1);
             }
-        }
-
-        public void reportError(int errorCode, String locationInfo, int leftToken, int rightToken, String tokenText)
-        {
-            if (errorCode == DELETION_CODE ||
-                errorCode == MISPLACED_CODE) tokenText = "";
-            if (! tokenText.equals("")) tokenText += ' ';
-            eq.enqueue(ErrorInfo.SYNTAX_ERROR, locationInfo + tokenText + errorMsgText[errorCode],
-                       new JPGPosition("",
-                                       getFileName(),
-                                       super.getIToken(leftToken),
-                                       super.getIToken(rightToken)));
         }
 
         public $ast_class parse() {
@@ -822,14 +809,14 @@ $Rules -- Overridden rules from GJavaParser
         ./
     MethodHeader ::= ThisClauseopt MethodModifiersopt ResultType MethodDeclarator Throwsopt
         /.$BeginJava
-          Name c = (Name) MethodDeclarator[0];
-          List d = (List) MethodDeclarator[1];
-          Integer e = (Integer) MethodDeclarator[2];
-          Expr where = (Expr) MethodDeclarator[3];
-          if (ResultType.type() == ts.Void() && e.intValue() > 0)
+          Name c = (MethodDeclarator != null) ? (Name) MethodDeclarator[0] : null;
+          List d = (MethodDeclarator != null) ? (List) MethodDeclarator[1] : null;
+          Integer e = (MethodDeclarator != null) ? (Integer) MethodDeclarator[2] : null;
+          Expr where = (MethodDeclarator != null) ? (Expr) MethodDeclarator[3] : null;
+          if (ResultType.type() == ts.Void() && e != null && e.intValue() > 0)
              {
                // TODO: error!!!
-               assert(false);
+               System.err.println("Fix me - encountered method returning void but with non-zero rank?");
              }
 
            setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($MethodDeclarator)),
@@ -1424,6 +1411,7 @@ $Rules
     FieldDeclaration ::= ThisClauseopt FieldModifiersopt Type  VariableDeclarators ;
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    if (VariableDeclarators.size() > 0)
                     for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
                     {
                         X10VarDeclarator d = (X10VarDeclarator) i.next();
