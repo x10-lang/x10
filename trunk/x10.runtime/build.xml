@@ -16,6 +16,9 @@
         <pathelement location="${build}"/>
     </path>
     <path id="x10.common.classpath"/>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+
     <target name="init">
         <mkdir dir="${build}"/>
     </target>
@@ -41,6 +44,7 @@
         <!-- <javac destdir="${build}" source="1.4" target="1.4"> -->
         <!-- <javac destdir="${build}" source="1.5" target="1.5"> -->
         <javac destdir="${build}">
+            <!--<compilerarg value="-Xlint:unchecked"/>-->
             <src path="${src}"/>
             <classpath>
               <path refid="project.classpath"/>
@@ -48,14 +52,20 @@
             </classpath>
         </javac>
     </target>
-    <target name="buildall" depends="build,lapi-support"
-            description="Use this target to build LAPI"/>
+    <target name="buildall" depends="build,thread-support"
+            description="Use this target to build thread support libraries"/>
     <!-- the following lines have only ever been tested on AIX -->
     <!-- they build the LAPI support library -->
-    <target name="lapi-support">
-	<exec dir="lapi_support" executable="/usr/bin/ksh">
-	   <arg line="buildLAPISupport.ksh"/>
-	</exec>
+    <target name="thread-support">
+        <echo message="OS: ${os.name}"/>
+        <property name="make" value="make"/>
+        <exec dir="${src}/x10/runtime/util" executable="${make}" os="AIX">
+            <env key="X10" value="${x10.home}"/>
+            <env key="CLASSES" value="${build}"/>
+            <env key="LIBDIR" value="${lib}"/>
+            <env key="JAVA_HOME" value="${env.JAVA_HOME}"/>
+            <env key="X10_PLATFORM" value="${env.X10_PLATFORM}"/>
+        </exec>
     </target>
     <!-- the preceding lines have only ever been tested on AIX -->
 </project>
