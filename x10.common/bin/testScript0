@@ -156,6 +156,7 @@ checkUsage() {
   x10lib="./x10lib"
   verbose=""
   NewFailures=""
+  NoDifferences="true"
   while [[ $# -gt 0 ]]; do
     if [[ "$1" = "-t"  && $# -ge 2 ]]; then
       timeLimit="$2"
@@ -788,9 +789,11 @@ mailDiffFromLastRun() {
 
     echo "+++ Differences between test run results of $date1 ET and $date2 ET:" >> $logDiff
     echo "" >> $logDiff
+    NoDifferences=""
     diff -w "$old_logSummary" logSummary  >> $logDiff
     if [[ $? -eq 0 ]] ; then
       echo "There were no differences." >> $logDiff
+      NoDifferences="true"
     fi
 
     echo "" >> $logDiff
@@ -838,7 +841,10 @@ saveLog() {
 # are fixed).
 
   chkArgs 0 "$@"
-  if [[ -n "$shiftLog" && -d "$testLogs" && -z "$NewFailures" ]]; then
+  if [[ ! -d "$testLogs" ]]; then
+    msgBoth log "Warning: directory $testLogs was not found"
+#  elif [[ -n "$shiftLog" && -z "$NewFailures" ]]; then
+  elif [[ -n "$shiftLog" && -z "$NoDifferences" ]]; then
     mv logSummary "$testLogs/logSummary.$startDate"
     mv log "$testLogs/log.$startDate"
     local lastDir=`pwd`
@@ -848,8 +854,6 @@ saveLog() {
       local date2="$RESULT"
       cvs commit -m "Test run started on $date2" log*.$startDate
     cd $lastDir
-  elif [[ ! -d "$testLogs" ]]; then
-    msgBoth log "Warning: directory $testLogs was not found"
   fi
 }
 
