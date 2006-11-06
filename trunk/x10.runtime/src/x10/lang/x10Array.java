@@ -59,4 +59,26 @@ abstract public class x10Array extends x10.lang.Object implements Array, Paramet
 	public boolean isValue() {
 		return !this.mutable_;
 	}
+	
+	public int rank() {
+		return rank;
+	}
+	public boolean rect() {
+		return rect;
+	}
+	public boolean zeroBased() {
+		return zeroBased;
+	}
+	public boolean rail() {
+		return rail;
+	}
+	public dist distribution() {
+		return distribution;
+	}
+	public region region() {
+		return region;
+	}
+	public place onePlace() {
+		return onePlace;
+	}
 }
