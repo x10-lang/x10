@@ -73,50 +73,52 @@ public class X10Cast_c extends Cast_c {
         	   // i.e: (int(:self==0)) int : is a valid cast
         	   // i.e: (int(:self==0)) int(self==1) : is a valid cast at this time !!! 
         	   // (this cast is checked after by the isImplicitCastValid call)
-        	   if (expr.type() instanceof X10PrimitiveType) {
-            	   if (expr.constantValue() != null) {
-            		   // if so we try a numeric conversion.
-            		   // This allows to promote constant to dependent type and check it against the cast type. 
-    	               // Exemple1: type(int(:self==0) 0) -> (int(:self==0) int(:self==0))
-    	               // Exemple2: type(int(:self==0) 1) -> (int(:self==0) int(:self==1))              
-    	   	            if (ts.numericConversionValid(castType.type(),
-    		                    expr.constantValue())) {
-    		            		this.dynamicCheckNeeded = false;
-    		         	   return type(castType.type());        		   
-    	   	            } else {
-    	   	            	// numeric conversion is invalid in java
-    	   			   	    throw new SemanticException("Cannot cast the expression of type \"" 
-    			   					+ expr.type() + "\" to type \"" 
-    			   					+ castType.type() + "\".",
-    			   				        position());	   	            	
-    	   	            }
-    	            } else {    	            	
-    	            	// expression to cast is a primitive type (with or without constraints) and its not a constant
-    	            	if (((X10Type)expr.type()).depClause() != null){
-    	            		// if expression has constraints, checks if implicit cast is valid.
-    	            		if (!ts.isImplicitCastValid(expr.type(), castType.type())) {
-		            		throw new SemanticException("Cannot implicitly cast the expression of type \"" 
-				   					+ expr.type() + "\" to type \"" 
-				   					+ castType.type() + "\".",
-				   				        position());
-    	            		}
-        	            	// we set the primitive wrapper to generate the runtime cast check
-    	            		this.primitiveWrapper = ((PrimitiveType) expr.type()).wrapperTypeString(ts);
-    	            	} else {
-	    	            	if (((X10Type)castType.type()).depClause() != null) {
+        	   if(((X10Type)castType.type()).depClause() != null) {
+	        	   if (expr.type() instanceof X10PrimitiveType) {
+	            	   if (expr.constantValue() != null) {
+	            		   // if so we try a numeric conversion.
+	            		   // This allows to promote constant to dependent type and check it against the cast type. 
+	    	               // Exemple1: type(int(:self==0) 0) -> (int(:self==0) int(:self==0))
+	    	               // Exemple2: type(int(:self==0) 1) -> (int(:self==0) int(:self==1))              
+	    	   	            if (ts.numericConversionValid(castType.type(),
+	    		                    expr.constantValue())) {
+	    		            		this.dynamicCheckNeeded = false;
+	    		         	   return type(castType.type());        		   
+	    	   	            } else {
+	    	   	            	// numeric conversion is invalid in java
+	    	   			   	    throw new SemanticException("Cannot cast the expression of type \"" 
+	    			   					+ expr.type() + "\" to type \"" 
+	    			   					+ castType.type() + "\".",
+	    			   				        position());	   	            	
+	    	   	            }
+	    	            } else {    	            	
+	    	            	// expression to cast is a primitive type (with or without constraints) and its not a constant
+	    	            	if (((X10Type)expr.type()).depClause() != null){
+	    	            		// if expression has constraints, checks if implicit cast is valid.
+	    	            		if (!ts.isImplicitCastValid(expr.type(), castType.type())) {
+			            		throw new SemanticException("Cannot implicitly cast the expression of type \"" 
+					   					+ expr.type() + "\" to type \"" 
+					   					+ castType.type() + "\".",
+					   				        position());
+	    	            		}
+	        	            	// we set the primitive wrapper to generate the runtime cast check
 	    	            		this.primitiveWrapper = ((PrimitiveType) expr.type()).wrapperTypeString(ts);
-	    	            		this.dynamicCheckNeeded = true;
+	    	            	} else {
+		    	            	if (((X10Type)castType.type()).depClause() != null) {
+		    	            		this.primitiveWrapper = ((PrimitiveType) expr.type()).wrapperTypeString(ts);
+		    	            		this.dynamicCheckNeeded = true;
+		    	            	}
 	    	            	}
-    	            	}
-    	            }
-        	   } else {
-        		   if((!ts.isSubtype(expr.type(), castType.type())) && 
-        				   ((X10Type)castType.type()).depClause() != null)  {
-		    		   // cast is valid if toType or fromType have constraints, checks them at runtime
-	            		System.out.println("Cast from " + expr.type() + " to " + castType.type() + " is unsafe");
-	            		this.dynamicCheckNeeded = true;
-	            	}
-	            		// else cast is statically valid
+	    	            }
+	        	   } else {
+	        		   if((!ts.isSubtype(expr.type(), castType.type())) && 
+	        				   ((X10Type)castType.type()).depClause() != null)  {
+			    		   // cast is valid if toType or fromType have constraints, checks them at runtime
+		            		System.out.println("Cast from " + expr.type() + " to " + castType.type() + " is unsafe");
+		            		this.dynamicCheckNeeded = true;
+		            	}
+		            		// else cast is statically valid
+	        	   }
         	   }
            }
             		return super.typeCheck(tc);
