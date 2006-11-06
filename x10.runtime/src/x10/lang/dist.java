@@ -323,5 +323,20 @@ public
 		return distributionEfficiency;
 	}
 	
+	public int rank() {
+		return rank;
+	}
+	public boolean rect() {
+		return rect;
+	}
+	public boolean zeroBased() {
+		return zeroBased;
+	}
+	public region region() {
+		return region;
+	}
+	public place onePlace() {
+		return onePlace;
+	}
 	
 }
