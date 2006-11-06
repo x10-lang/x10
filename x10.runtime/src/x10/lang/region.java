@@ -276,5 +276,16 @@ public abstract /*value*/ class region extends Object
 	public dist/*(:region=this)*/ toDistribution() {
 		return dist.factory.local(this);
 	}
+	
+	public int rank() {
+		return rank;
+	}
+	public boolean rect() {
+		return rect;
+	}
+	public boolean zeroBased() {
+		return zeroBased;
+	}
+
 }
 
