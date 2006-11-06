@@ -9,4 +9,11 @@ public interface PropertyDecl extends FieldDecl {
      * @return -- the getter method for this property.
      */
     MethodDecl getter();
+    
+    /**
+     * For Interfaces with properties, an abstract method signature for each property 
+     * is generated in the interface body
+     * <RAJ> 
+     */
+    MethodDecl abstractGetter();
 }
