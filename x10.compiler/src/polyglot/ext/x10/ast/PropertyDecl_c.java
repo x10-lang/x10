@@ -78,7 +78,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         if (properties != null && ! properties.isEmpty()) {
             for (Iterator e = properties.iterator(); e.hasNext();) {
                 PropertyDecl  p = (PropertyDecl) e.next();
-                body = body.addMember(p.getter());
+                body = body.addMember(p.abstractGetter());
             }
             body = body.addMember(PropertyDecl_c.makePropertyNamesField(properties));
         }
@@ -132,7 +132,15 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         
         return result;
     }
+    /**
+     * For Interfaces with properties, an abstract method signature for each property 
+     * is generated in the interface body.
+     * Any class implementing the interface has to have the same property 
+     * <RAJ> 
+     */
+    public MethodDecl abstractGetter() {
+      return new MethodDecl_c(Position.COMPILER_GENERATED, Flags.PUBLIC.Abstract(), type, name, 
+                              Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
+    }
    
-   
-
 }
