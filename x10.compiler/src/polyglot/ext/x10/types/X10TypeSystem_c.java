@@ -927,11 +927,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		assert_(type);
 		return new X10FieldInstance_c(this, pos, container, flags, type, name);
 }
-//	/**
-//	 * Allow all explicit casts (for experimental purposes).
-//	 **/
+
 	public boolean isCastValid(Type fromType, Type toType) {
-		return true || super.isCastValid(fromType, toType);
+		return super.isCastValid(fromType, toType);
 }
     
 //   TODO: Extend this for other kinds of X10 arrays
