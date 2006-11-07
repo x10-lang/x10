@@ -8,7 +8,6 @@ import x10.lang.Runtime;
 import x10.lang.dist;
 import x10.lang.region;
 import x10.runtime.Activity;
-import x10.runtime.Configuration;
 
 
 /**
@@ -19,9 +18,6 @@ public class TestArray extends TestCase {
     static {
         Runtime.init();
     }
-    
-    private final Activity a
-    = new Activity() { public void run() {} }; // dummy
     
     public void testToJava() {
     	Runtime.runAsync(new Activity() {
@@ -35,8 +31,8 @@ public class TestArray extends TestCase {
     				region r = new ArbitraryRegion(ranges);// rf.region(ranges);
     				dist.factory DF = F.getDistributionFactory();
     				dist d = DF.constant(r, Runtime.here());
-    				ArrayFactory IF = Runtime.factory.getArrayFactory();
-    				x10.lang.intArray value = IF.IntReferenceArray(d, 12);
+    				ArrayFactory AF = Runtime.factory.getArrayFactory();
+    				x10.lang.intArray value = AF.IntReferenceArray(d, 12);
     				
     				int[][] a1 = (int[][]) ((IntArray) value).toJava();
     				int[][] a2 = new int[][] { { 12, 12, 12 }, { 12, 12, 12 },
