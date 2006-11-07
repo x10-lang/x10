@@ -162,6 +162,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	}
 
 	private String typeToJavaSigString(Type theType) {
+   
 		if (theType.isPrimitive()) {
 			//System.out.println(theType.toString() + " is primitive");
 		
@@ -185,10 +186,12 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				return "V";
 			throw new Error("Unexpected type" + theType.toString());
 		} else {
-                   if(!theType.toArray().isArray()) throw new Error("Unexpected type"+theType.toString());
+              
+                   if(!theType.isArray()) throw new Error("Only java arrays are supported, not "+theType.toString());
+              
                    Type baseType = theType.toArray().base();
                    if(!baseType.isPrimitive()) throw new Error("Only primitive arrays are supported, not "+theType.toString()); 
-                   return "]"+typeToJavaSigString(baseType);
+                   return "["+typeToJavaSigString(baseType);
                    
                 }
 	}
@@ -198,8 +201,21 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		String signature = "";// "("
 
 		for (ListIterator i = method.formals().listIterator(); i.hasNext();) {
-			Formal_c parameter = (Formal_c) i.next();
-			signature += typeToJavaSigString(parameter.declType());
+			Formal_c parameter = (Formal_c) i.next(); 
+                        if(parameter.declType().isPrimitive() ||
+                           parameter.declType().isArray())
+                           signature += typeToJavaSigString(parameter.declType());
+                        else {
+                        // assume this is an X10 array object.  Determine backing array type and add
+                        // descriptor signature
+                           ClassType_c ct = (ClassType_c)parameter.declType().toClass();
+                           MethodInstance backingMethod = findMethod(ct,KgetBackingArrayMethod);
+                           if(null == backingMethod) throw new Error("Could not find "+KgetBackingArrayMethod+" in class "+ct);
+                           signature += typeToJavaSigString(backingMethod.returnType());
+                           signature +=typeToJavaSigString( typeSystem.arrayOf(parameter.position(),
+                                                                               typeSystem.Int()));
+
+                        }
 		}
 		if (false) signature += ")" + typeToJavaSigString(mi.returnType());
 		return signature;
@@ -211,16 +227,33 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 *         '<unicode>' with '_0<unicode>'
 	 *         ';' with '_2'
 	 *         '[' with '_3'
+         * and strip out anything within "/*" and "*\/"
+         * assume '*' and '/' are illegal characters
 	 * @param inName
 	 * @return
 	 */
 	private String JNImangle(String inName) {
 		char [] charName = inName.toCharArray();
 		StringBuffer buffer = new StringBuffer(inName.length());
+                boolean seenForwardSlash=false;
+                boolean inCommentMode=false;
+                boolean lastCharAsterix=false;
+                char lastChar='a';
 		for (int i = 0; i < inName.length(); ++i) {
 			char ch = inName.charAt(i);
-
-			switch (ch) {
+                       
+                        if(inCommentMode){
+                          if( ch == '/' && lastChar == '*')
+                             inCommentMode =false;
+                        }
+                        else
+                           switch (ch) {
+                                 case '/': /* do not record */
+                                      break;
+                                case '*':
+                                        if(lastChar == '/')
+                                           inCommentMode=true;
+                                        break;
 				case '_':
 					buffer.append("_1");
 					break;
@@ -234,7 +267,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					buffer.append("_");
 					break;
 				default:
-					if (Character.isLetterOrDigit(ch))
+                                        if (Character.isLetterOrDigit(ch))
 						buffer.append(ch);
 					else {
 						String hex = Integer.toHexString((int)ch);
@@ -243,6 +276,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					}
 					break;
 			}
+                        lastChar=ch;
 		}
 		if(false)System.out.println("convert from "+inName+" to "+buffer.toString());
 		return buffer.toString();
@@ -262,7 +296,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			JNImangle(canonicalTypeString(method.methodInstance().container())) +
 			"_" + JNImangle(generateX10NativeName(method));
 		if (isOverloaded)
-			name += "__" + generateJavaSignature(method);
+			name += "__" + JNImangle(generateJavaSignature(method));
 		return name;
 	}
 
@@ -278,7 +312,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			JNImangle(method.methodInstance().container().toString()) +
 			"_" + JNImangle(generateX10AliasName(method));
 		if (isOverloaded)
-			name += "__" + generateJavaSignature(method);
+			name += "__" + JNImangle(generateJavaSignature(method));
 		return name;
 	}
 
@@ -399,7 +433,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 * @return wrapper method
 	 */
 	private MethodDecl_c createNativeWrapper(MethodDecl_c nativeMethod, NodeFactory nf) {
-		boolean trace = false;
+        boolean trace = false;
 		nativeMethod = (MethodDecl_c)nativeMethod.flags(nativeMethod.flags().clearNative());
 		MethodInstance mi = nativeMethod.methodInstance();
 		Position pos = nativeMethod.position();
@@ -575,7 +609,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 		String newName = generateX10NativeName(nativeMethod);
 		if (isOverloaded)
-			newName += "__" + generateJavaSignature(nativeMethod);
+			newName += "__" + JNImangle(generateJavaSignature(nativeMethod));
+
 
 		String jniCall, wrapperCall, wrapperDecl, saveTheValue = "";
 
@@ -608,6 +643,8 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				i.hasNext();)
 		{
 			Formal_c parameter = (Formal_c) i.next();
+
+
 			if (parameter.declType().isPrimitive()) { 
 			   jniCall += ", " + typeToJNIString(parameter.declType())
 					   + " " + parameter.name();
@@ -777,7 +814,6 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 				boolean isOverLoaded = (null != methodHash.get(md.name()));
 
-				//System.out.println("method: "+md.name() +" overload:"+isOverLoaded);
 				generateStub(md, isOverLoaded);
 				newListOfMembers.add(createNewNative(md, nf));
 				newListOfMembers.add(createNativeWrapper(md, nf));
