@@ -173,10 +173,17 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 		return super.isImplicitCastValidImpl(toType);
 	}
 
+	/**
+	 * This method only test if java types are compatibles for the cast.
+	 * Hence even a potentially invalid cast as ((T1) nullable T2) is accepted.
+	 * However it is the responsability of X10Cast class to generates code
+	 * that checks expression value is not null.
+	 */
 	public boolean isCastValidImpl(Type toType) {
         X10Type other  = (X10Type) toType;
         X10TypeSystem xts = (X10TypeSystem) other.typeSystem();
-		return (xts.isNullable(other) && base.isCastValidImpl(X10Type_c.toNullable(other).base()));
+    	return base.isCastValidImpl(other);
+    	// return (xts.isNullable(other) && base.isCastValidImpl(X10Type_c.toNullable(other).base()));
     }
 	
 	public boolean isArray() {
