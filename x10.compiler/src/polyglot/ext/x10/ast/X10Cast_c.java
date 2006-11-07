@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
@@ -12,12 +11,15 @@ import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.Lit_c;
 import polyglot.ext.jl.ast.Local_c;
+import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.visit.X10PrettyPrinterVisitor.Template;
 import polyglot.main.Report;
 import polyglot.types.PrimitiveType;
 import polyglot.types.SemanticException;
@@ -27,7 +29,6 @@ import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
-import sun.print.PSPrinterJob.EPSPrinter;
 
 /**
  * Represent java cast operation.
@@ -44,98 +45,113 @@ public class X10Cast_c extends Cast_c {
 		private boolean dynamicCheckNeeded = false;
 		private  String primitiveWrapper = null;
 		private boolean isX10ArrayCasted = false;
+		private boolean nullableCheck = false;
 		
         public X10Cast_c(Position pos, TypeNode castType, Expr expr) {
                 super(pos, castType, expr);
         }
 
         public Node typeCheck(TypeChecker tc) throws SemanticException {
-           Type type = castType.type();
+            Type toType = castType.type();
+            Type fromType = expr.type();
+        	X10Type x10ToType = (X10Type) toType;
+        	X10Type x10FromType = (X10Type) fromType;
+            TypeSystem ts = tc.typeSystem();
+            X10TypeSystem xts = (X10TypeSystem) x10ToType.typeSystem();
+            
            if (Report.should_report("debug", 5)) {
                     Report.report(5, "[Cast_c] |" + this + "|.typeCheck(...):");
                     Report.report(5, "[Cast_c] ...type=|" +  type+"|.");
            }
-           Expr result = type(castType.type());
+           Expr result = type(toType);
            if (Report.should_report("debug", 5)) {
            	Report.report(5, "[Cast_c] ...returning=|" +  result+"| of type=|" + result.type() + "|.");
            }
-           // if value create enclosing time 
-           TypeSystem ts = tc.typeSystem();
 
            // check java cast is valid and dependent type constraint are meet
-           if (! ts.isCastValid(expr.type(), castType.type())) {
+           if (! ts.isCastValid(fromType, toType)) {
 		   	    throw new SemanticException("Cannot cast the expression of type \"" 
-		   					+ expr.type() + "\" to type \"" 
-		   					+ castType.type() + "\".",
+		   					+ fromType + "\" to type \"" 
+		   					+ toType + "\".",
 		   				        position());
            } else {
+        	   
+               // Handle isNullable additionnal constraint 
+        	   // Such cast ((T1) nullable T2), should checks at runtime 
+        	   // the expression to cast is not null
+               if (xts.isNullable(x10FromType) && (!xts.isNullable(x10ToType))) {
+            	   this.dynamicCheckNeeded = true;
+            	   this.nullableCheck  = true;
+               }
+               
         	   // constraint may not be meet for primitive type
         	   // i.e: (int(:self==0)) int : is a valid cast
         	   // i.e: (int(:self==0)) int(self==1) : is a valid cast at this time !!! 
         	   // (this cast is checked after by the isImplicitCastValid call)
-        	   if(((X10Type)castType.type()).depClause() != null) {
-	        	   if (expr.type() instanceof X10PrimitiveType) {
+        	   if(((X10Type)toType).depClause() != null) {
+	        	   if (fromType instanceof X10PrimitiveType) {
 	            	   if (expr.constantValue() != null) {
 	            		   // if so we try a numeric conversion.
 	            		   // This allows to promote constant to dependent type and check it against the cast type. 
 	    	               // Exemple1: type(int(:self==0) 0) -> (int(:self==0) int(:self==0))
 	    	               // Exemple2: type(int(:self==0) 1) -> (int(:self==0) int(:self==1))              
-	    	   	            if (ts.numericConversionValid(castType.type(),
+	    	   	            if (ts.numericConversionValid(toType,
 	    		                    expr.constantValue())) {
 	    		            		this.dynamicCheckNeeded = false;
-	    		         	   return type(castType.type());        		   
+	    		         	   return type(toType);        		   
 	    	   	            } else {
 	    	   	            	// numeric conversion is invalid in java
 	    	   			   	    throw new SemanticException("Cannot cast the expression of type \"" 
-	    			   					+ expr.type() + "\" to type \"" 
-	    			   					+ castType.type() + "\".",
+	    			   					+ fromType + "\" to type \"" 
+	    			   					+ toType + "\".",
 	    			   				        position());	   	            	
 	    	   	            }
 	    	            } else {    	            	
 	    	            	// expression to cast is a primitive type (with or without constraints) and its not a constant
-	    	            	if (((X10Type)expr.type()).depClause() != null){
+	    	            	if (((X10Type)fromType).depClause() != null){
 	    	            		// if expression has constraints, checks if implicit cast is valid.
-	    	            		if (!ts.isImplicitCastValid(expr.type(), castType.type())) {
+	    	            		if (!ts.isImplicitCastValid(fromType, toType)) {
 			            		throw new SemanticException("Cannot implicitly cast the expression of type \"" 
-					   					+ expr.type() + "\" to type \"" 
-					   					+ castType.type() + "\".",
+					   					+ fromType + "\" to type \"" 
+					   					+ toType + "\".",
 					   				        position());
 	    	            		}
 	        	            	// we set the primitive wrapper to generate the runtime cast check
-	    	            		this.primitiveWrapper = ((PrimitiveType) expr.type()).wrapperTypeString(ts);
+	    	            		this.primitiveWrapper = ((PrimitiveType) fromType).wrapperTypeString(ts);
 	    	            	} else {
-		    	            	if (((X10Type)castType.type()).depClause() != null) {
-		    	            		this.primitiveWrapper = ((PrimitiveType) expr.type()).wrapperTypeString(ts);
+		    	            	if (((X10Type) toType).depClause() != null) {
+		    	            		this.primitiveWrapper = ((PrimitiveType) fromType).wrapperTypeString(ts);
 		    	            		this.dynamicCheckNeeded = true;
 		    	            	}
 	    	            	}
 	    	            }
 	        	   } else {
-	        		   if((!ts.isSubtype(expr.type(), castType.type())) && 
-	        				   ((X10Type)castType.type()).depClause() != null)  {
+	        		   if((!ts.isSubtype(fromType, toType)) && 
+	        				   ((X10Type)toType).depClause() != null)  {
 			    		   // cast is valid if toType or fromType have constraints, checks them at runtime
-		            		System.out.println("Cast from " + expr.type() + " to " + castType.type() + " is unsafe");
+		            		System.out.println("Cast from " + fromType + " to " + toType + " is unsafe");
 		            		this.dynamicCheckNeeded = true;
 		            	}
 		            		// else cast is statically valid
 	        	   }
         	   }
            }
-            		return super.typeCheck(tc);
+            		return type(toType);
         }
         
         public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
     		if (this.dynamicCheckNeeded){
-        		X10CastHelper.prettyPrintCast(w, tr, (X10Type) this.castType.type(),this.expr, this, primitiveWrapper);
+        		X10CastHelper.prettyPrintCast(w, tr, (X10Type) this.castType.type(), 
+        				this.expr, this, this.nullableCheck, primitiveWrapper);
         	}
         	else
         		super.prettyPrint(w,tr);
         }
         
         /**
-         * Regroup some method that can be used either by X10Cast_c or X10Instanceof_c to avoid duplication.
+         * Regroup some method that can be used either by X10Cast_c 
+         * or X10Instanceof_c to avoid duplication.
          * @author vcave
-         *
          */
         public static class X10CastHelper {
             /**
@@ -184,15 +200,15 @@ public class X10Cast_c extends Cast_c {
         	 * @param primitiveWrapper The primitive type wrapper to use if needed.
         	 */
 			public static void prettyPrintCast(CodeWriter w, PrettyPrinter tr, X10Type castType,
-            		Expr exprToCast, X10Cast_c cast_c, String primitiveWrapper) {
+            		Expr exprToCast, X10Cast_c cast_c, boolean nullableCheck, String primitiveWrapper) {
 				if (isSideEffectFree(exprToCast)) {
-        			X10CastHelper.prettyPrintInlineCast(w, tr, castType, exprToCast, cast_c, true, primitiveWrapper);
+        			X10CastHelper.prettyPrintInlineCast(w, tr, castType, exprToCast, cast_c, true, nullableCheck, primitiveWrapper);
         		} else {
                 	if (primitiveWrapper != null) {
-            			X10CastHelper.prettyPrintSideEffectCast(w, tr, castType, exprToCast, cast_c, 
+            			X10CastHelper.prettyPrintSideEffectCast(w, tr, castType, exprToCast, cast_c, nullableCheck, 
             					"x10.lang.RuntimeCastChecker.checkPrimitiveType");
                 	} else {
-            			X10CastHelper.prettyPrintSideEffectCast(w, tr, castType, exprToCast, cast_c,
+            			X10CastHelper.prettyPrintSideEffectCast(w, tr, castType, exprToCast, cast_c, nullableCheck,
             					"x10.lang.RuntimeCastChecker.<" + castType.baseType() + ">checkCast");
                 	}
         		}
@@ -211,9 +227,9 @@ public class X10Cast_c extends Cast_c {
             public static void prettyPrintInstanceOf(CodeWriter w, PrettyPrinter tr, X10Type castType, 
             		Expr exprToCast, X10Instanceof_c instanceOf) {
             	if (isSideEffectFree(exprToCast)) {
-        	    	X10Cast_c.X10CastHelper.prettyPrintInlineCast(w,tr,castType,exprToCast,instanceOf,false, null);
+        	    	X10Cast_c.X10CastHelper.prettyPrintInlineCast(w,tr,castType,exprToCast,instanceOf,false, false, null);
             	} else {
-          	    	X10Cast_c.X10CastHelper.prettyPrintSideEffectCast(w,tr,castType,exprToCast,instanceOf,
+          	    	X10Cast_c.X10CastHelper.prettyPrintSideEffectCast(w,tr,castType,exprToCast,instanceOf, false,
   	    			"x10.lang.RuntimeCastChecker.isInstanceOf");
         		}	
           	}
@@ -232,7 +248,7 @@ public class X10Cast_c extends Cast_c {
 			 * @param runtimeCastCheckerMethodName The method name to call at runtime to perform the cast.
 			 */
             private static void prettyPrintSideEffectCast(CodeWriter w, PrettyPrinter tr, 
-            		X10Type castType, Expr expr, Expr enclosingExpression, String runtimeCastCheckerMethodName) {
+            		X10Type castType, Expr expr, Expr enclosingExpression, boolean nullableCheck, String runtimeCastCheckerMethodName) {
             	w.begin(0);
             	w.write(runtimeCastCheckerMethodName + "(");
             	// generate Constraint
@@ -256,7 +272,7 @@ public class X10Cast_c extends Cast_c {
             			}
             		}
             	}
-            	w.write("},");
+            	w.write("}," + nullableCheck + ",");
             	enclosingExpression.printSubExpr(expr, w, tr);
             	w.write(")");
         	}
@@ -275,7 +291,8 @@ public class X10Cast_c extends Cast_c {
              * @param primitiveWrapper The primitive type wrapper to use if needed,
              */
 	        private static void prettyPrintInlineCast(CodeWriter w, PrettyPrinter tr, X10Type castType, 
-					Expr expr, Expr enclosingExpr, boolean throwException, String primitiveWrapper) {
+					Expr expr, Expr enclosingExpr, boolean throwException, boolean nullableCheck, String primitiveWrapper) {
+	        	boolean notFirst = false;
 	        	String castBaseType = castType.baseType().toString();
 	        	w.begin(0);
 	        	// begin cast
@@ -288,32 +305,35 @@ public class X10Cast_c extends Cast_c {
 		        	w.write("(");
 		        	enclosingExpr.printSubExpr(expr, w, tr);
 		        	w.write(" instanceof " + castBaseType + ")");
-    				w.write(" && ");
+		        	notFirst = true;
 	        	} else {
 	        		castBaseType = primitiveWrapper;
+	        	}
+	        	
+	        	if (nullableCheck) {
+	        		if (notFirst)
+	        			w.write(" && ");
+	        		else
+	        			notFirst = true;
+	        		w.write("(");
+	        		w.write("x10.lang.RuntimeCastChecker.isObjectNotNull(");
+	        		enclosingExpr.printSubExpr(expr, w, tr);
+        			w.write("))");
 	        	}
 	        	
 	        	Constraint constraint;
 	        	if ((constraint = castType.depClause()) != null) {
 	        		Map map;
 	        		if ((map = ((Constraint_c)constraint).constraints()) != null) {
-	        			Iterator it = map.entrySet().iterator();
-	        			Entry entry = (Entry) it.next();
-	    				w.write("(");
-        				if (primitiveWrapper != null ) {
-	        				enclosingExpr.printSubExpr(expr, w, tr);	        					
-        				} else {
-	        				w.write("((" + castBaseType + ")");
-	        				enclosingExpr.printSubExpr(expr, w, tr);
-	            			w.write(")." + ((C_Var) entry.getKey()).name() + "()");	        					
-        				}
-	        			w.write("=="); // TODO: Future work, get the operator from the constraint
-	        			w.write("" + ((C_Term) entry.getValue()));
-	        			w.write(")");
-	        			for(; it.hasNext();) {
-	        				entry = (Entry) it.next();
+	        			for(Iterator it = map.entrySet().iterator(); it.hasNext();) {
+	        				Entry entry = (Entry) it.next();
 	        	        	w.newline();
-	        				w.write(" && (");
+	        	        	if (notFirst)
+	        	        		w.write(" && ");
+	    	        		else
+	    	        			notFirst = true;
+	        	        	
+        	        		w.write("(");
 	        				if (primitiveWrapper != null ) {
 		        				enclosingExpr.printSubExpr(expr, w, tr);	        					
 	        				} else {
