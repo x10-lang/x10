@@ -105,13 +105,8 @@ public class X10PrettyPrinterVisitor extends Runabout {
 	}
 
 	public void visit(Cast_c c) {
-		boolean exp_nullab = (c.expr().type() instanceof NullableType);
-		boolean casttype_nullab = (c.castType().type() instanceof NullableType);
-		if (exp_nullab && !casttype_nullab) {
-			new Template("cast_nullable", c.castType(), c.expr()).expand();
-		} else {
-			visit((Node)c);
-		}
+		// nullable check is now embedded into X10Cast
+		visit((Node)c);
 	}
 
 	public void visit(Call_c c) {
