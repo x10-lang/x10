@@ -5,7 +5,6 @@ import java.util.Iterator;
 import x10.lang.Runtime;
 import x10.lang.point;
 import x10.runtime.Activity;
-import x10.runtime.Configuration;
 import junit.framework.TestCase;
 
 /**
@@ -22,7 +21,7 @@ public class TestBandedRegion extends TestCase {
     		public void run() {
     			Range[] ranges = new Range[] { new ContiguousRange(0,4), new ContiguousRange(0, 4) }; // 6x4         
     			System.out.println("foo");
-    			BandedRegion reg = new BandedRegion(ranges, 3);
+    			BandedRegion reg = new BandedRegion(ranges, 3, true);
     			System.out.println("reg=" + reg);
     			// check ordinal and iterator and contains method
     			int cnt = 0;

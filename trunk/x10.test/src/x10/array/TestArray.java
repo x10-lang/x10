@@ -35,7 +35,7 @@ public class TestArray extends TestCase {
     				region r = new ArbitraryRegion(ranges);// rf.region(ranges);
     				dist.factory DF = F.getDistributionFactory();
     				dist d = DF.constant(r, Runtime.here());
-    				IntArray.factory IF = Runtime.factory.getIntArrayFactory();
+    				ArrayFactory IF = Runtime.factory.getArrayFactory();
     				x10.lang.intArray value = IF.IntReferenceArray(d, 12);
     				
     				int[][] a1 = (int[][]) ((IntArray) value).toJava();
