@@ -11,6 +11,18 @@ import java.lang.reflect.Method;
  */
 public class RuntimeCastChecker {
 	 
+	
+	/**
+	 * WARNING ! Do not change the name of this method without changing
+	 * Method used to do dynamic nullcheck when nullable is casted away.
+	 */
+	public static boolean isObjectNotNull(java.lang.Object o) {
+		if (o == null)
+			throw new ClassCastException("Cast of value 'null' to non-nullable type failed.");
+		
+		return true;
+	}
+	
 	/**
 	 * WARNING ! Do not change the name of this method without changing
 	 * the Cast code generation of x10 compiler.
@@ -31,9 +43,14 @@ public class RuntimeCastChecker {
 	 * @param x10array
 	 * @return
 	 */
-	public static <U> U checkCast(RuntimeConstraint [] cTab, java.lang.Object obj) {
+	public static <U> U checkCast(RuntimeConstraint [] cTab, boolean nullableCheck, java.lang.Object obj) {		
 		// try regular java cast
 		 U castedObj = (U) obj;
+
+		if (nullableCheck) {
+			RuntimeCastChecker.isObjectNotNull(obj);
+		}
+
 		 // get class for reflexion
 		 Class cl = castedObj.getClass();
 		 boolean correct = true;
@@ -72,14 +89,12 @@ public class RuntimeCastChecker {
 	 * @param x10array
 	 * @return
 	 */
-	public static <U> boolean isInstanceOf(RuntimeConstraint [] cTab, java.lang.Object obj) {
-	
+	public static <U> boolean isInstanceOf(RuntimeConstraint [] cTab, boolean nullableCheck, java.lang.Object obj) {
 		try {
-			RuntimeCastChecker.<U>checkCast(cTab,obj);	
+			RuntimeCastChecker.<U>checkCast(cTab, false, obj);	
 		} catch(Throwable t) {
 			return false;
 		}
-		
 		return true;
 	}
 
@@ -92,7 +107,7 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the short.
 	 * @return the short value or an exception if cast does not meet constraints.
 	 */
-	public static short checkPrimitiveType(RuntimeConstraint [] cTab, short value) {
+	public static short checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, short value) {
 		 boolean correct = true;
 		 int i = 0;
 		 System.out.println("invoke check short");
@@ -120,7 +135,7 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the byte.
 	 * @return the byte value or an exception if cast does not meet constraints.
 	 */
-	public static byte checkPrimitiveType(RuntimeConstraint [] cTab, byte value) {
+	public static byte checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, byte value) {
 		 boolean correct = true;
 		 int i = 0;
 		 System.out.println("invoke check byte");
@@ -151,7 +166,7 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the integer.
 	 * @return the integer value or an exception if cast does not meet constraints.
 	 */
-	public static int checkPrimitiveType(RuntimeConstraint [] cTab, int value) {
+	public static int checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, int value) {
 		 boolean correct = true;
 		 int i = 0;
 		 System.out.println("invoke check integer");
@@ -181,7 +196,7 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the long.
 	 * @return the long value or an exception if cast does not meet constraints.
 	 */
-	public static long checkPrimitiveType(RuntimeConstraint [] cTab, long value) {
+	public static long checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, long value) {
 		 boolean correct = true;
 		 int i = 0;
 		 System.out.println("invoke check long");
@@ -209,7 +224,7 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the double.
 	 * @return the double value or an exception if cast does not meet constraints.
 	 */
-	public static double checkPrimitiveType(RuntimeConstraint [] cTab, double value) {
+	public static double checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, double value) {
 		 boolean correct = true;
 		 int i = 0;
 		 System.out.println("invoke check double");
@@ -237,7 +252,7 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the float.
 	 * @return the float value or an exception if cast does not meet constraints.
 	 */
-	public static float checkPrimitiveType(RuntimeConstraint [] cTab, float value) {
+	public static float checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, float value) {
 		 boolean correct = true;
 		 int i = 0;
 		 System.out.println("invoke check float");
