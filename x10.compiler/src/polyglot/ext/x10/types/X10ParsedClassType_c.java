@@ -440,18 +440,16 @@ implements X10ParsedClassType
 					+ this.hashCode() + ") baseType = " + ( baseType.toString()) + " dep=" + depClause);
 		return  
 		((baseType == this) ? super.toString() : ((X10ParsedClassType_c) baseType).toString())
-		+ (isParametric() ? "/"+"*T" + typeParameters.toString() + "*"+"/"  : "") 
-		
-		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
+		+ (isParametric() ? "/"+"*T" + typeParameters.toString() + "*"+"/" : "") 
+		+ (depClause == null ? "" : "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 		//  + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
 	}
 	public String toString() { 
 		
 		return  
 		((baseType == this) ? super.toString() : ((X10ParsedClassType_c) baseType).toString())
-		+ (isParametric() ? typeParameters.toString()  : "") 
-		
-		+ (depClause == null ? "" :  "(:" +  depClause.toString() + ")");
+		+ (isParametric() ? "/"+"*T"+ typeParameters.toString() +"*"+"/" : "") 
+		+ (depClause == null ? "" : "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 	}
 	
 	
