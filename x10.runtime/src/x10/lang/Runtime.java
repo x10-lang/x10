@@ -316,16 +316,6 @@ public abstract class Runtime {
 	/**
 	 * Method used to do dynamic nullcheck when nullable is casted away.
 	 */
-	public static java.lang.Object nullCheck(java.lang.Object o) {
-		if (o == null)
-			throw new ClassCastException(
-					"Cast of value 'null' to non-nullable type failed.");
-		return o;
-	}
-
-	/**
-	 * Method used to do dynamic nullcheck when nullable is casted away.
-	 */
 	public static java.lang.Object placeCheck(java.lang.Object o,
 			x10.lang.place p) {
 		if (o == null)
