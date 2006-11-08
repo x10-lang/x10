@@ -278,8 +278,11 @@ public class BacktrackingParser extends Stacks
             }
             else                   // a shift or shift-reduce action
             {
-                if (tokStream.getKind(curtok) > NT_OFFSET)
-		    parseStack[stateStackTop] = null; // ra.prostheticAst[prs.getProsthesisIndex(tokStream.getKind(curtok))].create(tokStream.getIToken(curtok));
+                if (tokStream.getKind(curtok) > NT_OFFSET) 
+                {
+                    ErrorToken badtok = (ErrorToken) ((PrsStream) tokStream).getIToken(curtok);
+		    throw new BadParseException(badtok.getErrorToken().getTokenIndex()); // parseStack[stateStackTop] = ra.prostheticAst[prs.getProsthesisIndex(tokStream.getKind(curtok))].create(tokStream.getIToken(curtok));
+                }
                 lastToken = curtok;
                 curtok = tokens.get(++ti);
                 if (currentAction > ERROR_ACTION) // a shift-reduce action?
