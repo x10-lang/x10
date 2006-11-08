@@ -12,11 +12,11 @@ public class PrimitiveCastToPrimitiveDepType2 extends x10Test {
 			int (: self == 0) i = 0;
 			int j = 0;
 			i = (int (: self == 0)) j;
-		}catch(ClassCastException) {
-			return true;
+		}catch(ClassCastException e) {
+			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 	public static void main(String[] args) {
