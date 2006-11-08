@@ -30,6 +30,7 @@ $Globals
     import java.util.LinkedList;
     import java.util.List;
 
+    import polyglot.ast.AmbExpr;
     import polyglot.ast.AmbTypeNode;
     import polyglot.ast.ArrayInit;
     import polyglot.ast.Assign;
@@ -1411,20 +1412,21 @@ $Rules
     FieldDeclaration ::= ThisClauseopt FieldModifiersopt Type  VariableDeclarators ;
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
-                    if (VariableDeclarators.size() > 0)
-                    for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
-                    {
-                        X10VarDeclarator d = (X10VarDeclarator) i.next();
-                        if (d.hasExplodedVars())
-                          // TODO: Report this exception correctly.
-                          throw new Error("Field Declarations may not have exploded variables." + pos());
-                        d.setFlag(FieldModifiersopt);
-                        l.add(nf.FieldDecl(d.position(),
-                                           ThisClauseopt,
-                                           d.flags,
-                                           nf.array(Type, Type.position(), d.dims),
-                                           d.name,
-                                           d.init));
+                    if (VariableDeclarators != null && VariableDeclarators.size() > 0) {
+                        for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
+                        {
+                            X10VarDeclarator d = (X10VarDeclarator) i.next();
+                            if (d.hasExplodedVars())
+                              // TODO: Report this exception correctly.
+                              throw new Error("Field Declarations may not have exploded variables." + pos());
+                            d.setFlag(FieldModifiersopt);
+                            l.add(nf.FieldDecl(d.position(),
+                                               ThisClauseopt,
+                                               d.flags,
+                                               nf.array(Type, Type.position(), d.dims),
+                                               d.name,
+                                               d.init));
+                        }
                     }
                     setResult(l);
           $EndJava

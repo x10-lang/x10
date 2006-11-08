@@ -727,7 +727,10 @@ $Rules
     
     FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
         /.$BeginJava
+	        if (VariableDeclaratorId != null)
                     setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
+                else
+                    setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), 1), "", new AmbExpr[0]));
           $EndJava
         ./
     
@@ -1273,16 +1276,18 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), LocalDecl.class, false);
                     List s = new TypedList(new LinkedList(), Stmt.class, false);
-                    for (Iterator i = VariableDeclarators.iterator(); i.hasNext(); )
-                    {
-                        X10VarDeclarator d = (X10VarDeclarator) i.next();
-                        d.setFlag(VariableModifiersopt); 
-                        // use d.flags below and not flags, setFlag may change it.
-                        l.add(nf.LocalDecl(d.pos, d.flags,
-                                           nf.array(Type, pos(d), d.dims), d.name, d.init));
-                        // [IP] TODO: Add X10Local with exploded variables
-                        if (d.hasExplodedVars())
-                           s.addAll(X10Formal_c.explode(nf, ts, d.name, pos(d), d.flags, d.names()));
+                    if (VariableDeclarators != null) {
+                        for (Iterator i = VariableDeclarators.iterator(); i.hasNext(); )
+                        {
+                            X10VarDeclarator d = (X10VarDeclarator) i.next();
+                            d.setFlag(VariableModifiersopt); 
+                            // use d.flags below and not flags, setFlag may change it.
+                            l.add(nf.LocalDecl(d.pos, d.flags,
+                                               nf.array(Type, pos(d), d.dims), d.name, d.init));
+                            // [IP] TODO: Add X10Local with exploded variables
+                            if (d.hasExplodedVars())
+                               s.addAll(X10Formal_c.explode(nf, ts, d.name, pos(d), d.flags, d.names()));
+                        }
                     }
                     l.addAll(s); 
                     setResult(l);
