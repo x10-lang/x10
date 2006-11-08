@@ -188,7 +188,6 @@ public /* final */ class Clock extends clock {
 		if (Report.should_report(Report.CLOCK, 3)) {
 			Report.report(3, PoolRunner.logString() + " " + this
 					+ " created by " + a + ".");
-
 		}
 	}
 	
@@ -203,6 +202,7 @@ public /* final */ class Clock extends clock {
 	private boolean inactive( Activity a) {
 		return ( (! activities_.contains(a)) || quiescent(a));
 	}
+	
 	/**
 	 * Register the current activity with this clock.
 	 */
@@ -232,6 +232,7 @@ public /* final */ class Clock extends clock {
 		return resumed_.contains(a) || nextResumed_.contains(a);
 		
 	}
+	
 	/**
 	 * Notify the clock that this activity has completed its
 	 * work in this phase of the clock.
@@ -250,6 +251,9 @@ public /* final */ class Clock extends clock {
 				throw new ClockUseException(a + "is not registered with " + this +"; cannot execute 'resume'.");
 			
 			if (quiescent(a)) {
+				// if resume has already been called, the clock is in a quiescent state as regard to activity a.
+				// this check is needed as the user can call resume by is own in the X10 code. 
+				// The resume method is also called automatically before doNext which may lead to several call.
 				if (Report.should_report(Report.CLOCK, 5)) {
 					Report.report(5, PoolRunner.logString() + " " + this + "...returned (noop).");
 				}
@@ -272,8 +276,6 @@ public /* final */ class Clock extends clock {
 		}
 	}
 	
-	
-	
 	public boolean registered() {
 		Activity a = Runtime.getCurrentActivity();	
 		// do not lock earlier - see comment in doNow       
@@ -281,6 +283,7 @@ public /* final */ class Clock extends clock {
 			return activities_.contains(a);
 		}
 	}
+
 	public boolean dropped() {
 		return ! registered();
 	}
@@ -292,6 +295,7 @@ public /* final */ class Clock extends clock {
 		}
 		
 	}
+	
 	/**
 	 * Drop this activity from the clock.  Afterwards the
 	 * activity may no longer use continue or now on this clock.
@@ -368,6 +372,7 @@ public /* final */ class Clock extends clock {
 		return true;
 		
 	}
+	
 	private synchronized boolean tryMoveToWhole_() {
 	    if (Report.should_report(Report.CLOCK, 3)) {
 			Report.report(3, PoolRunner.logString() + " " + this+".tryMoveToWhole_()");
@@ -389,10 +394,8 @@ public /* final */ class Clock extends clock {
 		return true;
 	}
 	
-	
 	private void block_() {
 		int start = phase_;
-		
 		Thread t = Thread.currentThread();
 		((PoolRunner) t).getPlace().threadBlockedNotification();
 		
@@ -400,6 +403,7 @@ public /* final */ class Clock extends clock {
 			try {
 				this.wait(); // wait for signal
 			} catch (InterruptedException ie) {
+				((PoolRunner) t).getPlace().threadUnblockedNotification();
 				throw new Error(ie); // that was unexpected...
 			}
 		}
@@ -412,7 +416,9 @@ public /* final */ class Clock extends clock {
 
         /* An activity on a remote VM has done a next on this clock */
        
-    
+    /**
+     * Requires resume has already been call on activity a.
+     */
 	private void doNext(Activity a) {
 		// do not acquire lock earlier - otherwise deadlock can happen
 		// because the lock used to protected aip_.getCurrentActivity
@@ -421,6 +427,7 @@ public /* final */ class Clock extends clock {
 			Report.report(5, PoolRunner.logString() + " " + this+".doNext(" + a + ") called.");
 		}
 		
+
 		synchronized (this) {
 			assert activities_.contains(a);
 			assert nextResumed_.contains(a) || resumed_.contains(a);
