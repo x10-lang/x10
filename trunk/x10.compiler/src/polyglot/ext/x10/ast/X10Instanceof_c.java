@@ -48,7 +48,17 @@ public class X10Instanceof_c extends Instanceof_c {
  
     /** Type check the expression. */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
-    		return super.typeCheck(tc);
+        Instanceof n = (Instanceof) node();
+        Type rtype = n.compareType().type();
+        Type ltype = n.expr().type();
+
+        if (! tc.typeSystem().isCastValid(ltype, rtype)) {
+            throw new SemanticException(
+                      "Left operand of \"instanceof\" must be castable to "
+                      + "the right operand.");
+        }
+
+        return n.type(tc.typeSystem().Boolean());
 	}
 
     /** Write the expression to an output file. */
