@@ -13,7 +13,7 @@ public class PrimitiveCastToPrimitiveDepType1 extends x10Test {
 			int (: self == 0) i = 0;
 			int j = 1;
 			i = (int (: self == 0)) j;
-		}catch(ClassCastException) {
+		}catch(ClassCastException e) {
 			return true;
 		}
 
