@@ -23,7 +23,7 @@ package x10.lang;
 import java.util.Set;
 
 import x10.base.TypeArgument;
-import x10.runtime.Activity;
+import x10.runtime.Future_c;
 
 public /*value*/ class place /*(nat i : i =< MAX_PLACES)*/ extends x10.lang.Object 
 implements TypeArgument, ValueType{
@@ -133,7 +133,7 @@ implements TypeArgument, ValueType{
 	public void runAsyncNoRemapping(x10.runtime.Activity a){throw new RuntimeException("Should never be called");}
 	
 	public void runAsync(x10.runtime.Activity a){throw new RuntimeException("Should never be called");}
-	public  Future runFuture(Activity.Expr a) {if(true) throw new RuntimeException("Should never be called"); return null;}
+	public  Future runFuture(Future_c.Activity a) {if(true) throw new RuntimeException("Should never be called"); return null;}
 
    
    
