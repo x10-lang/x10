@@ -14,8 +14,21 @@ public class ClockTest1 extends x10Test {
 	boolean flag;
 
 	public boolean run() {
+		// main activity A0
 		final clock c = clock.factory.clock();
-		async(here) clocked(c) finish async(here) { atomic { flag = true; } }
+		
+		// the fact of spawning this clocked activity increases 
+		// the number of registered activities to two.
+		async(here) clocked(c)  // activity A1
+		       finish async(here) { // activity A2
+			     atomic { flag = true; }  
+		       } // A1 drops all registered clocks
+		
+		// According to thread scheduling two scenario are possibles:
+		  // - A1 terminates before A0 reaches next. Hence A0 perform the next and is not blocked
+		  // - A0 reaches next and is blocked until A1 finished. When A1 do so, the 
+		  //   number of activities registered with clock c is decremented, which release A0
+		  //   that becomes the only activity to wait on the clock "barrier"
 		next;
 		boolean b;
 		atomic { b = flag; }
