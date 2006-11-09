@@ -25,11 +25,16 @@ import x10.lang.place;
  */
 public class FinishState {
 
-	// Exception Stack is lazily created
+	/** The Exception Stack is used to collect exceptions 
+	 * issued when activities associated with this finish state terminate abruptly. 
+	 * This Object is lazily created 
+	 **/
 	private Stack finish_;
 
-	protected Activity parent; // not really needed, used in toString().
+	/**not really needed, used in toString(). **/
+	protected Activity parent; 
 
+	/** Keep track of current number of activities associated with this finish state **/
 	protected ModCountDownLatch mcdl = new ModCountDownLatch(0);
 
 	/** 
@@ -40,6 +45,12 @@ public class FinishState {
 		parent = activity;
 	}
 
+	/**
+	 * This method returns only when all spawned activity registered with this 
+	 * FinishState have terminated either normally or abruptly.
+	 * Additionnaly, a notification is sent to the place where 
+	 * the activity reside when the activity is blocked and unblock.
+	 */
 	public void waitForFinish() {
 		if (mcdl.getCount() > 0) {
 			// Need to wait till count becomes zero
@@ -62,6 +73,11 @@ public class FinishState {
 		}
 	}
 
+
+	/** 
+	 * An activity created under this finish has been created. Increment the count
+	 * associated with the finish.
+	 */
 	public void notifySubActivitySpawn() {
 		mcdl.updateCount();
 		if (Report.should_report(Report.ACTIVITY, 5)) {
@@ -69,10 +85,11 @@ public class FinishState {
 		}
 	}
 
-	/** Push an exception onto the stack. Do not decrement
+	/** 
+	 * Push an exception onto the stack. Do not decrement
 	 * finishCount --- this exception was thrown by
 	 * inline code, not a spawned activity.
-	 * @param t
+	 * @param t Thrown exception
 	 */
 	public void pushException(Throwable t) {
 		synchronized(this) {
@@ -80,20 +97,26 @@ public class FinishState {
 		}
 	}
 
+	/**
+	 * Create a new stack or return current one.
+	 * @return the finish stak
+	 */
 	private Stack getFinishStack() {
 		if(finish_ == null)
 			finish_ = new Stack();
 		return finish_;
 	}
 	
-	/** An activity created under this finish has terminated. Decrement the count
+	/** 
+	 * An activity created under this finish has terminated. Decrement the count
 	 * associated with the finish and notify the parent activity if it is waiting.
 	 */
 	public void notifySubActivityTermination() {
 		mcdl.countDown();
 	}
 
-	/** An activity created under this finish has terminated abruptly. 
+	/** 
+	 * An activity created under this finish has terminated abruptly. 
 	 * Record the exception, decrement the count associated with the finish
 	 * and notify the parent activity if it is waiting.
 	 * 
