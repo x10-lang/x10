@@ -71,30 +71,66 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	private boolean notFinished = true;
 
 	private InvocationStrategy invocationStrategy = InvocationStrategy.ASYNC;
-	
+
+	private final String name;
+
 	/********** ACTIVITY CREATION AND INITIALIZATION **********/
-	
-	
+
 	/**
 	 * Create an activity.
 	 * @thread mySpawningThread
 	 */
 	public Activity() {
-		if (VMInterface.ABSTRACT_EXECUTION_STATS)
-			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
-		this.initializeActivity();
+	    this(new Throwable().getStackTrace()[2].toString());
 	}
-	
+
 	/**
-	 * Create an activity with the given set of clocks.
+	 * Create an activity.
+	 * @thread mySpawningThread
+	 * @param name
+	 */
+	public Activity(String name) {
+	    this.name= name;
+	    if (VMInterface.ABSTRACT_EXECUTION_STATS)
+		this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
+	    this.initializeActivity();
+	}
+
+	/**
+	 * Create an activity with the given list of clocks.
+	 * @thread mySpawningThread  
+	 * @param clocks
+	 * @param name
+	 */
+	public Activity(List clocks, String name) {
+	    this.name= name;
+	    if (VMInterface.ABSTRACT_EXECUTION_STATS)
+		this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
+	    this.activityClockManager = ClockManagerFactory.getClockManager(this, clocks);
+	    this.initializeActivity();
+	}
+
+	/**
+	 * Create an activity with the given list of clocks.
 	 * @thread mySpawningThread  
 	 * @param clocks
 	 */
 	public Activity(List clocks) {
-		if (VMInterface.ABSTRACT_EXECUTION_STATS)
-			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
-		this.activityClockManager = ClockManagerFactory.getClockManager(this, clocks);
-		this.initializeActivity();
+	    this(clocks, new Throwable().getStackTrace()[2].toString());
+	}
+
+	/**
+	 * Create an activity with the given clock.
+	 * @thread mySpawningThread  
+	 * @param clock
+	 * @param name
+	 */
+	public Activity(Clock clock, String name) {
+	    this.name= name;
+	    if (VMInterface.ABSTRACT_EXECUTION_STATS)
+		this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
+	    this.activityClockManager = ClockManagerFactory.getClockManager(this, clock);
+	    this.initializeActivity();
 	}
 
 	/**
@@ -103,10 +139,7 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	 * @param clock
 	 */
 	public Activity(Clock clock) {
-		if (VMInterface.ABSTRACT_EXECUTION_STATS)
-			this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
-		this.activityClockManager = ClockManagerFactory.getClockManager(this, clock);
-		this.initializeActivity();
+	    this(clock, new Throwable().getStackTrace()[2].toString());
 	}
 
 	/**
@@ -636,7 +669,7 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	 * @return -- the short name for the activity.
 	 */
 	public String myName() {
-           return "Activity " + Long.toHexString(hashCode());
+           return name != null ? name : ("Activity " + Long.toHexString(System.identityHashCode(this)));
 	}
 
 	/** A long descriptor for the activity. By default displays the finishState_ and the rootNode_.

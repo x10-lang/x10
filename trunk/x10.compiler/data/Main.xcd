@@ -3,6 +3,7 @@
 public static class Main extends x10.runtime.Activity {
 	private final String[] form;
 	public Main(String[] args) {
+	   super("Main Activity");
 	   this.form = args;
 	}
 	public void runX10Task() {
