@@ -8,8 +8,10 @@ import java.util.StringTokenizer;
 
 import x10.array.ArrayFactory;
 import x10.runtime.Activity;
+import x10.runtime.ActivityRunner;
 import x10.runtime.Configuration;
 import x10.runtime.DefaultRuntime_c;
+import x10.runtime.Future_c;
 import x10.runtime.Place;
 import x10.runtime.PoolRunner;
 import x10.runtime.Report;
@@ -340,19 +342,24 @@ public abstract class Runtime {
 		System.arraycopy(pl, 0, ret, 0, pl.length);
 		return ret;
 	}
+	
+	public static Place getDefaultPlace()
+	{
+		return runtime.getPlaces()[0];
+	}
 
-	public static void runAsync(Activity a) {
+	
+	/**
+	 * @deprecated
+	 */
+	public static void runAsync(final Activity a) {
 		runtime.getPlaces()[0].runAsync(a);
 	}
-
+	
 	/**
-	 * runBootAsync is like runAsync, except that it is only used for the boot activity
+	 * @deprecated
 	 */
-	public static void runBootAsync(Activity a) {
-		runtime.getPlaces()[0].runBootAsync(a);
-	}
-
-	public static Future runFuture(Activity.Expr a) {
+	public static Future runFuture(Future_c.Activity a) {
 		return runtime.getPlaces()[0].runFuture(a);
 	}
 
