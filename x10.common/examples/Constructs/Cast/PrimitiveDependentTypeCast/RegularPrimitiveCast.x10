@@ -7,6 +7,8 @@ import harness.x10Test;
 public class RegularPrimitiveCast extends x10Test {
 
 	public boolean run() {
+		boolean boolt = (boolean) true;
+		boolean boolf = (boolean) false;
 		byte b = (byte) 1;			
 		int i = (int) 1;
 		short s = (short) 1;
