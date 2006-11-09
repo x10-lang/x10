@@ -127,7 +127,6 @@ public class DefaultRuntime_c extends Runtime {
 	 * Run the X10 application.
 	 */
 	protected void run(String[] args) {
-		System.out.println("MODIF");
 	    prepareForBoot();
 	    try {
 		run(createMainActivity(args));
