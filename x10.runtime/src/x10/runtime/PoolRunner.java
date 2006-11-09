@@ -31,10 +31,12 @@ public class PoolRunner extends Thread implements ActivityRunner{
 	 *  homePlace, e.g inside an array initializer, see also 
 	 *  DefaultRuntime_c.setCurrentPlace(place p) */
 	private Place place;
-	
+
+	private final String namePrefix;
 	
     PoolRunner(ThreadGroup group, Runnable r, String namePrefix) {
     	super(group, r, namePrefix, 0);
+    	this.namePrefix= namePrefix;
     }
     
     /**
@@ -56,7 +58,7 @@ public class PoolRunner extends Thread implements ActivityRunner{
      */
     public void setActivity(Activity a) {
     	activity = a;
-    	setName(a.myName());
+    	setName(namePrefix + ": " + a.myName());
     }
     
     /**
