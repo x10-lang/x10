@@ -207,14 +207,12 @@ public /* final */ class Clock extends clock {
 	 * Register the current activity with this clock.
 	 */
 	public void register(Activity a ) {
-		
-                Activity authorizer = Runtime.getCurrentActivity();
-                
-                if (Report.should_report(Report.CLOCK, 5)) {
-                   Report.report(5, PoolRunner.logString() + " " + this + ".register:" + authorizer + " registering " + a);
-                }
+        Activity authorizer = Runtime.getCurrentActivity();
+        if (Report.should_report(Report.CLOCK, 5)) {
+           Report.report(5, PoolRunner.logString() + " " + this + ".register:" + authorizer + " registering " + a);
+        }
 		synchronized (this) {
-                   if (inactive(authorizer))	
+           if (inactive(authorizer))	
 				throw new ClockUseException(authorizer + "is not active on " + this + "; cannot transmit.");
                    
 			if (activities_.contains(a)) 
@@ -229,8 +227,7 @@ public /* final */ class Clock extends clock {
 	
 	    
 	private boolean quiescent( Activity a) {
-		return resumed_.contains(a) || nextResumed_.contains(a);
-		
+		return resumed_.contains(a) || nextResumed_.contains(a);		
 	}
 	
 	/**
@@ -292,8 +289,7 @@ public /* final */ class Clock extends clock {
 		Activity a = Runtime.getCurrentActivity();
 		synchronized (this) {
 			return quiescent(a);
-		}
-		
+		}	
 	}
 	
 	/**
@@ -325,7 +321,6 @@ public /* final */ class Clock extends clock {
 	 *   clock (or if it never was registered).
 	 */
 	public synchronized boolean drop(Activity a) {
-	   
 		boolean ret = activities_.remove(a);
 		if (ret) activityCount_--;
 		if (resumed_.remove(a)) resumedCount_--;
@@ -360,6 +355,7 @@ public /* final */ class Clock extends clock {
 		this.phase_++;
 
 		// first notify everyone
+		/* vj: Needs to be implemented completely. Cf x10.compilergenerated.ClockedFinal
 		if (this.listener1_ != null) {
 			this.listener1_.notifyAdvance();
 			if (this.listeners_ != null) {
@@ -368,6 +364,7 @@ public /* final */ class Clock extends clock {
 					((AdvanceListener)listeners_.get(i)).notifyAdvance();
 			}
 		}
+		*/
 		this.notifyAll();
 		return true;
 		
@@ -426,7 +423,6 @@ public /* final */ class Clock extends clock {
 		if (Report.should_report(Report.CLOCK, 5)) {
 			Report.report(5, PoolRunner.logString() + " " + this+".doNext(" + a + ") called.");
 		}
-		
 
 		synchronized (this) {
 			assert activities_.contains(a);
@@ -467,9 +463,11 @@ public /* final */ class Clock extends clock {
 	/**
 	 * Register a callback that is to be called whenever the clock
 	 * advances into the next phase.
-	 * 
 	 * @param al the listener to notify
-	 
+	 * vj: Needs to be implemented completely.  
+	 * @see x10.compilergenerated.ClockedFinal
+	 */ 
+	 /*
 	public synchronized void registerAdvanceListener(AdvanceListener al) {
 		if (this.listener1_ == null) {
 			this.listener1_ = al;
@@ -480,6 +478,7 @@ public /* final */ class Clock extends clock {
 		}
 	}
 	*/
+	
 	/**
 	 * Callback method used by the Clock to notify all listeners
 	 * that the Clock is advancing into the next phase.
