@@ -2,7 +2,6 @@ package x10.runtime;
 
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Semaphore;
 
 import x10.array.ArrayFactory;
 import x10.array.DistributionFactory;
@@ -29,57 +28,6 @@ import x10.lang.region;
  * Also call runBootAsync() instead of runAsync() for boot activity.
  */
 public class DefaultRuntime_c extends Runtime {
-	private final class BootActivity extends Activity {
-	private final Activity fMain;
-	protected Throwable fBootException;
-	private boolean ended;
-
-	private BootActivity(Activity main) {
-	    super();
-	    fMain= main;
-	}
-
-	public String myName() {
-	    return "Boot activity";
-	}
-
-	public void run() {
-	    if (Report.should_report("activity", 5)) {
-		Report.report(5, PoolRunner.logString() + " starts running the Boot Activity.");
-	    }
-	    try {
-		runWithinFinish(fMain);
-		if (Report.should_report("activity", 5)) {
-		    Report.report(5, PoolRunner.logString() + " finished running the Boot Activity.");
-		}
-	    } catch (Error e) {
-		// Exception thrown by the activity!
-		fBootException= e;
-	    } catch (RuntimeException re) {
-		// Exception thrown by the activity!
-		fBootException= re;
-	    } finally {
-		synchronized (this) {
-		    this.notifyAll();
-		    // boolean assign is protected from race condition  
-		    // with main thread by the synchronized block
-		    this.ended = true;
-		}
-	    }
-	}
-	
-	/**
-	 * Check if boot activity has ended
-	 * @return true if boot activity has ended
-	 * Needs to be synchronized or this.ended needs to be declared volatile
-	 * since this.ended is going to be touched by two different threads.
-	 */
-	public synchronized boolean isFinished()
-	{
-		return this.ended;
-	}
-    }
-
 	/**
 	 * The places of this X10 Runtime (for now a constant set).
 	 */
@@ -100,10 +48,16 @@ public class DefaultRuntime_c extends Runtime {
 		place.initialize();
 	}
 
+	/**
+	 * Initialize the default runtime by creating X10 places.
+	 */
 	protected synchronized void initialize() {
 	    createPlaces();
 	}
 
+	/**
+	 * Load and init shared library
+	 */
 	protected synchronized void loadAndInitLibs() {
 		if (null != Configuration.LOAD) {
 			String[] libs = Configuration.LOAD.split(":");
@@ -112,9 +66,14 @@ public class DefaultRuntime_c extends Runtime {
 		}
 	}
 
+	/**
+	 * Initialize the runtime:
+	 * - Creates places
+	 * - Load and init libs
+	 */
 	public void prepareForBoot() {
 	    initialize();
-	    if (Report.should_report("activity", 5)) {
+	    if (Report.should_report(Report.ACTIVITY, 5)) {
 	    	Thread t = Thread.currentThread();
 	    	int tCount = Thread.activeCount();
 	    	Report.report(5, Thread.currentThread() + ":" + System.currentTimeMillis() +" starts in group " + t.getThreadGroup()
@@ -132,9 +91,12 @@ public class DefaultRuntime_c extends Runtime {
 //		initialize();
 	}
 
+	/**
+	 * Shutdown the runtime, this means also shuting down all places associated with this runtime
+	 */
 	public void shutdown() {
 	    shutdownAllPlaces();
-	    if (Report.should_report("activity", 5)) {
+	    if (Report.should_report(Report.ACTIVITY, 5)) {
 		Report.report(5, PoolRunner.logString() + " terminates.");
 	    }
 	    finalizeAndTermLibs();
@@ -143,6 +105,9 @@ public class DefaultRuntime_c extends Runtime {
 	    dumpStatistics();
 	}
 
+	/**
+	 * Shutdown all places known by this runtime 
+	 */
 	private void shutdownAllPlaces() {
 	    for (int i= 0; i < places_.length; i++) {
 		places_[i].shutdown();
@@ -150,6 +115,9 @@ public class DefaultRuntime_c extends Runtime {
 	    }
 	}
 	
+	/**
+	 * @deprecated
+	 */
 	protected void finalizeAndTermLibs() {
 	}
 
@@ -159,55 +127,52 @@ public class DefaultRuntime_c extends Runtime {
 	 * Run the X10 application.
 	 */
 	protected void run(String[] args) {
+		System.out.println("MODIF");
 	    prepareForBoot();
 	    try {
 		run(createMainActivity(args));
 	    } catch (Throwable e) {
-		e.printStackTrace();
+	    	e.printStackTrace();
 	    }
 	    shutdown();
 	}
 
 	/**
 	 * Run the X10 application.
-	 * @throws Throwable 
+	 * Wraps the main activity into a finish.
+	 * @throws Throwable Exception thrown by the main activity.
 	 */
-	public void run(final Activity appMain) {
-	    // Create the boot activity
-	    BootActivity boot = new BootActivity(appMain);
+	public void run(final Activity mainActivity) {
+		
+		if (Report.should_report(Report.ACTIVITY, 5)) {
+			Report.report(5, PoolRunner.logString() + " starts running the Boot Activity.");
+		    }
 
-	    // Run the boot activity.
-	    Runtime.runBootAsync(boot);
-
-	    synchronized(boot) {
-		try {
-			// check if the boot activity has finished before
-			// the main thread has called the wait method
-	    	if (!boot.isFinished()) {
-	    		boot.wait();
-	    	}
-		} catch (InterruptedException e) {
-		    // NOTREACHED
-		    e.printStackTrace();
-		}
-	    }
-	    	
-	    if (boot.fBootException instanceof Error)
-		throw (Error) boot.fBootException;
-	    else if (boot.fBootException instanceof RuntimeException)
-		throw (RuntimeException) boot.fBootException;
-	    return;
-	}
+		// submit the main activity to the X10 Runtime
+		// and wait for completion by wrapping it into a finish
+		Runtime.getDefaultPlace().runAsyncInFinish(mainActivity);
+		
+    	if (Report.should_report(Report.ACTIVITY, 5)) {
+    	    Report.report(5, PoolRunner.logString() + " finished running the Boot Activity.");
+    	}
+	}	
 	
+	/**
+	 * Instantiate the main activity (i.e. the X10 program/class to run)
+	 * @param args
+	 * @return An instance of the main X10 program to run as an X10 activity.
+	 * @throws Error Exception thrown while main activity is instanciated
+	 */
 	private Activity createMainActivity(String[] args) throws Error {
 	    // Find the applications main activity.
 	    java.lang.Object[] tmp = { args };
 	    Activity atmp = null;
 	    try {
-	    	if (Report.should_report("activity", 5)) {
+	    	if (Report.should_report(Report.ACTIVITY, 5)) {
 	    		Report.report(5, Thread.currentThread()  + ":" + System.currentTimeMillis() + " " + this + " starting user class |"
 	    		              + Configuration.MAIN_CLASS_NAME+ "|.");
 	    	}
+	    	// instanciation using reflexion
 	    	Class main = Class.forName(Configuration.MAIN_CLASS_NAME + "$Main");
 	    	if (Configuration.PRELOAD_CLASSES)
 	    		PreLoader.preLoad(main, Configuration.PRELOAD_STRINGS);
@@ -247,7 +212,6 @@ public class DefaultRuntime_c extends Runtime {
 		Place ret = null;
 		if (t instanceof PoolRunner)
 			ret=(Place)((PoolRunner)t).getPlace();
-
 	
 		return ret;
 	}
@@ -261,8 +225,6 @@ public class DefaultRuntime_c extends Runtime {
 		if(t instanceof ActivityRunner) {
 			result = ((ActivityRunner)t).getActivity();
 		}
-
-	
 		return result;
 	}
 
@@ -276,6 +238,10 @@ public class DefaultRuntime_c extends Runtime {
 		return places_;
 	}
 
+	/**
+	 * @deprecated
+	 * @return
+	 */
 	protected Place[] getLocalPlaces() {
 		return getPlaces();
 	}
@@ -328,6 +294,9 @@ public class DefaultRuntime_c extends Runtime {
 		return f;
 	}
 
+	/**
+	 * Print Statistics using the abstract metrics mechanism 
+	 */
 	private void dumpStatistics() {
 	    if (VMInterface.ABSTRACT_EXECUTION_STATS) {
 		System.err.println("\n#### START OF ABSTRACT EXECUTION STATISTICS (EXCLUDING MAIN ACTIVITY) ####");
@@ -399,7 +368,7 @@ public class DefaultRuntime_c extends Runtime {
 		    System.err.println("\n  IDEAL SPEEDUP IN EXECUTION TIME,(TOTAL TIME) / (CRIT PATH LENGTH) = " + speedup);
 		}
 		System.err.println("#### END OF ABSTRACT EXECUTION STATISTICS (EXCLUDING MAIN ACTIVITY) ####");
-	    }
+		}
 	}
 } // end of DefaultRuntime_c
 
