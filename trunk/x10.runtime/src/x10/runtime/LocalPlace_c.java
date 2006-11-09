@@ -1,10 +1,7 @@
 package x10.runtime;
 
-import java.util.ArrayList;
-import java.util.Stack;
-
 import x10.lang.Future;
-import x10.lang.place;
+import x10.lang.Runtime;
 import x10.runtime.abstractmetrics.AbstractMetrics;
 import x10.runtime.abstractmetrics.AbstractMetricsFactory;
 /**
@@ -25,90 +22,88 @@ public class LocalPlace_c extends Place {
 	 * Is this place shutdown?
 	 */
 	boolean shutdown;
+	
+	/**
+	 * Abstract Metrics performance manager, only created if
+	 * JITTimeConstants.ABSTRACT_EXECUTION_STATS is set to true
+	 */
 	private AbstractMetrics abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
 	
 	
-	/********** ACTIVITY RUNNING **********/
-	
-	public void runAsync(final Activity a) {
-           this.prepareAsync(a);
-           this.runActivity( a, false);
-	}
-	
-	
-	/*
-     * runBootAsync is a special version of runAsync reserved for only the boot activity
-     */
-	public void runBootAsync(final Activity a) {
-           a.initializeActivity();
-           this.runActivity( a, false);	
-	}
+	/********** SUBMIT ACTIVITY TO THE PLACE **********/
 	
 	
 	/**
-	 * TODO -- CHANGE THE CODE
-	 * @param a
+	 * Allows to run an activity asynchronously 
+	 * regarding current activity, in this place.
 	 */
-	private void prepareAsync(Activity a) {
-		Thread t = Thread.currentThread();
+		public void runAsync(final Activity a) {
+		this.runActivity(a);
+	}
 		
-		if ( t instanceof ActivityRunner) {
-			Activity parent =  ((ActivityRunner) t).getActivity();
-			parent.finalizeActivitySpawn(a);
-		}
-		a.initializeActivity();
-	}
-
 	/**
-	 * Run this activity asynchronously, as if it is wrapped in a finish.
-	 * That is, wait for its global termination.
-	 * @param a
+	 * Allows to run an activity as if it is wrap in a finish construct.
+	 * This method spawn a child activity wrap by startFinish and stopFinish 
+	 * methods. 
+	 * WARNING, the finish occurs inside spawned activity, not in the parent !
+	 * @param activity The activity to run in a finish
 	 */
-	public void finishAsync( final Activity a) {
-		this.prepareAsync(a);
-		this.runActivity( a, true);
-	}
-	
-	/**
-	 * @param activity
-	 */
-	protected void runActivity(final Activity activity, final boolean finish) {
+	public void runAsyncInFinish(final Activity activity)
+	{
+		activity.setInvocationStrategy(InvocationStrategy.ASYNC_IN_FINISH);
 		
-		threadPoolService.execute(new Runnable() {
-			public void run() {
-				// Get a thread to run this activity.
-				PoolRunner activityRunner = (PoolRunner) Thread.currentThread();
-				if (Report.should_report(Report.ACTIVITY, 5)) {
-					Report.report(5, activityRunner + " is running " + this);
-				}
-				
-				// Install the activity.
-				activityRunner.setActivity(activity);
-				activityRunner.setPlace(LocalPlace_c.this); // TODO Remove this later
-				activity.setPlace(LocalPlace_c.this);
-
-				try {
-					if (finish) {
-						activity.finishRun();
-					} else {
-						activity.run();
-					}
-				} catch (Throwable e) {
-					activity.finalizeTermination(e);
-					return;
-				}
-				
-				activity.finalizeTermination(); //should not throw an exception.
+		// asynchronously submitting the activity to the threadpool
+		this.runAsync(activity);
+		
+		try {
+	    	// We have to wait for the spawned activity
+			// to complete because it is run by the threadpool 
+				activity.join();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
 			}
-			public String toString() { return "<Executor " + activity + ">";}
-		});
+		// else throw exception
+	}
+	
+
+	/**
+	 * Prepare activity spawn:
+	 * Update FinishState object of the current activity (the parent).
+	 * This method must always be called when spawning a child activity as it is responsible
+	 * to register the spawning in the parent activity.
+	 * @param childActivity Child activity to spawn
+	 */
+	private void prepareActivity(Activity childActivity) {
+		// spawned activity will execute in this place
+		childActivity.setPlace(LocalPlace_c.this);
+
+		// the boot activity is runned by a classical java Thread (i.e. not a ActivityRunner) 
+		// hence the following code will not be executed which is normal as a boot activity has no parent ...
+		Activity parent;
+		if ((parent = Runtime.getCurrentActivity()) != null) {
+			parent.finalizeActivitySpawn(childActivity);
+		}
+		// else throw exception ?
+	}
+	
+	/**
+	 * Submit an activity to place's thread pool
+	 * This method is initialize some activity properties such as FinishState and current Place.
+	 * @param activity The activity to spawn.
+	 */
+	protected void runActivity(final Activity activity) {
+		//  Update parent finish state status
+		this.prepareActivity(activity);
+		
+		// submitting the task to X10 thread pool
+		threadPoolService.execute(activity); // exec in finish
 	}
 	
 	/**
 	 * Run the given activity asynchronously.  Return a handle that
 	 * can be used to force the future result.
 	 */
-	public Future runFuture(final Activity.Expr a) {
+	public Future runFuture(final Future_c.Activity a) {
 		
 		Future_c result = a.future = new Future_c();
 		runAsync(a);
@@ -116,31 +111,40 @@ public class LocalPlace_c extends Place {
 		return result;
 	}
 	 
+	/**
+	 * This method seems never being use...
+	 * @deprecated
+	 * @return
+	 */
 	public String longName() {
 		return this.toString() + "(shutdown="+shutdown+")";
 	}
 	
 	/**
 	 * Shutdown this place, the current X10 runtime will exit.
+	 * This method is useful to implements some place custom shutdown behaviour.
 	 */
-	public synchronized void customShutdown () {
-	    // System.out.println("Shutdown Place="+this+"::==>#of threads="+threadPoolService.getCorePoolSize());
-	    if (Report.should_report("activity", 5)) {
+	public void customShutdown () {
+		// this method was synchronized, can't see why this would have been necessary
+		if (Report.should_report(Report.ACTIVITY, 5)) {
 		Report.report(5, PoolRunner.logString() + " shutting down " + this);
 	    }
 	    shutdown=true;
 	}
-
+	
+	
+	/********** X10 Thread pool event notification **********/
+	
+	
 	/**
-	 * get number of blocking threads at the current 
-	 * 
+	 * Get number of threads currently blocked in this place
 	 */
 	public int getNbThreadBlocked() {
 		return nbThreadBlocked.get();
 	}
 	
 	/**
-	 * Increase place's number of blocked threads counter.
+	 * Increases place's number of blocked threads counter.
 	 * Add a new thread to the pool only if number of threads 
      * waiting is greater or equal to corepoolsize
 	 */
@@ -152,14 +156,17 @@ public class LocalPlace_c extends Place {
 	}
 	
 	/**
-	 * 
-	 * Decrease number of blocking threads 
+	 * Decreases number of blocked threads 
 	 */
 	public void threadUnblockedNotification() {
 		nbThreadBlocked.addAndGet(-1);
 		this.getThreadPool().decreasePoolSize();
 	}
 		
+	/**
+	 * Is this place shutdown ?
+	 * @return true if shutdown.
+	 */
 	public boolean isShutdown() { 
 		return shutdown; 
 	}
