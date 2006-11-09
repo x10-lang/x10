@@ -5,7 +5,7 @@ public static class Main extends x10.runtime.Activity {
 	public Main(String[] args) {
 	   this.form = args;
 	}
-	public void run() {
+	public void runX10Task() {
        main(form);
 	}
 }
