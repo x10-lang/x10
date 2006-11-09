@@ -5,7 +5,6 @@ package x10.runtime;
 
 import x10.lang.Future;
 import x10.lang.Object;
-import x10.lang.place;
 
 /**
  * This class encapsulates the return value of a local async
@@ -132,5 +131,54 @@ public final class Future_c extends Future {
      * (That's why it need not be a synchronized method.)
      */
     public long getIdealTime() { return curIdealTime; }
+    
+    /**
+	 * An activity used to implement an X10 future.
+	 */
+	public static abstract class Activity extends x10.runtime.Activity {
 
+		public Future_c future;
+
+		/**
+		 * Wait for the completion of this activity and return the
+		 * return value.
+		 */
+		public abstract x10.lang.Object getResult();
+
+		public abstract void runSource();
+
+		public void runX10Task() {
+			try {
+				try {
+					startFinish();
+					runSource();
+				} catch (Throwable t) {
+					try {
+						pushException(t);
+						stopFinish(); // must throw an exception.
+					} catch (Throwable t1) {
+						// Now nested asyncs have terminated.
+						future.setException(t1);
+						return;
+					}
+				}
+				stopFinish(); // this may throw an exception if a nested async did.
+				// Normal termination.
+                                future.setResult(getResult());
+			} catch (Throwable t) {
+				// Now nested asyncs have terminated.
+				future.setException(t);
+			}
+		}
+
+		public void finalizeTermination() {
+			super.finalizeTermination();
+		}
+
+		public void finalizeTermination(Throwable t) {
+                        future.setException(t);
+			super.finalizeTermination(t);
+		}
+
+	} // end of Activity.Expr
 }
