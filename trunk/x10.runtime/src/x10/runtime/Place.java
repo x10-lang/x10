@@ -32,8 +32,11 @@ implements Comparable, AbstractMetrics {
 	 */
 	protected AtomicInteger nbThreadBlocked= new AtomicInteger(0);
 	
+	// X10 activity handling
 	public abstract void runAsync(Activity a);
-	public abstract void runBootAsync(Activity a);
+	public abstract void runAsyncInFinish(Activity a);
+	
+	// X10 thread pool event
 	public abstract int getNbThreadBlocked();
 	public abstract void threadBlockedNotification();
 	public abstract void threadUnblockedNotification();
@@ -57,7 +60,7 @@ implements Comparable, AbstractMetrics {
 	 * @param a reference to the closure that encapsulates the code to run
 	 * @return the placeholder for the future result.
 	 */
-	public abstract Future runFuture(Activity.Expr a); 
+	public abstract Future runFuture(Future_c.Activity a); 
 
 	public Place() {
 	    startup();
