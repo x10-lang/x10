@@ -11,7 +11,6 @@ import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.jl.ast.Lit_c;
 import polyglot.ext.jl.ast.Local_c;
-import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -19,7 +18,6 @@ import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.ext.x10.visit.X10PrettyPrinterVisitor.Template;
 import polyglot.main.Report;
 import polyglot.types.PrimitiveType;
 import polyglot.types.SemanticException;
@@ -129,7 +127,7 @@ public class X10Cast_c extends Cast_c {
 	        		   if((!ts.isSubtype(fromType, toType)) && 
 	        				   ((X10Type)toType).depClause() != null)  {
 			    		   // cast is valid if toType or fromType have constraints, checks them at runtime
-		            		System.out.println("Cast from " + fromType + " to " + toType + " is unsafe");
+		            		Report.report(1,"Warning ! Cast from " + fromType + " to " + toType + " is unsafe at line " + this.position + ".");
 		            		this.dynamicCheckNeeded = true;
 		            	}
 		            		// else cast is statically valid
@@ -180,8 +178,11 @@ public class X10Cast_c extends Cast_c {
              */
         	public static boolean isSideEffectFree(Expr exprToCast) {
         		Expr nestedExpression = X10CastHelper.getNestedExpression(exprToCast);
+        		if (nestedExpression instanceof Field_c) {
+        			Field_c field = (Field_c) nestedExpression;
+        			return !(field.target() instanceof ParExpr);
+        		}
         		if ((nestedExpression instanceof Local_c) || 
-        				(nestedExpression instanceof Field_c) || 
         				(nestedExpression instanceof Lit_c))
         			return true;
         		
@@ -209,7 +210,7 @@ public class X10Cast_c extends Cast_c {
             					"x10.lang.RuntimeCastChecker.checkPrimitiveType");
                 	} else {
             			X10CastHelper.prettyPrintSideEffectCast(w, tr, castType, exprToCast, cast_c, nullableCheck,
-            					"x10.lang.RuntimeCastChecker.<" + castType.baseType() + ">checkCast");
+    					"x10.lang.RuntimeCastChecker.checkCast");
                 	}
         		}
 			}
@@ -250,6 +251,13 @@ public class X10Cast_c extends Cast_c {
             private static void prettyPrintSideEffectCast(CodeWriter w, PrettyPrinter tr, 
             		X10Type castType, Expr expr, Expr enclosingExpression, boolean nullableCheck, String runtimeCastCheckerMethodName) {
             	w.begin(0);
+            	
+            	if (enclosingExpression instanceof X10Instanceof_c) {
+                	w.write("(");
+            	} else {
+                	w.write("((" + castType.baseType()+ ")");            		
+            	}
+            	
             	w.write(runtimeCastCheckerMethodName + "(");
             	// generate Constraint
             	Constraint constraint;
@@ -263,7 +271,7 @@ public class X10Cast_c extends Cast_c {
                 				// generates something like that ==>   && ((TargetType) obj).propertyName() == 0)
                 	        	w.newline();
                 	        	w.write("new x10.lang.RuntimeCastChecker.RuntimeConstraint(\"" + 
-                	        			((C_Var) entry.getKey()).name() +"\", (java.lang.Object)" + 
+                	        			((C_Var) entry.getKey()).name() +"\", " +
                 	        			((C_Term) entry.getValue()) + ")");
             					size--;
                 	        	if (size > 0) {
@@ -274,7 +282,8 @@ public class X10Cast_c extends Cast_c {
             	}
             	w.write("}," + nullableCheck + ",");
             	enclosingExpression.printSubExpr(expr, w, tr);
-            	w.write(")");
+            	w.write(", \"" + castType.baseType()+ "\"");
+            	w.write("))");
         	}
 	        
             /**
@@ -357,7 +366,7 @@ public class X10Cast_c extends Cast_c {
 			        	w.write("(" + castBaseType + ")");
 	        		}
     	        	enclosingExpr.printSubExpr(expr, w, tr);
-	        		w.write(") : x10.lang.RuntimeCastChecker.<" + castBaseType + ">throwClassCastException()");	        			
+    	        	w.write(") : (" + castBaseType + ") x10.lang.RuntimeCastChecker.throwClassCastException()");
 	        	} else {
 		        	w.write(" ? true : false");
 	        	}
