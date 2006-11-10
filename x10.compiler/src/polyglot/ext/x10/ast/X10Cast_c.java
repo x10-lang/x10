@@ -206,10 +206,10 @@ public class X10Cast_c extends Cast_c {
         			X10CastHelper.prettyPrintInlineCast(w, tr, castType, exprToCast, cast_c, true, nullableCheck, primitiveWrapper);
         		} else {
                 	if (primitiveWrapper != null) {
-            			X10CastHelper.prettyPrintSideEffectCast(w, tr, castType, exprToCast, cast_c, nullableCheck, 
+            			X10CastHelper.prettyPrintSideEffectCast(w, tr, castType, exprToCast, cast_c, nullableCheck, true,
             					"x10.lang.RuntimeCastChecker.checkPrimitiveType");
                 	} else {
-            			X10CastHelper.prettyPrintSideEffectCast(w, tr, castType, exprToCast, cast_c, nullableCheck,
+            			X10CastHelper.prettyPrintSideEffectCast(w, tr, castType, exprToCast, cast_c, nullableCheck, false,
     					"x10.lang.RuntimeCastChecker.checkCast");
                 	}
         		}
@@ -230,7 +230,7 @@ public class X10Cast_c extends Cast_c {
             	if (isSideEffectFree(exprToCast)) {
         	    	X10Cast_c.X10CastHelper.prettyPrintInlineCast(w,tr,castType,exprToCast,instanceOf,false, false, null);
             	} else {
-          	    	X10Cast_c.X10CastHelper.prettyPrintSideEffectCast(w,tr,castType,exprToCast,instanceOf, false,
+          	    	X10Cast_c.X10CastHelper.prettyPrintSideEffectCast(w,tr,castType,exprToCast,instanceOf, false, false,
   	    			"x10.lang.RuntimeCastChecker.isInstanceOf");
         		}	
           	}
@@ -249,7 +249,7 @@ public class X10Cast_c extends Cast_c {
 			 * @param runtimeCastCheckerMethodName The method name to call at runtime to perform the cast.
 			 */
             private static void prettyPrintSideEffectCast(CodeWriter w, PrettyPrinter tr, 
-            		X10Type castType, Expr expr, Expr enclosingExpression, boolean nullableCheck, String runtimeCastCheckerMethodName) {
+            		X10Type castType, Expr expr, Expr enclosingExpression, boolean nullableCheck, boolean primitiveType, String runtimeCastCheckerMethodName) {
             	w.begin(0);
             	
             	if (enclosingExpression instanceof X10Instanceof_c) {
@@ -270,9 +270,18 @@ public class X10Cast_c extends Cast_c {
             				Entry entry = (Entry) it.next();
                 				// generates something like that ==>   && ((TargetType) obj).propertyName() == 0)
                 	        	w.newline();
-                	        	w.write("new x10.lang.RuntimeCastChecker.RuntimeConstraint(\"" + 
-                	        			((C_Var) entry.getKey()).name() +"\", " +
-                	        			((C_Term) entry.getValue()) + ")");
+								
+                	        	String valueToCheck = ((C_Term) entry.getValue()).toString();
+								
+                	        	if (valueToCheck.startsWith("self.")) {
+                	        		String fieldName = valueToCheck.replaceFirst("self.","");
+									w.write("new x10.lang.RuntimeCastChecker.RuntimeConstraintOnSelf(\"" + 
+	                	        			((C_Var) entry.getKey()).name() +"\", \"" + fieldName + "\")");
+									}
+                	        	else {
+	                	        	w.write("new x10.lang.RuntimeCastChecker.RuntimeConstraint(\"" + 
+	                	        			((C_Var) entry.getKey()).name() +"\", " + ((C_Term) entry.getValue()) + ")");
+                	        	}
             					size--;
                 	        	if (size > 0) {
                 					w.write(",");
@@ -282,7 +291,11 @@ public class X10Cast_c extends Cast_c {
             	}
             	w.write("}," + nullableCheck + ",");
             	enclosingExpression.printSubExpr(expr, w, tr);
-            	w.write(", \"" + castType.baseType()+ "\"");
+            	if (primitiveType) {
+            		w.write(", null");
+            	} else  {
+            		w.write(", " + castType.baseType()+ ".class");	
+            	}
             	w.write("))");
         	}
 	        
@@ -351,7 +364,8 @@ public class X10Cast_c extends Cast_c {
 		            			w.write(")." + ((C_Var) entry.getKey()).name() + "()");	        					
 	        				}
 	            			w.write("=="); // TODO: Future work, get the operator from the constraint
-	            			w.write("" + ((C_Term) entry.getValue()));
+	            			String valueToCheck = ((C_Term) entry.getValue()).toString();
+	            			w.write("" + valueToCheck);
 	            			w.write(")");
 	        			}
 	        		}
