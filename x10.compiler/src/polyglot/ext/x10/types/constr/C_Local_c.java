@@ -1,5 +1,6 @@
 package polyglot.ext.x10.types.constr;
 
+import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.main.Report;
 import polyglot.types.LocalInstance;
 
@@ -22,7 +23,9 @@ public class C_Local_c extends C_Var_c implements C_Local {
 	public static final C_Local makeSelfVar(LocalInstance li) {
 		return new C_Local_c(li, true);
 	}
-	
+	public X10LocalInstance localInstance() {
+		return (X10LocalInstance) li;
+	}
 	protected Path path = new Path(new String[0]);
 	public Path path() {
 		return path;

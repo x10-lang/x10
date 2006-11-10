@@ -52,7 +52,7 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 				base,
 				"force",
 				Collections.EMPTY_LIST,
-				Collections.EMPTY_LIST,
+			
 				Collections.EMPTY_LIST	));	
         xts = (X10TypeSystem) ts;
 	}

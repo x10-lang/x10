@@ -157,6 +157,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			return result = false;
 		 if (ts.typeEquals(this, toType))
 			 return result = true;
+		 
 		 if (isNumeric() && toType.isNumeric()) {
 			 Constraint rc = realClause();
 			 if (rc !=null) {
@@ -175,7 +176,8 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			 }
 			 return result = true;
 		 }
-		return  super.isCastValidImpl(toType);
+		 X10Type base = baseType();
+		return  ((PrimitiveType) base).isCastValidImpl(toType);
 	}
 	
 	public String toString() { 

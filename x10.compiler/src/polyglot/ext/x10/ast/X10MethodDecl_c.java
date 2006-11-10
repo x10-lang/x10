@@ -104,7 +104,7 @@ public class X10MethodDecl_c extends MethodDecl_c {
 
             MethodInstance mi = xts.methodInstance(position(), ct, f,
                                                   xts.unknownType(position()),
-                                                  name, formalTypes, formals, throwTypes);
+                                                  name, formalTypes,  throwTypes);
             ct.addMethod(mi);
             return flags(f).methodInstance(mi);
         }
@@ -127,7 +127,7 @@ public class X10MethodDecl_c extends MethodDecl_c {
         }
      
         public Node typeCheck(TypeChecker tc) throws SemanticException {
-       	  if ( name.startsWith("toArray") || Report.should_report(TOPICS, 5)) {
+       	  if ( Report.should_report(TOPICS, 5)) {
        		    Report.report(5, "X10MethodDecl_c: typechecking " + name);
        		    Formal first  = (Formal) formals.get(0);
        		 Report.report(5, "X10MethodDecl_c: first arg's type is " + first.type().type());
@@ -135,7 +135,7 @@ public class X10MethodDecl_c extends MethodDecl_c {
        	 Node result = super.typeCheck(tc);
 
        
-       	 if ( Report.should_report(TOPICS, 5))
+       	 if (  Report.should_report(TOPICS, 5))
     		    Report.report(5, "X10MethodDecl_c: typechecking returning " + result);
        	 return result;
        	 
@@ -199,8 +199,11 @@ public class X10MethodDecl_c extends MethodDecl_c {
             nn = (MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
             if (childtc2.hasErrors()) throw new SemanticException();
              nn = (MethodDecl) childtc2.leave(parent, old, nn, childtc2);
-            //Report.report(1, "X10MethodDecl_c: typeoverride returns " + nn);
-            //Report.report(1, "X10MethodDecl_c: typeoverride returns mi=" + nn.methodInstance());
+             if (toString().contains("getInnerRegion") 
+         			|| toString().contains("getINNERRegion") ) {
+            	 Report.report(1, "X10MethodDecl_c: typeoverride returns " + nn);
+            	 Report.report(1, "X10MethodDecl_c: typeoverride returns mi=" + nn.methodInstance());
+             }
             return nn;
         }
        

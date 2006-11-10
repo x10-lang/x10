@@ -23,6 +23,7 @@ public interface Constraint extends Serializable {
 	 * @return true iff the constraint is consistent.
 	 */
 	boolean consistent();
+	HashMap<C_Var,Promise> roots();
 	
 	/**
 	 * Is the constraint valid? That is, is every valuation a solution?

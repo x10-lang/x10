@@ -50,25 +50,11 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	public X10MethodInstance_c(TypeSystem ts, Position pos,
 			ReferenceType container, Flags flags, Type returnType, String name,
 			List formalTypes,   List excTypes) {
-		this(ts, pos, container,flags, returnType, name, formalTypes,null, 	excTypes);
+		super(ts, pos, container,flags, returnType, name, formalTypes,	excTypes);
 		
 	}
-	public X10MethodInstance_c(TypeSystem ts, Position pos,
-			ReferenceType container, Flags flags, Type returnType, String name,
-			List formalTypes,  List<Formal> formals, List excTypes) {
-		super(ts, pos, container, X10Flags.toX10Flags(flags), returnType, name, formalTypes,
-				excTypes);
-		if (formals != null) 
-			this.formals = formals;
-		else {
-			int n = formalTypes.size();
-			formals = new ArrayList<Formal>(formalTypes.size());
-			//for (int i = 0; i < n; i++)
-			//	formals.set(i, )
-		}
-		
-	}
-	public List<Formal> formals() { return formals;}
+	
+	
 	
 	public boolean canOverrideImpl(MethodInstance mj, boolean quiet) throws SemanticException {
 		//  Report.report(1, "X10MethodInstance_c: " + this + " canOverrideImpl " + mj);

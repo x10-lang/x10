@@ -32,6 +32,7 @@ import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyClassInitializer;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.NullType;
 import polyglot.types.ParsedClassType;
@@ -135,18 +136,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return new X10MethodInstance_c(this, pos, container, flags,
 				returnType, name, argTypes, excTypes);
 	}
-	public MethodInstance methodInstance(Position pos,
-			ReferenceType container, Flags flags,
-			Type returnType, String name,
-			List argTypes, List<Formal> formals, List excTypes) {
-		
-		assert_(container);
-		assert_(returnType);
-		assert_(argTypes);
-		assert_(excTypes);
-		return new X10MethodInstance_c(this, pos, container, flags,
-				returnType, name, argTypes, formals, excTypes);
-	}
+	
 	/**
 	 * Requires: all type arguments are canonical.
 	 *
@@ -1268,7 +1258,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 			return result = Object();
 		}
 		} finally {
-			Report.report(1, "X10TypeSystem_c: The LCA of "  + type1 + " " + type2 + " is " + result + ".");
+			//Report.report(1, "X10TypeSystem_c: The LCA of "  + type1 + " " + type2 + " is " + result + ".");
 		}
 		throw new SemanticException(
 				"No least common ancestor found for types \"" + type1 +
@@ -1279,6 +1269,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	        assert_(type2);
 	        return ((X10Type) type1).equalsWithoutClauseImpl((X10Type) type2);
 	    }
+	 public LocalInstance localInstance(Position pos,
+			 Flags flags, Type type, String name) {
+		 assert_(type);
+		 return new X10LocalInstance_c(this, pos, flags, type, name);
+	 }
+
 	
 } // end of X10TypeSystem_c
 

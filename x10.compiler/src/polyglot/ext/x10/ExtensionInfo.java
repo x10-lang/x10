@@ -36,10 +36,13 @@ import polyglot.frontend.VisitorPass;
 import polyglot.frontend.goals.CodeGenerated;
 import polyglot.frontend.goals.ConstantsChecked;
 import polyglot.frontend.goals.Goal;
+import polyglot.frontend.goals.SignaturesResolved;
 import polyglot.frontend.goals.TypeChecked;
+import polyglot.frontend.goals.TypesInitializedForCommandLine;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
+import polyglot.types.ParsedClassType;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
 import polyglot.visit.NodeVisitor;
@@ -146,6 +149,13 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 //  		System.out.println("creating CodeGenerated Goal for " + job.source().name());
     		return X10CodeGenerated.create(this, job);
     	}
+    	   public Goal TypesElaboratedForJobs() {
+    	        return TypesElaboratedForJobs.create(this);
+    	    }
+    	/*   public Goal SignaturesResolved(ParsedClassType ct) {
+    	        Goal g = X10SignaturesResolved.create(this, ct);
+    	        return g;
+    	    }*/
     	public Goal X10Boxed(final Job job) {
     		return X10Boxed.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
     	}
@@ -166,6 +176,22 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     	}
     }
 
+    static class X10SignaturesResolved extends SignaturesResolved {
+    	 public static Goal create(Scheduler scheduler, ParsedClassType ct) {
+    	        return scheduler.internGoal(new X10SignaturesResolved(ct));
+    	    }
+    	 protected X10SignaturesResolved(ParsedClassType ct) {
+    	        super(ct);
+    	    }
+    	 public Collection prerequisiteGoals(Scheduler scheduler) {
+    		 X10Scheduler x10Sched= (X10Scheduler) scheduler;
+    	        List l = new ArrayList();
+    	        
+    	        l.add(x10Sched.TypeElaborated(job));
+    	        l.addAll(super.prerequisiteGoals(scheduler));
+    	        return l;
+    	    }
+    }
     static class X10CodeGenerated extends CodeGenerated {
     	public static Goal create(Scheduler scheduler, Job job) {
     		return scheduler.internGoal(new X10CodeGenerated(job));
@@ -237,9 +263,10 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     	    }
 
     	    public Collection prerequisiteGoals(Scheduler scheduler) {
+    	    	X10Scheduler x10sched = (X10Scheduler) scheduler;
     	        List l = new ArrayList();
     	        l.add(scheduler.Disambiguated(job));
-    	        l.add(((X10Scheduler) scheduler).TypeElaborated(job));
+    	        l.add(x10sched.TypesElaboratedForJobs());
     	        l.addAll(super.prerequisiteGoals(scheduler));
     	        return l;
     	    }

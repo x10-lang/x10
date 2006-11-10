@@ -666,9 +666,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
              TypeNode returnType, String name,
              List formals, Expr whereClause, List throwTypes, Block body)
     {
-        if (flags != null && flags.contains(X10Flags.ATOMIC)) 
+    	setFormalIndices(formals);
+        if (flags != null && flags.contains(X10Flags.ATOMIC))  
+        	
         	return AtomicMethodDecl(pos, thisClause, flags, returnType, name, formals, 
         			whereClause, throwTypes, body);
+        
     	MethodDecl n = new X10MethodDecl_c(pos, thisClause, flags, returnType, name,
                 formals, whereClause, throwTypes, body);
         n = (MethodDecl)n.ext(extFactory().extMethodDecl());
@@ -705,6 +708,15 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
             n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
             return n;
         }
+     void setFormalIndices(List formals) {
+    	 if (formals!=null) {
+         	int i=0;
+         	for (Iterator it = formals.iterator(); it.hasNext();) {
+         		X10Formal f = (X10Formal) it.next();
+         		f.setPositionInArgList(i++);
+         	}
+         }
+     }
     public ConstructorDecl ConstructorDecl(Position pos, Flags flags, 
             String name, Expr retWhereClause, 
             List formals, Expr argWhereClause, 
@@ -714,6 +726,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
                     name, retWhereClause, 
                     formals, argWhereClause, 
                     throwTypes, body);
+        setFormalIndices(formals);
+        
         n = (ConstructorDecl)n.ext(extFactory().extConstructorDecl());
         n = (ConstructorDecl)n.del(delFactory().delConstructorDecl());
         return n;
