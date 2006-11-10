@@ -85,7 +85,7 @@ public class X10LocalDecl_c extends LocalDecl_c {
 		
 		X10Type newType = (X10Type) type.type();
 		
-		if (newType.depClause() != null && li.flags().isFinal()) {
+		if ( li.flags().isFinal()) {
 			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),newType.depClause());
 			newType = newType.makeVariant(c,newType.typeParameters());
 		

@@ -48,6 +48,9 @@ public class X10Conditional_c extends Conditional_c {
 	        // From the JLS, section:
 	        // If the second and third operands have the same type (which may be
 	        // the null type), then that is the type of the conditional expression.
+	        if (ts.typeEquals(t1, t2))
+	        	return type(t1);
+	        
 	        if (ts.typeBaseEquals(t1, t2)) {
 	            return type(t1.baseType());
 	        }
