@@ -27,4 +27,7 @@ public class C_UnaryTerm_c extends C_Term_c implements C_UnaryTerm {
 	public Promise toPromise() {
 		throw new Error("Not implemented yet.");
 	}
+	public boolean rootVarIsSelf() { return false;}
+	public boolean rootVarIsThis() { return false;}
+	public boolean isEQV() { return false;}
 }

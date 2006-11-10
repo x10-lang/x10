@@ -46,11 +46,12 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 		super( ts, pos);
 		this.base =  base;
 		this.methods = new ArrayList(1);
-		this.methods.add(ts.methodInstance( position(),
+		this.methods.add(((X10TypeSystem) ts).methodInstance( position(),
 				this,
 				ts.Public(),
 				base,
 				"force",
+				Collections.EMPTY_LIST,
 				Collections.EMPTY_LIST,
 				Collections.EMPTY_LIST	));	
         xts = (X10TypeSystem) ts;

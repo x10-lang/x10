@@ -109,5 +109,6 @@ public interface X10NodeFactory extends NodeFactory {
     MethodDecl AtomicMethodDecl(Position pos, DepParameterExpr thisClause,
             Flags flags, TypeNode returnType, String name,
             List formals, Expr where, List throwTypes, Block body);
+    AssignPropertyCall AssignPropertyCall(Position pos, List/*<Expr>*/ argList);
 }
 

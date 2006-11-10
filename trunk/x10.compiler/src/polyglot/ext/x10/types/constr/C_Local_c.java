@@ -15,7 +15,7 @@ public class C_Local_c extends C_Var_c implements C_Local {
 		this(li, false);
 	}
 	public C_Local_c(LocalInstance li, boolean isSelfVar) {
-		super(li.type());
+		super(li.type(), false, false);
 		this.li = li;
 		this.isSelfVar=isSelfVar;
 	}
@@ -30,6 +30,7 @@ public class C_Local_c extends C_Var_c implements C_Local {
 	protected C_Var[] vars = new C_Var[] { this };
 	public C_Var[] vars() { return vars; }
 	public C_Var rootVar() { return this; }
+	public boolean isEQV() { return false;}
 	public int hashCode() {
 		String name = name();
 		return ((name == null) ? 0 : name.hashCode()) + (li==null ?  0 : li.hashCode());

@@ -934,6 +934,13 @@ $Rules -- Overridden rules from GJavaParser
                     setResult(nf.Call(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), identifier.getIdentifier(), ArgumentListopt));
           $EndJava
         ./
+                       | AssignPropertyCall
+                       
+      AssignPropertyCall ::= property ( ArgumentList ) 
+       /.$BeginJava
+                    setResult(nf.AssignPropertyCall(pos(),  ArgumentList));
+          $EndJava
+        ./
 $End
 
 $Rules
@@ -1387,7 +1394,11 @@ $Rules
           $EndJava
         ./
     
-    
+     Super ::= extends DataType
+        /.$BeginJava
+                    setResult(DataType);
+          $EndJava
+        ./
     
     MethodDeclarator ::=  identifier ( FormalParameterListopt  WhereClauseopt )
        /.$BeginJava
@@ -1877,6 +1888,7 @@ $Rules
     -- Simplified syntax to create a point.
 
 
+ 
     MethodInvocation ::= MethodName ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
        /.$BadAction ./
                        | Primary . identifier ( ArgumentListopt$args1 ) ( ArgumentListopt$args2 )
@@ -2206,6 +2218,7 @@ $Types
     List ::= RegionExpressionList
     Expr ::= PlaceExpressionSingleListopt
            | PlaceExpressionSingleList
+    Expr ::= AssignPropertyCall
     Future ::= FutureExpression
     polyglot.lex.Identifier ::= ParamIdopt
     DepParameterExpr ::= DepParametersopt

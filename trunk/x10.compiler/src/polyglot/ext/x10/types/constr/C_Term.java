@@ -20,5 +20,19 @@ public interface C_Term extends Serializable {
 	 */
 	
 	C_Term substitute(C_Term value, C_Term var);
+	boolean rootVarIsSelf();
+	boolean rootVarIsThis();
+	
+	/**
+	 * Is this an existentially quantified variable in the constraint?
+	 * @return true if it is, false if it isnt.
+	 */
+	boolean isEQV();
+	/**
+	 * If true, bind this variable when processing this=term, for any term. 
+	 * In case term also prefers being bound, choose any one.
+	 * @return
+	 */
+	boolean prefersBeingBound();
 
 }

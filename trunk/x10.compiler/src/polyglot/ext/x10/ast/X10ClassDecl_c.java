@@ -31,7 +31,9 @@ import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.AmbiguityRemover;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeChecker;
 /**
  * The same as a Java class, except that it needs to handle properties.
  * Properties are converted into public final instance fields immediately.
@@ -67,7 +69,7 @@ public class X10ClassDecl_c extends ClassDecl_c {
         return result;
     }
    
-    /** The list of propertie for this class.
+    /** The list of properties for this class.
      * 
      */
     protected List properties;
@@ -81,6 +83,30 @@ public class X10ClassDecl_c extends ClassDecl_c {
         this.properties = properties;
         
     }
+    public NodeVisitor buildTypesEnter(TypeBuilder tb) throws SemanticException {
+    	tb = tb.pushClass(position(), flags, name);
+    	
+    	ParsedClassType type = tb.currentClass();
+    	// TODO: NEED TO ADD STUFF TO SUPPORT THE CLASSINVARIANT.
+    	
+    	// Member classes of interfaces are implicitly public and static.
+    	if (type.isMember() && type.outer().flags().isInterface()) {
+    		type.flags(type.flags().Public().Static());
+    	}
+    	
+    	// Member interfaces are implicitly static. 
+    	if (type.isMember() && type.flags().isInterface()) {
+    		type.flags(type.flags().Static());
+    	}
+    	
+    	// Interfaces are implicitly abstract. 
+    	if (type.flags().isInterface()) {
+    		type.flags(type.flags().Abstract());
+    	}
+    	
+    	return tb;
+    }
+
     public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
     	ClassDecl n = (ClassDecl) super.disambiguate(ar);
     	// Now we have successfully performed the base disambiguation.
@@ -106,6 +132,14 @@ public class X10ClassDecl_c extends ClassDecl_c {
     	return n;
     }
     
-    
+    public Node typeCheck(TypeChecker tc) throws SemanticException {
+    	X10ClassDecl_c result = (X10ClassDecl_c) super.typeCheck(tc);
+    	
+    	if (this.type instanceof X10ParsedClassType) {
+    		X10ParsedClassType xpType = (X10ParsedClassType) type;
+    		xpType.checkRealClause();
+    	}
+    	return result;
+    }
     		
 } 

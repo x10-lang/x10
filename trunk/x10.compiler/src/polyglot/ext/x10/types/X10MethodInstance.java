@@ -3,6 +3,9 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.List;
+
+import polyglot.ast.Formal;
 import polyglot.types.MethodInstance;
 
 /**
@@ -21,5 +24,7 @@ public interface X10MethodInstance extends MethodInstance {
 	 * @return
 	 */
 	boolean isSafe();
+	
+	List<Formal> formals();
 
 }

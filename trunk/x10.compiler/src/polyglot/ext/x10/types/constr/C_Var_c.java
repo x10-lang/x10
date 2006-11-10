@@ -4,8 +4,22 @@ import polyglot.types.Type;
 
 public abstract class C_Var_c extends C_Term_c implements C_Var {
 
+	final boolean rootVarIsThis;
+	final boolean rootVarIsSelf;
 	public C_Var_c(Type t) {
-		super(t);
+		this(t, false, false);
+		
+	}
+	public C_Var_c(Type type, boolean t, boolean s) {
+		super(type);
+		rootVarIsThis = t;
+		rootVarIsSelf = s;
+	}
+	public boolean rootVarIsThis() {
+		return rootVarIsThis;
+	}
+	public boolean rootVarIsSelf() {
+		return rootVarIsSelf;
 	}
 	
 	

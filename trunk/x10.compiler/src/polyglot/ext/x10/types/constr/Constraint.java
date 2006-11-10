@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import polyglot.ext.x10.types.X10Type;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 
 /**
  * An implementation of a simple constraint system. The only constraints expressible are
@@ -33,6 +35,19 @@ public interface Constraint extends Serializable {
 	 * @return
 	 */
 	boolean entails(Constraint t);
+	/**
+	 * Are all the constraints implied by the variable declaration v
+	 * already entailed by c? Used in checking that the real clause
+	 * supplied by the user is valid.
+	 * @param v
+	 * @return
+	 */
+	boolean entailsType(C_Var v);
+	/**
+	 * this is entailedby t iff t entails this.
+	 * @param t
+	 * @return
+	 */
 	boolean entailedBy(Constraint t);
 	/**
 	 * Do the two constraints entail each other?
@@ -85,8 +100,8 @@ public interface Constraint extends Serializable {
 	 * @throws SemanticException
 	 */
 	Constraint addTerm(C_Term term) throws Failure;
-	C_Var varWhoseTypeIsThis();
-	void setVarWhoseTypeThisIs(C_Var val);
+	C_Var selfVar();
+	void setSelfVar(C_Var val);
 	
 	/** Return the promise obtained by interning this term in the constraint.
 	 * This may result in new promises being added to the graph maintained
@@ -103,15 +118,21 @@ public interface Constraint extends Serializable {
 	 */
 	Promise intern(C_Term term);
 	
-	/** Return the promise obtained by looking this term up in the constraint graph, and null
-	 * if this term does not exist in the graph. This will never result in new promises
-	 * being added to the graph.
-	 * term: Literal -- return the literal.
-	 * term: LocalVariable, Special, Here Check if term is already in the roots maintained by
-	 * the constraint. If so, return the root, if not return null;
-	 * term: C_Field. Start with the rootVar x and follow the path f1...fk, if term=x.f1...fk.
-	 * If the graph contains no nodes after fi, for some i < k, return null. Otherwise return
-	 * the last promise.
+	/** Look this term up in the constraint graph.  If the term is of the form x.f1...fk
+	 * and the longest prefix that exists in the graph is x.f1..fi, return the promise
+	 * corresponding to x.f1...fi. If the promise is a Promise_c, the caller must invoke
+	 * lookupReturnValue() to determine if the match was partial (value returned is not
+	 * equal to the length of term.vars()). If not even a partial match is found, or the
+	 * partial match terminates in a literal (which, by definition, cannot have 
+	 * fields), then return null. 
+	 *  @seeAlso lookup(C_term term)
+	 * @param term
+	 * @return
+	 */
+	Promise lookupPartialOk(C_Term term);
+	
+	/** Look this term up in the constraint graph.  Return null if the term does not exist.
+	 *  
 	 * @param term
 	 * @return
 	 */
@@ -122,14 +143,22 @@ public interface Constraint extends Serializable {
 	 * Equivalent to constraints(new HashMap()).
 	 * @return
 	 */
-	HashMap/*<C_Term, C_Term>*/ constraints();
+	HashMap<C_Term, C_Term> constraints();
+	/**
+	 * Return in HashMap a set of bindings t1 -> t2 entailed by the current cosntraint,
+	 * where y is a variable that occurs in this, and all terms t1 are of the form
+	 * y.p, for some possibly empty path (sequence of fields) p. 
+	 * @param y
+	 * @return
+	 */
+	HashMap<C_Term, C_Term> constraints(C_Var y);
 	/**
 	 * Return result, after adding to it a set of bindings t1-> t2 equivalent to the 
 	 * current constraint. 
 	 * Equivalent to constraints(result, null, null).
 	 * @return
 	 */
-	HashMap/*<C_Term, C_Term>*/ constraints(HashMap result);
+	HashMap<C_Term, C_Term> constraints(HashMap<C_Term,C_Term> result);
 	/**
 	 * Return result, after adding to it a set of bindings t1-> t2 equivalent to the 
 	 * current constraint, with all occurrences of self in t1 and t2 replaced by
@@ -137,6 +166,41 @@ public interface Constraint extends Serializable {
 	 * replaced by newThis (provided that newThis !=null).
 	 * @return
 	 */
-	HashMap/*<C_Term, C_Term>*/ constraints(HashMap result, C_Term newSelf, C_Term newThis);
+	HashMap<C_Term, C_Term> constraints(HashMap<C_Term,C_Term> result, C_Term newSelf, C_Term newThis);
+	HashMap<C_Term, C_Term> constraints(C_Var y, C_Term newSelf);
+	
+	/**
+	 * Generate a new existentially quantified variable scoped to this constraint, 
+	 * with the given type.
+	 * @return
+	 */
+	C_EQV genEQV(Type type);
+	
+	/** 
+	 * If y equals x, or x does not occur in this,
+	 * return this, else copy the constraint
+	 * and return it after performing applySubstitution(y,x).
+	 * 
+	 * 
+	 */
+	Constraint substitute(C_Var y, C_Root x);
+	Constraint substitute(HashMap<C_Root, C_Var> bindings);
+	/**
+	 * Preconditions: x occurs in this.
+	 * It must be the case that the real clause of the
+	 * type of y, S, entails the real clause of the type of x, T.
+	 * Assume that this and S are fully explicit, that is the
+	 * consequences of the types U of variables v occuring in them
+	 * have been added to them. 
+	 * 
+	 * Replace all occurrences of x in this by y. 
+	 * For every binding y.p = t in the result, for every binding
+	 * self.p.q = t1 in S add y.p.q=t1[y/self] to the result.
+	 * Return this now fully explicit constraint.
+	 * @param y
+	 * @param x
+	 */
+	void applySubstitution(C_Var y, C_Root x);
+	void applySubstitution(HashMap<C_Root, C_Var> bindings);
 	
 }

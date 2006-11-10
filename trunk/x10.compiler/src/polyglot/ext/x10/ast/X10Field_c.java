@@ -18,9 +18,12 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Field;
 import polyglot.ext.x10.types.constr.C_Field_c;
+import polyglot.ext.x10.types.constr.C_Root;
+import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Promise;
 import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
@@ -75,13 +78,24 @@ public class X10Field_c extends Field_c {
 										target.type() + "\".", target.position());
 			
 			FieldInstance fi = ts.findField(target.type().toReference(), name, c.currentClass());
-			
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field on node of type " +
 						target.getClass().getName() + ".");
 			}
 			
-			X10Field_c result = (X10Field_c)fieldInstance(fi).type(fi.type());  
+			X10Type type = (X10Type) fi.type();
+			X10Type thisType = (X10Type) target.type();
+			X10Type retType = type;
+			Constraint rc = type.realClause();
+			if (rc != null ) {
+				C_Var var=thisType.selfVar();
+				if (var == null) var = rc.genEQV(thisType);
+				Constraint newRC = rc.substitute(var, C_Special.This);
+				retType = type.makeVariant(newRC, null);
+			}
+			fi = fi.type(retType);
+			
+			X10Field_c result = (X10Field_c)fieldInstance(fi).type(retType);  
 			result.checkConsistency(c);
 			
 			if (! result.isTypeChecked()) return result;
@@ -150,11 +164,11 @@ public class X10Field_c extends Field_c {
 			type.setOnePlace(aType1.onePlace());
 			Constraint c = aType1.depClause(); 
 			if (c != null) {
-				C_Var me = c.varWhoseTypeIsThis();
+				C_Var me = c.selfVar();
 				if (me !=null) {
 					C_Field f = new C_Field_c(result.fieldInstance(), me);
 					Constraint myC = type.depClause();
-					myC.setVarWhoseTypeThisIs(f);
+					myC.setSelfVar(f);
 				}
 			}
 			result = (X10Field_c) result.fieldInstance(result.fieldInstance().type(type)).type(type);
@@ -171,11 +185,11 @@ public class X10Field_c extends Field_c {
 			
 			Constraint c = aType1.depClause(); 
 			if (c != null) {
-				C_Var me = c.varWhoseTypeIsThis();
+				C_Var me = c.selfVar();
 				if (me !=null) {
 					C_Field f = new C_Field_c(result.fieldInstance(), me);
 					Constraint myC = type.depClause();
-					myC.setVarWhoseTypeThisIs(f);
+					myC.setSelfVar(f);
 				}
 			}
 			result = (X10Field_c) result.fieldInstance(result.fieldInstance().type(type)).type(type);

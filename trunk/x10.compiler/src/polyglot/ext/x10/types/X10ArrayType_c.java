@@ -9,7 +9,9 @@ import java.util.List;
 
 import polyglot.ext.jl.types.ArrayType_c;
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.Named;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
@@ -34,6 +36,15 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 		depClause = d;
 		typeParameters = l;
 	}
+	public void addBinding(C_Term t1, C_Term t2) {
+		if (depClause == null)
+			depClause = new Constraint_c();
+		depClause = depClause.addBinding(t1, t2);
+	}
+	public boolean consistent() {
+		return depClause== null || depClause.consistent();
+	}
+	public C_Var selfVar() { return depClause()==null ? null : depClause().selfVar();}
 	public X10Type makeVariant(Constraint d, List l) { 
 		if (d == null && (l == null || l.isEmpty()))
 			return this;
@@ -82,6 +93,26 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 		}
 		return true;
 	}
+	  public boolean equalsWithoutClauseImpl(X10Type o) {
+//		Report.report(3,"X10ArrayType_c: equals |" + this + "| and |" + o+"|");
+			if (o == this) return true;
+			if (! (o instanceof X10ArrayType_c)) return false;
+			X10ArrayType_c other = (X10ArrayType_c) o;
+			
+			if ( ! base.equalsImpl(other.base)) return false;
+			
+			if (typeParameters == null) return other.typeParameters == null;
+			if (typeParameters.isEmpty()) return other.typeParameters == null || other.typeParameters.isEmpty();
+			if (typeParameters.size() != other.typeParameters.size()) return false;
+			Iterator it1 = typeParameters.iterator();
+			Iterator it2 = other.typeParameters.iterator();
+			while (it1.hasNext()) {
+				Type t1 = (Type) it1.next();
+				Type t2 = (Type) it2.next();
+				if (!t1.equals(t2)) return false;
+			}
+			return true;
+	    }
 	
 	/*public boolean isImplicitCastValidImpl(Type toType) {
 	 

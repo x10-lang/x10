@@ -18,6 +18,9 @@ public class C_Here_c extends C_Term_c implements Promise {
 		return true;
 	}
 	public Promise intern(C_Var[] vars, int index) {
+		return intern(vars, index, null);
+	}
+	public Promise intern(C_Var[] vars, int index, Promise last) {
 		if (index != vars.length) {
 			throw new InternalCompilerError("Cannot extend path " + vars + "index=" 
 					+ index + " beyond the literal " + this  + ".");
@@ -58,4 +61,7 @@ public class C_Here_c extends C_Term_c implements Promise {
 		throw new InternalCompilerError("Cannot add an " + s + " child "  + orphan + 
 				" to here.");
 	}
+	public boolean rootVarIsSelf() { return false;}
+	public boolean rootVarIsThis() { return false;}
+	public boolean isEQV() { return false;}
 }

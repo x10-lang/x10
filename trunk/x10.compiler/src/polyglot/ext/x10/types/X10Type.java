@@ -9,6 +9,7 @@ package polyglot.ext.x10.types;
 import java.util.List;
 
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.types.Type;
 
@@ -87,5 +88,23 @@ public interface X10Type extends Type {
      * @return
      */
     List/*<PropertyInstance>*/ properties();
+    
+    /**
+     * Add t1=t2 to the realclause and the depclause. Note that this may cause the clause
+     * to become inconsistent.
+     * @param t1
+     * @param t2
+     */
+    void addBinding(C_Term t1, C_Term t2);
+    
+    /**
+     * Is the type consistent?
+     * @return
+     */
+    boolean consistent();
+    C_Var selfVar();
+    
+    boolean equalsWithoutClauseImpl(X10Type other);
+   
 
 }

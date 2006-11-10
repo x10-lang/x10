@@ -27,6 +27,12 @@ public interface Promise {
 	 */
 	Promise intern(C_Var[] vars, int index);
 	/**
+	 * vars is as above. If last is not null, then do not create a new promise
+	 * for vars[index-1], instead use last.
+	 * @return
+	 */
+	Promise intern(C_Var[] vars, int index, Promise last);
+	/**
 	 * vars and this must be as for intern. Return the node in the graph of constraint
 	 * c obtained by following the path specified by vars[index],....vars[path.length-1] 
 	 * from this node. Return null if the path does not exist; do not create new nodes.

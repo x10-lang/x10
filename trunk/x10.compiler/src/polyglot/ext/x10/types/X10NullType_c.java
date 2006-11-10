@@ -10,7 +10,9 @@ import java.util.List;
 
 import polyglot.ext.jl.types.NullType_c;
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -34,10 +36,19 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     public Constraint depClause() { return depClause; }
     public Constraint realClause() { return depClause; }
     public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
+	public C_Var selfVar() { return depClause()==null ? null : depClause().selfVar();}
     public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
 		depClause = d;
 		typeParameters = l;
 	}
+    public void addBinding(C_Term t1, C_Term t2) {
+		if (depClause == null)
+			depClause = new Constraint_c();
+		depClause = depClause.addBinding(t1, t2);
+	}
+    public boolean consistent() {
+    	return depClause== null || depClause.consistent();
+    }
     public X10Type makeVariant(Constraint d, List l) { 
         if (d == null && (l == null || l.isEmpty())) return this;
         X10NullType_c n = (X10NullType_c) copy();
@@ -82,6 +93,13 @@ public class X10NullType_c extends NullType_c implements X10NullType {
             if (!t1.equals(t2)) return false;
         }
         return true;
+    }
+    public boolean equalsWithoutClauseImpl(X10Type o) {
+        if (o == this) return true;
+        if (! (o instanceof X10NullType_c)) return false;
+        X10NullType_c other = (X10NullType_c) o;
+    
+        return baseType == other.baseType;
     }
     
     /**

@@ -14,18 +14,22 @@ import polyglot.ast.BooleanLit;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Cast;
+import polyglot.ast.CharLit;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.Conditional;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.ExtFactory;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.FloatLit;
 import polyglot.ast.For;
 import polyglot.ast.Formal;
 import polyglot.ast.If;
 import polyglot.ast.Instanceof;
+import polyglot.ast.IntLit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
@@ -35,15 +39,32 @@ import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
+import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.While;
+import polyglot.ext.jl.ast.Block_c;
+import polyglot.ext.jl.ast.BooleanLit_c;
+import polyglot.ext.jl.ast.CharLit_c;
+import polyglot.ext.jl.ast.Conditional_c;
+import polyglot.ext.jl.ast.Disamb_c;
+import polyglot.ext.jl.ast.FieldDecl_c;
+import polyglot.ext.jl.ast.FloatLit_c;
 import polyglot.ext.jl.ast.For_c;
+import polyglot.ext.jl.ast.If_c;
+import polyglot.ext.jl.ast.Instanceof_c;
+import polyglot.ext.jl.ast.IntLit_c;
+import polyglot.ext.jl.ast.Local_c;
+import polyglot.ext.jl.ast.New_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
+import polyglot.ext.jl.ast.Special_c;
+import polyglot.ext.jl.ast.StringLit_c;
+import polyglot.ext.jl.ast.While_c;
 import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -805,6 +826,45 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         While n = new X10While_c(pos, cond, body);
         n = (While)n.ext(extFactory().extWhile());
         n = (While)n.del(delFactory().delWhile());
+        return n;
+    }
+    public IntLit IntLit(Position pos, IntLit.Kind kind, long value) {
+        IntLit n = new X10IntLit_c(pos, kind, value);
+        n = (IntLit)n.ext(extFactory().extIntLit());
+        n = (IntLit)n.del(delFactory().delIntLit());
+        return n;
+    }
+   
+    public StringLit StringLit(Position pos, String value) {
+        StringLit n = new X10StringLit_c(pos, value);
+        n = (StringLit)n.ext(extFactory().extStringLit());
+        n = (StringLit)n.del(delFactory().delStringLit());
+        return n;
+    }
+    public FloatLit FloatLit(Position pos, FloatLit.Kind kind, double value) {
+    
+        FloatLit n = new X10FloatLit_c(pos, kind, value);
+        n = (FloatLit)n.ext(extFactory().extFloatLit());
+        n = (FloatLit)n.del(delFactory().delFloatLit());
+        return n;
+    }
+    public CharLit CharLit(Position pos, char value) {
+        CharLit n = new X10CharLit_c(pos, value);
+        n = (CharLit)n.ext(extFactory().extCharLit());
+        n = (CharLit)n.del(delFactory().delCharLit());
+        return n;
+    }
+
+    public AssignPropertyCall AssignPropertyCall(Position pos,  List args) {
+    	AssignPropertyCall  n = new AssignPropertyCall_c(pos, args);
+		n = (AssignPropertyCall) n.ext(extFactory().extExpr());
+		n= (AssignPropertyCall) n.del(delFactory().delExpr());
+		return n;
+	}
+    public Conditional Conditional(Position pos, Expr cond, Expr consequent, Expr alternative) {
+        Conditional n = new X10Conditional_c(pos, cond, consequent, alternative);
+        n = (Conditional)n.ext(extFactory().extConditional());
+        n = (Conditional)n.del(delFactory().delConditional());
         return n;
     }
 }

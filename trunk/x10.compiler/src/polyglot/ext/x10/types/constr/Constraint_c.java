@@ -6,14 +6,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import polyglot.ext.jl.types.LocalInstance_c;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
+import polyglot.types.Flags;
+import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
+
 
 /**
  * A representation of constraints of the form X1=t1 && ... Xk == tk.
@@ -27,7 +33,7 @@ import polyglot.util.InternalCompilerError;
 public class Constraint_c implements Constraint {
 
 	//Maps C_Var's to nodes.
-	protected HashMap/*<C_Var,Promise>*/ roots;
+	protected HashMap<C_Var,Promise> roots;
 	
 	// Map from variables to values for negative bindings.
 	// protected Map negBindings;
@@ -38,7 +44,7 @@ public class Constraint_c implements Constraint {
 	protected C_Term_c placeTerm;        // if non null, place could be here or some placeTerm.
 	
 	// For representation of T(:self == o), selfBinding is o.
-	protected C_Var varWhoseTypeThisIs;
+	protected C_Var selfVar;
 	
 	boolean consistent = true;
 	boolean valid = true;
@@ -82,13 +88,11 @@ public class Constraint_c implements Constraint {
 		return this;
 	}
 	public static Constraint makeBinding(C_Var var, C_Term val)  {
-		
 		Constraint c = new Constraint_c();
 		return c.addBinding(var,val);
-		
 	}
-	public C_Var varWhoseTypeIsThis() {
-		return varWhoseTypeThisIs;
+	public C_Var selfVar() {
+		return selfVar;
 	}
 	/**
 	 * Add the constraint self==val.
@@ -99,7 +103,7 @@ public class Constraint_c implements Constraint {
 	public static Constraint addSelfBinding(C_Term val, Constraint c)  {
 		c = (c==null) ? new Constraint_c() : c;
 		if (val instanceof C_Var) {
-			c.setVarWhoseTypeThisIs((C_Var) val);
+			c.setSelfVar((C_Var) val);
 			return c;
 		}
 		
@@ -107,8 +111,8 @@ public class Constraint_c implements Constraint {
 		
 		return c;
 	}
-	public void setVarWhoseTypeThisIs(C_Var var) {
-		varWhoseTypeThisIs = var;
+	public void setSelfVar(C_Var var) {
+		selfVar = var;
 	}
 	String name = "";
 
@@ -123,11 +127,13 @@ public class Constraint_c implements Constraint {
 	 * 
 	 */
 	public boolean valid() { return valid;}
-	
 	public boolean isLocal() { return placePossiblyNull || placeIsHere; }
 	public boolean isPossiblyRemote() { return ! isLocal();}
 	
 	public Promise intern(C_Term term) {
+		return intern(term, null);
+	}
+	public Promise intern(C_Term term, Promise last) {
 		if (term instanceof Promise )
 			// this is the case for literals, for here
 			return (Promise) term;
@@ -139,16 +145,28 @@ public class Constraint_c implements Constraint {
 		C_Var[] vars = var.vars();
 		
 		C_Var baseVar = vars[0];
-		if (roots == null) roots = new HashMap();
+		if (roots == null) roots = new HashMap<C_Var, Promise>();
 		Promise p = (Promise) roots.get(baseVar);
 		if (p == null) {
-			p = new Promise_c(baseVar);
+			p = (vars.length==1 && last != null) ? last : new Promise_c(baseVar);
 			// Report.report(1, "Constraint_c.intern: adding " + var + " to roots for (:" + this+").");
 			roots.put(baseVar, p);
 		}
-		return p.intern(vars, 1);
+		return p.intern(vars, 1, last);
 	}
+	
 	public Promise lookup(C_Term term) {
+		Promise result = lookupPartialOk(term);
+		if (! (result instanceof Promise_c))
+			return result;
+		// it must be the case that term is a C_Var.
+		C_Var var = (C_Var) term;
+		C_Var[] vars = var.vars();
+		Promise_c resultC = (Promise_c) result;
+		int index = resultC.lookupReturnValue();
+		return (index==vars.length) ? result : null;
+	}
+	public Promise lookupPartialOk(C_Term term) {
 		if (term instanceof Promise )
 			// this is the case for literals, for here
 			return (Promise) term;
@@ -156,11 +174,10 @@ public class Constraint_c implements Constraint {
 		if (! (term instanceof C_Var))
 			throw new InternalCompilerError("Cannot lookup  term  " + term
 					+ "; it must be a promise or a C_Var");
+		if (roots ==null) return null;
 		C_Var var = (C_Var) term;
 		C_Var[] vars = var.vars();
-		
 		C_Var baseVar = vars[0];
-		if (roots ==null) return null;
 		
 		Promise p = (Promise) roots.get(baseVar);
 		if (p == null) return null;
@@ -178,12 +195,12 @@ public class Constraint_c implements Constraint {
 		try { 
 			
 			if (!consistent ) return result=this; 
-			if (roots == null) roots = new HashMap();
+			if (roots == null) roots = new HashMap<C_Var, Promise>();
 			if (t1==null) t1 = C_Lit.NULL;
 			if (t2==null) t2 = C_Lit.NULL;
-			if (varWhoseTypeThisIs !=null) {
-				t1 = t1.substitute(C_Special_c.Self, varWhoseTypeThisIs);
-				t2 = t2.substitute(C_Special_c.Self, varWhoseTypeThisIs);
+			if (selfVar !=null) {
+				t1 = t1.substitute(C_Special_c.Self, selfVar);
+				t2 = t2.substitute(C_Special_c.Self, selfVar);
 			}
 			Promise p1 = intern(t1);
 			Promise p2 = intern(t2);
@@ -210,10 +227,10 @@ public class Constraint_c implements Constraint {
 		try { 
 			
 			if (!consistent ) return this; 
-			if (roots == null) roots = new HashMap();
+			if (roots == null) roots = new HashMap<C_Var, Promise>();
 			if (t1==null) t1 = C_Lit.NULL;
-			if (varWhoseTypeThisIs !=null) {
-				t1 = t1.substitute(C_Special_c.Self, varWhoseTypeThisIs);
+			if (selfVar !=null) {
+				t1 = t1.substitute(C_Special_c.Self, selfVar);
 			}
 			Promise p1 = intern(t1);
 			boolean modified = p1.bind(p);
@@ -246,18 +263,18 @@ public class Constraint_c implements Constraint {
 				C_Var t1Root = t1.rootVar();
 				Constraint xd = xType.depClause();
 				if (xd!= null) {
-					C_Term cVar = xd.varWhoseTypeIsThis();
+					C_Term cVar = xd.selfVar();
 					if (t1Root.equals(cVar)) {
 						t1 = (C_Var) t1.substitute(C_Special_c.Self, cVar);
 					}
 				}
-				Promise p = c.lookup(t1);
+				Promise p = c.lookupPartialOk(t1);
 				if (p != null) {
 					// aha there really is a term that t1's roottype binds t1 to!
 					C_Term t3 = p.term();
 					if (t3 instanceof C_Var && ((C_Var) t3).rootVar().equals(C_Special.Self)) {
 						if (xd != null) {
-							C_Var sVar = xd.varWhoseTypeIsThis();
+							C_Var sVar = xd.selfVar();
 							if (sVar != null) {
 								t3 = t3.substitute(sVar, C_Special_c.Self);
 								addBindingPromise(t3, target);
@@ -324,19 +341,20 @@ public class Constraint_c implements Constraint {
 			Report.report(1, this + (result? " entails " : " does not entail ") + other);
 		return  result;
 	}
-	public HashMap/*<C_Term, C_Term>*/ constraints() {
-		return constraints(new HashMap());
+	
+	public HashMap<C_Term, C_Term> constraints() {
+		return constraints(new HashMap<C_Term,C_Term>());
 	}
-	public HashMap/*<C_Term, C_Term>*/ constraints(HashMap result) {
+	public HashMap<C_Term, C_Term> constraints(HashMap<C_Term, C_Term> result) {
 		return constraints(result, null, null);
 	}
 	
-	public HashMap/*<C_Term, C_Term>*/ constraints(HashMap result, C_Term newSelf, C_Term newThis) {
+	public HashMap<C_Term, C_Term> constraints(HashMap<C_Term,C_Term> result, C_Term newSelf, C_Term newThis) {
 		if (roots==null) return result;
 		for (Iterator it = roots.values().iterator(); it.hasNext();) {
 			Promise p = (Promise) it.next();
 			if (newSelf==null && newThis==null)
-				// no point in propagating the fields through if they wont be used.
+				// no point in propagating newSelf and newThis through if they wont be used.
 				p.dump(result);
 			else 
 				p.dump(result, newSelf, newThis);
@@ -344,6 +362,19 @@ public class Constraint_c implements Constraint {
 		// Report.report(1, "Constraint_c: The constraints associated with (:" + this + ") are " + result + ".");
 		return result;
 	}
+	public HashMap<C_Term, C_Term> constraints(C_Var y) {
+		return constraints(y, C_Special.Self);
+	}
+	
+	public HashMap<C_Term, C_Term> constraints(C_Var y, C_Term newSelf) {
+		HashMap<C_Term,C_Term> result = new HashMap<C_Term,C_Term>();
+		if (roots==null) return result;
+		Promise p = lookup(y);
+		if (p == null) return result;
+		p.dump(result, newSelf, C_Special.This);
+		return result;
+	}
+	
 	public boolean entailedBy(Constraint other) {
 		if ((! other.consistent()) || valid() )
 			return true;
@@ -381,14 +412,16 @@ public class Constraint_c implements Constraint {
 		
 		boolean result = false;
 		try {
-			
+			//Report.report(1, "Constraint_c: Does (:" + this +  ") entail " 
+			//		+ t1 + "=" + t2+ "?");
 			if (! consistent) return result = true;
-			if (varWhoseTypeThisIs !=null) {
-				t1 = t1.substitute(C_Special_c.Self, varWhoseTypeThisIs);
-				t2 = t2.substitute(C_Special_c.Self, varWhoseTypeThisIs);
+			if (selfVar !=null) {
+				t1 = t1.substitute(C_Special_c.Self, selfVar);
+				t2 = t2.substitute(C_Special_c.Self, selfVar);
 			}
-			Promise p1 = lookup(t1);
-			if (p1 == null) return result=false;
+			Promise p1 = lookupPartialOk(t1);
+			if (p1 == null) // No match, the term t1 is not equated to anything by this.
+				return result=false;
 			
 			int r1Count=0;
 			C_Var[] vars1 = null;
@@ -396,34 +429,35 @@ public class Constraint_c implements Constraint {
 				r1Count = ((Promise_c) p1).lookupReturnValue();
 				vars1 = ((C_Var) t1).vars();
 			}
-			Promise p2 = lookup(t2);
+			Promise p2 = lookupPartialOk(t2);
+			if (p2==null) // No match, the term t2 is not equated to anything by this.
+				return result=false;
+			
 			int r2Count=0;
 			C_Var[] vars2 = null;
-			if (p1 instanceof Promise_c ){
-				r1Count = ((Promise_c) p1).lookupReturnValue();
-				vars1 = ((C_Var) t1).vars();
+			if (p2 instanceof Promise_c ){
+				r2Count = ((Promise_c) p2).lookupReturnValue();
+				vars2 = ((C_Var) t2).vars();
 			}
-			if (p1 == null || p2==null) {
-				//one of these terms does not have even a partial match in the constraint.
-				return result=false;
-			}
-			if ((r1Count == 0 || r1Count == vars1.length-1) && (r2Count==0 || r2Count == vars2.length-1)) {
+			
+			if ((r1Count==0 || r1Count == vars1.length) && (r2Count==0 || r2Count == vars2.length)) {
 				// exact lookups
-				return result=p1.equals(p2);
+				result = p1.equals(p2);
+				return result;
 			} 
 			// at least one of them had a suffix left over
-			
+			// Now the returned promises must match, and they must have the same suffix.
 			if (! p1.equals(p2)) return false;
 			//	Now ensure that they have the same suffix left over. 
-			int residual1 = vars1.length-r1Count-1, residual2=vars2.length-r2Count-1;
+			int residual1 = vars1.length-r1Count, residual2=vars2.length-r2Count;
 			if (residual1 != residual2) return false;
-			for (int i=1; i < residual1; i++) {
-				if (! vars1[residual1+i].name().equals(vars2[residual2+i].name()))
+			for (int i=0; i < residual1; i++) {
+				if (! vars1[r1Count+i].name().equals(vars2[r2Count+i].name()))
 					return result=false;
 			}
 			return result=true;
 	} finally {
-		//Report.report(1, "Constraint_c: (:" + this + (result? ") entails " : ") does not entail ") 
+	//	Report.report(1, "Constraint_c: (:" + this + (result? ") entails " : ") does not entail ") 
 		//		+ t1 + "=" + t2+ ".");
 	}
 		
@@ -450,8 +484,8 @@ public class Constraint_c implements Constraint {
 	}
 	
 	protected boolean checkSelfEntails(C_Var var, C_Term val) {
-		if (varWhoseTypeThisIs == null) return false;
-		C_Var var1 = (C_Var) var.substitute(varWhoseTypeThisIs, C_Special.Self);
+		if (selfVar == null) return false;
+		C_Var var1 = (C_Var) var.substitute(selfVar, C_Special.Self);
 		boolean result = var1.equals(val);
 		return result;
 	}
@@ -474,4 +508,100 @@ public class Constraint_c implements Constraint {
 	
 	public String toString() { return   name ;}
 
+	protected int eqvCount;
+	public C_EQV genEQV(Type type) {
+		String name = "_" + eqvCount++;
+		LocalInstance li = new LocalInstance_c(X10TypeSystem_c.getTypeSystem(), Position.COMPILER_GENERATED,
+		  		   Flags.FINAL, type, name);
+		C_EQV result = new C_EQV_c(li);
+		return result;
+	}
+	public Constraint substitute(C_Var y, C_Root x) {
+		assert (y != null && x !=null);
+		if (y.equals(x))
+			return this;
+		Promise last = lookupPartialOk(x);
+		if (last == null)
+			// x does not occur in this
+			return this;
+		Constraint result = copy();
+		result.applySubstitution(y,x);
+		return result;
+	}
+	public Constraint substitute(HashMap<C_Root, C_Var> subs) {
+		if (subs==null) return this;
+		boolean notneeded = true;
+		for (Iterator<Map.Entry<C_Root, C_Var>> it = subs.entrySet().iterator();
+		notneeded && it.hasNext(); ) {
+			Map.Entry<C_Root, C_Var> e = it.next();
+			C_Root x = e.getKey();
+			C_Var y = e.getValue();
+			
+			notneeded = (y.equals(x)) || lookupPartialOk(x) == null;
+		}
+		if (notneeded) return this;
+		Constraint result = copy();
+		result.applySubstitution(subs);
+		return result;
+	}
+	public void applySubstitution( HashMap<C_Root, C_Var> subs) {
+		for (Iterator<Map.Entry<C_Root, C_Var>> it = subs.entrySet().iterator(); it.hasNext(); ) {
+			Map.Entry<C_Root, C_Var> e = it.next();
+			C_Root x = e.getKey();
+			C_Var y = e.getValue();
+			applySubstitution(y,x);
+		}
+	}
+	public void applySubstitution(C_Var y, C_Root x) {
+		assert(roots !=null);
+		// The following surgery substitutes x in place by y.
+		// Hmm.... need ot handle y being a C_Field.
+		Promise q = intern(y, lookup(x));
+		String thisString = toString();
+		// Now move all the terms over.
+		X10Type yType = (X10Type) y.type();
+		Constraint yTypeRC = yType.realClause();
+		if (yTypeRC != null) {
+			HashMap<C_Term,C_Term> ySubtermBindings = constraints(y); // y.p=t in this[y/x]
+			for (Iterator<Map.Entry<C_Term, C_Term>> it = ySubtermBindings.entrySet().iterator(); 
+			it.hasNext();) {
+				Map.Entry<C_Term, C_Term> e = it.next();
+				C_Term yp = e.getKey();
+				C_Term t = e.getValue();
+				C_Var selfp = (C_Var) yp.substitute(C_Special.Self, y);
+				
+				HashMap<C_Term, C_Term> yTypeRCSubtermBindings = yTypeRC.constraints(selfp, y);
+				for (Iterator<Map.Entry<C_Term, C_Term>> 
+				it2 = yTypeRCSubtermBindings.entrySet().iterator(); 
+				it2.hasNext();) {
+					Map.Entry<C_Term, C_Term> e2 = it2.next();
+					C_Term ypq = e2.getKey();
+					C_Term t1 = e2.getValue();
+					this.addBinding(ypq, t1);
+				}	
+			}
+		}
+		Report.report(1, "Constraint_c: " + thisString + "[" + y + "/" + x + "] = " + this);
+	}
+	public boolean entailsType(C_Var y) {
+		assert(y != null);
+		
+		X10Type yType = (X10Type) y.type();
+		Constraint yTypeRC = yType.realClause();
+		
+		HashMap<C_Term, C_Term> yTypeRCSubtermBindings = yTypeRC.constraints(C_Special.Self, y);
+		boolean result = true;
+		for (Iterator<Map.Entry<C_Term, C_Term>> 
+		it2 = yTypeRCSubtermBindings.entrySet().iterator(); 
+		result && it2.hasNext();) {
+			Map.Entry<C_Term, C_Term> e2 = it2.next();
+			C_Term yp = e2.getKey();
+			C_Term t1 = e2.getValue();
+			result = entails(yp, t1);
+		}	
+		
+		Report.report(1, "Constraint_c: " + this.toString() 
+				+ (result ? " entails " : " does not entail ") + yType + " " + y);
+		return result;
+	}
 }
