@@ -111,12 +111,12 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			// Ensure that the LocalInstance is updated with the 
 			// possibly new type (w/ depclause)
 			LocalInstance li = result.li;
-			li.setType(declType());
+			final X10Type declType= (X10Type) declType();
+			li.setType(declType);
 			// If the local variable is final, replace T by T(:self==t)
-			if (li.flags().isFinal()) {
-				X10Type oldType = (X10Type) li.type();
-				Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),oldType.depClause());
-				X10Type newType = oldType.makeVariant(c,oldType.typeParameters());
+			if (declType.depClause() != null && li.flags().isFinal()) {
+				Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),declType.depClause());
+				X10Type newType = declType.makeVariant(c,declType.typeParameters());
 				li.setType(newType);
 			}
 			
