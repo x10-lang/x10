@@ -41,14 +41,14 @@ public class RuntimeCastChecker {
 	 * @param obj
 	 * @return
 	 */
-	public static java.lang.Object checkCast(RuntimeConstraint [] cTab, boolean nullableCheck, java.lang.Object objToCast, String toClassTypeName) {
-		Class toClassType;
+	public static java.lang.Object checkCast(RuntimeConstraint [] cTab, boolean nullableCheck, java.lang.Object objToCast, Class toClassType) {
+//		Class toClassType;
 		
-		try {
-			toClassType = Class.forName(toClassTypeName);
-		} catch (ClassNotFoundException e1) {
-			 throw new ClassCastException("Class of type " + toClassTypeName + " is not found");
-		}
+//		try {
+//			toClassType = Class.forName(toClassTypeName);
+//		} catch (ClassNotFoundException e1) {
+//			 throw new ClassCastException("Class of type " + toClassTypeName + " is not found");
+//		}
 		
 		// get class for reflexion
 		 Class fromClassType = objToCast.getClass();
@@ -65,14 +65,33 @@ public class RuntimeCastChecker {
 			 // for each constraints invoke class properties using reflexion
 			 while ((i < cTab.length) && (correct)) {
 				 RuntimeConstraint constraint = cTab[i];
-				 Method m = fromClassType.getMethod(constraint.name, null);
-				 // if here then method exists
-				 correct = (m.invoke(objToCast,null)).equals(constraint.value);					 
+				 System.out.println(constraint);
+				 // every property has a getter defined
+				 Method leftHand = fromClassType.getMethod(constraint.name, null);
+				 if (constraint instanceof RuntimeConstraintOnSelf) {
+					 Method rightHand = fromClassType.getMethod((String) constraint.value, null);
+					 // FIX bug while accessing nested class which are not visible by RuntimeCastChecker
+					 boolean accessibleR = rightHand.isAccessible();
+					 leftHand.setAccessible(true);
+					 boolean accessibleL = leftHand.isAccessible();
+					 rightHand.setAccessible(true);
+					 correct = (leftHand.invoke(objToCast,null)).equals(rightHand.invoke(objToCast,null));
+					 leftHand.setAccessible(accessibleL);
+					 rightHand.setAccessible(accessibleR);
+				 } else {
+					 // if here then method exists
+					 // FIX bug while accessing nested class which are not visible by RuntimeCastChecker					 
+					 boolean accessibleL = leftHand.isAccessible();
+					 leftHand.setAccessible(true);
+					 correct = (leftHand.invoke(objToCast,null)).equals(constraint.value);
+					 leftHand.setAccessible(accessibleL);
+				 }
 				 i++;
 			 }
 		 }
 		 catch(java.lang.Exception e) { 			 
 			 // if an accessor is not found then type does not meet constraints
+			 e.printStackTrace(System.err);
 			 throw new ClassCastException("Reflect error while checking constraint " + cTab[i]);
 		 }
 		 
@@ -94,7 +113,7 @@ public class RuntimeCastChecker {
 	 * @param obj
 	 * @return
 	 */
-	public static boolean isInstanceOf(RuntimeConstraint [] cTab, boolean nullableCheck, java.lang.Object obj, String toClassType) {
+	public static boolean isInstanceOf(RuntimeConstraint [] cTab, boolean nullableCheck, java.lang.Object obj, Class toClassType) {
 		try {
 			RuntimeCastChecker.checkCast(cTab, false, obj, toClassType);	
 		} catch(Throwable t) {
@@ -343,4 +362,13 @@ public class RuntimeCastChecker {
 		 }
 	}
 
+	public static class RuntimeConstraintOnSelf extends RuntimeConstraint {
+		public RuntimeConstraintOnSelf(String n, String selfReference) {
+			super(n,selfReference);
+		 }
+		
+		public String getSelfReference() {
+			return (String) super.value;
+		}
+	}
 }
