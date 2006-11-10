@@ -111,13 +111,9 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * "argTypes".
 	 */
 	public MethodInstance findMethod(String name, List argTypes) throws SemanticException {
-		if (name.equals("m")) {
-			Report.report(1, "X10Context_c: finding method " + name + "(" + argTypes + ")");
-		}
+		
 		MethodInstance result  = depType == null ? super.findMethod(name, argTypes) :pop().findMethod(name, argTypes);
-		if (name.equals("m")) {
-			Report.report(1, "X10Context_c: ..." + result);
-		}
+		
 		return result;
 	}
 	

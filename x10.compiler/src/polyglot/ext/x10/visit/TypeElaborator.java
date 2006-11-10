@@ -10,6 +10,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
+import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -65,6 +66,9 @@ public class TypeElaborator extends TypeChecker {
 			return result = (n instanceof TypeNode) ? null : n;
 		if (parent instanceof Formal) 
 			return result = (n instanceof TypeNode) ? null : n;
+		if (n instanceof Local)
+			return n;
+		
 		// Bypass all nodes which cannot have a type declaration under them.
 		
 		  
