@@ -35,4 +35,7 @@ public class C_BinaryTerm_c extends C_Term_c implements C_BinaryTerm {
 	public Promise toPromise() {
 		throw new Error("Not implemented yet.");
 	}
+	public boolean rootVarIsSelf() { return false;}
+	public boolean rootVarIsThis() { return false;}
+	public boolean isEQV() { return false;}
 }

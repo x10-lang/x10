@@ -3,7 +3,10 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.List;
+
 import polyglot.ast.Expr;
+import polyglot.ast.Formal;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.types.ClassType;
@@ -296,5 +299,27 @@ public interface X10TypeSystem extends TypeSystem {
    boolean entailsClause(Constraint me, Constraint other);
    FieldInstance fieldInstance(Position pos, ReferenceType container,
            Flags flags, String name, String initValue);
+   
+   /** Create a method instance.
+    * @param pos Position of the method.
+    * @param container Containing type of the method.
+    * @param flags The method's flags.
+    * @param returnType The method's return type.
+    * @param name The method's name.
+    * @param argTypes The method's formal parameter types.
+    * @param formals The method's formal argument list. Needed since these formals may occur in returnType.
+    * @param excTypes The method's exception throw types.
+    */
+   MethodInstance methodInstance(Position pos, ReferenceType container,
+                                 Flags flags, Type returnType, String name,
+                                 List argTypes, List<Formal> formals, List excTypes);
+   
+   /**
+    * True if the two types are equal, ignoring their dep clauses.
+    * @param other
+    * @return
+    */
+   boolean equalsWithoutClause(X10Type me, X10Type other);
+   boolean typeBaseEquals(Type me, Type other);
 } // end of X10TypeSystem
 

@@ -16,8 +16,10 @@ import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Promise;
 import polyglot.main.Report;
 import polyglot.types.PrimitiveType;
 import polyglot.types.Type;
@@ -54,6 +56,17 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		depClause = d;
 		typeParameters = l;
 	}
+	public C_Var selfVar() {
+		return depClause==null ? null : depClause.selfVar();
+	}
+	  public void addBinding(C_Term t1, C_Term t2) {
+			if (depClause == null)
+				depClause = new Constraint_c();
+			depClause = depClause.addBinding(t1, t2);
+		}
+	    public boolean consistent() {
+	    	return depClause== null || depClause.consistent();
+	    }
 	public X10Type makeVariant(Constraint d, List/*<GenParameterExpr>*/ l) { 
 		if (d == null && (l == null || l.isEmpty())) return this;
 		X10PrimitiveType_c n = (X10PrimitiveType_c) copy();
@@ -67,6 +80,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public C_Term propVal(String name) {
 		return (depClause==null) ? null : depClause.find(name);
 	}
+	
 	
 	public boolean typeEqualsImpl(Type o) {
 		boolean result = equalsImpl(o) && 
@@ -85,6 +99,10 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		if (! super.equals(o)) return false;
 		X10PrimitiveType_c other = (X10PrimitiveType_c) o;
 		return ((X10TypeSystem) typeSystem()).equivClause(this, other);
+	}
+	public boolean equalsWithoutClauseImpl(X10Type o) {
+		if (! (o instanceof X10PrimitiveType_c)) return false;
+		return super.equals(o);
 	}
 	
 	/** Every X10 value type descends from X10.lang.Object, the base class.
@@ -127,12 +145,37 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	
 	/** Returns true iff a cast from this to <code>toType</code> is valid. */
 	public boolean isCastValidImpl(Type origType) {
+		//Report.report(1, "X10PrimitiveType_c.isCastValidImpl: " + this + " " + origType);
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		X10Type toType = (X10Type) origType;
 		NullableType nullType = toType.toNullable();
 		if (nullType != null) 
 			toType = nullType.base();
-		return ts.equals(toType, xts.Object()) || super.isCastValidImpl(toType);
+		boolean result = ts.equals(toType, xts.Object());
+		if (result) return result;
+		if (isVoid() || toType.isVoid())
+			return result = false;
+		 if (ts.typeEquals(this, toType))
+			 return result = true;
+		 if (isNumeric() && toType.isNumeric()) {
+			 Constraint rc = realClause();
+			 if (rc !=null) {
+				 Promise p = rc.lookup(C_Special_c.Self);
+				 if (p != null) {
+					 C_Term t = p.term()	;
+					 if (t!=null) {
+						 Constraint toRC = toType.realClause();
+						 if (toRC !=null) {
+							 C_Term t2 = toRC.lookup(C_Special_c.Self).term();
+							 return result = (t2 == null ||  t.equals(t2));
+							 
+						 }
+					 }
+				 }
+			 }
+			 return result = true;
+		 }
+		return  super.isCastValidImpl(toType);
 	}
 	
 	public String toString() { 

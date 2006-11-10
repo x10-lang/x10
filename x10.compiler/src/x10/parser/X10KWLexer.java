@@ -13,7 +13,7 @@ import java.util.*;
 public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
 {
     private char[] inputChars;
-    private final int keywordKind[] = new int[84 + 1];
+    private final int keywordKind[] = new int[85 + 1];
 
     public int[] getKeywordKinds() { return keywordKind; }
 
@@ -303,291 +303,297 @@ public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
       
     
         //
-        // Rule 37:  KeyWord ::= p u b l i c
+        // Rule 37:  KeyWord ::= p r o p e r t y
         //
-            keywordKind[37] = (TK_public);
+            keywordKind[37] = (TK_property);
       
     
         //
-        // Rule 38:  KeyWord ::= r e t u r n
+        // Rule 38:  KeyWord ::= p u b l i c
         //
-            keywordKind[38] = (TK_return);
+            keywordKind[38] = (TK_public);
       
     
         //
-        // Rule 39:  KeyWord ::= s h o r t
+        // Rule 39:  KeyWord ::= r e t u r n
         //
-            keywordKind[39] = (TK_short);
+            keywordKind[39] = (TK_return);
       
     
         //
-        // Rule 40:  KeyWord ::= s t a t i c
+        // Rule 40:  KeyWord ::= s h o r t
         //
-            keywordKind[40] = (TK_static);
+            keywordKind[40] = (TK_short);
       
     
         //
-        // Rule 41:  KeyWord ::= s t r i c t f p
+        // Rule 41:  KeyWord ::= s t a t i c
         //
-            keywordKind[41] = (TK_strictfp);
+            keywordKind[41] = (TK_static);
       
     
         //
-        // Rule 42:  KeyWord ::= s u p e r
+        // Rule 42:  KeyWord ::= s t r i c t f p
         //
-            keywordKind[42] = (TK_super);
+            keywordKind[42] = (TK_strictfp);
       
     
         //
-        // Rule 43:  KeyWord ::= s w i t c h
+        // Rule 43:  KeyWord ::= s u p e r
         //
-            keywordKind[43] = (TK_switch);
+            keywordKind[43] = (TK_super);
       
     
         //
-        // Rule 44:  KeyWord ::= s y n c h r o n i z e d
+        // Rule 44:  KeyWord ::= s w i t c h
         //
-            keywordKind[44] = (TK_synchronized);
+            keywordKind[44] = (TK_switch);
       
     
         //
-        // Rule 45:  KeyWord ::= t h i s
+        // Rule 45:  KeyWord ::= s y n c h r o n i z e d
         //
-            keywordKind[45] = (TK_this);
+            keywordKind[45] = (TK_synchronized);
       
     
         //
-        // Rule 46:  KeyWord ::= t h r o w
+        // Rule 46:  KeyWord ::= t h i s
         //
-            keywordKind[46] = (TK_throw);
+            keywordKind[46] = (TK_this);
       
     
         //
-        // Rule 47:  KeyWord ::= t h r o w s
+        // Rule 47:  KeyWord ::= t h r o w
         //
-            keywordKind[47] = (TK_throws);
+            keywordKind[47] = (TK_throw);
       
     
         //
-        // Rule 48:  KeyWord ::= t r a n s i e n t
+        // Rule 48:  KeyWord ::= t h r o w s
         //
-            keywordKind[48] = (TK_transient);
+            keywordKind[48] = (TK_throws);
       
     
         //
-        // Rule 49:  KeyWord ::= t r u e
+        // Rule 49:  KeyWord ::= t r a n s i e n t
         //
-            keywordKind[49] = (TK_true);
+            keywordKind[49] = (TK_transient);
       
     
         //
-        // Rule 50:  KeyWord ::= t r y
+        // Rule 50:  KeyWord ::= t r u e
         //
-            keywordKind[50] = (TK_try);
+            keywordKind[50] = (TK_true);
       
     
         //
-        // Rule 51:  KeyWord ::= v o i d
+        // Rule 51:  KeyWord ::= t r y
         //
-            keywordKind[51] = (TK_void);
+            keywordKind[51] = (TK_try);
       
     
         //
-        // Rule 52:  KeyWord ::= v o l a t i l e
+        // Rule 52:  KeyWord ::= v o i d
         //
-            keywordKind[52] = (TK_volatile);
+            keywordKind[52] = (TK_void);
       
     
         //
-        // Rule 53:  KeyWord ::= w h i l e
+        // Rule 53:  KeyWord ::= v o l a t i l e
         //
-            keywordKind[53] = (TK_while);
+            keywordKind[53] = (TK_volatile);
       
     
         //
-        // Rule 54:  KeyWord ::= a s y n c
+        // Rule 54:  KeyWord ::= w h i l e
         //
-                keywordKind[54] = (TK_async);
+            keywordKind[54] = (TK_while);
       
     
         //
-        // Rule 55:  KeyWord ::= a c t i v i t y l o c a l
+        // Rule 55:  KeyWord ::= a s y n c
         //
-                keywordKind[55] = (TK_activitylocal);
+                keywordKind[55] = (TK_async);
       
     
         //
-        // Rule 56:  KeyWord ::= a t e a c h
+        // Rule 56:  KeyWord ::= a c t i v i t y l o c a l
         //
-                keywordKind[56] = (TK_ateach);
+                keywordKind[56] = (TK_activitylocal);
       
     
         //
-        // Rule 57:  KeyWord ::= a t o m i c
+        // Rule 57:  KeyWord ::= a t e a c h
         //
-                keywordKind[57] = (TK_atomic);
+                keywordKind[57] = (TK_ateach);
       
     
         //
-        // Rule 58:  KeyWord ::= a w a i t
+        // Rule 58:  KeyWord ::= a t o m i c
         //
-                keywordKind[58] = (TK_await);
+                keywordKind[58] = (TK_atomic);
       
     
         //
-        // Rule 59:  KeyWord ::= b o x e d
+        // Rule 59:  KeyWord ::= a w a i t
         //
-                keywordKind[59] = (TK_boxed);
+                keywordKind[59] = (TK_await);
       
     
         //
-        // Rule 60:  KeyWord ::= c l o c k e d
+        // Rule 60:  KeyWord ::= b o x e d
         //
-                keywordKind[60] = (TK_clocked);
+                keywordKind[60] = (TK_boxed);
       
     
         //
-        // Rule 61:  KeyWord ::= c o m p i l e r t e s t
+        // Rule 61:  KeyWord ::= c l o c k e d
         //
-                keywordKind[61] = (TK_compilertest);
+                keywordKind[61] = (TK_clocked);
       
     
         //
-        // Rule 62:  KeyWord ::= c u r r e n t
+        // Rule 62:  KeyWord ::= c o m p i l e r t e s t
         //
-                keywordKind[62] = (TK_current);
+                keywordKind[62] = (TK_compilertest);
       
     
         //
-        // Rule 63:  KeyWord ::= e x t e r n
+        // Rule 63:  KeyWord ::= c u r r e n t
         //
-                keywordKind[63] = (TK_extern);
+                keywordKind[63] = (TK_current);
       
     
         //
-        // Rule 64:  KeyWord ::= f i n i s h
+        // Rule 64:  KeyWord ::= e x t e r n
         //
-                keywordKind[64] = (TK_finish);
+                keywordKind[64] = (TK_extern);
       
     
         //
-        // Rule 65:  KeyWord ::= f o r e a c h
+        // Rule 65:  KeyWord ::= f i n i s h
         //
-                keywordKind[65] = (TK_foreach);
+                keywordKind[65] = (TK_finish);
       
     
         //
-        // Rule 66:  KeyWord ::= f u n
+        // Rule 66:  KeyWord ::= f o r e a c h
         //
-                keywordKind[66] = (TK_fun);
+                keywordKind[66] = (TK_foreach);
       
     
         //
-        // Rule 67:  KeyWord ::= f u t u r e
+        // Rule 67:  KeyWord ::= f u n
         //
-                keywordKind[67] = (TK_future);
+                keywordKind[67] = (TK_fun);
       
     
         //
-        // Rule 68:  KeyWord ::= h e r e
+        // Rule 68:  KeyWord ::= f u t u r e
         //
-                keywordKind[68] = (TK_here);
+                keywordKind[68] = (TK_future);
       
     
         //
-        // Rule 69:  KeyWord ::= l o c a l
+        // Rule 69:  KeyWord ::= h e r e
         //
-                keywordKind[69] = (TK_local);
+                keywordKind[69] = (TK_here);
       
     
         //
-        // Rule 70:  KeyWord ::= m e t h o d
+        // Rule 70:  KeyWord ::= l o c a l
         //
-                keywordKind[70] = (TK_method);
+                keywordKind[70] = (TK_local);
       
     
         //
-        // Rule 71:  KeyWord ::= m u t a b l e
+        // Rule 71:  KeyWord ::= m e t h o d
         //
-                keywordKind[71] = (TK_mutable);
+                keywordKind[71] = (TK_method);
       
     
         //
-        // Rule 72:  KeyWord ::= n e x t
+        // Rule 72:  KeyWord ::= m u t a b l e
         //
-                keywordKind[72] = (TK_next);
+                keywordKind[72] = (TK_mutable);
       
     
         //
-        // Rule 73:  KeyWord ::= n o n b l o c k i n g
+        // Rule 73:  KeyWord ::= n e x t
         //
-                keywordKind[73] = (TK_nonblocking);
+                keywordKind[73] = (TK_next);
       
     
         //
-        // Rule 74:  KeyWord ::= n o w
+        // Rule 74:  KeyWord ::= n o n b l o c k i n g
         //
-                keywordKind[74] = (TK_now);
+                keywordKind[74] = (TK_nonblocking);
       
     
         //
-        // Rule 75:  KeyWord ::= n u l l a b l e
+        // Rule 75:  KeyWord ::= n o w
         //
-                keywordKind[75] = (TK_nullable);
+                keywordKind[75] = (TK_now);
       
     
         //
-        // Rule 76:  KeyWord ::= o r
+        // Rule 76:  KeyWord ::= n u l l a b l e
         //
-                keywordKind[76] = (TK_or);
+                keywordKind[76] = (TK_nullable);
       
     
         //
-        // Rule 77:  KeyWord ::= p l a c e l o c a l
+        // Rule 77:  KeyWord ::= o r
         //
-                keywordKind[77] = (TK_placelocal);
+                keywordKind[77] = (TK_or);
       
     
         //
-        // Rule 78:  KeyWord ::= r e f e r e n c e
+        // Rule 78:  KeyWord ::= p l a c e l o c a l
         //
-                keywordKind[78] = (TK_reference);
+                keywordKind[78] = (TK_placelocal);
       
     
         //
-        // Rule 79:  KeyWord ::= s a f e
+        // Rule 79:  KeyWord ::= r e f e r e n c e
         //
-                keywordKind[79] = (TK_safe);
+                keywordKind[79] = (TK_reference);
       
     
         //
-        // Rule 80:  KeyWord ::= s e l f
+        // Rule 80:  KeyWord ::= s a f e
         //
-                keywordKind[80] = (TK_self);
+                keywordKind[80] = (TK_safe);
       
     
         //
-        // Rule 81:  KeyWord ::= s e q u e n t i a l
+        // Rule 81:  KeyWord ::= s e l f
         //
-                keywordKind[81] = (TK_sequential);
+                keywordKind[81] = (TK_self);
       
     
         //
-        // Rule 82:  KeyWord ::= u n s a f e
+        // Rule 82:  KeyWord ::= s e q u e n t i a l
         //
-                keywordKind[82] = (TK_unsafe);
+                keywordKind[82] = (TK_sequential);
       
     
         //
-        // Rule 83:  KeyWord ::= v a l u e
+        // Rule 83:  KeyWord ::= u n s a f e
         //
-                keywordKind[83] = (TK_value);
+                keywordKind[83] = (TK_unsafe);
       
     
         //
-        // Rule 84:  KeyWord ::= w h e n
+        // Rule 84:  KeyWord ::= v a l u e
         //
-                keywordKind[84] = (TK_when);
+                keywordKind[84] = (TK_value);
+      
+    
+        //
+        // Rule 85:  KeyWord ::= w h e n
+        //
+                keywordKind[85] = (TK_when);
       
     
 

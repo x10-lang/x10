@@ -46,6 +46,9 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	}
 	// methods from Promise
 	public Promise intern(C_Var[] vars, int index) {
+		return intern(vars, index, null);
+	}
+	public Promise intern(C_Var[] vars, int index, Promise last) {
 		if (index != vars.length) {
 			throw new InternalCompilerError("Cannot extend path " + vars + "index=" 
 					+ index + " beyond the literal " + this  + ".");
@@ -91,6 +94,9 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 		throw new InternalCompilerError("Cannot add an " + s + " child "  + orphan + 
 				" to a literal, " + this + ".");
 	}
+	public boolean rootVarIsSelf() { return false;}
+	public boolean rootVarIsThis() { return false;}
+	public boolean isEQV() { return false;}
 	
 	
 }

@@ -15,5 +15,8 @@ public abstract class C_Term_c implements C_Term {
 	public C_Term substitute(C_Term value, C_Term var) {
 		 return equals(var) ? value : this;
 		}
+	public boolean prefersBeingBound() {
+		return isEQV() || this instanceof C_Special;
+	}
 	
 }

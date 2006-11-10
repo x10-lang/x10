@@ -23,7 +23,7 @@ public class Promise_c implements Promise, Serializable {
 	/**
 	 * The C_Var that this node represents in the constraint graph.
 	 */
-	protected final C_Var var;
+	protected  C_Var var;
 	
 	/**
 	 * This node may have been equated to another node, n. If so, value contains
@@ -53,6 +53,9 @@ public class Promise_c implements Promise, Serializable {
 	}
 	public boolean hasChildren() {
 		return fields !=null;
+	}
+	public void setVar(C_Var v) {
+		var =v;
 	}
 	
 	int lookupReturnValue;
@@ -91,6 +94,9 @@ public class Promise_c implements Promise, Serializable {
 		return p == null ? null : p.lookup();
 	}
 	public Promise intern( C_Var[] vars, int index) {
+		return intern(vars, index, null);
+	}
+	public Promise intern( C_Var[] vars, int index, Promise last) {
 		// follow the eq link if there is one.
 		if (value != null) return value.intern(vars, index);
 		if (index==vars.length) 
@@ -102,11 +108,11 @@ public class Promise_c implements Promise, Serializable {
 		Promise p = (Promise) fields.get(s);
 		if (p == null) {
 			// no edge. Create a new promise and add this edge.
-			p = new Promise_c(vars[index]);
+			p = (index ==vars.length-1 && last != null) ? last : new Promise_c(vars[index]);
 			fields.put(s, p);
 		}
 		// recursively, intern the rest of the path on the child.
-		return p.intern(vars, index+1);
+		return p.intern(vars, index+1, last);
 	}
 	
 	public void addIn(String s, Promise orphan) throws Failure {
@@ -131,6 +137,8 @@ public class Promise_c implements Promise, Serializable {
 					+ value + "; cannot bind it to " + target + ".");
 		if (this==target) // nothing to do!
 			return false;
+		if (! term().prefersBeingBound() && target.term().prefersBeingBound())
+			target.bind(this);
 		// Check for cycles!
 		if (canReach(target) || target.canReach(this))
 			throw new Failure("Binding " + this + " to " + target + " creates a cycle.");
@@ -144,6 +152,9 @@ public class Promise_c implements Promise, Serializable {
 		return true;
 	}
 	
+	/** Can this promise reach p in the directed graph representing
+	 * the constraints?
+	 */
 	public boolean canReach(Promise p) {
 		if (p == this ) return true;
 		if (value != null) return value.canReach(p);
@@ -159,7 +170,10 @@ public class Promise_c implements Promise, Serializable {
 	}
 	public void  dump(HashMap/*<C_Term,C_Term>*/ result, C_Term newSelf, C_Term newThis) {
 		if (value != null) {
-			C_Term t1 = term(), t2=value.term();
+			C_Term t1 = term();
+			if (t1.isEQV())  // nothing to dump!
+				return;
+			C_Term t2=value.term();
 			if (newSelf != null) {
 				t1 = t1.substitute(newSelf, C_Special.Self);
 				t2 = t2.substitute(newSelf, C_Special.Self);

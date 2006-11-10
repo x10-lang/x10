@@ -13,16 +13,21 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.MethodDecl_c;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.Flags;
+import polyglot.types.MethodInstance;
+import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
+import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.Translator;
+import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
 /** A representation of a method declaration. Includes an extra field to represent the where clause
@@ -71,6 +76,39 @@ public class X10MethodDecl_c extends MethodDecl_c {
             && (whereClause == null || whereClause.isDisambiguated())
             && super.isDisambiguated();
         }
+        public Node buildTypes(TypeBuilder tb) throws SemanticException {
+            X10TypeSystem xts = (X10TypeSystem) tb.typeSystem();
+
+            ParsedClassType ct = tb.currentClass();
+
+            if (ct == null) {
+                return this;
+            }
+
+            int numFormals= formals == null ? 0 : formals.size();
+            List formalTypes = new ArrayList(numFormals);
+            for (int i = 0; i < numFormals; i++) {
+                formalTypes.add(xts.unknownType(position()));
+            }
+
+            List throwTypes = new ArrayList(throwTypes().size());
+            for (int i = 0; i < throwTypes().size(); i++) {
+                throwTypes.add(xts.unknownType(position()));
+            }
+
+    	Flags f = this.flags;
+
+    	if (ct.flags().isInterface()) {
+    	    f = f.Public().Abstract();
+    	}
+
+            MethodInstance mi = xts.methodInstance(position(), ct, f,
+                                                  xts.unknownType(position()),
+                                                  name, formalTypes, formals, throwTypes);
+            ct.addMethod(mi);
+            return flags(f).methodInstance(mi);
+        }
+
         public void translate(CodeWriter w, Translator tr) {
         	
                 Context c = tr.context();

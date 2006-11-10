@@ -8,7 +8,9 @@ import java.util.List;
 
 import polyglot.ext.jl.types.ReferenceType_c;
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
@@ -38,10 +40,19 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     public Constraint depClause() { return depClause; }
     public Constraint realClause() { return depClause; }
     public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
+    public C_Var selfVar() { return depClause()==null ? null : depClause().selfVar();}
     public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
 		depClause = d;
 		typeParameters = l;
 	}
+    public void addBinding(C_Term t1, C_Term t2) {
+		if (depClause == null)
+			depClause = new Constraint_c();
+		depClause = depClause.addBinding(t1, t2);
+	}
+    public boolean consistent() {
+    	return depClause== null || depClause.consistent();
+    }
     public X10Type makeVariant(Constraint d, List l) { 
         if (d == null && (l == null || l.isEmpty()))
                 return this;
@@ -74,6 +85,15 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
         X10ReferenceType_c other = (X10ReferenceType_c) o;
        return ((X10TypeSystem) typeSystem()).equivClause(this, other);
     }
+    public boolean equalsWithoutClauseImpl(X10Type o) {
+        // Report.report(3,"X10ReferenceType_c: equals |" + this + "| and |" + o+"|");
+      
+        if (o == this) return true;
+        if (! (o instanceof X10ReferenceType_c)) return false;
+        X10ReferenceType_c other = (X10ReferenceType_c) o;
+       
+       return baseType == other.baseType;
+    }
    
     public boolean isCanonical() {
         if (typeParameters != null) {
@@ -103,5 +123,7 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
 	}
 
 	// ----------------------------- end manual mixin code from X10Type_c
+	
+	
 	
 }

@@ -16,7 +16,7 @@ public class C_Field_c extends C_Var_c implements C_Field {
 		this(f.fieldInstance(), receiver);
 	}
 	public C_Field_c(FieldInstance fi, C_Var receiver) {
-		super(fi.type());
+		super(fi.type(), receiver.rootVarIsThis(), receiver.rootVarIsSelf());
 		this.name = fi.name();
 		this.fi=fi;
 		this.r = receiver;
@@ -37,6 +37,7 @@ public class C_Field_c extends C_Var_c implements C_Field {
 		return val;
 	}
 	public String toString() { return (r==null? "" : r.toString() + ".") + name;}
+	public boolean isEQV() { return receiver().isEQV();}
 	
 	// If var is a C_Var, then value must be a C_Var too.
 	public C_Term substitute(C_Term value, C_Term var) {

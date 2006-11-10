@@ -86,6 +86,7 @@ $Export
     package
     private
     protected
+    property
     public
     return
     short
@@ -331,6 +332,11 @@ $Rules
               | p r o t e c t e d
         /.$BeginAction
                 $setResult($_protected);
+          $EndAction
+        ./
+                   | p r o p e r t y
+        /.$BeginAction
+                $setResult($_property);
           $EndAction
         ./
 

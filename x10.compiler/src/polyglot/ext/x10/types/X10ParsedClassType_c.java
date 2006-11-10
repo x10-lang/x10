@@ -87,8 +87,12 @@ implements X10ParsedClassType
 	 */
 	protected Constraint realClause; 
 	protected boolean realClauseSet = false;
+	protected SemanticException realClauseInvalid= null;
 	protected List/*<GenParameterExpr>*/ typeParameters;
-	
+	public void checkRealClause() throws SemanticException {
+		if (realClauseInvalid!=null)
+			throw realClauseInvalid;
+	}
 	/** Initially this points to itself. When a copy is made
 	 * the value is not touched. So it continues to point to the
 	 * object from which the variant was made.
@@ -104,6 +108,9 @@ implements X10ParsedClassType
 		return realClause;
 		
 	}
+	public C_Var selfVar() {
+		return depClause()==null ? null : depClause().selfVar();
+	}
 	private void ensureClauses() {
 		Constraint rc = realClause(); // forces it to be initialized.
 		if (rc == null) {
@@ -112,7 +119,27 @@ implements X10ParsedClassType
 		if (depClause == null) 
 			depClause = new Constraint_c();
 	}
-	private void initRealClause() {
+	private boolean aPropertyIsRecursive() {
+		boolean isRecursive = false;
+		for (Iterator<FieldInstance> it = properties.iterator(); (!isRecursive) && it.hasNext();) {
+			FieldInstance fi =  it.next();
+			X10Type type = ((X10Type) fi.type());
+			isRecursive = ((X10TypeSystem) ts).equalsWithoutClause(type, this) || ts.descendsFrom(type, this);
+		}
+		return isRecursive;
+	}
+	 /**
+     * Set the realClause for this type. The realClause is the conjunction of the
+     * depClause and the baseClause for the type -- it represents all the constraints
+     * that are satisfied by an instance of this type. The baseClause is the invariant for
+     * the base type. If the base type C has defined properties P1 p1, ..., Pk pk, 
+     * and inherits from type B, then the baseClause for C is the baseClause for B
+     * conjoined with r1[self.p1/self, self/this] && ... && rk[self.pk/self, self/this]
+     * where ri is the realClause for Pi.
+     * 
+     * @return
+     */
+	private void initRealClause()  {
 		// Force properties to be initialized.
 		properties();
 		Type type = superType();
@@ -127,15 +154,19 @@ implements X10ParsedClassType
 				result = rs.constraints(result); 
 		}
 		C_Term newThis = C_Special.Self;
-		for (Iterator it = properties.iterator(); it.hasNext();) {
-			FieldInstance fi = (FieldInstance) it.next();
-			type = fi.type();
-			if (type instanceof X10Type) {
-				X10Type xType = (X10Type) type;
-				Constraint rs = xType.realClause();
-				if (rs !=null) {
-					C_Term newSelf = new C_Field_c(fi, C_Special.Self);
-					result = rs.constraints(result, newSelf, newThis); 
+		boolean aPropertyIsRecursive = aPropertyIsRecursive();
+		if (! aPropertyIsRecursive) {
+			// add in the bindings from the property declarations.
+			for (Iterator it = properties.iterator(); it.hasNext();) {
+				FieldInstance fi = (FieldInstance) it.next();
+				type = fi.type();
+				if (type instanceof X10Type) {
+					X10Type xType = (X10Type) type;
+					Constraint rs = xType.realClause();
+					if (rs !=null) {
+						C_Term newSelf = new C_Field_c(fi, C_Special.Self);
+						result = rs.constraints(result, newSelf, newThis); 
+					}
 				}
 			}
 		}
@@ -143,13 +174,28 @@ implements X10ParsedClassType
 			if (realClause==null) realClause = new Constraint_c();
 			realClause = realClause.addBindings(result);
 		}
+		if (aPropertyIsRecursive) {
+			Report.report(1, "X10ParsedClassType_c: This type has a recursive property.");
+			// Verify that the realclause, as it stands entails the assertions of the 
+			// property.
+			for (Iterator<FieldInstance> it = properties.iterator();  it.hasNext();) {
+				FieldInstance fi =  it.next();
+				C_Var var = new C_Field_c(fi, C_Special.Self);
+				if (! realClause.entailsType(var)) {
+					realClauseInvalid = 
+					 new SemanticException("The real clause," + realClause 
+							+ " does not satisfy constraints from the property declaration " 
+							+ var.type() + " " + var + ".", position());
+				}
+			}
+		}
 		if (depClause !=null) {
 			if (realClause==null) realClause = new Constraint_c();
 			realClause = realClause.addIn(depClause);
 		}
 		realClauseSet = true;
 	}
-	private void addBinding(C_Term t1, C_Term t2) {
+	public void addBinding(C_Term t1, C_Term t2) {
 		ensureClauses();
 		depClause = depClause.addBinding(t1, t2);
 		realClause = realClause.addBinding(t1,t2);
@@ -164,6 +210,9 @@ implements X10ParsedClassType
 		Constraint rc = realClause();
 		rc = (rc==null) ? d : rc.addIn(d);
 		typeParameters = l;
+	}
+	public boolean consistent() {
+		return realClause().consistent();
 	}
 	public X10ParsedClassType makeVariant() {
 		return (X10ParsedClassType) makeVariant(new Constraint_c(), null);
@@ -440,8 +489,9 @@ implements X10ParsedClassType
 					+ this.hashCode() + ") baseType = " + ( baseType.toString()) + " dep=" + depClause);
 		return  
 		((baseType == this) ? super.toString() : ((X10ParsedClassType_c) baseType).toString())
-		+ (isParametric() ? "/"+"*T" + typeParameters.toString() + "*"+"/" : "") 
-		+ (depClause == null ? "" : "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
+		+ (isParametric() ? "/"+"*T" + typeParameters.toString() + "*"+"/"  : "") 
+		
+		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 		//  + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
 	}
 	public String toString() { 
@@ -459,6 +509,13 @@ implements X10ParsedClassType
 		X10Type tb = this.baseType(), ob = other.baseType();
 		boolean result = ((tb==this) ? super.equalsImpl(ob): tb.equalsImpl(ob))
 				&& xts.equivClause(this, other);
+		return result;
+		
+	}
+	public boolean equalsWithoutClauseImpl(X10Type other) {
+		X10TypeSystem xts = (X10TypeSystem) ts;
+		X10Type tb = this.baseType(), ob = other.baseType();
+		boolean result = ((tb==this) ? super.equalsImpl(ob): tb.equalsWithoutClauseImpl(ob));
 		return result;
 		
 	}
@@ -545,7 +602,7 @@ implements X10ParsedClassType
 		return result;
 	}
 	
-	List/*<FieldInstance>*/ properties = null;
+	List<FieldInstance> properties = null;
 	
 	public List properties() {
 		//Report.report(1, "X10ParsedClassType_c entering properties() on "  + this);
@@ -672,7 +729,7 @@ implements X10ParsedClassType
 		rank = c.find("rank");
 		if (rank == null) {
 			// build the synthetic term.
-			C_Var var = c.varWhoseTypeIsThis();
+			C_Var var = c.selfVar();
 			if (var !=null) {
 				FieldInstance fi = definedFieldNamed("rank");
 				//Report.report(1, "X10ParsedClassType: rank is " + rank + " var.type is " + var.type());
@@ -710,7 +767,7 @@ implements X10ParsedClassType
 		dist = c.find("distribution");
 		if (dist == null) {
 			// build the synthetic term.
-			C_Var var = c.varWhoseTypeIsThis();
+			C_Var var = c.selfVar();
 			if (var !=null) {
 				FieldInstance fi = definedFieldNamed("distribution");
 				
@@ -734,7 +791,7 @@ implements X10ParsedClassType
 		self = c.find("self");
 		if (self == null) {
 			// build the synthetic term.
-			self = c.varWhoseTypeIsThis();
+			self = c.selfVar();
 		}
 		return self;
 	}

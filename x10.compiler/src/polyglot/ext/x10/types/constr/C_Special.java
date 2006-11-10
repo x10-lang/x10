@@ -6,7 +6,7 @@ import polyglot.ext.x10.ast.X10Special;
 import polyglot.types.Type;
 import polyglot.util.Enum;
 
-public interface C_Special extends C_Var {
+public interface C_Special extends C_Root {
 	 /** Special expression kind: either "super" or "this". */
     public static class C_Kind extends Enum {
         public C_Kind(String name) { super(name); }

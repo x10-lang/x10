@@ -1,5 +1,6 @@
 package polyglot.ext.x10.types.constr;
 
+import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.types.Type;
@@ -11,7 +12,7 @@ public class C_Special_c extends C_Var_c implements C_Special {
 	public final C_Kind kind;
 	
 	public C_Special_c(X10Special t) {
-		super(t.type());
+		super(t.type(), t.kind().equals(Special.THIS), t.kind().equals(Special.SUPER));
 		kind= C_Special.C_Kind.trans(t.kind());
 		TypeNode tn = t.qualifier();
 		qualifier = tn==null? null : tn.type();
@@ -26,6 +27,9 @@ public class C_Special_c extends C_Var_c implements C_Special {
 	
 	public C_Var rootVar() {
 		return this;
+	}
+	public boolean isEQV() {
+		return false;
 	}
 	protected Path path = new Path(new String[0]);
 	protected C_Var[] vars = new C_Var[] { this };

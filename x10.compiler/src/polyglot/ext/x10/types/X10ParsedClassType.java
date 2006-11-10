@@ -7,6 +7,7 @@ import java.util.List;
 
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.types.ParsedClassType;
+import polyglot.types.SemanticException;
 
 /**
  * @author vj
@@ -78,5 +79,10 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	
 	void setDistribution(C_Term dist);
 	
-	
+	/**
+	 * Check whether the real clause associated with this type is invalid. Throw the
+	 * associated semantic exception if it is.
+	 * @throws SemanticException
+	 */
+	void checkRealClause() throws SemanticException;
 }
