@@ -91,6 +91,7 @@ else
     ext_cp="${PATH_SEP}${LIB_DIR}${FILE_SEP}${ext}.jar"
 fi
 extargs="-ext ${ext}"
+extargs="$extargs -assert"
 # FIXME: HACK (at Vijay's request)
 # To be removed once serialization of types is fixed in x10c
 # HACK!!! HACK!!! HACK!!! vvv
