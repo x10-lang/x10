@@ -117,9 +117,7 @@ public class X10Call_c extends Call_c {
             }
             throw e;
         } finally {
-        	if (toString().contains("getInnerRegion") 
-        			|| toString().contains("getINNERRegion"))
-        	Report.report(1, "X10Call_c : return type of " + this + " is " + result.type());
+        
         }
     }
 

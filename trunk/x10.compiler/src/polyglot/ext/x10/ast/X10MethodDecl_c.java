@@ -199,11 +199,7 @@ public class X10MethodDecl_c extends MethodDecl_c {
             nn = (MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
             if (childtc2.hasErrors()) throw new SemanticException();
              nn = (MethodDecl) childtc2.leave(parent, old, nn, childtc2);
-             if (toString().contains("getInnerRegion") 
-         			|| toString().contains("getINNERRegion") ) {
-            	 Report.report(1, "X10MethodDecl_c: typeoverride returns " + nn);
-            	 Report.report(1, "X10MethodDecl_c: typeoverride returns mi=" + nn.methodInstance());
-             }
+             
             return nn;
         }
        
