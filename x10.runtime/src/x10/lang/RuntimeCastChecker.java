@@ -67,9 +67,6 @@ public class RuntimeCastChecker {
 				 RuntimeConstraint constraint = cTab[i];
 				 Method m = fromClassType.getMethod(constraint.name, null);
 				 // if here then method exists
-				 System.out.println((m.invoke(objToCast,null)));
-				 System.out.println(constraint.value);
-				 System.out.println((m.invoke(objToCast,null)).equals(constraint.value));
 				 correct = (m.invoke(objToCast,null)).equals(constraint.value);					 
 				 i++;
 			 }
