@@ -35,7 +35,7 @@ public class X10CharLit_c extends CharLit_c {
 			C_Lit_c literal = new C_Lit_c(new Character((char) value), Type);
 			Constraint c = Constraint_c.addSelfBinding(literal,null);
 		  X10Type newType  = Type.makeVariant(c, null);
-		  Report.report(1, "X10CharLit: type for " + this + " is " + newType+".");
+		  //Report.report(1, "X10CharLit: type for " + this + " is " + newType+".");
 	    return type(newType);
 	  }
 }

@@ -90,8 +90,10 @@ public class X10LocalDecl_c extends LocalDecl_c {
 			newType = newType.makeVariant(c,newType.typeParameters());
 		
 			//nli  = nli.type(newType);
-			li.setType(newType);
+			
 		}
+		
+			li.setType(newType);
 	
 	//	X10LocalDecl_c result =  (X10LocalDecl_c) localInstance(nli);
 		
