@@ -4,65 +4,53 @@
 package polyglot.ext.x10.visit;
 
 import polyglot.ast.ArrayAccess;
-import polyglot.ast.Assign;
+import polyglot.ast.Block;
 import polyglot.ast.Call;
-import polyglot.ast.Expr;
-import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
 import polyglot.ast.TypeNode;
-import polyglot.ast.VarDecl;
 import polyglot.ext.x10.ast.X10ArrayAccess;
 import polyglot.ext.x10.ast.X10ArrayAccess1;
-import polyglot.ext.x10.ast.X10Binary_c;
-import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10LocalDecl_c;
+import polyglot.ext.x10.visit.TypeElaborator.AmbChecker;
 import polyglot.frontend.Job;
-import polyglot.frontend.goals.Goal;
-import polyglot.main.Report;
-import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 
-
 /**
- * TypeElaborator is a modified TypeChecker pass that is run before the main TypeChecker pass. Its job
- * is to typecheck the expressions occurring in types. It does a normal TypeChecker pass, except that
- * it does not typecheck method calls. Recall that invocations of binary operators, such as ==, are
- * not treated as method calls. Therefore the bodies of depclauses, which can contain only calls to
- * unary and binary operators, in the EQ constraint system are typechecked. 
- * 
- * Also to be typechecked are final field declarations, formal parameters and variables. 
- * However, when typechecking them, do not typecheck their initializers. We simply wish to 
- * get the correct VarInstance and FieldInstance identified with the variable/field. 
- * 
- *
  * @author vj
  *
  */
-public class TypeElaborator extends TypeChecker {
-	
-	public TypeElaborator(Job job, TypeSystem ts, NodeFactory nf) {
+public class SignatureElaborator extends TypeChecker {
+
+	/**
+	 * @param job
+	 * @param ts
+	 * @param nf
+	 */
+	public SignatureElaborator(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
-		
-		
+		// TODO Auto-generated constructor stub
 	}
+
 	public Node override(Node parent, Node n) {
 		// a null return indicates that node processing is *not* being overriden.
 		// a non-null value indicates overriding, with the returned node being
 		// the result of running this visitor on n.
 		Node result = null;
 		if (parent instanceof LocalDecl) 
-			return result = (n instanceof TypeNode) ? null : n;
+			return null;
 		if (parent instanceof FieldDecl) 
 			return result = (n instanceof TypeNode) ? null : n;
+		if (parent instanceof MethodDecl) 
+			return result = (n instanceof Block ) ? n : null;
 		if (parent instanceof Formal) 
 			return result = (n instanceof TypeNode) ? null : n;
 		// Bypass all nodes which cannot have a type declaration under them.
@@ -88,12 +76,13 @@ public class TypeElaborator extends TypeChecker {
     }
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
        
-        //Report.report(1, "TypeElaborator: entering " + n);
+        //Report.report(1, "SignatureElaborator: entering " + n);
         if (n instanceof ArrayAccess || n instanceof X10ArrayAccess
         		|| n instanceof X10ArrayAccess1) {
         	return n;
         }
-       
+        if (n instanceof Block)
+        	return n;
         if (n instanceof Call) {
         	return n;
         }
@@ -102,8 +91,7 @@ public class TypeElaborator extends TypeChecker {
         }
       
         if (n instanceof LocalDecl) {
-    		X10LocalDecl_c result = (X10LocalDecl_c) n;
-    		result.pickUpTypeFromTypeNode(this);
+    		return n;
     	}
         AmbChecker ac = new AmbChecker();
         n.visitChildren(ac);

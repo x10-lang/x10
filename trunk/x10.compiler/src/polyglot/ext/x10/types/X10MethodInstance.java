@@ -25,6 +25,6 @@ public interface X10MethodInstance extends MethodInstance {
 	 */
 	boolean isSafe();
 	
-	List<Formal> formals();
+
 
 }

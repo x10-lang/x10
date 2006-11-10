@@ -34,4 +34,7 @@ public interface X10Formal extends Formal {
    List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts, List/*<Stmt>*/ s, boolean prepend);
    List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts, Stmt s);
    List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts);
+   
+   void setPositionInArgList(int i);
+   int positionInArgList();
 }

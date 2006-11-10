@@ -27,6 +27,7 @@ import polyglot.util.TypedList;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
+import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -69,6 +70,13 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		return (type == null || type.isDisambiguated()) && lis != null && super.isDisambiguated();
 	}
 
+	int positionInArgList = -1;
+	public void setPositionInArgList(int i) {
+		positionInArgList = i;
+	}
+	public int positionInArgList() {
+		return positionInArgList;
+	}
 	/** Get the local instances of the bound variables. */
 	public LocalInstance[] localInstances() {
 		return lis;
@@ -91,8 +99,17 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			c.addVariable(lis[i]);
 	}
 
+	// TODO: vj -- implement exploded variables appearing in depclause of return
+	// type of method.
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		X10Formal_c n = (X10Formal_c) super.buildTypes(tb);
+		
+		// Set the position of this formal in its LocalInstance.
+		// This can be retrieved by X10Call_c and used to replace the
+		// type of the formal by the type of the actual when computing
+		// the actual return type of the method.
+		((X10LocalInstance)n.localInstance()).setPositionInArgList(positionInArgList());
+		
 		TypeSystem ts = tb.typeSystem();
 		if (vars == NO_VARS)
 			return n.localInstances(NO_LOCALS);

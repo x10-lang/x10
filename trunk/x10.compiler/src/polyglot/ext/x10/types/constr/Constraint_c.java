@@ -34,6 +34,7 @@ public class Constraint_c implements Constraint {
 
 	//Maps C_Var's to nodes.
 	protected HashMap<C_Var,Promise> roots;
+	public HashMap<C_Var,Promise> roots() { return roots;}
 	
 	// Map from variables to values for negative bindings.
 	// protected Map negBindings;

@@ -5,27 +5,35 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Call_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Local;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.C_Root;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Promise;
+import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.main.Report;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
+import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -45,6 +53,8 @@ public class X10Call_c extends Call_c {
         super(pos, target, name, arguments);
     }
 
+    
+    
     /**
      * Rewrite getLocation() to Here for value types and operator calls for
      * array types, otherwise leave alone.
@@ -58,13 +68,13 @@ public class X10Call_c extends Call_c {
         {
             return xnf.Here(position()).typeCheck(tc);
         }
-
+        X10Call_c result = null;
         try {
-        	X10Call_c result = (X10Call_c) super.typeCheck(tc);
+        	result = (X10Call_c) super.typeCheck(tc);
         	if (!  result.target().type().isCanonical()) {
         		return result;
         	}
-        	result = adjustMI(result, tc);
+        	result = result.adjustMI(tc);
         	checkAnnotations(result, tc);
         	return result;
         } catch (NoMemberException e) {
@@ -106,47 +116,74 @@ public class X10Call_c extends Call_c {
                 return ((X10Call_c)this.target(t).arguments(newargs)).superTypeCheck(tc);
             }
             throw e;
+        } finally {
+        	if (toString().contains("getInnerRegion") 
+        			|| toString().contains("getINNERRegion"))
+        	Report.report(1, "X10Call_c : return type of " + this + " is " + result.type());
         }
     }
 
-   
-    private X10Call_c adjustMI(X10Call_c result, TypeChecker tc) throws SemanticException {
-    	HashMap<C_Root, C_Var> subs = new HashMap<C_Root, C_Var>();
+    private C_Var selfVar(X10Type type, Constraint targetConstraint) {
+    	
+    	C_Var result = (C_Root) type.selfVar();
+    	if (result == null) {
+    		result = targetConstraint.genEQV(type);
+    	}
+    	return result;
+    	
+    }
+    /**
+     * Compute the new resulting type for the method call by replacing this and 
+     * any argument variables that occurin the rettype depclause with new
+     * variables whose types are determined by the static type of the receiver
+     * and the actual arguments to the call.
+     * @param tc
+     * @return
+     * @throws SemanticException
+     */
+    private X10Call_c adjustMI(TypeChecker tc) throws SemanticException {
+    	
     	X10MethodInstance xmi = (X10MethodInstance) mi;
-    	if (mi == null) return result;
+    	if (mi == null) return this;
     	X10Type type = (X10Type) mi.returnType();
-    	if (! type.isCanonical())
-    		return result;
-		X10Type thisType = (X10Type) target.type();
-		Constraint rc = type.realClause();
-		if (rc != null ) {
-			C_Var var=thisType.selfVar();
-			if (var == null) var = rc.genEQV(thisType);
-			subs.put(C_Special.This, var);
-			
-			List<Formal> f = xmi.formals();
-			assert (f != null);
-			if (f == null) {
-				// This could happen for Java methods.
-				Report.report(1, "X10Call_c: formals for " + mi + " are null.");
-			} else {
-				int idx = 0;
-				for (Iterator<Expr> i = this.arguments.iterator(); i.hasNext(); ) {
-					X10Type argType = (X10Type) i.next().type();
-					C_Var v=argType.selfVar();
-					if (v == null) v = rc.genEQV(argType);
-					Formal formal = f.get(idx);
-					C_Root orig = new C_Local_c(formal.localInstance());
-					subs.put(orig, v);
-					idx++;
-				}
-			}
-			Constraint newRC = rc.substitute(subs);
-			X10Type retType = type.makeVariant(newRC, null);
-			mi = mi.returnType(retType);
-//			TODO vj:  Is this really necessary?
-			result = (X10Call_c)this.methodInstance(mi).type(mi.returnType());
-		}
+    	//if (! type.isCanonical())
+    	//	return result;
+    	Constraint rc = type.realClause();
+    	X10Call_c result = this;
+    	if (rc != null) {
+    		HashMap<C_Var,Promise> m = rc.roots();
+    		if (m != null) {
+    			Set<C_Var> vars = m.keySet();
+    			HashMap<C_Root, C_Var> subs = new HashMap<C_Root, C_Var>();
+    			for (Iterator<C_Var> it = vars.iterator(); it.hasNext();) {
+    				C_Root var = (C_Root) it.next();
+    				if (var.equals(C_Special.This)) {
+    					assert(target != null);
+    					C_Var realThis = selfVar((X10Type) target.type(), rc);
+    					subs.put(var, realThis);
+    				} else if (var instanceof C_Local){
+    					X10LocalInstance li = ((C_Local) var).localInstance();
+    					assert li != null;
+    					int p = li.positionInArgList();
+    					if (p >= 0) {
+    						Expr arg = (Expr) arguments.get(p);
+    						C_Var realVar = selfVar((X10Type) arg.type(), rc);
+    						subs.put(var,realVar);
+    					}
+    				}
+    					
+    			}
+    			if (! subs.isEmpty()) {
+    				Constraint newRC = rc.substitute(subs);
+    				X10Type retType = type.makeVariant(newRC, null);
+    				mi = mi.returnType(retType);
+//  				TODO vj:  Is this really necessary?
+    				result = (X10Call_c)this.methodInstance(mi).type(mi.returnType());
+    			}
+    			
+    		}
+    		
+    	}
 	    return result;
 
     }
