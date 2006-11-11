@@ -17,6 +17,7 @@ import polyglot.ast.ArrayAccess;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
@@ -439,7 +440,7 @@ public class X10PrettyPrinterVisitor extends Runabout {
 
 	private TypeNode getParameterType(X10Type at) {
 		if (at.isParametric()) {
-			X10NodeFactory_c nf = X10NodeFactory_c.getNodeFactory();
+			NodeFactory nf = at.typeSystem().extensionInfo().nodeFactory();
 			return nf.CanonicalTypeNode(Position.COMPILER_GENERATED,
 										(Type)at.typeParameters().get(0));
 		}

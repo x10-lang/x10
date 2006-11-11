@@ -97,8 +97,8 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 //		if (!(baseType instanceof ReferenceType))
 //		throw new SemanticException("Argument to nullable type-constructor must be a reference type",
 //		position());
-		
-		X10TypeSystem ts = X10TypeSystem_c.getTypeSystem();
+
+		X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
 		// [IP] FIXME: Why are we modifying this in-place?
 		this.type = ts.createNullableType(position(), baseType);
 		

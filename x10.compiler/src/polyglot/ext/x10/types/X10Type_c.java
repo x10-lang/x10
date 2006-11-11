@@ -70,11 +70,11 @@ public abstract class X10Type_c extends Type_c implements X10Type {
     
 
     public static NullableType toNullable(X10Type me) {
-        X10TypeSystem ts=X10TypeSystem_c.getTypeSystem();
+        X10TypeSystem ts = (X10TypeSystem) me.typeSystem();
         return ts.isNullable(me) ? (NullableType) me : null;
     }
     public static FutureType toFuture(X10Type me) {
-        X10TypeSystem ts=X10TypeSystem_c.getTypeSystem();
+        X10TypeSystem ts = (X10TypeSystem) me.typeSystem();
         return ts.isFuture(me) ? (FutureType) me : null;
     }
     
