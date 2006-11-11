@@ -118,7 +118,7 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     }
 
     protected NodeFactory createNodeFactory() {
-        X10NodeFactory_c nf = new X10NodeFactory_c();
+        X10NodeFactory_c nf = new X10NodeFactory_c(this);
         X10NodeFactory_c.setNodeFactory(nf);
         return nf;
     }
