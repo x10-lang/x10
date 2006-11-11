@@ -18,6 +18,7 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.parse.Name;
+import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Flags;
 import polyglot.util.Position;
 
@@ -28,7 +29,11 @@ import polyglot.util.Position;
  * @author Igor
  */
 public interface X10NodeFactory extends NodeFactory {
-	Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
+
+    /** Return the language extension this node factory is for. */
+    ExtensionInfo extensionInfo();
+
+    Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
 	Async Async(Position pos, Expr place, List clocks, Stmt body);
 	Atomic Atomic(Position pos, Expr place, Stmt body);
 	Future Future(Position pos, Expr place, Expr body);
