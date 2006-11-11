@@ -22,7 +22,7 @@ public class PreLoader {
 //			byte[][] cp = getConstantPool(in);
 //			String[] ref_classes = getReferencedClasses(name, cp);
 //			for (int i = 0; i < ref_classes.length; i++)
-//				System.out.println(i+": "+ref_classes[i]);
+//				System.err.println(i+": "+ref_classes[i]);
 //		} catch (IOException e) { e.printStackTrace(); }
 		if (args.length > 0)
 			preLoad(args[0], PreLoader.class);
@@ -55,29 +55,29 @@ public class PreLoader {
 	private static void preLoad(String name, Class c, boolean intern) {
 		if (inited.get(name) != null) return;
 		inited.put(name, TRUE);
-//		System.out.println("Pre-loading '"+name+"'");
+//		System.err.println("Pre-loading '"+name+"'");
 		try {
 			InputStream in = getClassAsStream(name, c);
 			byte[][] cp = getConstantPool(name, in);
 //			for (int j = 1; j < cp.length; j++)
-//				printConstantPoolEntry(cp, j, System.out);
+//				printConstantPoolEntry(cp, j, System.err);
 			if (intern) internStrings(cp);
 			String[] ref_classes = getReferencedClasses(name, cp);
 			for (int i = 0; i < ref_classes.length; i++) {
 				String nm = toClassName(ref_classes[i]);
 				try {
 					Class u = Class.forName(nm);
-//					System.out.println(i+": "+nm+" -> "+u);
+//					System.err.println(i+": "+nm+" -> "+u);
 					// Skip arrays
 					if (nm.charAt(0) == '[') continue;
 					// Skip system classes
 					if (u.getClassLoader() == bootstrap) continue;
 					preLoad(toFileName(nm), c, intern);
 				} catch (ClassNotFoundException e) {
-//					System.out.println(i+": "+nm+" not found");
+//					System.err.println(i+": "+nm+" not found");
 				}
 			}
-		} catch (IOException e) { e.printStackTrace(System.out); assert false; }
+		} catch (IOException e) { e.printStackTrace(System.err); assert false; }
 	}
 	private static InputStream getClassAsStream(Class c) throws IOException {
 		return getClassAsStream(getClassFile(c), c);
@@ -110,7 +110,7 @@ public class PreLoader {
 			int len = (cp[i][1] & 0xFF) << 8 | (cp[i][2] & 0xFF);
 			try {
 				String s = new String(cp[i], 3, len, "UTF-8").intern();
-//				System.out.println("Interned '"+s+"'");
+//				System.err.println("Interned '"+s+"'");
 			} catch (UnsupportedEncodingException e) { }
 		}
 	}
@@ -206,8 +206,8 @@ public class PreLoader {
 				default:
 					throw new Error("Unknown constant pool tag ("+tag+") at entry "+i+" in "+name);
 			}
-//			printConstantPoolEntry(cp, i-1, System.out);
-//			printConstantPoolEntry(cp, i, System.out);
+//			printConstantPoolEntry(cp, i-1, System.err);
+//			printConstantPoolEntry(cp, i, System.err);
 		}
 		return cp;
 	}

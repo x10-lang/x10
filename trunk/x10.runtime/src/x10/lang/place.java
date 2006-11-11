@@ -91,7 +91,7 @@ implements TypeArgument, ValueType{
 	 */
 	public place/*(id+1 % MAX_PLACES)*/ next()  { 
 		final place result = next(1);
-		// System.out.println("place:" + this + ".next()=" + result);
+		// System.err.println("place:" + this + ".next()=" + result);
 		return result; 
 	}
 	

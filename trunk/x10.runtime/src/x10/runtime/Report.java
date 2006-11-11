@@ -118,8 +118,8 @@ public class Report {
    *
    */
   public static void report(int level, String message) {
-    for (int j = 1; j < level; j++) System.out.print("  ");
-    System.out.println(message);
+    for (int j = 1; j < level; j++) System.err.print("  ");
+    System.err.println(message);
   }
 
 }

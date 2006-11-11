@@ -37,11 +37,11 @@ public class ArbitraryIndexMap extends GlobalIndexMap {
 	
 	public void addMapping(int index, int newIndex){
 		_indexMap.put(new myKey(index),new myKey(newIndex));
-		if(false)System.out.println("enter "+ newIndex+" for "+index+" "+this);
+		if(false)System.err.println("enter "+ newIndex+" for "+index+" "+this);
 	}
 	public int getDevirtualizedIndex(int index){
 		myKey realIndex = (myKey)_indexMap.get(new myKey(index));
-		if(false)System.out.println("retrieved value "+ realIndex+" for "+index+" "+this);
+		if(false)System.err.println("retrieved value "+ realIndex+" for "+index+" "+this);
 		return realIndex._val;}
 	
 	public String toString(){

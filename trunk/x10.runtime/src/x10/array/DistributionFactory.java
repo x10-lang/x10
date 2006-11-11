@@ -97,7 +97,7 @@ public class DistributionFactory extends dist.factory {
 				int placeId = ((place)q[i%chunks]).id;
 				adjustmentOffset[placeId] = adjustment;
 				
-				//System.out.println("set adjustment to:"+adjustment);
+				//System.err.println("set adjustment to:"+adjustment);
 				adjustment+= sub[i].size();
 				dists[i] = new Distribution_c.Constant(sub[i],(place)q[i%chunks]);
 			}
@@ -208,7 +208,7 @@ public class DistributionFactory extends dist.factory {
 				int placeId = ((place)q[i]).id;
 				adjustmentOffset[placeId] = adjustment;
 				
-				//System.out.println("set adjustment to:"+adjustment);
+				//System.err.println("set adjustment to:"+adjustment);
 				adjustment+= sub[i].size();
 				dists[i] = new Distribution_c.Constant(sub[i], (place) q[i]);
 			}
