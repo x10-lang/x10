@@ -4,6 +4,7 @@
 package x10.array;
 
 import java.util.Iterator;
+import java.io.PrintStream;
 
 import x10.lang.LongReferenceArray;
 import x10.lang.Indexable;
@@ -458,19 +459,24 @@ public abstract class LongArray extends LongReferenceArray {
 
 	/* for debugging */
 	public static void printArray(String prefix, long[][] a) {
-		System.out.print(prefix + "{");
+		printArray(prefix, a, System.out);
+	}
+
+	/* for debugging */
+	public static void printArray(String prefix, long[][] a, PrintStream out) {
+		out.print(prefix + "{");
 		for (int i = 0; i < a.length; ++i) {
-			System.out.print("{");
+			out.print("{");
 			for (int j = 0; j < a[i].length; ++ j) {
-				System.out.print(a[i][j]);
+				out.print(a[i][j]);
 				if (j < a[i].length - 1)
-					System.out.print(", ");
+					out.print(", ");
 			}
-			System.out.print("}");
+			out.print("}");
 			if (i < a.length - 1)
-				System.out.print(", ");
+				out.print(", ");
 		}
-		System.out.println("}");
+		out.println("}");
 	}
 }
 

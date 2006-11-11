@@ -7,6 +7,7 @@
 package x10.lang;
 
 import java.util.Iterator;
+import java.io.PrintStream;
 
 import x10.array.BooleanArray;
 import x10.array.Operator;
@@ -26,36 +27,46 @@ public final class ArrayOperations {
 
 	/* for debugging */
 	public static void printArray(String prefix, boolean[][] a) {
-	    System.out.print(prefix + "{");
+		printArray(prefix, a, System.out);
+	}
+
+	/* for debugging */
+	public static void printArray(String prefix, boolean[][] a, PrintStream out) {
+	    out.print(prefix + "{");
 	    for (int i = 0; i < a.length; ++i) {
-	        System.out.print("{");
+	        out.print("{");
 	        for (int j = 0; j < a[i].length; ++ j) {
-	            System.out.print(a[i][j]);
+	            out.print(a[i][j]);
 	            if (j < a[i].length - 1)
-	                System.out.print(", ");
+	                out.print(", ");
 	        }
-	        System.out.print("}");
+	        out.print("}");
 	        if (i < a.length - 1)
-	            System.out.print(", ");
+	            out.print(", ");
 	    }
-	    System.out.println("}");
+	    out.println("}");
 	}
 
 	/* for debugging */
 	public static void printArray(String prefix, byte[][] a) {
-	    System.out.print(prefix + "{");
+		printArray(prefix, a, System.out);
+	}
+
+	/* for debugging */
+	public static void printArray(String prefix, byte[][] a, PrintStream out) {
+	    out.print(prefix + "{");
 	    for (int i = 0; i < a.length; ++i) {
-	        System.out.print("{");
+	        out.print("{");
 	        for (int j = 0; j < a[i].length; ++ j) {
-	            System.out.print(a[i][j]);
+	            out.print(a[i][j]);
 	            if (j < a[i].length - 1)
-	                System.out.print(", ");
+	                out.print(", ");
 	        }
-	        System.out.print("}");
+	        out.print("}");
 	        if (i < a.length - 1)
-	            System.out.print(", ");
+	            out.print(", ");
 	    }
-	    System.out.println("}");
+	    out.println("}");
 	}
 
 	public static void reduction(BooleanReferenceArray a, Operator.Reduction op) {

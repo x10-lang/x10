@@ -5,6 +5,7 @@
 package x10.array;
 
 import java.util.Iterator;
+import java.io.PrintStream;
 
 import x10.compilergenerated.Parameter1;
 import x10.lang.GenericReferenceArray;
@@ -484,18 +485,23 @@ public abstract class GenericArray extends GenericReferenceArray {
 
 	/* for debugging */
 	public static void printArray(String prefix, Object[][] a) {
-		System.out.print(prefix + "{");
+		printArray(prefix, a, System.out);
+	}
+
+	/* for debugging */
+	public static void printArray(String prefix, Object[][] a, PrintStream out) {
+		out.print(prefix + "{");
 		for (int i = 0; i < a.length; ++i) {
-			System.out.print("{");
+			out.print("{");
 			for (int j = 0; j < a[i].length; ++ j) {
-				System.out.print(a[i][j]);
+				out.print(a[i][j]);
 				if (j < a[i].length - 1)
-					System.out.print(", ");
+					out.print(", ");
 			}
-			System.out.print("}");
+			out.print("}");
 			if (i < a.length - 1)
-				System.out.print(", ");
+				out.print(", ");
 		}
-		System.out.println("}");
+		out.println("}");
 	}
 }
