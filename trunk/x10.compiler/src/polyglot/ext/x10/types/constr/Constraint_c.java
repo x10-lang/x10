@@ -117,7 +117,7 @@ public class Constraint_c implements Constraint {
 	}
 	String name = "";
 
-	public static final  transient X10TypeSystem typeSystem = X10TypeSystem_c.getTypeSystem();
+	public static final transient X10TypeSystem typeSystem = X10TypeSystem_c.getTypeSystem();
 	/**
 	 * Is the constraint consistent? i.e. X=s and X=t have not been added to it,
 	 * where s and t are not equal.
@@ -512,7 +512,8 @@ public class Constraint_c implements Constraint {
 	protected int eqvCount;
 	public C_EQV genEQV(Type type) {
 		String name = "_" + eqvCount++;
-		LocalInstance li = new LocalInstance_c(X10TypeSystem_c.getTypeSystem(), Position.COMPILER_GENERATED,
+		X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
+		LocalInstance li = new LocalInstance_c(xts, Position.COMPILER_GENERATED,
 		  		   Flags.FINAL, type, name);
 		C_EQV result = new C_EQV_c(li);
 		return result;

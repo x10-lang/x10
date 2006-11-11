@@ -61,9 +61,6 @@ import x10.lang.region;
  */
 public class X10Binary_c extends Binary_c implements X10Binary {
 
-	private final X10TypeSystem xts = X10TypeSystem_c.getTypeSystem();
-	private final X10NodeFactory_c xnf = X10NodeFactory_c.getNodeFactory();
-
 	/**
 	 * @param pos
 	 * @param left
@@ -72,13 +69,13 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	 */
 	public X10Binary_c(Position pos, Expr left, Operator op, Expr right) {
 		super(pos, left, op, right);
-
 	}
 
 	/** Get the precedence of the expression. */
 	public Precedence precedence() {
 		/* [IP] TODO: This should be the real precedence */
 		X10Type l = (X10Type) left.type();
+		X10TypeSystem xts = (X10TypeSystem) l.typeSystem();
 		if (xts.isPoint(l) || xts.isPlace(l) || xts.isDistribution(l)
 				|| xts.isRegion(l) ||
 			xts.isPrimitiveTypeArray(l) || xts.isDistributedArray(l))
@@ -95,6 +92,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		// can never be equal.
 		X10Type lt = (X10Type) left.type();
 		X10Type rt = (X10Type) right.type();
+		X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
 		if (lt == null || rt == null)
 			return false;
 		return (lt.isNull() && ! xts.isNullable(rt)) ||
@@ -120,6 +118,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		Object rv = right.constantValue();
 		X10Type lt = (X10Type) left.type();
 		X10Type rt = (X10Type) right.type();
+		X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
 
 		// [IP] An optimization: an object of a non-nullable type and "null"
 		// can never be equal.
@@ -164,12 +163,13 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	 * call.
 	 */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
+		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		X10Type l = (X10Type) left.type();
 		X10Type r = (X10Type) right.type();
 		//Report.report(1, "X10Binary_c: l=" + l + " r=" + r + " op=" + op);
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		if (tc instanceof TypeElaborator) {
-			if (op == EQ ) {
+			if (op == EQ) {
 				 if (! ts.isCastValid(l, r) && ! ts.isCastValid(r, l)) {
 						throw new SemanticException("The " + op +
 						    " operator must have operands of similar type.",
@@ -179,7 +179,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 					return type(ts.Boolean());
 				}
 			if (op == COND_AND ) {
-				 if (! (ts.equals(l, ts.Boolean()) && ts.equals(r, ts.Boolean()))) {
+				 if (! (ts.isSubtype(l, ts.Boolean()) && ts.isSubtype(r, ts.Boolean()))) {
 						throw new SemanticException("The " + op +
 						    " operator must have operands of similar type.",
 						    position());
@@ -316,7 +316,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		}
 
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
-				xts.isPoint(l) && !ts.equals(r, ts.String()))
+				xts.isPoint(l) && !ts.isSubtype(r, ts.String()))
 		{
 			if (!xts.isPoint(r) && !r.isIntOrLess())
 				throw new SemanticException("The " + op +
@@ -325,7 +325,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		}
 
 		if ((op == SUB || op == ADD || op == MUL || op == DIV) &&
-				xts.isPoint(r) && !ts.equals(l, ts.String()))
+				xts.isPoint(r) && !ts.isSubtype(l, ts.String()))
 		{
 			if (!l.isIntOrLess())
 				throw new SemanticException("The " + op +
@@ -423,6 +423,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		X10Type l = (X10Type) left.type();
 		X10Type r = (X10Type) right.type();
+		X10TypeSystem xts = (X10TypeSystem) l.typeSystem();
+		NodeFactory nf = xts.extensionInfo().nodeFactory();
 
 		if ((op == GT || op == LT || op == GE || op == LE) & (xts.isPoint(l) || xts.isPlace(l))) {
 			String name = op == GT ? "gt" : op == LT ? "lt" : op == GE ? "ge" : "le";
@@ -458,12 +460,12 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			generateInstanceCall(w, tr, left, name, right);
 			return;
 		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !xts.equals(r, xts.String())) {
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !xts.isSubtype(r, xts.String())) {
 			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
 			generateInstanceCall(w, tr, left, name, right);
 			return;
 		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !xts.equals(l, xts.String())) {
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !xts.isSubtype(l, xts.String())) {
 			String name = "inv" + (op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
 			generateInstanceCall(w, tr, right, name, left);
 			return;
@@ -481,11 +483,13 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	private void generateStaticOrInstanceCall(CodeWriter w, PrettyPrinter tr, Expr left, String name, Expr right) {
 		X10Type l = (X10Type) left.type();
 		X10Type r = (X10Type) right.type();
+		X10TypeSystem xts = (X10TypeSystem) l.typeSystem();
+		NodeFactory nf = xts.extensionInfo().nodeFactory();
 		try {
 			X10ReferenceType aType = (X10ReferenceType) l;
 			xts.findMethod(aType, name, Collections.singletonList(r), xts.Object());
 		} catch (NoMemberException e) {
-			xnf.Call(position(), xnf.CanonicalTypeNode(position(), xts.ArrayOperations()),
+			nf.Call(position(), nf.CanonicalTypeNode(position(), xts.ArrayOperations()),
 					name, left, right).prettyPrint(w, tr);
 //			w.write("x10.lang.ArrayOperations.");
 //			w.write(name);
@@ -509,9 +513,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	 * @param left TODO
 	 * @param name
 	 * @param right TODO
+	 * @param nf TODO
 	 */
 	private void generateInstanceCall(CodeWriter w, PrettyPrinter tr, Expr left, String name, Expr right) {
-		xnf.Call(position(), left, name, right).prettyPrint(w, tr);
+		NodeFactory nf = left.type().typeSystem().extensionInfo().nodeFactory();
+		nf.Call(position(), left, name, right).prettyPrint(w, tr);
 //		printSubExpr(left, true, w, tr);
 //		w.write(".");
 //		w.write(name);

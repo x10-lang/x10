@@ -104,7 +104,6 @@ public class X10FieldDecl_c extends FieldDecl_c {
 
 	public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
 		X10FieldDecl_c f = (X10FieldDecl_c) super.disambiguate(ar);
-        X10TypeSystem xts = X10TypeSystem_c.getTypeSystem();
 		// [IP] All fields in value types should be final
 		// [IP] FIXME: this will produce an "assignment to final" message --
 		//      is that good enough?
@@ -112,6 +111,7 @@ public class X10FieldDecl_c extends FieldDecl_c {
 			return f;
 		FieldInstance fi = f.fieldInstance();
         X10ReferenceType ref = (X10ReferenceType) fi.container();
+        X10TypeSystem xts = (X10TypeSystem) ref.typeSystem();
        // Report.report(5, "[X10FieldDecl_c] disambiguate: " + fi + " " + ref + ref.getClass());
 		if (!(xts.isValueType(ref)))
 			return f;

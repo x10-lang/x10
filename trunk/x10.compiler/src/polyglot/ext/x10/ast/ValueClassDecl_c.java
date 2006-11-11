@@ -14,6 +14,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.ClassDecl_c;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
@@ -33,28 +34,28 @@ import polyglot.visit.NodeVisitor;
  */
 public class ValueClassDecl_c extends ClassDecl_c implements ValueClassDecl {
 
-    /**
-     * If there are any properties, add the property instances to the body,
-     * and the synthetic field, before creating the class instance.
-     * 
-     * @param pos
-     * @param flags
-     * @param name
-     * @param properties
-     * @param retType
-     * @param superClass
-     * @param interfaces
-     * @param body
-     * @return
-     */
-    public static ValueClassDecl_c make(Position pos, Flags flags, String name, 
-            List/*<PropertyDecl>*/ properties, Expr ci,
-            TypeNode superClass, List interfaces, ClassBody body) {
-        body = PropertyDecl_c.addProperties(properties, body);
-        ValueClassDecl_c result = new ValueClassDecl_c(pos, flags, name, properties,  ci, superClass, 
-                interfaces, body);
-        return result;
-    }
+//    /**
+//     * If there are any properties, add the property instances to the body,
+//     * and the synthetic field, before creating the class instance.
+//     * 
+//     * @param pos
+//     * @param flags
+//     * @param name
+//     * @param properties
+//     * @param retType
+//     * @param superClass
+//     * @param interfaces
+//     * @param body
+//     * @return
+//     */
+//    public static ValueClassDecl_c make(Position pos, Flags flags, String name, 
+//            List/*<PropertyDecl>*/ properties, Expr ci,
+//            TypeNode superClass, List interfaces, ClassBody body) {
+//        body = PropertyDecl_c.addProperties(properties, body);
+//        ValueClassDecl_c result = new ValueClassDecl_c(pos, flags, name, properties,  ci, superClass, 
+//                interfaces, body);
+//        return result;
+//    }
     protected final List elist;
     protected final List properties;
     protected final Expr classInvariant;
@@ -68,20 +69,17 @@ public class ValueClassDecl_c extends ClassDecl_c implements ValueClassDecl {
 	 * @param body
 	 */
 	public ValueClassDecl_c(Position pos, Flags flags, String name,
-            List properties, Expr ci, TypeNode superClass, List interfaces, ClassBody body) {
+            List properties, Expr ci, TypeNode superClass, List interfaces, ClassBody body,
+            X10NodeFactory nf) {
 		super(pos, flags, name, superClass, interfaces, body);
-                TypedList l = (TypedList) super.interfaces();
-                this.elist = TypedList.copy(l,l.getAllowedType(), false);
-                X10TypeSystem_c ts = X10TypeSystem_c.getFactory();
-                ClassType value = ts.value();
-                NodeFactory nf = X10NodeFactory_c.getNodeFactory();
-                CanonicalTypeNode ctn
-                    = nf.CanonicalTypeNode(Position.COMPILER_GENERATED,
-                                                  value);
-                elist.add(0, ctn); 
-                this.properties = properties;
-                this.classInvariant = ci;
-                
+		TypedList l = (TypedList) super.interfaces();
+		this.elist = TypedList.copy(l, l.getAllowedType(), false);
+		X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
+		ClassType value = ts.value();
+		CanonicalTypeNode ctn = nf.CanonicalTypeNode(Position.COMPILER_GENERATED, value);
+		elist.add(0, ctn); 
+		this.properties = properties;
+		this.classInvariant = ci;
 	}
 
         public List interfaces() {

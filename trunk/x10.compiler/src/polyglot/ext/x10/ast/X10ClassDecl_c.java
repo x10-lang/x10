@@ -59,13 +59,13 @@ public class X10ClassDecl_c extends ClassDecl_c {
      */
     public static X10ClassDecl_c make(Position pos, Flags flags, String name, 
             List/*<PropertyDecl>*/ properties, Expr ci,
-            TypeNode superClass, List interfaces, ClassBody body) {
-        body = flags.isInterface() ? PropertyDecl_c.addGetters(properties, body)
-                : PropertyDecl_c.addProperties(properties, body);
+            TypeNode superClass, List interfaces, ClassBody body, X10NodeFactory nf) {
+        body = flags.isInterface() ? PropertyDecl_c.addGetters(properties, body, nf)
+                : PropertyDecl_c.addProperties(properties, body, nf);
        
         X10ClassDecl_c result = new X10ClassDecl_c(pos, flags, name, properties,  ci, superClass, 
                 interfaces, body);
-       // Report.report(1, "X10ClassDecl_c: Added synthetic field to "  + result);
+        // Report.report(1, "X10ClassDecl_c: Added synthetic field to "  + result);
         return result;
     }
    
@@ -75,7 +75,7 @@ public class X10ClassDecl_c extends ClassDecl_c {
     protected List properties;
     protected Expr classInvariant;
     
-    public X10ClassDecl_c(Position pos, Flags flags, String name,
+    protected X10ClassDecl_c(Position pos, Flags flags, String name,
             List/*<PropertyDecl>*/ properties, Expr ci,
             TypeNode superClass, List interfaces, ClassBody body) {
         super(pos, flags, name, superClass, interfaces, body);
