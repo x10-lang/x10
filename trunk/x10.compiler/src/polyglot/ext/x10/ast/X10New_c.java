@@ -36,28 +36,22 @@ public class X10New_c extends New_c {
 		super(pos, qualifier, tn, arguments, body);
 	}
 
-    public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
-    	X10New_c n = (X10New_c) super.typeCheckOverride(parent, tc);
-    	return n;
-    }
+	public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
+		X10New_c n = (X10New_c) super.typeCheckOverride(parent, tc);
+		return n;
+	}
 
-    /**
-     * Rewrite pointwiseOp construction to use Operator.Pointwise, otherwise
-     * leave alone.
-     */
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
-    	X10New_c n = this;
-    	X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
+	/**
+	 * Rewrite pointwiseOp construction to use Operator.Pointwise, otherwise
+	 * leave alone.
+	 */
+	public Node typeCheck(TypeChecker tc) throws SemanticException {
+		X10New_c n = this;
+		X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		TypeNode oType = n.objectType();
 		String opName = null;
-		if (n.body != null && n.qualifier != null &&
-				xts.isX10Array(n.qualifier.type()) &&
-				oType instanceof AmbTypeNode)
-		{
-			opName = ((AmbTypeNode) oType).name();
-		}
-		else if (n.body != null && n.qualifier == null && oType instanceof CanonicalTypeNode) {
+		if (n.body != null && n.qualifier == null && oType instanceof CanonicalTypeNode) {
 			ClassType type = oType.type().toClass();
 			ClassType outer = null;
 			if (type.isNested() && (outer = type.container().toClass()) != null && xts.isX10Array(outer)) {
