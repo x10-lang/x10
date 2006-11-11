@@ -38,7 +38,7 @@ abstract public class x10Array extends x10.lang.Object implements Array, Paramet
         public final int low0(){
            if(rank != 1) throw new Error("low0 can only be called for 1D arrays:"+region);
            int lowBound = region.rank(0).low();
-           //System.out.println("low bound is:"+lowBound);
+           //System.err.println("low bound is:"+lowBound);
            return lowBound;
         }
 

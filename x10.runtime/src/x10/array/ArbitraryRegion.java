@@ -101,7 +101,7 @@ public class ArbitraryRegion extends region {
 	 * @return a one-dimensional region (formerly called range)
 	 */
 	public region rank(int index) {
-		//System.out.println("ArbitraryRegion vj index=" + index + "rank = " + rank);
+		//System.err.println("ArbitraryRegion vj index=" + index + "rank = " + rank);
 		assert index >= 0;
 		assert index < rank;
 		ArbitraryRegion ret;

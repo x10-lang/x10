@@ -264,7 +264,7 @@ public abstract /*value*/ class region extends Object
 	 * the original region (this).
 	 */
 	public region[] partition(int n, int dim) {
-		System.out.println("this should not be called");
+		System.err.println("this should not be called");
 		// the runtime library should never call this. -- and is should also
 		// not be in the public interface that is available to the X10 programmer
 		// (the reason is show here is because runtime implementation and

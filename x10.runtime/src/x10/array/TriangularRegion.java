@@ -41,14 +41,14 @@ public class TriangularRegion extends region {
 
 	private int gauss_(int n) {
 		int ret = (n <= 0) ? 0 : ((n * (n + 1)) / 2);
-		// System.out.println("gauss_(" + n +")=" + ret);
+		// System.err.println("gauss_(" + n +")=" + ret);
 		return ret;
 	}
 
 	private int inv_gauss_(int x) {
 		assert (x >= 0);
 		int ret = (int) ((Math.sqrt(8 * x + 1.0) - 1.0) / 2.0);
-		// System.out.println("inv_gauss_(" + x +")=" + ret);
+		// System.err.println("inv_gauss_(" + x +")=" + ret);
 		return ret;
 	}
 

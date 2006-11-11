@@ -49,7 +49,7 @@ public class BandedRegion extends region {
 		size_ = tmp_size;
 		int tmp = (bands_ - 1) / 2;
 		offset_ = (tmp * (tmp + 1)) / 2;
-		System.out.println(this);
+		//System.err.println(this);
 	}
 
 	public int size() {
@@ -169,7 +169,7 @@ public class BandedRegion extends region {
 			tmp = new int[] {x_ordinal + dims_[0].low(), y_ordinal + dims_[1].low()};
 			ret = point.factory.point(tmp);
 		}
-		System.out.println("coord (" + ord + ") = " + ret);
+		//System.err.println("coord (" + ord + ") = " + ret);
 		return ret;
 	}
 
