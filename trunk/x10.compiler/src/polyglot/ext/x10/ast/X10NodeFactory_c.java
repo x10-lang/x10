@@ -61,6 +61,7 @@ import polyglot.ext.jl.ast.Special_c;
 import polyglot.ext.jl.ast.StringLit_c;
 import polyglot.ext.jl.ast.While_c;
 import polyglot.ext.jl.parse.Name;
+import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -84,27 +85,29 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	private static Error marker;
 
 	private static X10NodeFactory_c factory = null;
-
-    public Disamb disamb() {
-        return new X10Disamb_c();
-    }
-	public static X10NodeFactory_c getNodeFactory() {
+	public static X10NodeFactory_c getNodeFactory() { return factory; }
+	public static X10NodeFactory_c setNodeFactory(X10NodeFactory_c nf) {
+		factory = nf;
 		return factory;
 	}
-    public static X10NodeFactory_c setNodeFactory(X10NodeFactory_c nf) {
-        factory = nf;
-        return factory;
-    }
 
-	public X10NodeFactory_c() {
+    protected ExtensionInfo extInfo;
+	public X10NodeFactory_c(ExtensionInfo extInfo) {
 		super(new X10ExtFactory_c(), new X10DelFactory_c());
+		this.extInfo = extInfo;
 		//factory = this;
 	}
 
 	protected X10NodeFactory_c(ExtFactory extFact) {
 		super(extFact);
 	}
+
+	public final ExtensionInfo extensionInfo() { return extInfo; }
     
+    public Disamb disamb() {
+        return new X10Disamb_c();
+    }
+
      public AmbTypeNode AmbTypeNode(Position pos, QualifierNode qualifier, String name) {
             AmbTypeNode n = new X10AmbTypeNode_c(pos, qualifier, name);
             n = (AmbTypeNode)n.ext(extFactory().extAmbTypeNode());
@@ -221,11 +224,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
             String name, List properties, Expr ci, TypeNode superClass,
             List interfaces, ClassBody body)
     {
-    	X10TypeSystem ts = X10TypeSystem_c.getTypeSystem();
-        superClass = (superClass ==null && ! flags.isInterface()) ? CanonicalTypeNode(Position.COMPILER_GENERATED, 
-        		ts.X10Object()) : superClass;
+    	X10TypeSystem ts = (X10TypeSystem) this.extensionInfo().typeSystem();
+        superClass = (superClass == null && ! flags.isInterface()) ?
+        				CanonicalTypeNode(Position.COMPILER_GENERATED, ts.X10Object()) :
+        				superClass;
     	ClassDecl n = X10ClassDecl_c.make(pos, flags, name, properties, ci, superClass, interfaces,
-                body);
+                body, this);
         n = (ClassDecl)n.ext(extFactory().extClassDecl());
         n = (ClassDecl)n.del(delFactory().delClassDecl());
         return n;
@@ -236,7 +240,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
             List interfaces, ClassBody body)
 	{
         ValueClassDecl n = new ValueClassDecl_c(pos, flags, name, properties, ci, superClass, interfaces,
-                body);
+                body, this);
         n = (ValueClassDecl)n.ext(extFactory().extClassDecl());
         n = (ValueClassDecl)n.del(delFactory().delClassDecl());
         return n;
@@ -307,20 +311,20 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 	public ConstantDistMaker ConstantDistMaker(Position pos, Expr e1, Expr e2) {
 		NodeFactory nf = this;
-		TypeSystem ts = X10TypeSystem_c.getTypeSystem();
+		TypeSystem ts = this.extensionInfo().typeSystem();
 		
-		  Name x10 = new Name(nf, ts, pos, "x10");
-          Name x10Lang = new Name(nf, ts, pos, x10, "lang");
-
-          Name x10LangDistribution = new Name(nf, ts, pos, x10Lang, "dist");
-          Name x10LangDistributionFactory = new Name(nf, ts, pos, x10LangDistribution, "factory");
-          Name x10LangDistributionFactoryConstant = new Name(nf, ts, pos, x10LangDistributionFactory, "constant");
-          List l = new TypedList(new LinkedList(), Expr.class, false);
-          l.add(e1);
-          l.add(e2);
-         ConstantDistMaker n = new ConstantDistMaker_c(pos, 
-        		  x10LangDistributionFactoryConstant.prefix.toReceiver(), 
-        		  "constant", l);
+		Name x10 = new Name(nf, ts, pos, "x10");
+		Name x10Lang = new Name(nf, ts, pos, x10, "lang");
+		
+		Name x10LangDistribution = new Name(nf, ts, pos, x10Lang, "dist");
+		Name x10LangDistributionFactory = new Name(nf, ts, pos, x10LangDistribution, "factory");
+		Name x10LangDistributionFactoryConstant = new Name(nf, ts, pos, x10LangDistributionFactory, "constant");
+		List l = new TypedList(new LinkedList(), Expr.class, false);
+		l.add(e1);
+		l.add(e2);
+		ConstantDistMaker n = new ConstantDistMaker_c(pos, 
+				x10LangDistributionFactoryConstant.prefix.toReceiver(), 
+				"constant", l);
 		n = (ConstantDistMaker) n.ext(extFactory().extExpr());
 		return (ConstantDistMaker) n.del(delFactory().delExpr());
 	}
@@ -605,7 +609,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 			if (n instanceof CanonicalTypeNode) {
 				Type t = ((CanonicalTypeNode) n).type();
 				return CanonicalTypeNode(pos,
-						X10TypeSystem_c.getFactory().arrayOf(t, dims));
+						t.arrayOf(dims));
 			}
 			return ArrayTypeNode(pos, array(n, pos, dims - 1));
 		}
@@ -757,7 +761,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
          return n;
      }
     public PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, String name) {
-        PropertyDecl n = new PropertyDecl_c(pos, flags, type, name);
+        PropertyDecl n = new PropertyDecl_c(pos, flags, type, name, this);
         n = (PropertyDecl)n.ext(extFactory().extFieldDecl());
         n = (PropertyDecl)n.del(delFactory().delFieldDecl());
         return n;
@@ -813,7 +817,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
     }
     public RegionMaker RegionMaker(Position pos, Expr e1, Expr e2) {
 		NodeFactory nf = this;
-		TypeSystem ts = X10TypeSystem_c.getTypeSystem();
+		TypeSystem ts = this.extensionInfo().typeSystem();
 		
 		Name x10 = new Name(nf, ts, pos, "x10");
         Name x10Lang = new Name(nf, ts, pos, x10, "lang");
