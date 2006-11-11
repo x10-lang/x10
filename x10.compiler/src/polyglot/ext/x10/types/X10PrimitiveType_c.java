@@ -177,7 +177,9 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			 return result = true;
 		 }
 		 X10Type base = baseType();
-		return  ((PrimitiveType) base).isCastValidImpl(toType);
+		 if (base != this)
+			 return ((PrimitiveType) base).isCastValidImpl(toType);
+		 return false;
 	}
 	
 	public String toString() { 
