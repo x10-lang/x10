@@ -1,0 +1,40 @@
+#!/bin/bash
+
+chkRc() {
+local rc="$1"
+local msg="$2"
+if [[ $rc  -ne 0 ]]; then echo "$msg"; exit $rc; fi
+}
+
+main() {
+
+#verify directory and environment vars
+if [[ ! -d x10.common ]]; then 
+  echo "+++ Issue this command in the parent directory of x10.common"
+  echo "+++ You may need to do 'cvs checkout x10.common' first"
+  exit 1 
+fi
+
+if [[ -z "$JAVA_HOME" ]]; then echo "+++ JAVA_HOME must be defined"; exit 1; fi 
+if [[ -z "$X10_PLATFORM" ]]; then echo "+++ X10_PLATFORM must be defined"; exit 1; fi 
+
+
+#first refresh the project list
+cvs -q update -dPA x10.common/projectList.txt
+
+#cvs checkout or update all projects
+cvs -q checkout -PA `grep -v '^#' x10.common/projectList.txt`
+chkRc $? "+++ cvs update failed"
+
+#build all projects
+for p in `grep -v '^#' x10.common/projectList.txt` ; do
+  if [[ ! -e $p/build.xml ]] ; then continue; fi
+  cd $p
+  echo "+++ building $p"
+  ant --noconfig
+  chkRc $? "+++ building $p failed"
+  cd ..
+done
+}
+
+main "$@"
