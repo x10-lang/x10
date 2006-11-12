@@ -64,7 +64,7 @@ public class RuntimeCastChecker {
 			// for each constraints invoke class properties using reflexion
 			while ((i < cTab.length) && correct) {
 				RuntimeConstraint constraint = cTab[i];
-				System.out.println(constraint);
+//				System.out.println(constraint);
 				// every property has a getter defined
 				Method leftHand = fromClassType.getMethod(constraint.name, (Class[])null);
 				if (constraint instanceof RuntimeConstraintOnSelf) {
