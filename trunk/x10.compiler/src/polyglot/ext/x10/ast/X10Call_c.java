@@ -53,8 +53,6 @@ public class X10Call_c extends Call_c {
         super(pos, target, name, arguments);
     }
 
-    
-    
     /**
      * Rewrite getLocation() to Here for value types and operator calls for
      * array types, otherwise leave alone.
@@ -68,14 +66,18 @@ public class X10Call_c extends Call_c {
         {
             return xnf.Here(position()).typeCheck(tc);
         }
-        X10Call_c result = null;
+     
         try {
-        	result = (X10Call_c) super.typeCheck(tc);
+            Context c = tc.context();
+            X10Call_c result = (X10Call_c) super.typeCheck(tc);
+            // If we found a method, the call must type check, so no need to check
+            // the arguments here.
+            result.checkConsistency(c);
         	if (!  result.target().type().isCanonical()) {
         		return result;
         	}
         	result = result.adjustMI(tc);
-        	checkAnnotations(result, tc);
+        	result.checkAnnotations(tc);
         	return result;
         } catch (NoMemberException e) {
             if (e.getKind() != NoMemberException.METHOD || this.target == null)
@@ -122,17 +124,16 @@ public class X10Call_c extends Call_c {
     }
 
     private C_Var selfVar(X10Type type, Constraint targetConstraint) {
-    	
     	C_Var result = (C_Root) type.selfVar();
     	if (result == null) {
     		result = targetConstraint.genEQV(type);
     	}
     	return result;
-    	
     }
+   
     /**
      * Compute the new resulting type for the method call by replacing this and 
-     * any argument variables that occurin the rettype depclause with new
+     * any argument variables that occur in the rettype depclause with new
      * variables whose types are determined by the static type of the receiver
      * and the actual arguments to the call.
      * @param tc
@@ -169,7 +170,6 @@ public class X10Call_c extends Call_c {
     						subs.put(var,realVar);
     					}
     				}
-    					
     			}
     			if (! subs.isEmpty()) {
     				Constraint newRC = rc.substitute(subs);
@@ -178,16 +178,13 @@ public class X10Call_c extends Call_c {
 //  				TODO vj:  Is this really necessary?
     				result = (X10Call_c)this.methodInstance(mi).type(mi.returnType());
     			}
-    			
     		}
-    		
     	}
 	    return result;
-
     }
-    private void checkAnnotations(Call_c result, TypeChecker tc) throws SemanticException {
+    private void checkAnnotations(TypeChecker tc) throws SemanticException {
     	X10Context c = (X10Context) tc.context();
-    	X10MethodInstance mi = (X10MethodInstance) result.methodInstance();
+    	X10MethodInstance mi = (X10MethodInstance) methodInstance();
     	if (mi !=null) {
     		X10Flags flags = X10Flags.toX10Flags(mi.flags());
     		if (c.inNonBlockingCode() 
