@@ -15,12 +15,14 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
+import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.VarDecl;
 import polyglot.ext.x10.ast.X10ArrayAccess;
 import polyglot.ext.x10.ast.X10ArrayAccess1;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call_c;
+import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10LocalDecl_c;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
@@ -66,8 +68,8 @@ public class TypeElaborator extends TypeChecker {
 			return result = (n instanceof TypeNode) ? null : n;
 		if (parent instanceof Formal) 
 			return result = (n instanceof TypeNode) ? null : n;
-		if (n instanceof Local)
-			return n;
+		//if (parent instanceof X10ClockedLoop)
+		//	return result = (n instanceof Formal || n instanceof Stmt) ? null : n;
 		
 		// Bypass all nodes which cannot have a type declaration under them.
 		
@@ -92,7 +94,7 @@ public class TypeElaborator extends TypeChecker {
     }
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
        
-        //Report.report(1, "TypeElaborator: entering " + n);
+       // Report.report(1, "TypeElaborator: entering " + n);
         if (n instanceof ArrayAccess || n instanceof X10ArrayAccess
         		|| n instanceof X10ArrayAccess1) {
         	return n;
@@ -126,7 +128,7 @@ public class TypeElaborator extends TypeChecker {
             //Goal g = job.extensionInfo().scheduler().currentGoal();
            // g.setUnreachableThisRun();
         }
-        
+        //Report.report(1, "TypeElaborator: leaving " + n + "==>" + m);
         return m;
     }   
 
