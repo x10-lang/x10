@@ -1,5 +1,5 @@
  /**  
- Check that circular dependencies between classes (through fields) are handled correctly
+ Check that circular dependencies between classes (through local variables) are handled correctly
  during TypeElaboration.
  
  *@author vj
