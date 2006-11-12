@@ -1,6 +1,7 @@
 package polyglot.ext.x10.types;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import polyglot.types.Flags;
 import polyglot.types.LazyClassInitializer;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.NoMemberException;
 import polyglot.types.NullType;
 import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
@@ -1039,7 +1041,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	}
 	
 	public VarInstance createSelf(X10Type t) {
-		VarInstance v = new LocalInstance_c(this,Position.COMPILER_GENERATED, Flags.PUBLIC, t, "self");
+		VarInstance v = new X10LocalInstance_c(this,Position.COMPILER_GENERATED, Flags.PUBLIC, t, "self");
 		return v;
 	}
 	protected TypeTranslator eval = new TypeTranslator();
@@ -1270,6 +1272,129 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		 return new X10LocalInstance_c(this, pos, flags, type, name);
 	 }
 
-	
+	 /**
+	  * Populates the list acceptable with those MethodInstances which are
+	  * Applicable and Accessible as defined by JLS 15.11.2.1
+	  */
+	 protected List findAcceptableMethods(ReferenceType container, String name,
+			 List argTypes, ClassType currClass)
+	 throws SemanticException {
+		 
+		 assert_(container);
+		 assert_(argTypes);
+		 
+		 SemanticException error = null;
+		 
+		 // The list of acceptable methods. These methods are accessible from
+		 // currClass, the method call is valid, and they are not overridden
+		 // by an unacceptable method (which can occur with protected methods
+		 // only).
+		 List acceptable = new ArrayList();
+		 
+		 // A list of unacceptable methods, where the method call is valid, but
+		 // the method is not accessible. This list is needed to make sure that
+		 // the acceptable methods are not overridden by an unacceptable method.
+		 List unacceptable = new ArrayList();
+		 
+		 Set visitedTypes = new HashSet();
+		 
+		 LinkedList typeQueue = new LinkedList();
+		 typeQueue.addLast(container);
+		 
+		 while (! typeQueue.isEmpty()) {
+			 Type type = (Type) typeQueue.removeFirst();
+			 
+			 if (visitedTypes.contains(type)) {
+				 continue;
+			 }
+			 
+			 visitedTypes.add(type);
+			 
+			 if (Report.should_report(Report.types, 2))
+				 Report.report(2, "Searching type " + type + " for method " +
+						 name + "(" + listToString(argTypes) + ")");
+			 
+			 if (! type.isReference()) {
+				 throw new SemanticException("Cannot call method in " +
+						 " non-reference type " + type + ".");
+			 }
+			 
+			 for (Iterator i = type.toReference().methods().iterator(); i.hasNext(); ) {
+				 MethodInstance mi = (MethodInstance) i.next();
+				 
+				 if (Report.should_report(Report.types, 3))
+					 Report.report(3, "Trying " + mi);
+				 
+				 if (! mi.name().equals(name)) {
+					 continue;
+				 }
+				 // vj: This is the only change for X10.
+				 mi = ((X10MethodInstance) mi).instantiateForThis((X10Type)container);
+				 
+				 if (methodCallValid(mi, name, argTypes)) {
+					 if (isAccessible(mi, currClass)) {
+						 if (Report.should_report(Report.types, 3)) {
+							 Report.report(3, "->acceptable: " + mi + " in "
+									 + mi.container());
+						 }
+						 
+						 acceptable.add(mi);
+					 }
+					 else {
+						 // method call is valid, but the method is
+						 // unacceptable.
+						 unacceptable.add(mi);
+						 if (error == null) {
+							 error = new NoMemberException(NoMemberException.METHOD,
+									 "Method " + mi.signature() +
+									 " in " + container +
+							 " is inaccessible."); 
+						 }
+					 }
+				 }
+				 else {
+					 if (error == null) {
+						 error = new NoMemberException(NoMemberException.METHOD,
+								 "Method " + mi.signature() +
+								 " in " + container +
+								 " cannot be called with arguments " +
+								 "(" + listToString(argTypes) + ")."); 
+					 }
+				 }
+			 }
+			 if (type.toReference().superType() != null) {
+				 typeQueue.addLast(type.toReference().superType());
+			 }
+			 
+			 typeQueue.addAll(type.toReference().interfaces());
+		 }
+		 
+		 if (error == null) {
+			 error = new NoMemberException(NoMemberException.METHOD,
+					 "No valid method call found for " + name +
+					 "(" + listToString(argTypes) + ")" +
+					 " in " +
+					 container + ".");
+		 }
+		 
+		 if (acceptable.size() == 0) {
+			 throw error;
+		 }
+		 
+		 // remove any method in acceptable that are overridden by an
+		 // unacceptable
+		 // method.
+		 for (Iterator i = unacceptable.iterator(); i.hasNext();) {
+			 MethodInstance mi = (MethodInstance)i.next();
+			 acceptable.removeAll(mi.overrides());
+		 }
+		 
+		 if (acceptable.size() == 0) {
+			 throw error;
+		 }
+		 
+		 return acceptable;
+	 }
+
 } // end of X10TypeSystem_c
 
