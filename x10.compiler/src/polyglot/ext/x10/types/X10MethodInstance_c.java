@@ -11,6 +11,10 @@ import java.util.List;
 import polyglot.ast.Formal;
 import polyglot.ext.jl.types.MethodInstance_c;
 import polyglot.ext.jl.types.TypeSystem_c;
+import polyglot.ext.x10.types.constr.C_Special;
+import polyglot.ext.x10.types.constr.C_Special_c;
+import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
@@ -107,6 +111,76 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		return sb.toString();
 	}
 	
+	public X10MethodInstance instantiateForThis(X10Type thisType ) {
+		boolean needed = false;
+		X10Type retType = (X10Type) returnType();
+		X10Type newRetType = retType;
+		Constraint rc = retType.realClause();
+		C_Special THIS = C_Special_c.This;
+		C_Var selfVar = thisType.selfVar();
+		if (rc!=null)
+			needed = rc.hasVar(THIS);
+		if (needed) {
+			C_Var myVar = selfVar;
+			if (myVar == null) myVar = rc.genEQV(thisType);
+			Constraint rc2 = rc.substitute(myVar, THIS, true);
+			newRetType = retType.makeVariant(rc2,null);
+		}
+		for (Iterator<X10Type> it = formalTypes().iterator(); !needed && it.hasNext();) {
+			X10Type type = it.next();
+			rc = type.realClause();
+			if (rc != null)
+				needed = rc.hasVar(THIS);
+		}
+		if (!needed) return this;
+		List newFormalTypes = new ArrayList(formalTypes.size());
+		for (Iterator<X10Type> it = formalTypes().iterator(); it.hasNext();) {
+			X10Type type = it.next();
+			rc = type.realClause();
+			X10Type newType = type;
+			if (rc!=null && rc.hasVar(THIS)) {
+				C_Var myVar = selfVar;
+				if (myVar == null) myVar = rc.genEQV(type); // not thisType for the args.
+				Constraint rc2 = rc.substitute(selfVar, THIS, false);
+				newType = type.makeVariant(rc2,null);
+			}
+			newFormalTypes.add(newType);
+		}
+		X10MethodInstance result = new X10MethodInstance_c(ts, position(),
+				container, flags, newRetType, name,
+				 newFormalTypes,  throwTypes());
+		return result;
+	}
+	  /** Returns true if a call can be made with the given argument types. 
+	   * Specialized to deal with the possibility of dependent types in the 
+	   * arguments of the method which may contain references to arguments
+	   * to the method.
+	   */
+    public boolean callValidImpl(List argTypes) {
+        List l1 = this.formalTypes();
+        List l2 = argTypes;
+
+        Iterator i1 = l1.iterator();
+        Iterator i2 = l2.iterator();
+
+        while (i1.hasNext() && i2.hasNext()) {
+            X10Type t1 = (X10Type) i1.next();
+            Constraint rc = t1.realClause();
+            if (rc != null && ! rc.valid()) {
+            	// so rc is real constraint. Now 
+            	Constraint rc2 = rc.instantiate(l2);
+            	if (rc != rc2) 
+            		t1 = t1.makeVariant(rc2, null);
+            }
+            X10Type t2 = (X10Type) i2.next();
+
+            if (! ts.isImplicitCastValid(t2, t1)) {
+                return false;
+            }
+        }
+
+        return ! (i1.hasNext() || i2.hasNext());
+    }
 	public String toString() {
 		String s = designator() + " " + flags + returnType + " " +
 		container() + "." + signature();
