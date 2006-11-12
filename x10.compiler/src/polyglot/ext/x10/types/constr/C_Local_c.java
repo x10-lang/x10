@@ -56,4 +56,10 @@ public class C_Local_c extends C_Var_c implements C_Local {
 	public boolean isSelfVar() { return isSelfVar;}
 	public String name() { return li.name();}
 	public String toString() { return  name();}
+	public boolean prefixes(C_Term t) {
+		if (equals(t)) return true;
+		if (! (t instanceof C_Var)) return false;
+		C_Var[] vars = ((C_Var) t).vars();
+		return equals(vars[0]);
+	}
 }

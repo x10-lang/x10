@@ -62,12 +62,9 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 		}
 		return this;
 	}
-	 public Promise lookup(String s) {
-			return null;
-		}
-	 public Promise lookup() {
-		 return this;
-	 }
+	public boolean prefixes(C_Term t) { return false; }
+	public Promise lookup(String s) { 	return null;  }
+	public Promise lookup() {  return this;  }
 	public boolean forwarded() { return false;}
 	public boolean hasChildren() { return false;}
 	public boolean bind(Promise target) throws Failure {
@@ -75,19 +72,13 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 			return target.bind(this);
 		}
 		if (! equals(target))
-		throw new Failure("Cannot bind literal " + this + " to " + target);
+			throw new Failure("Cannot bind literal " + this + " to " + target);
 		return false;
 	}
-	public boolean canReach(Promise other ) {
-		return equals(other);
-	}
-	public C_Term term() {
-		return this;
-	}
-	public void dump(HashMap result) {
-		// nothing to dump.
-	}
-	public void dump(HashMap result, C_Term newSelf, C_Term newThis) {
+	public boolean canReach(Promise other ) { return equals(other); }
+	public C_Term term() { return this; }
+	public void dump(HashMap<C_Term,C_Term> result, C_Term prefix) { 	/* nothing to dump */ }
+	public void dump(HashMap<C_Term, C_Term> result, C_Term prefix, C_Term newSelf, C_Term newThis) {
 		// nothing to dump.
 	}
 	public void addIn(String s, Promise orphan) {
@@ -97,6 +88,6 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	public boolean rootVarIsSelf() { return false;}
 	public boolean rootVarIsThis() { return false;}
 	public boolean isEQV() { return false;}
-	
+	public void setTerm(C_Var term) { /* ignore */}
 	
 }

@@ -65,7 +65,16 @@ public class C_Field_c extends C_Var_c implements C_Field {
 		if (vars == null) initVars();
 		return path;
 	}
-	
+	public boolean prefixes(C_Term t) {
+		if (equals(t)) return true;
+		if (! (t instanceof C_Var)) return false;
+		C_Var[] vars = ((C_Var) t).vars();
+		boolean result = false;
+		for (int i=0; (! result) && i < vars.length; i++) {
+			result = equals(vars[i]);
+		}
+		return result;
+	}
 	protected void initVars() {
 		int count=0;
 		C_Var source  = this;

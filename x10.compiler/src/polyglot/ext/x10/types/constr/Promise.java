@@ -87,8 +87,8 @@ public interface Promise {
 	 * which has an outgoing edge to a term tw.
 	 * @param result
 	 */
-	void dump(HashMap/*<C_Term,C_Term>*/ result);
-	void dump(HashMap/*<C_Term, C_Term>*/ reuslt, C_Term newSelf, C_Term newThis);
+	void dump(HashMap<C_Term,C_Term> result, C_Term prefix);
+	void dump(HashMap<C_Term, C_Term> result, C_Term prefix, C_Term newSelf, C_Term newThis);
 	
 	/**
 	 * Return the term that labels this promise.
@@ -96,5 +96,6 @@ public interface Promise {
 	 * @return
 	 */
 	C_Term term();
+	void setTerm(C_Var term);
 	
 }
