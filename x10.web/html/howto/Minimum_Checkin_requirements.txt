@@ -1,7 +1,0 @@
-Before committing any files, every X10 contributor needs to ensure they don't regress the general code base.
-As a minimum requriement, everyone checking in files needs to run the X10 sanity list.  The test list is
-x10/examples/sanity.lst
-
-To run, use the testScript script as in:
-
-testScript -testList sanity.lst
