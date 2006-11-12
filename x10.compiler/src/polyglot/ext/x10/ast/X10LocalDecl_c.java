@@ -11,6 +11,7 @@ import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.visit.TypeElaborator;
+import polyglot.frontend.MissingDependencyException;
 import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
@@ -75,28 +76,31 @@ public class X10LocalDecl_c extends LocalDecl_c {
 	}
 	
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		X10LocalDecl_c result= (X10LocalDecl_c) super.typeCheck(tc);
-		result.updateLI(tc);
 		
+			//Report.report(1, "X10LocalDecl_c: entering " + this + " li=" + localInstance());
+			X10LocalDecl_c result= (X10LocalDecl_c) super.typeCheck(tc);
+			result.updateLI(tc);
+			
+			//Report.report(1, "X10LocalDecl_c: leaving " + this + " li=" + localInstance());
+			return result;
 		
-		return result;
 	}
 	public void pickUpTypeFromTypeNode(TypeChecker tc) {
 		
-		X10Type newType = (X10Type) type.type();
-		
-		if ( li.flags().isFinal()) {
-			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),newType.depClause());
-			newType = newType.makeVariant(c,newType.typeParameters());
-		
-			//nli  = nli.type(newType);
+			X10Type newType = (X10Type) type.type();
 			
-		}
-		
+			if ( li.flags().isFinal()) {
+				Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),newType.depClause());
+				newType = newType.makeVariant(c,newType.typeParameters());
+				
+				//nli  = nli.type(newType);
+				
+			}
+			
 			li.setType(newType);
-	
-	//	X10LocalDecl_c result =  (X10LocalDecl_c) localInstance(nli);
-		
+			
+			//	X10LocalDecl_c result =  (X10LocalDecl_c) localInstance(nli);
+			
 		
 	}
 	public void  updateLI(TypeChecker tc)  {
@@ -111,7 +115,7 @@ public class X10LocalDecl_c extends LocalDecl_c {
 			X10Type oldType = (X10Type) li.type();
 			
 			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),oldType.depClause());
-			X10Type newType = oldType.makeVariant(c,oldType.typeParameters());
+			X10Type newType = oldType.makeVariant(c,null);
 			li.setType(newType);
 			//nli  = nli.type(newType);
 		}
