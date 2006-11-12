@@ -149,9 +149,9 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 //  		System.out.println("creating CodeGenerated Goal for " + job.source().name());
     		return X10CodeGenerated.create(this, job);
     	}
-    	   public Goal TypesElaboratedForJobs() {
+    	  /* public Goal TypesElaboratedForJobs() {
     	        return TypesElaboratedForJobs.create(this);
-    	    }
+    	    }*/
     	   public Goal SignaturesResolved(ParsedClassType ct) {
     	        Goal g = X10SignaturesResolved.create(this, ct);
     	        return g;
@@ -187,14 +187,14 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     		 X10Scheduler x10Sched= (X10Scheduler) scheduler;
     	        List l = new ArrayList();
     	        
-    	      l.add(x10Sched.TypeElaborated(job));
+    	     // l.add(x10Sched.TypeElaborated(job));
     	        l.addAll(super.prerequisiteGoals(scheduler));
     	        return l;
     	    }
     	 public Collection corequisiteGoals(Scheduler scheduler) {
     		 X10Scheduler x10Sched= (X10Scheduler) scheduler;
     	        List l = new ArrayList();
-    	      //  l.add(x10Sched.TypeElaborated(job));
+    	        l.add(x10Sched.TypeElaborated(job));
     	        l.addAll(super.corequisiteGoals(scheduler));
     	        return l;
     	    }
