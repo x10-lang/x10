@@ -152,10 +152,10 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     	   public Goal TypesElaboratedForJobs() {
     	        return TypesElaboratedForJobs.create(this);
     	    }
-    	/*   public Goal SignaturesResolved(ParsedClassType ct) {
+    	   public Goal SignaturesResolved(ParsedClassType ct) {
     	        Goal g = X10SignaturesResolved.create(this, ct);
     	        return g;
-    	    }*/
+    	    }
     	public Goal X10Boxed(final Job job) {
     		return X10Boxed.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
     	}
@@ -187,8 +187,15 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     		 X10Scheduler x10Sched= (X10Scheduler) scheduler;
     	        List l = new ArrayList();
     	        
-    	        l.add(x10Sched.TypeElaborated(job));
+    	      l.add(x10Sched.TypeElaborated(job));
     	        l.addAll(super.prerequisiteGoals(scheduler));
+    	        return l;
+    	    }
+    	 public Collection corequisiteGoals(Scheduler scheduler) {
+    		 X10Scheduler x10Sched= (X10Scheduler) scheduler;
+    	        List l = new ArrayList();
+    	      //  l.add(x10Sched.TypeElaborated(job));
+    	        l.addAll(super.corequisiteGoals(scheduler));
     	        return l;
     	    }
     }
@@ -263,10 +270,11 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     	    }
 
     	    public Collection prerequisiteGoals(Scheduler scheduler) {
-    	    	X10Scheduler x10sched = (X10Scheduler) scheduler;
+    	    	X10Scheduler x10Sched = (X10Scheduler) scheduler;
     	        List l = new ArrayList();
-    	        l.add(scheduler.Disambiguated(job));
-    	        l.add(x10sched.TypesElaboratedForJobs());
+    	        l.add(x10Sched.Disambiguated(job));
+    	        l.add(x10Sched.TypeElaborated(job));
+    	       // l.add(x10sched.TypesElaboratedForJobs());
     	        l.addAll(super.prerequisiteGoals(scheduler));
     	        return l;
     	    }
