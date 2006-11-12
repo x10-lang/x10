@@ -127,7 +127,7 @@ public class X10Cast_c extends Cast_c {
 	        		   if((!ts.isSubtype(fromType, toType)) && 
 	        				   ((X10Type)toType).depClause() != null)  {
 			    		   // cast is valid if toType or fromType have constraints, checks them at runtime
-		            		Report.report(1,"Warning ! Cast from " + fromType + " to " + toType + " is unsafe at line " + this.position + ".");
+		            		Report.report(1,"Warning! Cast from " + fromType + " to " + toType + " is unsafe at line " + this.position + ".");
 		            		this.dynamicCheckNeeded = true;
 		            	}
 		            		// else cast is statically valid
