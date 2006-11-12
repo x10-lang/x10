@@ -40,10 +40,10 @@ public class C_Here_c extends C_Term_c implements Promise {
 	public C_Term term() {
 		return this;
 	}
-	public void dump(HashMap result) {
+	public void dump(HashMap<C_Term, C_Term> result, C_Term prefix) {
 		// nothing to dump.
 	}
-	public void dump(HashMap result, C_Term newSelf, C_Term newThis) {
+	public void dump(HashMap<C_Term,C_Term> result, C_Term prefix, C_Term newSelf, C_Term newThis) {
 		// nothing to dump.
 	}
 	public Promise lookup( C_Var[] vars, int index) {
@@ -51,12 +51,8 @@ public class C_Here_c extends C_Term_c implements Promise {
 			return this;
 		return null;
 	}
-	public Promise lookup(String s) {
-		return null;
-	}
-	 public Promise lookup() {
-		 return this;
-	 }
+	public Promise lookup(String s) { return null; }
+	 public Promise lookup() { return this; }
 	public void addIn(String s, Promise orphan) {
 		throw new InternalCompilerError("Cannot add an " + s + " child "  + orphan + 
 				" to here.");
@@ -64,4 +60,6 @@ public class C_Here_c extends C_Term_c implements Promise {
 	public boolean rootVarIsSelf() { return false;}
 	public boolean rootVarIsThis() { return false;}
 	public boolean isEQV() { return false;}
+	public boolean prefixes(C_Term term) {return false;}
+	public void setTerm(C_Var term) { /* ignore */}
 }

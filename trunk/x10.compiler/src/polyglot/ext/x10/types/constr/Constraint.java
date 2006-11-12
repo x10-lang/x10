@@ -2,6 +2,7 @@ package polyglot.ext.x10.types.constr;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import polyglot.ext.x10.types.X10Type;
@@ -152,7 +153,7 @@ public interface Constraint extends Serializable {
 	 * @param y
 	 * @return
 	 */
-	HashMap<C_Term, C_Term> constraints(C_Var y);
+	HashMap<C_Term, C_Term> constraints(C_Term y);
 	/**
 	 * Return result, after adding to it a set of bindings t1-> t2 equivalent to the 
 	 * current constraint. 
@@ -168,7 +169,7 @@ public interface Constraint extends Serializable {
 	 * @return
 	 */
 	HashMap<C_Term, C_Term> constraints(HashMap<C_Term,C_Term> result, C_Term newSelf, C_Term newThis);
-	HashMap<C_Term, C_Term> constraints(C_Var y, C_Term newSelf);
+	HashMap<C_Term, C_Term> constraints(C_Term y, C_Term newSelf);
 	
 	/**
 	 * Generate a new existentially quantified variable scoped to this constraint, 
@@ -185,7 +186,9 @@ public interface Constraint extends Serializable {
 	 * 
 	 */
 	Constraint substitute(C_Var y, C_Root x);
+	Constraint substitute(C_Var y, C_Root x, boolean propagate);
 	Constraint substitute(HashMap<C_Root, C_Var> bindings);
+	Constraint substitute(HashMap<C_Root, C_Var> bindings, boolean propagate);
 	/**
 	 * Preconditions: x occurs in this.
 	 * It must be the case that the real clause of the
@@ -201,7 +204,24 @@ public interface Constraint extends Serializable {
 	 * @param y
 	 * @param x
 	 */
-	void applySubstitution(C_Var y, C_Root x);
-	void applySubstitution(HashMap<C_Root, C_Var> bindings);
+	void applySubstitution(C_Var y, C_Root x, boolean propagate);
+	void applySubstitution(HashMap<C_Root, C_Var> bindings, boolean propagate);
+	
+	/**
+	 * Return the constraint obtained by replacing each local variable
+	 * with index i in this by the selfVar of the i'th element in li, if it has
+	 * one, or with a gensym otherwise. Used when defining an instantiation of
+	 * a methodinstance.
+	 * @param li
+	 * @return
+	 */
+	Constraint instantiate(List<X10Type> li);
+	
+	/**
+	 * Does this constraint contain occurrences of the variable v?
+	 * @param v
+	 * @return true iff v is a root variable of this.
+	 */
+	boolean hasVar(C_Root v);
 	
 }

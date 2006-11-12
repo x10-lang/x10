@@ -38,4 +38,5 @@ public class C_BinaryTerm_c extends C_Term_c implements C_BinaryTerm {
 	public boolean rootVarIsSelf() { return false;}
 	public boolean rootVarIsThis() { return false;}
 	public boolean isEQV() { return false;}
+	public boolean prefixes(C_Term term) { return false;}
 }

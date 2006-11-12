@@ -34,5 +34,11 @@ public interface C_Term extends Serializable {
 	 * @return
 	 */
 	boolean prefersBeingBound();
+	
+	/**
+	 * Is this (= x.f1...fn) a prefix of term, i.e. is term of the form x.f1...fn.fn+1...fk?
+	 * @return
+	 */
+	boolean prefixes(C_Term term);
 
 }
