@@ -133,8 +133,8 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 		if (!(n instanceof TypeNode))
 			throw new SemanticException("Argument to nullable type-constructor does not type-check",
 					position());
-		if (n == base)
-			return this;
+		//if (n == base)
+			//return this;
 		TypeNode arg = (TypeNode) n;
 		X10NamedType argType = (X10NamedType) arg.type();
 		// [IP] This is incorrect -- non-reference types can also be nullable
@@ -150,7 +150,7 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 			Report.report(5, "[NullableNode_c] ... returns |" + this + "|.");
 		}
 		
-		return this;
+		return this.type(argType);
 	}
 	
 	public String toString() {
