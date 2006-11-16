@@ -6,7 +6,7 @@
 
 import harness.x10Test;
 
-public class InterfaceTypeInvariant_MustFailCompile(int i, int j) extends x10Test { 
+public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
 
     public static interface Test (int l, int m : m == l ) {
      public int put();
