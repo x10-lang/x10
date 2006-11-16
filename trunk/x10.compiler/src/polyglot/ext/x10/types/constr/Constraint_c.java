@@ -453,7 +453,7 @@ public class Constraint_c implements Constraint {
 		}
 		if (t1 instanceof C_Var) {
 			C_Term t1r = rootBindingForTerm((C_Var)t1);
-			if (t1r != null && entails(t1r, t2)) return true;
+			if (t1r != null && (! t1r.equals(t1)) && entails(t1r, t2)) return true;
 		}
 		if (t2 instanceof C_Var) {
 			C_Term t2r = rootBindingForTerm((C_Var)t2);
