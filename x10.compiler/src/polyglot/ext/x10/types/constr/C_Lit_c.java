@@ -29,7 +29,12 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	public Object val() {
 		return val;
 	}
-	public String toString() { return val==null ? "null" : val.toString();}
+	public String toString() {
+                if (val == null) return "null";
+                if (type().isLong()) return val.toString() + "L";
+                if (type().isFloat()) return val.toString() + "F";
+                return val.toString();
+        }
 	public int hashCode() {
 		return ((val == null) ? 0 : val.hashCode());
 	}
