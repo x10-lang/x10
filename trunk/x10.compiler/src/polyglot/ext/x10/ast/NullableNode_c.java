@@ -137,20 +137,15 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 			//return this;
 		TypeNode arg = (TypeNode) n;
 		X10NamedType argType = (X10NamedType) arg.type();
-		// [IP] This is incorrect -- non-reference types can also be nullable
-//		if (!(argType instanceof ReferenceType))
-//		throw new SemanticException("Argument to nullable type-constructor must be a reference type",
-//		position());
 		X10TypeSystem ts = (X10TypeSystem) argType.typeSystem();
-		// [IP] FIXME: Why are we modifying this in-place?
-		this.type = ts.createNullableType(position(), argType);
+		X10Type resultType = ts.createNullableType(position(), argType);
 		
 		if (Report.should_report("debug", 5)) {
 			Report.report(5, "[NullableNode_c] ... sets type to |" + this.type + "|.");
 			Report.report(5, "[NullableNode_c] ... returns |" + this + "|.");
 		}
 		
-		return this.type(argType);
+		return this.type(resultType);
 	}
 	
 	public String toString() {
