@@ -2369,10 +2369,10 @@ public class DiagnoseParser implements ParseErrorCodes
     // the message into an array: error.
     //
     protected void reportError(int msg_code,
-                             int name_index,
-                             int left_token,
-                             int right_token,
-                             int scope_name_index)
+                               int name_index,
+                               int left_token,
+                               int right_token,
+                               int scope_name_index)
     {
         int left_token_loc = (left_token > right_token ? right_token : left_token),
             right_token_loc = right_token;

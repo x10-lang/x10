@@ -248,9 +248,19 @@ public class LexStream implements TokenStream, ParseErrorCodes
         else this.reportError(startLoc, endLoc); // make it a lexical error
     }
 
-    public int getFirstErrorToken(int i) { return i; }
+    /**
+     * @deprecated replaced by {@link #getFirstRealToken()}
+     *
+     */
+    public int getFirstErrorToken(int i) { return getFirstRealToken(i); }
+    public int getFirstRealToken(int i) { return i; }
 
-    public int getLastErrorToken(int i) { return i; }
+    /**
+     * @deprecated replaced by {@link #getLastRealToken()}
+     *
+     */
+    public int getLastErrorToken(int i) { return getLastRealToken(i); }
+    public int getLastRealToken(int i) { return i; }
 
     public int makeErrorToken(int firsttok, int lasttok, int errortok, int kind) { return 0; }
 

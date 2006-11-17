@@ -48,11 +48,46 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
         {
             int old_stack_length = actionStack.length;
             System.arraycopy(actionStack, 0, actionStack = new int[stateStack.length], 0, old_stack_length);
-	}
+        }
 
         return;
     }
 
+    public void reportError(int scope_index, int error_token)
+    {
+        String text = "\"";
+        for (int i = scopeSuffix(scope_index); scopeRhs(i) != 0; i++)
+        {
+            if (! isNullable(scopeRhs(i)))
+            {
+                int symbol_index = (scopeRhs(i) > NT_OFFSET
+                                        ? nonterminalIndex(scopeRhs(i) - NT_OFFSET)
+                                        : terminalIndex(scopeRhs(i)));
+                if (name(symbol_index).length() > 0)
+                {
+                    if (text.length() > 1) // Not just starting quote?
+                        text += " "; // add a space separator
+                    text += name(symbol_index);
+                }
+            }
+        }
+        text += "\"";
+
+        String location = tokStream.getFileName()
+                              + ':' + tokStream.getLine(error_token)
+                              + ':' + tokStream.getColumn(error_token)
+                              + ':' + tokStream.getEndLine(error_token)
+                              + ':' + tokStream.getEndColumn(error_token)
+                              + ": ";
+
+        tokStream.reportError(SCOPE_CODE,
+                              location,
+                              error_token,
+                              error_token,
+                              text);
+        return;        
+    }
+    
     public int recover(int error_token) throws BadParseException
     {
         if (stateStack == null)
@@ -89,7 +124,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
             //
             restart_token = error_token;
             tokStream.reset(error_token);
-	    old_action_size = action.size(); // save the old size in case we encounter a new error
+            old_action_size = action.size(); // save the old size in case we encounter a new error
             error_token = parser.backtrackParse(stateStack, stateStackTop, action, 0);
         } while (error_token != 0); // no error found
 
@@ -375,10 +410,14 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
                         {
                             // System.err.println("(*) adding token for
                             // nonterminal at location " + tokens.size());
-                            tokens.add(tokStream.makeErrorToken(error_token,
-                                                                tokStream.getPrevious(error_token),
-                                                                error_token, scopeRhs(i)));
+                            tokens.add(tokStream.makeErrorToken
+                                           (error_token,
+                                            tokStream.getPrevious(error_token),
+                                            error_token, scopeRhs(i)));
                         }
+
+                        reportError(scopeIndex[k], tokStream.getPrevious(error_token));
+
                         break;
                     }
                 }
