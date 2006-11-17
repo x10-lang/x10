@@ -38,9 +38,19 @@ public interface TokenStream
     
     void makeToken(int startLoc, int endLoc, int kind);
 
+    /**
+     * @deprecated replaced by {@link #getFirstRealToken()}
+     *
+     */
     int getFirstErrorToken(int i);
+    int getFirstRealToken(int i);
 
+    /**
+     * @deprecated replaced by {@link #getLastRealToken()}
+     *
+     */
     int getLastErrorToken(int i);
+    int getLastRealToken(int i);
 
     int makeErrorToken(int first, int last, int error, int kind);
     
