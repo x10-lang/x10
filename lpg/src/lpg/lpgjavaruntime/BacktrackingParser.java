@@ -40,6 +40,8 @@ public class BacktrackingParser extends Stacks
                                             return tokStream.getLastErrorToken(l);
                                           }
 
+    public void setMonitor(Monitor monitor) { this.monitor = monitor; }
+    
     public BacktrackingParser(TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
                                                                                            NotBacktrackParseTableException
     {
@@ -322,7 +324,7 @@ public class BacktrackingParser extends Stacks
     {
         stateStackTop = stack_top;
         System.arraycopy(stack, 0, stateStack, 0, stateStackTop + 1);
-        assert(this.action == action);
+        // assert(this.action == action);
         return backtrackParse(action, initial_token);
     }
 
