@@ -184,6 +184,7 @@ $Import
         FieldModifier ::= Annotation
                         | volatile
         MethodHeader ::= MethodModifiersopt TypeParametersopt ResultType MethodDeclarator Throwsopt
+        MethodDeclaration ::= MethodHeader MethodBody
         VariableModifier ::= Annotations
         MethodModifier ::= Annotations
                          | synchronized
@@ -808,7 +809,14 @@ $Rules -- Overridden rules from GJavaParser
                   
           $EndJava
         ./
-    MethodHeader ::= ThisClauseopt MethodModifiersopt ResultType MethodDeclarator Throwsopt
+     --     MethodDeclaration ::= MethodHeader MethodBody
+     --   /.$BeginJava
+     --               JPGPosition old_pos = (JPGPosition) MethodHeader.position();
+     -- --              setResult(MethodHeader.body(MethodBody)
+     --                         .position(pos(old_pos.getLeftIToken().getTokenIndex(), getRightSpan())));
+     --     $EndJava
+     --   ./
+    MethodDeclaration ::= ThisClauseopt MethodModifiersopt ResultType MethodDeclarator Throwsopt MethodBody
         /.$BeginJava
           Name c = (MethodDeclarator != null) ? (Name) MethodDeclarator[0] : null;
           List d = (MethodDeclarator != null) ? (List) MethodDeclarator[1] : null;
@@ -828,7 +836,7 @@ $Rules -- Overridden rules from GJavaParser
               d,
               where,
               Throwsopt,
-              null));
+              MethodBody));
           $EndJava
         ./
 
@@ -2072,7 +2080,7 @@ $Types
     VarDeclarator ::= VariableDeclarator
     X10VarDeclarator ::= VariableDeclaratorId | TraditionalVariableDeclaratorId
     Expr ::= VariableInitializer
-    MethodDecl ::= MethodDeclaration | MethodHeader
+    MethodDecl ::= MethodDeclaration 
     List ::= FormalParameterListopt | FormalParameterList 
     X10Formal ::= FormalParameter
     List ::= Throwsopt | Throws
