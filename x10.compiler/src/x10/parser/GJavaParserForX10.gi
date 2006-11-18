@@ -665,12 +665,7 @@ $Rules
         ./
     
     MethodDeclaration ::= MethodHeader MethodBody
-        /.$BeginJava
-                    JPGPosition old_pos = (JPGPosition) MethodHeader.position();
-                    setResult(MethodHeader.body(MethodBody)
-                              .position(pos(old_pos.getLeftIToken().getTokenIndex(), getRightSpan())));
-          $EndJava
-        ./
+      
     
     MethodHeader ::= MethodModifiersopt TypeParametersopt ResultType MethodDeclarator Throwsopt
     
