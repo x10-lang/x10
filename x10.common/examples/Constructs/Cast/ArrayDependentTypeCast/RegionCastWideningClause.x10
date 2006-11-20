@@ -1,7 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose: Check primitive dependent type assignment to primitive variable works.
+ * Purpose: Checks widening dynamic cast works for region.
  * @author vcave
  **/
 public class RegionCastWideningClause extends x10Test {

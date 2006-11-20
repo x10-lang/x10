@@ -1,7 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose: Check primitive dependent type assignment to primitive variable works.
+ * Purpose: Checks X10 array identity cast works.
  * @author vcave
  **/
 public class ArrayIdentityCast extends x10Test {

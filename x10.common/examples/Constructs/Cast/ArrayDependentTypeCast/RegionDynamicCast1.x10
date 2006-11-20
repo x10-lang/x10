@@ -2,7 +2,7 @@ import harness.x10Test;
 
 /**
  * Purpose: Checks invalid cast is detected at runtime by dynamic cast checking code.
- * Issue: Region type cast declares an invalid rank:
+ * Issue: Region type cast declares an invalid rank.
  * region(:rank==3&&rect&&zeroBased) <-- region(:rank==2&&rect&&zeroBased)
  * @author vcave
  **/

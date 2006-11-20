@@ -1,7 +1,9 @@
 import harness.x10Test;
 
 /**
- * Purpose: Check primitive dependent type assignment to primitive variable works.
+ * Purpose: Checks dynamic cast from object to X10 array works properly.
+ * Issue: Object does not meet rank constraint of targeted type.
+ * int[:rect&&rank==3] <-- int[:rect&&rank==2&&zerobased]
  * @author vcave
  **/
 public class ArrayDynamicCastFromObject extends x10Test {

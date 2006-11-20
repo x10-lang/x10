@@ -1,7 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose: Check primitive dependent type assignment to primitive variable works.
+ * Purpose: Checks identity cast works.
  * @author vcave
  **/
 public class RegionIdentityCast extends x10Test {
