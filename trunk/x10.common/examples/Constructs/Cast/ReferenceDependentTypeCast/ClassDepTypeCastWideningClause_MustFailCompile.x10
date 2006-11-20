@@ -9,13 +9,12 @@ public class ClassDepTypeCastWideningClause_MustFailCompile extends x10Test {
 
 	public boolean run() {						
 		X10DepTypeClassTwo(:p==1) test = 
-			((X10DepTypeClassTwo(:p==1)) new X10DepTypeClassTwo(:p==0&&q==1)(0,1));						
+			((X10DepTypeClassTwo(:p==1)) new X10DepTypeClassTwo(0,1));						
 		return true;
 	}
 
 	public static void main(String[] args) {
 		new ClassDepTypeCastWideningClause_MustFailCompile().execute();
 	}
-
 }
  

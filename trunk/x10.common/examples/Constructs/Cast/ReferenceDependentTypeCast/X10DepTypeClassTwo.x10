@@ -6,7 +6,7 @@ import harness.x10Test;
  **/
 public class X10DepTypeClassTwo(int p, int q) extends x10Test {
 
-	public X10DepTypeClassTwo(int p, int q) {
+	public X10DepTypeClassTwo(:self.p==p&&self.q==q)(final int p, final int q) {
 	    this.p=p;
 	    this.q=q;
 	}

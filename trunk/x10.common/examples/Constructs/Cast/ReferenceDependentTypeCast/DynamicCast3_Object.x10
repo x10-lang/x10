@@ -8,11 +8,10 @@ import harness.x10Test;
 public class DynamicCast3_Object extends x10Test {
 
 	public boolean run() {
-		
 		try {						
 			// object declaration. We "loose" constraint info at compile time.
 			x10.lang.Object object = 
-				new X10DepTypeClassTwo(:p==0&&q==1)(0,1);
+				new X10DepTypeClassTwo(0,1);
 			
 			// identity cast and assignment
 			X10DepTypeClassTwo(:p==0&&q==1) convertedObject2 =
@@ -21,6 +20,7 @@ public class DynamicCast3_Object extends x10Test {
 			// widening cast to a subset of the constraint
 			X10DepTypeClassTwo(:q==1) convertedObject3 =
 				(X10DepTypeClassTwo(:q==1)) object;
+			
 			// widening cast to a subset of the constraint
 			X10DepTypeClassTwo(:p==0) convertedObject1 =
 				(X10DepTypeClassTwo(:p==0)) object;
