@@ -273,13 +273,36 @@ removeDotSlash() {
 testForEligibility() {
 	# TODO: switch to using find commands for globbing and
 	# test for 'extends \(\i\+\.\)*x10Test' instead.
-# Checks if an .x10 file is really a test
+# Checks if the file is an .x10 file and if it is really a test
 # True(0) if file $f contains "public static void main" and
 # the file name matches one of the patterns in -test or -testList
     chkArgs 2 "$@"
     local f="$1"
     local tail="$2"
+    [[ "$tail" = *.x10 ]] || return 1
     testForMain "$f" "$tail"
+}
+
+findTests() {
+# Finds all the files in everything that matches $findpat
+    chkArgs 1 "$@"
+    local topDir="$1"
+    #eval "find '$topDir' -type f -name '*.x10' $findpat -print"
+    #eval "find $findpat -type d -name CVS -prune -o -type f -name '*.x10' -print"
+    eval "find $findpat -type d -name CVS -prune -o -type f '(' -name '*.x10' -o -name '*.fwd' ')' -print"
+}
+
+checkLink() {
+    chkArgs 2 "$@"
+    local f="$1"
+    local tail="$2"
+    [[ "$tail" = *.fwd ]] || return 1
+    local line=""
+    read line < "$f"
+    local fname="${line##!->}"
+    [ "$line" != "$fname" ] || return 1
+    RESULT="$fname"
+    return 0
 }
 
 genTest() {
@@ -303,15 +326,13 @@ genTest() {
 
   local tail=""
   #echo "Patterns: $findpat"
-  # TODO: rewrite to use pipes properly
-  #for f in `eval "find $findpat -type f -name '*.x10' -print"`; do
-  #TESTS="`eval "find '$topDir' -type f -name '*.x10' $findpat -print"`"
-  TESTS="`eval "find $findpat -type d -name CVS -prune -o -type f -name '*.x10' -print"`"
-  #echo 2>&1 "Running tests: $TESTS"
   while read f; do
+    #echo 2>&1 "Checking file: $f"
     file="${f##*/}"    # if f is a/b/c file will be c
     path="${f%/$file}" # if f is a/b/c path will be a/b
-    if testForEligibility "$f" "$file"; then
+    if checkLink "$f" "$file"; then
+      echo 2>&1 "Forwarding pointer to '$RESULT' found"
+    elif testForEligibility "$f" "$file"; then
       # an actual .x10 file containing a main method
       # and also matches one of the specified filename patterns
       extractPackage "$f"
@@ -321,7 +342,7 @@ genTest() {
       doTest "$pkg" "$path" "${file%.x10}" # run an actual x10 test case
       #echo 2>&1 "Done with $path/$pkg/$file"
     fi
-  done <<<"$TESTS"
+  done < <(findTests "$topDir")
   return 0
 }
 
@@ -477,9 +498,11 @@ findSinceWhenMsgKeptOccurring() {
     # FIXME: assumes a particular order, but will do for now
     # FIXME: use egrep -l instead here
     find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" -print | \
+      sort -r | \
       xargs -r egrep -H "$str" | \
       sed -e 's/^.*logSummary\.//;s/:.*$//' > "$buggyTestLogDates"
     find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" -print | \
+      sort -r | \
       sed -e 's/^.*logSummary\.//' >> "$allTestLogDates"
     reverseFile "$allTestLogDates"
     reverseFile "$buggyTestLogDates"
@@ -765,7 +788,7 @@ mailDiffFromLastRun() {
   local logDiff="$RESULT"
 
   # FIXME: assumes a particular order, but will do for now
-  local old_logSummary=`find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" | tail -1`
+  local old_logSummary=`find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" | sort -r | head -1`
   if [[ -n "$old_logSummary" ]]; then
 
     local oldStartDate=${old_logSummary#*logSummary.}
