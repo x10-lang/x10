@@ -21,7 +21,7 @@ public class DynamicCast4_MethodReturn extends x10Test {
 	}
 	
 	public x10.lang.Object objectReturner() {
-		return new X10DepTypeClassTwo(:p==0&&q==1)(0,1);
+		return new X10DepTypeClassTwo(0,1);
 	}
 
 	public static void main(String[] args) {

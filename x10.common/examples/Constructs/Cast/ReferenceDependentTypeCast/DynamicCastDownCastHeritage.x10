@@ -11,11 +11,10 @@ public class DynamicCastDownCastHeritage extends x10Test {
 	}
 	
 	public boolean run(){
-		
 		try {
 		final int a=1, b=2;
 
-		x10.lang.Object toObj = new X10DepTypeSubClassOne(:p==5)(5,b);
+		x10.lang.Object toObj = new X10DepTypeSubClassOne(5,b);
 		X10DepTypeClassOne toSuperWider = (X10DepTypeClassOne(:p==5)) toObj;
 
 		// invalid constraint cast

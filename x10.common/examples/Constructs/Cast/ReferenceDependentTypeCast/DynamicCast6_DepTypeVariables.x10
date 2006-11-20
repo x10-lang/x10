@@ -10,7 +10,6 @@ import harness.x10Test;
 public class DynamicCast6_DepTypeVariables extends x10Test {
 
 	public boolean run() {
-	
 		try {
 			final int a = 1;
 			X10DepTypeClassTwo(:p==a&&q==2) convertedObject =
@@ -27,7 +26,7 @@ public class DynamicCast6_DepTypeVariables extends x10Test {
 
 			X10DepTypeClassTwo(:a==p) convertedObject5 =
 				(X10DepTypeClassTwo(:p==a&&q==p)) this.objectReturner3();
-		}catch(Throwable e) {
+		}catch(ClassCastException e) {
 			return false;
 		}
 		
@@ -35,16 +34,16 @@ public class DynamicCast6_DepTypeVariables extends x10Test {
 	}
 	
 	public x10.lang.Object objectReturner1() {
-		return new X10DepTypeClassTwo(:p==1&&q==2)(1,2);
+		return new X10DepTypeClassTwo(1,2);
 	}
 	
 	public x10.lang.Object objectReturner2() {
-		return new X10DepTypeClassTwo(:p==1&&q==p)(1,1);
+		return new X10DepTypeClassTwo(1,1);
 	}
 	
 	public x10.lang.Object objectReturner3() {
 		final int b = 1;
-		return new X10DepTypeClassTwo(:p==b&&q==p)(b,b);
+		return new X10DepTypeClassTwo(b,b);
 	}
 	
 	public static void main(String[] args) {
