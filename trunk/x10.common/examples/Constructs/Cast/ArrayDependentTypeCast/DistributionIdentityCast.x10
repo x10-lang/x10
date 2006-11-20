@@ -1,7 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose: Check primitive dependent type assignment to primitive variable works.
+ * Purpose: Checks widening dynamic cast works for distribution.
  * @author vcave
  **/
 public class DistributionIdentityCast extends x10Test {
