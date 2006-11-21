@@ -17,20 +17,67 @@ public class RuntimeCastChecker {
 	 * Method used to do dynamic nullcheck when nullable is casted away.
 	 */
 	public static boolean isObjectNotNull(java.lang.Object o) {
-		if (o == null)
-			throw new ClassCastException("Cast of value 'null' to non-nullable type failed.");
-
-		return true;
+		return (o != null);
 	}
 
+	private static void throwClassCastException()  throws ClassCastException {
+		throw new ClassCastException("Expression is either not an instance of cast type or Constraints are not meet");		
+	}
+	
 	/**
 	 * WARNING ! Do not change the name of this method without changing
 	 * the Cast code generation of x10 compiler.
 	 */
-	public static java.lang.Object throwClassCastException() throws ClassCastException {
-		throw new ClassCastException("Expression is either not an instance of cast type or Constraints are not meet");
+	public static java.lang.Object throwClassCastException(java.lang.Object o) throws ClassCastException {
+		RuntimeCastChecker.throwClassCastException();
+		return o;
 	}
-
+	
+	/**
+	 * WARNING ! Do not change the name of this method without changing
+	 * the Cast code generation of x10 compiler.
+	 */
+	public static short throwClassCastException(short p) throws ClassCastException {
+		RuntimeCastChecker.throwClassCastException();
+		return p;
+	}
+	
+	/**
+	 * WARNING ! Do not change the name of this method without changing
+	 * the Cast code generation of x10 compiler.
+	 */	
+	public static int throwClassCastException(int p) throws ClassCastException {
+		RuntimeCastChecker.throwClassCastException();
+		return p;
+	}
+	
+	/**
+	 * WARNING ! Do not change the name of this method without changing
+	 * the Cast code generation of x10 compiler.
+	 */
+	public static long throwClassCastException(long p) throws ClassCastException {
+		RuntimeCastChecker.throwClassCastException();
+		return p;
+	}
+	
+	/**
+	 * WARNING ! Do not change the name of this method without changing
+	 * the Cast code generation of x10 compiler.
+	 */
+	public static double throwClassCastException(double p) throws ClassCastException {
+		RuntimeCastChecker.throwClassCastException();
+		return p;
+	}
+	
+	/**
+	 * WARNING ! Do not change the name of this method without changing
+	 * the Cast code generation of x10 compiler.
+	 */
+	public static float throwClassCastException(float p) throws ClassCastException {
+		RuntimeCastChecker.throwClassCastException();
+		return p;
+	}
+	
 	/**
 	 * WARNING ! Do not change the name of this method without changing
 	 * the Cast code generation from the x10 compiler.
@@ -40,49 +87,60 @@ public class RuntimeCastChecker {
 	 * @param obj
 	 * @return
 	 */
-	public static java.lang.Object checkCast(RuntimeConstraint [] cTab, boolean nullableCheck, java.lang.Object objToCast, Class toClassType) {
-//		Class toClassType;
+	public static java.lang.Object checkCast(RuntimeConstraint [] cTab, boolean exprMustBeNotNull, boolean toTypeIsNullable,
+			java.lang.Object objToCast, Class toClassType) {
+		
+		assert !(exprMustBeNotNull && toTypeIsNullable);
 
-//		try {
-//			toClassType = Class.forName(toClassTypeName);
-//		} catch (ClassNotFoundException e1) {
-//			throw new ClassCastException("Class of type " + toClassTypeName + " is not found");
-//		}
-
+		// if we try to cast from a nullable Type to a non nullable Type we must
+		// first check expr to cast is not null
+		if ((exprMustBeNotNull) && (objToCast == null)) {
+					throw new NullPointerException("Cast from nullable to non-nullable failed because instance is null.");
+		}
+		
+		if ((toTypeIsNullable) && (objToCast == null)) {
+			return objToCast;
+		}
+		
+		// else we have to check anyway if the expr is not null
+		// but exception to throw is different and it avoids an ugly 
+		// NullPointerException when trying to access expr class just here after.
+		if (objToCast == null) {
+			throw new ClassCastException("Expression to cast is null");
+		}
+		
 		// get class for reflexion
 		Class fromClassType = objToCast.getClass();
 
 		if (!toClassType.isAssignableFrom(fromClassType))
 			throw new ClassCastException("Type " + fromClassType + " is not assignable to type " + toClassType);
 
-		if (nullableCheck) {
-			RuntimeCastChecker.isObjectNotNull(objToCast);
-		}
 		boolean correct = true;
 		int i = 0;
 		try {
-			// for each constraints invoke class properties using reflexion
+			// for each constraint invoke class property using reflexion
 			while ((i < cTab.length) && correct) {
 				RuntimeConstraint constraint = cTab[i];
-//				System.out.println(constraint);
 				// every property has a getter defined
 				Method leftHand = fromClassType.getMethod(constraint.name, (Class[])null);
 				if (constraint instanceof RuntimeConstraintOnSelf) {
 					Method rightHand = fromClassType.getMethod((String) constraint.value, (Class[])null);
-					// FIX bug while accessing nested class which are not visible by RuntimeCastChecker
+					// FIXED bug while accessing nested class which are not visible by RuntimeCastChecker
 					boolean accessibleR = rightHand.isAccessible();
 					leftHand.setAccessible(true);
 					boolean accessibleL = leftHand.isAccessible();
 					rightHand.setAccessible(true);
+					// compare instance's property value to another instance's property
 					correct = (leftHand.invoke(objToCast, (java.lang.Object[])null))
 						.equals(rightHand.invoke(objToCast, (java.lang.Object[])null));
 					leftHand.setAccessible(accessibleL);
 					rightHand.setAccessible(accessibleR);
 				} else {
 					// if here then method exists
-					// FIX bug while accessing nested class which are not visible by RuntimeCastChecker
+					// FIXED bug while accessing nested class which are not visible by RuntimeCastChecker
 					boolean accessibleL = leftHand.isAccessible();
 					leftHand.setAccessible(true);
+					// compare an instance property to its value declared in the cast. 
 					correct = (leftHand.invoke(objToCast, (java.lang.Object[])null)).equals(constraint.value);
 					leftHand.setAccessible(accessibleL);
 				}
@@ -112,12 +170,18 @@ public class RuntimeCastChecker {
 	 * @param obj
 	 * @return
 	 */
-	public static boolean isInstanceOf(RuntimeConstraint [] cTab, boolean nullableCheck, java.lang.Object obj, Class toClassType) {
+	public static boolean isInstanceOf(RuntimeConstraint [] cTab, boolean exprMustBeNotNull, boolean toTypeIsNullable,
+			java.lang.Object obj, Class toClassType) {
+		
+		//	otherwise we have to check obj respect target type and its constraints.
 		try {
-			RuntimeCastChecker.checkCast(cTab, false, obj, toClassType);
-		} catch(Throwable t) {
+			RuntimeCastChecker.checkCast(cTab, exprMustBeNotNull, toTypeIsNullable, obj, toClassType);
+		} catch(ClassCastException t) {
+			return false;
+		} catch(NullPointerException t) {
 			return false;
 		}
+		
 		return true;
 	}
 
@@ -130,7 +194,7 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the byte.
 	 * @return the char value or an exception if cast does not meet constraints.
 	 */
-	public static char checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, char value, String toType) {
+	public static char checkPrimitiveType(RuntimeConstraint [] cTab, char value) {
 		boolean correct = true;
 		int i = 0;
 		// for each constraints
@@ -157,13 +221,13 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the byte.
 	 * @return the byte value or an exception if cast does not meet constraints.
 	 */
-	public static byte checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, byte value, String toType) {
+	public static byte checkPrimitiveType(RuntimeConstraint [] cTab, byte value) {
 		boolean correct = true;
 		int i = 0;
 		// for each constraints
 		while ((i < cTab.length) && (correct)) {
 			RuntimeConstraint constraint = cTab[i];
-			correct = (value == ((java.lang.Byte) constraint.value).byteValue());
+			correct = (value == ((java.lang.Number) constraint.value).byteValue());
 			i++;
 		}
 
@@ -184,13 +248,13 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the short.
 	 * @return the short value or an exception if cast does not meet constraints.
 	 */
-	public static short checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, short value, String toType) {
+	public static short checkPrimitiveType(RuntimeConstraint [] cTab, short value) {
 		boolean correct = true;
 		int i = 0;
 		// for each constraints
 		while ((i < cTab.length) && (correct)) {
 			RuntimeConstraint constraint = cTab[i];
-			correct = (value == ((java.lang.Short) constraint.value).shortValue());
+			correct = (value == ((java.lang.Number) constraint.value).shortValue());
 			i++;
 		}
 
@@ -211,14 +275,13 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the integer.
 	 * @return the integer value or an exception if cast does not meet constraints.
 	 */
-	public static int checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck,
-			int value, String toType) {
+	public static int checkPrimitiveType(RuntimeConstraint [] cTab, int value) {
 		boolean correct = true;
 		int i = 0;
 		// for each constraints
 		while ((i < cTab.length) && (correct)) {
 			RuntimeConstraint constraint = cTab[i];
-			correct = (value == ((java.lang.Integer) constraint.value).intValue());
+			correct = (value == ((java.lang.Number) constraint.value).intValue());
 			i++;
 		}
 
@@ -239,13 +302,13 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the long.
 	 * @return the long value or an exception if cast does not meet constraints.
 	 */
-	public static long checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, long value, String toType) {
+	public static long checkPrimitiveType(RuntimeConstraint [] cTab, long value) {
 		boolean correct = true;
 		int i = 0;
 		// for each constraints
 		while ((i < cTab.length) && (correct)) {
 			RuntimeConstraint constraint = cTab[i];
-			correct = (value == ((java.lang.Long) constraint.value).longValue());
+			correct = (value == ((java.lang.Number) constraint.value).longValue());
 			i++;
 		}
 
@@ -266,7 +329,7 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the double.
 	 * @return the double value or an exception if cast does not meet constraints.
 	 */
-	public static double checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, double value, String toType) {
+	public static double checkPrimitiveType(RuntimeConstraint [] cTab, double value) {
 		boolean correct = true;
 		int i = 0;
 		// for each constraints
@@ -293,7 +356,7 @@ public class RuntimeCastChecker {
 	 * @param value Current value of the float.
 	 * @return the float value or an exception if cast does not meet constraints.
 	 */
-	public static float checkPrimitiveType(RuntimeConstraint [] cTab, boolean nullableCheck, float value, String toType) {
+	public static float checkPrimitiveType(RuntimeConstraint [] cTab, float value) {
 		boolean correct = true;
 		int i = 0;
 		// for each constraints
