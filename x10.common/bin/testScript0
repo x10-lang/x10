@@ -102,6 +102,10 @@ The -clean option cleans up left-over intermediate files before
 running the tests.
 The -cleanOnly option implies -clean and exits immediately.
 
+The -verbose (or --verbose) option will display the output of the
+tests that were executed.
+The -nolink option will prevent checking for forwarding pointers.
+
 The -testList option indicates a file containing a list of shell
 file patterns denoting the tests to run. The test list file can
 also contain comment lines beginning with a \"#\" character,
@@ -155,6 +159,7 @@ checkUsage() {
   pat=(.)
   x10lib="./x10lib"
   verbose=""
+  nolink=""
   NewFailures=""
   NoDifferences="true"
   while [[ $# -gt 0 ]]; do
@@ -197,6 +202,9 @@ checkUsage() {
       shift 2
     elif [[ "$1" = "-verbose" || "$1" = "-v" || "$1" = "--verbose" ]]; then
       verbose="yes"
+      shift
+    elif [[ "$1" = "-nolink" ]]; then
+      nolink="yes"
       shift
     elif [[ "$1" = -* ]]; then
       echo >&3 "unrecognized flag $1, or missing argument"
@@ -330,7 +338,7 @@ genTest() {
     #echo 2>&1 "Checking file: $f"
     file="${f##*/}"    # if f is a/b/c file will be c
     path="${f%/$file}" # if f is a/b/c path will be a/b
-    if checkLink "$f" "$file"; then
+    if [ -z "$nolink" ] && checkLink "$f" "$file"; then
       echo 2>&1 "Forwarding pointer to '$RESULT' found"
     elif testForEligibility "$f" "$file"; then
       # an actual .x10 file containing a main method
@@ -495,7 +503,6 @@ findSinceWhenMsgKeptOccurring() {
     #where this message did not appear
     echo "2000.01.01_00.00.00" > "$allTestLogDates"
 
-    # FIXME: assumes a particular order, but will do for now
     # FIXME: use egrep -l instead here
     find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" -print | \
       sort -r | \
@@ -504,8 +511,8 @@ findSinceWhenMsgKeptOccurring() {
     find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" -print | \
       sort -r | \
       sed -e 's/^.*logSummary\.//' >> "$allTestLogDates"
-    reverseFile "$allTestLogDates"
-    reverseFile "$buggyTestLogDates"
+#    reverseFile "$allTestLogDates"
+#    reverseFile "$buggyTestLogDates"
 
     local n=`diff "$allTestLogDates" "$buggyTestLogDates" | sed -n -e 's/^\([0-9]\+\).*$/\1/p' | head -1`
     if [[ -n "$n" && "$n" -gt 1 ]]; then
@@ -514,8 +521,7 @@ findSinceWhenMsgKeptOccurring() {
     else
        RESULT="$startDate"
        if [[ -n "$altstr" ]]; then
-	 # FIXME: assumes a particular order, but will do for now
-	 local old_logSummary=`find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" | tail -1`
+	 local old_logSummary=`find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" | sort -r | head -1`
          if grep "$altstr" $old_logSummary > /dev/null ; then
              NewFailures="$NewFailures $test";
          fi
@@ -787,7 +793,6 @@ mailDiffFromLastRun() {
   makeTempFile "logDiff"
   local logDiff="$RESULT"
 
-  # FIXME: assumes a particular order, but will do for now
   local old_logSummary=`find "$testLogs" -mindepth 1 -maxdepth 1 -name "logSummary.*" | sort -r | head -1`
   if [[ -n "$old_logSummary" ]]; then
 
