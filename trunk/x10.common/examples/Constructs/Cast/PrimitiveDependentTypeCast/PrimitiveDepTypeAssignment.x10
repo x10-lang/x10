@@ -10,7 +10,7 @@ public class PrimitiveDepTypeAssignment extends x10Test {
 		byte(:self==1) bb = 1;
 		short(:self==10) ss = 10;
 		int(:self==20) ii = 20;
-		//int(:self==-2) iii = -2; //--> si dans la spec ajouter le test
+		int(:self==-2) iii = -2;
 		long(:self==30) ll = 30;
 		float(:self==0.001F) ff = 0.001F;
 		double (: self == 0.001) i = 0.001;
