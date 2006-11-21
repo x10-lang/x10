@@ -12,9 +12,11 @@ public class X10InstanceofExt_c extends X10Ext_c {
   public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
       Instanceof n = (Instanceof) node();
       Type rtype = n.compareType().type();
-
+      
+      // deal with instanceof targeting primitive type such as '3 instanceof int'
       if (rtype.isPrimitive()) {
-          Type t = ts.boxedType((X10PrimitiveType) rtype.toPrimitive());
+          // rewrites the compareType to the primitive boxed one.
+    	  Type t = ts.boxedType((X10PrimitiveType) rtype.toPrimitive());
           return n.compareType(nf.CanonicalTypeNode(n.compareType().position(), t));
       }
 
