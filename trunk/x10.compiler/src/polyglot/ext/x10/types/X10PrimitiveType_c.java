@@ -151,7 +151,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		NullableType nullType = toType.toNullable();
 		if (nullType != null) 
 			toType = nullType.base();
-		boolean result = ts.equals(toType, xts.Object());
+		boolean result = ts.equals(toType, xts.Object()) || ts.equals(toType, xts.X10Object());
 		if (result) return result;
 		if (isVoid() || toType.isVoid())
 			return result = false;
