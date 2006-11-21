@@ -8,7 +8,6 @@ import harness.x10Test;
  public class DynamicPrimitiveCastToPrimitiveDepTypeInteger extends x10Test {
 
 		public boolean run() {
-			
 			try { 
 				int (: self == 0) i = 0;
 				int j = 1;
