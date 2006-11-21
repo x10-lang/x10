@@ -1,9 +1,10 @@
 import harness.x10Test;
 
 /**
- * Purpose: Checks the numeric expression is not evaluated several time while checking for constraint.
+ * Purpose: Checks the numeric expression is not evaluated several time while checking constraints.
  * Note: Expression (j+1) does not produce any side effects however inlining is not used.
- * Note: It is a possible optimization to detect there is no side effects and inline the checking.
+ * Note: It is a possible optimization (depending expression size) to detect 
+ *       there is no side effects and inline the checking.
  * @author vcave
  **/
 public class NumericExpressionToPrimitiveDepType_4 extends x10Test {
