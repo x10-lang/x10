@@ -15,6 +15,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Instanceof_c;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -40,11 +41,14 @@ import polyglot.visit.TypeChecker;
  * @author vcave
  *
  */
-public class X10Instanceof_c extends Instanceof_c {
+public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10CastInfo{
 
+	private boolean toTypeNullable = false;
+	private boolean dynamicCheckNeeded = false;
+	
 	public X10Instanceof_c(Position pos, Expr expr, TypeNode compareType) {
     	super(pos,expr,compareType);
-    }
+	}
  
     /** Type check the expression. */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
@@ -57,25 +61,32 @@ public class X10Instanceof_c extends Instanceof_c {
                       "Left operand of \"instanceof\" must be castable to "
                       + "the right operand.");
         }
-
-        return n.type(tc.typeSystem().Boolean());
+        
+        // is conversion from a nullable type to a non nullable one.        
+        this.toTypeNullable = ((X10TypeSystem) tc.typeSystem()).isNullable(this.compareType.type());
+    	this.dynamicCheckNeeded  = ((((X10Type)rtype).depClause() != null) && ((X10Type)ltype).depClause() == null)
+    								|| this.isToTypeNullable();
+    	return n.type(tc.typeSystem().Boolean());
 	}
 
-    /** Write the expression to an output file. */
-    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-    	boolean dynamicCheckNeeded = false;
-    	if(((X10Type)this.compareType.type()).depClause() != null)  {
-		   // cast is valid if toType or fromType have constraints, checks them at runtime
-    		System.out.println("Instanceof" + this.expr.type() + " to " + this.compareType.type() + " will require a runtime check");
-    		dynamicCheckNeeded = true;
-    	}
-
-    	if (dynamicCheckNeeded) {
-    		X10Cast_c.X10CastHelper.prettyPrintInstanceOf(w,tr, (X10Type)this.compareType.type(),this.expr,this);
-    	}
-    	else {
-    		super.prettyPrint(w,tr);
-    	}
+    public boolean isDynamicCheckNeeded() {
+    	return this.dynamicCheckNeeded;
     }
+    
+	public boolean isPrimitiveCast() {
+		return false;
+	}
+
+	/**
+	 * Always return false as if we are dealing with a non nullable
+	 * then the (null instanceof T) code generated will return false.   
+	 */
+	public boolean notNullRequired() {
+		return false;
+	}
+
+	public boolean isToTypeNullable() {
+		return this.toTypeNullable;
+	}
 
 }
