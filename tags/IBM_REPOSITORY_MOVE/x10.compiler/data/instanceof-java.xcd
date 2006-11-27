@@ -1,0 +1,3 @@
+// SYNOPSIS: #0: Type #1 exprToTest
+
+ (#1 instanceof #0)

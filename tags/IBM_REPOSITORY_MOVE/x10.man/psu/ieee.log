@@ -1,0 +1,95 @@
+This is TeX, C Version 3.1 (format=lplain 92.9.22)  16 FEB 1994 10:52
+**ieee.tex
+(ieee.tex
+LaTeX Version 2.09 <18 March 1992>
+(algol60.sty
+Document Style 'algol60'.
+\descriptionmargin=\dimen99
+\c@chapter=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+)
+\@indexfile=\write3
+
+Writing index file ieee.idx 
+(commands.tex) (ieee.aux
+LaTeX Warning: Label `let' multiply defined on input line 118.
+) (first.tex [1
+
+
+
+] [2
+
+] [3
+
+] [4] (ieee.toc)
+\tf@toc=\write4
+ [5
+
+] [6]) (intro.tex [7
+
+
+
+] (bib.tex
+[8])) [9
+
+] (struct.tex
+ 1.
+[10
+
+]) (lex.tex
+ 2.
+[11] [12]) (basic.tex
+ 3.
+[13]) (expr.tex
+ 4.
+[14]
+Warning: Font/shape `cmtt/bx/n ' undefined on input line 200.
+Warning: Using `cmtt/m/n' instead on input line 200.
+[15] [16] [17] [18]) (prog.tex
+ 5.
+) [19] (procs.tex
+ 6.
+[20] [21] [22] [23] [24] [25] [26] [27] [28] [29] [30] [31] [32] [33] [34]
+[35]) (syn.tex
+ 7.
+[36] [37]) (derive.tex [38] [39]) [40
+
+] (sem.tex
+Appendix A.
+
+Overfull \hbox (1.46426pt too wide) in paragraph at lines 130--155
+[] 
+
+\hbox(122.5+117.5)x254.0 []
+
+[41
+
+] [42]) (subset.tex
+Appendix B.
+[43] [44]) (nimpl.tex
+Appendix C.
+[45] [46]) [47
+
+] [48
+
+] (index.tex [49
+
+] [50]) [51] (ieee.aux)
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+ ) 
+Here is how much of TeX's memory you used:
+ 632 strings out of 4204
+ 5529 string characters out of 50225
+ 54326 words of memory out of 262141
+ 2745 multiletter control sequences out of 9500
+ 19630 words of font info for 75 fonts, out of 72000 for 255
+ 14 hyphenation exceptions out of 607
+ 21i,11n,18p,169b,321s stack positions out of 300i,40n,60p,3000b,4000s
+
+Output written on ieee.dvi (51 pages, 301792 bytes).

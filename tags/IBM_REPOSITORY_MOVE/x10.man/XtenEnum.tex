@@ -1,0 +1,37 @@
+\section{Enumeration type}
+
+%% Why is an int type not an enumeration type?
+
+The basic design to start with is that of Java enums.
+
+enums are final value classes, inheriting from x10.lang.Object, with
+no instance variables, and one static final self-typed variable for
+each item in the enumeration.
+
+enums may have static variables and static and instance methods. enums
+may have constructors.
+
+
+Hmm.. so this design will not work with the idea of treating 1..25 as
+an enum.
+
+Hmm.. what are enums really.. just an enumerated set of literals! Why
+cant we use some other enum's constant? i see.. because we would potentially be defining multiple orders.
+
+Ah, so the solution is clear. int is an enum. For any enum X if a and
+b are two ordered values with a < b, then a..b is also an enum!
+
+So this gives us all the subranges as enums!
+
+I like this. 9:22am 6/15/2004
+
+We must have a design that allows for us to have enumeration literals.
+e.g. we should be able to use 1..25 as an enumeration literal. Such a
+literal represents, implicitly an enumeration class declared with the
+constants 1, 2, 3... 25, in that particular order.
+
+Interesting. What we are saying is that .. is a type former. It takes
+two values and returns a type.
+
+Note that this requires that we be able to use the same literal (e.g. 1) at
+different types (e.g. int, etc).
