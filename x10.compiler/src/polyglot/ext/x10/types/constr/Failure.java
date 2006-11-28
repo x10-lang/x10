@@ -17,7 +17,6 @@ public class Failure extends SemanticException {
 	 */
 	public Failure() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -25,7 +24,6 @@ public class Failure extends SemanticException {
 	 */
 	public Failure(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -33,7 +31,6 @@ public class Failure extends SemanticException {
 	 */
 	public Failure(Position position) {
 		super(position);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
