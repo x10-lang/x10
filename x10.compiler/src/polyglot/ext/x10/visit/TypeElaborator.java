@@ -6,10 +6,12 @@ package polyglot.ext.x10.visit;
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
 import polyglot.ast.Call;
+import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
+import polyglot.ast.Instanceof;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
@@ -18,12 +20,17 @@ import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.VarDecl;
+import polyglot.ext.x10.ast.DepCast_c;
+import polyglot.ext.x10.ast.DepInstanceof_c;
+import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.X10ArrayAccess;
 import polyglot.ext.x10.ast.X10ArrayAccess1;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call_c;
+import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10LocalDecl_c;
+import polyglot.ext.x10.ast.X10TypeNode;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 import polyglot.main.Report;
@@ -61,6 +68,7 @@ public class TypeElaborator extends TypeChecker {
 		// a null return indicates that node processing is *not* being overriden.
 		// a non-null value indicates overriding, with the returned node being
 		// the result of running this visitor on n.
+		//Report.report(1, "TypeElaborator parent =" + parent + " " + (parent==null? null : parent.getClass()));
 		Node result = null;
 		if (parent instanceof LocalDecl) 
 			return result = (n instanceof TypeNode) ? null : n;
@@ -68,6 +76,23 @@ public class TypeElaborator extends TypeChecker {
 			return result = (n instanceof TypeNode) ? null : n;
 		if (parent instanceof Formal) 
 			return result = (n instanceof TypeNode) ? null : n;
+		if (n instanceof Cast) {
+			Cast nn = (Cast) n;
+			X10TypeNode xn = (X10TypeNode) nn.castType();
+			DepParameterExpr e = xn.dep();
+			if (e!=null) {
+				return result = new DepCast_c(n.position(), xn.dep(null), e, nn.expr());
+			}
+		}
+		if (n instanceof Instanceof) {
+			Instanceof nn = (Instanceof) n;
+			X10TypeNode xn = (X10TypeNode) nn.compareType();
+			DepParameterExpr e = xn.dep();
+			if (e!=null) {
+				return result = new DepInstanceof_c(n.position(), xn.dep(null), e, nn.expr());
+			}
+		}
+		
 		//if (parent instanceof X10ClockedLoop)
 		//	return result = (n instanceof Formal || n instanceof Stmt) ? null : n;
 		
