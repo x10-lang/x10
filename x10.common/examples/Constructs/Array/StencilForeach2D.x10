@@ -10,7 +10,7 @@ public class StencilForeach2D extends x10Test {
 	
         public boolean run() {
         	final region(:rank==2) R=[-1:256,-1:256], r=[0:255,0:255];
-        	final point(:rank==2) north=[0,1], south=[0,-1], west=[-1,0], east=[1,0];
+        	final point north=[0,1], south=[0,-1], west=[-1,0], east=[1,0];
         	final double [:rank==2] A=(double [:rank==2])new double [R];
         	final double h=0.1;
         	
