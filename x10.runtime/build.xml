@@ -41,9 +41,9 @@
     </target>
     <target name="build" depends="init,x10-scripts">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <!-- <javac destdir="${build}" source="1.4" target="1.4"> -->
-        <!-- <javac destdir="${build}" source="1.5" target="1.5"> -->
-        <javac destdir="${build}">
+        <!-- <javac destdir="${build}" source="1.4" target="1.4" debug="on"> -->
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
+        <!-- <javac destdir="${build}" debug="on"> -->
             <!--<compilerarg value="-Xlint:unchecked"/>-->
             <src path="${src}"/>
             <classpath>
