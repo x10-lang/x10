@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.ovmj.util.Runabout;
-
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
@@ -79,7 +77,7 @@ import polyglot.visit.PrettyPrinter;
  * @author Igor Peshansky (template classes)
  * @author Rajkishore Barik 26th Aug 2006 (added loop optimizations)
  */
-public class X10PrettyPrinterVisitor extends Runabout {
+public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	private final CodeWriter w;
 	private final PrettyPrinter pp;
