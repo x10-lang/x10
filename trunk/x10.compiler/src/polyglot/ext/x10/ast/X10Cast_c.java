@@ -94,7 +94,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    	   if ((x10ToType.depClause() != null) && (x10FromType.depClause() == null)) {
 			   	   if (fromType.isPrimitive()) {
 		        		   if (!expr.isConstant()) {
-			    	            		Report.report(1,"Warning! Primitive Cast from " + fromType + " to " + toType + " is unsafe at line " + this.position + ".");
+			    	            		Report.report(1,"Warning! Primitive Cast from " + fromType + " to " + toType + " is unsafe.", this.position);
 			    	            		this.primitiveType = true;
 			    	            		this.dynamicCheckNeeded = true;
 		    	            }
@@ -108,7 +108,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        	   } else {
 	        		   if (!x10ToType.equalsImpl(x10FromType)) {
 				    		   // cast is valid if toType or fromType have constraints, checks them at runtime
-		        			   Report.report(1,"Warning! Cast from " + fromType + " to " + toType + " is unsafe at line " + this.position + ".");
+		        			   Report.report(1,"Warning! Cast from " + fromType + " to " + toType + " is unsafe.", this.position);
 			            		this.dynamicCheckNeeded = true;
 	        		   }
 	        		   
