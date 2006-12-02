@@ -151,7 +151,7 @@
 <tr>
 <td>
 <img src="//www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="docs/X10_Tutorial_v10.ppt">X10 Tutorial presentation</a>
+<a href="docs/X10_Tutorial_v10.ppt">X10 Tutorial</a>. Software productivity presentation to HPCS, 2005.
 </td>
 </tr>
 <tr>
@@ -174,10 +174,15 @@
 <td>
 <br>
 <img src="//www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="docs/LaR_04_Paper_V1.pdf">X10: Programming for hierarchical parallelism and non-uniform data access</a>
+Ebcioglu, Saraswat, Sarkar.
+<a href="docs/LaR_04_Paper_V1.pdf">X10: Programming for hierarchical parallelism and non-uniform data access</a>.
+International Workshop on Language Runtimes, 2004.
+
 <br>
+Charles, Donawa, Ebcioglu, Grothoff, Kielstra, von Praun, Saraswat, Sarkar.
 <img src="//www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="docs/oopsla05-final.pdf">X10: An Object-oriented approach to non-uniform Clustered Computing</a>
+<a href="docs/oopsla05-final.pdf">X10: An Object-oriented approach to non-uniform Clustered Computing</a>.
+OOPSLA 2005.
 </td>
 </tr>
 <tr>
