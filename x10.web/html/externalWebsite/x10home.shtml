@@ -105,6 +105,7 @@ The X10 Programming Language
 <td width="10">&nbsp;</td>
 <td width="443" id="content"
 
+<!--  start  -->
 <table border="0" cellpadding="0" cellspacing="0" width="443">
 <tr>
 <td class="v14-header-1">About X10</td>
@@ -119,10 +120,30 @@ The X10 Programming Language
 X10 aims to contribute to this productivity improvement by developing a new programming model, combined with a new set of tools integrated into Eclipse and new implementation techniques for delivering optimized scalable parallelism in a managed runtime environment. X10 is a type-safe, modern, parallel, distributed object-oriented language intended to be very easily accessible to Java(TM) programmers. It is targeted to future low-end and high-end systems with nodes that are built out of multi-core SMP chips with non-uniform memory hierarchies, and interconnected in scalable cluster configurations. A member of the Partitioned Global Address Space (PGAS) family of languages, X10 highlights the explicit reification of locality in the form of places; lightweight activities embodied in async, future, foreach, and ateach constructs; constructs for termination detection (finish) and phased computation (clocks); the use of lock-free synchronization (atomic blocks); and the manipulation of global arrays and data structures.
 </p></td>
 </tr>
-</table></td>
+</table>
+</td>
 </tr>
 </table>
+<!-- end -->
 
+<!--  start  -->
+<table border="0" cellpadding="0" cellspacing="0" width="443">
+<tr>
+<td class="v14-header-5">Current status</td>
+</tr>
+<tr>
+<td><table border="0" cellpadding="0" cellspacing="0" >
+<tr>
+<td width="443"><p>
+Support for a subset of the X10 language.  Add pertienent details here.
+
+</p></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<!-- end -->
 </td>
 <td width="7">&nbsp;</td>
 <td width="150" id="right-nav">
@@ -135,7 +156,7 @@ X10 aims to contribute to this productivity improvement by developing a new prog
 <tr>
 <td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table-border">
 <tr>
-<td width="150"><p class="smgraytext">The second major release of X10 (version xxx.xx) is now available for <a href="x10downloads.shtml">download</a>.</p></td>
+<td width="150"><p class="smgraytext">2006.12.01: The second major release of X10 (version xxx.xx) is now available for <a href="x10downloads.shtml">download</a>.</p></td>
 </tr>
 </table></td>
 </tr>
