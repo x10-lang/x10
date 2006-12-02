@@ -136,6 +136,7 @@ X10 aims to contribute to this productivity improvement by developing a new prog
 <tr>
 <td width="443"><p>
 Support for a subset of the X10 language.  Add pertienent details here.
+Currently only SMP machines are supported.
 
 </p></td>
 </tr>
