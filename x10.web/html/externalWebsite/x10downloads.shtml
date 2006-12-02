@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="PICS-Label" content='(PICS-1.1 "http://www.icra.org/ratingsv02.html" l gen true r (cz 1 lz 1 nz 1 oz 1 vz 1) "http://www.rsac.org/ratingsv01.html" l gen true r (n 0 s 0 v 0 l 0) "http://www.classify.org/safesurf/" l gen true r (SS~~000 1))' />
+<link rel="schema.DC" href="http://purl.org/DC/elements/1.0/"/>
+<link rel="SHORTCUT ICON" href="http://www.ibm.com/favicon.ico"/>
+<meta name="DC.Rights" content="Copyright (c) 2006 by IBM Corporation"/>
+<meta name="Keywords" content="X10 HPCS parallel languages download"/>
+<meta name="DC.Date" scheme="iso8601" content="2006-11-29"/>
+<meta name="Source" content="v14 Template Generator, Template 14.15"/>
+<meta name="Security" content="Public"/>
+<meta name="Abstract" content="X10 downloads"/>
+<meta name="IBM.Effective" scheme="W3CDTF" content="2006-12-01"/>
+<meta name="Owner" content="vsaraswa@us.ibm.com"/>
+<meta name="DC.Language" scheme="rfc1766" content="en-US"/>
+<meta name="IBM.Country" content="US"/>
+<meta name="Robots" content="index,follow"/>
+<meta name="Description" content="IBM X10 Downloads"/>
+
+<title>IBM Research | X10 Downloads</title>
+<link rel="stylesheet" type="text/css" href="//www.ibm.com/common/v14/main.css" />
+<link rel="stylesheet" type="text/css" media="all" href="//www.ibm.com/common/v14/screen.css" />
+<link rel="stylesheet" type="text/css" media="print" href="//www.ibm.com/common/v14/print.css" />
+<script src="//www.ibm.com/common/v14/detection.js" language="JavaScript" type="text/javascript">
+</script>
+
+</head>
+<body>
+
+<!-- MASTHEAD_BEGIN -->
+<!--#include virtual="masthead.ssi"-->
+<!-- MASTHEAD_END -->
+
+<table width="760" border="0" cellspacing="0" cellpadding="0" id="v14-body-table">
+<tr valign="top">
+<td width="150" id="navigation">
+
+<!-- LEFTNAV_BEGIN -->
+<table border="0" cellpadding="0" cellspacing="0" width="150">
+<tr>
+<td class="left-nav-spacer">&nbsp;</td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="150">
+<tr>
+<td class="left-nav-overview" colspan="2"><a class="left-nav-overview" href="x10home.shtml">X10 Home page</a></td>
+</tr>
+<tr>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10doc.shtml">Documentation</a></td>
+</tr>
+<tr>
+<td class="left-nav-highlight" colspan="2"><a class="left-nav" href="x10downloads.shtml">Downloads</a></td>
+</tr>
+<tr>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10bugs.shtml">Reporting a bug</a></td>
+</tr>
+<tr>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10community.shtml">X10 Community</a></td>
+</tr>
+<tr class="left-nav-last">
+<td width="14"><img src="//www.ibm.com/i/c.gif" width="14" height="1" alt="" class="display-img"/></td>
+<td width="136"><img src="//www.ibm.com/i/v14/t/left-nav-corner.gif" width="136" height="19" alt="" class="display-img"/></td>
+</tr>
+</table>
+
+<br />
+<table border="0" cellpadding="0" cellspacing="0" width="150">
+<tr>
+<td class="related" colspan="2"><b class="related">Related links</b></td>
+</tr>
+
+<tr class="rlinks">
+<td><img src="//www.ibm.com/i/v14/t/rl-bullet.gif" width="2" height="8" alt=""/></td>
+<td><a class="rlinks" href="http://www.highproductivity.org/">HPCS</a></td>
+</tr>
+<tr class="rlinks">
+<td><img src="//www.ibm.com/i/v14/t/rl-bullet.gif" width="2" height="8" alt=""/></td>
+<td><a class="rlinks" href="http://www.watson.ibm.com">IBM Research</a></td>
+</tr>
+<tr>
+<td width="14"><img src="//www.ibm.com/i/c.gif" width="14" height="1" alt="" class="display-img"/></td>
+<td width="136"><img src="//www.ibm.com/i/c.gif" width="136" height="19" alt="" class="display-img"/></td>
+</tr>
+</table>
+<!-- LEFTNAV_END -->
+
+</td>
+<td width="610"><a name="main"></a><table width="610" cellpadding="0" cellspacing="0" border="0" id="content-table">
+<tr valign="top">
+<td width="10">&nbsp;</td>
+<td width="443"><h1>Downloads</h1> <br /></td>
+<td width="7">&nbsp;</td>
+<td width="150">&nbsp;</td>
+</tr>
+<tr valign="top">
+<td width="10">&nbsp;</td>
+<td width="443" id="content">
+
+<!-- ANCHOR_LINK_LIST_BEGIN -->
+<br /><a name="#main"></a>
+<table border="0" cellpadding="0" cellspacing="0">
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d_bold.gif" width="16" /></td>
+<td><a class="toclink" href="#a1">Downloads</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d_bold.gif" width="16" /></td>
+<td><a class="toclink" href="#a2">Installation Instructions</a></td>
+</tr>
+</table>
+
+<!-- ANCHOR_LINK_LIST_END -->
+<br /><a name="a1"></a>
+<table width="443" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="v14-header-1">Downloads</td>
+
+</tr>
+<tr>
+<td>
+<br>
+<img src="//www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="xxxx">X10 version XXX</a>
+<br>
+Prerequisites: 
+<ul>
+<li>
+<img src="//www.ibm.com/i/v14/icons/fw.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="http://www.ibm.com/developerworks/java">Java 5.0 or later</a>
+</li>
+<li>
+<img src="//www.ibm.com/i/v14/icons/sout.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="http://www.cygwin.com">Cygwin tools including perl</a> (Windows platforms)
+</li>
+<li>
+<img src="//www.ibm.com/i/v14/icons/sout.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="http://ant.apache.org">Ant</a> (If not using X10DT)
+</li>
+</ul>
+Optional Packages: 
+<ul>
+<li>
+<img src="//www.ibm.com/i/v14/icons/sout.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="http://www.eclipse.org/downloads/">Eclipse 3.0 or later</a>
+</li>
+<li>
+<img src="//www.ibm.com/i/v14/icons/sout.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="XXXXX/"> Safari X10DT</a>
+</li>
+</ul>
+
+<br>
+</td>
+</tr>
+<tr>
+<td>
+<img src="//www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
+</tr>
+
+</table>
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="340" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+
+<br /><a name="a2"></a>
+<table width="443" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="v14-header-1">Installation instructions</td>
+
+</tr>
+<tr>
+<td>
+<br>
+The X10 distribution is an archive of the java source files.  Unpack them in your destination directory, and ensure any prerequisites are installed.  
+<br />
+
+<!--start -->
+<table border="0" cellpadding="0" cellspacing="0" width="443">
+<tr>
+<td class="v14-header-5">Command line setup</td>
+</tr>
+<tr>
+<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table-border">
+<tr>
+<td width="443"><p>
+After unpacking the X10 distribution and ensuring Java and Cygwin (or equivalent) tools are available:
+<ul>
+<li>
+set the JAVA_HOME environment variable such that it points to the 
+Java installation that you want to use to translate and run x10 
+programs. The &#039;java&#039; and &#039;javac&#039; command shall be found at 
+$JAVA_HOME/bin/ (Unix style).
+</li>
+<li>
+set the X10_PLATFORM environment variable according to your platform.
+Currently this corresponds to the subdirectory under examples/lib where
+native libraries are kept.  For 32-bit Windows on x86 hardware,
+the string is win32_x86.  For AIX on PowerPC it is aix_ppc.
+The naming convention is &lt;OperatingSystem&gt;&quot;_&quot;&lt;Hardware&gt;, consistent
+with Eclipses ${system:OS} and ${system:ARCH} variables.
+</li>
+</li>
+ run the build.xml ant script in the root directory of the x10
+   installation.  
+   This should create the files bin/x10, bin/x10c and
+   etc/standard.cfg.
+</li>
+<li>
+  add the bin directory of the x10 installation to your system&#039;s
+   search path</p></td>
+</li>
+<ul>
+</tr>
+</table></td>
+</tr>
+</table>
+
+<!--end -->
+<br />
+<!-- start -->
+
+<table border="0" cellpadding="0" cellspacing="0" width="443">
+<tr>
+<td class="v14-header-5">Eclipse X10DT setup</td>
+</tr>
+<tr>
+<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table-border">
+<tr>
+<td width="443"><p>
+<ol>
+<li>
+From Eclipse, invoke &quot;Help&quot; =&gt; &quot;Software Updates&quot; =&gt; &quot;Find and Install&quot;
+</li>
+<li>
+In the dialog that shows up, select &quot;Search for new features to install&quot; and click &quot;Next&quot;
+</li>
+<li>
+In the &quot;Name&quot; field type &quot;SAFARI&quot; (this can be anything you want, really).
+	In the &quot;URL&quot; field type &quot;http://orquesta.watson.ibm.com/eclipse/updates/SAFARI/&quot;
+	(note the trailing &#039;/&#039; character; it&#039;s significant)
+</li>
+<li>
+Click &quot;Ok&quot;
+</li>
+<li>
+Click &quot;Finish&quot;
+</li>
+<li>
+On the &quot;Search Results&quot; page, check the &quot;SAFARI&quot; checkbox, and click &quot;Next&quot;
+</li>
+<li>
+Click &quot;I accept the terms...&quot; and Click &quot;Next&quot;
+</li>
+<li>
+Click &quot;Finish&quot;; the dialog will disappear, and the status bar will show progress as the
+	Update Manager queries the update server for all available updates
+</li>
+<li>
+Click &quot;Install All&quot;
+</li>
+<li>
+Click &quot;Yes&quot; when asked whether to restart Eclipse.
+</li>
+</ol>
+
+To update (only if you&#039;ve installed a previous version):
+
+<ol>
+<li>
+From Eclipse, invoke &quot;Help&quot; =&gt; &quot;Software Updates&quot; =&gt; &quot;Find and Install&quot;
+	http://orquesta.watson.ibm.com:1
+</li>
+<li>
+Select &quot;Search for updates of currently installed features&quot;; click &quot;Finish&quot;
+</li>
+<li>
+When prompted for update site mirrors, just click &quot;Cancel&quot; to accept the main site.
+</li>
+<li>
+It often takes several minutes for Eclipse to contact the update sites and determine
+	what updates are available.
+</li>
+<li>
+If the SAFARI site shows updates, select the new version and click &quot;Next&quot;.
+</li>
+<ol>
+<li>
+Accept the license agreement and click &quot;Finish&quot;/&quot;Next&quot;
+</li>
+<li>
+	Click &quot;Install All&quot;
+</li>
+<li>
+	 Click &quot;Yes&quot; when asked whether to restart Eclipse
+</li>
+</ol>
+<li>
+</ol>
+
+If the SAFARI site doesn&#039;t show up in step 5 (not yet sure why it doesn&#039;t sometimes),
+cancel and try to install as though you hadn&#039;t previously installed (see above).
+</p></td>
+</tr>
+</table></td>
+</tr>
+</table>
+
+<!-- end -->
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<img src="//www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
+</tr>
+
+</table>
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="340" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+
+</td>
+<td width="7">&nbsp;</td>
+<td width="150" id="right-nav">
+
+<!-- start -->
+<table border="0" cellpadding="0" cellspacing="0" width="150">
+<tr>
+<td class="v14-header-1-small">Read me</td>
+</tr>
+<tr>
+<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table-border">
+<tr>
+<td width="150"><p class="smgraytext">
+<td width="150" class="no-padding">
+<table border="0" cellpadding="0" cellspacing="0" width="143">
+<tr valign="top">
+<td align="right" width="18" class="ipt"><img alt="" height="16" src="//www.ibm.com/i/v14/icons/caution.gif" width="16"/></td>
+<td width="125" class="nlbp"><p>
+Make sure to review the <a href="x10license.shtml">X10 license</a>.</p></td>
+</p></td>
+</tr>
+</table>
+</td>
+</p></td>
+</tr>
+</table></td>
+</tr>
+</table>
+<!-- end -->
+
+
+
+
+<br />
+
+<!-- start -->
+<table border="0" cellpadding="0" cellspacing="0" width="150">
+<tr>
+<td class="v14-header-1-small">Safari X10DT</td>
+</tr>
+<tr>
+<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table-border">
+<tr>
+<td width="150"><p class="smgraytext">X10DT is an Eclipse plugin that provides a graphical user interface for X10 developerment.  See a <a href="x10dtscreenshot.shtml">screenshot</a>.</p></td>
+</tr>
+</table></td>
+</tr>
+</table>
+<!-- end -->
+<br />
+
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+<!-- FOOTER_BEGIN -->
+<!--#include virtual="footer.ssi"-->
+<!-- FOOTER_END -->
+
+<script type="text/javascript" language="JavaScript1.2" src="//www.ibm.com/common/stats/stats.js"></script>
+<noscript><img src="//stats.www.ibm.com/rc/images/uc.GIF?R=noscript" width="1" height="1" alt="" border="0"/></noscript>
+</body>
+</html>
