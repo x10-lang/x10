@@ -9,9 +9,9 @@ import harness.x10Test;
 public class StencilFor2D extends x10Test {
 	
         public boolean run() {
-        	final region(:rank==2) R=[-1:256,-1:256], r=[0:255,0:255];
-        	final point(:rank==2) north=[0,1], south=[0,-1], west=[-1,0], east=[1,0];
-        	final double [:rank==2] A=new double [R];
+        	final region R=[-1:256,-1:256], r=[0:255,0:255];
+        	final point north=[0,1], south=[0,-1], west=[-1,0], east=[1,0];
+        	final double [.] A=new double [R];
         	final double h=0.1;
         	
         	for(point p: r) A[p]=(A[p+north]+A[p+south]+A[p+west]+A[p+east]-4*A[p])*h;
