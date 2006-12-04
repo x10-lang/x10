@@ -18,15 +18,15 @@ public class EncapsulatedArray2D extends x10Test {
 	
         public boolean run() {
         	final int size=5;
-        	final region(:rank==2) R=[0:size-1,0:size-1];
-        	final dist(:rank==2) D=(dist(:rank==2))dist.factory.cyclic(R); 
+        	final region R=[0:size-1,0:size-1];
+        	final dist D=dist.factory.cyclic(R); 
         	
-        	final Wrapper value [:rank==2] A=new Wrapper value [D];
+        	final Wrapper value [.] A=new Wrapper value [D];
         	finish ateach(point [i,j]: D) A[i,j]=new Wrapper(new double [R]);
         		
         	//for (int i=0;i<numOfPlaces;i++){	
         	finish ateach (point [i,j]: D){ 
-        		final double [:rank==2] temp=(double [:rank==2])A[i,j].m_array; 
+        		final double [.] temp=A[i,j].m_array; 
         		for (point p: temp) temp[p]=i+j;
         	}
     	
