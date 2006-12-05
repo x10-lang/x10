@@ -4,7 +4,7 @@ import harness.x10Test;
  * Purpose: Checks assignment of primitive to constrained primitives.
  * @author vcave
  **/
-public class PrimitiveDepTypeAssignment extends x10Test {
+public class AssignmentLitteralPrimitiveToPrimitive extends x10Test {
 
 	 public boolean run() {
 		byte(:self==1) bb = 1;
@@ -20,7 +20,7 @@ public class PrimitiveDepTypeAssignment extends x10Test {
 	}
 
 	public static void main(String[] args) {
-		new PrimitiveDepTypeAssignment().execute();
+		new AssignmentLitteralPrimitiveToPrimitive().execute();
 	}
 }
  

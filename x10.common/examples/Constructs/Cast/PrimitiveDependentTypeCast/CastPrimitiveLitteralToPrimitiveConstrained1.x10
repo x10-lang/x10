@@ -5,7 +5,7 @@ import harness.x10Test;
  * Note: The compiler promotes constant's type from int to int(:self==0)
  * @author vcave
  **/
-public class ValueCastToPrimitiveDepType extends x10Test {
+public class CastPrimitiveLitteralToPrimitiveConstrained1 extends x10Test {
 
 	public boolean run() {
 		int (: self == 0) i = 0;
@@ -14,7 +14,7 @@ public class ValueCastToPrimitiveDepType extends x10Test {
 	}
 
 	public static void main(String[] args) {
-		new ValueCastToPrimitiveDepType().execute();
+		new CastPrimitiveLitteralToPrimitiveConstrained1().execute();
 	}
 
 }

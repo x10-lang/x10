@@ -4,7 +4,7 @@ import harness.x10Test;
  * Purpose: Check primitive dependent type assignment to primitive variable works.
  * @author vcave
  **/
-public class DepTypeToPrimitiveAssignment extends x10Test {
+public class AssignmentPrimitiveConstrainedToPrimitive extends x10Test {
 
 	public boolean run() {
 		
@@ -22,7 +22,7 @@ public class DepTypeToPrimitiveAssignment extends x10Test {
 	}
 
 	public static void main(String[] args) {
-		new DepTypeToPrimitiveAssignment().execute();
+		new AssignmentPrimitiveConstrainedToPrimitive().execute();
 	}
 
 }

@@ -4,7 +4,7 @@ import harness.x10Test;
  * Purpose: Checks regular java cast works.
  * @author vcave
  **/
-public class RegularPrimitiveCast extends x10Test {
+public class CastLitteralToPrimitive extends x10Test {
 
 	public boolean run() {
 		boolean boolt = (boolean) true;
@@ -19,7 +19,7 @@ public class RegularPrimitiveCast extends x10Test {
 	}
 
 	public static void main(String[] args) {
-		new RegularPrimitiveCast().execute();
+		new CastLitteralToPrimitive().execute();
 	}
 }
  

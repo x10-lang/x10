@@ -4,7 +4,7 @@ import harness.x10Test;
  * Purpose: Cast check code should detect constraint boxed in nullable type is not meet.
  * @author vcave
  **/
-public class NullCast5_Constrained_MustFailCompile extends x10Test {
+public class CastConstrainedToConstrainedNullable_MustFailCompile extends x10Test {
 
 	public boolean run() {
 		// null can be cast to any nullable 
@@ -15,7 +15,7 @@ public class NullCast5_Constrained_MustFailCompile extends x10Test {
 	}
 
 	public static void main(String[] args) {
-		new NullCast5_Constrained_MustFailCompile().execute();
+		new CastConstrainedToConstrainedNullable_MustFailCompile().execute();
 	}
 
 }
