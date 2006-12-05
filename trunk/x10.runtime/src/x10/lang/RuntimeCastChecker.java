@@ -16,6 +16,24 @@ public class RuntimeCastChecker {
 	 * WARNING ! Do not change the name of this method without changing
 	 * Method used to do dynamic nullcheck when nullable is casted away.
 	 */
+	public static boolean checkInstanceofNullable(java.lang.Object o, Class c) {
+		return (o != null) ? c.isAssignableFrom(o.getClass()) : true;
+	}
+
+	/**
+	 * WARNING ! Do not change the name of this method without changing
+	 * Method used to do dynamic nullcheck when nullable is casted away.
+	 */
+	public static java.lang.Object checkCastFromNullable(java.lang.Object o, Class c) {
+		return (o != null) ? 
+				(c.isAssignableFrom(o.getClass()) ? o : throwClassCastException(o)) 
+				: throwNullPointerException(o);
+	}
+
+	/**
+	 * WARNING ! Do not change the name of this method without changing
+	 * Method used to do dynamic nullcheck when nullable is casted away.
+	 */
 	public static boolean isObjectNotNull(java.lang.Object o) {
 		return (o != null);
 	}
@@ -24,6 +42,19 @@ public class RuntimeCastChecker {
 		throw new ClassCastException("Expression is either not an instance of cast type or Constraints are not meet");		
 	}
 	
+	private static void throwNullPointerException(String msg)  throws ClassCastException {
+		throw new NullPointerException(msg);		
+	}
+
+	/**
+	 * WARNING ! Do not change the name of this method without changing
+	 * the Cast code generation of x10 compiler.
+	 */
+	public static java.lang.Object throwNullPointerException(java.lang.Object o) throws ClassCastException {
+		RuntimeCastChecker.throwNullPointerException("null value assignment is not authorized");
+		return o;
+	}
+
 	/**
 	 * WARNING ! Do not change the name of this method without changing
 	 * the Cast code generation of x10 compiler.
@@ -89,8 +120,6 @@ public class RuntimeCastChecker {
 	 */
 	public static java.lang.Object checkCast(RuntimeConstraint [] cTab, boolean exprMustBeNotNull, boolean toTypeIsNullable,
 			java.lang.Object objToCast, Class toClassType) {
-		
-		assert !(exprMustBeNotNull && toTypeIsNullable);
 
 		// if we try to cast from a nullable Type to a non nullable Type we must
 		// first check expr to cast is not null
@@ -123,7 +152,8 @@ public class RuntimeCastChecker {
 				RuntimeConstraint constraint = cTab[i];
 				// every property has a getter defined
 				Method leftHand = fromClassType.getMethod(constraint.name, (Class[])null);
-				if (constraint instanceof RuntimeConstraintOnSelf) {
+				if (constraint.isConstraintOnSelf) {
+					// both part of the expression are constraint on self. Ex: 'self.p == self.q'
 					Method rightHand = fromClassType.getMethod((String) constraint.value, (Class[])null);
 					// FIXED bug while accessing nested class which are not visible by RuntimeCastChecker
 					boolean accessibleR = rightHand.isAccessible();
@@ -136,7 +166,9 @@ public class RuntimeCastChecker {
 					leftHand.setAccessible(accessibleL);
 					rightHand.setAccessible(accessibleR);
 				} else {
-					// if here then method exists
+					// Left part of the expression is a constraint on self and the other 
+					// anything else except a constraint on self  Ex: 'self.p == self.q'
+					// Ex: 'self.p == 4' 'self.p == i' 'self.p == obj.i'
 					// FIXED bug while accessing nested class which are not visible by RuntimeCastChecker
 					boolean accessibleL = leftHand.isAccessible();
 					leftHand.setAccessible(true);
@@ -376,6 +408,33 @@ public class RuntimeCastChecker {
 
 	/**
 	 * WARNING ! Do not change the name of this method without changing
+	 * the Cast code generation from the x10 compiler.
+	 * Dynamic check of Boolean primitive type constraints.
+	 * INVARIANT: the value is not changed !
+	 * @param cTab The constraints value to check against.
+	 * @param value Current value of the boolean.
+	 * @return the boolean value or an exception if cast does not meet constraints.
+	 */
+	public static boolean checkPrimitiveType(RuntimeConstraint [] cTab, boolean value) {
+		boolean correct = true;
+		int i = 0;
+		// for each constraints
+		while ((i < cTab.length) && (correct)) {
+			RuntimeConstraint constraint = cTab[i];
+			correct = (value == ((java.lang.Boolean) constraint.value).booleanValue());
+			i++;
+		}
+
+		// everything is ok
+		if (correct)
+			return value;
+
+		// deptype are equivalent however a constraint is not meet.
+		throw new ClassCastException("Constraint " + cTab[i-1] + " is not meet");
+	}
+	
+	/**
+	 * WARNING ! Do not change the name of this method without changing
 	 * the Cast code generation of x10 compiler.
 	 *
 	 * Runtime representation of a clause from a dependent type constraint.
@@ -384,12 +443,36 @@ public class RuntimeCastChecker {
 	public static class RuntimeConstraint {
 		public final String name;
 		public final java.lang.Object value;
+		public final boolean isConstraintOnSelf;
 
+		/**
+		 * Left value is something like 'self.property()' and right value anything else
+		 * except a constraint on self.
+		 * @param n
+		 * @param v
+		 */
 		public RuntimeConstraint(String n, java.lang.Object v) {
 			this.name = n;
 			this.value = v;
+			this.isConstraintOnSelf = false;
 		}
-
+		
+		/**
+		 * Both left and right value are something like 'self.property()'
+		 * @param n
+		 * @param v
+		 * @param rightValueIsConstraintOnSelf
+		 */
+		public RuntimeConstraint(String n, java.lang.Object v, 
+				boolean rightValueIsConstraintOnSelf) {
+			// right value constraint is on 'self' property: self.p
+			// Hence checking code should load p using reflexion
+			assert(rightValueIsConstraintOnSelf == true);
+			this.name = n;
+			this.value = v;
+			this.isConstraintOnSelf = rightValueIsConstraintOnSelf;
+		}
+		
 		public RuntimeConstraint(String n, char v) {
 			this(n, new java.lang.Character(v));
 		}
@@ -418,18 +501,12 @@ public class RuntimeCastChecker {
 			this(n, new java.lang.Float(v));
 		}
 
+		public RuntimeConstraint(String n, boolean v) {
+			this(n, new java.lang.Boolean(v));
+		}
+
 		public String toString() {
 			return "[" +name + ","+ value+"]";
-		}
-	}
-
-	public static class RuntimeConstraintOnSelf extends RuntimeConstraint {
-		public RuntimeConstraintOnSelf(String n, String selfReference) {
-			super(n,selfReference);
-		}
-
-		public String getSelfReference() {
-			return (String) super.value;
 		}
 	}
 }
