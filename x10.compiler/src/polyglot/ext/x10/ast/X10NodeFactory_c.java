@@ -34,6 +34,7 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
+import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
@@ -43,29 +44,12 @@ import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.While;
-import polyglot.ext.jl.ast.Block_c;
-import polyglot.ext.jl.ast.BooleanLit_c;
-import polyglot.ext.jl.ast.CharLit_c;
-import polyglot.ext.jl.ast.Conditional_c;
-import polyglot.ext.jl.ast.Disamb_c;
-import polyglot.ext.jl.ast.FieldDecl_c;
-import polyglot.ext.jl.ast.FloatLit_c;
 import polyglot.ext.jl.ast.For_c;
-import polyglot.ext.jl.ast.If_c;
-import polyglot.ext.jl.ast.Instanceof_c;
-import polyglot.ext.jl.ast.IntLit_c;
-import polyglot.ext.jl.ast.Local_c;
-import polyglot.ext.jl.ast.New_c;
 import polyglot.ext.jl.ast.NodeFactory_c;
-import polyglot.ext.jl.ast.Special_c;
-import polyglot.ext.jl.ast.StringLit_c;
-import polyglot.ext.jl.ast.While_c;
 import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -130,6 +114,15 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (Instanceof) n.del(delFactory().delInstanceof());
 		return n;
 	}
+	
+    public Instanceof DepInstanceof(Position pos, TypeNode compareType,
+			DepParameterExpr d, Expr expr) {
+        Instanceof n = new DepInstanceof_c(pos, compareType, d, expr);
+        n = (Instanceof)n.ext(extFactory().extInstanceof());
+        n = (Instanceof)n.del(delFactory().delInstanceof());
+        return n;
+    }
+
 
 	// Wrap the body of the async in a Block so as to ease further code transforamtions.
 	public Async Async(Position pos, Expr place, List clocks, Stmt body) {
@@ -665,6 +658,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
+    public Cast DepCast(Position pos, TypeNode compareType,
+			DepParameterExpr d, Expr expr) {
+    	Cast n = new DepCast_c(pos, compareType, d, expr);
+        n = (Cast)n.ext(extFactory().extCast());
+        n = (Cast)n.del(delFactory().delCast());
+        return n;
+    }
     
     public MethodDecl MethodDecl(Position pos, DepParameterExpr thisClause, Flags flags,
              TypeNode returnType, String name,
@@ -885,5 +885,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         n = (Conditional)n.del(delFactory().delConditional());
         return n;
     }
+
 }
 

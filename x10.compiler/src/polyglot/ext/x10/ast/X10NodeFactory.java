@@ -4,6 +4,7 @@ import java.util.List;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.Block;
+import polyglot.ast.Cast;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
@@ -115,5 +116,9 @@ public interface X10NodeFactory extends NodeFactory {
             Flags flags, TypeNode returnType, String name,
             List formals, Expr where, List throwTypes, Block body);
     AssignPropertyCall AssignPropertyCall(Position pos, List/*<Expr>*/ argList);
+
+	Cast DepCast(Position position, TypeNode xn, DepParameterExpr e, Expr expr);
+
+	Instanceof DepInstanceof(Position position, TypeNode xn, DepParameterExpr e, Expr expr);
 }
 
