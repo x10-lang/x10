@@ -3,7 +3,7 @@ import harness.x10Test;
  * Purpose: Check regular java instance of works correctly
  * @author vcave
  **/
-public class InstanceofNoConstraints extends x10Test {
+public class ReferenceToReference extends x10Test {
 
 	public boolean run() {
 		X10DepTypeClassOne identity = new X10DepTypeClassOne(1);
@@ -18,7 +18,7 @@ public class InstanceofNoConstraints extends x10Test {
 	}
 
 	public static void main(String[] args) {
-		new InstanceofNoConstraints().execute();
+		new ReferenceToReference().execute();
 	}
 
 }
