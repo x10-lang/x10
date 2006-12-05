@@ -40,11 +40,9 @@ import polyglot.visit.TypeChecker;
  *
  */
 public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
-	
-		private boolean dynamicCheckNeeded = false;
-		private boolean primitiveType = false;
-		private boolean notNullRequired = false;
-		private boolean toTypeNullable = false;
+		protected boolean primitiveType = false;
+		protected boolean notNullRequired = false;
+		protected boolean toTypeNullable = false;
 		
         public X10Cast_c(Position pos, TypeNode castType, Expr expr) {
                 super(pos, castType, expr);
@@ -57,6 +55,11 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         	X10Type x10FromType = (X10Type) fromType;
             TypeSystem ts = tc.typeSystem();
             X10TypeSystem xts = (X10TypeSystem) x10ToType.typeSystem();
+
+            this.primitiveType = false;
+            this.toTypeNullable = false;
+            this.notNullRequired = false;
+            
            if (Report.should_report("debug", 5)) {
                     Report.report(5, "[Cast_c] |" + this + "|.typeCheck(...):");
                     Report.report(5, "[Cast_c] ...type=|" +  type+"|.");
@@ -65,68 +68,33 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
            if (Report.should_report("debug", 5)) {
            	Report.report(5, "[Cast_c] ...returning=|" +  result+"| of type=|" + result.type() + "|.");
            }
-           
+    	   
            // check java cast is valid and dependent type constraint are meet
            if (! ts.isCastValid(fromType, toType)) {
 		   	    throw new SemanticException("Cannot cast the expression of type \"" 
 		   					+ fromType + "\" to type \"" 
 		   					+ toType + "\".",
 		   				        position());
-           } else { 
+           } else {
         	   // the cast may requires runtime checking. For example ((T) java.lang.Object)
         	   
         	   // Handle isNullable additionnal constraint 
 	    	   // Such cast ((T1) nullable T2), should checks at runtime 
 	    	   // the expression to cast is not null
 	           if (xts.isNullable(x10FromType) && (!xts.isNullable(x10ToType))) {
-	        	   this.dynamicCheckNeeded = true;
 	        	   this.notNullRequired  = true;
 	           } 
 	           
 	           // if ToType is nullable then casting the null value is legal
 	           if (xts.isNullable(x10ToType)) {
-	        	   this.dynamicCheckNeeded = true;
 	        	   this.toTypeNullable = true;
 	           }
-
-	           // we generate deptype constraint code checking only if targetType is constrained and fromType not.
-	           // Otherwise the previous isCastValid has already check type compatibility
-	    	   if ((x10ToType.depClause() != null) && (x10FromType.depClause() == null)) {
-			   	   if (fromType.isPrimitive()) {
-		        		   if (!expr.isConstant()) {
-			    	            		Report.report(1,"Warning! Primitive Cast from " + fromType + " to " + toType + " is unsafe.", this.position);
-			    	            		this.primitiveType = true;
-			    	            		this.dynamicCheckNeeded = true;
-		    	            }
-		        		   if (toType.isClass()) {
-		        			   // NOTE: Current release only allow casting to x10.lang.Object, which is unlikely to be constrained
-		        			   // NOTE: If casting to some constrainted wrapper type are allowed in the future a dynamic check would be needed.      
-		        			   // Class <-- Primitive (Boxing Operation)
-		        			   // this.dynamicCheckNeeded = true;
-		        		   }
-		            	   // else constant had been promoted to deptype and checking occured previously in isCastValid
-	        	   } else {
-	        		   if (!x10ToType.equalsImpl(x10FromType)) {
-				    		   // cast is valid if toType or fromType have constraints, checks them at runtime
-		        			   Report.report(1,"Warning! Cast from " + fromType + " to " + toType + " is unsafe.", this.position);
-			            		this.dynamicCheckNeeded = true;
-	        		   }
-	        		   
-	        		   if ((fromType.isClass()) && (toType.isPrimitive())) {
-	        			   // Primitive <-- Class (UnBoxing Operation)
-	        			   this.dynamicCheckNeeded = true;
-	        			   this.primitiveType = true;
-	        		   }
-	        		   // else type are equals, we do not perform the cast
-	        	   }
-	    	   	}
            }
-            		return type(toType);
+           return type(toType);
         }
         
-
-		public boolean isDynamicCheckNeeded() {
-			return dynamicCheckNeeded;
+		public boolean isDepTypeCheckingNeeded() {
+			return false;
 		}
 
 		public boolean notNullRequired() {
@@ -140,6 +108,10 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 		public boolean isToTypeNullable() {
 			return this.toTypeNullable;
 		}
+
+		public TypeNode getTypeNode() {
+	    	return this.castType();
+	    }
 
         /**
          * Regroup some method that can be used either by X10Cast_c 
