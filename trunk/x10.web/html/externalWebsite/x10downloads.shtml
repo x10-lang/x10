@@ -89,13 +89,16 @@
 <td width="610"><a name="main"></a><table width="610" cellpadding="0" cellspacing="0" border="0" id="content-table">
 <tr valign="top">
 <td width="10">&nbsp;</td>
-<td width="443"><h1>Downloads</h1> <br /></td>
+<td width="610"><h1>Downloads</h1> <br /></td>
 <td width="7">&nbsp;</td>
 <td width="150">&nbsp;</td>
 </tr>
 <tr valign="top">
 <td width="10">&nbsp;</td>
-<td width="443" id="content">
+<td width="610" id="content">
+
+<img alt="" height="16" src="//www.ibm.com/i/v14/icons/caution.gif" width="16"/>
+Make sure to review the <a href="x10license.shtml">X10 license</a>.<br>
 
 <!-- ANCHOR_LINK_LIST_BEGIN -->
 <br /><a name="#main"></a>
@@ -112,7 +115,7 @@
 
 <!-- ANCHOR_LINK_LIST_END -->
 <br /><a name="a1"></a>
-<table width="443" cellpadding="0" cellspacing="0" border="0">
+<table width="610" cellpadding="0" cellspacing="0" border="0">
 <tr>
 <td class="v14-header-1">Downloads</td>
 
@@ -146,7 +149,7 @@ Optional Packages:
 </li>
 <li>
 <img src="//www.ibm.com/i/v14/icons/sout.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="XXXXX/"> Safari X10DT</a>
+<a href="XXXXX/"> Safari X10 Development Toolkit (DT)</a>.  Also included in the X10 distribution.
 </li>
 </ul>
 
@@ -159,10 +162,10 @@ Optional Packages:
 </tr>
 
 </table>
-<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="340" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="500" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
 
 <br /><a name="a2"></a>
-<table width="443" cellpadding="0" cellspacing="0" border="0">
+<table width="610" cellpadding="0" cellspacing="0" border="0">
 <tr>
 <td class="v14-header-1">Installation instructions</td>
 
@@ -171,17 +174,21 @@ Optional Packages:
 <td>
 <br>
 The X10 distribution is an archive of the java source files.  Unpack them in your destination directory, and ensure any prerequisites are installed.  
-<br />
+<br>
+<br>
+X10DT is available as a zip file found within the X10 distribution package.  Unpack this file on top of your existing Eclipse installation directory.  Alternatively, it can be installed directly from within Eclipse itself (the preferred method) from an Eclipse Update Site.
 
+<br>
+<br>
 <!--start -->
-<table border="0" cellpadding="0" cellspacing="0" width="443">
+<table border="0" cellpadding="0" cellspacing="0" width="610">
 <tr>
 <td class="v14-header-5">Command line setup</td>
 </tr>
 <tr>
-<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table-border">
+<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table">
 <tr>
-<td width="443"><p>
+<td width="610"><p>
 After unpacking the X10 distribution and ensuring Java and Cygwin (or equivalent) tools are available:
 <ul>
 <li>
@@ -198,7 +205,7 @@ the string is win32_x86.  For AIX on PowerPC it is aix_ppc.
 The naming convention is &lt;OperatingSystem&gt;&quot;_&quot;&lt;Hardware&gt;, consistent
 with Eclipses ${system:OS} and ${system:ARCH} variables.
 </li>
-</li>
+<li>
  run the build.xml ant script in the root directory of the x10
    installation.  
    This should create the files bin/x10, bin/x10c and
@@ -215,89 +222,234 @@ with Eclipses ${system:OS} and ${system:ARCH} variables.
 </table>
 
 <!--end -->
-<br />
 <!-- start -->
 
-<table border="0" cellpadding="0" cellspacing="0" width="443">
+<table border="0" cellpadding="0" cellspacing="0" width="610">
 <tr>
-<td class="v14-header-5">Eclipse X10DT setup</td>
+<td class="v14-header-5">Eclipse X10 Development Toolkit (DT)  setup</td>
 </tr>
 <tr>
-<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table-border">
+<br />
+<!-- ANCHOR_LINK_LIST_BEGIN -->
+<br /><a name="#submain"></a>
+<table border="0" cellpadding="0" cellspacing="0">
+<tr valign="top">
+<br />
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b1">Select an X10 Compiler Configuration</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b2">Switch to the Java Perspective</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b3">Create an X10 project</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b4">Create a new X10 Class</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b5">Using the Editor and Outline View</a></td>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b6">Launching your X10 program</a></td>
+</tr>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b7">Debugging your X10 program</a></td>
+</tr>
+</table>
+<!-- ANCHOR_LINK_LIST_END -->
+
+</tr>
+<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table">
 <tr>
-<td width="443"><p>
-<ol>
-<li>
-From Eclipse, invoke &quot;Help&quot; =&gt; &quot;Software Updates&quot; =&gt; &quot;Find and Install&quot;
-</li>
-<li>
-In the dialog that shows up, select &quot;Search for new features to install&quot; and click &quot;Next&quot;
-</li>
-<li>
-In the &quot;Name&quot; field type &quot;SAFARI&quot; (this can be anything you want, really).
-	In the &quot;URL&quot; field type &quot;http://orquesta.watson.ibm.com/eclipse/updates/SAFARI/&quot;
-	(note the trailing &#039;/&#039; character; it&#039;s significant)
-</li>
-<li>
-Click &quot;Ok&quot;
-</li>
-<li>
-Click &quot;Finish&quot;
-</li>
-<li>
-On the &quot;Search Results&quot; page, check the &quot;SAFARI&quot; checkbox, and click &quot;Next&quot;
-</li>
-<li>
-Click &quot;I accept the terms...&quot; and Click &quot;Next&quot;
-</li>
-<li>
-Click &quot;Finish&quot;; the dialog will disappear, and the status bar will show progress as the
-	Update Manager queries the update server for all available updates
-</li>
-<li>
-Click &quot;Install All&quot;
-</li>
-<li>
-Click &quot;Yes&quot; when asked whether to restart Eclipse.
-</li>
-</ol>
+<td width="610"><p>
+<p>This page briefly describes how to use the X10 Development Toolkit to
+create X10 projects, create X10 classes, and use launch configurations to run
+and debug X10 programs.<p>
 
-To update (only if you&#039;ve installed a previous version):
+<a name="b1"></a>
+<h2>Select an X10 Compiler Configuration</h2>
+<p>Before using the X10DT for the first time, you first need to make sure that
+you've selected the appropriate X10 compiler configuration.
 
-<ol>
-<li>
-From Eclipse, invoke &quot;Help&quot; =&gt; &quot;Software Updates&quot; =&gt; &quot;Find and Install&quot;
-	http://orquesta.watson.ibm.com:1
-</li>
-<li>
-Select &quot;Search for updates of currently installed features&quot;; click &quot;Finish&quot;
-</li>
-<li>
-When prompted for update site mirrors, just click &quot;Cancel&quot; to accept the main site.
-</li>
-<li>
-It often takes several minutes for Eclipse to contact the update sites and determine
-	what updates are available.
-</li>
-<li>
-If the SAFARI site shows updates, select the new version and click &quot;Next&quot;.
-</li>
-<ol>
-<li>
-Accept the license agreement and click &quot;Finish&quot;/&quot;Next&quot;
-</li>
-<li>
-	Click &quot;Install All&quot;
-</li>
-<li>
-	 Click &quot;Yes&quot; when asked whether to restart Eclipse
-</li>
-</ol>
-<li>
-</ol>
+<p>At the moment, there is only one supported compiler configuration: "standard",
+which builds X10 applications for a non-distributed single-VM platform.
+Thus, for now, you needn't do anything to configure the X10DT; the following
+is for future reference, when support is added for multiple-VM and distributed
+execution platforms.
 
-If the SAFARI site doesn&#039;t show up in step 5 (not yet sure why it doesn&#039;t sometimes),
-cancel and try to install as though you hadn&#039;t previously installed (see above).
+<p>To select the appropriate compiler configuration, invoke "Window" -&gt; "Preferences"
+-&gt; "X10", and use the "Compiler Configuration" pull-down menu to select the
+appropriate configuration.
+
+<p>The remaining options settings on this preference page are not critical; all
+X10 functionality should work reasonably with whatever values you enter.
+
+<p><img src="x10Prefs.gif" alt="X10 Preferences Snapshot"/>
+
+<a name="b2"></a>
+<h2>Switch to the Java Perspective</h2>
+<p>If you're not currently in the Java Perspective, you should switch to that
+perspective now. If you don't, certain bits of functionality will not appear
+at all, or they might not appear in the "standard" location.
+
+<p>To switch perspectives, invoke "Window" -&gt; "Open Perspective" and select
+"Java". Alternatively, you can click on the "Open Perspective" button in the
+perspective button bar and selecting "Java".
+(The perspective button bar usually appears in the upper right, the upper left, or
+the left-hand side of the Eclipse window, and contains 1 or more iconic buttons,
+each representing a perspective, e.g. "Java", "Resource", "Debug", "CVS".)
+
+<a name="b3"></a>
+<h2>Create an X10 project</h2>
+<p>Invoke "File" -&gt; "New" -&gt; "Project" -&gt; "X10 Project".
+
+<p>
+[N.B.: If "X10 Project" doesn't appear in the "File" -&gt; "New" menu, you can
+access it via the "Other..." menu item at the bottom of that menu. To make it
+always appear in the "New" menu, invoke "Window" -&gt; "Customize Perspective...".
+In this dialog, go to the "Shortcuts" page, and locate "X10" in the "Shortcut
+Categories" list in the left-hand pane. Check that box, and click "Ok".]
+
+<p><img src="newX10Project.gif" alt="New X10 Project Wizard Snapshot"/>
+
+<p>In the "X10 Project" dialog, fill out the "Name" field with a unique non-existing
+project name.
+
+<p>Most likely, you'll want to accept the default location for the project (i.e. in your
+workspace).
+
+<p>We strongly recommend setting the "Create separate source and output folders" option.
+This will place the generated class files in a separate folder from the X10 source.
+You may encounter problems in the X10DT with compiling and debugging if you don't select
+this option.
+
+<p>Hit "Finish" when done editing the various fields.
+
+<a name="b4"></a>
+<h2>Create a new X10 Class</h2>
+<p>Invoke "File" -&gt; "New" -&gt; "X10" -&gt; "X10 Class".
+
+<p><img src="newX10Class.gif" alt="New X10 Class Wizard Snapshot"/>
+
+<p>[N.B.: As with the above, if "X10 Class" doesn't appear in the "File" -&gt; "New"
+menu, you can access it via the "Other..." menu item at the bottom of that menu.
+To make it always appear in the "New" menu, invoke "Window" -&gt; "Customize Perspective...".
+In this dialog, go to the "Shortcuts" page, and locate "X10" in the "Shortcut
+Categories" list in the left-hand pane. Check that box, and click "Ok".]
+
+<p>In the "Source folder" field, you enter both the project in which you would like
+the new class to reside, and the source folder within that project that is to
+contain the X10 class.
+
+<p>Usually, there is one source folder per project, as is the case when you follow
+the above instructions for creating your X10 project.
+
+<p>You can type the project name and source folder into the text field, but a much
+easier way to do this is to click on the "Browse..." button next to the "Source folder"
+field. This will bring up a selection dialog that will allow you to quickly
+navigate to the project and source folder you want to use.
+
+<p>If you want to place the X10 class in a non-default package, enter the package
+name into the "Package" field. Again, you can use the "Browse..." next to the
+"Package" field to show the list of existing packages in the given project.
+At this time, you cannot create a new package from within the "New X10 Class"
+dialog; it must already exist.
+
+<p>Enter the name of the new X10 class in the "name" field, and use the modifier
+buttons and checkboxes to specify the visibility and other characteristics of
+your class.
+
+<p>If you wish, enter in the "Superclass" field the fully-qualified name of the
+desired base class for your new X10 class, or use the "Browse..." button to
+the right to bring up the class selection dialog. Of course, if you leave
+x10.lang.Object as the superclass, you can always change the superclass later
+by editing the class definition in the source code.
+
+<p>To add interfaces to the class, click on the "Add..." button to bring up an
+interface selection dialog. This will display the list of all interfaces on
+the build-time classpath for your project.
+
+<p>Hit "Finish" when done editing. The source file for the new class will be
+open in the editor. You should see the structure of the X10 class source in the
+"Outline" view.
+
+<a name="b5"></a>
+<h2>Using the Editor and Outline View</h2>
+<p>You should see keywords highlighted in the source editor, as well as an outline
+of the source file's contents in the "Outline" view on the right. The Outline
+view shows the types, members and anonymous instances defined in the source code.
+
+<p>You can navigate to a given source code entity by simply clicking on the corresponding
+item in the Outline view. Click on the "+" or "-" controls next to a given item in the
+Outline view to expand or collapse the sub-tree rooted at that item.
+
+<p><a href="x10dtscreenshot.shtml" target="_blank"><img src="x10DTscreenshot.gif" height="40" width="60" alt="X10 DT Snapshot"/></a>
+
+<a name="b6"></a>
+<h2>Launching your X10 program</h2>
+<p>There are several methods available to launch an X10 application:
+<ul>
+<li> From an X10 source editor containing the main class you wish to execute, type
+  "Alt-Shift-X", then "X"</li>
+<li> Right-click on an X10 source file in the Package Explorer, and choose "Run As" -&gt;
+  "X10 Application"</li>
+<li> Right-click within the X10 source editor, and choose "Run As" -&gt;
+  "X10 Application"</li>
+<li> Click on the "Run" toolbar button's pull-down (the little downward-pointing triangle
+  next to the "Run" icon) and select "Run As" -&gt; "X10 Application"</li>
+<li> Click on the "Run" toolbar button's pull-down (the little downward-pointing triangle
+  to the right of the "Run" icon) and select "Run..." and create an "X10 Application"
+  launch configuration. In the "Main" page, select the project containing the X10
+  application you wish to run, and the main class.</li>
+</ul>
+
+<p><img src="x10LaunchConfig.gif" alt="X10 Launch Configuration Snapshot"/>
+
+<p>Note: you can have launch configurations for several X10 applications within a single
+project, as well as multiple launch configurations for the same application.
+
+<p>Arguments to be passed to your X10 application can be specified in the "Arguments" page
+in the "Program Arguments" pane. You can also set options to be passed to the X10 Runtime
+itself via the "X10 Runtime" page, in the "Runtime arguments" pane. This is useful to,
+for example, enable the collection of abstract execution statistics by setting the runtime
+option "ABSTRACT_EXECUTION_STATS" to "true" (place "ABSTRACT_EXECUTION_STATS=true" in the
+"Runtime arguments" pane).
+
+<p><img src="x10RuntimeArgs.gif" alt="X10 Runtime Arguments Snapshot"/>
+
+<a name="b7"></a>
+<h2>Debugging your X10 program</h2>
+<p>If you instead wish to debug the X10 application (which is necessary if you wish to set
+breakpoints, explore the stack, and so on), the procedure is essentially the same as
+described above, substituting "Debug" for "Run", or "Debug As" for "Run As", and so on.
+
+<p>As of this release, X10 debugging support provides the same set of views that you would
+get for Java programs, which display information about the generated Java program.
+
+<p>To set a breakpoint in the X10 source code, type "Ctrl-Shift-B" at the desired line in
+the source editor. We have provided support for mapping line numbers from the X10 source
+code to the generated Java source code. As a result, when an exception is thrown by X10
+code or a breakpoint in X10 code is reached, the debugger should present the correct X10
+source line. [Of course, if an exception is thrown from within a Java method that does
+not correspond to an X10 method, the debugger will display the Java source for the method
+throwing the exception.] To remove the breakpoint, type "Ctrl-Shift-B" again at the same
+source line.
+
+<p>At the same time, you may see a somewhat different picture of your application than you
+might expect. In particular, details of the X10 implementation will be visible: the
+Java thread pool rather than the X10 activities, extra method calls corresponding to
+X10 array accesses, and so on. Moreover, performing a "Step Into" operation on an X10
+application can land you inside the X10 runtime (much like stepping into a string
+concatenation operation in Java can land you inside the StringBuffer class).
+
+<p>In the future, we hope to provide a more X10-savvy debugging perspective.
 </p></td>
 </tr>
 </table></td>
@@ -314,36 +466,13 @@ cancel and try to install as though you hadn&#039;t previously installed (see ab
 </tr>
 
 </table>
-<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="340" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="500" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
 
 </td>
 <td width="7">&nbsp;</td>
 <td width="150" id="right-nav">
 
 <!-- start -->
-<table border="0" cellpadding="0" cellspacing="0" width="150">
-<tr>
-<td class="v14-header-1-small">Read me</td>
-</tr>
-<tr>
-<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table-border">
-<tr>
-<td width="150"><p class="smgraytext">
-<td width="150" class="no-padding">
-<table border="0" cellpadding="0" cellspacing="0" width="143">
-<tr valign="top">
-<td align="right" width="18" class="ipt"><img alt="" height="16" src="//www.ibm.com/i/v14/icons/caution.gif" width="16"/></td>
-<td width="125" class="nlbp"><p>
-Make sure to review the <a href="x10license.shtml">X10 license</a>.</p></td>
-</p></td>
-</tr>
-</table>
-</td>
-</p></td>
-</tr>
-</table></td>
-</tr>
-</table>
 <!-- end -->
 
 
@@ -351,21 +480,6 @@ Make sure to review the <a href="x10license.shtml">X10 license</a>.</p></td>
 
 <br />
 
-<!-- start -->
-<table border="0" cellpadding="0" cellspacing="0" width="150">
-<tr>
-<td class="v14-header-1-small">Safari X10DT</td>
-</tr>
-<tr>
-<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table-border">
-<tr>
-<td width="150"><p class="smgraytext">X10DT is an Eclipse plugin that provides a graphical user interface for X10 development.  See a <a href="x10dtscreenshot.shtml" target="_blank" >screenshot</a>.</p></td>
-</tr>
-</table></td>
-</tr>
-</table>
-<!-- end -->
-<br />
 
 </td>
 </tr>
