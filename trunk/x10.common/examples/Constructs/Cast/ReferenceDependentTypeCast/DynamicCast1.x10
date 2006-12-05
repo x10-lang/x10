@@ -10,7 +10,7 @@ public class DynamicCast1 extends x10Test {
 	public boolean run() {
 		try {						
 			x10.lang.Object object = 
-				(X10DepTypeClassTwo(:p==0&&q==1) new X10DepTypeClassTwo(0,1);
+				(X10DepTypeClassTwo(:p==0&&q==1)) new X10DepTypeClassTwo(0,1);
 			
 			// contraint not meet
 			X10DepTypeClassTwo(:p==0&&q==2) convertedObject =

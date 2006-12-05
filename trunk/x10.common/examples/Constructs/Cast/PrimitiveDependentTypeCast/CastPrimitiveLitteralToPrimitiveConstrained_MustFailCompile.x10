@@ -5,7 +5,7 @@ import harness.x10Test;
  * Issue: Constant to promotedoes not meet constraint of targeted type.
  * @author vcave
  **/
-public class ValueCastToPrimitiveDepTypeDeclaration_MustFailCompile extends x10Test {
+public class CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile.x10 extends x10Test {
 
 	public boolean run() {
 		
@@ -19,7 +19,7 @@ public class ValueCastToPrimitiveDepTypeDeclaration_MustFailCompile extends x10T
 	}
 
 	public static void main(String[] args) {
-		new ValueCastToPrimitiveDepTypeDeclaration_MustFailCompile().execute();
+		new CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile.x10().execute();
 	}
 
 }

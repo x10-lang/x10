@@ -5,13 +5,14 @@ import harness.x10Test;
  * Issue: Value to cast does not meet constraint requirement of target type.
  * @author vcave
  **/
-public class PrimitiveDepTypeAssignment_MustFailCompile extends x10Test {
+public class AssignmentPrimitiveConstrainedIdentity extends x10Test {
 
 	public boolean run() {
 		
 		try { 
-			int (: self == 1) i = 1
-			int (: self == 0) j = i;
+			int (: self == 0) i = 0;
+			int (: self == 0) j = 0;
+			i = j;
 		}catch(Throwable e) {
 			return false;
 		}
@@ -20,7 +21,7 @@ public class PrimitiveDepTypeAssignment_MustFailCompile extends x10Test {
 	}
 
 	public static void main(String[] args) {
-		new PrimitiveDepTypeAssignment_MustFailCompile().execute();
+		new AssignmentPrimitiveConstrainedIdentity().execute();
 	}
 
 }

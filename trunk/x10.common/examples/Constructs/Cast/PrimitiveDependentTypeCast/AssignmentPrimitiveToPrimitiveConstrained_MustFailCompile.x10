@@ -5,7 +5,7 @@ import harness.x10Test;
  * Issue: Variable j is statically known as an int. Conversion from int to int(:c) is forbidden.
  * @author vcave
  **/
-public class PrimitiveToDepTypeAssignment_MustFailCompile extends x10Test {
+public class AssignmentPrimitiveToPrimitiveConstrained_MustFailCompile extends x10Test {
 
 	public boolean run() {
 		
@@ -23,7 +23,7 @@ public class PrimitiveToDepTypeAssignment_MustFailCompile extends x10Test {
 	}
 
 	public static void main(String[] args) {
-		new PrimitiveToDepTypeAssignment_MustFailCompile().execute();
+		new AssignmentPrimitiveToPrimitiveConstrained_MustFailCompile().execute();
 	}
 
 }

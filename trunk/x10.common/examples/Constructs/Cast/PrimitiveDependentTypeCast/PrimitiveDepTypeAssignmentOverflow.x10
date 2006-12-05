@@ -11,10 +11,20 @@ public class PrimitiveDepTypeAssignmentOverflow extends x10Test {
 		// works because the constraint directly refer to the static field
 		long(:self==overIntMax) l1 = (long(:self==overIntMax)) overIntMax;
 			
-		// don't work because 2147493647 is store in an int
+		try {
+		// don't work because 2147493647 is implicity an int
 		long(:self==2147493647) l2 = (long(:self==2147493647)) overIntMax;
+		} catch (ClassCastException e) {
+			return true;
+		}
 
-		return true;
+		// try {
+		// don't work because 2147493647 is implicity an int
+		// long(:self==2147493647L) l3 = (long(:self==2147493647L)) 2147493647;
+		// } catch (ClassCastException e) {
+			// return true;
+		// }
+		return false
 	}
 
 	public static void main(String[] args) {
