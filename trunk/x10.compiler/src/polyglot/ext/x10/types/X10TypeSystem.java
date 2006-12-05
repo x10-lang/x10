@@ -290,7 +290,15 @@ public interface X10TypeSystem extends TypeSystem {
       boolean isDistributedArray(Type me);
      boolean isValueType( Type me);
 	Type baseType(Type theType);
-   
+	
+	/**
+	 * Is a type constrained (i.e. its depClause is != null)
+	 * If me is a nullable, then the basetype is checked.
+	 * @param me Type to check
+	 * @return true if type has a depClause.
+	 */
+	public boolean isTypeConstrained(Type me);
+	
    VarInstance createSelf(X10Type t);
    TypeTranslator typeTranslator();
    boolean equivClause(X10Type m, X10Type o);
@@ -309,5 +317,7 @@ public interface X10TypeSystem extends TypeSystem {
     */
    boolean equalsWithoutClause(X10Type me, X10Type other);
    boolean typeBaseEquals(Type me, Type other);
+   boolean isBoxedType(Type type);
+   String getGetterName(Type type);
 } // end of X10TypeSystem
 
