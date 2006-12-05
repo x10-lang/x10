@@ -58,7 +58,7 @@ import polyglot.ast.SwitchElement;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.ext.jl.parse.Name;
+import polyglot.parse.Name;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.Tuple;

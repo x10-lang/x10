@@ -9,15 +9,15 @@ import java.util.List;
 import polyglot.util.Position;
 import polyglot.ast.Node;
 import polyglot.ast.MethodDecl;
-import polyglot.ext.jl.ast.MethodDecl_c;
-import polyglot.ext.jl.ast.Formal_c;
-import polyglot.ext.jl.types.ClassType_c;
+import polyglot.ast.MethodDecl_c;
+import polyglot.ast.Formal_c;
+import polyglot.types.ClassType_c;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.MethodInstance;
 import polyglot.util.TypedList;
 import polyglot.visit.TypeChecker;
-import polyglot.ext.jl.ast.ClassBody_c;
+import polyglot.ast.ClassBody_c;
 
 public class X10ClassBody_c extends ClassBody_c {
 	public X10ClassBody_c(Position pos,java.util.List members) {

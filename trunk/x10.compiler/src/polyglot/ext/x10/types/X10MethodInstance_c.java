@@ -9,8 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Formal;
-import polyglot.ext.jl.types.MethodInstance_c;
-import polyglot.ext.jl.types.TypeSystem_c;
+import polyglot.types.MethodInstance_c;
+import polyglot.types.TypeSystem_c;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.C_Var;

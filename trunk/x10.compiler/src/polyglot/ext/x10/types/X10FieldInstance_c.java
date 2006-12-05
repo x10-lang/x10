@@ -3,7 +3,7 @@ package polyglot.ext.x10.types;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ext.jl.types.FieldInstance_c;
+import polyglot.types.FieldInstance_c;
 import polyglot.main.Report;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;

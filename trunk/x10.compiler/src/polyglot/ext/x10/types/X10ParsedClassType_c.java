@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-import polyglot.ext.jl.types.ParsedClassType_c;
+import polyglot.types.ParsedClassType_c;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Lit;

@@ -10,7 +10,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ext.jl.ast.CanonicalTypeNode_c;
+import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.ParExpr;
 import polyglot.ext.x10.ast.X10DepCastInfo;
 import polyglot.ext.x10.ast.X10NodeFactory;

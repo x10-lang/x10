@@ -14,7 +14,7 @@ import polyglot.types.Flags;
  *
  */
 public class X10Flags extends Flags {
-	 public static final Set X10_FLAGS = new TreeSet();
+        public static final Set X10_FLAGS = new TreeSet();
         public static final Flags VALUE        = createFlag("value", null);
         public static final Flags REFERENCE    = createFlag("reference", null);
         public static final Flags ATOMIC       = createFlag("atomic", null);

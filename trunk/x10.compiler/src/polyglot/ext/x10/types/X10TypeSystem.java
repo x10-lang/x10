@@ -290,7 +290,7 @@ public interface X10TypeSystem extends TypeSystem {
       boolean isDistributedArray(Type me);
      boolean isValueType( Type me);
 	Type baseType(Type theType);
-	
+   
 	/**
 	 * Is a type constrained (i.e. its depClause is != null)
 	 * If me is a nullable, then the basetype is checked.

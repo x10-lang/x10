@@ -4,7 +4,7 @@ import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.Expr;
-import polyglot.ext.jl.ast.ConstructorDecl_c;
+import polyglot.ast.ConstructorDecl_c;
 import polyglot.types.Flags;
 import polyglot.util.Position;
 

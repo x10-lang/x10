@@ -1,7 +1,7 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.Ext;
-import polyglot.ext.jl.ast.AbstractExtFactory_c;
+import polyglot.ast.AbstractExtFactory_c;
 import polyglot.ext.x10.extension.X10BinaryExt_c;
 import polyglot.ext.x10.extension.X10CanonicalTypeNodeExt_c;
 import polyglot.ext.x10.extension.X10CastExt_c;

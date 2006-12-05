@@ -14,7 +14,8 @@ import java.util.Collection;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
-import polyglot.ext.jl.JLScheduler;
+import polyglot.frontend.JLScheduler;
+import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -23,23 +24,31 @@ import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Caster;
-import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
 import polyglot.ext.x10.visit.X10Qualifier;
+import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
+import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.Compiler;
+import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
+import polyglot.frontend.OutputPass;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Pass;
 import polyglot.frontend.Scheduler;
+import polyglot.frontend.VisitorPass;
 import polyglot.frontend.goals.CodeGenerated;
+import polyglot.frontend.goals.ConstantsChecked;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.SignaturesResolved;
+import polyglot.frontend.goals.TypeChecked;
+import polyglot.frontend.goals.TypesInitializedForCommandLine;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.types.ParsedClassType;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -47,7 +56,7 @@ import x10.parser.X10Parser;
 /**
  * Extension information for x10 extension.
  */
-public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
+public class ExtensionInfo extends polyglot.frontend.JLExtensionInfo {
     static final boolean DEBUG_ = false;
     static {
         // force Topics to load
@@ -220,6 +229,13 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
 //	    if (state == Goal.REACHED)
 //		System.out.println("Reached CodeGenerated goal.");
 //	}
+
+    	public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new OutputPass(this, new X10Translator(job(), ts, nf,
+                                                      extInfo.targetFactory()));
+        }
     }
 
     static class X10Boxed extends VisitorGoal {
@@ -290,7 +306,7 @@ public class ExtensionInfo extends polyglot.ext.jl.ExtensionInfo {
     	        super(job, new TypeChecker(job, ts, nf));
     	    }
 
-			public Collection prerequisiteGoals(Scheduler scheduler) {
+    	    public Collection prerequisiteGoals(Scheduler scheduler) {
     	    	X10Scheduler x10Sched = (X10Scheduler) scheduler;
     	        List l = new ArrayList();
     	        l.add(x10Sched.Disambiguated(job));

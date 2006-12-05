@@ -11,7 +11,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.MethodDecl_c;
+import polyglot.ast.MethodDecl_c;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;

@@ -41,7 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Stmt;
-import polyglot.ext.jl.types.Context_c;
+import polyglot.types.Context_c;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;

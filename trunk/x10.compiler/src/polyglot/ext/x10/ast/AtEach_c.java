@@ -8,7 +8,7 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Stmt;
-import polyglot.ext.jl.ast.Field_c;
+import polyglot.ast.Field_c;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;

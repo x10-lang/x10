@@ -63,7 +63,7 @@ $Globals
     import polyglot.ast.TopLevelDecl;
     import polyglot.ast.TypeNode;
     import polyglot.ast.Unary;
-    import polyglot.ext.jl.parse.Name;
+    import polyglot.parse.Name;
     import polyglot.ext.x10.ast.Here;
     import polyglot.ext.x10.ast.DepParameterExpr;
     import polyglot.ext.x10.ast.Tuple;
@@ -430,7 +430,7 @@ $Headers
           List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
           classDecl.add( decl );
           TypeNode t = (TypeNode) tOperatorPointwise.toType();
-
+          
           New initializer = nf.New(pos,
                                    t,
                                    new LinkedList(),

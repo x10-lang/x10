@@ -5,7 +5,7 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
-import polyglot.ext.jl.ast.Conditional_c;
+import polyglot.ast.Conditional_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;

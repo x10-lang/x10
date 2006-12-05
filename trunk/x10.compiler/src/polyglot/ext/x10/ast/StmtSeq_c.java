@@ -7,8 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Stmt;
-import polyglot.ext.jl.ast.AbstractBlock_c;
-import polyglot.ext.jl.ast.Block_c;
+import polyglot.ast.AbstractBlock_c;
+import polyglot.ast.Block_c;
 import polyglot.types.Context;
 import polyglot.util.Position;
 

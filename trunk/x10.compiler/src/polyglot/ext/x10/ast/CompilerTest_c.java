@@ -2,7 +2,7 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Node;
-import polyglot.ext.jl.ast.FieldDecl_c;
+import polyglot.ast.FieldDecl_c;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;

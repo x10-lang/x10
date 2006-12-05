@@ -13,9 +13,8 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.FieldDecl_c;
-import polyglot.ext.jl.ast.MethodDecl_c;
-import polyglot.ext.jl.parse.Name;
+import polyglot.ast.FieldDecl_c;
+import polyglot.ast.MethodDecl_c;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -116,7 +115,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         Flags flags = Flags.PUBLIC.Final();
         List formals = Collections.EMPTY_LIST;
         List throwTypes = Collections.EMPTY_LIST;
-        Expr e = new Name(nf, ts, pos, name).toExpr();
+        Expr e = nf.ExprFromQualifiedName(pos, name);
         //Report.report(1, "PropertyDecl_c: GOLDEN e=|" + e + " " + e.getClass());
         
         Stmt s = nf.Return(pos, e);

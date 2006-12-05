@@ -18,7 +18,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.Expr_c;
+import polyglot.ast.Expr_c;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;

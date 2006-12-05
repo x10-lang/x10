@@ -8,7 +8,7 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.Receiver;
-import polyglot.ext.jl.ast.Call_c;
+import polyglot.ast.Call_c;
 import polyglot.util.Position;
 
 /** An immutable data structure representing a remote method invocation 

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import polyglot.ext.jl.types.LocalInstance_c;
+import polyglot.types.LocalInstance_c;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10LocalInstance_c;

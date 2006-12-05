@@ -13,7 +13,7 @@ import polyglot.ast.Assign;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.Assign_c;
+import polyglot.ast.Assign_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;

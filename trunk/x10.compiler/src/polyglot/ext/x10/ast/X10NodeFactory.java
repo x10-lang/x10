@@ -18,7 +18,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.parse.Name;
+import polyglot.parse.Name;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Flags;
 import polyglot.util.Position;
