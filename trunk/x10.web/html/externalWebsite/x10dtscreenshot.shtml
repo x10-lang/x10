@@ -34,7 +34,38 @@
 <tr valign="top">
 <td width="10">&nbsp;</td>
 <td width="600">
+<a name="x10dtsnapshot"></a>
+<h2>X10 DT Snapshot</ht>
 <img src="x10DTscreenshot.gif" alt ="X10 DT Snapshot" class="display-img"/>
+
+<br />
+<a name="newX10Class"></a>
+<h2>New X10 Class</h2>
+<img src="newX10Class.GIF" alt ="new x10 class" class="display-img"/>
+
+<br />
+newX10Project.GIF
+<a name="newX10Project"></a>
+<h2>New X10 Project </h2>
+<img src="newX10Project.GIF" alt ="newX10Project" class="display-img"/>
+
+<br />
+<a name="x10LaunchConfig"></a>
+<h2>X10 Launch Configuration</ht>
+<img src="x10LaunchConfig.GIF" alt ="X10 launch config" class="display-img"/>
+
+<br />
+<a name="x10Prefs"></a>
+<h2>x10 Preferences </ht>
+<img src="x10Prefs.GIF" alt ="X10 Prefs" class="display-img"/>
+
+<br />
+<a name="x10RuntimeArgs"></a>
+<h2>X10 Runtime Args Snapshot</ht>
+<img src="x10RuntimeArgs.GIF" alt ="X10 RuntimeArgs" class="display-img"/>
+
+<br />
+
 </td>
 </tr>
 </table>
