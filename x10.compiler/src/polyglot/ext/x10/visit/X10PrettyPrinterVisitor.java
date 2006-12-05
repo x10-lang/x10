@@ -104,47 +104,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(X10Cast_c c) {
-		if (c.isDynamicCheckNeeded()) {
-			String castBaseType = ((X10Type) c.type()).baseType().toString();
-			Expr exprToCast = c.expr();
-	
-			if (X10CastHelper.isSideEffectFree(exprToCast)) {
-				this.applyInlineTemplate("cast-inlined", c, castBaseType, exprToCast, ((X10Type) c.type()));			
-			} else {
-				if (c.isPrimitiveCast())
-					new Template("cast-primitive",
-							 new Object[] { castBaseType, 
-											X10CastHelper.getRuntimeConstraintTab(((X10Type) c.type())),
-											exprToCast}).expand();
-				else {
-					new Template("cast-reference",
-							 new Object[] { castBaseType, 
-											X10CastHelper.getRuntimeConstraintTab(((X10Type) c.type())), 
-											c.notNullRequired(),c.isToTypeNullable(), exprToCast}).expand();
-				}
-			}
-		} else {
 			visit((Node)c);
-		}
 	}
 
 	public void visit(X10Instanceof_c c) {
-		if (c.isDynamicCheckNeeded()) {
-			String castBaseType = (((X10Type)c.compareType().type()).baseType()).toString();
-			Expr exprToTest = c.expr();
-
-			if (X10CastHelper.isSideEffectFree(exprToTest)) {
-				this.applyInlineTemplate("instanceof-inlined", c, castBaseType, exprToTest, ((X10Type)c.compareType().type()));
-			}
-			else {
-					new Template("instanceof-reference",
-							 new Object[] {castBaseType, 
-											X10CastHelper.getRuntimeConstraintTab(((X10Type) c.compareType().type())), 
-											c.notNullRequired(), c.isToTypeNullable(), c.expr()}).expand();
-			}
-		} else {
 			visit((Node) c);
-		}
 	}
 	
 	private void applyInlineTemplate(String templateToInvoke, X10CastInfo c, 
