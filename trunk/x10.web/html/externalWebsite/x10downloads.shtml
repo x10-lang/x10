@@ -287,7 +287,7 @@ appropriate configuration.
 <p>The remaining options settings on this preference page are not critical; all
 X10 functionality should work reasonably with whatever values you enter.
 
-<p><a href="x10dtscreenshot.shtml#x10Prefs" target="_blank"><img src="x10Prefs.GIF" height="80" width="120" alt="X10 PreferencesSnapshot"/></a>
+<p><a href="x10dtscreenshot.shtml#x10Prefs" target="_blank"><img src="x10Prefs.GIF" height="160" width="240" alt="X10 PreferencesSnapshot"/></a>
 
 <a name="b2"></a>
 <h2>Switch to the Java Perspective</h2>
@@ -313,7 +313,7 @@ always appear in the "New" menu, invoke "Window" -&gt; "Customize Perspective...
 In this dialog, go to the "Shortcuts" page, and locate "X10" in the "Shortcut
 Categories" list in the left-hand pane. Check that box, and click "Ok".]
 
-<p><a href="x10dtscreenshot.shtml#newX10Project" target="_blank"><img src="newX10Project.GIF" height="80" width="120" alt="New X10 Project Wizard Snapshot"/></a>
+<p><a href="x10dtscreenshot.shtml#newX10Project" target="_blank"><img src="newX10Project.GIF" height="160" width="240" alt="New X10 Project Wizard Snapshot"/></a>
 
 <p>In the "X10 Project" dialog, fill out the "Name" field with a unique non-existing
 project name.
@@ -332,7 +332,7 @@ this option.
 <h2>Create a new X10 Class</h2>
 <p>Invoke "File" -&gt; "New" -&gt; "X10" -&gt; "X10 Class".
 
-<p><a href="x10dtscreenshot.shtml#newX10Class" target="_blank"><img src="x10Class.GIF" height="80" width="120" alt="New X10 Class Wizard Snapshot"/></a>
+<p><a href="x10dtscreenshot.shtml#newX10Class" target="_blank"><img src="x10Class.GIF" height="160" width="240" alt="New X10 Class Wizard Snapshot"/></a>
 
 <p>[N.B.: As with the above, if "X10 Class" doesn't appear in the "File" -&gt; "New"
 menu, you can access it via the "Other..." menu item at the bottom of that menu.
@@ -386,7 +386,7 @@ view shows the types, members and anonymous instances defined in the source code
 item in the Outline view. Click on the "+" or "-" controls next to a given item in the
 Outline view to expand or collapse the sub-tree rooted at that item.
 
-<p><a href="x10dtscreenshot.shtml" target="_blank"><img src="x10DTscreenshot.gif" height="80" width="120" alt="X10 DT Snapshot"/></a>
+<p><a href="x10dtscreenshot.shtml" target="_blank"><img src="x10DTscreenshot.gif" height="160" width="240" alt="X10 DT Snapshot"/></a>
 
 <a name="b6"></a>
 <h2>Launching your X10 program</h2>
@@ -406,7 +406,7 @@ Outline view to expand or collapse the sub-tree rooted at that item.
   application you wish to run, and the main class.</li>
 </ul>
 
-<p><a href="x10dtscreenshot.shtml#x10LaunchConfig" target="_blank"><img src="x10LaunchConfig.GIF" height="80" width="120" alt="X10 Launch Configuration Snapshot"/></a>
+<p><a href="x10dtscreenshot.shtml#x10LaunchConfig" target="_blank"><img src="x10LaunchConfig.GIF" height="160" width="240" alt="X10 Launch Configuration Snapshot"/></a>
 
 <p>Note: you can have launch configurations for several X10 applications within a single
 project, as well as multiple launch configurations for the same application.
@@ -418,7 +418,7 @@ for example, enable the collection of abstract execution statistics by setting t
 option "ABSTRACT_EXECUTION_STATS" to "true" (place "ABSTRACT_EXECUTION_STATS=true" in the
 "Runtime arguments" pane).
 
-<p><a href="x10dtscreenshot.shtml#x10RuntimeArgs" target="_blank"><img src="x10RuntimeArgs.GIF" height="80" width="120" alt="X10 Runtime Arguments Snapshot"/></a>
+<p><a href="x10dtscreenshot.shtml#x10RuntimeArgs" target="_blank"><img src="x10RuntimeArgs.GIF" height="160" width="240" alt="X10 Runtime Arguments Snapshot"/></a>
 
 <a name="b7"></a>
 <h2>Debugging your X10 program</h2>
