@@ -11,17 +11,12 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Expr;
-import polyglot.ast.Formal;
-import polyglot.ext.jl.types.FieldInstance_c;
 import polyglot.ext.jl.types.LocalInstance_c;
 import polyglot.ext.jl.types.MethodInstance_c;
 import polyglot.ext.jl.types.TypeSystem_c;
-import polyglot.ext.x10.types.constr.C_Field_c;
-import polyglot.ext.x10.types.constr.C_Special;
+import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
@@ -42,7 +37,6 @@ import polyglot.types.PrimitiveType;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeObject;
 import polyglot.types.UnknownType;
 import polyglot.types.VarInstance;
 import polyglot.util.InternalCompilerError;
@@ -865,7 +859,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	public MethodInstance getter(X10PrimitiveType t) {
 		String methodName = t.typeName() + "Value";
 		ConstructorInstance ci = wrapper(t);
-		
+
 		for (Iterator i = ci.container().methods().iterator(); i.hasNext(); ) {
 			MethodInstance mi = (MethodInstance) i.next();
 			if (mi.name().equals(methodName) && mi.formalTypes().isEmpty()) {
@@ -877,20 +871,42 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	}
 	
 	public X10NamedType boxedType(X10PrimitiveType t) {
-		return (X10NamedType) wrapper(t).container();
+		X10NamedType namedType = (X10NamedType) wrapper(t).container();
+		return namedType; 
 	}
+	
+	public boolean isBoxedType(Type t) {
+		t = this.isNullable(t) ? ((NullableType) t).base() : t;
+		String targetCanonicalName = t.toString();
+		return (t instanceof X10ParsedClassType) && 
+					targetCanonicalName.startsWith(WRAPPER_PACKAGE + ".Boxed");		
+	}
+
+	public String getGetterName(Type t) {
+		if (isBoxedType(t)) {
+			t = this.isNullable(t) ? ((NullableType) t).base() : t;
+			return this.boxedGetterAsString((X10ParsedClassType) t);
+		}
+		
+		throw new InternalCompilerError(t + " is not a primitive type boxed");
+	}
+	
 	
 	public ConstructorInstance wrapper(X10PrimitiveType t) {
 		String name = WRAPPER_PACKAGE + ".Boxed" + wrapperTypeString(t).substring("java.lang.".length());
-		
+
 		try {
 			ClassType ct = ((Type) systemResolver().find(name)).toClass();
-			
+
 			for (Iterator i = ct.constructors().iterator(); i.hasNext(); ) {
 				ConstructorInstance ci = (ConstructorInstance) i.next();
 				if (ci.formalTypes().size() == 1) {
 					Type argType = (Type) ci.formalTypes().get(0);
 					if (equals(argType, t)) {
+						if (t.depClause() != null) {
+							ci.setContainer((ReferenceType) ((X10NamedType)ci.container()).makeVariant(
+									t.depClause(), null));
+						}
 						return ci;
 					}
 				}
@@ -902,6 +918,46 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		
 		throw new InternalCompilerError("Could not find constructor for " + t);
 	}
+	
+	private String boxedToPrimitiveName (String boxedClassName){
+		String boxedType;
+		String prefix = "Boxed";
+		return boxedClassName.substring(prefix.length(), 
+				boxedClassName.length());
+	}
+	
+    private String boxedGetterAsString(X10ParsedClassType t) {
+        assert_(t);
+        String boxedTypeName = this.boxedToPrimitiveName(t.name());
+
+    	if (boxedTypeName.equals("Boolean")) {
+    	    return "booleanValue";
+    	}
+    	if (boxedTypeName.equals("Character")) {
+    	    return "charValue";
+    	}
+    	if (boxedTypeName.equals("Byte")) {
+    	    return "byteValue";
+    	}
+    	if (boxedTypeName.equals("Short")) {
+    	    return "shortValue";
+    	}
+    	if (boxedTypeName.equals("Integer")) {
+    	    return "intValue";
+    	}
+    	if (boxedTypeName.equals("Long")) {
+    	    return "longValue";
+    	}
+    	if (boxedTypeName.equals("Float")) {
+    	    return "floatValue";
+    	}
+    	if (boxedTypeName.equals("Double")) {
+    	    return "doubleValue";
+    	}
+
+	throw new InternalCompilerError(t + " is not a primitive type boxed");
+    }
+
 	
 	// RMF 11/1/2005 - Not having the "static" qualifier on interfaces causes problems,
 	// e.g. for New_c.disambiguate(AmbiguityRemover), which assumes that instantiating
@@ -969,6 +1025,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return isX10Subtype(me, Array()); 
 	}
 	
+	public boolean isTypeConstrained(Type me) {
+		X10Type target = isNullable(me) ?((NullableType) me).base() : 
+			(((X10Type) me));
+		return target.depClause() != null;   
+	}
 	Constraint rect;
 	
 	
