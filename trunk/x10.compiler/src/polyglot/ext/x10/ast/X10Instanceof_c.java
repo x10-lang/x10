@@ -14,6 +14,7 @@ import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ext.jl.ast.Cast_c;
 import polyglot.ext.jl.ast.Instanceof_c;
+import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Term;
@@ -43,8 +44,8 @@ import polyglot.visit.TypeChecker;
  */
 public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10CastInfo{
 
-	private boolean toTypeNullable = false;
-	private boolean dynamicCheckNeeded = false;
+	protected boolean toTypeNullable = false;
+	protected boolean notNullRequired = false;
 	
 	public X10Instanceof_c(Position pos, Expr expr, TypeNode compareType) {
     	super(pos,expr,compareType);
@@ -53,24 +54,28 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
     /** Type check the expression. */
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         Instanceof n = (Instanceof) node();
-        Type rtype = n.compareType().type();
-        Type ltype = n.expr().type();
-
-        if (! tc.typeSystem().isCastValid(ltype, rtype)) {
+        Type toType = n.compareType().type();
+        Type fromType = n.expr().type();
+        
+        this.toTypeNullable = false;
+        this.notNullRequired = false;
+        
+        if (! tc.typeSystem().isCastValid(fromType, toType)) {
             throw new SemanticException(
                       "Left operand of \"instanceof\" must be castable to "
                       + "the right operand.");
         }
-        
-        // is conversion from a nullable type to a non nullable one.        
+
         this.toTypeNullable = ((X10TypeSystem) tc.typeSystem()).isNullable(this.compareType.type());
-    	this.dynamicCheckNeeded  = ((((X10Type)rtype).depClause() != null) && ((X10Type)ltype).depClause() == null)
-    								|| this.isToTypeNullable();
+
+        // is conversion from a nullable type to a non nullable one.
+        // not Null is required if toType is notNullable or toType is nullable but has constraints
+        this.notNullRequired = !toTypeNullable;  
     	return n.type(tc.typeSystem().Boolean());
 	}
 
-    public boolean isDynamicCheckNeeded() {
-    	return this.dynamicCheckNeeded;
+    public boolean isDepTypeCheckingNeeded() {
+    	return false;
     }
     
 	public boolean isPrimitiveCast() {
@@ -82,11 +87,15 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
 	 * then the (null instanceof T) code generated will return false.   
 	 */
 	public boolean notNullRequired() {
-		return false;
+		return this.notNullRequired;
 	}
 
 	public boolean isToTypeNullable() {
 		return this.toTypeNullable;
 	}
+    
+    public TypeNode getTypeNode() {
+    	return this.compareType();
+    }
 
 }
