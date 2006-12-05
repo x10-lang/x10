@@ -11,10 +11,14 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Expr;
-import polyglot.ext.jl.types.LocalInstance_c;
-import polyglot.ext.jl.types.MethodInstance_c;
-import polyglot.ext.jl.types.TypeSystem_c;
+import polyglot.ast.Formal;
+import polyglot.types.FieldInstance_c;
+import polyglot.types.LocalInstance_c;
+import polyglot.types.MethodInstance_c;
+import polyglot.types.TypeSystem_c;
+import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Local_c;
+import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.TypeTranslator;
@@ -859,7 +863,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	public MethodInstance getter(X10PrimitiveType t) {
 		String methodName = t.typeName() + "Value";
 		ConstructorInstance ci = wrapper(t);
-
+		
 		for (Iterator i = ci.container().methods().iterator(); i.hasNext(); ) {
 			MethodInstance mi = (MethodInstance) i.next();
 			if (mi.name().equals(methodName) && mi.formalTypes().isEmpty()) {
@@ -894,10 +898,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	
 	public ConstructorInstance wrapper(X10PrimitiveType t) {
 		String name = WRAPPER_PACKAGE + ".Boxed" + wrapperTypeString(t).substring("java.lang.".length());
-
+		
 		try {
 			ClassType ct = ((Type) systemResolver().find(name)).toClass();
-
+			
 			for (Iterator i = ct.constructors().iterator(); i.hasNext(); ) {
 				ConstructorInstance ci = (ConstructorInstance) i.next();
 				if (ci.formalTypes().size() == 1) {

@@ -2,7 +2,7 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.Special_c;
+import polyglot.ast.Special_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.main.Report;

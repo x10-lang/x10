@@ -13,7 +13,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.Call_c;
+import polyglot.ast.Call_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10LocalInstance;

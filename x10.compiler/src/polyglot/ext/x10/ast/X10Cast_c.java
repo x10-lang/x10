@@ -9,10 +9,10 @@ import java.util.Map.Entry;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.Cast_c;
-import polyglot.ext.jl.ast.Field_c;
-import polyglot.ext.jl.ast.Lit_c;
-import polyglot.ext.jl.ast.Local_c;
+import polyglot.ast.Cast_c;
+import polyglot.ast.Field_c;
+import polyglot.ast.Lit_c;
+import polyglot.ast.Local_c;
 import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -43,7 +43,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 		protected boolean primitiveType = false;
 		protected boolean notNullRequired = false;
 		protected boolean toTypeNullable = false;
-		
+	
         public X10Cast_c(Position pos, TypeNode castType, Expr expr) {
                 super(pos, castType, expr);
         }
@@ -68,14 +68,14 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
            if (Report.should_report("debug", 5)) {
            	Report.report(5, "[Cast_c] ...returning=|" +  result+"| of type=|" + result.type() + "|.");
            }
-    	   
+           
            // check java cast is valid and dependent type constraint are meet
            if (! ts.isCastValid(fromType, toType)) {
 		   	    throw new SemanticException("Cannot cast the expression of type \"" 
 		   					+ fromType + "\" to type \"" 
 		   					+ toType + "\".",
 		   				        position());
-           } else {
+           } else { 
         	   // the cast may requires runtime checking. For example ((T) java.lang.Object)
         	   
         	   // Handle isNullable additionnal constraint 
@@ -89,8 +89,8 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	           if (xts.isNullable(x10ToType)) {
 	        	   this.toTypeNullable = true;
 	           }
-           }
-           return type(toType);
+		    	            }
+            		return type(toType);
         }
         
 		public boolean isDepTypeCheckingNeeded() {

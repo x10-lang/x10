@@ -9,7 +9,7 @@ package polyglot.ext.x10.types;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.ext.jl.types.PrimitiveType_c;
+import polyglot.types.PrimitiveType_c;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Lit_c;

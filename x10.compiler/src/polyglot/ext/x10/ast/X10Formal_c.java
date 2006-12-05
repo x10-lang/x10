@@ -14,7 +14,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.Formal_c;
+import polyglot.ast.Formal_c;
 import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.Flags;

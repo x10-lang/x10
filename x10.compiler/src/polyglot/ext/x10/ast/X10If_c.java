@@ -6,7 +6,7 @@ package polyglot.ext.x10.ast;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
-import polyglot.ext.jl.ast.If_c;
+import polyglot.ast.If_c;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;

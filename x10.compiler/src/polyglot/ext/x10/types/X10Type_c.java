@@ -6,7 +6,7 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
-import polyglot.ext.jl.types.Type_c;
+import polyglot.types.Type_c;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;

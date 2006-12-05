@@ -11,7 +11,7 @@ package x10.parser;
 import java.util.List;
 
 import polyglot.ast.AmbExpr;
-import polyglot.ext.jl.parse.Name;
+import polyglot.parse.Name;
 import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
 import polyglot.util.Position;

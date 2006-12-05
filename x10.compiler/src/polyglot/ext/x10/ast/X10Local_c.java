@@ -8,7 +8,7 @@ package polyglot.ext.x10.ast;
  * @author vj
  */
 import polyglot.ast.Node;
-import polyglot.ext.jl.ast.Local_c;
+import polyglot.ast.Local_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.main.Report;

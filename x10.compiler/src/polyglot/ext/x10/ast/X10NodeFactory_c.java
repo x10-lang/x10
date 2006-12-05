@@ -26,6 +26,7 @@ import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FloatLit;
 import polyglot.ast.For;
+import polyglot.ast.For_c;
 import polyglot.ast.Formal;
 import polyglot.ast.If;
 import polyglot.ast.Instanceof;
@@ -34,8 +35,8 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
-import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.NodeFactory_c;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
@@ -44,12 +45,10 @@ import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.While;
-import polyglot.ext.jl.ast.For_c;
-import polyglot.ext.jl.ast.NodeFactory_c;
-import polyglot.ext.jl.parse.Name;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.parse.Name;
 import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -114,7 +113,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (Instanceof) n.del(delFactory().delInstanceof());
 		return n;
 	}
-	
+
     public Instanceof DepInstanceof(Position pos, TypeNode compareType,
 			DepParameterExpr d, Expr expr) {
         Instanceof n = new DepInstanceof_c(pos, compareType, d, expr);
@@ -885,6 +884,5 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         n = (Conditional)n.del(delFactory().delConditional());
         return n;
     }
-
 }
 

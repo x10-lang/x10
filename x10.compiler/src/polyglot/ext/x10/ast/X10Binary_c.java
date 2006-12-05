@@ -18,7 +18,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
-import polyglot.ext.jl.ast.Binary_c;
+import polyglot.ast.Binary_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;

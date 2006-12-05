@@ -1,7 +1,7 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.Receiver;
-import polyglot.ext.jl.ast.Disamb_c;
+import polyglot.ast.Disamb_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.main.Report;
 import polyglot.types.ClassType;

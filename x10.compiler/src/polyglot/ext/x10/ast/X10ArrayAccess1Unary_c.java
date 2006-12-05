@@ -13,7 +13,7 @@ import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.Unary;
 import polyglot.ast.Variable;
-import polyglot.ext.jl.ast.Unary_c;
+import polyglot.ast.Unary_c;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;

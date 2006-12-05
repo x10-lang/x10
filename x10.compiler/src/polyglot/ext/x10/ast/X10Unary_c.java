@@ -6,7 +6,7 @@ package polyglot.ext.x10.ast;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
-import polyglot.ext.jl.ast.Unary_c;
+import polyglot.ast.Unary_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10Type_c;

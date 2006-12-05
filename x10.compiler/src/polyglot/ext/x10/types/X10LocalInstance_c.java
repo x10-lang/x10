@@ -3,7 +3,7 @@
  */
 package polyglot.ext.x10.types;
 
-import polyglot.ext.jl.types.LocalInstance_c;
+import polyglot.types.LocalInstance_c;
 import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
+ 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
@@ -20,10 +20,10 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.ext.jl.ast.Binary_c;
-import polyglot.ext.jl.ast.Call_c;
-import polyglot.ext.jl.ast.Field_c;
-import polyglot.ext.jl.ast.MethodDecl_c;
+import polyglot.ast.Binary_c;
+import polyglot.ast.Call_c;
+import polyglot.ast.Field_c;
+import polyglot.ast.MethodDecl_c;
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.ArrayConstructor_c;
 import polyglot.ext.x10.ast.Async_c;
@@ -53,6 +53,7 @@ import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.ast.X10Cast_c.X10CastHelper;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -98,18 +99,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(Node n) {
-		if (n.comment() != null)
-			w.write(n.comment());
+		X10Ext ext = (X10Ext) n.ext();
+		if (ext.comment() != null)
+			w.write(ext.comment());
 		n.prettyPrint(w, pp);
 	}
 
 	public void visit(X10Cast_c c) {
 			visit((Node)c);
-	}
+		}
 
 	public void visit(X10Instanceof_c c) {
 			visit((Node) c);
-	}
+		}
 	
 	private void applyInlineTemplate(String templateToInvoke, X10CastInfo c, 
 			String castBaseType, Expr exprToCast, X10Type toType) {
@@ -226,8 +228,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(MethodDecl_c dec) {
-		if (dec.comment() != null)
-			w.write(dec.comment());
+		X10Ext ext = (X10Ext) dec.ext();
+		if (ext.comment() != null)
+			w.write(ext.comment());
 		if (dec.name().equals("main") &&
 			dec.flags().isPublic() &&
 			dec.flags().isStatic() &&

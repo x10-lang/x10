@@ -4,7 +4,7 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.Node;
-import polyglot.ext.jl.ast.StringLit_c;
+import polyglot.ast.StringLit_c;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.Constraint;

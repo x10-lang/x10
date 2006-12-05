@@ -10,7 +10,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
-import polyglot.ext.jl.ast.Expr_c;
+import polyglot.ast.Expr_c;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.NullableType_c;
 import polyglot.ext.x10.types.X10ClassType;
