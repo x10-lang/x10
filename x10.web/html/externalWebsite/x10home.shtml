@@ -136,7 +136,13 @@ The X10 Programming Language
 <br>
 <br>
 X10 aims to contribute to this productivity improvement by developing a new programming model, combined with a new set of tools integrated into Eclipse and new implementation techniques for delivering optimized scalable parallelism in a managed runtime environment. X10 is a type-safe, modern, parallel, distributed object-oriented language intended to be very easily accessible to Java(TM) programmers. It is targeted to future low-end and high-end systems with nodes that are built out of multi-core SMP chips with non-uniform memory hierarchies, and interconnected in scalable cluster configurations. A member of the Partitioned Global Address Space (PGAS) family of languages, X10 highlights the explicit reification of locality in the form of places; lightweight activities embodied in async, future, foreach, and ateach constructs; constructs for termination detection (finish) and phased computation (clocks); the use of lock-free synchronization (atomic blocks); and the manipulation of global arrays and data structures.
-</p></td>
+</p>
+
+<p>
+An Eclipse-based Integrated Development Environment (IDE) has been developed at IBM for X10 to help further increase programmer productivity by providing state-of-the-art functionality for viewing, editing, navigating, executing, and manipulating X10 programs. The X10 Development Toolkit (X10DT) is intended to be a full-featured IDE for X10 offering the features Java programmers have come to love and depend upon in Eclipse: a source editor with various coding assists, lightweight information pop-ups, high-level and low-level navigation views, powerful search capabilities, application launch configuration management, refactoring, and debugging support. In addition, the X10DT will include tools, views and refactorings that specifically address the development of highly concurrent software in X10.
+</p>
+
+</td>
 </tr>
 </table>
 </td>
@@ -153,10 +159,13 @@ X10 aims to contribute to this productivity improvement by developing a new prog
 <td><table border="0" cellpadding="0" cellspacing="0" >
 <tr>
 <td width="443"><p>
-Support for a subset of the X10 language.  Add pertienent details here.
+Support for a subset of the X10 language.  Add pertinent details here.
 Currently only SMP machines are supported.
-
-</p></td>
+</p>
+<p>
+The X10DT already provides a significant subset of the functionality expected of a modern IDE: syntax highlighting, structural outline views, compiler error annotations placed directly on the source code, navigation from references to corresponding declarations, "hover help" that shows information about an entity when hovering over a reference, "content assistance" that offers completions of identifiers and expressions, debugging support, and more. In the future, the X10DT will also include support for indexed search, refactoring, type hierarchy queries, call graph navigation, and so on. At the moment, the X10DT supports X10 application developers; in the near future, we will add support for language developers who wish to alter the X10 compiler or runtime and take advantage of their enhancements within the X10DT.
+</p>
+</td>
 </tr>
 </table>
 </td>
