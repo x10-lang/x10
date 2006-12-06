@@ -47,7 +47,7 @@
 <td class="left-nav-overview" colspan="2"><a class="left-nav-overview" href="x10home.shtml">X10 Home page</a></td>
 </tr>
 <tr>
-<td class="left-nav" colspan="2"><a class="left-nav" href="x10doc.shtml">Documentation</a></td>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10doc.shtml">Language Documentation</a></td>
 </tr>
 <tr>
 <td class="left-nav-highlight" colspan="2"><a class="left-nav" href="x10downloads.shtml">Downloads</a></td>
@@ -65,7 +65,7 @@
 <td class="left-nav" colspan="2"><a class="left-nav" href="x10presentations.shtml">Presentations</a></td>
 </tr>
 <tr>
-<td class="left-nav" colspan="2"><a class="left-nav" href="x10tutorial.shtml">Tutorial a bug</a></td>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10tutorial.shtml">Tutorial</a></td>
 </tr>
 <tr>
 <td class="left-nav" colspan="2"><a class="left-nav" href="x10examples.shtml">Code Examples</a></td>
@@ -74,7 +74,7 @@
 <td class="left-nav" colspan="2"><a class="left-nav" href="x10devcorner.shtml">Developers Corner</a></td>
 </tr>
 <tr>
-<td class="left-nav" colspan="2"><a class="left-nav" href="x10faq.shtml">FAQ Examples</a></td>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10faq.shtml">FAQ</a></td>
 </tr>
 <tr class="left-nav-last">
 <td width="14"><img src="//www.ibm.com/i/c.gif" width="14" height="1" alt="" class="display-img"/></td>
