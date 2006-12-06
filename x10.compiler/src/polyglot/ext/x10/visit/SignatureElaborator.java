@@ -17,7 +17,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.X10ArrayAccess;
 import polyglot.ext.x10.ast.X10ArrayAccess1;
 import polyglot.ext.x10.ast.X10LocalDecl_c;
-import polyglot.ext.x10.visit.TypeElaborator.AmbChecker;
+
 import polyglot.frontend.Job;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;

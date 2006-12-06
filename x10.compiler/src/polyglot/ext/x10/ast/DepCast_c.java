@@ -7,12 +7,18 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Cast_c;
+import polyglot.ast.TypeNode_c;
+import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
+import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 
@@ -23,6 +29,9 @@ import polyglot.visit.TypeChecker;
 public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 
 	protected boolean depTypeCheckingNeeded = false;
+
+	// This dep must be typechecked in a context in which castType.type() has been
+	// pushed, as would be done by e.g. X10CanonicalTypeNode_c.
 	protected boolean notVisited = true;
 	protected DepParameterExpr dep;
 
@@ -39,8 +48,33 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 	public boolean isDepTypeCheckingNeeded() {
 		return depTypeCheckingNeeded;
 	}
-
+	Type lookaheadType = null;
+	@Override
+	public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
+		lookaheadType = ((TypeNode_c) castType.disambiguate(sc)).type();
+		return sc;
+	}
+	@Override
+	public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
+		//Report.report(1, "X10CanonicalType: typecheckEnter " + this + " dep=|" + this.dep + "|");
+		lookaheadType = ((TypeNode_c) ((X10CanonicalTypeNode_c) castType).typeCheckBase(tc)).type();
+		return tc;
+	}
+	@Override
+	public Context enterChildScope(Node child, Context c) {
+		if (child == this.dep) {
+			TypeSystem ts = c.typeSystem();
+			//Report.report(1, "X10CanonicalType: enterChildScope " + this + " pushing " + lookaheadType + "| child==" + child);
+			if (lookaheadType instanceof X10NamedType) {
+				c = ((X10Context) c).pushDepType((X10NamedType) lookaheadType);
+			}
+		}
+		Context cc = super.enterChildScope(child, c);
+		return cc;
+	}
+	@Override
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
+		// Report.report(1, "DepCast_c: typeCheck called on  " + this + " with dep=" + dep());
 
 		this.depTypeCheckingNeeded = false;
 
@@ -124,9 +158,10 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
     /** Visit the children of the expression. */
     public Node visitChildren(NodeVisitor v) {
     	TypeNode castType = (TypeNode) visitChild(this.castType, v);
+    	DepParameterExpr depExpr = (DepParameterExpr) visitChild(this.dep, v);
     	Expr expr = (Expr) visitChild(this.expr, v);
-//    	DepParameterExpr depExpr = (DepParameterExpr) visitChild(this.dep, v);
-    	DepParameterExpr depExpr = (DepParameterExpr) dep.copy();
+    	
+  //  	DepParameterExpr depExpr = (DepParameterExpr) dep.copy();
     	return reconstruct(castType, expr, depExpr);
     }
 }

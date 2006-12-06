@@ -7,16 +7,22 @@ import polyglot.ast.Expr;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
+import polyglot.ast.TypeNode_c;
+import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 import x10.runtime.Report;
 
 /**
- * @author VijaySaraswat
+ * @author vj
  *
  */
 public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
@@ -37,6 +43,27 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
 		return this.depTypeCheckingNeeded;
 	}
 
+	Type lookaheadType = null;
+	public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
+		lookaheadType = ((TypeNode_c) compareType.disambiguate(sc)).type();
+		return sc;
+	}
+	public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
+		//Report.report(1, "X10CanonicalType: typecheckEnter " + this + " dep=|" + this.dep + "|");
+		lookaheadType = ((TypeNode_c) compareType.typeCheck(tc)).type();
+		return tc;
+	}
+	
+	public Context enterChildScope(Node child, Context c) {
+		if (child == this.dep) {
+			TypeSystem ts = c.typeSystem();
+			if (lookaheadType instanceof X10NamedType) {
+				c = ((X10Context) c).pushDepType((X10NamedType) lookaheadType);
+			}
+		}
+		Context cc = super.enterChildScope(child, c);
+		return cc;
+	}
 	  public Node typeCheck(TypeChecker tc) throws SemanticException {
 		  Report.report(1, "DepInstance_of: " + this + " dep=" + dep);
 		super.typeCheck(tc);

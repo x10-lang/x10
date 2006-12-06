@@ -90,7 +90,9 @@ public class X10Caster extends AscriptionVisitor {
 			// following line is needed because cast and instanceof extension
 			// could have rewritten the node without typechecking resulting expr.
 			// which cause problem with primitive boxing in nullable
-			ret_notype = (Expr) e.visit(tb).visit(ar).visit(tc);
+			// ret_notype = (Expr) e.visit(tc);
+			//vj ret_notype = (Expr) e.visit(tb).visit(ar).visit(tc);
+			ret_notype = (Expr) e.visit(tc);
 
 			X10CastInfo cast = (X10CastInfo) ret_notype;
 			
