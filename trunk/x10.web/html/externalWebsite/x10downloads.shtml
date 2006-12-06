@@ -167,7 +167,7 @@ Optional Packages:
 <ul>
 <li>
 <img src="//www.ibm.com/i/v14/icons/sout.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="http://www.eclipse.org/downloads/">Eclipse 3.0 or later</a>
+<a href="http://www.eclipse.org/downloads/">Eclipse 3.1.2 or a later 3.1 release</a>
 </li>
 </ul>
 
@@ -244,14 +244,95 @@ with Eclipses ${system:OS} and ${system:ARCH} variables.
 
 <table border="0" cellpadding="0" cellspacing="0" width="610">
 <tr>
-<td class="v14-header-5">Eclipse X10 Development Toolkit (DT)  setup</td>
+<td class="v14-header-5">Eclipse X10 Development Toolkit (X10DT) setup</td>
 </tr>
 <tr>
 <br />
 </tr>
 <tr>
 <td width="610"><p>
-Details on installing X10 DT
+
+<tr>
+<td class="v14-header-5">X10DT Prerequisites</td>
+</tr>
+<ul>
+  <li> X10DT runs on Eclipse 3.1.2; it <em>might</em> run on earlier 3.1
+       releases. It will almost certainly not (ever) run on any prior
+       version of Eclipse, nor (at this time) on any flavor of 3.2 or later. </li>
+  <li> X10DT <b>requires</b> that you run Eclipse using a Java 5 VM. </li>
+</ul>
+Once you've satisfied the above prerequisites, the X10DT can be installed
+using the Eclipse Update Manager.<br>
+<tr>
+<td class="v14-header-5">To install, if you've never installed the X10DT before:</td>
+</tr>
+<ol>
+  <li> From Eclipse, invoke "Help" =&gt; "Software Updates" =&gt; "Find
+and Install" </li>
+            <img src="update-find-install-menu.jpg"/>
+  <li> In the dialog that shows up, select "Search for new features to
+install" and click "Next" </li>
+            <img src="search-new-features.jpg"/>
+  <li> Click on the "New Remote Site" button on the upper-right hand of
+       the dialog.
+            <img src="update-sites-initial.gif"/>
+  <li> In the "Name" field type "X10DT" (this can be anything you
+want, really). In the "URL" field type
+"http://x10.watson.ibm.com/eclipseUpdates/X10DT/" (note the
+trailing '/' character; it's significant) </li>
+            <img src="new-update-site.gif"/>
+  <li> Click "Ok" </li>
+  <li> Click "Finish" </li>
+  <li> On the "Search Results" page, check the "X10DT" checkbox, and
+click "Next" </li>
+  <li> Click "I accept the terms..." and Click "Next" </li>
+  <li> Click "Finish"; the dialog will disappear, and the status bar
+will show progress as the Update Manager queries the update server for
+all available updates </li>
+  <li> Click "Install All" </li>
+  <li> Click "Yes" when asked whether to restart Eclipse. </li>
+</ol>
+You should now be able to see syntax highlighting and an outline view
+when editing .x10 source files.
+<tr>
+<td class="v14-header-5">To update (if you've installed a previous version of the X10DT):</td>
+</tr>
+<ol>
+  <li> From Eclipse, invoke "Help" =&gt; "Software Updates" =&gt; "Find
+and Install". </li>
+            <img src="update-find-install-menu.jpg"/>
+  <li> In the dialog that shows up, select "Search for new features to
+install" and click "Next" </li>
+            <img src="search-new-features.jpg"/>
+  <li> Check the item named "X10DT" in the update site list on the left.</li>
+            <img src="update-sites.gif"/>
+  <li> Click "Finish".</li>
+  <li> It may take several moments for Eclipse to contact the update site and
+       determine what updates are available. </li>
+  <li> If you are already have the latest, you will simply get a dialog saying
+       something like "No updates for the currently installed features found".</li>
+  <li> If there are any updates beyond what you already have, you should get a
+       dialog showing "X10 Tools", with children named "SAFARI Runtime" and
+       "X10DT".
+  <li> Click the checkboxes next to the new versions of the features you want
+       to update and click "Next".
+    <ol>
+      <li> Accept the license agreement and click "Finish"/"Next" </li>
+      <li> Click "Install All" </li>
+      <li> Click "Yes" when asked whether to restart Eclipse </li>
+    </ol>
+  </li>
+</ol>
+<tr>
+<td class="v14-header-5">Where to go from here:</td>
+</tr>
+<p>You may wish to browse through the X10DT cheat sheet to get a quick overview of
+what you can do. Invoke "Help" =&gt; "Cheat Sheets..." and select the "Using the X10DT"
+from the "X10" cheat sheet category.
+<tr>
+<td class="v14-header-5">Troubleshooting:</td>
+</tr>
+See the <a href="x10faq.shtml">FAQ page</a>.<br>
 </td>
 </tr>
 </table></td>
