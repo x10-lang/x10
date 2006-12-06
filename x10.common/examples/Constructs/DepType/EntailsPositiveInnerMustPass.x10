@@ -11,7 +11,7 @@ public class EntailsPositiveInnerMustPass extends x10Test {
     }
 
 	public boolean run() {
-	    final int j = 0;
+	    final int j = 1;
 	    Test(: self.i==j) x =  (Test(:i==j)) new Test(1,1); 
 	    return true;
 	}
