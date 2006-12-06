@@ -23,7 +23,7 @@ import polyglot.visit.TypeChecker;
 public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 
 	protected boolean depTypeCheckingNeeded = false;
-
+	protected boolean notVisited = true;
 	protected DepParameterExpr dep;
 
 	public DepCast_c(Position pos, TypeNode castType, DepParameterExpr d,
@@ -41,8 +41,6 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 	}
 
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		Report.report(1, "DepCast_c: typeCheck called on  " + this
-				+ " with dep=" + dep());
 
 		this.depTypeCheckingNeeded = false;
 
@@ -64,9 +62,12 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 				&& !xts.isTypeConstrained(x10FromType)) {		
 			if (fromType.isPrimitive()) {
 				if (!expr.isConstant()) {
-					Report.report(1, "Warning! Primitive Cast from " + fromType
-							+ " to " + toType + " is unsafe at line "
-							+ this.position + ".");
+					if (notVisited) {
+						Report.report(1, "Warning! Primitive Cast from " + fromType
+								+ " to " + toType + " is unsafe at line "
+								+ this.position + ".");
+						notVisited = false;
+					}
 					this.primitiveType = true;
 					this.depTypeCheckingNeeded = true;
 				}
@@ -84,9 +85,12 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 				if (!x10ToType.equalsImpl(x10FromType)) {
 					// cast is valid if toType or fromType have constraints,
 					// checks them at runtime
-					Report.report(1, "Warning! Cast from " + fromType + " to "
-							+ toType + " is unsafe at line " + this.position
-							+ ".");
+					if (this.notVisited) {
+						Report.report(1, "Warning! Cast from " + fromType + " to "
+								+ toType + " is unsafe at line " + this.position
+								+ ".");
+						this.notVisited = false;
+					}
 					this.depTypeCheckingNeeded = true;
 				}
 
