@@ -58,6 +58,25 @@
 <tr>
 <td class="left-nav" colspan="2"><a class="left-nav" href="x10community.shtml">X10 Community</a></td>
 </tr>
+<tr>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10papers.shtml">Papers</a></td>
+</tr>
+<tr>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10presentations.shtml">Presentations</a></td>
+</tr>
+<tr>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10tutorial.shtml">Tutorial a bug</a></td>
+</tr>
+<tr>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10examples.shtml">Code Examples</a></td>
+</tr>
+<tr>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10devcorner.shtml">Developers Corner</a></td>
+</tr>
+<tr>
+<td class="left-nav" colspan="2"><a class="left-nav" href="x10faq.shtml">FAQ Examples</a></td>
+</tr>
+
 <tr class="left-nav-last">
 <td width="14"><img src="//www.ibm.com/i/c.gif" width="14" height="1" alt="" class="display-img"/></td>
 <td width="136"><img src="//www.ibm.com/i/v14/t/left-nav-corner.gif" width="136" height="19" alt="" class="display-img"/></td>
@@ -76,7 +95,7 @@
 </tr>
 <tr class="rlinks">
 <td><img src="//www.ibm.com/i/v14/t/rl-bullet.gif" width="2" height="8" alt=""/></td>
-<td><a class="rlinks" href="http://www.watson.ibm.com">IBM Research</a></td>
+<td><a class="rlinks" href="http://www.research.ibm.com">IBM Research</a></td>
 </tr>
 <tr>
 <td width="14"><img src="//www.ibm.com/i/c.gif" width="14" height="1" alt="" class="display-img"/></td>
