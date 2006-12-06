@@ -103,11 +103,12 @@
 <!-- LEFTNAV_END -->
 
 </td>
-<td width="610"><a name="main"></a><table width="610" cellpadding="0" cellspacing="0" border="0" id="content-table">
+<td width="610"><a name="main"></a>
+<table width="610" cellpadding="0" cellspacing="0" border="0" id="content-table">
 <tr valign="top">
 <td width="10">&nbsp;</td>
 <td width="600">
-<h1>X10 Code Examples</h1>
+<h1>X10 Developer's Corner</h1>
 <br />
 <br>
 
@@ -127,6 +128,8 @@
 <!-- ANCHOR_LINK_LIST_END -->
 
 <br /><a name="a1"></a>
+<table border="0" cellpadding="0" cellspacing="0" width="610">
+<tr>
 <td class="v14-header-5">Using X10DT </td>
 <p>This section briefly describes how to use the X10 Development Toolkit to
 create X10 projects, create X10 classes, and use launch configurations to run
