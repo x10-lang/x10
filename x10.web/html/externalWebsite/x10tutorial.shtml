@@ -126,6 +126,9 @@
 <img src="http://www.ibm.com/i/v14/icons/podvideo.gif" alt="" align="middle" border="0" height="16" width="16">
 <a href="tutorial/web-tutorial.htm">Online</a>
 <br>
+<img src="ppt.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/web-tutorial.ppt">PowerPoint</a>
+<br>
 <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
 <a href="tutorial/web-tutorial.pdf">Pdf</a>
 </td>
@@ -136,10 +139,112 @@
 </tr>
 </table>
 
+<br /><a name="a3"></a>
+<table width="610" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="v14-header-1">Sample Programs</td>
+</tr>
+<tr><td width="10">&nbsp;</td></tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutArray1.x10">TutArray1.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutAsync.x10">TutAsync.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutAteach1.x10">TutAteach1.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutAteach2.x10">TutAteach2.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutAtomic1.x10">TutAtomic1.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutAtomic2.x10">TutAtomic2.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutClock1.x10">TutClock1.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutError1.x10">TutError1.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutError2.x10">TutError2.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutError3.x10">TutError3.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutForeach1.x10">TutForeach1.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutFor.x10">TutFor.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutFuture1.x10">TutFuture1.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutFuture2.x10">TutFuture2.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutPoint.x10">TutPoint.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="tutorial/examples/TutRegion.x10">TutRegion.x10</a>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="http://www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
+</tr>
+</table>
+
+
 <br /><a name="a2"></a>
 <table width="610" cellpadding="0" cellspacing="0" border="0">
 <tr>
-<td class="v14-header-1">Presentations</td>
+<td class="v14-header-1">Earlier Tutorial Presentations</td>
 </tr>
 <tr><td width="10">&nbsp;</td></tr>
 <tr>
@@ -157,68 +262,7 @@
 </tr>
 </table>
 
-<br /><a name="a3"></a>
-<table width="610" cellpadding="0" cellspacing="0" border="0">
-<tr>
-<td class="v14-header-1">Sample Programs</td>
-</tr>
-<tr><td width="10">&nbsp;</td></tr>
-<tr>
-<td>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutArray1.x10">TutArray1.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutAsync.x10">TutAsync.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutAteach1.x10">TutAteach1.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutAteach2.x10">TutAteach2.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutAtomic1.x10">TutAtomic1.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutAtomic2.x10">TutAtomic2.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutClock1.x10">TutClock1.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutError1.x10">TutError1.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutError2.x10">TutError2.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutError3.x10">TutError3.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutForeach1.x10">TutForeach1.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutFor.x10">TutFor.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutFuture1.x10">TutFuture1.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutFuture2.x10">TutFuture2.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutPoint.x10">TutPoint.x10</a>
-<br>
-<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="tutorial/examples/TutRegion.x10">TutRegion.x10</a>
-</td>
-</tr>
-<tr>
-<td>
-<img src="http://www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
-</tr>
-</table>
+
 
 
 <!-- cvp: end of insertion -->
