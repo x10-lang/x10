@@ -130,7 +130,48 @@
 <br /><a name="a1"></a>
 <table border="0" cellpadding="0" cellspacing="0" width="610">
 <tr>
-<td class="v14-header-5">Using X10DT </td>
+<td class="v14-header-5">Eclipse X10 Development Toolkit (DT)  setup</td>
+</tr>
+<tr>
+<br />
+<!-- ANCHOR_LINK_LIST_BEGIN -->
+<br /><a name="#submain"></a>
+<table border="0" cellpadding="0" cellspacing="0">
+<tr valign="top">
+<br />
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b1">Select an X10 Compiler Configuration</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b2">Switch to the Java Perspective</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b3">Create an X10 project</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b4">Create a new X10 Class</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b5">Using the Editor and Outline View</a></td>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b6">Launching your X10 program</a></td>
+</tr>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#b7">Debugging your X10 program</a></td>
+</tr>
+</table>
+<!-- ANCHOR_LINK_LIST_END -->
+
+</tr>
+<tr>
+<td width="610"><p>
 <p>This section briefly describes how to use the X10 Development Toolkit to
 create X10 projects, create X10 classes, and use launch configurations to run
 and debug X10 programs.<p>
