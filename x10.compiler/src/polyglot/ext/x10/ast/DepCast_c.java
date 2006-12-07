@@ -57,7 +57,7 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 	@Override
 	public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
 		//Report.report(1, "X10CanonicalType: typecheckEnter " + this + " dep=|" + this.dep + "|");
-		lookaheadType = ((TypeNode_c) ((X10CanonicalTypeNode_c) castType).typeCheckBase(tc)).type();
+		lookaheadType = ((TypeNode_c) ((X10TypeNode) castType).typeCheckBase(tc)).type();
 		return tc;
 	}
 	@Override
