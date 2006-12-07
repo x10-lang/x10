@@ -17,7 +17,7 @@ public class RuntimeCastChecker {
 	 * Method used to do dynamic nullcheck when nullable is casted away.
 	 */
 	public static boolean checkInstanceofNullable(java.lang.Object o, Class c) {
-		return (o != null) ? c.isAssignableFrom(o.getClass()) : true;
+		return (o == null) ?false :  c.isAssignableFrom(o.getClass());
 	}
 
 	/**
@@ -27,7 +27,7 @@ public class RuntimeCastChecker {
 	public static java.lang.Object checkCastFromNullable(java.lang.Object o, Class c) {
 		return (o != null) ? 
 				(c.isAssignableFrom(o.getClass()) ? o : throwClassCastException(o)) 
-				: throwNullPointerException(o);
+				: throwClassCastException(o);
 	}
 
 	/**
