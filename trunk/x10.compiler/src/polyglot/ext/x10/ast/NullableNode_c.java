@@ -64,9 +64,9 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 		return super.enterChildScope(child, c);
 	}
 	public Node visitChildren(NodeVisitor v) {
-		Report.report(1, "NullableNode_c: Visiting typeNode  " + this.base + " with " + v);
+		//Report.report(1, "NullableNode_c: Visiting typeNode  " + this.base + " with " + v);
 		TypeNode base = (TypeNode) visitChild(this.base, v);
-		Report.report(1, "NullableNode_c: Visiting typeNode  yielded  " + base);
+		//Report.report(1, "NullableNode_c: Visiting typeNode  yielded  " + base);
 		NullableNode_c result = (NullableNode_c) reconstruct(base);
 		return result.superVisitChildren(v);
 	}

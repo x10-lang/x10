@@ -162,9 +162,9 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
     /** Visit the children of the expression. */
     public Node visitChildren(NodeVisitor v) {
     	TypeNode castType = (TypeNode) visitChild(this.castType, v);
-    	Report.report(1, "DepCast_c: Visiting this.expr=" + this.dep + " with visitor " + v);
+    	//Report.report(1, "DepCast_c: Visiting this.expr=" + this.dep + " with visitor " + v);
     	DepParameterExpr depExpr = (DepParameterExpr) visitChild(this.dep, v);
-    	Report.report(1, "DepCast_c: yields " + depExpr);
+    	//Report.report(1, "DepCast_c: yields " + depExpr);
     	Expr expr = (Expr) visitChild(this.expr, v);
     	
     	return reconstruct(castType, expr, depExpr);
