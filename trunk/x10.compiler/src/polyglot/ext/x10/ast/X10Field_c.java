@@ -161,7 +161,9 @@ public class X10Field_c extends Field_c {
 			}
 			if (aType1.isRect()) type.setRect();
 			if (aType1.isZeroBased()) type.setZeroBased();
-			type.setOnePlace(aType1.onePlace());
+			C_Term place = aType1.onePlace();
+			if (place != null)
+				type.setOnePlace(place);
 			Constraint c = aType1.depClause(); 
 			if (c != null) {
 				C_Var me = c.selfVar();
