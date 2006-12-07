@@ -16,45 +16,16 @@ public class RuntimeCastChecker {
 	 * WARNING ! Do not change the name of this method without changing
 	 * Method used to do dynamic nullcheck when nullable is casted away.
 	 */
-	public static boolean checkInstanceofNullable(java.lang.Object o, Class c) {
-		return (o == null) ?false :  c.isAssignableFrom(o.getClass());
-	}
-
-	/**
-	 * WARNING ! Do not change the name of this method without changing
-	 * Method used to do dynamic nullcheck when nullable is casted away.
-	 */
-	public static java.lang.Object checkCastFromNullable(java.lang.Object o, Class c) {
+	public static java.lang.Object checkCastToNonNullable(java.lang.Object o, Class c) {
 		return (o != null) ? 
-				(c.isAssignableFrom(o.getClass()) ? o : throwClassCastException(o)) 
-				: throwClassCastException(o);
-	}
-
-	/**
-	 * WARNING ! Do not change the name of this method without changing
-	 * Method used to do dynamic nullcheck when nullable is casted away.
-	 */
-	public static boolean isObjectNotNull(java.lang.Object o) {
-		return (o != null);
+				(c.isAssignableFrom(o.getClass()) ? o : throwClassCastException(o)) : 
+				throwClassCastException(o);
 	}
 
 	private static void throwClassCastException()  throws ClassCastException {
 		throw new ClassCastException("Expression is either not an instance of cast type or Constraints are not meet");		
 	}
 	
-	private static void throwNullPointerException(String msg)  throws ClassCastException {
-		throw new NullPointerException(msg);		
-	}
-
-	/**
-	 * WARNING ! Do not change the name of this method without changing
-	 * the Cast code generation of x10 compiler.
-	 */
-	public static java.lang.Object throwNullPointerException(java.lang.Object o) throws ClassCastException {
-		RuntimeCastChecker.throwNullPointerException("null value assignment is not authorized");
-		return o;
-	}
-
 	/**
 	 * WARNING ! Do not change the name of this method without changing
 	 * the Cast code generation of x10 compiler.
@@ -123,10 +94,12 @@ public class RuntimeCastChecker {
 
 		// if we try to cast from a nullable Type to a non nullable Type we must
 		// first check expr to cast is not null
+		// ((T) expr) whatever the type of expr, if it is a null at runtime the cast fails. 
 		if ((exprMustBeNotNull) && (objToCast == null)) {
-					throw new NullPointerException("Cast from nullable to non-nullable failed because instance is null.");
+					throw new ClassCastException("Cast from nullable to non-nullable failed because instance is null.");
 		}
 		
+		// (nullable<T> expr) if expr is null cast is valid
 		if ((toTypeIsNullable) && (objToCast == null)) {
 			return objToCast;
 		}
@@ -137,6 +110,11 @@ public class RuntimeCastChecker {
 		if (objToCast == null) {
 			throw new ClassCastException("Expression to cast is null");
 		}
+		
+		return checkDepType(cTab, objToCast, toClassType);
+	}
+
+	private static java.lang.Object checkDepType(RuntimeConstraint [] cTab, java.lang.Object objToCast, Class toClassType) {
 		
 		// get class for reflexion
 		Class fromClassType = objToCast.getClass();
@@ -191,8 +169,9 @@ public class RuntimeCastChecker {
 
 		// deptype are equivalent however a constraint is not meet.
 		throw new ClassCastException("Constraint " + cTab[i-1] + " is not meet");
+		
 	}
-
+	
 	/**
 	 * WARNING ! Do not change the name of this method without changing
 	 * the Cast code generation from the x10 compiler.
@@ -205,12 +184,13 @@ public class RuntimeCastChecker {
 	public static boolean isInstanceOf(RuntimeConstraint [] cTab, boolean exprMustBeNotNull, boolean toTypeIsNullable,
 			java.lang.Object obj, Class toClassType) {
 		
-		//	otherwise we have to check obj respect target type and its constraints.
-		try {
-			RuntimeCastChecker.checkCast(cTab, exprMustBeNotNull, toTypeIsNullable, obj, toClassType);
-		} catch(ClassCastException t) {
+		// null is never an instanceof something.
+		if (obj == null)
 			return false;
-		} catch(NullPointerException t) {
+		
+		try {
+			RuntimeCastChecker.checkDepType(cTab, obj, toClassType);
+		} catch(ClassCastException t) {
 			return false;
 		}
 		
