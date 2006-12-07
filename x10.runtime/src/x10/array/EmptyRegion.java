@@ -128,7 +128,15 @@ public class EmptyRegion extends region {
 			throw new RankMismatchException(r, rank);
 		return true;
 	}
-
+	
+	public region[] partition(int n, int dim) {
+		assert n > 0;
+		region[] ret = new region[n];
+		for (int i = 0; i < n; ++i) 
+			ret [i] = new EmptyRegion(rank);
+		return ret;
+	}
+		
 	/* (non-Javadoc)
 	 * @see x10.lang.region#ordinal(x10.lang.point)
 	 */
