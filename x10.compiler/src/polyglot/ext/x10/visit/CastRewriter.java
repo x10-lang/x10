@@ -57,10 +57,10 @@ public class CastRewriter extends ContextVisitor {
 				 // for static type checking.
 				//xn = xn.dep(null);
 			}
-			Report.report(1, "CastRewriter: Cast..xn=" + xn + " e=" + e);
+			//Report.report(1, "CastRewriter: Cast..xn=" + xn + " e=" + e);
 			if (e != null) {
 				result =((X10NodeFactory)nf).DepCast(n.position(), xn, e, nn.expr());
-				Report.report(1, "CastRewriter: Cast..xn=" + xn + " e=" + e + " returning " + result);
+				//Report.report(1, "CastRewriter: Cast..xn=" + xn + " e=" + e + " returning " + result);
 				return result;
 			}
 		}
