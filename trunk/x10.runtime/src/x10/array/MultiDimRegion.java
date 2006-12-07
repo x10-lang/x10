@@ -127,6 +127,22 @@ public class MultiDimRegion extends region implements Rectangular {
 	// This won't return a contiguous region.
 	public region difference(region d) {
 		assert d != null;
+		region ret;
+		
+		if (d instanceof MultiDimRegion && rank == 2 && d.rank == 2) {
+			// specialization for 2D 
+			MultiDimRegion d2 = (MultiDimRegion) d;			
+			region[] tmp = new region[2];
+			if (dims_[0].equals(d2.dims_[0])) { 
+				tmp[0] = dims_[0];
+				tmp[1] = dims_[1].difference(d2.dims_[1]);
+				return new MultiDimRegion(tmp, false);
+			} else if (dims_[1].equals(d2.dims_[1])) { 
+				tmp[1] = dims_[1];
+				tmp[0] = dims_[0].difference(d2.dims_[0]);
+				return new MultiDimRegion(tmp, false);
+			} 
+		}
 		// ArbitraryRegion.difference() will check the rank
 		return ArbitraryRegion.difference(this, d);
 	}
