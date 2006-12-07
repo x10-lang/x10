@@ -110,7 +110,132 @@
 <h1>X10 Code Examples</h1>
 <br />
 <br>
-Tongs examples in here
+
+
+<!-- tong's content start-->
+
+<br /><a name="a1"></a>
+<table width="610" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="v14-header-1">Overview</td>
+</tr>
+<tr>
+<td>
+<br>
+The examples listed here are either  small applications extracted from computational kernels or scientific computing benchmarks. They are covered by our presentations:
+<ul>
+<li> Programming Scientific Computations in X10 (PGAS 2006, SC 2006(X10 Demo)) <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/docs/SC06-X10.pdf">pdf</a>
+</li>
+<li> HPCC </li>
+</ul>
+More examples not limitted to scientific computing applications will be added.
+<br>
+</td>
+</tr>
+</table>
+
+<br /><a name="a2"></a>
+<table width="610" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="v14-header-1">Sample Codes</td>
+</tr>
+<tr>
+<td>
+<br>
+Each example here also has a dependent-type version.
+<br>
+</td>
+</tr>
+<tr><td width="10">&nbsp;</td></tr>
+</table>
+
+<table width="610" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/BlockDistedArray1D.x10">BlockDistedArray1D.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/BlockDistedArray1D_Dep.x10">BlockDistedArray1D_Dep.x10</a>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="http://www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
+</tr>
+</table>
+
+
+<br /><a name="a3"></a>
+<table width="610" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="v14-header-1">Benchmarks</td>
+</tr>
+<tr>
+<td>
+<br>
+More benchmarks will be posted.
+<br>
+<br>
+<!--start -->
+<table border="0" cellpadding="0" cellspacing="0" width="610">
+<tr>
+<td class="v14-header-5">NAS Parallel Benchmarks (NPB)</td>
+</tr>
+<tr>
+<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table">
+<tr>
+<td width="610"><p>
+<ul>
+<li>
+MG (pure X10 code for expressiveness study): tar file and introduction
+</li>
+<ul>
+</p></td>
+</tr>
+</table></td>
+</tr>
+</table>
+<!--end -->
+
+<!--start -->
+<table border="0" cellpadding="0" cellspacing="0" width="610">
+<tr>
+<td class="v14-header-5">HPC Challenge Benchmarks (HPCC)</td>
+</tr>
+<tr>
+<td><table border="0" cellpadding="0" cellspacing="0" class="v14-gray-table">
+<tr>
+<td width="610"><p>
+<ul>
+<li>
+HPL
+</li>
+<li>
+STREAM
+</li>
+<ul>
+</p></td>
+</tr>
+</table></td>
+</tr>
+</table>
+<!--end -->
+
+</td>
+</tr>
+</table>
+
+
+
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="500" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+
+<!-- tong's content end -->
+
+
 </td>
 </tr>
 </table>
