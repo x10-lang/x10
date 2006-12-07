@@ -163,7 +163,7 @@ More examples (not limited to the domain of scientific computing) will be added.
 <tr>
 <td>
 <br>
-The following examples demonstrate in X10 how to build and iterate over distributed arrays, and how to coordinate  activities. Each of them has a dependent-type version or itself uses dependent types. Note that our implementation of dependent types is still in the initial stage. More support and improvements are on the way.
+The following examples demonstrate in X10 how to build and iterate over distributed arrays, and how to coordinate  activities. Each of them either has a dependent-type version or itself uses dependent types. Note that our implementation of dependent types is still in the initial stage. More support and improvements are on the way.
 <br>
 </td>
 </tr>
@@ -318,7 +318,7 @@ We have been porting benchmarks to X10 (literal translation to X10 or implementa
 <td width="610"><p>
 <ul>
 <li>
-MG (pure X10 code for expressiveness study): tar file and <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
+MG (for expressiveness study): tar file and <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
 <a href="applications/docs/NPBMGX10.pdf">report</a>
 </li>
 </ul>
@@ -350,7 +350,7 @@ STREAM
 PTRANS
 </li>
 <li>RandomAccess</li>
-<li>FFT</li>
+<li>FFT (a hybrid of X10 and C code) </li>
 </ul>
 </p></td>
 </tr>
