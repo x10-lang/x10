@@ -387,16 +387,6 @@ concatenation operation in Java can land you inside the StringBuffer class).
 </tr>
 </table>
 
-<!-- end -->
-</p>
-</td>
-</tr>
-<tr>
-<td>
-<img src="//www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
-</tr>
-
-</table>
 <table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="650" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
 
 
@@ -433,6 +423,16 @@ There are a few basic requirements:
 
 </table>
 <table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="500" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+<!-- end -->
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<img src="//www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
+</tr>
+
+</table>
 
 <!--end -->
 
