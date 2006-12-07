@@ -124,7 +124,7 @@
 <a href="docs/ExternSetup.txt">Using the extern keyword</a>
 <br>
 <img src="//www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="docs/NotesMemoryModel.txt">Notes on the X10 memory model</a>
+<a href="docs/NotesOnProperSynchronization.txt">Notes on properly synchronized X10 programs</a>
 
 </td>
 </tr>
