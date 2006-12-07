@@ -289,7 +289,7 @@ public class Constraint_c implements Constraint {
 	private void possiblyAddTypeConstraint(C_Var t1, Promise target) {
 		//Report.report(1, "Constraint_c.possiblyAddTypeConstraint " + t1 + " " + target);
 		// Check if t1's type forces t1 to be equal to something (t3). If so, add
-		// t2=t3 in there.
+		// target=t3 in there.
 		C_Var p1Root = t1.rootVar();
 		Type type = p1Root.type();
 		if (type != null) {
@@ -310,7 +310,7 @@ public class Constraint_c implements Constraint {
 						t1 = (C_Var) t1.substitute(C_Special_c.Self, cVar);
 					}
 				}
-				Promise p = c.lookupPartialOk(t1);
+				Promise p = c.lookup(t1);
 				if (p != null) {
 					// aha there really is a term that t1's roottype binds t1 to!
 					C_Term t3 = p.term();
