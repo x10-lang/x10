@@ -160,9 +160,8 @@ Possible language constructs:
       variable, read obtains value of write).  This corresponds to the
       JSR-133 semantics of volatile variables; sc atomic variables are
       sequentially consistent. 'atomic' relates to the treatment of
-      individual memory locations in this model and in particular the
-      global, quasi instantaneous agreement of all activities due to
-      coherence.
+      individual memory locations and the 'instantaneous' nature of
+      updates due to coherence.
 
  (2a') cc atomic variables: ... relax the requirement of sequential
        consistency without hampering the utility for the
@@ -171,30 +170,26 @@ Possible language constructs:
        consistency model known as processor consistency on DASH
        [1]. Like proposal (2a), read/write access shall have
        acquire/release semantics. 'cc' stands for 'causal
-       consistency'. 'atomic' relates to the treatment of individual
-       memory locations in this model and in particular the global,
-       quasi instantaneous agreement of all activities due to
-       coherence.
+       consistency'.  'atomic' relates to the treatment of individual
+       memory locations and the 'instantaneous' nature of updates due
+       to coherence.
 
-      [Aside: Multiprocessor architectures may require costly fence
+      [Aside: Multiprocessor architectures can require costly fence
       operations to support sequential consistency. In particular, on
       some architectures a sync instruction may not be sufficient to
       let two processors 'agree' on the order of independent writes on
       two other processors. cc atomic variables do not have this
-      requirement. The consistency model for cc atomic variables is
-      currently discussed as 'SACC' (Store Atomicity and Causal
-      Consistency). Unlike sequential consistency, this model does not
+      requirement. Unlike sequential consistency, this model does not
       require that a global total order of memory accesses exists.]
 
- (2o) wc ordered variables: ... shall be read or written as atomic
+ (2o) wc ordered variables: ... shall be read and written as atomic
       units in program order. The model is weaker than coherence
-      (hence we do not call it 'atomic', dto.). Reads and writes for
-      an individual location shall be partially ordered; concurrent
-      writes are allowed.  In addition there  should be some freshness
-      condition that states that wc ordered variables are eventually
-      communicated among accessing activities. Read/write access does
-      not have acquire/release semantics. 'wc' stand for 'weakly
-      consistent'.
+      (hence we do not call it 'atomic', dto.). Reads and writes to a
+      location shall be partially ordered; concurrent writes are
+      allowed.  In addition there  should be a freshness condition
+      that states that reads of wc ordered variables eventually
+      observe concurrent writes. Read/write access does not have
+      acquire/release semantics. 'wc' stand for 'weakly consistent'.
 
  (3a) Fence operations (uni- / bi-directional, read / write / both
       fences) specify ordering among tx_xxx actions, atomic variable
