@@ -114,6 +114,25 @@
 
 <!-- tong's content start-->
 
+<!-- ANCHOR_LINK_LIST_BEGIN -->
+<br /><a name="#main"></a>
+<table border="0" cellpadding="0" cellspacing="0">
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d_bold.gif" width="16" /></td>
+<td><a class="toclink" href="#a1">Overview</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d_bold.gif" width="16" /></td>
+<td><a class="toclink" href="#a2">Sample Codes</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d_bold.gif" width="16" /></td>
+<td><a class="toclink" href="#a3">Benchmarks</a></td>
+</tr>
+</table>
+
+<!-- ANCHOR_LINK_LIST_END -->
+
 <br /><a name="a1"></a>
 <table width="610" cellpadding="0" cellspacing="0" border="0">
 <tr>
@@ -143,7 +162,7 @@ More examples (not limited to the domain of scientific computing) will be added.
 <tr>
 <td>
 <br>
-The following examples demonstrate in X10 how to build and iterate over distributed arrays, and how to coordinate  activities. Each of them also has a dependent-type version.
+The following examples demonstrate in X10 how to build and iterate over distributed arrays, and how to coordinate  activities. Each of them has a dependent-type version or itself uses dependent types. Note that our implementation of dependent types is still in the initial stage. More support and improvements are on the way.
 <br>
 </td>
 </tr>
@@ -163,11 +182,118 @@ The following examples demonstrate in X10 how to build and iterate over distribu
 </tr>
 
 <tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/BlockDistedArray1D.x10">BlockDistedArray2D.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/BlockDistedArray1D_Dep.x10">BlockDistedArray2D_Dep.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/EncapsulatedArray1D.x10">EncapsulatedArray1D.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/EncapsulatedArray1D_Dep.x10">EncapsulatedArray1D_Dep.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/EncapsulatedArray1D.x10">EncapsulatedArray2D.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/EncapsulatedArray1D_Dep.x10">EncapsulatedArray2D_Dep.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/StencilFor2D.x10">StencilFor2D.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/StencilFor2D_Dep.x10">StencilFor2D_Dep.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/StencilFor2D.x10">StencilForeach2D.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/StencilFor2D_Dep.x10">StencilForeach2D_Dep.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/AllReductionBarrier.x10">AllRedunctionBarrier.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/AllReductionBarrier_Dep.x10">AllReductionBarrier_Dep.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/AllReductionP2P.x10">AllRedunctionP2P.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/AllReductionP2P_Dep.x10">AllReductionP2P_Dep.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/LU.x10">LU.x10</a>
+</td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/LU_Dep.x10">LU_Dep.x10</a>
+</td>
+</tr>
+
+<tr>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/LU_Overlap.x10">LU_Overlap.x10</a>
+</td>
+</tr>
+
+</table>
+
+<table width="610" cellpadding="0" cellspacing="0" border="0">
+
+<tr>
+<td width="400">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/x10Test.x10">x10Test.x10</a> (class used by the above examples)
+</td>
+</tr>
+
+<tr>
 <td>
 <img src="http://www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
 </tr>
 </table>
 
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="500" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
 
 <br /><a name="a3"></a>
 <table width="610" cellpadding="0" cellspacing="0" border="0">
@@ -177,7 +303,7 @@ The following examples demonstrate in X10 how to build and iterate over distribu
 <tr>
 <td>
 <br>
-More benchmarks will be posted soon.
+We have been porting benchmarks to X10 (literal translation to X10 or implementation from scratch). More of them will be released soon.
 <br>
 <br>
 <!--start -->
