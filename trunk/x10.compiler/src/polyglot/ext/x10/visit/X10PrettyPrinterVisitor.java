@@ -10,20 +10,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
- 
+
 import polyglot.ast.ArrayAccess;
+import polyglot.ast.Binary_c;
+import polyglot.ast.Call_c;
 import polyglot.ast.Expr;
+import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
+import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Binary_c;
-import polyglot.ast.Call_c;
-import polyglot.ast.Field_c;
-import polyglot.ast.MethodDecl_c;
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.ArrayConstructor_c;
 import polyglot.ext.x10.ast.Async_c;
@@ -52,7 +52,6 @@ import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
-import polyglot.ext.x10.ast.X10Cast_c.X10CastHelper;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.NullableType;
@@ -113,54 +112,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			visit((Node) c);
 		}
 	
-	private void applyInlineTemplate(String templateToInvoke, X10CastInfo c, 
-			String castBaseType, Expr exprToCast, X10Type toType) {
 
-			List [] conditionsList = X10CastHelper.getRuntimeConstraintInlined(toType, 
-					exprToCast, c.isPrimitiveCast());
-			Object conditionParam = null;
-			if (conditionsList.length != 0) {
-				conditionParam = new Loop("cast-util-runtime-constraint-inlined", conditionsList);
-			}
-
-			// it is not possible to have a these property true simultaneously
-			// First means toType is non nullable and from type yes
-			// Second means toType is nullable
-			assert !(c.notNullRequired() && c.isToTypeNullable());
-
-			Object nullableCheck = null;			
-			if (c.notNullRequired() ) {
-				nullableCheck = new Template("nullable-check",exprToCast, "");
-			}
-			if (c.isToTypeNullable()) {
-				nullableCheck = new Template("nullable-check",exprToCast, "!"); 
-			}
-
-			Object instanceofCheck = null; 
-				if (!c.isPrimitiveCast()) {
-					if (c.notNullRequired()) {
-						instanceofCheck = new Join("&&" , "", new Template("instanceof-java", castBaseType, exprToCast));
-					} else if (c.isToTypeNullable()) {
-						instanceofCheck = new Join("||" , "", new Template("instanceof-java", castBaseType, exprToCast));
-					} else {
-						instanceofCheck = new Template("instanceof-java", castBaseType, exprToCast);
-					}
-				}
-
-			Object conditionCheck = 
-				((conditionParam != null) ? 
-					((!c.isPrimitiveCast() || c.notNullRequired() || c.isToTypeNullable()) ? 
-							new Join("&&" , "", conditionParam) 
-								: conditionParam) 
-									: null);
-
-			// call inlined cast template
-			new Template(templateToInvoke, new Object[] {castBaseType,
-							exprToCast,
-							nullableCheck,
-							instanceofCheck,
-							conditionCheck}).expand();
-	}
 	
 	public void visit(Call_c c) {
 		if (c instanceof RemoteCall_c) {
