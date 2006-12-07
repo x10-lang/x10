@@ -498,7 +498,8 @@ implements X10ParsedClassType
 		
 		return  
 		((baseType == this) ? super.toString() : ((X10ParsedClassType_c) baseType).toString())
-		+ (isParametric() ? "/"+"*T"+ typeParameters.toString() +"*"+"/" : "") 
+		// vj: this causes problems. a type parameter may be nullable which produces a commented string.
+		//+ (isParametric() ? "/"+"*T"+ typeParameters.toString() +"*"+"/" : "") 
 		+ (depClause == null ? "" : "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 	}
 	
@@ -722,12 +723,13 @@ implements X10ParsedClassType
 		if (isRankSet) return rank;
 		
 		Constraint c = realClause();
-		if (c == null) {
+		rank = c==null? null : c.find("rank");
+		/*if (c == null) {
 			isRankSet = true;
 			return rank = null;
 		}
-		rank = c.find("rank");
-		if (rank == null) {
+		rank = c.find("rank");*/
+		if (rank == null && c!= null) {
 			// build the synthetic term.
 			C_Var var = c.selfVar();
 			if (var !=null) {
