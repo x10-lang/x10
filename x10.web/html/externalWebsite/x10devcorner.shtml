@@ -126,9 +126,14 @@
 <td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d_bold.gif" width="16" /></td>
 <td><a class="toclink" href="#a2">Using X10DT</a></td>
 </tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d_bold.gif" width="16" /></td>
+<td><a class="toclink" href="#a3">Contributing to X10</a></td>
+</tr>
 </table>
 
 <!-- ANCHOR_LINK_LIST_END -->
+
 <br /><a name="a1"></a>
 <table width="610" cellpadding="0" cellspacing="0" border="0">
 <tr>
@@ -393,6 +398,43 @@ concatenation operation in Java can land you inside the StringBuffer class).
 
 </table>
 <table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="650" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+
+
+<!--start -->
+<br /><a name="a3"></a>
+<table width="610" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="v14-header-1">Contributing to X10</td>
+</tr>
+<tr>
+<td>
+<br />
+If you wish to help develop the X10 language, <a href="contacts.shtml">contact</a> the X10 team to request developer access.
+You will receive a user id and password to the CVS server.  SSH is used for authentication so you will need to generate SSH keys using ssh_gen (see you local documentation on this process), and to save your public SSH key on the CVS machine, 
+rlseyzcvs1.watson.ibm.com.  The CVS settings are:
+<ul>
+<li> CVSROOT=:ext:youruserid@rlseyzcvs1.watson.ibm.com:/cvs_repos/X10</li>
+<li> CVS_RSH=ssh</li>
+<li> CVSUMASK=770</li>
+</ul>
+There are a few basic requirements:
+<ul>
+<li>Coordinate with the X10 team for any major changes--someone else might already be working on the same thing</li>
+<li>Before checking in any code, ensure the sanity test suite passes.  To run this suite, from the command line:
+   <ul>
+   <li>go to the x10.common/examples directory</li>
+   <li>run the testScript file (found in x10.common/bin)<br>
+       testScript -testList sanity.lst</li>
+   </ul>
+</ul>
+
+<img src="//www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
+</tr>
+
+</table>
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="500" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+
+<!--end -->
 
 </td>
 <td width="7">&nbsp;</td>
