@@ -144,8 +144,8 @@
 <br />
 To compile a program, ensure first that the x10.common/bin directory is in your executable path.
 The script x10c is used to compile an X10 program such as "x10c foo.x10".
-Run x10c -help for a full list of options.  Several Java and class files will be generated.  Assuming there is a class
-called foo in foo.x10, with a static void main method, to run the program simply type "x10 foo" (type x10 -h for a full list of x10 arguments).
+Run "x10c -help" for a full list of options.  Several Java and class files will be generated.  Assuming there is a class
+called foo in foo.x10, with a static void main method, to run the program simply type "x10 foo" (type "x10 -help" for a full list of x10 arguments).
 
 <img src="//www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
 </tr>
