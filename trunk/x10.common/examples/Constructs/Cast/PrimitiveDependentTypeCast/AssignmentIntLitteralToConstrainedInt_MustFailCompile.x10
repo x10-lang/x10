@@ -5,7 +5,7 @@ import harness.x10Test;
  * Issue: Constant to assign does not meet constraint requirement of target type.
  * @author vcave
  **/
-public class ValueToPrimitiveDepTypeDeclaration_MustFailCompile extends x10Test {
+public class AssignmentIntLitteralToConstrainedInt_MustFailCompile extends x10Test {
 
 	public boolean run() {
 		
@@ -19,7 +19,7 @@ public class ValueToPrimitiveDepTypeDeclaration_MustFailCompile extends x10Test 
 	}
 
 	public static void main(String[] args) {
-		new ValueToPrimitiveDepTypeDeclaration_MustFailCompile().execute();
+		new AssignmentIntLitteralToConstrainedInt_MustFailCompile().execute();
 	}
 
 }

@@ -1,14 +1,15 @@
 import harness.x10Test;
 
 /**
- * Purpose:
- * Issue:
+ * Purpose: Checks boxing/unboxing works properly.
  * @author vcave
  **/
  public class CastBoxedToPrimitive extends x10Test {
 
 	public boolean run() {
+		// boxed to new BoxedInteger(3)
 		x10.lang.Object obj = 3;
+		// unboxed as : ((BoxedInteger) obj).intValue()
 		int i = (int) obj;
 		return true;
 	}
