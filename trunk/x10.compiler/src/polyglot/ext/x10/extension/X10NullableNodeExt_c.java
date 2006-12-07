@@ -1,8 +1,11 @@
 package polyglot.ext.x10.extension;
 
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.ast.NullableNode;
+import polyglot.ext.x10.types.NullableType;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.ExtensionInfo;
@@ -15,7 +18,11 @@ public class X10NullableNodeExt_c extends X10Ext_c {
 
 		if (type.isPrimitive()) {
 			Type t = ts.boxedType((X10PrimitiveType) type.toPrimitive());
-			return n.base(nf.CanonicalTypeNode(n.base().position(), t));
+			CanonicalTypeNode typenode = nf.CanonicalTypeNode(n.base().position(), t); 
+			n =  n.base(typenode);
+			NullableType newNullableType = ts.createNullableType(node().position(), (X10NamedType) typenode.type());
+			n = (NullableNode) n.type(newNullableType);
+			return n;
 		}
 
 		return n;
