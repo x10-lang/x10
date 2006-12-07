@@ -143,10 +143,11 @@
 <br>
 The examples listed here are either  small applications extracted from computational kernels or scientific computing benchmarks. Most of them are covered by our presentations:
 <ul>
-<li> Programming Scientific Computations in X10 (PGAS 2006, SC 2006(X10 Demo)) <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="applications/docs/SC06-X10.pdf">pdf</a>
+<li> Programming Scientific Computations in X10 (PGAS 2006, X10 Demo SC 2006) <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/docs/SC06-X10Demo.pdf">pdf</a>
 </li>
-<li> HPCC presentation at SC 06</li>
+<li>X10: a High-Productivity Approach to High Performance Programming (HPC Challenge Class 2 Award Submission SC 2006) <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/docs/SC06-HPCC.pdf">pdf</a></li>
 </ul>
 More examples (not limited to the domain of scientific computing) will be added.
 <br>
@@ -317,13 +318,15 @@ We have been porting benchmarks to X10 (literal translation to X10 or implementa
 <td width="610"><p>
 <ul>
 <li>
-MG (pure X10 code for expressiveness study): tar file and report
+MG (pure X10 code for expressiveness study): tar file and <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/docs/NPBMGX10.pdf">report</a>
 </li>
 </ul>
 </p></td>
 </tr>
 </table></td>
 </tr>
+<tr><td width="10">&nbsp;</td></tr>
 </table>
 <!--end -->
 
