@@ -31,6 +31,7 @@ public class MultiDimRegion extends region implements Rectangular {
 		// assert that all dims are actually Ranges
 		dims_ = new region[d.length];
 		for (int i = 0; i < dims_.length; ++i) {
+			assert d[i] instanceof Range;
 			dims_[i] = d[i];
 			if (zeroBased) assert d[i].zeroBased;
 		}
@@ -132,16 +133,20 @@ public class MultiDimRegion extends region implements Rectangular {
 		if (d instanceof MultiDimRegion && rank == 2 && d.rank == 2) {
 			// specialization for 2D 
 			MultiDimRegion d2 = (MultiDimRegion) d;			
-			region[] tmp = new region[2];
+			region[] tmp = null;
 			if (dims_[0].equals(d2.dims_[0])) { 
+				tmp = new region[2];
 				tmp[0] = dims_[0];
 				tmp[1] = dims_[1].difference(d2.dims_[1]);
-				return new MultiDimRegion(tmp, false);
-			} else if (dims_[1].equals(d2.dims_[1])) { 
+			} else if (dims_[1].equals(d2.dims_[1])) {
+				tmp = new region[2];
 				tmp[1] = dims_[1];
 				tmp[0] = dims_[0].difference(d2.dims_[0]);
-				return new MultiDimRegion(tmp, false);
 			} 
+			if (tmp != null 
+					&& tmp[0] instanceof ContiguousRange 
+					&& tmp[1] instanceof ContiguousRange) 
+				return new MultiDimRegion(tmp, false);
 		}
 		// ArbitraryRegion.difference() will check the rank
 		return ArbitraryRegion.difference(this, d);
