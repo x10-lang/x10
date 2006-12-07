@@ -307,11 +307,12 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 				xts.isPrimitiveTypeArray(l)) {
 			// FIXME: allow strings here
 			// pointwise numerical operations. TODO: Check that one type can be numerically coerced to the other.
-			if (!l.typeEquals(r)) {
+			if (!xts.equalsWithoutClause(l, r)) {
 				throw new SemanticException("The types of operands to " + op
 						+ " are " + l + " and " + r + "; these types should be equal.", right.position());
 			}
 			// vj: Check that they are defined over the same region?
+			checkDistributions(l, r, (X10ParsedClassType) ts.distribution());
 			return type(l);
 		}
 
@@ -356,6 +357,27 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		//Report.report(1, "X10Binary_c: exiting lRank=" + lRank + " rRank=" + rRank);
 		return result;
 	}
+	
+	public X10Type checkDistributions(X10Type l, X10Type r, X10ParsedClassType result) throws SemanticException {
+		result = (X10ParsedClassType) result.makeVariant();
+		X10ParsedClassType lType = (X10ParsedClassType) l;
+		X10ParsedClassType rType = (X10ParsedClassType) r;
+		
+		C_Term lDist = lType.distribution();
+		C_Term rDist = rType.distribution();
+		//Report.report(1, "X10Binary_c: entering lRank=" + lRank + " rRank=" + rRank);
+		if (lDist==null || ! lDist.equals(rDist)) {
+		//	Report.report(1, "X10Binary_c: lRank=" + lRank + " rRank=" + rRank);
+			throw new SemanticException("The argument " + left +  " (of type " +  l + " " + l.getClass() + ") has distribution " 
+					+ lDist + " and " +
+					right + " (of type " + r + ") has distribution " + rDist + "; these must be equal.");
+		}
+		
+		result.setRank(lDist);
+		//Report.report(1, "X10Binary_c: exiting lRank=" + lRank + " rRank=" + rRank);
+		return result;
+	}
+
 
 	 /** Flatten the expressions in place and body, creating stmt if necessary.
      * The place field must be visited by the given flattener since those statements must be executed outside
