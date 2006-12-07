@@ -208,6 +208,7 @@ Optional Packages:
 <td>
 <br>
 The X10 distribution is an archive of the java source files.  Unpack them in your destination directory, and ensure any prerequisites are installed.  
+To build the command line version, cd into each top level directory and type "ant".
 <br>
 <br>
 X10DT is available as a zip file found within the X10 distribution package.  Unpack this file on top of your existing Eclipse installation directory.  Alternatively, it can be installed directly from within Eclipse itself (the preferred method) from an Eclipse Update Site.
