@@ -1,7 +1,8 @@
 import harness.x10Test;
 
 /**
- * Purpose: 
+ * Purpose: Checks a primitive litteral is an instanceof x10.lang.Object
+ * NoteL: Obviously the Boxed representation extends x10.lang.Object
  * @author vcave
  **/
 public class PrimitiveToObject extends x10Test {

@@ -8,7 +8,7 @@ import harness.x10Test;
 public class NullToNullableType extends x10Test {
 	 
 	public boolean run() {
-		return (null instanceof nullable<X10DepTypeClassOne>);
+		return !(null instanceof nullable<X10DepTypeClassOne>);
 	}
 	
 	public static void main(String[] args) {

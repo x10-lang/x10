@@ -1,7 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose: 
+ * Purpose: Checks a null value is an instanceof a nullable type 
  * Issue: 
  * @author vcave
  **/
@@ -13,16 +13,16 @@ public class NullObjectToNullable extends x10Test {
 		nullable<X10DepTypeClassOne> nullableVarNull = null;
 
 		// array[0] is null hence it is not an instance of targeted non nullable type
-		boolean res1 = (array[0] instanceof nullable<X10DepTypeClassOne>);
+		boolean res1 = !(array[0] instanceof nullable<X10DepTypeClassOne>);
 		
 		// var is null hence it is not an instance of targeted non nullable type
-		boolean res2 = (var instanceof nullable<X10DepTypeClassOne>);
+		boolean res2 = !(var instanceof nullable<X10DepTypeClassOne>);
 		
 		// nullableVarNull is null hence it is an instance of the nullable type
-		boolean res3 = (nullableVarNull instanceof nullable<X10DepTypeClassOne>);
+		boolean res3 = !(nullableVarNull instanceof nullable<X10DepTypeClassOne>);
 		
 		// getNullNullable() is null hence it is an instance of the nullable type
-		boolean res4 = (getNullNullable() instanceof nullable<X10DepTypeClassOne>);
+		boolean res4 = !(getNullNullable() instanceof nullable<X10DepTypeClassOne>);
 
 		return res1 && res2 && res3 && res4;
 	}

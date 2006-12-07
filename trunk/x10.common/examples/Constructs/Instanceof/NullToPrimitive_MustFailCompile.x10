@@ -1,13 +1,14 @@
 import harness.x10Test;
 
 /**
- * Purpose: 
+ * Purpose: Checks null is not an instance of a primitive 
+ * Issue: primitive has to be encapsulated in a nullable so that null can be an instanceof.
  * @author vcave
  **/
 public class NullToPrimitive_MustFailCompile extends x10Test {
 	 
 	public boolean run() {
-		return (null instanceof int);
+		return !(null instanceof int);
 	}
 	
 	public static void main(String[] args) {

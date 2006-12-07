@@ -1,7 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose: 
+ * Purpose: Checks a boxed primitive is an instanceof this same primitive type .
  * @author vcave
  **/
 public class ObjectToPrimitive extends x10Test {
