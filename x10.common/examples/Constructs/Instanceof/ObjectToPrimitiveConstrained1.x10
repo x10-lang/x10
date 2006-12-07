@@ -1,7 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose: 
+ * Purpose: Checks boxed integer value is checks against primtive dependent type.
  * @author vcave
  **/
 public class ObjectToPrimitiveConstrained1 extends x10Test {

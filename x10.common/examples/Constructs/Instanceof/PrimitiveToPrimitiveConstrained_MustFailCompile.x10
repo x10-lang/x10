@@ -1,7 +1,8 @@
 import harness.x10Test;
 
 /**
- * Purpose: 
+ * Purpose: Checks a boxed litteral primitive is effectively checked against
+ *          a constrained primitive type.
  * @author vcave
  **/
 public class PrimitiveToPrimitiveConstrained_MustFailCompile extends x10Test {

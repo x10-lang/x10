@@ -1,7 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose: 
+ * Purpose: Check a nullable is not an instanceof a constrained type.
  * @author vcave
  **/
 public class NullableObjectToConstrainedType1 extends x10Test {

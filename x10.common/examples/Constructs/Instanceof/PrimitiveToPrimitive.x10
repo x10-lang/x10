@@ -1,12 +1,13 @@
 import harness.x10Test;
 
 /**
- * Purpose: 
+ * Purpose: Checks litteral primitive is an instance of the same type.
  * @author vcave
  **/
 public class PrimitiveToPrimitive extends x10Test {
 	 
 	public boolean run() {
+		//transformed to new BoxedInteger(3) instanceof
 		return (3 instanceof int);
 	}
 	
