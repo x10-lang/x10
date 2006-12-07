@@ -79,6 +79,9 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	
 	void setDistribution(C_Term dist);
 	
+	C_Term distribution();
+	
+	
 	/**
 	 * Check whether the real clause associated with this type is invalid. Throw the
 	 * associated semantic exception if it is.
