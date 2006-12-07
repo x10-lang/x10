@@ -11,7 +11,7 @@ public class CastNullNullableToNonNullable extends x10Test {
 			try { 
 			X10DepTypeClassTwo nonNull2 = 
 				(X10DepTypeClassTwo) this.getNullable();
-			} catch(NullPointerException e) {
+			} catch(ClassCastException e) {
 				return true;
 			}
 			return false;

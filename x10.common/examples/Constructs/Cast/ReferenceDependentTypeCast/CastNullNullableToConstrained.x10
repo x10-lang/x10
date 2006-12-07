@@ -13,7 +13,7 @@ public class CastNullNullableToConstrained extends x10Test {
 			// from null nullable to non-nullable (inlined) -> should fail
 			X10DepTypeClassTwo(:p==0&&q==1) nonNull = 
 				(X10DepTypeClassTwo(:p==0&&q==1)) nullObject1;
-		} catch(NullPointerException e) {
+		} catch(ClassCastException e) {
 			return true;
 		}
 		return false;
