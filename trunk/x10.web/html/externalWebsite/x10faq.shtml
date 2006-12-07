@@ -120,11 +120,19 @@
 <table border="0" cellpadding="0" cellspacing="0">
 <tr valign="top">
 <td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
-<td><a class="toclink" href="#a1">Question 1</a></td>
+<td><a class="toclink" href="#a1">What is X10?</a></td>
 </tr>
 <tr valign="top">
 <td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
-<td><a class="toclink" href="#a2">Question 2</a></td>
+<td><a class="toclink" href="#a2">What is the difference between X10 and Fortress?  X10 and Chapel?</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#a3">Question 3</a></td>
+</tr>
+<tr valign="top">
+<td><img alt="" height="16" src="//www.ibm.com/i/v14/icons/d.gif" width="16" /></td>
+<td><a class="toclink" href="#a4">Question 4</a></td>
 </tr>
 </table>
 
@@ -134,7 +142,7 @@
 <br /><a name="a1"></a>
 <table width="610" cellpadding="0" cellspacing="0" border="0">
 <tr>
-<td class="v14-header-4">Question 1</td>
+<td class="v14-header-4">What is X10?</td>
 </tr>
 <tr>
 <td>
@@ -152,7 +160,7 @@ Answer to question 1
 <br /><a name="a2"></a>
 <table width="610" cellpadding="0" cellspacing="0" border="0">
 <tr>
-<td class="v14-header-4">Question 2 </td>
+<td class="v14-header-4">What is the difference between X10 and Fortress?  X10 and Chapel? </td>
 </tr>
 <tr>
 <td>
@@ -167,7 +175,44 @@ Answer to question 2
 <td width="7">&nbsp;</td>
 <td width="150" id="right-nav">
 
+<!-- end -->
 <!-- start -->
+<br /><a name="a3"></a>
+<table width="610" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="v14-header-4">Question 3</td>
+</tr>
+<tr>
+<td>
+Answer to question 3
+
+<img src="//www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
+</tr>
+
+</table>
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="500" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+
+<!-- end -->
+
+<!-- start -->
+<br /><a name="a4"></a>
+<table width="610" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="v14-header-4">Question 4 </td>
+</tr>
+<tr>
+<td>
+Answer to question 4
+</td>
+</tr>
+
+</table>
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><img src="//www.ibm.com/i/c.gif" alt="" height="1" width="500" border="0" /></td><td width="17" align="right"><img src="//www.ibm.com/i/v14/icons/u_bold.gif" border="0" width="16" height="16" alt="" align="middle" /></td><td align="left"><b><a class="fbox" href="#main">Back to top</a></b></td></tr></table>
+
+</td>
+<td width="7">&nbsp;</td>
+<td width="150" id="right-nav">
+
 <!-- end -->
 
 
