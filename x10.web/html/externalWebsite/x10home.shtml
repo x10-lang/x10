@@ -159,8 +159,7 @@ An Eclipse-based Integrated Development Environment (IDE) has been developed at 
 <td><table border="0" cellpadding="0" cellspacing="0" >
 <tr>
 <td width="443"><p>
-Support for a subset of the X10 language.  Add pertinent details here.
-Currently only SMP machines are supported.
+A large subset of the X10 language is functionally supported for SMP machines.  The implementation uses a Java virtual machine, and so can run on any platform that supports Java 5.0.
 </p>
 <p>
 The X10DT already provides a significant subset of the functionality expected of a modern IDE: syntax highlighting, structural outline views, compiler error annotations placed directly on the source code, navigation from references to corresponding declarations, "hover help" that shows information about an entity when hovering over a reference, "content assistance" that offers completions of identifiers and expressions, debugging support, and more. In the future, the X10DT will also include support for indexed search, refactoring, type hierarchy queries, call graph navigation, and so on. At the moment, the X10DT supports X10 application developers; in the near future, we will add support for language developers who wish to alter the X10 compiler or runtime and take advantage of their enhancements within the X10DT.
