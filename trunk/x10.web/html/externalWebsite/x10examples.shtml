@@ -122,14 +122,14 @@
 <tr>
 <td>
 <br>
-The examples listed here are either  small applications extracted from computational kernels or scientific computing benchmarks. They are covered by our presentations:
+The examples listed here are either  small applications extracted from computational kernels or scientific computing benchmarks. Most of them are covered by our presentations:
 <ul>
 <li> Programming Scientific Computations in X10 (PGAS 2006, SC 2006(X10 Demo)) <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
 <a href="applications/docs/SC06-X10.pdf">pdf</a>
 </li>
-<li> HPCC </li>
+<li> HPCC presentation at SC 06</li>
 </ul>
-More examples not limitted to scientific computing applications will be added.
+More examples not limited to scientific computing applications will be added.
 <br>
 </td>
 </tr>
@@ -143,7 +143,7 @@ More examples not limitted to scientific computing applications will be added.
 <tr>
 <td>
 <br>
-Each example here also has a dependent-type version.
+The examples here show in X10 how to build and iterate over distributed arrays, and how to coordinate concurrent activities. Each example here also has a dependent-type version.
 <br>
 </td>
 </tr>
@@ -191,9 +191,9 @@ More benchmarks will be posted.
 <td width="610"><p>
 <ul>
 <li>
-MG (pure X10 code for expressiveness study): tar file and introduction
+MG (pure X10 code for expressiveness study): tar file and report
 </li>
-<ul>
+</ul>
 </p></td>
 </tr>
 </table></td>
@@ -217,7 +217,12 @@ HPL
 <li>
 STREAM
 </li>
-<ul>
+<li>
+PTRANS
+</li>
+<li>RandomAccess</li>
+<li>FFT</li>
+</ul>
 </p></td>
 </tr>
 </table></td>
