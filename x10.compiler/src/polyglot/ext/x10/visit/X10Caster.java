@@ -68,7 +68,7 @@ public class X10Caster extends AscriptionVisitor {
 	 */
 	public Expr ascribe(Expr e, Type toType) throws SemanticException {
 		Type fromType = e.type();
-		Expr ret_notype;
+		Expr ret_notype = e;
 
 		if (this.castCheckClassNotLoaded) {
 			((Type) ts.systemResolver().find("x10.lang.RuntimeCastChecker")).toClass();
@@ -87,42 +87,25 @@ public class X10Caster extends AscriptionVisitor {
 			ar = (AmbiguityRemover) ar.context(context());
 			tc = (TypeChecker) tc.context(context());
 			
-			// following line is needed because cast and instanceof extension
-			// could have rewritten the node without typechecking resulting expr.
-			// which cause problem with primitive boxing in nullable
-			// ret_notype = (Expr) e.visit(tc);
-			//vj ret_notype = (Expr) e.visit(tb).visit(ar).visit(tc);
 			ret_notype = (Expr) e.visit(tc);
-
-			X10CastInfo cast = (X10CastInfo) ret_notype;
 			
+			X10CastInfo cast = (X10CastInfo) ret_notype;
+
 			// First some checks related to nullable, 
 			// that may avoid to perform a runtime check
 			if (cast.isToTypeNullable()) {
 				// Check expression like litteral null to nullable type
 				if (e instanceof Instanceof) {
 					if (cast.expr().type().isNull()) {
-						// null instanceof nullable<T> is always true
-						// whereas null instanceof nullable<T(:c)> is not
-						return (Expr) nf.BooleanLit(p,
-								!cast.isDepTypeCheckingNeeded()).visit(tc);
+						// null instanceof nullable<T> || T is always false
+						return (Expr) nf.BooleanLit(p,false).visit(tc);
 					}
 				}
 
 				if (e instanceof Cast) { // obviously it is cast
 					if (cast.expr().type().isNull()) {
-						// null instanceof nullable<T> is always true
-						// whereas null instanceof nullable<T(:c)> is not
-						if (cast.isDepTypeCheckingNeeded()) {
-							// (nullable<T(:c)> null) --> always false and
-							// should have been caught before
-							throw new SemanticException(
-									"Cast from the litteral null to a nullable constrained type is not allowed. "
-											+ "This message should never be displayed, please review NullType type checking");
-						} else {
-							// (nullable<T> null) --> always true
-							return (Expr) nf.NullLit(p).visit(tc);
-						}
+						// target type is nullable hence cast is always valid, we rewrite the node
+						return (Expr) nf.NullLit(p).visit(tc);
 					}
 				}
 			}
@@ -137,27 +120,11 @@ public class X10Caster extends AscriptionVisitor {
 
 				return mc.getRuntimeCheckingExpr(ret_notype);
 			} else {				
-				if (cast.isToTypeNullable() && (e instanceof Instanceof)) {
-					// nullable<T> <-- expr : where expr is not null literral
-					// (null instance of T) should return true
-					// just have to call a null check method that implements nullable convention
-					MethodChecking mc = (e instanceof Cast) ? new MethodCastChecking(
-							nf, ts, tb, ar, tc, p)
-							: new MethodInstanceOfChecking(nf, ts, tb, ar, tc,
-									p);
-
-					return mc.getNullableCheckingExpr(ret_notype);
-				} else {
-					// toType is not nullable, check if fromType was nullable
-					if (cast.notNullRequired()) {
-						// Here type cast is T <-- nullable<T>
-						// Hence we must ensure the nullable is != from null 
-						MethodChecking mc = (e instanceof Cast) ? new MethodCastChecking(
-								nf, ts, tb, ar, tc, p)
-								: new MethodInstanceOfChecking(nf, ts, tb, ar, tc,
-										p);	
-						return mc.getNullableCheckingExpr(ret_notype);
-					}
+				if (cast.notNullRequired() && (e instanceof Cast)) {
+					// Here type cast is T <-- nullable<T>
+					// Hence we don't want the regulat java cast (T) NullType) works. 
+					MethodChecking mc = new MethodCastChecking(nf, ts, tb, ar, tc, p);	
+					return mc.getNonNullableCheckingExpr(ret_notype);
 				}
 			}
 		}
@@ -184,20 +151,15 @@ public class X10Caster extends AscriptionVisitor {
 
 		return n;
 	}
-
 	private class CastChecking {
 		private NodeFactory nf;
-
 		private TypeSystem ts;
-
 		protected TypeBuilder tb;
-
 		protected AmbiguityRemover ar;
-
 		protected TypeChecker tc;
-
 		protected Position p;
-
+//		protected TypeTranslator depTypeToConstraint = new TypeTranslator();
+		
 		public CastChecking(NodeFactory nf2, TypeSystem ts2, TypeBuilder tb,
 				AmbiguityRemover ar, TypeChecker tc, Position p) {
 			this.nf = nf2;
@@ -272,8 +234,10 @@ public class X10Caster extends AscriptionVisitor {
 			super(nf, ts, tb, ar, tc, p);
 		}
 
-		protected abstract Name runtimeNullableCheckingMethodName();
-
+//		protected abstract Name runtimeCheckingToNullableMethodName() throws SemanticException;
+		
+		protected abstract Name runtimeCheckingToNonNullableMethodName() throws SemanticException;
+		
 		protected abstract Name runtimeConstrainedCheckingMethodName();
 
 		protected abstract Name primitiveConstrainedCastCheckerMethodName() throws SemanticException;
@@ -288,8 +252,9 @@ public class X10Caster extends AscriptionVisitor {
 					"x10.lang.RuntimeCastChecker.RuntimeConstraintOnSelf");
 		}
 
-		public Expr getNullableCheckingExpr(Expr checkingNode)
-				throws SemanticException {
+
+		public Expr getNonNullableCheckingExpr(Expr checkingNode) 
+			throws SemanticException {
 			List methodArgs = new ArrayList();
 			Expr exprToCheck = ((X10CastInfo) checkingNode).expr();
 
@@ -299,7 +264,7 @@ public class X10Caster extends AscriptionVisitor {
 
 			Call checkNullableCall = nf.Call(p, this
 					.getRuntimeCheckingClassName().toReceiver(), this
-					.runtimeNullableCheckingMethodName().name, methodArgs);
+					.runtimeCheckingToNonNullableMethodName().name, methodArgs);
 
 			checkNullableCall = (Call) checkExpression(checkNullableCall);
 
@@ -396,11 +361,11 @@ public class X10Caster extends AscriptionVisitor {
 			return constraint;
 		}
 
-		private List internalbuildConstraintList(Expr expr, Constraint declaredConstraints, List constraint,
+		private List internalbuildConstraintList(Expr constraintExpr, Constraint declaredConstraints, List constraint,
 				boolean rightValue) throws SemanticException {
 			List result = new LinkedList();
-			if (expr instanceof X10Binary) {
-				X10Binary bin = (X10Binary) expr;
+			if (constraintExpr instanceof X10Binary) {
+				X10Binary bin = (X10Binary) constraintExpr;
 				List constructorArgs = new LinkedList();
 				constructorArgs.addAll(internalbuildConstraintList(bin.left(), declaredConstraints,
 						constraint, false));
@@ -425,12 +390,12 @@ public class X10Caster extends AscriptionVisitor {
 				}
 			}
 
-			if ((expr instanceof Local) || (expr instanceof Lit)) {
-				result.add(expr);
+			if ((constraintExpr instanceof Local) || (constraintExpr instanceof Lit)) {
+				result.add(constraintExpr);
 			}
 
-			if (expr instanceof Field) {
-				Field field = (Field) expr;
+			if (constraintExpr instanceof Field) {
+				Field field = (Field) constraintExpr;
 				if ((field.target() instanceof X10Special)
 						&& (((X10Special) field.target()).kind() == X10Special.SELF)) {
 					result.add(nf.StringLit(p, field.name()));
@@ -447,8 +412,8 @@ public class X10Caster extends AscriptionVisitor {
 				}
 			}
 			
-			if (expr instanceof X10Special) {
-				result.add(nf.StringLit(p,expr.toString()));
+			if (constraintExpr instanceof X10Special) {
+				result.add(nf.StringLit(p,constraintExpr.toString()));
 			}
 			
 			return result;
@@ -523,9 +488,9 @@ public class X10Caster extends AscriptionVisitor {
 		}
 
 		@Override
-		protected Name runtimeNullableCheckingMethodName() {
-			Name castChecker = new Name(nf, ts, p, "checkInstanceofNullable");
-			return castChecker;
+		protected Name runtimeCheckingToNonNullableMethodName() throws SemanticException {
+			throw new SemanticException("Compiler error: Runtime Checking to non nullable is " +
+					"not implemented, and should be the regular java instanceof code");
 		}
 	}
 
@@ -547,10 +512,10 @@ public class X10Caster extends AscriptionVisitor {
 			newCast = (Cast) checkExpression(newCast);
 			return newCast;
 		}
-
+		
 		@Override
-		protected Name runtimeNullableCheckingMethodName() {
-			Name castChecker = new Name(nf, ts, p, "checkCastFromNullable");
+		protected Name runtimeCheckingToNonNullableMethodName() throws SemanticException {
+			Name castChecker = new Name(nf, ts, p, "checkCastToNonNullable");
 			return castChecker;
 		}
 
