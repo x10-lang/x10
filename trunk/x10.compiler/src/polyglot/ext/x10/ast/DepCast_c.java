@@ -49,15 +49,19 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 		return depTypeCheckingNeeded;
 	}
 	Type lookaheadType = null;
+	
+	
+	
 	@Override
 	public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
-		lookaheadType = ((TypeNode_c) castType.disambiguate(sc)).type();
+		X10TypeNode tn = (X10TypeNode)((X10TypeNode) castType).disambiguateBase(sc);
+		lookaheadType = (tn instanceof NullableNode) ? ((NullableNode) tn).base().type() : tn.type();
 		return sc;
 	}
 	@Override
 	public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
-		//Report.report(1, "X10CanonicalType: typecheckEnter " + this + " dep=|" + this.dep + "|");
-		lookaheadType = ((TypeNode_c) ((X10TypeNode) castType).typeCheckBase(tc)).type();
+		X10TypeNode tn = (X10TypeNode)((X10TypeNode) castType).typeCheckBase(tc);
+		lookaheadType = (tn instanceof NullableNode) ? ((NullableNode) tn).base().type() : tn.type();
 		return tc;
 	}
 	@Override
@@ -158,10 +162,14 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
     /** Visit the children of the expression. */
     public Node visitChildren(NodeVisitor v) {
     	TypeNode castType = (TypeNode) visitChild(this.castType, v);
+    	Report.report(1, "DepCast_c: Visiting this.expr=" + this.dep + " with visitor " + v);
     	DepParameterExpr depExpr = (DepParameterExpr) visitChild(this.dep, v);
+    	Report.report(1, "DepCast_c: yields " + depExpr);
     	Expr expr = (Expr) visitChild(this.expr, v);
     	
-  //  	DepParameterExpr depExpr = (DepParameterExpr) dep.copy();
     	return reconstruct(castType, expr, depExpr);
     }
+    public String toString() {
+    	return "/*depCast*/" + super.toString();
+        }
 }

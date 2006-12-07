@@ -45,12 +45,13 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
 
 	Type lookaheadType = null;
 	public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
-		lookaheadType = ((TypeNode_c) compareType.disambiguate(sc)).type();
+		X10TypeNode tn = (X10TypeNode)((X10TypeNode) compareType).disambiguateBase(sc);
+		lookaheadType = (tn instanceof NullableNode) ? ((NullableNode) tn).base().type() : tn.type();
 		return sc;
 	}
 	public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
-		//Report.report(1, "X10CanonicalType: typecheckEnter " + this + " dep=|" + this.dep + "|");
-		lookaheadType = ((TypeNode_c) compareType.typeCheck(tc)).type();
+		X10TypeNode tn = (X10TypeNode)((X10TypeNode) compareType).typeCheckBase(tc);
+		lookaheadType = (tn instanceof NullableNode) ? ((NullableNode) tn).base().type() : tn.type();
 		return tc;
 	}
 	
@@ -65,7 +66,7 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
 		return cc;
 	}
 	  public Node typeCheck(TypeChecker tc) throws SemanticException {
-		  Report.report(1, "DepInstance_of: " + this + " dep=" + dep);
+		//  Report.report(1, "DepInstance_of: " + this + " dep=" + dep);
 		super.typeCheck(tc);
 		Instanceof n = (Instanceof) node();
 		Type toType = n.compareType().type();
@@ -84,7 +85,7 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
 	  }
 
 	public DepParameterExpr depParameterExpr() {
-		return (DepParameterExpr) this.dep.copy();
+		return  this.dep;
 }
     /** Reconstruct the expression. */
     protected DepInstanceof_c reconstruct(Expr expr, TypeNode compareType, DepParameterExpr dep) {
@@ -99,10 +100,17 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
 
     /** Visit the children of the expression. */
     public Node visitChildren(NodeVisitor v) {
+    	//Report.report(1, "DepInstanceof_c: Visiting this.compareType=" + this.compareType + " with visitor " + v);
+    	TypeNode compareType = (TypeNode) visitChild(this.compareType, v);
+    	//Report.report(1, "DepInstanceof_c: yields " + compareType);
+    	//Report.report(1, "DepInstanceof_c: Visiting this.expr=" + this.dep + " with visitor " + v);
+    	DepParameterExpr depExpr = (DepParameterExpr) visitChild(this.dep, v);
+    	//Report.report(1, "DepInstanceof_c: yields " + depExpr);
 		Expr expr = (Expr) visitChild(this.expr, v)  ;
-		TypeNode compareType = (TypeNode) visitChild(this.compareType, v);
-//		DepParameterExpr depExpr = (DepParameterExpr) visitChild(this.dep, v);
-		DepParameterExpr depExpr = (DepParameterExpr) dep.copy();
+	
 		return reconstruct(expr, compareType, depExpr);
     }
+    public String toString() {
+    	return "/*depInstanceof*/" + super.toString();
+        }
 }

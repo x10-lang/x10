@@ -64,8 +64,14 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 		return super.enterChildScope(child, c);
 	}
 	public Node visitChildren(NodeVisitor v) {
+		Report.report(1, "NullableNode_c: Visiting typeNode  " + this.base + " with " + v);
 		TypeNode base = (TypeNode) visitChild(this.base, v);
-		return ((NullableNode_c) super.visitChildren(v)).reconstruct(base);
+		Report.report(1, "NullableNode_c: Visiting typeNode  yielded  " + base);
+		NullableNode_c result = (NullableNode_c) reconstruct(base);
+		return result.superVisitChildren(v);
+	}
+	public Node superVisitChildren(NodeVisitor v) {
+		return super.visitChildren(v);
 	}
 	
 	/**
@@ -119,6 +125,9 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 	 * this node is the same as that of the type argument.
 	 */
 	public Node typeCheckBase(TypeChecker tc) throws SemanticException {
+		 return super.typeCheckBase(tc);
+	}
+	public Node oldTypeCheckBase(TypeChecker tc) throws SemanticException {
 		
 		if (Report.should_report("debug", 5)) {
 			Report.report(5,"[NullableNode_c] Type checking |" + this +"|:");
