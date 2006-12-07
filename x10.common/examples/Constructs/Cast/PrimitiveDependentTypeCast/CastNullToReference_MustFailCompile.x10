@@ -1,8 +1,8 @@
 import harness.x10Test;
 
 /**
- * Purpose:
- * Issue:
+ * Purpose: Checks null litteral can't be cast to a non-nullable type.
+ * Issue: null is not an instanceof x10.lang.Object, but would be one of nullable<x10.lang.Object>
  * @author vcave
  **/
  public class CastNullToReference_MustFailCompile extends x10Test {

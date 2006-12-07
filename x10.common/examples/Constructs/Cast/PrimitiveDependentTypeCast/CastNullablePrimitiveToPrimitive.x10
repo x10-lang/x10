@@ -1,18 +1,20 @@
 import harness.x10Test;
 
 /**
- * Purpose:
- * Issue:
+ * Purpose: Checks cast from nullable to non-nullable that implies 
+ *          boxing/unboxing operation.
+ * Issue: The nullable primitive is null which makes the cast to a non-nullable primitive fail.
+ *        When such cast fail a NullPointerException is thrown.
  * @author vcave
  **/
  public class CastNullablePrimitiveToPrimitive extends x10Test {
 
 	public boolean run() {
 		try {
-		nullable<int> k = null; // transformed to x10.compiler.BoxedInt
-		int p = (int) k; // transformed to ((BoxedInt) k).intValue() 
-		// --> fails because 'k' is null which throws a NullPointerException
-		} catch (NullPointerException e) {
+			nullable<int> k = null; // type becomes nullable<x10.compiler.BoxedInt>
+			int p = (int) k; // cast is transformed to ((BoxedInt) k).intValue() 
+			// --> fails because 'k' is null which throws a NullPointerException
+		} catch (ClassCastException e) {
 			return true;
 		}
 		return false;

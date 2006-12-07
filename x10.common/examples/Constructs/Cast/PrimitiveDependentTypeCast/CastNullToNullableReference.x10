@@ -1,8 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose:
- * Issue:
+ * Purpose: Checks nullable cast is working for references type.
  * @author vcave
  **/
  public class CastNullToNullableReference extends x10Test {

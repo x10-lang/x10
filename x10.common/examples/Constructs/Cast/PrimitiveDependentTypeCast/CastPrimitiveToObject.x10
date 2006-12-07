@@ -1,8 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose:
- * Issue:
+ * Purpose: Checks explicit boxing from a litteral to Object is working.
  * @author vcave
  **/
  public class CastPrimitiveToObject extends x10Test {
