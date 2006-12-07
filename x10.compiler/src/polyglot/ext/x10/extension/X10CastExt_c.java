@@ -6,13 +6,11 @@ import java.util.List;
 
 import polyglot.ast.Call;
 import polyglot.ast.Cast;
-import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.CanonicalTypeNode_c;
+import polyglot.ext.x10.ast.DepCast;
 import polyglot.ext.x10.ast.ParExpr;
-import polyglot.ext.x10.ast.X10DepCastInfo;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10PrimitiveType;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -30,11 +28,12 @@ public class X10CastExt_c extends X10Ext_c {
 		Type ltype = c.castType().type();
 		X10NodeFactory xnf = (X10NodeFactory) nf;
 
-		if (!ts.equals(c.type(), ltype))
+		if (!ts.equals(c.type(), ltype)) 
 			c = (Cast) c.type(ltype);
-
+		
 		if (ltype.isPrimitive() && rtype.isReference()) {
-			// Unbox
+			// Unbox e.g. (int) a, where a's type is BoxedInteger.
+			// replace with a.intValue
 			MethodInstance mi = ts.getter((X10PrimitiveType) ltype.toPrimitive());
 
 			Cast x = nf.Cast(c.position(),
@@ -49,16 +48,11 @@ public class X10CastExt_c extends X10Ext_c {
 			y = (Call) y.type(mi.returnType());
 
 			Node rewrittenNode = y.methodInstance(mi);
-			
-			if (ts.isTypeConstrained(ltype)) {
-				// embedding boxing into another cast that will allows
-				// deptype constraint checking
-				Cast cast  = xnf.DepCast(c.position(), new CanonicalTypeNode_c(c.position(),ltype), 
-						((X10DepCastInfo)c).depParameterExpr(), (Expr)rewrittenNode);
-				
-				rewrittenNode = cast;
+			if (c instanceof DepCast) {
+				// Keep the DepCast since the condition needs to be checked.
+				rewrittenNode = c.expr(y);
 			}
-
+			
 			return rewrittenNode;
 		}
 		else if (ltype.isReference() && rtype.isPrimitive()) {
