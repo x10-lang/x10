@@ -762,7 +762,7 @@ implements X10ParsedClassType
 	C_Term dist;
 	public C_Term distribution() {
 		if (isDistSet) return dist;
-		isDistSet = true;
+		
 		Constraint c = realClause();
 		if (c == null)
 			return dist = null;
@@ -776,11 +776,13 @@ implements X10ParsedClassType
 				dist = new C_Field_c(fi, var);
 			}
 		}
+		isDistSet = true;
 		//Report.report(1, "X1ParsedClassType dist is " + rank);
-		return dist;
+		C_Term result = dist;
+		return result;
 	}
-	public void setDistribution(C_Term rank) {
-		setProperty("distribution", rank);
+	public void setDistribution(C_Term dist) {
+		setProperty("distribution", dist);
 		isDistSet=true;
 		this.dist = dist;
 	}
