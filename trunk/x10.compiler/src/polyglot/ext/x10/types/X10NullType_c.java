@@ -110,8 +110,7 @@ public class X10NullType_c extends NullType_c implements X10NullType {
      */
     public boolean isImplicitCastValidImpl(Type toType) {
     	X10Type targetType = (X10Type) toType;
-    	return toType.isNull() || (((X10TypeSystem) ts).isNullable(targetType) 
-    			&& !((X10TypeSystem) ts).isTypeConstrained(targetType));
+    	return toType.isNull() || ((X10TypeSystem) ts).isNullable(targetType);
     }	
 
     /** 
@@ -132,8 +131,7 @@ public class X10NullType_c extends NullType_c implements X10NullType {
      **/
     public boolean isCastValidImpl(Type toType) {
     	X10Type targetType = (X10Type) toType;
-        return toType.isNull() || (((X10TypeSystem) ts).isNullable(targetType) 
-        		&& !((X10TypeSystem) ts).isTypeConstrained(targetType));
+        return toType.isNull() || ((X10TypeSystem) ts).isNullable(targetType);
     }
 
     public List properties() { return Collections.EMPTY_LIST;}
