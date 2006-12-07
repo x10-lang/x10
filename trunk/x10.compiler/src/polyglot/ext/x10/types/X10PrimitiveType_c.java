@@ -143,7 +143,9 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	}
 	
 	
-	/** Returns true iff a cast from this to <code>toType</code> is valid. */
+	/** Returns true iff a cast from this to <code>origType</code> is valid. 
+	 * Note that a cast from int to x10.compilergenerated.BoxedInteger is valid.
+	 * */
 	public boolean isCastValidImpl(Type origType) {
 		//Report.report(1, "X10PrimitiveType_c.isCastValidImpl: " + this + " " + origType);
 		X10TypeSystem xts = (X10TypeSystem) ts;
@@ -151,7 +153,9 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		NullableType nullType = toType.toNullable();
 		if (nullType != null) 
 			toType = nullType.base();
-		boolean result = ts.equals(toType, xts.Object()) || ts.equals(toType, xts.X10Object()) || ts.equals(toType, xts.boxedType(this));
+		boolean result = ts.equals(toType, xts.Object()) 
+		|| ts.equals(toType, xts.X10Object())
+		|| ts.equals(toType, xts.boxedType((X10PrimitiveType) this.makeVariant(new Constraint_c(), null)));
 		if (result) return result;
 		if (isVoid() || toType.isVoid())
 			return result = false;
@@ -229,7 +233,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		}
 		
 	}
-	
+	  
 	/**
 	 * Note that this (general) mix-in code correctly takes care of ensuring that
 	 * int is a subtype of nullable int as well as x10.lang.X10Object.
