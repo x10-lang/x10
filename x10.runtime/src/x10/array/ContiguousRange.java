@@ -78,9 +78,12 @@ public class ContiguousRange extends Range implements Rectangular {
 		region ret = null;
 		if (r instanceof ContiguousRange) {
 			ContiguousRange cr = (ContiguousRange) r;
-			if (lo >= cr.lo && hi <= cr.hi) {
+			if (lo >= cr.lo && hi <= cr.hi) 
 				ret = new EmptyRegion(rank);
-			}
+			else if (lo == cr.lo)
+				ret = new ContiguousRange(cr.hi + 1, hi);
+			else if (hi == cr.hi)
+				ret = new ContiguousRange(lo, cr.lo-1);
 		}
 		if (ret == null)
 			ret = super.difference(r);
