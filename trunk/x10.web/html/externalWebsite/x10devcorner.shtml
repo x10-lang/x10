@@ -152,11 +152,14 @@ Instructions on how to use x10c
 </tr>
 <tr>
 <td>
+<br />
+This page briefly describes how to use the X10 Development Toolkit to
+create X10 projects, create X10 classes, and use launch configurations to run
+and debug X10 programs.<p>
 <!-- start -->
 
 <table border="0" cellpadding="0" cellspacing="0" width="610">
 <tr>
-<br />
 <!-- ANCHOR_LINK_LIST_BEGIN -->
 <br /><a name="#submain"></a>
 <table border="0" cellpadding="0" cellspacing="0">
@@ -195,9 +198,6 @@ Instructions on how to use x10c
 </tr>
 <tr>
 <td width="610"><p>
-<p>This page briefly describes how to use the X10 Development Toolkit to
-create X10 projects, create X10 classes, and use launch configurations to run
-and debug X10 programs.<p>
 
 <a name="b1"></a>
 <h2>Select an X10 Compiler Configuration</h2>
