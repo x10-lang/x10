@@ -4,7 +4,6 @@ import harness.x10Test;
  * Purpose: Checks cast from nullable to non-nullable that implies 
  *          boxing/unboxing operation.
  * Issue: The nullable primitive is null which makes the cast to a non-nullable primitive fail.
- *        When such cast fail a NullPointerException is thrown.
  * @author vcave
  **/
  public class CastNullablePrimitiveToPrimitive extends x10Test {
