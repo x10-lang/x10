@@ -31,7 +31,8 @@ public class MultiDimRegion extends region implements Rectangular {
 		// assert that all dims are actually Ranges
 		dims_ = new region[d.length];
 		for (int i = 0; i < dims_.length; ++i) {
-			assert d[i] instanceof Range;
+			// this assertion is too sharp -- e.g. Constructs/DepTypes/StaticReturn
+			// assert d[i] instanceof Range;
 			dims_[i] = d[i];
 			if (zeroBased) assert d[i].zeroBased;
 		}
