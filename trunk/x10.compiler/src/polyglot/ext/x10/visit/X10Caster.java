@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import polyglot.ast.ArrayInit_c;
 import polyglot.ast.Call;
 import polyglot.ast.Cast;
 import polyglot.ast.Expr;
@@ -21,12 +22,13 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
-import polyglot.ast.ArrayInit_c;
-import polyglot.parse.Name;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.X10Binary;
+import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10CastInfo;
 import polyglot.ext.x10.ast.X10DepCastInfo;
+import polyglot.ext.x10.ast.X10Field_c;
+import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.NullableType;
@@ -37,6 +39,7 @@ import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
+import polyglot.parse.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -78,7 +81,7 @@ public class X10Caster extends AscriptionVisitor {
 		if (toType == null) {
 			return e;
 		}
-
+		
 		Position p = e.position();
 		if ((e instanceof Cast) || (e instanceof Instanceof)) {
 			TypeBuilder tb = new TypeBuilder(job, ts, nf);
@@ -86,9 +89,7 @@ public class X10Caster extends AscriptionVisitor {
 			TypeChecker tc = new TypeChecker(job, ts, nf);
 			ar = (AmbiguityRemover) ar.context(context());
 			tc = (TypeChecker) tc.context(context());
-			
-			ret_notype = (Expr) e.visit(tc);
-			
+
 			X10CastInfo cast = (X10CastInfo) ret_notype;
 
 			// First some checks related to nullable, 
@@ -158,7 +159,6 @@ public class X10Caster extends AscriptionVisitor {
 		protected AmbiguityRemover ar;
 		protected TypeChecker tc;
 		protected Position p;
-//		protected TypeTranslator depTypeToConstraint = new TypeTranslator();
 		
 		public CastChecking(NodeFactory nf2, TypeSystem ts2, TypeBuilder tb,
 				AmbiguityRemover ar, TypeChecker tc, Position p) {
@@ -183,49 +183,6 @@ public class X10Caster extends AscriptionVisitor {
 			return (Expr) e.visit(tb).visit(ar).visit(tc);
 		}
 		
-		/**
-		 * Method used to transform simple constraint such as litteral.
-		 * This code is needed when constraint are declared using shortcuts.
-		 * For example some array's properties like rect, can be declared simply
-		 * using 'rect' in the clause and not the full expression 'rect==true'.
-		 * As we do not have access to the expression representing rect value, we need
-		 * to creates one.
-		 * @param term The term to convert to an expression
-		 * @param p Expression position
-		 * @return
-		 * @throws SemanticException
-		 */
-		protected Expr constraintToExpr(C_Term term, Position p) throws SemanticException {
-			Expr res = null;
-
-			// LITTERALS
-			if (term instanceof C_Lit) {
-				C_Lit lit = (C_Lit) term;
-				if (lit.type().isInt()) {
-					return nf.IntLit(p, IntLit.INT, ((Number) lit.val())
-							.intValue());
-				}
-				if (lit.type().isLong()) {
-					return nf.IntLit(p, IntLit.LONG, ((Number) lit.val())
-							.longValue());
-				}
-				if (lit.type().isDouble()) {
-					return nf.FloatLit(p, FloatLit.DOUBLE, ((Number) lit.val())
-							.doubleValue());
-				}
-				if (lit.type().isFloat()) {
-					return nf.FloatLit(p, FloatLit.FLOAT, ((Number) lit.val())
-							.floatValue());
-				}
-				if (lit.type().isBoolean()) {
-					return nf.BooleanLit(p, ((Boolean) lit.val())
-							.booleanValue());
-				}
-			}
-
-			throw new SemanticException("Unsupported runtime constraint "
-					+ term);
-		}
 	}
 
 	protected abstract class MethodChecking extends CastChecking {
@@ -233,8 +190,6 @@ public class X10Caster extends AscriptionVisitor {
 				AmbiguityRemover ar, TypeChecker tc, Position p) {
 			super(nf, ts, tb, ar, tc, p);
 		}
-
-//		protected abstract Name runtimeCheckingToNullableMethodName() throws SemanticException;
 		
 		protected abstract Name runtimeCheckingToNonNullableMethodName() throws SemanticException;
 		
@@ -355,68 +310,9 @@ public class X10Caster extends AscriptionVisitor {
 		}
 
 		private List buildConstraintList(DepParameterExpr expr, Constraint declaredConstraint) throws SemanticException {
-			List constraint = new LinkedList();
-			this.internalbuildConstraintList(expr.condition(), declaredConstraint, constraint,
-					false);
+			ConstraintBuilder constraintBuilder = new ConstraintBuilder(declaredConstraint);
+			List constraint = constraintBuilder.visit(expr);
 			return constraint;
-		}
-
-		private List internalbuildConstraintList(Expr constraintExpr, Constraint declaredConstraints, List constraint,
-				boolean rightValue) throws SemanticException {
-			List result = new LinkedList();
-			if (constraintExpr instanceof X10Binary) {
-				X10Binary bin = (X10Binary) constraintExpr;
-				List constructorArgs = new LinkedList();
-				constructorArgs.addAll(internalbuildConstraintList(bin.left(), declaredConstraints,
-						constraint, false));
-				constructorArgs.addAll(internalbuildConstraintList(bin.right(), declaredConstraints,
-						constraint, true));
-				if (constructorArgs.size() == 1) {
-					// we're dealing with shortcut constraint like 'self.rect' from array
-					// that are translated to self.rect==true
-					String propertyStringLitteral = constructorArgs.get(0).toString(); 
-					String property = propertyStringLitteral.substring(1,propertyStringLitteral.length()-1);
-					// getting constraint right value as an expression
-					Expr constraintRightValue = 
-						this.constraintToExpr(declaredConstraints.find(property),bin.left().position());
-					// adding it to constructor's argument list
-					constructorArgs.add(constraintRightValue);
-				}
-				if (!constructorArgs.isEmpty()) {
-					Expr newConstraint = checkExpression(nf.New(p, this
-							.getRuntimeConstraintClassName().toType(),
-							constructorArgs));
-					constraint.add(newConstraint);
-				}
-			}
-
-			if ((constraintExpr instanceof Local) || (constraintExpr instanceof Lit)) {
-				result.add(constraintExpr);
-			}
-
-			if (constraintExpr instanceof Field) {
-				Field field = (Field) constraintExpr;
-				if ((field.target() instanceof X10Special)
-						&& (((X10Special) field.target()).kind() == X10Special.SELF)) {
-					result.add(nf.StringLit(p, field.name()));
-					// add a tag if the field is a right value the
-					 if (rightValue) {
-					 result.add(nf.BooleanLit(p, true));
-					 }
-				} else if ((field.target() instanceof X10Special)
-						&& (((X10Special) field.target()).kind() == X10Special.THIS)) {
-					// Class.this
-					result.add(field);
-				} else {
-					throw new SemanticException("Unknown constraint expression");
-				}
-			}
-			
-			if (constraintExpr instanceof X10Special) {
-				result.add(nf.StringLit(p,constraintExpr.toString()));
-			}
-			
-			return result;
 		}
 
 		protected Expr buildCheckingMethodCall(X10CastInfo checkingNode,
@@ -454,6 +350,207 @@ public class X10Caster extends AscriptionVisitor {
 					methodArgs);
 
 			return checkCastCall;
+		}
+		
+		
+		private class ConstraintBuilder {
+			private Constraint declaredConstraint;
+			public ConstraintBuilder(Constraint declaredConstraint) {
+				this.declaredConstraint = declaredConstraint;
+			}
+			
+			public List visit(DepParameterExpr expr) throws SemanticException {
+				Expr constraintExpr = expr.condition();
+				
+				X10Binary b = (X10Binary) ((constraintExpr instanceof X10Binary) ? constraintExpr :
+						makeBinary(constraintExpr));
+				
+				return visit(b);
+			}
+			
+			private List visit(X10Binary binary) throws SemanticException {
+				List result = new LinkedList();
+				if (binary.operator() == X10Binary.EQ) {
+					result.addAll(this.visitEqual(binary));
+				}
+				if (binary.operator() == X10Binary.COND_AND) {
+					result.addAll(this.visitAnd(binary));
+				}
+				return result;
+			}
+
+			private List visit(Expr constraintExpr) throws SemanticException {
+				if (constraintExpr instanceof X10Binary)
+					return visit((X10Binary) constraintExpr);
+				
+				if(constraintExpr instanceof Field) {
+					return visit((Field) constraintExpr);
+				}
+
+				if(constraintExpr instanceof Local) {
+					return visit((Local) constraintExpr);
+				}
+
+				if(constraintExpr instanceof Lit) {
+					return visit((Lit) constraintExpr);
+				}
+
+				if(constraintExpr instanceof X10Special) {
+					return visit((X10Special) constraintExpr);
+				}
+				// default behavior, (no visit method has been found for constraintExpr)
+				throw new SemanticException("Unhandled expression of type " + constraintExpr.getClass());			
+			}
+
+			private boolean isBinary(Expr expr) {
+				return expr instanceof X10Binary;
+			}
+			
+			private List visitAnd(X10Binary binary) throws SemanticException {
+				X10Binary left, right;
+				List constraints = new LinkedList();
+
+				left = (X10Binary) (isBinary(binary.left()) ? binary.left() : makeBinary(binary.left())); 
+				constraints.addAll(visitLeft(left));
+				
+				right = (X10Binary) (isBinary(binary.right()) ? binary.right() : makeBinary(binary.right())); 
+				constraints.addAll(visitRight(right));
+				
+				return constraints;			
+			}
+			
+			private X10Binary makeBinary(Field f) throws SemanticException {
+
+				Expr constraintRightValue = 
+					this.constraintToExpr(declaredConstraint.find(f.name()),f.position());
+				
+				return (X10Binary) ((X10NodeFactory)nf).Binary(f.position(),f, X10Binary.EQ, constraintRightValue);
+			}
+			
+			private X10Binary makeBinary(Expr expr) throws SemanticException {
+				if (expr instanceof Field) {
+					return this.makeBinary((Field) expr);
+				}
+				 throw new SemanticException("Can't convert expr of type " + expr.type() + " to binary expression");
+			}
+			
+			private List visitEqual(X10Binary binary) throws SemanticException {
+				LinkedList res = new LinkedList();
+				LinkedList constructorArgs = new LinkedList();
+				constructorArgs.addAll(visitLeft(binary.left()));
+				constructorArgs.addAll(visitRight(binary.right()));
+				// flatten
+				Expr newConstraint = checkExpression(nf.New(binary.position(), 
+						X10Caster.MethodChecking.this.getRuntimeConstraintClassName().toType(),
+						constructorArgs));
+				res.add(newConstraint);
+				return res;		
+			}
+			
+			
+			private List visitRight(Expr constraintExpr) throws SemanticException {
+				// does not matter if we are on the right or left side of a binary expression
+				if (constraintExpr instanceof Field) {
+					return this.visitRight((Field) constraintExpr);
+				}
+				return this.visit(constraintExpr);			
+			}
+
+			private List visitLeft(Expr constraintExpr) throws SemanticException {
+				// does not matter if we are on the right or left side of a binary expression
+				if (constraintExpr instanceof Field) {
+					return this.visitLeft((Field) constraintExpr);
+				}
+				return this.visit(constraintExpr);			
+			}
+			
+			private List visitRight(Field constraintExpr) throws SemanticException {
+				List constructorArgs = new LinkedList();
+				constructorArgs.add(visitField(constraintExpr));
+				constructorArgs.add(nf.BooleanLit(constraintExpr.position(), true));
+				return constructorArgs;
+			}
+
+			private List visitLeft(Field constraintExpr) throws SemanticException {
+				List constructorArgs = new LinkedList();
+				constructorArgs.add(visitField(constraintExpr));
+				return constructorArgs;			
+			}
+			
+			private Expr visitField(Field field) throws SemanticException {
+				if ((field.target() instanceof X10Special)
+						&& (((X10Special) field.target()).kind() == X10Special.SELF)) {
+					return nf.StringLit(field.position(), field.name());
+					// add a tag if the field is a right value the
+				} else if ((field.target() instanceof X10Special)
+						&& (((X10Special) field.target()).kind() == X10Special.THIS)) {
+					return field;
+				} else {
+					throw new SemanticException("Unknown constraint expression");
+				}
+			}
+			
+			private List visit(Local local) throws SemanticException {
+				List res = new LinkedList();
+				res.add(local);
+				return res;
+			}
+			
+			private List visit(Lit lit) throws SemanticException {
+				List res = new LinkedList();
+				res.add(lit);
+				return res;
+			}
+
+			private List visit(X10Special special) throws SemanticException {
+				List res = new LinkedList();
+				res.add(nf.StringLit(special.position(),special.toString()));
+				return res;
+			}
+			
+			/**
+			 * Method used to transform simple constraint such as litteral.
+			 * This code is needed when constraint are declared using shortcuts.
+			 * For example some array's properties like rect, can be declared simply
+			 * using 'rect' in the clause and not the full expression 'rect==true'.
+			 * As we do not have access to the expression representing rect value, we need
+			 * to creates one.
+			 * @param term The term to convert to an expression
+			 * @param p Expression position
+			 * @return
+			 * @throws SemanticException
+			 */
+			private Expr constraintToExpr(C_Term term, Position p) throws SemanticException {
+				Expr res = null;
+
+				// LITTERALS
+				if (term instanceof C_Lit) {
+					C_Lit lit = (C_Lit) term;
+					if (lit.type().isInt()) {
+						return nf.IntLit(p, IntLit.INT, ((Number) lit.val())
+								.intValue());
+					}
+					if (lit.type().isLong()) {
+						return nf.IntLit(p, IntLit.LONG, ((Number) lit.val())
+								.longValue());
+					}
+					if (lit.type().isDouble()) {
+						return nf.FloatLit(p, FloatLit.DOUBLE, ((Number) lit.val())
+								.doubleValue());
+					}
+					if (lit.type().isFloat()) {
+						return nf.FloatLit(p, FloatLit.FLOAT, ((Number) lit.val())
+								.floatValue());
+					}
+					if (lit.type().isBoolean()) {
+						return nf.BooleanLit(p, ((Boolean) lit.val())
+								.booleanValue());
+					}
+				}
+
+				throw new SemanticException("Unsupported runtime constraint "
+						+ term);
+			}
 		}
 	}
 
@@ -538,4 +635,5 @@ public class X10Caster extends AscriptionVisitor {
 					.base().depClause() : toType.depClause();
 		}
 	}
+	
 }
