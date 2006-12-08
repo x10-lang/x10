@@ -86,9 +86,7 @@ Note on the ordering semantics of atomic blocks
 According to (i), matching tx_end and tx_start events are ordered
 within SO, and hence within HB. We refer to this semantics as
 *ordered atomic blocks*. The following semantics are implied by (i),
-but we state them explicitly for clarity and to contrast them with
-*unordered atomic blocks* (item (1u) in paragraph 'possible language
-constructs').
+but we state them explicitly for clarity.
 
  (i-a) Memory access a preceding in program order an atomic block that
        updates shared memory is ordered with respect to the block. 
