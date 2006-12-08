@@ -57,7 +57,7 @@ import x10.parser.X10Parser;
 /**
  * Extension information for x10 extension.
  */
-public class ExtensionInfo extends polyglot.frontend.JLExtensionInfo {
+public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     static final boolean DEBUG_ = false;
     static {
         // force Topics to load
@@ -165,9 +165,6 @@ public class ExtensionInfo extends polyglot.frontend.JLExtensionInfo {
     	}
     	public Goal X10Casted(final Job job) {
     		return X10Casted.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
-    	}
-    	public Goal CastRewritten(final Job job) {
-    		return CastRewritten.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
     	}
     	public Goal X10Qualified(final Job job) {
     		return X10Qualified.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
@@ -315,7 +312,6 @@ public class ExtensionInfo extends polyglot.frontend.JLExtensionInfo {
     	        List l = new ArrayList();
     	        l.add(x10Sched.Disambiguated(job));
     	        l.add(x10Sched.TypeElaborated(job));
-    	        
     	       // l.add(x10sched.TypesElaboratedForJobs());
     	        l.addAll(super.prerequisiteGoals(scheduler));
     	        return l;
@@ -329,24 +325,6 @@ public class ExtensionInfo extends polyglot.frontend.JLExtensionInfo {
     	    }
     	
     }
-    static class CastRewritten extends VisitorGoal {
-    	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
-    		return scheduler.internGoal(new CastRewritten(job, ts, nf));
-    	}
-    	private CastRewritten(Job job, TypeSystem ts, NodeFactory nf) {
-    		super(job, new CastRewriter(job, ts, nf));
-    	}
-    	
-    	public Collection prerequisiteGoals(Scheduler scheduler) {
-    		List l = new ArrayList();
-    		l.add(scheduler.Disambiguated(job));
-    		l.add(scheduler.SupertypesDisambiguated(job));
-    		l.add(scheduler.SignaturesDisambiguated(job));
-    		l.addAll(super.prerequisiteGoals(scheduler));
-    		return l;
-    	}
-    	 
-    }
     static class TypeElaborated extends VisitorGoal {
     	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
     		return scheduler.internGoal(new TypeElaborated(job, ts, nf));
@@ -356,12 +334,10 @@ public class ExtensionInfo extends polyglot.frontend.JLExtensionInfo {
     	}
     	
     	public Collection prerequisiteGoals(Scheduler scheduler) {
-    		X10Scheduler x10Sched = (X10Scheduler) scheduler;
     		List l = new ArrayList();
     		l.add(scheduler.Disambiguated(job));
     		l.add(scheduler.SupertypesDisambiguated(job));
     		l.add(scheduler.SignaturesDisambiguated(job));
-    		l.add(x10Sched.CastRewritten(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
     	}
