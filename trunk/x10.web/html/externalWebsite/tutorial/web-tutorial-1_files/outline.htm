@@ -1,0 +1,3921 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=PowerPoint.Slide>
+<meta name=Generator content="Microsoft PowerPoint 10">
+<link id=Main-File rel=Main-File href="../web-tutorial-1.htm">
+<link rel=Preview href=preview.wmf>
+<meta name=Robots content=NoIndex>
+<script src=script.js></script><script><!--
+if( !(IsWin("PPTOtl")||IsWin("PPTNav")||IsWin("PPTOtlNav")) )
+{
+	obj = GetObj("Main-File")
+	parent.location.href=obj.href
+}
+var gOtlHiliteClr="#000000",gOtlNormalClr="#ffffff",gOtlActiveClr="#0000ff",gSelected="",gTxtState=false,gChildEntryTable=new Array()
+function Load()
+{
+	if( IsWin("PPTOtl" ) ){ LoadOtl(); parent.gOtlLoaded=true; return }
+	if( g_supportsPPTHTML ) {
+		if( IsWin("PPTNav" ) ){ LoadNav("NavObj",UpdNav); parent.gNavLoaded=true; return }
+		if( IsWin("PPTOtlNav" ) ){ LoadNav("OtlNavObj",UpdOtlNav); parent.gOtlNavLoaded=true; return }
+	}
+}
+function Upd(){ if( IsWin("PPTNav") ) LoadNav("NavObj",UpdNav) }
+function LoadNav( oId,UpdFunc )
+{
+	document.ondragstart=CancelDrag
+	document.onselectstart=CancelDrag
+	document.body.style.margin=2
+	UpdFunc()
+	obj=document.all.item(oId)
+	obj.style.display="block"
+	obj.style.visibility="visible"
+	document.bgColor="threedface"
+	if( parent.frames["PPTNts"] )
+		notesBtn.style.display = ""
+	if( parent.gHasNarration )
+		nb_voiceBorder.style.display = ""
+}
+function LoadOtl()
+{
+	var otl=GetObj("OtlObj")
+	otl.style.display="block"
+	otl.style.visibility="visible"
+	if( gOtlActiveClr == "" ) gOtlActiveClr=document.linkColor
+	if( gOtlHiliteClr == "" ) gOtlHiliteClr=document.fgColor
+	if( gOtlNormalClr == "" )
+		gOtlNormalClr=document.bgColor
+	else
+		document.bgColor=gOtlNormalClr
+	InitArray()
+	if( ObjExists( parent.gCurSld ) ) {
+		ChangeState( parent.gCurSld,gOtlNormalClr,gOtlHiliteClr )
+		gSelected=parent.gCurSld
+	}
+	else gSelected = -1
+	UpdOtl()
+}
+function UpdOtl(){ UpdIdx(parent.gCurSld) }
+function UpdIdx( idx )
+{
+	if( gSelected != idx ) {
+		if( gSelected > 0 )
+			ChangeState( gSelected,gOtlHiliteClr,gOtlNormalClr )
+		if( ObjExists( idx ) ) {
+			gSelected = idx
+			ChangeState( gSelected,gOtlNormalClr,gOtlHiliteClr )
+		}
+		else gSelected = -1
+	}
+	if( gTxtState != parent.gOtlTxtExp ) {
+		state = "block"
+		if( !parent.gOtlTxtExp )
+			state="none"
+		for(ii=0; ii<gChildEntryTable.length; ii++) {
+			obj=gChildEntryTable[ii];
+			if( obj.id == null ) continue;
+			if( obj.id.indexOf("PPTC") >= 0 )
+				obj.style.display=state;
+		}
+		gTxtState=parent.gOtlTxtExp
+		if( ObjExists( gSelected ) )
+			ChangeState( gSelected,gOtlNormalClr,gOtlHiliteClr )
+	}
+}
+function InitArray()
+{
+	count=0
+	var list=GetTags(document,"DIV");
+	for(ii=0; ii<list.length; ii++) {
+		obj=list.item(ii)
+		if( obj.id == null ) continue
+		if( obj.id.indexOf("PPTC") >= 0 )
+			gChildEntryTable[count++]=obj
+	}
+}
+function ChangeState( idx,fgColor,bgColor )
+{
+	obj=GetObj("PPTL"+idx)
+	obj.style.color=fgColor
+	obj=GetObj("PPTP"+idx)
+	obj.style.backgroundColor=bgColor
+}
+function ChgClr( o,clr ){ if( o.id != "PPTL"+gSelected ) o.style.color=clr }
+function Over( src ){ ChgClr(GetLink(src),gOtlActiveClr) }
+function Out( src ){ ChgClr(GetLink(src),gOtlHiliteClr) }
+function Follow(src){ window.location.href = GetLink(src).href; }
+function ObjExists( ii ) { obj=GetObj("PPTP"+ii ); return( obj ) }
+function GoToSld( href ){ UpdIdx(parent.GetSldNum(href)); parent.GoToSld( href ) }
+function CancelDrag(){ window.event.cancelBubble=true;window.event.returnValue=false}
+function GetLink(src)
+{
+   if(src.tagName=="A") return src
+   else return GetTags(src,"A").item(0)
+}
+function UpdNav()
+{
+	txt = "<center>";
+	if( parent.GetHrefObj( parent.gCurSld ).mOrigVis == 1 )
+		txt += "Slide " + parent.GetCurSldNum() + " of " + parent.GetNumSlds()
+	else
+		txt += "Hidden Slide"
+	txt += "</center>";
+	nav_text.innerHTML = txt;
+	if( !parent.HasPrevSld() )
+		gBtnArr["nb_prev"].Enabled(0)
+	else
+		gBtnArr["nb_prev"].Enabled(1)
+	if( !parent.HasNextSld() )
+		gBtnArr["nb_next"].Enabled(0)
+	else
+		gBtnArr["nb_next"].Enabled(1)
+	gBtnArr["nb_nts"].SetEnabled()
+	gBtnArr["nb_nts"].SetFlag( parent.gHasNts )
+	gBtnArr["nb_sldshw"].Enabled(1)
+	gBtnArr["nb_voice"].Enabled(1)
+}
+function UpdOtlNav()
+{
+	gBtnArr["nb_otl"].SetEnabled();
+	if( parent.gOtlOpen )
+		gBtnArr["nb_otlTxt"].Enabled( true );
+	else
+		document.all.item("nb_otlTxtBorder").style.visibility = "hidden";
+}
+
+//--></script>
+<style>
+<!--.PTxt
+	{position:relative;
+	width:100%;
+	margin-top:5px;
+	padding-left:2px;
+	font-weight:bold;}
+.CTxt
+	{position:relative;
+	width:100%;
+	margin-top:5px;}
+a
+	{color:black;
+	text-decoration:none;}
+ul
+	{color:black;
+	margin-bottom:0px;
+	margin-left:20px;}
+.sldNum
+	{margin-top:5px;
+	color:black;}
+.button
+	{position:absolute;
+	width:32px;
+	height:20px;
+	border-style:solid;
+	border-width:1px;
+	border-color:threedface;}
+-->
+</style>
+</head>
+
+<body onload="Load()" style='margin:2px'>
+
+<div id=NavObj onload="Load()" onmouseover="BtnOnOver()"
+onmousedown="BtnOnDown()" onmouseout="BtnOnOut()" onmouseup="BtnOnUp()"
+onkeypress="_KPH()" style='display:none;visibility:hidden'>
+<table id="notesBtn" style='position:absolute;display:none;width:70px' align=left cellpadding=0
+ cellspacing=0>
+ <td nowrap>
+ <div id="nb_ntsElem" align=center style='position:relative;padding:3px;
+ font-family:Arial;color:buttontext;font-size:9pt'><img src="notes_flag.gif"
+ border=0 id="notes_flag" style='display:none'><span
+style='mso-spacerun:yes'>  </span>Notes</div>
+ <div title="Show/Hide Notes" id="nb_nts" style='position:absolute;top:0%;
+ left:0%;width:100%;height:100%'></div>
+ </td>
+</table>
+
+<table style='position:relative;width:70px' align=right cellpadding=0 cellspacing=0>
+ <td nowrap>
+ <div id="nb_sldshwText" title="Full
+Screen Slide Show" align=center style='position:relative;margin-left:20px;padding:3px;
+ font-family:Arial;color:buttontext;font-size:9pt;cursor:default'>Slide
+Show</div>
+ <div id="nb_sldshwBorder" title="Full Screen Slide Show" style='position:absolute;top:0%;left:0%;width:100%;height:20px'>
+ <div style='position:absolute;clip:rect(0px, 18px, 18px, 0px)'><img
+ src="buttons.gif" id="nb_sldshw" style='position:relative;left:-254px'></div>
+ </div>
+ </td>
+ <td>
+ <div id="nb_voiceBorder" style='display:none;position:absolute;top:0;left:-40px;
+ width:20px;height:20px'>
+ <div style='position:absolute;clip:rect(0px, 18px, 18px, 0px)'><img
+ src="buttons.gif" id="nb_voice" title="Pause/Play Narration" style='position:
+ relative;left:-290px'></div>
+ </div>
+ </td>
+</table>
+
+<table style='position:relative' align=center cellpadding=0 cellspacing=0>
+ <td nowrap>
+ <div id="nb_prevBorder" class=button style='left:-30px'>
+ <div style='position:absolute;clip:rect(0px, 30px, 18px, 0px)'><img
+ src="buttons.gif" id="nb_prev" title="Previous Slide" style='position:relative;
+ left:0px'></div>
+ </div>
+ <span id="nav_text" style='position:relative;top:3px;width:100px;font-family:
+ Arial;color:buttontext;font-size:9pt'></span>
+ <div id="nb_nextBorder" class=button>
+ <div style='position:absolute;clip:rect(0px, 30px, 18px, 0px)'><img
+ src="buttons.gif" id="nb_next" title="Next Slide" style='position:relative;
+ left:-90px'></div>
+ </div>
+ </td>
+</table>
+</div>
+
+<div id=OtlNavObj onload="Load()" onmouseover="BtnOnOver()"
+onmousedown="BtnOnDown()" onmouseout="BtnOnOut()" onmouseup="BtnOnUp()"
+onkeypress="_KPH()" style='display:none;visibility:hidden'>
+
+<table style='position:relative;width:70px' align=left cellpadding=0 cellspacing=0>
+ <td nowrap><div title="Show/Hide
+Outline" id="nb_otl"
+ style='position:absolute;top:0%;left:0%;width:100%;height:100%;cursor:default'>
+ <div id="nb_otlElem" align=center style='position:relative;padding:3px;font-family:Arial;
+ color:buttontext;font-size:9pt'>Outline</div></div>
+ </td>
+</table>
+
+<table style='position:relative' align=center cellpadding=0 cellspacing=0>
+ <td>
+ <div style='position:absolute;left:-18px;width:24px;height:20px;border-style:
+ solid;border-width:1px;border-color:threedface' id="nb_otlTxtBorder">
+ <div style='position:absolute;clip:rect(0px, 22px, 18px, 0px)'><img
+ src=buttons.gif id="nb_otlTxt" title="Expand/Collapse Outline"
+ style='position:relative;left:-157px'></div>
+ </div>
+ </td>
+</table>
+
+</div>
+
+<div id=OtlObj style='display:none;visibility:hidden;'>
+
+
+<table width="100%" style='font-family:Arial;font-size:9pt'>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>1</font></div>
+  </td>
+  <td width="100%">
+  <div id=PPTP1 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0001.htm');" id=PPTL1><span
+  style='mso-spacerun:yes'> </span></a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>2</font></div>
+  </td>
+  <td>
+  <div id=PPTP2 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0002.htm');" id=PPTL2>X10 Team</a></font></div>
+  <div id=PPTC2 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>X10 Core Team</li>
+   <ul>
+    <li>Rajkishore Barik</li>
+    <li>Vincent Cave</li>
+    <li>Chris Donawa</li>
+    <li>Allan Kielstra</li>
+    <li>Sriram Krishnamoorthy</li>
+    <li>Nathaniel Nystrom</li>
+    <li>Igor Peshansky</li>
+    <li>Christoph von Praun</li>
+    <li>Vijay Saraswat</li>
+    <li>Vivek Sarkar</li>
+    <li>Tong Wen</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>3</font></div>
+  </td>
+  <td>
+  <div id=PPTP3 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0003.htm');" id=PPTL3>Recent publications</a></font></div>
+  <div id=PPTC3 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>&quot;X10: An Object-Oriented Approach to Non-Uniform Cluster
+       Computing&quot;, P. Charles, C. Donawa, K. Ebcioglu, C. Grothoff, A.
+       Kielstra, C. von Praun, V. Saraswat, V. Sarkar.<span
+       style='mso-spacerun:yes'>  </span>OOPSLA conference, October 2005.</li>
+   <li>&quot;Concurrent Clustered Programming&quot;,<span
+       style='mso-spacerun:yes'>  </span>V. Saraswat, R. Jagadeesan.<span
+       style='mso-spacerun:yes'>  </span>CONCUR conference, August 2005.</li>
+   <li>“Experiences with an SMP Implementation for X10 based on the Java
+       Concurrency Utilities Rajkishore Barik, Vincent Cave, Christopher
+       Donawa, Allan Kielstra,Igor Peshansky, Vivek Sarkar. Workshop on
+       Programming Models for Ubiquitous Parallelism (PMUP), September 2006.</li>
+   <li>&quot;An Experiment in Measuring the Productivity of Three Parallel
+       Programming Languages”, K. Ebcioglu, V. Sarkar, T. El-Ghazawi, J.
+       Urbanic. P-PHEC workshop, February 2006.</li>
+   <li>&quot;X10: an Experimental Language for High Productivity Programming of
+       Scalable Systems&quot;, K. Ebcioglu, V. Sarkar, V. Saraswat. P-PHEC
+       workshop, February 2005.</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>4</font></div>
+  </td>
+  <td>
+  <div id=PPTP4 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0004.htm');" id=PPTL4>Tutorial outline</a></font></div>
+  <div id=PPTC4 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>1) X10 in a nutshell</li>
+   <br>
+   <br>
+   <br>
+   <li>2) Sequential X10</li>
+   <ul>
+    <li>Type system</li>
+    <li>Standard library</li>
+    <br>
+    <br>
+   </ul>
+   <li>3) Concurrency in X10</li>
+   <ul>
+    <li>Activities</li>
+    <li>Atomic blocks</li>
+    <li>Clocks, clocked variables</li>
+   </ul>
+   <br>
+   <li>4) X10 arrays</li>
+   <ul>
+    <li>Points</li>
+    <li>Regions</li>
+   </ul>
+   <br>
+   <li>5) Distributed X10</li>
+   <ul>
+    <li>Places</li>
+    <li>Distributions</li>
+    <li>Distributed arrays</li>
+   </ul>
+   <br>
+   <li>6) Further examples</li>
+   <br>
+   <br>
+   <ul>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>5</font></div>
+  </td>
+  <td>
+  <div id=PPTP5 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0005.htm');" id=PPTL5>X10 in a Nutshell</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>6</font></div>
+  </td>
+  <td>
+  <div id=PPTP6 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0006.htm');" id=PPTL6>X10 Programming Model</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>7</font></div>
+  </td>
+  <td>
+  <div id=PPTP7 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0007.htm');" id=PPTL7>X10 v0.41 Cheat sheet</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>8</font></div>
+  </td>
+  <td>
+  <div id=PPTP8 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0008.htm');" id=PPTL8>X10 v0.41 Cheat sheet:
+  Array support</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>9</font></div>
+  </td>
+  <td>
+  <div id=PPTP9 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0009.htm');" id=PPTL9>Comparison with Java</a></font></div>
+  <div id=PPTC9 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>X10 language builds on the Java language</li>
+   <li><span style='mso-spacerun:yes'>   </span>Shared underlying philosophy:
+       shared syntactic and semantic tradition, simple, small, easy to use,
+       efficient to implement, machine independent</li>
+   <br>
+   <br>
+   <li>X10 does not have:</li>
+   <li>Dynamic class loading</li>
+   <li>Java’s concurrency features</li>
+   <ul>
+    <li>thread library, volatile, synchronized, wait, notify</li>
+   </ul>
+   <br>
+   <li>X10 restricts:</li>
+   <li>Class variables and static initialization</li>
+   <br>
+   <br>
+   <li>X10 adds to Java:</li>
+   <li>value types, nullable</li>
+   <li>Array language</li>
+   <ul>
+    <li>Multi-dimensional arrays, aggregate operations</li>
+   </ul>
+   <li>New concurrency features</li>
+   <ul>
+    <li>activities (async, future), atomic blocks, clocks</li>
+   </ul>
+   <li>Distribution</li>
+   <ul>
+    <li>places</li>
+    <li>distributed arrays</li>
+   </ul>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>10</font></div>
+  </td>
+  <td>
+  <div id=PPTP10 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0010.htm');" id=PPTL10>X10 prototype
+  implementation</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>11</font></div>
+  </td>
+  <td>
+  <div id=PPTP11 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0011.htm');" id=PPTL11>Examples of X10
+  compiler error messages</a></font></div>
+  <div id=PPTC11 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>1) x10c TutError1.x10</li>
+   <li>TutError1.x10:8: Could not find field or local variable
+       &quot;evenSum&quot;.</li>
+   <li><span style='mso-spacerun:yes'>            </span>for (int i = 2 ; i
+       &lt;= n ; i += 2 ) evenSum += i;</li>
+   <li><span
+       style='mso-spacerun:yes'>                                               
+       </span>^----^</li>
+   <br>
+   <br>
+   <li>2) x10c TutError2.x10</li>
+   <li>x10c: TutError2.x10:4:27:4:27: unexpected token(s) ignored</li>
+   <br>
+   <br>
+   <br>
+   <li>3) x10c TutError3.x10</li>
+   <li>x10c:
+       C:\vivek\eclipse\workspace\x10\examples\Tutorial\TutError3.java:49:</li>
+   <li><span style='mso-spacerun:yes'>    </span>local variable n is accessed
+       from within inner class; needs to be declared</li>
+   <li><span style='mso-spacerun:yes'>    </span>final</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>12</font></div>
+  </td>
+  <td>
+  <div id=PPTP12 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0012.htm');" id=PPTL12>Tutorial outline</a></font></div>
+  <div id=PPTC12 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>1) X10 in a nutshell</li>
+   <br>
+   <br>
+   <br>
+   <li>2) Sequential X10</li>
+   <ul>
+    <li>Type system</li>
+    <li>Standard library</li>
+    <br>
+    <br>
+   </ul>
+   <li>3) Concurrency in X10</li>
+   <ul>
+    <li>Activities</li>
+    <li>Atomic blocks</li>
+    <li>Clocks, clocked variables</li>
+   </ul>
+   <br>
+   <li>4) X10 arrays</li>
+   <ul>
+    <li>Points</li>
+    <li>Regions</li>
+   </ul>
+   <br>
+   <li>5) Distributed X10</li>
+   <ul>
+    <li>Places</li>
+    <li>Distributions</li>
+    <li>Distributed arrays</li>
+   </ul>
+   <br>
+   <li>6) Further examples</li>
+   <br>
+   <br>
+   <ul>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>13</font></div>
+  </td>
+  <td>
+  <div id=PPTP13 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0013.htm');" id=PPTL13>Sequential X10</a></font></div>
+  <div id=PPTC13 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Overview</li>
+   <li>value types</li>
+   <li>nullable types</li>
+   <li>Safety properties</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>14</font></div>
+  </td>
+  <td>
+  <div id=PPTP14 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0014.htm');" id=PPTL14>Sequential X10</a></font></div>
+  <div id=PPTC14 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>15</font></div>
+  </td>
+  <td>
+  <div id=PPTP15 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0015.htm');" id=PPTL15>Value types : immutable
+  instances</a></font></div>
+  <div id=PPTC15 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>value class</li>
+   <ul>
+    <li>Can only extend value class or x10.lang.Object.</li>
+    <li>All fields are implicitly final</li>
+    <li>Can only be extended by value classes.</li>
+    <li>May contain fields with reference type.</li>
+    <li>May be implemented by reference or copy.</li>
+   </ul>
+   <br>
+   <li>Values are equal (==) if their fields are equal, recursively.</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>16</font></div>
+  </td>
+  <td>
+  <div id=PPTP16 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0016.htm');" id=PPTL16>Memory safety</a></font></div>
+  <div id=PPTC16 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>No “ill mem ref”</li>
+   <ul>
+    <li>No object can have a reference to an object who’s memory has been
+        freed.</li>
+    <li>X10 uses garbage collection.</li>
+   </ul>
+   <li>Every value read from a location has been previously written into the
+       location.</li>
+   <ul>
+    <li>No uninitialized variables.</li>
+   </ul>
+   <br>
+   <li>An object may only access memory within its representation, and other
+       objects it has a reference to.</li>
+   <ul>
+    <li>X10 supports no pointer arithmetic.</li>
+    <li>Array access is bounds-checked dynamically (if necessary).</li>
+   </ul>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>17</font></div>
+  </td>
+  <td>
+  <div id=PPTP17 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0017.htm');" id=PPTL17>Pointer safety</a></font></div>
+  <div id=PPTC17 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>X10 supports the nullable type constructor.</li>
+   <li>For any datatype T, the datatype nullable&lt;T&gt; contains all the
+       value of T and null.</li>
+   <li>If a method is invoked or a field is accessed on the value null, a NullPointerException
+       (NPE) is thrown.</li>
+   <br>
+   <br>
+   <li>Runtime invariant<br>
+              No operation on a value of type T, which is not of the form nullable
+       S, can throw an NPE.</li>
+   <br>
+   <br>
+   <br>
+   <ul>
+    <br>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>18</font></div>
+  </td>
+  <td>
+  <div id=PPTP18 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0018.htm');" id=PPTL18>x10.lang standard
+  library</a></font></div>
+  <div id=PPTC18 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Java package with “built in” classes that provide support for selected
+       X10 constructs</li>
+   <li>Standard types</li>
+   <ul>
+    <li>boolean, byte, char, double, float, int, long, short, String</li>
+   </ul>
+   <li>x10.lang.Object -- root class for all instances of X10 objects</li>
+   <li>x10.lang.clock --- clock instances &amp; clock operations</li>
+   <li>x10.lang.dist --- distribution instances &amp; distribution operations</li>
+   <li>x10.lang.place --- place instances &amp; place operations</li>
+   <li>x10.lang.point --- point instances &amp; point operations</li>
+   <li>x10.lang.region --- region instances &amp; region operations</li>
+   <br>
+   <br>
+   <li>All X10 programs implicitly import the x10.lang.* package, so the
+       x10.lang prefix can be omitted when referring to members of x10.lang.*
+       classes</li>
+   <li>e.g., place.MAX_PLACES, dist.factory.block([0:100,0:100]), …</li>
+   <br>
+   <br>
+   <li>Similarly, all X10 programs also implicitly import the java.lang.*
+       package</li>
+   <li>e.g., X10 programs can use Math.min() and Math.max() from java.lang</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>19</font></div>
+  </td>
+  <td>
+  <div id=PPTP19 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0019.htm');" id=PPTL19>Tutorial outline</a></font></div>
+  <div id=PPTC19 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>1) X10 in a nutshell</li>
+   <br>
+   <br>
+   <br>
+   <li>2) Sequential X10</li>
+   <ul>
+    <li>Type system</li>
+    <li>Standard library</li>
+    <br>
+    <br>
+   </ul>
+   <li>3) Concurrency in X10</li>
+   <ul>
+    <li>Activities</li>
+    <li>Atomic blocks</li>
+    <li>Clocks, clocked variables</li>
+   </ul>
+   <br>
+   <li>4) X10 arrays</li>
+   <ul>
+    <li>Points</li>
+    <li>Regions</li>
+   </ul>
+   <br>
+   <li>5) Distributed X10</li>
+   <ul>
+    <li>Places</li>
+    <li>Distributions</li>
+    <li>Distributed arrays</li>
+   </ul>
+   <br>
+   <li>6) Further examples</li>
+   <br>
+   <br>
+   <ul>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>20</font></div>
+  </td>
+  <td>
+  <div id=PPTP20 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0020.htm');" id=PPTL20>Concurrency in X10</a></font></div>
+  <div id=PPTC20 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>async, finish</li>
+   <li>future, force</li>
+   <li>foreach</li>
+   <li>Global vs. local termination</li>
+   <li>Exception handling</li>
+   <li>Behavioral annotations</li>
+   <li>atomic</li>
+   <li>Memory model</li>
+   <li>clocks</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>21</font></div>
+  </td>
+  <td>
+  <div id=PPTP21 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0021.htm');" id=PPTL21>async</a></font></div>
+  <div id=PPTC21 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>async (P)<span style='mso-spacerun:yes'>  </span>S</li>
+   <li>Creates a new child activity at place P, that executes statement S</li>
+   <li>Returns immediately</li>
+   <li>S may reference final variables in enclosing blocks</li>
+   <li>Activities cannot be named</li>
+   <li>Activity cannot be aborted or cancelled</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>22</font></div>
+  </td>
+  <td>
+  <div id=PPTP22 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0022.htm');" id=PPTL22>finish</a></font></div>
+  <div id=PPTC22 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>finish S</li>
+   <li>Execute S, but wait until all (transitively) spawned asyncs have
+       terminated.</li>
+   <ul>
+    <br>
+    <br>
+   </ul>
+   <li>Rooted exception model</li>
+   <li>Trap all exceptions thrown by spawned activities.</li>
+   <li>Throw an (aggregate) exception if any spawned async terminates abruptly.</li>
+   <li>implicit finish at main activity</li>
+   <ul>
+    <br>
+    <br>
+   </ul>
+   <li>finish is useful for expressing</li>
+   <li>“synchronous” operations on</li>
+   <li>(local or) remote data.</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>23</font></div>
+  </td>
+  <td>
+  <div id=PPTP23 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0023.htm');" id=PPTL23>Termination</a></font></div>
+  <div id=PPTC23 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Local termination:</li>
+   <li><span style='mso-spacerun:yes'>   </span>Statement s terminates locally
+       when activity has completed all its computation with respect to s.</li>
+   <br>
+   <br>
+   <li>Global termination:<br>
+              Local termination + activities that have been spawned by s
+       terminated globally (recursive definition)</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'> </span>main function is root activity</li>
+   <li><span style='mso-spacerun:yes'> </span>program terminates iff root
+       activity terminates.<br>
+              <span style='mso-spacerun:yes'> </span>(implicit finish at root
+       activity)</li>
+   <li><span style='mso-spacerun:yes'> </span>‘daemon threads’ (child outlives
+       root activity) not<br>
+              <span style='mso-spacerun:yes'>  </span>allowed in X10</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>24</font></div>
+  </td>
+  <td>
+  <div id=PPTP24 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0024.htm');" id=PPTL24>Termination (example)</a></font></div>
+  <div id=PPTC24 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <br>
+   <li>public void main (String[] args) {</li>
+   <li><span style='mso-spacerun:yes'>  </span>...</li>
+   <li><span style='mso-spacerun:yes'>  </span>finish {</li>
+   <li><span style='mso-spacerun:yes'>    </span>async {</li>
+   <li>		for () {</li>
+   <li><span style='mso-spacerun:yes'>        </span>async {...</li>
+   <li><span style='mso-spacerun:yes'>        </span>}</li>
+   <li><span style='mso-spacerun:yes'>      </span>}</li>
+   <li><span style='mso-spacerun:yes'>      </span>finish async {...</li>
+   <li><span style='mso-spacerun:yes'>      </span>}</li>
+   <li><span style='mso-spacerun:yes'>      </span>...</li>
+   <li><span style='mso-spacerun:yes'>    </span>}</li>
+   <li>	} // finish</li>
+   <li>}</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>25</font></div>
+  </td>
+  <td>
+  <div id=PPTP25 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0025.htm');" id=PPTL25>Rooted computation X10</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>26</font></div>
+  </td>
+  <td>
+  <div id=PPTP26 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0026.htm');" id=PPTL26>Rooted exception model</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>27</font></div>
+  </td>
+  <td>
+  <div id=PPTP27 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0027.htm');" id=PPTL27>Example: rooted
+  exception model (async)</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>28</font></div>
+  </td>
+  <td>
+  <div id=PPTP28 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0028.htm');" id=PPTL28>Behavioral annotations</a></font></div>
+  <div id=PPTC28 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>nonblocking</li>
+   <li><span style='mso-spacerun:yes'>   </span>On any input store, a
+       nonblocking method can continue execution or terminate. (dual:<span
+       style='mso-spacerun:yes'>  </span>blocking, default: nonblocking)</li>
+   <br>
+   <br>
+   <li>recursively nonblocking</li>
+   <li><span style='mso-spacerun:yes'>   </span>Nonblocking, and every spawned
+       activity is recursively nonblocking.</li>
+   <br>
+   <br>
+   <li>local <span style='mso-spacerun:yes'> </span><br>
+              A local method guarantees that its execution will only access
+       variables that are local to the place of the current activity. <br>
+              (dual: remote, default: local)</li>
+   <br>
+   <br>
+   <li>sequential<br>
+              Method does not create concurrent activities.<br>
+              In other words, method does not use async, foreach, ateach.
+       <br>
+              (dual: parallel, default: parallel)</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>29</font></div>
+  </td>
+  <td>
+  <div id=PPTP29 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0029.htm');" id=PPTL29>Static semantics</a></font></div>
+  <div id=PPTC29 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Behavioral annotations are checked with a conservative intra-procedural
+       data-flow analysis.</li>
+   <br>
+   <br>
+   <li>Inheritance rule: Annotations must be preserved or strengthened by
+       overriding methods.</li>
+   <br>
+   <br>
+   <li>Multiple behavioral annotations must be mutually consistent.</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>30</font></div>
+  </td>
+  <td>
+  <div id=PPTP30 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0030.htm');" id=PPTL30>foreach</a></font></div>
+  <div id=PPTC30 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>foreach (point p: R) S</li>
+   <li>Creates |R| async statements in parallel at current place.</li>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <li>Termination of all (recursively created) activities can be ensured with finish.</li>
+   <br>
+   <br>
+   <li>finish foreach is a convenient way to achieve master-slave fork/join
+       parallelism (OpenMP programming model)</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>31</font></div>
+  </td>
+  <td>
+  <div id=PPTP31 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0031.htm');" id=PPTL31>atomic</a></font></div>
+  <div id=PPTC31 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Atomic blocks are conceptually executed in a single step while other
+       activities are suspended: isolation and atomicity.</li>
+   <ul>
+    <br>
+    <br>
+   </ul>
+   <li>An atomic block ...</li>
+   <ul>
+    <li>must be nonblocking</li>
+    <li>must not create concurrent activities (sequential)</li>
+    <li>must not access remote data (local)</li>
+    <br>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>32</font></div>
+  </td>
+  <td>
+  <div id=PPTP32 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0032.htm');" id=PPTL32>Static semantics of
+  atomic blocks</a></font></div>
+  <div id=PPTC32 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>An atomic block must...be local, sequential, nonblocking:</li>
+   <br>
+   <br>
+   <li>...not include blocking operations</li>
+   <ul>
+    <li>no await, no when, no calls to blocking methods</li>
+   </ul>
+   <li>... not include access to data at remote places</li>
+   <ul>
+    <li>no ateach, no future, only calls to local methods</li>
+   </ul>
+   <li>... not spawn other activities</li>
+   <ul>
+    <li>no async, no foreach, only calls to sequential methods</li>
+    <br>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>33</font></div>
+  </td>
+  <td>
+  <div id=PPTP33 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0033.htm');" id=PPTL33>Using X10 method
+  annotations</a></font></div>
+  <div id=PPTC33 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>A method declaration, foo(), can be annotated with:</li>
+   <li>nonblocking <font face=Wingdings>è</font><font face=Arial> no static
+       occurrence in foo() of when, force(), next(); any method that foo()
+       invokes must also be annotated as nonblocking</font></li>
+   <li>local <font face=Wingdings>è</font><font face=Arial> all data accessed
+       in foo() is statically guaranteed to be place-local; any method that
+       foo() invokes must also be annotated as local</font></li>
+   <br>
+   <br>
+   <li>To check if an activity (async, foreach, ateach, future) is local
+       nonblocking</li>
+   <ul>
+    <li>Check local body of activity to ensure that it satisfies the conditions</li>
+    <li>Check that all methods called in activity are also annotated (and
+        checked) as local nonblocking</li>
+    <li>NOTE: this also works in the presence of recursion</li>
+   </ul>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>34</font></div>
+  </td>
+  <td>
+  <div id=PPTP34 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0034.htm');" id=PPTL34>Exceptions in atomic
+  blocks</a></font></div>
+  <div id=PPTC34 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Atomicity guarantee only for successful execution.</li>
+   <ul>
+    <li>Exceptions should be caught inside atomic block</li>
+    <li>Explicit undo in the catch handler</li>
+   </ul>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <li>(Uncaught) exceptions propagate across the atomic block boundary; atomic
+       terminates on normal or abrupt termination of its block.</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>35</font></div>
+  </td>
+  <td>
+  <div id=PPTP35 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0035.htm');" id=PPTL35>Data races with async /
+  foreach</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>36</font></div>
+  </td>
+  <td>
+  <div id=PPTP36 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0036.htm');" id=PPTL36>Memory Model</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>37</font></div>
+  </td>
+  <td>
+  <div id=PPTP37 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0037.htm');" id=PPTL37>Concurrency Control:
+  Clocks</a></font></div>
+  <div id=PPTC37 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>clock</li>
+   <li>Clocks safety</li>
+   <li>Clocked variables</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>38</font></div>
+  </td>
+  <td>
+  <div id=PPTP38 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0038.htm');" id=PPTL38>Clocks: Motivation</a></font></div>
+  <div id=PPTC38 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Activity coordination using finish and force() is accomplished by
+       checking for activity termination</li>
+   <li>However, there are many cases in which a producer-consumer relationship
+       exists among the activities, and a “barrier”-like coordination is needed
+       without waiting for activity termination</li>
+   <ul>
+    <li>The activities involved may be in the same place or in different places</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>39</font></div>
+  </td>
+  <td>
+  <div id=PPTP39 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0039.htm');" id=PPTL39>Clocks (1/2)</a></font></div>
+  <div id=PPTC39 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>clock c = clock.factory.clock();</li>
+   <li>Allocate a clock, register current activity with it. Phase 0 of c
+       starts.</li>
+   <br>
+   <br>
+   <li>async(…) clocked (c1,c2,…) S</li>
+   <li>ateach(…) clocked (c1,c2,…) S</li>
+   <li>foreach(…) clocked (c1,c2,…) S</li>
+   <li>Create async activities registered on clocks c1, c2, …</li>
+   <br>
+   <br>
+   <li>c.resume();</li>
+   <li>Nonblocking operation that signals completion of work<span
+       style='mso-spacerun:yes'>  </span>by current activity for this phase of
+       clock c</li>
+   <br>
+   <br>
+   <li>next;</li>
+   <li>Barrier --- suspend until all clocks that the current activity is
+       registered with can advance. c.resume() is first performed for each such
+       clock, if needed.</li>
+   <li>Next can be viewed like a “finish” of all computations under way in the
+       current phase of the clock</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>40</font></div>
+  </td>
+  <td>
+  <div id=PPTP40 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0040.htm');" id=PPTL40>Clocks (2/2)</a></font></div>
+  <div id=PPTC40 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>c.drop();</li>
+   <li>Unregister with c. A terminating activity will implicitly drop all
+       clocks that it is registered on.</li>
+   <ul>
+    <br>
+    <br>
+   </ul>
+   <li>c.registered()</li>
+   <li>Return true iff current activity is registered on clock c</li>
+   <li>c.dropped() returns the opposite of c.registered()</li>
+   <ul>
+    <br>
+    <br>
+   </ul>
+   <li>ClockUseException</li>
+   <li>Thrown if an activity attempts to transmit or operate on a clock that it
+       is not registered on</li>
+   <li>Or if an activity attempts to transmit a clock in the scope of a finish</li>
+   <ul>
+    <br>
+    <br>
+    <br>
+    <br>
+   </ul>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>41</font></div>
+  </td>
+  <td>
+  <div id=PPTP41 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0041.htm');" id=PPTL41>Semantics</a></font></div>
+  <div id=PPTC41 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <ul>
+    <ul>
+     <br>
+    </ul>
+   </ul>
+   <li>Static semantics</li>
+   <ul>
+    <li>An activity may operate only on those clocks it is registered with.</li>
+    <li>In finish S,S may not contain any (top-level) clocked asyncs.</li>
+    <br>
+    <br>
+   </ul>
+   <li>Dynamic semantics</li>
+   <ul>
+    <li>A clock c can advance only when all its registered activities have
+        executed c.resume().</li>
+    <li>An activity may not pass-on clocks on which it is not live to
+        sub-activities.</li>
+    <li>An activity is deregistered from a clock when it terminates</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>42</font></div>
+  </td>
+  <td>
+  <div id=PPTP42 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0042.htm');" id=PPTL42>Behavioral annotations
+  for clocks</a></font></div>
+  <div id=PPTC42 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>clocked (c0,..., ck).</li>
+   <li></li>
+   <li>A method m that spawns an async clocked(c0,...,ck) must declare
+       {c0,...,ck} (or a superset) in its annotation: clocked (c0,..., ck).</li>
+   <li>{c0,...,ck} are fields of type clock declared in the calss that declares
+       m.</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>43</font></div>
+  </td>
+  <td>
+  <div id=PPTP43 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0043.htm');" id=PPTL43>Example (TutClock1.x10)</a></font></div>
+  <div id=PPTC43 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>finish async {</li>
+   <li><span style='mso-spacerun:yes'>  </span>final clock c =
+       clock.factory.clock();</li>
+   <li><span style='mso-spacerun:yes'>  </span>foreach (point[i]: [1:N]) clocked
+       (c) {</li>
+   <li><span style='mso-spacerun:yes'>     </span>while ( true ) {</li>
+   <li><span style='mso-spacerun:yes'>       </span>int old_A_i = A[i];</li>
+   <li><span style='mso-spacerun:yes'>       </span>int new_A_i =
+       Math.min(A[i],B[i]);</li>
+   <li><span style='mso-spacerun:yes'>       </span>if ( i &gt; 1 )</li>
+   <li><span style='mso-spacerun:yes'>          </span>new_A_i =
+       Math.min(new_A_i,B[i-1]);</li>
+   <li><span style='mso-spacerun:yes'>       </span>if ( i &lt; N )</li>
+   <li><span style='mso-spacerun:yes'>          </span>new_A_i =
+       Math.min(new_A_i,B[i+1]);</li>
+   <li><span style='mso-spacerun:yes'>       </span>A[i] = new_A_i;</li>
+   <li><span style='mso-spacerun:yes'>       </span>next;</li>
+   <li><span style='mso-spacerun:yes'>       </span>int old_B_i = B[i];</li>
+   <li><span style='mso-spacerun:yes'>       </span>int new_B_i =
+       Math.min(B[i],A[i]);</li>
+   <li><span style='mso-spacerun:yes'>       </span>if ( i &gt; 1 )</li>
+   <li><span style='mso-spacerun:yes'>          </span>new_B_i =
+       Math.min(new_B_i,A[i-1]);</li>
+   <li><span style='mso-spacerun:yes'>       </span>if ( i &lt; N )</li>
+   <li><span style='mso-spacerun:yes'>          </span>new_B_i =
+       Math.min(new_B_i,A[i+1]);</li>
+   <li>	<span style='mso-spacerun:yes'>    </span>B[i] = new_B_i;</li>
+   <li><span style='mso-spacerun:yes'>       </span>next;</li>
+   <li><span style='mso-spacerun:yes'>       </span>if ( old_A_i == new_A_i
+       &amp;&amp; old_B_i == new_B_i )</li>
+   <li><span style='mso-spacerun:yes'>          </span>break;</li>
+   <li><span style='mso-spacerun:yes'>     </span>} // while</li>
+   <li><span style='mso-spacerun:yes'>   </span>} // foreach</li>
+   <li>} // finish async</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>44</font></div>
+  </td>
+  <td>
+  <div id=PPTP44 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0044.htm');" id=PPTL44>Clock safety</a></font></div>
+  <div id=PPTC44 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>An activity may be registered on one or more clocks</li>
+   <li>Clock c can advance only when all activities registered with the clock
+       have executed c.resume() and all posted activities have terminated
+       globally.</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>  </span>Runtime invariant: Clock
+       operations are guaranteed to be deadlock-free.</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>45</font></div>
+  </td>
+  <td>
+  <div id=PPTP45 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0045.htm');" id=PPTL45>Deadlock freedom</a></font></div>
+  <div id=PPTC45 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Where is this useful?</li>
+   <ul>
+    <li>Whenever synchronization pattern of a program is independent of the
+        data read by the program</li>
+    <li>True for a large majority of HPC codes.</li>
+    <li>(Usually not true of reactive programs.)</li>
+   </ul>
+   <li>Central theorem of X10:</li>
+   <ul>
+    <li>Arbitrary programs with async, atomic, finish (and clocks) are
+        deadlock-free.</li>
+    <br>
+    <br>
+   </ul>
+   <li>Key intuition:</li>
+   <ul>
+    <li>atomic is deadlock-free.</li>
+    <li>finish has a tree-like structure.</li>
+    <li>clocks are made to satisfy conditions which ensure tree-like structure.</li>
+    <li>Hence no cycles in wait-for graph.</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>46</font></div>
+  </td>
+  <td>
+  <div id=PPTP46 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0046.htm');" id=PPTL46>Clock example: SPECjbb</a></font></div>
+  <div id=PPTC46 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>finish async {</li>
+   <li><span style='mso-spacerun:yes'>  </span>final clock c = new clock();</li>
+   <li><span style='mso-spacerun:yes'>  </span>final Company company =
+       createCompany(...);</li>
+   <li><span style='mso-spacerun:yes'>  </span>for (int w : [0:wh_num]) {</li>
+   <li><span style='mso-spacerun:yes'>     </span>async clocked(c) { // a
+       warehouse</li>
+   <li><span style='mso-spacerun:yes'>        </span>int mode;</li>
+   <li><span style='mso-spacerun:yes'>        </span>atomic { mode =
+       company.mode; };</li>
+   <li><span style='mso-spacerun:yes'>        </span>initialize;</li>
+   <li><span style='mso-spacerun:yes'>        </span>next; // 1.</li>
+   <li><span style='mso-spacerun:yes'>        </span>while (mode != STOP) {</li>
+   <li><span style='mso-spacerun:yes'>          </span>select a transaction;</li>
+   <li><span style='mso-spacerun:yes'>          </span>think;</li>
+   <li><span style='mso-spacerun:yes'>          </span>process the transaction;</li>
+   <li><span style='mso-spacerun:yes'>          </span>if (mode == RECORDING)</li>
+   <li><span style='mso-spacerun:yes'>            </span>record data;</li>
+   <li><span style='mso-spacerun:yes'>          </span>if (mode == RAMP_DOWN)</li>
+   <li><span style='mso-spacerun:yes'>            </span>next; // 2.</li>
+   <li><span style='mso-spacerun:yes'>          </span>atomic { mode =
+       company.mode; };</li>
+   <li><span style='mso-spacerun:yes'>        </span>} // while</li>
+   <li><span style='mso-spacerun:yes'>     </span>} // a warehouse</li>
+   <li><span style='mso-spacerun:yes'>  </span>} // for</li>
+   <li><span style='mso-spacerun:yes'> </span>// ------ continued next column
+       --&gt;</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>47</font></div>
+  </td>
+  <td>
+  <div id=PPTP47 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0047.htm');" id=PPTL47>Futures</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>48</font></div>
+  </td>
+  <td>
+  <div id=PPTP48 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0048.htm');" id=PPTL48>future</a></font></div>
+  <div id=PPTC48 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>future (P)<span style='mso-spacerun:yes'>  </span>S</li>
+   <li>Creates a new child activity at place P, that executes statement S;</li>
+   <li>Returns immediately.</li>
+   <li>S may reference final variables in enclosing blocks.</li>
+   <br>
+   <br>
+   <li>future vs. async</li>
+   <li>Return result from asynchronous computation</li>
+   <li>Tolerate latency of remote access.</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>49</font></div>
+  </td>
+  <td>
+  <div id=PPTP49 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0049.htm');" id=PPTL49>future example</a></font></div>
+  <div id=PPTC49 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>public class TutFuture1 {</li>
+   <li><span style='mso-spacerun:yes'>    </span>static int fib (final int n) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>if ( n &lt;= 0 ) return 0;</li>
+   <li><span style='mso-spacerun:yes'>        </span>if ( n == 1 ) return 1;</li>
+   <li><span style='mso-spacerun:yes'>        </span>future&lt;int&gt; x = future
+       { fib(n-1) };</li>
+   <li><span style='mso-spacerun:yes'>        </span>future&lt;int&gt; y = future
+       { fib(n-2) };</li>
+   <li><span style='mso-spacerun:yes'>        </span>return x.force() + y.force();</li>
+   <li><span style='mso-spacerun:yes'>    </span>}</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>    </span>public static void
+       main(String[] args) {</li>
+   <li><span style='mso-spacerun:yes'>       
+       </span>System.out.println(&quot;fib(10) = &quot; + fib(10));</li>
+   <li><span style='mso-spacerun:yes'>    </span>}</li>
+   <li>}</li>
+   <br>
+   <br>
+   <li>Divide and conquer: recursive calls execute concurrently.</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>50</font></div>
+  </td>
+  <td>
+  <div id=PPTP50 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0050.htm');" id=PPTL50>Example: rooted
+  exception model (future)</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>51</font></div>
+  </td>
+  <td>
+  <div id=PPTP51 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0051.htm');" id=PPTL51>Futures can deadlock</a></font></div>
+  <div id=PPTC51 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>nullable future&lt;int&gt; f1=null;</li>
+   <li>nullable future&lt;int&gt; f2=null;</li>
+   <br>
+   <br>
+   <li>void main(String[] args) {</li>
+   <li><span style='mso-spacerun:yes'>  </span>f1 = future(here){a1()};</li>
+   <li><span style='mso-spacerun:yes'>  </span>f2 = future(here){a2()};</li>
+   <li><span style='mso-spacerun:yes'>  </span>f1.force();</li>
+   <li>}</li>
+   <br>
+   <br>
+   <li>int a1() {</li>
+   <li><span style='mso-spacerun:yes'>  </span>nullable future&lt;int&gt;
+       tmp=null;</li>
+   <li><span style='mso-spacerun:yes'>  </span>do {</li>
+   <li><span style='mso-spacerun:yes'>    </span>tmp=f2;</li>
+   <li><span style='mso-spacerun:yes'>  </span>} while (tmp == null);</li>
+   <li><span style='mso-spacerun:yes'>  </span>return tmp.force();</li>
+   <li>}</li>
+   <br>
+   <br>
+   <br>
+   <li>int a2() {</li>
+   <li><span style='mso-spacerun:yes'>  </span>nullable future&lt;int&gt;
+       tmp=null;</li>
+   <li><span style='mso-spacerun:yes'>  </span>do {</li>
+   <li><span style='mso-spacerun:yes'>    </span>tmp=f1;</li>
+   <li><span style='mso-spacerun:yes'>  </span>} while (tmp == null);</li>
+   <li><span style='mso-spacerun:yes'>  </span>return tmp.force();</li>
+   <li>}</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>52</font></div>
+  </td>
+  <td>
+  <div id=PPTP52 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0052.htm');" id=PPTL52>Concurrency Control:
+  <br>
+    Conditional atomic blocks, when, await</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>53</font></div>
+  </td>
+  <td>
+  <div id=PPTP53 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0053.htm');" id=PPTL53>when</a></font></div>
+  <div id=PPTC53 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>when (E) S</li>
+   <ul>
+    <li>Activity suspends until a state in which the guard E is true.</li>
+    <li>In that state, S is executed atomically and in isolation.</li>
+    <br>
+    <br>
+   </ul>
+   <li>Guard E</li>
+   <ul>
+    <li>boolean expression</li>
+    <li>must be nonblocking</li>
+    <li>must not create concurrent activities (sequential)</li>
+    <li>must not access remote data (local)</li>
+    <li>must not have side-effects (const)</li>
+    <br>
+    <br>
+   </ul>
+   <li>await (E)</li>
+   <ul>
+    <li>syntactic shortcut for when (E) ;</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>54</font></div>
+  </td>
+  <td>
+  <div id=PPTP54 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0054.htm');" id=PPTL54>Static semantics of
+  guard for when / await</a></font></div>
+  <div id=PPTC54 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>boolean field</li>
+   <li>boolean expression with field access or constant values</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>55</font></div>
+  </td>
+  <td>
+  <div id=PPTP55 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0055.htm');" id=PPTL55>Semaphores</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>56</font></div>
+  </td>
+  <td>
+  <div id=PPTP56 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0056.htm');" id=PPTL56>Atomic blocks:
+  Simplifying barrier synchronization</a></font></div>
+  <div id=PPTC56 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Original Java code</li>
+   <br>
+   <br>
+   <li>// Main thread (see spec.jbb.Company): …</li>
+   <li>// Wait for all threads to start.</li>
+   <li>synchronized (company.initThreadsStateChange) {</li>
+   <li><span style='mso-spacerun:yes'>  </span>while (initThreadsCount !=
+       threadCount) {</li>
+   <li><span style='mso-spacerun:yes'>    </span>try {</li>
+   <li><span style='mso-spacerun:yes'>      </span>initThreadsStateChange.wait();</li>
+   <li>	} catch (InterruptedException e) {…}</li>
+   <li><span style='mso-spacerun:yes'>  </span>}</li>
+   <li>} ...</li>
+   <li>// Tell everybody it’s time for warmups.</li>
+   <li>mode = RAMP_UP;</li>
+   <li>synchronized (initThreadsCountMonitor) {</li>
+   <li>	initThreadsCountMonitor.notifyAll();</li>
+   <li>} ....</li>
+   <li>// Worker thread</li>
+   <li>// (see spec.jbb.TransactionManager): …</li>
+   <li>synchronized (company.initThreadsCountMonitor) {</li>
+   <li><span style='mso-spacerun:yes'>  </span>synchronized
+       (company.initThreadsStateChange) {</li>
+   <li><span style='mso-spacerun:yes'>    </span>company.initThreadsCount++;</li>
+   <li>	<span style='mso-spacerun:yes'>  </span>company.initThreadsStateChange.notify();</li>
+   <li><span style='mso-spacerun:yes'>    </span>}</li>
+   <li><span style='mso-spacerun:yes'>    </span>try {</li>
+   <li>	<span style='mso-spacerun:yes'> 
+       </span>company.initThreadsCountMonitor.wait();</li>
+   <li>	} catch (InterruptedException e) {…}</li>
+   <li>} ...</li>
+   <li>X10 atomic sections</li>
+   <br>
+   <br>
+   <li>// Main thread: …</li>
+   <li>// Wait for all threads to start.</li>
+   <li>when(company.initThreadsCount==<br>
+              <span style='mso-spacerun:yes'>          </span>threadCount) {</li>
+   <li>	mode = RAMP_UP;</li>
+   <li>	initThreadsCountReached = true;</li>
+   <li>} …</li>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <li>// Worker thread: …</li>
+   <li>atomic {</li>
+   <li>	company.initThreadsCount++;</li>
+   <li>}</li>
+   <br>
+   <br>
+   <li>await ( initThreadsCountReached ); //barrier synch.</li>
+   <li>…</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>57</font></div>
+  </td>
+  <td>
+  <div id=PPTP57 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0057.htm');" id=PPTL57>Tutorial outline</a></font></div>
+  <div id=PPTC57 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>1) X10 in a nutshell</li>
+   <br>
+   <br>
+   <br>
+   <li>2) Sequential X10</li>
+   <ul>
+    <li>Type system</li>
+    <li>Standard library</li>
+    <br>
+    <br>
+   </ul>
+   <li>3) Concurrency in X10</li>
+   <ul>
+    <li>Activities</li>
+    <li>Atomic blocks</li>
+    <li>Clocks, clocked variables</li>
+   </ul>
+   <br>
+   <li>4) X10 arrays</li>
+   <ul>
+    <li>Points</li>
+    <li>Regions</li>
+   </ul>
+   <br>
+   <li>5) Distributed X10</li>
+   <ul>
+    <li>Places</li>
+    <li>Distributions</li>
+    <li>Distributed arrays</li>
+   </ul>
+   <br>
+   <li>6) Further examples</li>
+   <br>
+   <br>
+   <ul>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>58</font></div>
+  </td>
+  <td>
+  <div id=PPTP58 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0058.htm');" id=PPTL58>X10 Array Language</a></font></div>
+  <div id=PPTC58 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>point, region, distribution</li>
+   <li>Syntax extensions</li>
+   <li>Initialization</li>
+   <li>Multi-dimensional arrays</li>
+   <li>Aggregate operations</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>59</font></div>
+  </td>
+  <td>
+  <div id=PPTP59 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0059.htm');" id=PPTL59>point</a></font></div>
+  <div id=PPTC59 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>A point is an element of an n-dimensional Cartesian</li>
+   <li>space (n&gt;=1) with integer-valued coordinates e.g., [5], [1, 2], …</li>
+   <ul>
+    <li>Dimensions are numbered from 0 to n-1</li>
+    <li>n is also referred to as the rank of the point</li>
+   </ul>
+   <br>
+   <li>A point variable can hold values of different ranks e.g.,</li>
+   <ul>
+    <li>point p; p = [1]; … p = [2,3]; …</li>
+   </ul>
+   <br>
+   <li>Operations</li>
+   <ul>
+    <li>p1.rank</li>
+    <ul>
+     <li>returns rank of point p1</li>
+    </ul>
+    <li>p1.get(i)</li>
+    <ul>
+     <li>returns element (i mod p1.rank) if i &lt; 0 or<span
+         style='mso-spacerun:yes'>  </span>i &gt;= p1.rank</li>
+    </ul>
+    <li>p1.lt(p2), p1.le(p2), p1.gt(p2), p1.ge(p2)</li>
+    <ul>
+     <li>returns true iff p1 is lexicographically &lt;, &lt;=, &gt;, or &gt;=
+         p2</li>
+     <li>only defined when p1.rank and p1.rank are equal</li>
+    </ul>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>60</font></div>
+  </td>
+  <td>
+  <div id=PPTP60 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0060.htm');" id=PPTL60>Syntax extensions for
+  points</a></font></div>
+  <div id=PPTC60 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Implicit syntax for points:</li>
+   <li><span style='mso-spacerun:yes'>     </span>point p = [1,2]<span
+       style='mso-spacerun:yes'>  </span><font face=Wingdings>à</font><font
+       face="Courier New"><span style='mso-spacerun:yes'>  </span>point p =
+       point.factory(1,2)</font></li>
+   <br>
+   <br>
+   <li>Exploded variable declarations for points:</li>
+   <li><span style='mso-spacerun:yes'>     </span>point p [i,j]<span
+       style='mso-spacerun:yes'>    </span>// final int i,j</li>
+   <br>
+   <br>
+   <li>Typical uses :</li>
+   <br>
+   <br>
+   <ul>
+    <li>for (point p [i, j] : r) { ... }</li>
+    <li>for (point [i, j] : r) { ... }</li>
+    <li>int sum (point [i,j], point [k, l]) <br>
+                <span style='mso-spacerun:yes'>                      </span>{
+        return [i+k, j+l]; }</li>
+    <li>int [] iarr = new int [2] (point [i,j]) { return i; }</li>
+   </ul>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>61</font></div>
+  </td>
+  <td>
+  <div id=PPTP61 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0061.htm');" id=PPTL61>Example: point
+  (TutPoint1)</a></font></div>
+  <div id=PPTC61 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>public class TutPoint {</li>
+   <li><span style='mso-spacerun:yes'>    </span>public static void
+       main(String[] args) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>point p1 = [1,2,3,4,5];</li>
+   <li><span style='mso-spacerun:yes'>        </span>point p2 = [1,2];</li>
+   <li><span style='mso-spacerun:yes'>        </span>point p3 = [2,1];</li>
+   <li><span style='mso-spacerun:yes'>       
+       </span>System.out.println(&quot;p1 = &quot; + p1 +</li>
+   <li><span style='mso-spacerun:yes'>               </span>&quot; ; p1.rank =
+       &quot; + p1.rank +</li>
+   <li><span style='mso-spacerun:yes'>               </span>&quot; ; p1.get(2)
+       = &quot; + p1.get(2));</li>
+   <li><span style='mso-spacerun:yes'>       
+       </span>System.out.println(&quot;p2 = &quot; + p2 +</li>
+   <li><span style='mso-spacerun:yes'>               </span>&quot; ; p3 =
+       &quot; + p3 + &quot; ; p2.lt(p3) = &quot; +</li>
+   <li><span style='mso-spacerun:yes'>               </span>p2.lt(p3));</li>
+   <li><span style='mso-spacerun:yes'>    </span>}</li>
+   <li>}</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>62</font></div>
+  </td>
+  <td>
+  <div id=PPTP62 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0062.htm');" id=PPTL62>Rectangular regions</a></font></div>
+  <div id=PPTC62 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>A rectangular region is the set of points contained in a rectangular
+       subspace</li>
+   <br>
+   <br>
+   <li>A region variable can hold values of different ranks e.g.,</li>
+   <ul>
+    <li>region R; R = [0:10]; … R = [-100:100, -100:100]; … R = [0:-1]; …</li>
+   </ul>
+   <br>
+   <li>Operations</li>
+   <ul>
+    <li>R.rank ::= # dimensions in region;</li>
+    <li>R.size() ::= # points in region</li>
+    <li>R.contains(P) ::= predicate if region R contains point P</li>
+    <li>R.contains(S) ::= predicate if region R contains region S</li>
+    <li>R.equal(S) ::= true if region R equals region S</li>
+    <li>R.rank(i) ::= projection of region R on dimension i (a one-dimensional
+        region)</li>
+    <li>R.rank(i).low() ::= lower bound of i<sup>th</sup> dimension of region R</li>
+    <li>R.rank(i).high() ::= upper bound of i<sup>th</sup> dimension of region
+        R</li>
+    <li>R.ordinal(P) ::= ordinal value of point P in region R</li>
+    <li>R.coord(N) ::= point in region R with ordinal value = N</li>
+    <li>R1 &amp;&amp; R2 ::= region intersection (will be rectangular if R1 and
+        R2 are rectangular)</li>
+    <li>R1 || R2 ::= union of regions R1 and R2 (may not be rectangular)</li>
+    <li>R1 – R2 ::= region difference (may not be rectangular)</li>
+    <br>
+    <br>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>63</font></div>
+  </td>
+  <td>
+  <div id=PPTP63 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0063.htm');" id=PPTL63>Example: region
+  (TutRegion1)</a></font></div>
+  <div id=PPTC63 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>public class TutRegion {</li>
+   <li><span style='mso-spacerun:yes'>    </span>public static void
+       main(String[] args) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>region R1 = [1:10,
+       -100:100];</li>
+   <li><span style='mso-spacerun:yes'>       
+       </span>System.out.println(&quot;R1 = &quot; + R1 + &quot; ; R1.rank =
+       &quot; + R1.rank + &quot; ; R1.size() = &quot; + R1.size() + &quot; ;
+       R1.ordinal([10,100]) = &quot; + R1.ordinal([10,100]));</li>
+   <li><span style='mso-spacerun:yes'>        </span>region R2 = [1:10,90:100];</li>
+   <li><span style='mso-spacerun:yes'>       
+       </span>System.out.println(&quot;R2 = &quot; + R2 + &quot; ;
+       R1.contains(R2) = &quot; + R1.contains(R2) + &quot; ; R2.rank(1).low() =
+       &quot; + R2.rank(1).low() + &quot; ; R2.coord(0) = &quot; +
+       R2.coord(0));</li>
+   <li><span style='mso-spacerun:yes'>    </span>}</li>
+   <li>}</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>64</font></div>
+  </td>
+  <td>
+  <div id=PPTP64 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0064.htm');" id=PPTL64>Syntax extensions for
+  regions</a></font></div>
+  <div id=PPTC64 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Region constructors</li>
+   <br>
+   <br>
+   <li>int hi, lo;</li>
+   <li>region r = hi;</li>
+   <li><span style='mso-spacerun:yes'>     </span><font face=Wingdings>à</font><font
+       face="Courier New"> region r = region.factory.region(0, hi)</font></li>
+   <li>region r = [low:hi]</li>
+   <li><span style='mso-spacerun:yes'>     </span><font face=Wingdings>à</font><font
+       face="Courier New"> region r = region.factory.region(lo, hi)</font></li>
+   <br>
+   <br>
+   <li>region r1, r2;<span style='mso-spacerun:yes'>  </span>// 1-dim regions</li>
+   <li>region r = [r1, r2]</li>
+   <li><span style='mso-spacerun:yes'>     </span><font face=Wingdings>à</font><font
+       face="Courier New"> region r = region.factory.region(r1, r2); <br>
+              <span style='mso-spacerun:yes'>      </span>// 2-dim region</font></li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>65</font></div>
+  </td>
+  <td>
+  <div id=PPTP65 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0065.htm');" id=PPTL65>X10 arrays</a></font></div>
+  <div id=PPTC65 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Java arrays are one-dimensional and local</li>
+   <ul>
+    <li>e.g., array args in main(String[] args)</li>
+    <li>Multi-dimensional arrays are represented as “arrays of arrays” in Java</li>
+   </ul>
+   <li>X10 has true multi-dimensional arrays (as Fortran) that can be
+       distributed (as in UPC, Co-Array Fortran, ZPL, Chapel, etc.)</li>
+   <br>
+   <br>
+   <li>Array declaration</li>
+   <ul>
+    <li>T [.] A declares an X10 array with element type T</li>
+    <li>An array variable can refer to arrays with different rank</li>
+   </ul>
+   <li>Array allocation</li>
+   <ul>
+    <li>new T [ R ] creates a local rectangular X10 array with rectangular
+        region R as the index domain and T as the element (range) type</li>
+    <li>e.g., int[.] A = new int[ [0:N+1, 0:N+1] ];</li>
+   </ul>
+   <li>Array initialization</li>
+   <ul>
+    <li>elaborate on a slide that follows...</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>66</font></div>
+  </td>
+  <td>
+  <div id=PPTP66 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0066.htm');" id=PPTL66>Array declaration
+  syntax: [] vs [.]</a></font></div>
+  <div id=PPTC66 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>General arrays: &lt;Type&gt;[.]</li>
+   <ul>
+    <li>one or multidimensional arrays</li>
+    <li>can be distributed</li>
+    <li>arbitrary region</li>
+   </ul>
+   <br>
+   <li>Special case (“rail”): &lt;Type&gt;[]</li>
+   <ul>
+    <li>1 dimensional</li>
+    <li>0-based, rectangular array</li>
+    <li>not distributed</li>
+    <li>can be used in place of general arrays</li>
+    <li>supports compile-time optimization</li>
+   </ul>
+   <br>
+   <li>Array of arrays (“jagged array”): &lt;Type&gt;[.][.]</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>67</font></div>
+  </td>
+  <td>
+  <div id=PPTP67 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0067.htm');" id=PPTL67>Simple array operations</a></font></div>
+  <div id=PPTC67 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>A.rank<span style='mso-spacerun:yes'>   </span><span
+       style='mso-spacerun:yes'> </span>::= # dimensions in array</li>
+   <li>A.region ::= index region (domain) of array</li>
+   <li>A.distribution ::= distribution of array A</li>
+   <li>A[P] ::= element at point P, where P belongs to A.region</li>
+   <li>A | R ::= restriction of array onto region R</li>
+   <ul>
+    <li>Useful for extracting subarrays</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>68</font></div>
+  </td>
+  <td>
+  <div id=PPTP68 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0068.htm');" id=PPTL68>Aggregate array
+  operations</a></font></div>
+  <div id=PPTC68 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>A.sum(), A.max() ::= sum/max of elements in array</li>
+   <li>A1 &lt;op&gt; A2</li>
+   <ul>
+    <li>returns result of applying a pointwise op on array elements, when
+        A1.region = A2. region</li>
+    <li>&lt;op&gt; can include +, -, *,<span style='mso-spacerun:yes'> 
+        </span>and /</li>
+   </ul>
+   <li>A1 || A2 ::= disjoint union of arrays A1 and A2 <br>
+              (A1.region and A2.region must be disjoint)</li>
+   <li>A1.overlay(A2)</li>
+   <ul>
+    <li>returns an array with region, A1.region || A2.region, with element
+        value A2[P] for all points P in A2.region and A1[P] otherwise.</li>
+    <ul>
+     <br>
+     <br>
+    </ul>
+   </ul>
+   <li>Future work: framework for array operators</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>69</font></div>
+  </td>
+  <td>
+  <div id=PPTP69 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0069.htm');" id=PPTL69>Example: arrays
+  (TutArray1)</a></font></div>
+  <div id=PPTC69 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>public class TutArray1 {</li>
+   <li><span style='mso-spacerun:yes'>    </span>public static void
+       main(String[] args) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>int[.] A = new int[
+       [1:10,1:10] ]</li>
+   <li><span style='mso-spacerun:yes'>                   </span>(point [i,j]) {
+       return i+j;} ;</li>
+   <li><span style='mso-spacerun:yes'>       
+       </span>System.out.println(&quot;A.rank = &quot; + A.rank +</li>
+   <li><span style='mso-spacerun:yes'>                           </span>&quot;
+       ; A.region = &quot; + A.region);</li>
+   <li><span style='mso-spacerun:yes'>        </span>int[.] B = A | [1:5,1:5];</li>
+   <li><span style='mso-spacerun:yes'>       
+       </span>System.out.println(&quot;B.max() = &quot; + B.max());</li>
+   <li><span style='mso-spacerun:yes'>    </span>}</li>
+   <li>}</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>70</font></div>
+  </td>
+  <td>
+  <div id=PPTP70 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0070.htm');" id=PPTL70>Initialization of
+  mutable arrays</a></font></div>
+  <div id=PPTC70 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Mutable array with nullable references to mutable’ objects:</li>
+   <br>
+   <br>
+   <li>	 RefType nullable [] farr = new RefType[N];<span
+       style='mso-spacerun:yes'>  </span>// init with null value</li>
+   <br>
+   <br>
+   <li>Mutable array with references to mutable objects:</li>
+   <br>
+   <br>
+   <li>	RefType [] farr = new RefType [N];<span style='mso-spacerun:yes'> 
+       </span>// compile-time error, init required</li>
+   <li></li>
+   <li><span style='mso-spacerun:yes'>  </span>dist d = dist.factory.block(N);</li>
+   <li>	RefType [.] farr = new RefType [d] (point[i]) { return RefType(here,
+       i); }</li>
+   <br>
+   <br>
+   <li>	Execution of initializer is implicitly parallel / distributed<br>
+              (pointwise operation):</li>
+   <br>
+   <br>
+   <br>
+   <li>That hold ‘reference to value objects’ (value object can be inlined)</li>
+   <br>
+   <br>
+   <li>	int [] iarr = new int[N] ;<span style='mso-spacerun:yes'>  </span>//
+       init with default value, 0</li>
+   <li>	int [] iarr = new int[] {1, 2, 3, 4};<span style='mso-spacerun:yes'> 
+       </span>// Java style</li>
+   <li>	int [] iarr = new int[N] (point[i])</li>
+   <li><span style='mso-spacerun:yes'>                     </span>{return i};
+       // explicit init</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>71</font></div>
+  </td>
+  <td>
+  <div id=PPTP71 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0071.htm');" id=PPTL71>Initialization of value
+  arrays</a></font></div>
+  <div id=PPTC71 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Initialization of value arrays requires an initializer.</li>
+   <br>
+   <br>
+   <li>Value array of reference to mutable objects:</li>
+   <li>	RefType value [] farr = new value RefType [N];<span
+       style='mso-spacerun:yes'>  </span><br>
+              <span style='mso-spacerun:yes'>                  </span>//
+       compile-time error, init required</li>
+   <li><span style='mso-spacerun:yes'>  </span>RefType value [] farr = new
+       value RefType [N] (point[i]) <br>
+              <span style='mso-spacerun:yes'>                              
+       </span>{ return new Foo(); }</li>
+   <br>
+   <br>
+   <li>Value array of ‘reference to value objects’ (value object can be
+       inlined)</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>  </span>int value [] iarr = new value
+       int[] {1, 2, 3, 4};<span style='mso-spacerun:yes'>  </span><br>
+              <span style='mso-spacerun:yes'>                               
+       </span>// Java style init</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>  </span>int value [] iarr = new value
+       int[N] (point[i])</li>
+   <li><span style='mso-spacerun:yes'>                                   
+       </span>{ return i };</li>
+   <li><span style='mso-spacerun:yes'>                                   
+       </span>// explicit init</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>72</font></div>
+  </td>
+  <td>
+  <div id=PPTP72 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0072.htm');" id=PPTL72>Tutorial outline</a></font></div>
+  <div id=PPTC72 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>1) X10 in a nutshell</li>
+   <br>
+   <br>
+   <br>
+   <li>2) Sequential X10</li>
+   <ul>
+    <li>Type system</li>
+    <li>Standard library</li>
+    <br>
+    <br>
+   </ul>
+   <li>3) Concurrency in X10</li>
+   <ul>
+    <li>Activities</li>
+    <li>Atomic blocks</li>
+    <li>Clocks, clocked variables</li>
+   </ul>
+   <br>
+   <li>4) X10 arrays</li>
+   <ul>
+    <li>Points</li>
+    <li>Regions</li>
+   </ul>
+   <br>
+   <li>5) Distributed X10</li>
+   <ul>
+    <li>Places</li>
+    <li>Distributions</li>
+    <li>Distributed arrays</li>
+   </ul>
+   <br>
+   <li>6) Further examples</li>
+   <br>
+   <br>
+   <ul>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>73</font></div>
+  </td>
+  <td>
+  <div id=PPTP73 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0073.htm');" id=PPTL73>Distributed X10</a></font></div>
+  <div id=PPTC73 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Places</li>
+   <li>Locality rule</li>
+   <li>Distributions</li>
+   <li>async, futures</li>
+   <li>ateach</li>
+   <li>Distributed arrays</li>
+   <br>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>74</font></div>
+  </td>
+  <td>
+  <div id=PPTP74 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0074.htm');" id=PPTL74>Places in X10</a></font></div>
+  <div id=PPTC74 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>place.MAX_PLACES = total number of places (runtime constant)</li>
+   <li>place.places = value array of all places in an X10</li>
+   <li>place.factory.place(i) =<span style='mso-spacerun:yes'>  </span>place
+       corresponding to index i</li>
+   <li>here = place in which current activity is executing</li>
+   <li>&lt;place-expr&gt;.toString() returns a string of the form
+       “place(id=99)”</li>
+   <li>&lt;place-expr&gt;.id returns the id of the place</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>75</font></div>
+  </td>
+  <td>
+  <div id=PPTP75 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0075.htm');" id=PPTL75>Locality rule</a></font></div>
+  <div id=PPTC75 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Any access to a mutable (shared heap) datum must be</li>
+   <li>performed by an activity located at the place as the</li>
+   <li>datum.</li>
+   <br>
+   <br>
+   <li><font face=Wingdings>à</font><font face=Arial> direct access via a
+       remote heap reference is not permitted.</font></li>
+   <li><font face=Wingdings>à</font><font face=Arial>Inter-place data accesses
+       can only be performed by creating remote activities (with weaker
+       ordering guarantees than intra-place data accesses)</font></li>
+   <li><font face=Wingdings>à</font><font face=Arial>BadPlaceException is
+       thrown if the locality rule is violated.</font></li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>76</font></div>
+  </td>
+  <td>
+  <div id=PPTP76 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0076.htm');" id=PPTL76>async and future with
+  explicit place specifier</a></font></div>
+  <div id=PPTC76 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>async (P) S</li>
+   <li>Creates new activity to execute statement S at place P</li>
+   <li>async S is equivalent to async (here) S</li>
+   <br>
+   <br>
+   <li>future (P) { E }</li>
+   <li>Create new activity to evaluate expression E at place P</li>
+   <li>future { E }<span style='mso-spacerun:yes'>  </span>is equivalent to future
+       (here) { E }</li>
+   <br>
+   <br>
+   <br>
+   <li>Note that here in a child activity for an async/future computation will
+       refer to the place P at which the child activity is executing, not the
+       place where the parent activity is executing</li>
+   <br>
+   <br>
+   <li>Specify the destination place for async/future activities so as to obey
+       the Locality rule e.g.,</li>
+   <br>
+   <br>
+   <ul>
+    <li>async (O.location) O.x = 1;</li>
+    <li>future&lt;int&gt; F = future (A.distribution[i]) { A[i] } ;</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>77</font></div>
+  </td>
+  <td>
+  <div id=PPTP77 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0077.htm');" id=PPTL77>Implicit syntax</a></font></div>
+  <div id=PPTC77 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Use conventional syntax for operations on values of remote type:</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'> </span>x.f = e //write x.f of type T</li>
+   <li><span style='mso-spacerun:yes'>     </span><font face=Wingdings>è</font><font
+       face=Arial> final T v = e;</font></li>
+   <li><span style='mso-spacerun:yes'>          </span>finish async(x.loc) {</li>
+   <li><span style='mso-spacerun:yes'>             </span>x.f=v;</li>
+   <li><span style='mso-spacerun:yes'>          </span>}</li>
+   <br>
+   <br>
+   <li>… = …x.f …//read x.f of type T</li>
+   <li><span style='mso-spacerun:yes'>     </span><font face=Wingdings>è</font><font
+       face=Arial> future&lt;T&gt;(x.loc){x.f}.force()</font></li>
+   <li>Similarly for array reads and writes.</li>
+   <li>Invoke a method synchronously on values of remote type</li>
+   <br>
+   <br>
+   <li>e.m(e1,…,en);</li>
+   <li><span style='mso-spacerun:yes'>    </span><font face=Wingdings>è</font></li>
+   <li><font face="Courier New"><span style='mso-spacerun:yes'>    
+       </span>final T<span style='mso-spacerun:yes'>  </span>v<span
+       style='mso-spacerun:yes'>  </span>= e;</font></li>
+   <li><span style='mso-spacerun:yes'>     </span>final T1 v1 = e1;</li>
+   <li><span style='mso-spacerun:yes'>     </span>…</li>
+   <li><span style='mso-spacerun:yes'>     </span>final Tn vn = en;</li>
+   <li><span style='mso-spacerun:yes'>    </span>finish async (v.loc) {</li>
+   <li><span style='mso-spacerun:yes'>      </span>v.m(v1,…,vn);</li>
+   <li><span style='mso-spacerun:yes'>    </span>}</li>
+   <li>Similarly for methods returning values.</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>78</font></div>
+  </td>
+  <td>
+  <div id=PPTP78 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0078.htm');" id=PPTL78>Inter-place
+  communication using async and future</a></font></div>
+  <div id=PPTC78 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Question: how to assign A[i] = B[j], when A[i] and B[j]</li>
+   <li>may be in different places?</li>
+   <br>
+   <br>
+   <li>Answer #1: Use nested async:</li>
+   <br>
+   <br>
+   <ul>
+    <li>finish async ( B.distribution[j] ) {</li>
+    <li><span style='mso-spacerun:yes'>  </span>final int bb = B[j];</li>
+    <li><span style='mso-spacerun:yes'>  </span>async ( A.distribution[i] )
+        A[i] = bb;</li>
+    <li>}</li>
+   </ul>
+   <br>
+   <li>Answer #2: Use future-force and an async:</li>
+   <br>
+   <br>
+   <ul>
+    <li>final int b = future (B.distribution[j]) <br>
+                <span style='mso-spacerun:yes'>      </span>{ B[j] }.force();</li>
+    <li>finish async ( A.distribution[i] ) A[i] = b;</li>
+   </ul>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>79</font></div>
+  </td>
+  <td>
+  <div id=PPTP79 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0079.htm');" id=PPTL79>ateach (distributed
+  parallel iteration)</a></font></div>
+  <div id=PPTC79 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>ateach (point p:D) S</li>
+   <li>Creates |D| async statements in parallel at place specified by
+       distribution.</li>
+   <br>
+   <br>
+   <br>
+   <li>Termination of all (recursively created) activities with finish.</li>
+   <li>ateach is a convenient construct for writing parallel matrix code that
+       is independent of the underlying distribution, e.g.,</li>
+   <br>
+   <br>
+   <br>
+   <br>
+   <li>SPMD computation:</li>
+   <ul>
+    <br>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>80</font></div>
+  </td>
+  <td>
+  <div id=PPTP80 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0080.htm');" id=PPTL80>Example: ateach
+  (TutAteach1)</a></font></div>
+  <div id=PPTC80 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>public class TutAteach1 {</li>
+   <li><span style='mso-spacerun:yes'>    </span>public static void main(String
+       args[]) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>finish ateach (point p:
+       dist.factory.unique()) {</li>
+   <li><span style='mso-spacerun:yes'>           
+       </span>System.out.println(&quot;Hello from &quot; + here.id);</li>
+   <li><span style='mso-spacerun:yes'>        </span>}</li>
+   <li><span style='mso-spacerun:yes'>    </span>} // main()</li>
+   <li>}</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>81</font></div>
+  </td>
+  <td>
+  <div id=PPTP81 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0081.htm');" id=PPTL81>Distributions in X10</a></font></div>
+  <div id=PPTC81 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>A distribution maps every point in a region to a place.</li>
+   <br>
+   <br>
+   <li>Creating distributions (x10.lang.dist):</li>
+   <ul>
+    <li>dist D1 = dist.factory.constant(R, here); // local distribution – maps
+        region R to here</li>
+    <li>dist D2 = dist.factory.block(R); // blocked distribution</li>
+    <li>dist D3 = dist.factory.cyclic(R); // cyclic distribution</li>
+    <li>dist D4 = dist.factory.unique(); // identity map on [0:MAX_PLACES-1]</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>82</font></div>
+  </td>
+  <td>
+  <div id=PPTP82 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0082.htm');" id=PPTL82>Using distributions</a></font></div>
+  <div id=PPTC82 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>D[P] = place to which point P is mapped by distribution D</li>
+   <li>if<span style='mso-spacerun:yes'>  </span>point p is in D.region</li>
+   <li>otherwise ArrayOutOfBoundException</li>
+   <br>
+   <br>
+   <li>Allocate a distributed array e.g., T[.] A = new T[ D ];</li>
+   <li>Allocates an array with index set = D.region, such that element A[P] is
+       located at place D[P] for each point P in D.region</li>
+   <li>NOTE: “new T[R]” for region R is equivalent to “new T[R-&gt;here]”</li>
+   <br>
+   <br>
+   <li>Iterating over a distribution – generalization of foreach to ateach</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>83</font></div>
+  </td>
+  <td>
+  <div id=PPTP83 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0083.htm');" id=PPTL83>Operations on
+  distributions</a></font></div>
+  <div id=PPTC83 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>D.region ::= source region of distribution</li>
+   <li>D.rank ::= rank of D.region</li>
+   <li>D | R ::= region restriction for distribution D and region R (returns a
+       restricted distribution)</li>
+   <li>D | P ::= place restriction for distribution D and place P (returns
+       region mapped by D to place P)</li>
+   <li>D1 || D2 ::= union of distributions D1 and D2 (assumes that D1.region
+       and D2.region are disjoint)</li>
+   <li>D1.overlay(D2) ::= asymmetric union of D2 over D1</li>
+   <li>D.contains(p) ::= true iff D.region contains point p</li>
+   <li>D1 – D2 ::= distribution difference: D1 | (D1.region – D2.region)</li>
+   <br>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>84</font></div>
+  </td>
+  <td>
+  <div id=PPTP84 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0084.htm');" id=PPTL84>Syntax extensions for
+  distributions</a></font></div>
+  <div id=PPTC84 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Constant distributions</li>
+   <li><span style='mso-spacerun:yes'>  </span>region r = [0:N];</li>
+   <li><span style='mso-spacerun:yes'> </span>dist d = r-&gt;here <br>
+              <span style='mso-spacerun:yes'>   </span><font face=Wingdings>à</font><font
+       face="Courier New"> dist d = dist.factory.constant(r, here);</font></li>
+   <li><span style='mso-spacerun:yes'>  </span>dist d = 1000-&gt;here</li>
+   <li><span style='mso-spacerun:yes'>          </span><font face=Wingdings>à</font><font
+       face=Arial><span style='mso-spacerun:yes'>  </span>dist d =
+       dist.factory.constant([0,1000], here);</font></li>
+   <br>
+   <br>
+   <li>Distributions are implicitly converted to regions</li>
+   <li>for (point [i,j]: d) {...}</li>
+   <li><span style='mso-spacerun:yes'>      </span><font face=Wingdings>à</font><font
+       face="Courier New"> for (point [i,j]: d.region) {...}</font></li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>85</font></div>
+  </td>
+  <td>
+  <div id=PPTP85 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0085.htm');" id=PPTL85>Multidimensional arrays</a></font></div>
+  <div id=PPTC85 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <br>
+   <li><span style='mso-spacerun:yes'>  </span>double[.] darr = new double[[0:N,
+       0:M]-&gt;here];</li>
+   <li><span style='mso-spacerun:yes'>  </span>for (point [i,j]: darr.region)</li>
+   <li><span style='mso-spacerun:yes'>      </span>darr[i,j] = ..;</li>
+   <br>
+   <br>
+   <li>initial values in darr are 0.0</li>
+   <li>Iteration schema</li>
+   <ul>
+    <li>‘lexicographical order’ (standard, fix)</li>
+    <li>[0,0], [0,1], [0,2], ...</li>
+   </ul>
+   <li>Storage layout</li>
+   <ul>
+    <li>row major (fix)</li>
+    <li>spatial access locality with standard iteration schema</li>
+   </ul>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>86</font></div>
+  </td>
+  <td>
+  <div id=PPTP86 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0086.htm');" id=PPTL86>Distributed
+  multidimensional arrays</a></font></div>
+  <div id=PPTC86 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>dist cyclic = dist.factory.cyclic([0:4, 0:6])</li>
+   <li>dist blockcyclic = dist.factory.blockCyclic([0:4, 0:6], 6)</li>
+   <li>double[.] darr = new double[XXX];</li>
+   <li></li>
+   <li></li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>87</font></div>
+  </td>
+  <td>
+  <div id=PPTP87 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0087.htm');" id=PPTL87>Example: RandomAccess
+  (1/2)</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>88</font></div>
+  </td>
+  <td>
+  <div id=PPTP88 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0088.htm');" id=PPTL88>Example: RandomAccess
+  (2/2)</a></font></div>
+  <div id=PPTC88 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>(1)<span style='mso-spacerun:yes'>  </span>Allocate and initialize table
+       as a block-distributed array.</li>
+   <li>(2)<span style='mso-spacerun:yes'>  </span>Allocate and initialize RanStarts
+       with one random number seed for each place.</li>
+   <li>(3)<span style='mso-spacerun:yes'>  </span>Allocate a small immutable
+       table that can be copied to all places.</li>
+   <li>(4)<span style='mso-spacerun:yes'>  </span>Everywhere in parallel,
+       repeatedly generate random table indices and atomically
+       read/modify/write table element.</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>89</font></div>
+  </td>
+  <td>
+  <div id=PPTP89 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0089.htm');" id=PPTL89>JGF Monte Carlo
+  benchmark -- Sequential</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>90</font></div>
+  </td>
+  <td>
+  <div id=PPTP90 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0090.htm');" id=PPTL90>JGF Monte Carlo
+  benchmark -- Parallel</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>91</font></div>
+  </td>
+  <td>
+  <div id=PPTP91 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0091.htm');" id=PPTL91>JGF Monte Carlo
+  benchmark -- Distributed</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>92</font></div>
+  </td>
+  <td>
+  <div id=PPTP92 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0092.htm');" id=PPTL92>Tutorial outline</a></font></div>
+  <div id=PPTC92 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>1) X10 in a nutshell</li>
+   <br>
+   <br>
+   <br>
+   <li>2) Sequential X10</li>
+   <ul>
+    <li>Type system</li>
+    <li>Standard library</li>
+    <br>
+    <br>
+   </ul>
+   <li>3) Concurrency in X10</li>
+   <ul>
+    <li>Activities</li>
+    <li>Atomic blocks</li>
+    <li>Clocks, clocked variables</li>
+   </ul>
+   <br>
+   <li>4) X10 arrays</li>
+   <ul>
+    <li>Points</li>
+    <li>Regions</li>
+   </ul>
+   <br>
+   <li>5) Distributed X10</li>
+   <ul>
+    <li>Places</li>
+    <li>Distributions</li>
+    <li>Distributed arrays</li>
+   </ul>
+   <br>
+   <li>6) Further examples</li>
+   <br>
+   <br>
+   <ul>
+    <br>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>93</font></div>
+  </td>
+  <td>
+  <div id=PPTP93 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0093.htm');" id=PPTL93>Cellular Automata
+  Simulation: Game of Life</a></font></div>
+  <div id=PPTC93 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Acknowledgment:</li>
+   <br>
+   <br>
+   <li>“Barriers”, Chapter 5.5.4, Java Concurrency in</li>
+   <li>Practice, Brian Goetz et al</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>94</font></div>
+  </td>
+  <td>
+  <div id=PPTP94 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0094.htm');" id=PPTL94>Game of Life – Java
+  version (1 of 2)</a></font></div>
+  <div id=PPTC94 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>java.util.concurrent version (Listing 5.15, p102, JCiP)</li>
+   <br>
+   <br>
+   <li>public class CellularAutomata {</li>
+   <li><span style='mso-spacerun:yes'>  </span>private final Board mainBoard;</li>
+   <li><span style='mso-spacerun:yes'>  </span>private final CyclicBarrier
+       barrier;</li>
+   <li><span style='mso-spacerun:yes'>  </span>private final Worker[] workers;</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>  </span>public CellularAutomata(Board
+       board) {</li>
+   <li><span style='mso-spacerun:yes'>    </span>this.mainBoard = board;</li>
+   <li><span style='mso-spacerun:yes'>    </span>int count =
+       Runtime.getRuntime().availableProcessors();</li>
+   <li><span style='mso-spacerun:yes'>    </span>this.barrier = new CyclicBarrier(count,</li>
+   <li><span style='mso-spacerun:yes'>                         </span>new Runnable()
+       { // barrier action</li>
+   <li><span style='mso-spacerun:yes'>                           </span>public
+       void run(){mainBoard.commitNewValues();}});</li>
+   <li><span style='mso-spacerun:yes'>    </span>this.workers = new
+       Worker[count];</li>
+   <li><span style='mso-spacerun:yes'>    </span>for (int i = 0; i &lt; count;
+       i++)</li>
+   <li><span style='mso-spacerun:yes'>      </span>workers[i] = new
+       Worker(mainBoard.getSubBoard(count, i));</li>
+   <li><span style='mso-spacerun:yes'>  </span>} // constructor</li>
+   <li></li>
+   <li><span style='mso-spacerun:yes'>  </span>public void start() {</li>
+   <li><span style='mso-spacerun:yes'>    </span>for (int i = 0; i &lt;
+       workers.length; i++) new Thread(workers[i]).start();</li>
+   <li><span style='mso-spacerun:yes'>    </span>mainBoard.waitForConvergence();</li>
+   <li><span style='mso-spacerun:yes'>  </span>} // start()</li>
+   <li>} // CellularAutomata</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>95</font></div>
+  </td>
+  <td>
+  <div id=PPTP95 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0095.htm');" id=PPTL95>Game of Life – Java
+  version (2 of 2)</a></font></div>
+  <div id=PPTC95 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li><span style='mso-spacerun:yes'>  </span>private class Worker implements Runnable
+       {</li>
+   <li><span style='mso-spacerun:yes'>    </span>private final Board board;</li>
+   <li><span style='mso-spacerun:yes'>    </span>public Worker(Board board) {
+       this.board = board; }</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>    </span>public void run() {</li>
+   <li><span style='mso-spacerun:yes'>      </span>while
+       (!board.hasConverged()) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>for (int x = 0; x &lt;
+       board.getMaxX(); x++)</li>
+   <li><span style='mso-spacerun:yes'>          </span>for (int y = 0; y &lt;
+       board.getMaxY(); y++)</li>
+   <li><span style='mso-spacerun:yes'>            </span>board.setNewValue(x,
+       y, computeValue(x, y));</li>
+   <li><span style='mso-spacerun:yes'>        </span>try { barrier.await(); }</li>
+   <li><span style='mso-spacerun:yes'>        </span>catch
+       (InterruptedException ex) { return; }</li>
+   <li><span style='mso-spacerun:yes'>        </span>catch (BrokenBarrierException
+       ex) { return; }</li>
+   <li><span style='mso-spacerun:yes'>      </span>} // while</li>
+   <li><span style='mso-spacerun:yes'>    </span>} // run()</li>
+   <li></li>
+   <li><span style='mso-spacerun:yes'>    </span>private int computeValue(int
+       x, int y) {</li>
+   <li><span style='mso-spacerun:yes'>      </span>// Compute the new value
+       that goes in (x,y)</li>
+   <li><span style='mso-spacerun:yes'>      </span>. . .</li>
+   <li><span style='mso-spacerun:yes'>    </span>}</li>
+   <li><span style='mso-spacerun:yes'>  </span>} // Worker</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>96</font></div>
+  </td>
+  <td>
+  <div id=PPTP96 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0096.htm');" id=PPTL96>Game of Life – X10
+  version</a></font></div>
+  <div id=PPTC96 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>public class CellularAutomata {</li>
+   <li><span style='mso-spacerun:yes'>  </span>private final Cell[.]
+       mainBoard1, mainBoard2;</li>
+   <li><span style='mso-spacerun:yes'>  </span>public CellularAutomata(Cell[.]
+       board) {</li>
+   <li><span style='mso-spacerun:yes'>    </span>mainBoard1 = board; mainBoard2
+       = null;</li>
+   <li><span style='mso-spacerun:yes'>  </span>} // constructor</li>
+   <li></li>
+   <li><span style='mso-spacerun:yes'>  </span>public void start() {</li>
+   <li><span style='mso-spacerun:yes'>    </span>finish async {</li>
+   <li><span style='mso-spacerun:yes'>      </span>final clock barrier = clock.factory.clock();</li>
+   <li><span style='mso-spacerun:yes'>      </span>ateach ( point[i] :
+       dist.unique() ) clocked(barrier) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>boolean red = true;</li>
+   <li><span style='mso-spacerun:yes'>        </span>while (
+       !subBoardHasConverged(mainBoard1,mainBoard2,red) ) {</li>
+   <li><span style='mso-spacerun:yes'>          </span>for ( point[x,y] :
+       mainBoard1 | here )</li>
+   <li><span style='mso-spacerun:yes'>            </span>if ( red )
+       mainBoard2[x,y] = computeValue(mainBoard1, x, y);</li>
+   <li><span style='mso-spacerun:yes'>            </span>else mainBoard1[x,y] =
+       computeValue(mainBoard2, x, y);</li>
+   <li><span style='mso-spacerun:yes'>          </span>next;</li>
+   <li><span style='mso-spacerun:yes'>          </span>red = ! red;</li>
+   <li><span style='mso-spacerun:yes'>        </span>} // while</li>
+   <li><span style='mso-spacerun:yes'>      </span>} // foreach</li>
+   <li><span style='mso-spacerun:yes'>      </span>if (! red) mainBoard1 =
+       mainBoard2; // answer is now in mainBoard1</li>
+   <li><span style='mso-spacerun:yes'>    </span>} // finish async</li>
+   <li><span style='mso-spacerun:yes'>    </span>// All boards have now
+       converged</li>
+   <li><span style='mso-spacerun:yes'>  </span>} // start()</li>
+   <li>} // CellularAutomata</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>97</font></div>
+  </td>
+  <td>
+  <div id=PPTP97 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0097.htm');" id=PPTL97>Game of Life – X10
+  version</a></font></div>
+  <div id=PPTC97 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>public class CellularAutomata {</li>
+   <li><span style='mso-spacerun:yes'>  </span>private final Cell[.]
+       mainBoard1, mainBoard2;</li>
+   <li><span style='mso-spacerun:yes'>  </span>public CellularAutomata(Cell[.]
+       board) {</li>
+   <li><span style='mso-spacerun:yes'>    </span>mainBoard1 = board; mainBoard2
+       = null;</li>
+   <li><span style='mso-spacerun:yes'>  </span>} // constructor</li>
+   <li></li>
+   <li><span style='mso-spacerun:yes'>  </span>public void start() {</li>
+   <li><span style='mso-spacerun:yes'>    </span>finish async {</li>
+   <li><span style='mso-spacerun:yes'>      </span>final clock barrier = clock.factory.clock();</li>
+   <li><span style='mso-spacerun:yes'>      </span>ateach ( point[i] :
+       dist.unique() ) clocked(barrier) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>boolean red = true;</li>
+   <li><span style='mso-spacerun:yes'>        </span>while (
+       !subBoardHasConverged(mainBoard1,mainBoard2,red) ) {</li>
+   <li><span style='mso-spacerun:yes'>          </span>for ( point[x,y] :
+       mainBoard1 | here )</li>
+   <li><span style='mso-spacerun:yes'>            </span>if ( red )
+       mainBoard2[x,y] = computeValue(mainBoard1, x, y);</li>
+   <li><span style='mso-spacerun:yes'>            </span>else mainBoard1[x,y] =
+       computeValue(mainBoard2, x, y);</li>
+   <li><span style='mso-spacerun:yes'>          </span>next;</li>
+   <li><span style='mso-spacerun:yes'>          </span>red = ! red;</li>
+   <li><span style='mso-spacerun:yes'>        </span>} // while</li>
+   <li><span style='mso-spacerun:yes'>      </span>} // foreach</li>
+   <li><span style='mso-spacerun:yes'>      </span>if (! red) mainBoard1 =
+       mainBoard2; // answer is now in mainBoard1</li>
+   <li><span style='mso-spacerun:yes'>    </span>} // finish async</li>
+   <li><span style='mso-spacerun:yes'>    </span>// All boards have now
+       converged</li>
+   <li><span style='mso-spacerun:yes'>  </span>} // start()</li>
+   <li>} // CellularAutomata</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>98</font></div>
+  </td>
+  <td>
+  <div id=PPTP98 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0098.htm');" id=PPTL98>Memoization</a></font></div>
+  <div id=PPTC98 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <br>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>99</font></div>
+  </td>
+  <td>
+  <div id=PPTP99 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0099.htm');" id=PPTL99>Memoization in Java</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>100</font></div>
+  </td>
+  <td>
+  <div id=PPTP100 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0100.htm');" id=PPTL100>Memoization</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>101</font></div>
+  </td>
+  <td>
+  <div id=PPTP101 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0101.htm');" id=PPTL101>Memoization (with
+  proposed generics)</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>102</font></div>
+  </td>
+  <td>
+  <div id=PPTP102 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0102.htm');" id=PPTL102>Event Handling and
+  Concurrency:<br>
+    GUI Applications as an Exemplar</a></font></div>
+  <div id=PPTC102 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Acknowledgment:</li>
+   <br>
+   <br>
+   <li>“GUI Applications”, Chapter 9, Java Concurrency in Practice, Brian Goetz
+       et al</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>103</font></div>
+  </td>
+  <td>
+  <div id=PPTP103 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0103.htm');" id=PPTL103>Scenario: Thread
+  Hopping in a GUI Application (Java)</a></font></div>
+  <div id=PPTC103 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li><span style='mso-spacerun:yes'>  </span>java.util.concurrent version
+       (Listing 9.5, p196, JCiP)</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'> </span>private void
+       longRunningTaskWithFeedback() {</li>
+   <li><span style='mso-spacerun:yes'>   </span>button.addActionListener(new
+       ActionListener() {</li>
+   <li><span style='mso-spacerun:yes'>     </span>public void
+       actionPerformed(ActionEvent e) {</li>
+   <li><span style='mso-spacerun:yes'>       </span>button.setEnabled(false);
+       label.setText(&quot;busy&quot;); // 1) Dim button</li>
+   <li><span style='mso-spacerun:yes'>       </span>exec.execute( // 2) Submit
+       long-running task for execution</li>
+   <li><span style='mso-spacerun:yes'>         </span>new Runnable() {</li>
+   <li><span style='mso-spacerun:yes'>           </span>public void run() {</li>
+   <li><span style='mso-spacerun:yes'>             </span>try {</li>
+   <li><span style='mso-spacerun:yes'>               </span>/* Do big
+       computation */</li>
+   <li><span style='mso-spacerun:yes'>             </span>} finally {</li>
+   <li>		<span style='mso-spacerun:yes'>       </span>// 3) Submit task to run
+       in GUI even thread executor</li>
+   <li><span style='mso-spacerun:yes'>              
+       </span>GuiExecutor.instance().execute(new Runnable() {</li>
+   <li><span style='mso-spacerun:yes'>                 </span>public void run()
+       {</li>
+   <li><span style='mso-spacerun:yes'>                  
+       </span>button.setEnabled(true); label.setText(&quot;idle&quot;);</li>
+   <li><span style='mso-spacerun:yes'>                 </span>}</li>
+   <li><span style='mso-spacerun:yes'>               </span>});</li>
+   <li><span style='mso-spacerun:yes'>             </span>}</li>
+   <li><span style='mso-spacerun:yes'>           </span>} // run()</li>
+   <li><span style='mso-spacerun:yes'>         </span>});</li>
+   <li><span style='mso-spacerun:yes'>       </span>} // run()</li>
+   <li><span style='mso-spacerun:yes'>     </span>});</li>
+   <li><span style='mso-spacerun:yes'>   </span>}</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>104</font></div>
+  </td>
+  <td>
+  <div id=PPTP104 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0104.htm');" id=PPTL104>Scenario: Thread
+  Hopping in a GUI Application (X10)</a></font></div>
+  <div id=PPTC104 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li><span style='mso-spacerun:yes'> </span>private void
+       longRunningTaskWithFeedback() {</li>
+   <li><span style='mso-spacerun:yes'>   </span>button.setEnabled(false);
+       label.setText(&quot;busy&quot;); // 1) Dim button</li>
+   <li><span style='mso-spacerun:yes'>   </span>async (ExecPlace) {// 2) Create
+       long-running task at ExecPlace</li>
+   <li><span style='mso-spacerun:yes'>      </span>/* Do big computation */</li>
+   <li><span style='mso-spacerun:yes'>      </span>// 3) When done, create task
+       at GuiExecutorPlace</li>
+   <li><span style='mso-spacerun:yes'>      </span>async (GuiExecutorPlace) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>button.setEnabled(true);</li>
+   <li><span style='mso-spacerun:yes'>       
+       </span>label.setText(&quot;idle&quot;);</li>
+   <li><span style='mso-spacerun:yes'>      </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>}</li>
+   <li><span style='mso-spacerun:yes'> </span>}</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>105</font></div>
+  </td>
+  <td>
+  <div id=PPTP105 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0105.htm');" id=PPTL105>Single-threaded vs.
+  Multi-threaded GUI frameworks</a></font></div>
+  <div id=PPTC105 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Java approach -- Single-threaded GUI framework</li>
+   <ul>
+    <li>GUI objects are kept consistent by thread confinement</li>
+    <li>Pro: Programmer does not have to worry about deadlock in GUI thread</li>
+    <li>Cons:</li>
+    <ul>
+     <li>Cannot exploit parallelism to speed up GUI framework</li>
+     <li>Reasoning about data accesses across task boundaries can still be
+         tricky due to nondeterminism of task scheduling</li>
+     <br>
+     <br>
+    </ul>
+   </ul>
+   <li>X10 approach – Single-place Multi-threaded GUI framework a</li>
+   <ul>
+    <li>All GUI tasks are scheduled at GuiExecutorPlace -- GUI objects are
+        accessed only by activities in GuiExecutorPlace</li>
+    <li>Pro: Can easily exploit parallelism within GuiExecutorPlace</li>
+    <li>Con: atomic blocks necessary to ensure mutual exclusion among tasks
+        (but making atomicity explicit should also make the code more
+        maintainable?)</li>
+    <li>See next slide on how to address overhead of atomic blocks in a
+        Single-place Multi-threaded GUI framework</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>106</font></div>
+  </td>
+  <td>
+  <div id=PPTP106 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0106.htm');" id=PPTL106>Performance
+  Implications (Discussion)</a></font></div>
+  <div id=PPTC106 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Use of atomic blocks can introduce additional overhead in X10
+       implementation, compared to single-threaded Java version</li>
+   <ul>
+    <li>For multi-core architectures, this additional overhead should be more
+        than compensated for by performance improvements due to concurrency …</li>
+    <br>
+    <br>
+   </ul>
+   <li>… but if there is a real need for improving the performance of
+       GuiExecutorPlace for execution on a single thread …</li>
+   <ul>
+    <li>Restrict GuiExecutorPlace to be a local nonblocking place</li>
+    <ul>
+     <li>only local nonblocking activities are permitted to run at such a place</li>
+    </ul>
+    <li>nonblocking <font face=Wingdings>è</font><font face=Arial> no static
+        occurrence of when, force(), next() permitted (but finish is permitted)</font></li>
+    <li>local <font face=Wingdings>è</font><font face=Arial> all data accessed
+        is statically guaranteed to be place-local</font></li>
+    <li>X10 runtime can use a single active worker thread for GuiExecutorPlace
+        and guarantee absence of interleaving among tasks at GuiExecutorPlace</li>
+    <li>	<font face=Wingdings>è</font><font face=Arial> atomic-enter and
+        atomic-exit can then be replaced by no-ops</font></li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>107</font></div>
+  </td>
+  <td>
+  <div id=PPTP107 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0107.htm');" id=PPTL107>Distributed Containers</a></font></div>
+  <div id=PPTC107 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>DistributedHashMap</li>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <li>Adaptation of ConcurrentHashMap</li>
+   <li>by Doug Lea for X10.</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>108</font></div>
+  </td>
+  <td>
+  <div id=PPTP108 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0108.htm');" id=PPTL108>DistributedHashMap</a></font></div>
+  <div id=PPTC108 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Keys</li>
+   <ul>
+    <li>immutable objects (instances of value classes)</li>
+    <li>hashing of entries according to keys across places</li>
+   </ul>
+   <li>Values</li>
+   <ul>
+    <li>references to mutable objects</li>
+    <br>
+    <br>
+   </ul>
+   <br>
+   <li>Design goals</li>
+   <ul>
+    <li>Distribution of Key-Value pairs</li>
+    <li>Thread-safety</li>
+    <li>Operations are linearizable</li>
+    <li>Internal concurrency for optimization</li>
+   </ul>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>109</font></div>
+  </td>
+  <td>
+  <div id=PPTP109 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0109.htm');" id=PPTL109>DistributedHashMap -
+  design</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>110</font></div>
+  </td>
+  <td>
+  <div id=PPTP110 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0110.htm');" id=PPTL110>DistributedHashMap -
+  data structures</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>111</font></div>
+  </td>
+  <td>
+  <div id=PPTP111 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0111.htm');" id=PPTL111>DistributedHashMap -
+  operations</a></font></div>
+  <div id=PPTC111 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Selected operations</li>
+   <br>
+   <br>
+   <li>boolean containsValue(final value key)</li>
+   <ul>
+    <li>must not suffer from aba problem</li>
+    <li>optimization: internal concurrency across places</li>
+    <li>reader concurrency</li>
+    <br>
+    <br>
+   </ul>
+   <li>nullable&lt;Object&gt; put(final value key,</li>
+   <li><span style='mso-spacerun:yes'>                       </span>final
+       Object value)</li>
+   <ul>
+    <li>concurrent across places, sequential in each place</li>
+    <br>
+    <br>
+   </ul>
+   <li>nullable&lt;Object&gt; get(final value key)</li>
+   <ul>
+    <li>concurrent intra and inter-place read access</li>
+    <br>
+    <br>
+   </ul>
+   <li>others that we do not discuss here</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>112</font></div>
+  </td>
+  <td>
+  <div id=PPTP112 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0112.htm');" id=PPTL112>DistributedHashMap –
+  aba problem</a></font></div>
+  <div id=PPTC112 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Linearizability requires that ABA problem cannot occur:</li>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+   <li>ABA problem: thread 2 must not observe r == false;<br>
+              (could happen if k1, k2 target different segments and operations
+       in both thread occur concurrently)</li>
+   <br>
+   <br>
+   <li>Problem can occur whenever Hashtable is traversed<br>
+              (operations isEmpty, size, containsValue)</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'> </span>Prevention of ABA complicates
+       implementation significantly</li>
+   <li><span style='mso-spacerun:yes'> </span>Modification counters</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>113</font></div>
+  </td>
+  <td>
+  <div id=PPTP113 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0113.htm');" id=PPTL113>DistributedHashMap –
+  get</a></font></div>
+  <div id=PPTC113 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>nullable&lt;Object&gt; get(final Object key) {</li>
+   <li><span style='mso-spacerun:yes'>   </span>final int hash = hash(key); //
+       throws NullPointerException if key null</li>
+   <li><span style='mso-spacerun:yes'>   </span>final Segment segmentfor =
+       segmentFor(hash);</li>
+   <li><span style='mso-spacerun:yes'>   </span>return segmentfor.get(key,
+       hash);</li>
+   <li>}</li>
+   <br>
+   <br>
+   <br>
+   <br>
+   <li>nullable&lt;Object&gt; get(final Object key, final int hash) {</li>
+   <li><span style='mso-spacerun:yes'>    </span>atomic if (count==0) return</li>
+   <li><span style='mso-spacerun:yes'>    </span>int hashIndex = indexFor(hash,
+       index);</li>
+   <li><span style='mso-spacerun:yes'>    </span>nullable&lt;Entry&gt; first =
+       table[hashIndex];</li>
+   <li><span style='mso-spacerun:yes'>    </span>nullable&lt;Entry&gt; e =
+       first;</li>
+   <li><span style='mso-spacerun:yes'>    </span>for (e = first; e !=null; e
+       =e.next)</li>
+   <li><span style='mso-spacerun:yes'>        </span>if (e.hash == hash
+       &amp;&amp; e.key == key) {</li>
+   <li><span style='mso-spacerun:yes'>           </span>Object value = e.value;</li>
+   <li><span style='mso-spacerun:yes'>           </span>if (value !=null)
+       return value;</li>
+   <li><span style='mso-spacerun:yes'>           </span>break;</li>
+   <li><span style='mso-spacerun:yes'>        </span>}</li>
+   <li><span style='mso-spacerun:yes'>    </span>// Recheck under synch if key
+       apparently not there or interference</li>
+   <li><span style='mso-spacerun:yes'>    </span>Segment seg = segments[hash
+       &amp; SEGMENT_MASK];</li>
+   <li><span style='mso-spacerun:yes'>    </span>sem.p();</li>
+   <li><span style='mso-spacerun:yes'>    </span>try{</li>
+   <li><span style='mso-spacerun:yes'>      </span>Entry newFirst =
+       table[index];</li>
+   <li><span style='mso-spacerun:yes'>      </span>if (e != null || first !=
+       newFirst) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>for (e = newFirst; e !=
+       null; e = e.next) {</li>
+   <li><span style='mso-spacerun:yes'>          </span>if (e.hash == hash
+       &amp;&amp; eq(key, e.key))</li>
+   <li><span style='mso-spacerun:yes'>            </span>return e.value;</li>
+   <li><span style='mso-spacerun:yes'>        </span>}</li>
+   <li><span style='mso-spacerun:yes'>      </span>}</li>
+   <li><span style='mso-spacerun:yes'>      </span>return null;</li>
+   <li><span style='mso-spacerun:yes'>    </span>} finally { sem.v();}</li>
+   <li>}</li>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>114</font></div>
+  </td>
+  <td>
+  <div id=PPTP114 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0114.htm');" id=PPTL114>DistributedHashMap –
+  put</a></font></div>
+  <div id=PPTC114 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>nullable&lt;Object&gt; put(final Object key, final Object value) {</li>
+   <li><span style='mso-spacerun:yes'>   </span>int hash = hash(key);</li>
+   <li><span style='mso-spacerun:yes'>   </span>Segment segmentfor =
+       segmentFor(hash);</li>
+   <li><span style='mso-spacerun:yes'>   </span>return segmentfor.put(key,
+       hash, value);</li>
+   <li>}</li>
+   <br>
+   <br>
+   <br>
+   <li>nullable&lt;Object&gt; put(final Object key, final int hash, final
+       Object value) {</li>
+   <li><span style='mso-spacerun:yes'>   </span>nullable&lt;Object&gt; oldval =
+       null;</li>
+   <li><span style='mso-spacerun:yes'>   </span>sem.p();</li>
+   <li><span style='mso-spacerun:yes'>   </span>try {</li>
+   <li><span style='mso-spacerun:yes'>     </span>nullable&lt;Entry&gt; first =
+       table[indexFor(hash,index)];</li>
+   <li><span style='mso-spacerun:yes'>     </span>nullable&lt;Entry&gt; e =
+       first;</li>
+   <li><span style='mso-spacerun:yes'>     </span>while (e != null) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>if (e.hash == hash
+       &amp;&amp; key == e.key)</li>
+   <li><span style='mso-spacerun:yes'>           </span>break;</li>
+   <li><span style='mso-spacerun:yes'>        </span>e = e.next;</li>
+   <li><span style='mso-spacerun:yes'>     </span>}</li>
+   <li></li>
+   <li><span style='mso-spacerun:yes'>     </span>if (e != null) {</li>
+   <li><span style='mso-spacerun:yes'>        </span>oldval = e.value;</li>
+   <li><span style='mso-spacerun:yes'>        </span>atomic { e.value = value;
+       }</li>
+   <li><span style='mso-spacerun:yes'>     </span>} else {</li>
+   <li><span style='mso-spacerun:yes'>        </span>modCount ++;</li>
+   <li><span style='mso-spacerun:yes'>        </span>table[index] = new
+       Entry(key, hash, value, first);</li>
+   <li><span style='mso-spacerun:yes'>        </span>atomic { count ++; }</li>
+   <li><span style='mso-spacerun:yes'>     </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>} finally { sem.v(); }</li>
+   <li><span style='mso-spacerun:yes'>   </span>return oldval;</li>
+   <li>}</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>115</font></div>
+  </td>
+  <td>
+  <div id=PPTP115 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0115.htm');" id=PPTL115>DistributedHashMap –
+  containsValue (1/2)</a></font></div>
+  <div id=PPTC115 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>boolean containsValue(final Object value) {</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>   </span>final int[.] mc = new
+       int[segments.distribution];</li>
+   <li><span style='mso-spacerun:yes'>   </span>final boolean[.] vals = new
+       boolean[segments.distribution];</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>   </span>// try without locking</li>
+   <li><span style='mso-spacerun:yes'>   </span>finish ateach (point
+       p:segments) {</li>
+   <li><span style='mso-spacerun:yes'>      </span>atomic {</li>
+   <li><span style='mso-spacerun:yes'>          </span>mc[p] = segments[p].modCount;</li>
+   <li><span style='mso-spacerun:yes'>          </span>vals[p] =
+       segments[p].containsValue(value);</li>
+   <li><span style='mso-spacerun:yes'>      </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>if (vals.or())</li>
+   <li><span style='mso-spacerun:yes'>      </span>return true;</li>
+   <li><span style='mso-spacerun:yes'>   </span>finish ateach (point
+       p:segments) {</li>
+   <li><span style='mso-spacerun:yes'>      </span>mc[p] -= segments[p].modCount;</li>
+   <li><span style='mso-spacerun:yes'>   </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>if (mc.sum() == 0)</li>
+   <li><span style='mso-spacerun:yes'>      </span>return false;</li>
+   <li></li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>   </span>// resort to locking all
+       segments ....</li>
+   <li><span style='mso-spacerun:yes'>   </span>for (point p:segments)</li>
+   <li><span style='mso-spacerun:yes'>       </span>finish async
+       (segments.distribution[p]) { segments[p].sem.p(); }</li>
+   <li></li>
+   <li><span style='mso-spacerun:yes'>   </span>finish ateach (point
+       p:segments) {</li>
+   <li><span style='mso-spacerun:yes'>      </span>vals[p] =
+       segments[p].containsValue(value);</li>
+   <li><span style='mso-spacerun:yes'>      </span>segments[p].sem.v();</li>
+   <li><span style='mso-spacerun:yes'>   </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>return vals.or();</li>
+   <li>}</li>
+   <li></li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>116</font></div>
+  </td>
+  <td>
+  <div id=PPTP116 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0116.htm');" id=PPTL116>DistributedHashMap –
+  containsValue (1/2)</a></font></div>
+  <div id=PPTC116 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>boolean containsValue(final Object value) {</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>   </span>final int[.] mc = new
+       int[segments.distribution];</li>
+   <li><span style='mso-spacerun:yes'>   </span>final boolean[.] vals = new
+       boolean[segments.distribution];</li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>   </span>// try without locking</li>
+   <li><span style='mso-spacerun:yes'>   </span>finish ateach (point
+       p:segments) {</li>
+   <li><span style='mso-spacerun:yes'>      </span>atomic {</li>
+   <li><span style='mso-spacerun:yes'>          </span>mc[p] = segments[p].modCount;</li>
+   <li><span style='mso-spacerun:yes'>          </span>vals[p] =
+       segments[p].containsValue(value);</li>
+   <li><span style='mso-spacerun:yes'>      </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>if (vals.or())</li>
+   <li><span style='mso-spacerun:yes'>      </span>return true;</li>
+   <li><span style='mso-spacerun:yes'>   </span>finish ateach (point
+       p:segments) {</li>
+   <li><span style='mso-spacerun:yes'>      </span>mc[p] -= segments[p].modCount;</li>
+   <li><span style='mso-spacerun:yes'>   </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>if (mc.sum() == 0)</li>
+   <li><span style='mso-spacerun:yes'>      </span>return false;</li>
+   <li></li>
+   <br>
+   <br>
+   <li><span style='mso-spacerun:yes'>   </span>// resort to locking all
+       segments ....</li>
+   <li><span style='mso-spacerun:yes'>   </span>for (point p:segments)</li>
+   <li><span style='mso-spacerun:yes'>       </span>finish async
+       (segments.distribution[p]) { segments[p].sem.p(); }</li>
+   <li></li>
+   <li><span style='mso-spacerun:yes'>   </span>finish ateach (point
+       p:segments) {</li>
+   <li><span style='mso-spacerun:yes'>      </span>vals[p] =
+       segments[p].containsValue(value);</li>
+   <li><span style='mso-spacerun:yes'>      </span>segments[p].sem.v();</li>
+   <li><span style='mso-spacerun:yes'>   </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>return vals.or();</li>
+   <li>}</li>
+   <li></li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>117</font></div>
+  </td>
+  <td>
+  <div id=PPTP117 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0117.htm');" id=PPTL117>DistributedHashMap –
+  containsValue (2/2)</a></font></div>
+  <div id=PPTC117 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>boolean containsValue(final Object value) {</li>
+   <li><span style='mso-spacerun:yes'>   </span>atomic if (count == 0) return;</li>
+   <li><span style='mso-spacerun:yes'>   </span>for (point [p]: table) {</li>
+   <li><span style='mso-spacerun:yes'>      </span>nullable&lt;Entry&gt; e =
+       table[p];</li>
+   <li><span style='mso-spacerun:yes'>      </span>while (e != null) {</li>
+   <li><span style='mso-spacerun:yes'>         </span>if
+       (e.value.equals(value))</li>
+   <li><span style='mso-spacerun:yes'>            </span>return true;</li>
+   <li><span style='mso-spacerun:yes'>         </span>e = e.next;</li>
+   <li><span style='mso-spacerun:yes'>      </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>}</li>
+   <li><span style='mso-spacerun:yes'>   </span>return false;</li>
+   <li>}</li>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>118</font></div>
+  </td>
+  <td>
+  <div id=PPTP118 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0118.htm');" id=PPTL118>Examples of Array
+  Kernels</a></font></div>
+  <div id=PPTC118 class=CTxt style='display:none'><font size=2>
+  <ul>
+   <li>Jacobi</li>
+   <li>Edminston</li>
+   <li>NAS CG</li>
+   <br>
+   <br>
+   <br>
+  </ul>
+  </font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>119</font></div>
+  </td>
+  <td>
+  <div id=PPTP119 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0119.htm');" id=PPTL119>Jacobi 1d</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>120</font></div>
+  </td>
+  <td>
+  <div id=PPTP120 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0120.htm');" id=PPTL120>Edmiston</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>121</font></div>
+  </td>
+  <td>
+  <div id=PPTP121 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0121.htm');" id=PPTL121>Edmiston -
+  Parallelization</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>122</font></div>
+  </td>
+  <td>
+  <div id=PPTP122 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0122.htm');" id=PPTL122>Edmiston</a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>123</font></div>
+  </td>
+  <td>
+  <div id=PPTP123 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0123.htm');" id=PPTL123><span
+  style='mso-spacerun:yes'> </span></a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>124</font></div>
+  </td>
+  <td>
+  <div id=PPTP124 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0124.htm');" id=PPTL124><span
+  style='mso-spacerun:yes'> </span></a></font></div>
+  </td>
+ </tr>
+ <tr onmouseover="Over(this)" onmouseout="Out(this)" onclick="Follow(this)"
+  style='cursor:hand'>
+  <td align=right valign=top>
+  <div class=sldNum><font size=2>125</font></div>
+  </td>
+  <td>
+  <div id=PPTP125 class=PTxt><font size=2><a
+  href="javascript:GoToSld('slide0125.htm');" id=PPTL125><span
+  style='mso-spacerun:yes'> </span></a></font></div>
+  </td>
+ </tr>
+</table>
+
+
+
+</div>
+</body>
+
+</html>
