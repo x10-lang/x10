@@ -198,7 +198,7 @@ public class ExprFlattener extends ContextVisitor  {
 		n.visit(v);
 		return v.needsFlattening();
 	}
-	public NodeVisitor enter(Node p, Node n) {
+	public NodeVisitor enterCall(Node p, Node n) {
 		if (p instanceof For) return done;
 		return this;
 	}
