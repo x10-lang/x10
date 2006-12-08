@@ -318,7 +318,7 @@ We have been porting benchmarks to X10 (literal translation to X10 or implementa
 <td width="610"><p>
 <ul>
 <li>
-MG (for expressiveness study): tar file and <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
+MG (an X10 implementation for expressiveness study): tar file and <img src="http://www.ibm.com/i/v14/icons/pdf.gif" alt="" align="middle" border="0" height="16" width="16">
 <a href="applications/docs/NPBMGX10.pdf">report</a>
 </li>
 </ul>
@@ -341,16 +341,17 @@ MG (for expressiveness study): tar file and <img src="http://www.ibm.com/i/v14/i
 <td width="610"><p>
 <ul>
 <li>
-HPL
+HPL (a port of Java Grande Forum Benchmark Thread Version 1.0)
 </li>
 <li>
-STREAM
+STREAM (a port of John D. McCalpin's code)
 </li>
 <li>
-PTRANS
+PTRANS (an X10 code doing parallel matrix transpose)
 </li>
-<li>RandomAccess</li>
-<li>FFT (a hybrid of X10 and C code) </li>
+<li>RandomAccess (a port of the code from DARPAR HPCS program)
+</li>
+<li>FFT (a hybrid of X10 and C code calling FFTW) </li>
 </ul>
 </p></td>
 </tr>
