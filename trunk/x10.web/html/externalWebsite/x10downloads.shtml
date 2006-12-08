@@ -216,7 +216,7 @@ To build the command line version, cd into each top level directory and type "an
 <br>
 <br>
 X10DT is available as a zip file found within the X10 distribution package.  Unpack this file on top of your existing Eclipse installation directory.  Alternatively, it can be installed directly from within Eclipse itself 
-(the preferred method) from the <a href="http://x10.watson.ibm.com/eclipseUpdates/X10DT/">X10DT Eclipse Update Site</a>.
+(the preferred method) from the <a href="http://x10web.watson.ibm.com/eclipseUpdates/X10DT/">X10DT Eclipse Update Site</a>.
 
 <br>
 <br>
