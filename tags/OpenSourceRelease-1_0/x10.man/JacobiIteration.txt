@@ -1,0 +1,77 @@
+'''Jacobi Iteration over a generic field'''
+
+This program shows several new proposed features of X10
+* syntax for literals at a type
+* syntax for creating an array by putting together sections of other arrays 
+* syntax for clocked final variables, and for setting their value for the next clock phase.
+* syntax for promoting a constant (0'T) to a constant array of a given distribution
+* syntax for array initializer (temp) that takes a parametrized block, see XtenArrays in wiki
+* syntax for a reduce operation on a distribution op D<< arr, where arr is a T array defined over distribution D, and op is a binary assoc/comm operator over T
+
+This program assumes that the user will supply the distribution. No assumptions are made about the distribution. For instance, the distribution may allocate each item of the array to a different place.
+
+This example, and others like this, point out that we are setting up as X10 as a language in which fine-grained parallelism is made explicit, and the (static, dynamic) compiler will have the task of combining this into large enough chunks so that the processors at each nodes can be used efficiently.
+
+
+ /** 
+  Jacobi iteration in X10 (cf Jacobi program in ZPL).
+
+  Start with an array a[1..N,1..N] of some arithmetic type.
+  Extend with 0 boundary elements on all sides of the square array.
+  At each step of the iteration, replace the value of a cell with the average of its adjacent
+  cells in the (i,j) dimensions. 
+  Compute the error at each iteration as the max of the changes in value across the whole array.
+  Continue the iteration until the error falls below a pre-given bound.
+
+  Assume that Field defines 0, 1, +, / and a max operation.
+
+   @author vj 7/4/2004
+ */
+
+ public 
+    class Jacobi<T implements Field, D[1..N,1..N]> {
+		 final T epsilon;
+		 final T four = 1'T + 1'T + 1'T + 1'T;
+		 public 
+		     Jacobi(T eps) {
+		     this.epsilon = eps;
+		 }
+
+		 void
+		     T[D] jacobi(final T[D] a) {
+		     clock l = new clock();
+
+               //  assemble the array b by piecing together sections of a and the zero array. 
+		     clocked(l) final D[0..N+1,0..N+1] b 
+		 		 = (D[0,1..N]0'T
+		 		    || D[N+1,1..N]0'T
+                                    || D[1..N,0] 0'T 
+                                    || D[1..N,N+1] 0'T 
+                                    || D[1..N,1..N]a);
+		     // automatically the initialization of any clocked(c) array takes place in now(c).
+
+		     do {
+		       next l;
+		       final _ temp 
+		 	= new T[D[1..N,1..N]] (i,j) {
+		 	   now (l) {
+		 		return
+		 		 async {b[i+1,j]}
+		 		 + async {b[i-1,j]}
+		 		 + async {b[i,j-1]} 
+		 		 + async {b[i,j+1]} /four;
+		 		 }
+		 	}
+		 	next l;
+
+		 	// Use a reduce operation over the given distribution to compute error.
+		 	T err = max D[1..N,1..N]<< (b - temp);
+
+		 	// Set up the value of the clocked final variable b for the next phase of the clock
+		 	next(l) b = temp;
+		     } while (err >= delta);
+		     return a;
+		 }
+
+    }
+

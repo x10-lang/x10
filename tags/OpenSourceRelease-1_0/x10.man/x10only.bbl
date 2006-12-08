@@ -1,0 +1,35 @@
+\begin{thebibliography}{1}
+
+\bibitem{kava}
+David Bacon.
+\newblock {Kava}: A {J}ava dialect with a uniform object model for lightweight
+  classes.
+\newblock {\em Concurrency -- Practice and Experience}, 15:185--206, 2003.
+
+\bibitem{pgas}
+William Carlson, Tarek El-Ghazawi, Bob Numrich, and Kathy Yellick.
+\newblock {P}rogramming in the {P}artitioned {G}lobal {A}ddress {S}pace
+  {M}odel, 2003.
+\newblock Presentation at SC 2003, http://www.gwu.edu/{~}upc/tutorials.html.
+
+\bibitem{zpl}
+Bradford~L.{} Chamberlain, Sung-Eun Choi, Steven~J. Deitz, and Lawrence Snyder.
+\newblock The high-level parallel language {ZPL} improves productivity and
+  performance.
+\newblock In {\em Proceedings of the IEEE International Workshop on
+  Productivity and Performance in High-End Computing}, 2004.
+
+\bibitem{SaraswatPODC88}
+Vijay Saraswat, Kenneth Kahn, Udi Shapiro, and David Weinbaum.
+\newblock Detecting stable properties of networks in concurrent logic
+  programming languages.
+\newblock In {\em Seventh Annual ACM Symposium on Principles of Distributed
+  Computing}, pages 210--222, 1988.
+
+\bibitem{mpi}
+Anthony Skjellum, Ewing Lusk, and William Gropp.
+\newblock {\em {U}sing {MPI}: {P}ortable {P}arallel {P}rogramming with the
+  {M}essage {P}assing {I}interface}.
+\newblock MIT Press, 1999.
+
+\end{thebibliography}

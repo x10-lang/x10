@@ -1,0 +1,73 @@
+\chapter{Places}
+\label{XtenPlaces}\index{places}
+
+An \Xten{} place is a repository for data and activities. Each place is to
+be thought of as a locality boundary: the activities running in a
+place may access data items located at that place with the efficiency
+of on-chip access. Accesses to remote places may take orders of
+magnitude longer.
+
+In \XtenCurrVer{}, the set of places available to a computation is
+determined at the time that the program is run and remains fixed
+through the run of the program. The number of places available to a
+computation may be determined by querying a run-time int constant
+({\cf place.MAX\_PLACES}).
+
+All scalar objects created during program execution are located in one
+place, though they may be accessed from other places. Aggregate
+objects (arrays) may be distributed across multiple places using
+distributions.
+
+The set of all places in a running instance of an \Xten{} program is
+denoted by {\cf place.places}. (This set may be used to define
+distributions, for instance, \S~\ref{XtenDistributions}.)
+
+\todo{{}\Xten{} provides a built-in value class, {\tt x10.lang.place}; all
+places are instances of this class.  This class is {\tt final} in
+{}\XtenCurrVer; future versions of the language may permit
+user-definable places.  Since places play a dual role (values
+as well as types), variables of type {\cf place} must be initialized
+and are implicitly {\tt final}.}
+
+\todo{Introduce {\cf placeSet}? Alternative is to define distributions.places as a built-in unique distribution and use distributions wherever sets of places are expected.}
+
+The set of all places is totally ordered. Places may be used as keys
+in hash-tables. Like a value object, a place is ``unlocated''.
+
+\Xten{} permits user-definable place constants (= final variables =
+variables that must be assigned before use, and can be assigned only
+once). Place constants may be used in type expressions after the {\cf @}
+sign. For instance, consider the following class definition:
+
+\begin{x10}
+ public class Cell<BaseType@P> \{
+  BaseType@P value;
+
+  public Cell(BaseType@P value) \{  
+     this.value := value;
+  \}
+
+  public BaseType@P getValue() \{
+     return this.value;
+  \}
+
+  public void setValue(BaseType@P value) \{
+     this.value := value;
+  \}
+ \}
+\end{x10}
+
+This class may be used thus:
+
+\begin{x10}
+Cell<Point@Q> cell = 
+   new Cell<Point@Q>(new Point@Q());
+\end{x10}
+
+{\cf Cell} is a generic class whose single located type parameter
+specifies type and location information. At runtime, {\cf BaseType}
+will be replaced by an unlocated type (e.g.{} a class or an interface)
+and {\cf P} will be replaced by a place constant (e.g. {\cf
+here}). {\cf P} may be used in the body of {\cf Cell} anywhere a place
+expression may be used. See \S~\ref{XtenTypes}.
+

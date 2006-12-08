@@ -1,0 +1,29 @@
+HOWTO: Create and add webpages at delhi.watson.ibm.com
+------------------------------------------------------
+
+The webpages on delhi are managed in a CVS repository.  To add or
+modify pages, checkout the repository,  do modification and commit it
+back to the CVS server.
+
+A cronjob (in the root account on delhi) will make sure that  the
+actual pages shown by httpd correspond to the latest  version in CVS.
+
+Settings to access CVS:
+
+  CVSROOT=:ext:<your-login>@quillback.cs.purdue.edu:/home/ibmcvs
+  CVS_RSH=ssh
+  CVSUMASK=770
+
+Procedure:
+
+  cvs checkout x10web
+
+  <The files seen in the root of the web-server (http://delhi/
+   are in the directory x10web/html. Do modifications and/or 
+   add files.>
+
+  cvs commit
+
+  <At most 1h later, cron will have updated 
+   the contents at http://delhi.watson.ibm.com.>
+

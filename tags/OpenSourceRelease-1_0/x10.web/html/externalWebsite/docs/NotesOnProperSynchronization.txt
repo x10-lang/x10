@@ -1,0 +1,133 @@
+What are correctly synchronized X10 programs?
+---------------------------------------------
+
+An X10 program is correctly synchronized, if all SC executions are
+data race free. Data race free means that accesses that are
+potentially conflicting (same location, w-w, r-w), must  be ordered in
+the happens-before relation (HB). Executions of properly synchronized 
+programs are sequentially consistent.
+
+The HB relation is defined on a program execution for  actions i and j
+as i -hb-> j if
+
+   (a) i and j occur in the same thread and are ordered in program
+       order (PO)
+
+   (b) i and j occur in different threads but are ordered by the
+       synchronization order (SO)
+
+   (c) if there is an action k such that i -hb-> k -hb-> j
+       (transitivity) 
+
+In the execution of a data race free program, a read of location l
+returns the value of the closest preceding write or the
+initialization of l in the HB relation. This init or write action is
+always uniquely defined.
+
+These rules correspond to the rules for correctly synchronized Java
+programs [2], except that the definition of the synchronization order
+(SO) is different in X10. Whenever we refer in the following to read
+or write, we mean read or write of shared mutable data.
+
+
+Synchronization events and their ordering semantics
+---------------------------------------------------
+
+To define SO, we define first synchronization events in X10. There are
+four categories of synchronization events:
+
+   (i) start of atomic block (tx_start), end of atomic block (tx_end)
+
+  (ii) spawn of an activity (a_spawn, a_start), end of an activity
+       (a_end) 
+
+ (iii) spawn of a future (f_spawn, f_start) and force of future
+       (f_end, f_force)
+
+  (iv) clock resume/drop (c_reach) and next (c_cross)
+
+   (v) end of finish block (finish)
+
+Events are ordered by SO follows:
+
+   (i) tx_end -so-> tx_start  The start of a transaction t that reads
+       or writes location l is ordered by SO with the end of a
+       transaction u that previously (in the serialization order of
+       transactions) wrote l or the initialization of l. Conditional
+       atomic blocks are handled in an execution like a sequence of k
+       unconditional transactions (the first k-1 transactions to check
+       the condition without success, the k-th transaction with
+       successful condition check and execution).
+
+  (ii) The spawn point of an activity precedes the start of the
+       activity in the SO order. (If spawn and start occur in the same
+       thread due to activity inlining, SO coincides with PO.)
+                               
+ (iii) The spawn of a future (f_spawn) precedes the start of the
+       activity that evaluates the future (f_start) in the SO
+       order. The end of  of the activity that evaluates a future
+       (f_end) precedes the invocation of force operation on the
+       future (f_force) in SO. 
+
+  (iv) A c_reach event on clock c in phase p follows in SO all c_cross
+       events that transit the clock to phase p.  
+       A c_reach event on clock c in phase p precedes in SO all
+       c_cross events that transit the clock to phase p+1.
+       
+   (v) The end of a finish block follows in SO all f_end and a_end
+       events of activities and futures that are spawned in the
+       dynamic execution scope of the finish block.
+
+
+
+Note on the ordering semantics of atomic blocks
+-----------------------------------------------
+
+According to (i), matching tx_end and tx_start events are ordered
+within SO, and hence within HB. We refer to this semantics as
+*ordered atomic blocks*. The following semantics are implied by (i),
+but we state them explicitly for clarity.
+
+ (i-a) Memory access a preceding in program order an atomic block that
+       updates shared memory is ordered with respect to the block. 
+       (atomic block can have acquire semantics)
+
+ (i-b) Memory access a that follows in program order an atomic block
+       that reads shared memory is ordered with respect to the block.
+       (atomic block can have release semantics)
+
+ (i-c) Atomic blocks executed by the same activity are ordered in HB
+       (due to PO).
+
+
+Note on strong vs. weak atomicity of atomic blocks
+--------------------------------------------------
+
+A program where conflicting transactional and non-transactional access
+to the same location can occur concurrently is not correctly
+synchronized. This note is only concerned with the memory semantics of
+correctly synchronized programs.
+
+
+What was left out
+-----------------
+
+This note is concerned with the definition of the properly
+synchronized X10 programs. Executions of properly synchronized
+programs are sequentially consistent. The memory consistency model  of
+X10 programs that are not properly synchronized is described elsewhere
+[1].  To shorten this note, initialization and access of immutable
+data (final fields or value types) was omitted from the discussion.
+X10 does currently not support the concept of volatile variables known
+from Java or C++.
+
+
+References
+----------
+
+[1] Vijay Saraswat, Radha Jagadeesan, Maged Michael, and Ch., von
+    Praun: A Theory of Memory Models.  ACM Symposium on Principles and
+    Practice of Parallel Programming, 2007.
+
+[2] Jeremy Manson, William Pugh, Sarita Adve. The Java Memory Model.
+    ACM Symposium on Principles of Programming Languages, 2005.

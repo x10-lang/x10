@@ -1,0 +1,752 @@
+\chapter{Activities}\label{XtenActivities}
+
+An \Xten{} computation may have many concurrent {\em activities} ``in
+flight'' at any give time. We use the term activity to denote a
+dynamic execution instance of a piece of code (with references to
+data). An activity is intended to execute in parallel with other
+activities. An activity may be thought of as a very light-weight
+thread.  In \XtenCurrVer{}, an activity may not be interrupted,
+suspended or resumed as the result of actions taken by any other
+activity.
+
+An activity is spawned in a given place and stays in that place for
+its lifetime.  An activity may be {\em running}, {\em blocked} on some
+condition or {\em terminated}. When the statement associated with an
+activity terminates normally, the activity terminates normally; when
+it terminates abruptly with some reason $R$, the activity terminates
+with the same reason (\S~\ref{ExceptionModel}).
+
+An activity may be long-running and may invoke recursive methods (thus
+may have a stack associated with it). On the other hand, an activity
+may be short-running, involving a fine-grained operation such as a
+single read or write.
+
+An activity may have an {\em activitylocal} heap accessible only
+to the activity. 
+
+An activity may asynchronously and in parallel launch activities at
+other places.
+
+\Xten{} distinguishes between {\em local} termination and {\em global}
+termination of a statement. The execution of a statement by an
+activity is said to terminate locally when the activity has finished
+all its computation related to that statement. (For instance the
+creation of an asynchronous activity terminates locally when the
+activity has been created.)  It is said to terminate globally when it
+has terminated locally and all activities that it may have spawned at
+any place (if any) have, recursively, terminated globally.
+
+An \Xten{} computation is initiated as a single activity from the
+command line. This activity is the {\em root activity}\index{root
+activity} for the entire computation. The entire computation
+terminates when (and only when) this activity globally
+terminates. Thus \Xten{} does not permit the creation of so called
+``daemon threads'' -- threads that outlive the lifetime of the root
+activity. We say that an \Xten{} computation is {\em rooted}
+(\S~\ref{initial-computation}).
+
+\futureext{ We may permit the initial activity to be a daemon activity
+to permit reactive computations, such as webservers, that may not
+terminate.}
+
+\section{The \Xten{} rooted exception model}
+\label{ExceptionModel}
+
+The rooted nature of \Xten{} computations permits the definition of a
+{\em rooted} exception model. In multi-threaded programming languages
+there is a natural parent-child relationship between a thread and a
+thread that it spawns. Typically the parent thread continues execution
+in parallel with the child thread. Therefore the parent thread cannot
+serve to catch any exceptions thrown by the child thread. 
+
+The presence of a root activity permits \Xten{} to adopt a different
+model.  In any state of the computation, say that an activity $A$ is
+{\em a root of} an activity $B$ if $A$ is an ancestor of $B$ and $A$
+is suspended at a statement (such as the {\tt finish} statement
+\S~\ref{finish}) awaiting the termination of $B$ (and possibly other
+activities). For every \Xten{} computation, the {\tt root-of} relation
+is guaranteed to be a tree. The root of the tree is the root activity
+of the entire computation. If $A$ is the nearest root of $B$, the path
+from $A$ to $B$ is called the {\em activation path} for the
+activity.\footnote{Note that depending on the state of the computation
+the activation path may traverse activities that are running,
+suspended or terminated.}
+
+We may now state the exception model for \Xten.  An uncaught exception
+propagates up the activation path to its nearest root activity, where
+it may be handled locally or propagated up the {\tt root-of} tree when
+the activity terminates (based on the semantics of the statement being
+executed by the activity).\footnote{In \XtenCurrVer{} the {\tt finish}
+statement is the only statement that marks its activity as a root
+activity. Future versions of the language may introduce more such
+statements.}  Thus, unlike concurrent languages such as \java{} no
+exception is ``thrown on the floor''.
+
+\section{Spawning an activity}\label{AsynchronousActivity}\label{AsyncActivity}
+
+Asynchronous activities serve as a single abstraction for supporting a
+wide range of concurrency constructs such as message passing, threads,
+DMA, streaming, data prefetching. (In general, asynchronous operations
+are better suited for supporting scalability than synchronous
+operations.)
+
+An activity is created by executing the statement:
+\begin{x10}
+463 Statement ::= AsyncStatement
+473 StatementNoShortIf ::= AsyncStatementNoShortIf
+481 AsyncStatement ::= 
+      async PlaceExpressionSingleListopt Statement
+491 AsyncStatementNoShortIf ::= 
+      async PlaceExpressionSingleListopt 
+         StatementNoShortIf
+524   PlaceExpressionSingleListopt ::=
+525       | PlaceExpressionSingleList
+499   PlaceExpressionSingleList ::= 
+         ( PlaceExpression )
+500   PlaceExpression ::= Expression
+\end{x10} 
+
+The place expression {\tt e} is expected to be of type {\tt place},
+e.g.{} {\tt here} or {\tt place.FIRST\_PLACE} or {\tt d[p]} for some
+distribution {\tt d} and point {\tt p} (\S~\ref{XtenPlaces}).  
+If not, the compiler replaces
+{\tt e} with {\tt e.location}. (Recall that every expression in
+\Xten{} has a type; this type is a subtype of the root class {\tt
+x10.lang.Object}.  This class has a field {\tt location} of type {\tt
+place} recording the place at which the value resides. See
+the documentation for {\tt x10.lang.Object}.)
+
+Note specifically that the expression {\tt a[i]} when used as a place
+expression will evaluate to {\tt a[i].location}, which may not be
+the same place as {\tt a.distribution[i]}. The programmer must be 
+careful to choose the right expression, appropriate for the statement.
+Accesses to {\tt a[i]} within {\tt Statement} should typically be guarded 
+by the place expression {\tt a.distribution[i]}.
+
+In many cases the compiler may infer the unique place at which the
+statement is to be executed by an analysis of the types of the
+variables occuring in the statement. (The place must be such that the
+statement can be executed safetly, without generating a {\tt
+BadPlaceException}.) In such cases the programmer may omit the place
+designator; the compiler will throw an error if it cannot 
+determine the unique designated place.\footnote{\XtenCurrVer{} does 
+not specify a particular algorithm; this will be fixed in future versions.}
+
+An activity $A$ executes the statement {\tt async (P) S} by launching
+a new activity $B$ at the designated place, to execute the specified
+statement. The statement terminates locally as soon as $B$ is
+launched.  The activation path for $B$ is that of $A$, augmented with
+information about the line number at which $B$ was spawned.  $B$
+terminates normally when $S$ terminates normally.  It terminates
+abruptly if $S$ throws an (uncaught) exception. The exception is
+propagated to $A$ if $A$ is a root activity (see \S~\ref{finish}),
+otherwise through $A$ to $A$'s root activity. Note that while an
+activity is running, exceptions thrown by activities it has already
+generated may propagate through it up to its root activity.
+
+Multiple activities launched by a single activity at another place are
+not ordered in any way. They are added to the pool of activities at
+the target place and will be executed in sequence or in parallel based
+on the local scheduler's decisions. If the programmer wishes to
+sequence their execution s/he must use \Xten{} constructs, such as
+clocks and {\tt finish} to obtain the desired effect.  Further, the
+\Xten{} implementations are not required to have fair schedulers,
+though every implementation should make a best faith effort to ensure
+that every activity eventually gets a chance to make forward progress.
+
+\paragraph{Static semantics.}
+The statement in the body of an {\tt async} is subject to the
+restriction that it must be acceptable as the body of a {\cf void}
+method for an anoymous inner class declared at that point in the code,
+which throws no checked exceptions. As such, it may reference
+variables in lexically enclosing scopes (including {\cf clock}
+variables, \S~\ref{XtenClocks}) provided that such variables are
+(implicitly or explicitly) {\cf final}.
+
+\section{Finish}\index{finish}\label{finish}
+The statement {\tt finish S} converts global termination to local
+termination and introduces a root activity. 
+\begin{x10}
+468 Statement ::= FinishStatement
+478 StatementNoShortif ::= 
+      FinishStatementNoShortIf
+488 FinishStatement ::= finish Statement
+498 FinishStatementNoShortIf ::= 
+      finish StatementNoShortIf
+\end{x10}
+
+An activity $A$ executes {\tt finish s} by executing {\tt s}.  The
+execution of {\tt s} may spawn other asynchronous activities (here or
+at other places).  Uncaught exceptions thrown or propagated by any
+activity spawned by {\tt s} are accumulated at {\tt finish s}.  {\tt
+finish s} terminates locally when all activities spawned by {\tt s}
+terminate globally (either abruptly or normally). If
+{\tt s} terminates normally, then {\tt finish s} terminates normally
+and $A$ continues execution with the next statement after {\tt finish s}.
+If {\tt s} terminates abruptly, then {\tt finish s}
+terminates abruptly and throws a single exception formed 
+from the collection of exceptions accumulated at {\tt finish s}.
+
+Thus a {\tt finish s} statement serves as a collection point for
+uncaught exceptions generated during the execution of {\tt s}.
+
+Note that repeatedly {\tt finish}ing a statement has no effect after
+the first {\tt finish}: {\tt finish finish s} is indistinguishable
+from {\tt finish s}.
+
+\cbstart 
+\paragraph{Interaction with clocks.}\label{sec:finish:clock-rule}
+{\tt finish s} interacts with clocks (\S~\ref{XtenClocks}). 
+
+While executing {\tt s}, an activity must not spawn any {\tt clocked}
+asyncs. (Asyncs spawned during the execution of {\tt s} may spawn
+clocked asyncs.) A {\tt
+ClockUseException}\index{clock!ClockUseException} is thrown if (and
+when) this condition is violated.
+
+In \XtenCurrVer{} this condition is checked dynamically; future
+versions of the language will introduce type qualifiers which permit
+this condition to be checked statically.
+
+\cbend
+\futureext{
+The semantics of {\tt finish S} is conjunctive; it terminates when all
+the activities created during the execution of {\tt S} (recursively)
+terminate. In many situations (e.g.{} nondeterministic search) it is
+natural to require a statement to terminate when any {\em one} of the
+activities it has spawned succeeds. The other activities may then be
+safely aborted. Future versions of the language may introduce a {\tt
+finishone S} construct to support such speculative or nondeterministic
+computation.
+}
+%% Need an example here.
+
+\section{Initial activity}\label{initial-computation}\index{initial activity}
+
+An \Xten{} computation is initiated from the command line on the
+presentation of a classname {\tt C}. The class must have a {\tt public
+static void main(String[] a)} method, otherwise an exception is thrown
+and the computation terminates.  The single statement
+\begin{x10}
+finish async (place.FIRST\_PLACE) \{ 
+   C.main(s);
+\}
+\end{x10} 
+\noindent is executed where {\tt s} is an array of strings created
+from command line arguments. This single activity is the root activity
+for the entire computation. (See \S~\ref{XtenPlaces} for a discussion of
+placs.)
+
+%% Say something about configuration information? 
+
+\section{Asynchronous Expression and Futures}\label{XtenFutures}
+
+\Xten{} provides syntactic support for {\em asynchronous expressions}, also
+known as futures:
+\begin{x10}
+511   Primary ::= FutureExpression
+515   FutureExpression ::= 
+        future PlaceExpressionSingleListopt 
+           { Expression }
+\end{x10} 
+Intuitively such an expression evaluates its body asynchronously at
+the given place. The resulting value may be obtained from the future
+returned by this expression, by using the {\tt force} operation.
+
+In more detail, in an expression {\tt future(Q){e}}, the place
+expression {\tt Q} is treated as in an {\tt async} statement. {\tt e}
+is an expression of some type {\tt T}. {\tt e} may reference only
+those variables in the enclosing lexical environment which are
+declared to be {\tt final}.
+
+If the type of {\cf e} is {\tt T} then the type of
+{\tt future (Q){e}} is {\tt future<T>}.  This 
+type {\tt future<T>} is defined as if by:
+\begin{x10}
+public interface future<T> \{
+  T force();
+  boolean forced();
+\}
+\end{x10}
+
+(Here we use the syntax for generic classes. \XtenCurrVer{} does not support
+generic classes in their full generality. In particular, the user may
+not define generic classes. This is reserved for future extensions to the
+language.)
+
+Evaluation of {\tt future (Q){e}} terminates locally with the creation
+of a value {\tt f} of type {\tt future<T>}.  This value may be
+stored in objects, passed as arguments to methods, returned from
+method invocation etc. 
+
+At any point, the method {\tt forced} may be invoked on {\tt f}. This
+method returns without blocking, with the value {\tt true} if the
+asynchronous evaluation of {\tt e} has terminated globally and with
+the value {\tt false} if it has not.
+
+The method invocation {\tt force} on {\tt f} blocks until the
+asynchronous evaluation of {\tt e} has terminated globally. If the
+evaluation terminates successfully with value {\tt v}, then the method
+invocation returns {\tt v}. If the evaluation terminates abruptly with
+exception {\tt z}, then the method throws exception {\tt z}. Multiple
+invocations of {\tt force} (by this or any other activity) do not
+result in multiple evaluations of {\tt e}. The results of the first
+evaluation are stored in the future {\tt f} and used to respond to all
+{\tt force} queries.
+
+\begin{x10}
+future<T> promise 
+     = future (a.distribution[3]) \{ a[3] \};
+T value = promise.force();
+\end{x10}
+
+\subsection{Implementation notes}
+Futures are provided in \Xten{} for convenience; they may be
+programmed using latches, {\tt async} and {\tt finish} as
+described in \S~\ref{future-imp}.
+
+\section{Atomic blocks}\label{AtomicBlocks}\index{atomic blocks}
+Languages such as \java{} use low-level synchronization locks to allow
+multiple interacting threads to coordinate the mutation of shared
+data. \Xten{} eschews locks in favor of a very simple high-level
+construct, the {\em atomic block}.
+
+A programmer may use atomic blocks to guarantee that invariants of
+shared data-structures are maintained even as they are being accessed
+simultaneously by multiple activities running in the same place.
+
+\subsection{Unconditional atomic blocks}
+The simplest form of an atomic block is the {\em unconditional
+atomic block}:
+
+\begin{x10}
+461 Statement ::= AtomicStatement
+474 StatementNoShortIf ::= 
+       AtomicStatementNoShortIf
+482 AtomicStatement ::= atomic  Statement
+492 AtomicStatementNoShortIf ::= 
+       atomic StatementNoShortIf
+445 MethodModifier ::= atomic
+\end{x10}
+
+For the sake of efficient implementation \XtenCurrVer{} requires
+that the atomic block be {\em analyzable}, that is, the set of
+locations that are read and written by the {\cf BlockStatement} are
+bounded and determined statically.\footnote{ A static bound is a constant
+that depends only on the program text, and is independent 
+of any runtime parameters. }
+The exact algorithm to be used by
+the compiler to perform this analysis will be specified in future
+versions of the language.
+\tbd{}
+
+Such a statement is executed by an activity as if in a single step
+during which all other concurrent activities in the same place are
+suspended. If execution of the statement may throw an exception, it is
+the programmer's responsibility to wrap the atomic block within a
+{\cf try/finally} clause and include undo code in the finally
+clause. Thus the {\tt atomic} statement only guarantees atomicity on
+successful execution, not on a faulty execution.
+
+%% A compiler is allowed to reorder two atomic blocks that have no
+%%data-dependency between them, just as it may reorder any two
+%%statements which have no data-dependencies between them. For the
+%%purposes of data dependency analysis, an atomic block is deemed to
+%%have read and written all data at a single program point, the
+%%beginning of the atomic block.
+%%%% I dont believe we need to say at some point in the atomic block.
+%%
+We allow methods of an object to be annotated with {\cf atomic}. Such
+a method is taken to stand for a method whose body is wrapped within an
+{\cf atomic} statement.
+
+Atomic blocks are closely related to non-blocking synchronization
+constructs \cite{herlihy91waitfree}, and can be used to implement 
+non-blocking concurrent algorithms.
+
+\paragraph{Static semantics and dynamic checks.}
+In {\cf atomic s}, {\cf s} may include method calls, conditionals etc.
+It may {\em not} include an {\tt async} activity.
+It may {\em not} include any statement that may potentially block at
+runtime (e.g.{} {\tt when}, {\tt force} operations, {\tt next}
+operations on clocks, {\tt finish}).
+
+\limitation{Not checked in the current implementation.}
+
+All locations accessed in an atomic block must reside {\tt here}
+(\S~\ref{Here}). A {\tt
+BadPlaceException}\index{place!BadPlaceException} is thrown if (and
+when) this condition is violated.
+
+\notfouro{All locations accessed in an atomic block must statically satisfy the
+{\em locality condition}: they must belong to the place of the current
+activity.\index{locality condition}\label{LocalityCondition} The
+compiler checks for this condition by checking whether the statement
+could be the body of a {\tt void} method annotated with {\tt local} at
+that point in the code (\S~\ref{LocalAnnotation}).}
+
+\paragraph{Consequences.}
+Note an important property of an (unconditonal) atomic block:
+
+\begin{eqnarray}
+ {\cf atomic\ \{s1\ atomic\ s2\}} &=& {\cf atomic\ \{s1\ s2\}}
+\end{eqnarray}
+
+Further, an atomic block will eventually terminate successfully or
+thrown an exception; it may not introduce a deadlock.
+
+
+\subsubsection{Example}
+
+The following class method implements a (generic) compare and swap (CAS) operation:
+
+\begin{x10}
+// target defined in lexically enclosing environment.
+public atomic boolean CAS( Object old, 
+                           Object new) \{
+   if (target.equals(old)) \{
+     target = new;
+     return true;
+   \}
+   return false;
+\}
+\end{x10}
+
+\subsection{Conditional atomic blocks}
+
+Conditional atomic blocks are of the form:
+\begin{x10}
+465 Statement ::= WhenStatement
+475 StatementNoShortIf ::= WhenStatementNoShortIf
+483 WhenStatement ::= 
+          when ( Expression ) Statement
+484     | WhenStatement 
+          or ( Expression ) Statement
+\end{x10}
+
+In such a statement the one or more expressions are called {\em
+guards} and must be {\cf boolean} expressions. The statements are the
+corresponding {\em guarded statements}. The first pair of expression
+and statement is called the {\em main clause} and the additional pairs
+are called {\em auxiliary clauses}. A statement must have a main
+clause and may have no auxiliary clauses.
+
+An activity executing such a statement suspends until such time as any
+one of the guards is true in the current state. In that state, the
+statement corresponding to the first guard that is true is executed.
+The checking of the guards and the execution of the corresponding
+guarded statement is done atomically. 
+
+
+\Xten{} does not guarantee that a conditional atomic block
+will execute if its condition holds only intermmitently. For, based on
+the vagaries of the scheduler, the precise instant at which a
+condition holds may be missed. Therefore the programmer is advised to
+ensure that conditions being tested by conditional atomic blocks are
+eventually stable, i.e.{} they will continue to hold until the block
+executes (the action in the body of the block may cause the condition
+to not hold any more).
+
+%%Fourth, \Xten{} does not guarantees only {\em weak fairness} when executing
+%%conditional atomic blocks. Let $c$ be the guard of some conditional
+%%atomic block $A$. $A$ is required to make forward progress only if
+%%$c$ is {\em eventually stable}. That is, any execution $s_1, s_2,
+%%\ldots$ of the program is considered illegal only if there is a $j$
+%%such that $c$ holds in all states $s_k$ for $k > j$ and in which $A$
+%%does not execute. Specifically, if the system executes in such a way
+%%that $c$ holds only intermmitently (that is, for some state in which
+%%$c$ holds there is always a later state in which $c$ does not hold),
+%%$A$ is not required to be executed (though it may be executed).
+
+\begin{rationale}
+The guarantee provided by {\cf wait/notify} in \java{} is no
+stronger. Indeed conditional atomic blocks may be thought of as a
+replacement for \java's wait/notify functionality.
+\end{rationale} 
+
+We note two common abbreviations. The statement {\cf when (true) S} is
+behaviorally identical to {\cf atomic S}: it never suspends. Second,
+{\cf when (c) \{;\}} may be abbreviated to {\cf await(c);} -- it
+simply indicates that the thread must await the occurrence of a
+certain condition before proceeding.  Finally note that a {\tt when}
+statement with multiple branches is behaviorally identical to a {\tt
+when} statement with a single branch that checks the disjunction of
+the condition of each branch, and whose body contains an {\cf
+if/then/else} checking each of the branch conditions.
+
+\paragraph{Static semantics.}
+For the sake of efficient implementation certain restrictions are
+placed on the guards and statements in a conditional atomic
+block. 
+
+Guards are required not to have side-effects, not to spawn
+asynchronous activities and to have a statically determinable upper
+bound on their execution. These conditions are expected to be checked
+statically by the compiler.
+
+The body of a {\tt when} statement must satisfy the conditions
+for the body of an {\tt atomic} block.
+%Second, as for unconditional atomic blocks, the set of memory
+%locations accessed by a guarded statements are required to be bounded
+%and statically anlayzable.
+
+Note that this implies that guarded statements are required to be {\em
+flat}, that is, they may not contain conditional atomic blocks. (The
+implementation of nested conditional atomic blocks may require
+sophisticated operational techniques such as rollbacks.)
+
+\paragraph{Sample usage.} 
+There are many ways to ensure that a guard is eventually
+stable. Typically the set of activities are divided into those that
+may enable a condition and those that are blocked on the
+condition. Then it is sufficient to require that the threads that may
+enable a condition do not disable it once it is enabled. Instead the
+condition may be disabled in a guarded statement guarded by the
+condition. This will ensure forward progress, given the weak-fairness
+guarantee.
+
+\subsection{Examples}
+
+\paragraph{Bounded buffer.}
+The following class shows how to implement a bounded buffer of size
+$1$ in \Xten{} for repeated communication between a sender and a
+receiver.
+
+\begin{x10}
+class OneBuffer \{
+  nullable Object datum = null;
+  boolean filled = false;
+  public 
+    void send(Object v) \{
+      when ( !filled ) \{
+        this.datum = v;
+        this.filled = true;
+    \}
+ \}
+  public
+    Object receive() \{
+      when ( filled ) \{
+        Object v  = datum;
+        datum = null;
+        filled = false;
+        return v;
+      \}
+  \}
+\}
+\end{x10}
+
+\paragraph{ Implementing a future with a latch.}\label{future-imp}
+The following class shows how to implement a {\em latch}. A latch is
+an object that is initially created in a state called the {\em
+unlatched} state. During its lifetime it may transition once to a {\em
+forced} state. Once forced, it stays forced for its lifetime. The
+latch may be queried to determine if it is forced, and if so, an
+associated value may be retrieved. Below, we will consider a latch set
+when some activity invokes a {\tt setValue} method on it. This method
+provides two values, a normal value and an exceptional value. The
+method {\tt force} blocks until the latch is set. If an exceptional
+value was specified when the latch was set, that value is thrown on
+any attempt to read the latch. Otherwise the normal value is returned.
+
+\begin{x10}
+public interface future \{
+   boolean forced();
+   Object force();
+\}
+public class Latch implements future \{
+  protected boolean forced = false;
+  protected nullable boxed result = null;
+  protected nullable exception z = null;
+
+  public atomic 
+   boolean setValue( nullable Object val ) \{
+   return setValue( val, null);
+    \}
+   public atomic 
+   boolean setValue( nullable exception z ) \{
+        return setValue( null, z);
+    \}
+    public atomic 
+    boolean setValue( nullable Object val, 
+                      nullable exception z ) \{
+        if ( forced ) return false;
+        // these assignment happens only once.
+        this.result = val;
+        this.z = z;
+        this.forced = true;
+        return true;
+    \}
+    public atomic boolean forced() \{
+        return forced;
+    \}
+    public Object force() \{
+        when ( forced ) \{
+            if (z != null) throw z;
+            return result;
+        \}
+    \}
+\}
+\end{x10}
+
+Latches, {\tt aync} operations and {\tt finish} operations may be used
+to implement futures as follows. The expression {\tt future(P) \{e\} }
+can be translated to:
+\begin{x10}
+  new RunnableLatch() \{
+      public Latch run() \{
+         Latch L = new Latch();
+         async ( P ) \{
+            Object X;
+            try \{
+                finish X = e;
+                async ( L ) \{
+                   L.setValue( X ); 
+                \}
+            \} catch ( exception Z ) \{
+               async ( L ) \{
+                 L.setValue( Z );
+               \}
+            \}
+         \}
+         return l;
+      \}
+    \}.run()
+\end{x10}
+
+Here we assume that {\tt RunnableLatch} is an interface defined by:
+\begin{x10} 
+  public interface RunnableLatch \{
+     Latch run();
+  \}
+\end{x10}
+
+We use the standard \java{} idiom of wrapping the core translation
+inside an inner class definition/method invocation pair (i.e.{} {\tt
+new RunnableLatch() {....}.run()}) so as to keep the resulting
+expression completely self-contained, while executing statements
+inside the evaluation of an expression.
+
+Execution of a {\tt future(P) \{e\}} causes a new latch to be created,
+and an {\tt async} activity spawned at {\tt P}. The activity attempts
+to {\tt finish} the assigned {\tt x = e}, where {\tt x} is a local
+variable.  This may cause new activities to be spawned, based on {\tt
+e}. If the assignment terminates successfully, another activity is
+spawned to invoke the {\tt setValue} method on the latch.  Exceptions
+thrown by these activities (if any) are accumulated at the {\tt
+finish} statement and thrown after global termination of all
+activities spawned by {\tt x=e}. The exception will be caught by the 
+{\tt catch} clause and stored with the latch. 
+
+
+\todo{Conditional atomic blocks should be powerful enough to implement clocks as well.}
+
+\paragraph{A future to execute a statement.}
+Consider an expression {\tt onFinish \{S\}}. This should return a {\tt
+boolean} latch which should be forced when {\tt S} has terminated
+globally. Unlike {\tt finish S}, the evaluation of {\tt onFinish
+\{S\}} should locally terminate immediately, returning a latch. The
+latch may be passed around in method invocations and stored in
+objects. An activity may perform {\tt force}/{\tt forced} method
+invocations on the latch whenever it desires to determine whether {\tt S}
+has terminated.
+
+Such an expression can be written as:
+\begin{x10}
+  new RunnableLatch() \{
+      public Latch run() \{
+         Latch L = new Latch();
+         async ( here ) \{
+            try \{
+                finish S;
+                L.setValue( true );
+            \} catch ( exception Z ) \{
+                 L.setValue( Z );
+            \}
+         \}
+         return L;
+      \}
+    \}.run()
+\end{x10}
+
+\notinfouro{\input{rmi.tex}}
+
+\section{Iteration}\index{foreach@{\tt foreach}}\label{ForLoop}
+\index{for@{\tt for}}\label{ForAllLoop}
+
+We introduce  $k$-dimensional versions of iteration operations {\cf for} and 
+{\cf foreach}:
+
+\begin{x10}
+189 Statement ::= ForStatement
+206 StatementNoShortIf ::= 
+      ForStatementNoShortIf
+236 ForStatement ::= EnhancedForStatement
+239 ForStatementNoShortIf ::= 
+      EnhancedForStatementNoShortIf
+466 Statement ::= ForEachStatement
+476 StatementNoShortIf ::= 
+      ForEachStatementNoShortIf
+487 EnhancedForStatement ::= 
+       for ( FormalParameter : Expression ) 
+         Statement
+487 EnhancedForStatementNoShortIf ::= 
+       for ( FormalParameter : Expression ) 
+           StatementNoShortIf
+485  ForEachStatement ::= 
+       foreach ( FormalParameter : Expression ) 
+           Statement
+495  ForEachStatementNoShortIf ::= 
+        foreach ( FormalParameter : Expression ) 
+          StatementNoShortIf
+\end{x10}
+
+In both statements, the expression is intended to be of type {\tt
+region}.  Expressions {\tt e} of type {\tt distribution} and {\tt
+array} are also accepted, and treated as if they were {\tt
+e.region}. The compiler throws a type error in all other cases.
+
+The formal parameter must be of type {\tt point}. Exploded syntax may
+be used (\S~\ref{exploded-syntax}). The parameter is considered
+implicitly final, as are all the exploded variables. 
+
+An activity executes a {\tt for} statement by enumerating the points
+in the region in canonical order. The activity executes the body of
+the loop with the formal parameter(s) bound to the given point. If the
+body locally terminates successfully, the activity continues with the
+next iteration, terminating successfully when all points have been
+visited. If an iteration throws an exception then the for statement
+throws an exception and terminats abruptly.
+
+An activity executes a {\tt foreach} statement in a similar fashion
+except that separate {\tt async} activities are launched in parallel
+in the local place for each point in the region. The statement
+terminates locally when all the activities have been spawned. It never
+throws an exception, though exceptions thrown by the spawned
+activities are propagated through to the root activity.
+
+In a similar fashion we introduce the syntax:\index{ateach@{\tt ateach}}
+\begin{x10}
+467 Statement ::= AtEachStatement
+477 StatementNoShortIf ::= 
+      AtEachStatementNoShortIf
+486 AtEachStatement ::= 
+      ateach ( FormalParameter : Expression ) 
+         Statement
+496 AtEachStatementNoShortIf ::= 
+      ateach ( FormalParameter : Expression ) 
+          StatementNoShortIf
+\end{x10}
+
+Here the expression is intended to be of type {\tt distribution}.
+Expressions {\tt e} of type {\tt array} are also accepted, and treated
+as if they were {\tt e.distribution}. The compiler throws a type error
+in all other cases. This statement differs from {\tt foreach} only in
+that each activity is spawned at the place specified by the
+distribution for the point. That is, 
+{\tt ateach( point p[i1,...,ik]: A) S} may
+be thought of as standing for:
+\begin{x10}
+  foreach (point p[i1,...,ik] : A) 
+    async (A.distribution[p]) \{S\}
+\end{x10}
+

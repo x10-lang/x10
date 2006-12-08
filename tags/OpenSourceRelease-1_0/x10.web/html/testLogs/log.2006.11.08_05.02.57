@@ -1,0 +1,1482 @@
+Starting: /u/x10/x10.common/bin/testScript0 -t 150 -shiftLog -m x10-dev@cs.purdue.edu
+Machine name: rlsecomp1.watson.ibm.com
+Operating system: AIX
+Java home: /u/x10/TOOLS/Java5/j532redist/jre
+Java version: java version "1.5.0"
+  Java(TM) 2 Runtime Environment, Standard Edition (build pap32devifx-20060123)
+  IBM J9 VM (build 2.3, J2RE 1.5.0 IBM J9 2.3 AIX ppc-32 j9vmap3223ifx-20060123b (JIT enabled)
+  J9VM - 20051027_03723_bHdSMR
+  JIT  - 20051027_1437_r8
+  GC   - 20051020_AA)
+  JCL  - 20060120
+Current directory: /u/x10/x10.common/examples
+System load:   05:02AM   up 60 days,  22:10,  0 users,  load average: 1.19, 0.42, 0.16
+
+X10 tests started on 2006-11-08 05:02:57
+401 tests out of 466 met expectations. 65 did not meet expectations.
+4 implementation limitations did not meet expectations.  0 unexpectedly met expectations.
+
+The dates after each error message below show the earliest test run since which the same error message kept occurring continuously.
+
+Constructs.Types PrimitiveLiteralIsAnObject did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Region ArrayOfRegions did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Future FutureForce did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Finish FinishTest2 did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Extern BasicExternTest1 did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType StringLitDepType did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType MethodArgDepTypes did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType InnerDepType did not meet expectation: expected=Success actual=FailRun (2006-11-08 05:02:57).
+Constructs.DepType InheritedClause_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2006-11-08 05:02:57).
+Constructs.DepType FloatLitDepType did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType FieldsMustBeFinalInDepClause did not meet expectation: expected=Success actual=FailRun (2006-11-08 05:02:57).
+Constructs.DepType EntailsPositiveInnerMustPass did not meet expectation: expected=Success actual=FailRun (2006-11-08 05:02:57).
+Constructs.DepType DoubleLitDepType did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType DoubleLit did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType DepTypeThisClause did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType DepTypeInMethodRet did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType DepTypeInMethodArgs did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType DepTypeInMethodArg did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType DepType1 did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType DepType did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.DepType CheckEqualTypes did not meet expectation: expected=Success actual=FailRun (2006-11-08 05:02:57).
+Constructs.DepType CheckDescendEntails did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeCast_Overflow1 did not meet expectation: expected=Success actual=FailRun (2006-11-08 05:02:57).
+Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeAssignmentOverflow did not meet expectation: expected=Success actual=FailRun (2006-11-08 05:02:57).
+Constructs.Cast.PrimitiveDependentTypeCast PrimitiveCastToPrimitiveDepType2 did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Cast.PrimitiveDependentTypeCast PrimitiveCastToPrimitiveDepType1 did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_9 did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_8 did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_7 did not meet expectation: expected=Success actual=FailRun (2006-11-08 05:02:57).
+Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_6 did not meet expectation: expected=Success actual=FailRun (2006-11-08 05:02:57).
+Constructs.Boxing Boxing1 did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Array MiscTest1 did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Constructs.Array ArrayTypeCheck did not meet expectation: expected=Success actual=FailRun (2006-11-08 05:02:57).
+Constructs.Array Array3Boolean did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+Applications.NewJavaGrande.raytracer.distributed JGFRayTracerBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2006-11-08 05:02:57).
+LIMITATION: Constructs.PlaceCast PlaceCheck1 did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+LIMITATION: Constructs.Atomic AtomicContainingWhen_MustFailRun did not meet expectation: expected=FailRun actual=FailCompile (2006-11-03 06:04:47).
+Constructs.Types PrimitiveLiteralHasLocation did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Constructs.Types PrimitiveHasLocation did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Constructs.Extern AllArrayExternUnsafe did not meet expectation: expected=Success actual=FailRun (2006-11-03 06:04:47).
+Constructs.DepType FieldDepType did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Constructs.DepType DepTypeInMethodRet1 did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Constructs.Atomic AtomicMethodTest did not meet expectation: expected=Success actual=FailRun (2006-11-03 06:04:47).
+Constructs.Async AsyncTest3 did not meet expectation: expected=Success actual=FailRun (2006-11-03 06:04:47).
+Constructs.Array JavaArrayInitializer_MustFailCompile did not meet expectation: expected=FailCompile actual=Success (2006-11-03 06:04:47).
+Constructs.Array FlattenPlaceCast did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Constructs.Array ArrayTypeCheck2 did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Constructs.Array ArrayDecl did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Constructs.Array ArrayCopy3 did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Constructs.Array ArrayArrayInitializerShorthand did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Applications.OtherApps Tree did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Applications.OtherApps Jacobi did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Applications.OtherApps GameOfLife did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Applications.OtherApps Edmiston_Parallel3 did not meet expectation: expected=Success actual=FailTimeout (2006-11-03 06:04:47).
+Applications.OtherApps Edmiston_Parallel2 did not meet expectation: expected=Success actual=FailTimeout (2006-11-03 06:04:47).
+Applications.NewJavaGrande.raytracer.serial JGFRayTracerBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Applications.NewJavaGrande.raytracer.parallel JGFRayTracerBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Applications.NewJavaGrande.montecarlo.serial JGFMonteCarloBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Applications.NewJavaGrande.montecarlo.parallel JGFMonteCarloBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Applications.NewJavaGrande.montecarlo.distributed JGFMonteCarloBenchSizeA did not meet expectation: expected=Success actual=FailCompile (2006-11-03 06:04:47).
+Misc RemoteAccessCheck did not meet expectation: expected=Success actual=FailRun (2006-08-23 09:36:05).
+LIMITATION: Constructs.StorageClass StorageClassesTest did not meet expectation: expected=Success actual=FailCompile (2006-08-23 09:36:05).
+LIMITATION: Constructs.Nullable NullableOverriding did not meet expectation: expected=Success actual=FailCompile (2006-08-23 09:36:05).
+Constructs.Point PointRebinding did not meet expectation: expected=Success actual=FailCompile (2006-08-23 09:36:05).
+Constructs.PlaceCast PlaceCast2 did not meet expectation: expected=Success actual=FailCompile (2006-08-23 09:36:05).
+Constructs.PlaceCast PlaceCast did not meet expectation: expected=Success actual=FailCompile (2006-08-23 09:36:05).
+Constructs.Nullable NullableArray4 did not meet expectation: expected=Success actual=FailCompile (2006-08-23 09:36:05).
+Constructs.Nullable NullableArray2 did not meet expectation: expected=Success actual=FailCompile (2006-08-23 09:36:05).
+Constructs.Exceptions Exceptions_BadPlace did not meet expectation: expected=Success actual=FailRun (2006-08-23 09:36:05).
+
+
+****** Constructs.Types PrimitiveLiteralIsAnObject ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Types' '-d' './Constructs/Types' './Constructs/Types/./PrimitiveLiteralIsAnObject.x10'
+./Constructs/Types/./PrimitiveLiteralIsAnObject.x10:11: Expression operand
+    type int incompatible with type operand x10.lang.Object.
+1 error.
+
+real	0m2.719s
+user	0m3.389s
+sys	0m0.247s
+
+****** Constructs.Types PrimitiveLiteralIsAnObject failed: compile
+
+****** Constructs.Region ArrayOfRegions ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Region' '-d' './Constructs/Region' './Constructs/Region/./ArrayOfRegions.x10'
+Cast from x10.lang.region to x10.lang.region/*(:self.rank=1)*/ is unsafe
+Cast from x10.lang.region to x10.lang.region/*(:self.rank=1)*/ is unsafe
+x10c: ./Constructs/Region/ArrayOfRegions.java:66: illegal start of expression    
+     /* template:array_set {
+    */(ra).set(((x10.lang.RuntimeCastChecker.<x10.lang.region>checkCast(new
+    x10.lang.RuntimeCastChecker.RuntimeConstraint [] {    
+     ^    
+     ./Constructs/Region/ArrayOfRegions.java:76: < expected    
+     9))),i)/* } */;    
+     ^    
+     ./Constructs/Region/ArrayOfRegions.java:79: illegal start of expression    
+     /* template:array_set {
+    */(ra).set(((x10.lang.RuntimeCastChecker.<x10.lang.region>checkCast(new
+    x10.lang.RuntimeCastChecker.RuntimeConstraint [] {    
+     ^    
+     ./Constructs/Region/ArrayOfRegions.java:90: < expected    
+     21))),i)/* } */;    
+     ^    
+     ./Constructs/Region/ArrayOfRegions.java:104: illegal start of expression    
+     /* template:array_set {
+    */(ra).set(((x10.lang.RuntimeCastChecker.<x10.lang.region>checkCast(new
+    x10.lang.RuntimeCastChecker.RuntimeConstraint [] {    
+     ^    
+     ./Constructs/Region/ArrayOfRegions.java:114: < expected    
+     9))),i)/* } */;    
+     ^    
+     ./Constructs/Region/ArrayOfRegions.java:117: illegal start of expression    
+     /* template:array_set {
+    */(ra).set(((x10.lang.RuntimeCastChecker.<x10.lang.region>checkCast(new
+    x10.lang.RuntimeCastChecker.RuntimeConstraint [] {    
+     ^    
+     ./Constructs/Region/ArrayOfRegions.java:128: < expected    
+     21))),i)/* } */;    
+     ^    
+     8 errors    
+x10c: Non-zero return code: 1
+
+real	0m4.677s
+user	0m5.820s
+sys	0m0.470s
+
+****** Constructs.Region ArrayOfRegions failed: compile
+
+****** Constructs.Future FutureForce ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Future' '-d' './Constructs/Future' './Constructs/Future/./FutureForce.x10'
+./Constructs/Future/./FutureForce.x10:32: The == operator must have operands
+    of similar type.
+1 error.
+
+real	0m2.440s
+user	0m2.962s
+sys	0m0.265s
+
+****** Constructs.Future FutureForce failed: compile
+
+****** Constructs.Finish FinishTest2 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Finish' '-d' './Constructs/Finish' './Constructs/Finish/./FinishTest2.x10'
+./Constructs/Finish/./FinishTest2.x10:29: The == operator must have operands
+    of similar type.
+1 error.
+
+real	0m2.756s
+user	0m3.469s
+sys	0m0.262s
+
+****** Constructs.Finish FinishTest2 failed: compile
+
+****** Constructs.Extern BasicExternTest1 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Extern' '-d' './Constructs/Extern' './Constructs/Extern/./BasicExternTest1.x10'
+./Constructs/Extern/./BasicExternTest1.x10:29: The != operator must have
+    operands of similar type.
+1 error.
+
+real	0m2.757s
+user	0m3.477s
+sys	0m0.267s
+
+****** Constructs.Extern BasicExternTest1 failed: compile
+
+****** Constructs.DepType StringLitDepType ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./StringLitDepType.x10'
+./Constructs/DepType/./StringLitDepType.x10:8: The type of the variable
+    initializer "java.lang.String" does not match that of the declaration
+    "java.lang.String/*(:self=abc)*/".
+1 error.
+
+real	0m2.709s
+user	0m3.304s
+sys	0m0.259s
+
+****** Constructs.DepType StringLitDepType failed: compile
+
+****** Constructs.DepType MethodArgDepTypes ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./MethodArgDepTypes.x10'
+Cast from MethodArgDepTypes.Test to MethodArgDepTypes.Test/*(:self.i=self.j)*/ is unsafe
+Cast from MethodArgDepTypes.Test to MethodArgDepTypes.Test/*(:self.i=self.j)*/ is unsafe
+Cast from MethodArgDepTypes.Test to MethodArgDepTypes.Test/*(:self.i=self.j)*/ is unsafe
+x10c: ./Constructs/DepType/MethodArgDepTypes.java:127: cannot find symbol    
+     symbol : variable self    
+     location: class MethodArgDepTypes    
+     new x10.lang.RuntimeCastChecker.RuntimeConstraint("i",
+    (java.lang.Object)self.j)},false,this.new Test(    
+     ^    
+     1 error    
+x10c: Non-zero return code: 1
+
+real	0m5.281s
+user	0m6.393s
+sys	0m0.571s
+
+****** Constructs.DepType MethodArgDepTypes failed: compile
+
+****** Constructs.DepType InnerDepType ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./InnerDepType.x10'
+Cast from InnerDepType.Test to InnerDepType.Test/*(:self.i=0)*/ is unsafe
+
+real	0m5.302s
+user	0m6.236s
+sys	0m0.558s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/DepType:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'InnerDepType'
+java.lang.ClassCastException: Reflect error while checking constraint [i,0]
+	at x10.lang.RuntimeCastChecker.checkCast(Unknown Source)
+	at InnerDepType.run(InnerDepType.java:95)
+	at harness.x10Test.execute(x10Test.java:103)
+	at InnerDepType.main(InnerDepType.java:121)
+	at InnerDepType$Main.run(InnerDepType.java:113)
+	at x10.runtime.Activity.runWithinFinish(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$BootActivity.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m0.948s
+user	0m0.935s
+sys	0m0.126s
+
+****** Constructs.DepType InnerDepType failed: run
+
+****** Constructs.DepType InheritedClause_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./InheritedClause_MustFailCompile.x10'
+
+real	0m4.976s
+user	0m5.740s
+sys	0m0.573s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/DepType:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'InheritedClause_MustFailCompile'
+++++++ Test succeeded.
+
+real	0m0.897s
+user	0m0.895s
+sys	0m0.127s
+
+****** Constructs.DepType InheritedClause_MustFailCompile succeeded.
+
+****** Constructs.DepType FloatLitDepType ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./FloatLitDepType.x10'
+./Constructs/DepType/./FloatLitDepType.x10:8: The type of the variable
+    initializer "float" does not match that of the declaration
+    "float/*(:self=0.0010)*/".
+1 error.
+
+real	0m2.744s
+user	0m3.499s
+sys	0m0.262s
+
+****** Constructs.DepType FloatLitDepType failed: compile
+
+****** Constructs.DepType FieldsMustBeFinalInDepClause ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./FieldsMustBeFinalInDepClause.x10'
+Cast from FieldsMustBeFinalInDepClause.Test to FieldsMustBeFinalInDepClause.Test/*(:self.i=52)*/ is unsafe
+
+real	0m5.253s
+user	0m6.463s
+sys	0m0.570s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/DepType:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'FieldsMustBeFinalInDepClause'
+java.lang.ClassCastException: Reflect error while checking constraint [i,52]
+	at x10.lang.RuntimeCastChecker.checkCast(Unknown Source)
+	at FieldsMustBeFinalInDepClause.run(FieldsMustBeFinalInDepClause.java:100)
+	at harness.x10Test.execute(x10Test.java:103)
+	at FieldsMustBeFinalInDepClause.main(FieldsMustBeFinalInDepClause.java:126)
+	at FieldsMustBeFinalInDepClause$Main.run(FieldsMustBeFinalInDepClause.java:118)
+	at x10.runtime.Activity.runWithinFinish(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$BootActivity.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m0.905s
+user	0m0.906s
+sys	0m0.170s
+
+****** Constructs.DepType FieldsMustBeFinalInDepClause failed: run
+
+****** Constructs.DepType EntailsPositiveInnerMustPass ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./EntailsPositiveInnerMustPass.x10'
+Cast from EntailsPositiveInnerMustPass.Test to EntailsPositiveInnerMustPass.Test/*(:self.i=j)*/ is unsafe
+
+real	0m5.641s
+user	0m7.165s
+sys	0m0.573s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/DepType:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'EntailsPositiveInnerMustPass'
+java.lang.ClassCastException: Reflect error while checking constraint [i,0]
+	at x10.lang.RuntimeCastChecker.checkCast(Unknown Source)
+	at EntailsPositiveInnerMustPass.run(EntailsPositiveInnerMustPass.java:118)
+	at harness.x10Test.execute(x10Test.java:103)
+	at EntailsPositiveInnerMustPass.main(EntailsPositiveInnerMustPass.java:145)
+	at EntailsPositiveInnerMustPass$Main.run(EntailsPositiveInnerMustPass.java:137)
+	at x10.runtime.Activity.runWithinFinish(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$BootActivity.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m0.963s
+user	0m0.959s
+sys	0m0.123s
+
+****** Constructs.DepType EntailsPositiveInnerMustPass failed: run
+
+****** Constructs.DepType DoubleLitDepType ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DoubleLitDepType.x10'
+./Constructs/DepType/./DoubleLitDepType.x10:8: The type of the variable
+    initializer "double" does not match that of the declaration
+    "double/*(:self=1.2)*/".
+1 error.
+
+real	0m2.698s
+user	0m3.341s
+sys	0m0.260s
+
+****** Constructs.DepType DoubleLitDepType failed: compile
+
+****** Constructs.DepType DoubleLit ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DoubleLit.x10'
+./Constructs/DepType/./DoubleLit.x10:11: The type of the variable initializer
+    "double" does not match that of the declaration "double/*(:self=1.0)*/".
+1 error.
+
+real	0m2.690s
+user	0m3.432s
+sys	0m0.262s
+
+****** Constructs.DepType DoubleLit failed: compile
+
+****** Constructs.DepType DepTypeThisClause ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DepTypeThisClause.x10'
+./Constructs/DepType/./DepTypeThisClause.x10:17: The == operator must have
+    operands of similar type.
+1 error.
+
+real	0m2.722s
+user	0m3.475s
+sys	0m0.260s
+
+****** Constructs.DepType DepTypeThisClause failed: compile
+
+****** Constructs.DepType DepTypeInMethodRet ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DepTypeInMethodRet.x10'
+./Constructs/DepType/./DepTypeInMethodRet.x10:10: The == operator must have
+    operands of similar type.
+1 error.
+
+real	0m2.589s
+user	0m2.854s
+sys	0m0.260s
+
+****** Constructs.DepType DepTypeInMethodRet failed: compile
+
+****** Constructs.DepType DepTypeInMethodArgs ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DepTypeInMethodArgs.x10'
+Cast from DepTypeInMethodArgs.Test to DepTypeInMethodArgs.Test/*(:self.i=self.j)*/ is unsafe
+x10c: ./Constructs/DepType/DepTypeInMethodArgs.java:127: cannot find symbol    
+     symbol : variable self    
+     location: class DepTypeInMethodArgs    
+     new x10.lang.RuntimeCastChecker.RuntimeConstraint("i",
+    (java.lang.Object)self.j)},false,this.new Test(    
+     ^    
+     1 error    
+x10c: Non-zero return code: 1
+
+real	0m5.106s
+user	0m6.033s
+sys	0m0.569s
+
+****** Constructs.DepType DepTypeInMethodArgs failed: compile
+
+****** Constructs.DepType DepTypeInMethodArg ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DepTypeInMethodArg.x10'
+Cast from DepTypeInMethodArg.Test to DepTypeInMethodArg.Test/*(:self.i=self.j)*/ is unsafe
+x10c: ./Constructs/DepType/DepTypeInMethodArg.java:125: cannot find symbol    
+     symbol : variable self    
+     location: class DepTypeInMethodArg    
+     new x10.lang.RuntimeCastChecker.RuntimeConstraint("i",
+    (java.lang.Object)self.j)},false,this.new Test(    
+     ^    
+     1 error    
+x10c: Non-zero return code: 1
+
+real	0m5.123s
+user	0m6.069s
+sys	0m0.620s
+
+****** Constructs.DepType DepTypeInMethodArg failed: compile
+
+****** Constructs.DepType DepType1 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DepType1.x10'
+./Constructs/DepType/./DepType1.x10:22: Cannot build constraint from
+    expression |self == null| of type <unknown> (not Boolean).
+1 error.
+
+real	0m2.770s
+user	0m3.446s
+sys	0m0.262s
+
+****** Constructs.DepType DepType1 failed: compile
+
+****** Constructs.DepType DepType ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DepType.x10'
+./Constructs/DepType/./DepType.x10:50: The == operator must have operands of
+    similar type.
+1 error.
+
+real	0m2.954s
+user	0m3.919s
+sys	0m0.262s
+
+****** Constructs.DepType DepType failed: compile
+
+****** Constructs.DepType CheckEqualTypes ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./CheckEqualTypes.x10'
+Cast from CheckEqualTypes.Test to CheckEqualTypes.Test/*(:self.i=j, self.j=j)*/ is unsafe
+
+real	0m4.777s
+user	0m5.377s
+sys	0m0.568s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/DepType:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'CheckEqualTypes'
+java.lang.ClassCastException: Reflect error while checking constraint [j,0]
+	at x10.lang.RuntimeCastChecker.checkCast(Unknown Source)
+	at CheckEqualTypes.run(CheckEqualTypes.java:127)
+	at harness.x10Test.execute(x10Test.java:103)
+	at CheckEqualTypes.main(CheckEqualTypes.java:156)
+	at CheckEqualTypes$Main.run(CheckEqualTypes.java:148)
+	at x10.runtime.Activity.runWithinFinish(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$BootActivity.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m0.931s
+user	0m0.792s
+sys	0m0.122s
+
+****** Constructs.DepType CheckEqualTypes failed: run
+
+****** Constructs.DepType CheckDescendEntails ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./CheckDescendEntails.x10'
+Cast from CheckDescendEntails.Test to CheckDescendEntails.Test/*(:self.a=self.b)*/ is unsafe
+x10c: ./Constructs/DepType/CheckDescendEntails.java:219: cannot find symbol    
+     symbol : variable self    
+     location: class CheckDescendEntails    
+     new x10.lang.RuntimeCastChecker.RuntimeConstraint("a",
+    (java.lang.Object)self.b)},false,this.new Test(    
+     ^    
+     1 error    
+x10c: Non-zero return code: 1
+
+real	0m4.912s
+user	0m5.491s
+sys	0m0.622s
+
+****** Constructs.DepType CheckDescendEntails failed: compile
+
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeCast_Overflow1 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Cast/PrimitiveDependentTypeCast' '-d' './Constructs/Cast/PrimitiveDependentTypeCast' './Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveDepTypeCast_Overflow1.x10'
+
+real	0m4.996s
+user	0m5.764s
+sys	0m0.594s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Cast/PrimitiveDependentTypeCast:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'PrimitiveDepTypeCast_Overflow1'
+-32759
+java.lang.ClassCastException: Expression is either not an instance of cast type or Constraints are not meet
+	at x10.lang.RuntimeCastChecker.throwClassCastException(Unknown Source)
+	at PrimitiveDepTypeCast_Overflow1.run(PrimitiveDepTypeCast_Overflow1.java:42)
+	at harness.x10Test.execute(x10Test.java:103)
+	at PrimitiveDepTypeCast_Overflow1.main(PrimitiveDepTypeCast_Overflow1.java:68)
+	at PrimitiveDepTypeCast_Overflow1$Main.run(PrimitiveDepTypeCast_Overflow1.java:60)
+	at x10.runtime.Activity.runWithinFinish(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$BootActivity.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m0.921s
+user	0m0.924s
+sys	0m0.126s
+
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeCast_Overflow1 failed: run
+
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeAssignmentOverflow ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Cast/PrimitiveDependentTypeCast' '-d' './Constructs/Cast/PrimitiveDependentTypeCast' './Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveDepTypeAssignmentOverflow.x10'
+
+real	0m5.028s
+user	0m6.106s
+sys	0m0.557s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Cast/PrimitiveDependentTypeCast:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'PrimitiveDepTypeAssignmentOverflow'
+java.lang.ClassCastException: Expression is either not an instance of cast type or Constraints are not meet
+	at x10.lang.RuntimeCastChecker.throwClassCastException(Unknown Source)
+	at PrimitiveDepTypeAssignmentOverflow.run(PrimitiveDepTypeAssignmentOverflow.java:29)
+	at harness.x10Test.execute(x10Test.java:103)
+	at PrimitiveDepTypeAssignmentOverflow.main(PrimitiveDepTypeAssignmentOverflow.java:55)
+	at PrimitiveDepTypeAssignmentOverflow$Main.run(PrimitiveDepTypeAssignmentOverflow.java:47)
+	at x10.runtime.Activity.runWithinFinish(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$BootActivity.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m0.907s
+user	0m0.911s
+sys	0m0.126s
+
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeAssignmentOverflow failed: run
+
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveCastToPrimitiveDepType2 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Cast/PrimitiveDependentTypeCast' '-d' './Constructs/Cast/PrimitiveDependentTypeCast' './Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveCastToPrimitiveDepType2.x10'
+./Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveCastToPrimitiveDepType2.x10:15:
+    Can only throw subclasses of "java.lang.Throwable".
+1 error.
+
+real	0m2.691s
+user	0m3.324s
+sys	0m0.263s
+
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveCastToPrimitiveDepType2 failed: compile
+
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveCastToPrimitiveDepType1 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Cast/PrimitiveDependentTypeCast' '-d' './Constructs/Cast/PrimitiveDependentTypeCast' './Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveCastToPrimitiveDepType1.x10'
+./Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveCastToPrimitiveDepType1.x10:16:
+    Can only throw subclasses of "java.lang.Throwable".
+1 error.
+
+real	0m2.649s
+user	0m3.314s
+sys	0m0.260s
+
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveCastToPrimitiveDepType1 failed: compile
+
+****** Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_9 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Cast/PrimitiveDependentTypeCast' '-d' './Constructs/Cast/PrimitiveDependentTypeCast' './Constructs/Cast/PrimitiveDependentTypeCast/./NumericExpressionToPrimitiveDepType_9.x10'
+./Constructs/Cast/PrimitiveDependentTypeCast/./NumericExpressionToPrimitiveDepType_9.x10:13:
+    The type of the variable initializer "float" does not match that of the
+    declaration "float/*(:self=0.01)*/".
+1 error.
+
+real	0m2.728s
+user	0m3.427s
+sys	0m0.263s
+
+****** Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_9 failed: compile
+
+****** Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_8 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Cast/PrimitiveDependentTypeCast' '-d' './Constructs/Cast/PrimitiveDependentTypeCast' './Constructs/Cast/PrimitiveDependentTypeCast/./NumericExpressionToPrimitiveDepType_8.x10'
+./Constructs/Cast/PrimitiveDependentTypeCast/./NumericExpressionToPrimitiveDepType_8.x10:13:
+    The type of the variable initializer "double" does not match that of the
+    declaration "double/*(:self=0.01)*/".
+1 error.
+
+real	0m2.751s
+user	0m3.370s
+sys	0m0.262s
+
+****** Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_8 failed: compile
+
+****** Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_7 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Cast/PrimitiveDependentTypeCast' '-d' './Constructs/Cast/PrimitiveDependentTypeCast' './Constructs/Cast/PrimitiveDependentTypeCast/./NumericExpressionToPrimitiveDepType_7.x10'
+
+real	0m5.007s
+user	0m6.293s
+sys	0m0.565s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Cast/PrimitiveDependentTypeCast:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'NumericExpressionToPrimitiveDepType_7'
+invoke check long
+java.lang.ClassCastException: java.lang.Integer incompatible with java.lang.Long
+	at x10.lang.RuntimeCastChecker.checkPrimitiveType(Unknown Source)
+	at NumericExpressionToPrimitiveDepType_7.run(NumericExpressionToPrimitiveDepType_7.java:23)
+	at harness.x10Test.execute(x10Test.java:103)
+	at NumericExpressionToPrimitiveDepType_7.main(NumericExpressionToPrimitiveDepType_7.java:51)
+	at NumericExpressionToPrimitiveDepType_7$Main.run(NumericExpressionToPrimitiveDepType_7.java:43)
+	at x10.runtime.Activity.runWithinFinish(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$BootActivity.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m0.935s
+user	0m0.978s
+sys	0m0.134s
+
+****** Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_7 failed: run
+
+****** Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_6 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Cast/PrimitiveDependentTypeCast' '-d' './Constructs/Cast/PrimitiveDependentTypeCast' './Constructs/Cast/PrimitiveDependentTypeCast/./NumericExpressionToPrimitiveDepType_6.x10'
+
+real	0m5.001s
+user	0m5.944s
+sys	0m0.566s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Cast/PrimitiveDependentTypeCast:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'NumericExpressionToPrimitiveDepType_6'
+invoke check short
+java.lang.ClassCastException: java.lang.Integer incompatible with java.lang.Short
+	at x10.lang.RuntimeCastChecker.checkPrimitiveType(Unknown Source)
+	at NumericExpressionToPrimitiveDepType_6.run(NumericExpressionToPrimitiveDepType_6.java:23)
+	at harness.x10Test.execute(x10Test.java:103)
+	at NumericExpressionToPrimitiveDepType_6.main(NumericExpressionToPrimitiveDepType_6.java:51)
+	at NumericExpressionToPrimitiveDepType_6$Main.run(NumericExpressionToPrimitiveDepType_6.java:43)
+	at x10.runtime.Activity.runWithinFinish(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$BootActivity.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m0.975s
+user	0m0.967s
+sys	0m0.129s
+
+****** Constructs.Cast.PrimitiveDependentTypeCast NumericExpressionToPrimitiveDepType_6 failed: run
+
+****** Constructs.Boxing Boxing1 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Boxing' '-d' './Constructs/Boxing' './Constructs/Boxing/./Boxing1.x10'
+./Constructs/Boxing/./Boxing1.x10:11: Type operand int must be a reference
+    type.
+./Constructs/Boxing/./Boxing1.x10:13: Type operand double must be a reference
+    type.
+2 errors.
+
+real	0m2.811s
+user	0m3.578s
+sys	0m0.276s
+
+****** Constructs.Boxing Boxing1 failed: compile
+
+****** Constructs.Array MiscTest1 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./MiscTest1.x10'
+./Constructs/Array/./MiscTest1.x10:31: The == operator must have operands of
+    similar type.
+./Constructs/Array/./MiscTest1.x10:66: The == operator must have operands of
+    similar type.
+./Constructs/Array/./MiscTest1.x10:80: The == operator must have operands of
+    similar type.
+3 errors.
+
+real	0m3.131s
+user	0m4.114s
+sys	0m0.277s
+
+****** Constructs.Array MiscTest1 failed: compile
+
+****** Constructs.Array ArrayTypeCheck ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./ArrayTypeCheck.x10'
+Cast from x10.lang.IntReferenceArray to x10.lang.IntReferenceArray/*(:self.distribution=E)*/ is unsafe
+Cast from x10.lang.IntReferenceArray to x10.lang.IntReferenceArray/*(:self.distribution=D)*/ is unsafe
+
+real	0m5.465s
+user	0m6.567s
+sys	0m0.578s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'ArrayTypeCheck'
+1
+java.lang.ClassCastException: Expression is either not an instance of cast type or Constraints are not meet
+	at x10.lang.RuntimeCastChecker.throwClassCastException(Unknown Source)
+	at ArrayTypeCheck.run(ArrayTypeCheck.java:64)
+	at harness.x10Test.execute(x10Test.java:103)
+	at ArrayTypeCheck.main(ArrayTypeCheck.java:197)
+	at ArrayTypeCheck$Main.run(ArrayTypeCheck.java:189)
+	at x10.runtime.Activity.runWithinFinish(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$BootActivity.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m1.063s
+user	0m1.242s
+sys	0m0.130s
+
+****** Constructs.Array ArrayTypeCheck failed: run
+
+****** Constructs.Array Array3Boolean ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./Array3Boolean.x10'
+./Constructs/Array/./Array3Boolean.x10:11: The == operator must have operands
+    of similar type.
+1 error.
+
+real	0m2.878s
+user	0m3.776s
+sys	0m0.268s
+
+****** Constructs.Array Array3Boolean failed: compile
+
+****** Applications.NewJavaGrande.raytracer.distributed JGFRayTracerBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/raytracer/distributed' '-d' './Applications/NewJavaGrande/raytracer/distributed' './Applications/NewJavaGrande/raytracer/distributed/./JGFRayTracerBenchSizeA.x10'
+./Applications/NewJavaGrande/raytracer/distributed/raytracer/RayTracer.x10:204:
+    Cannot cast the expression of type "boolean/*(:self=true)*/" to type
+    "boolean".
+1 error.
+
+real	0m5.031s
+user	0m7.810s
+sys	0m0.337s
+
+****** Applications.NewJavaGrande.raytracer.distributed JGFRayTracerBenchSizeA failed: compile
+
+****** Constructs.PlaceCast PlaceCheck1 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/PlaceCast' '-d' './Constructs/PlaceCast' './Constructs/PlaceCast/./PlaceCheck1.x10'
+./Constructs/PlaceCast/./PlaceCheck1.x10:27: Could not find type "nullable".
+./Constructs/PlaceCast/./PlaceCheck1.x10:27: Could not find field or local
+    variable "ret".
+./Constructs/PlaceCast/./PlaceCheck1.x10:31: Could not find field or local
+    variable "ret".
+./Constructs/PlaceCast/./PlaceCheck1.x10:35: Could not find field or local
+    variable "ret".
+4 errors.
+
+real	0m2.851s
+user	0m3.621s
+sys	0m0.265s
+
+****** Constructs.PlaceCast PlaceCheck1 failed: compile
+
+****** Constructs.Atomic AtomicContainingWhen_MustFailRun ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Atomic' '-d' './Constructs/Atomic' './Constructs/Atomic/./AtomicContainingWhen_MustFailRun.x10'
+./Constructs/Atomic/./AtomicContainingWhen_MustFailRun.x10:29: method int
+    AtomicContainingWhen_MustFailRun.X.one(): Only nonblocking methods can be
+    called from nonblocking code.
+./Constructs/Atomic/./AtomicContainingWhen_MustFailRun.x10:30: method int
+    AtomicContainingWhen_MustFailRun.X.zero(): Only nonblocking methods can be
+    called from nonblocking code.
+./Constructs/Atomic/./AtomicContainingWhen_MustFailRun.x10:31: method int
+    AtomicContainingWhen_MustFailRun.X.two(): Only nonblocking methods can be
+    called from nonblocking code.
+./Constructs/Atomic/./AtomicContainingWhen_MustFailRun.x10:32: method static
+    void
+    AtomicContainingWhen_MustFailRun.Y.test(AtomicContainingWhen_MustFailRun.foo,
+    AtomicContainingWhen_MustFailRun.lockStruct): Only nonblocking methods can
+    be called from nonblocking code.
+4 errors.
+
+real	0m3.038s
+user	0m3.883s
+sys	0m0.269s
+
+****** Constructs.Atomic AtomicContainingWhen_MustFailRun failed: compile
+
+****** Constructs.Types PrimitiveLiteralHasLocation ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Types' '-d' './Constructs/Types' './Constructs/Types/./PrimitiveLiteralHasLocation.x10'
+./Constructs/Types/./PrimitiveLiteralHasLocation.x10:11:18:11:25: unexpected token(s) ignored
+x10c: Unable to parse PrimitiveLiteralHasLocation.x10.
+1 error.
+
+real	0m1.592s
+user	0m1.916s
+sys	0m0.154s
+
+****** Constructs.Types PrimitiveLiteralHasLocation failed: compile
+
+****** Constructs.Types PrimitiveHasLocation ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Types' '-d' './Constructs/Types' './Constructs/Types/./PrimitiveHasLocation.x10'
+./Constructs/Types/./PrimitiveHasLocation.x10:12: Cannot access field
+    "location" on an expression of non-reference type "int".
+1 error.
+
+real	0m2.616s
+user	0m3.307s
+sys	0m0.261s
+
+****** Constructs.Types PrimitiveHasLocation failed: compile
+
+****** Constructs.Extern AllArrayExternUnsafe ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Extern' '-d' './Constructs/Extern' './Constructs/Extern/./AllArrayExternUnsafe.x10'
+
+real	0m5.469s
+user	0m6.759s
+sys	0m0.584s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Extern:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'AllArrayExternUnsafe'
+java.lang.AssertionError
+	at x10.array.sharedmemory.DefaultArrayFactory.IntArray(Unknown Source)
+	at x10.array.sharedmemory.SpecializedArrayFactory.IntArray(Unknown Source)
+	at AllArrayExternUnsafe.run(AllArrayExternUnsafe.java:96)
+	at harness.x10Test.execute(x10Test.java:103)
+	at AllArrayExternUnsafe.main(AllArrayExternUnsafe.java:347)
+	at AllArrayExternUnsafe$Main.run(AllArrayExternUnsafe.java:339)
+	at x10.runtime.Activity.runWithinFinish(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$BootActivity.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m1.060s
+user	0m1.200s
+sys	0m0.131s
+
+****** Constructs.Extern AllArrayExternUnsafe failed: run
+
+****** Constructs.DepType FieldDepType ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./FieldDepType.x10'
+./Constructs/DepType/./FieldDepType.x10:4: The type of the variable
+    initializer "x10.lang.DoubleReferenceArray/*(:)*/" does not match that of
+    the declaration "x10.lang.DoubleReferenceArray/*(:self.rank=1,
+    self.rect=true, self.zeroBased=true)*/".
+1 error.
+
+real	0m2.610s
+user	0m3.329s
+sys	0m0.270s
+
+****** Constructs.DepType FieldDepType failed: compile
+
+****** Constructs.DepType DepTypeInMethodRet1 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/DepType' '-d' './Constructs/DepType' './Constructs/DepType/./DepTypeInMethodRet1.x10'
+./Constructs/DepType/./DepTypeInMethodRet1.x10:11: Cannot return expression of
+    type boolean/*(:)*/ from method public boolean/*(:self=t)*/
+    DepTypeInMethodRet1.m(boolean).
+1 error.
+
+real	0m2.772s
+user	0m3.587s
+sys	0m0.260s
+
+****** Constructs.DepType DepTypeInMethodRet1 failed: compile
+
+****** Constructs.Atomic AtomicMethodTest ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Atomic' '-d' './Constructs/Atomic' './Constructs/Atomic/./AtomicMethodTest.x10'
+
+real	0m4.989s
+user	0m6.084s
+sys	0m0.562s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Atomic:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'AtomicMethodTest'
+++++++ Test failed.
+
+real	0m0.967s
+user	0m1.466s
+sys	0m0.128s
+
+****** Constructs.Atomic AtomicMethodTest failed: run
+
+****** Constructs.Async AsyncTest3 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Async' '-d' './Constructs/Async' './Constructs/Async/./AsyncTest3.x10'
+
+real	0m5.308s
+user	0m6.341s
+sys	0m0.573s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Async:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'AsyncTest3'
+++++++ Test failed.
+
+real	0m1.048s
+user	0m1.214s
+sys	0m0.130s
+
+****** Constructs.Async AsyncTest3 failed: run
+
+****** Constructs.Array JavaArrayInitializer_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./JavaArrayInitializer_MustFailCompile.x10'
+
+real	0m5.364s
+user	0m6.630s
+sys	0m0.582s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'JavaArrayInitializer_MustFailCompile'
+1
+2
+++++++ Test succeeded.
+
+real	0m1.093s
+user	0m1.260s
+sys	0m0.131s
+
+****** Constructs.Array JavaArrayInitializer_MustFailCompile succeeded.
+
+****** Constructs.Array FlattenPlaceCast ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./FlattenPlaceCast.x10'
+x10c: ./Constructs/Array/FlattenPlaceCast.java:147: illegal start of
+    expression    
+     ;    
+     ^    
+     1 error    
+x10c: Non-zero return code: 1
+
+real	0m4.375s
+user	0m5.562s
+sys	0m0.466s
+
+****** Constructs.Array FlattenPlaceCast failed: compile
+
+****** Constructs.Array ArrayTypeCheck2 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./ArrayTypeCheck2.x10'
+./Constructs/Array/./ArrayTypeCheck2.x10:12: The type of the variable
+    initializer "x10.lang.IntReferenceArray/*(:self.onePlace=C_here,
+    self.rect=true, self.zeroBased=true, self.rank=2)*/" does not match that
+    of the declaration "x10.lang.IntReferenceArray/*(:self.rank=two)*/".
+1 error.
+
+real	0m2.863s
+user	0m3.886s
+sys	0m0.271s
+
+****** Constructs.Array ArrayTypeCheck2 failed: compile
+
+****** Constructs.Array ArrayDecl ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./ArrayDecl.x10'
+./Constructs/Array/./ArrayDecl.x10:15: Adding binding ia0=ia0.rank to has made
+    it inconsistent.
+1 error.
+Exception in thread "main" polyglot.util.InternalCompilerError: :15,13-28: Adding binding ia0=ia0.rank to  has made it inconsistent.
+	at polyglot.ext.x10.types.constr.Constraint_c.addBindingPromise(Constraint_c.java:224)
+	at polyglot.ext.x10.types.constr.Constraint_c.possiblyAddTypeConstraint(Constraint_c.java:263)
+	at polyglot.ext.x10.types.constr.Constraint_c.addBinding(Constraint_c.java:195)
+	at polyglot.ext.x10.types.X10ParsedClassType_c.addBinding(X10ParsedClassType_c.java:154)
+	at polyglot.ext.x10.types.X10ParsedClassType_c.setProperty(X10ParsedClassType_c.java:755)
+	at polyglot.ext.x10.types.X10ParsedClassType_c.setRank(X10ParsedClassType_c.java:688)
+	at polyglot.ext.x10.ast.X10Field_c.checkArrayFields(X10Field_c.java:145)
+	at polyglot.ext.x10.ast.X10Field_c.typeCheck(X10Field_c.java:90)
+	at polyglot.ext.jl.ast.JL_c.typeCheck(Unknown Source)
+	at polyglot.visit.TypeChecker.leaveCall(Unknown Source)
+	at polyglot.visit.ErrorHandlingVisitor.leaveCall(Unknown Source)
+	at polyglot.visit.ErrorHandlingVisitor.leave(Unknown Source)
+	at polyglot.visit.ContextVisitor.leave(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdge(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitChild(Unknown Source)
+	at polyglot.ext.jl.ast.Call_c.visitChildren(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdge(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitChild(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitList(Unknown Source)
+	at polyglot.ext.jl.ast.Call_c.visitChildren(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdge(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitChild(Unknown Source)
+	at polyglot.ext.jl.ast.Eval_c.visitChildren(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdge(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitChild(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitList(Unknown Source)
+	at polyglot.ext.jl.ast.AbstractBlock_c.visitChildren(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdge(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitChild(Unknown Source)
+	at polyglot.ext.x10.ast.X10MethodDecl_c.typeCheckOverride(X10MethodDecl_c.java:161)
+	at polyglot.ext.jl.ast.JL_c.typeCheckOverride(Unknown Source)
+	at polyglot.visit.TypeChecker.override(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdge(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitChild(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitList(Unknown Source)
+	at polyglot.ext.jl.ast.ClassBody_c.visitChildren(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdge(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitChild(Unknown Source)
+	at polyglot.ext.jl.ast.ClassDecl_c.visitChildren(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdge(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitChild(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visitList(Unknown Source)
+	at polyglot.ext.jl.ast.SourceFile_c.visitChildren(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(Unknown Source)
+	at polyglot.visit.NodeVisitor.visitEdge(Unknown Source)
+	at polyglot.ext.jl.ast.Node_c.visit(Unknown Source)
+	at polyglot.frontend.VisitorPass.run(Unknown Source)
+	at polyglot.frontend.Scheduler.runPass(Unknown Source)
+	at polyglot.frontend.Scheduler.runGoal(Unknown Source)
+	at polyglot.frontend.Scheduler.attemptGoal(Unknown Source)
+	at polyglot.frontend.Scheduler.attemptGoal(Unknown Source)
+	at polyglot.frontend.Scheduler.attemptGoal(Unknown Source)
+	at polyglot.frontend.Scheduler.attemptGoal(Unknown Source)
+	at polyglot.frontend.Scheduler.attemptGoal(Unknown Source)
+	at polyglot.frontend.Scheduler.runToCompletion(Unknown Source)
+	at polyglot.frontend.Compiler.compile(Unknown Source)
+	at polyglot.frontend.Compiler.compileFiles(Unknown Source)
+	at polyglot.main.Main.start(Unknown Source)
+	at polyglot.main.Main.start(Unknown Source)
+	at polyglot.main.Main.main(Unknown Source)
+
+real	0m3.255s
+user	0m4.274s
+sys	0m0.281s
+
+****** Constructs.Array ArrayDecl failed: compile
+
+****** Constructs.Array ArrayCopy3 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./ArrayCopy3.x10'
+./Constructs/Array/./ArrayCopy3.x10:116: The type of the variable initializer
+    "x10.lang.dist/*(:self.rank=r.rank)*/" does not match that of the
+    declaration "x10.lang.dist/*(:self.rank=4)*/".
+./Constructs/Array/./ArrayCopy3.x10:117: The type of the variable initializer
+    "x10.lang.dist/*(:self.rank=r.rank)*/" does not match that of the
+    declaration "x10.lang.dist/*(:self.rank=4)*/".
+./Constructs/Array/./ArrayCopy3.x10:122: Method
+    arrayCopy(x10.lang.IntReferenceArray,
+    x10.lang.IntReferenceArray/*(:self.rank=A.rank)*/) in ArrayCopy3 cannot be
+    called with arguments (x10.lang.IntReferenceArray/*(:self.rank=4)*/,
+    x10.lang.IntReferenceArray/*(:self.rank=A.rank)*/).
+3 errors.
+
+real	0m3.495s
+user	0m4.775s
+sys	0m0.258s
+
+****** Constructs.Array ArrayCopy3 failed: compile
+
+****** Constructs.Array ArrayArrayInitializerShorthand ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./ArrayArrayInitializerShorthand.x10'
+./Constructs/Array/./ArrayArrayInitializerShorthand.x10:13:38:13:38: "Expression" is invalid
+./Constructs/Array/./ArrayArrayInitializerShorthand.x10:13:42:13:42: "?" expected after this token
+./Constructs/Array/./ArrayArrayInitializerShorthand.x10:13:30:13:56: ": ConditionalExpression" inserted to complete scope
+./Constructs/Array/./ArrayArrayInitializerShorthand.x10:13:9:13:56: ";" inserted to complete scope
+x10c: Unable to parse ArrayArrayInitializerShorthand.x10.
+1 error.
+
+real	0m1.663s
+user	0m1.949s
+sys	0m0.172s
+
+****** Constructs.Array ArrayArrayInitializerShorthand failed: compile
+
+****** Applications.OtherApps Tree ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Tree.x10'
+./Applications/OtherApps/./Tree.x10:46: Local tt not found.
+1 error.
+
+real	0m2.623s
+user	0m3.234s
+sys	0m0.308s
+
+****** Applications.OtherApps Tree failed: compile
+
+****** Applications.OtherApps Jacobi ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Jacobi.x10'
+Cast from x10.lang.dist to x10.lang.dist/*(:self.rank=2)*/ is unsafe
+./Applications/OtherApps/./Jacobi.x10:38: Cannot translate term
+    |Jacobi(polyglot.ext.x10.ast.X10CanonicalTypeNode_c) to a term.
+1 error.
+
+real	0m2.840s
+user	0m3.671s
+sys	0m0.269s
+
+****** Applications.OtherApps Jacobi failed: compile
+
+****** Applications.OtherApps GameOfLife ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./GameOfLife.x10'
+./Applications/OtherApps/./GameOfLife.x10:79: The == operator must have
+    operands of similar type.
+1 error.
+
+real	0m2.976s
+user	0m3.788s
+sys	0m0.258s
+
+****** Applications.OtherApps GameOfLife failed: compile
+
+****** Applications.OtherApps Edmiston_Parallel3 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Parallel3.x10'
+Cast from x10.lang.dist to x10.lang.dist/*(:self.rank=2)*/ is unsafe
+
+real	0m7.099s
+user	0m9.758s
+sys	0m0.612s
+++++++ Compilation succeeded.
+++++++ Got killed by signal 9
+++++++ Time limit was 150 seconds
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Applications/OtherApps:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'Edmiston_Parallel3'
+
+****** Applications.OtherApps Edmiston_Parallel3 failed: timeout
+
+****** Applications.OtherApps Edmiston_Parallel2 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./Edmiston_Parallel2.x10'
+
+real	0m6.382s
+user	0m7.936s
+sys	0m0.579s
+++++++ Compilation succeeded.
+++++++ Got killed by signal 9
+++++++ Time limit was 150 seconds
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Applications/OtherApps:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'Edmiston_Parallel2'
+
+****** Applications.OtherApps Edmiston_Parallel2 failed: timeout
+
+****** Applications.NewJavaGrande.raytracer.serial JGFRayTracerBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/raytracer/serial' '-d' './Applications/NewJavaGrande/raytracer/serial' './Applications/NewJavaGrande/raytracer/serial/./JGFRayTracerBenchSizeA.x10'
+./Applications/NewJavaGrande/raytracer/serial/raytracer/RayTracer.x10:163:
+    Local leftVec not found.
+1 error.
+
+real	0m4.633s
+user	0m6.675s
+sys	0m0.343s
+
+****** Applications.NewJavaGrande.raytracer.serial JGFRayTracerBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.raytracer.parallel JGFRayTracerBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/raytracer/parallel' '-d' './Applications/NewJavaGrande/raytracer/parallel' './Applications/NewJavaGrande/raytracer/parallel/./JGFRayTracerBenchSizeA.x10'
+./Applications/NewJavaGrande/raytracer/parallel/raytracer/RayTracer.x10:162:
+    Local leftVec not found.
+1 error.
+
+real	0m4.948s
+user	0m7.263s
+sys	0m0.339s
+
+****** Applications.NewJavaGrande.raytracer.parallel JGFRayTracerBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.montecarlo.serial JGFMonteCarloBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/montecarlo/serial' '-d' './Applications/NewJavaGrande/montecarlo/serial' './Applications/NewJavaGrande/montecarlo/serial/./JGFMonteCarloBenchSizeA.x10'
+./Applications/NewJavaGrande/montecarlo/serial/montecarlo/AppDemo.x10:146:
+    Local t not found.
+1 error.
+
+real	0m4.676s
+user	0m6.589s
+sys	0m0.346s
+
+****** Applications.NewJavaGrande.montecarlo.serial JGFMonteCarloBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.montecarlo.parallel JGFMonteCarloBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/montecarlo/parallel' '-d' './Applications/NewJavaGrande/montecarlo/parallel' './Applications/NewJavaGrande/montecarlo/parallel/./JGFMonteCarloBenchSizeA.x10'
+./Applications/NewJavaGrande/montecarlo/parallel/montecarlo/AppDemo.x10:144:
+    Local t not found.
+1 error.
+
+real	0m4.712s
+user	0m6.499s
+sys	0m0.351s
+
+****** Applications.NewJavaGrande.montecarlo.parallel JGFMonteCarloBenchSizeA failed: compile
+
+****** Applications.NewJavaGrande.montecarlo.distributed JGFMonteCarloBenchSizeA ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Applications/NewJavaGrande/montecarlo/distributed' '-d' './Applications/NewJavaGrande/montecarlo/distributed' './Applications/NewJavaGrande/montecarlo/distributed/./JGFMonteCarloBenchSizeA.x10'
+./Applications/NewJavaGrande/montecarlo/distributed/montecarlo/AppDemo.x10:143:
+    Local t not found.
+1 error.
+
+real	0m4.709s
+user	0m6.742s
+sys	0m0.360s
+
+****** Applications.NewJavaGrande.montecarlo.distributed JGFMonteCarloBenchSizeA failed: compile
+
+****** Misc RemoteAccessCheck ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./RemoteAccessCheck.x10'
+
+real	0m5.723s
+user	0m6.672s
+sys	0m0.587s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Misc:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'RemoteAccessCheck'
+2
+3
+error=2 error2=3
+++++++ Test failed.
+
+real	0m1.049s
+user	0m1.203s
+sys	0m0.131s
+
+****** Misc RemoteAccessCheck failed: run
+
+****** Constructs.StorageClass StorageClassesTest ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/StorageClass' '-d' './Constructs/StorageClass' './Constructs/StorageClass/./StorageClassesTest.x10'
+./Constructs/StorageClass/./StorageClassesTest.x10:21:13:21:13: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:21:28:22:11: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:22:26:23:16: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:23:18:24:16: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:24:18:25:16: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:25:18:26:16: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:26:18:27:16: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:27:28:28:22: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:28:27:29:20: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:27:18:29:27: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:21:9:30:17: misplaced construct(s)
+./Constructs/StorageClass/./StorageClassesTest.x10:35:13:35:13: unexpected token(s) ignored
+./Constructs/StorageClass/./StorageClassesTest.x10:35:25:35:25: "PlaceType" is invalid
+./Constructs/StorageClass/./StorageClassesTest.x10:35:9:35:28: misplaced construct(s)
+x10c: Unable to parse StorageClassesTest.x10.
+1 error.
+
+real	0m1.972s
+user	0m2.369s
+sys	0m0.229s
+
+****** Constructs.StorageClass StorageClassesTest failed: compile
+
+****** Constructs.Nullable NullableOverriding ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableOverriding.x10'
+x10c: ./Constructs/Nullable/NullableOverriding.java:45: m(NullableOverriding)
+    is already defined in NullableOverriding    
+     m(    
+     ^    
+     1 error    
+x10c: Non-zero return code: 1
+
+real	0m4.851s
+user	0m5.433s
+sys	0m0.561s
+
+****** Constructs.Nullable NullableOverriding failed: compile
+
+****** Constructs.Point PointRebinding ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Point' '-d' './Constructs/Point' './Constructs/Point/./PointRebinding.x10'
+./Constructs/Point/./PointRebinding.x10:12: Could not find field or local
+    variable "point".
+./Constructs/Point/./PointRebinding.x10:14: Could not find field or local
+    variable "i".
+2 errors.
+
+real	0m2.881s
+user	0m3.488s
+sys	0m0.247s
+
+****** Constructs.Point PointRebinding failed: compile
+
+****** Constructs.PlaceCast PlaceCast2 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/PlaceCast' '-d' './Constructs/PlaceCast' './Constructs/PlaceCast/./PlaceCast2.x10'
+./Constructs/PlaceCast/./PlaceCast2.x10:9: The condition of a dependent type
+    clause must be non-empty.
+1 error.
+
+real	0m2.940s
+user	0m3.289s
+sys	0m0.262s
+
+****** Constructs.PlaceCast PlaceCast2 failed: compile
+
+****** Constructs.PlaceCast PlaceCast ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/PlaceCast' '-d' './Constructs/PlaceCast' './Constructs/PlaceCast/./PlaceCast.x10'
+./Constructs/PlaceCast/./PlaceCast.x10:9: The condition of a dependent type
+    clause must be non-empty.
+1 error.
+
+real	0m2.882s
+user	0m3.446s
+sys	0m0.251s
+
+****** Constructs.PlaceCast PlaceCast failed: compile
+
+****** Constructs.Nullable NullableArray4 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableArray4.x10'
+x10c: ./Constructs/Nullable/NullableArray4.java:156: ';' expected    
+     /*nullable*/x10.lang.GenericReferenceArray/*T[/*
+    nullable<*/NullableArray4.Sub/*>*/]*/ subarr11 =    
+     ^    
+     ./Constructs/Nullable/NullableArray4.java:192: ';' expected    
+     /*nullable*/x10.lang.GenericReferenceArray/*T[/*
+    nullable<*/NullableArray4.Sup/*>*/]*/ suparr11 =    
+     ^    
+     2 errors    
+x10c: Non-zero return code: 1
+
+real	0m4.887s
+user	0m6.124s
+sys	0m0.483s
+
+****** Constructs.Nullable NullableArray4 failed: compile
+
+****** Constructs.Nullable NullableArray2 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableArray2.x10'
+./Constructs/Nullable/./NullableArray2.x10:24: Cannot assign
+    x10.lang.IntReferenceArray/*(:self.onePlace=C_here, self.rect=true,
+    self.zeroBased=true, self.rank=1, self.rail=true)*/ to /*
+    nullable<*/x10.lang.GenericReferenceArray/*T[/*
+    nullable<*/int/*>*/]*//*>*/.
+1 error.
+
+real	0m2.954s
+user	0m3.741s
+sys	0m0.267s
+
+****** Constructs.Nullable NullableArray2 failed: compile
+
+****** Constructs.Exceptions Exceptions_BadPlace ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Exceptions' '-d' './Constructs/Exceptions' './Constructs/Exceptions/./Exceptions_BadPlace.x10'
+
+real	0m5.492s
+user	0m6.774s
+sys	0m0.583s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Exceptions:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180  x10.lang.Runtime  'Exceptions_BadPlace'
+1
+++++++ Test failed.
+
+real	0m1.171s
+user	0m1.202s
+sys	0m0.126s
+
+****** Constructs.Exceptions Exceptions_BadPlace failed: run

@@ -1,0 +1,52 @@
+\section{Clocked types}\index{types!clocked}
+
+We allow types to specify clocks, via a {\cf clocked(c)} modifier,
+e.g.{}
+
+\begin{x10}
+  clocked(c) int r;
+\end{x10}
+
+This declaration asserts that {\cf r} is accessible
+(readable/writable) only by those statements that are clocked on {\cf
+c}. Thus propagation of the clock provides some control over the
+``visibility'' of {\cf r}.
+
+The declaration 
+
+\begin{x10}
+  clocked(c) final int l = r;
+\end{x10}
+
+\noindent asserts additionally that in each clock instant {\cf l} is final, 
+i.e.{} the value of {\cf l} may be reset at the beginning of each phase
+of {\tt c} but stays constant during the phase.
+
+This statement terminates when the computation of {\tt r} has
+terminated and the assignment has been performed.
+
+\todo{Generalize the syntax so that aggregate variables can be clocked with an aggregate clock of the same shape.}
+
+\subsection{Clocked assignment}\index{assignment!clocked}
+We expect that most arrays containing application data will be
+declared to be {\cf clocked final}. We support this very powerful type
+declaration by providing a new statement:
+{\footnotesize
+\begin{verbatim}
+  next(c) l = r; 
+\end{verbatim}}
+
+
+\noindent 
+for a variable $l$ declared to be clocked on $c$. The statement
+assigns $r$ to the {\em next} value of $l$. There may be multiple such
+assignments before the clock advances. The last such assignment
+specifies the value of the variable that will be visible after the
+clock has advanced.  If the variable is {\cf clocked final} it is
+guaranteed that {\em all} readers of the variable throughout this
+phase will see the value $r$.
+
+The expression {\tt r} is implicitly treated as {\tt now(c) r}. That
+is, the clock {\tt c} will not advance until the computation of {\tt r} has
+terminated.
+

@@ -1,0 +1,125 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:p="urn:schemas-microsoft-com:office:powerpoint"
+xmlns:oa="urn:schemas-microsoft-com:office:activation"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=PowerPoint.Slide>
+<meta name=Generator content="Microsoft PowerPoint 10">
+<link id=Main-File rel=Main-File href="../web-tutorial-1.htm">
+<link rel=Preview href=preview.wmf>
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+p\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+v\:textbox {display:none;}
+</style>
+<![endif]-->
+<title>Slide 1</title>
+<meta name=Description
+content="12/8/2006: Concurrency Control:  Conditional atomic blocks, when, await">
+<link rel=Stylesheet href="master06_stylesheet.css">
+<![if !ppt]>
+<style>
+.CT
+	{color:#7889FB;}
+</style>
+<style media=print>
+<!--.sld
+	{left:0px !important;
+	width:6.0in !important;
+	height:4.5in !important;
+	font-size:76% !important;}
+-->
+</style>
+<script src=script.js></script><script><!--
+if( !IsNts() ) Redirect( "PPTSld" );
+//--></script><!--[if vml]><script>g_vml = 1;
+</script><![endif]--><![endif]><o:shapelayout v:ext="edit">
+ <o:idmap v:ext="edit" data="1360"/>
+</o:shapelayout>
+</head>
+
+<body lang=EN-US style='margin:0px;background-color:white'
+onclick="DocumentOnClick()" onresize="_RSW()" onload="LoadSld()"
+onkeypress="_KPH()">
+
+<div id=SlideObj class=sld style='position:absolute;top:0px;left:0px;
+width:755px;height:566px;font-size:16px;background-color:white;clip:rect(0%, 101%, 101%, 0%);
+visibility:hidden'><p:slide coordsize="720,540"
+ colors="#FFFFFF,#000000,#808080,#7889FB,#7889FB,#2DB6B3,#996633,#D18213"
+ masterhref="master15.xml">
+ <p:shaperange href="master15.xml#_x0000_s431105"/><![if !ppt]><p:shaperange
+  href="master15.xml#_x0000_s431124"/><![if !vml]><img border=0
+ v:shapes="_x0000_s431124" src="master15_image400.jpg" style='position:absolute;
+ top:91.16%;left:0%;width:100.0%;height:9.01%'><![endif]><p:shaperange
+  href="master15.xml#_x0000_s431123"/><![if !vml]><img border=0
+ v:shapes="_x0000_s431123" src="master15_image401.jpg" style='position:absolute;
+ top:0%;left:0%;width:100.0%;height:9.89%'><![endif]><p:shaperange
+  href="master15.xml#_x0000_s431110"/>
+ <div v:shape="_x0000_s431110" class=O style='mso-char-wrap:0;mso-kinsoku-overflow:
+ 0;position:absolute;top:1.94%;left:11.78%;width:38.01%;height:3.0%'><span
+ style='font-size:78%;color:white'>IBM Research: Software Technology</span></div>
+ <div v:shape="_x0000_s431111" class=O style='text-align:right;mso-char-wrap:
+ 0;mso-kinsoku-overflow:0;position:absolute;top:95.58%;left:63.57%;width:34.3%;
+ height:2.29%'><span style='font-size:56%;color:white'>© 2005 IBM Corporation</span></div>
+ <p:shaperange href="master15.xml#_x0000_s431112"/><![if !vml]><img border=0
+ v:shapes="_x0000_s431112" src="master15_image402.gif" style='position:absolute;
+ top:.88%;left:92.58%;width:6.75%;height:3.53%'><![endif]><p:shaperange
+  href="master15.xml#_x0000_s431113"/>
+ <div v:shape="_x0000_s431113" class=O style='mso-line-spacing:"100 50 0";
+ position:absolute;top:95.58%;left:2.64%;width:9.13%;height:2.29%'><span
+ style='mso-hansi-font-family:Arial;font-size:56%;color:white;mso-field-code:
+ meta16'><b>52</b></span><span style='mso-hansi-font-family:Arial;font-size:
+ 56%;color:white;mso-special-format:lastCR;display:none'><b>&#13;</b></span></div>
+ <p:shaperange href="master15.xml#_x0000_s431116"/><![if !vml]><img border=0
+ v:shapes="_x0000_s431116" src="master15_image403.gif" style='position:absolute;
+ top:2.12%;left:10.72%;width:.39%;height:8.3%'><![endif]><p:shaperange
+  href="master15.xml#_x0000_s431117"/><![if !vml]><img border=0
+ v:shapes="_x0000_s431117" src="master15_image404.gif" style='position:absolute;
+ top:90.98%;left:10.72%;width:.39%;height:6.71%'><![endif]><p:shaperange
+  href="master15.xml#_x0000_s431120"/><![if !vml]><img border=0
+ v:shapes="_x0000_s431120" src="master15_image003.gif" style='position:absolute;
+ top:32.15%;left:46.62%;width:53.37%;height:52.12%'><![endif]><p:shaperange
+  href="master15.xml#_x0000_s431121"/><![if !vml]><img border=0
+ v:shapes="_x0000_s431121" src="master15_image405.gif" style='position:absolute;
+ top:27.73%;left:3.31%;width:96.95%;height:4.77%'><![endif]><p:shaperange
+  href="master15.xml#_x0000_s431122"/><map name="map_m18"></map><![if !ppt]><img
+ border=0 v:shapes="_x0000_s431122" src="master15_image406.gif"
+ usemap="#map_m18" alt="Text Box: Software Technology Department"
+ style='position:absolute;top:10.07%;left:0%;width:7.81%;height:81.44%'><![endif]>
+ <div v:shape="_x0000_s431122" class=O style='position:absolute;top:10.07%;
+ left:2.38%;width:2.91%;height:78.62%;visibility:hidden'>
+ <div style='mso-line-spacing:"100 50 0";position:absolute;top:49.21%;
+ left:-927.27%;width:2022.72%;height:4.94%;visibility:hidden'><span
+ style='color:white;mso-color-index:0'>Software Technology Department</span></div>
+ </div>
+ <p:shaperange href="master15.xml#_x0000_s431128"/><![endif]><p:shaperange
+  href="master15.xml#_x0000_m431108"/><v:shape id="_x0000_s1392642" type="#_x0000_m431108"
+  style='position:absolute;left:54pt;top:60pt;width:612pt;height:84pt'
+  o:userdrawn="f">
+  <v:fill o:detectmouseclick="f"/>
+  <v:stroke o:forcedash="f"/>
+  <v:imagedata preservegray="f" grayscale="f" bilevel="f"/>
+  <o:lock v:ext="edit" text="f"/>
+  <p:placeholder type="centerTitle"/></v:shape><p:shaperange
+  href="master15.xml#_x0000_m431129"/><v:shape id="_x0000_s1392643" type="#_x0000_m431129"
+  style='position:absolute;left:66pt;top:186pt;width:618pt;height:300pt'
+  o:userdrawn="f">
+  <v:fill o:detectmouseclick="t"/>
+  <v:stroke o:forcedash="t"/>
+  <o:lock v:ext="edit" text="f"/>
+  <p:placeholder type="subTitle" position="1"/></v:shape>
+ <div v:shape="_x0000_s1392642" class=CT><span style='position:absolute;
+ top:14.66%;left:8.47%;width:83.04%;height:6.0%'>Concurrency Control: <br>
+  </span><span style='position:absolute;top:20.31%;left:8.47%;width:83.04%;
+ height:6.0%'>Conditional atomic blocks, when, await</span></div>
+</p:slide></div>
+
+</body>
+
+</html>

@@ -1,0 +1,78 @@
+\documentclass{article}
+%\usepackage{proof}
+\usepackage{fullpage}
+\usepackage{amssymb}
+\bibliographystyle{abbrv}
+
+%\newcommand \limp {\hbox{ $-\!\!\,\circ $ } }
+\newcommand \inp[2] {\hbox{in}~#1~#2}
+\newcommand \outp[2] {\hbox{out}~#1~#2}
+\newcommand \inpL {\hbox{in}\Lscr}
+\newcommand \inpR {\hbox{in}\Rscr}
+\newcommand \limp {\multimap}
+\newcommand \limpR {\limp\Rscr}
+\newcommand \limpL {\limp\Lscr}
+\newcommand \nuR {\nu\Rscr}
+\newcommand \nuL {\nu\Lscr}
+\newcommand \nme {\hbox{\sl name}~}
+\newcommand \ws {\hbox{\sl ws}}
+\newcommand \sst {\hbox{\sl ss}}
+\newcommand \rss {\hbox{\sl rs}}
+\newcommand \IMLL {\hbox{\sl IMLL}}
+\newcommand \IMLLnd {\hbox{\sl IMLL}_\nu^{\Delta}}
+\newcommand \vvec[1]{\stackrel{\rightarrow}{#1}}
+\newcommand \en[1]{[\![#1]\!]}
+\newcommand \ens[1]{\lceil #1 \rceil}
+\newcommand \enf[1]{\langle #1 \rangle}
+\newcommand \act[3]{\hbox{\sl act}~#1~#2~#3}
+\newcommand \fvar[1] {\hbox{fn}(#1)}
+\newcommand{\alt}{{\;{\tt\char`\|}\;}}
+\newcommand{\Hat}{{\;{\tt\char`\^}\;}}
+\newcommand{\now}{\mbox{\bf\tt now}}
+\newcommand{\every}{\mbox{\bf\tt every}}
+\newcommand{\then}{\rightarrow}
+\newcommand{\Else}{\Rightarrow}
+\newcommand{\next}{\mbox{\bf\tt next}}
+\newcommand{\sync}{\mbox{\bf\tt sync}}
+
+\def\nforall{\mu}
+\def\nexists{\nu}
+%\def\tr{\triangleright}
+%\def\tl{\triangleleft}
+\def\tr{\triangleright}
+\def\tl{\triangleleft}
+\def\emp{\emptyset}
+\def\derives{\longrightarrow}
+\def\equiderives{\longleftrightarrow}
+\def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
+\def\ccfont{\sf}
+\def\cc{{\ccfont cc}}
+\def\tcc{{\ccfont tcc}}
+\def\x10{{\ccfont x10}}
+\def\X10{{\ccfont X10}}
+\def\fx10{{\ccfont fx10}}
+\def\java{{\sc Java}}
+\def\kava{{\sc Kava}}
+\newcommand \todo[1] {\begin{quotation}{\bf Todo:} {\footnotesize\em #1}\end{quotation}}
+\newcommand \metanote[1] {\begin{quotation}{\bf MetaNote:} {\footnotesize\em #1}\end{quotation}}
+\begin{document}
+\title{\X10{} Design Notes: Reference classes\\
+}
+\author{{\sc PERCS} Area II\footnote{Contact: Vijay Saraswat, {\tt vsaraswa@us.ibm.com} This note is intended primarily for people working on or evaluating the \x10{} design.}\\ 
+{\sc ****DRAFT*** v0.02}\\ 
+(Please do not circulate)
+}
+
+\maketitle
+
+\section{References} 
+This section is normative.
+
+\todo{Implicit nullary constructor for all classes? What is its
+accessibility?}
+
+
+\todo{vj: Develop syntax for infix methods, after {\sc kava}.}
+
+
+\paragraph{The type {\tt x10.lang.Object}}

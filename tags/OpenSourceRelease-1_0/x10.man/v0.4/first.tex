@@ -1,0 +1,121 @@
+% First page
+
+\thispagestyle{empty}
+
+% \todo{"another" report?}
+
+\topnewpage[{
+\begin{center}   
+{\huge\bf Report on the Experimental Language \Xten{}}
+\vskip 1ex
+$$
+\begin{tabular}{l@{\extracolsep{.5in}}lll}
+\multicolumn{4}{c}{\sc DRAFT v 0.41}\\
+\multicolumn{4}{c}{\sc Please send comments to 
+V\authorsc{IJAY} S\authorsc{ARASWAT} at 
+{\tt vsaraswa@us.ibm.com}}\\
+%\multicolumn{4}{c}{({\sc IBM Confidential})}
+
+%\ldots
+\end{tabular}
+$$
+\vskip 2ex
+% {\it Dedicated to the Memory of APL} % vj
+{\bf Feb 7, 2006}
+\vskip 2.6ex
+\end{center}
+
+
+}]
+
+
+\chapter*{Summary}
+This draft report provides an initial description of the programming
+language \Xten. \Xten{} is a single-inheritance class-based object-oriented
+(OO) programming language designed for high-performance, high-productivity
+computing on high-end computers supporting $\approx 10^5$ hardware threads
+and $\approx 10^{15}$ operations per second. 
+
+{}\Xten{} is based on state-of-the-art object-oriented programming
+languages and deviates from them only as necessary to support its
+design goals. The language is intended to have a simple and clear
+semantics and be readily accessible to mainstream OO programmers. It
+is intended to support a wide variety of concurrent programming
+idioms.
+%, incuding data parallelism, task parallelism, pipelining.
+%producer/consumer and divide and conquer.
+
+This document provides an initial description of the language and
+corresponds to the first implementation of the language.  
+%We expect to revise this document in the light of experience gained in implementing
+%and using this language.
+
+The \Xten{} design team consists of
+D\authorsc{AVID} B\authorsc{ACON}, 
+B\authorsc{OB} B\authorsc{LAINEY}, 
+P\authorsc{HILIPPE} C\authorsc{HARLES}, 
+P\authorsc{ERRY} C\authorsc{HENG}, 
+C\authorsc{HRISTOPHER} D\authorsc{ONAWA}, 
+J\authorsc{ULIAN} D\authorsc{OLBY}, 
+K\authorsc{EMAL} E\authorsc{BCIO\u{G}LU},
+P\authorsc{ATRICK} G\authorsc{ALLOP}, 
+C\authorsc{HRISTIAN} G\authorsc{ROTHOFF}, 
+A\authorsc{LLAN} K\authorsc{IELSTRA}, 
+R\authorsc{OBERT} O'\authorsc{CALLAHAN}, 
+F\authorsc{ILIP} P\authorsc{IZLO}, 
+V.T.~R\authorsc{AJAN}, 
+V\authorsc{IJAY} S\authorsc{ARASWAT} (contact author), 
+V\authorsc{IVEK} S\authorsc{ARKAR},
+A\authorsc{RMANDO} S\authorsc{OLAR-LEZAMA},  
+C\authorsc{HRISTOPH von} P\authorsc{RAUN}
+and 
+J\authorsc{AN} V\authorsc{ITEK}.
+
+For extended discussions and support we would like to thank: Calin
+Cascaval, Elmootaz Elnozahy, John Field, Bob Fuhrer, Orren Krieger,
+John McCalpin, Paul McKenney, Ram Rajamony, Frank Tip and Mandana
+Vaziri.
+
+We thank Jonathan Rhees and William Clinger with help in
+obtaining the \LaTeX{} style file and macros used in producing the
+Scheme report, after which this document is based. We acknowledge
+the influence of the $\mbox{\Java}^{\mbox{TM}}$ Language Specification \cite{jls2} document,
+as evidenced by the numerous citations in the text.
+
+This document is a revision of the {\cf 0.32} version of the Report,
+released on 17 July 2004. It documents the language corresponding to
+the first version of the implementation.  The implementation was done
+by P\authorsc{HILIPPE} C\authorsc{HARLES}, 
+C\authorsc{HRISTOPHER} D\authorsc{ONAWA}, 
+C\authorsc{HRISTIAN} G\authorsc{ROTHOFF}, 
+V\authorsc{IJAY} S\authorsc{ARASWAT},
+C\authorsc{HRISTOPH von} P\authorsc{RAUN}, and 
+K\authorsc{EMAL} E\authorsc{BCIO\u{G}LU}.
+
+The \Xten{} language has been developed as part of the IBM PERCS
+Project, which is supported in part by the Defense Advanced Research
+Projects Agency (DARPA) under contract No. NBCH30390004.
+
+%\vfill
+%\begin{center}
+%{\large \bf
+%*** DRAFT*** \\
+%%August 31, 1989
+%\today
+%}\end{center}
+
+\vfill
+\eject
+
+
+\chapter*{Contents}
+\addvspace{3.5pt}                  % don't shrink this gap
+\renewcommand{\tocshrink}{-3.5pt}  % value determined experimentally
+{\footnotesize
+\tableofcontents
+}
+
+\vfill
+\eject
+
+

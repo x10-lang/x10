@@ -1,0 +1,422 @@
+Starting: /u/x10/x10.common/bin/testScript0 -t 150 -shiftLog -m x10-dev@cs.purdue.edu
+Machine name: flyrc.watson.ibm.com
+Operating system: AIX
+Java home: /u/x10/TOOLS/Java5/j532redist/jre
+Java version: java version "1.5.0"
+  Java(TM) 2 Runtime Environment, Standard Edition (build pap32devifx-20060123)
+  IBM J9 VM (build 2.3, J2RE 1.5.0 IBM J9 2.3 AIX ppc-32 j9vmap3223ifx-20060123b (JIT enabled)
+  J9VM - 20051027_03723_bHdSMR
+  JIT  - 20051027_1437_r8
+  GC   - 20051020_AA)
+  JCL  - 20060120
+Current directory: /u/x10/x10.common/examples
+System load:   05:06AM   up 66 days,  18:34,  0 users,  load average: 0.92, 0.36, 0.14
+
+X10 tests started on 2006-08-13 05:06:12
+275 tests out of 287 met expectations. 12 did not meet expectations.
+5 implementation limitations did not meet expectations.  0 unexpectedly met expectations.
+
+The dates after each error message below show the earliest test run since which the same error message kept occurring continuously.
+
+Misc RemoteAccessCheck did not meet expectation: expected=Success actual=FailRun (2006-08-08 10:33:02).
+LIMITATION: Constructs.PlaceCast PlaceCheck1 did not meet expectation: expected=Success actual=FailRun (2006-08-08 10:33:02).
+Constructs.Exceptions Exceptions_BadPlace did not meet expectation: expected=Success actual=FailRun (2006-08-08 10:33:02).
+Constructs.Async AsyncTest3_MustFailRun did not meet expectation: expected=FailRun actual=Success (2006-08-08 10:33:02).
+Misc DepType did not meet expectation: expected=Success actual=FailCompile (2006-07-09 05:07:41).
+Misc ListTest did not meet expectation: expected=Success actual=FailCompile (2006-06-26 05:08:26).
+Misc FieldAccessTest did not meet expectation: expected=Success actual=FailCompile (2006-06-26 05:08:26).
+Constructs.Nullable DoubleToNullableDoubleTest did not meet expectation: expected=Success actual=FailCompile (2006-05-11 05:08:51).
+Constructs.Nullable DoubleToNullableDoubleCastTest did not meet expectation: expected=Success actual=FailCompile (2006-05-11 05:08:51).
+LIMITATION: Constructs.Nullable NullableOverriding did not meet expectation: expected=Success actual=FailCompile (2006-04-10 10:40:32).
+LIMITATION: Constructs.Atomic AtomicContainingWhen_MustFailRun did not meet expectation: expected=FailRun actual=Success (2006-04-10 10:40:32).
+Constructs.Point PointRebinding did not meet expectation: expected=Success actual=FailCompile (2006-01-18 05:07:19).
+Constructs.Array JavaArrayInitializer_MustFailCompile did not meet expectation: expected=FailCompile actual=FailRun (2006-01-07 05:07:27).
+Constructs.Nullable NullableArray4 did not meet expectation: expected=Success actual=FailCompile (2005-08-17 05:08:20).
+LIMITATION: Constructs.StorageClass StorageClassesTest did not meet expectation: expected=Success actual=FailCompile (2005-05-18 05:03:35).
+LIMITATION: Constructs.Init InitNonNullable_MustFailCompile did not meet expectation: expected=FailCompile actual=FailRun (2005-05-18 05:03:35).
+Constructs.Nullable NullableArray2 did not meet expectation: expected=Success actual=FailCompile (2005-05-13 04:58:00).
+
+
+****** Misc RemoteAccessCheck ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./RemoteAccessCheck.x10'
+
+real	0m6.349s
+user	0m7.734s
+sys	0m0.549s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Misc:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180 x10.lang.Runtime  'RemoteAccessCheck'
+2
+3
+++++++ Test failed.
+
+real	0m1.151s
+user	0m1.364s
+sys	0m0.142s
+
+****** Misc RemoteAccessCheck failed: run
+
+****** Constructs.PlaceCast PlaceCheck1 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/PlaceCast' '-d' './Constructs/PlaceCast' './Constructs/PlaceCast/./PlaceCheck1.x10'
+    interface x10.base.TypeArgument
+    interface x10.lang.ValueType
+
+real	0m6.565s
+user	0m8.659s
+sys	0m0.549s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/PlaceCast:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180 x10.lang.Runtime  'PlaceCheck1'
+num places = [place(id=0), place(id=1), place(id=2), place(id=3)]
+WARN - expected exception/error for remote field read in atomic
+WARN - expected exception/error for remote field write in atomic
+WARN - expected exception/error for remote method call in atomic
+WARN - expected exception/error for remote array element write in atomic
+WARN - expected exception/error for remote array element read in atomic
+++++++ Test failed.
+
+real	0m1.095s
+user	0m1.283s
+sys	0m0.141s
+
+****** Constructs.PlaceCast PlaceCheck1 failed: run
+
+****** Constructs.Exceptions Exceptions_BadPlace ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Exceptions' '-d' './Constructs/Exceptions' './Constructs/Exceptions/./Exceptions_BadPlace.x10'
+
+real	0m6.241s
+user	0m8.218s
+sys	0m0.548s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Exceptions:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180 x10.lang.Runtime  'Exceptions_BadPlace'
+1
+++++++ Test failed.
+
+real	0m1.171s
+user	0m1.326s
+sys	0m0.140s
+
+****** Constructs.Exceptions Exceptions_BadPlace failed: run
+
+****** Constructs.Async AsyncTest3_MustFailRun ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Async' '-d' './Constructs/Async' './Constructs/Async/./AsyncTest3_MustFailRun.x10'
+
+real	0m6.499s
+user	0m8.277s
+sys	0m0.521s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Async:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180 x10.lang.Runtime  'AsyncTest3_MustFailRun'
+++++++ Test succeeded.
+
+real	0m1.108s
+user	0m1.320s
+sys	0m0.141s
+
+****** Constructs.Async AsyncTest3_MustFailRun succeeded.
+
+****** Misc DepType ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./DepType.x10'
+:21: ./Misc/./DepType.x10:21:16:21:16: "Properties" expected after this token
+x10c: Unable to parse DepType.x10.
+2 errors.
+
+real	0m1.474s
+user	0m1.780s
+sys	0m0.136s
+
+****** Misc DepType failed: compile
+
+****** Misc ListTest ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./ListTest.x10'
+:30: Cannot return expression of type nullable<x10.lang.Integer> from method
+    public x10.lang.Integer ListTest.List.nth(int).
+1 error.
+
+real	0m2.577s
+user	0m3.293s
+sys	0m0.242s
+
+****** Misc ListTest failed: compile
+
+****** Misc FieldAccessTest ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Misc' '-d' './Misc' './Misc/./FieldAccessTest.x10'
+:15: Cannot return expression of type nullable<x10.lang.Object> from method
+    public FieldAccessTest FieldAccessTest.n().
+1 error.
+
+real	0m2.242s
+user	0m2.600s
+sys	0m0.249s
+
+****** Misc FieldAccessTest failed: compile
+
+****** Constructs.Nullable DoubleToNullableDoubleTest ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./DoubleToNullableDoubleTest.x10'
+:5: The type of the variable initializer "double" does not match that of the
+    declaration "nullable<double>".
+1 error.
+
+real	0m2.205s
+user	0m2.567s
+sys	0m0.243s
+
+****** Constructs.Nullable DoubleToNullableDoubleTest failed: compile
+
+****** Constructs.Nullable DoubleToNullableDoubleCastTest ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./DoubleToNullableDoubleCastTest.x10'
+:5: Cannot cast the expression of type "double" to type "nullable<double>".
+1 error.
+
+real	0m2.524s
+user	0m2.704s
+sys	0m0.213s
+
+****** Constructs.Nullable DoubleToNullableDoubleCastTest failed: compile
+
+****** Constructs.Nullable NullableOverriding ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableOverriding.x10'
+:33: No valid method call found for execute() in NullableOverriding.
+1 error.
+
+real	0m2.597s
+user	0m3.378s
+sys	0m0.243s
+
+****** Constructs.Nullable NullableOverriding failed: compile
+
+****** Constructs.Atomic AtomicContainingWhen_MustFailRun ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Atomic' '-d' './Constructs/Atomic' './Constructs/Atomic/./AtomicContainingWhen_MustFailRun.x10'
+
+real	0m6.103s
+user	0m7.486s
+sys	0m0.542s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Atomic:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180 x10.lang.Runtime  'AtomicContainingWhen_MustFailRun'
+in f1:#1
+in f1:#2
+in f0:#1
+in f0:#2
+in f2:#1
+in f2:#2
+in f2:#3
+in f2:#4
+in f2:#5
+in f3
+++++++ Test succeeded.
+
+real	0m1.060s
+user	0m1.199s
+sys	0m0.137s
+
+****** Constructs.Atomic AtomicContainingWhen_MustFailRun succeeded.
+
+****** Constructs.Point PointRebinding ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Point' '-d' './Constructs/Point' './Constructs/Point/./PointRebinding.x10'
+:12: Could not find field or local variable "point".
+:14: Could not find field or local variable "i".
+2 errors.
+
+real	0m2.472s
+user	0m3.074s
+sys	0m0.245s
+
+****** Constructs.Point PointRebinding failed: compile
+
+****** Constructs.Array JavaArrayInitializer_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Array' '-d' './Constructs/Array' './Constructs/Array/./JavaArrayInitializer_MustFailCompile.x10'
+
+real	0m5.638s
+user	0m7.045s
+sys	0m0.532s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Array:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180 x10.lang.Runtime  'JavaArrayInitializer_MustFailCompile'
+1
+2
+java.lang.Error
+	at harness.x10Test.chk(x10Test.java:183)
+	at JavaArrayInitializer_MustFailCompile.run(JavaArrayInitializer_MustFailCompile.java:98)
+	at harness.x10Test.execute(x10Test.java:92)
+	at JavaArrayInitializer_MustFailCompile.main(JavaArrayInitializer_MustFailCompile.java:126)
+	at JavaArrayInitializer_MustFailCompile$Main.run(JavaArrayInitializer_MustFailCompile.java:118)
+	at x10.runtime.Activity.finishRun(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$1.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m1.143s
+user	0m1.341s
+sys	0m0.140s
+
+****** Constructs.Array JavaArrayInitializer_MustFailCompile failed: run
+
+****** Constructs.Nullable NullableArray4 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableArray4.x10'
+:30: The type of the variable initializer "x10.lang.GenericReferenceArray"
+    does not match that of the declaration "x10.lang.GenericReferenceArray".
+:31: The type of the variable initializer "x10.lang.GenericReferenceArray"
+    does not match that of the declaration "x10.lang.GenericReferenceArray".
+:32: Cannot assign x10.lang.GenericReferenceArray to
+    x10.lang.GenericReferenceArray.
+:33: Cannot assign x10.lang.GenericReferenceArray to
+    x10.lang.GenericReferenceArray.
+:35: The type of the variable initializer "x10.lang.GenericReferenceArray"
+    does not match that of the declaration
+    "nullable<x10.lang.GenericReferenceArray>".
+:38: Cannot assign nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+:42: The type of the variable initializer "x10.lang.GenericReferenceArray"
+    does not match that of the declaration
+    "nullable<x10.lang.GenericReferenceArray>".
+:43: Cannot assign x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+:45: Cannot assign nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+:47: Cannot assign nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+:48: Cannot assign x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+:50: Cannot assign nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+:52: Cannot assign x10.lang.GenericReferenceArray to
+    x10.lang.GenericReferenceArray.
+:60: Cannot assign x10.lang.GenericReferenceArray to
+    x10.lang.GenericReferenceArray.
+:68: Cannot assign x10.lang.GenericReferenceArray to
+    x10.lang.GenericReferenceArray.
+:76: Cannot assign x10.lang.GenericReferenceArray to
+    x10.lang.GenericReferenceArray.
+:84: Cannot assign x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+:92: Cannot assign nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+:100: Cannot assign x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+:108: Cannot assign x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+:116: Cannot assign x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+:124: Cannot assign x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+:132: Cannot assign nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+:140: Cannot assign nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+:148: Cannot assign nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+:156: Cannot assign nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+:164: Cannot assign x10.lang.GenericReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+:180: Cannot assign nullable<x10.lang.GenericReferenceArray> to
+    nullable<x10.lang.GenericReferenceArray>.
+28 errors.
+
+real	0m3.089s
+user	0m3.520s
+sys	0m0.246s
+
+****** Constructs.Nullable NullableArray4 failed: compile
+
+****** Constructs.StorageClass StorageClassesTest ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/StorageClass' '-d' './Constructs/StorageClass' './Constructs/StorageClass/./StorageClassesTest.x10'
+:21: ./Constructs/StorageClass/./StorageClassesTest.x10:21:13:21:13:
+    unexpected token(s) ignored
+:21: ./Constructs/StorageClass/./StorageClassesTest.x10:21:28:21:28: "{"
+    expected after this token
+:28: ./Constructs/StorageClass/./StorageClassesTest.x10:28:22:28:22:
+    "identifier" is invalid
+:35: ./Constructs/StorageClass/./StorageClassesTest.x10:35:13:35:13:
+    unexpected token(s) ignored
+:35: ./Constructs/StorageClass/./StorageClassesTest.x10:35:25:35:25:
+    "PlaceType" is invalid
+:21-35: ./Constructs/StorageClass/./StorageClassesTest.x10:21:9:35:28:
+    misplaced construct(s)
+x10c: Unable to parse StorageClassesTest.x10.
+7 errors.
+
+real	0m1.732s
+user	0m2.191s
+sys	0m0.148s
+
+****** Constructs.StorageClass StorageClassesTest failed: compile
+
+****** Constructs.Init InitNonNullable_MustFailCompile ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Init' '-d' './Constructs/Init' './Constructs/Init/./InitNonNullable_MustFailCompile.x10'
+
+real	0m6.369s
+user	0m7.704s
+sys	0m0.557s
+++++++ Compilation succeeded.
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128M -Djava.library.path="/u/x10/x10.common/lib/aix_ppc" -ea -classpath "./Constructs/Init:.:/u/x10/x10.common/lib/x10.jar"   -Dx10test.timeout=180 x10.lang.Runtime  'InitNonNullable_MustFailCompile'
+java.lang.NullPointerException
+	at InitNonNullable_MustFailCompile.run(InitNonNullable_MustFailCompile.java:30)
+	at harness.x10Test.execute(x10Test.java:92)
+	at InitNonNullable_MustFailCompile.main(InitNonNullable_MustFailCompile.java:152)
+	at InitNonNullable_MustFailCompile$Main.run(InitNonNullable_MustFailCompile.java:144)
+	at x10.runtime.Activity.finishRun(Unknown Source)
+	at x10.runtime.DefaultRuntime_c$1.run(Unknown Source)
+	at x10.runtime.LocalPlace_c$1.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:665)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:690)
+	at java.lang.Thread.run(Thread.java:788)
+++++++ Test failed.
+
+real	0m1.178s
+user	0m1.447s
+sys	0m0.126s
+
+****** Constructs.Init InitNonNullable_MustFailCompile failed: run
+
+****** Constructs.Nullable NullableArray2 ******
+
+
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Nullable' '-d' './Constructs/Nullable' './Constructs/Nullable/./NullableArray2.x10'
+:24: Cannot assign x10.lang.IntReferenceArray to
+    nullable<x10.lang.GenericReferenceArray>.
+1 error.
+
+real	0m3.377s
+user	0m4.727s
+sys	0m0.241s
+
+****** Constructs.Nullable NullableArray2 failed: compile
