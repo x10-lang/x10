@@ -278,6 +278,13 @@ $Headers
                    getEndLine(righttok) + ":" + getEndColumn(righttok) + ": ";
         }
 
+        public Position getErrorPosition(int lefttok, int righttok)
+        {
+            return new Position(null, getFileName(),
+                   getLine(lefttok), getColumn(lefttok),
+                   getEndLine(righttok), getEndColumn(righttok));
+        }
+
         // RMF 11/7/2005 - N.B. This class has to be serializable, since it shows up inside Type objects,
         // which Polyglot serializes to save processing when loading class files generated from source
         // by Polyglot itself.
@@ -315,7 +322,7 @@ $Headers
                 if ((!unrecoverableSyntaxError) && (sf != null))
                     return sf.source(source);
 
-                eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Unable to parse " + source.name() + ".");
+                eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Unable to parse " + source.name() + ".", new Position(null, file(), 1, 1, 1, 1));
             }
             catch (RuntimeException e) {
                 // Let the Compiler catch and report it.
@@ -323,7 +330,7 @@ $Headers
             }
             catch (Exception e) {
                 // Used by cup to indicate a non-recoverable error.
-                eq.enqueue(ErrorInfo.SYNTAX_ERROR, e.getMessage());
+                eq.enqueue(ErrorInfo.SYNTAX_ERROR, e.getMessage(), new Position(null, file(), 1, 1, 1, 1));
             }
 
             return null;
@@ -430,7 +437,7 @@ $Headers
           List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
           classDecl.add( decl );
           TypeNode t = (TypeNode) tOperatorPointwise.toType();
-          
+
           New initializer = nf.New(pos,
                                    t,
                                    new LinkedList(),
@@ -1919,8 +1926,8 @@ $Rules
     MethodModifier ::= synchronized
         /.$BeginAction
                     unrecoverableSyntaxError = true;
-                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, getErrorLocation(getLeftSpan(), getRightSpan()) +
-                                                       "\"synchronized\" is an invalid X10 Method Modifier");
+                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"synchronized\" is an invalid X10 Method Modifier",
+                               getErrorPosition(getLeftSpan(), getRightSpan()));
                     setResult(Flags.SYNCHRONIZED);
           $EndAction
         ./
@@ -1928,8 +1935,8 @@ $Rules
     FieldModifier ::= volatile
         /.$BeginAction
                     unrecoverableSyntaxError = true;
-                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, getErrorLocation(getLeftSpan(), getRightSpan()) +
-                                                       "\"volatile\" is an invalid X10 Field Modifier");
+                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"volatile\" is an invalid X10 Field Modifier",
+                               getErrorPosition(getLeftSpan(), getRightSpan()));
                     setResult(Flags.VOLATILE);
           $EndAction
         ./
@@ -1937,8 +1944,8 @@ $Rules
     SynchronizedStatement ::= synchronized ( Expression ) Block
         /.$BeginJava
                     unrecoverableSyntaxError = true;
-                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, getErrorLocation(getLeftSpan(), getRightSpan()) +
-                                                       "Synchronized Statement is invalid in X10");
+                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Synchronized Statement is invalid in X10",
+                               getErrorPosition(getLeftSpan(), getRightSpan()));
                     setResult(nf.Synchronized(pos(), Expression, Block));
           $EndJava
         ./

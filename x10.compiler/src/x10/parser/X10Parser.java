@@ -1,5 +1,5 @@
 
-//#line 18 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+//#line 18 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
@@ -19,7 +19,7 @@ package x10.parser;
 
 import lpg.lpgjavaruntime.*;
 
-//#line 28 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+//#line 28 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -196,6 +196,37 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     }
     
     //
+    // Redirect syntax error message to proper recipient.
+    //
+    public void reportError(int error_code, String location_info, int left_token, int right_token, String token_text)
+    {
+        if (this.handler == null)
+            super.reportError(error_code,
+                              location_info,
+                              left_token,
+                              right_token,
+                              token_text);
+        else 
+        {
+            int start_offset = super.getStartOffset(left_token),
+                end_offset = (right_token > left_token 
+                                          ? super.getEndOffset(right_token)
+                                          : super.getEndOffset(left_token));
+
+            String msg = ((error_code == DELETION_CODE ||
+                           error_code == MISPLACED_CODE ||
+                           token_text.equals(""))
+                                       ? ""
+                                       : (token_text + " ")) +
+                         errorMsgText[error_code];
+
+            handler.handleMessage(start_offset,
+                                  end_offset - start_offset + 1,
+                                  msg);
+        }
+    }
+
+    //
     // Report error message for given error_token.
     //
     public final void reportErrorTokenMessage(int error_token, String msg)
@@ -268,7 +299,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     }
 
 
-    //#line 259 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+    //#line 259 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -289,6 +320,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         return getFileName() + ':' +
                getLine(lefttok) + ":" + getColumn(lefttok) + ":" +
                getEndLine(righttok) + ":" + getEndColumn(righttok) + ": ";
+    }
+
+    public Position getErrorPosition(int lefttok, int righttok)
+    {
+        return new Position(null, getFileName(),
+               getLine(lefttok), getColumn(lefttok),
+               getEndLine(righttok), getEndColumn(righttok));
     }
 
     // RMF 11/7/2005 - N.B. This class has to be serializable, since it shows up inside Type objects,
@@ -328,7 +366,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             if ((!unrecoverableSyntaxError) && (sf != null))
                 return sf.source(source);
 
-            eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Unable to parse " + source.name() + ".");
+            eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Unable to parse " + source.name() + ".", new Position(null, file(), 1, 1, 1, 1));
         }
         catch (RuntimeException e) {
             // Let the Compiler catch and report it.
@@ -336,7 +374,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
         }
         catch (Exception e) {
             // Used by cup to indicate a non-recoverable error.
-            eq.enqueue(ErrorInfo.SYNTAX_ERROR, e.getMessage());
+            eq.enqueue(ErrorInfo.SYNTAX_ERROR, e.getMessage(), new Position(null, file(), 1, 1, 1, 1));
         }
 
         return null;
@@ -732,9 +770,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 1:  TypeName ::= TypeName . ErrorId
             //
             case 1: {
-                //#line 6 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 6 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 8 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 8 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -747,9 +785,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 2:  PackageName ::= PackageName . ErrorId
             //
             case 2: {
-                //#line 16 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 16 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Name PackageName = (Name) getRhsSym(1);
-                //#line 18 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 18 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -762,9 +800,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 3:  ExpressionName ::= AmbiguousName . ErrorId
             //
             case 3: {
-                //#line 26 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 26 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 28 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 28 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -777,9 +815,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 4:  MethodName ::= AmbiguousName . ErrorId
             //
             case 4: {
-                //#line 36 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 36 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 38 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 38 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -792,9 +830,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 5:  PackageOrTypeName ::= PackageOrTypeName . ErrorId
             //
             case 5: {
-                //#line 46 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 46 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Name PackageOrTypeName = (Name) getRhsSym(1);
-                //#line 48 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 48 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -807,9 +845,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 6:  AmbiguousName ::= AmbiguousName . ErrorId
             //
             case 6: {
-                //#line 56 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 56 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 58 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 58 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                     setResult(new Name(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -822,9 +860,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 7:  FieldAccess ::= Primary . ErrorId
             //
             case 7: {
-                //#line 66 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 66 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 68 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 68 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 setResult(nf.Field(pos(), Primary, "*"));
                 break;
             }
@@ -834,7 +872,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 8: {
                 
-                //#line 73 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 73 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), "*"));
                 break;
             }
@@ -843,11 +881,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 9:  FieldAccess ::= ClassName . super$sup . ErrorId
             //
             case 9: {
-                //#line 76 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 76 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 76 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 76 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 78 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 78 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), "*"));
                 break;
             }
@@ -856,11 +894,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 10:  MethodInvocation ::= MethodPrimaryPrefix ( ArgumentListopt )
             //
             case 10: {
-                //#line 82 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 82 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Object MethodPrimaryPrefix = (Object) getRhsSym(1);
-                //#line 82 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 82 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 84 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 84 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) ((Object[]) MethodPrimaryPrefix)[0];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodPrimaryPrefix)[1];
                 setResult(nf.Call(pos(), Primary, identifier.getIdentifier(), ArgumentListopt));
@@ -871,11 +909,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 11:  MethodInvocation ::= MethodSuperPrefix ( ArgumentListopt )
             //
             case 11: {
-                //#line 89 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 89 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 polyglot.lex.Identifier MethodSuperPrefix = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 89 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 89 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 91 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 91 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 polyglot.lex.Identifier identifier = MethodSuperPrefix;
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), identifier.getIdentifier(), ArgumentListopt));
                 break;
@@ -885,11 +923,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 12:  MethodInvocation ::= MethodClassNameSuperPrefix ( ArgumentListopt )
             //
             case 12: {
-                //#line 95 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 95 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Object MethodClassNameSuperPrefix = (Object) getRhsSym(1);
-                //#line 95 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 95 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 97 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 97 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Name ClassName = (Name) ((Object[]) MethodClassNameSuperPrefix)[0];
                 JPGPosition super_pos = (JPGPosition) ((Object[]) MethodClassNameSuperPrefix)[1];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodClassNameSuperPrefix)[2];
@@ -901,11 +939,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 13:  MethodPrimaryPrefix ::= Primary . ErrorId$ErrorId
             //
             case 13: {
-                //#line 104 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 104 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 104 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 104 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 106 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 106 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Object[] a = new Object[2];
                 a[0] = Primary;
                 a[1] = id(getRhsFirstTokenIndex(3));
@@ -917,9 +955,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 14:  MethodSuperPrefix ::= super . ErrorId$ErrorId
             //
             case 14: {
-                //#line 112 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 112 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 114 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 114 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 setResult(id(getRhsFirstTokenIndex(3)));
                 break;
             }
@@ -928,13 +966,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 15:  MethodClassNameSuperPrefix ::= ClassName . super$sup . ErrorId$ErrorId
             //
             case 15: {
-                //#line 117 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 117 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 117 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 117 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 117 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 117 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(5);
-                //#line 119 "C:/eclipse/ws6/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 119 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/MissingId.gi"
                 Object[] a = new Object[3];
                 a[0] = ClassName;
                 a[1] = pos(getRhsFirstTokenIndex(3));
@@ -947,9 +985,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 16:  identifier ::= IDENTIFIER$ident
             //
             case 16: {
-                //#line 94 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 94 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 96 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 96 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                 break;
@@ -960,7 +998,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 19: {
                 
-                //#line 121 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 121 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Byte()));
                 break;
             }
@@ -970,7 +1008,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 20: {
                 
-                //#line 126 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 126 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Char()));
                 break;
             }
@@ -980,7 +1018,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 21: {
                 
-                //#line 131 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 131 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Short()));
                 break;
             }
@@ -990,7 +1028,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 22: {
                 
-                //#line 136 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 136 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Int()));
                 break;
             }
@@ -1000,7 +1038,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 23: {
                 
-                //#line 141 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 141 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Long()));
                 break;
             }
@@ -1010,7 +1048,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 24: {
                 
-                //#line 147 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 147 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Float()));
                 break;
             }
@@ -1020,7 +1058,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 25: {
                 
-                //#line 152 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 152 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Double()));
                 break;
             }
@@ -1029,9 +1067,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 28:  TypeName ::= identifier
             //
             case 28: {
-                //#line 175 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 175 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 177 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 177 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -1040,11 +1078,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 29:  TypeName ::= TypeName . identifier
             //
             case 29: {
-                //#line 180 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 180 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 180 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 180 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 182 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 182 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1057,9 +1095,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 31:  ArrayType ::= Type [ ]
             //
             case 31: {
-                //#line 194 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 194 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 196 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 196 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.array(Type, pos(), 1));
                 break;
             }
@@ -1068,9 +1106,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 32:  PackageName ::= identifier
             //
             case 32: {
-                //#line 241 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 241 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 243 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 243 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -1079,11 +1117,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 33:  PackageName ::= PackageName . identifier
             //
             case 33: {
-                //#line 246 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 246 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name PackageName = (Name) getRhsSym(1);
-                //#line 246 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 246 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 248 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 248 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1096,9 +1134,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 34:  ExpressionName ::= identifier
             //
             case 34: {
-                //#line 262 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 262 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 264 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 264 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -1107,11 +1145,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 35:  ExpressionName ::= AmbiguousName . identifier
             //
             case 35: {
-                //#line 267 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 267 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 267 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 267 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 269 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 269 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1124,9 +1162,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 36:  MethodName ::= identifier
             //
             case 36: {
-                //#line 277 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 277 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 279 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 279 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -1135,11 +1173,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 37:  MethodName ::= AmbiguousName . identifier
             //
             case 37: {
-                //#line 282 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 282 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 282 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 282 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 284 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 284 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1152,9 +1190,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 38:  PackageOrTypeName ::= identifier
             //
             case 38: {
-                //#line 292 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 292 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 294 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 294 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -1163,11 +1201,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 39:  PackageOrTypeName ::= PackageOrTypeName . identifier
             //
             case 39: {
-                //#line 297 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 297 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name PackageOrTypeName = (Name) getRhsSym(1);
-                //#line 297 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 297 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 299 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 299 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1180,9 +1218,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 40:  AmbiguousName ::= identifier
             //
             case 40: {
-                //#line 307 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 307 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 309 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 309 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -1191,11 +1229,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 41:  AmbiguousName ::= AmbiguousName . identifier
             //
             case 41: {
-                //#line 312 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 312 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 312 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 312 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 314 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 314 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -1208,13 +1246,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 42:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
             case 42: {
-                //#line 324 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 324 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 324 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 324 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ImportDeclarationsopt = (List) getRhsSym(2);
-                //#line 324 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 324 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List TypeDeclarationsopt = (List) getRhsSym(3);
-                //#line 326 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 326 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // Add import x10.lang.* by default.
                 Name x10 = new Name(nf, ts, pos(), "x10");
                 Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
@@ -1235,9 +1273,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 43:  ImportDeclarations ::= ImportDeclaration
             //
             case 43: {
-                //#line 342 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 342 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Import ImportDeclaration = (Import) getRhsSym(1);
-                //#line 344 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 344 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Import.class, false);
                 l.add(ImportDeclaration);
                 setResult(l);
@@ -1248,11 +1286,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 44:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
             case 44: {
-                //#line 349 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 349 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ImportDeclarations = (List) getRhsSym(1);
-                //#line 349 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 349 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Import ImportDeclaration = (Import) getRhsSym(2);
-                //#line 351 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 351 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (ImportDeclaration != null)
                     ImportDeclarations.add(ImportDeclaration);
                 //setResult(l);
@@ -1263,9 +1301,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 45:  TypeDeclarations ::= TypeDeclaration
             //
             case 45: {
-                //#line 357 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 357 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl TypeDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 359 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 359 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
                     l.add(TypeDeclaration);
@@ -1277,11 +1315,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 46:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
             case 46: {
-                //#line 365 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 365 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List TypeDeclarations = (List) getRhsSym(1);
-                //#line 365 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 365 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl TypeDeclaration = (ClassDecl) getRhsSym(2);
-                //#line 367 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 367 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (TypeDeclaration != null)
                     TypeDeclarations.add(TypeDeclaration);
                 //setResult(l);
@@ -1292,9 +1330,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 49:  SingleTypeImportDeclaration ::= import TypeName ;
             //
             case 49: {
-                //#line 380 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 380 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name TypeName = (Name) getRhsSym(2);
-                //#line 382 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 382 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, TypeName.toString()));
                 break;
             }
@@ -1303,9 +1341,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 50:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
             case 50: {
-                //#line 386 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 386 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name PackageOrTypeName = (Name) getRhsSym(2);
-                //#line 388 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 388 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, PackageOrTypeName.toString()));
                 break;
             }
@@ -1315,7 +1353,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 53: {
                 
-                //#line 402 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 402 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(null);
                 break;
             }
@@ -1324,11 +1362,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 56:  ClassModifiers ::= ClassModifiers ClassModifier
             //
             case 56: {
-                //#line 414 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 414 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ClassModifiers = (Flags) getRhsSym(1);
-                //#line 414 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 414 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ClassModifier = (Flags) getRhsSym(2);
-                //#line 416 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 416 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ClassModifiers.set(ClassModifier));
                 break;
             }
@@ -1338,7 +1376,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 57: {
                 
-                //#line 424 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 424 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -1348,7 +1386,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 58: {
                 
-                //#line 429 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 429 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PROTECTED);
                 break;
             }
@@ -1358,7 +1396,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 59: {
                 
-                //#line 434 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 434 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PRIVATE);
                 break;
             }
@@ -1368,7 +1406,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 60: {
                 
-                //#line 439 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 439 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.ABSTRACT);
                 break;
             }
@@ -1378,7 +1416,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 61: {
                 
-                //#line 444 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 444 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STATIC);
                 break;
             }
@@ -1388,7 +1426,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 62: {
                 
-                //#line 449 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 449 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.FINAL);
                 break;
             }
@@ -1398,7 +1436,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 63: {
                 
-                //#line 454 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 454 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STRICTFP);
                 break;
             }
@@ -1407,9 +1445,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 64:  Super ::= extends ClassType
             //
             case 64: {
-                //#line 466 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 466 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
-                //#line 468 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 468 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ClassType);
                 break;
             }
@@ -1418,9 +1456,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 65:  Interfaces ::= implements InterfaceTypeList
             //
             case 65: {
-                //#line 477 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 477 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceTypeList = (List) getRhsSym(2);
-                //#line 479 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 479 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(InterfaceTypeList);
                 break;
             }
@@ -1429,9 +1467,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 66:  InterfaceTypeList ::= InterfaceType
             //
             case 66: {
-                //#line 483 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 483 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(1);
-                //#line 485 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 485 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(InterfaceType);
                 setResult(l);
@@ -1442,11 +1480,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 67:  InterfaceTypeList ::= InterfaceTypeList , InterfaceType
             //
             case 67: {
-                //#line 490 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 490 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceTypeList = (List) getRhsSym(1);
-                //#line 490 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 490 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(3);
-                //#line 492 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 492 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 InterfaceTypeList.add(InterfaceType);
                 setResult(InterfaceTypeList);
                 break;
@@ -1456,9 +1494,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 68:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
             case 68: {
-                //#line 502 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 502 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
-                //#line 504 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 504 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                 break;
             }
@@ -1467,11 +1505,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 70:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
             case 70: {
-                //#line 509 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 509 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassBodyDeclarations = (List) getRhsSym(1);
-                //#line 509 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 509 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ClassBodyDeclaration = (List) getRhsSym(2);
-                //#line 511 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 511 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
                 // setResult(a);
                 break;
@@ -1481,9 +1519,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 72:  ClassBodyDeclaration ::= InstanceInitializer
             //
             case 72: {
-                //#line 517 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 517 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block InstanceInitializer = (Block) getRhsSym(1);
-                //#line 519 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 519 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(nf.Initializer(pos(), Flags.NONE, InstanceInitializer));
                 setResult(l);
@@ -1494,9 +1532,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 73:  ClassBodyDeclaration ::= StaticInitializer
             //
             case 73: {
-                //#line 524 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 524 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block StaticInitializer = (Block) getRhsSym(1);
-                //#line 526 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 526 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(nf.Initializer(pos(), Flags.STATIC, StaticInitializer));
                 setResult(l);
@@ -1507,9 +1545,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 74:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
             case 74: {
-                //#line 531 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 531 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
-                //#line 533 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 533 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
                 setResult(l);
@@ -1520,9 +1558,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 76:  ClassMemberDeclaration ::= MethodDeclaration
             //
             case 76: {
-                //#line 540 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 540 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 MethodDecl MethodDeclaration = (MethodDecl) getRhsSym(1);
-                //#line 542 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 542 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -1533,9 +1571,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 77:  ClassMemberDeclaration ::= ClassDeclaration
             //
             case 77: {
-                //#line 547 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 547 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 549 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 549 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -1546,9 +1584,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 78:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
             case 78: {
-                //#line 554 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 554 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 556 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 556 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -1560,7 +1598,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 79: {
                 
-                //#line 563 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 563 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 setResult(l);
                 break;
@@ -1570,9 +1608,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 80:  VariableDeclarators ::= VariableDeclarator
             //
             case 80: {
-                //#line 571 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 571 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VarDeclarator VariableDeclarator = (VarDeclarator) getRhsSym(1);
-                //#line 573 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 573 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), X10VarDeclarator.class, false);
                 l.add(VariableDeclarator);
                 setResult(l);
@@ -1583,11 +1621,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 81:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
             case 81: {
-                //#line 578 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 578 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableDeclarators = (List) getRhsSym(1);
-                //#line 578 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 578 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VarDeclarator VariableDeclarator = (VarDeclarator) getRhsSym(3);
-                //#line 580 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 580 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VariableDeclarators.add(VariableDeclarator);
                 // setResult(VariableDeclarators);
                 break;
@@ -1597,11 +1635,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 83:  VariableDeclarator ::= VariableDeclaratorId = VariableInitializer
             //
             case 83: {
-                //#line 586 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 586 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(1);
-                //#line 586 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 586 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 588 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 588 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VariableDeclaratorId.init = VariableInitializer;
                 VariableDeclaratorId.position(pos());
                 // setResult(VariableDeclaratorId); 
@@ -1612,9 +1650,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 84:  TraditionalVariableDeclaratorId ::= identifier
             //
             case 84: {
-                //#line 594 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 594 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 596 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 596 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new X10VarDeclarator(pos(), identifier.getIdentifier()));
                 break;
             }
@@ -1623,9 +1661,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 85:  TraditionalVariableDeclaratorId ::= TraditionalVariableDeclaratorId [ ]
             //
             case 85: {
-                //#line 599 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 599 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator TraditionalVariableDeclaratorId = (X10VarDeclarator) getRhsSym(1);
-                //#line 601 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 601 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TraditionalVariableDeclaratorId.dims++;
                 TraditionalVariableDeclaratorId.position(pos());
                 // setResult(a);
@@ -1636,11 +1674,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 87:  VariableDeclaratorId ::= identifier [ IdentifierList ]
             //
             case 87: {
-                //#line 608 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 608 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 608 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 608 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 610 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 610 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new X10VarDeclarator(pos(), identifier.getIdentifier(), IdentifierList));
                 break;
             }
@@ -1649,9 +1687,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 88:  VariableDeclaratorId ::= [ IdentifierList ]
             //
             case 88: {
-                //#line 613 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 613 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 615 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 615 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new X10VarDeclarator(pos(), IdentifierList));
                 break;
             }
@@ -1660,11 +1698,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 92:  FieldModifiers ::= FieldModifiers FieldModifier
             //
             case 92: {
-                //#line 623 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 623 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags FieldModifiers = (Flags) getRhsSym(1);
-                //#line 623 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 623 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags FieldModifier = (Flags) getRhsSym(2);
-                //#line 625 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 625 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(FieldModifiers.set(FieldModifier));
                 break;
             }
@@ -1674,7 +1712,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 93: {
                 
-                //#line 633 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 633 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -1684,7 +1722,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 94: {
                 
-                //#line 638 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 638 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PROTECTED);
                 break;
             }
@@ -1694,7 +1732,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 95: {
                 
-                //#line 643 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 643 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PRIVATE);
                 break;
             }
@@ -1704,7 +1742,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 96: {
                 
-                //#line 648 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 648 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STATIC);
                 break;
             }
@@ -1714,7 +1752,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 97: {
                 
-                //#line 653 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 653 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.FINAL);
                 break;
             }
@@ -1724,7 +1762,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 98: {
                 
-                //#line 658 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 658 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.TRANSIENT);
                 break;
             }
@@ -1734,7 +1772,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 100: {
                 
-                //#line 675 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 675 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.CanonicalTypeNode(pos(), ts.Void()));
                 break;
             }
@@ -1743,9 +1781,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 101:  FormalParameterList ::= LastFormalParameter
             //
             case 101: {
-                //#line 695 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 695 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Formal LastFormalParameter = (Formal) getRhsSym(1);
-                //#line 697 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 697 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(LastFormalParameter);
                 setResult(l);
@@ -1756,11 +1794,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 102:  FormalParameterList ::= FormalParameters , LastFormalParameter
             //
             case 102: {
-                //#line 702 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 702 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FormalParameters = (List) getRhsSym(1);
-                //#line 702 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 702 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Formal LastFormalParameter = (Formal) getRhsSym(3);
-                //#line 704 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 704 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 FormalParameters.add(LastFormalParameter);
                 // setResult(FormalParameters);
                 break;
@@ -1770,9 +1808,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 103:  FormalParameters ::= FormalParameter
             //
             case 103: {
-                //#line 709 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 709 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 711 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 711 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -1783,11 +1821,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 104:  FormalParameters ::= FormalParameters , FormalParameter
             //
             case 104: {
-                //#line 716 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 716 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List FormalParameters = (List) getRhsSym(1);
-                //#line 716 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 716 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 718 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 718 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 FormalParameters.add(FormalParameter);
                 // setResult(FormalParameters);
                 break;
@@ -1797,13 +1835,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 105:  FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
             //
             case 105: {
-                //#line 723 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 723 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags VariableModifiersopt = (Flags) getRhsSym(1);
-                //#line 723 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 723 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 723 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 723 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(3);
-                //#line 725 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 725 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
         if (VariableDeclaratorId != null)
                 setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex(2), getRhsLastTokenIndex(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
             else
@@ -1815,11 +1853,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 107:  VariableModifiers ::= VariableModifiers VariableModifier
             //
             case 107: {
-                //#line 733 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 733 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags VariableModifiers = (Flags) getRhsSym(1);
-                //#line 733 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 733 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags VariableModifier = (Flags) getRhsSym(2);
-                //#line 735 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 735 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(VariableModifiers.set(VariableModifier));
                 break;
             }
@@ -1829,7 +1867,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 108: {
                 
-                //#line 741 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 741 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.FINAL);
                 break;
             }
@@ -1838,15 +1876,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 109:  LastFormalParameter ::= VariableModifiersopt Type ...opt$opt VariableDeclaratorId
             //
             case 109: {
-                //#line 747 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 747 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags VariableModifiersopt = (Flags) getRhsSym(1);
-                //#line 747 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 747 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 747 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 747 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Object opt = (Object) getRhsSym(3);
-                //#line 747 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 747 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10VarDeclarator VariableDeclaratorId = (X10VarDeclarator) getRhsSym(4);
-                //#line 749 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 749 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 assert(opt == null);
                 setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex(2), getRhsLastTokenIndex(2)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
                 break;
@@ -1856,11 +1894,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 111:  MethodModifiers ::= MethodModifiers MethodModifier
             //
             case 111: {
-                //#line 761 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 761 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags MethodModifiers = (Flags) getRhsSym(1);
-                //#line 761 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 761 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags MethodModifier = (Flags) getRhsSym(2);
-                //#line 763 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 763 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(MethodModifiers.set(MethodModifier));
                 break;
             }
@@ -1870,7 +1908,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 112: {
                 
-                //#line 771 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 771 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -1880,7 +1918,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 113: {
                 
-                //#line 776 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 776 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PROTECTED);
                 break;
             }
@@ -1890,7 +1928,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 114: {
                 
-                //#line 781 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 781 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PRIVATE);
                 break;
             }
@@ -1900,7 +1938,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 115: {
                 
-                //#line 786 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 786 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.ABSTRACT);
                 break;
             }
@@ -1910,7 +1948,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 116: {
                 
-                //#line 791 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 791 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STATIC);
                 break;
             }
@@ -1920,7 +1958,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 117: {
                 
-                //#line 796 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 796 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.FINAL);
                 break;
             }
@@ -1930,7 +1968,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 118: {
                 
-                //#line 806 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 806 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NATIVE);
                 break;
             }
@@ -1940,7 +1978,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 119: {
                 
-                //#line 811 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 811 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STRICTFP);
                 break;
             }
@@ -1949,9 +1987,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 120:  Throws ::= throws ExceptionTypeList
             //
             case 120: {
-                //#line 815 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 815 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ExceptionTypeList = (List) getRhsSym(2);
-                //#line 817 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 817 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ExceptionTypeList);
                 break;
             }
@@ -1960,9 +1998,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 121:  ExceptionTypeList ::= ExceptionType
             //
             case 121: {
-                //#line 821 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 821 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 823 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 823 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -1973,11 +2011,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 122:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
             case 122: {
-                //#line 828 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 828 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ExceptionTypeList = (List) getRhsSym(1);
-                //#line 828 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 828 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 830 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 830 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ExceptionTypeList.add(ExceptionType);
                 // setResult(ExceptionTypeList);
                 break;
@@ -1994,9 +2032,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 127:  StaticInitializer ::= static Block
             //
             case 127: {
-                //#line 850 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 850 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 852 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 852 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Block);
                 break;
             }
@@ -2005,9 +2043,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 128:  SimpleTypeName ::= identifier
             //
             case 128: {
-                //#line 867 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 867 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 869 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 869 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -2016,11 +2054,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 130:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
             case 130: {
-                //#line 874 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 874 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ConstructorModifiers = (Flags) getRhsSym(1);
-                //#line 874 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 874 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ConstructorModifier = (Flags) getRhsSym(2);
-                //#line 876 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 876 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ConstructorModifiers.set(ConstructorModifier));
                 break;
             }
@@ -2030,7 +2068,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 131: {
                 
-                //#line 884 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 884 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -2040,7 +2078,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 132: {
                 
-                //#line 889 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 889 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PROTECTED);
                 break;
             }
@@ -2050,7 +2088,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 133: {
                 
-                //#line 894 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 894 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PRIVATE);
                 break;
             }
@@ -2059,11 +2097,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 134:  ConstructorBody ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
             case 134: {
-                //#line 898 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 898 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 898 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 898 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 900 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 900 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l;
                 if (ExplicitConstructorInvocationopt == null)
                     l = BlockStatementsopt;
@@ -2081,9 +2119,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 135:  Arguments ::= ( ArgumentListopt )
             //
             case 135: {
-                //#line 931 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 931 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 933 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 933 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ArgumentListopt);
                 break;
             }
@@ -2092,11 +2130,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 138:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
             case 138: {
-                //#line 949 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 949 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags InterfaceModifiers = (Flags) getRhsSym(1);
-                //#line 949 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 949 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags InterfaceModifier = (Flags) getRhsSym(2);
-                //#line 951 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 951 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(InterfaceModifiers.set(InterfaceModifier));
                 break;
             }
@@ -2106,7 +2144,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 139: {
                 
-                //#line 959 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 959 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -2116,7 +2154,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 140: {
                 
-                //#line 964 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 964 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PROTECTED);
                 break;
             }
@@ -2126,7 +2164,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 141: {
                 
-                //#line 969 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 969 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PRIVATE);
                 break;
             }
@@ -2136,7 +2174,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 142: {
                 
-                //#line 974 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 974 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.ABSTRACT);
                 break;
             }
@@ -2146,7 +2184,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 143: {
                 
-                //#line 979 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 979 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STATIC);
                 break;
             }
@@ -2156,7 +2194,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 144: {
                 
-                //#line 984 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 984 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STRICTFP);
                 break;
             }
@@ -2165,9 +2203,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 145:  ExtendsInterfaces ::= extends InterfaceType
             //
             case 145: {
-                //#line 988 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 988 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(2);
-                //#line 990 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 990 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(InterfaceType);
                 setResult(l);
@@ -2178,11 +2216,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 146:  ExtendsInterfaces ::= ExtendsInterfaces , InterfaceType
             //
             case 146: {
-                //#line 995 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 995 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ExtendsInterfaces = (List) getRhsSym(1);
-                //#line 995 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 995 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode InterfaceType = (TypeNode) getRhsSym(3);
-                //#line 997 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 997 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ExtendsInterfaces.add(InterfaceType);
                 // setResult(ExtendsInterfaces);
                 break;
@@ -2192,9 +2230,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 147:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
             case 147: {
-                //#line 1007 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1007 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
-                //#line 1009 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1009 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                 break;
             }
@@ -2203,11 +2241,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 149:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
             case 149: {
-                //#line 1014 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1014 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
-                //#line 1014 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1014 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
-                //#line 1016 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1016 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                 break;
@@ -2217,9 +2255,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 151:  InterfaceMemberDeclaration ::= AbstractMethodDeclaration
             //
             case 151: {
-                //#line 1022 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1022 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 MethodDecl AbstractMethodDeclaration = (MethodDecl) getRhsSym(1);
-                //#line 1024 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1024 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(AbstractMethodDeclaration);
                 setResult(l);
@@ -2230,9 +2268,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 152:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
             case 152: {
-                //#line 1029 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1029 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1031 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1031 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -2243,9 +2281,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 153:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
             case 153: {
-                //#line 1036 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1036 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1038 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1038 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -2257,7 +2295,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 154: {
                 
-                //#line 1045 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1045 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -2266,13 +2304,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 155:  ConstantDeclaration ::= ConstantModifiersopt Type VariableDeclarators
             //
             case 155: {
-                //#line 1049 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1049 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ConstantModifiersopt = (Flags) getRhsSym(1);
-                //#line 1049 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1049 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1049 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1049 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 1051 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1051 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
                 {
@@ -2294,11 +2332,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 157:  ConstantModifiers ::= ConstantModifiers ConstantModifier
             //
             case 157: {
-                //#line 1069 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1069 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ConstantModifiers = (Flags) getRhsSym(1);
-                //#line 1069 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1069 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags ConstantModifier = (Flags) getRhsSym(2);
-                //#line 1071 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1071 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ConstantModifiers.set(ConstantModifier));
                 break;
             }
@@ -2308,7 +2346,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 158: {
                 
-                //#line 1079 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1079 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -2318,7 +2356,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 159: {
                 
-                //#line 1084 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1084 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.STATIC);
                 break;
             }
@@ -2328,7 +2366,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 160: {
                 
-                //#line 1089 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1089 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.FINAL);
                 break;
             }
@@ -2337,11 +2375,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 162:  AbstractMethodModifiers ::= AbstractMethodModifiers AbstractMethodModifier
             //
             case 162: {
-                //#line 1096 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1096 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags AbstractMethodModifiers = (Flags) getRhsSym(1);
-                //#line 1096 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1096 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags AbstractMethodModifier = (Flags) getRhsSym(2);
-                //#line 1098 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1098 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(AbstractMethodModifiers.set(AbstractMethodModifier));
                 break;
             }
@@ -2351,7 +2389,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 163: {
                 
-                //#line 1106 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1106 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.PUBLIC);
                 break;
             }
@@ -2361,7 +2399,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 164: {
                 
-                //#line 1111 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1111 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.ABSTRACT);
                 break;
             }
@@ -2370,9 +2408,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 165:  SimpleName ::= identifier
             //
             case 165: {
-                //#line 1167 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1167 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1169 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1169 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -2381,11 +2419,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 166:  ArrayInitializer ::= { VariableInitializersopt ,opt$opt }
             //
             case 166: {
-                //#line 1196 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1196 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableInitializersopt = (List) getRhsSym(2);
-                //#line 1196 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1196 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Object opt = (Object) getRhsSym(3);
-                //#line 1198 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1198 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (VariableInitializersopt == null)
                      setResult(nf.ArrayInit(pos()));
                 else setResult(nf.ArrayInit(pos(), VariableInitializersopt));
@@ -2396,9 +2434,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 167:  VariableInitializers ::= VariableInitializer
             //
             case 167: {
-                //#line 1204 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1204 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
-                //#line 1206 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1206 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
                 setResult(l);
@@ -2409,11 +2447,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 168:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
             case 168: {
-                //#line 1211 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1211 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableInitializers = (List) getRhsSym(1);
-                //#line 1211 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1211 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 1213 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1213 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 VariableInitializers.add(VariableInitializer);
                 //setResult(VariableInitializers);
                 break;
@@ -2423,9 +2461,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 169:  Block ::= { BlockStatementsopt }
             //
             case 169: {
-                //#line 1232 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1232 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 1234 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1234 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                 break;
             }
@@ -2434,9 +2472,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 170:  BlockStatements ::= BlockStatement
             //
             case 170: {
-                //#line 1238 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1238 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatement = (List) getRhsSym(1);
-                //#line 1240 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1240 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -2447,11 +2485,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 171:  BlockStatements ::= BlockStatements BlockStatement
             //
             case 171: {
-                //#line 1245 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1245 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatements = (List) getRhsSym(1);
-                //#line 1245 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1245 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatement = (List) getRhsSym(2);
-                //#line 1247 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1247 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                 break;
@@ -2461,9 +2499,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 173:  BlockStatement ::= ClassDeclaration
             //
             case 173: {
-                //#line 1253 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1253 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 1255 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1255 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -2474,9 +2512,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 174:  BlockStatement ::= Statement
             //
             case 174: {
-                //#line 1260 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1260 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 1262 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1262 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -2487,13 +2525,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 176:  LocalVariableDeclaration ::= VariableModifiersopt Type VariableDeclarators
             //
             case 176: {
-                //#line 1270 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1270 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Flags VariableModifiersopt = (Flags) getRhsSym(1);
-                //#line 1270 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1270 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1270 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1270 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 1272 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1272 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
                 List s = new TypedList(new LinkedList(), Stmt.class, false);
                 if (VariableDeclarators != null) {
@@ -2518,11 +2556,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 200:  IfThenStatement ::= if ( Expression ) Statement
             //
             case 200: {
-                //#line 1333 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1333 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1333 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1333 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1335 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1335 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.If(pos(), Expression, Statement));
                 break;
             }
@@ -2531,13 +2569,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 201:  IfThenElseStatement ::= if ( Expression ) StatementNoShortIf else Statement
             //
             case 201: {
-                //#line 1339 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1339 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1339 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1339 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1339 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1339 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1341 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1341 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.If(pos(), Expression, StatementNoShortIf, Statement));
                 break;
             }
@@ -2546,13 +2584,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 202:  IfThenElseStatementNoShortIf ::= if ( Expression ) StatementNoShortIf$true_stmt else StatementNoShortIf$false_stmt
             //
             case 202: {
-                //#line 1345 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1345 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1345 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1345 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt true_stmt = (Stmt) getRhsSym(5);
-                //#line 1345 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1345 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt false_stmt = (Stmt) getRhsSym(7);
-                //#line 1347 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1347 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.If(pos(), Expression, true_stmt, false_stmt));
                 break;
             }
@@ -2562,7 +2600,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 203: {
                 
-                //#line 1353 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1353 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Empty(pos()));
                 break;
             }
@@ -2571,11 +2609,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 204:  LabeledStatement ::= identifier : Statement
             //
             case 204: {
-                //#line 1357 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1357 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1357 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1357 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1359 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1359 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Labeled(pos(), identifier.getIdentifier(), Statement));
                 break;
             }
@@ -2584,11 +2622,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 205:  LabeledStatementNoShortIf ::= identifier : StatementNoShortIf
             //
             case 205: {
-                //#line 1363 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1363 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1363 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1363 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(3);
-                //#line 1365 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1365 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Labeled(pos(), identifier.getIdentifier(), StatementNoShortIf));
                 break;
             }
@@ -2597,9 +2635,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 206:  ExpressionStatement ::= StatementExpression ;
             //
             case 206: {
-                //#line 1368 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1368 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1370 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1370 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Eval(pos(), StatementExpression));
                 break;
             }
@@ -2608,9 +2646,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 214:  AssertStatement ::= assert Expression ;
             //
             case 214: {
-                //#line 1391 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1391 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1393 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1393 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Assert(pos(), Expression));
                 break;
             }
@@ -2619,11 +2657,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 215:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
             case 215: {
-                //#line 1396 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1396 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 1396 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1396 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 1398 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1398 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                 break;
             }
@@ -2632,11 +2670,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 216:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
             case 216: {
-                //#line 1402 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1402 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1402 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1402 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlock = (List) getRhsSym(5);
-                //#line 1404 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1404 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                 break;
             }
@@ -2645,11 +2683,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 217:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
             case 217: {
-                //#line 1408 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1408 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
-                //#line 1408 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1408 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchLabelsopt = (List) getRhsSym(3);
-                //#line 1410 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1410 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                 break;
@@ -2659,11 +2697,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 219:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
             case 219: {
-                //#line 1416 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1416 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
-                //#line 1416 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1416 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
-                //#line 1418 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1418 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                 break;
@@ -2673,11 +2711,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 220:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
             case 220: {
-                //#line 1423 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1423 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1423 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1423 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List BlockStatements = (List) getRhsSym(2);
-                //#line 1425 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1425 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -2689,9 +2727,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 221:  SwitchLabels ::= SwitchLabel
             //
             case 221: {
-                //#line 1432 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1432 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 1434 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1434 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -2702,11 +2740,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 222:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
             case 222: {
-                //#line 1439 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1439 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1439 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1439 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 1441 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1441 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                 break;
@@ -2716,9 +2754,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 223:  SwitchLabel ::= case ConstantExpression :
             //
             case 223: {
-                //#line 1446 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1446 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 1448 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1448 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                 break;
             }
@@ -2728,7 +2766,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 224: {
                 
-                //#line 1455 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1455 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Default(pos()));
                 break;
             }
@@ -2737,11 +2775,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 225:  WhileStatement ::= while ( Expression ) Statement
             //
             case 225: {
-                //#line 1462 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1462 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1462 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1462 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1464 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1464 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                 break;
             }
@@ -2750,11 +2788,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 226:  WhileStatementNoShortIf ::= while ( Expression ) StatementNoShortIf
             //
             case 226: {
-                //#line 1468 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1468 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1468 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1468 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1470 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1470 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.While(pos(), Expression, StatementNoShortIf));
                 break;
             }
@@ -2763,11 +2801,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 227:  DoStatement ::= do Statement while ( Expression ) ;
             //
             case 227: {
-                //#line 1474 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1474 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1474 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1474 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1476 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1476 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                 break;
             }
@@ -2776,15 +2814,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 230:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
             case 230: {
-                //#line 1483 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1483 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1483 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1483 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1483 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1483 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1483 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1483 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 1485 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1485 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                 break;
             }
@@ -2793,15 +2831,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 231:  ForStatementNoShortIf ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) StatementNoShortIf
             //
             case 231: {
-                //#line 1489 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1489 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1489 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1489 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1489 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1489 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1489 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1489 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(9);
-                //#line 1491 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1491 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, StatementNoShortIf));
                 break;
             }
@@ -2810,9 +2848,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 233:  ForInit ::= LocalVariableDeclaration
             //
             case 233: {
-                //#line 1496 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1496 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
-                //#line 1498 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1498 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -2823,9 +2861,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 235:  StatementExpressionList ::= StatementExpression
             //
             case 235: {
-                //#line 1506 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1506 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1508 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1508 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -2836,11 +2874,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 236:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
             case 236: {
-                //#line 1513 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1513 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List StatementExpressionList = (List) getRhsSym(1);
-                //#line 1513 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1513 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 1515 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1515 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                 //setResult(StatementExpressionList);
                 break;
@@ -2850,9 +2888,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 237:  BreakStatement ::= break identifieropt ;
             //
             case 237: {
-                //#line 1523 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1523 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name identifieropt = (Name) getRhsSym(2);
-                //#line 1525 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1525 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (identifieropt == null)
                      setResult(nf.Break(pos()));
                 else setResult(nf.Break(pos(), identifieropt.toString()));
@@ -2863,9 +2901,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 238:  ContinueStatement ::= continue identifieropt ;
             //
             case 238: {
-                //#line 1531 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1531 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name identifieropt = (Name) getRhsSym(2);
-                //#line 1533 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1533 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (identifieropt == null)
                      setResult(nf.Continue(pos()));
                 else setResult(nf.Continue(pos(), identifieropt.toString()));
@@ -2876,9 +2914,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 239:  ReturnStatement ::= return Expressionopt ;
             //
             case 239: {
-                //#line 1539 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1539 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 1541 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1541 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                 break;
             }
@@ -2887,9 +2925,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 240:  ThrowStatement ::= throw Expression ;
             //
             case 240: {
-                //#line 1545 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1545 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1547 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1547 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Throw(pos(), Expression));
                 break;
             }
@@ -2898,11 +2936,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 241:  TryStatement ::= try Block Catches
             //
             case 241: {
-                //#line 1557 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1557 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1557 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1557 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Catches = (List) getRhsSym(3);
-                //#line 1559 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1559 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Try(pos(), Block, Catches));
                 break;
             }
@@ -2911,13 +2949,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 242:  TryStatement ::= try Block Catchesopt Finally
             //
             case 242: {
-                //#line 1562 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1562 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1562 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1562 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Catchesopt = (List) getRhsSym(3);
-                //#line 1562 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1562 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Finally = (Block) getRhsSym(4);
-                //#line 1564 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1564 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                 break;
             }
@@ -2926,9 +2964,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 243:  Catches ::= CatchClause
             //
             case 243: {
-                //#line 1568 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1568 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 1570 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1570 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -2939,11 +2977,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 244:  Catches ::= Catches CatchClause
             //
             case 244: {
-                //#line 1575 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1575 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List Catches = (List) getRhsSym(1);
-                //#line 1575 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1575 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 1577 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1577 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                 break;
@@ -2953,11 +2991,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 245:  CatchClause ::= catch ( FormalParameter ) Block
             //
             case 245: {
-                //#line 1582 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1582 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1582 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1582 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1584 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1584 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                 break;
             }
@@ -2966,9 +3004,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 246:  Finally ::= finally Block
             //
             case 246: {
-                //#line 1588 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1588 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1590 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1590 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Block);
                 break;
             }
@@ -2977,9 +3015,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 250:  PrimaryNoNewArray ::= Type . class
             //
             case 250: {
-                //#line 1608 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1608 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1610 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1610 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 if (Type instanceof Name)
                 {
                     Name a = (Name) Type;
@@ -3003,7 +3041,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 251: {
                 
-                //#line 1629 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1629 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ClassLit(pos(),
                                      nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
                 break;
@@ -3014,7 +3052,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 252: {
                 
-                //#line 1635 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1635 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.This(pos()));
                 break;
             }
@@ -3023,9 +3061,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 253:  PrimaryNoNewArray ::= ClassName . this
             //
             case 253: {
-                //#line 1638 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1638 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1640 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1640 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
@@ -3034,9 +3072,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 254:  PrimaryNoNewArray ::= ( Expression )
             //
             case 254: {
-                //#line 1643 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1643 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1645 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1645 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                 break;
             }
@@ -3045,9 +3083,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 259:  Literal ::= IntegerLiteral$IntegerLiteral
             //
             case 259: {
-                //#line 1653 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1653 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken IntegerLiteral = (IToken) getRhsIToken(1);
-                //#line 1655 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1655 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.IntegerLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().intValue()));
                 break;
@@ -3057,9 +3095,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 260:  Literal ::= LongLiteral$LongLiteral
             //
             case 260: {
-                //#line 1659 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1659 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken LongLiteral = (IToken) getRhsIToken(1);
-                //#line 1661 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1661 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                 break;
@@ -3069,9 +3107,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 261:  Literal ::= FloatingPointLiteral$FloatLiteral
             //
             case 261: {
-                //#line 1665 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1665 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken FloatLiteral = (IToken) getRhsIToken(1);
-                //#line 1667 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1667 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                 break;
@@ -3081,9 +3119,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 262:  Literal ::= DoubleLiteral$DoubleLiteral
             //
             case 262: {
-                //#line 1671 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1671 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken DoubleLiteral = (IToken) getRhsIToken(1);
-                //#line 1673 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1673 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                 break;
@@ -3093,9 +3131,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 263:  Literal ::= BooleanLiteral
             //
             case 263: {
-                //#line 1677 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1677 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 1679 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1679 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                 break;
             }
@@ -3104,9 +3142,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 264:  Literal ::= CharacterLiteral$CharacterLiteral
             //
             case 264: {
-                //#line 1682 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1682 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken CharacterLiteral = (IToken) getRhsIToken(1);
-                //#line 1684 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1684 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                 break;
@@ -3116,9 +3154,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 265:  Literal ::= StringLiteral$str
             //
             case 265: {
-                //#line 1688 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1688 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 1690 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1690 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                 break;
@@ -3129,7 +3167,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 266: {
                 
-                //#line 1696 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1696 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.NullLit(pos()));
                 break;
             }
@@ -3138,9 +3176,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 267:  BooleanLiteral ::= true$trueLiteral
             //
             case 267: {
-                //#line 1700 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1700 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 1702 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1702 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -3149,9 +3187,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 268:  BooleanLiteral ::= false$falseLiteral
             //
             case 268: {
-                //#line 1705 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1705 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 1707 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1707 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -3160,9 +3198,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 269:  ArgumentList ::= Expression
             //
             case 269: {
-                //#line 1720 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1720 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1722 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1722 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -3173,11 +3211,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 270:  ArgumentList ::= ArgumentList , Expression
             //
             case 270: {
-                //#line 1727 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1727 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 1727 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1727 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1729 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1729 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 ArgumentList.add(Expression);
                 //setResult(ArgumentList);
                 break;
@@ -3187,9 +3225,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 271:  DimExprs ::= DimExpr
             //
             case 271: {
-                //#line 1763 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1763 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr DimExpr = (Expr) getRhsSym(1);
-                //#line 1765 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1765 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(DimExpr);
                 setResult(l);
@@ -3200,11 +3238,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 272:  DimExprs ::= DimExprs DimExpr
             //
             case 272: {
-                //#line 1770 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1770 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List DimExprs = (List) getRhsSym(1);
-                //#line 1770 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1770 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr DimExpr = (Expr) getRhsSym(2);
-                //#line 1772 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1772 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 DimExprs.add(DimExpr);
                 //setResult(DimExprs);
                 break;
@@ -3214,9 +3252,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 273:  DimExpr ::= [ Expression ]
             //
             case 273: {
-                //#line 1777 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1777 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1779 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1779 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Expression.position(pos()));
                 break;
             }
@@ -3226,7 +3264,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 274: {
                 
-                //#line 1785 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1785 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Integer(1));
                 break;
             }
@@ -3235,9 +3273,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 275:  Dims ::= Dims [ ]
             //
             case 275: {
-                //#line 1788 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1788 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Integer Dims = (Integer) getRhsSym(1);
-                //#line 1790 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1790 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Integer(Dims.intValue() + 1));
                 break;
             }
@@ -3246,11 +3284,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 276:  FieldAccess ::= Primary . identifier
             //
             case 276: {
-                //#line 1794 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1794 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1794 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1794 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1796 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1796 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Field(pos(), Primary, identifier.getIdentifier()));
                 break;
             }
@@ -3259,9 +3297,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 277:  FieldAccess ::= super . identifier
             //
             case 277: {
-                //#line 1799 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1799 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1801 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1801 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), identifier.getIdentifier()));
                 break;
             }
@@ -3270,13 +3308,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 278:  FieldAccess ::= ClassName . super$sup . identifier
             //
             case 278: {
-                //#line 1804 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1804 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1804 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1804 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 1804 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1804 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
-                //#line 1806 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1806 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), identifier.getIdentifier()));
                 break;
             }
@@ -3285,11 +3323,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 279:  MethodInvocation ::= MethodName ( ArgumentListopt )
             //
             case 279: {
-                //#line 1810 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1810 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name MethodName = (Name) getRhsSym(1);
-                //#line 1810 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1810 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 1812 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1812 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, ArgumentListopt));
@@ -3300,9 +3338,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 281:  PostfixExpression ::= ExpressionName
             //
             case 281: {
-                //#line 1835 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1835 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 1837 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1837 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -3311,9 +3349,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 284:  PostIncrementExpression ::= PostfixExpression ++
             //
             case 284: {
-                //#line 1843 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1843 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 1845 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1845 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                 break;
             }
@@ -3322,9 +3360,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 285:  PostDecrementExpression ::= PostfixExpression --
             //
             case 285: {
-                //#line 1849 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1849 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 1851 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1851 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                 break;
             }
@@ -3333,9 +3371,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 288:  UnaryExpression ::= + UnaryExpression
             //
             case 288: {
-                //#line 1857 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1857 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1859 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1859 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpression));
                 break;
             }
@@ -3344,9 +3382,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 289:  UnaryExpression ::= - UnaryExpression
             //
             case 289: {
-                //#line 1862 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1862 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1864 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1864 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpression));
                 break;
             }
@@ -3355,9 +3393,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 291:  PreIncrementExpression ::= ++ UnaryExpression
             //
             case 291: {
-                //#line 1869 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1869 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1871 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1871 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpression));
                 break;
             }
@@ -3366,9 +3404,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 292:  PreDecrementExpression ::= -- UnaryExpression
             //
             case 292: {
-                //#line 1875 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1875 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1877 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1877 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpression));
                 break;
             }
@@ -3377,9 +3415,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 294:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
             case 294: {
-                //#line 1882 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1882 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1884 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1884 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                 break;
             }
@@ -3388,9 +3426,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 295:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
             case 295: {
-                //#line 1887 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1887 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 1889 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1889 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                 break;
             }
@@ -3399,11 +3437,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 298:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
             case 298: {
-                //#line 1901 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1901 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1901 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1901 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 1903 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1903 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                 break;
             }
@@ -3412,11 +3450,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 299:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
             case 299: {
-                //#line 1906 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1906 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1906 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1906 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 1908 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1908 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                 break;
             }
@@ -3425,11 +3463,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 300:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
             case 300: {
-                //#line 1911 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1911 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1911 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1911 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 1913 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1913 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                 break;
             }
@@ -3438,11 +3476,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 302:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
             case 302: {
-                //#line 1918 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1918 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1918 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1918 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 1920 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1920 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                 break;
             }
@@ -3451,11 +3489,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 303:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
             case 303: {
-                //#line 1923 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1923 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1923 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1923 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 1925 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1925 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                 break;
             }
@@ -3464,11 +3502,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 305:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
             case 305: {
-                //#line 1930 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1930 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 1930 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1930 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1932 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1932 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                 break;
             }
@@ -3477,11 +3515,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 306:  ShiftExpression ::= ShiftExpression > > AdditiveExpression
             //
             case 306: {
-                //#line 1935 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1935 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 1935 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1935 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(4);
-                //#line 1937 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1937 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                 break;
@@ -3491,11 +3529,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 307:  ShiftExpression ::= ShiftExpression > > > AdditiveExpression
             //
             case 307: {
-                //#line 1941 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1941 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 1941 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1941 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AdditiveExpression = (Expr) getRhsSym(5);
-                //#line 1943 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1943 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                 break;
@@ -3505,11 +3543,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 309:  RelationalExpression ::= RelationalExpression < ShiftExpression
             //
             case 309: {
-                //#line 1949 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1949 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1949 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1949 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 1951 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1951 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, ShiftExpression));
                 break;
             }
@@ -3518,11 +3556,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 310:  RelationalExpression ::= RelationalExpression > ShiftExpression
             //
             case 310: {
-                //#line 1954 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1954 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1954 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1954 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 1956 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1956 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, ShiftExpression));
                 break;
             }
@@ -3531,11 +3569,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 311:  RelationalExpression ::= RelationalExpression <= ShiftExpression
             //
             case 311: {
-                //#line 1959 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1959 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1959 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1959 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 1961 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1961 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, ShiftExpression));
                 break;
             }
@@ -3544,11 +3582,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 312:  RelationalExpression ::= RelationalExpression > = ShiftExpression
             //
             case 312: {
-                //#line 1964 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1964 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1964 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1964 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ShiftExpression = (Expr) getRhsSym(4);
-                //#line 1966 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1966 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, ShiftExpression));
                 break;
@@ -3558,11 +3596,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 314:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
             case 314: {
-                //#line 1980 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1980 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 1980 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1980 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 1982 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1982 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                 break;
             }
@@ -3571,11 +3609,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 315:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
             case 315: {
-                //#line 1985 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1985 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 1985 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1985 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 1987 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1987 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                 break;
             }
@@ -3584,11 +3622,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 317:  AndExpression ::= AndExpression & EqualityExpression
             //
             case 317: {
-                //#line 1992 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1992 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 1992 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1992 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 1994 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1994 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                 break;
             }
@@ -3597,11 +3635,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 319:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
             case 319: {
-                //#line 1999 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1999 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1999 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 1999 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 2001 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2001 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                 break;
             }
@@ -3610,11 +3648,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 321:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
             case 321: {
-                //#line 2006 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2006 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 2006 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2006 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 2008 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2008 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                 break;
             }
@@ -3623,11 +3661,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 323:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
             case 323: {
-                //#line 2013 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2013 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 2013 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2013 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 2015 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2015 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                 break;
             }
@@ -3636,11 +3674,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 325:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
             case 325: {
-                //#line 2020 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2020 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 2020 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2020 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 2022 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2022 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                 break;
             }
@@ -3649,13 +3687,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 327:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
             case 327: {
-                //#line 2027 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2027 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 2027 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2027 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2027 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2027 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 2029 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2029 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                 break;
             }
@@ -3664,13 +3702,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 330:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
             case 330: {
-                //#line 2036 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2036 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 2036 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2036 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 2036 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2036 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 2038 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2038 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                 break;
             }
@@ -3679,9 +3717,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 331:  LeftHandSide ::= ExpressionName
             //
             case 331: {
-                //#line 2042 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2042 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 2044 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2044 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -3691,7 +3729,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 334: {
                 
-                //#line 2052 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2052 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.ASSIGN);
                 break;
             }
@@ -3701,7 +3739,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 335: {
                 
-                //#line 2057 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2057 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.MUL_ASSIGN);
                 break;
             }
@@ -3711,7 +3749,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 336: {
                 
-                //#line 2062 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2062 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.DIV_ASSIGN);
                 break;
             }
@@ -3721,7 +3759,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 337: {
                 
-                //#line 2067 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2067 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.MOD_ASSIGN);
                 break;
             }
@@ -3731,7 +3769,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 338: {
                 
-                //#line 2072 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2072 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.ADD_ASSIGN);
                 break;
             }
@@ -3741,7 +3779,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 339: {
                 
-                //#line 2077 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2077 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.SUB_ASSIGN);
                 break;
             }
@@ -3751,7 +3789,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 340: {
                 
-                //#line 2082 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2082 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.SHL_ASSIGN);
                 break;
             }
@@ -3761,7 +3799,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 341: {
                 
-                //#line 2087 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2087 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(Assign.SHR_ASSIGN);
                 break;
@@ -3772,7 +3810,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 342: {
                 
-                //#line 2093 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2093 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 // TODO: make sure that there is no space after the ">" signs
                 setResult(Assign.USHR_ASSIGN);
                 break;
@@ -3783,7 +3821,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 343: {
                 
-                //#line 2099 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2099 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                 break;
             }
@@ -3793,7 +3831,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 344: {
                 
-                //#line 2104 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2104 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                 break;
             }
@@ -3803,7 +3841,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 345: {
                 
-                //#line 2109 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2109 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                 break;
             }
@@ -3813,7 +3851,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 348: {
                 
-                //#line 2122 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2122 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Integer(0));
                 break;
             }
@@ -3823,7 +3861,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 350: {
                 
-                //#line 2129 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2129 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
@@ -3839,9 +3877,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 353:  identifieropt ::= identifier
             //
             case 353: {
-                //#line 2136 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2136 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 2138 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2138 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -3851,7 +3889,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 354: {
                 
-                //#line 2144 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2144 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                 break;
             }
@@ -3868,7 +3906,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 358: {
                 
-                //#line 2155 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2155 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                 break;
             }
@@ -3878,7 +3916,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 360: {
                 
-                //#line 2162 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2162 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                 break;
             }
@@ -3888,7 +3926,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 362: {
                 
-                //#line 2169 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2169 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                 break;
             }
@@ -3898,7 +3936,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 364: {
                 
-                //#line 2176 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2176 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -3915,7 +3953,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 368: {
                 
-                //#line 2206 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2206 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -3925,7 +3963,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 370: {
                 
-                //#line 2213 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2213 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -3935,7 +3973,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 372: {
                 
-                //#line 2220 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2220 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -3945,7 +3983,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 374: {
                 
-                //#line 2227 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2227 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -3955,7 +3993,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 376: {
                 
-                //#line 2234 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2234 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -3992,7 +4030,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 384: {
                 
-                //#line 2264 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2264 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
@@ -4002,7 +4040,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 386: {
                 
-                //#line 2271 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2271 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                 break;
             }
@@ -4019,7 +4057,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 390: {
                 
-                //#line 2282 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2282 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -4036,7 +4074,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 394: {
                 
-                //#line 2293 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2293 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
@@ -4046,7 +4084,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 396: {
                 
-                //#line 2300 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2300 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4056,7 +4094,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 398: {
                 
-                //#line 2307 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2307 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -4066,7 +4104,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 400: {
                 
-                //#line 2314 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2314 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -4076,7 +4114,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 402: {
                 
-                //#line 2321 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2321 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -4086,7 +4124,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 404: {
                 
-                //#line 2328 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2328 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -4096,7 +4134,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 406: {
                 
-                //#line 2335 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2335 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                setResult(new Name(nf, ts, pos(), "x10.lang.Object").toType());
                 break;
             }
@@ -4106,7 +4144,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 408: {
                 
-                //#line 2346 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2346 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(Flags.NONE);
                 break;
             }
@@ -4116,7 +4154,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 410: {
                 
-                //#line 2358 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2358 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                 break;
             }
@@ -4126,7 +4164,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 412: {
                 
-                //#line 2365 "C:/eclipse/ws6/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
+                //#line 2365 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/GJavaParserForX10.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                 break;
             }
@@ -4142,13 +4180,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 416:  ClassType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
             //
             case 416: {
-                //#line 716 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 723 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 716 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 723 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 716 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 723 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
-                //#line 718 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 725 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                      setResult(DepParametersopt == null
                                ? TypeName.toType()
                                : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
@@ -4159,13 +4197,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 417:  InterfaceType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
             //
             case 417: {
-                //#line 725 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 732 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 725 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 732 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 725 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 732 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
-                //#line 727 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 734 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                  setResult(DepParametersopt == null
                                ? TypeName.toType()
                                : ((X10TypeNode) TypeName.toType()).dep(null, DepParametersopt));
@@ -4176,9 +4214,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 418:  PackageDeclaration ::= package PackageName ;
             //
             case 418: {
-                //#line 733 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 740 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name PackageName = (Name) getRhsSym(2);
-                //#line 735 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 742 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(PackageName.toPackage());
                 break;
             }
@@ -4187,19 +4225,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 419:  NormalClassDeclaration ::= X10ClassModifiersopt class identifier PropertyListopt Superopt Interfacesopt ClassBody
             //
             case 419: {
-                //#line 739 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 746 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Flags X10ClassModifiersopt = (X10Flags) getRhsSym(1);
-                //#line 739 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 746 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 739 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 746 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object[] PropertyListopt = (Object[]) getRhsSym(4);
-                //#line 739 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 746 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(5);
-                //#line 739 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 746 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(6);
-                //#line 739 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 746 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(7);
-                //#line 741 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 748 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
       checkTypeName(identifier);
       List/*<PropertyDecl>*/ props = PropertyListopt == null ? null
                   : (List) PropertyListopt[0];
@@ -4216,11 +4254,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 421:  X10ClassModifiers ::= X10ClassModifiers X10ClassModifier
             //
             case 421: {
-                //#line 754 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 761 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Flags X10ClassModifiers = (X10Flags) getRhsSym(1);
-                //#line 754 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 761 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Flags X10ClassModifier = (X10Flags) getRhsSym(2);
-                //#line 756 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 763 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
        X10Flags result = X10ClassModifiers.setX(X10ClassModifier);
                 setResult(result);
                
@@ -4231,9 +4269,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 422:  X10ClassModifier ::= ClassModifier
             //
             case 422: {
-                //#line 762 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 769 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Flags ClassModifier = (Flags) getRhsSym(1);
-                //#line 764 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 771 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(X10Flags.toX10Flags(ClassModifier));
                 break;
             }
@@ -4243,7 +4281,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 423: {
                 
-                //#line 769 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 776 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(X10Flags.SAFE);
                 break;
             }
@@ -4252,11 +4290,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 424:  PropertyList ::= ( Properties WhereClauseopt )
             //
             case 424: {
-                //#line 773 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 780 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List Properties = (List) getRhsSym(2);
-                //#line 773 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 780 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(3);
-                //#line 775 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 782 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
    Object[] result = new Object[2];
    result[0] = Properties;
    result[1] = WhereClauseopt;
@@ -4267,9 +4305,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 425:  PropertyList ::= ( WhereClause )
             //
             case 425: {
-                //#line 780 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 787 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClause = (Expr) getRhsSym(2);
-                //#line 782 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 789 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
    Object[] result = new Object[2];
    result[0] = null;
    result[1] = WhereClause;
@@ -4280,9 +4318,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 426:  Properties ::= Property
             //
             case 426: {
-                //#line 789 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 796 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(1);
-                //#line 791 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 798 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
                 l.add(Property);
                 setResult(l);
@@ -4293,11 +4331,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 427:  Properties ::= Properties , Property
             //
             case 427: {
-                //#line 796 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 803 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List Properties = (List) getRhsSym(1);
-                //#line 796 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 803 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(3);
-                //#line 798 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 805 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Properties.add(Property);
                 // setResult(FormalParameters);
                 break;
@@ -4307,11 +4345,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 428:  Property ::= Type identifier
             //
             case 428: {
-                //#line 804 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 811 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 804 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 811 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(2);
-                //#line 806 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 813 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
     
                 setResult(nf.PropertyDecl(pos(), Flags.PUBLIC.Final(), Type,
                 identifier.getIdentifier()));
@@ -4323,19 +4361,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 429:  MethodDeclaration ::= ThisClauseopt MethodModifiersopt ResultType MethodDeclarator Throwsopt MethodBody
             //
             case 429: {
-                //#line 819 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 826 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
-                //#line 819 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 826 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Flags MethodModifiersopt = (Flags) getRhsSym(2);
-                //#line 819 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 826 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(3);
-                //#line 819 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 826 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object[] MethodDeclarator = (Object[]) getRhsSym(4);
-                //#line 819 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 826 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(5);
-                //#line 819 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 826 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(6);
-                //#line 821 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 828 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
       Name c = (MethodDeclarator != null) ? (Name) MethodDeclarator[0] : null;
       List d = (MethodDeclarator != null) ? (List) MethodDeclarator[1] : null;
       Integer e = (MethodDeclarator != null) ? (Integer) MethodDeclarator[2] : null;
@@ -4362,9 +4400,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 430:  ExplicitConstructorInvocation ::= this ( ArgumentListopt ) ;
             //
             case 430: {
-                //#line 843 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 850 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 845 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 852 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ThisCall(pos(), ArgumentListopt));
                 break;
             }
@@ -4373,9 +4411,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 431:  ExplicitConstructorInvocation ::= super ( ArgumentListopt ) ;
             //
             case 431: {
-                //#line 848 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 855 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 850 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 857 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.SuperCall(pos(), ArgumentListopt));
                 break;
             }
@@ -4384,11 +4422,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 432:  ExplicitConstructorInvocation ::= Primary . this ( ArgumentListopt ) ;
             //
             case 432: {
-                //#line 853 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 860 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 853 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 860 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 855 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 862 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ThisCall(pos(), Primary, ArgumentListopt));
                 break;
             }
@@ -4397,11 +4435,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 433:  ExplicitConstructorInvocation ::= Primary . super ( ArgumentListopt ) ;
             //
             case 433: {
-                //#line 858 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 865 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 858 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 865 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 860 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 867 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.SuperCall(pos(), Primary, ArgumentListopt));
                 break;
             }
@@ -4410,17 +4448,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 434:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier PropertyListopt ExtendsInterfacesopt InterfaceBody
             //
             case 434: {
-                //#line 864 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 871 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Flags InterfaceModifiersopt = (Flags) getRhsSym(1);
-                //#line 864 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 871 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 864 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 871 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object[] PropertyListopt = (Object[]) getRhsSym(4);
-                //#line 864 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 871 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ExtendsInterfacesopt = (List) getRhsSym(5);
-                //#line 864 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 871 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(6);
-                //#line 866 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 873 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
       checkTypeName(identifier);
       List/*<PropertyDecl>*/ props = PropertyListopt == null ? null 
                   : (List) PropertyListopt[0];
@@ -4440,17 +4478,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 435:  AbstractMethodDeclaration ::= ThisClauseopt AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt ;
             //
             case 435: {
-                //#line 881 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 888 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
-                //#line 881 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 888 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Flags AbstractMethodModifiersopt = (Flags) getRhsSym(2);
-                //#line 881 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 888 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(3);
-                //#line 881 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 888 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object[] MethodDeclarator = (Object[]) getRhsSym(4);
-                //#line 881 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 888 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(5);
-                //#line 883 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 890 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
      Name c = (Name) MethodDeclarator[0];
      List d = (List) MethodDeclarator[1];
      Integer e = (Integer) MethodDeclarator[2];
@@ -4478,13 +4516,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 436:  ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
             //
             case 436: {
-                //#line 906 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 913 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ClassOrInterfaceType = (TypeNode) getRhsSym(2);
-                //#line 906 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 913 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 906 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 913 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(6);
-                //#line 908 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 915 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), ClassOrInterfaceType, ArgumentListopt));
                 else setResult(nf.New(pos(), ClassOrInterfaceType, ArgumentListopt, ClassBodyopt));
@@ -4495,15 +4533,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 437:  ClassInstanceCreationExpression ::= Primary . new identifier ( ArgumentListopt ) ClassBodyopt
             //
             case 437: {
-                //#line 913 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 920 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 913 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 920 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
-                //#line 913 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 920 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 913 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 920 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(8);
-                //#line 915 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 922 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name b = new Name(nf, ts, pos(), identifier.getIdentifier());
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), Primary, b.toType(), ArgumentListopt));
@@ -4515,15 +4553,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 438:  ClassInstanceCreationExpression ::= AmbiguousName . new identifier ( ArgumentListopt ) ClassBodyopt
             //
             case 438: {
-                //#line 921 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 928 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name AmbiguousName = (Name) getRhsSym(1);
-                //#line 921 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 928 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
-                //#line 921 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 928 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 921 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 928 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(8);
-                //#line 923 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 930 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name b = new Name(nf, ts, pos(), identifier.getIdentifier());
                 if (ClassBodyopt == null)
                      setResult(nf.New(pos(), AmbiguousName.toExpr(), b.toType(), ArgumentListopt));
@@ -4535,13 +4573,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 439:  MethodInvocation ::= Primary . identifier ( ArgumentListopt )
             //
             case 439: {
-                //#line 930 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 937 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 930 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 937 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 930 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 937 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 932 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 939 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Call(pos(), Primary, identifier.getIdentifier(), ArgumentListopt));
                 break;
             }
@@ -4550,11 +4588,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 440:  MethodInvocation ::= super . identifier ( ArgumentListopt )
             //
             case 440: {
-                //#line 935 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 942 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 935 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 942 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 937 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 944 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), identifier.getIdentifier(), ArgumentListopt));
                 break;
             }
@@ -4563,15 +4601,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 441:  MethodInvocation ::= ClassName . super$sup . identifier ( ArgumentListopt )
             //
             case 441: {
-                //#line 940 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 947 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 940 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 947 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 940 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 947 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
-                //#line 940 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 947 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 942 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 949 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), identifier.getIdentifier(), ArgumentListopt));
                 break;
             }
@@ -4580,9 +4618,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 443:  AssignPropertyCall ::= property ( ArgumentList )
             //
             case 443: {
-                //#line 947 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 954 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 949 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 956 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AssignPropertyCall(pos(),  ArgumentList));
                 break;
             }
@@ -4591,9 +4629,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 444:  Type ::= DataType
             //
             case 444: {
-                //#line 958 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 965 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode DataType = (TypeNode) getRhsSym(1);
-                //#line 960 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 967 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
               setResult(DataType);
                 break;
             }
@@ -4602,11 +4640,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 445:  Type ::= nullable < Type > DepParametersopt
             //
             case 445: {
-                //#line 963 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 970 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 963 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 970 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(5);
-                //#line 965 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 972 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10TypeNode t = nf.Nullable(pos(), Type);
                 setResult(DepParametersopt == null ? t 
                 : t.dep(null, DepParametersopt));
@@ -4618,9 +4656,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 446:  Type ::= future < Type >
             //
             case 446: {
-                //#line 971 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 978 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 973 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 980 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Future(pos(), Type));
                 break;
             }
@@ -4629,11 +4667,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 450:  PrimitiveType ::= NumericType DepParametersopt
             //
             case 450: {
-                //#line 988 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 995 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode NumericType = (TypeNode) getRhsSym(1);
-                //#line 988 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 995 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 990 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 997 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
               //  System.out.println("Parser: parsed PrimitiveType |" + NumericType + "| |" + DepParametersopt +"|");
                 setResult(DepParametersopt == null
                                ? NumericType
@@ -4645,9 +4683,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 451:  PrimitiveType ::= boolean DepParametersopt
             //
             case 451: {
-                //#line 996 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1003 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 998 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1005 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10TypeNode res = (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.Boolean());
                 setResult(DepParametersopt==null 
                            ? res 
@@ -4659,13 +4697,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 456:  ClassOrInterfaceType ::= TypeName DepParametersopt PlaceTypeSpecifieropt
             //
             case 456: {
-                //#line 1010 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1017 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name TypeName = (Name) getRhsSym(1);
-                //#line 1010 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1017 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 1010 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1017 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object PlaceTypeSpecifieropt = (Object) getRhsSym(3);
-                //#line 1012 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
             X10TypeNode type;
             
             if (ts.isPrimitiveTypeName(TypeName.name)) {
@@ -4687,9 +4725,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 457:  DepParameters ::= ( DepParameterExpr )
             //
             case 457: {
-                //#line 1029 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1036 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(2);
-                //#line 1031 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1038 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(DepParameterExpr);
                 break;
             }
@@ -4698,11 +4736,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 458:  DepParameterExpr ::= ArgumentList WhereClauseopt
             //
             case 458: {
-                //#line 1035 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1042 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 1035 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1042 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(2);
-                //#line 1037 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1044 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.DepParameterExpr(pos(), ArgumentList, WhereClauseopt));
                 break;
             }
@@ -4711,9 +4749,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 459:  DepParameterExpr ::= WhereClause
             //
             case 459: {
-                //#line 1040 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1047 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClause = (Expr) getRhsSym(1);
-                //#line 1042 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1049 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.DepParameterExpr(pos(), Collections.EMPTY_LIST, WhereClause));
                 break;
             }
@@ -4722,9 +4760,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 460:  WhereClause ::= : ConstExpression
             //
             case 460: {
-                //#line 1046 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1053 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExpression = (Expr) getRhsSym(2);
-                //#line 1048 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1055 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstExpression);
                 break;
             }
@@ -4733,9 +4771,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 461:  ConstPrimary ::= Literal
             //
             case 461: {
-                //#line 1053 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1060 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.ast.Lit Literal = (polyglot.ast.Lit) getRhsSym(1);
-                //#line 1055 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1062 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(Literal);
                 break;
             }
@@ -4744,9 +4782,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 462:  ConstPrimary ::= Type . class
             //
             case 462: {
-                //#line 1058 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1065 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1060 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1067 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 if (Type instanceof Name)
                 {
                     Name a = (Name) Type;
@@ -4770,7 +4808,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 463: {
                 
-                //#line 1079 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1086 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ClassLit(pos(),
                                      nf.CanonicalTypeNode(pos(getLeftSpan()), ts.Void())));
                 break;
@@ -4781,7 +4819,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 464: {
                 
-                //#line 1085 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1092 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.This(pos()));
                 break;
             }
@@ -4791,7 +4829,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 465: {
                 
-                //#line 1090 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1097 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Here(pos()));
                 break;
             }
@@ -4800,9 +4838,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 466:  ConstPrimary ::= ClassName . this
             //
             case 466: {
-                //#line 1093 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1100 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1095 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1102 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
@@ -4811,9 +4849,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 467:  ConstPrimary ::= ( ConstExpression )
             //
             case 467: {
-                //#line 1098 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1105 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExpression = (Expr) getRhsSym(2);
-                //#line 1100 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1107 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstExpression);
                 break;
             }
@@ -4823,7 +4861,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 469: {
                 
-                //#line 1106 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1113 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Self(pos()));
                 break;
             }
@@ -4832,9 +4870,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 470:  ConstPostfixExpression ::= ConstPrimary
             //
             case 470: {
-                //#line 1112 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1119 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstPrimary = (Expr) getRhsSym(1);
-                //#line 1114 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1121 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstPrimary);
                         break;
             }
@@ -4843,9 +4881,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 471:  ConstPostfixExpression ::= ExpressionName
             //
             case 471: {
-                //#line 1117 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1124 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 1119 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1126 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -4854,9 +4892,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 472:  ConstUnaryExpression ::= ConstPostfixExpression
             //
             case 472: {
-                //#line 1122 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1129 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstPostfixExpression = (Expr) getRhsSym(1);
-                //#line 1124 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1131 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstPostfixExpression);
                         break;
             }
@@ -4865,9 +4903,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 473:  ConstUnaryExpression ::= + ConstUnaryExpression
             //
             case 473: {
-                //#line 1127 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1134 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(2);
-                //#line 1129 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1136 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Unary(pos(), Unary.POS, ConstUnaryExpression));
                 break;
             }
@@ -4876,9 +4914,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 474:  ConstUnaryExpression ::= - ConstUnaryExpression
             //
             case 474: {
-                //#line 1132 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1139 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(2);
-                //#line 1134 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1141 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Unary(pos(), Unary.NEG, ConstUnaryExpression));
                 break;
             }
@@ -4887,9 +4925,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 475:  ConstUnaryExpression ::= ! ConstUnaryExpression
             //
             case 475: {
-                //#line 1137 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1144 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(2);
-                //#line 1139 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1146 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Unary(pos(), Unary.NOT, ConstUnaryExpression));
                 break;
             }
@@ -4898,9 +4936,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 476:  ConstMultiplicativeExpression ::= ConstUnaryExpression
             //
             case 476: {
-                //#line 1143 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1150 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(1);
-                //#line 1145 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1152 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstUnaryExpression);
                 break;
             }
@@ -4909,11 +4947,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 477:  ConstMultiplicativeExpression ::= ConstMultiplicativeExpression * ConstUnaryExpression
             //
             case 477: {
-                //#line 1148 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1155 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1148 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1155 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(3);
-                //#line 1150 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1157 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.MUL, ConstUnaryExpression));
                 break;
             }
@@ -4922,11 +4960,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 478:  ConstMultiplicativeExpression ::= ConstMultiplicativeExpression / ConstUnaryExpression
             //
             case 478: {
-                //#line 1153 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1160 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1153 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1160 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(3);
-                //#line 1155 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1162 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.DIV, ConstUnaryExpression));
                 break;
             }
@@ -4935,11 +4973,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 479:  ConstMultiplicativeExpression ::= ConstMultiplicativeExpression % ConstUnaryExpression
             //
             case 479: {
-                //#line 1158 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1165 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1158 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1165 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstUnaryExpression = (Expr) getRhsSym(3);
-                //#line 1160 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1167 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstMultiplicativeExpression, Binary.MOD, ConstUnaryExpression));
                 break;
             }
@@ -4948,9 +4986,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 480:  ConstAdditiveExpression ::= ConstMultiplicativeExpression
             //
             case 480: {
-                //#line 1164 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1171 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 1166 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1173 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstMultiplicativeExpression);
                 break;
             }
@@ -4959,11 +4997,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 481:  ConstAdditiveExpression ::= ConstAdditiveExpression + ConstMultiplicativeExpression
             //
             case 481: {
-                //#line 1169 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1176 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1169 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1176 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 1171 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1178 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstAdditiveExpression, Binary.ADD, ConstMultiplicativeExpression));
                 break;
             }
@@ -4972,11 +5010,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 482:  ConstAdditiveExpression ::= ConstAdditiveExpression - ConstMultiplicativeExpression
             //
             case 482: {
-                //#line 1174 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1181 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1174 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1181 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstMultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 1176 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1183 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstAdditiveExpression, Binary.SUB, ConstMultiplicativeExpression));
                 break;
             }
@@ -4985,9 +5023,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 483:  ConstRelationalExpression ::= ConstAdditiveExpression
             //
             case 483: {
-                //#line 1181 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1188 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(1);
-                //#line 1183 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1190 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstAdditiveExpression);
                 break;
             }
@@ -4996,11 +5034,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 484:  ConstRelationalExpression ::= ConstRelationalExpression < ConstAdditiveExpression
             //
             case 484: {
-                //#line 1186 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1193 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1186 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1193 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1188 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1195 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.LT, ConstAdditiveExpression));
                 break;
             }
@@ -5009,11 +5047,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 485:  ConstRelationalExpression ::= ConstRelationalExpression > ConstAdditiveExpression
             //
             case 485: {
-                //#line 1191 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1198 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1191 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1198 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1193 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1200 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.GT, ConstAdditiveExpression));
                 break;
             }
@@ -5022,11 +5060,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 486:  ConstRelationalExpression ::= ConstRelationalExpression <= ConstAdditiveExpression
             //
             case 486: {
-                //#line 1196 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1203 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1196 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1203 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(3);
-                //#line 1198 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1205 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.LE, ConstAdditiveExpression));
                 break;
             }
@@ -5035,11 +5073,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 487:  ConstRelationalExpression ::= ConstRelationalExpression > = ConstAdditiveExpression
             //
             case 487: {
-                //#line 1201 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1208 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1201 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1208 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAdditiveExpression = (Expr) getRhsSym(4);
-                //#line 1203 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1210 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstRelationalExpression, Binary.GE, ConstAdditiveExpression));
                 break;
             }
@@ -5048,9 +5086,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 488:  ConstEqualityExpression ::= ConstRelationalExpression
             //
             case 488: {
-                //#line 1207 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1214 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(1);
-                //#line 1209 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1216 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstRelationalExpression);
                 break;
             }
@@ -5059,11 +5097,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 489:  ConstEqualityExpression ::= ConstEqualityExpression == ConstRelationalExpression
             //
             case 489: {
-                //#line 1212 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1219 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstEqualityExpression = (Expr) getRhsSym(1);
-                //#line 1212 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1219 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(3);
-                //#line 1214 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1221 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstEqualityExpression, Binary.EQ, ConstRelationalExpression));
                 break;
             }
@@ -5072,11 +5110,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 490:  ConstEqualityExpression ::= ConstEqualityExpression != ConstRelationalExpression
             //
             case 490: {
-                //#line 1217 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1224 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstEqualityExpression = (Expr) getRhsSym(1);
-                //#line 1217 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1224 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstRelationalExpression = (Expr) getRhsSym(3);
-                //#line 1219 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1226 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstEqualityExpression, Binary.NE, ConstRelationalExpression));
                 break;
             }
@@ -5085,9 +5123,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 491:  ConstAndExpression ::= ConstEqualityExpression
             //
             case 491: {
-                //#line 1223 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1230 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstEqualityExpression = (Expr) getRhsSym(1);
-                //#line 1225 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1232 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstEqualityExpression);
                 break;
             }
@@ -5096,11 +5134,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 492:  ConstAndExpression ::= ConstAndExpression && ConstEqualityExpression
             //
             case 492: {
-                //#line 1228 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1235 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAndExpression = (Expr) getRhsSym(1);
-                //#line 1228 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1235 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstEqualityExpression = (Expr) getRhsSym(3);
-                //#line 1230 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1237 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstAndExpression, Binary.COND_AND, ConstEqualityExpression));
                 break;
             }
@@ -5109,9 +5147,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 493:  ConstExclusiveOrExpression ::= ConstAndExpression
             //
             case 493: {
-                //#line 1234 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1241 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAndExpression = (Expr) getRhsSym(1);
-                //#line 1236 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1243 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstAndExpression);
                 break;
             }
@@ -5120,11 +5158,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 494:  ConstExclusiveOrExpression ::= ConstExclusiveOrExpression ^ ConstAndExpression
             //
             case 494: {
-                //#line 1239 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1246 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1239 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1246 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstAndExpression = (Expr) getRhsSym(3);
-                //#line 1241 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1248 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstExclusiveOrExpression, Binary.BIT_XOR, ConstAndExpression));
                 break;
             }
@@ -5133,9 +5171,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 495:  ConstInclusiveOrExpression ::= ConstExclusiveOrExpression
             //
             case 495: {
-                //#line 1245 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1252 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1247 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1254 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstExclusiveOrExpression);
                 break;
             }
@@ -5144,11 +5182,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 496:  ConstInclusiveOrExpression ::= ConstInclusiveOrExpression || ConstExclusiveOrExpression
             //
             case 496: {
-                //#line 1250 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1257 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1250 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1257 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 1252 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1259 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Binary(pos(), ConstInclusiveOrExpression, Binary.COND_OR, ConstExclusiveOrExpression));
                 break;
             }
@@ -5157,9 +5195,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 497:  ConstExpression ::= ConstInclusiveOrExpression
             //
             case 497: {
-                //#line 1256 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1263 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1258 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1265 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ConstInclusiveOrExpression);
                 break;
             }
@@ -5168,13 +5206,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 498:  ConstExpression ::= ConstInclusiveOrExpression ? ConstExpression$first : ConstExpression
             //
             case 498: {
-                //#line 1261 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1268 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstInclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 1261 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1268 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr first = (Expr) getRhsSym(3);
-                //#line 1261 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1268 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstExpression = (Expr) getRhsSym(5);
-                //#line 1263 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1270 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Conditional(pos(), ConstInclusiveOrExpression, first, ConstExpression));
                 break;
             }
@@ -5183,11 +5221,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 499:  ConstFieldAccess ::= ConstPrimary . identifier
             //
             case 499: {
-                //#line 1268 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1275 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstPrimary = (Expr) getRhsSym(1);
-                //#line 1268 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1275 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1270 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1277 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Field(pos(), ConstPrimary, identifier.getIdentifier()));
                 break;
             }
@@ -5196,9 +5234,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 500:  ConstFieldAccess ::= super . identifier
             //
             case 500: {
-                //#line 1273 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1280 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1275 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1282 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), identifier.getIdentifier()));
                 break;
             }
@@ -5207,13 +5245,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 501:  ConstFieldAccess ::= ClassName . super$sup . identifier
             //
             case 501: {
-                //#line 1278 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1285 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name ClassName = (Name) getRhsSym(1);
-                //#line 1278 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1285 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 1278 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1285 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(5);
-                //#line 1280 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1287 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), identifier.getIdentifier()));
                 break;
             }
@@ -5222,9 +5260,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 503:  X10ArrayType ::= Type [ . ]
             //
             case 503: {
-                //#line 1296 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1303 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1298 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1305 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, null));
                 break;
             }
@@ -5233,9 +5271,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 504:  X10ArrayType ::= Type value [ . ]
             //
             case 504: {
-                //#line 1301 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1308 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1303 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1310 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, true, null));
                 break;
             }
@@ -5244,11 +5282,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 505:  X10ArrayType ::= Type [ DepParameterExpr ]
             //
             case 505: {
-                //#line 1306 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1313 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1306 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1313 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(3);
-                //#line 1308 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1315 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, false, DepParameterExpr));
                 break;
             }
@@ -5257,11 +5295,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 506:  X10ArrayType ::= Type value [ DepParameterExpr ]
             //
             case 506: {
-                //#line 1311 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1318 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1311 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1318 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameterExpr = (DepParameterExpr) getRhsSym(4);
-                //#line 1313 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1320 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.X10ArrayTypeNode(pos(), Type, true, DepParameterExpr));
                 break;
             }
@@ -5283,7 +5321,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 509: {
                 
-                //#line 1327 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1334 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(X10Flags.ATOMIC);
                 break;
             }
@@ -5293,7 +5331,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 510: {
                 
-                //#line 1332 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1339 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(Flags.NATIVE);
                 break;
             }
@@ -5303,7 +5341,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 511: {
                 
-                //#line 1337 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1344 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(X10Flags.SAFE);
                 break;
             }
@@ -5313,7 +5351,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 512: {
                 
-                //#line 1342 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1349 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(X10Flags.SEQUENTIAL);
                 break;
             }
@@ -5323,7 +5361,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 513: {
                 
-                //#line 1347 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1354 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(X10Flags.LOCAL);
                 break;
             }
@@ -5333,7 +5371,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 514: {
                 
-                //#line 1352 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1359 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(X10Flags.NON_BLOCKING);
                 break;
             }
@@ -5342,19 +5380,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 516:  ValueClassDeclaration ::= X10ClassModifiersopt value identifier PropertyListopt Superopt Interfacesopt ClassBody
             //
             case 516: {
-                //#line 1358 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1365 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Flags X10ClassModifiersopt = (X10Flags) getRhsSym(1);
-                //#line 1358 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1365 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1358 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1365 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object[] PropertyListopt = (Object[]) getRhsSym(4);
-                //#line 1358 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1365 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(5);
-                //#line 1358 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1365 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(6);
-                //#line 1358 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1365 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(7);
-                //#line 1360 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1367 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
     checkTypeName(identifier);
     List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
     Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
@@ -5368,19 +5406,19 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 517:  ValueClassDeclaration ::= X10ClassModifiersopt value class identifier PropertyListopt Superopt Interfacesopt ClassBody
             //
             case 517: {
-                //#line 1368 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1375 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Flags X10ClassModifiersopt = (X10Flags) getRhsSym(1);
-                //#line 1368 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1375 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(4);
-                //#line 1368 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1375 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object[] PropertyListopt = (Object[]) getRhsSym(5);
-                //#line 1368 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1375 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(6);
-                //#line 1368 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1375 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(7);
-                //#line 1368 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1375 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(8);
-                //#line 1370 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1377 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 checkTypeName(identifier);
     List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
     Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
@@ -5394,15 +5432,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 518:  ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
             //
             case 518: {
-                //#line 1379 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1386 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Flags ConstructorModifiersopt = (Flags) getRhsSym(1);
-                //#line 1379 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1386 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object[] ConstructorDeclarator = (Object[]) getRhsSym(2);
-                //#line 1379 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1386 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(3);
-                //#line 1379 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1386 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBody = (Block) getRhsSym(4);
-                //#line 1381 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1388 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
      Name a = (Name) ConstructorDeclarator[1];
      DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
      List b = (List) ConstructorDeclarator[3];
@@ -5415,15 +5453,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 519:  ConstructorDeclarator ::= SimpleTypeName DepParametersopt ( FormalParameterListopt WhereClauseopt )
             //
             case 519: {
-                //#line 1389 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1396 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name SimpleTypeName = (Name) getRhsSym(1);
-                //#line 1389 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1396 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(2);
-                //#line 1389 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1396 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(4);
-                //#line 1389 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1396 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(5);
-                //#line 1391 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1398 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
              Object[] a = new Object[5];
              a[1] = SimpleTypeName;
              a[2] = DepParametersopt;
@@ -5437,9 +5475,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 520:  ThisClause ::= this DepParameters
             //
             case 520: {
-                //#line 1399 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1406 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(2);
-                //#line 1401 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1408 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(DepParameters);
                 break;
             }
@@ -5448,9 +5486,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 521:  Super ::= extends DataType
             //
             case 521: {
-                //#line 1405 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1412 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode DataType = (TypeNode) getRhsSym(2);
-                //#line 1407 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1414 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(DataType);
                 break;
             }
@@ -5459,13 +5497,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 522:  MethodDeclarator ::= identifier ( FormalParameterListopt WhereClauseopt )
             //
             case 522: {
-                //#line 1411 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1418 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1411 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1418 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(3);
-                //#line 1411 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1418 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr WhereClauseopt = (Expr) getRhsSym(4);
-                //#line 1413 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1420 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
             //   System.out.println("Parsing methoddeclarator...");
                 Object[] a = new Object[5];
                a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
@@ -5481,9 +5519,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 523:  MethodDeclarator ::= MethodDeclarator [ ]
             //
             case 523: {
-                //#line 1423 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1430 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object[] MethodDeclarator = (Object[]) getRhsSym(1);
-                //#line 1425 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1432 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
                 // setResult(MethodDeclarator);
                break;
@@ -5493,15 +5531,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 524:  FieldDeclaration ::= ThisClauseopt FieldModifiersopt Type VariableDeclarators ;
             //
             case 524: {
-                //#line 1431 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1438 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr ThisClauseopt = (DepParameterExpr) getRhsSym(1);
-                //#line 1431 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1438 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Flags FieldModifiersopt = (Flags) getRhsSym(2);
-                //#line 1431 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1438 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1431 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1438 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(4);
-                //#line 1433 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1440 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 if (VariableDeclarators != null && VariableDeclarators.size() > 0) {
                     for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
@@ -5527,15 +5565,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 525:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt Dims ArrayInitializer
             //
             case 525: {
-                //#line 1467 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1474 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1467 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1474 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(3);
-                //#line 1467 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1474 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Integer Dims = (Integer) getRhsSym(4);
-                //#line 1467 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1474 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 ArrayInit ArrayInitializer = (ArrayInit) getRhsSym(5);
-                //#line 1469 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1476 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 setResult(nf.NewArray(pos(), ArrayBaseType, Dims.intValue(), ArrayInitializer));
                 break;
@@ -5545,15 +5583,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 526:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr Dims
             //
             case 526: {
-                //#line 1473 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1480 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1473 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1480 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(3);
-                //#line 1473 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1480 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr DimExpr = (Expr) getRhsSym(4);
-                //#line 1473 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1480 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Integer Dims = (Integer) getRhsSym(5);
-                //#line 1475 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1482 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 setResult(nf.NewArray(pos(), ArrayBaseType, Collections.singletonList(DimExpr), Dims.intValue()));
                 break;
@@ -5563,17 +5601,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 527:  ArrayCreationExpression ::= new ArrayBaseType Unsafeopt DimExpr DimExprs Dimsopt
             //
             case 527: {
-                //#line 1479 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1486 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1479 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1486 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(3);
-                //#line 1479 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1486 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr DimExpr = (Expr) getRhsSym(4);
-                //#line 1479 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1486 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List DimExprs = (List) getRhsSym(5);
-                //#line 1479 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1486 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Integer Dimsopt = (Integer) getRhsSym(6);
-                //#line 1481 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1488 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 // setResult(nf.ArrayConstructor(pos(), a, false, null, d));
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(DimExpr);
@@ -5586,15 +5624,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 528:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ]
             //
             case 528: {
-                //#line 1488 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1495 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1488 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1495 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object Valueopt = (Object) getRhsSym(3);
-                //#line 1488 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1495 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(4);
-                //#line 1488 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1495 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(6);
-                //#line 1490 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1497 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, null));
                 break;
             }
@@ -5603,17 +5641,17 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 529:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression$distr ] Expression$initializer
             //
             case 529: {
-                //#line 1493 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1500 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1493 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1500 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object Valueopt = (Object) getRhsSym(3);
-                //#line 1493 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1500 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(4);
-                //#line 1493 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1500 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr distr = (Expr) getRhsSym(6);
-                //#line 1493 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1500 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr initializer = (Expr) getRhsSym(8);
-                //#line 1495 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1502 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, distr, initializer));
                 break;
             }
@@ -5622,21 +5660,21 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 530:  ArrayCreationExpression ::= new ArrayBaseType Valueopt Unsafeopt [ Expression ] ($lparen FormalParameter ) MethodBody
             //
             case 530: {
-                //#line 1498 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1505 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ArrayBaseType = (TypeNode) getRhsSym(2);
-                //#line 1498 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1505 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object Valueopt = (Object) getRhsSym(3);
-                //#line 1498 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1505 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Object Unsafeopt = (Object) getRhsSym(4);
-                //#line 1498 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1505 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(6);
-                //#line 1498 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1505 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 IToken lparen = (IToken) getRhsIToken(8);
-                //#line 1498 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1505 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(9);
-                //#line 1498 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1505 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
-                //#line 1500 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1507 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr initializer = makeInitializer( pos(getRhsFirstTokenIndex(8), getRightSpan()), ArrayBaseType, FormalParameter, MethodBody );
                 setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, initializer));
                 break;
@@ -5654,7 +5692,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 532: {
                 
-                //#line 1509 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1516 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 // any value distinct from null
                 setResult(this);
                 break;
@@ -5664,9 +5702,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 535:  ArrayBaseType ::= nullable < Type >
             //
             case 535: {
-                //#line 1516 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1523 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1518 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1525 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Nullable(pos(), Type));
                 break;
             }
@@ -5675,9 +5713,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 536:  ArrayBaseType ::= future < Type >
             //
             case 536: {
-                //#line 1521 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1528 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1523 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1530 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Future(pos(), Type));
                 break;
             }
@@ -5686,9 +5724,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 537:  ArrayBaseType ::= ( Type )
             //
             case 537: {
-                //#line 1526 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1533 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1528 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1535 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(Type);
                 break;
             }
@@ -5697,11 +5735,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 538:  ArrayAccess ::= ExpressionName [ ArgumentList ]
             //
             case 538: {
-                //#line 1532 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1539 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name ExpressionName = (Name) getRhsSym(1);
-                //#line 1532 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1539 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 1534 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1541 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 if (ArgumentList.size() == 1)
                      setResult(nf.X10ArrayAccess1(pos(), ExpressionName.toExpr(), (Expr) ArgumentList.get(0)));
                 else setResult(nf.X10ArrayAccess(pos(), ExpressionName.toExpr(), ArgumentList));
@@ -5712,11 +5750,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 539:  ArrayAccess ::= PrimaryNoNewArray [ ArgumentList ]
             //
             case 539: {
-                //#line 1539 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1546 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr PrimaryNoNewArray = (Expr) getRhsSym(1);
-                //#line 1539 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1546 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 1541 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1548 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 if (ArgumentList.size() == 1)
                      setResult(nf.X10ArrayAccess1(pos(), PrimaryNoNewArray, (Expr) ArgumentList.get(0)));
                 else setResult(nf.X10ArrayAccess(pos(), PrimaryNoNewArray, ArgumentList));
@@ -5727,11 +5765,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 556:  NowStatement ::= now ( Clock ) Statement
             //
             case 556: {
-                //#line 1567 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1574 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1567 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1574 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1569 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1576 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Now(pos(), Clock, Statement));
                 break;
             }
@@ -5740,9 +5778,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 557:  ClockedClause ::= clocked ( ClockList )
             //
             case 557: {
-                //#line 1573 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1580 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
-                //#line 1575 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1582 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(ClockList);
                 break;
             }
@@ -5751,13 +5789,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 558:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
             case 558: {
-                //#line 1579 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1586 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1579 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1586 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1579 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1586 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
-                //#line 1581 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1588 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -5769,11 +5807,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 559:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
             //
             case 559: {
-                //#line 1589 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1596 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1589 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1596 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1591 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1598 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
               setResult(nf.Atomic(pos(), (PlaceExpressionSingleListopt == null
                                                ? nf.Here(pos(getLeftSpan()))
                                                : PlaceExpressionSingleListopt), Statement));
@@ -5784,11 +5822,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 560:  WhenStatement ::= when ( Expression ) Statement
             //
             case 560: {
-                //#line 1598 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1605 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1598 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1605 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1600 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1607 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.When(pos(), Expression, Statement));
                 break;
             }
@@ -5797,15 +5835,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 561:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
             case 561: {
-                //#line 1603 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1610 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1603 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1610 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1603 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1610 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1603 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1610 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 1605 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1612 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                 break;
@@ -5815,15 +5853,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 562:  ForEachStatement ::= foreach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
             case 562: {
-                //#line 1610 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1617 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1610 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1617 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1610 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1617 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1610 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1617 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1612 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1619 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForEach(pos(),
                               FormalParameter.flags(FormalParameter.flags().Final()),
                               Expression,
@@ -5836,15 +5874,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 563:  AtEachStatement ::= ateach ( FormalParameter : Expression ) ClockedClauseopt Statement
             //
             case 563: {
-                //#line 1620 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1627 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1620 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1627 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1620 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1627 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1620 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1627 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1622 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1629 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AtEach(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -5857,13 +5895,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 564:  EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
             //
             case 564: {
-                //#line 1630 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1637 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1630 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1637 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1630 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1637 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1632 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1639 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForLoop(pos(),
                         FormalParameter.flags(FormalParameter.flags().Final()),
                         Expression,
@@ -5875,9 +5913,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 565:  FinishStatement ::= finish Statement
             //
             case 565: {
-                //#line 1639 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1646 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1641 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1648 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Finish(pos(),  Statement));
                 break;
             }
@@ -5886,11 +5924,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 566:  NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
             //
             case 566: {
-                //#line 1646 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1653 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1646 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1653 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1648 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1655 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Now(pos(), Clock, StatementNoShortIf));
                 break;
             }
@@ -5899,13 +5937,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 567:  AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt ClockedClauseopt StatementNoShortIf
             //
             case 567: {
-                //#line 1652 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1659 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1652 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1659 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1652 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1659 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(4);
-                //#line 1654 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1661 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                 ? nf.Here(pos(getLeftSpan()))
                                                 : PlaceExpressionSingleListopt),
@@ -5917,9 +5955,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 568:  AtomicStatementNoShortIf ::= atomic StatementNoShortIf
             //
             case 568: {
-                //#line 1661 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1668 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
-                //#line 1663 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1670 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), StatementNoShortIf));
                 break;
             }
@@ -5928,11 +5966,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 569:  WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
             //
             case 569: {
-                //#line 1667 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1674 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1667 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1674 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(5);
-                //#line 1669 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1676 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.When(pos(), Expression, StatementNoShortIf));
                 break;
             }
@@ -5941,15 +5979,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 570:  WhenStatementNoShortIf ::= WhenStatement or$or ( Expression ) StatementNoShortIf
             //
             case 570: {
-                //#line 1672 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1679 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1672 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1679 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1672 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1679 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1672 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1679 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(6);
-                //#line 1674 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1681 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, StatementNoShortIf);
                 setResult(WhenStatement);
                 break;
@@ -5959,15 +5997,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 571:  ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
             case 571: {
-                //#line 1679 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1686 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1679 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1686 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1679 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1686 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1679 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1686 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
-                //#line 1681 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1688 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.ForEach(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -5981,15 +6019,15 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 572:  AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) ClockedClauseopt StatementNoShortIf
             //
             case 572: {
-                //#line 1690 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1697 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1690 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1697 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1690 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1697 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1690 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1697 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(8);
-                //#line 1692 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1699 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.AtEach(pos(),
                             FormalParameter.flags(FormalParameter.flags().Final()),
                             Expression,
@@ -6002,13 +6040,13 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 573:  EnhancedForStatementNoShortIf ::= for ( FormalParameter : Expression ) StatementNoShortIf
             //
             case 573: {
-                //#line 1700 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1707 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1700 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1707 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1700 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1707 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(7);
-                //#line 1702 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1709 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                   setResult(nf.ForLoop(pos(),
                              FormalParameter.flags(FormalParameter.flags().Final()),
                              Expression,
@@ -6020,9 +6058,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 574:  FinishStatementNoShortIf ::= finish StatementNoShortIf
             //
             case 574: {
-                //#line 1709 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1716 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Stmt StatementNoShortIf = (Stmt) getRhsSym(2);
-                //#line 1711 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1718 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Finish(pos(), StatementNoShortIf));
                 break;
             }
@@ -6031,9 +6069,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 575:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
             case 575: {
-                //#line 1716 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1723 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 1718 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1725 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
               setResult(PlaceExpression);
                 break;
             }
@@ -6043,7 +6081,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 577: {
                 
-                //#line 1726 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1733 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Next(pos()));
                 break;
             }
@@ -6052,9 +6090,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 578:  AwaitStatement ::= await Expression ;
             //
             case 578: {
-                //#line 1730 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1737 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1732 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1739 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Await(pos(), Expression));
                 break;
             }
@@ -6063,9 +6101,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 579:  ClockList ::= Clock
             //
             case 579: {
-                //#line 1736 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1743 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 1738 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1745 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -6076,11 +6114,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 580:  ClockList ::= ClockList , Clock
             //
             case 580: {
-                //#line 1743 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1750 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(1);
-                //#line 1743 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1750 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1745 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1752 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 ClockList.add(Clock);
                 setResult(ClockList);
                 break;
@@ -6090,9 +6128,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 581:  Clock ::= Expression
             //
             case 581: {
-                //#line 1751 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1758 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1753 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1760 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
     setResult(Expression);
                 break;
             }
@@ -6101,11 +6139,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 582:  CastExpression ::= ( Type ) UnaryExpressionNotPlusMinus
             //
             case 582: {
-                //#line 1763 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1770 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1763 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1770 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(4);
-                //#line 1765 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1772 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Cast(pos(), Type, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6114,11 +6152,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 583:  CastExpression ::= ( @ Expression ) UnaryExpressionNotPlusMinus
             //
             case 583: {
-                //#line 1768 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1775 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1768 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1775 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(5);
-                //#line 1770 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1777 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.PlaceCast(pos(), Expression, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6127,11 +6165,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 584:  RelationalExpression ::= RelationalExpression instanceof Type
             //
             case 584: {
-                //#line 1780 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1787 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 1780 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1787 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1782 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1789 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                 break;
             }
@@ -6140,9 +6178,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 585:  IdentifierList ::= identifier
             //
             case 585: {
-                //#line 1788 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1795 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 1790 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1797 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Name.class, false);
                 l.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 setResult(l);
@@ -6153,11 +6191,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 586:  IdentifierList ::= IdentifierList , identifier
             //
             case 586: {
-                //#line 1795 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1802 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
-                //#line 1795 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1802 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(3);
-                //#line 1797 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1804 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 IdentifierList.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 setResult(IdentifierList);
                 break;
@@ -6168,7 +6206,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 587: {
                 
-                //#line 1804 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1811 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(((X10NodeFactory) nf).Here(pos()));
 //
 // A "here" expression used to be treated as an ExpressionName instead
@@ -6186,11 +6224,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 590:  RegionExpression ::= Expression$expr1 : Expression$expr2
             //
             case 590: {
-                //#line 1820 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1827 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 1820 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1827 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 1822 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1829 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 /*Name x10 = new Name(nf, ts, pos(), "x10");
                 Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
 
@@ -6211,9 +6249,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 591:  RegionExpressionList ::= RegionExpression
             //
             case 591: {
-                //#line 1838 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1845 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
-                //#line 1840 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1847 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -6224,11 +6262,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 592:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
             case 592: {
-                //#line 1845 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1852 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(1);
-                //#line 1845 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1852 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
-                //#line 1847 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1854 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                 break;
@@ -6238,9 +6276,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 593:  Primary ::= [ RegionExpressionList ]
             //
             case 593: {
-                //#line 1852 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1859 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(2);
-                //#line 1854 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1861 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Name x10 = new Name(nf, ts, pos(), "x10");
                 Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
                 Name x10LangRegion = new Name(nf, ts, pos(), x10Lang, "region");
@@ -6259,11 +6297,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 594:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
             case 594: {
-                //#line 1868 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1875 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 1868 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1875 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 1870 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1877 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 ConstantDistMaker call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                 break;
@@ -6273,11 +6311,11 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 595:  FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
             //
             case 595: {
-                //#line 1875 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1882 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1875 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1882 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1877 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1884 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(nf.Future(pos(), (PlaceExpressionSingleListopt == null
                                                 ? nf.Here(pos(getLeftSpan()))
                                                 : PlaceExpressionSingleListopt), Expression));
@@ -6289,7 +6327,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 596: {
                 
-                //#line 1885 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1892 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(X10Flags.MUTABLE);
                 break;
             }
@@ -6299,7 +6337,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 597: {
                 
-                //#line 1890 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1897 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(Flags.PUBLIC.set(Flags.STATIC).set(Flags.FINAL));
                 break;
             }
@@ -6362,10 +6400,10 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 607:  MethodModifier ::= synchronized
             //
             case 607: {
-                //#line 1921 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1928 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
-                eq.enqueue(ErrorInfo.SYNTAX_ERROR, getErrorLocation(getLeftSpan(), getRightSpan()) +
-                                                   "\"synchronized\" is an invalid X10 Method Modifier");
+                eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"synchronized\" is an invalid X10 Method Modifier",
+                           getErrorPosition(getLeftSpan(), getRightSpan()));
                 setResult(Flags.SYNCHRONIZED);
                 break;
             }
@@ -6374,10 +6412,10 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 608:  FieldModifier ::= volatile
             //
             case 608: {
-                //#line 1930 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1937 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
-                eq.enqueue(ErrorInfo.SYNTAX_ERROR, getErrorLocation(getLeftSpan(), getRightSpan()) +
-                                                   "\"volatile\" is an invalid X10 Field Modifier");
+                eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"volatile\" is an invalid X10 Field Modifier",
+                           getErrorPosition(getLeftSpan(), getRightSpan()));
                 setResult(Flags.VOLATILE);
                 break;
             }
@@ -6386,14 +6424,14 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 609:  SynchronizedStatement ::= synchronized ( Expression ) Block
             //
             case 609: {
-                //#line 1937 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1944 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1937 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1944 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1939 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1946 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 unrecoverableSyntaxError = true;
-                eq.enqueue(ErrorInfo.SYNTAX_ERROR, getErrorLocation(getLeftSpan(), getRightSpan()) +
-                                                   "Synchronized Statement is invalid in X10");
+                eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Synchronized Statement is invalid in X10",
+                           getErrorPosition(getLeftSpan(), getRightSpan()));
                 setResult(nf.Synchronized(pos(), Expression, Block));
                 break;
             }
@@ -6466,7 +6504,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 628: {
                 
-                //#line 1985 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 1992 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
          setResult(X10Flags.toX10Flags(Flags.NONE));
                 break;
             }  
@@ -6489,7 +6527,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 633: {
                 
-                //#line 1997 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 2004 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 // any value distinct from null
                 setResult(this);
                 break;
@@ -6506,9 +6544,9 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             // Rule 635:  ParamIdopt ::= identifier
             //
             case 635: {
-                //#line 2004 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 2011 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 2006 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 2013 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
                 break;
             }
@@ -6518,7 +6556,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
             //
             case 636: {
                 
-                //#line 2012 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+                //#line 2019 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }

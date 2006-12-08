@@ -1,5 +1,5 @@
 
-//#line 18 "C:/eclipse/ws6/x10.compiler/src/x10/parser/x10.g"
+//#line 18 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
