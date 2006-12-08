@@ -162,6 +162,10 @@ Prerequisites:
 <img src="//www.ibm.com/i/v14/icons/sout.gif" alt="" align="middle" border="0" height="16" width="16">
 <a href="http://ant.apache.org">Ant</a> (If not using X10DT)
 </li>
+</ul>
+<br>
+Additional prerequisites for X10 developers:
+<ul>
 <li>
 <img src="//www.ibm.com/i/v14/icons/sout.gif" alt="" align="middle" border="0" height="16" width="16">
 <a href="http://directory.fsf.org/GNU/sed.html">sed</a>
