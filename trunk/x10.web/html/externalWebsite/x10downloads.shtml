@@ -352,16 +352,16 @@ with Eclipses ${system:OS} and ${system:ARCH} variables.
       <li> In the dialog that shows up, select "Search for new features to install"
            and click "Next" </li>
             <img src="search-new-features.jpg"/>
-      <li> Check the item named "X10DT" in the update site list on the left.</li>
+      <li> Check the items named "X10DT" and "Polyglot" in the update site list on the left.</li>
             <img src="update-sites.gif"/>
       <li> Click "Finish".</li>
-      <li> It may take several moments for Eclipse to contact the update site and
+      <li> It may take several moments for Eclipse to contact the update sites and
            determine what updates are available. </li>
       <li> If you are already have the latest, you will simply get a dialog saying
            something like "No updates for the currently installed features found".</li>
       <li> If there are any updates beyond what you already have, you should get a
            dialog showing "X10 Tools", with children named "SAFARI Runtime" and
-           "X10DT".
+           "X10DT", and "Polyglot", with child "polyglot".
       <li> Click the checkboxes next to the new versions of the features you want
            to update and click "Next".
         <ol>
