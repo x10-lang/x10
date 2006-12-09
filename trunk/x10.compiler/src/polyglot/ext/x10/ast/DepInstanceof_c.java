@@ -45,12 +45,14 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
 
 	Type lookaheadType = null;
 	public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
-		X10TypeNode tn = (X10TypeNode)((X10TypeNode) compareType).disambiguateBase(sc);
+		X10TypeNode type = (X10TypeNode) compareType.copy();
+		X10TypeNode tn = (X10TypeNode) type.disambiguateBase(sc);
 		lookaheadType = (tn instanceof NullableNode) ? ((NullableNode) tn).base().type() : tn.type();
 		return sc;
 	}
 	public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
-		X10TypeNode tn = (X10TypeNode)((X10TypeNode) compareType).typeCheckBase(tc);
+		X10TypeNode type = (X10TypeNode) compareType.copy();
+		X10TypeNode tn = (X10TypeNode) type.typeCheckBase(tc);
 		lookaheadType = (tn instanceof NullableNode) ? ((NullableNode) tn).base().type() : tn.type();
 		return tc;
 	}

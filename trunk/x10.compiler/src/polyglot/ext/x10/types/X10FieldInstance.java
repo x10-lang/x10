@@ -1,6 +1,7 @@
 package polyglot.ext.x10.types;
 
 import polyglot.types.FieldInstance;
+import polyglot.types.Type;
 
 /**
  * Represents information about a Property. A property has the same
@@ -16,5 +17,9 @@ public interface X10FieldInstance extends FieldInstance {
 	
 	boolean isProperty();
 	void setProperty();
+	
+	/** Returns true if the deptype has been processed for this field. */
+	boolean depTypeSet();
+	void setDepType(Type type);
 
 }

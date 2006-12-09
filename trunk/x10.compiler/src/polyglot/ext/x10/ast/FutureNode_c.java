@@ -10,6 +10,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
@@ -72,47 +73,34 @@ public class FutureNode_c extends X10TypeNode_c implements FutureNode {
 	}
 
 	public Node disambiguateBase(AmbiguityRemover sc) throws SemanticException {
-		// Report.report(5,"[FutureNode_c] Disambiguating |" + this + "|(#" + this.hashCode() +"):");
 		TypeNode newType = (TypeNode) base.disambiguate( sc );
-		// Report.report(5,"[FutureNode_c] ... yields type |" + type + "|.");
-		
 		Type baseType =  newType.type();
-		if (null == baseType) {
-			throw new SemanticException("The type constructor future cannot be applied to a <null> type",
-					position());
-		}
-		
+		assert baseType!=null;
 //		 RMF 11/2/2005 - Don't proceed further if the base type hasn't yet been disambiguated...
 		if (!baseType.isCanonical())
 			return this;
-		
-		X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
-		this.type = ts.createFutureType( position(), (X10NamedType) baseType );
-		Node result = reconstruct( newType );
-		// Report.report(5,"[FutureNode_c] ... returns |" + result +"|(#" + result.hashCode() +").");
-		return result;
+		FutureNode_c result = (FutureNode_c) reconstruct(newType);
+		return result.propagateTypeFromBase();
+	}
+	public TypeNode propagateTypeFromBase() {
+		X10NamedType baseType = (X10NamedType) base.type();
+		assert baseType !=null;
+		X10TypeSystem xts = (X10TypeSystem) baseType.typeSystem();
+		X10Type resultType = xts.createFutureType(position(), baseType);
+		return type(resultType);
 	}
 
-    /**
-     * Typecheck the type-argument.
-     */
 	public Node typeCheckBase( TypeChecker tc) throws SemanticException {
 		// Report.report(5,"[FutureNode_c] Type checking |" + this +"|:");
 		Node n = base.typeCheck( tc );
 		// Report.report(5,"[FutureNode_c] ... yields node |" + n +"|.");
-		if (n instanceof TypeNode) {
-			TypeNode arg = (TypeNode) n;
-			X10NamedType argType = (X10NamedType) arg.type();
-
-			X10TypeSystem ts = (X10TypeSystem) argType.typeSystem();
-			this.type = ts.createFutureType( position(), argType );
-
-			// this.base = null?
-			// Report.report(5, "[FutureNode_c] ... sets type to |" + this.type + "|.");
-			// Report.report(5, "[FutureNode_c] ... returns |" + this + "|.");
-			return this;
-		}
-		throw new SemanticException("Argument to future type-constructor does not type-check" + position());
+		if (! (n instanceof TypeNode))
+			throw new SemanticException("Argument to future type-constructor does not type-check" + position());
+		
+		TypeNode newType = (TypeNode) n;
+		X10NamedType baseType = (X10NamedType) newType.type();
+		FutureNode_c result = (FutureNode_c) reconstruct(newType);
+		return result.propagateTypeFromBase();
 	}
 
 	public String toString() {
@@ -129,6 +117,5 @@ public class FutureNode_c extends X10TypeNode_c implements FutureNode {
 	}
 
 	// translate??
-	// prettyPrint?
 	// dump?
 }

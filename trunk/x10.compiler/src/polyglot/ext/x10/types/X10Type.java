@@ -90,6 +90,11 @@ public interface X10Type extends Type {
     List/*<PropertyInstance>*/ properties();
     
     /**
+     * Are the types properties elaborated?
+     */
+    boolean propertiesElaborated();
+    
+    /**
      * Add t1=t2 to the realclause and the depclause. Note that this may cause the clause
      * to become inconsistent.
      * @param t1

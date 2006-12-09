@@ -67,6 +67,7 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	public FutureType toFuture() {
 		return this;
 	}
+	public boolean propertiesElaborated() { return true; }
 	public String name() { return base.name();}
 	public String fullName() { return base.fullName();}
 	

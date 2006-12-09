@@ -6,6 +6,7 @@ import polyglot.ast.Node;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.FieldDecl_c;
+import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -15,6 +16,7 @@ import polyglot.types.Flags;
 import polyglot.types.InitializerInstance;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.TypeBuilder;
@@ -42,7 +44,7 @@ public class X10FieldDecl_c extends FieldDecl_c {
 
 		// Ensure that the FieldInstance type is updated to reflect
 		// any deptype.
-		this.fi.setType(declType());
+		((X10FieldInstance) this.fi).setDepType(declType());
 		
 		//
 		// Any occurrence of a non-final static field in X10
@@ -54,6 +56,7 @@ public class X10FieldDecl_c extends FieldDecl_c {
 		}
 		return result;
 	}
+	 
 	 public Node buildTypes(TypeBuilder tb) throws SemanticException {
 	        X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 

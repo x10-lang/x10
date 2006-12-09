@@ -24,6 +24,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
         super();
     }
 
+    protected boolean depTypeSet;
     public X10FieldInstance_c(TypeSystem ts, Position pos,
             ReferenceType container, Flags flags, Type type, String name) {
         super(ts, pos, container, flags, type, name);
@@ -36,6 +37,14 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
      super(ts, pos, container, flags, ts.String(), name);
      setConstantValue(initValue);
  }
+    
+    public void setDepType(Type type) {
+    	setType(type);
+    	this.depTypeSet=true;
+    }
+    public boolean depTypeSet() { 
+    	return depTypeSet;
+    }
     /**
      * A PropertyInstance is equal to another TypeObject only if the other TypeObject
      * represents a property, and the two are equal when viewed as fields.

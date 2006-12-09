@@ -79,7 +79,7 @@ public class X10LocalDecl_c extends LocalDecl_c {
 		
 			//Report.report(1, "X10LocalDecl_c: entering " + this + " li=" + localInstance());
 			X10LocalDecl_c result= (X10LocalDecl_c) super.typeCheck(tc);
-			result.updateLI(tc);
+			// result.updateLI(tc);
 			
 			//Report.report(1, "X10LocalDecl_c: leaving " + this + " li=" + localInstance());
 			return result;

@@ -1022,6 +1022,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		boolean result = isSubtype(me, sup);        
 		return result;
 	}
+	protected boolean isX10BaseSubtype(Type me, Type sup) {
+		X10Type xme = (X10Type) me;
+		X10Type xsup = (X10Type) sup;
+		xme = xme.baseType();
+		xsup = xsup.baseType();
+		return isX10Subtype(xme, xsup);
+	}
 	public  boolean isIndexable(Type me) { 
 		return isX10Subtype(me, Indexable()); 
 	}
@@ -1080,7 +1087,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return isX10Array(me);
 	}
 	public  boolean isValueType( Type me) {
-		return isX10Subtype((X10Type) me,value());
+		return isX10BaseSubtype((X10Type) me,value());
 	}
 	public Type baseType(Type theType) {
 		Type me = theType;

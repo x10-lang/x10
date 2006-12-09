@@ -44,6 +44,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	public boolean consistent() {
 		return depClause== null || depClause.consistent();
 	}
+	public boolean propertiesElaborated() { return true; }
 	public C_Var selfVar() { return depClause()==null ? null : depClause().selfVar();}
 	public X10Type makeVariant(Constraint d, List l) { 
 		if (d == null && (l == null || l.isEmpty()))

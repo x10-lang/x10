@@ -40,6 +40,7 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
     public Constraint realClause() { return depClause; }
     public C_Var selfVar() { return depClause()==null ? null : depClause().selfVar();}
     public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
+    public boolean propertiesElaborated() { return true; }
     public boolean typeEqualsImpl(Type o) {
         return equalsImpl(o);
     }
