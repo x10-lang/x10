@@ -289,6 +289,32 @@ with Eclipses ${system:OS} and ${system:ARCH} variables.
   <tr>
     <td>
     <ol>
+      <li> First, you must install Polyglot, which is used by the X10DT.
+      <li> From Eclipse, invoke "Help" =&gt; "Software Updates" =&gt; "Find and Install" </li>
+           <img src="update-find-install-menu.jpg"/>
+      <li> In the dialog that shows up, select "Search for new features to install"
+           and click "Next" </li>
+            <img src="search-new-features.jpg"/>
+      <li> Click on the "New Remote Site" button on the upper-right hand of
+           the dialog.
+            <img src="update-sites-initial.gif"/>
+      <li> In the "Name" field type "Polyglot" (this can be anything you want, really).
+           In the "URL" field type "http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates/"
+           (note the trailing '/' character; it's significant) </li>
+            <img src="new-polyglot-site.gif"/>
+      <li> Click "Ok" </li>
+      <li> Click "Finish" </li>
+      <li> On the "Search Results" page, check the "Polyglot" checkbox, and click "Next" </li>
+      <li> Click "I accept the terms..." and Click "Next" </li>
+      <li> Click "Finish"; the dialog will disappear, and the status bar
+           will show progress as the Update Manager queries the update server
+           for all available updates </li>
+      <li> Click "Install All" </li>
+      <li> Click "No" when asked whether to restart Eclipse. </li>
+    </ol>
+
+      Now proceed with installing the X10DT:
+    <ol>
       <li> From Eclipse, invoke "Help" =&gt; "Software Updates" =&gt; "Find and Install" </li>
            <img src="update-find-install-menu.jpg"/>
       <li> In the dialog that shows up, select "Search for new features to install"
@@ -298,7 +324,7 @@ with Eclipses ${system:OS} and ${system:ARCH} variables.
            the dialog.
             <img src="update-sites-initial.gif"/>
       <li> In the "Name" field type "X10DT" (this can be anything you want, really).
-           In the "URL" field type "http://x10.watson.ibm.com/eclipseUpdates/X10DT/"
+           In the "URL" field type "http://x10web.watson.ibm.com/eclipseUpdates/X10DT/"
            (note the trailing '/' character; it's significant) </li>
             <img src="new-update-site.gif"/>
       <li> Click "Ok" </li>
