@@ -19,7 +19,11 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 
 /**
- * @author vj
+ * Instanceof and cast need the depexpr containedin the the type (if any) as a DepExpr, so that
+ * code can be generated from it for runtime checks.
+ * So the depexpr must be retrieved and stored as an Expr before TypeElaboration has run.
+ * This separate pass does that. (This can also be handled during parsing.)
+ * @author vj 12/2007
  *
  */
 public class CastRewriter extends ContextVisitor {
@@ -85,6 +89,7 @@ public class CastRewriter extends ContextVisitor {
 			
 			if (e!=null) {
 				result = ((X10NodeFactory)nf).DepInstanceof(n.position(), xn, e, nn.expr());
+				
 			}
 		}
 		return result;

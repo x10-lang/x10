@@ -14,6 +14,7 @@ import polyglot.ast.Variable;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.main.Report;
 import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
 
@@ -66,7 +67,7 @@ public class TypeTranslator implements Serializable {
 	}
 	
 	public  C_Term trans(Receiver term) throws SemanticException {
-		//Report.report(1, "TypeTranslator: translating Receiver " + term);
+		// Report.report(1, "TypeTranslator: translating Receiver " + term);
 		if (term == null) return null;
 		if (term instanceof Lit) return trans((Lit) term);
 		if (term instanceof Here) return C_Here_c.here;
@@ -75,7 +76,7 @@ public class TypeTranslator implements Serializable {
 		if (term instanceof Unary) return trans((Unary) term);
 		if (term instanceof Binary) return trans((Binary) term);
 		
-		throw new SemanticException("Cannot translate term |" + term + "(" + term.getClass().getName()+")" +
+		throw new SemanticException("Cannot translate term |" + term + "|(" + term.getClass().getName()+")" +
 				" to a term.");
 	}
 	public Constraint constraint(Binary term, Constraint c) throws SemanticException {

@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
-import polyglot.frontend.JLScheduler;
-import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -23,33 +21,29 @@ import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.CastRewriter;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.TypeElaborator;
+import polyglot.ext.x10.visit.TypePropagator;
 import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Caster;
-import polyglot.ext.x10.visit.X10Qualifier;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
+import polyglot.ext.x10.visit.X10Qualifier;
 import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.Compiler;
-import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.FileSource;
+import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
 import polyglot.frontend.OutputPass;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Pass;
 import polyglot.frontend.Scheduler;
-import polyglot.frontend.VisitorPass;
 import polyglot.frontend.goals.CodeGenerated;
-import polyglot.frontend.goals.ConstantsChecked;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.SignaturesResolved;
-import polyglot.frontend.goals.TypeChecked;
-import polyglot.frontend.goals.TypesInitializedForCommandLine;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.types.ParsedClassType;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
-import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -145,7 +139,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         return new X10Scheduler(this);
     }
 
-    static class X10Scheduler extends JLScheduler {
+   public static class X10Scheduler extends JLScheduler {
     	X10Scheduler(ExtensionInfo extInfo) {
     		super(extInfo);
     	}
@@ -166,6 +160,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	public Goal X10Casted(final Job job) {
     		return X10Casted.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
     	}
+    	public Goal CastRewritten(final Job job) {
+    		return CastRewritten.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
+    	}
     	public Goal X10Qualified(final Job job) {
     		return X10Qualified.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
     	}
@@ -177,6 +174,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	}*/
     	public Goal TypeElaborated(final Job job) {
     		return TypeElaborated.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
+    	}
+    	public Goal TypePropagated(final Job job) {
+    		return TypePropagated.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
     	}
     	public Goal TypeChecked(final Job job) {
     		return X10TypeChecked.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
@@ -247,7 +247,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		super(job, new X10Boxer(job, ts, nf));
     	}
     	public Collection prerequisiteGoals(Scheduler scheduler) {
-    		List l = new ArrayList();
+    		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.TypeChecked(job));
     		//l.add(((X10Scheduler) scheduler).X10ExprFlattened(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
@@ -267,7 +267,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		super(job, new X10Caster(job, ts, nf));
     	}
     	public Collection prerequisiteGoals(Scheduler scheduler) {
-    		List l = new ArrayList();
+    		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.TypeChecked(job));
     		l.add(((X10Scheduler)scheduler).X10Boxed(job));
     		//l.add(((X10Scheduler) scheduler).X10ExprFlattened(job));
@@ -288,7 +288,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		super(job, new ExprFlattener(job, ts, nf));
     	}
     	public Collection prerequisiteGoals(Scheduler scheduler) {
-    		List l = new ArrayList();
+    		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.TypeChecked(job));
     		l.add(((X10Scheduler) scheduler).X10Boxed(job));
     		l.add(((X10Scheduler) scheduler).X10Casted(job));
@@ -309,21 +309,40 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
     	    public Collection prerequisiteGoals(Scheduler scheduler) {
     	    	X10Scheduler x10Sched = (X10Scheduler) scheduler;
-    	        List l = new ArrayList();
+    	        List<Goal> l = new ArrayList<Goal>();
     	        l.add(x10Sched.Disambiguated(job));
-    	        l.add(x10Sched.TypeElaborated(job));
+    	        l.add(x10Sched.TypePropagated(job));
+    	        
     	       // l.add(x10sched.TypesElaboratedForJobs());
     	        l.addAll(super.prerequisiteGoals(scheduler));
     	        return l;
     	    }
 
     	    public Collection corequisiteGoals(Scheduler scheduler) {
-    	        List l = new ArrayList();
+    	        List<Goal> l = new ArrayList<Goal>();
     	        l.add(scheduler.ConstantsChecked(job));
     	        l.addAll(super.corequisiteGoals(scheduler));
     	        return l;
     	    }
     	
+    }
+    static class CastRewritten extends VisitorGoal {
+    	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
+    		return scheduler.internGoal(new CastRewritten(job, ts, nf));
+    	}
+    	private CastRewritten(Job job, TypeSystem ts, NodeFactory nf) {
+    		super(job, new CastRewriter(job, ts, nf));
+    	}
+    	
+    	public Collection prerequisiteGoals(Scheduler scheduler) {
+    		List<Goal> l = new ArrayList<Goal>();
+    		l.add(scheduler.Disambiguated(job));
+    		l.add(scheduler.SupertypesDisambiguated(job));
+    		l.add(scheduler.SignaturesDisambiguated(job));
+    		l.addAll(super.prerequisiteGoals(scheduler));
+    		return l;
+    	}
+    	 
     }
     static class TypeElaborated extends VisitorGoal {
     	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
@@ -334,10 +353,29 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	}
     	
     	public Collection prerequisiteGoals(Scheduler scheduler) {
-    		List l = new ArrayList();
+    		X10Scheduler x10Sched = (X10Scheduler) scheduler;
+    		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.Disambiguated(job));
     		l.add(scheduler.SupertypesDisambiguated(job));
     		l.add(scheduler.SignaturesDisambiguated(job));
+    		l.add(x10Sched.CastRewritten(job));
+    		l.addAll(super.prerequisiteGoals(scheduler));
+    		return l;
+    	}
+    	 
+    }
+    static class TypePropagated extends VisitorGoal {
+    	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
+    		return scheduler.internGoal(new TypePropagated(job, ts, nf));
+    	}
+    	private TypePropagated(Job job, TypeSystem ts, NodeFactory nf) {
+    		super(job, new TypePropagator(job, ts, nf));
+    	}
+    	
+    	public Collection prerequisiteGoals(Scheduler scheduler) {
+    		X10Scheduler x10Sched = (X10Scheduler) scheduler;
+    		List<Goal> l = new ArrayList<Goal>();
+    		l.add(x10Sched.TypeElaborated(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
     	}
@@ -352,7 +390,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		super(job, new X10Qualifier(job, ts, nf));
     	}
     	public Collection prerequisiteGoals(Scheduler scheduler) {
-    		List l = new ArrayList();
+    		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.TypeChecked(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;

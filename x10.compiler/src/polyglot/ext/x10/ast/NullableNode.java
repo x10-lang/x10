@@ -10,7 +10,7 @@ import polyglot.ast.TypeNode;
  *
  * @author vj
  */
-public interface NullableNode extends X10TypeNode {
+public interface NullableNode extends X10TypeNode, ContainsType {
 	TypeNode base();
 	NullableNode base(TypeNode base);
 }

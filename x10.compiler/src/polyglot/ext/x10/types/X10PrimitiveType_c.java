@@ -50,7 +50,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
 	public Constraint realClause() { return depClause; }
-	
+	public boolean propertiesElaborated() { return true; }
 	public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
 	public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
 		depClause = d;

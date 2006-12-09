@@ -47,6 +47,9 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 	public String fullName() {
 		return base.fullName();
 	}
+	public boolean propertiesElaborated() {
+		return true;
+	}
 	/**
 	 * Factory method for producing nullable types. Implements nullable nullable X = nullable X.
 	 *

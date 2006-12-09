@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import polyglot.types.ParsedClassType_c;
+import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Lit;
@@ -23,10 +24,12 @@ import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.Failure;
+import polyglot.frontend.MissingDependencyException;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.DeserializedClassInitializer;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyClassInitializer;
 import polyglot.types.MethodInstance;
@@ -35,6 +38,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.InternalCompilerError;
 
 /** 6/2006 Modified so that every type is now potentially generic and dependent.
@@ -102,7 +106,7 @@ implements X10ParsedClassType
 	public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
-	public Constraint realClause() {
+	public Constraint realClause()  {
 		if (! realClauseSet)
 			initRealClause();
 		return realClause;
@@ -119,6 +123,14 @@ implements X10ParsedClassType
 		if (depClause == null) 
 			depClause = new Constraint_c();
 	}
+	/** This check needs to be generalized.
+	 * We need to signal when there is a cycle in the following graph.
+	 * Nodes: Classes or interfaces
+	 * Edge from node A to node B: A has a property of type B, or A descends from B.
+	 * The edges may be thought of thus: A has an edge to B if A needs B to be defined (in order for A 
+	 * to be defined.)
+	 * @return
+	 */
 	private boolean aPropertyIsRecursive() {
 		boolean isRecursive = false;
 		for (Iterator<FieldInstance> it = properties.iterator(); (!isRecursive) && it.hasNext();) {
@@ -143,7 +155,7 @@ implements X10ParsedClassType
 		// Force properties to be initialized.
 		properties();
 		Type type = superType();
-		HashMap result = new HashMap();
+		HashMap<C_Term, C_Term> result = new HashMap<C_Term, C_Term>();
 		
 		if (type instanceof X10Type && type != null) {
 			X10Type xType = (X10Type) type;
@@ -155,6 +167,7 @@ implements X10ParsedClassType
 		}
 		C_Term newThis = C_Special.Self;
 		boolean aPropertyIsRecursive = aPropertyIsRecursive();
+		
 		if (! aPropertyIsRecursive) {
 			// add in the bindings from the property declarations.
 			for (Iterator it = properties.iterator(); it.hasNext();) {
@@ -175,7 +188,7 @@ implements X10ParsedClassType
 			realClause = realClause.addBindings(result);
 		}
 		if (aPropertyIsRecursive) {
-			Report.report(1, "X10ParsedClassType_c: This type has a recursive property.");
+			//aPropertyIsRecursiveReport.report(1, "X10ParsedClassType_c: This type has a recursive property.");
 			// Verify that the realclause, as it stands entails the assertions of the 
 			// property.
 			for (Iterator<FieldInstance> it = properties.iterator();  it.hasNext();) {
@@ -193,6 +206,7 @@ implements X10ParsedClassType
 			if (realClause==null) realClause = new Constraint_c();
 			realClause = realClause.addIn(depClause);
 		}
+		//Report.report(1, "X10ParsedClassType_c: realclause for "+ this + " is " + realClause);
 		realClauseSet = true;
 	}
 	public void addBinding(C_Term t1, C_Term t2) {
@@ -603,12 +617,42 @@ implements X10ParsedClassType
 		return result;
 	}
 	
+	boolean propertiesElaborated = false;
+	
+	public boolean propertiesElaborated() {
+		if (! membersAdded()) return false;
+		if (! signaturesResolved()) return false;
+		if (propertiesElaborated) return true;
+		if (properties == null) return false;
+		for (Iterator<FieldInstance> i = properties.iterator(); i.hasNext(); ) {
+			FieldInstance fi = i.next();
+			X10Type t = (X10Type) fi.type();
+			if (! t.propertiesElaborated()) 
+				return false;
+		}
+		return true;
+	}
+	
+	List<FieldInstance> protoProperties = null;
 	List<FieldInstance> properties = null;
 	
 	public List properties() {
 		//Report.report(1, "X10ParsedClassType_c entering properties() on "  + this);
-		if (properties != null) 
+		if (properties != null) {
+			if (! propertiesElaborated()) {
+				if (job() != null) {
+					// This class is defined in a source file.
+					ExtensionInfo.X10Scheduler scheduler = 
+						(ExtensionInfo.X10Scheduler) typeSystem().extensionInfo().scheduler();
+					throw new MissingDependencyException(scheduler.TypeElaborated(job()), false);
+				}
+				else {
+					// Loaded from a raw Java class file.  Properties cannot have dependent types.
+					propertiesElaborated = true;
+				}
+			}
 			return properties;
+		}
 		init.canonicalFields();
 		init.initSuperclass();
 		FieldInstance fi = fieldNamed(X10FieldInstance.MAGIC_PROPERTY_NAME);
@@ -622,8 +666,12 @@ implements X10ParsedClassType
 		}
 		
 		String propertyNames = (String) fi.constantValue();
+		properties = getPropertiesFromClass(propertyNames);
+		return properties;
 		
-		properties = new ArrayList();
+	}
+	protected List<FieldInstance> getPropertiesFromClass(String propertyNames) {
+		List<FieldInstance> properties = new ArrayList();
 		Scanner s = new Scanner(propertyNames);
 		while (s.hasNext()) {
 			String propName = s.next();
@@ -636,10 +684,9 @@ implements X10ParsedClassType
 		}
 		if (superType != null) 
 			properties.addAll(((X10Type) superType).properties());
-		if (  Report.should_report(Report.types, 2))
+		if (  true || Report.should_report(Report.types, 2))
 			Report.report(2, "Type " + name + " has properties " + properties +".");
 		return properties;
-		
 	}
 	public NullableType toNullable() { return X10Type_c.toNullable(this);}
 	public FutureType toFuture() { return X10Type_c.toFuture(this);}

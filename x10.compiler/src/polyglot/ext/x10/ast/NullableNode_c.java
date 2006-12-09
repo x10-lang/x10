@@ -79,45 +79,25 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 	 * Create a NullableType_c and store it in this.type.
 	 */
 	public Node disambiguateBase(AmbiguityRemover sc) throws SemanticException {
-		if (Report.should_report("debug", 5)) {
-			Report.report(5,"[NullableNode_c] Disambiguatebase |" + "(#"+ this.hashCode() + ")" + this + " with base=|" + base + "|:");
-		}
-		
 		TypeNode newType = (TypeNode) base.disambiguate(sc);
-		
 		// RMF 11/2/2005 - Don't throw a SemanticException if all that's wrong is
 		// that disambiguation still needs to be done on the type argument
 		if (!newType.type().isCanonical())
 			return this;
-		
-		if (Report.should_report("debug", 5)) {
-			Report.report(5,"[NullableNode_c] ... yields type |" + newType + "|.");
-		}
-		
-		X10NamedType baseType = (X10NamedType) newType.type();
-		if (null == baseType) {
-			throw new SemanticException("The type constructor nullable cannot be applied to a <null> type",
-					position());
-		}
-		// [IP] This is incorrect -- non-reference types can also be nullable
-//		if (!(baseType instanceof ReferenceType))
-//		throw new SemanticException("Argument to nullable type-constructor must be a reference type",
-//		position());
-
-		X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
-		// [IP] FIXME: Why are we modifying this in-place?
-		this.type = ts.createNullableType(position(), baseType);
-		
-		NullableNode_c result = (NullableNode_c) reconstruct(newType);
-		
-		if (Report.should_report("debug", 5)) {
-			Report.report(5,"[NullableNode_c] " + "(#"+ this.hashCode() + ")" + " ... returns |" + result +"|(#"
-					+ result.hashCode() +") of type |" + result.type() + "| and base |" + result.base+"|");
-		}
-		
-		return result;
+		NullableNode_c result = (NullableNode_c) base(newType);
+		// Have to set the type for TypeNodes at the end of disambiguation.
+		// This is the base case for subsequent type checking.
+		// Note however that this time is not depType-accurate.
+		// TypePropagation must ensure that this type is fixed up.
+		return result.propagateTypeFromBase();
 	}
-	
+	public TypeNode propagateTypeFromBase() {
+		X10NamedType baseType = (X10NamedType) base.type();
+		assert baseType !=null;
+		X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
+		X10Type resultType = ts.createNullableType(position(), baseType);
+		return type(resultType);
+	}
 	/**
 	 * Typecheck the type-argument (in this.base). If it typechecks
 	 * (e.g. passes visibility constraints), update type.this if necessary.
@@ -126,6 +106,11 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 	 */
 	public Node typeCheckBase(TypeChecker tc) throws SemanticException {
 		 return super.typeCheckBase(tc);
+	}
+	public Node typeCheck( TypeChecker tc) throws SemanticException {
+		X10TypeNode newType = (X10TypeNode) base.typeCheck(tc);
+		NullableNode_c result = (NullableNode_c) base(newType);
+		return result.propagateTypeFromBase();
 	}
 	public Node oldTypeCheckBase(TypeChecker tc) throws SemanticException {
 		

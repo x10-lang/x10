@@ -16,11 +16,11 @@ import polyglot.visit.TypeChecker;
 
 
 /**
- * TypeElaborator is a modified TypeChecker pass that is run before the main TypeChecker pass. Its job
- * is to typecheck the expressions occurring in types. 
+ * TypeElaborator is a modified TypeChecker pass that is run before the main TypeChecker pass.
+ * It typecheck (only) the expressions occurring in types. 
  * 
  *
- * @author vj
+ * @author vj, nystrom
  *
  */
 public class TypeElaborator extends TypeChecker {
@@ -40,13 +40,12 @@ public class TypeElaborator extends TypeChecker {
 		}
 		return v;
 	}
+	@Override
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-       // Report.report(1, "TypeElaborator: entering " + n);
         if (n instanceof LocalDecl) {
     		X10LocalDecl_c result = (X10LocalDecl_c) n;
     		result.pickUpTypeFromTypeNode(this);
     	}
-        //return super.leaveCall(old, n, v);
         if (inTypeNode || n instanceof TypeNode) {
         	return super.leaveCall(old, n, v);
         } 
