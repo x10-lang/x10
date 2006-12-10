@@ -126,7 +126,7 @@
 Before reporting a bug, please:
 <ul>
 <li>
-Search the bug <a href="XXXXX">database</a> first to see if the problem has already been reported.
+Search the <a href="/bugzilla/">bug database</a> first to see if the problem has already been reported.
 </li>
 <li>
 Ensure you have the latest version of X10.
@@ -171,8 +171,9 @@ Report only one problem for each bug report.
 
 
 <br />
-<a href="//www.bugzilla.org">
-<input type="image" src="//www.ibm.com/i/v14/buttons/us/en/submit.gif" alt="Submit Bug Report" name="<name>" value="Submit Bug Report" <a/>
+<!--<a href="/bugzilla/enter_bug.cgi">-->
+<a href="/bugzilla/">
+<input type="image" src="//www.ibm.com/i/v14/buttons/us/en/submit.gif" alt="Submit Bug Report" name="<name>" value="Submit Bug Report"></a>
 </p></td>
 </td>
 <td width="7">&nbsp;</td>
