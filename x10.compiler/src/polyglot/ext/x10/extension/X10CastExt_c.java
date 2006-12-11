@@ -44,6 +44,15 @@ public class X10CastExt_c extends X10Ext_c {
 					 c.expr());
 			x = (Cast) x.type(mi.container());
 			
+			// copying properties from original cast to new one.
+			X10Cast sourceCast = (X10Cast) c;
+			X10Cast newCast = (X10Cast) x;
+			newCast.setToTypeNullable(sourceCast.isToTypeNullable());
+			newCast.setPrimitiveCast(sourceCast.isPrimitiveCast());
+			
+			// when unboxing, expr should always be different from null
+			newCast.setNotNullRequired(true);
+			
 			// adding parenthesis to surround cast operation
 			ParExpr px = ((X10NodeFactory)nf).ParExpr(x.position(), x);
 			px = (ParExpr) px.type(x.type());
@@ -51,8 +60,8 @@ public class X10CastExt_c extends X10Ext_c {
 			// building unboxing method call
 			Call y = nf.Call(c.position(), px, mi.name(),
 							 Collections.EMPTY_LIST);
-			y = (Call) y.type(mi.returnType());
 
+			y = (Call) y.type(mi.returnType());
 			Node rewrittenNode = y.methodInstance(mi);
 			if (c instanceof DepCast) {
 				// Keep the DepCast since the condition needs to be checked.
