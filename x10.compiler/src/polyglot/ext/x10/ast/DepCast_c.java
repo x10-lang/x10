@@ -106,9 +106,8 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 								+ this.position + ".");
 						notVisited = false;
 					}
-					this.primitiveType = true;
 					this.depTypeCheckingNeeded = true;
-				}
+				} 
 				if (toType.isClass()) {
 					// NOTE: Current release only allow casting to
 					// x10.lang.Object, which is unlikely to be constrained
@@ -120,7 +119,6 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 				// else constant had been promoted to deptype and checking
 				// occured previously in isCastValid
 			} else {
-				if (!x10ToType.equalsImpl(x10FromType)) {
 					// cast is valid if toType or fromType have constraints,
 					// checks them at runtime
 					if (this.notVisited) {
@@ -130,11 +128,9 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 						this.notVisited = false;
 					}
 					this.depTypeCheckingNeeded = true;
-				}
 
 				if ((fromType.isClass()) && (toType.isPrimitive())) {
 					// Primitive <-- Class (UnBoxing Operation)
-					this.depTypeCheckingNeeded = true;
 					this.primitiveType = true;
 				}
 				// else type are equals, we do not perform the cast
