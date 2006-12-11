@@ -1,6 +1,13 @@
+/**
+The x10 version of the original code (Stream) described in the following. The 
+HPCC source code can be downloaded at
+                 http://icl.cs.utk.edu/hpcc/software/index.html
+(C) Copyright IBM Corp. 2006
+**/
+
 /*-----------------------------------------------------------------------*/
 /* Program: Stream                                                       */
-/* Revision: $Id: stream.x10,v 1.1 2006-12-07 22:44:47 tongwen Exp $ */
+/* Revision: $Id: stream.x10,v 1.2 2006-12-11 19:55:51 tongwen Exp $ */
 /* Original code developed by John D. McCalpin                           */
 /* Programmers: John D. McCalpin                                         */
 /*              Joe R. Zagar                                             */
@@ -49,6 +56,7 @@
  *          that should be good to about 5% precision.
  */
 
+ /*
 class stream {
     
     //public final static int N = (1 << 26);
@@ -116,7 +124,7 @@ class stream {
         /* --- SETUP --- determine precision and check timing --- */
 
         System.out.println(HLINE);
-        System.out.println("STREAM version $Revision: 1.1 $");
+        System.out.println("STREAM version $Revision: 1.2 $");
         System.out.println(HLINE);
         BytesPerWord = sizeOfDouble;
         System.out.println("This system uses " + BytesPerWord + "bytes per DOUBLE PRECISION word.");

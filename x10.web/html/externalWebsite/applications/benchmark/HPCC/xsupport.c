@@ -7,6 +7,7 @@
     slibclean; xlc_r -O3 -qnolm -bM:SHR -bnoentry -bexpall -bmaxdata:0x80000000 -I$JAVA_HOME/bin/include -I$JAVA_HOME/include -o libxsupport.a xsupport.c -I$FFT_HOME/api -L$FFT_HOME/.libs -l fftw3 -lm
     FFT_HOME=$HOME/fftw/fftw-3.1.2_64/
     slibclean; xlc_r -q64 -O3 -qnolm -bM:SHR -bnoentry -bexpall -blpdata -bmaxdata:0x8000000000 -I$JAVA_HOME/bin/include -I$JAVA_HOME/include -o libxsupport_64.a xsupport.c -I$FFT_HOME/api -L$FFT_HOME.libs -l fftw3 -lm
+    (C) Copyright IBM Corp. 2006
 ***/
 
 extern jlong  fft_fftw_plan_dft_1d(signed int SQRTN, double* A1_x10PoInTeR, int* A1_x10DeScRiPtOr, double* A2_x10PoInTeR, int* A2_x10DeScRiPtOr, signed int m1, signed int what) {
