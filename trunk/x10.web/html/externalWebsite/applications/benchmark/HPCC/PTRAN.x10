@@ -14,6 +14,8 @@
  * For example, n=100 or -n100.
  * Date: Dec 08, 2006
  * Author: Tong Wen @IBM Research
+ 
+ (C) Copyright IBM Corp. 2006
 *****************************************************************************************/
 public class PTRAN{	
 	

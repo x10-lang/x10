@@ -1,3 +1,7 @@
+/**
+(C) Copyright IBM Corp. 2006
+**/
+
 // x10c -BAD_PLACE_RUNTIME_CHECK=false fft.x10
 // x10 -J-mx2000m -J-ms2000m -Djava.library.path=. -NUMBER_OF_LOCAL_PLACES=mmm -INIT_THREADS_PER_PLACE=1  -PRELOAD_CLASSES=true fft
 // x10 -J-mx2000m -J-ms2000m -J-Xjit:count=0,optLevel=veryHot -Djava.library.path=. -NUMBER_OF_LOCAL_PLACES=1 -INIT_THREADS_PER_PLACE=1  -PRELOAD_CLASSES=true fft

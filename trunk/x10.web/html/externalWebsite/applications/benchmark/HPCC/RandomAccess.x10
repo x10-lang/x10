@@ -42,6 +42,10 @@
  * This core is used by both the single_cpu and star_single_cpu tests.
  */
 
+/**
+(C) Copyright IBM Corp. 2006
+**/
+
 
 /* Number of updates to table (suggested: 4x number of table entries) */
 class RandomAccess {
