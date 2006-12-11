@@ -420,6 +420,9 @@ There are a few basic requirements:
        testScript -testList sanity.lst</li>
    </ul>
 </ul>
+<br>
+The source code is viewable via <a href="//x10web.watson.ibm.com/cgi-bin/cvsweb.cgi/">CVSWeb</a> (password required).
+
 
 <img src="//www.ibm.com/i/c.gif" width="1" height="10" alt="" /></td>
 </tr>
