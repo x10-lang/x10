@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.types.NullType_c;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -29,8 +30,9 @@ public class X10NullType_c extends NullType_c implements X10NullType {
    
     protected Constraint depClause;
     protected List/*<GenParameterExpr>*/ typeParameters;
-    protected X10Type baseType = this;
-    public X10Type baseType() { return baseType;}
+    protected X10Type rootType = this;
+    public X10Type rootType() { return rootType;}
+    public boolean isRootType() { return rootType==this;}
     public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
     public List typeParameters() { return typeParameters;}
     public Constraint depClause() { return depClause; }
@@ -50,13 +52,18 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     public boolean consistent() {
     	return depClause== null || depClause.consistent();
     }
-    public X10Type makeVariant(Constraint d, List l) { 
-        if (d == null && (l == null || l.isEmpty())) return this;
-        X10NullType_c n = (X10NullType_c) copy();
-        n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
-		n.depClause = (d==null) ? depClause.copy() : d;
-        return n;
-    }
+    public X10Type makeDepVariant(Constraint d, List<Type> l) { 
+        return makeVariant(d, l);
+      }
+      public X10Type makeVariant(Constraint d, List<Type> l) { 
+      	if (! isRootType()) return rootType().makeVariant(d,l);
+  		if (d == null && (l == null || l.isEmpty())) return this;
+  		 X10NullType_c n = (X10NullType_c) copy();
+  		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+  		n.depClause = d == null ? depClause : d;
+  		return n;
+      }
+    
     public String name() { return "NULL_TYPE";}
     public String fullName() { return "NULL_TYPE";}
     
@@ -68,7 +75,7 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     }
     public int hashCode() {
         return 
-          (baseType == this ? super.hashCode() : baseType.hashCode() ) 
+          (rootType == this ? super.hashCode() : rootType.hashCode() ) 
           + (isConstrained() ? depClause.hashCode() : 0)
   		+ (isParametric() ? typeParameters.hashCode() :0);
         
@@ -78,7 +85,7 @@ public class X10NullType_c extends NullType_c implements X10NullType {
         if (o == this) return true;
         if (! (o instanceof X10NullType_c)) return false;
         X10NullType_c other = (X10NullType_c) o;
-        if (baseType != other.baseType) return false;
+        if (rootType != other.rootType) return false;
         
         if (depClause == null && other.depClause != null) return false;
         if (depClause != null && ! depClause.equals(other.depClause)) return false;
@@ -100,7 +107,7 @@ public class X10NullType_c extends NullType_c implements X10NullType {
         if (! (o instanceof X10NullType_c)) return false;
         X10NullType_c other = (X10NullType_c) o;
     
-        return baseType == other.baseType;
+        return rootType == other.rootType;
     }
     
     /**

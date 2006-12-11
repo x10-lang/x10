@@ -150,7 +150,7 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
     }
     public int hashCode() {
         return 
-          (baseType == this ? base.hashCode() << 2 : baseType.hashCode() ) 
+          (rootType == this ? base.hashCode() << 2 : rootType.hashCode() ) 
         + (depClause != null ? depClause.hashCode() : 0)
         + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
         

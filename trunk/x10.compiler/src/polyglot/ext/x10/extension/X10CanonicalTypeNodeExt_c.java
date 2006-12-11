@@ -18,7 +18,7 @@ public class X10CanonicalTypeNodeExt_c extends X10Ext_c {
 	private X10NamedType boxType(X10NamedType t, X10TypeSystem ts) {
 		if (t.isArray()) {
 			X10ArrayType at = (X10ArrayType) t.toArray();
-			X10NamedType n = boxType((X10NamedType) at.baseType(), ts);
+			X10NamedType n = boxType((X10NamedType) at.base(), ts);
 			return (X10NamedType) at.base(n);
 		}
         NullableType nt = t.toNullable();

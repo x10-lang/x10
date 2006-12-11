@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.types.ArrayType_c;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -25,8 +26,9 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	
 	protected Constraint depClause;
 	protected List/*<GenParameterExpr>*/ typeParameters;
-	protected X10NamedType baseType = this;
-	public X10Type baseType() { return baseType;}
+	protected X10NamedType rootType = this;
+	public X10Type rootType() { return rootType;}
+	public boolean isRootType() { return rootType==this;}
 	public boolean isParametric() { return typeParameters != null && !  typeParameters.isEmpty();}
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
@@ -46,15 +48,18 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	}
 	public boolean propertiesElaborated() { return true; }
 	public C_Var selfVar() { return depClause()==null ? null : depClause().selfVar();}
-	public X10Type makeVariant(Constraint d, List l) { 
-		if (d == null && (l == null || l.isEmpty()))
-			return this;
+	public X10Type makeDepVariant(Constraint d, List<Type> l) { 
+		return makeVariant(d, l);
+	}
+	public X10Type makeVariant(Constraint d, List<Type> l) { 
+		if (! isRootType()) return rootType().makeVariant(d,l);
+		if (d == null && (l == null || l.isEmpty())) return this;
 		X10ArrayType_c n = (X10ArrayType_c) copy();
-		// n.baseType = baseType; // this may not be needed.
 		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
-		n.depClause = (d==null) ? depClause.copy() : d;
+		n.depClause = d == null ? depClause : d;
 		return n;
 	}
+	
 	public String name() { return ((Named) base).name();}
 	public String fullName() { return ((Named) base).fullName();}
 	public C_Term propVal(String name) {
@@ -65,7 +70,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	}
 	public int hashCode() {
 		return 
-		(baseType == this ? base.hashCode() : baseType.hashCode() ) 
+		(rootType == this ? base.hashCode() : rootType.hashCode() ) 
 		+ (isConstrained() ? depClause.hashCode() : 0)
 		+ (isParametric() ? typeParameters.hashCode() :0);
 		

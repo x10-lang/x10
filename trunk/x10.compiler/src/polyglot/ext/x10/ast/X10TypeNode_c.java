@@ -20,8 +20,10 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.TypeTranslator;
+import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
@@ -84,7 +86,7 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         // TODO: Fold in the args as well.
         
         GenParameterExpr newTParameter =  me.gen()==null ? null : (GenParameterExpr) me.gen().disambiguate( sc );
-        List typeParameters = new LinkedList(); 
+        List<Type> typeParameters = new LinkedList<Type>(); 
         if (newTParameter != null) {
             List args = newTParameter.args();
             if (args != null) {
@@ -104,7 +106,8 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
      * @return
      * @throws SemanticException
      */
-    public static Node typeCheckDepClause( X10TypeNode me, TypeChecker tc) throws SemanticException {
+    public static Node typeCheckDepClause( X10TypeNode me, TypeChecker tc) 
+    throws SemanticException {
     	  if (  Report.should_report("debug", 5)) {
               Report.report(1,"[X10TypeNode_c static] typeCheckDepClause... entering|" 
             		  + me + " " + me.getClass() + "|.");
@@ -119,8 +122,7 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         
         if (arg.dep() == null && arg.gen() == null) return arg;
         
-      
-        List tParameters = new LinkedList();
+        List<Type> tParameters = new LinkedList<Type>();
         if (me.gen()!=null && me.gen().args() !=null) {
             Iterator it = me.gen().args().iterator();
             while (it.hasNext())
@@ -132,8 +134,11 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
        
         TypeTranslator eval = ts.typeTranslator();
         Constraint term = eval.constraint(d.condition());
+       assert argType.isRootType();
+        X10Type newArgType = tc instanceof TypeElaborator  ? 
+        		argType.makeDepVariant(term, tParameters)
+        		: argType.makeVariant(term, tParameters);
         
-        X10Type newArgType = argType.makeVariant(term, tParameters);
         X10TypeNode result = (X10TypeNode) arg.type(newArgType);
         result = result.dep(null,null);
         if (  Report.should_report("debug", 5)) {

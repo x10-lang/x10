@@ -13,6 +13,7 @@ import java.util.Scanner;
 
 import polyglot.types.ParsedClassType_c;
 import polyglot.ext.x10.ExtensionInfo;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Lit;
@@ -92,7 +93,7 @@ implements X10ParsedClassType
 	protected Constraint realClause; 
 	protected boolean realClauseSet = false;
 	protected SemanticException realClauseInvalid= null;
-	protected List/*<GenParameterExpr>*/ typeParameters;
+	protected List<Type> typeParameters;
 	public void checkRealClause() throws SemanticException {
 		if (realClauseInvalid!=null)
 			throw realClauseInvalid;
@@ -101,16 +102,26 @@ implements X10ParsedClassType
 	 * the value is not touched. So it continues to point to the
 	 * object from which the variant was made.
 	 */
-	protected X10Type baseType = this;
-	public X10Type baseType() { return baseType;}
+	protected X10Type rootType = this;
+	public X10Type rootType() { return rootType;}
+	public boolean isRootType() { return rootType==this;}
 	public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
 	public Constraint realClause()  {
-		if (! realClauseSet)
-			initRealClause();
+		if (! realClauseSet) {
+			if (isRootType()) {
+				initRealClause();
+			} else {
+				Constraint result = rootType().realClause();
+				result = result==null? new Constraint_c() : result.copy();
+				if (depClause != null) {
+					result.addIn(depClause);
+				}
+				realClause = result;
+			}
+		}
 		return realClause;
-		
 	}
 	public C_Var selfVar() {
 		return depClause()==null ? null : depClause().selfVar();
@@ -166,7 +177,7 @@ implements X10ParsedClassType
 				result = rs.constraints(result); 
 		}
 		C_Term newThis = C_Special.Self;
-		boolean aPropertyIsRecursive = aPropertyIsRecursive();
+		boolean aPropertyIsRecursive =  aPropertyIsRecursive();
 		
 		if (! aPropertyIsRecursive) {
 			// add in the bindings from the property declarations.
@@ -206,7 +217,7 @@ implements X10ParsedClassType
 			if (realClause==null) realClause = new Constraint_c();
 			realClause = realClause.addIn(depClause);
 		}
-		//Report.report(1, "X10ParsedClassType_c: realclause for "+ this + " is " + realClause);
+	//	Report.report(1, "X10ParsedClassType_c: realclause for "+ this + " is " + realClause);
 		realClauseSet = true;
 	}
 	public void addBinding(C_Term t1, C_Term t2) {
@@ -234,20 +245,29 @@ implements X10ParsedClassType
 	public X10ParsedClassType makeVariant(Constraint c) {
 		return (X10ParsedClassType) makeVariant(c, null);
 	}
-	
-	public X10Type makeVariant(Constraint d, List/*<GenParameterExpr>*/ l) { 
-		//assert (d!=null || (l !=null && ! l.isEmpty()));
-		 if (d == null && (l == null || l.isEmpty())) return this;
+	public X10Type makeDepVariant(Constraint d, List<Type> l) {
+		if (! isRootType()) return rootType().makeDepVariant(d,l);
+		if (d == null && (l == null || l.isEmpty())) return this;
+		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
+		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+		n.depClause = (d==null)? depClause : d;
+		// do not set realClause.
+		return n;
+		
+	}
+	public X10Type makeVariant(Constraint d, List<Type> l) { 
+		if (! isRootType()) return rootType().makeVariant(d,l);
+		if (d == null && (l == null || l.isEmpty())) return this;
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
 		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
 		if (d == null) {
-			n.depClause = depClause==null ? depClause : depClause.copy();
+			n.depClause = depClause;
 			Constraint rc = realClause();
 			n.realClause = rc==null? null : rc.copy();
 			n.realClauseSet = true;
 		} else {
 			n.depClause =  d;
-			Constraint rc = baseType.realClause();
+			Constraint rc = rootType.realClause();
 			n.realClause = rc==null ? n.depClause : rc.copy().addIn(d);
 			n.realClauseSet = true;
 		}
@@ -267,7 +287,7 @@ implements X10ParsedClassType
 	}
 	public int hashCode() {
 		return 
-		(baseType == this ? super.hashCode() : baseType.hashCode() ) 
+		(rootType == this ? super.hashCode() : rootType.hashCode() ) 
 	//	+ (isConstrained() ? depClause.hashCode() : 0)
 		+ (isParametric() ? typeParameters.hashCode() :0);
 		
@@ -448,8 +468,8 @@ implements X10ParsedClassType
 		// that we need to instantiate (Base<Foo>)
 		//  if (toString().startsWith("x10.lang.GenericReferenceArray"))
 		//    Report.report(3, "X10ParsedClassType.superType " + this + "(#" + this.hashCode() + ") " + this.getClass() + " is |" + super.superType() + "|");
-		return (baseType == this ? mySuperType()
-				: ((X10ParsedClassType_c) baseType).superType());
+		return (rootType == this ? mySuperType()
+				: ((X10ParsedClassType_c) rootType).superType());
 	}
 	
 	public Type mySuperType() {
@@ -500,9 +520,9 @@ implements X10ParsedClassType
 	public String toStringUnused() { 
 		if (false)
 			Report.report(5,"X10ParsedClassType: toString |" + super.toString() + "|(#" 
-					+ this.hashCode() + ") baseType = " + ( baseType.toString()) + " dep=" + depClause);
+					+ this.hashCode() + ") baseType = " + ( rootType.toString()) + " dep=" + depClause);
 		return  
-		((baseType == this) ? super.toString() : ((X10ParsedClassType_c) baseType).toString())
+		((rootType == this) ? super.toString() : ((X10ParsedClassType_c) rootType).toString())
 		+ (isParametric() ? "/"+"*T" + typeParameters.toString() + "*"+"/"  : "") 
 		
 		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
@@ -511,7 +531,7 @@ implements X10ParsedClassType
 	public String toString() { 
 		
 		return  
-		((baseType == this) ? super.toString() : ((X10ParsedClassType_c) baseType).toString())
+		((rootType == this) ? super.toString() : ((X10ParsedClassType_c) rootType).toString())
 		// vj: this causes problems. a type parameter may be nullable which produces a commented string.
 		//+ (isParametric() ? "/"+"*T"+ typeParameters.toString() +"*"+"/" : "") 
 		+ (depClause == null ? "" : "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
@@ -521,7 +541,7 @@ implements X10ParsedClassType
 	public boolean equalsImpl(TypeObject toType) {
 		X10Type other = (X10Type) toType;
 		X10TypeSystem xts = (X10TypeSystem) ts;
-		X10Type tb = this.baseType(), ob = other.baseType();
+		X10Type tb = this.rootType(), ob = other.rootType();
 		boolean result = ((tb==this) ? super.equalsImpl(ob): tb.equalsImpl(ob))
 				&& xts.equivClause(this, other);
 		return result;
@@ -529,7 +549,7 @@ implements X10ParsedClassType
 	}
 	public boolean equalsWithoutClauseImpl(X10Type other) {
 		X10TypeSystem xts = (X10TypeSystem) ts;
-		X10Type tb = this.baseType(), ob = other.baseType();
+		X10Type tb = this.rootType(), ob = other.rootType();
 		boolean result = ((tb==this) ? super.equalsImpl(ob): tb.equalsWithoutClauseImpl(ob));
 		return result;
 		
@@ -566,7 +586,7 @@ implements X10ParsedClassType
 	  
 		X10Type other = (X10Type) toType;
 		X10TypeSystem xts = (X10TypeSystem) ts;
-		X10Type tb = this.baseType(), ob = other.baseType();
+		X10Type tb = this.rootType(), ob = other.rootType();
 		boolean result = (ts.typeEquals(tb,ob) || ts.descendsFrom(tb,ob)) &&
 			xts.entailsClause(this, other);
 		return result;
@@ -575,7 +595,7 @@ implements X10ParsedClassType
 	public boolean descendsFromImpl(Type toType ) {
 		X10Type other = (X10Type) toType;
 		X10TypeSystem xts = (X10TypeSystem) ts;
-		X10Type tb = this.baseType(), ob = other.baseType();
+		X10Type tb = this.rootType(), ob = other.rootType();
 		boolean result = (tb==this ? super.descendsFromImpl(ob) : tb.descendsFromImpl(ob)) 
 		&& xts.entailsClause(this, other);
 		return result;
@@ -638,6 +658,7 @@ implements X10ParsedClassType
 	
 	public List properties() {
 		//Report.report(1, "X10ParsedClassType_c entering properties() on "  + this);
+		if (! isRootType()) return rootType.properties();
 		if (properties != null) {
 			if (! propertiesElaborated()) {
 				if (job() != null) {
@@ -667,6 +688,7 @@ implements X10ParsedClassType
 		
 		String propertyNames = (String) fi.constantValue();
 		properties = getPropertiesFromClass(propertyNames);
+	//	Report.report(1, "X10ParsedClassType_c properties() returns "  + properties);
 		return properties;
 		
 	}
@@ -684,7 +706,7 @@ implements X10ParsedClassType
 		}
 		if (superType != null) 
 			properties.addAll(((X10Type) superType).properties());
-		if (  true || Report.should_report(Report.types, 2))
+		if (   Report.should_report(Report.types, 2))
 			Report.report(2, "Type " + name + " has properties " + properties +".");
 		return properties;
 	}

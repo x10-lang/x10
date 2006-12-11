@@ -1025,8 +1025,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	protected boolean isX10BaseSubtype(Type me, Type sup) {
 		X10Type xme = (X10Type) me;
 		X10Type xsup = (X10Type) sup;
-		xme = xme.baseType();
-		xsup = xsup.baseType();
+		xme = xme.rootType();
+		xsup = xsup.rootType();
 		return isX10Subtype(xme, xsup);
 	}
 	public  boolean isIndexable(Type me) { 
@@ -1109,7 +1109,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 			return Double();
 		if (!isX10Array(me))
 			return null;
-		return ((X10Type)me).baseType();
+		return ((X10Type)me).rootType();
 	}
 	
 	public VarInstance createSelf(X10Type t) {
@@ -1125,7 +1125,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		boolean result = true;
 		try {
 			
-			X10Type bt1 = me.baseType(), bt2 = other.baseType();
+			X10Type bt1 = me.rootType(), bt2 = other.rootType();
 			result &= bt1 == bt2;
 			if (!result) return result;
 			List tp1 = me.typeParameters(), tp2 = other.typeParameters();
@@ -1269,7 +1269,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		assert_(type2);
 		Type result = null;
 		try { 
-		if (typeBaseEquals(type1, type2)) return result = ((X10Type)type1).baseType();
+		if (typeBaseEquals(type1, type2)) return result = ((X10Type)type1).rootType();
 		
 		if (type1.isNumeric() && type2.isNumeric()) {
 			if (isImplicitCastValid(type1, type2)) {

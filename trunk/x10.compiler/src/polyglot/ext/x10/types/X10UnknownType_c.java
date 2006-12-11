@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.types.UnknownType_c;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -32,8 +33,9 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 
     protected Constraint depClause;
     protected List/*<GenParameterExpr>*/ typeParameters;
-    protected X10Type baseType = this;
-    public X10Type baseType() { return baseType;}
+    protected X10Type rootType = this;
+    public X10Type rootType() { return rootType;}
+    public boolean isRootType() { return rootType == this;}
     public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
     public List typeParameters() { return typeParameters;}
     public Constraint depClause() { return depClause; }
@@ -46,7 +48,7 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
     }
     public int hashCode() {
         return 
-          (baseType == this ? super.hashCode() : baseType.hashCode() ) 
+          (rootType == this ? super.hashCode() : rootType.hashCode() ) 
           + (isConstrained() ? depClause.hashCode() : 0)
   		+ (isParametric() ? typeParameters.hashCode() :0);
         
@@ -63,14 +65,17 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
     public boolean consistent() {
     	return depClause== null || depClause.consistent();
     }
-    public X10Type makeVariant(Constraint d, List l) { 
-        if (d == null && (l == null || l.isEmpty()))
-                return this;
-        X10UnknownType_c n = (X10UnknownType_c) copy();
-        // n.baseType = baseType; // this may not be needed.
-        n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
-		n.depClause = (d==null) ? depClause : d;
-        return n;
+    public X10Type makeDepVariant(Constraint d, List<Type> l) { 
+       return makeVariant(d, l);
+    }
+    public X10Type makeVariant(Constraint d, List<Type> l) { 
+    	if (! isRootType()) return rootType().makeVariant(d,l);
+		if (d == null && (l == null || l.isEmpty())) return this;
+		 X10UnknownType_c n = (X10UnknownType_c) copy();
+		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+		n.depClause = d == null ? depClause : d;
+		return n;
+        
     }
     public C_Term propVal(String name) {
 		return (depClause==null) ? null : depClause.find(name);
@@ -90,7 +95,7 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
         if (! (o instanceof X10UnknownType_c)) return false;
         X10UnknownType_c other = (X10UnknownType_c) o;
        
-       return baseType == other.baseType;
+       return rootType == other.rootType;
     }
    
     public List properties() { return Collections.EMPTY_LIST;}

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.types.PrimitiveType_c;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Lit_c;
@@ -44,8 +45,9 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	
 	protected Constraint depClause;
 	protected List/*<GenParameterExpr>*/ typeParameters;
-	protected X10Type baseType = this;
-	public X10Type baseType() { return baseType;}
+	protected X10Type rootType = this;
+	public X10Type rootType() { return rootType;}
+	public boolean isRootType() { return rootType == this;}
 	public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
 	public List typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
@@ -59,22 +61,23 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public C_Var selfVar() {
 		return depClause==null ? null : depClause.selfVar();
 	}
-	  public void addBinding(C_Term t1, C_Term t2) {
-			if (depClause == null)
-				depClause = new Constraint_c();
-			depClause = depClause.addBinding(t1, t2);
-		}
-	    public boolean consistent() {
-	    	return depClause== null || depClause.consistent();
-	    }
-	public X10Type makeVariant(Constraint d, List/*<GenParameterExpr>*/ l) { 
+	public void addBinding(C_Term t1, C_Term t2) {
+		if (depClause == null)
+			depClause = new Constraint_c();
+		depClause = depClause.addBinding(t1, t2);
+	}
+	public boolean consistent() {
+		return depClause== null || depClause.consistent();
+	}
+	public X10Type makeDepVariant(Constraint d, List<Type> l) { 
+		return makeVariant(d, l);
+	}
+	public X10Type makeVariant(Constraint d, List<Type> l) { 
+		if (! isRootType()) return rootType().makeVariant(d,l);
 		if (d == null && (l == null || l.isEmpty())) return this;
 		X10PrimitiveType_c n = (X10PrimitiveType_c) copy();
 		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
-		n.depClause = (d==null) ? depClause : d;
-		if (  Report.should_report("debug", 5))
-			Report.report(5,"X10PrimitiveType_c.makeVariant: " 
-					+ this + " creates |" + n + "| d=|" + d+"|");
+		n.depClause = d == null ? depClause : d;
 		return n;
 	}
 	public C_Term propVal(String name) {
@@ -89,7 +92,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	}
 	public int hashCode() {
 		return 
-		(baseType == this ? super.hashCode() : baseType.hashCode() ) 
+		(rootType == this ? super.hashCode() : rootType.hashCode() ) 
 		+ (depClause == null || depClause.valid()? 0 : depClause.hashCode())
 		+ ((typeParameters ==null || typeParameters.isEmpty()) ? 0: typeParameters.hashCode());
 		
@@ -159,31 +162,31 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		if (result) return result;
 		if (isVoid() || toType.isVoid())
 			return result = false;
-		 if (ts.typeEquals(this, toType))
-			 return result = true;
-		 
-		 if (isNumeric() && toType.isNumeric()) {
-			 Constraint rc = realClause();
-			 if (rc !=null) {
-				 Promise p = rc.lookup(C_Special_c.Self);
-				 if (p != null) {
-					 C_Term t = p.term()	;
-					 if (t!=null) {
-						 Constraint toRC = toType.realClause();
-						 if (toRC !=null) {
-							 C_Term t2 = toRC.lookup(C_Special_c.Self).term();
-							 return result = (t2 == null ||  t.equals(t2));
-							 
-						 }
-					 }
-				 }
-			 }
-			 return result = true;
-		 }
-		 X10Type base = baseType();
-		 if (base != this)
-			 return ((PrimitiveType) base).isCastValidImpl(toType);
-		 return false;
+		if (ts.typeEquals(this, toType))
+			return result = true;
+		
+		if (isNumeric() && toType.isNumeric()) {
+			Constraint rc = realClause();
+			if (rc !=null) {
+				Promise p = rc.lookup(C_Special_c.Self);
+				if (p != null) {
+					C_Term t = p.term()	;
+					if (t!=null) {
+						Constraint toRC = toType.realClause();
+						if (toRC !=null) {
+							C_Term t2 = toRC.lookup(C_Special_c.Self).term();
+							return result = (t2 == null ||  t.equals(t2));
+							
+						}
+					}
+				}
+			}
+			return result = true;
+		}
+		X10Type base = rootType();
+		if (base != this)
+			return ((PrimitiveType) base).isCastValidImpl(toType);
+		return false;
 	}
 	
 	public String toString() { 
@@ -191,14 +194,14 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			Report.report(5,"X10PrimitiveType_c: toString |" + super.toString() + "|(#" 
 					+ this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
 		return  
-		((baseType == this) ? super.toString() : ((X10PrimitiveType_c) baseType).toString())
+		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString())
 		+ (isParametric() ? "/"+"*" + typeParameters.toString() + "*"+"/"  : "") 
 		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 		//  + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
 	}
 	public String typeName() { 
 		return  
-		((baseType == this) ? super.toString() : ((X10PrimitiveType_c) baseType).toString());
+		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString());
 	}
 	/*   public String toString() { 
 	 //Report.report(5,"X10ParsedClassType: toString |" + super.toString() + "|(#" 
@@ -216,7 +219,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		X10TypeSystem ts= (X10TypeSystem) xme.typeSystem();
 		boolean result = false;
 		try {
-			X10Type tb = xme.baseType();
+			X10Type tb = xme.rootType();
 			if (xme==tb) {
 				result = super.numericConversionValidImpl(value);
 				return result;
@@ -233,7 +236,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		}
 		
 	}
-	  
+	
 	/**
 	 * Note that this (general) mix-in code correctly takes care of ensuring that
 	 * int is a subtype of nullable int as well as x10.lang.X10Object.

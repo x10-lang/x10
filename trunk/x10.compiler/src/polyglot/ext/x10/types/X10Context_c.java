@@ -125,11 +125,20 @@ public class X10Context_c extends Context_c implements X10Context {
 		return depType ==null ? super.findLocal(name) : pop().findLocal(name) ;
 	}
 	
+	public ClassType type() { return type;}
 	/**
 	 * Finds the class which added a field to the scope.
 	 */
 	public ClassType findFieldScope(String name) throws SemanticException {
-		return super.findFieldScope(name);
+		ClassType result = super.findFieldScope(name);
+		if (result == null) {
+			// hack. This is null when this context is in a deptype, and the deptype
+			// is not a classtype, and the field belongs to the outer type, e.g.
+			// class Foo { int(:v=0) v;}
+			ClassType r = type;
+			result = ((X10Context_c) pop()).type();
+		}
+		return result;
 	}
 	
 	/** Finds the class which added a method to the scope. Do not
