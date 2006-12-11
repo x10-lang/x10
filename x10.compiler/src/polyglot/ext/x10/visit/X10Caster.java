@@ -56,6 +56,8 @@ import polyglot.visit.TypeChecker;
 public class X10Caster extends AscriptionVisitor {
 	X10TypeSystem xts;
 	boolean castCheckClassNotLoaded = true;
+	private static String RUNTIME_CAST_CHECKER_CLASSNAME = "x10.lang.RuntimeCastChecker";
+
 	public X10Caster(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
 		xts = (X10TypeSystem) ts;
@@ -74,7 +76,7 @@ public class X10Caster extends AscriptionVisitor {
 		Expr ret_notype = e;
 
 		if (this.castCheckClassNotLoaded) {
-			((Type) ts.systemResolver().find("x10.lang.RuntimeCastChecker")).toClass();
+			((Type) ts.systemResolver().find(RUNTIME_CAST_CHECKER_CLASSNAME)).toClass();
 			castCheckClassNotLoaded = false;
 		}
 		
@@ -89,7 +91,7 @@ public class X10Caster extends AscriptionVisitor {
 			TypeChecker tc = new TypeChecker(job, ts, nf);
 			ar = (AmbiguityRemover) ar.context(context());
 			tc = (TypeChecker) tc.context(context());
-
+			
 			X10CastInfo cast = (X10CastInfo) ret_notype;
 
 			// First some checks related to nullable, 
@@ -116,15 +118,15 @@ public class X10Caster extends AscriptionVisitor {
 				// we must check at runtime
 				// may be replaced by some pattern
 				MethodChecking mc = (e instanceof Cast) ? new MethodCastChecking(
-						nf, ts, tb, ar, tc, p)
-						: new MethodInstanceOfChecking(nf, ts, tb, ar, tc, p);
+						tb, ar, tc, p)
+						: new MethodInstanceOfChecking(tb, ar, tc, p);
 
 				return mc.getRuntimeCheckingExpr(ret_notype);
 			} else {				
 				if (cast.notNullRequired() && (e instanceof Cast)) {
 					// Here type cast is T <-- nullable<T>
 					// Hence we don't want the regulat java cast (T) NullType) works. 
-					MethodChecking mc = new MethodCastChecking(nf, ts, tb, ar, tc, p);	
+					MethodChecking mc = new MethodCastChecking(tb, ar, tc, p);	
 					return mc.getNonNullableCheckingExpr(ret_notype);
 				}
 			}
@@ -153,17 +155,13 @@ public class X10Caster extends AscriptionVisitor {
 		return n;
 	}
 	private class CastChecking {
-		private NodeFactory nf;
-		private TypeSystem ts;
 		protected TypeBuilder tb;
 		protected AmbiguityRemover ar;
 		protected TypeChecker tc;
 		protected Position p;
 		
-		public CastChecking(NodeFactory nf2, TypeSystem ts2, TypeBuilder tb,
+		public CastChecking(TypeBuilder tb,
 				AmbiguityRemover ar, TypeChecker tc, Position p) {
-			this.nf = nf2;
-			this.ts = ts2;
 			this.tb = tb;
 			this.ar = ar;
 			this.tc = tc;
@@ -171,12 +169,7 @@ public class X10Caster extends AscriptionVisitor {
 		}
 
 		protected Name getRuntimeCheckingClassName() {
-			Name x10 = new Name(nf, ts, p, "x10");
-			Name x10Lang = new Name(nf, ts, p, x10, "lang");
-			Name x10LangRuntimeCastChecker = new Name(nf, ts, p, x10Lang,
-					"RuntimeCastChecker");
-
-			return x10LangRuntimeCastChecker;
+			return new Name(nf, ts, p, RUNTIME_CAST_CHECKER_CLASSNAME);
 		}
 
 		protected Expr checkExpression(Expr e) {
@@ -186,9 +179,9 @@ public class X10Caster extends AscriptionVisitor {
 	}
 
 	protected abstract class MethodChecking extends CastChecking {
-		public MethodChecking(NodeFactory nf, TypeSystem ts, TypeBuilder tb,
+		public MethodChecking(TypeBuilder tb,
 				AmbiguityRemover ar, TypeChecker tc, Position p) {
-			super(nf, ts, tb, ar, tc, p);
+			super(tb, ar, tc, p);
 		}
 		
 		protected abstract Name runtimeCheckingToNonNullableMethodName() throws SemanticException;
@@ -201,12 +194,6 @@ public class X10Caster extends AscriptionVisitor {
 			return new Name(nf, ts, p,
 					"x10.lang.RuntimeCastChecker.RuntimeConstraint");
 		}
-
-		protected Name getRuntimeConstraintOnSelfClassName() {
-			return new Name(nf, ts, p,
-					"x10.lang.RuntimeCastChecker.RuntimeConstraintOnSelf");
-		}
-
 
 		public Expr getNonNullableCheckingExpr(Expr checkingNode) 
 			throws SemanticException {
@@ -248,6 +235,12 @@ public class X10Caster extends AscriptionVisitor {
 		protected Expr buildConstraintCheckingCall(Expr checkingExpr,
 				Constraint declaredConstraints) throws SemanticException {
 
+			List constraintList = 
+				this.buildConstraintList(((X10DepCastInfo) checkingExpr).depParameterExpr(), declaredConstraints);
+			
+			List checkedConstraintList = 
+				this.checkConstraintList(constraintList, checkingExpr);
+			
 			// building constraint array that will be used at runtime
 			Expr constraintArray = this.buildConstraintArray(this.checkConstraintList(this
 					.buildConstraintList(((X10DepCastInfo) checkingExpr)
@@ -298,7 +291,7 @@ public class X10Caster extends AscriptionVisitor {
 		private Expr buildConstraintArray(List runtimeConstraints) {
 			TypeNode arrayBaseType = this.getRuntimeConstraintClassName()
 					.toType();
-
+			
 			// we are building an array
 			NewArray constraintArray = nf.NewArray(p, arrayBaseType,
 					Collections.EMPTY_LIST, 1, new ArrayInit_c(p,
@@ -443,6 +436,7 @@ public class X10Caster extends AscriptionVisitor {
 				Expr newConstraint = checkExpression(nf.New(binary.position(), 
 						X10Caster.MethodChecking.this.getRuntimeConstraintClassName().toType(),
 						constructorArgs));
+				
 				res.add(newConstraint);
 				return res;		
 			}
@@ -467,7 +461,11 @@ public class X10Caster extends AscriptionVisitor {
 			private List visitRight(Field constraintExpr) throws SemanticException {
 				List constructorArgs = new LinkedList();
 				constructorArgs.add(visitField(constraintExpr));
-				constructorArgs.add(nf.BooleanLit(constraintExpr.position(), true));
+				// we only use reflexion to check constraints declared on self
+				 if ((constraintExpr.target() instanceof X10Special)
+							&& (((X10Special) constraintExpr.target()).kind() == X10Special.SELF)) {
+					 constructorArgs.add(nf.BooleanLit(constraintExpr.position(), true));
+				 }
 				return constructorArgs;
 			}
 
@@ -555,9 +553,9 @@ public class X10Caster extends AscriptionVisitor {
 	}
 
 	private class MethodInstanceOfChecking extends MethodChecking {
-		public MethodInstanceOfChecking(NodeFactory nf, TypeSystem ts,
+		public MethodInstanceOfChecking(
 				TypeBuilder tb, AmbiguityRemover ar, TypeChecker tc, Position p) {
-			super(nf, ts, tb, ar, tc, p);
+			super(tb, ar, tc, p);
 		}
 
 		protected Expr finalizeRuntimeCheckingExpr(Expr castNode,
@@ -593,9 +591,9 @@ public class X10Caster extends AscriptionVisitor {
 
 	protected class MethodCastChecking extends MethodChecking {
 
-		public MethodCastChecking(NodeFactory nf, TypeSystem ts,
+		public MethodCastChecking(
 				TypeBuilder tb, AmbiguityRemover ar, TypeChecker tc, Position p) {
-			super(nf, ts, tb, ar, tc, p);
+			super(tb, ar, tc, p);
 		}
 
 		protected Expr finalizeRuntimeCheckingExpr(Expr castNode,
