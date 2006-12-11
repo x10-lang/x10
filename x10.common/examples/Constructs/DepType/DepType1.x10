@@ -21,12 +21,6 @@ public class DepType1(int i, int j) extends x10Test {
     Test (:k == 3) t; 
     nullable < Test> (:self == null) n;
     
-        
-    
-    public static interface Test2 (int l, int m : m == l ) {
-    }
-    
-    Test2 (: l == 3) o;
     
     public DepType1(int i, int j) {
       this.i = i;
