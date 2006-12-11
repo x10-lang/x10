@@ -75,8 +75,18 @@ public class Constraint_c implements Constraint {
 		return c;
 	}
 	public Constraint addIn(Constraint c) {
-		HashMap result = c.constraints();
-		addBindings(result);
+		if (c !=null) {
+			HashMap result = c.constraints();
+			addBindings(result);
+			C_Var v = c.selfVar();
+			if (v != null ) {
+				if (selfVar == null) {
+				selfVar = v;
+				} else {
+					addSelfBinding(v, this);
+				}
+			}
+		}
 		return this;
 	}
 	public Constraint addBindings(HashMap result) {
@@ -181,8 +191,9 @@ public class Constraint_c implements Constraint {
 		C_Var var = (C_Var) term;
 		C_Var[] vars = var.vars();
 		C_Var baseVar = vars[0];
-		
+		//Report.report(1, "Constraint_c: c=" + this + " looking up |"  + term + "| var=" + baseVar);
 		Promise p = (Promise) roots.get(baseVar);
+		//Report.report(1, "Constraint_c: p=" + p+ " : " + p.getClass());
 		if (p == null) return null;
 		return p.lookup(vars, 1);
 	}
@@ -255,7 +266,8 @@ public class Constraint_c implements Constraint {
 		
 		X10Type xType = (X10Type) t1Root.type();
 		if (t1Root.equals(C_Special_c.Self) || xType != null) {
-			Constraint c = t1Root.equals(C_Special_c.Self) ? this : ((X10Type) t1Root.type()).realClause();
+			Constraint c = t1Root.equals(C_Special_c.Self) ? this 
+					: ((X10Type) t1Root.type()).realClause();
 			
 			// Constraint c = p1Root.equals(C_Special.Self) ? this : xType.realClause();
 		//	Report.report(1, "Constraint_c.possiblyAddTypeConstraint c=" + c);
@@ -457,7 +469,7 @@ public class Constraint_c implements Constraint {
 		}
 		if (t2 instanceof C_Var) {
 			C_Term t2r = rootBindingForTerm((C_Var)t2);
-			if (t2r != null && entails(t1, t2r)) return true;
+			if (t2r != null && (! t2r.equals(t2)) && entails(t1, t2r)) return true;
 		}
 		
 		return false;

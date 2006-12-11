@@ -42,7 +42,16 @@ public class X10LocalDecl_c extends LocalDecl_c {
 		+ (localInstance() == null ? "" : " <LocalInstance #" + localInstance().hashCode() +">")
 		+ ">";
 	}
-	
+	public Node typeCheck(TypeChecker tc) throws SemanticException {
+		
+			//Report.report(1, "X10LocalDecl_c: entering " + this + " li=" + localInstance());
+			X10LocalDecl_c result= (X10LocalDecl_c) super.typeCheck(tc);
+			result.updateLI(tc);
+			
+			//Report.report(1, "X10LocalDecl_c: leaving " + this + " li=" + localInstance());
+			return result;
+		
+	}
 	public void pickUpTypeFromTypeNode(TypeChecker tc) {
 			X10Type newType = (X10Type) type.type();
 			if ( li.flags().isFinal()) {
@@ -58,7 +67,7 @@ public class X10LocalDecl_c extends LocalDecl_c {
 			X10Type oldType = (X10Type) li.type();
 			
 			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),oldType.depClause());
-			X10Type newType = oldType.makeVariant(c,null);
+			X10Type newType = oldType.makeVariant(c,oldType.typeParameters());
 			li.setType(newType);
 			//nli  = nli.type(newType);
 		}

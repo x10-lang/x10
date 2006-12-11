@@ -12,6 +12,7 @@ import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.types.X10UnknownType_c;
 import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
@@ -59,9 +60,10 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 	}
 	Type lookaheadType = null;
     public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
-    	X10TypeSystem xts = (X10TypeSystem) base.type().typeSystem();
-    	X10NamedType type = (X10NamedType) ((TypeNode) ((X10TypeNode) base).disambiguateBase(sc)).type();
-    	lookaheadType = xts.createNullableType(position(), type);
+    	
+    	X10Type type =  (X10Type) ((NullableNode_c) disambiguateBase(sc)).type();
+    	if (type instanceof X10NamedType)
+    		lookaheadType = type;
     	return sc;
     }
     public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {

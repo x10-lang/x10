@@ -95,8 +95,8 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
                     typeParameters.add(((TypeNode)it.next()).type());
             }
         }
-        baseType.setDepGen(newParameter, typeParameters);
-        X10Type newBaseType = baseType; // baseType.makeVariant(newParameter, typeParameters);
+        baseType.setDepGen(newParameter, null);
+        X10Type newBaseType = baseType.makeVariant(null, typeParameters); // baseType.makeVariant(newParameter, typeParameters);
         Node  result = ((X10TypeNode) newType.type(newBaseType)).dep(null,null);
         return result; 
     }
@@ -134,7 +134,7 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
        
         TypeTranslator eval = ts.typeTranslator();
         Constraint term = eval.constraint(d.condition());
-       assert argType.isRootType();
+       //assert argType.isRootType();
         X10Type newArgType = tc instanceof TypeElaborator  ? 
         		argType.makeDepVariant(term, tParameters)
         		: argType.makeVariant(term, tParameters);
