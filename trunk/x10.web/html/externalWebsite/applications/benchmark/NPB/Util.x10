@@ -8,6 +8,8 @@ Constants, flags, and widely used methods are contained in this class.
 Author: Tong Wen, IBM Research
 Date:   04/04/06
         11/06/06 clean up comments
+        
+        (C) Copyright IBM Corp. 2006
 *****************************************************************************************/
 final public class Util {
 	/*For performance modeling. The abstract performance metrics are in cycles, that is,

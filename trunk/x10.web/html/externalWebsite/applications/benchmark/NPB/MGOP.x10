@@ -28,6 +28,8 @@ Author: Tong Wen, IBM Research
 Date:   04/04/06
         05/19/06 Correction bugs are fixed in applyOpP and applyOpQ
         11/06/06 Clean up comments
+        
+        (C) Copyright IBM Corp. 2006
 **************************************************************************************/
 
 final public class MGOP {

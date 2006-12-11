@@ -40,6 +40,8 @@ Modified: 05/19/06
           add the new exchange method which can be used in parallel with computation
           11/06/06
           clean up comments
+          
+          (C) Copyright IBM Corp. 2006
 *******************************************************************************************/
 
 //final public class LevelData {

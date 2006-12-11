@@ -14,7 +14,9 @@ added.
 Note that the master thread is at the default place 0.
   
 Related classes: MGOP, LevelData, Util, NPB3_0_X10.BMInOut.BMArgs (It is  
-                 the X10 translation of the class BMInOut.BMArgs in Java NPB3.0.)
+                 the X10 translation of the class BMInOut.BMArgs in Java NPB3.0,
+                 obtained from 
+                 http://www.nas.nasa.gov/Resources/Software/npb.html)
 
 Date:   05/19/06
         07/31/06 for vs foreach. For unordered loops, make compiler/runtime decides how much 
@@ -23,6 +25,8 @@ Date:   05/19/06
         
 Author: Tong Wen
         IBM Research
+        
+        (C) Copyright IBM Corp. 2006
 *****************************************************************************************/
 
 import NPB3_0_X10.BMInOut.*;
