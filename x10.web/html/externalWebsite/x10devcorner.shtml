@@ -402,7 +402,7 @@ concatenation operation in Java can land you inside the StringBuffer class).
 <tr>
 <td>
 <br />
-If you wish to help develop the X10 language, <a href="contacts.shtml">contact</a> the X10 team to request developer access.
+If you wish to help develop the X10 language, <a href="contact.shtml">contact</a> the X10 team to request developer access.
 You will receive a user id and password to the CVS server.  SSH is used for authentication so you will need to generate SSH keys using ssh_gen (see you local documentation on this process), and to save your public SSH key on the CVS machine, 
 rlseyzcvs1.watson.ibm.com.  The CVS settings are:
 <ul>
