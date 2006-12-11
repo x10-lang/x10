@@ -17,7 +17,8 @@ public class X10InstanceofExt_c extends X10Ext_c {
       if (rtype.isPrimitive()) {
           // rewrites the compareType to the primitive boxed one.
     	  Type t = ts.boxedType((X10PrimitiveType) rtype.toPrimitive());
-          return n.compareType(nf.CanonicalTypeNode(n.compareType().position(), t));
+          Node res =  n.compareType(nf.CanonicalTypeNode(n.compareType().position(), t));
+          return res;
       }
 
       return n;
