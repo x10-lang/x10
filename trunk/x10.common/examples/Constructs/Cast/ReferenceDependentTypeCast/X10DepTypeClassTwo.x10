@@ -13,8 +13,8 @@ public class X10DepTypeClassTwo(int p, int q) extends x10Test {
 
 	public boolean run() {
 		
-		X10DepTypeClassTwo(:self.p==p) one = 
-			new X10DepTypeClassTwo(:self.p==p)(p,0);
+		X10DepTypeClassTwo(:self.p==this.p) one = 
+			(X10DepTypeClassTwo(:self.p==this.p)) new X10DepTypeClassTwo(this.p,0);
 		
 		return one.p() == 0;
 	}
