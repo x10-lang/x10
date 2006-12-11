@@ -19,6 +19,8 @@
 <meta name="Description" content="X10 language bug report"/>
 
 <title>IBM Research | X10 Language | Reporting bugs</title>
+<!--temporarily redirect until bugzilla is up and running-->
+  <META HTTP-EQUIV="Refresh" CONTENT="0; URL=http://x10web.watson.ibm.com/bugzilla/">
 <link rel="stylesheet" type="text/css" href="//www.ibm.com/common/v14/main.css" />
 <link rel="stylesheet" type="text/css" media="all" href="//www.ibm.com/common/v14/screen.css" />
 <link rel="stylesheet" type="text/css" media="print" href="//www.ibm.com/common/v14/print.css" />
