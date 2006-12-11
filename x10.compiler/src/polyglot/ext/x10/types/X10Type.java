@@ -56,7 +56,7 @@ public interface X10Type extends Type {
      * Destructively set the depclause and parameter list to be d and g respectively.
      * 
      */
-    void setDepGen(Constraint d, List g);
+    void setDepGen(Constraint d, List<Type> g);
     X10Type  rootType();
     boolean isRootType();
     List typeParameters();

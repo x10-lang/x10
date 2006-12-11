@@ -44,6 +44,7 @@ public class TypePropagator extends TypeChecker {
 		TypePropagator tp = (TypePropagator) v;
 		if (n instanceof X10LocalDecl_c ) {
 			X10LocalDecl_c m = (X10LocalDecl_c) n;
+			m.pickUpTypeFromTypeNode(tp);
 			m.updateLI(tp);
 			return n;
 		}

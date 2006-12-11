@@ -41,6 +41,7 @@ import polyglot.types.PrimitiveType;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.types.UnknownType;
 import polyglot.types.VarInstance;
 import polyglot.util.InternalCompilerError;
@@ -1255,6 +1256,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		
 		return new X10FieldInstance_c(this, pos, container, flags,  name, initValue);
 	}
+    
 	public boolean equalsWithoutClause(X10Type type1, X10Type type2) {
 		assert_(type1);
 		assert_(type2);

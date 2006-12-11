@@ -46,7 +46,9 @@ public class C_Special_c extends C_Var_c implements C_Special {
 		return qualifier;
 	}
 	public int hashCode() {
-		return ((qualifier == null) ? 0 : qualifier.hashCode()) + (kind==null ?  0 : kind.hashCode());
+		return 0;
+		//return ((qualifier == null) ? 0 : qualifier.hashCode());
+		//+ (kind==null ?  0 : kind.hashCode());
 	}
 	public boolean equals(Object o) {
 		if (this==o) return true;

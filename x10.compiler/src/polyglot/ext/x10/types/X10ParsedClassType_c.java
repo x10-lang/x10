@@ -119,8 +119,11 @@ implements X10ParsedClassType
 					result.addIn(depClause);
 				}
 				realClause = result;
+				realClauseSet = true;
 			}
 		}
+		//assert realClause != null && realClause.entails(depClause);
+		//assert (isRootType() || realClause != rootType.realClause());
 		return realClause;
 	}
 	public C_Var selfVar() {
@@ -164,6 +167,7 @@ implements X10ParsedClassType
      */
 	private void initRealClause()  {
 		// Force properties to be initialized.
+		assert (isRootType() && ! realClauseSet);
 		properties();
 		Type type = superType();
 		HashMap<C_Term, C_Term> result = new HashMap<C_Term, C_Term>();
@@ -194,8 +198,8 @@ implements X10ParsedClassType
 				}
 			}
 		}
+		realClause = new Constraint_c();
 		if (! result.isEmpty()) {
-			if (realClause==null) realClause = new Constraint_c();
 			realClause = realClause.addBindings(result);
 		}
 		if (aPropertyIsRecursive) {
@@ -214,26 +218,29 @@ implements X10ParsedClassType
 			}
 		}
 		if (depClause !=null) {
-			if (realClause==null) realClause = new Constraint_c();
 			realClause = realClause.addIn(depClause);
 		}
 	//	Report.report(1, "X10ParsedClassType_c: realclause for "+ this + " is " + realClause);
+	//	assert (realClause != null && realClause.entails(depClause));
+	//	assert (isRootType() || realClause != rootType.realClause());
 		realClauseSet = true;
 	}
 	public void addBinding(C_Term t1, C_Term t2) {
 		ensureClauses();
 		depClause = depClause.addBinding(t1, t2);
 		realClause = realClause.addBinding(t1,t2);
+		//assert realClause.entails(depClause);
 	}
 	public boolean isConstrained() { 
 		Constraint rc = realClause();
 		return rc != null && ! rc.valid();}
-	public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
+	public void setDepGen(Constraint d, List<Type> l) {
 		//Report.report(1, "X10ParsedClassType_c: settingDepGen on "  + this  + "(# + this.hashCode() " +
 		//		" to " + d + " " + l);
 		depClause = d;
-		Constraint rc = realClause();
-		rc = (rc==null) ? d : rc.addIn(d);
+		if (realClauseSet) {
+			realClause = realClause.addIn(d);
+		}
 		typeParameters = l;
 	}
 	public boolean consistent() {
@@ -246,36 +253,50 @@ implements X10ParsedClassType
 		return (X10ParsedClassType) makeVariant(c, null);
 	}
 	public X10Type makeDepVariant(Constraint d, List<Type> l) {
-		if (! isRootType()) return rootType().makeDepVariant(d,l);
+		//if (! isRootType()) return rootType().makeDepVariant(d,l);
 		if (d == null && (l == null || l.isEmpty())) return this;
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
-		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
-		n.depClause = (d==null)? depClause : d;
-		// do not set realClause.
+		if (l==null || l.isEmpty()) {
+			n.typeParameters = typeParameters;
+		} else {
+			n.typeParameters = l;
+		}
+		n.depClause = d;
+//		 do not set realClause, but if it is already set, then make sure you add d.
+		if (((X10ParsedClassType_c) n.rootType).realClauseSet) {
+			n.realClause = n.rootType.realClause().copy().addIn(n.depClause);
+		}
+		
+//		 hack, forced by decision to explicitly represent dist/region/array type logic.
+		n.isDistSet = n.isRankSet = n.isOnePlaceSet = n.isRailSet = n.isSelfSet
+		= n.isX10ArraySet = n.isZeroBasedSet = false;
+	//	assert (n.isRootType() || n.realClause != n.rootType.realClause());
 		return n;
 		
 	}
 	public X10Type makeVariant(Constraint d, List<Type> l) { 
-		if (! isRootType()) return rootType().makeVariant(d,l);
+	//	if (! isRootType()) return rootType().makeVariant(d,l);
+		// Need to pick up the typeparameters from this
+		// made, and the realClause from the root type.
 		if (d == null && (l == null || l.isEmpty())) return this;
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
-		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
-		if (d == null) {
-			n.depClause = depClause;
-			Constraint rc = realClause();
-			n.realClause = rc==null? null : rc.copy();
-			n.realClauseSet = true;
+		if (l==null || l.isEmpty()) {
+			// No need to clone since typeParameters are never modified once set.
+			//n.typeParameters = typeParameters == null ? null : (List<Type>) ((ArrayList<Type>)typeParameters).clone();
+			n.typeParameters = typeParameters;
 		} else {
-			n.depClause =  d;
-			Constraint rc = rootType.realClause();
-			n.realClause = rc==null ? n.depClause : rc.copy().addIn(d);
-			n.realClauseSet = true;
+			n.typeParameters = l;
 		}
+	
+		n.depClause = d;
+		n.realClause = n.rootType.realClause().copy().addIn(n.depClause);
+		n.realClauseSet = true;
 	
 		// hack, forced by decision to explicitly represent dist/region/array type logic.
 		n.isDistSet = n.isRankSet = n.isOnePlaceSet = n.isRailSet = n.isSelfSet
 		= n.isX10ArraySet = n.isZeroBasedSet = false;
-		
+	//	assert n.realClause != null && n.realClause.entails(n.depClause);
+	//	assert (n.realClause != n.rootType.realClause());
 		return n;
 	}
 	public C_Term propVal(String name) {
