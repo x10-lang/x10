@@ -17,7 +17,7 @@ import harness.x10Test;
 	 }
 	 public boolean  run() { 
 		 A a = new A(2,2);
-		 A(:i==b) x  = a;
+		 A(:i==3) x  = a;
 		 return true;
 	 }
     
