@@ -40,6 +40,8 @@
 !-------------------------------------------------------------------------!
 Translation to X10 
 Vijay Saraswat
+
+(C) Copyright IBM Corp. 2006
 */
 package NPB3_0_X10.BMInOut;
 import java.io.*;
