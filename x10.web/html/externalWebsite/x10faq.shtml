@@ -256,7 +256,7 @@ on?<br>
                   <td>
 The X10 compiler translates X10 programs into programs in the Java
 programming language. These programs can be run on any Java Virtual
-Machine, for instance on symmetric multiprocessors (SMPs) with a large
+Machine (Java 5.0+), for instance on symmetric multiprocessors (SMPs) with a large
 number of hardware threads. <br>
                   </td>
                 </tr>
