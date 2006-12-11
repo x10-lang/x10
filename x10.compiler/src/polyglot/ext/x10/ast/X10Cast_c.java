@@ -76,21 +76,33 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 		   					+ toType + "\".",
 		   				        position());
            } else { 
-        	   // the cast may requires runtime checking. For example ((T) java.lang.Object)
         	   
-        	   // Handle isNullable additionnal constraint 
-	    	   // Such cast ((T1) nullable T2), should checks at runtime 
-	    	   // the expression to cast is not null
-	           if (xts.isNullable(x10FromType) && (!xts.isNullable(x10ToType))) {
-	        	   this.notNullRequired  = true;
-	           } 
+        	   // the cast may requires runtime checking. For example ((T) java.lang.Object)
+
+        	   // if target type is a primitive
+	           if ((this.primitiveType = toType.isPrimitive())) {
+	        	   // if target type is a primitive, then we should not try to check
+	        	   // whether the expr is null or not.
+	        	   this.primitiveType = true;
+	        	   // Handle isNullable additionnal constraint 
+		    	   // Such cast ((T1) nullable T2), should checks at runtime 
+		    	   // the expression to cast is not null
+		           if (xts.isNullable(x10FromType) && (!xts.isNullable(x10ToType))) {
+		        	   this.notNullRequired  = true;
+		           } 	        	   
+	           }
 	           
 	           // if ToType is nullable then casting the null value is legal
 	           if (xts.isNullable(x10ToType)) {
 	        	   this.toTypeNullable = true;
+	        	   this.notNullRequired = false;
+	        	   // to type is nullable, hence we don't want to handle runtime checking with primitive 
+	        	   this.primitiveType = false;
 	           }
-		    	            }
-            		return type(toType);
+	           
+
+            }
+            	return type(toType);
         }
         
 		public boolean isDepTypeCheckingNeeded() {
@@ -230,5 +242,17 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        	}
 	        	return new List [0]; 
         	}
+		}
+
+		public void setToTypeNullable(boolean b) {
+			this.toTypeNullable = b;
+		}
+
+		public void setPrimitiveCast(boolean b) {
+			this.primitiveType = b;
+		}
+
+		public void setNotNullRequired(boolean b) {
+			this.notNullRequired = b;
 		}
 }
