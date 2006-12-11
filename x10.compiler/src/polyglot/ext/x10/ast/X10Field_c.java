@@ -24,6 +24,7 @@ import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Promise;
+import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
@@ -82,24 +83,28 @@ public class X10Field_c extends Field_c {
 				throw new InternalCompilerError("Cannot access field on node of type " +
 						target.getClass().getName() + ".");
 			}
-			
+			boolean inTypeElaboration = tc instanceof TypeElaborator;
+			X10Field_c result = this;
 			X10Type type = (X10Type) fi.type();
-			X10Type thisType = (X10Type) target.type();
 			X10Type retType = type;
-			Constraint rc = type.realClause();
-			if (rc != null ) {
-				C_Var var=thisType.selfVar();
-				if (var == null) var = rc.genEQV(thisType);
-				Constraint newRC = rc.substitute(var, C_Special.This);
-				retType = type.makeVariant(newRC, null);
+			if (! inTypeElaboration) {
+				// Fix up the type of the field instance with the name of the field.
+				X10Type thisType = (X10Type) target.type();
+				Constraint rc = type.realClause();
+				if (rc != null ) {
+					C_Var var=thisType.selfVar();
+					if (var == null) var = rc.genEQV(thisType);
+					Constraint newRC = rc.substitute(var, C_Special.This);
+					retType = type.makeVariant(newRC, null);
+				}
+				fi = fi.type(retType);
 			}
-			fi = fi.type(retType);
-			
-			X10Field_c result = (X10Field_c)fieldInstance(fi).type(retType);  
+			result = (X10Field_c)fieldInstance(fi).type(retType);  
 			result.checkConsistency(c);
 			
 			if (! result.isTypeChecked()) return result;
-			checkFieldAccessesInDepClausesAreFinal(result, tc);
+			if (! inTypeElaboration)
+				checkFieldAccessesInDepClausesAreFinal(result, tc);
 			
 			result = checkArrayFields(result);
 			//Report.report(1, "X10Field_c: typeCheck " + result+ " has type " + result.type());
@@ -126,8 +131,6 @@ public class X10Field_c extends Field_c {
 		X10Context xtc = (X10Context) tc.context();
 		if (xtc.inDepType()) {
 			FieldInstance fi = result.fieldInstance();
-		
-					
 			if (! fi.flags().contains(Flags.FINAL))
 				throw 
 				new SemanticException("Field " + fi.name() 

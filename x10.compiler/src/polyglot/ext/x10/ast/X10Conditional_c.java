@@ -52,7 +52,7 @@ public class X10Conditional_c extends Conditional_c {
 	        	return type(t1);
 	        
 	        if (ts.typeBaseEquals(t1, t2)) {
-	            return type(t1.baseType());
+	            return type(t1.rootType());
 	        }
 	        
 	        // Otherwise, if the second and third operands have numeric type, then

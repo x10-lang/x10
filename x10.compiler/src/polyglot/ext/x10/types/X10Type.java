@@ -8,6 +8,7 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -32,22 +33,32 @@ public interface X10Type extends Type {
 	 */
     boolean safe();
     
-    /** Return a subtype of the basetype with specified depclause and type parameters. 
+    /** Build a variant of the root type, with specified depclause and type parameters. 
      *  If d==null, then the specified depclause is this.depClause,
      *  if g==null, then the specified type parameter is this.typeParameter.
-     *  The realclause of the new type is the realclause of the basetype,
+     *  The realclause of the new type is the realclause of the roottype,
      *  with the specified depclause added in.
+     *  This should not be called until after TypePropagation is over. Otherwise
+     *  the real clause for the constraint will not be set correctly.
      * @param d
      * @param g
      * @return
      */
-    X10Type makeVariant(Constraint d, List g);
+    X10Type makeVariant(Constraint d, List<Type> g);
+    /**
+     * Build a variant of the root type. Do not copy the realConstraint over (it may not
+     * have been set). 
+     * @param d -- the constraint to be added in.
+     * @return the new type
+     */
+    X10Type makeDepVariant(Constraint d, List<Type> l);
     /*
      * Destructively set the depclause and parameter list to be d and g respectively.
      * 
      */
     void setDepGen(Constraint d, List g);
-    X10Type  baseType();
+    X10Type  rootType();
+    boolean isRootType();
     List typeParameters();
     boolean isParametric();
     NullableType toNullable();

@@ -5,6 +5,7 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
+import polyglot.ast.TypeNode_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -14,6 +15,7 @@ import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
@@ -46,20 +48,33 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 		return this.base;
 	}
 	
-	public NullableNode base(TypeNode base) {
+	public NullableNode_c base(TypeNode base) {
 		NullableNode_c n = (NullableNode_c) copy();
 		n.base = base;
 		return n;
 	}
 	
-	protected NullableNode reconstruct(TypeNode base) {
+	protected NullableNode_c reconstruct(TypeNode base) {
 		return (base != this.base) ? base(base) : this;
 	}
-	
+	Type lookaheadType = null;
+    public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
+    	X10TypeSystem xts = (X10TypeSystem) base.type().typeSystem();
+    	X10NamedType type = (X10NamedType) ((TypeNode) ((X10TypeNode) base).disambiguateBase(sc)).type();
+    	lookaheadType = xts.createNullableType(position(), type);
+    	return sc;
+    }
+    public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
+    	//Report.report(1, "X10CanonicalType: typecheckEnter " + this + " dep=|" + this.dep + "|");
+    	X10TypeSystem xts = (X10TypeSystem) base.type().typeSystem();
+    	X10NamedType type = (X10NamedType) ((TypeNode) ((X10TypeNode) base).typeCheckBase(tc)).type();
+    	lookaheadType = xts.createNullableType(position(), type);
+    	return tc;
+    }
 	public Context enterChildScope(Node child, Context c) {
 		if (child == this.dep) {
-			if (type instanceof X10ParsedClassType)
-				c = ((X10Context) c).pushDepType((X10ParsedClassType) type);
+			if (lookaheadType instanceof X10NamedType)
+				c = ((X10Context) c).pushDepType((X10NamedType) lookaheadType);
 		}
 		return super.enterChildScope(child, c);
 	}
@@ -73,7 +88,14 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 	public Node superVisitChildren(NodeVisitor v) {
 		return super.visitChildren(v);
 	}
-	
+	  public Node disambiguate(AmbiguityRemover sc) throws SemanticException {
+	    	boolean val = (dep != null && ! dep.isDisambiguated()) ||
+	    	(gen != null && ! gen.isDisambiguated());
+	    	if (val) return this;
+	      //   TypeNode result = (TypeNode) X10TypeNode_c.disambiguateDepClause(this, sc);
+	         X10TypeNode result = (X10TypeNode) disambiguateBase(sc);
+	         return result.dep(gen,dep);
+	     }
 	/**
 	 * Disambiguate the base node. Ensure that it is unambiguous.
 	 * Create a NullableType_c and store it in this.type.
@@ -84,19 +106,19 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 		// that disambiguation still needs to be done on the type argument
 		if (!newType.type().isCanonical())
 			return this;
-		NullableNode_c result = (NullableNode_c) base(newType);
+		NullableNode_c result = reconstruct(newType);
 		// Have to set the type for TypeNodes at the end of disambiguation.
 		// This is the base case for subsequent type checking.
 		// Note however that this time is not depType-accurate.
 		// TypePropagation must ensure that this type is fixed up.
 		return result.propagateTypeFromBase();
 	}
-	public TypeNode propagateTypeFromBase() {
+	public NullableNode_c propagateTypeFromBase() {
 		X10NamedType baseType = (X10NamedType) base.type();
 		assert baseType !=null;
 		X10TypeSystem ts = (X10TypeSystem) baseType.typeSystem();
 		X10Type resultType = ts.createNullableType(position(), baseType);
-		return type(resultType);
+		return (NullableNode_c) type(resultType);
 	}
 	/**
 	 * Typecheck the type-argument (in this.base). If it typechecks
@@ -109,8 +131,9 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 	}
 	public Node typeCheck( TypeChecker tc) throws SemanticException {
 		X10TypeNode newType = (X10TypeNode) base.typeCheck(tc);
-		NullableNode_c result = (NullableNode_c) base(newType);
-		return result.propagateTypeFromBase();
+		NullableNode_c result = reconstruct(newType);
+		result = result.propagateTypeFromBase();
+		return X10TypeNode_c.typeCheckDepClause(result, tc);
 	}
 	public Node oldTypeCheckBase(TypeChecker tc) throws SemanticException {
 		

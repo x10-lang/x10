@@ -206,7 +206,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 				List [] constraintList;
 	        	Constraint constraint;
 	        	if ((constraint = castType.depClause()) != null) {
-	        		String castBaseType = castType.baseType().toString();
+	        		String castBaseType = castType.rootType().toString();
 	        		Map map;
 	        		if ((map = ((Constraint)constraint).constraints()) != null) {
 		        		 constraintList = new List [] {new LinkedList(), new LinkedList(), new LinkedList(), new LinkedList()};

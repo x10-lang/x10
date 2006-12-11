@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.types.ReferenceType_c;
+import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -33,8 +34,9 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     
     protected Constraint depClause;
     protected List/*<GenParameterExpr>*/ typeParameters;
-    protected X10Type baseType = this;
-    public X10Type baseType() { return baseType;}
+    protected X10Type rootType = this;
+    public X10Type rootType() { return rootType;}
+    public boolean isRootType() { return this==rootType;}
     public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
     public List typeParameters() { return typeParameters;}
     public Constraint depClause() { return depClause; }
@@ -53,16 +55,16 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     public boolean consistent() {
     	return depClause== null || depClause.consistent();
     }
-    public X10Type makeVariant(Constraint d, List l) { 
-        if (d == null && (l == null || l.isEmpty()))
-                return this;
-        X10ReferenceType_c n = (X10ReferenceType_c) copy();
-        // n.baseType = baseType; // this may not be needed.
-        n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
-		n.depClause = (d==null) ? depClause : d;
-        if (  Report.should_report("debug", 5))
-            Report.report(5,"X10ReferenceType_c.makeVariant: " + this + " creates " + n + "|");
-        return n;
+    public X10Type makeDepVariant(Constraint d, List<Type> l) { 
+      return makeVariant(d, l);
+    }
+    public X10Type makeVariant(Constraint d, List<Type> l) { 
+    	if (! isRootType()) return rootType().makeVariant(d,l);
+		if (d == null && (l == null || l.isEmpty())) return this;
+		 X10ReferenceType_c n = (X10ReferenceType_c) copy();
+		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+		n.depClause = d == null ? depClause : d;
+		return n;
     }
     public C_Term propVal(String name) {
 		return (depClause==null) ? null : depClause.find(name);
@@ -72,7 +74,7 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     }
     public int hashCode() {
         return 
-          (baseType == this ? super.hashCode() : baseType.hashCode() ) 
+          (rootType == this ? super.hashCode() : rootType.hashCode() ) 
           + (isConstrained() ? depClause.hashCode() : 0)
   		+ (isParametric() ? typeParameters.hashCode() :0);
         
@@ -92,7 +94,7 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
         if (! (o instanceof X10ReferenceType_c)) return false;
         X10ReferenceType_c other = (X10ReferenceType_c) o;
        
-       return baseType == other.baseType;
+       return rootType == other.rootType;
     }
    
     public boolean isCanonical() {

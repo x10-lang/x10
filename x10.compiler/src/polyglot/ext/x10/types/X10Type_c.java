@@ -17,9 +17,6 @@ import polyglot.types.Type;
  * ..ext.jl.type.*Type classes, and manually add the methods to implement X10Type.
  * Only those X10*Type classes which dont may extend ts.
  * 
- * TODO: Check all the other predicates from Type_c and determine which of them need to 
- * be redefined here.
- * 
  * @author vj
  *
  * 
@@ -30,8 +27,8 @@ public abstract class X10Type_c extends Type_c implements X10Type {
     protected List/*<GenParameterExpr>*/ typeParameters;
     public void setTypeParameters(List t) { typeParameters = t; }
     public void setDepClause(Constraint d) { depClause = d; }
-    protected X10Type baseType = this;
-    public X10Type baseType() { return baseType;}
+    protected X10Type rootType = this;
+    public X10Type rootType() { return rootType;}
     public boolean isParametric() { return (typeParameters == null) || ! typeParameters.isEmpty();}
     public List typeParameters() {return typeParameters;}
     public Constraint depClause() { return depClause();}
@@ -42,7 +39,7 @@ public abstract class X10Type_c extends Type_c implements X10Type {
     }
     public int hashCode() {
         return 
-          (baseType == this ? super.hashCode() : baseType.hashCode() ) 
+          (rootType == this ? super.hashCode() : rootType.hashCode() ) 
         + (depClause != null ? depClause.hashCode() : 0)
         + ((typeParameters !=null && ! typeParameters.isEmpty()) ? typeParameters.hashCode() :0);
         
@@ -51,7 +48,7 @@ public abstract class X10Type_c extends Type_c implements X10Type {
         X10Type target = (X10Type) other;
         X10Type xme = (X10Type) me;
         X10TypeSystem ts= (X10TypeSystem) xme.typeSystem();
-        X10Type tb = xme.baseType(), ob = target.baseType();
+        X10Type tb = xme.rootType(), ob = target.rootType();
         boolean result = false;
         
         result = (ts.equals(tb, ob) || ts.descendsFrom(tb, ob)) 

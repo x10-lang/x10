@@ -43,73 +43,16 @@ public class X10LocalDecl_c extends LocalDecl_c {
 		+ ">";
 	}
 	
-	public LocalDecl type(TypeNode type) {
-		// System.out.println("[LocalDecl_c] ... setting type on |" + this.shortToString() + "|.");
-		// System.out.println("[LocalDecl_c] ... to |" + type + "|.");
-		LocalDecl d= super.type(type);
-		// System.out.println("[LocalDecl_c] ... returns|" + d + "|.");
-		return d;
-	}
-	public LocalDecl localInstance(LocalInstance li) {
-		// System.out.println("[LocalDecl_c] ... setting localInstance |" + this.shortToString() + "|.");
-		// System.out.println("[LocalDecl_c] ... to |" + li + "|.");
-		// new SemanticException("", position()).printStackTrace(System.out);
-		LocalDecl d= super.localInstance(li);
-		// System.out.println("[LocalDecl_c] ... returning|" + d.shortToString() + "|.");
-		return d;
-	}
-	public Node buildTypes(TypeBuilder tb) throws SemanticException {
-		// System.out.println("[LocalDecl_c] Building type " + this.shortToString() + ":");
-		Node result= super.buildTypes(tb);
-		// System.out.println("[LocalDecl_c] ... produces li=|" + result.localInstance() + "|(#"+li.hashCode()+")");
-		return result;
-	}
-	public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
-		// Report.report(1, "[X10LocalDecl_c] Disambiguating |" + this.shortToString() + ":");
-		// System.out.println("[LocalDecl_c] ... i.e. |" + this + "|.");
-		// System.out.println("[LocalDecl_c] ... declType=|" + declType() + "|.");
-		// System.out.println("[LocalDecl_c] ... li=|" + li + "|.");
-		LocalDecl result= (LocalDecl) super.disambiguate(ar);
-		// System.out.println("[LocalDecl_c] ... returning with li=|" + result.localInstance() + "|.");
-		// Report.report(1, "[X10LocalDecl_c] ... returning node |" + result + "| " + result.type().getClass());
-		return result;
-	}
-	
-	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		
-			//Report.report(1, "X10LocalDecl_c: entering " + this + " li=" + localInstance());
-			X10LocalDecl_c result= (X10LocalDecl_c) super.typeCheck(tc);
-			// result.updateLI(tc);
-			
-			//Report.report(1, "X10LocalDecl_c: leaving " + this + " li=" + localInstance());
-			return result;
-		
-	}
 	public void pickUpTypeFromTypeNode(TypeChecker tc) {
-		
 			X10Type newType = (X10Type) type.type();
-			
 			if ( li.flags().isFinal()) {
 				Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),newType.depClause());
 				newType = newType.makeVariant(c,newType.typeParameters());
-				
-				//nli  = nli.type(newType);
-				
 			}
-			
 			li.setType(newType);
-			
-			//	X10LocalDecl_c result =  (X10LocalDecl_c) localInstance(nli);
-			
-		
 	}
 	public void  updateLI(TypeChecker tc)  {
 		TypeSystem ts = tc.typeSystem();
-		// Ensure that the LocalInstance is updated with the 
-		// possibly new type (w/ depclause)
-		
-		//LocalInstance tli = ts.localInstance(li.position(),li.flags(), type.type(), li.name());
-		//LocalInstance nli = tli;
 		// If the local variable is final, replace T by T(:self==t)
 		if (li.flags().isFinal()) {
 			X10Type oldType = (X10Type) li.type();
@@ -119,7 +62,5 @@ public class X10LocalDecl_c extends LocalDecl_c {
 			li.setType(newType);
 			//nli  = nli.type(newType);
 		}
-	//	X10LocalDecl_c result =  (X10LocalDecl_c) localInstance(nli);
-	
 	}
 }
