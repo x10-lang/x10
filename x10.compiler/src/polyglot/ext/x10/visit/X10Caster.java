@@ -24,10 +24,8 @@ import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.X10Binary;
-import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10CastInfo;
 import polyglot.ext.x10.ast.X10DepCastInfo;
-import polyglot.ext.x10.ast.X10Field_c;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.extension.X10Ext;
@@ -56,8 +54,8 @@ import polyglot.visit.TypeChecker;
 public class X10Caster extends AscriptionVisitor {
 	X10TypeSystem xts;
 	boolean castCheckClassNotLoaded = true;
-	private static String RUNTIME_CAST_CHECKER_CLASSNAME = "x10.lang.RuntimeCastChecker";
-
+	private static String RUNTIME_CAST_CHECKER_CLASSNAME = "x10.runtime.RuntimeCastChecker";
+	private static String RUNTIME_CAST_CHECKER_CONSTRAINT_CLASSNAME = "x10.runtime.RuntimeConstraint";
 	public X10Caster(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
 		xts = (X10TypeSystem) ts;
@@ -173,7 +171,11 @@ public class X10Caster extends AscriptionVisitor {
 		}
 
 		protected Expr checkExpression(Expr e) {
-			return (Expr) e.visit(tb).visit(ar).visit(tc);
+			Expr tbe = (Expr) e.visit(tb);
+				Expr are = (Expr) tbe.visit(ar);
+					Expr tce = (Expr) are.visit(tc);
+//			return (Expr) e.visit(tb).visit(ar).visit(tc);
+					return tce;
 		}
 		
 	}
@@ -191,8 +193,7 @@ public class X10Caster extends AscriptionVisitor {
 		protected abstract Name primitiveConstrainedCastCheckerMethodName() throws SemanticException;
 
 		protected Name getRuntimeConstraintClassName() {
-			return new Name(nf, ts, p,
-					"x10.lang.RuntimeCastChecker.RuntimeConstraint");
+			return new Name(nf, ts, p,X10Caster.RUNTIME_CAST_CHECKER_CONSTRAINT_CLASSNAME);
 		}
 
 		public Expr getNonNullableCheckingExpr(Expr checkingNode) 
@@ -291,7 +292,7 @@ public class X10Caster extends AscriptionVisitor {
 		private Expr buildConstraintArray(List runtimeConstraints) {
 			TypeNode arrayBaseType = this.getRuntimeConstraintClassName()
 					.toType();
-			
+
 			// we are building an array
 			NewArray constraintArray = nf.NewArray(p, arrayBaseType,
 					Collections.EMPTY_LIST, 1, new ArrayInit_c(p,
@@ -336,7 +337,7 @@ public class X10Caster extends AscriptionVisitor {
 			methodArgs.add(constraintArray);
 			methodArgs.add(exprToCheck.copy());
 
-			// receiver should be x10.lang.RuntimeCastChecker class
+			// receiver should be x10.runtime.RuntimeCastChecker class
 			Call checkCastCall = nf.Call(p, this.getRuntimeCheckingClassName()
 					.toReceiver(), this
 					.primitiveConstrainedCastCheckerMethodName().name,
@@ -432,11 +433,11 @@ public class X10Caster extends AscriptionVisitor {
 				LinkedList constructorArgs = new LinkedList();
 				constructorArgs.addAll(visitLeft(binary.left()));
 				constructorArgs.addAll(visitRight(binary.right()));
-				// flatten
+
 				Expr newConstraint = checkExpression(nf.New(binary.position(), 
 						X10Caster.MethodChecking.this.getRuntimeConstraintClassName().toType(),
 						constructorArgs));
-				
+
 				res.add(newConstraint);
 				return res;		
 			}
@@ -478,11 +479,11 @@ public class X10Caster extends AscriptionVisitor {
 			private Expr visitField(Field field) throws SemanticException {
 				if ((field.target() instanceof X10Special)
 						&& (((X10Special) field.target()).kind() == X10Special.SELF)) {
-					return nf.StringLit(field.position(), field.name());
+					return checkExpression(nf.StringLit(field.position(), field.name()));
 					// add a tag if the field is a right value the
 				} else if ((field.target() instanceof X10Special)
 						&& (((X10Special) field.target()).kind() == X10Special.THIS)) {
-					return field;
+					return checkExpression(field);
 				} else {
 					throw new SemanticException("Unknown constraint expression");
 				}
@@ -490,19 +491,19 @@ public class X10Caster extends AscriptionVisitor {
 			
 			private List visit(Local local) throws SemanticException {
 				List res = new LinkedList();
-				res.add(local);
+				res.add(checkExpression(local));
 				return res;
 			}
 			
 			private List visit(Lit lit) throws SemanticException {
 				List res = new LinkedList();
-				res.add(lit);
+				res.add(checkExpression(lit));
 				return res;
 			}
 
 			private List visit(X10Special special) throws SemanticException {
 				List res = new LinkedList();
-				res.add(nf.StringLit(special.position(),special.toString()));
+				res.add(checkExpression(nf.StringLit(special.position(),special.toString())));
 				return res;
 			}
 			
