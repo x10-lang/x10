@@ -12,7 +12,7 @@ import harness.x10Test;
 		try {
 			nullable<int> k = null; // type becomes nullable<x10.compiler.BoxedInt>
 			int p = (int) k; // cast is transformed to ((BoxedInt) k).intValue() 
-			// --> fails because 'k' is null which throws a NullPointerException
+			// --> fails because 'k' is null which throws a ClassCastException
 		} catch (ClassCastException e) {
 			return true;
 		}
