@@ -12,9 +12,11 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.ast.DepCast;
 import polyglot.ext.x10.ast.ParExpr;
+import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10PrimitiveType;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ConstructorInstance;
@@ -49,9 +51,17 @@ public class X10CastExt_c extends X10Ext_c {
 			X10Cast newCast = (X10Cast) x;
 			newCast.setToTypeNullable(sourceCast.isToTypeNullable());
 			newCast.setPrimitiveCast(sourceCast.isPrimitiveCast());
+			boolean notNullBoolean = true;
 			
-			// when unboxing, expr should always be different from null
-			newCast.setNotNullRequired(true);
+			if (c.expr() instanceof Call) {
+				Call call = (Call) c.expr();
+				// Avoid null checking when dealing with future.
+				String m_name = call.name();
+				X10Type target_t = (X10Type) call.target().type();
+				// when unboxing, expr should always be different from null
+				notNullBoolean = !(m_name.equals("force") && ((X10TypeSystem)ts).isFuture(target_t));
+			}
+			newCast.setNotNullRequired(notNullBoolean);
 			
 			// adding parenthesis to surround cast operation
 			ParExpr px = ((X10NodeFactory)nf).ParExpr(x.position(), x);
