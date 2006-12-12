@@ -229,11 +229,11 @@ The following examples demonstrate in X10 how to build and iterate over distribu
 <tr>
 <td width="200">
 <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="applications/examples/StencilFor2D.x10">StencilForeach2D.x10</a>
+<a href="applications/examples/StencilForeach2D.x10">StencilForeach2D.x10</a>
 </td>
 <td width="200">
 <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
-<a href="applications/examples/StencilFor2D_Dep.x10">StencilForeach2D_Dep.x10</a>
+<a href="applications/examples/StencilForeach2D_Dep.x10">StencilForeach2D_Dep.x10</a>
 </td>
 </tr>
 
