@@ -84,20 +84,23 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        	   // if target type is a primitive, then we should not try to check
 	        	   // whether the expr is null or not.
 	        	   this.primitiveType = true;
-	        	   // Handle isNullable additionnal constraint 
-		    	   // Such cast ((T1) nullable T2), should checks at runtime 
-		    	   // the expression to cast is not null
-		           if (xts.isNullable(x10FromType) && (!xts.isNullable(x10ToType))) {
-		        	   this.notNullRequired  = true;
-		           } 	        	   
 	           }
-	           
+
 	           // if ToType is nullable then casting the null value is legal
 	           if (xts.isNullable(x10ToType)) {
 	        	   this.toTypeNullable = true;
 	        	   this.notNullRequired = false;
-	        	   // to type is nullable, hence we don't want to handle runtime checking with primitive 
+	        	   // to type is nullable, hence we don't want 
+	        	   // to handle runtime checking with primitive 
 	        	   this.primitiveType = false;
+	           } else {
+	        	   this.toTypeNullable = false;
+	        	   // Handle isNullable additionnal constraint 
+		    	   // Such cast ((T1) nullable T2), should checks at runtime 
+		    	   // the expression to cast is not null
+		           if (xts.isNullable(x10FromType)) {
+		        	   this.notNullRequired = true;
+		           }
 	           }
 	           
 
