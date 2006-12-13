@@ -7,8 +7,7 @@ Bundle-Localization: plugin
 Require-Bundle: lpg,
  x10.runtime,
  polyglot2
-Export-Package: org.ovmj.util,
- polyglot.ext.x10,
+Export-Package: polyglot.ext.x10,
  polyglot.ext.x10.ast,
  polyglot.ext.x10.extension,
  polyglot.ext.x10.types,
