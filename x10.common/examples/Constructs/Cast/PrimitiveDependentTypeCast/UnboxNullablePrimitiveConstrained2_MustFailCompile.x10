@@ -1,8 +1,8 @@
 import harness.x10Test;
 
 /**
- * Purpose: 
- *          
+ * Purpose: Checks Unboxing from a nullable primitive constrained cast works.
+ * Issue: deptype type information helps detects wrong cast at compile time.
  * @author vcave
  **/
  public class UnboxNullablePrimitiveConstrained2_MustFailCompile extends x10Test {

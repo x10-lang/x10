@@ -1,8 +1,7 @@
 import harness.x10Test;
 
 /**
- * Purpose: Checks a constrained cast leading to primitive unboxing works 
- *          actually checks the unboxed primitive.
+ * Purpose: Checks Unboxing from a nullable primitive constrained cast works.
  * @author vcave
  **/
  public class UnboxNullablePrimitiveConstrained extends x10Test {
