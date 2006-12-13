@@ -1,8 +1,8 @@
 import harness.x10Test;
 
 /**
- * Purpose: Checks a constrained cast leading to primitive unboxing works 
- *          actually checks the unboxed primitive.
+ * Purpose: Checks Unboxing from a primitive constrained cast works.
+ * Issue: deptype type information helps detects wrong cast at compile time.
  * @author vcave
  **/
  public class UnboxPrimitiveConstrained2_MustFailCompile extends x10Test {
