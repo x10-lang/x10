@@ -189,7 +189,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return ! (i1.hasNext() || i2.hasNext());
     }
 	public String toString() {
-		String s = designator() + " " + flags + returnType + " " +
+		String s = designator() + " " + flags + " " + returnType + " " +
 		container() + "." + signature();
 		
 		if (! throwTypes.isEmpty()) {
