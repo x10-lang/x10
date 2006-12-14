@@ -1,4 +1,11 @@
 /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+/*
  * Created on 17.10.2006
  */
 package x10.array.sharedmemory;

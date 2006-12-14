@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 /** Tests that a field of a class C, guarded with this(:c), is accessed only in objects
  * whose type is a subtype of C(:c).
  *@author pvarma

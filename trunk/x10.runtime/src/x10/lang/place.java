@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Language.
+ *
+ */
 /**
  * This class implements the notion of places in X10. The maximum
  * number of places is determined by a configuration parameter

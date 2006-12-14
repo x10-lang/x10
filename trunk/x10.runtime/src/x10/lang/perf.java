@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Language.
+ *
+ */
 /**
  * The x10.lang.perf class provides an interface to X10 programmers for custom definitions
  * of abstract execution metrics

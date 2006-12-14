@@ -1,4 +1,11 @@
 /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/*
  * NAS Parallel Benchmarks 3.0
  *
  * CG

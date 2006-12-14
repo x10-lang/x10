@@ -1,4 +1,11 @@
 /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+/*
  * Created on Oct 1, 2004
  */
 package x10.compilergenerated;

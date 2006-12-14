@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 import harness.x10Test;
 /**
 This produces an infinite loop for the type checker, on 06/25/06

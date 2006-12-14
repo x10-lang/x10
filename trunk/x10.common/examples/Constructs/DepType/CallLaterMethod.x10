@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
  /**  Check that the return type of a call to a method which has a deptype as its return
  type is handled correctly. 
  

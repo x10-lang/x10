@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 /** Tests that invariants due to a super constraint and a sub constraint are 
  * consistent with each other.
  *@author pvarma

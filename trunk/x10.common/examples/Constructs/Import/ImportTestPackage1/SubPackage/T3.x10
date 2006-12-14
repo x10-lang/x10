@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 package ImportTestPackage1.SubPackage;
 
 import ImportTestPackage2._T4;

@@ -1,4 +1,11 @@
 /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+/*
  * Created on 28.09.2006
  *
  * To change the template for this generated file go to

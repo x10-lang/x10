@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 /** Tests that a constructor invocation satisfies the parameter types and constraint
  * of the constructor declaration.
  *@author pvarma

@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 /** Tests many syntactic features of dep types.
  *@author vj, 5/17/2006
  *

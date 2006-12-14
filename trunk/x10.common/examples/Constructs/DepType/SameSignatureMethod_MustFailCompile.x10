@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 /** Tests that two methods in a class cannot have the same signature.
  *@author pvarma
  *

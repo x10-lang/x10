@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 /** Tests that a method invocation satisfies the parameter types and constraint
  * of the method declaration.
  *@author pvarma

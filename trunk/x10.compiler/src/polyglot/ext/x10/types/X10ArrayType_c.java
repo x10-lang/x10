@@ -1,4 +1,11 @@
 /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+/*
  * Created on Apr 18, 2005
  */
 package polyglot.ext.x10.types;

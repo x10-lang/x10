@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 import harness.x10Test;
 
 /** Tests that if t is of type Test(:i==1), and test() on Test returns int(:self==this.i),
