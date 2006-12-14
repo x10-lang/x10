@@ -19,8 +19,6 @@
 <meta name="Description" content="X10 language bug report"/>
 
 <title>IBM Research | X10 Language | Reporting bugs</title>
-<!--temporarily redirect until bugzilla is up and running-->
-  <META HTTP-EQUIV="Refresh" CONTENT="0; URL=../bugzilla/">
 <link rel="stylesheet" type="text/css" href="//www.ibm.com/common/v14/main.css" />
 <link rel="stylesheet" type="text/css" media="all" href="//www.ibm.com/common/v14/screen.css" />
 <link rel="stylesheet" type="text/css" media="print" href="//www.ibm.com/common/v14/print.css" />
@@ -173,9 +171,7 @@ Report only one problem for each bug report.
 
 
 <br />
-<!--<a href="../bugzilla/enter_bug.cgi">-->
-<a href="../bugzilla/">
-<input type="image" src="//www.ibm.com/i/v14/buttons/us/en/submit.gif" alt="Submit Bug Report" name="<name>" value="Submit Bug Report"></a>
+<a href="../bugzilla/enter_bug.cgi"><input type="image" src="//www.ibm.com/i/v14/buttons/us/en/submit.gif" alt="Submit Bug Report" name="<name>" value="Submit Bug Report"></a>
 </p></td>
 </td>
 <td width="7">&nbsp;</td>
