@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
  /** Checks that an arg i from the param list of one method does not stray into 
  * body of another.
  *@author vj, 5/17/2006

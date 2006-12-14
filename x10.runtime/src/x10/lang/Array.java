@@ -1,4 +1,11 @@
 /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+/*
  * Created by igor on Sep 14, 2006
  */
 package x10.lang;

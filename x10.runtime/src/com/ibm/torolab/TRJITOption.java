@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Language.
+ *
+ */
 package com.ibm.torolab;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

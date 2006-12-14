@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 /** Tests that the constraint d of an extended type D(:d) is entailed by the 
  * type returned by the constructor of the subtype.
  *@author pvarma

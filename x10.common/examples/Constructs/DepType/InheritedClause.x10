@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
  /**  Check that the class invariant is implicitly made available to all
  deptypes defined on the class. Here, every type on A implicitly carries
  the clause (:self.i==2 && self.b==2), hence implies (:self.i==self.b).

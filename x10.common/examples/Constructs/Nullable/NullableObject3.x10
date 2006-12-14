@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 //Generated automatically by
 //m4 NullableObject3.m4 > NullableObject3.x10
 //Do not edit

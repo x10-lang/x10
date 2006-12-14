@@ -1,4 +1,11 @@
 /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/*
  !-------------------------------------------------------------------------!
  !									  !
  !	 N  A  S     P A R A L L E L	 B E N C H M A R K S  3.0	  !

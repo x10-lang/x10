@@ -1,3 +1,10 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
 /** Tests that the properties of an interface are implemented by a compliant class 
  * and that the interface constraint is entailed by the compliant class.
  *@author pvarma
