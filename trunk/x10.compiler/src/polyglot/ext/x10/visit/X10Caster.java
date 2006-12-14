@@ -56,7 +56,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
 /**
- * Visitor that inserts boxing and unboxing code into the AST.
+ * Visitor that inserts dependent type cast code into the AST.
  */
 public class X10Caster extends AscriptionVisitor {
 	X10TypeSystem xts;
@@ -140,25 +140,6 @@ public class X10Caster extends AscriptionVisitor {
 		return e;
 	}
 
-	public Node leaveCall(Node old, Node n, NodeVisitor v)
-			throws SemanticException {
-		n = super.leaveCall(old, n, v);
-
-		// RMF 11/3/2005 - Don't rewrite yet if this goal is already marked
-		// unreachable;
-		// the next time we try to run this pass, we'll have a half-rewritten
-		// class, and
-		// will end up with duplicate compiler-generated methods, or worse.
-		//
-		if (job.extensionInfo().scheduler().currentGoal().state() != Goal.UNREACHABLE_THIS_RUN) {
-			if (n.ext() instanceof X10Ext) {
-				return ((X10Ext) n.ext()).rewrite((X10TypeSystem) typeSystem(),
-						nodeFactory(), job.extensionInfo());
-			}
-		}
-
-		return n;
-	}
 	private class CastChecking {
 		protected TypeBuilder tb;
 		protected AmbiguityRemover ar;
