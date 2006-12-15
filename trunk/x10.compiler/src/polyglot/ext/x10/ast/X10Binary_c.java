@@ -175,16 +175,19 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		X10Type r = (X10Type) right.type();
 		//Report.report(1, "X10Binary_c: l=" + l + " r=" + r + " op=" + op);
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		if (op == EQ || op == NE) {
+			l = l.makeNoClauseVariant();
+			r = r.makeNoClauseVariant();
+			if (! ts.isCastValid(l, r) && ! ts.isCastValid(r, l)) {
+					throw new SemanticException("The " + op +
+					    " operator must have operands of similar type.",
+					    position());
+				    }
+			
+				return type(ts.Boolean());
+			}
 		if (tc instanceof TypeElaborator) {
-			if (op == EQ) {
-				 if (! ts.isCastValid(l, r) && ! ts.isCastValid(r, l)) {
-						throw new SemanticException("The " + op +
-						    " operator must have operands of similar type.",
-						    position());
-					    }
-				
-					return type(ts.Boolean());
-				}
+			
 			if (op == COND_AND ) {
 				 if (! (ts.isSubtype(l, ts.Boolean()) && ts.isSubtype(r, ts.Boolean()))) {
 						throw new SemanticException("The " + op +

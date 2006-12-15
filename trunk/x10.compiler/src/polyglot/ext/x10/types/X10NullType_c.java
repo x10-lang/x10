@@ -62,14 +62,22 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     public X10Type makeDepVariant(Constraint d, List<Type> l) { 
         return makeVariant(d, l);
       }
-      public X10Type makeVariant(Constraint d, List<Type> l) { 
-      	if (! isRootType()) return rootType().makeVariant(d,l);
-  		if (d == null && (l == null || l.isEmpty())) return this;
-  		 X10NullType_c n = (X10NullType_c) copy();
-  		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
-  		n.depClause = d == null ? depClause : d;
+   
+    public X10Type makeVariant(Constraint d, List<Type> l) { 
+    	// Need to pick up the typeparameters from this
+    	// made, and the realClause from the root type.
+    	if (d == null && (l == null || l.isEmpty())) return this;
+    	X10NullType_c n = (X10NullType_c) copy();
+    	n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+    	n.depClause = d;
+    	return n;
+    }
+      public X10Type makeNoClauseVariant() {
+  		X10NullType_c n = (X10NullType_c) copy();
+  		n.depClause = new Constraint_c();
+  		n.typeParameters = typeParameters;
   		return n;
-      }
+  	}
     
     public String name() { return "NULL_TYPE";}
     public String fullName() { return "NULL_TYPE";}
