@@ -192,7 +192,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	    }
     	 public Collection prerequisiteGoals(Scheduler scheduler) {
     		 X10Scheduler x10Sched= (X10Scheduler) scheduler;
-    	        List l = new ArrayList();
+    	        List<Goal> l = new ArrayList<Goal>();
     	        
     	     // l.add(x10Sched.TypeElaborated(job));
     	        l.addAll(super.prerequisiteGoals(scheduler));
@@ -200,7 +200,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	    }
     	 public Collection corequisiteGoals(Scheduler scheduler) {
     		 X10Scheduler x10Sched= (X10Scheduler) scheduler;
-    	        List l = new ArrayList();
+    	        List<Goal> l = new ArrayList<Goal>();
     	        l.add(x10Sched.TypeElaborated(job));
     	        l.addAll(super.corequisiteGoals(scheduler));
     	        return l;
@@ -215,7 +215,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	}
     	public Collection prerequisiteGoals(Scheduler scheduler) {
     		X10Scheduler x10Sched= (X10Scheduler) scheduler;
-    		List l = new ArrayList();
+    		List<Goal> l = new ArrayList<Goal>();
     		l.add(x10Sched.X10Boxed(job));
     		l.add(x10Sched.X10Casted(job));    		
     	//	l.add(x10Sched.X10ExprFlattened(job));
@@ -409,7 +409,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		super(job, new X10ImplicitDeclarationExpander(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory()));
     	}
     	public Collection prerequisiteGoals(Scheduler scheduler) {
-    		List l = new ArrayList();
+    		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.TypeChecked(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
