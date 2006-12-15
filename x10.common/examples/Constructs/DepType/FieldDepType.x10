@@ -8,7 +8,8 @@
 import harness.x10Test;
 
 public class FieldDepType extends x10Test {
-	double[:rank==1 && rect &&zeroBased] f = new double[[0:10]] (point [i]) { return 10-i;};
+	double[:rank==1 && rect &&zeroBased] f = 
+		(double[:rank==1 && rect &&zeroBased]) new double[[0:10]] (point [i]) { return 10-i;};
 	
 	void m(double[:rank==1&&rect&&zeroBased] a) {
 		

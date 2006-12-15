@@ -8,11 +8,7 @@
 import harness.x10Test;
 
 /**
-Test that methods whose return types are deptypes are handled correctly when
-they are defined in another class, in a different source unit from the class
-which references them. This program should not give a compile-time error -- the
-compiler should be able to establish that the arguments for - are regions of
-rank==3.
+Test that a deptype for a method arg that depends on a previous arg is handled correctly.
 @author vj
 **/
 public class DepTypeInMethodArgDependsOnArg extends x10Test {
