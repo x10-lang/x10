@@ -162,11 +162,13 @@ public class Promise_c implements Promise, Serializable {
 					+ value + "; cannot bind it to " + target + ".");
 		if (this==target) // nothing to do!
 			return false;
-		if (! term().prefersBeingBound() && target.term().prefersBeingBound())
-			target.bind(this);
+		
 		// Check for cycles!
 		if (canReach(target) || target.canReach(this))
 			throw new Failure("Binding " + this + " to " + target + " creates a cycle.");
+		if (! term().prefersBeingBound() && target.term().prefersBeingBound()) {
+				return target.bind(this);
+		}
 		value = target;
 		if ( fields !=null) 
 			for (Iterator<Map.Entry<String,Promise>> it = fields.entrySet().iterator(); it.hasNext();) {
