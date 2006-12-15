@@ -76,13 +76,19 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
        return makeVariant(d, l);
     }
     public X10Type makeVariant(Constraint d, List<Type> l) { 
-    	if (! isRootType()) return rootType().makeVariant(d,l);
-		if (d == null && (l == null || l.isEmpty())) return this;
-		 X10UnknownType_c n = (X10UnknownType_c) copy();
-		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
-		n.depClause = d == null ? depClause : d;
-		return n;
-        
+    	// Need to pick up the typeparameters from this
+    	// made, and the realClause from the root type.
+    	if (d == null && (l == null || l.isEmpty())) return this;
+    	X10UnknownType_c n = (X10UnknownType_c) copy();
+    	n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+    	n.depClause = d;
+    	return n;
+    }
+    public X10Type makeNoClauseVariant() {
+    	X10UnknownType_c n = (X10UnknownType_c) copy();
+    	n.depClause = new Constraint_c();
+    	n.typeParameters = typeParameters;
+    	return n;
     }
     public C_Term propVal(String name) {
 		return (depClause==null) ? null : depClause.find(name);

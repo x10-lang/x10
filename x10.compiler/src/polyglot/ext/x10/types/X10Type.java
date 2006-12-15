@@ -59,6 +59,11 @@ public interface X10Type extends Type {
      * @return the new type
      */
     X10Type makeDepVariant(Constraint d, List<Type> l);
+    /**
+     * Return the variant whose realclause and depclause are the vacuous constraint.
+     * @return
+     */
+    X10Type makeNoClauseVariant();
     /*
      * Destructively set the depclause and parameter list to be d and g respectively.
      * 

@@ -316,7 +316,6 @@ public interface X10TypeSystem extends TypeSystem {
            Flags flags, String name, String initValue);
    
    
-   
    /**
     * True if the two types are equal, ignoring their dep clauses.
     * @param other

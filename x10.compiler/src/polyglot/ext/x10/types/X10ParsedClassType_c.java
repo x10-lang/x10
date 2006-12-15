@@ -282,19 +282,12 @@ implements X10ParsedClassType
 		
 	}
 	public X10Type makeVariant(Constraint d, List<Type> l) { 
-	//	if (! isRootType()) return rootType().makeVariant(d,l);
 		// Need to pick up the typeparameters from this
 		// made, and the realClause from the root type.
 		if (d == null && (l == null || l.isEmpty())) return this;
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
-		if (l==null || l.isEmpty()) {
-			// No need to clone since typeParameters are never modified once set.
-			//n.typeParameters = typeParameters == null ? null : (List<Type>) ((ArrayList<Type>)typeParameters).clone();
-			n.typeParameters = typeParameters;
-		} else {
-			n.typeParameters = l;
-		}
-	
+		n.typeParameters = (l==null || l.isEmpty())? typeParameters : l;
+		
 		n.depClause = d;
 		n.realClause = n.rootType.realClause().copy().addIn(n.depClause);
 		n.realClauseSet = true;
@@ -302,10 +295,21 @@ implements X10ParsedClassType
 		// hack, forced by decision to explicitly represent dist/region/array type logic.
 		n.isDistSet = n.isRankSet = n.isOnePlaceSet = n.isRailSet = n.isSelfSet
 		= n.isX10ArraySet = n.isZeroBasedSet = false;
-	//	assert n.realClause != null && n.realClause.entails(n.depClause);
-	//	assert (n.realClause != n.rootType.realClause());
 		return n;
 	}
+	
+	public X10Type makeNoClauseVariant() {
+		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
+		n.typeParameters = typeParameters;
+		n.depClause = new Constraint_c();
+		n.realClause = new Constraint_c();
+		n.realClauseSet = true;
+		n.isDistSet = n.isRankSet = n.isOnePlaceSet = n.isRailSet = n.isSelfSet
+		= n.isX10ArraySet = n.isZeroBasedSet = false;
+		
+		return n;
+	}
+	
 	public C_Term propVal(String name) {
 		return (realClause==null) ? null : realClause.find(name);
 	}
