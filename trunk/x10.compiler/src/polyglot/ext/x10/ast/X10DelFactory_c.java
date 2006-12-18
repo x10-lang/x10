@@ -24,7 +24,7 @@ import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
-import polyglot.visit.PrettyPrinter;
+import polyglot.visit.Translator;
 import polyglot.visit.TypeChecker;
 
 /**
@@ -36,8 +36,8 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	 * A delegate that redirects prettyPrint to the X10PrettyPrinterVisitor.
 	 */
 	public static class PP extends JL_c {
-		public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
-			new X10PrettyPrinterVisitor(w,pp).visitAppropriate(jl());
+		public void translate(CodeWriter w, Translator tr) {
+			new X10PrettyPrinterVisitor(w,tr).visitAppropriate(jl());
 		}
 	};
 
@@ -93,13 +93,13 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 				} else
 					w.write(t.toString());
 			}
-			public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
+			public void translate(CodeWriter w, Translator tr) {
 //				System.out.println("Pretty-printing canonical type node for "+jl());
 				Type t = ((CanonicalTypeNode) jl()).type();
 				if (t != null)
 					printType(w, t);
 				else
-					super.prettyPrint(w, pp);
+					super.translate(w, tr);
 			}
 		};
 	}

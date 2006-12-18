@@ -73,6 +73,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.Translator;
 
 
 /**
@@ -87,7 +88,7 @@ import polyglot.visit.PrettyPrinter;
 public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	private final CodeWriter w;
-	private final PrettyPrinter pp;
+	private final Translator tr;
 
 	private static int nextId_;
 	/* to provide a unique name for local variables introduce in the templates */
@@ -99,16 +100,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		return "__var" + getUniqueId_() + "__";
 	}
 
-	public X10PrettyPrinterVisitor(CodeWriter w, PrettyPrinter pp) {
+	public X10PrettyPrinterVisitor(CodeWriter w, Translator tr) {
 		this.w = w;
-		this.pp = pp;
+		this.tr = tr;
 	}
 
 	public void visit(Node n) {
 		X10Ext ext = (X10Ext) n.ext();
 		if (ext.comment() != null)
 			w.write(ext.comment());
-		n.prettyPrint(w, pp);
+		n.translate(w, tr);
 	}
 
 	public void visit(X10Cast_c c) {
@@ -156,7 +157,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			List l = c.arguments();
 			for (Iterator i = l.iterator(); i.hasNext(); ) {
 				Expr e = (Expr) i.next();
-				c.print(e, w, pp);
+				c.print(e, w, tr);
 				if (i.hasNext()) {
 					w.write(",");
 					w.allowBreak(0, " ");
@@ -165,7 +166,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.end();
 			w.write(")");
 		} else
-			c.prettyPrint(w, pp);
+			c.translate(w, tr);
 	}
 
 	public void visit(Binary_c binary) {
@@ -199,7 +200,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		{
 			new Template("Main", dec.formals().get(0), dec.body()).expand();
 		} else
-			dec.prettyPrint(w, pp);
+			dec.translate(w, tr);
 	}
 
 	private Template processClocks(Clocked c) {
@@ -363,7 +364,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(".");
 			w.write(n.name());
 		} else
-			n.prettyPrint(w, pp);
+			n.translate(w, tr);
 	}
 
 	private Stmt optionalBreak(Stmt s) {
@@ -591,7 +592,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(X10ArrayAccess1Unary_c a) {
 		if (a.expr() instanceof ArrayAccess) {
-			a.prettyPrint(w, pp);
+			a.translate(w, tr);
 			return;
 		}
 	
@@ -676,7 +677,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(X10ArrayAccessUnary_c a) {
 		// [IP] This test is probably superfluous
 		if (a.expr() instanceof ArrayAccess) {
-			a.prettyPrint(w, pp);
+			a.translate(w, tr);
 			return;
 		}
 		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
@@ -704,7 +705,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (o instanceof Expander) {
 			((Expander) o).expand();
 		} else if (o instanceof Node) {
-			((Node) o).del().prettyPrint(w, pp);
+			((Node) o).del().translate(w, tr);
 		} else if (o != null) {
 			w.write(o.toString());
 		}
