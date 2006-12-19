@@ -70,7 +70,6 @@ public class TestX10_Compiler extends TestCase {
 
     public TestX10_Compiler(String name) {
 	super(name);
-	Activity a= new Activity() { public void run() {} }; // dummy
     }
 
     public static void Main(Class k) {
@@ -102,7 +101,7 @@ public class TestX10_Compiler extends TestCase {
 
     protected void run(final String file, final String main, final String dir) {
 	final Activity testActivity= new Activity() {
-	    public void run() {
+	    public void runX10Task() {
 		try {
 		    compile(dir, file);
 		    String cwd= System.getProperty("user.dir") + "/../x10.common/examples/" + dir;

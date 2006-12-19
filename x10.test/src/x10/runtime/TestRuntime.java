@@ -50,7 +50,7 @@ public class TestRuntime extends TestCase {
     }
     
     private final Activity a
-        = new Activity() { public void run() {} }; // dummy
+        = new Activity() { public void runX10Task() {} }; // dummy
     
     /**
      * Junit may use additional threads to run the testcases
@@ -91,7 +91,7 @@ public class TestRuntime extends TestCase {
     	
     	x = 0;
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			x = 1;
     		}
     	});
@@ -102,8 +102,8 @@ public class TestRuntime extends TestCase {
     public void testPlaceRunFuture() {
     	x = 0;
     	Runtime.runAsync(new Activity() { 
-    		public void run() {
-    			Future f = Runtime.runFuture(new Activity.Expr() {
+    		public void runX10Task() {
+    			Future f = Runtime.runFuture(new Future_c.Activity() {
     				private x10.lang.Object val;
     				public void runSource() {
     					val = new x10.lang.Object();;
@@ -121,12 +121,12 @@ public class TestRuntime extends TestCase {
     public void testClockNext() {
         x = 0;
         Runtime.runAsync(new Activity() {
-        	public void run() {
+        	public void runX10Task() {
         		Runtime.here().runAsync(new Activity() {
-        			public void run() {
+        			public void runX10Task() {
         				final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
         				final Activity b = new Activity() {
-        					public void run() {
+        					public void runX10Task() {
         						doNext();
         						x = 1;
         						doNext();
@@ -154,12 +154,12 @@ public class TestRuntime extends TestCase {
     public void testClockContinue() {
     	x = 0;
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			Runtime.here().runAsync(new Activity() {
-    				public void run() {
+    				public void runX10Task() {
     					final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
     					Activity b = new Activity() {
-    						public void run() {
+    						public void runX10Task() {
     							doNext();
     							x = 1;
     							c.resume();
@@ -182,12 +182,12 @@ public class TestRuntime extends TestCase {
     
     public void testClockDrop() {
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			Runtime.here().runAsync(new Activity() {
-    				public void run() {
+    				public void runX10Task() {
     					final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
     					Activity b = new Activity() {
-    						public void run() {
+    						public void runX10Task() {
     							c.drop();
     						}
     					};
@@ -205,13 +205,13 @@ public class TestRuntime extends TestCase {
     
     public void testClockedFinal() {
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			Runtime.here().runAsync(new Activity() {
-    				public void run() {
+    				public void runX10Task() {
     					final Clock c = (Clock) Runtime.factory.getClockFactory().clock();
     					final ClockedFinalInt i = new ClockedFinalInt(c, 0);
     					Activity b = new Activity() {
-    						public void run() {
+    						public void runX10Task() {
     							i.next = 1;
     							doNext();
     							i.next = 2;
@@ -237,17 +237,17 @@ public class TestRuntime extends TestCase {
 
     public void testClockNow() {
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			Runtime.here().runAsync(new Activity() {
-    				public void run() {
+    				public void runX10Task() {
     					final Activity b = new Activity() {
-    						public void run() {
+    						public void runX10Task() {
     							sleep(100);
     							Activity c = new Activity() {
-    								public void run() {
+    								public void runX10Task() {
     									sleep(100);
     									Activity d = new Activity() {
-    										public void run() {
+    										public void runX10Task() {
     											x = 1;
     										}
     									};                    
@@ -262,8 +262,8 @@ public class TestRuntime extends TestCase {
     					LinkedList l = new LinkedList();
     					l.add(c);
     					Runtime.here().runAsync(new Activity(l) {
-    						public void run() {
-    							b.finishRun();
+    						public void runX10Task() {
+    							b.run();
     						}
     						
     					});

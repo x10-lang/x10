@@ -18,7 +18,7 @@ public class TestBandedRegion extends TestCase {
     
     public void testRegion_iterator1() {
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			Range[] ranges = new Range[] { new ContiguousRange(0,4), new ContiguousRange(0, 4) }; // 6x4         
     			System.out.println("foo");
     			BandedRegion reg = new BandedRegion(ranges, 3, true);

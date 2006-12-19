@@ -23,7 +23,7 @@ public class TestRegion extends TestCase {
 	}    
 	
 	public void testContiguous1() {
-		Runtime.runAsync( new Activity() { public void run() {
+		Runtime.runAsync( new Activity() { public void runX10Task() {
 			try {
 				
 				region r1 = new ContiguousRange(30);
@@ -39,7 +39,7 @@ public class TestRegion extends TestCase {
 	}
 	
 	public void testContiguous2() {
-		Runtime.runAsync( new Activity() { public void run() {
+		Runtime.runAsync( new Activity() { public void runX10Task() {
 			try {
 				
 				region r1 = new ContiguousRange(10, 30);
@@ -56,7 +56,7 @@ public class TestRegion extends TestCase {
 	}
 	
 	public void testContiguous3() {
-		Runtime.runAsync( new Activity() { public void run() {
+		Runtime.runAsync( new Activity() { public void runX10Task() {
 			try {
 				
 				region r1 = new ContiguousRange(10, 30);
@@ -73,7 +73,7 @@ public class TestRegion extends TestCase {
 	}
 	
 	public void testContiguous4() {
-		Runtime.runAsync( new Activity() { public void run() {
+		Runtime.runAsync( new Activity() { public void runX10Task() {
 			try {
 				
 				region r1 = new ContiguousRange(10, 30);
@@ -107,7 +107,7 @@ public class TestRegion extends TestCase {
 	}
 	
 	public void testRegion_iterator1() {
-		Runtime.runAsync( new Activity() { public void run() {
+		Runtime.runAsync( new Activity() { public void runX10Task() {
 			region[] ranges = new region[] { new ContiguousRange(1,3), new ContiguousRange(2, 4)};         
 			
 			ArbitraryRegion reg = new ArbitraryRegion(ranges);
@@ -123,7 +123,7 @@ public class TestRegion extends TestCase {
 	}
 	
 	public void testRegion_iterator2() {
-		Runtime.runAsync( new Activity() { public void run() {
+		Runtime.runAsync( new Activity() { public void runX10Task() {
 			region[] ranges = new region[] { new ContiguousRange(1,3), new ContiguousRange(2, 4), new ContiguousRange(1,3)};         
 			
 			ArbitraryRegion reg = new ArbitraryRegion(ranges);

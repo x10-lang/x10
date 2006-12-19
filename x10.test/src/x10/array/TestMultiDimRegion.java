@@ -23,7 +23,7 @@ public class TestMultiDimRegion extends TestCase {
     }
     
     public void testRegion_iterator1() {    	
-    	Runtime.runAsync( new Activity() { public void run() {
+    	Runtime.runAsync( new Activity() { public void runX10Task() {
     		Range[] ranges = new Range[] { new ContiguousRange(1,3), new ContiguousRange(2, 4) }; // 6x4         
     		MultiDimRegion reg = new MultiDimRegion(ranges, false);
     		
@@ -39,7 +39,7 @@ public class TestMultiDimRegion extends TestCase {
     }
     
     public void testRegion_sub() {
-    	Runtime.runAsync( new Activity() { public void run() {
+    	Runtime.runAsync( new Activity() { public void runX10Task() {
         Range[] ranges = new Range[] { new ContiguousRange(10,109), new ContiguousRange(100, 1099) }; // 6x4         
         MultiDimRegion reg = new MultiDimRegion(ranges, false);
         
@@ -53,7 +53,7 @@ public class TestMultiDimRegion extends TestCase {
     
     /* the X10 arrays should provide a row-major interface */
     public void testRegion_majorness() {
-    	Runtime.runAsync( new Activity() { public void run() {
+    	Runtime.runAsync( new Activity() { public void runX10Task() {
     		Runtime.Factory F = Runtime.factory;
     		dist.factory DF = F.getDistributionFactory();
     		ArrayFactory IF = Runtime.factory.getArrayFactory();
@@ -83,7 +83,7 @@ public class TestMultiDimRegion extends TestCase {
     
     public void testRegion_ordinal() {
     	Runtime.runAsync( new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			Range[] ranges = new Range[] { new ContiguousRange(10,109), new ContiguousRange(100, 1099) }; // 6x4         
     	        MultiDimRegion reg = new MultiDimRegion(ranges, false);
     	        

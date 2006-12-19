@@ -23,7 +23,7 @@ public class TestDistribution_c extends TestCase {
     
     public void testDistribution_cyclic() {
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			boolean assert1;
     			
     			int NP=x10.lang.place.MAX_PLACES;
@@ -42,7 +42,7 @@ public class TestDistribution_c extends TestCase {
     
     public void testDistribution_subDistribution() {
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			region r1 =region.factory.region(0,4);
     			
     			region r2 =region.factory.region(5,9);
@@ -51,7 +51,7 @@ public class TestDistribution_c extends TestCase {
     			dist d1 = dist.factory.constant(r1, p);
     			dist d2 = dist.factory.constant(r2, p);
     			dist d3 = dist.factory.constant(r3, p);
-    			dist d4 = new Distribution_c.Combined(r3, new Distribution_c[] {(Distribution_c) d1, (Distribution_c)d2});
+    			dist d4 = new Distribution_c.Combined(r3, new Distribution_c[] {(Distribution_c) d1, (Distribution_c)d2}, p);
     			
     			System.out.println("d1=" + d1);
     			System.out.println("d2=" + d2);
@@ -69,7 +69,7 @@ public class TestDistribution_c extends TestCase {
     
     public void testDistribution_block() {
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			boolean assert1, assert2, assert3;
     			
     			region cont = new ContiguousRange(37);
@@ -92,7 +92,7 @@ public class TestDistribution_c extends TestCase {
     
     public void testDistribution_equals() {
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			int N = 1;
     			
     			place p = Runtime.here();
@@ -117,7 +117,7 @@ public class TestDistribution_c extends TestCase {
         // given number of processors.
         
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			int N = 12;
     			
     			boolean assert1, assert2, assert3, assert4, assert5, assert6;

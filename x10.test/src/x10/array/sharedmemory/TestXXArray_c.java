@@ -57,7 +57,7 @@ public class TestXXArray_c extends TestCase {
     
     public void testIntArray_reduce() {
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			Runtime.Factory F = Runtime.factory;
     			
     			region.factory rf = F.getRegionFactory();
@@ -86,7 +86,7 @@ public class TestXXArray_c extends TestCase {
         final int N = 100; 
 
         Runtime.runAsync(new Activity() {
-        	public void run() {
+        	public void runX10Task() {
         		MultiDimRegion r = new MultiDimRegion(new Range[] {
         				
         				new ContiguousRange(0, N - 1),
