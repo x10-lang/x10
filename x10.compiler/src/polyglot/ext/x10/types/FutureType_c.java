@@ -22,6 +22,7 @@ import polyglot.types.Resolver;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 
 
@@ -115,12 +116,27 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 		return "x10.lang.Future";
 	}
 
+	public void print(CodeWriter w) {
+		// [IP] FIXME: is this the right thing to do here?
+		w.write("x10.lang.Future");
+	}
+
 	/* 
-	 * @see java.lang.Object#toString()
+	 * @see polyglot.types.Type_c#toString()
 	 */
 	public String toString() {
 		// return "future " + base().toString( );
-		return "x10.lang.Future";
+		return
+			"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
+			"x10.lang.Future";
+	}
+
+	private static String getStackTrace() {
+		StringBuffer sb = new StringBuffer();
+		StackTraceElement[] trace = new Throwable().getStackTrace();
+		for (int i=2; i < trace.length; i++)
+			sb.append("\t").append(trace[i]).append("\n");
+		return sb.toString();
 	}
 
 	/* Return the base type.

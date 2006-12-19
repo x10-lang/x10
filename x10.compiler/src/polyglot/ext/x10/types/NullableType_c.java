@@ -21,6 +21,7 @@ import polyglot.types.Resolver;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 
 
@@ -103,8 +104,25 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 		return n;
 	}
 
+	public void print(CodeWriter w) {
+		// [IP] FIXME: is this the right thing to do here?
+		w.write("/"+"*"+"nullable<"+"*"+"/");
+		base.print(w);
+		w.write("/"+"*"+">"+"*"+"/");
+	}
+
 	public String toString() {
-		return "/"+"*"+" nullable<" +"*"+"/" + base.toString() + "/"+"*"+">"+"*"+"/";
+		return
+			"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
+			"/"+"*"+" nullable<" +"*"+"/" + base.toString() + "/"+"*"+">"+"*"+"/";
+	}
+
+	private static String getStackTrace() {
+		StringBuffer sb = new StringBuffer();
+		StackTraceElement[] trace = new Throwable().getStackTrace();
+		for (int i=2; i < trace.length; i++)
+			sb.append("\t").append(trace[i]).append("\n");
+		return sb.toString();
 	}
 
 	/**
