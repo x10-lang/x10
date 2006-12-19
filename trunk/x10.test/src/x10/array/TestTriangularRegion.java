@@ -18,7 +18,7 @@ public class TestTriangularRegion extends TestCase {
     }
     
     public void testRegion_iterator1() {
-    	Runtime.runAsync( new Activity() { public void run() {
+    	Runtime.runAsync( new Activity() { public void runX10Task() {
     		Range[] ranges = new Range[] { new ContiguousRange(0,3), new ContiguousRange(1, 4) }; // 6x4         
     		
     		TriangularRegion reg = new TriangularRegion(ranges, true);

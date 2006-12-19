@@ -21,7 +21,7 @@ public class TestArray extends TestCase {
     
     public void testToJava() {
     	Runtime.runAsync(new Activity() {
-    		public void run() {
+    		public void runX10Task() {
     			
     			try {
     				final int SIZE = 3;
