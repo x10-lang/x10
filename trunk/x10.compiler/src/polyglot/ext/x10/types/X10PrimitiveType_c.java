@@ -32,6 +32,7 @@ import polyglot.main.Report;
 import polyglot.types.PrimitiveType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.CodeWriter;
 
 /** X10 has no primitive types. Types such as int etc are all value class types. 
  * However, this particular X10 implementation uses Java primitive types to implement some of
@@ -204,16 +205,31 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		return false;
 	}
 	
+	public void print(CodeWriter w) {
+		// [IP] FIXME: is this the right thing to do here?
+		w.write(super.toString());
+	}
+
 	public String toString() { 
 		if (false)
 			Report.report(5,"X10PrimitiveType_c: toString |" + super.toString() + "|(#" 
 					+ this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
 		return  
+		"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
 		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString())
 		+ (isParametric() ? "/"+"*" + typeParameters.toString() + "*"+"/"  : "") 
 		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 		//  + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
 	}
+
+	private static String getStackTrace() {
+		StringBuffer sb = new StringBuffer();
+		StackTraceElement[] trace = new Throwable().getStackTrace();
+		for (int i=2; i < trace.length; i++)
+			sb.append("\t").append(trace[i]).append("\n");
+		return sb.toString();
+	}
+
 	public String typeName() { 
 		return  
 		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString());

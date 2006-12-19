@@ -47,6 +47,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
+import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 
 /** 6/2006 Modified so that every type is now potentially generic and dependent.
@@ -560,16 +561,29 @@ implements X10ParsedClassType
 		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 		//  + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
 	}
-	public String toString() { 
-		
+
+	public void print(CodeWriter w) {
+		// [IP] FIXME: make this do something sensible
+		super.print(w);
+	}
+
+	public String toString() {
 		return  
+		"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
 		((rootType == this) ? super.toString() : ((X10ParsedClassType_c) rootType).toString())
 		// vj: this causes problems. a type parameter may be nullable which produces a commented string.
 		//+ (isParametric() ? "/"+"*T"+ typeParameters.toString() +"*"+"/" : "") 
 		+ (depClause == null ? "" : "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 	}
-	
-	
+
+	private static String getStackTrace() {
+		StringBuffer sb = new StringBuffer();
+		StackTraceElement[] trace = new Throwable().getStackTrace();
+		for (int i=2; i < trace.length; i++)
+			sb.append("\t").append(trace[i]).append("\n");
+		return sb.toString();
+	}
+
 	public boolean equalsImpl(TypeObject toType) {
 		X10Type other = (X10Type) toType;
 		X10TypeSystem xts = (X10TypeSystem) ts;
