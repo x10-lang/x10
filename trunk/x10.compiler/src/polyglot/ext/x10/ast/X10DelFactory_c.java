@@ -16,6 +16,7 @@ import polyglot.ast.JL;
 import polyglot.ast.Node;
 import polyglot.ast.AbstractDelFactory_c;
 import polyglot.ast.JL_c;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -33,35 +34,41 @@ import polyglot.visit.TypeChecker;
 public class X10DelFactory_c extends AbstractDelFactory_c {
 
 	/**
-	 * A delegate that redirects prettyPrint to the X10PrettyPrinterVisitor.
+	 * A delegate that redirects translate to the X10PrettyPrinterVisitor.
 	 */
-	public static class PP extends JL_c {
+	public static class TD extends JL_c {
 		public void translate(CodeWriter w, Translator tr) {
+			if (jl() instanceof Node) {
+				Node n = (Node) jl();
+				X10Ext ext = (X10Ext) n.ext();
+				if (ext.comment() != null)
+					w.write(ext.comment());
+			}
 			new X10PrettyPrinterVisitor(w,tr).visitAppropriate(jl());
 		}
 	};
 
 	/**
-	 * For each term, add the delegate that redirects prettyPrint to the
+	 * For each term, add the delegate that redirects translate to the
 	 * X10PrettyPrinterVisitor.
 	 */
 	public JL delTermImpl() {
-		return new PP();
+		return new TD();
 	}
 
 	/**
-	 * For each method declaration, add the delegate that redirects prettyPrint
+	 * For each method declaration, add the delegate that redirects translate
 	 * to the X10PrettyPrinterVisitor.
 	 */
 	public JL delMethodDeclImpl() {
-		return new PP();
+		return new TD();
 	}
 
 	/**
 	 * For ternaries, also implement a separate typeCheck method.
 	 */
 	public JL delConditionalImpl() {
-		return new PP() {
+		return new TD() {
 			public Node typeCheck(TypeChecker tc) throws SemanticException {
 				X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 				Conditional c = (Conditional) jl();
@@ -77,31 +84,27 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	}
 
 	/**
-	 * For ternaries, also implement a separate typeCheck method.
+	 * For each canonical type node, add the delegate that redirects translate
+	 * to the X10PrettyPrinterVisitor.
 	 */
 	public JL delCanonicalTypeNodeImpl() {
-		return new JL_c() {
-			private void printType(CodeWriter w, Type type) {
-				X10Type t = (X10Type) type;
-                X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-				if (ts.isNullable(t)) {
-					w.write("/*nullable*/");
-					printType(w, X10Type_c.toNullable(t).base());
-				} else if (t.isArray()) {
-					printType(w, t.toArray().base());
-					w.write("[]");
-				} else
-					w.write(t.toString());
-			}
-			public void translate(CodeWriter w, Translator tr) {
-//				System.out.println("Pretty-printing canonical type node for "+jl());
-				Type t = ((CanonicalTypeNode) jl()).type();
-				if (t != null)
-					printType(w, t);
-				else
-					super.translate(w, tr);
-			}
-		};
+		return new TD();
+	}
+
+	/**
+	 * For each nullable type node, add the delegate that redirects translate
+	 * to the X10PrettyPrinterVisitor.
+	 */
+	public JL delNullableNodeImpl() {
+		return new TD();
+	}
+
+	/**
+	 * For each future type node, add the delegate that redirects translate
+	 * to the X10PrettyPrinterVisitor.
+	 */
+	public JL delFutureNodeImpl() {
+		return new TD();
 	}
 }
 
