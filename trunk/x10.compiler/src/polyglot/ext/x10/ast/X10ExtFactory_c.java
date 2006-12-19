@@ -57,4 +57,8 @@ public class X10ExtFactory_c extends AbstractExtFactory_c {
 	public Ext extNullableNodeImpl() {
 		return new X10NullableNodeExt_c();
 	}
+
+	public Ext extFutureNodeImpl() {
+		return extNodeImpl();
+	}
 }
