@@ -41,10 +41,12 @@ import polyglot.ext.x10.ast.Clocked;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
 import polyglot.ext.x10.ast.ForLoop_c;
+import polyglot.ext.x10.ast.FutureNode_c;
 import polyglot.ext.x10.ast.Future_c;
 import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.Now_c;
+import polyglot.ext.x10.ast.NullableNode_c;
 import polyglot.ext.x10.ast.RemoteCall_c;
 import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1Assign_c;
@@ -53,6 +55,7 @@ import polyglot.ext.x10.ast.X10ArrayAccess1_c;
 import polyglot.ext.x10.ast.X10ArrayAccessAssign_c;
 import polyglot.ext.x10.ast.X10ArrayAccessUnary_c;
 import polyglot.ext.x10.ast.X10ArrayAccess_c;
+import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10CastInfo;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
@@ -66,9 +69,11 @@ import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10Type_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -106,22 +111,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(Node n) {
-		X10Ext ext = (X10Ext) n.ext();
-		if (ext.comment() != null)
-			w.write(ext.comment());
 		n.translate(w, tr);
 	}
 
 	public void visit(X10Cast_c c) {
-			visit((Node)c);
-		}
+		// [IP] FIXME: process type correctly
+		visit((Node)c);
+	}
 
 	public void visit(X10Instanceof_c c) {
-			visit((Node) c);
-		}
-	
+		// [IP] FIXME: process type correctly
+		visit((Node) c);
+	}
 
-	
 	public void visit(Call_c c) {
 		if (c instanceof RemoteCall_c) {
 			// TODO assert false - that is not implemented yet
@@ -188,15 +190,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(MethodDecl_c dec) {
-		X10Ext ext = (X10Ext) dec.ext();
-		if (ext.comment() != null)
-			w.write(ext.comment());
+		TypeSystem ts = tr.typeSystem();
 		if (dec.name().equals("main") &&
 			dec.flags().isPublic() &&
 			dec.flags().isStatic() &&
 			dec.returnType().type().isVoid() &&
 			(dec.formals().size() == 1) &&
-			((Formal)dec.formals().get(0)).type().toString().equals("java.lang.String[]"))
+			((Formal)dec.formals().get(0)).type().type().equals(ts.arrayOf(ts.String())))
 		{
 			new Template("Main", dec.formals().get(0), dec.body()).expand();
 		} else
@@ -475,9 +475,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(X10ArrayAccess1_c a) {
-		
-
-		
 		Template template;
 		if ( QueryEngine.INSTANCE().isRectangularRankOneLowZero(a) && a.index().type().isPrimitive() ) {
 			// Array being accesses has isZeroBased = isRankOne = isRect = true, and array index is an int (not a point)
@@ -503,10 +500,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// Use general template
 			template = new Template("array_get", a.array(), a.index());
 		}
-
-
-		
-
 
 		TypeNode elt_type = getParameterType((X10Type)a.array().type());
 		if (elt_type != null)
@@ -694,6 +687,47 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		template.expand();
 		//new Template("array_unary", expr.array(), new Join(",", index),
 		//			 a.opString(a.operator())).expand();
+	}
+
+	private void printType(Type type) {
+//		X10Type t = (X10Type) type;
+//        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+//		if (ts.isNullable(t)) {
+//			w.write("/"+"*"+"nullable"+"*"+"/");
+//			printType(X10Type_c.toNullable(t).base());
+//		} else if (t.isArray()) {
+//			printType(t.toArray().base());
+//			w.write("[]");
+//		} else
+//			w.write(t.toString());
+		type.print(w);
+	}
+
+	public void visit(NullableNode_c n) {
+//		System.out.println("Pretty-printing nullable type node for "+n);
+		Type t = n.type();
+		if (t != null)
+			printType(t);
+		else
+			n.translate(w, tr);
+	}
+
+	public void visit(FutureNode_c n) {
+//		System.out.println("Pretty-printing future type node for "+n);
+		Type t = n.type();
+		if (t != null)
+			printType(t);
+		else
+			n.translate(w, tr);
+	}
+
+	public void visit(X10CanonicalTypeNode_c n) {
+//		System.out.println("Pretty-printing canonical type node for "+n);
+		Type t = n.type();
+		if (t != null)
+			printType(t);
+		else
+			n.translate(w, tr);
 	}
 
 	/**
