@@ -197,7 +197,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	 * objects?
 	 */
 	public FutureNode Future(Position pos, TypeNode type) {
-		return new FutureNode_c(pos, type);
+		FutureNode n = new FutureNode_c(pos, type);
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		n = (FutureNode) n.ext(ext_fac.extFutureNodeImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		n = (FutureNode)n.del(del_fac.delFutureNodeImpl());
+		return n;
 	}
 
 	/**
@@ -209,6 +214,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		NullableNode n = new NullableNode_c(pos, type);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (NullableNode) n.ext(ext_fac.extNullableNodeImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		n = (NullableNode)n.del(del_fac.delNullableNodeImpl());
 		return n;
 	}
 
