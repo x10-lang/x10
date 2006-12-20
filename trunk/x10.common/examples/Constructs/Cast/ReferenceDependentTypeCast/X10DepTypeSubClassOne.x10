@@ -9,9 +9,9 @@ import harness.x10Test;
 
 public class X10DepTypeSubClassOne(int k) extends X10DepTypeClassOne {
 
-	public X10DepTypeSubClassOne(:self.p==a&& self.k==q)(int a,int q) {
+	public X10DepTypeSubClassOne(:self.p==a&& self.k==q)(final int a, final int q) {
 	    super(a);
-	    this.k=q;
+	    property(q);
 	}
 }
 

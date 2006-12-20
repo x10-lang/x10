@@ -12,12 +12,12 @@ import harness.x10Test;
  *
  * @author vj
  */
-public class DepTypeInMethodRet1 extends x10Test {
+public class DepTypeInMethodRet1  extends x10Test {
    
    public boolean(:self==t) m(final boolean t) { 
       return t;
     }
-	public boolean run() {
+	 public boolean run() {
 	   return m(true);
 	}
 	public static void main(String[] args) {

@@ -14,8 +14,8 @@ import harness.x10Test;
 public class X10DepTypeClassOne(int p) extends x10Test implements X10InterfaceOne {
 
 	
-	public X10DepTypeClassOne(:self.p==p)(int p) {
-	    this.p=p;
+	public X10DepTypeClassOne(:self.p==p)(final int p) {
+	    property(p);
 	}
 
 	public boolean run() {

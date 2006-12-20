@@ -14,7 +14,7 @@
 import harness.x10Test;
 
  public class ClassDepClause(int i, int j : i == j )  extends x10Test { 
-  public ClassDepClause(final int i, final int j) { this.i = i; this.j=j;}
+  public ClassDepClause(final int i, final int j) { property(i,j);}
   public boolean  run() { 
 	  ClassDepClause(:i==2 && j==3) x = (ClassDepClause(:i==2 && j==3)) new ClassDepClause(2,3);
       return true;
