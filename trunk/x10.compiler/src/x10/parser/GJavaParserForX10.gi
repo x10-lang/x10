@@ -898,14 +898,16 @@ $Rules
     ConstructorBody ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
         /.$BeginJava
                     List l;
+                    l = new TypedList(new LinkedList(), Stmt.class, false);
                     if (ExplicitConstructorInvocationopt == null)
-                        l = BlockStatementsopt;
+                    {
+                        l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
+                    }
                     else
                     {
-                        l = new TypedList(new LinkedList(), Stmt.class, false);
                         l.add(ExplicitConstructorInvocationopt);
-                        l.addAll(BlockStatementsopt);
                     }
+                    l.addAll(BlockStatementsopt);
                     setResult(nf.Block(pos(), l));
           $EndJava
         ./
