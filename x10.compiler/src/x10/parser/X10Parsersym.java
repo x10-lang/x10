@@ -1,5 +1,5 @@
 
-//#line 18 "e:/rmf/eclipse/workspaces/safari/x10.compiler/src/x10/parser/x10.g"
+//#line 18 "C:/Docume~1/Administrator/MyDocu~1/work/x10/cvs/x10.compiler/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
