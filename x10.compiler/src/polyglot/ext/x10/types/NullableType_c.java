@@ -113,7 +113,7 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 
 	public String toString() {
 		return
-			"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
+//			"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
 			"/"+"*"+" nullable<" +"*"+"/" + base.toString() + "/"+"*"+">"+"*"+"/";
 	}
 
