@@ -127,7 +127,7 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	public String toString() {
 		// return "future " + base().toString( );
 		return
-			"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
+//			"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
 			"x10.lang.Future";
 	}
 

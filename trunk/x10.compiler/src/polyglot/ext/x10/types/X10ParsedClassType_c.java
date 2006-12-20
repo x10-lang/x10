@@ -569,7 +569,7 @@ implements X10ParsedClassType
 
 	public String toString() {
 		return  
-		"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
+//		"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
 		((rootType == this) ? super.toString() : ((X10ParsedClassType_c) rootType).toString())
 		// vj: this causes problems. a type parameter may be nullable which produces a commented string.
 		//+ (isParametric() ? "/"+"*T"+ typeParameters.toString() +"*"+"/" : "") 

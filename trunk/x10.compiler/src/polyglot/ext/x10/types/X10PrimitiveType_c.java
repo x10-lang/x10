@@ -215,7 +215,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			Report.report(5,"X10PrimitiveType_c: toString |" + super.toString() + "|(#" 
 					+ this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
 		return  
-		"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
+//		"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
 		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString())
 		+ (isParametric() ? "/"+"*" + typeParameters.toString() + "*"+"/"  : "") 
 		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
