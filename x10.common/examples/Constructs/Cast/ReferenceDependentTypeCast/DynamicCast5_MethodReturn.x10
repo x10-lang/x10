@@ -25,7 +25,7 @@ public class DynamicCast5_MethodReturn extends x10Test {
 			X10DepTypeClassTwo(:p==0&&q==2) convertedObject =
 				(X10DepTypeClassTwo(:p==0&&q==2)) this.objectReturner();
 			
-		}catch(Throwable e) {
+		}catch(ClassCastException e) {
 			return false;
 		}
 		
