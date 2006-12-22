@@ -592,7 +592,6 @@ The source code is viewable via <a href="../cgi-bin/cvsweb.cgi/">CVSWeb</a>
 <!--end --><!-- start --><!-- end -->
 &nbsp;
 <br>
-<!-- FOOTER_BEGIN --><!--#include virtual="footer.ssi"--><!-- FOOTER_END -->
 <script type="text/javascript" language="JavaScript1.2"
  src="//www.ibm.com/common/stats/stats.js"></script>
 <noscript><img src="//stats.www.ibm.com/rc/images/uc.GIF?R=noscript"

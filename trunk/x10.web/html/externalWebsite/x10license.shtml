@@ -62,9 +62,6 @@ X10 uses: <br> <img src="//www.ibm.com/i/v14/icons/sout.gif" /><a href="http://w
 </td>
 </tr>
 </table>
-<!-- FOOTER_BEGIN -->
-<!--#include virtual="footer.ssi"-->
-<!-- FOOTER_END -->
 <script type="text/javascript" language="JavaScript1.2" src="//www.ibm.com/common/stats/stats.js"></script>
 <noscript><img src="//stats.www.ibm.com/rc/images/uc.GIF?R=noscript" width="1" height="1" alt="" border="0"/></noscript>
 </body>
