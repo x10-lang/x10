@@ -53,7 +53,6 @@ import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
-import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import x10.lang.dist;
 import x10.lang.place;
@@ -450,112 +449,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			return succs;
 		}
 		return super.acceptCFG(v, succs);
-	}
-
-	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-		X10Type l = (X10Type) left.type();
-		X10Type r = (X10Type) right.type();
-		X10TypeSystem xts = (X10TypeSystem) l.typeSystem();
-		NodeFactory nf = xts.extensionInfo().nodeFactory();
-
-		if ((op == GT || op == LT || op == GE || op == LE) & (xts.isPoint(l) || xts.isPlace(l))) {
-			String name = op == GT ? "gt" : op == LT ? "lt" : op == GE ? "ge" : "le";
-			generateInstanceCall(w, tr, left, name, right);
-			return;
-		}
-
-		if (op == COND_OR && (xts.isDistribution(l) ||
-				xts.isRegion(l) || xts.isPrimitiveTypeArray(l)))
-		{
-			generateStaticOrInstanceCall(w, tr, left, "union", right);
-			return;
-		}
-		if (op == COND_AND && (xts.isRegion(l) || xts.isDistribution(l))) {
-			generateStaticOrInstanceCall(w, tr, left, "intersection", right);
-			return;
-		}
-
-		// New for X10.
-		if (op == BIT_OR && (xts.isDistribution(l) ||
-					xts.isDistributedArray(l) || xts.isPlace(l))) {
-			generateStaticOrInstanceCall(w, tr, left, "restriction", right);
-			return;
-		}
-
-		// Modified for X10.
-		if (op == SUB && (xts.isDistribution(l) || xts.isRegion(l))) {
-			generateInstanceCall(w, tr, left, "difference", right);
-			return;
-		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPrimitiveTypeArray(l)) {
-			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
-			generateInstanceCall(w, tr, left, name, right);
-			return;
-		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !xts.isSubtype(r, xts.String())) {
-			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
-			generateInstanceCall(w, tr, left, name, right);
-			return;
-		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !xts.isSubtype(l, xts.String())) {
-			String name = "inv" + (op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
-			generateInstanceCall(w, tr, right, name, left);
-			return;
-		}
-		super.prettyPrint(w, tr);
-	}
-
-	/**
-	 * @param w
-	 * @param tr
-	 * @param left TODO
-	 * @param name
-	 * @param right TODO
-	 */
-	private void generateStaticOrInstanceCall(CodeWriter w, PrettyPrinter tr, Expr left, String name, Expr right) {
-		X10Type l = (X10Type) left.type();
-		X10Type r = (X10Type) right.type();
-		X10TypeSystem xts = (X10TypeSystem) l.typeSystem();
-		NodeFactory nf = xts.extensionInfo().nodeFactory();
-		try {
-			X10ReferenceType aType = (X10ReferenceType) l;
-			xts.findMethod(aType, name, Collections.singletonList(r), xts.Object());
-		} catch (NoMemberException e) {
-			nf.Call(position(), nf.CanonicalTypeNode(position(), xts.ArrayOperations()),
-					name, left, right).prettyPrint(w, tr);
-//			w.write("x10.lang.ArrayOperations.");
-//			w.write(name);
-//			w.write("(");
-//			printSubExpr(left, false, w, tr);
-//			w.write(", ");
-//			printSubExpr(right, false, w, tr);
-//			w.write(")");
-			return;
-		} catch (SemanticException e) {
-			assert (false);
-			throw new RuntimeException(e);
-		}
-		generateInstanceCall(w, tr, left, name, right);
-		return;
-	}
-
-	/**
-	 * @param w
-	 * @param tr
-	 * @param left TODO
-	 * @param name
-	 * @param right TODO
-	 * @param nf TODO
-	 */
-	private void generateInstanceCall(CodeWriter w, PrettyPrinter tr, Expr left, String name, Expr right) {
-		NodeFactory nf = left.type().typeSystem().extensionInfo().nodeFactory();
-		nf.Call(position(), left, name, right).prettyPrint(w, tr);
-//		printSubExpr(left, true, w, tr);
-//		w.write(".");
-//		w.write(name);
-//		w.write("(");
-//		printSubExpr(right, false, w, tr);
-//		w.write(")");
 	}
 }
 
