@@ -67,11 +67,14 @@ public class X10Field_c extends Field_c {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
-		/*
-		if (name.equals("location") && xts.isValueType(target.type())) {
+		
+		// The location of a value type is always "here".
+		if (name.equals("location")
+				&& xts.isSubtype(target.type(), xts.X10Object())
+				&& (xts.isValueType(target.type()) || target.type().isPrimitive())) {
 			return xnf.Here(position()).typeCheck(tc);
 		}
-		*/
+		
 		try {
 			//Report.report(1, "X10Field_c.tpeCheck: context" + tc.context());
 			Context c = tc.context();
