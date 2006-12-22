@@ -7,19 +7,40 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
+import polyglot.ast.Lit;
+import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
+import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.ast.New_c;
+import polyglot.ext.x10.types.X10ConstructorInstance;
+import polyglot.ext.x10.types.X10LocalInstance;
+import polyglot.ext.x10.types.X10MethodInstance;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.constr.C_Field;
+import polyglot.ext.x10.types.constr.C_Local;
+import polyglot.ext.x10.types.constr.C_Root;
+import polyglot.ext.x10.types.constr.C_Special;
+import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Promise;
+import polyglot.ext.x10.types.constr.TypeTranslator;
+import polyglot.lex.Literal;
+import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
@@ -113,8 +134,9 @@ public class X10New_c extends New_c {
 				return n.objectType(t).typeCheckOverride(null, tc);
 			}
 		}
-
-		return super.typeCheck(tc);
+		X10New_c result = (X10New_c) super.typeCheck(tc);
+		result = result.adjustCI(tc);
+		return result;
 	}
 
 	private MethodDecl findMethod1Arg(String name, List members) {
@@ -125,5 +147,85 @@ public class X10New_c extends New_c {
 		}
 		return null;
 	}
+	 /**
+     * Compute the new resulting type for the method call by replacing this and 
+     * any argument variables that occur in the rettype depclause with new
+     * variables whose types are determined by the static type of the receiver
+     * and the actual arguments to the call.
+     * @param tc
+     * @return
+     * @throws SemanticException
+     */
+    private X10New_c adjustCI(TypeChecker tc) throws SemanticException {
+    	X10ConstructorInstance xci = (X10ConstructorInstance) ci;
+    	
+    	if (ci == null) return this;
+    	X10Type type = (X10Type) xci.returnType();
+    	X10Type retType = instantiateType(type, arguments);
+    	/*if (retType != type)
+    		xci.setReturnType(retType);*/
+    	return (X10New_c) this.type(retType);
+    }
+    /**
+     * Invoke instantiateType(X10Type, X10Type, List<Expr>) with the given arguments
+     * and with thisType==null.
+     * @param formalReturnType
+     * @param arguments
+     * @return
+     */
+    public static X10Type instantiateType(X10Type formalReturnType, List<Expr> arguments) {
+    	return instantiateType(formalReturnType, null, arguments);
+    }
+    /**
+     * Replace occurrences of formal parameters -- if any -- in the given formalReturnType
+     * with C_Vars computed from the corresponding argument in the given list of expressions.
+     * For each formal parameter, the C_Var is the actual argument a (if a is rigid), 
+     * and an EQV of the same type as a if a is not rigid. 
+     * @param formalReturnType
+     * @param arguments
+     * @return
+     */
+   public static X10Type instantiateType(X10Type formalReturnType, Receiver target, 
+		   List<Expr> arguments) {
+	   //Report.report(1, "X10new_c: instantiatetype "  + formalReturnType + "args=" + arguments);
+    	X10Type retType = formalReturnType;
+    	Constraint rc = formalReturnType.realClause();
+    	if (rc == null) return retType;
+    	
+    	
+    	// Replace each method parameter in the return type 
+    	// by a parameter constructed from the actual argument.
+    	HashMap<C_Var,Promise> m = rc.roots();
+    	if (m == null) return retType;
+    	
+    	Set<C_Var> vars = m.keySet();
+    	HashMap<C_Root, C_Var> subs = new HashMap<C_Root, C_Var>();
+    	for (Iterator<C_Var> it = vars.iterator(); it.hasNext();) {
+    		C_Root var = (C_Root) it.next();
+    		if (var.equals(C_Special.This)) {
+    			//assert(target != null && target instanceof Expr);
+    			if (target != null) {
+    				C_Var realThis = rc.selfVar((Expr) target);
+    				subs.put(var, realThis);
+    			}
+    		} else 	if (var instanceof C_Local){
+    			X10LocalInstance li = ((C_Local) var).localInstance();
+    			assert li != null;
+    			int p = li.positionInArgList();
+    			if (p >= 0) {
+    				Expr arg = arguments.get(p);
+    				C_Var realVar = rc.selfVar(arg);
+    				subs.put(var, realVar);
+    			}
+    		}
+    	}
+    	if (! subs.isEmpty()) {
+    		Constraint newRC = rc.substitute(subs);
+    		retType = formalReturnType.makeVariant(newRC, null);
+    	}
+    	
+    	
+	    return retType;
+   }
 }
 

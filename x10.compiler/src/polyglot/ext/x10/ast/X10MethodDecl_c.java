@@ -133,45 +133,31 @@ public class X10MethodDecl_c extends MethodDecl_c {
                 this.del().prettyPrint(w, tr);
         }
      
-        public Node typeCheck(TypeChecker tc) throws SemanticException {
-       	  if ( Report.should_report(TOPICS, 5)) {
-       		    Report.report(5, "X10MethodDecl_c: typechecking " + name);
-       		    Formal first  = (Formal) formals.get(0);
-       		 Report.report(5, "X10MethodDecl_c: first arg's type is " + first.type().type());
-       	  }
-       	 Node result = super.typeCheck(tc);
-
-       
-       	 if (  Report.should_report(TOPICS, 5))
-    		    Report.report(5, "X10MethodDecl_c: typechecking returning " + result);
-       	 return result;
-       	 
-        }
         public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
         	MethodDecl nn = this;
             MethodDecl old = nn;
             
-            // Step I. Typecheck the formal arguments. 
+            // Step I. Typecheck the formal arguments.
+            int n = formals.size();
+            List nnFormals = nn.formals();
+            
         	TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
-            nn = nn.formals(nn.visitList(nn.formals(),childtc));
+        	// First, record the final status of each of the formals.
+        	List<Formal> processedFormals = nn.visitList(nnFormals,childtc);
+            nn = nn.formals(processedFormals);
             // Now build the new formal arg list.
             // TODO: Add a marker to the TypeChecker which records
             // whether in fact it changed the type of any formal.
             if (tc.hasErrors()) throw new SemanticException();
             if (nn != old) {
-            	List formals = nn.formals();
-            	//List newFormals = new ArrayList(formals.size());
-            	List formalTypes = new ArrayList(formals.size());
+            	List<Formal> formals = nn.formals();
             	
-            	Iterator it = formals.iterator();
-            	while (it.hasNext()) {
-            		Formal n = (Formal) it.next();
-            		Type newType = n.type().type();
-            		//LocalInstance li = n.localInstance().type(newType);
-            		//newFormals.add(n.localInstance(li));
-            		formalTypes.add(newType);
+            	//List newFormals = new ArrayList(formals.size());
+            	List<Type> formalTypes = new ArrayList<Type>(n);
+            	
+            	for (int i=0; i < n; i++) {
+            		formalTypes.add(formals.get(i).type().type());
             	}
-            	//nn = nn.formals(newFormals);
             	nn.methodInstance().setFormalTypes(formalTypes);
             	 // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
             }
@@ -186,13 +172,15 @@ public class X10MethodDecl_c extends MethodDecl_c {
         	TypeChecker childtc1 = (TypeChecker) tc.enter(parent, nn);
         	// Add the formals to the context.
         	nn.visitList(nn.formals(),childtc1);
-            nn = nn.returnType((TypeNode) nn.visitChild(nn.returnType(), childtc1));
+        	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
+            nn = nn.returnType(r);
+            final Type rt = r.type();
             if (childtc1.hasErrors()) throw new SemanticException(); 
-            if (! nn.returnType().type().isCanonical()) {
+            if (! rt.isCanonical()) {
                 return nn;
             }
             // Update the methodInstance with the depclause-enriched returnType.
-           	nn.methodInstance().setReturnType(nn.returnType().type());
+           	nn.methodInstance().setReturnType(rt);
            // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
            	// Step III. Check the body. 
            	// We must do it with the correct mi -- the return type will be

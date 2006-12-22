@@ -73,6 +73,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	// Invariant: isDepType => outer != null.
 	
 	protected X10NamedType depType = null;
+	protected VarInstance varWhoseTypeIsBeingElaborated = null;
 	public boolean isDepType() { return depType !=null; }
 	public boolean inDepType() { return depType !=null;}
 	
@@ -80,6 +81,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inSequentialCode;
 	protected boolean inLocalCode;
 	protected boolean inNonBlockingCode;
+	
 	
 	public boolean inSafeCode() { return inSafeCode;}
 	public boolean inSequentialCode() { return inSequentialCode;}
@@ -94,12 +96,16 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected Context_c push() {
         X10Context_c v = (X10Context_c) super.push();
         v.depType = null;
+        v.varWhoseTypeIsBeingElaborated = null;
         // Do not set the inXXXCode attributes to false, inherit them from parent.
         return v;
     }
 	
 	public X10NamedType currentDepType() {
 		return depType;
+	}
+	public VarInstance varWhoseTypeIsBeingElaborated() {
+		return varWhoseTypeIsBeingElaborated;
 	}
 	private static final Collection TOPICS = 
 		CollectionUtil.list(Report.types, Report.context);
@@ -118,9 +124,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * "argTypes".
 	 */
 	public MethodInstance findMethod(String name, List argTypes) throws SemanticException {
-		
 		MethodInstance result  = depType == null ? super.findMethod(name, argTypes) :pop().findMethod(name, argTypes);
-		
 		return result;
 	}
 	
@@ -128,7 +132,6 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Gets a local variable of a particular name.
 	 */
 	public LocalInstance findLocal(String name) throws SemanticException {
-		//Report.report(1, "X10Context_c: Looking for |" + name + "| in " + hashCode());
 		return depType ==null ? super.findLocal(name) : pop().findLocal(name) ;
 	}
 	
@@ -161,7 +164,6 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * Gets a field of a particular name.
 	 */
 	public FieldInstance findField(String name) throws SemanticException {
-		//Report.report(1, "X10Context_c: GOLDEN:: findVariable | "  + name + "|");
 		return super.findField(name);
 	}
 	
@@ -171,7 +173,6 @@ public class X10Context_c extends Context_c implements X10Context {
 	 */
 	public VarInstance findVariable(String name) throws SemanticException {
 		VarInstance vi = super.findVariable(name);
-		//Report.report(1, "X10Context_c: GOLDEN:: findVariable | "  + name + "| = " + vi);
 		return vi;
 	}
 	
@@ -183,7 +184,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 	
 	
-	/** TODO:vj
+	/** 
 	 * Finds the definition of a particular type.
 	 */
 	public Named find(String name) throws SemanticException {
@@ -330,6 +331,9 @@ public class X10Context_c extends Context_c implements X10Context {
 		assert (depType==null);
 		super.addVariableToThisScope(var);
 	}
+	public void setVarWhoseTypeIsBeingElaborated(VarInstance var) {
+		varWhoseTypeIsBeingElaborated=var;
+	}
 	
 	// New lookup methods added for deptypes.
 	
@@ -347,13 +351,14 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 	/**
 	 * Pushes on a deptype. Treat this as pushing a class. 
-	 *TODO: Make this work with any X10NamedType, not just X10ParsedClassType.
 	 * 
 	 */
+	
 	public X10Context pushDepType(X10NamedType type) {
 		
 		X10Context_c v = (X10Context_c) push();
 		v.depType = type;
+		v.varWhoseTypeIsBeingElaborated = varWhoseTypeIsBeingElaborated;
 		v.type = type instanceof ClassType ? (ClassType) type : null;
 		v.inCode = false;
 		//Report.report(1, "X10Context_c: Pushing deptype |" + type + "|" + v.hashCode());

@@ -158,9 +158,13 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     }
 
     public List properties() { return Collections.EMPTY_LIST;}
+    public List definedProperties() { return Collections.EMPTY_LIST;}
     
     public NullableType toNullable() { return X10Type_c.toNullable(this);}
     public FutureType toFuture() { return X10Type_c.toFuture(this);}
     public boolean safe() { return true;}
+    public String toStringForDisplay() { 
+    	return "null";
+    }
 	
 }

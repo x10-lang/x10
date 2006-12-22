@@ -66,7 +66,8 @@ public class C_Local_c extends C_Var_c implements C_Local {
 	public boolean prefixes(C_Term t) {
 		if (equals(t)) return true;
 		if (! (t instanceof C_Var)) return false;
-		C_Var[] vars = ((C_Var) t).vars();
-		return equals(vars[0]);
+		C_Term[] vars = ((C_Var) t).vars();
+		
+		return vars.length > 0 && equals(vars[0]);
 	}
 }

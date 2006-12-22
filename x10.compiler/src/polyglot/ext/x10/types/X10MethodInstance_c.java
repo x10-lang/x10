@@ -140,7 +140,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 				needed = rc.hasVar(THIS);
 		}
 		if (!needed) return this;
-		List newFormalTypes = new ArrayList(formalTypes.size());
+		List<X10Type> newFormalTypes = new ArrayList(formalTypes.size());
 		for (Iterator<X10Type> it = formalTypes().iterator(); it.hasNext();) {
 			X10Type type = it.next();
 			rc = type.realClause();
@@ -162,16 +162,17 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	   * Specialized to deal with the possibility of dependent types in the 
 	   * arguments of the method which may contain references to arguments
 	   * to the method.
+	   * TODO: Take into account the deptype in the parameter list of the method.
 	   */
     public boolean callValidImpl(List argTypes) {
-        List l1 = this.formalTypes();
-        List l2 = argTypes;
+        List<X10Type> l1 = this.formalTypes();
+        List<X10Type> l2 = argTypes;
 
-        Iterator i1 = l1.iterator();
-        Iterator i2 = l2.iterator();
+        Iterator<X10Type> i1 = l1.iterator();
+        Iterator<X10Type> i2 = l2.iterator();
 
         while (i1.hasNext() && i2.hasNext()) {
-            X10Type t1 = (X10Type) i1.next();
+            X10Type t1 =  i1.next();
             Constraint rc = t1.realClause();
             if (rc != null && ! rc.valid()) {
             	// so rc is real constraint. Now 
@@ -179,7 +180,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             	if (rc != rc2) 
             		t1 = t1.makeVariant(rc2, null);
             }
-            X10Type t2 = (X10Type) i2.next();
+            X10Type t2 = i2.next();
 
             if (! ts.isImplicitCastValid(t2, t1)) {
                 return false;

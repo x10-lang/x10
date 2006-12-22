@@ -122,21 +122,15 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	}
 
 	/* 
-	 * @see polyglot.types.Type_c#toString()
+	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
 		// return "future " + base().toString( );
-		return
-//			"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
-			"x10.lang.Future";
+		return "x10.lang.Future";
 	}
-
-	private static String getStackTrace() {
-		StringBuffer sb = new StringBuffer();
-		StackTraceElement[] trace = new Throwable().getStackTrace();
-		for (int i=2; i < trace.length; i++)
-			sb.append("\t").append(trace[i]).append("\n");
-		return sb.toString();
+	public String toStringForDisplay() {
+		return "future<" + base().toStringForDisplay( ) +">";
+		
 	}
 
 	/* Return the base type.
@@ -238,7 +232,10 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
     /**
      * future<T> has no properties.
      */
-    public List properties() {
+    public List<FieldInstance> properties() {
+        return Collections.EMPTY_LIST;
+    }
+    public List<FieldInstance> definedProperties() {
         return Collections.EMPTY_LIST;
     }
     public NullableType toNullable() { 

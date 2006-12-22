@@ -15,10 +15,10 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
-import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.types.FieldInstance;
 import polyglot.types.Type;
 
 
@@ -64,6 +64,7 @@ public interface X10Type extends Type {
      * @return
      */
     X10Type makeNoClauseVariant();
+
     /*
      * Destructively set the depclause and parameter list to be d and g respectively.
      * 
@@ -71,7 +72,7 @@ public interface X10Type extends Type {
     void setDepGen(Constraint d, List<Type> g);
     X10Type  rootType();
     boolean isRootType();
-    List typeParameters();
+    List<Type> typeParameters();
     boolean isParametric();
     NullableType toNullable();
     FutureType toFuture();
@@ -110,7 +111,14 @@ public interface X10Type extends Type {
      
      * @return
      */
-    List/*<PropertyInstance>*/ properties();
+    List<FieldInstance> properties();
+    /** The sublist of properties defined at this class.
+     * All and exactly the properties in this list need to be 
+     * set in each constructor using a property(...) construct.
+     * @return
+     */
+    List<FieldInstance> definedProperties();
+    
     
     /**
      * Are the types properties elaborated?
@@ -134,5 +142,11 @@ public interface X10Type extends Type {
     
     boolean equalsWithoutClauseImpl(X10Type other);
    
+    /**
+     * A string representation of this type, appropriate for displaying to the user.
+     * Note: toString() returns a string that is capable of being read by the Java compiler.
+     * @return
+     */
+    String toStringForDisplay();
 
 }

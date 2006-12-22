@@ -65,12 +65,13 @@ public interface X10NodeFactory extends NodeFactory {
 	FutureNode Future(Position pos, TypeNode type);
 
     ClassDecl ClassDecl(Position pos, Flags flags, String name,
-              List properties, Expr ci,
+              List<PropertyDecl> properties, Expr ci,
               TypeNode superClass, List interfaces,
               ClassBody body);
 	ValueClassDecl ValueClassDecl(Position pos, Flags flags, String name,
-            List properties, Expr ci, TypeNode superClass, List interfaces,
-								  ClassBody body);
+            List<PropertyDecl> properties, Expr ci, 
+            TypeNode superClass, List interfaces,
+			ClassBody body);
 	Await Await(Position pos, Expr expr);
 	ArrayConstructor ArrayConstructor(Position pos, TypeNode base,
 									  boolean unsafe, boolean isValue,
@@ -111,7 +112,9 @@ public interface X10NodeFactory extends NodeFactory {
 	PlaceCast PlaceCast(Position pos, Expr place, Expr target);
     
     ConstructorDecl ConstructorDecl(Position pos, Flags flags, String name,
-            Expr retWhereClause, List formals, Expr argWhereClause, List throwTypes, Block body);
+            TypeNode returnType, List formals, Expr argWhereClause, List throwTypes, Block body);
+    ConstructorDecl ConstructorDecl(Position pos, Flags flags, String name,
+            TypeNode returnType, List formals,  List throwTypes, Block body);
     PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, String name);
     Special Self(Position pos);
     

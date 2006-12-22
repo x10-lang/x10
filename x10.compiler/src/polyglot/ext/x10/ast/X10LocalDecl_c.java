@@ -12,7 +12,11 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.LocalDecl_c;
+import polyglot.ast.TypeNode_c;
 import polyglot.types.LocalInstance_c;
+import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10LocalInstance;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -20,16 +24,19 @@ import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.visit.TypeElaborator;
 import polyglot.frontend.MissingDependencyException;
 import polyglot.main.Report;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
-public class X10LocalDecl_c extends LocalDecl_c {
+public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	
 	public X10LocalDecl_c(Position pos, Flags flags, TypeNode type,
 			String name, Expr init) {
@@ -53,30 +60,30 @@ public class X10LocalDecl_c extends LocalDecl_c {
 		
 			//Report.report(1, "X10LocalDecl_c: entering " + this + " li=" + localInstance());
 			X10LocalDecl_c result= (X10LocalDecl_c) super.typeCheck(tc);
-			result.updateLI(tc);
+			((X10LocalInstance) result.li).setSelfClauseIfFinal();
 			
 			//Report.report(1, "X10LocalDecl_c: leaving " + this + " li=" + localInstance());
 			return result;
 		
 	}
 	public void pickUpTypeFromTypeNode(TypeChecker tc) {
-			X10Type newType = (X10Type) type.type();
-			if ( li.flags().isFinal()) {
-				Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),newType.depClause());
-				newType = newType.makeVariant(c,newType.typeParameters());
-			}
-			li.setType(newType);
+		X10LocalInstance xli = (X10LocalInstance) li;
+		X10Type newType = (X10Type) type.type();
+		xli.setType(newType);
+		xli.setSelfClauseIfFinal();
 	}
-	public void  updateLI(TypeChecker tc)  {
-		TypeSystem ts = tc.typeSystem();
-		// If the local variable is final, replace T by T(:self==t)
-		if (li.flags().isFinal()) {
-			X10Type oldType = (X10Type) li.type();
-			
-			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),oldType.depClause());
-			X10Type newType = oldType.makeVariant(c,oldType.typeParameters());
-			li.setType(newType);
-			//nli  = nli.type(newType);
+	
+	public Context enterChildScope(Node child, Context c) {
+		X10Context cxt = (X10Context) c;
+		if (child == this.type) {
+			TypeSystem ts = c.typeSystem();
+			LocalInstance li = localInstance();
+			cxt.addVariable(li);
+			cxt.setVarWhoseTypeIsBeingElaborated(localInstance());
 		}
+		Context cc = super.enterChildScope(child, c);
+		return cc;
 	}
+
+	
 }

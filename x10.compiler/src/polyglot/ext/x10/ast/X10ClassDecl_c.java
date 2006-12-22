@@ -25,16 +25,20 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.FieldDecl_c;
+import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.AmbiguityRemover;
@@ -48,7 +52,7 @@ import polyglot.visit.TypeChecker;
  * @author vj
  *
  */
-public class X10ClassDecl_c extends ClassDecl_c {
+public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl {
    
     /**
      * If there are any properties, add the property instances to the body,
@@ -64,32 +68,49 @@ public class X10ClassDecl_c extends ClassDecl_c {
      * @param body
      * @return
      */
-    public static X10ClassDecl_c make(Position pos, Flags flags, String name, 
-            List/*<PropertyDecl>*/ properties, Expr ci,
-            TypeNode superClass, List interfaces, ClassBody body, X10NodeFactory nf) {
-        body = flags.isInterface() ? PropertyDecl_c.addGetters(properties, body, nf)
+    public static TypeDecl make(Position pos, Flags flags, String name, 
+            List<PropertyDecl> properties, TypeNode tci,
+            TypeNode superClass, List interfaces, ClassBody body, X10NodeFactory nf, boolean valueClass) {
+    	// Add the properties as fields in the class, together with a propertyName$ field
+    	// encoding the fields that are properties.
+    	boolean isInterface = flags.isInterface();
+    	body = flags.isInterface() ? PropertyDecl_c.addGetters(properties, body, nf)
                 : PropertyDecl_c.addProperties(properties, body, nf);
-       
-        X10ClassDecl_c result = new X10ClassDecl_c(pos, flags, name, properties,  ci, superClass, 
+    	
+        // Add the class invariant as the type of a faux static field in the class.
+        if (tci != null)
+        	body = addCI(tci,body,nf);
+  
+        TypeDecl result = valueClass ? 
+        		new ValueClassDecl_c(pos, flags, name, properties, tci, superClass, 
+                        interfaces, body, nf) :
+        		new X10ClassDecl_c(pos, flags, name, properties,   tci, superClass, 
                 interfaces, body);
-        // Report.report(1, "X10ClassDecl_c: Added synthetic field to "  + result);
         return result;
     }
-   
-    /** The list of properties for this class.
-     * 
-     */
-    protected List properties;
-    protected Expr classInvariant;
-    
+    protected TypeNode classInvariant;
     protected X10ClassDecl_c(Position pos, Flags flags, String name,
-            List/*<PropertyDecl>*/ properties, Expr ci,
+            List<PropertyDecl> properties, TypeNode tci,
             TypeNode superClass, List interfaces, ClassBody body) {
         super(pos, flags, name, superClass, interfaces, body);
-        this.classInvariant = ci;
-        this.properties = properties;
-        
+        this.classInvariant = tci;
     }
+    /**
+     * Add a class invariant field to the body of this class.
+     * @param tn
+     * @param body
+     * @param nf
+     * @return
+     */
+    public static ClassBody addCI(TypeNode tn, ClassBody body, X10NodeFactory nf) {
+  	  X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
+  	  final Position pos = tn.position();
+        FieldDecl f = new PropertyDecl_c(pos, 
+      		  Flags.PUBLIC.Static().Final(), tn, 
+      		  X10FieldInstance.MAGIC_CI_PROPERTY_NAME, nf.NullLit(pos), nf);
+        body=body.addMember(f);
+      return body;
+  } 
     public NodeVisitor buildTypesEnter(TypeBuilder tb) throws SemanticException {
     	tb = tb.pushClass(position(), flags, name);
     	
@@ -120,25 +141,29 @@ public class X10ClassDecl_c extends ClassDecl_c {
     	X10Flags xf = X10Flags.toX10Flags(n.flags());
     	if (xf.isSafe()) {
     		ClassBody b = n.body();
-    		List m = b.members();
-    		List newM = new ArrayList(m.size());
-    		Iterator it = m.iterator();
-        	while (it.hasNext()) {
-        		ClassMember mem = (ClassMember) it.next();
+    		List<ClassMember> m = b.members();
+    		final int count = m.size();
+    		List<ClassMember> newM = new ArrayList<ClassMember>(count);
+    		for(int i=0; i < count; i++) {
+    			ClassMember mem = m.get(i);
         		if (mem instanceof MethodDecl) {
         			MethodDecl decl = (MethodDecl) mem;
         			X10Flags mxf = X10Flags.toX10Flags(decl.flags()).Safe();
-        			newM.add(decl.flags(mxf));
-        		} else {
-        			newM.add(mem);
-        		}
-        	}
+        			mem = decl.flags(mxf);
+        		} 
+        		newM.add(mem);
+    		}
     		n = n.body(b.members(newM));
     	}
-    //	Report.report(1, "X10ClassDecl_c: disambiguate returns |"+ n + "|");
     	return n;
     }
-    
+ /*   public Context enterChildScope(Node child, Context c) {
+        if (child == this.body || child == this.classInvariant) {
+            TypeSystem ts = c.typeSystem();
+            c = c.pushClass(type, ts.staticTarget(type).toClass());
+        }
+        return super.enterChildScope(child, c);
+    }*/
     public Node typeCheck(TypeChecker tc) throws SemanticException {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.typeCheck(tc);
     	
@@ -148,5 +173,19 @@ public class X10ClassDecl_c extends ClassDecl_c {
     	}
     	return result;
     }
+  /*  protected ClassDecl_c reconstruct(TypeNode ci) {
+	    if (classInvariant != ci) {
+		    X10ClassDecl_c n = (X10ClassDecl_c) copy();
+		    n.classInvariant = ci;
+		 
+		    return n;
+	    }
+
+	    return this;
+    }
     		
+    public Node visitChildren(NodeVisitor v) {
+	    TypeNode ci = (TypeNode) visitChild(this.classInvariant, v);
+	    return reconstruct(ci);
+    }*/
 } 

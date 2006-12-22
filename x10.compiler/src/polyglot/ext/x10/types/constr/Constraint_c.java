@@ -7,13 +7,21 @@
  */
 package polyglot.ext.x10.types.constr;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import polyglot.types.LocalInstance_c;
+import polyglot.ast.Expr;
+import polyglot.ast.Field;
+import polyglot.ast.Lit;
+import polyglot.ast.Local;
+import polyglot.ast.Receiver;
+import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10LocalInstance_c;
@@ -21,6 +29,7 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
@@ -122,7 +131,7 @@ public class Constraint_c implements Constraint {
 	 */
 	public static Constraint addSelfBinding(C_Term val, Constraint c)  {
 		c = (c==null) ? new Constraint_c() : c;
-		if (val instanceof C_Var) {
+		if (val instanceof C_Var && ! (val instanceof C_Lit)) {
 			c.setSelfVar((C_Var) val);
 			return c;
 		}
@@ -150,17 +159,40 @@ public class Constraint_c implements Constraint {
 	public boolean isLocal() { return placePossiblyNull || placeIsHere; }
 	public boolean isPossiblyRemote() { return ! isLocal();}
 	
-	public Promise intern(C_Term term) {
+	public Promise intern(C_Term term)  {
 		return intern(term, null);
 	}
-	public Promise intern(C_Term term, Promise last) {
-		if (term instanceof Promise )
+	/**
+	 * Used to implement substitution:  if last != null, term, is substituted for 
+	 * the term that was interned previously to produce the promise last. This is accomplished by
+	 * returning last as the promise obtained by interning term, unless term is a literal, in which
+	 * case last is forwarded to term, and term is returned. This way incoming and outgoing edges 
+	 * (from fields) from last are preserved, but term now "becomes" last.
+	 * Required: on entry, last.value == null.
+	 * The code will work even if we have literals that are at types where properties are permitted.
+	 * @param term
+	 * @param last
+	 * @return
+	 */
+	public Promise intern(C_Term term, Promise last)  {
+		if (term instanceof Promise ) {
+			Promise q = (Promise) term;
 			// this is the case for literals, for here
-			return (Promise) term;
+			if (last != null) {
+				try {
+					last.bind(q);
+				} catch (Failure f) {
+					throw new InternalCompilerError("A term ( " + term 
+							+ ") cannot be interned to a promise (" + last + ") whose value is not null.");
+				}
+			}
+			return q;
+		}
+			
 		// otherwise it must be a C_Var.
 		if (! (term instanceof C_Var))
 			throw new InternalCompilerError("Cannot intern  term  " + term
-					+ "; it must be a promise or a C_Var");
+					+ "; it must be a promise or a C_Var, not " + term.getClass()+ ".");
 		C_Var var = (C_Var) term;
 		C_Var[] vars = var.vars();
 		
@@ -175,6 +207,10 @@ public class Constraint_c implements Constraint {
 		return p.intern(vars, 1, last);
 	}
 	
+	/**
+	 * Return the promise obtained by looking up term in this. Does not create new
+	 * nodes in the constraint graph. Does not return a forwarded promise.
+	 */
 	public Promise lookup(C_Term term) {
 		Promise result = lookupPartialOk(term);
 		if (! (result instanceof Promise_c))
@@ -187,6 +223,7 @@ public class Constraint_c implements Constraint {
 		return (index==vars.length) ? result : null;
 	}
 	public Promise lookupPartialOk(C_Term term) {
+		if (term == null) return null;
 		if (term instanceof Promise )
 			// this is the case for literals, for here
 			return (Promise) term;
@@ -217,8 +254,10 @@ public class Constraint_c implements Constraint {
 			
 			if (!consistent ) return result=this; 
 			if (roots == null) roots = new HashMap<C_Var, Promise>();
-			if (t1==null) t1 = C_Lit.NULL;
-			if (t2==null) t2 = C_Lit.NULL;
+			if (t1==null) 
+				t1 = C_Lit.NULL;
+			if (t2==null) 
+				t2 = C_Lit.NULL;
 			if (selfVar !=null) {
 				t1 = t1.substitute(C_Special_c.Self, selfVar);
 				t2 = t2.substitute(C_Special_c.Self, selfVar);
@@ -421,7 +460,9 @@ public class Constraint_c implements Constraint {
 		return result;
 	}
 	public HashMap<C_Term, C_Term> constraints(C_Term y) {
-		C_Term rep = lookup(y).term();
+		Promise p = lookup(y);
+		if (p == null) return new HashMap<C_Term,C_Term>();
+		C_Term rep = p.term();
 		return constraints(rep, C_Special.Self);
 	}
 	
@@ -631,40 +672,94 @@ public class Constraint_c implements Constraint {
 		}
 	}
 	public void applySubstitution(C_Var y, C_Root x, boolean propagate) {
-		assert(roots !=null);
-		// The following surgery substitutes y for x.
-		// Hmm.... need to handle y being a C_Field.
+		if (roots == null)
+			// nothing to substitute
+			return;
 		Promise p = lookup(x);
-		Promise q = intern(y, p); // should return p.
-		q.setTerm(y);
+		
+		if (p == null)
+			// nothing to substitute
+			return;
+		// Remove this now so that you avoid alpha capture issues. y may be the same as x. 
 		roots.remove(x);
-		String thisString = toString();
-		// Now move all the terms over.
-		if (propagate) {
-			X10Type yType = (X10Type) y.type();
-			Constraint yTypeRC = yType.realClause();
-			if (yTypeRC != null) {
-				HashMap<C_Term,C_Term> ySubtermBindings = constraints(y); // y.p=t in this[y/x]
-				for (Iterator<Map.Entry<C_Term, C_Term>> it = ySubtermBindings.entrySet().iterator(); 
-				it.hasNext();) {
-					Map.Entry<C_Term, C_Term> e = it.next();
-					C_Term yp = e.getKey();
-					C_Term t = e.getValue();
-					C_Var selfp = (C_Var) yp.substitute(C_Special.Self, y);
-					
-					HashMap<C_Term, C_Term> yTypeRCSubtermBindings = yTypeRC.constraints(selfp, y);
-					for (Iterator<Map.Entry<C_Term, C_Term>> 
-					it2 = yTypeRCSubtermBindings.entrySet().iterator(); 
-					it2.hasNext();) {
-						Map.Entry<C_Term, C_Term> e2 = it2.next();
-						C_Term ypq = e2.getKey();
-						C_Term t1 = e2.getValue();
-						this.addBinding(ypq, t1);
-					}	
+		Promise q = intern(y); 
+		replace(q, p);
+		Promise xf = p.value();
+		if (xf != null) {
+			//addBinding(y, xf.term());
+			try {
+			q.bind(xf);
+			} catch (Failure f) {
+				throw new InternalCompilerError("Error in replacing " + x 
+						+ " with " + y + " in " + this + ": binding failure with "  + xf);
+			}
+		} else {
+			HashMap<String,Promise> fields = p.fields(); 
+			if (fields != null)
+			for (Iterator<Entry<String,Promise>> it = fields.entrySet().iterator(); it.hasNext();) {
+				Entry<String, Promise> entry = it.next();
+				String s = entry.getKey();
+				Promise orphan = entry.getValue();
+				try {
+					q.addIn(s, orphan);
+					C_Field oldTerm = (C_Field) orphan.term();
+					FieldInstance oldfi = oldTerm.fieldInstance();
+					C_Field newTerm = new C_Field_c(oldfi, (C_Var) q.term());
+					orphan.setTerm(newTerm);
+				} catch (Failure f) {
+					throw new InternalCompilerError("Error in replacing " + x 
+							+ " with " + y + " in " + this + ": failure in forwarding " + entry);
 				}
 			}
 		}
+		
+		
+		// Now move all the terms over.
+		if (propagate) 
+			propagate(y, x);
+			
 		// Report.report(1, "Constraint_c: applySubstitution:" + thisString +  " = " + this);
+	}
+	/** Replace all pointers entering x in this constraint with pointers entering y.
+	 * 
+	 * @param y
+	 * @param x
+	 */
+	public void replace(Promise y, Promise x) {
+		Collection<Promise> rootPs = roots.values();
+		for (Iterator<Promise> it = rootPs.iterator(); it.hasNext();) {
+			Promise p = it.next();
+			if (! p.equals(x)) {
+				p.replaceDescendant(y, x);
+			}
+			
+		}
+			
+		
+	}
+	public void propagate(C_Var y, C_Var x) {
+		X10Type yType = (X10Type) y.type();
+		Constraint yTypeRC = yType.realClause();
+		if (yTypeRC != null) {
+			HashMap<C_Term,C_Term> ySubtermBindings = constraints(y); // y.p=t in this[y/x]
+			for (Iterator<Map.Entry<C_Term, C_Term>> it = ySubtermBindings.entrySet().iterator(); 
+			it.hasNext();) {
+				Map.Entry<C_Term, C_Term> e = it.next();
+				C_Term yp = e.getKey();
+				C_Term t = e.getValue();
+				C_Var selfp = (C_Var) yp.substitute(C_Special.Self, y);
+				
+				HashMap<C_Term, C_Term> yTypeRCSubtermBindings = yTypeRC.constraints(selfp, y);
+				for (Iterator<Map.Entry<C_Term, C_Term>> 
+				it2 = yTypeRCSubtermBindings.entrySet().iterator(); 
+				it2.hasNext();) {
+					Map.Entry<C_Term, C_Term> e2 = it2.next();
+					C_Term ypq = e2.getKey();
+					C_Term t1 = e2.getValue();
+					this.addBinding(ypq, t1);
+				}	
+			}
+		}
 	}
 	public boolean entailsType(C_Var y) {
 		assert(y != null);
@@ -723,4 +818,47 @@ public class Constraint_c implements Constraint {
 		if (roots == null) return false;
 		return roots.keySet().contains(v);
 	}
+	 public C_Var selfVar(Expr arg)  {
+	    	C_Var result = null;
+	    	if (rigid(arg)) {
+	    		try {
+	    		result = (C_Var) new TypeTranslator().trans(arg);
+	    		} catch (SemanticException z) {
+	    			throw new InternalCompilerError("Unexpected error " + z 
+	    					+ " while trying to convert the rigid term " + arg 
+	    					+ " to a C_Var.");
+	    		}
+	    		return result;
+	    	}
+	    	//result = (C_Root) type.selfVar();
+	    	if (result == null) {
+	    		result = genEQV(arg.type());
+	    	}
+	    	return result;
+	    }
+	    public static boolean rigid(Receiver arg) {
+	    	if (arg instanceof X10Type) {
+	    		return true;
+	    	}
+	    	if (arg instanceof Expr) {
+	    		return rigid((Expr) arg);
+	    	}
+	    	assert false;
+	    	return false;
+	    }
+	    public static boolean rigid(Expr arg) {
+	    	boolean result = false;
+	    	if (arg instanceof Field) {
+	    		Field f = (Field) arg;
+	    		return result = rigid(f.target()) && f.flags().isFinal();
+	    	}
+	    	if (arg instanceof Local) {
+	    		return result = ((Local) arg).flags().isFinal();
+	    	}
+	    	if (arg instanceof Lit || arg instanceof X10Special || arg instanceof Here) {
+	    		return result = true;
+	    	}
+	    
+	    	return result;
+	    }
 }

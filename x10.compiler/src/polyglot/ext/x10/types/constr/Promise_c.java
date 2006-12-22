@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import polyglot.main.Report;
 import polyglot.types.FieldInstance;
@@ -29,7 +30,8 @@ import polyglot.util.InternalCompilerError;
 public class Promise_c implements Promise, Serializable {
 
 	/**
-	 * The C_Var that this node represents in the constraint graph.
+	 * The externally visible C_Var that this node represents in the constraint graph.
+	 * May be null, if this promise corresponds to an internal node.
 	 */
 	protected  C_Var var;
 	
@@ -53,16 +55,21 @@ public class Promise_c implements Promise, Serializable {
 		var = c;
 		
 	}
+	/*
+	 *  (non-Javadoc)
+	 * @see polyglot.ext.x10.types.constr.Promise#term()
+	 */
 	public C_Term term() {
+		
 		return var;
 	}
 	public void setTerm(C_Var term) {
 		var = term;
-		if (value != null) {
+		/*if (value != null) {
 			value.setTerm(term);
 			return;
-		}
-		if (fields != null) 
+		}*/
+		if (var != null && fields != null) 
 			for (Iterator<Map.Entry<String,Promise>> it = fields.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<String,Promise> entry = it.next();
 				String key = entry.getKey();
@@ -155,6 +162,22 @@ public class Promise_c implements Promise, Serializable {
 		}
 		fields.put(s, orphan);
 	}
+	
+	/*public void updateSubterms() {
+		if (value !=null)
+			return;
+			
+		if (fields == null) return;
+		
+		C_Field oldTerm = (C_Field) term();
+		FieldInstance oldfi = oldTerm.fieldInstance();
+		
+		C_Field newTerm = new C_Field_c(oldfi, (C_Var) term());
+		orphan.setTerm(newTerm);
+		fields.put(s, orphan);
+		orphan.updateSubterms();
+		
+	}*/
 
 	public boolean bind(/*@nonnull*/Promise target) throws Failure {
 		if (forwarded())
@@ -198,7 +221,7 @@ public class Promise_c implements Promise, Serializable {
 	public void  dump(HashMap<C_Term,C_Term> result, C_Term prefix, C_Term newSelf, C_Term newThis) {
 		if (value != null) {
 			C_Term t1 = term();
-			if (t1.isEQV())  // nothing to dump!
+			if (t1==null || t1.isEQV())  // nothing to dump!
 				return;
 			C_Term t2=value.term();
 			if (prefix != null && ! (prefix.prefixes(t1) || prefix.prefixes(t2)))
@@ -223,4 +246,31 @@ public class Promise_c implements Promise, Serializable {
 		return var.toString() 
 		+ ((value != null) ? "-> " + value : ((fields != null) ? fields.toString() : ""));
 	}
+	
+	public void replaceDescendant(Promise y, Promise x) {
+		if (value!= null) {
+			if (value.equals(x)) {
+				value = y;
+			}
+			else {
+				value.replaceDescendant(y, x);
+			}
+		}
+		if (fields != null) 
+			for (Iterator<Entry<String,Promise>> it = fields.entrySet().iterator(); it.hasNext();) {
+				Entry<String,Promise> p = it.next();
+				String key = p.getKey();
+				Promise value = p.getValue();
+				if (value.equals(x)) {
+					fields.remove(key);
+					fields.put(key, y);
+				} else {
+					value.replaceDescendant(y,x);
+				}
+			}
+	}
+	
+		
+	public Promise value() { return value;}
+	public HashMap<String,Promise> fields() { return fields;}
 }

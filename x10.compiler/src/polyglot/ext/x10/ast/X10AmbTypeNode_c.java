@@ -51,7 +51,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
     
     public X10TypeNode dep( DepParameterExpr expr) {
         if (expr == this.dep)  return this;
-        X10TypeNode_c n = (X10TypeNode_c) copy();
+        X10AmbTypeNode_c n = (X10AmbTypeNode_c) copy();
         n.dep = expr;
        
         return n;

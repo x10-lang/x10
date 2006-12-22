@@ -101,6 +101,9 @@ implements X10ParsedClassType
 	protected Constraint realClause; 
 	protected boolean realClauseSet = false;
 	protected SemanticException realClauseInvalid= null;
+	
+	protected Constraint classInvariant;
+	
 	protected List<Type> typeParameters;
 	public void checkRealClause() throws SemanticException {
 		if (realClauseInvalid!=null)
@@ -114,7 +117,7 @@ implements X10ParsedClassType
 	public X10Type rootType() { return rootType;}
 	public boolean isRootType() { return rootType==this;}
 	public boolean isParametric() { return typeParameters != null && ! typeParameters.isEmpty();}
-	public List typeParameters() { return typeParameters;}
+	public List<Type> typeParameters() { return typeParameters;}
 	public Constraint depClause() { return depClause; }
 	public Constraint realClause()  {
 		if (! realClauseSet) {
@@ -176,10 +179,15 @@ implements X10ParsedClassType
 	private void initRealClause()  {
 		// Force properties to be initialized.
 		assert (isRootType() && ! realClauseSet);
-		properties();
-		Type type = superType();
-		HashMap<C_Term, C_Term> result = new HashMap<C_Term, C_Term>();
+		List<FieldInstance> properties = properties();
+		Constraint ci = classInvariant();
 		
+		HashMap<C_Term, C_Term> result = new HashMap<C_Term, C_Term>();
+		if (ci != null)
+			result = ci.constraints(result);
+		
+		// Add in constraints from the supertype.
+		Type type = superType();
 		if (type instanceof X10Type && type != null) {
 			X10Type xType = (X10Type) type;
 			Constraint rs = xType.realClause();
@@ -193,8 +201,9 @@ implements X10ParsedClassType
 		
 		if (! aPropertyIsRecursive) {
 			// add in the bindings from the property declarations.
-			for (Iterator it = properties.iterator(); it.hasNext();) {
-				FieldInstance fi = (FieldInstance) it.next();
+			int n = properties.size();
+			for (int i=0; i < n; i++) {
+				FieldInstance fi = properties.get(i);
 				type = fi.type();
 				if (type instanceof X10Type) {
 					X10Type xType = (X10Type) type;
@@ -206,6 +215,8 @@ implements X10ParsedClassType
 				}
 			}
 		}
+		
+		// Now add all these collected bindings to the constraint.
 		realClause = new Constraint_c();
 		if (! result.isEmpty()) {
 			realClause = realClause.addBindings(result);
@@ -228,9 +239,6 @@ implements X10ParsedClassType
 		if (depClause !=null) {
 			realClause = realClause.addIn(depClause);
 		}
-	//	Report.report(1, "X10ParsedClassType_c: realclause for "+ this + " is " + realClause);
-	//	assert (realClause != null && realClause.entails(depClause));
-	//	assert (isRootType() || realClause != rootType.realClause());
 		realClauseSet = true;
 	}
 	public void addBinding(C_Term t1, C_Term t2) {
@@ -241,10 +249,9 @@ implements X10ParsedClassType
 	}
 	public boolean isConstrained() { 
 		Constraint rc = realClause();
-		return rc != null && ! rc.valid();}
+		return rc != null && ! rc.valid();
+	}
 	public void setDepGen(Constraint d, List<Type> l) {
-		//Report.report(1, "X10ParsedClassType_c: settingDepGen on "  + this  + "(# + this.hashCode() " +
-		//		" to " + d + " " + l);
 		depClause = d;
 		if (realClauseSet) {
 			realClause = realClause.addIn(d);
@@ -261,7 +268,6 @@ implements X10ParsedClassType
 		return (X10ParsedClassType) makeVariant(c, null);
 	}
 	public X10Type makeDepVariant(Constraint d, List<Type> l) {
-		//if (! isRootType()) return rootType().makeDepVariant(d,l);
 		if (d == null && (l == null || l.isEmpty())) return this;
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
 		if (l==null || l.isEmpty()) {
@@ -299,16 +305,20 @@ implements X10ParsedClassType
 		return n;
 	}
 	
+	X10Type noClauseVariant=null;
 	public X10Type makeNoClauseVariant() {
+		if (noClauseVariant != null) return noClauseVariant;
+		if (! isRootType()) return noClauseVariant = rootType.makeNoClauseVariant();
+		
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
-		n.typeParameters = typeParameters;
+		n.typeParameters = null; //typeParameters;
 		n.depClause = new Constraint_c();
 		n.realClause = new Constraint_c();
 		n.realClauseSet = true;
 		n.isDistSet = n.isRankSet = n.isOnePlaceSet = n.isRailSet = n.isSelfSet
 		= n.isX10ArraySet = n.isZeroBasedSet = false;
 		
-		return n;
+		return noClauseVariant = n;
 	}
 	
 	public C_Term propVal(String name) {
@@ -358,8 +368,8 @@ implements X10ParsedClassType
 	}
 	private MethodInstance translateTypes(MethodInstance i) {
 		MethodInstance mi = (MethodInstance)i.copy();
-		List formals = mi.formalTypes();
-		List nformals = new LinkedList();
+		List<Type> formals = mi.formalTypes();
+		List<Type> nformals = new LinkedList<Type>();
 		Iterator it = formals.iterator();
 		while (it.hasNext())
 			nformals.add(translateType((Type)it.next()));
@@ -370,8 +380,8 @@ implements X10ParsedClassType
 	}
 	private ConstructorInstance translateTypes(ConstructorInstance i) {
 		ConstructorInstance ci = (ConstructorInstance)i.copy();
-		List formals = ci.formalTypes();
-		List nformals = new LinkedList();
+		List<Type> formals = ci.formalTypes();
+		List<Type> nformals = new LinkedList<Type>();
 		Iterator it = formals.iterator();
 		while (it.hasNext())
 			nformals.add(translateType((Type)it.next()));
@@ -433,8 +443,8 @@ implements X10ParsedClassType
 	public List methods() {
 		//Report.report(5, "X10ParsedClassTypes_c: methods in | (#" + this + ")|:");
 		
-		List methods = super.methods();
-		List lo = new LinkedList();
+		List<MethodInstance> methods = super.methods();
+		List<MethodInstance> lo = new LinkedList<MethodInstance>();
 		Iterator it = methods.iterator();
 		while (it.hasNext()) {
 			MethodInstance ci = (MethodInstance) it.next();
@@ -452,8 +462,8 @@ implements X10ParsedClassType
 	 * @see polyglot.types.ClassType
 	 */
 	public List memberClasses() {
-		List bl = super.memberClasses();
-		List bo = new LinkedList();
+		List<X10ClassType> bl = super.memberClasses();
+		List<X10ClassType> bo = new LinkedList<X10ClassType>();
 		Iterator it = bl.iterator();
 		while (it.hasNext()) {
 			X10ClassType ct = 
@@ -569,13 +579,11 @@ implements X10ParsedClassType
 
 	public String toString() {
 		return  
-//		"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
 		((rootType == this) ? super.toString() : ((X10ParsedClassType_c) rootType).toString())
 		// vj: this causes problems. a type parameter may be nullable which produces a commented string.
 		//+ (isParametric() ? "/"+"*T"+ typeParameters.toString() +"*"+"/" : "") 
 		+ (depClause == null ? "" : "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
 	}
-
 	private static String getStackTrace() {
 		StringBuffer sb = new StringBuffer();
 		StackTraceElement[] trace = new Throwable().getStackTrace();
@@ -583,15 +591,26 @@ implements X10ParsedClassType
 			sb.append("\t").append(trace[i]).append("\n");
 		return sb.toString();
 	}
-
+	public String toStringForDisplay() { 
+		
+		return  
+		((rootType == this) ? super.toString() : ((X10ParsedClassType_c) rootType).toString())
+		+ (isParametric() ?  typeParameters.toString() : "") 
+		+ (depClause == null ? "" : "(:" +  depClause.toString() + ")");
+	}
+	
+	
 	public boolean equalsImpl(TypeObject toType) {
 		X10Type other = (X10Type) toType;
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		X10Type tb = this.rootType(), ob = other.rootType();
-		boolean result = ((tb==this) ? super.equalsImpl(ob): tb.equalsImpl(ob))
+		boolean result = ((tb==this) ? super.equalsImpl(ob): tb==ob)
 				&& xts.equivClause(this, other);
 		return result;
 		
+	}
+	protected boolean baseEquals(X10Type toType ) {
+		return this.rootType() == toType.rootType();
 	}
 	public boolean equalsWithoutClauseImpl(X10Type other) {
 		X10TypeSystem xts = (X10TypeSystem) ts;
@@ -624,17 +643,16 @@ implements X10ParsedClassType
 	 */
 	public boolean safe() {
 		return X10Flags.toX10Flags(flags()).isSafe();
-		
 	}
 	
 	
 	public boolean isSubtypeImpl(Type toType ) {
-	  
 		X10Type other = (X10Type) toType;
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		X10Type tb = this.rootType(), ob = other.rootType();
 		boolean result = (ts.typeEquals(tb,ob) || ts.descendsFrom(tb,ob)) &&
-			xts.entailsClause(this, other);
+			xts.entailsClause(this, other)
+			&& xts.equalTypeParameters(typeParameters(), other.typeParameters());
 		return result;
 	}
 	
@@ -643,7 +661,8 @@ implements X10ParsedClassType
 		X10TypeSystem xts = (X10TypeSystem) ts;
 		X10Type tb = this.rootType(), ob = other.rootType();
 		boolean result = (tb==this ? super.descendsFromImpl(ob) : tb.descendsFromImpl(ob)) 
-		&& xts.entailsClause(this, other);
+		&& xts.entailsClause(this, other) 
+		&& xts.equalTypeParameters(this.typeParameters(),other.typeParameters());
 		return result;
 	}
 	public boolean isImplicitCastValidImpl(Type toType) {
@@ -679,10 +698,18 @@ implements X10ParsedClassType
 			// If we can cast the Future into this type, we can do the reverse
 			return targetType.isCastValidImpl(this);
 		}
-		result = super.isCastValidImpl(toType);
+		
+		X10Type other = (X10Type) toType;
+		result = ((X10ParsedClassType_c) makeNoClauseVariant()).superIsCastValidImpl(other.makeNoClauseVariant());
+		if (!result ) return result;
+		Constraint r = realClause().copy();
+		r.addIn(other.realClause());
+		result = r.consistent();
 		return result;
 	}
-	
+	boolean superIsCastValidImpl(Type toType) {
+		return super.isCastValidImpl(toType);
+	}
 	boolean propertiesElaborated = false;
 	
 	public boolean propertiesElaborated() {
@@ -699,10 +726,10 @@ implements X10ParsedClassType
 		return true;
 	}
 	
-	List<FieldInstance> protoProperties = null;
+	//List<FieldInstance> protoProperties = null;
 	List<FieldInstance> properties = null;
 	
-	public List properties() {
+	public List<FieldInstance> properties() {
 		//Report.report(1, "X10ParsedClassType_c entering properties() on "  + this);
 		if (! isRootType()) return rootType.properties();
 		if (properties != null) {
@@ -734,12 +761,28 @@ implements X10ParsedClassType
 		
 		String propertyNames = (String) fi.constantValue();
 		properties = getPropertiesFromClass(propertyNames);
-	//	Report.report(1, "X10ParsedClassType_c properties() returns "  + properties);
+		//Report.report(1, "X10ParsedClassType_c properties() returns "  + properties);
 		return properties;
 		
 	}
+	
+	List<FieldInstance> definedProperties = null;
+	public List<FieldInstance> definedProperties() {
+//		Report.report(1, "X10ParsedClassType_c entering definedProperties() on "  + this);
+		if (! isRootType()) return rootType.definedProperties();
+		if (definedProperties != null) {
+			return definedProperties;
+		}
+		properties();
+		List<FieldInstance> superP = ((X10ParsedClassType) superType()).properties();
+		
+		definedProperties = new ArrayList<FieldInstance>(properties);
+		definedProperties.removeAll(superP);
+		//Report.report(1, "X10ParsedClassType_c definedProperties() returns "  + definedProperties);
+		return definedProperties;
+	}
 	protected List<FieldInstance> getPropertiesFromClass(String propertyNames) {
-		List<FieldInstance> properties = new ArrayList();
+		List<FieldInstance> properties = new ArrayList<FieldInstance>();
 		Scanner s = new Scanner(propertyNames);
 		while (s.hasNext()) {
 			String propName = s.next();
@@ -755,6 +798,26 @@ implements X10ParsedClassType
 		if (   Report.should_report(Report.types, 2))
 			Report.report(2, "Type " + name + " has properties " + properties +".");
 		return properties;
+	}
+	public Constraint classInvariant() {
+		if (! isRootType()) return ((X10ParsedClassType_c) rootType).classInvariant();
+		if (classInvariant != null) {
+			return classInvariant;
+		}
+		init.canonicalFields();
+		FieldInstance fi = fieldNamed(X10FieldInstance.MAGIC_CI_PROPERTY_NAME);
+		//Report.report(1, "X10ParsedClassType_c found " + fi+ " for " + this);
+	 
+		if (fi == null) {
+			if ( Report.should_report(Report.types, 2))
+				Report.report(2, "Type " + name + " has no properties.");
+			classInvariant = new Constraint_c();
+			return classInvariant;
+		}
+		NullableType nullableT = (NullableType) fi.type();
+		classInvariant = nullableT.base().depClause();
+	
+		return classInvariant;
 	}
 	public NullableType toNullable() { return X10Type_c.toNullable(this);}
 	public FutureType toFuture() { return X10Type_c.toFuture(this);}

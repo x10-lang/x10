@@ -14,6 +14,7 @@ import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
+import polyglot.types.VarInstance;
 
 public interface X10Context extends Context {
 	/**
@@ -65,5 +66,8 @@ public interface X10Context extends Context {
     boolean inNonBlockingCode();
     
     String getNewVarName();
+    
+    void setVarWhoseTypeIsBeingElaborated(VarInstance var);
+    VarInstance varWhoseTypeIsBeingElaborated();
    
 }

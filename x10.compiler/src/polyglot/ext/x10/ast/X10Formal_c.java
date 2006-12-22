@@ -34,6 +34,7 @@ import polyglot.util.TypedList;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.constr.C_Local_c;
@@ -134,16 +135,10 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			X10Formal_c result= (X10Formal_c) super.typeCheck(tc);
 			// Ensure that the LocalInstance is updated with the 
 			// possibly new type (w/ depclause)
-			LocalInstance li = result.li;
+			X10LocalInstance li = (X10LocalInstance) result.li;
 			final X10Type declType= (X10Type) declType();
 			li.setType(declType);
-			// If the local variable is final, replace T by T(:self==t)
-			if (declType.depClause() != null && li.flags().isFinal()) {
-				Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(li),declType.depClause());
-				X10Type newType = declType.makeVariant(c,declType.typeParameters());
-				li.setType(newType);
-			}
-			
+			li.setSelfClauseIfFinal();
 			return result;
 		
 	 }
@@ -222,22 +217,23 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @param ts
 	 * @return
 	 */
-	public List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts) {
+	public List<Stmt> explode(NodeFactory nf, TypeSystem ts) {
 		return explode(nf, ts, name(), position(), flags(), vars, localInstance(), lis);
 	}
 
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.ast.X10Formal#explode(polyglot.ast.NodeFactory, polyglot.types.TypeSystem)
 	 */
-	public List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts, Stmt s) {
-		List/*<Stmt>*/ init = this.explode(nf, ts);
+	public List<Stmt> explode(NodeFactory nf, TypeSystem ts, Stmt s) {
+		List<Stmt> init = this.explode(nf, ts);
 		if (s != null)
 			init.add(s);
 		return init;
 	}
 
-	public List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts, List/*<Stmt>*/ s, boolean prepend) {
-		List/*<Stmt>*/ init = this.explode(nf, ts);
+	
+	public List<Stmt> explode(NodeFactory nf, TypeSystem ts, List<Stmt> s, boolean prepend) {
+		List<Stmt> init = this.explode(nf, ts);
 		if (s != null) {
 			if (prepend) init.addAll(s);
 			else init.addAll(0, s);
@@ -257,7 +253,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @param lis
 	 * @return
 	 */
-	private static List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts,
+	private static List<Stmt> explode(NodeFactory nf, TypeSystem ts,
 										  String name, Position pos,
 										  Flags flags, AmbExpr[] vars,
 										  LocalInstance bli,
@@ -265,7 +261,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	{
 		if (vars == null || vars == NO_VARS) return null;
 		X10NodeFactory x10nf = (X10NodeFactory) nf;
-		List/*<Stmt>*/ stmts = new TypedList(new ArrayList(vars.length), Stmt.class, false);
+		List<Stmt> stmts = new TypedList(new ArrayList(vars.length), Stmt.class, false);
 		Expr arrayBase =
 			(bli == null) ? nf.AmbExpr(pos, name)
 						  : (Expr) nf.Local(pos, name).localInstance(bli).type(bli.type());
@@ -283,7 +279,24 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		}
 		return stmts;
 	}
-
+	public void pickUpTypeFromTypeNode(TypeChecker tc) {
+		X10LocalInstance xli = (X10LocalInstance) li;
+		X10Type newType = (X10Type) type.type();
+		xli.setType(newType);
+		xli.setSelfClauseIfFinal();
+	}
+	
+	public Context enterChildScope(Node child, Context c) {
+		X10Context cxt = (X10Context) c;
+		if (child == this.type) {
+			TypeSystem ts = c.typeSystem();
+			LocalInstance li = localInstance();
+			cxt.addVariable(li);
+			cxt.setVarWhoseTypeIsBeingElaborated(localInstance());
+		}
+		Context cc = super.enterChildScope(child, c);
+		return cc;
+	}
 	/**
 	 * Return the initialization statements for the exploding variables
 	 * early.
