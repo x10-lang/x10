@@ -5,8 +5,9 @@
  *  This file is part of X10 Test.
  *
  */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
 import harness.x10Test;
-
 
 /**
  * Java and X10 permit a call to a method which returns a value to occur as a statement.

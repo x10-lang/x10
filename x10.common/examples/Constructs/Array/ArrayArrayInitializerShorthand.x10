@@ -5,6 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
 import harness.x10Test;
 
 /**
