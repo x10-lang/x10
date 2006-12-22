@@ -18,7 +18,7 @@ public class DepType(int i, int j) extends x10Test {
     class Test(int k) extends DepType { 
         Test(int kk) {
             super(3,4);
-            this.k=kk;
+            property(kk);
         }
     }
     class Test2 extends DepType {
@@ -28,7 +28,7 @@ public class DepType(int i, int j) extends x10Test {
     }
     
      //  thisClause on a class, and extension of a deptyped class
-     class Test3  extends DepType(:i==j) { 
+     class Test3  extends DepType { 
         final int k;
         Test3(:j==k)(int v) {
         super(v,v);
@@ -36,25 +36,24 @@ public class DepType(int i, int j) extends x10Test {
         }
     }
      
-    // A construtor may specify constraints on properties that are true of the returned object.
-    public DepType(:i==j )  (int ii, int jj   ) {
-        this.i=ii;
-        this.j=jj;
+    // A constructor may specify constraints on properties that are true of the returned object.
+    public DepType(:self.i==i &&self.j==j )  (final int i, final int j  ) {
+        property(i,j);
     }
     
     //  method specifies a thisClause.
-   this(:i==3) DepType  make(int(:self==3) i ) { 
+      DepType(:self.i==3&&self.j==3)  make(int(:self==3) i ) { 
        return new DepType(i,i);
        }
    
     // a local variable with a dep clause.
     public  boolean run() {
-	DepType(:i==3) d = (DepType(:i==3)) new DepType(3,6); 
+	DepType(:i==3) d =  new DepType(3,6); 
 	return true;
     }
 	
     //  a method whose return type is a deptype
-    this(:i==3) public boolean(:self==true)  run3() { 
+   public boolean(:self==true)  run3() { 
         System.out.println("i (=3?) = " + i);
         return true;
     }

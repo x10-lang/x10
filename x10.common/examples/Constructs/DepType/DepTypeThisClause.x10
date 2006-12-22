@@ -5,6 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
  /** Checks that an arg i from the param list of one method does not stray into 
  * body of another.
  *@author vj, 5/17/2006
@@ -14,7 +16,7 @@
 import harness.x10Test;
 
 public class DepTypeThisClause(int i, int j) extends x10Test { 
-    public DepTypeThisClause(int ii, int jj) { this.i=ii; this.j=jj;}
+    public DepTypeThisClause(int ii, int jj) { property(ii,jj);}
     
     //  i is a param for this method and also a property
    this(:i==3) DepTypeThisClause  make(int(:self==3) i ) { 

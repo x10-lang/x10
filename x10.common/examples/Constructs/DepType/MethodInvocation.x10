@@ -19,8 +19,7 @@ public class MethodInvocation extends x10Test {
 		public int tester (final int k, final int(:self==k) l /*: k == l*/) {
 			return k + l;}
 		Test (int i, int j ) {
-			this.i=i;
-			this.j=j;
+			property(i,j)
 		}
 	}
 		

@@ -5,6 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
 /** Tests that a field of a class C, guarded with this(:c), is accessed only in objects
  * whose type is a subtype of C(:c).
  *@author pvarma
