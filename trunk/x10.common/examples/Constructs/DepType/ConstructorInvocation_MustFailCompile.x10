@@ -16,9 +16,8 @@ import harness.x10Test;
 public class ConstructorInvocation_MustFailCompile extends x10Test { 
 
 	class Test(int i, int j) {
-		Test (: i == j) (final int i, final int j : i == j) {
-			this.i=i;
-			this.j=j;
+		Test (: i == j) (final int i, final int(:j==i) j ) {
+			property(i,j);
 		}
 	}
 		
@@ -26,7 +25,7 @@ public class ConstructorInvocation_MustFailCompile extends x10Test {
 		Test2(int k) {
 		// the call to super below violates the constructor parameters constraint i == j
 			super(0,1);
-			this.k=k;
+			property(k);
 		}
 	}
 	public boolean run() {
