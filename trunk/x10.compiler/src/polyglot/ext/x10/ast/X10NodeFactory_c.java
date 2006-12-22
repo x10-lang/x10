@@ -75,20 +75,10 @@ import polyglot.util.TypedList;
  */
 public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
-	private static Error marker;
-
-	private static X10NodeFactory_c factory = null;
-	public static X10NodeFactory_c getNodeFactory() { return factory; }
-	public static X10NodeFactory_c setNodeFactory(X10NodeFactory_c nf) {
-		factory = nf;
-		return factory;
-	}
-
     protected ExtensionInfo extInfo;
 	public X10NodeFactory_c(ExtensionInfo extInfo) {
 		super(new X10ExtFactory_c(), new X10DelFactory_c());
 		this.extInfo = extInfo;
-		//factory = this;
 	}
 
 	protected X10NodeFactory_c(ExtFactory extFact) {
