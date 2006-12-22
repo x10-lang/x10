@@ -32,6 +32,7 @@ import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
@@ -266,28 +267,28 @@ implements ArrayConstructor {
         
         return result;
     }
-	/** Write the statement to an output file. 
+
+	/**
+	 * Write the statement to an output file. 
 	 * TODO: vj check if printBlock is the right thing to use here.
-	 * */
+	 */
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+		if (distribution == null && initializer == null)
+			throw new InternalCompilerError("Missing both distribution and initializer", position());
 		w.write("new ");
 		printBlock(base, w, tr);
 		if (isValue)
 			w.write(" value ");
-		if ( ! isSafe )
+		if (!isSafe)
 			w.write(" unsafe ");
-		if (distribution == null) {
-			w.write("[]");
-			initializer.del().prettyPrint(w, tr);
-			return;
-		}
 		w.write("[");
-		printBlock(distribution, w, tr);
+		if (distribution != null)
+			printBlock(distribution, w, tr);
 		w.write("]");
 		if (initializer != null)
 			initializer.del().prettyPrint(w, tr);
 	}
-	
+
 	public String toString() {
 		StringBuffer s = new StringBuffer("new " + base);
 		s.append( isValue ? " value " : "");
