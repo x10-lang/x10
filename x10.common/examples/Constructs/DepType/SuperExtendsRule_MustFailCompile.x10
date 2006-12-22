@@ -16,17 +16,16 @@ import harness.x10Test;
 public class SuperExtendsRule_MustFailCompile extends x10Test { 
 
 	class Test(int i, int j) {
-		Test(int i, int j) {
-			this.i=i;
-			this.j=j;
+		Test(:self.i==i&&self.j==j)(final int i, final int j) {
+			property(i,j);
 		}
 	}
 		
-	class Test2(int k) extends Test(:i==j){
-		Test2(int k) {
+	class Test2(int k) extends Test {
+		Test2(:i==j)(final int k) {
 		// the call to super below violates the constraint i == j
 			super(0,1);
-			this.k=k;
+			property(k);
 		}
 	}
 	public boolean run() {
