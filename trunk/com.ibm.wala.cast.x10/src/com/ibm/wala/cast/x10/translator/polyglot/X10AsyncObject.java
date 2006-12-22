@@ -7,6 +7,7 @@ import com.ibm.capa.ast.*;
 import com.ibm.domo.ast.loader.AstFunctionClass;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.IMethod;
+import com.ibm.wala.ipa.cha.*;
 import com.ibm.wala.types.TypeReference;
 
 /**
@@ -14,12 +15,16 @@ import com.ibm.wala.types.TypeReference;
  * @author rfuhrer
  */
 public class X10AsyncObject extends AstFunctionClass {
-    public X10AsyncObject(TypeReference reference, TypeReference superReference, IClassLoader loader, CAstSourcePositionMap.Position fileName) {
+    private final ClassHierarchy cha;
+
+    public X10AsyncObject(TypeReference reference, TypeReference superReference, IClassLoader loader, CAstSourcePositionMap.Position fileName, ClassHierarchy cha) {
 	super(reference, superReference, loader, fileName);
+	this.cha = cha;
     }
 
-    public X10AsyncObject(TypeReference reference, IClassLoader loader, CAstSourcePositionMap.Position fileName) {
+    public X10AsyncObject(TypeReference reference, IClassLoader loader, CAstSourcePositionMap.Position fileName, ClassHierarchy cha) {
 	super(reference, loader, fileName);
+	this.cha = cha;
     }
 
     public void setCodeBody(IMethod method) {
@@ -28,5 +33,9 @@ public class X10AsyncObject extends AstFunctionClass {
 
     public String toString() {
         return "Async" + super.toString();
+    }
+
+    public ClassHierarchy getClassHierarchy() {
+      return cha;
     }
 }
