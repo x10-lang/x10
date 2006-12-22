@@ -117,22 +117,21 @@ public class X10MethodDecl_c extends MethodDecl_c {
         }
 
         public void translate(CodeWriter w, Translator tr) {
-        	
-                Context c = tr.context();
-                Flags flags = flags();
-                
-                // Hack to ensure that X10Flags are not printed out .. javac will
-                // not know what to do with them.
-                
-               this.flags = X10Flags.toX10Flags(flags);
-               
-                if (c.currentClass().flags().isInterface()) {
-                    flags = flags.clearPublic();
-                    flags = flags.clearAbstract();
-                }
-                this.del().prettyPrint(w, tr);
+        	Context c = tr.context();
+        	Flags flags = flags();
+
+        	if (c.currentClass().flags().isInterface()) {
+        		flags = flags.clearPublic();
+        		flags = flags.clearAbstract();
+        	}
+
+        	// Hack to ensure that X10Flags are not printed out .. javac will
+        	// not know what to do with them.
+
+        	this.flags = X10Flags.toX10Flags(flags);
+        	super.translate(w, tr);
         }
-     
+
         public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
         	MethodDecl nn = this;
             MethodDecl old = nn;
