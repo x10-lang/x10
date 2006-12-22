@@ -15,7 +15,7 @@ import harness.x10Test;
  */
 public class DepTypeInMethodRet1_MustFailCompile extends x10Test {
    
-   public boolean(:self==t) m(/*final*/ boolean t) { 
+   public boolean(:self==t) m( boolean t) { 
       return t;
     }
 	public boolean run() {
