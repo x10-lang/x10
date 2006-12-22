@@ -125,8 +125,8 @@ public class FutureType_c extends X10ReferenceType_c implements FutureType {
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		// return "future " + base().toString( );
-		return "x10.lang.Future";
+		
+		return toStringForDisplay();
 	}
 	public String toStringForDisplay() {
 		return "future<" + base().toStringForDisplay( ) +">";
