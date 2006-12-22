@@ -7,7 +7,6 @@
 <link rel="SHORTCUT ICON" href="http://www.ibm.com/favicon.ico"/>
 <meta name="DC.Rights" content="Copyright (c) 2006 by IBM Corporation"/>
 <meta name="Keywords" content="X10 HPCS parallel languages code examples"/>
-<meta name="DC.Date" scheme="iso8601" content="2006-11-29"/>
 <meta name="Source" content="v14 Template Generator, Template 14.15"/>
 <meta name="Security" content="Public"/>
 <meta name="Abstract" content="X10 related code examples "/>
@@ -18,7 +17,7 @@
 <meta name="Robots" content="index,follow"/>
 <meta name="Description" content="X10 related code examples "/>
 
-<title>IBM Research | X10 Code Examples</title>
+<title>X10 Code Examples</title>
 <link rel="stylesheet" type="text/css" href="//www.ibm.com/common/v14/main.css" />
 <link rel="stylesheet" type="text/css" media="all" href="//www.ibm.com/common/v14/screen.css" />
 <link rel="stylesheet" type="text/css" media="print" href="//www.ibm.com/common/v14/print.css" />
@@ -92,6 +91,12 @@
 <td><img src="//www.ibm.com/i/v14/t/rl-bullet.gif" width="2" height="8" alt=""/></td>
 <td><a class="rlinks" href="http://www.research.ibm.com">IBM Research</a></td>
 </tr>
+          <tr>
+            <td class="related" colspan="2"><a href="http://sourceforge.net">
+            <img src="http://sourceforge.net/sflogo.php?group_id=55927&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo"></a></td>
+          </tr>
+
+
 <tr>
 <td width="14"><img src="//www.ibm.com/i/c.gif" width="14" height="1" alt="" class="display-img"/></td>
 <td width="136"><img src="//www.ibm.com/i/c.gif" width="136" height="19" alt="" class="display-img"/></td>

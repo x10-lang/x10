@@ -6,7 +6,6 @@
  content="(PICS-1.1 &quot;http://www.icra.org/ratingsv02.html&quot; l gen true r (cz 1 lz 1 nz 1 oz 1 vz 1) &quot;http://www.rsac.org/ratingsv01.html&quot; l gen true r (n 0 s 0 v 0 l 0) &quot;http://www.classify.org/safesurf/&quot; l gen true r (SS~~000 1))">
   <link rel="schema.DC" href="http://purl.org/DC/elements/1.0/">
   <link rel="SHORTCUT ICON" href="http://www.ibm.com/favicon.ico">
-  <meta name="DC.Rights" content="Copyright (c) 2006 by IBM Corporation">
   <meta name="Keywords" content="X10 HPCS parallel languages developer">
   <meta name="DC.Date" scheme="iso8601" content="2006-11-29">
   <meta name="Source" content="v14 Template Generator, Template 14.15">
@@ -18,7 +17,7 @@
   <meta name="IBM.Country" content="US">
   <meta name="Robots" content="index,follow">
   <meta name="Description" content="IBM X10 Developers resources">
-  <title>IBM Research | X10 Developer's Corner</title>
+  <title>X10 Developer's Corner</title>
   <link rel="stylesheet" type="text/css"
  href="//www.ibm.com/common/v14/main.css">
   <link rel="stylesheet" type="text/css" media="all"
