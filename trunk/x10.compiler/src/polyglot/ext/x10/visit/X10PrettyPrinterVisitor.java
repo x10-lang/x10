@@ -14,11 +14,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.ArrayAccess;
+import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
 import polyglot.ast.Call_c;
 import polyglot.ast.Expr;
@@ -55,6 +57,7 @@ import polyglot.ext.x10.ast.X10ArrayAccess1_c;
 import polyglot.ext.x10.ast.X10ArrayAccessAssign_c;
 import polyglot.ext.x10.ast.X10ArrayAccessUnary_c;
 import polyglot.ext.x10.ast.X10ArrayAccess_c;
+import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10CastInfo;
 import polyglot.ext.x10.ast.X10Cast_c;
@@ -71,7 +74,10 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10Type_c;
 import polyglot.types.LocalInstance;
+import polyglot.types.MethodInstance;
+import polyglot.types.NoMemberException;
 import polyglot.types.ReferenceType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
@@ -368,7 +374,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	private Stmt optionalBreak(Stmt s) {
-		X10NodeFactory_c nf = X10NodeFactory_c.getNodeFactory();
+		NodeFactory nf = tr.nodeFactory();
 		if (s.reachable())
 			return nf.Break(s.position());
 		// [IP] Heh, Empty cannot be unreachable either.  Who knew?
@@ -453,7 +459,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	private TypeNode getParameterType(X10Type at) {
 		if (at.isParametric()) {
-			NodeFactory nf = at.typeSystem().extensionInfo().nodeFactory();
+			NodeFactory nf = tr.nodeFactory();
 			return nf.CanonicalTypeNode(Position.COMPILER_GENERATED,
 										(Type)at.typeParameters().get(0));
 		}
@@ -730,6 +736,114 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			n.translate(w, tr);
 	}
 
+	public void visit(X10Binary_c n) {
+		Expr left = n.left();
+		X10Type l = (X10Type) left.type();
+		Expr right = n.right();
+		X10Type r = (X10Type) right.type();
+		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		NodeFactory nf = tr.nodeFactory();
+		Binary.Operator op = n.operator();
+
+		Binary.Operator GT = Binary.GT;
+		Binary.Operator LT = Binary.LT;
+		Binary.Operator GE = Binary.GE;
+		Binary.Operator LE = Binary.LE;
+		if ((op == GT || op == LT || op == GE || op == LE) & (xts.isPoint(l) || xts.isPlace(l))) {
+			String name = op == GT ? "gt" : op == LT ? "lt" : op == GE ? "ge" : "le";
+			generateStaticOrInstanceCall(n.position(), left, name, right);
+			return;
+		}
+
+		Binary.Operator COND_OR = Binary.COND_OR;
+		Binary.Operator COND_AND = Binary.COND_AND;
+		if (op == COND_OR && (xts.isDistribution(l) ||
+				xts.isRegion(l) || xts.isPrimitiveTypeArray(l)))
+		{
+			generateStaticOrInstanceCall(n.position(), left, "union", right);
+			return;
+		}
+		if (op == COND_AND && (xts.isRegion(l) || xts.isDistribution(l))) {
+			generateStaticOrInstanceCall(n.position(), left, "intersection", right);
+			return;
+		}
+
+		Binary.Operator BIT_OR = Binary.BIT_OR;
+		Binary.Operator BIT_AND = Binary.BIT_AND;
+		// New for X10.
+		if (op == BIT_OR && (xts.isDistribution(l) ||
+					xts.isDistributedArray(l) || xts.isPlace(l))) {
+			generateStaticOrInstanceCall(n.position(), left, "restriction", right);
+			return;
+		}
+
+		Binary.Operator SUB = Binary.SUB;
+		Binary.Operator ADD = Binary.ADD;
+		Binary.Operator MUL = Binary.MUL;
+		Binary.Operator DIV = Binary.DIV;
+		// Modified for X10.
+		if (op == SUB && (xts.isDistribution(l) || xts.isRegion(l))) {
+			generateStaticOrInstanceCall(n.position(), left, "difference", right);
+			return;
+		}
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPrimitiveTypeArray(l)) {
+			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
+			generateStaticOrInstanceCall(n.position(), left, name, right);
+			return;
+		}
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !xts.isSubtype(r, xts.String())) {
+			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
+			generateStaticOrInstanceCall(n.position(), left, name, right);
+			return;
+		}
+		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !xts.isSubtype(l, xts.String())) {
+			String name = "inv" + (op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
+			generateStaticOrInstanceCall(n.position(), right, name, left);
+			return;
+		}
+		n.translate(w, tr);
+	}
+
+	/**
+	 * @param pos
+	 * @param left TODO
+	 * @param name
+	 * @param right TODO
+	 */
+	private void generateStaticOrInstanceCall(Position pos, Expr left, String name, Expr right) {
+		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		NodeFactory nf = tr.nodeFactory();
+		Type rType = right.type();
+		try {
+			try {
+				MethodInstance mi = xts.findMethod((ReferenceType) left.type(), name,
+						Collections.singletonList(rType), xts.Object());
+				tr.print(null, nf.Call(pos, left, name, right).methodInstance(mi), w);
+//				printSubExpr(left, true, w, tr);
+//				w.write(".");
+//				w.write(name);
+//				w.write("(");
+//				printSubExpr(right, false, w, tr);
+//				w.write(")");
+			} catch (NoMemberException e) {
+				MethodInstance mi = xts.findMethod(xts.ArrayOperations(), name,
+						Collections.singletonList(rType), xts.Object());
+				tr.print(null, nf.Call(pos, nf.CanonicalTypeNode(pos, xts.ArrayOperations()),
+						name, left, right).methodInstance(mi), w);
+//				w.write("x10.lang.ArrayOperations.");
+//				w.write(name);
+//				w.write("(");
+//				printSubExpr(left, false, w, tr);
+//				w.write(", ");
+//				printSubExpr(right, false, w, tr);
+//				w.write(")");
+				return;
+			}
+		} catch (SemanticException e) {
+			throw new InternalCompilerError(e.getMessage(), pos, e);
+		}
+	}
+
 	/**
 	 * Pretty-print a given object.
 	 *
@@ -740,6 +854,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			((Expander) o).expand();
 		} else if (o instanceof Node) {
 			((Node) o).del().translate(w, tr);
+		} else if (o instanceof Type) {
+			throw new InternalCompilerError("Should not attempt to pretty-print a type");
 		} else if (o != null) {
 			w.write(o.toString());
 		}
