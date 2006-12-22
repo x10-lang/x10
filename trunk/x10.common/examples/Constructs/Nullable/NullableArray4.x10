@@ -20,6 +20,11 @@ import harness.x10Test;
  * @author Bin Xin
  * @author kemal
  * @date 2005/08
+ Revised 2006/12 vj 
+ Rules:
+	 The type X[.] is a subtype of Y[.] only if X is equal to Y.
+	 The type X is an implicit subtype of nullable<X>.
+	 The type Null (the type of the literal Null) is an implicit subtype of nullable<Y>.
  */
 public class NullableArray4 extends x10Test {
 	class Sup { }
@@ -36,16 +41,46 @@ public class NullableArray4 extends x10Test {
 		subarr11 = subarr01;
 
 		Sup[.] suparr00 = subarr00;
-		nullable<Sup>[.] suparr01 = subarr00;
-		suparr01 = subarr01;
-		suparr01 = suparr00;
+		nullable<Sup>[.] suparr01 = new nullable<Sup>[[0:3]];
+		try {
+			suparr01 = (nullable<Sup>[.]) subarr01;
+			System.out.println("Failed suparr01 = (nullable<Sup>[.]) subarr01;");
+			return false;
+		} catch (ClassCastException z) {
+//			continue
+		}
+		try {
+			suparr01 = (nullable<Sup>[.]) suparr01;
+			System.out.println("Failed suparr01 = (nullable<Sup>[.]) suparr01;");
+			return false;
+		} catch (ClassCastException z) {
+//			continue
+		}
+		
 
-		nullable<Sup[.]> suparr10 = subarr00;
-
-		//suparr10 = subarr01; //illegal
-		suparr10 = subarr10;
-		suparr10 = suparr00;
-		//suparr10 = suparr01; //illegal
+		nullable<Sup[.]> suparr10 = suparr00;
+		try {
+			suparr10 = (nullable<Sup[.]>) suparr01;
+			System.out.println("Failed suparr10 = (nullable<Sup[.]>) suparr01;");
+			return false;
+		} catch (ClassCastException z) {
+//			continue
+		}
+		try {
+			suparr10 = (nullable<Sup[.]>) suparr10;
+			System.out.println("Failed suparr10 = (nullable<Sup[.]>) suparr10;");
+			return false;
+		} catch (ClassCastException z) {
+//			continue
+		}
+		try {
+			suparr10 = (nullable<Sup[.]>) suparr01;
+			System.out.println("Failed suparr10 = (nullable<Sup[.]>) suparr10;");
+			return false;
+		} catch (ClassCastException z) {
+//			continue
+		}
+		//	------------------------------------- vj to be continued ---------------------
 
 		nullable<nullable<Sup>[.]> suparr11 = subarr00;
 		suparr11 = subarr01;
@@ -53,6 +88,7 @@ public class NullableArray4 extends x10Test {
 		suparr11 = subarr10;
 
 		suparr11 = subarr11;
+		
 		suparr11 = suparr00;
 		suparr11 = suparr01;
 		suparr11 = suparr10;
