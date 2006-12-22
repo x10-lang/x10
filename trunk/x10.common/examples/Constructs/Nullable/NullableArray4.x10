@@ -24,7 +24,8 @@ import harness.x10Test;
  Rules:
 	 The type X[.] is a subtype of Y[.] only if X is equal to Y.
 	 The type X is an implicit subtype of nullable<X>.
-	 The type Null (the type of the literal Null) is an implicit subtype of nullable<Y>.
+	 The type Null (the type of the literal null) is an implicit subtype of nullable<Y>, for any type Y.
+	 The type Null is not a subtype of X, unless X is equal to nullable<Y>, for some Y.
  */
 public class NullableArray4 extends x10Test {
 	class Sup { }
