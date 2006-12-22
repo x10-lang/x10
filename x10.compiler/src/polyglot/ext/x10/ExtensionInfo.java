@@ -116,15 +116,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
 
     protected NodeFactory createNodeFactory() {
-        X10NodeFactory_c nf = new X10NodeFactory_c(this);
-        X10NodeFactory_c.setNodeFactory(nf);
-        return nf;
+        return new X10NodeFactory_c(this);
     }
 
     protected TypeSystem createTypeSystem() {
-        X10TypeSystem ts = new X10TypeSystem_c();
-        X10TypeSystem_c.setTypeSystem(ts);
-        return ts;
+        return new X10TypeSystem_c();
     }
 
     public void initCompiler(Compiler compiler) {
