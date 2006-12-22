@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -174,7 +175,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.end();
 			w.write(")");
 		} else
-			c.translate(w, tr);
+			// WARNING: it's important to delegate to the appropriate visit() here!
+			visit((Node)c);
 	}
 
 	public void visit(Binary_c binary) {
@@ -206,7 +208,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		{
 			new Template("Main", dec.formals().get(0), dec.body()).expand();
 		} else
-			dec.translate(w, tr);
+			// WARNING: it's important to delegate to the appropriate visit() here!
+			visit((Node)dec);
 	}
 
 	private Template processClocks(Clocked c) {
@@ -370,7 +373,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(".");
 			w.write(n.name());
 		} else
-			n.translate(w, tr);
+			// WARNING: it's important to delegate to the appropriate visit() here!
+			visit((Node)n);
 	}
 
 	private Stmt optionalBreak(Stmt s) {
@@ -591,7 +595,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(X10ArrayAccess1Unary_c a) {
 		if (a.expr() instanceof ArrayAccess) {
-			a.translate(w, tr);
+			// WARNING: it's important to delegate to the appropriate visit() here!
+			visit((Node)a);
 			return;
 		}
 	
@@ -676,7 +681,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(X10ArrayAccessUnary_c a) {
 		// [IP] This test is probably superfluous
 		if (a.expr() instanceof ArrayAccess) {
-			a.translate(w, tr);
+			// WARNING: it's important to delegate to the appropriate visit() here!
+			visit((Node)a);
 			return;
 		}
 		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
@@ -715,7 +721,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (t != null)
 			printType(t);
 		else
-			n.translate(w, tr);
+			// WARNING: it's important to delegate to the appropriate visit() here!
+			visit((Node)n);
 	}
 
 	public void visit(FutureNode_c n) {
@@ -724,7 +731,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (t != null)
 			printType(t);
 		else
-			n.translate(w, tr);
+			// WARNING: it's important to delegate to the appropriate visit() here!
+			visit((Node)n);
 	}
 
 	public void visit(X10CanonicalTypeNode_c n) {
@@ -733,7 +741,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (t != null)
 			printType(t);
 		else
-			n.translate(w, tr);
+			// WARNING: it's important to delegate to the appropriate visit() here!
+			visit((Node)n);
 	}
 
 	public void visit(X10Binary_c n) {
@@ -801,7 +810,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			generateStaticOrInstanceCall(n.position(), right, name, left);
 			return;
 		}
-		n.translate(w, tr);
+		// WARNING: it's important to delegate to the appropriate visit() here!
+		visit((Binary_c)n);
 	}
 
 	/**
@@ -813,10 +823,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	private void generateStaticOrInstanceCall(Position pos, Expr left, String name, Expr right) {
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		NodeFactory nf = tr.nodeFactory();
+		ReferenceType lType = (ReferenceType) left.type();
 		Type rType = right.type();
 		try {
 			try {
-				MethodInstance mi = xts.findMethod((ReferenceType) left.type(), name,
+				MethodInstance mi = xts.findMethod(lType, name,
 						Collections.singletonList(rType), xts.Object());
 				tr.print(null, nf.Call(pos, left, name, right).methodInstance(mi), w);
 //				printSubExpr(left, true, w, tr);
@@ -827,7 +838,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //				w.write(")");
 			} catch (NoMemberException e) {
 				MethodInstance mi = xts.findMethod(xts.ArrayOperations(), name,
-						Collections.singletonList(rType), xts.Object());
+						Arrays.asList(new Type[] {lType, rType}), xts.Object());
 				tr.print(null, nf.Call(pos, nf.CanonicalTypeNode(pos, xts.ArrayOperations()),
 						name, left, right).methodInstance(mi), w);
 //				w.write("x10.lang.ArrayOperations.");
