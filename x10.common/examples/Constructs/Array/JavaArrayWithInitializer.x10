@@ -8,13 +8,11 @@
 import harness.x10Test;
 
 /**
- * The x10-style initializer for java arrays was being silently ignored.
- * Language clarification needed. Either reject this kind of initializer
- * for java arrays ([]) or make the initializer work correctly.
+ * The x10-style initializer for java arrays should work.
  *
  * @author kemal 8/2005
  */
-public class JavaArrayInitializer_MustFailCompile extends x10Test {
+public class JavaArrayWithInitializer extends x10Test {
 
 	const int N = 25;
 
@@ -29,7 +27,7 @@ public class JavaArrayInitializer_MustFailCompile extends x10Test {
 	}
 
 	public static void main(String[] args) {
-		new JavaArrayInitializer_MustFailCompile().execute();
+		new JavaArrayWithInitializer().execute();
 	}
 }
 
