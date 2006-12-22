@@ -218,9 +218,12 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		// TODO: Check that the underlying regions are disjoint.
 
 		if (op == COND_OR && xts.isDistributedArray(l)) { // || -- <T>array.union(<T>array right)
+			l = l.makeNoClauseVariant();
+			r = r.makeNoClauseVariant();
 			if (!(l.equals(r))) {
-				throw new SemanticException("This " + op +
-						" operator instance must have distributed array operands of the same base type ", right.position());
+				throw new SemanticException("The operands of " + op +
+						" have base types " + l + " and " + r + "; these must " +
+								"be similar. ", right.position());
 			}
 			return type(l);
 		}
