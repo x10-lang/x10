@@ -27,18 +27,13 @@ public class NullableArray2 extends x10Test {
 		ia3 = new nullable<int>[[0:2]->here];
 		if (ia3[2] != null) return false;
 
-		if (X.trueFun()) {
-			ia3 = new int[[0:2]->here];
-			if (ia3[2] != 0) return false;
-		}
+		// it is forbidden to assign an int [.] to a nullable<int>[.]
+		// ia3 = new int[[0:2]->here];
 
 		// cannot assign a nullable int y to an element
 		// of an array of int's, unless y is not null
 		nullable<int> y = null;
 		boolean gotException = false;
-		try { ia3[0] = y; }
-		catch (ClassCastException e) { gotException = true; }
-		if (!gotException) return false;
 
 		nullable<mycomplex>[.] ia4 =
 			new nullable<mycomplex>[[0:2]->here]
