@@ -30,14 +30,11 @@
   </script>
 </head>
 <body>
-<!-- MASTHEAD_BEGIN -->
-<!--#include virtual="masthead.ssi"--><!-- MASTHEAD_END -->
 <table id="v14-body-table" border="0" cellpadding="0" cellspacing="0"
  width="760">
   <tbody>
     <tr valign="top">
-      <td id="navigation" width="150">
-<!-- LEFTNAV_BEGIN -->
+      <td id="navigation" width="150"><!-- LEFTNAV_BEGIN -->
       <table border="0" cellpadding="0" cellspacing="0" width="150">
         <tbody>
           <tr>
@@ -127,8 +124,7 @@ Research</a></td>
           </tr>
         </tbody>
       </table>
-<!-- LEFTNAV_END -->
-      </td>
+<!-- LEFTNAV_END --> </td>
       <td width="610"><a name="main"></a>
       <table id="content-table" border="0" cellpadding="0"
  cellspacing="0" width="610">
@@ -141,10 +137,8 @@ Programming Language (X10) <br>
             </h1>
             </td>
             <td width="7">&nbsp;</td>
-            <td width="150">
-            <br>
-            <img alt="" src="x10logo.jpg" height="30" width="66">
-<!-- INSERT X10 GRAPHIC HERE&nbsp;<br> --></td>
+            <td width="150"> <br>
+            <img alt="" src="x10logo.jpg" height="30" width="66"><!-- INSERT X10 GRAPHIC HERE&nbsp;<br> --></td>
           </tr>
           <tr valign="top">
             <td width="10">&nbsp;</td>
@@ -171,8 +165,7 @@ methodology to integrate advances in chip technology, architecture,
 operating systems, compilers, programming language and programming
 tools to deliver new adaptable, scalable systems that will provide an
 order-of-magnitude improvement in development productivity for parallel
-applications by 2010.
-                        <br>
+applications by 2010. <br>
                         <br>
 X10 aims to contribute to this productivity improvement by developing a
 new programming model, combined with a new set of tools integrated into
@@ -188,10 +181,9 @@ highlights the explicit reification of locality in the form of places;
 lightweight activities embodied in async, future, foreach, and ateach
 constructs; constructs for termination detection (finish) and phased
 computation (clocks); the use of lock-free synchronization (atomic
-blocks); and the manipulation of global arrays and data structures.
-                        </p>
-                        <p>
-An Eclipse-based Integrated Development Environment (IDE) has been
+blocks); and the manipulation of global arrays and data structures. </p>
+                        <p>An Eclipse-based Integrated Development
+Environment (IDE) has been
 developed at IBM for X10 to help further increase programmer
 productivity by providing state-of-the-art functionality for viewing,
 editing, navigating, executing, and manipulating X10 programs. The X10
@@ -202,8 +194,7 @@ lightweight information pop-ups, high-level and low-level navigation
 views, powerful search capabilities, application launch configuration
 management, refactoring, and debugging support. In addition, the X10DT
 will include tools, views and refactorings that specifically address
-the development of highly concurrent software in X10.
-                        </p>
+the development of highly concurrent software in X10. </p>
                         </td>
                       </tr>
                     </tbody>
@@ -230,8 +221,8 @@ the development of highly concurrent software in X10.
 functionally supported for SMP machines. The implementation uses a Java
 virtual machine, and so can run on any platform that supports Java 5.0.
                         </p>
-                        <p>
-The X10DT already provides a significant subset of the functionality
+                        <p>The X10DT already provides a significant
+subset of the functionality
 expected of a modern IDE: syntax highlighting, structural outline
 views, compiler error annotations placed directly on the source code,
 navigation from references to corresponding declarations, "hover help"
@@ -242,8 +233,7 @@ also include support for indexed search, refactoring, type hierarchy
 queries, call graph navigation, and so on. At the moment, the X10DT
 supports X10 application developers; in the near future, we will add
 support for language developers who wish to alter the X10 compiler or
-runtime and take advantage of their enhancements within the X10DT.
-                        </p>
+runtime and take advantage of their enhancements within the X10DT. </p>
                         </td>
                       </tr>
                     </tbody>
@@ -252,11 +242,9 @@ runtime and take advantage of their enhancements within the X10DT.
                 </tr>
               </tbody>
             </table>
-<!-- end -->
-            </td>
+<!-- end --> </td>
             <td width="7">&nbsp;</td>
-            <td id="right-nav" width="150">
-<!-- start -->
+            <td id="right-nav" width="150"><!-- start -->
             <table border="0" cellpadding="0" cellspacing="0"
  width="150">
               <tbody>
@@ -282,10 +270,8 @@ major release of X10 (v1.0) is now <a href="x10downloads.shtml">available</a>.
                 </tr>
               </tbody>
             </table>
-<!-- end -->
-            <br>
-<!-- start -->
-            </td>
+<!-- end --> <br>
+<!-- start --> </td>
           </tr>
         </tbody>
       </table>
@@ -293,8 +279,7 @@ major release of X10 (v1.0) is now <a href="x10downloads.shtml">available</a>.
     </tr>
   </tbody>
 </table>
-<!-- FOOTER_BEGIN -->
-<!--#include virtual="footer.ssi"--><!-- FOOTER_END -->
+<!-- FOOTER_BEGIN --><!--#include virtual="footer.ssi"--><!-- FOOTER_END -->
 <script type="text/javascript" language="JavaScript1.2"
  src="//www.ibm.com/common/stats/stats.js"></script>
 <noscript><img src="//stats.www.ibm.com/rc/images/uc.GIF?R=noscript"
