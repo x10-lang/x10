@@ -20,6 +20,7 @@ import polyglot.ast.Field_c;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -67,31 +68,32 @@ public class X10Field_c extends Field_c {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
-		
-		// The location of a value type is always "here".
-		if (name.equals("location")
-				&& xts.isSubtype(target.type(), xts.X10Object())
-				&& (xts.isValueType(target.type()) || target.type().isPrimitive())) {
-			return xnf.Here(position()).typeCheck(tc);
-		}
-		
+		Type tType = target.type();
 		try {
 			//Report.report(1, "X10Field_c.tpeCheck: context" + tc.context());
 			Context c = tc.context();
 			TypeSystem ts = tc.typeSystem();
-			
-			if (! target.type().isReference()) 
-				throw new SemanticException("Cannot access field \"" + name +
-						"\" " + (target instanceof Expr
-								? "on an expression "
-										: "") +
-										"of non-reference type \"" +
-										target.type() + "\".", target.position());
-			
-			FieldInstance fi = ts.findField(target.type().toReference(), name, c.currentClass());
+
+			/*
+			 * In X10, everything is an object.
+			 */
+			//if (! tType.isReference()) 
+			//	throw new SemanticException("Cannot access field \"" + name +
+			//			"\" " + (target instanceof Expr
+			//					? "on an expression "
+			//							: "") +
+			//							"of non-reference type \"" +
+			//							target.type() + "\".", target.position());
+			if (!tType.isReference())
+				throw new NoMemberException(NoMemberException.FIELD,
+						"Field \"" + name + "\" not found in type \"" +
+						tType + "\".");
+
+			FieldInstance fi = ts.findField(tType.toReference(), name, c.currentClass());
 			if (fi == null) {
-				throw new InternalCompilerError("Cannot access field on node of type " +
-						target.getClass().getName() + ".");
+				throw new InternalCompilerError("Cannot access field " + name +
+						" on node of type " + target.getClass().getName() + ".",
+						position());
 			}
 			boolean inTypeElaboration = tc instanceof TypeElaborator;
 			X10Field_c result = this;
@@ -99,7 +101,7 @@ public class X10Field_c extends Field_c {
 			X10Type retType = type;
 			if (! inTypeElaboration) {
 				// Fix up the type of the field instance with the name of the field.
-				X10Type thisType = (X10Type) target.type();
+				X10Type thisType = (X10Type) tType;
 				Constraint rc = type.realClause();
 				if (rc != null ) {
 					C_Var var=thisType.selfVar();
@@ -122,14 +124,21 @@ public class X10Field_c extends Field_c {
         } catch (NoMemberException e) {
             if (e.getKind() != NoMemberException.FIELD || this.target == null)
                 throw e;
-            Type type = target.type();
-            if (!xts.isX10Array(type))
-                throw e;
-            // Special fields on arrays
-            if (name.equals("distribution") || name.equals("region")) {
-            	Type array = xts.array();
-				TypeNode typenode = xnf.CanonicalTypeNode(position(), array);
-            	return this.target(xnf.Cast(position(), typenode, (Expr) target).type(array)).typeCheck(tc);
+            if (xts.isX10Array(tType)) {
+            	// Special fields on arrays
+            	if (name.equals("distribution") || name.equals("region")) {
+            		Type array = xts.array();
+            		TypeNode typenode = xnf.CanonicalTypeNode(position(), array);
+            		return this.target(xnf.Cast(position(), typenode, (Expr) target).type(array)).typeCheck(tc);
+            	}
+            } else if (xts.isValueType(tType)) {
+            	 if (name.equals("location")) {
+            		 // TODO
+//            		 return xnf.Here(position()).typeCheck(tc);
+            		 return xnf.Cast(position, xnf.CanonicalTypeNode(position(),
+            				 xts.createNullableType(position(), (X10NamedType)xts.place())),
+            				 (Expr) xnf.NullLit(position()).typeCheck(tc)).typeCheck(tc);
+            	 }
             }
             throw e;
         }
