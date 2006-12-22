@@ -5,6 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
 import harness.x10Test;
 
 /**
@@ -15,7 +17,7 @@ import harness.x10Test;
 public class PrimitiveHasLocation extends x10Test {
 
 	public boolean run() {
-	int x = 3;
+		int x = 3;
 		return x.location==here;
 	}
 
