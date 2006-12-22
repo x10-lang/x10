@@ -314,7 +314,12 @@ public class X10DelegatingVisitor {
 		throw new RuntimeException("No visit method defined in " + this.getClass() + 
 				" for " + n.getClass()); 
 	}
-	
+
+	/////////////////////////////////////////////////////////////////////////
+	// Note that the indentation of the visit() methods below, while not
+	// significant, is intended to signify the class hierarchy.
+	/////////////////////////////////////////////////////////////////////////
+
 	public void visit(Node n) { }
 	public void visit(Node_c n) { visit((Node)n); }
 		public void visit(AmbPrefix_c n) { visit((Node_c)n); }
