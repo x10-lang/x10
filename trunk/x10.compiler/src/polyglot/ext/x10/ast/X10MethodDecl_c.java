@@ -19,6 +19,7 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.MethodDecl_c;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
@@ -131,7 +132,7 @@ public class X10MethodDecl_c extends MethodDecl_c {
         	this.flags = X10Flags.toX10Flags(flags);
         	super.translate(w, tr);
         }
-
+     
         public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
         	MethodDecl nn = this;
             MethodDecl old = nn;
@@ -171,6 +172,7 @@ public class X10MethodDecl_c extends MethodDecl_c {
         	TypeChecker childtc1 = (TypeChecker) tc.enter(parent, nn);
         	// Add the formals to the context.
         	nn.visitList(nn.formals(),childtc1);
+        	(( X10Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
         	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
             nn = nn.returnType(r);
             final Type rt = r.type();
