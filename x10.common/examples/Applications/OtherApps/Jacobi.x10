@@ -40,7 +40,7 @@ public class Jacobi extends x10Test {
 		int iters = 0;
 		double err;
 		while (true) {
-			final double[.] Temp = new double[DInner] (point [i,j])
+			final double[:distribution==DInner] Temp = (double[:distribution==DInner]) new double[DInner] (point [i,j])
 			{ return (read(i+1, j)+read(i-1, j)+read(i, j+1)+read(i, j-1))/4.0; };
 			if ((err = ((B | DInner) - Temp).abs().sum()) < epsilon)break;
 			B.update(Temp);
