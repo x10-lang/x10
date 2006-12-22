@@ -65,12 +65,12 @@ import polyglot.util.Position;
 public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Serializable {
 	
 	private static X10TypeSystem x10TypeSystem = null;
-	public static void setTypeSystem(X10TypeSystem x) { x10TypeSystem = x;}
 	public static X10TypeSystem getTypeSystem() { return x10TypeSystem;}
 	
 	public X10TypeSystem_c() {
 		super();
 		unknownType = new X10UnknownType_c(this);
+		x10TypeSystem = this;
 	}
 	
 	private final static Set<String> primitiveTypeNames= new HashSet<String>();
