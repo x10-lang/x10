@@ -949,7 +949,7 @@ $Rules -- Overridden rules from GJavaParser
                     setResult(nf.Call(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), identifier.getIdentifier(), ArgumentListopt));
           $EndJava
         ./
-                       | AssignPropertyCall
+        
                        
       AssignPropertyCall ::= property ( ArgumentList ) 
        /.$BeginJava
@@ -1388,8 +1388,12 @@ $Rules
          Name a = (Name) ConstructorDeclarator[1];
          DepParameterExpr c = (DepParameterExpr) ConstructorDeclarator[2];
          List b = (List) ConstructorDeclarator[3];
-         Expr e = (Expr) ConstructorDeclarator[4];              
-         setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), c, b, e, Throwsopt, ConstructorBody));
+         Expr e = (Expr) ConstructorDeclarator[4];
+         
+           X10TypeNode resultType = (X10TypeNode) a.toType();        
+           if (c != null) 
+         resultType = resultType.dep(c);
+         setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt,  a.toString(), resultType, b, e, Throwsopt, ConstructorBody));
          $EndJava
        ./
        
@@ -1559,9 +1563,11 @@ $Rules
                 | ForEachStatement
                 | AtEachStatement
                 | FinishStatement
+                
 
     StatementWithoutTrailingSubstatement ::= NextStatement
                                            | AwaitStatement
+                                           | AssignPropertyCall
 
     StatementNoShortIf ::= NowStatementNoShortIf
                          | AsyncStatementNoShortIf
@@ -2233,7 +2239,7 @@ $Types
     List ::= RegionExpressionList
     Expr ::= PlaceExpressionSingleListopt
            | PlaceExpressionSingleList
-    Expr ::= AssignPropertyCall
+    Stmt ::= AssignPropertyCall
     Future ::= FutureExpression
     polyglot.lex.Identifier ::= ParamIdopt
     DepParameterExpr ::= DepParametersopt

@@ -18,6 +18,7 @@ import polyglot.ast.Loop;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
@@ -65,8 +66,9 @@ public class ForLoop_c extends X10Loop_c implements Loop {
 		ForLoop_c n = (ForLoop_c) super.typeCheck(tc);
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Expr newDomain = n.domain;
-		if (ts.isDistribution(n.domain.type()))
-			newDomain = (Expr) tc.nodeFactory().Field(n.position(), n.domain, "region").typeCheck(tc);
+		X10Type type = (X10Type) newDomain.type();
+		if (ts.isDistribution(type))
+			newDomain = (Expr) tc.nodeFactory().Field(n.position(), newDomain, "region").typeCheck(tc);
 		return n.domain(newDomain);
 	}
 

@@ -35,6 +35,7 @@ import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.ConstructorInstance_c;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -72,7 +73,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		unknownType = new X10UnknownType_c(this);
 	}
 	
-	private final static Set primitiveTypeNames= new HashSet();
+	private final static Set<String> primitiveTypeNames= new HashSet<String>();
 	
 	static {
 		primitiveTypeNames.add("boolean");
@@ -162,7 +163,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return result;
 	}
 	
-	private HashMap nullableMap = new HashMap();
+	private HashMap<X10NamedType, NullableType> nullableMap = 
+		new HashMap<X10NamedType, NullableType>();
 	/**
 	 * Return a nullable type based on a given type.
 	 * TODO: rename this to nullableType() -- the name is misleading.
@@ -397,7 +399,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		if (type.isFloat())   return floatArray(isValueType, distribution);
 		if (type.isDouble())  return doubleArray(isValueType, distribution);
 		if (type.isLong())    return longArray(isValueType, distribution);
-		List list = new LinkedList();
+		List<Type> list = new LinkedList<Type>();
 		list.add(type);
 		//Report.report(1, "X10TypeSystem_c: GOLDEN " + type );
 		ReferenceType result = genericArray(isValueType, distribution, list);
@@ -690,14 +692,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	 return result;
 	 }*/
 	
-	public ClassType genericArray(boolean isValueType, Expr distribution, List types) {
+	public ClassType genericArray(boolean isValueType, Expr distribution, List<Type> types) {
 		return isValueType
 		? genericValueArray(distribution, types)
 				: GenericReferenceArray(distribution, types);
 	}
 	
 	protected X10ParsedClassType genericArrayType_;
-	public ClassType genericArray(Expr distribution, List typeParams) {
+	public ClassType genericArray(Expr distribution, List<Type> typeParams) {
 		if (genericArrayType_ == null) {
 			genericArrayType_ = (X10ParsedClassType) load("x10.lang.GenericReferenceArray"); // java file
 		}
@@ -710,31 +712,32 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	}
 	
 	public ClassType genericArray() {
-		return genericArray(null, new LinkedList());
+		return genericArray(null, new LinkedList<Type>());
 	}
 	
 	private ClassType genericValueArray() {
-		return genericValueArray(null, new LinkedList());
+		return genericValueArray(null, new LinkedList<Type>());
 	}
 	
-	private ClassType genericValueArray(Expr distribution, List types) {
+	private ClassType genericValueArray(Expr distribution, List<Type> types) {
 		return genericArray(distribution, types);
 	}
 	
 	private ClassType GenericReferenceArray() {
 		
-		return GenericReferenceArray(null, new LinkedList());
+		return GenericReferenceArray(null, new LinkedList<Type>());
 	}
 	
 	protected X10ParsedClassType genericReferenceArrayType_;
-	private ClassType GenericReferenceArray(Expr distribution, List typeParams) {
+	private ClassType GenericReferenceArray(Expr distribution, List<Type> typeParams) {
 		
 		if (genericReferenceArrayType_ == null) {
 			genericReferenceArrayType_ = (X10ParsedClassType) load("x10.lang.GenericReferenceArray"); // java file
 		}
 		// return a variant of genericReferenceArrayType_.
 		// TODO: Also need to pass along distribution.
-		X10ClassType result = (X10ClassType) genericReferenceArrayType_.makeVariant(null, typeParams);
+		X10ClassType result = 
+			(X10ClassType) genericReferenceArrayType_.makeVariant(null, typeParams);
 		return result;
 	}
 	
@@ -850,7 +853,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		try {
 			Type ct = (Type) systemResolver().find(name);
 			
-			List args = new LinkedList();
+			List<Type> args = new LinkedList<Type>();
 			args.add(X10Object());
 			args.add(X10Object());
 			
@@ -1038,10 +1041,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return isX10Subtype(xme, xsup);
 	}
 	public  boolean isIndexable(Type me) { 
-		return isX10Subtype(me, Indexable()); 
+		X10Type mex = (X10Type) me;
+		return isX10Subtype(mex.makeNoClauseVariant(), Indexable()); 
 	}
 	public  boolean isX10Array(Type me) { 
-		return isX10Subtype(me, Array()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), Array()); 
 	}
 	
 	public boolean isTypeConstrained(Type me) {
@@ -1053,43 +1057,43 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	
 	
 	public  boolean isBooleanArray(Type me) {
-		return isX10Subtype(me, booleanArray()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), booleanArray()); 
 	}
 	public boolean isCharArray(Type me) {
-		return isX10Subtype(me, charArray()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), charArray()); 
 	}
 	public boolean isByteArray(Type me) {
-		return isX10Subtype(me, byteArray()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), byteArray()); 
 	}
 	public  boolean isShortArray(Type me) {
-		return isX10Subtype(me, shortArray()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), shortArray()); 
 	}
 	public  boolean isIntArray(Type me) {
-		return isX10Subtype(me,intArray()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(),intArray()); 
 	}
 	public  boolean isLongArray(Type me) {
-		return isX10Subtype(me, longArray()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), longArray()); 
 	}
 	public boolean isFloatArray(Type me) {
-		return isX10Subtype(me,floatArray()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(),floatArray()); 
 	}
 	public  boolean isDoubleArray(Type me) {
-		return isX10Subtype(me, doubleArray()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), doubleArray()); 
 	}
 	public  boolean isClock(Type me) {
-		return isX10Subtype(me, clock()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), clock()); 
 	}
 	public  boolean isPoint(Type me) {
-		return isX10Subtype(me, point()); 
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), point()); 
 	}
 	public  boolean isPlace(Type me) {
-		return isX10Subtype(me, place());
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), place());
 	}
 	public  boolean isRegion(Type me) {
-		return isX10Subtype(me, region());
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), region());
 	}
 	public  boolean isDistribution(Type me) {
-		return isX10Subtype(me, distribution());
+		return isX10Subtype(((X10Type) me).makeNoClauseVariant(), distribution());
 	}
 	public  boolean isDistributedArray(Type me) {
 		return isX10Array(me);
@@ -1370,20 +1374,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		 // currClass, the method call is valid, and they are not overridden
 		 // by an unacceptable method (which can occur with protected methods
 		 // only).
-		 List acceptable = new ArrayList();
+		 List<MethodInstance> acceptable = new ArrayList<MethodInstance>();
 		 
 		 // A list of unacceptable methods, where the method call is valid, but
 		 // the method is not accessible. This list is needed to make sure that
 		 // the acceptable methods are not overridden by an unacceptable method.
-		 List unacceptable = new ArrayList();
+		 List<MethodInstance> unacceptable = new ArrayList<MethodInstance>();
 		 
-		 Set visitedTypes = new HashSet();
+		 Set<Type> visitedTypes = new HashSet<Type>();
 		 
-		 LinkedList typeQueue = new LinkedList();
+		 LinkedList<Type> typeQueue = new LinkedList<Type>();
 		 typeQueue.addLast(container);
 		 
 		 while (! typeQueue.isEmpty()) {
-			 Type type = (Type) typeQueue.removeFirst();
+			 Type type = typeQueue.removeFirst();
 			 
 			 if (visitedTypes.contains(type)) {
 				 continue;
@@ -1400,8 +1404,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 						 " non-reference type " + type + ".");
 			 }
 			 
-			 for (Iterator i = type.toReference().methods().iterator(); i.hasNext(); ) {
-				 MethodInstance mi = (MethodInstance) i.next();
+			 for (Iterator<MethodInstance> i = type.toReference().methods().iterator(); i.hasNext(); ) {
+				 MethodInstance mi =  i.next();
 				 
 				 if (Report.should_report(Report.types, 3))
 					 Report.report(3, "Trying " + mi);
@@ -1476,6 +1480,41 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		 
 		 return acceptable;
 	 }
+	 public boolean equalTypeParameters(List<Type> a, List<Type> b) {
+		 if (a == null || a.isEmpty()) return b==null || b.isEmpty();
+		 if (b==null || b.isEmpty()) return false;
+		 int i = a.size(), j=b.size();
+		 if (i != j) return false;
+		 boolean result = true;
+		 for (int k=0; result && k < i; k++) {
+			 result = equals(a.get(k), b.get(k));
+		 }
+		 return result;
+	 }
+	 
+	 @Override
+	 public ConstructorInstance constructorInstance(Position pos,
+			 ClassType container,
+			 Flags flags, List argTypes,
+			 List excTypes) {
+		 assert_(container);
+		 assert_(argTypes);
+		 assert_(excTypes);
+		 return new X10ConstructorInstance_c(this, pos, container, flags,
+				 argTypes, excTypes);
+	 }
+	
+	 public ConstructorInstance constructorInstance(Position pos,
+			 ClassType container,
+			 Flags flags, X10Type returnType, List argTypes,
+			 List excTypes) {
+		 assert_(container);
+		 assert_(argTypes);
+		 assert_(excTypes);
+		 return new X10ConstructorInstance_c(this, pos, container, flags,
+				 returnType, argTypes, excTypes);
+	 }
+
 
 } // end of X10TypeSystem_c
 

@@ -29,6 +29,7 @@ import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.Promise;
 import polyglot.main.Report;
+import polyglot.types.FieldInstance;
 import polyglot.types.PrimitiveType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -215,7 +216,6 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			Report.report(5,"X10PrimitiveType_c: toString |" + super.toString() + "|(#" 
 					+ this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
 		return  
-//		"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
 		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString())
 		+ (isParametric() ? "/"+"*" + typeParameters.toString() + "*"+"/"  : "") 
 		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
@@ -230,6 +230,14 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		return sb.toString();
 	}
 
+	public String toStringForDisplay() { 
+		
+		return  
+		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString())
+		+ (isParametric() ? typeParameters.toString()  : "") 
+		+ (depClause == null ? "" :  "(:" +  depClause.toString() + ")");
+		
+	}
 	public String typeName() { 
 		return  
 		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString());
@@ -274,7 +282,8 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	 */
 	public boolean isSubtypeImpl(  Type other) { return X10Type_c.isSubtypeImpl(this, other);}
 	public boolean isValueType() { return ((X10TypeSystem) typeSystem()).isValueType(this); }
-	public List properties() { return Collections.EMPTY_LIST;}
+	public List<FieldInstance> properties() { return Collections.EMPTY_LIST;}
+	public List<FieldInstance> definedProperties() { return Collections.EMPTY_LIST;}
 	public NullableType toNullable() { return X10Type_c.toNullable(this);}
 	public FutureType toFuture() { return X10Type_c.toFuture(this);}
 	

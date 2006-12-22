@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import polyglot.ast.Expr;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -125,7 +126,7 @@ public interface Constraint extends Serializable {
 	 * @param term
 	 * @return
 	 */
-	Promise intern(C_Term term);
+	Promise intern(C_Term term) ;
 	
 	/** Look this term up in the constraint graph.  If the term is of the form x.f1...fk
 	 * and the longest prefix that exists in the graph is x.f1..fi, return the promise
@@ -231,4 +232,12 @@ public interface Constraint extends Serializable {
 	 */
 	boolean hasVar(C_Root v);
 	
+	/**
+	 * Return the C_Var corresponding to this arg, if it is rigid, otherwise
+	 * an EQVar from this constraint.
+	 * @param arg
+	 * @param type
+	 * @return
+	 */
+	C_Var selfVar(Expr arg);
 }

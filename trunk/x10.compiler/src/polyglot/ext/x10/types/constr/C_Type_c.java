@@ -1,84 +1,47 @@
-/*
- *
- * (C) Copyright IBM Corporation 2006
- *
- *  This file is part of X10 Language.
- *
+/**
+ * 
  */
 package polyglot.ext.x10.types.constr;
 
 import java.util.HashMap;
 
-import polyglot.ext.x10.ast.X10Special;
+import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Type;
-import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 
-public class C_Lit_c extends C_Term_c implements C_Lit {
-	
-	
-	Object val;
-	public C_Lit_c(boolean b) {
-		super(Constraint_c.typeSystem.Boolean());
-		val = new Boolean(b);
+/**
+ * @author VijaySaraswat
+ *
+ */
+public class C_Type_c extends C_Term_c implements C_Type {
+
+	/**
+	 * @param t
+	 */
+	public C_Type_c(Type t) {
+		super(t);
 		
 	}
-	public C_Lit_c(Object l, Type t) {
-		super(t);
-	
-		val = l;
-	}
-	private C_Lit type(X10Type t) {
-		return new C_Lit_c(val, t);
+
+	public C_Type_c(TypeNode tn) {
+		this(tn.type());
 	}
 	
-	public Object val() {
-		return val;
-	}
 	public String toString() {
-                if (val == null) return "null";
-                if (type().isLong()) return val.toString() + "L";
-                if (type().isFloat()) return val.toString() + "F";
-                return val.toString();
-        }
+		
+		return type.toString();
+	}
 	public int hashCode() {
-		return ((val == null) ? 0 : val.hashCode());
+		return type.hashCode();
 	}
-	public C_Lit not() {
-		TypeSystem ts = type().typeSystem();
-		assert (type().equals(ts.Boolean()));
-		return equals(C_Lit.TRUE) ? C_Lit.FALSE : C_Lit.TRUE;
-	}
-	public C_Lit neg() {
-		TypeSystem ts = type().typeSystem();
-		Type type = type();
-		if (ts.equals(type, ts.Int())) {
-			return new C_Lit_c(new Integer(- ((Integer) val).intValue()), ts.Int());
-		}
-		if (ts.equals(type, ts.Long())) {
-			return new C_Lit_c(new Long(- ((Long) val).longValue()), ts.Long());
-		}
-		if (ts.equals(type, ts.Short())) {
-			short s = ((Short) val).shortValue();
-			return new C_Lit_c(new Short((short) -s), ts.Short());
-		}
-		if (ts.equals(type, ts.Float())) {
-			return new C_Lit_c(new Float(- ((Float) val).floatValue()), ts.Float());
-		}
-		if (ts.equals(type, ts.Double())) {
-			return new C_Lit_c(new Double(- ((Double) val).doubleValue()), ts.Double());
-		}
-		assert false;
-		return this;
-	}
-	public boolean equals(Object o) {
 	
+	public boolean equals(Object o) {
 		if (this==o) return true;
-		if (! (o instanceof C_Lit_c)) return false;
-		C_Lit_c other = (C_Lit_c) o;
-		return  val == null ? o==null : val.equals(other.val);
+		if (! (o instanceof C_Type_c)) return false;
+		C_Type_c other = (C_Type_c) o;
+		return  type.equals(other.type);
 	}
 	// methods from Promise
 	public Promise intern(C_Var[] vars, int index) {
@@ -87,14 +50,14 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	public Promise intern(C_Var[] vars, int index, Promise last) {
 		if (index != vars.length) {
 			throw new InternalCompilerError("Cannot extend path " + vars + "index=" 
-					+ index + " beyond the literal " + this  + ".");
+					+ index + " beyond the type " + this  + ".");
 		}
 		return this;
 	}
 	public Promise lookup(C_Var[] vars, int index) {
 		if (index != vars.length) {
 			throw new InternalCompilerError("Cannot extend path " + vars + "index=" 
-					+ index + " beyond the literal " + this  + ".");
+					+ index + " beyond the type" + this  + ".");
 		}
 		return this;
 	}
@@ -106,11 +69,9 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	public boolean bind(Promise target) throws Failure {
 		if (target.term().equals(this))
 			return true;
-		if (target.term() instanceof C_Var) {
-			return target.bind(this);
-		}
+		
 		if (! equals(target))
-			throw new Failure("Cannot bind literal " + this + " to " + target);
+			throw new Failure("Cannot bind type " + this + " to " + target);
 		return false;
 	}
 	public boolean canReach(Promise other ) { return equals(other); }
@@ -121,7 +82,7 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	}
 	public void addIn(String s, Promise orphan) {
 		throw new InternalCompilerError("Cannot add an " + s + " child "  + orphan + 
-				" to a literal, " + this + ".");
+				" to a type, " + this + ".");
 	}
 	public boolean rootVarIsSelf() { return false;}
 	public boolean rootVarIsThis() { return false;}
@@ -151,4 +112,5 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	public Promise value() { return null; }
 	public HashMap<String,Promise> fields() { return null;}
 	
+
 }

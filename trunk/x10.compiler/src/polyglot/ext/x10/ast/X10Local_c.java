@@ -22,6 +22,7 @@ import polyglot.main.Report;
 import polyglot.types.Context;
 import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.VarInstance;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 
@@ -32,43 +33,36 @@ public class X10Local_c extends Local_c {
 		
 	}
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		 Context c = tc.context();
-		 try {
-		    LocalInstance li = c.findLocal(name);
-		    
-		    // if the local is defined in an outer class, then it must be final
-		    if (!c.isLocal(li.name())) {
-		    	// this local is defined in an outer class
-		    	if (!li.flags().isFinal()) {
-		    		throw new SemanticException("Local variable \"" + li.name() + 
-		    				"\" is accessed from an inner class, and must be declared " +
-		    				"final.",
-		    				this.position());                     
-		    	}
-		    }
-		    
-		    
-		    X10Local_c result = (X10Local_c) localInstance(li).type(li.type());
-		    X10Context xtc = (X10Context) tc.context();
-		    if (xtc.inDepType()) {
-		    	li = result.localInstance();
-		    	if (! li.flags().isFinal()) {
-		    		throw new SemanticException("Local variable " + li.name() 
-		    				+ " must be final in a depclause.", 
-		    				position());
-		    	}
-		    }
 		
-	    return result;
-		 } catch (SemanticException z) {
-			 if (tc instanceof TypeElaborator) {
-				 // Ignore semantic exceptions that may arise during TypeElaboration. The
-				 // field being referenced may not exist because of an MDE -- e.g. its type
-				 // does not yet have its signature resolved. 
-				 return this;
-			 } else {
-				 throw z;
-			 }
-		 }
+		try {
+			X10Local_c result= (X10Local_c) super.typeCheck(tc);
+			
+			// Permit occurrences of local variables in the type of the variable.
+			X10Context xtc = (X10Context) tc.context();
+			VarInstance dli = xtc.varWhoseTypeIsBeingElaborated();
+			if (xtc.inDepType()) {
+				li = result.localInstance();
+				if (! (li.equals(dli)) && ! li.flags().isFinal()) {
+					throw new SemanticError("Local variable " + li.name() 
+							+ " must be final in a depclause.", 
+							position());
+				}
+			}
+			
+			return result;
+		} catch (SemanticException z) {
+			if (tc instanceof TypeElaborator && !(z instanceof SemanticError)) {
+				// Ignore semantic exceptions that may arise during TypeElaboration. The
+				// field being referenced may not exist because of an MDE -- e.g. its type
+				// does not yet have its signature resolved. 
+				if (Report.should_report("types", 2)) 
+					Report.report(2, "X10Local_c: " + this 
+							+ " encountered exception " + z + " during " + tc + "; being ignored.");
+				return this;
+			} else {
+				throw z;
+			}
+		}
 	}
+	
 }

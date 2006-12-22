@@ -20,6 +20,7 @@ import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.types.FieldInstance;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -111,7 +112,8 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
        return rootType == other.rootType;
     }
    
-    public List properties() { return Collections.EMPTY_LIST;}
+    public List<FieldInstance> properties() { return Collections.EMPTY_LIST;}
+	public List<FieldInstance> definedProperties() { return Collections.EMPTY_LIST;}
     
     public NullableType toNullable() { return X10Type_c.toNullable(this);}
     public FutureType toFuture() { return X10Type_c.toFuture(this);}
@@ -119,4 +121,5 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
      * The unknwon type has unknown safety status -- defaults to false.
      */
     public boolean safe() { return false;}
+    public String toStringForDisplay() { return "UnknownType!";}
 }

@@ -8,7 +8,17 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.ConstructorDecl;
+import polyglot.ast.TypeNode;
+import polyglot.types.Type;
 
 public interface X10ConstructorDecl extends ConstructorDecl {
-
+	/**
+	 * Return the returnType associated with this constructor declaration.
+	 * @return
+	 */
+	TypeNode returnType();
+	
+	
+	X10ConstructorDecl reconstruct(TypeNode t);
+	
 }

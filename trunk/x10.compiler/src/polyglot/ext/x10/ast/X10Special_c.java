@@ -29,7 +29,7 @@ public class X10Special_c extends Special_c implements X10Special {
 	
 	
 	public static X10Special self(Position pos) {
-		X10Special_c	self = new X10Special_c(pos, THIS, null);
+		X10Special_c	self = new X10Special_c(pos, SELF, null);
 		self.isSelf=true;
 		return self;
 	}

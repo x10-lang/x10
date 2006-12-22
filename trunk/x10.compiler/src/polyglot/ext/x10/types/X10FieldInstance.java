@@ -20,6 +20,7 @@ import polyglot.types.Type;
 public interface X10FieldInstance extends FieldInstance {
 	
 	public static final String MAGIC_PROPERTY_NAME = "propertyNames$";
+	public static final String MAGIC_CI_PROPERTY_NAME = "classInvariant$";
 	/** Is this field a property? */
 	
 	boolean isProperty();

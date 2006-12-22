@@ -40,7 +40,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
             String name, X10NodeFactory nf) {
         this(pos, flags, type, name, null, nf);
     }
-    private PropertyDecl_c(Position pos, Flags flags, TypeNode type,
+    public PropertyDecl_c(Position pos, Flags flags, TypeNode type,
             String name, Expr init, X10NodeFactory nf) {
         super(pos, flags, type, name, init);
         this.nf = nf;
@@ -53,20 +53,23 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     * @param body   -- the body of the class or interface
     * @return body, with properties and getters added.
     */
-    public static ClassBody addProperties(List/*<PropertyDecl>*/ properties, ClassBody body,
+    public static ClassBody addProperties(List<PropertyDecl> properties, ClassBody body,
     		X10NodeFactory nf) {
     	
     	if (properties != null && ! properties.isEmpty()) {
-    		for (Iterator e = properties.iterator(); e.hasNext();) {
-    			PropertyDecl  p = (PropertyDecl) e.next();
+    		int n = properties.size();
+    		for (int i=0; i < n; i++) {
+    		
+    			PropertyDecl  p =  properties.get(i);
     			MethodDecl getter = p.getter();
     			body = body.addMember(getter);
     			body = body.addMember(p);
     		}
-    		body = body.addMember(PropertyDecl_c.makePropertyNamesField(properties, nf));
+    		body = body.addMember(makePropertyNamesField(properties, nf));
     	}
     	return body;
     }
+    
     /**
      * Return body, augmented with getters. Used for interfaces. May be called during
      * initial AST construction phase.
@@ -75,16 +78,19 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      * @param body   -- the body of the class or interface
      * @return body, with properties and getters added.
      */
-    public static ClassBody addGetters(List/*<PropertyDecl>*/ properties, ClassBody body, X10NodeFactory nf) {
+    public static ClassBody addGetters(List<PropertyDecl> properties, ClassBody body, X10NodeFactory nf) {
         if (properties != null && ! properties.isEmpty()) {
-            for (Iterator e = properties.iterator(); e.hasNext();) {
-                PropertyDecl  p = (PropertyDecl) e.next();
+        	int n = properties.size();
+    		for (int i=0; i < n; i++) {
+                PropertyDecl  p = properties.get(i);
                 body = body.addMember(p.abstractGetter());
             }
-            body = body.addMember(PropertyDecl_c.makePropertyNamesField(properties, nf));
+            body = body.addMember(makePropertyNamesField(properties, nf));
         }
         return body;
     }
+    
+   
     /** Construct the synthetic field:
     public static final String propertyNames$ = " ... ";
     The string contains the names of the fields separated by " ".
@@ -92,8 +98,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     cannot contain static members whose initializers are not compile time constants.
     Arrays of strings are not compile time constants.
     */    
-   public static ClassMember makePropertyNamesField(List/*<PropertyDecl>*/ properties,
-		   X10NodeFactory nf) {
+   public static ClassMember makePropertyNamesField(List<PropertyDecl> properties, X10NodeFactory nf) {
     
        final Position pos = Position.COMPILER_GENERATED;
        TypeSystem ts =  nf.extensionInfo().typeSystem();
@@ -141,5 +146,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
       return nf.MethodDecl(Position.COMPILER_GENERATED, Flags.PUBLIC.Abstract(), type, name, 
                               Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
     }
+    
+   
    
 }

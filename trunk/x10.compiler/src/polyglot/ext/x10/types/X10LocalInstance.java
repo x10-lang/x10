@@ -19,5 +19,10 @@ import polyglot.types.LocalInstance;
 public interface X10LocalInstance extends LocalInstance {
 	void setPositionInArgList(int i);
 	int positionInArgList();
-
+	/**
+	 * Set the self var on the depclause associated with this
+	 * local instance if the variable is declared final.
+	 *
+	 */
+	void setSelfClauseIfFinal();
 }

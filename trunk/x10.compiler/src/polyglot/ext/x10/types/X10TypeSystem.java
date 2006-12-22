@@ -325,5 +325,11 @@ public interface X10TypeSystem extends TypeSystem {
    boolean typeBaseEquals(Type me, Type other);
    boolean isBoxedType(Type type);
    String getGetterName(Type type);
+   boolean equalTypeParameters(List<Type> a, List<Type> b);
+   
+   ConstructorInstance constructorInstance(Position pos,
+			 ClassType container,
+			 Flags flags, X10Type returnType, List argTypes,
+			 List excTypes);
 } // end of X10TypeSystem
 

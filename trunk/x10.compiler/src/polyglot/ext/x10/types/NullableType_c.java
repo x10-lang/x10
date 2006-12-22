@@ -112,9 +112,10 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
 	}
 
 	public String toString() {
-		return
-//			"/"+"*"+"GOTCHA\n"+getStackTrace()+"*"+"/"+
-			"/"+"*"+" nullable<" +"*"+"/" + base.toString() + "/"+"*"+">"+"*"+"/";
+		return "/"+"*"+" nullable<" +"*"+"/" + base.toString() + "/"+"*"+">"+"*"+"/";
+	}
+	public String toStringForDisplay() {
+		return " nullable<"  + base.toStringForDisplay() +">";
 	}
 
 	private static String getStackTrace() {
@@ -220,7 +221,11 @@ public class NullableType_c extends X10ReferenceType_c implements NullableType {
     public ArrayType toArray() { return base.toArray();}
     
     public List properties() {
-        return base.properties();
+        //return base.properties();
+    	 return Collections.EMPTY_LIST;
+    }
+    public List<FieldInstance> definedProperties() {
+        return Collections.EMPTY_LIST;
     }
     
     public NullableType toNullable() { return this;}

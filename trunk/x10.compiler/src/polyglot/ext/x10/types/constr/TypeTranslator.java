@@ -16,14 +16,17 @@ import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.Receiver;
 import polyglot.ast.Term;
+import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Variable;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.X10Special;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
 import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
 
 /**
  * Translate from a ConstExr to a constraint term that can be serialized.
@@ -48,7 +51,9 @@ public class TypeTranslator implements Serializable {
 	public C_Local trans(LocalInstance t)throws SemanticException {
 		return new C_Local_c(t);
 	}
-	
+	public C_Type trans(TypeNode t) throws SemanticException {
+		return new C_Type_c(t);
+	}
 	public C_Lit trans(Lit t) throws SemanticException {
 		return new C_Lit_c(t.constantValue(), t.type());
 	}
@@ -80,14 +85,29 @@ public class TypeTranslator implements Serializable {
 		if (term instanceof Here) return C_Here_c.here;
 		if (term instanceof Variable) return trans((Variable) term);
 		if (term instanceof X10Special) return trans((X10Special) term);
-		if (term instanceof Unary) return trans((Unary) term);
+		if (term instanceof Unary) {
+			Unary u = (Unary) term;
+			Expr t2 = u.expr();
+			TypeSystem ts = t2.type().typeSystem();
+			Unary.Operator op = u.operator();
+			if (op.equals(Unary.POS))
+				return trans(t2);
+			if (op.equals(Unary.NEG) &&  t2 instanceof Lit) {
+				return trans((Lit) t2).neg();
+			}
+			if (op.equals(Unary.NOT) &&  t2 instanceof Lit && ts.typeEquals(t2.type(),ts.Boolean())) {
+				return trans((Lit) t2).not();
+			}
+			return trans((Unary) term);
+		}
 		if (term instanceof Binary) return trans((Binary) term);
+		if (term instanceof TypeNode) return trans((TypeNode) term);
 		
-		throw new SemanticException("Cannot translate term |" + term + "|(" + term.getClass().getName()+")" +
+		throw new SemanticException("Cannot translate |" + term + "|(" + term.getClass().getName()+")" +
 				" to a term.");
 	}
 	public Constraint constraint(Binary term, Constraint c) throws SemanticException {
-		//Report.report(1, "TypeTranslator: translating to constraint " + term);
+		// Report.report(1, "TypeTranslator: translating to constraint " + term);
 		String op = term.operator().toString();
 		Expr left = term.left();
 		Expr right = term.right();

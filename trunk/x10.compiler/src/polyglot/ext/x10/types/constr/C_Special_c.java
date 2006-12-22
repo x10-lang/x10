@@ -69,7 +69,7 @@ public class C_Special_c extends C_Var_c implements C_Special {
 	public boolean prefixes(C_Term t) {
 		if (equals(t)) return true;
 		if (! (t instanceof C_Var)) return false;
-		C_Var[] vars = ((C_Var) t).vars();
+		C_Term[] vars = ((C_Var) t).vars();
 		return equals(vars[0]);
 	}
 	public String toString() { return (qualifier==null? "" : qualifier + ".") + kind.toString();}

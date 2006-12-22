@@ -40,7 +40,9 @@ import polyglot.visit.TypeChecker;
  * 
  */
 public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
+	
     /** The argument list of a parametric type. Maybe null.
+     * vj: This is currently being used only in specifying the arguments for an X10 array type.
      * 
      */
     protected List/*Expr*/ args;
@@ -64,7 +66,6 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         super(pos);
         this.args =  TypedList.copyAndCheck(l, Expr.class, false);
         this.condition = cond;
-        //Report.report(1, "DepParameterExpr_c: created " + l + " cond=" + cond);
     }
     
     public Expr condition() {
@@ -90,6 +91,7 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         n.args = args;
         return n;
     }
+    @Override
     public Node visitChildren(NodeVisitor v) {
         //Report.report(1, "DepParameterExpr_c:  " + v + " visits " + this);
         //if (v.toString().startsWith("AmbiguityRemover")) {
@@ -105,32 +107,28 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
     	return val;
     }
    
-    public Node disambiguate(AmbiguityRemover sc) throws SemanticException {
-    	Node n = super.disambiguate(sc);
-    	//Report.report(1, "DepParameterExpr.disambiguated |" + condition +"|");
-    	return n;
-    }
     /** Type check the statement. 
-     * TODO: Implement type checking.
-     * The boolean expression must only access parameter fields, and must only invoke specified methods.
      */
+    @Override
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
       //Report.report(1, "DepParameterExpr: Typechecking " + this + this.getClass() + " " + condition);
         
       if (condition == null) {
-    	  throw new SemanticException("The condition of a dependent type clause must be non-empty.", 
+    	  throw new SemanticError("The condition of a dependent type clause must be non-empty.", 
     			  position());
       }
         Type t = condition.type();
         
         if (! ts.equals(t, ts.Boolean()))
-        	throw new SemanticException("The argument of a deptype must be a boolean expression.", position());
+        	throw new SemanticError("The type of the depclause, "+ condition 
+        			+ ", must be boolean and not " + t + ".", position());
         return type(t);
     }
     /* (non-Javadoc)
      * @see polyglot.ast.Term#entry()
      */
+    @Override
     public Term entry() {
         return (args.isEmpty())
         ? condition.entry()
@@ -140,6 +138,7 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
     /* (non-Javadoc)
      * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
      */
+    @Override
     public List acceptCFG(CFGBuilder v, List succs) {
         if (args == null) {
             if (condition != null) 
@@ -153,8 +152,10 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
             }
         }
         
+        
         return succs;
     }
+    @Override
     public String toString() {
         String s = "(";
         int count = 0;
@@ -178,6 +179,7 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         return s + ")";
     }
     /** Write the statement to an output file. */
+    @Override
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
         if (args.isEmpty() && condition==null) return;
         if (args.isEmpty()) {
@@ -204,5 +206,5 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
             print( condition, w, tr);
         w.write(")");
     }
-    
+
 }

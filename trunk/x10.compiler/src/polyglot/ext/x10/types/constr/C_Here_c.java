@@ -69,4 +69,9 @@ public class C_Here_c extends C_Term_c implements Promise {
 	public boolean isEQV() { return false;}
 	public boolean prefixes(C_Term term) {return false;}
 	public void setTerm(C_Var term) { /* ignore */}
+	public void replaceDescendant(Promise y, Promise x) {
+		// nothing to do.
+	}
+	public Promise value() { return null; }
+	public HashMap<String,Promise> fields() { return null;}
 }

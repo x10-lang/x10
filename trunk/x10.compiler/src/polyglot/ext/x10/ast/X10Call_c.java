@@ -31,6 +31,7 @@ import polyglot.ext.x10.types.constr.C_Local;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.C_Root;
 import polyglot.ext.x10.types.constr.C_Special;
+import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Promise;
@@ -130,13 +131,7 @@ public class X10Call_c extends Call_c {
         }
     }
 
-    private C_Var selfVar(X10Type type, Constraint targetConstraint) {
-    	C_Var result = (C_Root) type.selfVar();
-    	if (result == null) {
-    		result = targetConstraint.genEQV(type);
-    	}
-    	return result;
-    }
+  
    
     /**
      * Compute the new resulting type for the method call by replacing this and 
@@ -152,42 +147,11 @@ public class X10Call_c extends Call_c {
     	X10MethodInstance xmi = (X10MethodInstance) mi;
     	if (mi == null) return this;
     	X10Type type = (X10Type) mi.returnType();
-    	//if (! type.isCanonical())
-    	//	return result;
-    	Constraint rc = type.realClause();
-    	X10Call_c result = this;
-    	if (rc != null) {
-    		HashMap<C_Var,Promise> m = rc.roots();
-    		if (m != null) {
-    			Set<C_Var> vars = m.keySet();
-    			HashMap<C_Root, C_Var> subs = new HashMap<C_Root, C_Var>();
-    			for (Iterator<C_Var> it = vars.iterator(); it.hasNext();) {
-    				C_Root var = (C_Root) it.next();
-    				if (var.equals(C_Special.This)) {
-    					assert(target != null);
-    					C_Var realThis = selfVar((X10Type) target.type(), rc);
-    					subs.put(var, realThis);
-    				} else if (var instanceof C_Local){
-    					X10LocalInstance li = ((C_Local) var).localInstance();
-    					assert li != null;
-    					int p = li.positionInArgList();
-    					if (p >= 0) {
-    						Expr arg = (Expr) arguments.get(p);
-    						C_Var realVar = selfVar((X10Type) arg.type(), rc);
-    						subs.put(var,realVar);
-    					}
-    				}
-    			}
-    			if (! subs.isEmpty()) {
-    				Constraint newRC = rc.substitute(subs);
-    				X10Type retType = type.makeVariant(newRC, null);
-    				mi = mi.returnType(retType);
-//  				TODO vj:  Is this really necessary?
-    				result = (X10Call_c)this.methodInstance(mi).type(mi.returnType());
-    			}
-    		}
+    	X10Type retType = X10New_c.instantiateType(type, target, arguments);
+    	if (retType != type) {
+    		mi.setReturnType(retType);
     	}
-	    return result;
+    	return (X10Call_c) this.type(retType);
     }
     private void checkAnnotations(TypeChecker tc) throws SemanticException {
     	X10Context c = (X10Context) tc.context();
