@@ -212,14 +212,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	}
 
 	public String toString() { 
-		if (false)
-			Report.report(5,"X10PrimitiveType_c: toString |" + super.toString() + "|(#" 
-					+ this.hashCode() + this.getClass() + ") typeParameters=|" + typeParameters+"|");
-		return  
-		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString())
-		+ (isParametric() ? "/"+"*" + typeParameters.toString() + "*"+"/"  : "") 
-		+ (depClause == null ? "" :  "/"+"*"+"(:" +  depClause.toString() + ")"+"*"+"/");
-		//  + "/"+"*"+"(#" + hashCode() + ")"+"*"+"/";
+		return toStringForDisplay();
 	}
 
 	private static String getStackTrace() {
@@ -231,11 +224,16 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	}
 
 	public String toStringForDisplay() { 
+		String clause = "";
+		if (depClause != null) {
+			clause = depClause.toString();
+			clause = clause.substring(1, clause.length()-1);
+		}
 		
 		return  
 		((rootType == this) ? super.toString() : ((X10PrimitiveType_c) rootType).toString())
-		+ (isParametric() ? typeParameters.toString()  : "") 
-		+ (depClause == null ? "" :  "(:" +  depClause.toString() + ")");
+		+ (isParametric() ?  typeParameters.toString() : "") 
+		+ (depClause == null ? "" : "(:" +  clause + ")");
 		
 	}
 	public String typeName() { 
