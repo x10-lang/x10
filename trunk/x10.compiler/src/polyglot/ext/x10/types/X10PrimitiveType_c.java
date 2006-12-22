@@ -125,12 +125,14 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		return super.equals(o);
 	}
 	
-	/** Every X10 value type descends from X10.lang.Object, the base class.
-	 *
+	/**
+	 * Every X10 value type descends from X10.lang.Object, the base class,
+	 * and implements the ValueType interface.
 	 */
 	public boolean descendsFromImpl(Type ancestor) {
 		X10TypeSystem xts = (X10TypeSystem) ts;
-		return ts.equals(ancestor, xts.X10Object());
+		return ts.equals(ancestor, xts.X10Object()) ||
+			ts.equals(ancestor, xts.value());
 	}
 	
 	/** Return true if this type can be assigned to <code>toType</code>. */
