@@ -18,7 +18,7 @@ public class PrimitiveHasLocation extends x10Test {
 
 	public boolean run() {
 		int x = 3;
-		return x.location==here;
+		return x.location==null;
 	}
 
 	public static void main(String[] args) {
