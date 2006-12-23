@@ -239,6 +239,9 @@ $Keywords
     reference
     value
     when
+    safe
+    unsafe
+    location
 
     --
     -- All Java Primitive types are soft

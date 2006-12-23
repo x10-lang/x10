@@ -41,6 +41,7 @@ $End
 $Export
 --     RANGE
     ARROW
+    LOCATION
 $End
 
 $Headers
@@ -206,6 +207,21 @@ $Rules
                     makeToken($_ARROW);
           $EndAction
         ./
+
+    Token ::= IntegerDot 'l' 'o' 'c' 'a' 't' 'i' 'o' 'n'
+        /.$BeginAction
+                    makeToken(getRhsFirstTokenIndex(2), getRightSpan(), $_IDENTIFIER);
+          $EndAction
+        ./
+    IntegerDot ::= Integer '.'
+        /.$BeginAction
+                    makeToken(getLeftSpan(), getRhsLastTokenIndex(1), $_IntegerLiteral);
+                    makeToken(getRightSpan(), getRightSpan(), $_DOT);
+          $EndAction
+        ./
+                 | IntegerDot MultiLineComment
+                 | IntegerDot SingleLineComment Eol
+                 | IntegerDot WSChar
 
 --     IntLiteralAndRange ::= Integer '.' '.'
 --         /.$BeginAction

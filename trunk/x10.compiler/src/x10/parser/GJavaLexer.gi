@@ -666,18 +666,11 @@ $Rules
                     makeToken($_DoubleLiteral);
           $EndAction
         ./
-    Token ::= '/' '*' Inside Stars '/'
-        /.$BeginAction
-                    if (getKind(getRhsFirstTokenIndex(3)) == Char_Star && getKind(getNext(getRhsFirstTokenIndex(3))) != Char_Star)
-                         makeComment($_DocComment);
-                    else makeComment($_MlComment);
-          $EndAction
-        ./
-    Token ::= SLC
-        /.$BeginAction
-                    makeComment($_SlComment);
-          $EndAction
-        ./
+
+    Token ::= MultiLineComment
+
+    Token ::= SingleLineComment
+
     Token ::= WS -- White Space is scanned but not added to output vector
         /.$BeginAction
                     skipToken();
@@ -958,6 +951,14 @@ $Rules
                    | Integer Exponent LetterDd
                    | Integer LetterDd
 
+    MultiLineComment ::= '/' '*' Inside Stars '/'
+        /.$BeginAction
+                    if (getKind(getRhsFirstTokenIndex(3)) == Char_Star && getKind(getNext(getRhsFirstTokenIndex(3))) != Char_Star)
+                         makeComment($_DocComment);
+                    else makeComment($_MlComment);
+          $EndAction
+        ./
+
     Inside ::= Inside Stars NotSlashOrStar
              | Inside '/'
              | Inside NotSlashOrStar
@@ -965,6 +966,12 @@ $Rules
 
     Stars -> '*'
            | Stars '*'
+
+    SingleLineComment ::= SLC
+        /.$BeginAction
+                    makeComment($_SlComment);
+          $EndAction
+        ./
 
     SLC ::= '/' '/'
           | SLC NotEol
