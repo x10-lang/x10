@@ -964,24 +964,6 @@ assert(new_file != null);
             }
      
             //
-            // Rule 8:  Token ::= / * Inside Stars /
-            //
-            case 8: { 
-                if (getKind(getRhsFirstTokenIndex(3)) == Char_Star && getKind(getNext(getRhsFirstTokenIndex(3))) != Char_Star)
-                     makeComment(TK_DocComment);
-                else makeComment(TK_MlComment);
-                break;
-            }
-     
-            //
-            // Rule 9:  Token ::= SLC
-            //
-            case 9: { 
-                makeComment(TK_SlComment);
-                break;
-            }
-     
-            //
             // Rule 10:  Token ::= WS
             //
             case 10: { 
@@ -1334,10 +1316,45 @@ assert(new_file != null);
             }
      
             //
-            // Rule 353:  Token ::= - >
+            // Rule 68:  MultiLineComment ::= / * Inside Stars /
             //
-            case 353: { 
+            case 68: { 
+                if (getKind(getRhsFirstTokenIndex(3)) == Char_Star && getKind(getNext(getRhsFirstTokenIndex(3))) != Char_Star)
+                     makeComment(TK_DocComment);
+                else makeComment(TK_MlComment);
+                break;
+            }
+     
+            //
+            // Rule 75:  SingleLineComment ::= SLC
+            //
+            case 75: { 
+                makeComment(TK_SlComment);
+                break;
+            }
+     
+            //
+            // Rule 355:  Token ::= - >
+            //
+            case 355: { 
                 makeToken(TK_ARROW);
+                break;
+            }
+     
+            //
+            // Rule 356:  Token ::= IntegerDot l o c a t i o n
+            //
+            case 356: { 
+                makeToken(getRhsFirstTokenIndex(2), getRightSpan(), TK_IDENTIFIER);
+                break;
+            }
+     
+            //
+            // Rule 357:  IntegerDot ::= Integer .
+            //
+            case 357: { 
+                makeToken(getLeftSpan(), getRhsLastTokenIndex(1), TK_IntegerLiteral);
+                makeToken(getRightSpan(), getRightSpan(), TK_DOT);
                 break;
             }
     
