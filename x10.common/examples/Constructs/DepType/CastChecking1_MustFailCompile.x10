@@ -15,21 +15,20 @@ import harness.x10Test;
  */
 public class CastChecking1_MustFailCompile extends x10Test {
 	class Test(int i, int j) {
-		Test(int i, int j) {
-			this.i=i;
-			this.j=j;
+		Test(:self.i==i && self.j==j)(final int i, final int j) {
+			property(i,j);
 		}
 	}
 		
-	class Test2(int k) extends Test(:i==j){
-		Test2(int k) {
+	class Test2(int k) extends Test(:i==j) {
+		Test2(:self.i==k&&self.j==k&&self.k==k)(final int k) {
 			super(k,k);
-			this.k=k;
+			property(k);
 		}
 	}
 	
 	public boolean run() {
-		Test2(:k==1) a = (Test2(:k==1)) new Test2(1);
+		Test2(:k==1&&i==j) a = new Test2(1);
 		Test(:i==j) b = a;
 		Test c = (Test) 5;  // must fail compile
 	   return true;
