@@ -16,7 +16,7 @@ import java.util.HashMap;
  * @author vj
  *
  */
-public interface Promise {
+public interface Promise  extends Cloneable {
 	
 	/**
 	 * vars must be a sequence C_Var, C_Field, ... C_Field, satisfying the property
@@ -96,8 +96,8 @@ public interface Promise {
 	 * which has an outgoing edge to a term tw.
 	 * @param result
 	 */
-	void dump(HashMap<C_Term,C_Term> result, C_Term prefix);
-	void dump(HashMap<C_Term, C_Term> result, C_Term prefix, C_Term newSelf, C_Term newThis);
+	void dump(HashMap<C_Var,C_Var> result, C_Term prefix);
+	void dump(HashMap<C_Var, C_Var> result, C_Term prefix, C_Var newSelf, C_Var newThis);
 	
 	/**
 	 * Return the term that labels this promise. This term is intended to be the canonical C_Var
@@ -107,7 +107,7 @@ public interface Promise {
 	 * TODO: Change its return type to C_Var.
 	 * @return null if this promise is an internal promise.
 	 */
-	C_Term term();
+	C_Var term();
 	
 	/**
 	 * Set the term corresponding to this promise. The term may be null, such a promise is 
@@ -127,4 +127,12 @@ public interface Promise {
 	
 	Promise value();
 	HashMap<String, Promise> fields();
+	
+
+	/**
+	 * Replace a reference to any descendant that is equal to x with a reference to y.
+	 * @param y
+	 * @param x
+	 */
+	Promise cloneRecursively(HashMap<Promise, Promise> env);
 }

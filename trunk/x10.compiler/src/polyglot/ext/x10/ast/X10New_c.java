@@ -200,12 +200,26 @@ public class X10New_c extends New_c {
     	
     	Set<C_Var> vars = m.keySet();
     	HashMap<C_Root, C_Var> subs = new HashMap<C_Root, C_Var>();
+    	// If an actual parameter is a variable v, and the variable 
+    	// occurs multiple times in the actual argument list, we need 
+    	// to ensure that only one EQV is generated for v. This is 
+    	// important because the multiple positions in the arg list in 
+    	// which v occurs may correspond to final parameters in the formal
+    	// parameter list, say x and y, and these final parameters may be used in the
+    	// return type. We need to replace all these parameters in the return
+    	// type with the same EQV, vv. This is necessary because v's type may constrain
+    	// a field, say v.i, and the return type may use x.i and y.i. We need
+    	// the instantiated return type to contain vv.i for x.i and v.i for y.i.
+    	// It would be incorrect to use two different EQVs for v, say vv1 and vv2.
+    	// Hmmm.... not necessarily
+    	
+    	// HashMap<Expr, C_Var> renaming = new HashMap<Expr, C_Var>();
     	for (Iterator<C_Var> it = vars.iterator(); it.hasNext();) {
     		C_Root var = (C_Root) it.next();
     		if (var.equals(C_Special.This)) {
     			//assert(target != null && target instanceof Expr);
     			if (target != null) {
-    				C_Var realThis = rc.selfVar((Expr) target);
+    				C_Var realThis = rc.selfVar((Expr) target, false);
     				subs.put(var, realThis);
     			}
     		} else 	if (var instanceof C_Local){
@@ -214,7 +228,11 @@ public class X10New_c extends New_c {
     			int p = li.positionInArgList();
     			if (p >= 0) {
     				Expr arg = arguments.get(p);
-    				C_Var realVar = rc.selfVar(arg);
+    				C_Var realVar = null; // renaming.get(arg);
+    				if (realVar == null) {
+    					realVar = rc.selfVar(arg, false); // should not be hidden!
+    					// renaming.put(arg, realVar);
+    				}
     				subs.put(var, realVar);
     			}
     		}

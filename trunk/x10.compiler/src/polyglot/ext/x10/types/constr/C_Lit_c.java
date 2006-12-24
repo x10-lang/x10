@@ -114,9 +114,9 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 		return false;
 	}
 	public boolean canReach(Promise other ) { return equals(other); }
-	public C_Term term() { return this; }
-	public void dump(HashMap<C_Term,C_Term> result, C_Term prefix) { 	/* nothing to dump */ }
-	public void dump(HashMap<C_Term, C_Term> result, C_Term prefix, C_Term newSelf, C_Term newThis) {
+	public C_Var term() { return this; }
+	public void dump(HashMap<C_Var, C_Var> result, C_Term prefix) { 	/* nothing to dump */ }
+	public void dump(HashMap<C_Var, C_Var> result, C_Term prefix, C_Var newSelf, C_Var newThis) {
 		// nothing to dump.
 	}
 	public void addIn(String s, Promise orphan) {
@@ -150,5 +150,11 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	}
 	public Promise value() { return null; }
 	public HashMap<String,Promise> fields() { return null;}
+	public Promise cloneRecursively(HashMap<Promise,Promise> env) {
+		return this;
+	}
+	public C_Var substitute(C_Var x, C_Var y) {
+		return this;
+	}
 	
 }

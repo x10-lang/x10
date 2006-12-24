@@ -15,15 +15,15 @@ import harness.x10Test;
  */
 public class CheckEqualTypes extends x10Test {
     class Test(int i, int j) {
-       public Test(int i, int j) { this.i=i; this.j=j;}
+       public Test(:self.i==i&&self.j==j)(final int i, final int j) { property(i,j);}
     }
 
     public boolean m(Test(:i==j) t) { // the type is Test(:self.i==self.j).
       return true;
     }
 	public boolean run() {
-	    final int j = 0;
-	    Test(:i==j&&self.j==j) t = (Test(:i==j&&self.j==j)) new Test(0,0); 
+	    final int(:self==0) j = 0;
+	    Test(:i==j&&self.j==j) t =  new Test(0,0); 
 	    // should compile since the type entails Test(:i==j).
 	    return m(t); 
 	}

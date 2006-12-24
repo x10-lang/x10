@@ -19,6 +19,7 @@ import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
@@ -52,7 +53,7 @@ public class ConstantDistMaker_c extends X10Call_c implements ConstantDistMaker 
        // Report.report(1, "ConstantDistMaker..ltype " + left+ "(#" + left.hashCode() + ") is " + lType);
 		X10ParsedClassType type = (X10ParsedClassType) ((X10ParsedClassType) xts.distribution())
 		.makeVariant();
-		C_Term rank = ((X10ParsedClassType) lType).rank();
+		C_Var rank = ((X10ParsedClassType) lType).rank();
 		if (rank != null) type.setRank(rank);
 		type.setOnePlace(C_Here_c.here);
 		boolean zeroB = lType.isZeroBased();

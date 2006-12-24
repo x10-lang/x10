@@ -13,6 +13,7 @@ package polyglot.ext.x10.types;
 import java.util.List;
 
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 
@@ -58,8 +59,8 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	 * Returns true iff this type is an X10 array defined over a local distribution.
 	 */
 	boolean hasLocalProperty();
-	C_Term onePlace();
-	void setOnePlace(C_Term t);
+	C_Var onePlace();
+	void setOnePlace(C_Var t);
 	
 	/** 
 	 * Returns true iff this type is an X10 array defined over a region that starts with zero in each dimension.
@@ -75,18 +76,18 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
 	 * defined for this type.
 	 * @return
 	 */
-	C_Term rank();
-	void setRank(C_Term rank);
+	C_Var rank();
+	void setRank(C_Var rank);
 	
 	boolean isRankOne();
 	boolean isRankTwo();
 	boolean isRankThree();
 	
-	C_Term self();
+	C_Var self();
 	
-	void setDistribution(C_Term dist);
+	void setDistribution(C_Var dist);
 	
-	C_Term distribution();
+	C_Var distribution();
 	
 	
 	/**

@@ -52,15 +52,18 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
 	public void setPositionInArgList(int i) {
 		positionInArgList = i;
 	}
-	public void setSelfClauseIfFinal() {
+	public boolean setSelfClauseIfFinal() {
 		// If the local variable is final, replace T by T(:self==t), 
 		// do this even if depclause==null
+		boolean changed = false;
 		if ( flags().isFinal()) {
 			X10Type t = (X10Type) type();
 			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(this),t.depClause());
 			X10Type newType = t.makeVariant(c,t.typeParameters());
 			setType(newType);
+			changed = true;
 		}
+		return changed;
 		
 	}
 

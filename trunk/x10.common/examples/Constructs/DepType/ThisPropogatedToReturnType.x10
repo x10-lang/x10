@@ -15,15 +15,17 @@ import harness.x10Test;
 public class ThisPropogatedToReturnType extends x10Test {
 
 	 class Test(int i, int j) {
-		Test(int i, int j) { this.i=i; this.j=j;}
+		Test(:self.i==i&&self.j==j)(final int i, final int j) { 
+			property(i,j);
+			}
 		
 		int(:self==this.i) test() {
-			return (int(:self==this.i)) i;
+			return  i;
 		}
 	}
 	
 	public boolean run() {
-		Test(:i==1) t = (Test(:i==1)) new Test(1,2);
+		Test(:i==1) t =  new Test(1,2);
 		int(:self==1) one = t.test();
 		return true;
 	}

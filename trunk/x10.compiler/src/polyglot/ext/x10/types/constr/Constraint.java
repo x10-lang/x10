@@ -71,14 +71,14 @@ public interface Constraint extends Serializable {
 	 * @param t
 	 * @return
 	 */
-	boolean entails(C_Term var, C_Term val);
+	boolean entails(C_Var var, C_Var val);
 	
 	/**
 	 * Return the term this variable is bound to in the constraint, and null if there is no such term.
 	 * @param varName
 	 * @return
 	 */
-	C_Term find(String varName);
+	C_Var find(String varName);
 	
 	/**
 	 * Add t1 -> t2 to the constraint.
@@ -86,7 +86,7 @@ public interface Constraint extends Serializable {
 	 * @param t
 	 * @return new constraint with t1=t2 added.
 	 */
-	Constraint addBinding(C_Term var, C_Term val);
+	Constraint addBinding(C_Var var, C_Var val);
 	/**
 	 * For each pair (t1,t2) in result, ddd t1 -> t2 to the constraint,
 	 * and return the resulting constraint.
@@ -94,9 +94,10 @@ public interface Constraint extends Serializable {
 	 * @param t
 	 * @return new constraint with t1=t2 added.
 	 */
-	Constraint addBindings(HashMap/*<C_Term,C_Term>*/ result);
+	Constraint addBindings(HashMap<C_Var,C_Var> result);
 	
 	Constraint copy();
+	Constraint clone();
 	/**
 	 * Add constraint c into this, and return this.
 	 * @param c
@@ -109,7 +110,7 @@ public interface Constraint extends Serializable {
 	 * @return new constraint with term=true added.
 	 * @throws SemanticException
 	 */
-	Constraint addTerm(C_Term term) throws Failure;
+	Constraint addTerm(C_Var term) throws Failure;
 	C_Var selfVar();
 	void setSelfVar(C_Var val);
 	
@@ -126,7 +127,8 @@ public interface Constraint extends Serializable {
 	 * @param term
 	 * @return
 	 */
-	Promise intern(C_Term term) ;
+	Promise intern(C_Var term) ;
+	void internRecursively(C_Var variable);
 	
 	/** Look this term up in the constraint graph.  If the term is of the form x.f1...fk
 	 * and the longest prefix that exists in the graph is x.f1..fi, return the promise
@@ -153,7 +155,7 @@ public interface Constraint extends Serializable {
 	 * Equivalent to constraints(new HashMap()).
 	 * @return
 	 */
-	HashMap<C_Term, C_Term> constraints();
+	HashMap<C_Var, C_Var> constraints();
 	/**
 	 * Return in HashMap a set of bindings t1 -> t2 entailed by the current cosntraint,
 	 * where y is a variable that occurs in this, and all terms t1 are of the form
@@ -161,14 +163,14 @@ public interface Constraint extends Serializable {
 	 * @param y
 	 * @return
 	 */
-	HashMap<C_Term, C_Term> constraints(C_Term y);
+	HashMap<C_Var, C_Var> constraints(C_Var y);
 	/**
 	 * Return result, after adding to it a set of bindings t1-> t2 equivalent to the 
 	 * current constraint. 
 	 * Equivalent to constraints(result, null, null).
 	 * @return
 	 */
-	HashMap<C_Term, C_Term> constraints(HashMap<C_Term,C_Term> result);
+	HashMap<C_Var, C_Var> constraints(HashMap<C_Var,C_Var> result);
 	/**
 	 * Return result, after adding to it a set of bindings t1-> t2 equivalent to the 
 	 * current constraint, with all occurrences of self in t1 and t2 replaced by
@@ -176,15 +178,16 @@ public interface Constraint extends Serializable {
 	 * replaced by newThis (provided that newThis !=null).
 	 * @return
 	 */
-	HashMap<C_Term, C_Term> constraints(HashMap<C_Term,C_Term> result, C_Term newSelf, C_Term newThis);
-	HashMap<C_Term, C_Term> constraints(C_Term y, C_Term newSelf);
+	HashMap<C_Var, C_Var> constraints(HashMap<C_Var,C_Var> result, C_Var newSelf, C_Var newThis);
+	HashMap<C_Var, C_Var> constraints(C_Var y, C_Var newSelf);
 	
 	/**
 	 * Generate a new existentially quantified variable scoped to this constraint, 
 	 * with the given type.
 	 * @return
 	 */
-	C_EQV genEQV(Type type);
+	C_EQV genEQV(Type type, boolean isSelfVar);
+	C_EQV genEQV(Type type, boolean isSelfVar, boolean hidden);
 	
 	/** 
 	 * If y equals x, or x does not occur in this,
@@ -195,6 +198,16 @@ public interface Constraint extends Serializable {
 	 */
 	Constraint substitute(C_Var y, C_Root x);
 	Constraint substitute(C_Var y, C_Root x, boolean propagate);
+	/** 
+	 * xs and ys must be of the same length.
+	 * Perform substitute(ys[i], xs[i]) for each i < xs.length.
+	 */
+	Constraint substitute(C_Var[] ys, C_Root[] xs);
+	Constraint substitute(C_Var[] ys, C_Root[] xs, boolean propagate);
+	/** 
+	 * Perform substitute(y, x) for every binding x -> y in bindings.
+	 * 
+	 */
 	Constraint substitute(HashMap<C_Root, C_Var> bindings);
 	Constraint substitute(HashMap<C_Root, C_Var> bindings, boolean propagate);
 	/**
@@ -219,7 +232,7 @@ public interface Constraint extends Serializable {
 	 * Return the constraint obtained by replacing each local variable
 	 * with index i in this by the selfVar of the i'th element in li, if it has
 	 * one, or with a gensym otherwise. Used when defining an instantiation of
-	 * a methodinstance.
+	 * the return type of a methodinstance.
 	 * @param li
 	 * @return
 	 */
@@ -240,4 +253,11 @@ public interface Constraint extends Serializable {
 	 * @return
 	 */
 	C_Var selfVar(Expr arg);
+	C_Var selfVar(Expr arg, boolean hidden);
+	
+	/**
+	 * For each C_Var v in the root, propagate v. To propagate v is to lookup v's type,
+	 * saturate it, and transfer these constraints into the current constraint.
+	 */
+	void saturate();
 }

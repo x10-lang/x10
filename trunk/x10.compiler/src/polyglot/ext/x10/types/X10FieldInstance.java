@@ -7,6 +7,7 @@
  */
 package polyglot.ext.x10.types;
 
+import polyglot.ast.Receiver;
 import polyglot.types.FieldInstance;
 import polyglot.types.Type;
 
@@ -29,5 +30,12 @@ public interface X10FieldInstance extends FieldInstance {
 	/** Returns true if the deptype has been processed for this field. */
 	boolean depTypeSet();
 	void setDepType(Type type);
+	/**
+	 * Set the self var on the depclause associated with this
+	 * local instance if the variable is declared final.
+	 * Return true iff the LI changed.
+	 */
+	boolean setSelfClauseIfFinal();
+
 
 }

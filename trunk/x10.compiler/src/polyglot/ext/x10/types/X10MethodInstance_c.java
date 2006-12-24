@@ -11,6 +11,7 @@
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,10 +19,15 @@ import java.util.List;
 import polyglot.ast.Formal;
 import polyglot.types.MethodInstance_c;
 import polyglot.types.TypeSystem_c;
+import polyglot.ext.x10.types.constr.C_Local_c;
+import polyglot.ext.x10.types.constr.C_Root;
 import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.ext.x10.types.constr.C_Var_c;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.Promise;
 import polyglot.main.Report;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
@@ -64,8 +70,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		super(ts, pos, container,flags, returnType, name, formalTypes,	excTypes);
 		
 	}
-	
-	
 	
 	public boolean canOverrideImpl(MethodInstance mj, boolean quiet) throws SemanticException {
 		//  Report.report(1, "X10MethodInstance_c: " + this + " canOverrideImpl " + mj);
@@ -125,14 +129,14 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		Constraint rc = retType.realClause();
 		C_Special THIS = C_Special_c.This;
 		C_Var selfVar = thisType.selfVar();
-		if (rc!=null)
+		/*if (rc!=null)
 			needed = rc.hasVar(THIS);
 		if (needed) {
 			C_Var myVar = selfVar;
-			if (myVar == null) myVar = rc.genEQV(thisType);
+			if (myVar == null) myVar = rc.genEQV(thisType, true);
 			Constraint rc2 = rc.substitute(myVar, THIS, true);
 			newRetType = retType.makeVariant(rc2,null);
-		}
+		}*/
 		for (Iterator<X10Type> it = formalTypes().iterator(); !needed && it.hasNext();) {
 			X10Type type = it.next();
 			rc = type.realClause();
@@ -147,7 +151,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 			X10Type newType = type;
 			if (rc!=null && rc.hasVar(THIS)) {
 				C_Var myVar = selfVar;
-				if (myVar == null) myVar = rc.genEQV(type); // not thisType for the args.
+				if (myVar == null) myVar = rc.genEQV(type, true); // not thisType for the args.
 				Constraint rc2 = rc.substitute(selfVar, THIS, false);
 				newType = type.makeVariant(rc2,null);
 			}
@@ -164,25 +168,67 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	   * to the method.
 	   * TODO: Take into account the deptype in the parameter list of the method.
 	   */
-    public boolean callValidImpl(List argTypes) {
-        List<X10Type> l1 = this.formalTypes();
-        List<X10Type> l2 = argTypes;
+	@Override
+    public boolean callValidImpl(final List argTypes) {
+    	final List<X10Type> args = argTypes;
+    	boolean result = callValidImplNoClauses(argTypes);
+    	if (!result) return result;
+    	final List<X10Type> formals = this.formalTypes();
+    	final int n = formals.size();
+    	// Check quickly if you need to test for entailment.
+    	boolean typesNotDep = true;
+    	for (int i=0; typesNotDep && i < n; i++) {
+    		Constraint d = formals.get(i).realClause();
+    		typesNotDep = d==null || d.valid();
+    	}
+    	if (typesNotDep) return true;
+    	// There is a formal argument with a non-vacuous deptype.
+    	Constraint env  = new Constraint_c();
+    	C_Root[] x = new C_Root[n];
+    	C_Var[] y = new C_Var[n];
+    	for (int i=0; i < n; i++) {
+    		X10Type type = formals.get(i);
+    		X10Type aType = args.get(i);
+    		Constraint yc = aType.depClause();
+    		if (yc != null) {
+    			y[i] = yc.selfVar();
+    		}
+    		if (y[i] == null) {
+    			// This must mean that y[i] was not final, hence it cant occur in 
+    			// the dep clauses of downstream y[i]'s.
+    			y[i] = env.genEQV(aType, false, false);
+    		}
+    		Constraint fc = type.depClause();
+    		if (fc != null) {
+    			x[i] = (C_Root) fc.selfVar();
+    		}
+    		if (x[i]==null) 
+    			x[i] = env.genEQV(type, false, false);
+    		env.internRecursively(y[i]); 
+    	}
+    	for (int i=0; result && (i < n); i++) {
+    		Constraint query = formals.get(i).realClause();
+    		if (query != null && ! query.valid()) {
+    			query = query.substitute(y,x, false);
+    			Constraint query2 = query.substitute(y[i], C_Special_c.Self, false);
+    			result = env.entails(query2);
+    		}
+    	}
+    	return result;
+    }
+    public boolean callValidImplNoClauses(List argTypes) {
+        List l1 = this.formalTypes();
+        List l2 = argTypes;
 
-        Iterator<X10Type> i1 = l1.iterator();
-        Iterator<X10Type> i2 = l2.iterator();
+        Iterator i1 = l1.iterator();
+        Iterator i2 = l2.iterator();
 
         while (i1.hasNext() && i2.hasNext()) {
-            X10Type t1 =  i1.next();
-            Constraint rc = t1.realClause();
-            if (rc != null && ! rc.valid()) {
-            	// so rc is real constraint. Now 
-            	Constraint rc2 = rc.instantiate(l2);
-            	if (rc != rc2) 
-            		t1 = t1.makeVariant(rc2, null);
-            }
-            X10Type t2 = i2.next();
+            X10Type t1 = (X10Type) i1.next();
+            X10Type t2 = (X10Type) i2.next();
 
-            if (! ts.isImplicitCastValid(t2, t1)) {
+            if (! ts.isImplicitCastValid(t2.makeNoClauseVariant(), 
+            		t1.makeNoClauseVariant())) {
                 return false;
             }
         }

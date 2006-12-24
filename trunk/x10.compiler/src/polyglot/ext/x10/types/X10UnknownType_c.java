@@ -65,7 +65,7 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 		depClause = d;
 		typeParameters = l;
 	}
-    public void addBinding(C_Term t1, C_Term t2) {
+    public void addBinding(C_Var t1, C_Var t2) {
 		if (depClause == null)
 			depClause = new Constraint_c();
 		depClause = depClause.addBinding(t1, t2);

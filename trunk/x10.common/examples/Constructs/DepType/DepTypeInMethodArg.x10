@@ -12,18 +12,18 @@ import harness.x10Test;
  *
  * @author vj
  */
-public class DepTypeInMethodArg extends x10Test {
-    class Test(int i, int j) {
-       public Test(int i, int j) { this.i=i; this.j=j;}
-    }
-   public boolean m(Test(:i==j) t) { 
-      return true;
-    }
-	public boolean run() {
-	   Test(: i==j) x =  (Test(:i==j)) new Test(1,1); 
-	   return true;
+ public class DepTypeInMethodArg extends x10Test {
+	    class Test(int i, int j) {
+	       public Test(:self.i==i&&self.j==j)(final int i, final int j) { property(i,j);}
+	    }
+	   public boolean m(final Test t1, Test(:i == t1.i) t2) { 
+	      return true;
+	    }
+		public boolean run() {
+		   Test(:i==j) x =  new Test(1,1); 
+		   return true;
+		}
+		public static void main(String[] args) {
+			new DepTypeInMethodArg().execute();
+		}
 	}
-	public static void main(String[] args) {
-		new DepTypeInMethodArg().execute();
-	}
-}

@@ -70,7 +70,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public C_Var selfVar() {
 		return depClause==null ? null : depClause.selfVar();
 	}
-	public void addBinding(C_Term t1, C_Term t2) {
+	public void addBinding(C_Var t1, C_Var t2) {
 		if (depClause == null)
 			depClause = new Constraint_c();
 		depClause = depClause.addBinding(t1, t2);

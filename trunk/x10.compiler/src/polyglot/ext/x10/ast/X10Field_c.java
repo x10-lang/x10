@@ -105,11 +105,12 @@ public class X10Field_c extends Field_c {
 				Constraint rc = type.realClause();
 				if (rc != null ) {
 					C_Var var=thisType.selfVar();
-					if (var == null) var = rc.genEQV(thisType);
+					if (var == null) 
+						var = rc.genEQV(thisType, true);
 					Constraint newRC = rc.substitute(var, C_Special.This);
 					retType = type.makeVariant(newRC, null);
+					fi = fi.type(retType);
 				}
-				fi = fi.type(retType);
 			}
 			result = (X10Field_c)fieldInstance(fi).type(retType);  
 			result.checkConsistency(c);
@@ -176,14 +177,14 @@ public class X10Field_c extends Field_c {
 			X10ParsedClassType aType1 = (X10ParsedClassType) aType;
 			X10ParsedClassType type = ((X10ParsedClassType) result.type()).makeVariant();
 			//Report.report(1, "X10Field_c aType1=" + aType1 + " " + aType1.getClass());
-			C_Term rank = aType1.rank();
+			C_Var rank = aType1.rank();
 			if (rank != null) {
 				type.setRank(rank);
 				//Report.report(1, "X10Field_c: set rank of .distribution to " + rank);
 			}
 			if (aType1.isRect()) type.setRect();
 			if (aType1.isZeroBased()) type.setZeroBased();
-			C_Term place = aType1.onePlace();
+			C_Var place = aType1.onePlace();
 			if (place != null)
 				type.setOnePlace(place);
 			Constraint c = aType1.depClause(); 
@@ -202,7 +203,7 @@ public class X10Field_c extends Field_c {
 			X10ParsedClassType aType1 = (X10ParsedClassType) (aType instanceof NullableType ? 
 					((NullableType) aType).base() : aType);
 			X10ParsedClassType type = ((X10ParsedClassType) result.type()).makeVariant();
-			C_Term aRank = aType1.rank();
+			C_Var aRank = aType1.rank();
 			if (aRank !=null) type.setRank(aRank);
 			if (aType1.isRect()) type.setRect();
 			if (aType1.isZeroBased()) type.setZeroBased();

@@ -36,6 +36,7 @@ import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.TypeTranslator;
@@ -268,13 +269,13 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			X10ParsedClassType lType = (X10ParsedClassType) l;
 			X10ParsedClassType type = (X10ParsedClassType) lType.makeVariant();
 			//Report.report(1, "X10Binary_c: array | r or p or d, lType = " + lType);
-			C_Term rank = lType.rank();
+			C_Var rank = lType.rank();
 			
 			if (rank != null) type.setRank(rank);
 			if (xts.isPlace(r) && r instanceof Here) 
 				type.setOnePlace(C_Here_c.here);
 			if (TypeTranslator.isPureTerm(right))
-					type.setDistribution(TypeTranslator.translate(right));
+					type.setDistribution((C_Var)TypeTranslator.translate(right));
 			
 			Expr result = type(type);
 			//Report.report(1, "X10Binary_c: returning " + result + " of type " + result.type());
@@ -290,7 +291,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			X10ParsedClassType lType = (X10ParsedClassType) l;
 			X10ParsedClassType type = (X10ParsedClassType) ((X10ParsedClassType) ts.distribution()).makeVariant();
 			//Report.report(1, "X10Binary_c: dist | r or p or d, lType = " + lType);
-			C_Term rank = lType.rank();
+			C_Var rank = lType.rank();
 			
 			if (rank != null) type.setRank(rank);
 			if (xts.isPlace(r) && r instanceof Here) 
@@ -355,8 +356,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		X10ParsedClassType lType = (X10ParsedClassType) l;
 		X10ParsedClassType rType = (X10ParsedClassType) r;
 		
-		C_Term lRank = lType.rank();
-		C_Term rRank = rType.rank();
+		C_Var lRank = lType.rank();
+		C_Var rRank = rType.rank();
 		//Report.report(1, "X10Binary_c: entering lRank=" + lRank + " rRank=" + rRank);
 		if (lRank==null || ! lRank.equals(rRank)) {
 		//	Report.report(1, "X10Binary_c: lRank=" + lRank + " rRank=" + rRank);
@@ -375,8 +376,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		X10ParsedClassType lType = (X10ParsedClassType) l;
 		X10ParsedClassType rType = (X10ParsedClassType) r;
 		
-		C_Term lDist = lType.distribution();
-		C_Term rDist = rType.distribution();
+		C_Var lDist = lType.distribution();
+		C_Var rDist = rType.distribution();
 		//Report.report(1, "X10Binary_c: entering lRank=" + lRank + " rRank=" + rRank);
 		if (lDist==null || ! lDist.equals(rDist)) {
 		//	Report.report(1, "X10Binary_c: lRank=" + lRank + " rRank=" + rRank);

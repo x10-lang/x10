@@ -138,7 +138,10 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			X10LocalInstance li = (X10LocalInstance) result.li;
 			final X10Type declType= (X10Type) declType();
 			li.setType(declType);
-			li.setSelfClauseIfFinal();
+			boolean changed = li.setSelfClauseIfFinal();
+			if (changed) {
+				result = (X10Formal_c) result.type(result.type().type(li.type()));
+			}
 			return result;
 		
 	 }

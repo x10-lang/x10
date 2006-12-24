@@ -67,7 +67,7 @@ public class AssignPropertyBody_c extends StmtSeq_c {
 			C_Var prop = new C_Field_c(fi.get(i), C_Special.Self);
 			Constraint c = initType.realClause();
 			if (c != null) {
-				HashMap<C_Term,C_Term> bindings = c.constraints(null, prop);
+				HashMap<C_Var,C_Var> bindings = c.constraints(null, prop);
 				C_Var selfVar = c.selfVar();
 				if (selfVar != null) {
 					known = known.addBinding(prop,selfVar);

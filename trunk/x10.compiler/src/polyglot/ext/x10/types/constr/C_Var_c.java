@@ -28,6 +28,8 @@ public abstract class C_Var_c extends C_Term_c implements C_Var {
 	public boolean rootVarIsSelf() {
 		return rootVarIsSelf;
 	}
-	
+	public C_Var substitute(C_Var value, C_Var var) {
+		 return equals(var) ? value : this;
+		}
 	
 }

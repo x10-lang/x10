@@ -131,7 +131,7 @@ public interface X10Type extends Type {
      * @param t1
      * @param t2
      */
-    void addBinding(C_Term t1, C_Term t2);
+    void addBinding(C_Var t1, C_Var t2);
     
     /**
      * Is the type consistent?

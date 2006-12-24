@@ -11,14 +11,28 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.types.FieldInstance_c;
+import polyglot.ast.Expr;
+import polyglot.ast.Node;
+import polyglot.ast.Receiver;
+import polyglot.ext.x10.ast.X10LocalDecl_c;
+import polyglot.ext.x10.types.constr.C_Field;
+import polyglot.ext.x10.types.constr.C_Field_c;
+import polyglot.ext.x10.types.constr.C_Local_c;
+import polyglot.ext.x10.types.constr.C_Special_c;
+import polyglot.ext.x10.types.constr.C_Var;
+import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
+import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.main.Report;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.ReferenceType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import polyglot.visit.TypeChecker;
 
 /**
  * An implementation of PropertyInstance
@@ -92,5 +106,22 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     	}
     	return isProperty=false;
     }
+	
+    public boolean setSelfClauseIfFinal() {
+		// If the local variable is final, replace T by T(:self==t), 
+		// do this even if depclause==null
+		boolean changed = false;
+		if ( flags().isFinal()) {
+			X10Type t = (X10Type) type();
+			C_Field self = new C_Field_c(this, C_Special_c.This);
+			Constraint c = Constraint_c.addSelfBinding(self,t.depClause());
+			X10Type newType = t.makeVariant(c,t.typeParameters());
+			setType(newType);
+			changed = true;
+		}
+		return changed;
+		
+	}
+
     
 }
