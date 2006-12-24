@@ -20,6 +20,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
+import polyglot.ast.Local_c;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
@@ -207,13 +208,10 @@ public class X10New_c extends New_c {
     	// which v occurs may correspond to final parameters in the formal
     	// parameter list, say x and y, and these final parameters may be used in the
     	// return type. We need to replace all these parameters in the return
-    	// type with the same EQV, vv. This is necessary because v's type may constrain
-    	// a field, say v.i, and the return type may use x.i and y.i. We need
-    	// the instantiated return type to contain vv.i for x.i and v.i for y.i.
-    	// It would be incorrect to use two different EQVs for v, say vv1 and vv2.
-    	// Hmmm.... not necessarily
+    	// type with the same EQV, vv. Thus a test in the return type of the form
+    	// x==y will succeed, as it should. 
     	
-    	// HashMap<Expr, C_Var> renaming = new HashMap<Expr, C_Var>();
+    	HashMap<LocalInstance, C_Var> renaming = new HashMap<LocalInstance, C_Var>();
     	for (Iterator<C_Var> it = vars.iterator(); it.hasNext();) {
     		C_Root var = (C_Root) it.next();
     		if (var.equals(C_Special.This)) {
@@ -228,11 +226,19 @@ public class X10New_c extends New_c {
     			int p = li.positionInArgList();
     			if (p >= 0) {
     				Expr arg = arguments.get(p);
-    				C_Var realVar = null; // renaming.get(arg);
-    				if (realVar == null) {
-    					realVar = rc.selfVar(arg, false); // should not be hidden!
-    					// renaming.put(arg, realVar);
+    				C_Var realVar = null;
+    				if (arg instanceof Local_c) {
+    					Local_c actual = (Local_c) arg;
+    					realVar = renaming.get(actual.localInstance());
+    					if (realVar == null) {
+        					realVar = rc.selfVar(arg, false); 
+        					renaming.put(actual.localInstance(), realVar);
+        				}
     				}
+    				if (realVar == null) {
+    					realVar = rc.selfVar(arg, false); 
+    				}
+    				
     				subs.put(var, realVar);
     			}
     		}
