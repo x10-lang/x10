@@ -19,7 +19,7 @@ public class DepTypeInMethodArgDependsOnArg extends x10Test {
 }
 	public boolean run() {
 		final double[:rank==2] buffDest = new double[[1:10,1:10]->here];
-		double[:rank==2] buffSrc = buffDest;
+		double[:rank==buffDest.rank] buffSrc = buffDest;
 		arraycopy(buffDest,  buffSrc);
 		return true;
 	}

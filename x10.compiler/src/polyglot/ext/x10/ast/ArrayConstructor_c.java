@@ -26,6 +26,7 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Term;
+import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.main.Report;
 import polyglot.types.Context;
@@ -231,14 +232,15 @@ implements ArrayConstructor {
 		
 	}
 	
-	private X10ParsedClassType transferAttributes(X10ParsedClassType t, X10ParsedClassType distType) {
+	private X10ParsedClassType transferAttributes(X10ParsedClassType t, 
+			X10ParsedClassType distType) {
 		//Report.report(1, "ArrayConstructor: transferring attributes from " + distType
 		//		+ " to " + t);
-		C_Term self = distType.self();
+		C_Var self = distType.self();
 		if (self != null) {
 			t.setDistribution(self);
 		}
-		C_Term onePlace = distType.onePlace();
+		C_Var onePlace = distType.onePlace();
 		if (onePlace !=null) {
 			t.setOnePlace(onePlace);
 			//Report.report(1, "Setting oneplace result is "  + t);
@@ -250,7 +252,7 @@ implements ArrayConstructor {
 		if (zeroBased){
 			t.setZeroBased();
 		}
-		C_Term rank = distType.rank();
+		C_Var rank = distType.rank();
 		if (rank !=null) t.setRank(rank);
 		if (t.hasLocalProperty() && zeroBased && isRect && C_Lit.ONE.equals(rank)) 
 			t.setRail();

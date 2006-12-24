@@ -22,7 +22,7 @@ public interface X10LocalInstance extends LocalInstance {
 	/**
 	 * Set the self var on the depclause associated with this
 	 * local instance if the variable is declared final.
-	 *
+	 * Return true iff the LI changed.
 	 */
-	void setSelfClauseIfFinal();
+	boolean setSelfClauseIfFinal();
 }

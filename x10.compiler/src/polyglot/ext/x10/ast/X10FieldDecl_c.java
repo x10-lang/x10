@@ -51,7 +51,9 @@ public class X10FieldDecl_c extends FieldDecl_c {
 		
 		// Ensure that the FieldInstance type is updated to reflect
 		// any deptype.
-		((X10FieldInstance) this.fi).setDepType(declType());
+		X10FieldInstance myFI = (X10FieldInstance) this.fi;
+		myFI.setDepType(declType());
+		myFI.setSelfClauseIfFinal();
 		
 		//
 		// Any occurrence of a non-final static field in X10

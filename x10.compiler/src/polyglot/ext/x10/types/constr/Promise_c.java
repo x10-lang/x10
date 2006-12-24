@@ -59,7 +59,7 @@ public class Promise_c implements Promise, Serializable {
 	 *  (non-Javadoc)
 	 * @see polyglot.ext.x10.types.constr.Promise#term()
 	 */
-	public C_Term term() {
+	public C_Var term() {
 		
 		return var;
 	}
@@ -86,6 +86,42 @@ public class Promise_c implements Promise, Serializable {
 	}
 	public void setVar(C_Var v) {
 		var =v;
+	}
+	protected Promise_c clone() {
+		Promise_c result = null;
+		try {
+			result = (Promise_c) super.clone();
+		} catch (CloneNotSupportedException z) {
+			// But it is!
+		}
+		return result;
+	}
+	public Promise cloneRecursively(HashMap<Promise, Promise> env) {
+		Promise_c clone = clone();
+		env.put(this, clone);
+		if (this.value != null) {
+			Promise valueClone = env.get(value);
+			if (valueClone == null) {
+				valueClone = value.cloneRecursively(env);
+			}
+			clone.value = valueClone;
+		}
+		if ( this.fields != null) {
+			HashMap<String, Promise> cloneFields = new HashMap<String, Promise>();
+			for (Iterator<Map.Entry<String,Promise>> it = fields.entrySet().iterator(); 
+			it.hasNext();) {
+				Map.Entry<String,Promise> entry = it.next();
+				String key = entry.getKey();
+				Promise p = entry.getValue();
+				Promise cloneP = env.get(p);
+				if (cloneP == null) {
+					cloneP = p.cloneRecursively(env);
+				}
+				cloneFields.put(key, cloneP);
+			}
+			clone.fields = cloneFields;
+		}
+		return clone;
 	}
 	
 	int lookupReturnValue;
@@ -215,15 +251,15 @@ public class Promise_c implements Promise, Serializable {
 			}
 		return false;
 	}
-	public void dump(HashMap<C_Term,C_Term> result, C_Term prefix) {
+	public void dump(HashMap<C_Var,C_Var> result, C_Term prefix) {
 		dump(result, prefix, null, null);
 	}
-	public void  dump(HashMap<C_Term,C_Term> result, C_Term prefix, C_Term newSelf, C_Term newThis) {
+	public void  dump(HashMap<C_Var,C_Var> result, C_Term prefix, C_Var newSelf, C_Var newThis) {
 		if (value != null) {
-			C_Term t1 = term();
+			C_Var t1 = term();
 			if (t1==null || t1.isEQV())  // nothing to dump!
 				return;
-			C_Term t2=value.term();
+			C_Var t2=value.term();
 			if (prefix != null && ! (prefix.prefixes(t1) || prefix.prefixes(t2)))
 					return;
 			if (newSelf != null) {

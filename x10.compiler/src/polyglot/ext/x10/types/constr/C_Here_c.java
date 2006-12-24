@@ -12,11 +12,11 @@ import java.util.HashMap;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 
-public class C_Here_c extends C_Term_c implements Promise {
+public class C_Here_c extends C_Lit_c implements Promise {
 
 	public static final C_Here_c here = new C_Here_c();
 	private C_Here_c() {
-		super(Constraint_c.typeSystem.place());
+		super(null, Constraint_c.typeSystem.place());
 	}
 	public String toString() { return "C_here"; }
 	public boolean equals(Object o) { 
@@ -44,13 +44,13 @@ public class C_Here_c extends C_Term_c implements Promise {
 	public boolean canReach(Promise other ) {
 		return equals(other);
 	}
-	public C_Term term() {
+	public C_Var term() {
 		return this;
 	}
-	public void dump(HashMap<C_Term, C_Term> result, C_Term prefix) {
+	public void dump(HashMap<C_Var, C_Var> result, C_Term prefix) {
 		// nothing to dump.
 	}
-	public void dump(HashMap<C_Term,C_Term> result, C_Term prefix, C_Term newSelf, C_Term newThis) {
+	public void dump(HashMap<C_Var,C_Var> result, C_Term prefix, C_Term newSelf, C_Term newThis) {
 		// nothing to dump.
 	}
 	public Promise lookup( C_Var[] vars, int index) {
@@ -74,4 +74,7 @@ public class C_Here_c extends C_Term_c implements Promise {
 	}
 	public Promise value() { return null; }
 	public HashMap<String,Promise> fields() { return null;}
+	public Promise cloneRecursively(HashMap<Promise,Promise> env) {
+		return this;
+	}
 }

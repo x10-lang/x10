@@ -182,7 +182,7 @@ implements X10ParsedClassType
 		List<FieldInstance> properties = properties();
 		Constraint ci = classInvariant();
 		
-		HashMap<C_Term, C_Term> result = new HashMap<C_Term, C_Term>();
+		HashMap<C_Var, C_Var> result = new HashMap<C_Var, C_Var>();
 		if (ci != null)
 			result = ci.constraints(result);
 		
@@ -196,7 +196,7 @@ implements X10ParsedClassType
 			if (rs != null)
 				result = rs.constraints(result); 
 		}
-		C_Term newThis = C_Special.Self;
+		C_Var newThis = C_Special.Self;
 		boolean aPropertyIsRecursive =  aPropertyIsRecursive();
 		
 		if (! aPropertyIsRecursive) {
@@ -209,7 +209,7 @@ implements X10ParsedClassType
 					X10Type xType = (X10Type) type;
 					Constraint rs = xType.realClause();
 					if (rs !=null) {
-						C_Term newSelf = new C_Field_c(fi, C_Special.Self);
+						C_Var newSelf = new C_Field_c(fi, C_Special.Self);
 						result = rs.constraints(result, newSelf, newThis); 
 					}
 				}
@@ -241,7 +241,7 @@ implements X10ParsedClassType
 		}
 		realClauseSet = true;
 	}
-	public void addBinding(C_Term t1, C_Term t2) {
+	public void addBinding(C_Var t1, C_Var t2) {
 		ensureClauses();
 		depClause = depClause.addBinding(t1, t2);
 		realClause = realClause.addBinding(t1,t2);
@@ -846,15 +846,15 @@ implements X10ParsedClassType
 		isRect = isRectSet = true;
 	}
 	
-	C_Term onePlace;
+	C_Var onePlace;
 	boolean isOnePlaceSet;
-	public C_Term onePlace() {
+	public C_Var onePlace() {
 		if (isOnePlaceSet) return onePlace;
 		isOnePlaceSet = true;
 		Constraint c = realClause();
 		return onePlace= c==null ? null : c.find("onePlace");
 	}
-	public void setOnePlace(C_Term onePlace) {
+	public void setOnePlace(C_Var onePlace) {
 		isOnePlaceSet=true;
 		this.onePlace = onePlace;
 		setProperty("onePlace", onePlace);
@@ -897,8 +897,8 @@ implements X10ParsedClassType
 	}
 	
 	boolean isRankSet;
-	C_Term rank;
-	public C_Term rank() {
+	C_Var rank;
+	public C_Var rank() {
 		
 		if (isRankSet) return rank;
 		
@@ -922,7 +922,7 @@ implements X10ParsedClassType
 		isRankSet = true;
 		return rank;
 	}
-	public void setRank(C_Term rank) {
+	public void setRank(C_Var rank) {
 		assert(rank !=null);
 		setProperty("rank", rank);
 		isRankSet=true;
@@ -939,8 +939,8 @@ implements X10ParsedClassType
 		return C_Lit.THREE.equals(rank());
 	}
 	boolean isDistSet;
-	C_Term dist;
-	public C_Term distribution() {
+	C_Var dist;
+	public C_Var distribution() {
 		if (isDistSet) return dist;
 		
 		Constraint c = realClause();
@@ -958,17 +958,17 @@ implements X10ParsedClassType
 		}
 		isDistSet = true;
 		//Report.report(1, "X1ParsedClassType dist is " + rank);
-		C_Term result = dist;
+		C_Var result = dist;
 		return result;
 	}
-	public void setDistribution(C_Term dist) {
+	public void setDistribution(C_Var dist) {
 		setProperty("distribution", dist);
 		isDistSet=true;
 		this.dist = dist;
 	}
-	C_Term self;
+	C_Var self;
 	boolean isSelfSet;
-	public C_Term self() {
+	public C_Var self() {
 		if (isSelfSet) return self;
 		Constraint c = realClause();
 		if (c == null) return self=null;
@@ -988,7 +988,7 @@ implements X10ParsedClassType
 		setProperty(propName, C_Lit.TRUE);
 	}
 	
-	protected void setProperty(String propName, C_Term val)  {
+	protected void setProperty(String propName, C_Var val)  {
 		X10FieldInstance fi = definedFieldNamed(propName);
 		//Report.report(1, "X10Parsedclass.setting property " + propName + " on " + this + "found fi=" + fi);
 		if (fi != null &&  fi.isProperty()) {
@@ -1012,7 +1012,7 @@ implements X10ParsedClassType
 		try {
 			X10FieldInstance fi = (X10FieldInstance) definedFieldNamed(propName);
 			if (fi != null &&  fi.isProperty()) {
-				C_Term term = new C_Field_c(fi, C_Special.Self);
+				C_Var term = new C_Field_c(fi, C_Special.Self);
 				Constraint c = new Constraint_c();
 				c.addTerm(term);
 				return result = realClause().entails(c);

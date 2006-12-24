@@ -19,14 +19,7 @@ public interface C_Term extends Serializable {
 	//public static final TypeTranslator translator = typeSystem.typeTranslator();
 	Type type();
 	
-	/**
-	 * Return the result of substituting value for var in this.
-	 * @param value -- the value to be substituted
-	 * @param var  -- the variable which is being substituted for
-	 * @return  the term with the substitution applied
-	 */
 	
-	C_Term substitute(C_Term value, C_Term var);
 	boolean rootVarIsSelf();
 	boolean rootVarIsThis();
 	

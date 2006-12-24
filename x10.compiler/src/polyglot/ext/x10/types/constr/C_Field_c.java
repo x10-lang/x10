@@ -47,7 +47,7 @@ public class C_Field_c extends C_Var_c implements C_Field {
 	public boolean isEQV() { return receiver().isEQV();}
 	
 	// If var is a C_Var, then value must be a C_Var too.
-	public C_Term substitute(C_Term value, C_Term var) {
+	public C_Var substitute(C_Var value, C_Var var) {
 		if (equals(var))
 			return value;
 		C_Var r1 = (C_Var) r.substitute(value, var);

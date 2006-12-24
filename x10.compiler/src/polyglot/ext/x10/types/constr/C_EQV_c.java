@@ -31,10 +31,15 @@ public class C_EQV_c extends C_Local_c implements C_EQV {
 	 * @param isSelfVar
 	 */
 	public C_EQV_c(LocalInstance li, boolean isSelfVar) {
+		this(li, isSelfVar, true);
+	}
+	public C_EQV_c(LocalInstance li, boolean isSelfVar, boolean hidden) {
 		super(li, isSelfVar);
-		// TODO Auto-generated constructor stub
+		this.hidden = hidden;
+		
 	}
 	
-	public boolean isEQV() { return true;}
+	boolean hidden;
+	public boolean isEQV() { return hidden;}
 
 }
