@@ -11,6 +11,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Assign;
@@ -19,6 +20,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
@@ -40,7 +42,8 @@ import polyglot.visit.TypeChecker;
  * @author vj
  *
  */
-public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
+public class AssignPropertyCall_c extends Stmt_c 
+implements AssignPropertyCall, Return {
 
 	List<Expr> arguments;
 
@@ -68,6 +71,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	        return succs;
 	    }
 
+	
 	/** Return a copy of this node with this.expr equal to the given expr.
 	 * @see polyglot.ext.x10.ast.Await#expr(polyglot.ast.Expr)
 	 */
@@ -114,24 +118,42 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 			ar = (AmbiguityRemover) ar.context(tc.context());
 			l = (Expr) l.visit(ar);
 			l = (Expr) l.visit(tc);
-			Stmt a = (Stmt) nf.Eval(pos, nf.Assign(pos, l, Assign.ASSIGN, arguments.get(i)));
+//			 We fudge typechecking of the generating code as follows.
+			// X10 Typechecking of the assignment statement is problematic since 	
+			// the type of the field may have references to other fields, hence may use this,
+			// But this doesnt exist yet. We will check all the properties simultaneously
+			// in AssignPropertyBody. So we do not need to check it here. 
+			Expr arg = arguments.get(i);
+			Expr as = nf.Assign(pos, l, Assign.ASSIGN, arg);
+			as = (Expr) as.type(arg.type()); // Fake the type.
+			Stmt a = (Stmt) nf.Eval(pos, as);
 			a = (Stmt) a.visit(ar);
-			a = (Stmt) a.visit(tc);
+			// a = (Stmt) a.visit(tc); Do not typecheck the statement a.
 			s.add(a);
 		}
 		Node n = new AssignPropertyBody_c(pos,s, thisConstructor, definedProperties).typeCheck(tc);
 		
-		// stub for now.
+		
 		return n;
 	}
 
+	public Expr expr() {
+		return null;
+	}
 
+	public Return expr(Expr e) {
+		return this;
+	}
 	/** Visit the children of the statement. */
 	
 	    public Node visitChildren(NodeVisitor v) {
 	        List<Expr> args = visitList(this.arguments, v);
 		return args(args);
 	    }
+	    
+	    Expr expr;
+	    
+	   
 }
 
 
