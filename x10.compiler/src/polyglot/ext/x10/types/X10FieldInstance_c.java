@@ -108,7 +108,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     }
 	
     public boolean setSelfClauseIfFinal() {
-		// If the local variable is final, replace T by T(:self==t), 
+		// If the field is final, replace T by T(:self==t), 
 		// do this even if depclause==null
 		boolean changed = false;
 		if ( flags().isFinal()) {
