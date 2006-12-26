@@ -43,7 +43,10 @@ public class AssignPropertyBody_c extends StmtSeq_c {
 		this.fi = fi;
 		
 	}
-	
+	@Override
+	public Node typeCheckOverride(Node parent, TypeChecker tc) throws SemanticException {
+		return this;
+	}
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Context ctx = tc.context();
