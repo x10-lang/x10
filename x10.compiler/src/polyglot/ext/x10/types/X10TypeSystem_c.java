@@ -1356,7 +1356,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		 assert_(type);
 		 return new X10LocalInstance_c(this, pos, flags, type, name);
 	 }
-
+	  public static String listToString(List l) {
+		  return TypeSystem_c.listToString(l);
+	  }
 	 /**
 	  * Populates the list acceptable with those MethodInstances which are
 	  * Applicable and Accessible as defined by JLS 15.11.2.1
