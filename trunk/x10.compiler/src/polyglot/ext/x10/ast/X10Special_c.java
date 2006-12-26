@@ -12,6 +12,8 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Special_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10NamedType;
+import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.constr.C_Special;
 import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.SemanticException;
@@ -90,6 +92,8 @@ public class X10Special_c extends Special_c implements X10Special {
         }
         
         if (kind == THIS) {
+        	X10Type tt = (X10Type) t;
+        	tt.setSelfVar(C_Special.This);
             return type(t);
         }
         else if (kind == SUPER) {
