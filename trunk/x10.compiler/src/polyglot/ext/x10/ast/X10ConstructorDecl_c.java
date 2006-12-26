@@ -23,6 +23,8 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.constr.C_Special_c;
+import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
 import polyglot.parse.Name;
 import polyglot.types.ConstructorInstance;
@@ -111,10 +113,17 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         	Iterator<Formal> it = formals.iterator();
         	while (it.hasNext()) {
         		Formal n =  it.next();
-        		Type newType = n.type().type();
+        		X10Type newType = (X10Type) n.type().type();
         		//LocalInstance li = n.localInstance().type(newType);
         		//newFormals.add(n.localInstance(li));
         		formalTypes.add(newType);
+        		 // Check that the no type contains a reference to this.
+        		Constraint clause = newType.realClause();
+                if (clause != null) {
+                	if (clause.hasVar(C_Special_c.This)) 
+                		throw new SemanticException("The type of an argument to a constructor may not reference this.",
+                				n.position());
+                }
         	}
         	//nn = nn.formals(newFormals);
         	nn.constructorInstance().setFormalTypes(formalTypes);
@@ -138,6 +147,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         if (! retType.isCanonical()) {
             return nn;
         }
+       
+        
         TypeSystem ts = tc.typeSystem();
         X10Type retTypeBase = retType.makeNoClauseVariant();
         X10ConstructorInstance nnci = (X10ConstructorInstance) nn.constructorInstance();
