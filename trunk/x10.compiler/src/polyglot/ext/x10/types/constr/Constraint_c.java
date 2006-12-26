@@ -651,7 +651,10 @@ public class Constraint_c implements Constraint, Cloneable {
 	 }
 	
 	
-	public String toString() { return  constraints().toString() ;}
+	public String toString() { 
+		String str = constraints().toString();
+		return  "(:" + str.substring(1, str.length()-1)+")" ;
+		}
 
 	protected int eqvCount;
 	public C_EQV genEQV(Type type, boolean isSelfVar) {
@@ -726,8 +729,7 @@ public class Constraint_c implements Constraint, Cloneable {
 		if (roots == null)
 			// nothing to substitute
 			return;
-		Promise p = lookup(x);
-		
+		Promise p = (Promise) roots.get(x);
 		if (p == null)
 			// nothing to substitute
 			return;
@@ -735,21 +737,22 @@ public class Constraint_c implements Constraint, Cloneable {
 		roots.remove(x);
 		Promise q = intern(y); 
 		replace(q, p);
-		
 		if (p instanceof C_Lit) {
 			try {
 				q.bind(p);
-				} catch (Failure f) {
-					throw new InternalCompilerError("Error in replacing " + x 
-							+ " with " + y + " in " + this + ": binding failure with "  + p);
-				}
+			} catch (Failure f) {
+				throw new InternalCompilerError("Error in replacing " + x 
+						+ " with " + y + " in " + this + ": binding failure with "  + p);
+			}
+			if (propagate) 
+				propagate(y);
 			return;
 		}
 		Promise xf = p.value();
 		if (xf != null) {
 			//addBinding(y, xf.term());
 			try {
-			q.bind(xf);
+				q.bind(xf);
 			} catch (Failure f) {
 				throw new InternalCompilerError("Error in replacing " + x 
 						+ " with " + y + " in " + this + ": binding failure with "  + xf);
@@ -758,28 +761,28 @@ public class Constraint_c implements Constraint, Cloneable {
 			
 			HashMap<String,Promise> fields = p.fields(); 
 			if (fields != null)
-			for (Iterator<Entry<String,Promise>> it = fields.entrySet().iterator(); it.hasNext();) {
-				Entry<String, Promise> entry = it.next();
-				String s = entry.getKey();
-				Promise orphan = entry.getValue();
-				try {
-					q.addIn(s, orphan);
-					C_Field oldTerm = (C_Field) orphan.term();
-					FieldInstance oldfi = oldTerm.fieldInstance();
-					C_Field newTerm = new C_Field_c(oldfi, (C_Var) q.term());
-					orphan.setTerm(newTerm);
-				} catch (Failure f) {
-					throw new InternalCompilerError("Error in replacing " + x 
-							+ " with " + y + " in " + this + ": failure in forwarding " + entry);
+				for (Iterator<Entry<String,Promise>> it = fields.entrySet().iterator(); it.hasNext();) {
+					Entry<String, Promise> entry = it.next();
+					String s = entry.getKey();
+					Promise orphan = entry.getValue();
+					try {
+						q.addIn(s, orphan);
+						C_Field oldTerm = (C_Field) orphan.term();
+						FieldInstance oldfi = oldTerm.fieldInstance();
+						C_Field newTerm = new C_Field_c(oldfi, (C_Var) q.term());
+						orphan.setTerm(newTerm);
+					} catch (Failure f) {
+						throw new InternalCompilerError("Error in replacing " + x 
+								+ " with " + y + " in " + this + ": failure in forwarding " + entry);
+					}
 				}
-			}
 		}
 		
 		
 		// Now move all the terms over.
 		if (propagate) 
 			propagate(y);
-			
+		
 		// Report.report(1, "Constraint_c: applySubstitution:" + thisString +  " = " + this);
 	}
 	/** Replace all pointers entering x in this constraint with pointers entering y.
