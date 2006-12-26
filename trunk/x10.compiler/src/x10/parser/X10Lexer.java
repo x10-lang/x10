@@ -760,6 +760,21 @@ assert(new_file != null);
         return;
     }
 
+    public void makeToken(int startLoc, int endLoc, int kind)
+    {
+        if (kind == TK_IDENTIFIER)
+        {
+            int index = getPrsStream().getSize() - 1;
+            IToken token = getPrsStream().getIToken(index);
+            if (token.getKind() == TK_DoubleLiteral && getInputChars()[token.getEndOffset()] == '.')
+            {
+                token.setEndOffset(token.getEndOffset() - 1);
+                getPrsStream().makeToken(token.getEndOffset(), token.getEndOffset(), TK_DOT);
+            }
+        }
+        prsStream.makeToken(startLoc, endLoc, kind);
+    }
+    
     static public class DifferX10 extends DifferJava
     {
         protected DifferX10() {}
@@ -1338,23 +1353,6 @@ assert(new_file != null);
             //
             case 355: { 
                 makeToken(TK_ARROW);
-                break;
-            }
-     
-            //
-            // Rule 356:  Token ::= IntegerDot l o c a t i o n
-            //
-            case 356: { 
-                makeToken(getRhsFirstTokenIndex(2), getRightSpan(), TK_IDENTIFIER);
-                break;
-            }
-     
-            //
-            // Rule 357:  IntegerDot ::= Integer .
-            //
-            case 357: { 
-                makeToken(getLeftSpan(), getRhsLastTokenIndex(1), TK_IntegerLiteral);
-                makeToken(getRightSpan(), getRightSpan(), TK_DOT);
                 break;
             }
     

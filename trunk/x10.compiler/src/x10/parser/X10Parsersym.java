@@ -164,11 +164,10 @@ public interface X10Parsersym {
       TK_UNSIGNED_RIGHT_SHIFT = 146,
       TK_RIGHT_SHIFT_EQUAL = 147,
       TK_UNSIGNED_RIGHT_SHIFT_EQUAL = 148,
-      TK_LOCATION = 149,
       TK_location = 25,
       TK_ErrorId = 88,
       TK_any = 133,
-      TK_ERROR_TOKEN = 150;
+      TK_ERROR_TOKEN = 149;
 
       public final static String orderedTerminalSymbols[] = {
                  "",
@@ -320,7 +319,6 @@ public interface X10Parsersym {
                  "UNSIGNED_RIGHT_SHIFT",
                  "RIGHT_SHIFT_EQUAL",
                  "UNSIGNED_RIGHT_SHIFT_EQUAL",
-                 "LOCATION",
                  "ERROR_TOKEN"
              };
 
