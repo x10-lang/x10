@@ -40,19 +40,16 @@ public class Jacobi extends x10Test {
 		int iters = 0;
 		double err;
 		while (true) {
-			final double[:distribution==DInner] Temp = (double[:distribution==DInner]) new double[DInner] (point [i,j])
-			{ return (read(i+1, j)+read(i-1, j)+read(i, j+1)+read(i, j-1))/4.0; };
-			if ((err = ((B | DInner) - Temp).abs().sum()) < epsilon)break;
+			final double[:distribution==this.DInner] Temp = 
+				 new double[DInner] (point [i,j])
+			{ return (B[i+1,j]+B[i-1,j]+B[i,j+1]+B[i,j-1])/4.0; };
+			if ((err = ((B | this.DInner)-Temp).abs().sum()) < epsilon)break;
 			B.update(Temp);
 			iters++;
 		}
 		System.out.println("Error = "+err);
 		System.out.println("Iterations = "+iters);
 		return Math.abs(err-EXPECTED_ERR) < epsilon2 && iters == EXPECTED_ITERS;
-	}
-
-	public double read(final int i, final int j) {
-		return future(D[i,j]) { B[i,j] }.force();
 	}
 
 	public static void main(String[] args) {
