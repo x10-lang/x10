@@ -11,7 +11,7 @@ import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Type;
 
-public interface X10ConstructorInstance extends ConstructorInstance {
+public interface X10ConstructorInstance extends ConstructorInstance, X10ProcedureInstance {
 	/**
 	 * Return the depclause associated with the returntype of the constructor.
 	 * @return

@@ -19,7 +19,7 @@ import polyglot.types.MethodInstance;
  * @author vj
  *
  */
-public interface X10MethodInstance extends MethodInstance {
+public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance {
 	/**
 	 * Does this method instance represent a method on a java class?
 	 * @return

@@ -170,10 +170,12 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	   */
 	@Override
     public boolean callValidImpl(final List argTypes) {
-    	final List<X10Type> args = argTypes;
-    	boolean result = callValidImplNoClauses(argTypes);
+		return X10MethodInstance_c.callValidImpl(this, argTypes);
+	}
+	public static boolean callValidImpl(final X10ProcedureInstance me, final List<X10Type> args) {
+    	boolean result = me.callValidImplNoClauses(args);
     	if (!result) return result;
-    	final List<X10Type> formals = this.formalTypes();
+    	final List<X10Type> formals = me.formalTypes();
     	final int n = formals.size();
     	// Check quickly if you need to test for entailment.
     	boolean typesNotDep = true;
@@ -209,16 +211,20 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     	for (int i=0; result && (i < n); i++) {
     		Constraint query = formals.get(i).realClause();
     		if (query != null && ! query.valid()) {
-    			query = query.substitute(y,x, false);
-    			Constraint query2 = query.substitute(y[i], C_Special_c.Self, false);
-    			result = env.entails(query2);
+    			Constraint query2 = query.substitute(y,x, false);
+    			Constraint query3 = query2.substitute(y[i], C_Special_c.Self, false);
+    			result = env.entails(query3);
     		}
     	}
     	return result;
     }
     public boolean callValidImplNoClauses(List argTypes) {
-        List l1 = this.formalTypes();
+    	return X10MethodInstance_c.callValidImplNoClauses(this, argTypes);
+    }
+    public static boolean callValidImplNoClauses(X10ProcedureInstance me, List<X10Type> argTypes) {
+        List l1 = me.formalTypes();
         List l2 = argTypes;
+        TypeSystem ts = me.typeSystem();
 
         Iterator i1 = l1.iterator();
         Iterator i2 = l2.iterator();
