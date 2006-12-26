@@ -46,6 +46,13 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     public Constraint realClause() { return depClause; }
     public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
 	public C_Var selfVar() { return depClause()==null ? null : depClause().selfVar();}
+	public void setSelfVar(C_Var v) {
+		Constraint c = depClause();
+		if (c==null) {
+			depClause=new Constraint_c();
+		}
+		depClause.setSelfVar(v);
+	}
 	public boolean propertiesElaborated() { return true; }
     public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
 		depClause = d;

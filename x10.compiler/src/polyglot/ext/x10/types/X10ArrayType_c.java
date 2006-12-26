@@ -55,6 +55,13 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	}
 	public boolean propertiesElaborated() { return true; }
 	public C_Var selfVar() { return depClause()==null ? null : depClause().selfVar();}
+	public void setSelfVar(C_Var v) {
+		Constraint c = depClause();
+		if (c==null) {
+			depClause=new Constraint_c();
+		}
+		depClause.setSelfVar(v);
+	}
 	public X10Type makeDepVariant(Constraint d, List<Type> l) { 
 		return makeVariant(d, l);
 	}

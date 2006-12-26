@@ -50,6 +50,13 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     public Constraint realClause() { return depClause; }
     public boolean isConstrained() { return depClause !=null && ! depClause.valid();}
     public C_Var selfVar() { return depClause()==null ? null : depClause().selfVar();}
+    public void setSelfVar(C_Var v) {
+		Constraint c = depClause();
+		if (c==null) {
+			depClause=new Constraint_c();
+		}
+		depClause.setSelfVar(v);
+	}
     public void setDepGen(Constraint d, List/*<GenParameterExpr>*/ l) {
 		depClause = d;
 		typeParameters = l;
