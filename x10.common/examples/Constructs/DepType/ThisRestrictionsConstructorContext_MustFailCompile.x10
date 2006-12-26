@@ -12,6 +12,8 @@ import harness.x10Test;
  *
  * @author pvarma
  */
+
+
 public class ThisRestrictionsConstructorContext_MustFailCompile extends x10Test {
     class Test(int i, int j) {
        public Test(int i, int j) { this.i=i; this.j=j;}
