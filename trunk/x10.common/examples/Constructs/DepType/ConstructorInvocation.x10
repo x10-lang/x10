@@ -17,15 +17,14 @@ public class ConstructorInvocation extends x10Test {
 
 	class Test(int i, int j) {
 		Test (: i == j) (final int i, final int j : i == j) {
-			this.i=i;
-			this.j=j;
+		    property(i,j);
 		}
 	}
 		
 	class Test2(int k) extends Test{
 		Test2(int k) {
 			super(k,k);
-			this.k=k;
+			property(k);
 		}
 	}
 	public boolean run() {
