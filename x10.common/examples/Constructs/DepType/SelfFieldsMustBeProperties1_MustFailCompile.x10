@@ -8,7 +8,7 @@
 import harness.x10Test;
 
 /**
- * The test checks that final fields can be accessed in a depclause.
+ * The test checks that only properties can be accessed via self.
  *
  * @author vj
  */

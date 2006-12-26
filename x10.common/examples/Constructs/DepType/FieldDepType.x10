@@ -5,6 +5,13 @@
  *  This file is part of X10 Test.
  *
  */
+ 
+ /**
+ *
+ * Check that a field can be declared at a deptype.
+ *
+ */
+ 
 import harness.x10Test;
 
 public class FieldDepType extends x10Test {

@@ -8,7 +8,7 @@
 import harness.x10Test;
 
 /**
- * Check that a deptype can be extended
+ * Check that a deptype can be extended, and a constructor propagates constraints on super's properties.
  *
  * @author vj
  */

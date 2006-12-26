@@ -8,7 +8,10 @@
 import harness.x10Test;
 
 /**
- * The test checks that final fields can be accessed in a depclause.
+ * The test checks that a depclause cannot reference a field of the type
+ in which it occurs (even if the field is final), unless the field is 
+ declared as a property. (Such a field access is to be considered 
+		 implicitly qualified with self.)
  *
  * @author vj
  */
@@ -16,7 +19,7 @@ public class SelfFieldsMustBeProperties_MustFailCompile extends x10Test {
 	class Test(int i) {
 	   public final boolean bad; // not declared as a property.
 	   public Test(int ii) {
-	     i = ii;
+	     property(ii);
 	     bad = true;
 	   }
 	}

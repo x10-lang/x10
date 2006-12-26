@@ -8,9 +8,9 @@
 import harness.x10Test;
 
 /**
- * The test checks that property syntax is accepted.
+ * The test checks that property syntax is accepted for value classes.
  *
- * @author pvarma
+ * @author pvarma, vj
  */
 public value ValueProp1(int i, int j : i == j) extends x10Test {
 

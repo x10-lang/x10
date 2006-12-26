@@ -6,7 +6,8 @@
  *
  */
 //LIMITATION:
-//This test case will not meet expectations. It is a limitation of the current release.
+//The current release does not implement guarded methods or fields.
+
 /**Tests that a field of a class C, guarded with this(:c), is accessed only in objects
  * whose type is a subtype of C(:c).
  *@author pvarma
@@ -26,7 +27,7 @@ public class GuardedFieldAccess_MustFailCompile extends x10Test {
 		
 	public boolean run() {
 		Test t = new Test(6, 5);
-		t.value = t.value + 1;
+		t.value = t.value + 1; // Must fail. t needs to be of type Test(:i==j).
 	   return true;
 	}  
 	

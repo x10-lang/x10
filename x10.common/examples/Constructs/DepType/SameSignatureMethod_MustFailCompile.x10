@@ -16,8 +16,8 @@ public class SameSignatureMethod_MustFailCompile extends x10Test {
 
 	class Test(int i, int j) {
 		// the two tester methods with same signature are disallowed
-		public this(:i==5) boolean tester (final int(: k == 0) k) {return true;}
-		public this(:i==5) int tester (final int(: l == 0) l) {return l;}
+		 public boolean tester (final int(: k == 0) k) {return true;}
+		 public int tester (final int(: l == 0) l) {return l;}
 		Test (final int i, final int j ) {
 			this.i=i;
 			this.j=j;

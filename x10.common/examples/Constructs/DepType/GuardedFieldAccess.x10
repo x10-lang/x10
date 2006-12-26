@@ -5,8 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-//LIMITATION:
-//This test case will not meet expectations. It is a limitation of the current release.
+
 /** Tests that a field of a class C, guarded with this(:c), is accessed only in objects
  * whose type is a subtype of C(:c).
  *@author pvarma
@@ -18,16 +17,15 @@ import harness.x10Test;
 public class GuardedFieldAccess extends x10Test { 
 
 	class Test(int i, int j) {
-		public this(:i==j) int value = 5;
-		Test (final int i, final int j ) {
-			this.i=i;
-			this.j=j;
+		this(:i==j) public int val = 5;
+		Test(:self.i==i&&self.j==j)(final int i, final int j ) {
+			property(i,j);
 		}
 	}
 		
 	public boolean run() {
-		Test(: i==j) t = (Test (: i ==j)) new Test(5, 5);
-		t.value = t.value + 1;
+		Test(: i==j) t =  new Test(5, 5);
+		t.val = t.val + 1;
 	   return true;
 	}  
 	

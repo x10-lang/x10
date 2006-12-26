@@ -596,16 +596,15 @@ implements X10ParsedClassType
 		return sb.toString();
 	}
 	public String toStringForDisplay() { 
-		String clause = "";
-		if (depClause != null) {
-			clause = depClause.toString();
-			clause = clause.substring(1, clause.length()-1);
+		String clause = null;
+		if (realClause != null && ! realClause.valid()) {
+			clause = realClause.toString();
 		}
 		
 		return  
 		((rootType == this) ? super.toString() : ((X10ParsedClassType_c) rootType).toString())
 		+ (isParametric() ?  typeParameters.toString() : "") 
-		+ (depClause == null ? "" : "(:" +  clause + ")");
+		+ (clause==null? "" : clause);
 	}
 	
 	

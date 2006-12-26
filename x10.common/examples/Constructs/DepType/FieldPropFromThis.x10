@@ -14,7 +14,7 @@ import harness.x10Test;
 public class FieldPropFromThis extends x10Test {
 	class  Foo(int(:self==0) i) {
 		public Foo() {
-			this.i = 0;
+			property(0);
 		}
 	}
 	

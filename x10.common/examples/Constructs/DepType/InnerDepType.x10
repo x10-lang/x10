@@ -14,11 +14,11 @@ import harness.x10Test;
  */
 public class InnerDepType extends x10Test {
     class Test(int i) {
-       public Test(int i) { this.i=i; }
+       public Test(:self.i==i)(final int i) { property(i); }
     }
 	public boolean run() {
 	 
-	    Test(: self.i==0) x =   (Test(:i==0)) new Test(0); 
+	    Test(: self.i==0) x =   new Test(0); 
 	    return true;
 	}
 	public static void main(String[] args) {
