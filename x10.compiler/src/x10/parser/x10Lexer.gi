@@ -41,7 +41,6 @@ $End
 $Export
 --     RANGE
     ARROW
-    LOCATION
 $End
 
 $Headers
@@ -49,6 +48,21 @@ $Headers
     -- Additional methods for the action class not provided in the template
     --
     /.
+        public void makeToken(int startLoc, int endLoc, int kind)
+        {
+            if (kind == TK_IDENTIFIER)
+            {
+                int index = getPrsStream().getSize() - 1;
+                IToken token = getPrsStream().getIToken(index);
+                if (token.getKind() == TK_DoubleLiteral && getInputChars()[token.getEndOffset()] == '.')
+                {
+                    token.setEndOffset(token.getEndOffset() - 1);
+                    getPrsStream().makeToken(token.getEndOffset(), token.getEndOffset(), TK_DOT);
+                }
+            }
+            prsStream.makeToken(startLoc, endLoc, kind);
+        }
+        
         static public class DifferX10 extends DifferJava
         {
             protected DifferX10() {}
@@ -202,26 +216,12 @@ $Rules
 --            $EndAction
 --          ./
 -- 
+
     Token ::= '-' '>'
         /.$BeginAction
                     makeToken($_ARROW);
           $EndAction
         ./
-
-    Token ::= IntegerDot 'l' 'o' 'c' 'a' 't' 'i' 'o' 'n'
-        /.$BeginAction
-                    makeToken(getRhsFirstTokenIndex(2), getRightSpan(), $_IDENTIFIER);
-          $EndAction
-        ./
-    IntegerDot ::= Integer '.'
-        /.$BeginAction
-                    makeToken(getLeftSpan(), getRhsLastTokenIndex(1), $_IntegerLiteral);
-                    makeToken(getRightSpan(), getRightSpan(), $_DOT);
-          $EndAction
-        ./
-                 | IntegerDot MultiLineComment
-                 | IntegerDot SingleLineComment Eol
-                 | IntegerDot WSChar
 
 --     IntLiteralAndRange ::= Integer '.' '.'
 --         /.$BeginAction
