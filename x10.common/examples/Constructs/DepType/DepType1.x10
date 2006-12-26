@@ -21,7 +21,7 @@ public class DepType1(int i, int j) extends x10Test {
     class Test(int k) extends DepType1 { 
         Test(int kk) {
             super(kk,kk);
-            this.k=kk;
+	    property(kk);
         }
     }
     

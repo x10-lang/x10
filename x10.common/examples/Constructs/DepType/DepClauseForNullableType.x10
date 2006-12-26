@@ -16,7 +16,7 @@ public class DepClauseForNullableType extends x10Test {
     class Test(int k) { 
         Test(int kk) {
             super();
-            this.k=kk;
+	    property(kk);
         }
     }
     
