@@ -139,6 +139,7 @@ public interface X10Type extends Type {
      */
     boolean consistent();
     C_Var selfVar();
+    void setSelfVar(C_Var v);
     
     boolean equalsWithoutClauseImpl(X10Type other);
    

@@ -140,6 +140,13 @@ implements X10ParsedClassType
 	public C_Var selfVar() {
 		return depClause()==null ? null : depClause().selfVar();
 	}
+	public void setSelfVar(C_Var v) {
+		Constraint c = depClause();
+		if (c==null) {
+			depClause=new Constraint_c();
+		}
+		depClause.setSelfVar(v);
+	}
 	private void ensureClauses() {
 		Constraint rc = realClause(); // forces it to be initialized.
 		if (rc == null) {
@@ -740,7 +747,7 @@ implements X10ParsedClassType
 					// This class is defined in a source file.
 					ExtensionInfo.X10Scheduler scheduler = 
 						(ExtensionInfo.X10Scheduler) typeSystem().extensionInfo().scheduler();
-					throw new MissingDependencyException(scheduler.TypeElaborated(job()), false);
+					//throw new MissingDependencyException(scheduler.TypeElaborated(job()), false);
 				}
 				else {
 					// Loaded from a raw Java class file.  Properties cannot have dependent types.
