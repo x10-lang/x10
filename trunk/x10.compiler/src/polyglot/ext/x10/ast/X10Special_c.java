@@ -92,9 +92,9 @@ public class X10Special_c extends Special_c implements X10Special {
         }
         
         if (kind == THIS) {
-        	X10Type tt = (X10Type) t;
+        	X10Type tt = (X10Type) t.copy();
         	tt.setSelfVar(C_Special.This);
-            return type(t);
+            return type(tt);
         }
         else if (kind == SUPER) {
             return type(t.superType());
