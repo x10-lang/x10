@@ -821,7 +821,8 @@ public class Constraint_c implements Constraint, Cloneable {
 	}
 	public void saturate() {
 		if (roots != null) {
-			for (Iterator<C_Var> it = roots.keySet().iterator(); it.hasNext();) {
+			final HashMap<C_Var,Promise> rootSnapshot = (HashMap<C_Var,Promise>) roots.clone();
+			for (Iterator<C_Var> it = rootSnapshot.keySet().iterator(); it.hasNext();) {
 				C_Var var = it.next();
 				propagateRecursively(var);
 			}
