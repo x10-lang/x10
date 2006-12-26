@@ -19,7 +19,7 @@ import harness.x10Test;
 	 
 	 class A(int(:self==2) i, int(:self==2) b) {
 		 public A(final int(:self==2) i, int(:self==2) b) {
-			 this.i = i; this.b = b; 
+			property(i,b); 
 		 }
 	 }
 	 public boolean  run() { 

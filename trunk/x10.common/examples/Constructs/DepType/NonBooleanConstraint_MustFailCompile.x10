@@ -15,7 +15,6 @@ import harness.x10Test;
 public class NonBooleanConstraint_MustFailCompile(int i, int j : i ) extends x10Test {
 
 	public NonBooleanConstraint_MustFailCompile(int k) {
-	    //this.i=k; this.j=k;
 	    property(k,k);
 	}
 	public boolean run() {

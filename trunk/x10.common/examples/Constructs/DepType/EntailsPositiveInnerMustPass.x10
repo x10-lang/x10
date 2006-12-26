@@ -8,18 +8,18 @@
 import harness.x10Test;
 
 /**
- * The test checks that property syntax is accepted.
+ * Check that the type Test(:self.j==1) is a subtype of Test(:self.j==j) when j is of type int(:self==1).
  *
  * @author vj
  */
 public class EntailsPositiveInnerMustPass extends x10Test {
     class Test(int i, int j) {
-       public Test(int i, int j) { this.i=i; this.j=j;}
+	public Test(:i==ii&&j==jj)(final int ii, final int jj) { property(ii,jj);}
     }
 
 	public boolean run() {
-	    final int j = 1;
-	    Test(: self.i==j) x =  (Test(:i==j)) new Test(1,1); 
+	    final int(:self==1) j = 1;
+	    Test(:self.j==j) x = new Test(1,1); 
 	    return true;
 	}
 	public static void main(String[] args) {

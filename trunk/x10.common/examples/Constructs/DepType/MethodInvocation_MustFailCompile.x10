@@ -16,7 +16,7 @@ import harness.x10Test;
 public class MethodInvocation_MustFailCompile extends x10Test { 
 
 	class Test(int i, int j) {
-		public int tester (final int k, final int l: k == l) { return k + l;}
+		public int tester (final int k, final int(:self==k) l) { return k + l;}
 		Test (int i, int j ) {
 			this.i=i;
 			this.j=j;

@@ -6,7 +6,8 @@
  *
  */
 //LIMITATION:
-//This test case will not meet expectations. It is a limitation of the current release.
+//The current release does not implement guarded methods or fields.
+
 /** Tests that a method of a class C, guarded with this(:c), is accessed only in objects
  * whose type is a subtype of C(:c).
  *@author pvarma
@@ -19,10 +20,9 @@ public class GuardedMethodAccess_MustFailCompile extends x10Test {
 
 	class Test(int i, int j) {
 		public int value = 0;
-		public this(:i==j) int key() {return 5;}
-		Test (final int i, final int j ) {
-			this.i=i;
-			this.j=j;
+		this(:i==j) public int key() {return 5;}
+		Test(:self.i==i&&self.j==j) (final int i, final int j ) {
+			property(i,j);
 		}
 	}
 		

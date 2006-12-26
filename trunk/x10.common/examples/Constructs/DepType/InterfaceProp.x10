@@ -8,7 +8,7 @@
 import harness.x10Test;
 
 /**
- * Interfaces with properties 
+ * Check that properties may be declared on interfaces.
  *
  * @author raj
  */

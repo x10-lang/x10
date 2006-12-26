@@ -10,23 +10,19 @@
  *@author pvarma
  *
  */
-//LIMITATION:
-//This test case will not meet expectations. It is a limitation of the current release.
-// depclauses in parameter lists of methods and constructors are not currently implemented.
-// Work-around: add the depclause to the deptypes of the formal arguments.
 
 import harness.x10Test;
 
-public class ConstructorInvocation extends x10Test { 
+public class ConstructorInvocation2 extends x10Test { 
 
 	class Test(int i, int j) {
-		Test (: i == j) (final int i, final int j : i == j) {
+		Test (: self.i == self.j) (final int i, final int(:self==i) j) {
 		    property(i,j);
 		}
 	}
 		
 	class Test2(int k) extends Test{
-		Test2(int k) {
+		Test2(final int k) {
 			super(k,k);
 			property(k);
 		}
@@ -36,7 +32,7 @@ public class ConstructorInvocation extends x10Test {
 	}  
 	
     public static void main(String[] args) {
-        new ConstructorInvocation().execute();
+        new ConstructorInvocation2().execute();
     }
    
 

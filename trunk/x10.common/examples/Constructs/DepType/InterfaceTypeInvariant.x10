@@ -10,6 +10,9 @@
  *@author pvarma
  *
  */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the release.
+// Invariants in interfaces are not curently supported.
 
 import harness.x10Test;
 

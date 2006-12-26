@@ -14,14 +14,14 @@ import harness.x10Test;
  */
 public class NonFinalVariable_MustFailCompile extends x10Test {
 	class Test(int i) {
-	   public Test(int ii) {
-	     i = ii;
+	   public Test(:self.i==ii)(final int ii) {
+	     property(ii);
 	   }
 	}
 	
 	public boolean run() {
-	int ii = 42;
-	   Test  a = (Test(:self.i==ii+10)) new Test(52);
+	int ii = 52;
+	   Test(:i==ii)  a =  new Test(52);
 	    return true;
 	}
 	public static void main(String[] args) {

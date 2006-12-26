@@ -8,7 +8,7 @@
 import harness.x10Test;
 
 /**
- * The test checks that property syntax is accepted.
+ * The test checks that property syntax is accepted for value classes.
  *
  * @author vj
  */

@@ -17,7 +17,7 @@ public class DepTypeConsistency_MustFailCompile extends x10Test {
 
 /* free variable j is not parametrically consistent */
     class Tester(int i : j == 2 ) {
-      public Tester(int arg) { i = arg;}
+      public Tester(int arg) { property(arg);}
     }
 	
  

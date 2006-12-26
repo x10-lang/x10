@@ -14,7 +14,9 @@ import harness.x10Test;
  */
  public class DepTypeInMethodArg extends x10Test {
 	    class Test(int i, int j) {
-	       public Test(:self.i==i&&self.j==j)(final int i, final int j) { property(i,j);}
+	       public Test(:self.i==i&&self.j==j)(final int i, final int j) { 
+                   property(i,j);
+               }
 	    }
 	   public boolean m(final Test t1, Test(:i == t1.i) t2) { 
 	      return true;
