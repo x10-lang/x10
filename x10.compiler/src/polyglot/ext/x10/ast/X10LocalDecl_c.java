@@ -57,20 +57,17 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		+ ">";
 	}
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		
-			//Report.report(1, "X10LocalDecl_c: entering " + this + " li=" + localInstance());
 			X10LocalDecl_c result= (X10LocalDecl_c) super.typeCheck(tc);
 			((X10LocalInstance) result.li).setSelfClauseIfFinal();
-			
-			//Report.report(1, "X10LocalDecl_c: leaving " + this + " li=" + localInstance());
-			return result;
+			return result.type(type().type(li.type()));
 		
 	}
-	public void pickUpTypeFromTypeNode(TypeChecker tc) {
+	public X10LocalDecl_c pickUpTypeFromTypeNode(TypeChecker tc) {
 		X10LocalInstance xli = (X10LocalInstance) li;
 		X10Type newType = (X10Type) type.type();
 		xli.setType(newType);
 		xli.setSelfClauseIfFinal();
+		return  (X10LocalDecl_c) type(type().type(xli.type()));
 	}
 	
 	public Context enterChildScope(Node child, Context c) {
