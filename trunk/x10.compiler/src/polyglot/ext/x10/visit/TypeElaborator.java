@@ -45,7 +45,7 @@ public class TypeElaborator extends TypeChecker {
 	public TypeElaborator(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
 	}
-	boolean inTypeNode;
+	boolean elaborate;
 	
 	@Override
 	public NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
@@ -54,7 +54,7 @@ public class TypeElaborator extends TypeChecker {
 			TypeElaborator te = (TypeElaborator) v;
 			if (n instanceof TypeNode) {
 				TypeElaborator v2 = (TypeElaborator) this.copy();
-				v2.inTypeNode = true;
+				v2.elaborate = true;
 				return v2;
 			}
 			
@@ -65,9 +65,10 @@ public class TypeElaborator extends TypeChecker {
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof X10VarDecl) {
     		X10VarDecl result = (X10VarDecl) n;
-    		result.pickUpTypeFromTypeNode(this);
+    		n= result.pickUpTypeFromTypeNode(this);
+    		
     	}
-        if (inTypeNode || n instanceof TypeNode) {
+        if (elaborate || n instanceof TypeNode) {
         	if (n instanceof Local && v instanceof TypeElaborator) {
         		// Replace occurrences of l with self, where l is the variable being defined.
         		Local nl = (Local) n;

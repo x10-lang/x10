@@ -130,8 +130,6 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	}
 
 	 public Node typeCheck(TypeChecker tc) throws SemanticException {
-	 
-     // Ensure that the LocalInstance is updated with the possibly new type (w/ depclause)
 			X10Formal_c result= (X10Formal_c) super.typeCheck(tc);
 			// Ensure that the LocalInstance is updated with the 
 			// possibly new type (w/ depclause)
@@ -282,11 +280,12 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		}
 		return stmts;
 	}
-	public void pickUpTypeFromTypeNode(TypeChecker tc) {
+	public X10Formal_c pickUpTypeFromTypeNode(TypeChecker tc) {
 		X10LocalInstance xli = (X10LocalInstance) li;
 		X10Type newType = (X10Type) type.type();
 		xli.setType(newType);
 		xli.setSelfClauseIfFinal();
+		return  (X10Formal_c) type(type().type(xli.type()));
 	}
 	
 	public Context enterChildScope(Node child, Context c) {
