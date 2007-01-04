@@ -13,3 +13,11 @@
 #
 # If the name "ALL" appears as a regular expression it is always used
 # in addition to the first matching regex or "DEFAULT".
+
+lpg          /bin/false
+x10.common   /bin/false
+x10.compiler /bin/false
+x10.man      /bin/false
+x10.runtime  /bin/false
+x10.test     /bin/false
+x10.web      /bin/false
