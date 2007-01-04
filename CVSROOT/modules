@@ -24,3 +24,23 @@
 # character to interpose another module into the current module.  This
 # can be useful for creating a module that consists of many directories
 # spread out over the entire source repository.
+
+lpg -d lpg lpg
+x10.common -d x10.common x10.common
+x10.compiler -d x10.compiler x10.compiler
+x10.runtime -d x10.runtime x10.runtime
+
+x10.man -d x10.man x10.man
+x10.web -d x10.web x10.web
+
+external -d externalWebsite x10.web/html/externalWebsite
+
+# Aliases
+
+x10 -d . &x10.common &x10.compiler &lpg &x10.runtime
+sources -d . &x10.common &x10.compiler &lpg &x10.runtime
+
+website -d . &x10.web
+
+manual -d . &x10.man
+
