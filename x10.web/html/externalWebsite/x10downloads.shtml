@@ -257,7 +257,7 @@ X10DT is available as a zip file found within the X10 distribution
 package. Unpack this file on top of your existing Eclipse installation
 directory. Alternatively, it can be installed directly from within
 Eclipse itself (the preferred method) from the <a
- href="http://x10web.watson.ibm.com/eclipseUpdates/X10DT/">X10DT
+ href="http://x10.sourceforge.net/updates/">X10DT
 Eclipse Update Site</a>. <br>
                   <br>
 <!--start -->
@@ -379,7 +379,7 @@ on the "New Remote Site" button on the upper-right hand of the
 dialog. <img src="update-sites-initial.gif"> </li>
                           <li> In the "Name" field type "X10DT" (this
 can be anything you want, really). In the "URL" field type
-"http://x10web.watson.ibm.com/eclipseUpdates/X10DT/" (note the trailing
+"http://x10.sourceforge.net/updates/" (note the trailing
 '/' character; it's significant) </li>
                           <img src="new-update-site.gif"> <li> Click
 "Ok" </li>
