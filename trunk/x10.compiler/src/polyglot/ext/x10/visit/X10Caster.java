@@ -382,8 +382,13 @@ public class X10Caster extends AscriptionVisitor {
 				if(constraintExpr instanceof X10Special) {
 					return visit((X10Special) constraintExpr);
 				}
+
+				List<Expr> res = new LinkedList<Expr>();
+				res.add(checkExpression(constraintExpr));
+
+				return res; 
 				// default behavior, (no visit method has been found for constraintExpr)
-				throw new SemanticException("Unhandled expression of type " + constraintExpr.getClass());			
+//				throw new SemanticException("Unhandled expression of type " + constraintExpr.getClass());			
 			}
 
 			private boolean isBinary(Expr expr) {
