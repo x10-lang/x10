@@ -69,14 +69,14 @@
         <ant antfile="${lpg.location}/build.xml" target="dist" inheritAll="false" dir="${lpg.location}"/>
     </target>
     <target name="polyglot-jar" depends="init">
-	<!-- TODO: move this into x10.common -->
-	<property name="polyglot.url" value="http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates/plugins"/>
-	<!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_2.0.1.jar"/>-->
-	<!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_nightly.jar"/>-->
-	<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_latest.jar"/>
-	<get usetimestamp="true" ignoreerrors="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
-	<available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
-	<fail message="Unable to get ${polyglot.jar}" unless="polyglot.jar.present"/>
+        <!-- TODO: move this into x10.common -->
+        <property name="polyglot.url" value="http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates/plugins"/>
+        <!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_2.0.1.jar"/>-->
+        <!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_nightly.jar"/>-->
+        <property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_latest.jar"/>
+        <get usetimestamp="true" ignoreerrors="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
+        <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
+        <fail message="Unable to get ${polyglot.jar}" unless="polyglot.jar.present"/>
     </target>
     <target name="runtime-jar" depends="init">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist" inheritAll="false" dir="${x10.runtime.location}"/>
@@ -125,6 +125,17 @@
             <zipfileset prefix="lib" dir="${lib}" includes="*.jar"/>
         </zip>
     </target>
+    <target name="src-zip" depends="srczip"/>
+    <target name="srczip" depends="build">
+        <zip destfile="${x10.home}/x10-src-${DSTAMP}-${TSTAMP}.zip">
+            <zipfileset prefix="" dir="${x10.common.location}" includes="epl-v10.html"/>
+	    <zipfileset prefix="lpg" dir="${lpg.location}" excludes="**/CVS/**,classes/**"/>
+	    <zipfileset prefix="x10.common" dir="${x10.common.location}" excludes="**/CVS/**,lib/**,etc/**" includes="bin/*.in,bin/testScript*,bin/newpgrp,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
+	    <zipfileset prefix="x10.compiler" dir="${basedir}" excludes="**/CVS/**,classes/**"/>
+	    <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="**/CVS/**,classes/**"/>
+        </zip>
+    </target>
+    <target name="zips" depends="zip,srczip"/>
     <target name="tags" depends="init">
       <!-- create a blank tags file -->
       <exec dir="${x10.home}" executable="ctags" failonerror="true">
