@@ -55,8 +55,8 @@ public class DistBounds2D extends x10Test {
 			chk(a.distribution[i,j].id<x10.lang.place.MAX_PLACES &&
 					a.distribution[i,j].id >= 0);
 			finish async(a.distribution[i,j]) {
-				a[i,j] = 0xabcdef07;
-				chk(a[i,j] == 0xabcdef07);
+				a[i,j] = (int) 0xabcdef07L;
+				chk(a[i,j] == (int) 0xabcdef07L);
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			withinBounds = false;
