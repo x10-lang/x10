@@ -104,7 +104,7 @@ public class X10Caster extends AscriptionVisitor {
 			TypeBuilder tb = new TypeBuilder(job, ts, nf);
 			AmbiguityRemover ar = new AmbiguityRemover(job, ts, nf);
 			TypeChecker tc = new TypeChecker(job, ts, nf);
-			tb = tb.pushContext(tb, context());
+			tb = tb.pushContext(context());
 			ar = (AmbiguityRemover) ar.context(context());
 			tc = (TypeChecker) tc.context(context());
 			
