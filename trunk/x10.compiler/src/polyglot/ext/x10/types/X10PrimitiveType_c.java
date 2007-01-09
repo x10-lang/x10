@@ -162,7 +162,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			X10TypeSystem xts = (X10TypeSystem) this.typeSystem();
 			X10Type other = (X10Type) toType;
 			result = super.isImplicitCastValidImpl(toType) 
-			&& xts.entailsClause(this,other );
+			&& xts.entailsClause(this,other);
 			return result;
 		} finally {
 			if (false)
@@ -190,6 +190,11 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			return result = false;
 		if (ts.typeEquals(this, toType))
 			return result = true;
+		
+		// maybe toType is a BoxedPrimitive constrained
+		if(xts.isBoxedType(toType)) {
+			toType = (X10Type) xts.boxedTypeToPrimitiveType(toType);
+		}
 		
 		if (isNumeric() && toType.isNumeric()) {
 			Constraint rc = realClause();
