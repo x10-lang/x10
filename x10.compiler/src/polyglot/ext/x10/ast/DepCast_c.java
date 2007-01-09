@@ -13,8 +13,6 @@ package polyglot.ext.x10.ast;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Cast_c;
-import polyglot.ast.TypeNode_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
@@ -36,12 +34,12 @@ import polyglot.visit.TypeChecker;
 public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 
 	protected boolean depTypeCheckingNeeded = false;
-
+	
 	// This dep must be typechecked in a context in which castType.type() has been
 	// pushed, as would be done by e.g. X10CanonicalTypeNode_c.
 	protected boolean notVisited = true;
 	protected DepParameterExpr dep;
-
+	
 	public DepCast_c(Position pos, TypeNode castType, DepParameterExpr d,
 			Expr expr) {
 		super(pos, castType, expr);
@@ -55,9 +53,8 @@ public class DepCast_c extends X10Cast_c implements DepCast, X10DepCastInfo {
 	public boolean isDepTypeCheckingNeeded() {
 		return depTypeCheckingNeeded;
 	}
+	
 	Type lookaheadType = null;
-	
-	
 	
 	@Override
 	public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
