@@ -5,6 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
+ 
 import harness.x10Test;
 
 public class PlaceCast extends x10Test {
