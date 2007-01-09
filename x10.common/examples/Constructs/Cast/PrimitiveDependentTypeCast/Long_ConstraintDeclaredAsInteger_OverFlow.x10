@@ -6,6 +6,8 @@
  *
  */
 import harness.x10Test;
+// Limitation. This is a limitation of the current release.
+// The self constraint in a cast to long is not being checked at runtime.
 
 /**
  * Purpose: Shows a constraint value may be overflowed.
@@ -18,9 +20,10 @@ public class Long_ConstraintDeclaredAsInteger_OverFlow extends x10Test {
 	 
 	 public boolean run() {
 		try {
-			// don't work because 2147493647 is implicitly an int and outboud
-			// integer capacity. Hence assigning the same value as a long fail.
-			long(:self==2147493647) l2 = (long(:self==2147493647)) overIntMax;
+			final int bound = (int) overIntMax;
+			final int(:self == bound) bound2 =  bound;
+			System.out.println("bound=" + bound);
+			long(:self==bound2) l2 = (long(:self==bound2)) overIntMax;
 		} catch (ClassCastException e) {
 			return true;
 		}
