@@ -47,7 +47,7 @@ public class LU_Overlap extends x10Test {
 		final int steps=Math.min(m,n)-1;
 		final region STEPS=[0:steps-1];
 		m_p=new int [steps+1]; for (int i=0;i<steps+1;i++) {m_p[i]= i;};
-		m_rowScore=new int [[0:m-1]] (point [i]) {return m;};
+		m_rowScore=new int [[0:m-1]] (point [i]) {return n;};//should be n here.
 		m_update[0]=true; m_update[1]=true;
 		
 		double res;	
