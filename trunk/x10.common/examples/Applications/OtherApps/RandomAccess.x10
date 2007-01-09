@@ -6,6 +6,7 @@
  *
  */
 import harness.x10Test;
+import java.util.Set;
 
 /**
  * RandomAccess benchmark.
@@ -71,17 +72,15 @@ public class RandomAccess extends x10Test {
 	/**
 	 * find the sum of a ranNum array
 	 */
-	long ranNumSum(final ranNum[.] A) {
-		final int[.] P = new int[unique()];
-		final long[.] S = new long[unique()];
-		finish ateach (point [i]: P) {
+	
+	long sum(final ranNum[.] A) {
+		return new long[unique(A.distribution.places())] (point [i]) {
 			long sum = 0L;
-			for (point [j]: (A.distribution|(P.distribution[i]))) {
+			for (point [j]: A | here) {
 				sum += A[j].val;
 			}
-			S[i] = sum;
-		}
-		return S.sum();
+			return sum;
+		}.sum();
 	}
 
 	/*
@@ -100,6 +99,9 @@ public class RandomAccess extends x10Test {
 	 */
 	dist unique () {
 		return dist.factory.unique(place.places);
+	}
+	dist unique (Set s) {
+		return dist.factory.unique(s);
 	}
 
 	/**
@@ -128,7 +130,7 @@ public class RandomAccess extends x10Test {
 				ran = ran.nextRandom();
 			}
 		}
-		return ranNumSum(Table) == EXPECTED_RESULT;
+		return sum(Table) == EXPECTED_RESULT;
 	}
 
 	public static void main(String[] args) {
