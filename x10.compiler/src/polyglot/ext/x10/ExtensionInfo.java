@@ -18,6 +18,7 @@ import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.visit.AssignPropertyChecker;
 import polyglot.ext.x10.visit.CastRewriter;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.TypeElaborator;
@@ -173,6 +174,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	   public Goal TypeChecked(final Job job) {
 		   return X10TypeChecked.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
 	   }
+	   public Goal PropertyAssignmentsChecked(final Job job) {
+		   return PropertyAssignmentsChecked.create(this, job, extInfo.typeSystem(), extInfo.nodeFactory());
+	   }
    }
    
    static class X10SignaturesResolved extends SignaturesResolved {
@@ -214,6 +218,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		l.add(x10Sched.X10Qualified(job));
     		l.add(x10Sched.TypeElaborated(job));
     		l.add(x10Sched.X10Expanded(job));
+    		l.add(x10Sched.PropertyAssignmentsChecked(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
     	}
@@ -362,6 +367,26 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		return l;
     	}
     	 
+    }
+    static class PropertyAssignmentsChecked extends VisitorGoal {
+    	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
+    		return scheduler.internGoal(new PropertyAssignmentsChecked(job, ts, nf));
+    	}
+    	private PropertyAssignmentsChecked(Job job, TypeSystem ts, NodeFactory nf) {
+    		super(job, new AssignPropertyChecker(job, ts, nf));
+    	}
+    	
+    	public Collection prerequisiteGoals(Scheduler scheduler) {
+    		X10Scheduler x10Sched = (X10Scheduler) scheduler;
+    		List<Goal> l = new ArrayList<Goal>();
+    		l.add(x10Sched.ReachabilityChecked(job));
+    		l.add(x10Sched.ExitPathsChecked(job));
+    		l.add(x10Sched.InitializationsChecked(job));
+    		l.add(x10Sched.TypeChecked(job));
+    		l.addAll(super.prerequisiteGoals(scheduler));
+    		return l;
+    	}
+    	
     }
 
     static class X10Qualified extends VisitorGoal {

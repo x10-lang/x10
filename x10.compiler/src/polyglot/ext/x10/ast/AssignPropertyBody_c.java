@@ -32,8 +32,7 @@ import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
 
-public class AssignPropertyBody_c extends StmtSeq_c {
-
+public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBody {
 	final X10ConstructorInstance ci;
 	final List<FieldInstance> fi;
 	public AssignPropertyBody_c(Position pos, List<Stmt> statements, 
