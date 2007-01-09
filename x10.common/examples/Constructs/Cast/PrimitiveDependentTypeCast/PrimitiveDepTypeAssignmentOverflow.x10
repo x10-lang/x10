@@ -8,7 +8,8 @@
 import harness.x10Test;
 
 /**
- * Purpose: Checks assignment of primitive to constrained primitives.
+ * Purpose: Checks assignment of primitive to constrained primitives
+ *          that may produce an overflow behave as expected.
  * @author vcave
  **/
 public class PrimitiveDepTypeAssignmentOverflow extends x10Test {
@@ -18,19 +19,37 @@ public class PrimitiveDepTypeAssignmentOverflow extends x10Test {
 	 
 	 public boolean run() {
 		 System.out.println("long " + overIntMax);
-		 System.out.println("int " + (int) overIntMax);
-		 final int overIntMaxAsInt = (int) overIntMax;
-		int(:self==overIntMaxAsInt) l1 = (int(:self==overIntMaxAsInt)) overIntMax;
-		int(:self==-2147473649) l3 = (int(:self==-2147473649))  overIntMax;
+		 System.out.println("long as int " + (int) overIntMax);
 		
+		 boolean res = false;
+		 
+		int(:self==overIntMaxAsInt) l1 = (int(:self==overIntMaxAsInt)) overIntMax;
+		
+		int iNeg = -2147473649;
 
-		// try {
-		// don't work because 2147493647 is implicity an int
-		// long(:self==2147493647L) l3 = (long(:self==2147493647L)) 2147493647;
-		// } catch (ClassCastException e) {
-			// return true;
-		// }
-		return true;
+		int(:self==-2147473649) i0 = (int(:self==-2147473649)) -2147473649;
+		res &= (i0 == overIntMaxAsInt);
+		
+		int(:self==-2147473649) i1 = (int(:self==-2147473649)) iNeg;
+		res = (i1 == overIntMaxAsInt);
+		
+		// The constraint on self is a long value converted to int
+		// it makes that results in an overflow
+		int(:self==overIntMax) i2 = (int(:self==overIntMax)) -2147473649;
+		res = (i2 == overIntMaxAsInt);
+
+		int(:self==overIntMax) i3 = (int(:self==overIntMax)) overIntMax;
+		res &= (i3 == overIntMaxAsInt);
+		
+		// conversion from int to long fails compile
+		// int(:self==2L) i4 = (int(:self==2L)) 2;
+		// res &= (i4 == 2);
+		
+		// constraint on self is a long value converted to int but isn't overflowed
+		int(:self==2L) i5 = (int(:self==2L)) 2L;
+		res &= (i5 == 2);
+
+		return res;
 	}
 
 	public static void main(String[] args) {
