@@ -5,8 +5,10 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;
 
+//LIMITATION 
+//This check is not being done by the compiler currently.
+import harness.x10Test;
 /**
  * Dimensionality of array initializer must be checked.
 

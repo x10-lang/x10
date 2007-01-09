@@ -13,6 +13,7 @@ import harness.x10Test;
 
  * @author vj 12 2006
  */
+
 public class DimCheck extends x10Test {
 
 	public boolean run() {

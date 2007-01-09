@@ -12,7 +12,7 @@ import harness.x10Test;
  *
  * @author vcave, vj
  */
- // LIMITATION.
+ //LIMITATION
  // Anonymous inner classes with new methods defined on them are not correctly handled.
 public class InnerClass extends x10Test {
 	public interface I {

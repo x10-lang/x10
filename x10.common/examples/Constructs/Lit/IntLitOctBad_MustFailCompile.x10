@@ -5,7 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
-// Limitation. This test is a limitation of the current release.
+// LIMITATION 
+// This test is a limitation of the current release.
 // Oct literals are not being checked for well-formedness.
 import harness.x10Test;
 
