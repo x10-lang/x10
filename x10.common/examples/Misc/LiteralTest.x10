@@ -1,10 +1,3 @@
-/*
- *
- * (C) Copyright IBM Corporation 2006
- *
- *  This file is part of X10 Test.
- *
- */
 import harness.x10Test;
 
 /**
@@ -17,8 +10,8 @@ public class LiteralTest extends x10Test {
 	int i4 = 2147483647;
 	int i5 = 0x7fffffff;
 	int i6 = 017777777777;
-	int i7 = 037777777777;
-	int i8 = 0xffffffff;
+	int i7 = (int) 037777777777L;
+	int i8 = (int) 0xffffffffL;
 	int i9 = -1;
 	long l1 = -9223372036854775808L;
 	long l2 = 0x8000000000000000l;
