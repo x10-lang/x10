@@ -13,17 +13,16 @@ import harness.x10Test;
  **/
 public class PrimitiveDepTypeAssignmentOverflow extends x10Test {
 	 private final long overIntMax = ((long) java.lang.Integer.MAX_VALUE) + 10000;
+	 private final int overIntMaxAsInt = (int) overIntMax;
+
 	 
 	 public boolean run() {
-		// works because the constraint directly refer to the static field
-		long(:self==overIntMax) l1 = (long(:self==overIntMax)) overIntMax;
-			
-		try {
-		// don't work because 2147493647 is implicity an int
-		long(:self==2147493647) l2 = (long(:self==2147493647)) overIntMax;
-		} catch (ClassCastException e) {
-			return true;
-		}
+		 System.out.println("long " + overIntMax);
+		 System.out.println("int " + (int) overIntMax);
+		 final int overIntMaxAsInt = (int) overIntMax;
+		int(:self==overIntMaxAsInt) l1 = (int(:self==overIntMaxAsInt)) overIntMax;
+		int(:self==-2147473649) l3 = (int(:self==-2147473649))  overIntMax;
+		
 
 		// try {
 		// don't work because 2147493647 is implicity an int
@@ -31,7 +30,7 @@ public class PrimitiveDepTypeAssignmentOverflow extends x10Test {
 		// } catch (ClassCastException e) {
 			// return true;
 		// }
-		return false
+		return true;
 	}
 
 	public static void main(String[] args) {
