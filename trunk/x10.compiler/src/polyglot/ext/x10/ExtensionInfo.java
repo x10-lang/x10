@@ -240,9 +240,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	public Collection prerequisiteGoals(Scheduler scheduler) {
     		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.TypeChecked(job));
+    		l.add(scheduler.ConstantsChecked(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
     	}
+
     	public Pass createPass(polyglot.frontend.ExtensionInfo extInfo) {
     		return super.createPass(extInfo);
     	}
@@ -258,6 +260,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	public Collection prerequisiteGoals(Scheduler scheduler) {
     		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.TypeChecked(job));
+    		l.add(scheduler.ConstantsChecked(job));
     		l.add(((X10Scheduler)scheduler).X10Boxed(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
@@ -279,6 +282,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		X10Scheduler x10Sched = (X10Scheduler) scheduler;
     		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.TypeChecked(job));
+    		l.add(scheduler.ConstantsChecked(job));
     		l.add(x10Sched.X10Boxed(job));
     		l.add(x10Sched.X10Casted(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
@@ -399,6 +403,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	public Collection prerequisiteGoals(Scheduler scheduler) {
     		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.TypeChecked(job));
+    		l.add(scheduler.ConstantsChecked(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
     	}
@@ -418,6 +423,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	public Collection prerequisiteGoals(Scheduler scheduler) {
     		List<Goal> l = new ArrayList<Goal>();
     		l.add(scheduler.TypeChecked(job));
+    		l.add(scheduler.ConstantsChecked(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
     	}
