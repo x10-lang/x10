@@ -16,7 +16,7 @@ import harness.x10Test;
 public class cg extends x10Test {
 
 	public boolean run() {
-		NPB3_0_X10.CG.entryPoint(new String[] { "-np8", "CLASS=S" });
+		NPB3_0_X10.CG.entryPoint(new String[] { "-np8", "CLASS=W" });
 		return true;
 	}
 

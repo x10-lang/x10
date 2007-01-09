@@ -29,8 +29,8 @@ import jgfutil.*;
 public class JGFLUFactBench extends Linpack implements JGFSection2 {
 
 	private int size;
-	//private int datasizes[] = { 150, 1000, 2000 };
-	private int datasizes[] = { 50, 1000, 2000 };
+	private int datasizes[] = { 150, 1000, 2000 };
+	// private int datasizes[] = { 50, 1000, 2000 };
 	public void JGFsetsize(int size) {
 		this.size = size;
 	}
