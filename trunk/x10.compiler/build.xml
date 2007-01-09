@@ -4,7 +4,6 @@
     &buildfile;
     <property name="x10.home" value=".."/>
     <property name="lpg.location" value="${x10.home}/lpg"/>
-    <property name="polyglot.location" value="${x10.home}/polyglot2"/>
     <property name="x10.common.location" value="${x10.home}/x10.common"/>
     <property name="x10.runtime.location" value="${x10.home}/x10.runtime"/>
     <property name="build" location="${basedir}/classes"/>
@@ -41,7 +40,6 @@
         <mkdir dir="${build}"/>
     </target>
     <target name="cleanall" depends="clean">
-        <ant antfile="${polyglot.location}/build.xml" target="clean" inheritAll="false" dir="${polyglot.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
     <target name="clean">
@@ -64,7 +62,6 @@
     </target>
     <target name="buildall" depends="init">
         <ant antfile="${lpg.location}/build.xml" target="build" inheritAll="false" dir="${lpg.location}"/>
-        <ant antfile="${polyglot.location}/build.xml" target="build" inheritAll="false" dir="${polyglot.location}"/>
         <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="build" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
@@ -72,7 +69,14 @@
         <ant antfile="${lpg.location}/build.xml" target="dist" inheritAll="false" dir="${lpg.location}"/>
     </target>
     <target name="polyglot-jar" depends="init">
-        <ant antfile="${polyglot.location}/build.xml" target="dist" inheritAll="false" dir="${polyglot.location}"/>
+	<!-- TODO: move this into x10.common -->
+	<property name="polyglot.url" value="http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates/plugins"/>
+	<!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_2.0.1.jar"/>-->
+	<!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_nightly.jar"/>-->
+	<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_latest.jar"/>
+	<get usetimestamp="true" ignoreerrors="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
+	<available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
+	<fail message="Unable to get ${polyglot.jar}" unless="polyglot.jar.present"/>
     </target>
     <target name="runtime-jar" depends="init">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist" inheritAll="false" dir="${x10.runtime.location}"/>
