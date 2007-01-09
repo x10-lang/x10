@@ -80,9 +80,10 @@ public class AssignPropertyChecker extends DataFlow {
 			this.max = max;
 		}
 		
-		public static int ZERO = 0;
-		public static int ONE = 1;
-		public static int MANY = 2;
+		public final static int ZERO = 0;
+		public final static int ONE = 1;
+		public final static int MANY = 2;
+		public final static int DONT_CARE = 3;
 		
 		public String toString() {
 			return "propertyAssignCount=" + min + ".." + max;
@@ -100,17 +101,19 @@ public class AssignPropertyChecker extends DataFlow {
 	}
 	
 	public DataFlowItem increment(DataFlowItem in) {
-		if (in == null) {
-			return createItem(DataFlowItem.ONE, DataFlowItem.ONE);
-		}
-		int min = in.min + 1;
-		int max = in.max + 1;
-		if (min > DataFlowItem.MANY) min = DataFlowItem.MANY;
-		if (max > DataFlowItem.MANY) max = DataFlowItem.MANY;
+		int min, max;
+		if (in != null && (in.min == DataFlowItem.ONE || in.min == DataFlowItem.MANY))
+			min = DataFlowItem.MANY;
+		else
+			min = DataFlowItem.ONE;
+		if (in != null && (in.max == DataFlowItem.ONE || in.max == DataFlowItem.MANY))
+			max = DataFlowItem.MANY;
+		else
+			max = DataFlowItem.ONE;
 		return createItem(min, max);
 	}
 
-	DataFlowItem[][] cache = new DataFlowItem[3][3];
+	DataFlowItem[][] cache = new DataFlowItem[4][4];
 	
 	protected DataFlowItem createItem(int min, int max) {
 		DataFlowItem i = cache[min][max];
@@ -137,7 +140,7 @@ public class AssignPropertyChecker extends DataFlow {
 		if (n == graph.exitNode()) {
 			// Exception edges are assumed to be safe
 			if (needsProperty()) {
-				Map m = itemToMap(createItem(DataFlowItem.ONE, DataFlowItem.ONE), succEdgeKeys);
+				Map m = itemToMap(createItem(DataFlowItem.DONT_CARE, DataFlowItem.DONT_CARE), succEdgeKeys);
 				if (succEdgeKeys.contains(FlowGraph.EDGE_KEY_OTHER)) {
 					m.put(FlowGraph.EDGE_KEY_OTHER, createItem(DataFlowItem.ZERO, DataFlowItem.ZERO));
 				}
@@ -192,18 +195,15 @@ public class AssignPropertyChecker extends DataFlow {
 	 
 	 protected Item confluence(List items, Term node, FlowGraph graph) {
 		// intersect the items
-		int min = -1;
-		int max = -1;
+		int min = DataFlowItem.DONT_CARE;
+		int max = DataFlowItem.DONT_CARE;
 		Iterator i = items.iterator();
 		while (i.hasNext()) {
 			DataFlowItem dfi = (DataFlowItem) i.next();
-
-			if (min == -1 || dfi.min < min) {
+			if (min == DataFlowItem.DONT_CARE || (dfi.min != DataFlowItem.DONT_CARE && dfi.min < min))
 				min = dfi.min;
-			}
-			if (max == -1 || dfi.max > max) {
+			if (max == DataFlowItem.DONT_CARE || (dfi.max != DataFlowItem.DONT_CARE && dfi.max > max))
 				max = dfi.max;
-			}
 		}
 		return createItem(min, max); 
 	}
@@ -216,21 +216,22 @@ public class AssignPropertyChecker extends DataFlow {
 				// are the same, so just take the first one.
 				DataFlowItem outItem = (DataFlowItem)outItems.values().iterator().next(); 
 				if (outItem != null) {
-					if (needsProperty() && outItem.min == DataFlowItem.ZERO) {
-						throw new SemanticException("The constructor may exit with uninitialized properties.  There is a path without a property(...) statement.",
-								cd.position());
-					}
 					if (outItem.max == DataFlowItem.MANY) {
-						throw new SemanticException("The constructor may have initialized properties more than once.  There is a path with more than one property(...) statement.",
+						// This should be caught by InitChecker, but report it here just in case.
+						throw new SemanticException("The constructor may have initialized properties more than once.  There is a path with more than one property(...) statement or this(...) call.",
 								cd.position());
 					}
+					
+					if (!needsProperty() || outItem.min != DataFlowItem.ZERO) {
+						return;
+					}
+					
+					// fall through to report error
 				}
 			}
-			else {
-				throw new SemanticException("The constructor contains a path with no property(...) statement.",
-						cd.position());
-			}
-			
+
+			throw new SemanticException("The constructor incorrectly initializes properties.  There is a path without a property(...) statement or this(...) call.",
+					cd.position());
 		}
 	}
 }
