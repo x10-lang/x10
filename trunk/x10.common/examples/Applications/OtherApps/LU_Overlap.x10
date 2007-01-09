@@ -82,7 +82,7 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
 		Rows = [0:m-1];
 		// p=new int [steps+1](point[i]) { return i;};
 		p=new int [steps+1]; for (point [i] : [0:steps]) {p[i]= i;};
-		m_rowScore=new int [Rows] (point [i]) {return m;};
+		m_rowScore=new int [Rows] (point [i]) {return n;};
 	}
 	public void lu(){
 		for (point [k]:Steps){	
