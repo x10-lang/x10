@@ -262,11 +262,11 @@ public class MG extends MGBase {
 			double t = timer.readTimer(i);
 			if (i == T_resid2) {
 				t = timer.readTimer(T_resid) - t;
-				System.out.println("      --> total mg-resid "+fmt.format(t)+
-						" ("+fmt.format(t*100./tmax)+"%)");
+System.out.println("      --> total mg-resid "+fmt.format(t)+
+fmt.format(t*100./tmax)+"%)");
 			} else {
-				System.out.println("    "+t_names[i]+"  "+fmt.format(t)+
-						" ("+fmt.format(t*100./tmax)+"%)");
+System.out.println("    "+t_names[i]+"  "+fmt.format(t)+
+fmt.format(t*100./tmax)+"%)");
 			}
 		}
 	}
