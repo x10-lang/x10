@@ -10,6 +10,8 @@ package x10.runtime;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import x10.array.Distribution_c;
 /**
  * Helper class to check dependent type constraint while performing dynamic cast at runtime.
  * WARNING ! Do not change the name of any method without changing
@@ -115,7 +117,7 @@ public class RuntimeCastChecker {
 		// but exception to throw is different and it avoids an ugly 
 		// NullPointerException when trying to access expr class just here after.
 		if (objToCast == null) {
-			throw new ClassCastException("Expression to cast is null");
+			throw new ClassCastException("Expression to cast is null.");
 		}
 		
 		return checkDepType(cTab, objToCast, toClassType);
@@ -127,7 +129,7 @@ public class RuntimeCastChecker {
 		Class fromClassType = objToCast.getClass();
 
 		if (!toClassType.isAssignableFrom(fromClassType))
-			throw new ClassCastException("Type " + fromClassType + " is not assignable to type " + toClassType);
+			throw new ClassCastException("Type " + fromClassType + " is not assignable to type " + toClassType + ".");
 
 		boolean correct = true;
 		int i = 0;
@@ -173,9 +175,9 @@ public class RuntimeCastChecker {
 		// everything is ok
 		if (correct)
 			return objToCast;
-
+		
 		// deptype are equivalent however a constraint is not meet.
-		throw new ClassCastException("Constraint " + cTab[i-1] + " is not meet");
+		throw new ClassCastException("Constraint " + cTab[i-1] + " is not met.");
 		
 	}
 	
