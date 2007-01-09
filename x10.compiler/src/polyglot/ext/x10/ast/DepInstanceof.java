@@ -17,5 +17,5 @@ import polyglot.ast.Instanceof;
  *
  */
 public interface DepInstanceof extends Instanceof {
-
+	DepParameterExpr dep();
 }
