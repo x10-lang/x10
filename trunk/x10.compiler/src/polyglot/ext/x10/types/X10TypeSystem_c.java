@@ -18,15 +18,6 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Expr;
-import polyglot.ast.Formal;
-import polyglot.types.FieldInstance_c;
-import polyglot.types.LocalInstance_c;
-import polyglot.types.MethodInstance_c;
-import polyglot.types.TypeSystem_c;
-import polyglot.ext.x10.types.constr.C_Field_c;
-import polyglot.ext.x10.types.constr.C_Local_c;
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.frontend.Source;
@@ -35,13 +26,13 @@ import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
-import polyglot.types.ConstructorInstance_c;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyClassInitializer;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.MethodInstance_c;
 import polyglot.types.NoMemberException;
 import polyglot.types.NullType;
 import polyglot.types.ParsedClassType;
@@ -49,7 +40,7 @@ import polyglot.types.PrimitiveType;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeObject;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.UnknownType;
 import polyglot.types.VarInstance;
 import polyglot.util.InternalCompilerError;
@@ -933,6 +924,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		
 		throw new InternalCompilerError("Could not find constructor for " + t);
 	}
+
+	public Type boxedTypeToPrimitiveType(Type presumedBoxedType){
+		if (isBoxedType(presumedBoxedType)) { 
+			X10Type t = (X10Type) this.boxedTypeToPrimitiveType(
+					(X10ParsedClassType) presumedBoxedType);
+			return t.makeVariant(((X10Type)presumedBoxedType).depClause(),null);
+		}
+		
+		throw new InternalCompilerError("can't get primitive type from " + presumedBoxedType 
+				+ " because it is not a boxed type");
+	}
 	
 	private String boxedToPrimitiveName (String boxedClassName){
 		String boxedType;
@@ -940,7 +942,39 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return boxedClassName.substring(prefix.length(), 
 				boxedClassName.length());
 	}
-	
+
+    private Type boxedTypeToPrimitiveType(X10ParsedClassType t) {
+        assert_(t);
+        String boxedTypeName = this.boxedToPrimitiveName(t.name());
+
+    	if (boxedTypeName.equals("Boolean")) {
+    	    return this.Boolean();
+    	}
+    	if (boxedTypeName.equals("Character")) {
+    		return this.Char();
+    	}
+    	if (boxedTypeName.equals("Byte")) {
+    		return this.Byte();
+    	}
+    	if (boxedTypeName.equals("Short")) {
+    		return this.Short();
+    	}
+    	if (boxedTypeName.equals("Integer")) {
+    		return this.Int();
+    	}
+    	if (boxedTypeName.equals("Long")) {
+    		return this.Long();
+    	}
+    	if (boxedTypeName.equals("Float")) {
+    		return this.Float();
+    	}
+    	if (boxedTypeName.equals("Double")) {
+    	    return this.Double();
+    	}
+
+	throw new InternalCompilerError(t + " is not a primitive type boxed");
+    }
+
     private String boxedGetterAsString(X10ParsedClassType t) {
         assert_(t);
         String boxedTypeName = this.boxedToPrimitiveName(t.name());

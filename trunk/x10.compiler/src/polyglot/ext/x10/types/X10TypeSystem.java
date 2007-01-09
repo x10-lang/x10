@@ -331,5 +331,6 @@ public interface X10TypeSystem extends TypeSystem {
 			 ClassType container,
 			 Flags flags, X10Type returnType, List argTypes,
 			 List excTypes);
+   Type boxedTypeToPrimitiveType(Type presumedBoxedType);
 } // end of X10TypeSystem
 
