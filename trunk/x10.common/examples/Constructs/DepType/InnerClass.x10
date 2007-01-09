@@ -5,6 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
+//LIMITATION:
+//Anonymous inner classes with new methods defined on them are not correctly handled.
 import harness.x10Test;
 
 /**
@@ -12,13 +14,10 @@ import harness.x10Test;
  *
  * @author vcave, vj
  */
- //LIMITATION
- // Anonymous inner classes with new methods defined on them are not correctly handled.
 public class InnerClass extends x10Test {
 	public interface I {
 		 void test();
 	}
-	
 	
 	public boolean run() {
 	   System.out.println((new I() {
