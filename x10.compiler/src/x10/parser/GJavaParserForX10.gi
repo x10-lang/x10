@@ -1654,8 +1654,8 @@ $Rules
     
     Literal ::= IntegerLiteral$IntegerLiteral
         /.$BeginJava
-                    polyglot.lex.IntegerLiteral a = int_lit(getRhsFirstTokenIndex($IntegerLiteral));
-                    setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().intValue()));
+                    polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex($IntegerLiteral));
+                    setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
           $EndJava
         ./
               | LongLiteral$LongLiteral

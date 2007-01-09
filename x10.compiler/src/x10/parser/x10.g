@@ -531,16 +531,16 @@ $Headers
             return parseLong(s.substring(start_index, end_index), radix);
         }
 
-        private polyglot.lex.IntegerLiteral int_lit(int i, int radix)
+        private polyglot.lex.LongLiteral int_lit(int i, int radix)
         {
             long x = parseLong(super.getName(i), radix);
-            return new IntegerLiteral(pos(i), (int) x, $sym_type.TK_IntegerLiteral);
+            return new LongLiteral(pos(i),  x, $sym_type.TK_IntegerLiteral);
         }
 
-        private polyglot.lex.IntegerLiteral int_lit(int i)
+        private polyglot.lex.LongLiteral int_lit(int i)
         {
             long x = parseLong(super.getName(i));
-            return new IntegerLiteral(pos(i), (int) x, $sym_type.TK_IntegerLiteral);
+            return new LongLiteral(pos(i),  x, $sym_type.TK_IntegerLiteral);
         }
 
         private polyglot.lex.LongLiteral long_lit(int i, int radix)
