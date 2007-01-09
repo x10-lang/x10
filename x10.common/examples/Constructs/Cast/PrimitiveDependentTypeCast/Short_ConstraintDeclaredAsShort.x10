@@ -15,11 +15,11 @@ import harness.x10Test;
 public class Short_ConstraintDeclaredAsShort extends x10Test {
 
 	public boolean run() {
-		final short sconstraint = 0;
+		final short(:self==0) sconstraint = 0;
 		
 		// UPDATE COMMENT WHEN FIXED
 		// not valid: because constraint constant and assigned one have different type
-		short (:self == 0) s0 = (short) 0;
+		short (:self == 0) s0 = (short(:self==0)) 0;
 
 		// UPDATE COMMENT WHEN FIXED
 		// not valid: as constraint on self is a short and the other is an integer
