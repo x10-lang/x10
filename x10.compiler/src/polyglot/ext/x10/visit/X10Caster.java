@@ -996,7 +996,7 @@ public class X10Caster extends AscriptionVisitor {
 								((X10ParsedClassType)field.fieldInstance().container()).name()));
 				return nf.Field(field.position(), thisTarget, field.name());
 			} else {
-				throw new SemanticException("Unknown constraint expression");
+				return field;
 			}
 		}
 
