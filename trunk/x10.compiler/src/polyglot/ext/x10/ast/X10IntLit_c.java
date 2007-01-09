@@ -37,11 +37,14 @@ public class X10IntLit_c extends IntLit_c {
 	 * @param value
 	 */
 	public X10IntLit_c(Position pos, Kind kind, long value) {
-		super(pos, kind, value);
+		super(pos, kind,value);
 	
 	}
 	 /** Type check the expression. */
 	  public Node typeCheck(TypeChecker tc) throws SemanticException {
+		  if (kind==INT && (value > Integer.MAX_VALUE  || value < Integer.MIN_VALUE)) {
+			  throw new SemanticException("Integer literal " + value + " is out of range.",position());
+		  }
 		  TypeSystem ts = tc.typeSystem();
 		  X10Type Type = (X10Type) (kind==INT ? ts.Int() : ts.Long());
 		 

@@ -29,6 +29,7 @@ import polyglot.ast.New_c;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10MethodInstance;
+import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Field;
@@ -158,14 +159,28 @@ public class X10New_c extends New_c {
      * @throws SemanticException
      */
     private X10New_c adjustCI(TypeChecker tc) throws SemanticException {
-    	X10ConstructorInstance xci = (X10ConstructorInstance) ci;
+    	/*X10ConstructorInstance xci = (X10ConstructorInstance) ci;
     	
     	if (ci == null) return this;
     	X10Type type = (X10Type) xci.returnType();
     	X10Type retType = instantiateType(type, arguments);
-    	/*if (retType != type)
-    		xci.setReturnType(retType);*/
-    	return (X10New_c) this.type(retType);
+    	//if (retType != type)
+    	//	xci.setReturnType(retType);
+    	return (X10New_c) this.type(retType);*/
+    	 
+    	if (ci == null) return this;
+    	X10ConstructorInstance xci = (X10ConstructorInstance) ci;
+    	X10Type type = (X10Type) xci.returnType();
+    	
+    	if (body != null) {
+    		// If creating an anonymous class, we need to adjust the return type
+    		// to be based on anonType rather than on the supertype.
+    		X10ParsedClassType anonType = (X10ParsedClassType) anonType();
+    		type = anonType.makeDepVariant(type.depClause(), type.typeParameters());
+    	}
+    	
+ 		 X10Type retType = instantiateType(type, arguments);
+ 		 return (X10New_c) this.type(retType);
     }
     /**
      * Invoke instantiateType(X10Type, X10Type, List<Expr>) with the given arguments
