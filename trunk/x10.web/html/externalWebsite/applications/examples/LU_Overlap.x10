@@ -63,7 +63,8 @@ public class LU_Overlap extends x10Test {
 				when (m_update[1]){m_update[0]=false;m_update[1]=false;}
 				async update(k);
 			}else{
-				when (m_update[1]){};
+				when (m_update[1]){};//need to update score here
+				for (int i=k+1;i<m;i++) m_rowScore[i]=n-k-1;
 			}
 			
 		}
