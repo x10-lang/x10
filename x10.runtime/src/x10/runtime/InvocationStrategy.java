@@ -10,7 +10,7 @@ package x10.runtime;
 public abstract class InvocationStrategy {
 
 	public static final InvocationStrategy ASYNC = new DefaultStrategy();
-	public static final InvocationStrategy ASYNC_IN_FINISH = new AsyncInFinishStragegy();
+	public static final InvocationStrategy ASYNC_IN_FINISH = new AsyncInFinishStrategy();
 
 	public abstract void invokeX10Task(Activity activityToInvoke);
 	
@@ -31,8 +31,8 @@ public abstract class InvocationStrategy {
 		}		
 	}
 
-	public static class AsyncInFinishStragegy extends InvocationStrategy {
-		private AsyncInFinishStragegy() { 
+	public static class AsyncInFinishStrategy extends InvocationStrategy {
+		private AsyncInFinishStrategy() { 
 		}
 		
 		public void invokeX10Task(Activity activityToInvoke) {
