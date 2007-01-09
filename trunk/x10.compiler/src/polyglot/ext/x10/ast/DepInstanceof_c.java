@@ -36,8 +36,8 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
 		X10DepCastInfo {
 
 	protected boolean depTypeCheckingNeeded = false;
-
 	protected DepParameterExpr dep;
+	Type lookaheadType = null;
 
 	public DepInstanceof_c(Position pos, TypeNode compareType,
 			DepParameterExpr d, Expr expr) {
@@ -46,11 +46,15 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
 			
 		    }
 	  
+
+	public DepParameterExpr dep() {
+		return dep;
+	}
+	
 	public boolean isDepTypeCheckingNeeded() {
 		return this.depTypeCheckingNeeded;
 	}
-
-	Type lookaheadType = null;
+	
 	public NodeVisitor disambiguateEnter(AmbiguityRemover sc) throws SemanticException {
 		X10TypeNode type = (X10TypeNode) compareType.copy();
 		X10TypeNode tn = (X10TypeNode) type.disambiguateBase(sc);
@@ -121,5 +125,5 @@ public class DepInstanceof_c extends X10Instanceof_c implements DepInstanceof,
     }
     public String toString() {
     	return "/*depInstanceof*/" + super.toString();
-        }
+    }
 }
