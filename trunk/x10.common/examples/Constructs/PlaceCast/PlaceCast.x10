@@ -13,7 +13,7 @@ public class PlaceCast extends x10Test {
 	public boolean run() {
 		final dist d = dist.factory.unique(place.places);
 		System.out.println("num places = " + place.places);
-		final BoxedBoolean[d] disagree
+		final BoxedBoolean[:distribution==d] disagree
 			= new BoxedBoolean[d] (point [p]) {
 				System.out.println("The currentplace is:" + here);
 				return new BoxedBoolean();
@@ -22,7 +22,8 @@ public class PlaceCast extends x10Test {
 			// remember if here and d[p] disagree
 			// at any activity at any place
 			try {
-				BoxedBoolean@here x = (@d[p].next()) disagree[p];
+				final place q = d[p].next();
+				BoxedBoolean@here x = (BoxedBoolean@q) disagree[p];
 				async(this) { atomic { nplaces++; } }
 			} catch (BadPlaceException x)  {
 				System.out.println("Caught bad place exception for " + p);
