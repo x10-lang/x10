@@ -154,6 +154,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			t instanceof X10ReferenceType &&	// don't annotate access to instances of ordinary Java objects.
 			! c.isTargetImplicit() &&
 			! (target instanceof Special) &&
+			! (t.isClass() && t.toClass().isAnonymous()) && // don't annotate anonymous classes: they're here
 			! is_location_access &&
 			QueryEngine.INSTANCE().needsHereCheck(c))
 		{
@@ -365,6 +366,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			t instanceof X10ReferenceType &&	// don't annotate access to instances of ordinary Java objects.
 			! n.isTargetImplicit() &&
 			! (target instanceof Special) &&
+			! (t.isClass() && t.toClass().isAnonymous()) && // don't annotate anonymous classes: they're here
 			! is_location_access &&
 			QueryEngine.INSTANCE().needsHereCheck(n))
 		{
