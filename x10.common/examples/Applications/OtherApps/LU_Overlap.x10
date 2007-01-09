@@ -57,7 +57,7 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
 		Rows = [0:m-1];
 		// p=new int [steps+1](point[i]) { return i;};
 		p=new int [steps+1]; for (point [i] : [0:steps]) {p[i]= i;};
-		m_rowScore=new int [Rows] (point [i]) {return m;};
+		m_rowScore=new int [Rows] (point [i]) {return n;};
 	}
 	public void lu(){
 		for (point [k]:Steps){	
@@ -65,6 +65,7 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
 			double res=pivot(k);
 			if (res==0) {
 				await (updateRemainingCols);
+				for (int i=k+1;i<m;i++) m_rowScore[i]=n-k-1;
 			} else {
 				final int score=n-k;
 				await ((m_rowScore[k]==score) && (m_rowScore[m_pivotInfo]==score));
