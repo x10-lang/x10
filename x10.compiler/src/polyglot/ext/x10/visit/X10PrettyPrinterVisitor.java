@@ -60,20 +60,16 @@ import polyglot.ext.x10.ast.X10ArrayAccessUnary_c;
 import polyglot.ext.x10.ast.X10ArrayAccess_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
-import polyglot.ext.x10.ast.X10CastInfo;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
-import polyglot.ext.x10.ast.X10NodeFactory_c;
-import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10Type_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
@@ -84,7 +80,6 @@ import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 
 
@@ -125,7 +120,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// [IP] FIXME: process type correctly
 		visit((Node)c);
 	}
-
+	
 	public void visit(X10Instanceof_c c) {
 		// [IP] FIXME: process type correctly
 		visit((Node) c);
@@ -149,6 +144,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		ReferenceType f_container = c.methodInstance().container();
 		is_location_access = f_name != null && "getLocation".equals(f_name) && f_container instanceof X10ReferenceType;
 
+		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+		boolean is_check_cast;
+		is_check_cast = f_name != null && "checkCast".equals(f_name) && f_container instanceof X10ReferenceType;
+		
 		if (! (target instanceof TypeNode) &&	// don't annotate access to static vars
 			! (target instanceof Future_c) &&
 			t instanceof X10ReferenceType &&	// don't annotate access to instances of ordinary Java objects.
@@ -156,6 +155,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			! (target instanceof Special) &&
 			! (t.isClass() && t.toClass().isAnonymous()) && // don't annotate anonymous classes: they're here
 			! is_location_access &&
+			! is_check_cast &&
 			QueryEngine.INSTANCE().needsHereCheck(c))
 		{
 			// don't annotate calls with implicit target, or this and super
@@ -833,7 +833,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			try {
 				MethodInstance mi = xts.findMethod(lType, name,
 						Collections.singletonList(rType), xts.Object());
-				tr.print(null, nf.Call(pos, left, name, right).methodInstance(mi), w);
+				tr.print(null, nf.Call(pos, left, name, right).methodInstance(mi).type(mi.returnType()), w);
 //				printSubExpr(left, true, w, tr);
 //				w.write(".");
 //				w.write(name);
