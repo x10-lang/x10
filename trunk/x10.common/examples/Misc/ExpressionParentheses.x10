@@ -12,7 +12,7 @@ import harness.x10Test;
  */
 public class ExpressionParentheses extends x10Test {
 
-	int x = 0x80000000;
+	int x = java.lang.Integer.MIN_VALUE;
 	int n = 16;
 	int z;
 
