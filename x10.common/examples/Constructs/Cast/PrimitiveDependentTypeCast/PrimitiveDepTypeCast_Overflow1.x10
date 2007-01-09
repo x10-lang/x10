@@ -8,8 +8,9 @@
 import harness.x10Test;
 
 /**
- * Purpose:
- * Note:
+ * Purpose: Checks overflow is corretly handled by the constraint.
+ * Note: We assign a value greater than short max value. 
+ *       Then we check constraint's value has been overflowed.
  * @author vcave
  **/
 public class PrimitiveDepTypeCast_Overflow1 extends x10Test {
@@ -18,14 +19,11 @@ public class PrimitiveDepTypeCast_Overflow1 extends x10Test {
 	public boolean run() {
 		// 32777 stored in a short is overflowed to -32759
 		final short overflow = (short) aboveShort;
-		System.out.println(overflow);
-		
-		// 32777 stored as an integer
-		// then constraint is not meet
+
 		short(:self==overflow) ss = (short(:self==overflow)) overflow;
 		short(:self==32777) sss = (short(:self==32777)) overflow;
 		short(:self==32777) ssss = (short(:self==32777)) 32777;
-		
+
 		return (ss == -32759) && (sss == -32759) && (ssss == -32759);
 	}
 
