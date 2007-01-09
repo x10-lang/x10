@@ -5,6 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
+//LIMITATION 
+//This check is not being done by the compiler currently.
 import harness.x10Test;
 
 /**

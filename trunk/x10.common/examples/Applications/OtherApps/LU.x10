@@ -5,6 +5,9 @@
  *  This file is part of X10 Test.
  *
  */
+ // LIMITATION
+ // Application logic to be fixed.
+ 
 import harness.x10Test;
 
 /**
@@ -117,7 +120,7 @@ public class LU(dist(:(rank==2)&&rect) a_D,
 
      public static LU initialize() {
          final int size=10;
-	 final region(:rank==1) Size = [0:size-1];
+	 final region(:rank==1 && rect) Size = [0:size-1];
 	 final region(:rank==2) R=[Size,Size];
 	 final dist(:rank==2&&rect) D = (dist(:rank==2&&rect)) (R -> here);
 	 final double [:distribution==D] 
@@ -128,15 +131,15 @@ public class LU(dist(:(rank==2)&&rect) a_D,
 	     };
                 
 	 double [:distribution==D]  L=  new double [D], U=  new double [D];
-	 int [.] p=new int [Size];
+	 int [:rank==1&&rect] p= (int [:rank==1&&rect]) new int [Size];
             
-	 return new LU(A,L,U,p);
+	 return new LU(D,A,L,U,p);
      }
      public boolean verify() {
         double temp1=0; int temp2=0;
         double [] UDiag={1, -2, 2, -4, 4, -6, 6, -8, 8, 0};
         int [] P={1,2,3,4,5,6,7,8,9,0};
-        for (point [i] : after(0)) {
+        for (point [i] : afterK(0)) {
         	temp1+=UDiag[i]-a_U[i,i];
         	temp2+=a_p[i]-P[i];
         }
