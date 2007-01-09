@@ -116,8 +116,11 @@
         </exec>
     </target>
     <target name="rebuild" depends="grammar,build"/>
-    <target name="zip" depends="dist">
-        <zip destfile="${x10.home}/x10-${DSTAMP}-${TSTAMP}.zip">
+    <target name="set-version" depends="init" unless="zip.version">
+        <property name="zip.version" value="${DSTAMP}-${TSTAMP}"/>
+    </target>
+    <target name="zip" depends="set-version,dist">
+        <zip destfile="${x10.home}/x10-${zip.version}.zip">
             <zipfileset prefix="" dir="${x10.common.location}" includes="epl-v10.html"/>
             <zipfileset prefix="bin" dir="${x10.common.location}/bin" includes="newpgrp,x10,x10c,testScript*"/>
             <zipfileset prefix="etc" dir="${etc}" includes="${config}"/>
@@ -126,15 +129,19 @@
         </zip>
     </target>
     <target name="src-zip" depends="srczip"/>
-    <target name="srczip" depends="build">
-        <zip destfile="${x10.home}/x10-src-${DSTAMP}-${TSTAMP}.zip">
+    <target name="srczip" depends="set-version,build">
+        <zip destfile="${x10.home}/x10-${zip.version}-src.zip">
             <zipfileset prefix="" dir="${x10.common.location}" includes="epl-v10.html"/>
-	    <zipfileset prefix="lpg" dir="${lpg.location}" excludes="**/CVS/**,classes/**"/>
-	    <zipfileset prefix="x10.common" dir="${x10.common.location}" excludes="**/CVS/**,lib/**,etc/**" includes="bin/*.in,bin/testScript*,bin/newpgrp,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
-	    <zipfileset prefix="x10.compiler" dir="${basedir}" excludes="**/CVS/**,classes/**"/>
-	    <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="**/CVS/**,classes/**"/>
+            <zipfileset prefix="lpg" dir="${lpg.location}" excludes="**/CVS/**,classes/**"/>
+            <zipfileset prefix="x10.common" dir="${x10.common.location}" excludes="**/CVS/**,lib/**,etc/**" includes="bin/*.in,bin/testScript*,bin/newpgrp,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
+            <zipfileset prefix="x10.compiler" dir="${basedir}" excludes="**/CVS/**,classes/**"/>
+            <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="**/CVS/**,classes/**"/>
         </zip>
     </target>
+    <!--
+      To build a zip with a specific version (VER), invoke the target below as
+         ant -Dzip.version=VER zips
+    -->
     <target name="zips" depends="zip,srczip"/>
     <target name="tags" depends="init">
       <!-- create a blank tags file -->
