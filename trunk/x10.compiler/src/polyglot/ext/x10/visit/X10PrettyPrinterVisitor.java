@@ -131,11 +131,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		visit((Node) c);
 	}
 
+	public void visit(RemoteCall_c c) {
+		// TODO assert false - that is not implemented yet
+		throw new InternalCompilerError("not implemented", c.position());
+	}
+
 	public void visit(Call_c c) {
-		if (c instanceof RemoteCall_c) {
-			// TODO assert false - that is not implemented yet
-			throw new RuntimeException("not implemented");
-		}
+		assert (!(c instanceof RemoteCall_c));
 		// add a check that verifies if the target of the call is in place 'here'
 		Receiver target = c.target();
 		Type t = target.type();
