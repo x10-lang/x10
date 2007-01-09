@@ -49,9 +49,9 @@ public class UserArrayBounds1D extends x10Test {
 
 		boolean withinBounds = true;
 		try {
-			a[i] = new boxedInt(0xabcdef07);
+			a[i] = new boxedInt((int) 0xabcdef07L);
 			//pr("assigned");
-			chk(a[i].equals(new boxedInt(0xabcdef07)));
+			chk(a[i].equals(new boxedInt((int) 0xabcdef07L)));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			withinBounds = false;
 		}

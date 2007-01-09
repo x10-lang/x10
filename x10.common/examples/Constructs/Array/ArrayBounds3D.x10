@@ -55,8 +55,8 @@ public class ArrayBounds3D extends x10Test {
 
 		boolean withinBounds = true;
 		try {
-			a[i,j,k] = 0xabcdef07;
-			chk(a[i,j,k] == 0xabcdef07);
+			a[i,j,k] = (int) 0xabcdef07L;
+			chk(a[i,j,k] == (int) 0xabcdef07L);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			withinBounds = false;
 		}
