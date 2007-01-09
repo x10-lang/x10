@@ -5,14 +5,14 @@
  *  This file is part of X10 Test.
  *
  */
-//LIMITATION 
+//LIMITATION:
 //This check is not being done by the compiler currently.
 import harness.x10Test;
 
 /**
  * This must compile and run fine. Checks that the initializer may not specify
  * the arity of the region.
-
+ *
  * @author vj 12 2006
  */
 public class DimCheckN_MustFailCompile extends x10Test {

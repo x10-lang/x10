@@ -5,9 +5,6 @@
  *  This file is part of X10 Test.
  *
  */
- // LIMITATION
- // Application logic to be fixed.
- 
 import harness.x10Test;
 
 /**
@@ -54,11 +51,11 @@ A literal translation of the following Matlab code:
  *
  * @author Tong
  */
-public class LU(dist(:(rank==2)&&rect) a_D, 
-                double[:distribution==this.a_D] a_A, 
-                double[:distribution==this.a_D] a_L,
-                double[:distribution==this.a_D] a_U,
-                int[:rank==1&&rect] a_p)  extends x10Test {
+public class LU(dist(:(rank==2)&&rect) D, 
+                double[:distribution==this.D] A, 
+                double[:distribution==this.D] L,
+                double[:distribution==this.D] U,
+                int[:rank==1&&rect] P)  extends x10Test {
 
     const double epsilon2 = 0.000000000001;
     final int n;
@@ -67,29 +64,28 @@ public class LU(dist(:(rank==2)&&rect) a_D,
                final double[:distribution==D] L,
                final double[:distribution==D] U,
 	       final int[:(rank==1)&&rect] P) {
-	property(D, A,L,U,P);
+	property(D,A,L,U,P);
         n=D.region.rank(0).size();
     }
     region(:rank==1) afterK(int k) { return [k:n-1];}
     region(:rank==2) afterKK(int k) { return [k:n-1,k:n-1];}
 
     public void lu() {
-	final double [.] A=new double [afterK(0)] (point [i,j]){return a_A[i,j];};
-	finish foreach (point [i]:a_p) a_p[i]=i;
+	final double [.] A=new double [afterKK(0)] (point [i,j]){return LU.this.A[i,j];};
+	finish foreach (point [i]:P) P[i]=i;
             
-	for(point [K] : [0:n-2]){
-	    final int k=K;
+	for(point [k] : [0:n-2]){
 	    // Find index of largest element below diagonal in k-th column
-	    double r=A[k,k]; 
+	    double max=A[k,k]; 
             int maxIdx=k;
 	    for (point [i]: afterK(k+1))
-		if (Math.abs(A[i,k])>Math.abs(r)){
-		    r=A[i,k]; maxIdx=i;
+		if (Math.abs(A[i,k])>Math.abs(max)){
+		    max=A[i,k]; maxIdx=i;
 		}
 
 	    final int m=maxIdx;
 	    // Skip elimination if column is zero
-	    if (r!=0) {
+	    if (max!=0) {
                     // Swap pivot row
                     if (m!=k){
                         finish foreach (point [j]: afterK(0)){
@@ -97,8 +93,8 @@ public class LU(dist(:(rank==2)&&rect) a_D,
                             A[k,j]=A[m,j]; 
                             A[m,j]=temp;
                         }
-                        a_p[m]=a_p[k];
-                        a_p[k]=m;
+                        P[m]=P[k];
+                        P[k]=m;
                     }
                     
                     // Compute multipliers
@@ -111,10 +107,10 @@ public class LU(dist(:(rank==2)&&rect) a_D,
             }
             
             //Separate result
-  	    finish foreach (point [i,j]: afterK(0)) {
-               if (i>j) a_L[i,j]=A[i,j]; 
-               if (i==j) { a_U[i,j]=A[i,j]; a_L[i,j]=1;}
-               if (i<j) a_U[i,j]=A[i,j];
+  	    finish foreach (point [i,j]: afterKK(0)) {
+               if (i>j) L[i,j]=A[i,j]; 
+               else if (i==j) {U[i,j]=A[i,j]; L[i,j]=1;}
+                    else U[i,j]=A[i,j];
 	    }
      }
 
@@ -138,10 +134,10 @@ public class LU(dist(:(rank==2)&&rect) a_D,
      public boolean verify() {
         double temp1=0; int temp2=0;
         double [] UDiag={1, -2, 2, -4, 4, -6, 6, -8, 8, 0};
-        int [] P={1,2,3,4,5,6,7,8,9,0};
+        int [] PP={1,2,3,4,5,6,7,8,9,0};
         for (point [i] : afterK(0)) {
-        	temp1+=UDiag[i]-a_U[i,i];
-        	temp2+=a_p[i]-P[i];
+        	temp1+=UDiag[i]-U[i,i];
+        	temp2+=P[i]-PP[i];
         }
         return temp1 < epsilon2 && temp2==0;
      }

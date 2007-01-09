@@ -5,13 +5,13 @@
  *  This file is part of X10 Test.
  *
  */
-
-//LIMITATION 
+//LIMITATION:
 //This check is not being done by the compiler currently.
 import harness.x10Test;
+
 /**
  * Dimensionality of array initializer must be checked.
-
+ *
  * @author vj 12 2006
  */
 public class DimCheck_MustFailCompile extends x10Test {
