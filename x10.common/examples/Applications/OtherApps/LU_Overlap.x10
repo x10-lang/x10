@@ -45,31 +45,6 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
 	int [.] m_rowScore;
 	
 	
-<<<<<<< LU_Overlap.x10
-	public int pow2(int a_int){
-		return (int)Math.pow(2,a_int);
-	}
-	
-	public void lu(final double [.] a_A){
-		assert a_A.rank==2;
-		m_A=a_A;
-		m_R=a_A.region;
-		m_D=a_A.distribution;
-		m=m_R.rank(0).size(); n=m_R.rank(1).size();
-		final int steps=Math.min(m,n)-1;
-		final region STEPS=[0:steps-1];
-		m_p=new int [steps+1]; for (int i=0;i<steps+1;i++) {m_p[i]= i;};
-		m_rowScore=new int [[0:m-1]] (point [i]) {return n;};
-		m_update[0]=true; m_update[1]=true;
-		
-		double res;	
-		//for(int k=0;k<steps;k++){
-		for (point [k]:STEPS){	
-			when (m_update[0]) {}
-			res=pivot(k);
-			if (res!=0)
-			{
-=======
 	public LU_Overlap(:self.R==R&&self.D==D&&self.A==A)
 	(final region(:rank==2&&zeroBased&&rect) R, 
 			final dist(:region==R) D, 
@@ -82,7 +57,7 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
 		Rows = [0:m-1];
 		// p=new int [steps+1](point[i]) { return i;};
 		p=new int [steps+1]; for (point [i] : [0:steps]) {p[i]= i;};
-		m_rowScore=new int [Rows] (point [i]) {return n;};
+		m_rowScore=new int [Rows] (point [i]) {return m;};
 	}
 	public void lu(){
 		for (point [k]:Steps){	
@@ -90,9 +65,7 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
 			double res=pivot(k);
 			if (res==0) {
 				await (updateRemainingCols);
-				for (int i=k+1;i<m;i++) m_rowScore[i]=n-k-1;
 			} else {
->>>>>>> 1.3
 				final int score=n-k;
 				await ((m_rowScore[k]==score) && (m_rowScore[m_pivotInfo]==score));
 				exchange(k);
@@ -101,12 +74,6 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
 					updateRemainingCols=false;
 				}
 				async update(k);
-<<<<<<< LU_Overlap.x10
-			}else{
-				when (m_update[1]){};
-				for (int i=k+1;i<m;i++) m_rowScore[i]=n-k-1;
-=======
->>>>>>> 1.3
 			}
 		}
 	}
