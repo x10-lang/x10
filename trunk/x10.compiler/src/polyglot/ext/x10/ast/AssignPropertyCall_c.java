@@ -131,7 +131,7 @@ implements AssignPropertyCall, Return {
 			// a = (Stmt) a.visit(tc); Do not typecheck the statement a.
 			s.add(a);
 		}
-		Node n = new AssignPropertyBody_c(pos,s, thisConstructor, definedProperties).typeCheck(tc);
+		Node n = new AssignPropertyBody_c(pos,s, thisConstructor, definedProperties).del().typeCheck(tc);
 		
 		
 		return n;

@@ -10,7 +10,9 @@
  */
 package polyglot.ext.x10.ast;
 
-import polyglot.ast.Call;
+import java.util.List;
+
+import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 
 /**
@@ -19,5 +21,5 @@ import polyglot.ast.Stmt;
  *
  */
 public interface AssignPropertyCall extends Stmt {
-
+	List<Expr> args();
 }
