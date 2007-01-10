@@ -176,7 +176,7 @@ Instructions</a></td>
                   <td> <br>
                   <img src="//www.ibm.com/i/v14/icons/dn.gif" alt=""
  align="middle" border="0" height="16" width="16"> <a
- href="downloads/UPDATEME">X10 version v0.0409</a> <br>
+ href="http://sourceforge.net/project/showfiles.php?group_id=181722">X10 version v1.0.44</a> <br>
 Prerequisites:
                   <ul>
                     <li> <img src="//www.ibm.com/i/v14/icons/fw.gif"
@@ -216,6 +216,15 @@ Optional Packages:
  href="http://archive.eclipse.org/eclipse/downloads/index.php">Eclipse
 3.1.2 or a later 3.1 release</a> </li>
                   </ul>
+                  <br>
+                  </td>
+                </tr>
+                <tr>
+                  <td> <img src="//www.ibm.com/i/c.gif" alt=""
+ height="10" width="1">
+                  <img src="//www.ibm.com/i/v14/icons/dn.gif" alt=""
+ align="middle" border="0" height="16" width="16"> <a
+ href="http://sourceforge.net/project/showfiles.php?group_id=181722&package_id=210532">All X10 releases</a>
                   <br>
                   </td>
                 </tr>
