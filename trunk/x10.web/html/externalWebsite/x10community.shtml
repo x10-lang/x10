@@ -1,4 +1,4 @@
-S<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -144,8 +144,20 @@ Research</a></td>
           </tr>
           <tr valign="top">
             <td width="10">&nbsp;</td>
-            <td id="content" width="443">Coming soon: instructions on
-the X10 mailing list.</td>
+	    <td id="content" width="443">
+	      The following mailing lists are available for the X10 project:
+	      <ul>
+		<li><a href="http://lists.sourceforge.net/lists/listinfo/x10-announce">x10-announce@lists.sf.net</a>
+		    -- A read-only list for X10-related announcements.
+		<li><a href="http://lists.sourceforge.net/lists/listinfo/x10-users">x10-users@lists.sf.net</a>
+		    -- A list for general X10 questions and discussion.
+		    This is also the preferred place to get help on X10.
+		    No subscription is required to post.
+		<li><a href="http://lists.sourceforge.net/lists/listinfo/x10-developers">x10-developers@lists.sf.net</a>
+		    -- A list for the X10 language evolution and development
+		    discussion, which may get quite technical.
+	      </ul>
+	    </td>
             <td width="7">&nbsp;</td>
             <td id="right-nav" width="150"><br>
             </td>
