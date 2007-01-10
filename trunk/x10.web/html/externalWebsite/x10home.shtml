@@ -223,9 +223,15 @@ the development of highly concurrent software in X10. </p>
                       <tr>
                         <td width="443">
                         <p>A large subset of the X10 language is
-functionally supported for SMP machines. The implementation uses a Java
-virtual machine, and so can run on any platform that supports Java 5.0.
+functionally supported for SMP machines, through an X10 to Java translator.
+The resulting Java code uses an X10 runtime implemented in Java.
+The resulting code can be run on any platform that supports Java 5.0.
                         </p>
+                        <p><b>Note: This implementation is an initial
+prototype implementation. It is focused on functionality and not
+performance. While it supports the development of fairly large multi-package
+X10 programs, it is <em>not</em> intended for production use. 
+                        </b></p>
                         <p>The X10DT already provides a significant
 subset of the functionality
 expected of a modern IDE: syntax highlighting, structural outline
