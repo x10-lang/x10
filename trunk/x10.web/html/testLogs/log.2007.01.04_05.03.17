@@ -12526,111 +12526,111 @@ Exception in thread "main" java.lang.StackOverflowError
 	at polyglot.visit.ErrorHandlingVisitor.leave(ErrorHandlingVisitor.java:272)
 	at polyglot.visit.ContextVisitor.leave(ContextVisitor.java:158)
 	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:258)
-	at polyglot.visit.nodevisitor.visitedge(nodevisitor.java:217)
-	at polyglot.ast.node_c.visitchild(node_c.java:169)
-	at polyglot.ast.localdecl_c.visitchildren(localdecl_c.java:136)
-	at polyglot.visit.nodevisitor.visitedgenooverride(nodevisitor.java:251)
-	at polyglot.visit.nodevisitor.visitedge(nodevisitor.java:217)
-	at polyglot.ast.node_c.visitchild(node_c.java:169)
-	at polyglot.ast.node_c.visitlist(node_c.java:226)
-	at polyglot.ast.abstractblock_c.visitchildren(abstractblock_c.java:72)
-	at polyglot.ast.jl_c.visitchildren(jl_c.java:46)
-	at polyglot.visit.nodevisitor.visitedgenooverride(nodevisitor.java:251)
-	at polyglot.visit.nodevisitor.visitedge(nodevisitor.java:217)
-	at polyglot.ast.node_c.visitchild(node_c.java:169)
-	at polyglot.ast.try_c.visitchildren(try_c.java:85)
-	at polyglot.ast.jl_c.visitchildren(jl_c.java:46)
-	at polyglot.visit.nodevisitor.visitedgenooverride(nodevisitor.java:251)
-	at polyglot.visit.nodevisitor.visitedge(nodevisitor.java:217)
-	at polyglot.ast.node_c.visitchild(node_c.java:169)
-	at polyglot.ast.node_c.visitlist(node_c.java:226)
-	at polyglot.ast.abstractblock_c.visitchildren(abstractblock_c.java:72)
-	at polyglot.ast.jl_c.visitchildren(jl_c.java:46)
-	at polyglot.visit.nodevisitor.visitedgenooverride(nodevisitor.java:251)
-	at polyglot.visit.nodevisitor.visitedge(nodevisitor.java:217)
-	at polyglot.ast.node_c.visitchild(node_c.java:169)
-	at polyglot.ext.x10.ast.x10methoddecl_c.typecheckoverride(x10methoddecl_c.java:195)
-	at polyglot.ast.jl_c.typecheckoverride(jl_c.java:169)
-	at polyglot.visit.typechecker.override(typechecker.java:34)
-	at polyglot.visit.nodevisitor.visitedge(nodevisitor.java:214)
-	at polyglot.ast.node_c.visitchild(node_c.java:169)
-	at polyglot.ast.node_c.visitlist(node_c.java:226)
-	at polyglot.ast.classbody_c.visitchildren(classbody_c.java:61)
-	at polyglot.ast.jl_c.visitchildren(jl_c.java:46)
-	at polyglot.visit.nodevisitor.visitedgenooverride(nodevisitor.java:251)
-	at polyglot.visit.nodevisitor.visitedge(nodevisitor.java:217)
-	at polyglot.ast.node_c.visitchild(node_c.java:169)
-	at polyglot.ast.classdecl_c.visitchildren(classdecl_c.java:148)
-	at polyglot.ast.jl_c.visitchildren(jl_c.java:46)
-	at polyglot.visit.nodevisitor.visitedgenooverride(nodevisitor.java:251)
-	at polyglot.visit.nodevisitor.visitedge(nodevisitor.java:217)
-	at polyglot.ast.node_c.visitchild(node_c.java:169)
-	at polyglot.ast.node_c.visitlist(node_c.java:226)
-	at polyglot.ast.sourcefile_c.visitchildren(sourcefile_c.java:119)
-	at polyglot.visit.nodevisitor.visitedgenooverride(nodevisitor.java:251)
-	at polyglot.visit.nodevisitor.visitedge(nodevisitor.java:217)
-	at polyglot.ast.node_c.visit(node_c.java:173)
-	at polyglot.frontend.visitorpass.run(visitorpass.java:56)
-	at polyglot.frontend.scheduler.runpass(scheduler.java:596)
-	at polyglot.frontend.scheduler.rungoal(scheduler.java:499)
-	at polyglot.frontend.scheduler.attemptgoal(scheduler.java:440)
-	at polyglot.frontend.scheduler.attemptgoal(scheduler.java:412)
-	at polyglot.frontend.scheduler.attemptgoal(scheduler.java:412)
-	at polyglot.frontend.scheduler.attemptgoal(scheduler.java:412)
-	at polyglot.frontend.scheduler.attemptgoal(scheduler.java:364)
-	at polyglot.frontend.scheduler.runtocompletion(scheduler.java:297)
-	at polyglot.frontend.compiler.compile(compiler.java:168)
-	at polyglot.frontend.compiler.compilefiles(compiler.java:135)
-	at polyglot.main.main.start(main.java:119)
-	at polyglot.main.main.start(main.java:74)
-	at polyglot.main.main.main(main.java:252)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:169)
+	at polyglot.ast.LocalDecl_c.visitChildren(LocalDecl_c.java:136)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:169)
+	at polyglot.ast.Node_c.visitList(Node_c.java:226)
+	at polyglot.ast.AbstractBlock_c.visitChildren(AbstractBlock_c.java:72)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:46)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:169)
+	at polyglot.ast.Try_c.visitChildren(Try_c.java:85)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:46)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:169)
+	at polyglot.ast.Node_c.visitList(Node_c.java:226)
+	at polyglot.ast.AbstractBlock_c.visitChildren(AbstractBlock_c.java:72)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:46)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:169)
+	at polyglot.ext.x10.ast.X10MethodDecl_c.typeCheckOverride(X10MethodDecl_c.java:195)
+	at polyglot.ast.JL_c.typeCheckOverride(JL_c.java:169)
+	at polyglot.visit.TypeChecker.override(TypeChecker.java:34)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:214)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:169)
+	at polyglot.ast.Node_c.visitList(Node_c.java:226)
+	at polyglot.ast.ClassBody_c.visitChildren(ClassBody_c.java:61)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:46)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:169)
+	at polyglot.ast.ClassDecl_c.visitChildren(ClassDecl_c.java:148)
+	at polyglot.ast.JL_c.visitChildren(JL_c.java:46)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visitChild(Node_c.java:169)
+	at polyglot.ast.Node_c.visitList(Node_c.java:226)
+	at polyglot.ast.SourceFile_c.visitChildren(SourceFile_c.java:119)
+	at polyglot.visit.NodeVisitor.visitEdgeNoOverride(NodeVisitor.java:251)
+	at polyglot.visit.NodeVisitor.visitEdge(NodeVisitor.java:217)
+	at polyglot.ast.Node_c.visit(Node_c.java:173)
+	at polyglot.frontend.VisitorPass.run(VisitorPass.java:56)
+	at polyglot.frontend.Scheduler.runPass(Scheduler.java:596)
+	at polyglot.frontend.Scheduler.runGoal(Scheduler.java:499)
+	at polyglot.frontend.Scheduler.attemptGoal(Scheduler.java:440)
+	at polyglot.frontend.Scheduler.attemptGoal(Scheduler.java:412)
+	at polyglot.frontend.Scheduler.attemptGoal(Scheduler.java:412)
+	at polyglot.frontend.Scheduler.attemptGoal(Scheduler.java:412)
+	at polyglot.frontend.Scheduler.attemptGoal(Scheduler.java:364)
+	at polyglot.frontend.Scheduler.runToCompletion(Scheduler.java:297)
+	at polyglot.frontend.Compiler.compile(Compiler.java:168)
+	at polyglot.frontend.Compiler.compileFiles(Compiler.java:135)
+	at polyglot.main.Main.start(Main.java:119)
+	at polyglot.main.Main.start(Main.java:74)
+	at polyglot.main.Main.main(Main.java:252)
 
 real	0m3.568s
 user	0m4.321s
 sys	0m0.452s
 
-****** constructs.cast.referencedependenttypecast castnegativeconstraint failed: compile
+****** Constructs.Cast.ReferenceDependentTypeCast CastNegativeConstraint failed: compile
 
-****** constructs.cast.primitivedependenttypecast primitivedeptypeassignmentoverflow ******
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeAssignmentOverflow ******
 
 
-"/u/x10/tools/java5/j532redist/jre/bin/java" -xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './constructs/cast/primitivedependenttypecast' '-d' './constructs/cast/primitivedependenttypecast' './constructs/cast/primitivedependenttypecast/./primitivedeptypeassignmentoverflow.x10'
-./constructs/cast/primitivedependenttypecast/./primitivedeptypeassignmentoverflow.x10:30:64:30:64: unexpected token(s) ignored
-./constructs/cast/primitivedependenttypecast/./primitivedeptypeassignmentoverflow.x10:38:62:38:62: unexpected token(s) ignored
-./constructs/cast/primitivedependenttypecast/./primitivedeptypeassignmentoverflow.x10:1:
-    unable to parse primitivedeptypeassignmentoverflow.x10.
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Constructs/Cast/PrimitiveDependentTypeCast' '-d' './Constructs/Cast/PrimitiveDependentTypeCast' './Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveDepTypeAssignmentOverflow.x10'
+./Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveDepTypeAssignmentOverflow.x10:30:64:30:64: unexpected token(s) ignored
+./Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveDepTypeAssignmentOverflow.x10:38:62:38:62: unexpected token(s) ignored
+./Constructs/Cast/PrimitiveDependentTypeCast/./PrimitiveDepTypeAssignmentOverflow.x10:1:
+    Unable to parse PrimitiveDepTypeAssignmentOverflow.x10.
 1 error.
 
 real	0m1.781s
 user	0m2.066s
 sys	0m0.164s
 
-****** constructs.cast.primitivedependenttypecast primitivedeptypeassignmentoverflow failed: compile
+****** Constructs.Cast.PrimitiveDependentTypeCast PrimitiveDepTypeAssignmentOverflow failed: compile
 
-****** applications.otherapps lu_overlap ******
+****** Applications.OtherApps LU_Overlap ******
 
 
-"/u/x10/tools/java5/j532redist/jre/bin/java" -xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './applications/otherapps' '-d' './applications/otherapps' './applications/otherapps/./lu_overlap.x10'
-./applications/otherapps/./lu_overlap.x10:48:1:48:22: unexpected token(s) ignored
-./applications/otherapps/./lu_overlap.x10:71:13:71:13: "}" inserted to complete scope
-./applications/otherapps/./lu_overlap.x10:70:13:71:13: "else statement" inserted to complete scope
-./applications/otherapps/./lu_overlap.x10:67:30:71:13: "}" inserted to complete scope
-./applications/otherapps/./lu_overlap.x10:53:41:71:13: "}" inserted to complete scope
-./applications/otherapps/./lu_overlap.x10:95:1:95:1: "nullable" expected instead of this input
-./applications/otherapps/./lu_overlap.x10:95:3:95:4: misplaced construct(s)
-./applications/otherapps/./lu_overlap.x10:95:5:95:5: misplaced construct(s)
-./applications/otherapps/./lu_overlap.x10:95:9:96:31: unexpected token(s) ignored
-./applications/otherapps/./lu_overlap.x10:104:1:105:17: unexpected token(s) ignored
-./applications/otherapps/./lu_overlap.x10:108:1:108:7: "fieldaccess" expected instead of this input
-./applications/otherapps/./lu_overlap.x10:109:2:109:3: misplaced construct(s)
-./applications/otherapps/./lu_overlap.x10:109:4:109:5: misplaced construct(s)
-./applications/otherapps/./lu_overlap.x10:108:1:109:11: unexpected token(s) ignored
-./applications/otherapps/./lu_overlap.x10:87:21:112:5: "}" inserted to complete scope
-./applications/otherapps/./lu_overlap.x10:1: unable to parse lu_overlap.x10.
+"/u/x10/TOOLS/Java5/j532redist/jre/bin/java" -Xmx128m   -classpath "/u/x10/x10.common/lib/x10c.jar:/u/x10/x10.common/lib/x10.jar:/u/x10/x10.common/lib/polyglot2.jar:/u/x10/x10.common/lib/lpg.jar"  polyglot.main.Main -ext x10 -assert -noserial  '-sourcepath' './x10lib' '-sourcepath' './Applications/OtherApps' '-d' './Applications/OtherApps' './Applications/OtherApps/./LU_Overlap.x10'
+./Applications/OtherApps/./LU_Overlap.x10:48:1:48:22: unexpected token(s) ignored
+./Applications/OtherApps/./LU_Overlap.x10:71:13:71:13: "}" inserted to complete scope
+./Applications/OtherApps/./LU_Overlap.x10:70:13:71:13: "else Statement" inserted to complete scope
+./Applications/OtherApps/./LU_Overlap.x10:67:30:71:13: "}" inserted to complete scope
+./Applications/OtherApps/./LU_Overlap.x10:53:41:71:13: "}" inserted to complete scope
+./Applications/OtherApps/./LU_Overlap.x10:95:1:95:1: "nullable" expected instead of this input
+./Applications/OtherApps/./LU_Overlap.x10:95:3:95:4: misplaced construct(s)
+./Applications/OtherApps/./LU_Overlap.x10:95:5:95:5: misplaced construct(s)
+./Applications/OtherApps/./LU_Overlap.x10:95:9:96:31: unexpected token(s) ignored
+./Applications/OtherApps/./LU_Overlap.x10:104:1:105:17: unexpected token(s) ignored
+./Applications/OtherApps/./LU_Overlap.x10:108:1:108:7: "FieldAccess" expected instead of this input
+./Applications/OtherApps/./LU_Overlap.x10:109:2:109:3: misplaced construct(s)
+./Applications/OtherApps/./LU_Overlap.x10:109:4:109:5: misplaced construct(s)
+./Applications/OtherApps/./LU_Overlap.x10:108:1:109:11: unexpected token(s) ignored
+./Applications/OtherApps/./LU_Overlap.x10:87:21:112:5: "}" inserted to complete scope
+./Applications/OtherApps/./LU_Overlap.x10:1: Unable to parse LU_Overlap.x10.
 1 error.
 
 real	0m2.289s
 user	0m2.829s
 sys	0m0.240s
 
-****** applications.otherapps lu_overlap failed: compile
+****** Applications.OtherApps LU_Overlap failed: compile
