@@ -1,6 +1,6 @@
 # junit
 lpg
-polyglot2
+# polyglot2
 x10.common
 x10.compiler
 # x10.design
