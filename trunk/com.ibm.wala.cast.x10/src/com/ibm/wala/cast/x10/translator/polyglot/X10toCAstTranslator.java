@@ -17,6 +17,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.*;
 import polyglot.ext.x10.types.FutureType;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
@@ -42,8 +43,8 @@ import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.IteratorPlusOne;
 
 public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
-    public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, TypeSystem ts) {
-	super(clr, nf, ts);
+    public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf) {
+	super(clr, nf, X10TypeSystem_c.getTypeSystem());
     }
 
     protected TranslatingVisitor createTranslator() {

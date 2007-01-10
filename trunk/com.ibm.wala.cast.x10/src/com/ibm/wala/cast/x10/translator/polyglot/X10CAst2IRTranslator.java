@@ -204,5 +204,9 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
 	CAstEntity fSourceEntity = translator.sourceFileEntity();
 	translate(fSourceEntity, fSourceEntity.getName());
     }
+    
+    public JavaCAst2IRTranslator getCAst2IRTranslator() {
+    	return translator;
+    }
 }
 

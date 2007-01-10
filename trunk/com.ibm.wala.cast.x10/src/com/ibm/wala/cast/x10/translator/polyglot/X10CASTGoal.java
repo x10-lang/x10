@@ -35,8 +35,8 @@ public class X10CASTGoal extends AbstractGoal {
 	return new X10CASTPass(this, job(),
 		new X10toCAstTranslator(
 			fSourceLoaderRef,
-			extInfo.nodeFactory(),
-			extInfo.typeSystem()));
+			extInfo.nodeFactory()));
+	//,			extInfo.typeSystem()));
     }
 
     public String name() {

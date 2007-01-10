@@ -3,7 +3,7 @@
  */
 package com.ibm.domo.ast.x10.translator.polyglot;
 
-import polyglot.ext.jl.ExtensionInfo;
+import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
