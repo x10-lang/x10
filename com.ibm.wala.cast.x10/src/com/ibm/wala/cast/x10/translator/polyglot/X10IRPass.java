@@ -19,18 +19,25 @@ import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
 public class X10IRPass extends AbstractPass {
     private final Job fJob;
     private final X10SourceLoaderImpl fLoader;
+	private X10CAst2IRTranslator fTranslator;
+    
 
     public X10IRPass(Goal goal, Job job, X10SourceLoaderImpl loader) {
 	super(goal);
 	this.fJob= job;
 	fLoader= loader;
+
+	CAstEntity entity= (CAstEntity) ((AnalysisJobExt) fJob.ext()).get(AnalysisJobExt.CAST_JOBEXT_KEY);
+
+	fTranslator = new X10CAst2IRTranslator(entity, fLoader);
     }
 
     public boolean run() {
-	CAstEntity entity= (CAstEntity) ((AnalysisJobExt) fJob.ext()).get(AnalysisJobExt.CAST_JOBEXT_KEY);
-
-	X10CAst2IRTranslator translator= new X10CAst2IRTranslator(entity, fLoader);
-	translator.translate();
+	fTranslator.translate();
 	return true;
     }
+
+	public X10CAst2IRTranslator getTranslator() {
+		return fTranslator;
+	}
 }

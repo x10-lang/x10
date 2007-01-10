@@ -10,9 +10,9 @@ Require-Bundle: org.eclipse.core.runtime,
  com.ibm.capa.ast,
  com.ibm.domo.ast,
  com.ibm.domo.ast.java,
- com.ibm.domo.core,
- polyglot2,
- x10.compiler
+ polyglot,
+ x10.compiler,
+ com.ibm.wala.core
 Eclipse-AutoStart: true
 Export-Package: com.ibm.domo.ast.x10,
  com.ibm.domo.ast.x10.analysis.typeInference,

@@ -13,11 +13,13 @@ import polyglot.frontend.goals.EndGoal;
 import polyglot.util.ErrorInfo;
 
 import com.ibm.domo.ast.java.loader.JavaSourceLoaderImpl;
+import com.ibm.domo.ast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
 
 public class X10IRGoal extends AbstractGoal implements EndGoal {
     private X10SourceLoaderImpl fSourceLoader;
-
+    private X10CAst2IRTranslator fTranslator;
+    
     public X10IRGoal(Job job, X10SourceLoaderImpl sourceLoader) {
 	super(job);
 	fSourceLoader = sourceLoader;
@@ -33,10 +35,16 @@ public class X10IRGoal extends AbstractGoal implements EndGoal {
     }
 
     public Pass createPass(ExtensionInfo extInfo) {
-	return new X10IRPass(this, job(), fSourceLoader);
+    	X10IRPass result = new X10IRPass(this, job(), fSourceLoader);
+    	fTranslator = result.getTranslator();
+    	return result;
     }
 
     public String name() {
 	return "<DOMO IR goal for " + job().source().path() + ">";
+    }
+    
+    public JavaCAst2IRTranslator getJavaCAst2IRTranslator(){
+    	return fTranslator.getCAst2IRTranslator();
     }
 }
