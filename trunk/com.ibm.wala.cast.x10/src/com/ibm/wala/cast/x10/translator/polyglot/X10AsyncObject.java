@@ -32,7 +32,7 @@ public class X10AsyncObject extends AstFunctionClass {
     }
 
     public String toString() {
-        return "Async" + super.toString();
+      return "Async@" + getSourcePosition();
     }
 
     public ClassHierarchy getClassHierarchy() {
