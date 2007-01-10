@@ -536,18 +536,14 @@ debugging perspective. </p>
           </tr>
           <tr>
             <td> <br>
-If you wish to help develop the X10 language, <a href="contact.shtml">contact</a>
-the X10 team to request developer access.
-You will receive a user id and password to the CVS server. SSH is used
-for authentication so you will need to generate SSH keys using ssh_gen
-(see you local documentation on this process), and to save your public
-SSH key on the CVS machine, rlseyzcvs1.watson.ibm.com. The CVS settings
-are:
-            <ul>
-              <li>CVSROOT=:ext:youruserid@rlseyzcvs1.watson.ibm.com:/cvs_repos/X10</li>
-              <li> CVS_RSH=ssh</li>
-              <li> CVSUMASK=770</li>
-            </ul>
+If you wish to help develop the X10 language, please send patches to
+the <a class="fbox" href="mailto:x10-users@lists.sourceforge.net">x10-users
+mailing list</a>.  The X10 source code is available via anonymous CVS using
+<tt>CVSROOT=:pserver:anonymous@x10.cvs.sourceforge.net:/cvsroot/x10</tt>.
+If you are a project developer, see the <a class="fbox"
+href="http://sourceforge.net/cvs/?group_id=181722">X10 CVS page</a> for
+access instructions.
+
 There are a few basic requirements:
             <ul>
               <li>Coordinate with the X10 team for any major
@@ -562,9 +558,9 @@ testScript -testList sanity.lst</li>
               </li>
             </ul>
             <br>
-The source code is viewable via <a href="../cgi-bin/cvsweb.cgi/">CVSWeb</a>
-(password required). <img src="//www.ibm.com/i/c.gif" alt=""
- height="10" width="1"></td>
+The source code is also viewable via
+<a href="http://x10.cvs.sourceforge.net/x10/">CVSWeb</a>.
+            <img src="//www.ibm.com/i/c.gif" alt="" height="10" width="1"></td>
           </tr>
         </tbody>
       </table>
