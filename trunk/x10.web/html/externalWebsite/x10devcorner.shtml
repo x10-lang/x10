@@ -559,7 +559,7 @@ testScript -testList sanity.lst</li>
             </ul>
             <br>
 The source code is also viewable via
-<a href="http://x10.cvs.sourceforge.net/x10/">CVSWeb</a>.
+<a href="http://x10.cvs.sourceforge.net/x10/">ViewCVS</a>.
             <img src="//www.ibm.com/i/c.gif" alt="" height="10" width="1"></td>
           </tr>
         </tbody>
