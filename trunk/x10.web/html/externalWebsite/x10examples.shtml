@@ -349,7 +349,7 @@ MG (an X10 implementation for expressiveness study): <img src="http://www.ibm.co
 <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/epl-v10.html">License</a>
 </li>
 <li>
-HPL (a port of Java Grande Forum Benchmark Thread Version 1.0): <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/HPLclass.tar">HPL.x10</a> </li>
+HPL (a port of Java Grande Forum Benchmark Thread Version 1.0): <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/HPL.x10">HPL.x10</a> </li>
 </li>
 <li>
 STREAM (a port of John D. McCalpin's code): <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16"> <a href="applications/benchmark/HPCC/stream.x10">stream.x10</a>
