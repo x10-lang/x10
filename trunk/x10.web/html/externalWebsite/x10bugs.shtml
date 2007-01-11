@@ -212,7 +212,7 @@ report. </li>
               </tbody>
             </table>
             <br>
-            <a href="../bugzilla/enter_bug.cgi"><input
+            <a href="../../cgi-bin/bugzilla/enter_bug.cgi"><input
  src="//www.ibm.com/i/v14/buttons/us/en/submit.gif"
  alt="Submit Bug Report" name="&lt;name&gt;" value="Submit Bug Report"
  type="image"></a> </td>
