@@ -148,6 +148,10 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
 		visitor.leaveHere(n, context, visitor);
 		break;
 	    }
+	    case X10CastNode.NEXT: {
+		visitor.visitNext(n, context, visitor);
+		break;
+	    }
 	    default:
 		return super.doVisit(n, context, visitor);
 	}
@@ -284,5 +288,11 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
      * @param c a visitor-specific context
      */
     protected void leaveHere(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
+    /**
+     * Visit a Next node.
+     * @param n the node to process
+     * @param c a visitor-specific context
+     */
+    protected void visitNext(CAstNode n, Context c, CAstVisitor visitor) { visitor.visitNode(n, c, visitor); }
 }
 
