@@ -29,7 +29,9 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
     }
 
     public void defineAsync(CAstEntity fn, TypeReference asyncRef, CAstSourcePositionMap.Position fileName) {
-	fTypeMap.put(fn, new X10AsyncObject(asyncRef, this, fileName, cha));
+	X10AsyncObject asyncType= new X10AsyncObject(asyncRef, this, fileName, cha);
+	fTypeMap.put(fn, asyncType);
+	loadedClasses.put(asyncType.getName(), asyncType);
     }
 
     /**
