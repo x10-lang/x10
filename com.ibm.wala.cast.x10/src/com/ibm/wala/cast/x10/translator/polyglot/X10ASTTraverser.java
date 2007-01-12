@@ -4,6 +4,7 @@
 package com.ibm.domo.ast.x10.translator.polyglot;
 
 import polyglot.ast.Node;
+import polyglot.ext.x10.ast.ArrayConstructor;
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.AtEach;
 import polyglot.ext.x10.ast.Finish;
@@ -40,6 +41,8 @@ public class X10ASTTraverser extends ASTTraverser {
 	    return xtv.visit((When) n, wc);
 	else if (n instanceof Next)
 	    return xtv.visit((Next) n, wc);
+	else if (n instanceof ArrayConstructor)
+	    return xtv.visit((ArrayConstructor) n, wc);
 	else
 	    return ASTTraverser.visit(n, xtv, wc);
     }
