@@ -99,7 +99,10 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
 
 	Atom asyncName= Atom.findOrCreateUnicodeAtom(asyncEntity.getName());
 	Descriptor asyncDesc= Descriptor.findOrCreate(null, TypeName.string2TypeName(retType.getName()));
-	TypeReference owningTypeRef= TypeReference.findOrCreate(fLoader.getReference(), TypeName.string2TypeName(owningType.getName()));
+	// RMF 1/12/07 - Type ref must agree with what's used when the async type is defined!
+	// The following commented-out version didn't do that...
+//	TypeReference owningTypeRef= TypeReference.findOrCreate(fLoader.getReference(), TypeName.string2TypeName(owningType.getName()));
+	TypeReference owningTypeRef= asyncTypeReference(asyncEntity);
 
 	return MethodReference.findOrCreate(owningTypeRef, asyncName, asyncDesc);
     }
