@@ -12,12 +12,16 @@ Require-Bundle: org.eclipse.core.runtime,
  com.ibm.domo.ast.java,
  polyglot,
  x10.compiler,
- com.ibm.wala.core
+ com.ibm.wala.core,
+ org.eclipse.jdt.core
 Eclipse-AutoStart: true
 Export-Package: com.ibm.domo.ast.x10,
+ com.ibm.domo.ast.x10.analysis,
  com.ibm.domo.ast.x10.analysis.typeInference,
+ com.ibm.domo.ast.x10.client,
  com.ibm.domo.ast.x10.ipa.callgraph,
  com.ibm.domo.ast.x10.ssa,
  com.ibm.domo.ast.x10.translator,
  com.ibm.domo.ast.x10.translator.polyglot,
+ com.ibm.domo.ast.x10.types,
  com.ibm.domo.ast.x10.visit
