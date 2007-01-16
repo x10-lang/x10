@@ -7,17 +7,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ibm.domo.ast.java.client.EclipseProjectSourceAnalysisEngine;
 import com.ibm.domo.ast.java.test.IRTests;
-import com.ibm.domo.ast.java.translator.polyglot.IRTranslatorExtension;
-import com.ibm.domo.ast.java.translator.polyglot.PolyglotClassLoaderFactory;
-import com.ibm.domo.ast.x10.ipa.callgraph.X10ZeroXCFABuilder;
-import com.ibm.domo.ast.x10.translator.polyglot.X10ClassLoaderFactory;
-import com.ibm.domo.ast.x10.translator.polyglot.X10IRTranslatorExtension;
-import com.ibm.wala.ipa.callgraph.AnalysisOptions;
-import com.ibm.wala.ipa.callgraph.CallGraphBuilder;
-import com.ibm.wala.ipa.callgraph.propagation.cfa.ZeroXInstanceKeys;
-import com.ibm.wala.ipa.cha.ClassHierarchy;
-import com.ibm.wala.util.warnings.WarningSet;
+import com.ibm.domo.ast.x10.client.X10EclipseSourceAnalysisEngine;
 
 public class X10IRTests extends IRTests {
     protected static List/*<String>*/ x10RTJar;
@@ -34,17 +26,8 @@ public class X10IRTests extends IRTests {
 	super(name);
     }
 
-    protected PolyglotClassLoaderFactory getClassLoaderFactory(final WarningSet warnings, IRTranslatorExtension extInfo) {
-	return new X10ClassLoaderFactory(null, warnings, extInfo);
-    }
-
-    protected IRTranslatorExtension getPolyglotExtension() {
-	X10IRTranslatorExtension translatorTestExtension= new X10IRTranslatorExtension();
-	return translatorTestExtension;
-    }
-
-    protected CallGraphBuilder createCGBuilder(AnalysisOptions options, ClassHierarchy cha, WarningSet warnings) {
-	return new X10ZeroXCFABuilder(cha, warnings, options, null, null, options.getReflectionSpec(), ZeroXInstanceKeys.NONE);
+    protected EclipseProjectSourceAnalysisEngine getAnalysisEngine() {
+	return new X10EclipseSourceAnalysisEngine();
     }
 
     protected String singleInputForTest() {
@@ -80,12 +63,17 @@ public class X10IRTests extends IRTests {
 		new GraphAssertions(), null);
     }
 
-    public void testAtEach1() {
+//    public void testAtEach1() {
+//	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
+//		new GraphAssertions(), null);
+//    }
+
+    public void testWhen1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions(), null);
     }
 
-    public void testWhen1() {
+    public void testArrayCtor1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
 		new GraphAssertions(), null);
     }
