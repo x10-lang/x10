@@ -966,11 +966,9 @@ $Rules
     -------------------------------------- Section:::Types
 
     Type ::= DataType 
-        /.$BeginJava
-                  setResult(DataType);
-          $EndJava
-        ./
-            | nullable < Type > DepParametersopt
+           | SpecialType
+
+    SpecialType ::= nullable < Type > DepParametersopt
         /.$BeginJava
                     X10TypeNode t = nf.Nullable(pos(), Type);
                     setResult(DepParametersopt == null ? t 
@@ -991,9 +989,7 @@ $Rules
     --                      It should be removed as there are no primitive
     --                      types in X10.
     DataType ::=  PrimitiveType
-
-    DataType ::= ClassOrInterfaceType
-               | ArrayType
+               |  ReferenceType
 
     PrimitiveType ::= NumericType DepParametersopt
      /.$BeginJava
@@ -1023,13 +1019,13 @@ $Rules
                 
                 if (ts.isPrimitiveTypeName(TypeName.name)) {
                     try {
-			type= (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.primitiveForName(TypeName.name));
-		    } catch (SemanticException e) {
-			throw new InternalCompilerError("Unable to create primitive type for '" + TypeName.name + "'!");
-		    }
+                        type= (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.primitiveForName(TypeName.name));
+                    } catch (SemanticException e) {
+                        throw new InternalCompilerError("Unable to create primitive type for '" + TypeName.name + "'!");
+                    }
                 } else
                     type= (X10TypeNode) TypeName.toType();
-               //  System.out.println("Parser: parsed ClassOrInterfaceType |" + TypeName + "| |" + DepParametersopt +"|");
+                //  System.out.println("Parser: parsed ClassOrInterfaceType |" + TypeName + "| |" + DepParametersopt +"|");
                     setResult(DepParametersopt == null
                                    ? type
                                    : type.dep(null, DepParametersopt));
@@ -1527,18 +1523,9 @@ $Rules
 
     ArrayBaseType ::= PrimitiveType
                     | ClassOrInterfaceType
-                    | nullable < Type >
+                    | SpecialType
+                    | ( Type )
         /.$BeginJava
-                    setResult(nf.Nullable(pos(), Type));
-          $EndJava
-        ./
-            | future < Type >
-        /.$BeginJava
-                    setResult(nf.Future(pos(), Type));
-          $EndJava
-        ./
-            | ( Type )
-             /.$BeginJava
                     setResult(Type);
           $EndJava
         ./
@@ -1776,9 +1763,21 @@ $Rules
 --          $EndJava
 --        ./
 
-    CastExpression ::= ( Type ) UnaryExpressionNotPlusMinus
+
+    CastExpression ::=
+         ( PrimitiveType ) UnaryExpression
         /.$BeginJava
-                    setResult(nf.Cast(pos(), Type, UnaryExpressionNotPlusMinus));
+                    setResult(nf.Cast(pos(), PrimitiveType, UnaryExpression));
+          $EndJava
+        ./
+       | ( SpecialType ) UnaryExpressionNotPlusMinus
+        /.$BeginJava
+                    setResult(nf.Cast(pos(), SpecialType, UnaryExpressionNotPlusMinus));
+          $EndJava
+        ./
+       | ( ReferenceType ) UnaryExpressionNotPlusMinus
+        /.$BeginJava
+                    setResult(nf.Cast(pos(), ReferenceType, UnaryExpressionNotPlusMinus));
           $EndJava
         ./
        | ( @ Expression ) UnaryExpressionNotPlusMinus
@@ -2044,6 +2043,7 @@ $Types
     SourceFile ::= CompilationUnit
     polyglot.ast.Lit ::= Literal
     TypeNode ::= Type
+    TypeNode ::= SpecialType
     TypeNode ::= PrimitiveType | NumericType
     TypeNode ::= IntegralType | FloatingPointType
     TypeNode ::= ReferenceType
