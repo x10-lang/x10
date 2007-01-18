@@ -66,12 +66,12 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     private final class AsyncBodyType implements CAstType.Method {
 	private final Node fNode;
 
-	private final CodeBodyContext fContext;
+	private final Type declaringType;
 
-	private AsyncBodyType(Node node, CodeBodyContext context) {
+	private AsyncBodyType(Node node, Type declaringType) {
 	    super();
 	    fNode= node;
-	    fContext= context;
+	    this.declaringType = declaringType;
 	}
 
 	public CAstType getReturnType() {
@@ -102,7 +102,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstType getDeclaringType() {
-	    return getTypeDict().getCAstTypeFor(fContext.getEnclosingMethod().container());
+	    return getTypeDict().getCAstTypeFor(declaringType);
 	}
     }
 
@@ -165,7 +165,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstType getType() {
-	    return new AsyncBodyType(fNode, fContext);
+	    return new AsyncBodyType(fNode, fContext.getEnclosingType());
 	}
 	public String toString() {
 	    return getName();
