@@ -5,6 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
+ import harness.x10Test;
 /**************************************************************************************************************
                                LU Factorization with partial pivoting. 
 
@@ -22,7 +23,7 @@ Date:   10/15/06
         01/22/07 break up update to reduce the usage of flags and when clause
 ******************************************************************************************************************/
 
-public class LU_Overlap1{
+public class LU_Overlap1 extends x10Test{
 	final static double eps=0.00000000001;
 	double [.] m_A; //Can this array be referred to globally? Right now, it can be (error?).
 	region m_R;
@@ -170,7 +171,7 @@ public class LU_Overlap1{
 	public int log2(int a_int){ return (int)(Math.log(a_int)/Math.log(2));}
 	public int pow2(int a_int){ return (int)Math.pow(2,a_int); }
 	
-	public static void main(String[] a) {
+	public boolean run() {
 		//set up a test problem
 		final int size=10;
 		final region R=[0:size-1,0:size-1];
@@ -179,26 +180,8 @@ public class LU_Overlap1{
 			if (i-1==j) res=i*(res==0?-1:1);
 			return res;};
 			
-		System.out.println("Initially, A=");
-		for (int i=0;i<size;i++){
-			for (int j=0;j<size;j++)
-				System.out.print(" "+A[i,j]);
-				System.out.flush();System.out.print("\n");
-			}
 		//compute LU factorization of A
-		final LU_Overlap1 LU=new LU_Overlap1();
-		LU.lu(A);
-		//print out results
-		System.out.println("After LU, A=");
-		for (int i=0;i<size;i++){
-			for (int j=0;j<size;j++) //got the editor error again here!
-				System.out.print(" "+A[i,j]);
-			System.out.flush();System.out.print("\n");
-		}
-		System.out.println("Permutation:");
-		for (int i=0;i<LU.m_p.length;i++) System.out.print(" "+LU.m_p[i]);
-		System.out.flush();System.out.print("\n");
-		
+		lu(A);
 		/* verify results
 		** The first column of L should be equal to array l.
 		** The diagonals of U should be equal to array u and its first row are all ones.
@@ -213,10 +196,13 @@ public class LU_Overlap1{
 			err1+=A[i,0]-l[i];
 			err1+=A[i,i]-u[i];
 			err1+=A[0,i]-1;
-			err2+=LU.m_p[i]-permulation[i];
+			err2+=m_p[i]-permulation[i];
 		}
-		System.out.println("This is LUOverlap. Is the result correct? "+(Math.abs(err1)<eps && err2==0)+"!");
+		return (Math.abs(err1)<eps && err2==0);
 		
+	}
+	public static void main(String[] a) {
+		new LU_Overlap1.execute();
 	}
 	
 }
