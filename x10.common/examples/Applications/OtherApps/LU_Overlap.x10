@@ -42,7 +42,7 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
         boolean updateFirstCol=true, updateRemainingCols=true;
 	int m_pivotInfo; 
 	//array to store the scores of each row
-	int [.] m_rowScore;
+	final int [.] m_rowScore; //Compiler currently does not complain if not putting final here.
 	
 	
 	public LU_Overlap(:self.R==R&&self.D==D&&self.A==A)
