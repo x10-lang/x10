@@ -65,7 +65,7 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
 			double res=pivot(k);
 			if (res==0) {
 				await (updateRemainingCols);
-				for (int i=k+1;i<m;i++) m_rowScore[i]=n-k-1;
+				for (int i=k+1;i<m;i++) atomic m_rowScore[i]=n-k-1;
 			} else {
 				final int score=n-k;
 				await ((m_rowScore[k]==score) && (m_rowScore[m_pivotInfo]==score));
@@ -87,10 +87,10 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
 		atomic updateFirstCol=true;
 		
 		// update the remaining columns
-		for (point [i] : Rkm) m_rowScore[i]=1;
+		for (point [i] : Rkm) atomic m_rowScore[i]=1;
 		finish ateach (point [i,j]:D|[Rkm,k+2:n-1]){
 	           A[i,j]-= A[i,k]*A[k,j];
-		   atomic m_rowScore[i]++;
+		   async (m_rowScore.distribution[0]) atomic m_rowScore[i]++;
 		}
 		atomic updateRemainingCols=true;
 	}
