@@ -90,7 +90,7 @@ public class LU_Overlap(region(:rank==2&& zeroBased&&rect) R,
 		for (point [i] : Rkm) atomic m_rowScore[i]=1;
 		finish ateach (point [i,j]:D|[Rkm,k+2:n-1]){
 	           A[i,j]-= A[i,k]*A[k,j];
-		   async (m_rowScore.distribution[0]) atomic m_rowScore[i]++;
+		   async (m_rowScore.distribution[i]) atomic m_rowScore[i]++;
 		}
 		atomic updateRemainingCols=true;
 	}
