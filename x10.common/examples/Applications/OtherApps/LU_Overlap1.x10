@@ -20,7 +20,8 @@ in Matlab notation. The matrix A can have any distribution. Note that the code i
 Author: Tong Wen, IBM Research
 Date:   10/15/06
         11/08/06 clean up comments
-        01/22/07 break up update to reduce the usage of flags and when clause
+        01/12/07 break up update to reduce the usage of flags and when clause
+        01/22/07 propagate the bug fixes of LU_Overlap
 ******************************************************************************************************************/
 
 public class LU_Overlap1 extends x10Test{
@@ -32,7 +33,6 @@ public class LU_Overlap1 extends x10Test{
 	int m_pivotInfo; 
 	int [] m_p; //Can be also be referred to globally. It looks like an error.
 	//flags for coordinating activities
-	//final boolean [] m_flags=new boolean [1];
 	boolean pivotPlusExchangeDone;
 	//array to store the scores of each row
 	int [.] m_rowScore; 
