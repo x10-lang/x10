@@ -277,6 +277,10 @@ The following examples demonstrate in X10 how to build and iterate over distribu
 <img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
 <a href="applications/examples/LU_Overlap.x10">LU_Overlap.x10</a>
 </td>
+<td width="200">
+<img src="http://www.ibm.com/i/v14/icons/dn.gif" alt="" align="middle" border="0" height="16" width="16">
+<a href="applications/examples/LU_Overlap0.x10">Another version</a> of LU_Overlap
+</td>
 </tr>
 
 </table>
