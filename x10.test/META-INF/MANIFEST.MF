@@ -6,5 +6,5 @@ Bundle-Version: 1.0.0
 Bundle-Localization: plugin
 Require-Bundle: x10.runtime,
  x10.compiler,
- polyglot2,
- org.junit
+ org.junit,
+ polyglot
