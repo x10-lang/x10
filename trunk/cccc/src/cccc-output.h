@@ -1,0 +1,138 @@
+/*
+ * Output functions for CCCC analysis toy.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * Copyright (c) 2007 Paul E. McKenney, IBM Corporation.
+ */
+
+/*
+ * Dump the statements in the same form that they are input.
+ */
+void dump_statements(void)
+{
+	int taskid;
+	int stmtid;
+	char val;
+
+	for_each_statement(taskid, stmtid) {
+		val = task_vals[taskid][stmtid] + '0';
+		printf("%d %d %c %c %c\n",
+		       taskid, stmtid,
+		       task_ops[taskid][stmtid] == read_op ? 'r' : 'w',
+		       task_vars[taskid][stmtid] + 'a',
+		       val < '0' ? ' ' : val);
+	}
+}
+
+/*
+ * Dump the dependencies recorded in the specified dependency map.
+ */
+void
+dump_these_dependencies(dependency_map_t dep)
+{
+	int ft;
+	int fs;
+	int tt;
+	int ts;
+
+	for_each_dependency(dep, ft, fs, tt, ts) {
+		printf("%d.%d -> %d.%d\n", ft, fs, tt, ts);
+	}
+}
+
+/*
+ * Dump the manually specified dependencies.
+ */
+void dump_dependencies(void)
+{
+	printf("# Manually specified dependencies\n");
+	dump_these_dependencies(dep_map);
+}
+
+/*
+ * Dump the program-order dependencies.
+ */
+void dump_po_dependencies(void)
+{
+	printf("# Program-order dependencies\n");
+	dump_these_dependencies(po_map);
+}
+
+/*
+ * Dump the CCCC-propagated dependencies.
+ */
+void dump_prop_dependencies(void)
+{
+	printf("# Propagated dependencies\n");
+	dump_these_dependencies(prop_map);
+}
+
+/*
+ * Print the specified cycle from the specified statement path array.
+ */
+void print_cycle(statement_t stmtpath[], int firststmt, int laststmt)
+{
+	int i;
+	int ft;
+	int fs;
+	int tt;
+	int ts;
+
+	for (i = firststmt; i < laststmt; i++) {
+		ft = stmtpath[i].taskid;
+		fs = stmtpath[i].stmtid;
+		tt = stmtpath[i + 1].taskid;
+		ts = stmtpath[i + 1].stmtid;
+		printf("%d.%d -> %d.%d ", ft, fs, tt, ts);
+		if (dep_map[ft][fs][tt][ts]) {
+			printf(" (manual)");
+		}
+		if (po_map[ft][fs][tt][ts]) {
+			printf(" (program order)");
+		}
+		if (prop_map[ft][fs][tt][ts]) {
+			printf(" (propagation)");
+		}
+		printf("\n");
+	}
+}
+
+void die(int lineno, char *msg)
+{
+	fprintf(stderr, "Fatal: line: %d: %s\n", lineno, msg);
+	exit(-1);
+}
+
+int numwarnings = 0;
+
+void warn(int lineno, char *msg)
+{
+	fprintf(stderr, "Warning: line: %d: %s\n", lineno, msg);
+	numwarnings++;
+}
+
+void warn2(int lineno1, int lineno2, char *msg)
+{
+	fprintf(stderr, "Warning: lines: %d/%d: %s\n", lineno1, lineno2, msg);
+	numwarnings++;
+}
+
+void check_warnings(void)
+{
+	if (numwarnings != 0) {
+		printf("%d warnings issued\n", numwarnings);
+	}
+}
