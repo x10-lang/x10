@@ -1,0 +1,79 @@
+CCCC analysis toy.  This software is intended to demonstrate memory
+ordering constraints that cover all hardware supporting Linux.
+
+To build the cccc toy, do the following:
+
+        cd src
+	cc -g -o cccc cccc.c
+
+Or just "sh cccc.mk".
+
+The cccc toy takes a text file as input.  To test it out, try:
+
+	./cccc < ../Tests/lock.txt
+
+This produces voluminous output (which may be found in Tests/lock.out),
+ending with:
+
+	Cycle located:
+	0.0 -> 0.1  (program order)
+	0.1 -> 1.0  (manual)
+	1.0 -> 0.0  (propagation)
+	Task 1 sees cycle
+	Cycle found: illegal execution according to CCCC
+
+This should be reassuring, as this example models a later critical
+section failing to see the effects of prior critical sections.  Such
+a failure had -better- be illegal!
+
+The input format will take old-timers back to the punched-card era.
+There are two formats, statements and explicit dependencies.  These are
+fixed format, and the fields must be in the columns indicated separated
+by a single space character.  The first field must start in column 1
+(but I have indented here for clarity).  The lock.txt input file is
+as follows:
+
+	# Test lock-release-acquire scenario.
+
+	0 0 w x 1
+	0 1 w l 0
+	1 0 r l 0 # might need atomic op...
+	1 1 w l 1
+	1 2 r x 0
+
+	0.1 -> 1.0
+	1.2 -> 0.0
+
+The "#" is a comment character.  Empty lines are ignored.  The first
+meaningful line is "0 0 w x 1", which indicates that task 0's 0-th
+statement is a write of the value "1" to variable "x".  The second
+line indicates that task 0's first line is a write of the value "1"
+to variable "l" (which represents the lock).  The statements for
+task 1 proceed similarly.  As you might guess, "r" stands for "read".
+
+The last two lines specify dependencies.  The "0.1 -> 1.0" indicates
+that task 1's 0-th statement depends on task 0's first statement.
+This makes sense, because task 1's read from the lock variable should
+see the value task 0 wrote.  (The cccc toy does not yet model atomic
+operations.  Or any kind of arithmetic, for that matter.)  Similarly the
+"1.2 -> 0.0" indicates that task 0's 0-th statement depends on task 1's
+second statement.  This is the test dependency: such a dependency could
+only happen if the underlying lock implementation was broken.
+
+=======  Legal Stuff ======
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+Copyright (c) 2007 Paul E. McKenney, IBM Corporation.

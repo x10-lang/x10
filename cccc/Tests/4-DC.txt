@@ -1,0 +1,11 @@
+# DC example from Doug Lea's and Vijay Saraswat's writeups
+
+1 1 w y 1
+2 2 w x 1
+2 3 r y 0
+3 4 r y 1
+3 5 r x 0
+
+1.1 -> 3.4
+2.3 -> 1.1
+3.5 -> 2.2

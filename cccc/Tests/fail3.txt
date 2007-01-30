@@ -1,0 +1,8 @@
+# statements in order, messed up write-to-read dependency
+0 0 w a 1
+0 1 r b 0
+1 0 w b 1
+1 1 r a 0
+
+0.1 -> 1.0
+0.0 -> 1.1 # write of 1 to read of 0
