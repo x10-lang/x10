@@ -1,5 +1,12 @@
 Wed Dec 06 07:20:22 2006
 CCCC -- Cache-coherent Causal Consistency
+Revision Notes
+
+** Changed SACC-HB --> CCCC.
+** Used Doug's name for rules.
+** This document contains the generalized "boundary" version of Local
+   Consistency. (01/30/07)
+
 -----------
 
 The core idea behind CCCC is to provide a weaker model than sequential
@@ -64,12 +71,13 @@ events e s.t. e-->e' or e'-->e, for e' in T.
 ================== CCCC =============== 
 An execution is a graph G=(S, -->) over a set of events S satisfying: 
 
- A. For each variable x, W(x) is non-empty and G | W(x) is a total order. 
+ A.(Write Serialization) 
+     For each variable x, W(x) is non-empty and G | W(x) is a total order.
 
- B. For every read r of x, min(W(x)) --> r and  G | (W(x) u {r}) is a
-    total order.
+ B. (Freshness) For every read r of x, min(W(x)) --> r and  G | (W(x)
+    u {r}) is a total order.
 
- C. (Propagation) e --> e'' if there is an e' in E(p(e'')) u E(p(e))
+ C. (Causal Propagation) e --> e'' if there is an e' in E(p(e'')) u E(p(e))
     st e --> e' --> e'' .
 
  D. (Local Consistency) For all processors i,  (G | b(E(i)))* is a
@@ -86,75 +94,4 @@ The propagation rule does not support the inference w --> w' from  w
 
 ===================================================================== 
 
-1. Dekker: 
-
-Given 
-
-T1             T2 
-[1] x = 1      [3] y = 1 
-[2] r1 = y(0)  [4] r2 = x(0) 
-
-The given  relation is [1] --> [2], [3] --> [4], [2] --> [3] and [4]
---> [1]. Propagation forces [3] --> [1]  and [1] --> [3] (and some
-other edges).
-
-Now this graph is not an execution because (G | {[1],[3],[4]}) has a
-cycle ([1] --> [3] --> [1])
-
-====== 
-
-2. IRIW example 
-
-
-T1          T2         T3                T4 
-
-[1] x = 1   [2] y = 1 
-
-                      [3] r1 = x (1)    [5] r3 = y (1) 
-                      [4] r2 = y (0)    [6] r4 = x (0) 
-
-The given relation is: 
-
-[1] --> [3] --> [4] --> [2] 
-[2] --> [5] --> [6] --> [1] 
-
-Propagation forces:  [2] --> [6], [5] --> [1] and [1] --> [4], [3] --> [2]. 
-
-This graph satisfies all these conditions. (Note that [1] --> [2] is
-in (G | W u E(T2))* and [2] --> [1] is in (G | W u E(T1)*), but both
-these graphs are separately acyclic.)
-
-======= 
-
-3. CC example 
-
-T1           T2               T3 
-[1] x = 1 
-            [2] r1 = x (1)   [4] r2 = y (1) 
-            [3] y = 1        [5] r3 = x (0) 
-
-The given edges are [1] --> [2] --> [3] --> [4] --> [5] --> [1]. These
-will induce other edges, however already G | E u E(T3) = G |
-{[1],[3],[4],[5]} has a cycle [1]-->[3]-->[4] --> [5] --> [1].
-
-Hence this is not an execution. 
-
-======= 
-
-4. DC example: (DC stands for "Dekker + causality"] 
-
-T1           T2               T3 
-[1] y = 1 
-            [2] x = 1        [4] r3 = y (1) 
-            [3] r2 = y (0)   [5] r4 = x (0) 
-
-The given edges are: 
-[1] -> [4] --> [5] --> [2] --> [3] --> [1] 
-and closure gives the edge [2] --> [1] (among others). 
-
-Now G | W u E(T3)  = G | {[1],[2],[4],[5]} has the cycle [1] --> [4]
---> [5] --> [2] --> [1].
-
-Hence this is not an execution. 
-
-
+EXAMPLES: See cccc-examples.txt

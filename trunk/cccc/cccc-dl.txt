@@ -1,3 +1,6 @@
+Edited version of Doug's mail to C++ list. Examples have been moved to cccc-examples.txt
+=========================================
+
 Subject: [cpp-threads] Alternatives to SC
 From: Doug Lea <dl@cs.oswego.edu>
 Date: Thu, 11 Jan 2007 08:01:27 -0500
@@ -124,81 +127,4 @@ An execution is a graph G=(S, -->) over a set of events S satisfying:
     For all processors p, G | E(p) is a total order.
 
 
-EXAMPLES:
-
-1. Dekker (forbidden outcome)
-
-Given
-
-T1             T2
-[1] x = 1      [3] y = 1
-[2] r1 = y(0)  [4] r2 = x(0)
-
-Program Order gives
-  [1] --> [2], [3] --> [4],
-Write Serialization and Freshness give
-  [2] --> [3], [4] --> [1].
-Propagation adds
-  [3] --> [1], [1] --> [3] (and some other edges).
-
-This graph is not an execution because (G | {[1],[3],[4]})* has a
-cycle ([1] --> [3] --> [1])
-
-======
-
-2. IRIW (Independent reads of independent write -- allowed outcome)
-   Note that this is not SC.
-
-
-T1          T2         T3                T4
-
-[1] x = 1   [2] y = 1
-
-                      [3] r1 = x (1)    [5] r3 = y (1)
-                      [4] r2 = y (0)    [6] r4 = x (0)
-
-Program Order, Write Serialization, and Freshness give:
-  [1] --> [3] --> [4] --> [2]
-  [2] --> [5] --> [6] --> [1]
-Propagation adds
-  [2] --> [6], [5] --> [1] and [1] --> [4], [3] --> [2].
-
-This graph satisfies all these conditions. (Note that [1] --> [2] is
-in (G | W u E(T2))* and [2] --> [1] is in (G | W u E(T1)*), but both
-these graphs are separately acyclic.)
-
-=======
-
-3. CC (Causal consistency -- forbidden outcome)
-
-T1           T2               T3
-[1] x = 1
-            [2] r1 = x (1)   [4] r2 = y (1)
-            [3] y = 1        [5] r3 = x (0)
-
-Program Order, Write Serialization, and Freshness give:
- [1] --> [2] --> [3] --> [4] --> [5] --> [1].
-This is not an execution because
- G | E u E(T3) = G | {[1],[3],[4],[5]}*
-has cycle [1]-->[3]-->[4] --> [5] --> [1].
-
-=======
-
-4. DC (Another causal consistency example -- forbidden outcome)
-
-T1           T2               T3
-[1] y = 1
-            [2] x = 1        [4] r3 = y (1)
-            [3] r2 = y (0)   [5] r4 = x (0)
-
-Program Order, Write Serialization, and Freshness give:
-  [1] -> [4] --> [5] --> [2] --> [3] --> [1]
-Propagation adds
-  [2] --> [1] (among others).
-This is not an execution because
-  G | W u E(T3) = G | {[1],[2],[4],[5]}
-has the cycle [1] --> [4] --> [5] --> [2] --> [1].
-
-
-
-
+EXAMPLES: See cccc-examples.txt
