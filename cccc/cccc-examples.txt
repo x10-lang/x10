@@ -58,6 +58,25 @@ This is not an execution because
 has cycle [1]-->[3]-->[4] --> [5] --> [1].
 
 =======
+3a. LCC (Longer Chain of causal consistency)
+This example is due to Sebastian Burckhardt.
+
+   T0        T1              T2              T3
+[1] x = 1   [2] r1 = x (1)   [4] r2 = y (1)  [6] r3 = z (1)
+            [3] y = 1        [5] z = 1       [7] r4 = x (0)
+
+We have:
+[1] --> [2] --> [3] --> [4] --> [5] --> [6] --> [7] --> [1]
+
+This example is *not* ruled out by CCCC. b(E(T3)) is the set
+{[4],[5],[6],[7],[1]}. (E | b(E(T3)))* does not contain any cycles
+since there is no edge from [1] --> [4]. 
+
+However, this execution is ruled out by CCCC with world maps. The world
+map at [2] must be above {x:1}. This is also true for all steps [i]
+for i in 3..7. Hence the read by [7] must read the value for version 1
+of x, i.e. 1.
+=======
 
 4. DC (Another causal consistency example -- forbidden outcome)
 
@@ -165,5 +184,7 @@ since we do not have the required transitivity: [2] --> [5] and
 
 However, by  introducing world maps and requiring [Monotonicity], 
 we force [4] to read 1 since the world map at [4] will be higher than {y:1}.
+
+
 
 
