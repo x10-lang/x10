@@ -145,3 +145,25 @@ T1         T2   T3 (snapshot)   T4 (snapshot)
                 
 Same reasoning as above.
 
+--- IRIW-2, IRIW with additional read --------
+T1          T2         T3                    T4
+[1] x = 1   [2] y = 1
+
+                      [3] _ = x (1)         [5] _ = y (1)
+                      [3a] scync_start      [5a] scync_start
+                      [3b] scync_end        [5b] scync_end
+                      [4] _ = y (0)         [6] _ = x (0)
+                      [4a] _=x              [6a] _ = x
+--------------------------------------------------
+
+Suppose [3a] --> [6a] --> [3b]. Then [5] --> [3b], hence [5] --> [4].
+
+But this is not strong enough to imply that [4] must read 1-- 
+since we do not have the required transitivity: [2] --> [5] and 
+[5] --> [4] does not imply [2] --> [4] since [2], [4] and 
+[5] belong to different threads.
+
+However, by  introducing world maps and requiring [Monotonicity], 
+we force [4] to read 1 since the world map at [4] will be higher than {y:1}.
+
+
