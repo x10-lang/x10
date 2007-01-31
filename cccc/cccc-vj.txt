@@ -42,48 +42,7 @@ will lie in (G | E(i) u W)* but not in  (G | E(i) u W).  We need these
 additional facts to be consistent, that is, (G | E(i) u W)* should be
 a partial order (no cycles).
 
-================================= CCCC-HB  ========================= 
-Here is a global formulation of CCCC. 
-
-Let e ranges over read and write events, r over read events and w over
-write events. For any event e, p(e) is the processor which executed e,
-and for any processor p, E(p) is the set of events executed by p.  Let
-W(x) be the set of all write events on location x, and W the set of
-all write events.
-
-A graph G=(S,-->) is a set of nodes S and a binary (directed) relation
---> on the nodes.
-
-G is a partial order if --> is transitive and irreflexive. 
-
-G is a total order if --> is a partial order and for any two nodes a,
-b in S either a --> b or b --> a.
-
-If G=(S, -->) is a graph and T is a subset of S, then G | T (the graph
-G restricted to T) is the graph with nodes in T and with a --> b in T
-iff a --> b in S.
-
-If G is a graph then G* is the transitive closure of the graph. 
-
-For a set T of events, b(T) is T together with boundary events, i.e. 
-events e s.t. e-->e' or e'-->e, for e' in T.
-
-================== CCCC =============== 
-An execution is a graph G=(S, -->) over a set of events S satisfying: 
-
- A.(Write Serialization) 
-     For each variable x, W(x) is non-empty and G | W(x) is a total order.
-
- B. (Freshness) For every read r of x, min(W(x)) --> r and  G | (W(x)
-    u {r}) is a total order.
-
- C. (Causal Propagation) e --> e'' if there is an e' in E(p(e'')) u E(p(e))
-    st e --> e' --> e'' .
-
- D. (Local Consistency) For all processors i,  (G | b(E(i)))* is a
-    partial order. Further, G | E(i) is a total order.
-
-======================================== 
+DEFINITION: See cccc-definition.txt
 
 Note: --> is *not* a partial order. It is an arbitrary relation. Its
 restrictions are partial orders, corresponding to <i, the order
@@ -95,3 +54,57 @@ The propagation rule does not support the inference w --> w' from  w
 ===================================================================== 
 
 EXAMPLES: See cccc-examples.txt
+
+=====================================================================
+CCCC with scync.
+
+See cccc-definition.txt for definitions.
+
+One could ask -- why would we not adopt the following even simpler model.  
+Forget about splitting scync into scync_start and scync_end. Instead, require:
+
+[Strong-Scync]
+   For any two scync events e1, e2, either e1 --> e2 or e2 --> e1.
+
+But this is very strong! It is not difficult to see that given Causal 
+Propagation and Local Consistency (extended to include boundary elements), 
+Strong-Scync implies that in any process scyncs are totally ordered! 
+(I think Doug had suggested that such a totally ordered scync might be 
+a way to get SC.)
+
+ (Proof: First note that for any process i, all the scyncs are boundary events, 
+  because of the Strong-Scync condition. Therefore there cannot be any cycles 
+  involving scyncs. Second note that if e1 --> e2 and e2 --> e3, it must be 
+  the case that e1 --> e3, because of Local Consistency and [Strong-Scync]. 
+  So consider the dag of all scyncs. This must have a unique root, for if there 
+  were two roots, s0 and s1 then by [Strong-Scync] either s0 --> s1 or s1 --> s0. 
+  So give this root the next unassigned number (starting with 0). Now consider all 
+  unnumbered scyncs, and ignore edges from numbered scyncs into unnumbered scyncs. 
+  Again this subgraph must have a unique root. So we can repeat this process. 
+  In the end we will have a number for each scync, no two scyncs will have the 
+  same number and the number for s is less than the number for s' iff s --> s'. 
+  So  the scyncs are totally ordered.)
+
+However, [Scync] does not have the property that in every process all the scyncs 
+are totally ordered. The reason is precisely the splitting up of a scync into 
+scync_start and scync_end -- and reflects the computational intuition that sending 
+messages and receiving acknowledges introduces only pairwise consistency, not global 
+consistency (this in my opinion is the key intuition behind CCCC vs SC ... CCCC can 
+be implemented with message-passing semantics, i.e. local semantics, there is no 
+need for any global information).
+
+[Scync] instead implies the following weaker property: 
+Let m=(m_s, m_e) and n=(n_s, n_e) be two sync_start/sync_end pairs. 
+Then either m_s --> n_s or n_e --> m_e.  Equivalently, either m_s --> n_e or n_s --> m_e. 
+(This is easy to establish.)
+
+Say we try and order scyncs using this weaker property. So we say that m leq n 
+if m_s --> n_e. But now leq is not transitive! i.e. we can exhibit m, n and 
+p s.t. m leq n and n leq p but not m leq p.
+
+m_s --> n_s   (e.g. because the message from m was ack by an instruction before n)
+n_s --> p_e
+p_e --> n_e
+
+Through transitivity we will get m_s --> p_e, but this is not strong enough to 
+establish m leq p.
