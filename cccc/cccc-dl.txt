@@ -1,5 +1,7 @@
-Edited version of Doug's mail to C++ list. Examples have been moved to cccc-examples.txt
-=========================================
+Edited version of Doug's mail to C++ list. 
+Definition has been removed to cccc-definition.txt
+Examples have been moved to cccc-examples.txt (and more examples added).
+=========================================================================
 
 Subject: [cpp-threads] Alternatives to SC
 From: Doug Lea <dl@cs.oswego.edu>
@@ -82,49 +84,5 @@ well-defined or correct as plain CCCC versions would be.
 using CCCC-compliant primitives) is SC. It's only volatiles/atomics that
 allow concurrent independent reads.)
 
-
-**** CCCC model snapshot ****
-
-NOTATION:
-
-G = (S,-->) is a set of nodes S and a binary (directed) relation --> on
-   the nodes. Nodes are of type:
-     e ranges over read and write events,
-     r over read events and
-     w over write events.
-G is a partial order if --> is transitive and irreflexive.
-G is a total order if --> is a partial order and for any two
-     distinct nodes a and b in S, either a --> b or b --> a.
-G | T is graph G restricted to subset T; that is, the graph with nodes
-     in T and with a --> b in T iff a --> b in S.
-G* is the transitive closure of graph G.
-'u' is set union
-
-p(e) is the processor which executed event e,
-E(p) is the set of events executed by processor p.
-W(x) is the set of all write events on variable x
-W    is the set of all write events (across all variables)
-w(S) is set S together with all elements of W with an edge into or out of S.
-
-RULES:
-
-An execution is a graph G=(S, -->) over a set of events S satisfying:
-
-[Write Serialization]
-  For each variable x, G | W(x) is a total order, with minimal
-  element w0 setting x to 0.
-
-[Freshness]
-  For every read r of x, min(W(x)) --> r and G | (W(x) u {r}) is a
-  total order.
-
-[Causal Propagation]
-  e --> e'' if there is an e' in E(p(e)) u E(p(e'')) st e --> e' --> e'' .
-
-[Local Consistency]
-  For all processors i, (G | w(E(i))* is a partial order (i.e., is acyclic)
-  Additionally, volatiles obey local program order:
-    For all processors p, G | E(p) is a total order.
-
-
+DEFINITION: See cccc-definition.txt
 EXAMPLES: See cccc-examples.txt
