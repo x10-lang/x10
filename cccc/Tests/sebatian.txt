@@ -1,0 +1,14 @@
+# longer chain proposed by Sebastian
+
+0.1 w x 1
+1.2 r x 1
+1.3 w y 1
+2.4 r y 1
+2.5 w z 1
+3.6 r z 1
+3.7 r x 0
+
+0.1 -> 1.2
+1.3 -> 2.4
+2.5 -> 3.6
+3.7 -> 0.1

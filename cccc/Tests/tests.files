@@ -1,0 +1,19 @@
+FILES=" 1-Dekker \
+	2-IRIW \
+	3-CC \
+	4-DC \
+	fail1 \
+	fail2 \
+	fail3 \
+	fail4 \
+	fail5 \
+	lock \
+	lockchain \
+	maged \
+	mageda \
+	propagation \
+	sebatian \
+	test1 \
+	test2 \
+	test3 \
+	test4"
