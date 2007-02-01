@@ -3,14 +3,13 @@ ordering constraints that cover all hardware supporting Linux.
 
 To build the cccc toy, do the following:
 
-        cd src
 	cc -g -o cccc cccc.c
 
 Or just "sh cccc.mk".
 
 The cccc toy takes a text file as input.  To test it out, try:
 
-	./cccc < ../Tests/lock.txt
+	./cccc < Tests/lock.txt
 
 This produces voluminous output (which may be found in Tests/lock.out),
 ending with:
@@ -35,11 +34,11 @@ as follows:
 
 	# Test lock-release-acquire scenario.
 
-	0 0 w x 1
-	0 1 w l 0
-	1 0 r l 0 # might need atomic op...
-	1 1 w l 1
-	1 2 r x 0
+	0.0 w x 1
+	0.1 w l 0
+	1.0 r l 0 # might need atomic op...
+	1.1 w l 1
+	1.2 r x 0
 
 	0.1 -> 1.0
 	1.2 -> 0.0
@@ -50,6 +49,8 @@ statement is a write of the value "1" to variable "x".  The second
 line indicates that task 0's first line is a write of the value "1"
 to variable "l" (which represents the lock).  The statements for
 task 1 proceed similarly.  As you might guess, "r" stands for "read".
+And "a" stands for atomic operations (e.g., CAS, atomic increment,
+or whatever).
 
 The last two lines specify dependencies.  The "0.1 -> 1.0" indicates
 that task 1's 0-th statement depends on task 0's first statement.

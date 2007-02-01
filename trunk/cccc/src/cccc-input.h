@@ -18,8 +18,6 @@
  * Copyright (c) 2007 Paul E. McKenney, IBM Corporation.
  */
 
-
-
 /*
  * Parse the dependency in inputline.  Use lineno if needed for error
  * messages.  If valid, place the resulting dependency in dep_map.
@@ -67,15 +65,15 @@ void parse_dependency(char *inputline, int lineno)
 	    statement_is_read(totask, tostmt)) {
 		warn(lineno, "Read-to-read dependency");
 	}
-	if (statement_is_write(fromtask, fromstmt) &&
-	    statement_is_read(totask, tostmt) &&
+	if (statement_does_write(fromtask, fromstmt) &&
+	    statement_does_read(totask, tostmt) &&
 	    (task_vars[fromtask][fromstmt] == task_vars[totask][tostmt]) &&
-	    (task_vals[fromtask][fromstmt] != task_vals[totask][tostmt]) &&
-	    (task_vals[totask][tostmt] != -1)) {
-		warn(lineno, "Read value not written by preceding write");
+	    (task_wvals[fromtask][fromstmt] != task_rvals[totask][tostmt]) &&
+	    (task_rvals[totask][tostmt] != -1)) {
+		warn(lineno, "Value read not written by preceding write");
 	}
-	if (statement_is_write(fromtask, fromstmt) &&
-	    statement_is_write(totask, tostmt)) {
+	if (statement_does_write(fromtask, fromstmt) &&
+	    statement_does_write(totask, tostmt)) {
 		if (task_vars[fromtask][fromstmt] !=
 		    task_vars[totask][tostmt]) {
 		    	warn(lineno,
@@ -84,11 +82,19 @@ void parse_dependency(char *inputline, int lineno)
 		for_each_statement(task, stmt) {
 			if ((task_vars[task][stmt] ==
 			     task_vars[fromtask][fromstmt]) &&
-			    statement_is_write(task, stmt) &&
+			    statement_does_write(task, stmt) &&
 			    (dep_map[fromtask][fromstmt][task][stmt])) {
 				warn2(dep_map_lineno[fromtask][fromstmt][task][stmt],
 				      lineno,
-				      "Double write dependency");
+				      "Double downstream write dependency");
+			}
+			if ((task_vars[task][stmt] ==
+			     task_vars[totask][tostmt]) &&
+			    statement_does_write(task, stmt) &&
+			    (dep_map[task][stmt][totask][tostmt])) {
+				warn2(dep_map_lineno[task][stmt][totask][tostmt],
+				      lineno,
+				      "Double upstream write dependency");
 			}
 		}
 	}
@@ -108,14 +114,19 @@ void parse_statement(char *inputline, int lineno)
 	int op;
 	int var;
 	int val;
+	int rval;
+	int wval;
 
 	if (((strlen(inputline) != 7) &&
-	     (strlen(inputline) != 9)) ||
+	     (strlen(inputline) != 9) &&
+	     (strlen(inputline) != 11)) ||
 	    !isdigit(inputline[0]) ||
-	    !isblank(inputline[1]) ||
+	    (inputline[1] != '.') ||
 	    !isdigit(inputline[2]) ||
 	    !isblank(inputline[3]) ||
-	    ((inputline[4] != 'r') &&
+	    (((inputline[4] != 'a') ||
+	      (strlen(inputline) != 11)) &&
+	     (inputline[4] != 'r') &&
 	     ((inputline[4] != 'w') ||
 	      (strlen(inputline) != 9))) ||
 	    !isblank(inputline[5]) ||
@@ -128,16 +139,18 @@ void parse_statement(char *inputline, int lineno)
 
 	taskid = inputline[0] - '0';
 	stmtid = inputline[2] - '0';
-	if (inputline[4] == 'r') {
-		op = read_op;
-	} else {
-		op = write_op;
-	}
+	op = op_decode[inputline[4]];
 	var = inputline[6] - 'a';
+	rval = wval = -1;
 	if (strlen(inputline) == 9) {
-		val = inputline[8] - '0';
-	} else {
-		val = -1;
+		if (op == read_op) {
+			rval = inputline[8] - '0';
+		} else {
+			wval = inputline[8] - '0';
+		}
+	} else if (strlen(inputline) == 11) {
+		rval = inputline[8] - '0';
+		wval = inputline[10] - '0';
 	}
 	if (stmtid <= task_last_stmt[taskid]) {
 		die(lineno, "Task statement out of order");
@@ -147,7 +160,8 @@ void parse_statement(char *inputline, int lineno)
 	task_stmt_map[taskid][stmtid] = task_n_stmts[taskid];
 	task_ops[taskid][stmtid] = op;
 	task_vars[taskid][stmtid] = var;
-	task_vals[taskid][stmtid] = val;
+	task_rvals[taskid][stmtid] = rval;
+	task_wvals[taskid][stmtid] = wval;
 	task_lineno[taskid][stmtid] = lineno;
 	task_n_stmts[taskid]++;
 }
@@ -155,12 +169,12 @@ void parse_statement(char *inputline, int lineno)
 /*
  * Read a program (statements and dependencies) from standard input.
  */
-void read_program(void)
+int read_program(void)
 {
 	int i;
 	char *cp;
 	char inputline[4096];
-
+	int linelen;
 	int lineno = 0;
 
 	for (;;) {
@@ -197,11 +211,11 @@ void read_program(void)
 
 		/* Parse. */
 
-		if (inputline[1] == '.') {
+		if (inputline[4] == '-') {
 			parse_dependency(inputline, lineno);
 		} else {
 			parse_statement(inputline, lineno);
 		}
 	}
-	
+	return lineno;
 }

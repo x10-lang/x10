@@ -25,15 +25,22 @@ void dump_statements(void)
 {
 	int taskid;
 	int stmtid;
-	char val;
+	char val1;
+	char val2;
 
 	for_each_statement(taskid, stmtid) {
-		val = task_vals[taskid][stmtid] + '0';
-		printf("%d %d %c %c %c\n",
+		val1 = task_rvals[taskid][stmtid];
+		val2 = task_wvals[taskid][stmtid];
+		if (val1 == -1) {
+			val1 = val2;
+			val2 = -1;
+		}
+		printf("%d.%d %c %c %c\n",
 		       taskid, stmtid,
-		       task_ops[taskid][stmtid] == read_op ? 'r' : 'w',
+		       op_code[task_ops[taskid][stmtid]],
 		       task_vars[taskid][stmtid] + 'a',
-		       val < '0' ? ' ' : val);
+		       val1 < 0 ? ' ' : val1 + '0',
+		       val2 < 0 ? ' ' : val2 + '0');
 	}
 }
 
@@ -133,6 +140,7 @@ void warn2(int lineno1, int lineno2, char *msg)
 void check_warnings(void)
 {
 	if (numwarnings != 0) {
-		printf("%d warnings issued\n", numwarnings);
+		printf("%d warnings issued, please fix and rerun\n",
+		       numwarnings);
 	}
 }
