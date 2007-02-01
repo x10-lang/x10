@@ -1,0 +1,19 @@
+# Dependency chain.
+
+0.0 w a 1
+1.0 w a 2
+2.0 w a 3
+3.0 w a 4
+4.0 w a 5
+5.0 r a
+6.0 r a
+0.1 w b 1
+1.1 w b 2
+2.1 w b 3
+
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0 # Insufficient chain length.
+5.0 -> 6.0 # read-to-read dependency.
+0.1 -> 2.1
+1.1 -> 2.1 # illegal converging write chain

@@ -1,8 +1,7 @@
-Warning: line: 8: Value read not written by preceding write
-0.0 w a 1
-0.1 r b 0
-1.0 w b 1
-1.1 r a 0
+0.0 r y 0
+0.1 w x 0
+1.0 r x 0
+1.1 w y 1
 # Manually specified dependencies
 0.0 -> 1.1
 0.1 -> 1.0
@@ -28,4 +27,3 @@ Happens-before dependencies for task 1
 0.1 -> 1.1
 1.0 -> 1.1
 No cycles found: plausible CCCC execution
-1 warnings issued, please fix and rerun

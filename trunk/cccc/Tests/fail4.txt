@@ -1,0 +1,16 @@
+# Dependency chain.
+
+0.0 w a 1
+1.0 w a 2
+2.0 w a 3
+3.0 w a 4
+4.0 w a 5
+4.1 w b 1
+
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+3.0 -> 4.0
+4.0 -> 0.0
+2.0 -> 4.0 # branching chain of writes!
+3.0 -> 4.1 # wrong variable!
