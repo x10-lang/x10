@@ -43,11 +43,10 @@ void build_local_consistency_dep(int taskid, dependency_map_t dep)
 	int ts;
 
 	for_each_dependency(dep, ft, fs, tt, ts) {
-		if ((ft == taskid) ||
-		    (tt == taskid) ||
-		    (statement_does_write(ft, fs) &&
-		     statement_does_write(tt, ts) &&
-		     (task_vars[ft][fs] == task_vars[tt][ts]))) {
+		if ((statement_does_write(ft, fs) ||
+		     (ft == taskid)) &&
+		    (statement_does_write(tt, ts) ||
+		     (tt == taskid))) {
 			hb[ft][fs][tt][ts] = 1;
 		}
 	}
@@ -64,8 +63,7 @@ void build_local_consistency(int taskid)
 	build_local_consistency_dep(taskid, dep_map);
 	build_local_consistency_dep(taskid, read_map);
 	merge_dependency(po_map, hb);
-	/* build_local_consistency_dep(taskid, po_map); */
-	build_local_consistency_dep(taskid, prop_map);  /* @@@ needed??? */
+	build_local_consistency_dep(taskid, prop_map);
 }
 
 /*
