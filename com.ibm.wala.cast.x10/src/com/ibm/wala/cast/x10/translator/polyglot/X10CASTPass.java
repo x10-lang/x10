@@ -7,7 +7,7 @@ import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.capa.ast.CAstEntity;
+import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.domo.ast.x10.analysis.AnalysisJobExt;
 import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;

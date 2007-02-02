@@ -7,9 +7,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ibm.domo.ast.java.client.EclipseProjectSourceAnalysisEngine;
-import com.ibm.domo.ast.java.test.IRTests;
 import com.ibm.domo.ast.x10.client.X10EclipseSourceAnalysisEngine;
+import com.ibm.wala.cast.java.client.EclipseProjectSourceAnalysisEngine;
+import com.ibm.wala.cast.java.test.IRTests;
 
 public class X10IRTests extends IRTests {
     protected static List/*<String>*/ x10RTJar;

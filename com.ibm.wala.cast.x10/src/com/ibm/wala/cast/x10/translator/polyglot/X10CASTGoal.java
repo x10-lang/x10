@@ -11,7 +11,7 @@ import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.AbstractGoal;
 import polyglot.util.ErrorInfo;
 
-import com.ibm.domo.ast.java.loader.JavaSourceLoaderImpl;
+import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.types.ClassLoaderReference;
 
 public class X10CASTGoal extends AbstractGoal {

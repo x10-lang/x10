@@ -1,8 +1,8 @@
 package com.ibm.domo.ast.x10.visit;
 
-import com.ibm.capa.ast.*;
-import com.ibm.capa.ast.visit.*;
 import com.ibm.domo.ast.x10.translator.*;
+import com.ibm.wala.cast.tree.*;
+import com.ibm.wala.cast.tree.visit.*;
 
 /**
  * @author Igor Peshansky

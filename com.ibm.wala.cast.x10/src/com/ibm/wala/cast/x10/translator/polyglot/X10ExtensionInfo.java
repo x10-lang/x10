@@ -11,8 +11,8 @@ import polyglot.frontend.JobExt;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.domo.ast.java.ipa.callgraph.JavaSourceAnalysisScope;
-import com.ibm.domo.ast.java.translator.polyglot.PolyglotSourceLoaderImpl;
+import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 import com.ibm.wala.types.ClassLoaderReference;
 
 public abstract class X10ExtensionInfo extends ExtensionInfo {

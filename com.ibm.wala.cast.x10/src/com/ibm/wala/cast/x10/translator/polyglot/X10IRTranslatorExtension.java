@@ -8,9 +8,9 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.domo.ast.java.translator.JavaCAst2IRTranslator;
-import com.ibm.domo.ast.java.translator.polyglot.IRTranslatorExtension;
-import com.ibm.domo.ast.java.translator.polyglot.PolyglotSourceLoaderImpl;
+import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
+import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 
 public class X10IRTranslatorExtension extends X10ExtensionInfo implements IRTranslatorExtension {
 	// Doesn't matter which goal we get here, because they all have the same ExtensionInfo

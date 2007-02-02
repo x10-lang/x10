@@ -1,6 +1,6 @@
 package com.ibm.domo.ast.x10.ipa.callgraph;
 
-import com.ibm.domo.ast.java.ipa.callgraph.JavaScopeMappingInstanceKeys;
+import com.ibm.wala.cast.java.ipa.callgraph.JavaScopeMappingInstanceKeys;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.callgraph.ContextSelector;
 import com.ibm.wala.ipa.callgraph.ReflectionSpecification;

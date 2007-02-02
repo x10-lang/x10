@@ -3,7 +3,7 @@
  */
 package com.ibm.domo.ast.x10.ssa;
 
-import com.ibm.domo.ast.java.ssa.AstJavaInstructionVisitor;
+import com.ibm.wala.cast.java.ssa.AstJavaInstructionVisitor;
 
 public interface AstX10InstructionVisitor extends AstJavaInstructionVisitor {
     void visitAtomic(SSAAtomicInstruction instruction);

@@ -7,10 +7,10 @@ import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.capa.ast.CAstEntity;
-import com.ibm.domo.ast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.domo.ast.x10.analysis.AnalysisJobExt;
 import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
+import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
+import com.ibm.wala.cast.tree.CAstEntity;
 
 /**
  * A Pass that creates DOMO IR for the given X10 compilation unit.

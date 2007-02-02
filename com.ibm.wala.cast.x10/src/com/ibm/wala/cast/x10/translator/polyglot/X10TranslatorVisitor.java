@@ -5,9 +5,9 @@ package com.ibm.domo.ast.x10.translator.polyglot;
 
 import polyglot.ext.x10.ast.*;
 
-import com.ibm.capa.ast.CAstNode;
-import com.ibm.domo.ast.java.translator.polyglot.TranslatingVisitor;
-import com.ibm.domo.ast.java.translator.polyglot.PolyglotJava2CAstTranslator.*;
+import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.*;
+import com.ibm.wala.cast.tree.CAstNode;
 
 public interface X10TranslatorVisitor extends TranslatingVisitor {
     CAstNode visit(Async a, WalkContext context);
