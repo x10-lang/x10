@@ -23,7 +23,6 @@
 #include <ctype.h>
 
 #include "cccc-data.h"
-#include "cccc-traverse.h"
 #include "cccc-output.h"
 #include "cccc-input.h"
 #include "cccc-cycle.h"
@@ -63,6 +62,7 @@ void build_local_consistency(int taskid)
 
 	clear_dependency_map(hb);
 	build_local_consistency_dep(taskid, dep_map);
+	build_local_consistency_dep(taskid, read_map);
 	merge_dependency(po_map, hb);
 	/* build_local_consistency_dep(taskid, po_map); */
 	build_local_consistency_dep(taskid, prop_map);  /* @@@ needed??? */
@@ -119,6 +119,7 @@ int main(int argc, char *argv[])
 
 	initialize();
 	nlines = read_program();
+	infer_read_dependencies(nlines);
 	check_write_dependencies(nlines);
 
 	build_program_order();
@@ -126,6 +127,7 @@ int main(int argc, char *argv[])
 
 	dump_statements();
 	dump_dependencies();
+	dump_read_dependencies();
 	dump_po_dependencies();
 	dump_prop_dependencies();
 

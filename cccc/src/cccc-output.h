@@ -28,6 +28,7 @@ void dump_statements(void)
 	char val1;
 	char val2;
 
+	printf("# Statements\n");
 	for_each_statement(taskid, stmtid) {
 		val1 = task_rvals[taskid][stmtid];
 		val2 = task_wvals[taskid][stmtid];
@@ -35,7 +36,7 @@ void dump_statements(void)
 			val1 = val2;
 			val2 = -1;
 		}
-		printf("%d.%d %c %c %c\n",
+		printf("%d.%d %c %c %c %c\n",
 		       taskid, stmtid,
 		       op_code[task_ops[taskid][stmtid]],
 		       task_vars[taskid][stmtid] + 'a',
@@ -67,6 +68,15 @@ void dump_dependencies(void)
 {
 	printf("# Manually specified dependencies\n");
 	dump_these_dependencies(dep_map);
+}
+
+/*
+ * Dump the manually specified dependencies.
+ */
+void dump_read_dependencies(void)
+{
+	printf("# Inferred write-to-read dependencies\n");
+	dump_these_dependencies(read_map);
 }
 
 /*
@@ -106,6 +116,9 @@ void print_cycle(statement_t stmtpath[], int firststmt, int laststmt)
 		printf("%d.%d -> %d.%d ", ft, fs, tt, ts);
 		if (dep_map[ft][fs][tt][ts]) {
 			printf(" (manual)");
+		}
+		if (read_map[ft][fs][tt][ts]) {
+			printf(" (inferred write-to-read)");
 		}
 		if (po_map[ft][fs][tt][ts]) {
 			printf(" (program order)");
