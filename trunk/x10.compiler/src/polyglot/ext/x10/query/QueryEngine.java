@@ -63,8 +63,11 @@ public class QueryEngine {
 	}
 
 	protected boolean needsHereCheck(Type t) {
-		/*if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
-			return false;*//* Removed by RAJ to disable compile time BAD_PLACE_CHECK option*/
+		/* Removed by RAJ to disable compile time BAD_PLACE_CHECK option*/
+		/* Reinstated by Igor because the place checks are still generated.
+		   To be removed when the generation is comletely disabled. */
+		if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
+			return false;
         if (t instanceof X10Type) {
             X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
             if (ts.isPoint(t)) return true;
