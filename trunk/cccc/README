@@ -61,6 +61,12 @@ operations.  Or any kind of arithmetic, for that matter.)  Similarly the
 second statement.  This is the test dependency: such a dependency could
 only happen if the underlying lock implementation was broken.
 
+
+This tool supports other consistency models as well.  mlsc is a toy
+"minimal lock-supporting consistency" tool for expository purposes.
+cccc2006-12 implements the December 2006 formulation of CCCC.
+
+
 =======  Legal Stuff ======
 
 This program is free software; you can redistribute it and/or modify
