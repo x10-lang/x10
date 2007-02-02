@@ -1,7 +1,7 @@
 # Test lock-release-acquire scenario with multiple acquires and releases.
 
 0.0 w x 1
-0.1 a l 1 0
+0.1 w l 0
 1.0 a l 0 1
 1.1 w y 1
 1.2 a l 1 0

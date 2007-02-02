@@ -21,6 +21,7 @@
 #define MAX_TASKS	10	/* '0' .. '9' */
 #define MAX_STMTS	10	/* '0' .. '9' */
 #define MAX_VARS	26	/* 'a' .. 'z' */
+#define MAX_VALS	10	/* '0' .. '9' */
 
 #define OP_IS_READ	0x01
 #define OP_DOES_READ	0x02
@@ -57,8 +58,11 @@ int task_lineno[MAX_TASKS][MAX_STMTS];	/* Source line number. */
 dependency_map_t dep_map;	/* Explicitly specified dependencies */
 dependency_map_t dep_map_lineno;/* Source line number. */
 dependency_map_t po_map;	/* Program-order dependencies. */
+dependency_map_t read_map;	/* Inferred read dependencies. */
 dependency_map_t prop_map;	/* CCCC-propagated dependencies. */
 dependency_map_t hb;		/* CCCC per-task happens-before dependencies. */
+
+#include "cccc-traverse.h"
 
 void clear_dependency_map(dependency_map_t dep)
 {
@@ -104,6 +108,7 @@ int initialize(void)
 	clear_dependency_map(dep_map);
 	clear_dependency_map(dep_map_lineno);
 	clear_dependency_map(po_map);
+	clear_dependency_map(read_map);
 	clear_dependency_map(prop_map);
 	clear_dependency_map(hb);
 
@@ -170,4 +175,40 @@ int statement_is_write(int task, int stmt)
 		abort();
 	}
 	return (op_properties[task_ops[task][stmt]] & OP_IS_WRITE) != 0;
+}
+
+/*
+ * Is the specified statement depended on by some other statement?
+ * Return the number of other such statements.
+ */
+int statement_is_depended_on(dependency_map_t dep, int task, int stmt)
+{
+	int tt;
+	int ts;
+	int cnt = 0;
+
+	for_each_statement(tt, ts) {
+		if (dep[task][stmt][tt][ts]) {
+			cnt++;
+		}
+	}
+	return cnt;
+}
+
+/*
+ * Does the specified statement depend on some other statement?
+ * Return the number of such statements.
+ */
+int statement_depends_on(dependency_map_t dep, int task, int stmt)
+{
+	int ft;
+	int fs;
+	int cnt = 0;
+
+	for_each_statement(ft, fs) {
+		if (dep[ft][fs][task][stmt]) {
+			cnt++;
+		}
+	}
+	return cnt;
 }

@@ -61,6 +61,24 @@
 		for_each_statement_in_task(taskid, stmtid)
 
 /*
+ * Using the integer variables taskid and stmtid, cycle through all
+ * statements that do reads in all tasks, in numerical order.
+ */
+#define for_each_statement_does_read(taskid, stmtid) \
+	for_each_task(taskid) \
+		for_each_statement_in_task(taskid, stmtid) \
+			if (statement_does_read(taskid, stmtid))
+
+/*
+ * Using the integer variables taskid and stmtid, cycle through all
+ * statements that do writes in all tasks, in numerical order.
+ */
+#define for_each_statement_does_write(taskid, stmtid) \
+	for_each_task(taskid) \
+		for_each_statement_in_task(taskid, stmtid) \
+			if (statement_does_write(taskid, stmtid))
+
+/*
  * Using the integer variables ft (from-task), fs (from-statement),
  * tt (to-task), and ts (to-statement), cycle through each pair of
  * statements across all tasks.  Each pair will be processed twice,
