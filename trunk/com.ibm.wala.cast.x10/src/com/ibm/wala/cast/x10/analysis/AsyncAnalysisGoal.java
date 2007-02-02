@@ -10,8 +10,8 @@ import polyglot.frontend.Pass;
 import polyglot.frontend.goals.AbstractGoal;
 import polyglot.util.ErrorInfo;
 
-import com.ibm.capa.ast.CAstEntity;
 import com.ibm.domo.ast.x10.translator.polyglot.DOMOScheduler;
+import com.ibm.wala.cast.tree.CAstEntity;
 
 public class AsyncAnalysisGoal extends AbstractGoal {
     public AsyncAnalysisGoal(Job job) {

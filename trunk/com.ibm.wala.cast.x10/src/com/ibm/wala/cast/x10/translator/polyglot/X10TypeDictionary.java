@@ -11,10 +11,10 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 
-import com.ibm.capa.ast.CAstType;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
+import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.util.debug.Assertions;
-import com.ibm.domo.ast.java.translator.polyglot.PolyglotJava2CAstTranslator;
-import com.ibm.domo.ast.java.translator.polyglot.PolyglotTypeDictionary;
 
 public class X10TypeDictionary extends PolyglotTypeDictionary {
 

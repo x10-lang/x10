@@ -3,7 +3,7 @@
  */
 package com.ibm.domo.ast.x10.translator;
 
-import com.ibm.capa.ast.CAstNode;
+import com.ibm.wala.cast.tree.CAstNode;
 
 public interface X10CastNode extends CAstNode {
     /**

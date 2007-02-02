@@ -8,11 +8,11 @@ import java.io.PrintWriter;
 import polyglot.frontend.AbstractPass;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.capa.ast.CAstEntity;
-import com.ibm.capa.ast.CAstNode;
-import com.ibm.capa.ast.impl.CAstPrinter;
 import com.ibm.domo.ast.x10.analysis.AnalysisJobExt;
 import com.ibm.domo.ast.x10.translator.X10CAstPrinter;
+import com.ibm.wala.cast.tree.CAstEntity;
+import com.ibm.wala.cast.tree.CAstNode;
+import com.ibm.wala.cast.util.CAstPrinter;
 
 public class CAstDumperPass extends AbstractPass {
 

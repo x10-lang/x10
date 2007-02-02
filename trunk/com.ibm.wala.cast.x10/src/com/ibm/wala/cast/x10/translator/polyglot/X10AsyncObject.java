@@ -3,8 +3,8 @@
  */
 package com.ibm.domo.ast.x10.translator.polyglot;
 
-import com.ibm.capa.ast.*;
-import com.ibm.domo.ast.loader.AstFunctionClass;
+import com.ibm.wala.cast.loader.AstFunctionClass;
+import com.ibm.wala.cast.tree.*;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.ipa.cha.*;

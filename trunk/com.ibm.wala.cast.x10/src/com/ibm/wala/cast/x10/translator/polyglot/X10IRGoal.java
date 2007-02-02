@@ -12,9 +12,9 @@ import polyglot.frontend.goals.AbstractGoal;
 import polyglot.frontend.goals.EndGoal;
 import polyglot.util.ErrorInfo;
 
-import com.ibm.domo.ast.java.loader.JavaSourceLoaderImpl;
-import com.ibm.domo.ast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.domo.ast.x10.translator.X10ToIRTranslator;
+import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
+import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
 
 public class X10IRGoal extends AbstractGoal implements EndGoal {
     private X10SourceLoaderImpl fSourceLoader;

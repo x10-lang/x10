@@ -5,13 +5,13 @@ package com.ibm.domo.ast.x10.translator.polyglot;
 
 import java.io.IOException;
 
-import com.ibm.capa.ast.*;
-import com.ibm.domo.ast.java.translator.SourceModuleTranslator;
-import com.ibm.domo.ast.java.translator.polyglot.IRTranslatorExtension;
-import com.ibm.domo.ast.java.translator.polyglot.PolyglotSourceLoaderImpl;
-import com.ibm.domo.ast.loader.AstMethod.DebuggingInformation;
-import com.ibm.domo.ast.loader.AstMethod.LexicalInformation;
 import com.ibm.domo.ast.x10.translator.X10CAstEntity;
+import com.ibm.wala.cast.java.translator.SourceModuleTranslator;
+import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
+import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
+import com.ibm.wala.cast.loader.AstMethod.LexicalInformation;
+import com.ibm.wala.cast.tree.*;
 import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;

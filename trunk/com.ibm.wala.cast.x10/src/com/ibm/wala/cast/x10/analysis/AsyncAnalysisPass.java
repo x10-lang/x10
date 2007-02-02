@@ -3,8 +3,8 @@
  */
 package com.ibm.domo.ast.x10.analysis;
 
-import com.ibm.capa.ast.CAstEntity;
-import com.ibm.capa.ast.impl.CAstPrinter;
+import com.ibm.wala.cast.tree.CAstEntity;
+import com.ibm.wala.cast.util.CAstPrinter;
 
 import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Job;

@@ -15,9 +15,9 @@ import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.When;
 
-import com.ibm.capa.ast.CAstNode;
-import com.ibm.domo.ast.java.translator.polyglot.ASTTraverser;
-import com.ibm.domo.ast.java.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
+import com.ibm.wala.cast.java.translator.polyglot.ASTTraverser;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
+import com.ibm.wala.cast.tree.CAstNode;
 
 public class X10ASTTraverser extends ASTTraverser {
     private X10ASTTraverser() { }

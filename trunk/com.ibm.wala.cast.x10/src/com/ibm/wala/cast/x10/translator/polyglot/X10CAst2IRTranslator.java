@@ -7,14 +7,6 @@ import java.io.PrintWriter;
 
 import sun.security.action.GetLongAction;
 
-import com.ibm.capa.ast.CAstEntity;
-import com.ibm.capa.ast.CAstNode;
-import com.ibm.capa.ast.CAstType;
-import com.ibm.capa.ast.visit.*;
-import com.ibm.capa.ast.visit.CAstVisitor.Context;
-import com.ibm.domo.ast.java.loader.JavaSourceLoaderImpl;
-import com.ibm.domo.ast.java.translator.JavaCAst2IRTranslator;
-import com.ibm.domo.ast.java.types.JavaPrimitiveTypeMap;
 import com.ibm.domo.ast.x10.ssa.AsyncCallSiteReference;
 import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAFinishInstruction;
@@ -35,8 +27,16 @@ import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.Atom;
 import com.ibm.wala.util.debug.Trace;
 
-import com.ibm.domo.ast.translator.AstTranslator.WalkContext;
-import com.ibm.domo.ast.translator.AstTranslator.DefaultContext;
+import com.ibm.wala.cast.ir.translator.AstTranslator.DefaultContext;
+import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
+import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
+import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
+import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
+import com.ibm.wala.cast.tree.CAstEntity;
+import com.ibm.wala.cast.tree.CAstNode;
+import com.ibm.wala.cast.tree.CAstType;
+import com.ibm.wala.cast.tree.visit.*;
+import com.ibm.wala.cast.tree.visit.CAstVisitor.Context;
 import com.ibm.wala.classLoader.NewSiteReference;
 
 public class X10CAst2IRTranslator extends X10CAstVisitor {

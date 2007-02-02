@@ -3,7 +3,7 @@
  */
 package com.ibm.domo.ast.x10.translator;
 
-import com.ibm.capa.ast.CAstQualifier;
+import com.ibm.wala.cast.tree.CAstQualifier;
 
 public class X10CAstQualifier extends CAstQualifier {
 

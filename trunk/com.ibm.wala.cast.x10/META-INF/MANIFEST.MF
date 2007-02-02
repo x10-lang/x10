@@ -6,14 +6,11 @@ Bundle-Version: 1.0.0
 Bundle-Activator: com.ibm.domo.ast.x10.X10Plugin
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.core.runtime,
- com.ibm.capa.ast,
- com.ibm.domo.ast,
- com.ibm.domo.ast.java,
- polyglot,
- x10.compiler,
+Require-Bundle: com.ibm.domo.ast.java,
+ com.ibm.wala.cast,
  com.ibm.wala.core,
- org.eclipse.jdt.core
+ org.eclipse.jdt.core,
+ org.eclipse.core.runtime
 Eclipse-AutoStart: true
 Export-Package: com.ibm.domo.ast.x10,
  com.ibm.domo.ast.x10.analysis,
@@ -24,4 +21,23 @@ Export-Package: com.ibm.domo.ast.x10,
  com.ibm.domo.ast.x10.translator,
  com.ibm.domo.ast.x10.translator.polyglot,
  com.ibm.domo.ast.x10.types,
- com.ibm.domo.ast.x10.visit
+ com.ibm.domo.ast.x10.visit,
+ polyglot.ext.x10,
+ polyglot.ext.x10.ast,
+ polyglot.ext.x10.extension,
+ polyglot.ext.x10.query,
+ polyglot.ext.x10.types,
+ polyglot.ext.x10.types.constr,
+ polyglot.ext.x10.visit,
+ x10.annotations,
+ x10.array,
+ x10.array.sharedmemory,
+ x10.base,
+ x10.compilergenerated,
+ x10.lang,
+ x10.newarray,
+ x10.parser,
+ x10.runtime,
+ x10.runtime.abstractmetrics,
+ x10.runtime.clock,
+ x10.runtime.util

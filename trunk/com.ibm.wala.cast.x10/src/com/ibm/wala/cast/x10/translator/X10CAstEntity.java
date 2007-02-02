@@ -3,7 +3,7 @@
  */
 package com.ibm.domo.ast.x10.translator;
 
-import com.ibm.capa.ast.CAstEntity;
+import com.ibm.wala.cast.tree.CAstEntity;
 
 public interface X10CAstEntity extends CAstEntity {
     /**
