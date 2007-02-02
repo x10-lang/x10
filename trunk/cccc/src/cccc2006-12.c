@@ -1,6 +1,6 @@
 /*
- * CCCC analysis toy.  The exact definition of Local Consistency is
- * in a state of flux.
+ * CCCC analysis toy.  This version uses the December 2006 attempt to
+ * define CCCC.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,11 +44,10 @@ void build_local_consistency_dep(int taskid, dependency_map_t dep)
 	int ts;
 
 	for_each_dependency(dep, ft, fs, tt, ts) {
-		if ((ft == taskid) ||
-		    (tt == taskid) ||
-		    (statement_does_write(ft, fs) &&
-		     statement_does_write(tt, ts) &&
-		     (task_vars[ft][fs] == task_vars[tt][ts]))) {
+		if ((statement_does_write(ft, fs) ||
+		     (ft == taskid)) &&
+		    (statement_does_write(tt, ts) ||
+		     (tt == taskid))) {
 			hb[ft][fs][tt][ts] = 1;
 		}
 	}

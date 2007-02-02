@@ -1,6 +1,9 @@
 /*
- * CCCC analysis toy.  The exact definition of Local Consistency is
- * in a state of flux.
+ * CCCC analysis toy.  This does MLSC, "minimal lock-supporting
+ * consistency", which is looser than CCCC.  MLSC is the most
+ * paranoid reasonable consistency model that a software developer
+ * might assume.  There are simpler/weaker models, such as
+ * memory-barrier pairing.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
