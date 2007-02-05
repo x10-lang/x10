@@ -79,10 +79,9 @@ void parse_dependency(char *inputline, int lineno)
 		    	warn(lineno,
 			     "Dependent write to different variable");
 		}
-		for_each_statement(task, stmt) {
+		for_each_statement_does_write(task, stmt) {
 			if ((task_vars[task][stmt] ==
 			     task_vars[fromtask][fromstmt]) &&
-			    statement_does_write(task, stmt) &&
 			    (dep_map[fromtask][fromstmt][task][stmt])) {
 				warn2(dep_map_lineno[fromtask][fromstmt][task][stmt],
 				      lineno,
@@ -104,6 +103,61 @@ void parse_dependency(char *inputline, int lineno)
 }
 
 /*
+ * Parse memory barrier directive from inputline.  These can either
+ * be applied to an existing statement or be standalone memory barriers.
+ * It is not legal to apply more than one memory barrier to the same
+ * statement.  Note that capitalized opcodes are shorthand for applying
+ * an "mb" directive to the lowercase version of that same opcode.
+ */
+void parse_memory_barrier(char *inputline, int lineno)
+{
+	int i;
+	int mb;
+	char *mbcp;
+	int taskid;
+	int stmtid;
+
+	if (!isdigit(inputline[0]) ||
+	    (inputline[1] != '.') ||
+	    !isdigit(inputline[2])) {
+		die(lineno, "Bad memory barrier: format is \"t.s membar\"");
+	}
+	taskid = inputline[0] - '0';
+	stmtid = inputline[2] - '0';
+	mbcp = &inputline[4];
+	if (stmtid < task_last_stmt[taskid]) {
+		die(lineno, "Task statement out of order");
+	}
+	for (i = 0; mbdecode[i].name != NULL; i++) {
+		if (strcmp(mbcp, mbdecode[i].name) == 0) {
+			mb = mbdecode[i].properties;
+			if (!statement_exists(taskid, stmtid)) {
+				if ((mb & OP_SYNC) &&
+				    !(mb & OP_DIVIDE) &&
+				    ((mb & OP_SYNC_BEFORE == 0) ||
+				     (mb & OP_SYNC_AFTER == 0))) {
+					die(lineno,
+					    "One-tailed memory barrier "
+					    "must be attached to instruction");
+				}
+				task_ops[taskid][stmtid] = no_op;
+				task_lineno[taskid][stmtid] = lineno;
+				task_n_stmts[taskid]++;
+			}
+			if (task_mbs[taskid][stmtid] != 0) {
+				die(lineno, "Duplicate memory barrier");
+			}
+			task_last_stmt[taskid] = stmtid;
+			task_stmts[taskid][task_n_stmts[taskid]] = stmtid;
+			task_stmt_map[taskid][stmtid] = task_n_stmts[taskid];
+			task_mbs[taskid][stmtid] = mb;
+			return;
+		}
+	}
+	die(lineno, "Invalid memory barrier");
+}
+
+/*
  * Parse statement from inputline, using lineno in any necessary error
  * messages.  Update the various task_[] maps upon successful parse.
  */
@@ -112,11 +166,13 @@ void parse_statement(char *inputline, int lineno)
 	int taskid;
 	int stmtid;
 	int op;
+	char opcodelower;
 	int var;
 	int val;
 	int rval;
 	int wval;
 
+	opcodelower = tolower(inputline[4]);
 	if (((strlen(inputline) != 7) &&
 	     (strlen(inputline) != 9) &&
 	     (strlen(inputline) != 11)) ||
@@ -124,17 +180,17 @@ void parse_statement(char *inputline, int lineno)
 	    (inputline[1] != '.') ||
 	    !isdigit(inputline[2]) ||
 	    !isblank(inputline[3]) ||
-	    (((inputline[4] != 'a') ||
+	    (((opcodelower != 'a') ||
 	      (strlen(inputline) != 11)) &&
-	     (inputline[4] != 'r') &&
-	     ((inputline[4] != 'w') ||
+	     (opcodelower != 'r') &&
+	     ((opcodelower != 'w') ||
 	      (strlen(inputline) != 9))) ||
 	    !isblank(inputline[5]) ||
 	    !islower(inputline[6]) ||
 	    ((strlen(inputline) != 7) &&
 	     (!isblank(inputline[7]) ||
 	      !isdigit(inputline[8])))) {
-		die(lineno, "Bad statement: format is \"t s o v v\"");
+		die(lineno, "Bad statement: format is \"t.s o v v\"");
 	}
 
 	taskid = inputline[0] - '0';
@@ -159,6 +215,7 @@ void parse_statement(char *inputline, int lineno)
 	task_stmts[taskid][task_n_stmts[taskid]] = stmtid;
 	task_stmt_map[taskid][stmtid] = task_n_stmts[taskid];
 	task_ops[taskid][stmtid] = op;
+	task_mbs[taskid][stmtid] = op_mb_decode[inputline[4]];
 	task_vars[taskid][stmtid] = var;
 	task_rvals[taskid][stmtid] = rval;
 	task_wvals[taskid][stmtid] = wval;
@@ -205,7 +262,7 @@ int read_program(void)
 		if (strlen(inputline) == 0) {
 			continue;
 		}
-		if (strlen(inputline) < 7) {
+		if (strlen(inputline) < 6) {
 			die(lineno, "Line too short");
 		}
 
@@ -213,6 +270,8 @@ int read_program(void)
 
 		if (inputline[4] == '-') {
 			parse_dependency(inputline, lineno);
+		} else if (isalpha(inputline[5])) {
+			parse_memory_barrier(inputline, lineno);
 		} else {
 			parse_statement(inputline, lineno);
 		}

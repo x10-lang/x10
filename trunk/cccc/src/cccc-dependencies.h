@@ -123,10 +123,8 @@ void check_write_dependencies(int lineno)
 
 	/* Sum up per-variable write statements. */
 
-	for_each_statement(ft, fs) {
-		if (statement_does_write(ft, fs)) {
-			nwrite[task_vars[ft][fs]]++;
-		}
+	for_each_statement_does_write(ft, fs) {
+		nwrite[task_vars[ft][fs]]++;
 	}
 
 	/* If no warnings, one more statement that dependencies. */
@@ -143,18 +141,150 @@ void check_write_dependencies(int lineno)
 }
 
 /*
+ * Mark all earlier statements of the specified type as preceding
+ * the specified statement in program order.
+ */
+void mark_earlier_po(int task, int stmt, int op)
+{
+	int s1;
+
+	for_each_earlier_statement_in_task(task, stmt, s1) {
+		if (task_ops[task][s1] == op) {
+			po_map[task][s1][task][stmt] = 1;
+		}
+	}
+}
+
+/*
+ * Mark all later statements of the specified type as following
+ * the specified statement in program order.
+ */
+void mark_later_po(int task, int stmt, int op)
+{
+	int s1;
+
+	for_each_later_statement_in_task(task, stmt, s1) {
+		if (task_ops[task][s1] == op) {
+			po_map[task][stmt][task][s1] = 1;
+		}
+	}
+}
+
+/*
+ * Mark all earlier statements of the specified type as preceding
+ * all later statements of the other specified type in program order.
+ */
+void mark_cross_po(int task, int stmt, int op1, int op2)
+{
+	int s1;
+	int s2;
+
+	for_each_earlier_statement_in_task(task, stmt, s1) {
+		if (task_ops[task][s1] == op1) {
+			for_each_later_statement_in_task(task, stmt, s2) {
+				if (task_ops[task][s2] == op2) {
+					po_map[task][s1][task][s2] = 1;
+				}
+			}
+		}
+	}
+}
+
+/*
  * Build all the program-order dependencies into po_map.
  * Later need to pay attention only to memory barriers @@@ .
  */
 void build_program_order(void)
 {
+	int mb;
 	int t;
-	int fs;
-	int ts;
+	int s;
+	int s1;
+	int s2;
+	int s3;
 
+	for_each_statement(t, s) {
+
+		/* Handle memory barriers, explicit and implicit. */
+
+		mb = task_mbs[t][s];
+		
+		/*
+		 * Handle the portion of SPARC-type barriers
+		 * not involving the current statement.
+		 */
+
+		if (mb & OP_LOADLOAD) {
+			mark_cross_po(t, s, read_op, read_op);
+		}
+		if (mb & OP_LOADSTORE) {
+			mark_cross_po(t, s, read_op, write_op);
+		}
+		if (mb & OP_STORELOAD) {
+			mark_cross_po(t, s, write_op, read_op);
+		}
+		if (mb & OP_STORESTORE) {
+			mark_cross_po(t, s, write_op, write_op);
+		}
+
+		/*
+		 * Handle barriers between the current statement
+		 * and earlier statements.
+		 */
+
+		if ((mb & OP_LOADNULL) ||
+		    (statement_does_read(t, s) &&
+		     (mb & OP_LOADLOAD)) ||
+		    (statement_does_write(t, s) &&
+		     (mb & OP_LOADSTORE))) {
+			mark_earlier_po(t, s, read_op);
+		}
+		if ((mb & OP_STORENULL) ||
+		    (statement_does_read(t, s) &&
+		     (mb & OP_STORELOAD)) ||
+		    (statement_does_write(t, s) &&
+		     (mb & OP_STORESTORE))) {
+			mark_earlier_po(t, s, write_op);
+		}
+
+		/*
+		 * Handle barriers between the current statement
+		 * and later statements.
+		 */
+
+		if ((mb & OP_NULLLOAD) ||
+		    (statement_does_read(t, s) &&
+		     (mb & OP_LOADLOAD)) ||
+		    (statement_does_write(t, s) &&
+		     (mb & OP_STORELOAD))) {
+			mark_later_po(t, s, read_op);
+		}
+		if ((mb & OP_NULLSTORE) ||
+		    (statement_does_read(t, s) &&
+		     (mb & OP_LOADSTORE)) ||
+		    (statement_does_write(t, s) &&
+		     (mb & OP_STORESTORE))) {
+			mark_later_po(t, s, write_op);
+		}
+	}
+	
 	for_each_task(t) {
-		for_each_statement_pair_in_task(t, fs, ts) {
-			po_map[t][fs][t][ts] = 1;
+
+		/*
+		 * Force transitivity.  Because program ordering forms
+		 * a directed acyclic graph with ranked nodes, one
+		 * pass is sufficient.  (If you believe otherwise, show
+		 * me the counterexample!)
+		 *
+		 * In addition, all program-order dependencies will
+		 * now be represented by single-hop dependency links.
+		 */
+
+		for_each_statement_triple_in_task(t, s1, s2, s3) {
+			if (po_map[t][s1][t][s2] &&
+			    po_map[t][s2][t][s3]) {
+				po_map[t][s1][t][s3] = 1;
+			}
 		}
 	}
 }
@@ -173,10 +303,8 @@ int add_prop(ft, fs, tt, ts)
 
 /*
  * Do one cycle of the CCCC "propagation" of dependencies from and to
- * prop_map.
- * This function currently implicitly assumes each task's statements
- * run in program order, which will need to be reworked when explicit
- * memory barriers are added.  @@@
+ * prop_map.  Note that program order is enforced only if backed up
+ * with explicit or implicit memory barriers.
  */
 int propagate_dependencies_help(void)
 {
@@ -189,6 +317,9 @@ int propagate_dependencies_help(void)
 
 	for_each_task(t2) {
 		for_each_statement_pair_in_task(t2, s2a, s2b) {
+			if (!po_map[t2][s2a][t2][s2b]) {
+				continue;
+			}
 			for_each_other_task(t2, t1) {
 				for_each_statement_in_task(t1, s1) {
 					if (dep_map[t1][s1][t2][s2a] ||
