@@ -30,6 +30,9 @@ public class X10NullableNodeExt_c extends X10Ext_c {
 			NullableType newNullableType = ts.createNullableType(node().position(), (X10NamedType) typenode.type());
 			n = (NullableNode) n.type(newNullableType);
 			return n;
+		} else {
+			// updating nullable node expression type
+			n = (NullableNode) n.type(ts.createNullableType(node().position(), (X10NamedType) type));			
 		}
 
 		return n;
