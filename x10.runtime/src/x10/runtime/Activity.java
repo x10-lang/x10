@@ -54,7 +54,7 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	protected FinishState finishState_ = null;
 
 	/** The finishStack is lazily created **/
-	protected Stack finishStack_ = null;
+	protected Stack<FinishState> finishStack_ = null;
 	
 	/** Manage all clock of this activity.
 	 * The clockManager is lazily created **/
@@ -174,8 +174,8 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	 * Default implementation of the Runnable interface.
 	 * An Activity executing in a place should always be invoked using it's runnable interface,
 	 * and not directly by calling it's runX10Task method; which is an abstract method in this class.
-	 *  This run method allows performing actions before and after activity execution that allows
-	 *  to submit the actviity safely as regard to runtime and pool thread.
+	 *  This run method allows performing actions before and after activity execution allowing
+	 *  to submit the activity safely as regard to runtime and pool thread.
 	 */
 	public void run() {
 		PoolRunner activityRunner = (PoolRunner) Thread.currentThread();
@@ -335,10 +335,10 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	 * Stack must be only access throught this method that lazily creates it.
 	 * @return a new stack if non has been ever created.
 	 */
-	private Stack getFinishStack()
+	private Stack<FinishState> getFinishStack()
 	{
 		if (this.finishStack_ == null)
-			this.finishStack_ = new Stack();
+			this.finishStack_ = new Stack<FinishState>();
 		
 		return this.finishStack_;		
 	}

@@ -286,7 +286,7 @@ public class DefaultRuntime_c extends Runtime {
 					 * Return the set of places from place(0) to place(last) (inclusive).
 					 */
 					public Set/*<place>*/ places (int last) {
-						Set result = new TreeSet();
+						Set<Place> result = new TreeSet<Place>();
 						for (int i=0; i <= last % (place.MAX_PLACES); i++)
 							result.add(places_[i]);
 						return result;
