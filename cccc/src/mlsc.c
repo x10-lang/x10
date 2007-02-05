@@ -24,6 +24,8 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "cccc-data.h"
 #include "cccc-output.h"
@@ -88,9 +90,9 @@ void check_local_consistency(void)
 		}
 	}
 	if (foundcycle) {
-		printf("Cycle found: illegal CCCC execution\n");
+		printf("Cycle found: illegal MLSC execution\n");
 	} else {
-		printf("No cycles found: plausible CCCC execution\n");
+		printf("No cycles found: plausible MLSC execution\n");
 	}
 }
 

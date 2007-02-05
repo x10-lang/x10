@@ -19,10 +19,33 @@
  */
 
 /*
+ * Dump a memory-barrier statement.
+ */
+void dump_barrier(int taskid, int stmtid, int mb)
+{
+	int i;
+
+	for (i = 0; mbdecode[i].name != NULL; i++) {
+		if (mbdecode[i].properties == mb) {
+			printf("%d.%d %s\n",
+			       taskid, stmtid,
+			       mbdecode[i].name);
+			break;
+		}
+	}
+	if (mbdecode[i].name == NULL) {
+		printf("%d.%d ?%#x?\n", taskid, stmtid, mb);
+	}
+}
+
+/*
  * Dump the statements in the same form that they are input.
  */
 void dump_statements(void)
 {
+	int i;
+	int mb;
+	char opcode;
 	int taskid;
 	int stmtid;
 	char val1;
@@ -36,12 +59,35 @@ void dump_statements(void)
 			val1 = val2;
 			val2 = -1;
 		}
-		printf("%d.%d %c %c %c %c\n",
-		       taskid, stmtid,
-		       op_code[task_ops[taskid][stmtid]],
-		       task_vars[taskid][stmtid] + 'a',
-		       val1 < 0 ? ' ' : val1 + '0',
-		       val2 < 0 ? ' ' : val2 + '0');
+		mb = task_mbs[taskid][stmtid];
+		if (task_ops[taskid][stmtid] == no_op) {
+			if (mb != 0) {
+
+				/* Explicit memory barrier. */
+
+				dump_barrier(taskid, stmtid, mb);
+			}
+		} else {
+			opcode = op_code[task_ops[taskid][stmtid]];
+			if (mb == OP_SYNC) {
+				
+				/* Implicit memory barrier. */
+
+				opcode = toupper(opcode);
+			}
+			printf("%d.%d %c %c %c %c\n",
+			       taskid, stmtid, opcode,
+			       task_vars[taskid][stmtid] + 'a',
+			       val1 < 0 ? ' ' : val1 + '0',
+			       val2 < 0 ? ' ' : val2 + '0');
+			if ((mb != 0) &&
+			    (mb != OP_SYNC)) {
+
+				/* Explicit barrier on statement. */
+
+				dump_barrier(taskid, stmtid, mb);
+			}
+		}
 	}
 }
 

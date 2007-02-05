@@ -43,6 +43,22 @@
 		if (statement_exists((t), (s1)))
 
 /*
+ * Using the integer variable "earlier", cycle through all statements
+ * in task t that precede statement s.
+ */
+#define for_each_earlier_statement_in_task(t, s, earlier) \
+	for_each_statement_in_task(t, earlier) \
+		if (earlier < s)
+
+/*
+ * Using the integer variable "later", cycle through all statements
+ * in task t that precede statement s.
+ */
+#define for_each_later_statement_in_task(t, s, later) \
+	for_each_statement_in_task(t, later) \
+		if (later > s)
+
+/*
  * Using the integer variables s1 and s2, cycle through all pairs
  * of statements in task t.  The earlier statement of the pair will
  * be in s1, the later of the pair in s2.
@@ -51,6 +67,15 @@
 	for_each_statement_in_task(t, s1) \
 		for ((s2) = (s1) + 1; (s2) < MAX_STMTS; (s2)++) \
 			if (statement_exists((t), (s2)))
+
+/*
+ * Using the integer variables s1, s2, and s3, cycle through all triples
+ * of statements in task t.  The statements will be ordered s1, s2, and s3.
+ */
+#define for_each_statement_triple_in_task(t, s1, s2, s3) \
+	for_each_statement_pair_in_task(t, s1, s2) \
+		for ((s3) = (s2) + 1; (s3) < MAX_STMTS; (s3)++) \
+			if (statement_exists((t), (s3)))
 
 /*
  * Using the integer variables taskid and stmtid, cycle through all

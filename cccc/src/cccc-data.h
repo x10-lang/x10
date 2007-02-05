@@ -23,16 +23,48 @@
 #define MAX_VARS	26	/* 'a' .. 'z' */
 #define MAX_VALS	10	/* '0' .. '9' */
 
-#define OP_IS_READ	0x01
-#define OP_DOES_READ	0x02
-#define OP_IS_WRITE	0x04
-#define OP_DOES_WRITE	0x08
+#define OP_IS_READ	0x0001
+#define OP_DOES_READ	0x0002
+#define OP_IS_WRITE	0x0004
+#define OP_DOES_WRITE	0x0008
+#define OP_LOADLOAD	0x0010
+#define OP_LOADSTORE	0x0020
+#define OP_STORELOAD	0x0040
+#define OP_STORESTORE	0x0080
+#define OP_NULLLOAD	0x0100
+#define OP_LOADNULL	0x0200
+#define OP_NULLSTORE	0x0400
+#define OP_STORENULL	0x0800
+#define OP_MBMASK	0x0ff0
+
+#define OP_DIVIDE	(OP_LOADLOAD|OP_LOADSTORE|OP_STORELOAD|OP_STORESTORE)
+#define OP_SYNC		(OP_NULLLOAD|OP_LOADNULL|OP_NULLSTORE|OP_STORENULL)
+#define OP_SYNC_BEFORE	(OP_LOADNULL|OP_STORENULL)
+#define OP_SYNC_AFTER	(OP_NULLLOAD|OP_NULLSTORE)
+
 enum optype { no_op, read_op, write_op, atomic_op, end_op, };
 #define N_OP_TYPES end_op
 
 int op_properties[N_OP_TYPES] = { 0 };
 char op_code[N_OP_TYPES] = { 0 };
 char op_decode[256] = { 0 };
+int op_mb_decode[256] = { 0 };
+
+struct membar {
+	char *name;
+	int properties;
+};
+
+struct membar mbdecode[] = {
+	{ "mb", OP_NULLLOAD | OP_LOADNULL | OP_NULLSTORE | OP_STORENULL },
+	{ "rmb", OP_NULLLOAD | OP_LOADNULL },
+	{ "wmb", OP_NULLSTORE | OP_STORENULL },
+	{ "acq", OP_LOADLOAD | OP_LOADSTORE },
+	{ "rel", OP_LOADSTORE | OP_STORESTORE },
+	{ "iacq", OP_NULLLOAD | OP_NULLSTORE },
+	{ "irel", OP_LOADNULL | OP_STORENULL },
+	{ NULL, 0 },
+};
 
 typedef int dependency_map_t[MAX_TASKS][MAX_STMTS][MAX_TASKS][MAX_STMTS];
 
@@ -48,6 +80,7 @@ int task_n_stmts[MAX_TASKS];		/* Number of statements. */
 int task_stmts[MAX_TASKS][MAX_STMTS];	/* Per-task statement list. */
 int task_stmt_map[MAX_TASKS][MAX_STMTS];/* Statement-present map. */
 int task_ops[MAX_TASKS][MAX_STMTS];	/* Operations map (read/write...). */
+int task_mbs[MAX_TASKS][MAX_STMTS];	/* Memory-barrier map. */
 int task_vars[MAX_TASKS][MAX_STMTS];	/* Variable-access map. */
 int task_rvals[MAX_TASKS][MAX_STMTS];	/* Value-loaded map. */
 int task_wvals[MAX_TASKS][MAX_STMTS];	/* Value-stored map. */
@@ -99,6 +132,7 @@ int initialize(void)
 			task_stmts[i][j] = -1;
 			task_stmt_map[i][j] = -1;
 			task_ops[i][j] = no_op;
+			task_mbs[i][j] = 0;
 			task_vars[i][j] = -1;
 			task_rvals[i][j] = -1;
 			task_wvals[i][j] = -1;
@@ -123,6 +157,12 @@ int initialize(void)
 	op_decode['r'] = read_op;
 	op_decode['w'] = write_op;
 	op_decode['a'] = atomic_op;
+	op_decode['R'] = read_op;
+	op_decode['W'] = write_op;
+	op_decode['A'] = atomic_op;
+	op_mb_decode['R'] = OP_SYNC;
+	op_mb_decode['W'] = OP_SYNC;
+	op_mb_decode['A'] = OP_SYNC;
 }
 
 /*
