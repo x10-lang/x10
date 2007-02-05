@@ -18,6 +18,11 @@ import java.lang.reflect.Method;
  *
  */
 public class RuntimeCastChecker {
+	
+	public interface DepTypeRuntimeChecking {
+
+	}
+
 	/**
 	 * WARNING ! Do not change the name of this method without changing
 	 * Method used to do dynamic nullcheck when nullable is casted away.
