@@ -131,7 +131,7 @@ public /* final */ class Clock extends clock {
 	/**
 	 * A Set of all activities registered with this clock.
 	 */
-	protected final Set activities_ = new HashSet(); // <Activity>
+	protected final Set<Activity> activities_ = new HashSet<Activity>(); // <Activity>
 	protected int activityCount_ = 0;
         public int activityCount() { return activityCount_; }
 	
@@ -146,14 +146,14 @@ public /* final */ class Clock extends clock {
 	/** The set of all activities that have executed a resume in the current clock cycle.
 	 * 
 	 */
-	private final Set resumed_ = new HashSet(); // <Activity>
+	private final Set<Activity> resumed_ = new HashSet<Activity>(); // <Activity>
 	private int resumedCount_ = 0;
 	
 	/**
 	 * The Set of all activities that have executed a resume in the next phase of a 
 	 * split clock.
 	 */
-	private final Set nextResumed_ = new HashSet(); // <Activity>
+	private final Set<Activity> nextResumed_ = new HashSet<Activity>(); // <Activity>
 	private int nextResumedCount_ = 0;
 	
 

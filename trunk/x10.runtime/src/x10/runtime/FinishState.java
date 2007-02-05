@@ -36,7 +36,7 @@ public class FinishState {
 	 * issued when activities associated with this finish state terminate abruptly. 
 	 * This Object is lazily created 
 	 **/
-	private Stack finish_;
+	private Stack<Throwable> finish_;
 
 	/**not really needed, used in toString(). **/
 	protected Activity parent; 
@@ -108,9 +108,9 @@ public class FinishState {
 	 * Create a new stack or return current one.
 	 * @return the finish stak
 	 */
-	private Stack getFinishStack() {
+	private Stack<Throwable> getFinishStack() {
 		if(finish_ == null)
-			finish_ = new Stack();
+			finish_ = new Stack<Throwable>();
 		return finish_;
 	}
 	
