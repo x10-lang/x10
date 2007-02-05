@@ -178,7 +178,7 @@ public class X10Caster extends AscriptionVisitor {
 		protected Checking checking;
 		
 		protected static final String CHECK_CAST_MTH_NAME = "checkCast";
-		protected static final String X10_RUNTIME_NESTED_CONSTRAINT = "x10.runtime.NestedConstraint";
+		protected static final String X10_RUNTIME_NESTED_CONSTRAINT = "x10.runtime.RuntimeCastChecker.DepTypeRuntimeChecking";
 
 		public AbstractRuntimeChecking(TypeBuilder tb,
 				AmbiguityRemover ar, TypeChecker tc, Position p, Checking checking) {
