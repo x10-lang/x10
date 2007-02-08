@@ -53,7 +53,7 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     public void setSelfVar(C_Var v) {
 		Constraint c = depClause();
 		if (c==null) {
-			depClause=new Constraint_c();
+			depClause=new Constraint_c((X10TypeSystem) ts);
 		}
 		depClause.setSelfVar(v);
 	}
@@ -63,7 +63,7 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
 	}
     public void addBinding(C_Var t1, C_Var t2) {
 		if (depClause == null)
-			depClause = new Constraint_c();
+			depClause = new Constraint_c((X10TypeSystem) ts);
 		depClause = depClause.addBinding(t1, t2);
 	}
     public boolean consistent() {
@@ -83,7 +83,7 @@ public abstract class X10ReferenceType_c extends ReferenceType_c implements
     }
     public X10Type makeNoClauseVariant() {
     	X10ReferenceType_c n = (X10ReferenceType_c) copy();
-    	n.depClause = new Constraint_c();
+    	n.depClause = new Constraint_c((X10TypeSystem) ts);
     	n.typeParameters = typeParameters;
     	return n;
     }

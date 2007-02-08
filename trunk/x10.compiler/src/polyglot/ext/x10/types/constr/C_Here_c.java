@@ -9,14 +9,19 @@ package polyglot.ext.x10.types.constr;
 
 import java.util.HashMap;
 
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 
 public class C_Here_c extends C_Lit_c implements Promise {
 
-	public static final C_Here_c here = new C_Here_c();
-	private C_Here_c() {
-		super(null, Constraint_c.typeSystem.place());
+//	public static final C_Here_c here = new C_Here_c();
+
+    	/**
+    	 * Clients should not call this constructor; you can instead obtain the singleton instance from the X10TypeSystem.
+    	 */
+	public C_Here_c(X10TypeSystem x10ts) {
+		super(null, x10ts.place());
 	}
 	public String toString() { return "C_here"; }
 	public boolean equals(Object o) { 

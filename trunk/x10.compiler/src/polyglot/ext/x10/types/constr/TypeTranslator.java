@@ -35,9 +35,13 @@ import polyglot.types.TypeSystem;
  */
 public class TypeTranslator implements Serializable {
 
-	public TypeTranslator( ) {
+	private final X10TypeSystem typeSystem;
+
+	public TypeTranslator(X10TypeSystem xts) {
 		super();
+		typeSystem= xts;
 	}
+
 	public C_UnaryTerm trans(Unary t) throws SemanticException {
 		return new C_UnaryTerm_c(t.operator().toString(), trans(t.expr()), t.type());
 	}
@@ -82,7 +86,7 @@ public class TypeTranslator implements Serializable {
 		// Report.report(1, "TypeTranslator: translating Receiver " + term);
 		if (term == null) return null;
 		if (term instanceof Lit) return trans((Lit) term);
-		if (term instanceof Here) return C_Here_c.here;
+		if (term instanceof Here) return ((X10TypeSystem) term.type().typeSystem()).here(); // RMF 2/8/2007
 		if (term instanceof Variable) return trans((Variable) term);
 		if (term instanceof X10Special) return trans((X10Special) term);
 		if (term instanceof Unary) {
@@ -168,11 +172,11 @@ public class TypeTranslator implements Serializable {
 	}
 	public Constraint constraint(Expr e) throws SemanticException {
 		//Report.report(1, "TypeTranslator: translating to constraint " + e);
-		Constraint c = new Constraint_c();
+		Constraint c = new Constraint_c((X10TypeSystem) typeSystem);
 		return constraint(e, c);
 	}
-	public static C_Term translate(Receiver r) throws SemanticException {
-		return new TypeTranslator().trans(r);
+	public static C_Term translate(Receiver r, X10TypeSystem xts) throws SemanticException {
+		return new TypeTranslator(xts).trans(r);
 	}
 	public static boolean isPureTerm(Term t) {
 		boolean result=false;

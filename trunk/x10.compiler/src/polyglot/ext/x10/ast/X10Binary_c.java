@@ -273,9 +273,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			
 			if (rank != null) type.setRank(rank);
 			if (xts.isPlace(r) && r instanceof Here) 
-				type.setOnePlace(C_Here_c.here);
+				type.setOnePlace(xts.here());
 			if (TypeTranslator.isPureTerm(right))
-					type.setDistribution((C_Var)TypeTranslator.translate(right));
+					type.setDistribution((C_Var)TypeTranslator.translate(right, xts));
 			
 			Expr result = type(type);
 			//Report.report(1, "X10Binary_c: returning " + result + " of type " + result.type());
@@ -295,7 +295,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			
 			if (rank != null) type.setRank(rank);
 			if (xts.isPlace(r) && r instanceof Here) 
-				type.setOnePlace(C_Here_c.here);
+				type.setOnePlace(xts.here());
 			
 			Expr result = type(type);
 			//Report.report(1, "X10Binary_c: returning " + result + " of type " + result.type());

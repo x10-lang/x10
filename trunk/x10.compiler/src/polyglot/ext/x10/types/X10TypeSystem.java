@@ -14,7 +14,11 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ext.x10.types.constr.C_Here_c;
+import polyglot.ext.x10.types.constr.C_Lit;
+import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
@@ -70,6 +74,7 @@ public interface X10TypeSystem extends TypeSystem {
 	
 	ClassType place();
 	ClassType region();
+	C_Here_c here();
 	ClassType point();
 	ClassType distribution();
 	ClassType Activity();
@@ -83,6 +88,15 @@ public interface X10TypeSystem extends TypeSystem {
 	ClassType OperatorUnary();
 	ClassType ArrayOperations();
 
+	C_Lit FALSE();
+	C_Lit TRUE();
+	C_Lit NEG_ONE();
+	C_Lit ZERO();
+	C_Lit ONE();
+	C_Lit TWO();
+	C_Lit THREE();
+	C_Lit NULL();
+	
 	CodeInstance asyncCodeInstance();
 
 	/**

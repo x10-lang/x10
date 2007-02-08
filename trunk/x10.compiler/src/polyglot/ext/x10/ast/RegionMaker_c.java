@@ -55,7 +55,7 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
         	return this;
         X10ParsedClassType type = (X10ParsedClassType) n.type();
         type = (X10ParsedClassType) type.makeVariant();
-        type.setRank(C_Lit.ONE);
+        type.setRank(xts.ONE());
         type.setRect();
         // vj: Also may wish to check for the type being int(:self==0).
         Object leftVal = left.constantValue();

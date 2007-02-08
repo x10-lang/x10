@@ -254,7 +254,7 @@ implements ArrayConstructor {
 		}
 		C_Var rank = distType.rank();
 		if (rank !=null) t.setRank(rank);
-		if (t.hasLocalProperty() && zeroBased && isRect && C_Lit.ONE.equals(rank)) 
+		if (t.hasLocalProperty() && zeroBased && isRect && ((X10TypeSystem) t.typeSystem()).ONE().equals(rank)) 
 			t.setRail();
 		//Report.report(1, "t is now " + t);
 		return t;

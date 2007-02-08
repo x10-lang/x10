@@ -125,7 +125,7 @@ implements X10ParsedClassType
 				initRealClause();
 			} else {
 				Constraint result = rootType().realClause();
-				result = result==null? new Constraint_c() : result.copy();
+				result = result==null? new Constraint_c((X10TypeSystem) ts) : result.copy();
 				if (depClause != null) {
 					result.addIn(depClause);
 				}
@@ -143,17 +143,17 @@ implements X10ParsedClassType
 	public void setSelfVar(C_Var v) {
 		Constraint c = depClause();
 		if (c==null) {
-			depClause=new Constraint_c();
+			depClause=new Constraint_c((X10TypeSystem) ts);
 		}
 		depClause.setSelfVar(v);
 	}
 	private void ensureClauses() {
 		Constraint rc = realClause(); // forces it to be initialized.
 		if (rc == null) {
-			realClause = new Constraint_c();
+			realClause = new Constraint_c((X10TypeSystem) ts);
 		}
 		if (depClause == null) 
-			depClause = new Constraint_c();
+			depClause = new Constraint_c((X10TypeSystem) ts);
 	}
 	/** This check needs to be generalized.
 	 * We need to signal when there is a cycle in the following graph.
@@ -224,7 +224,7 @@ implements X10ParsedClassType
 		}
 		
 		// Now add all these collected bindings to the constraint.
-		realClause = new Constraint_c();
+		realClause = new Constraint_c((X10TypeSystem) ts);
 		if (! result.isEmpty()) {
 			realClause = realClause.addBindings(result);
 		}
@@ -269,7 +269,7 @@ implements X10ParsedClassType
 		return realClause().consistent();
 	}
 	public X10ParsedClassType makeVariant() {
-		return (X10ParsedClassType) makeVariant(new Constraint_c(), null);
+		return (X10ParsedClassType) makeVariant(new Constraint_c((X10TypeSystem) ts), null);
 	}
 	public X10ParsedClassType makeVariant(Constraint c) {
 		return (X10ParsedClassType) makeVariant(c, null);
@@ -319,8 +319,8 @@ implements X10ParsedClassType
 		
 		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
 		n.typeParameters = null; //typeParameters;
-		n.depClause = new Constraint_c();
-		n.realClause = new Constraint_c();
+		n.depClause = new Constraint_c((X10TypeSystem) ts);
+		n.realClause = new Constraint_c((X10TypeSystem) ts);
 		n.realClauseSet = true;
 		n.isDistSet = n.isRankSet = n.isOnePlaceSet = n.isRailSet = n.isSelfSet
 		= n.isX10ArraySet = n.isZeroBasedSet = false;
@@ -819,7 +819,7 @@ implements X10ParsedClassType
 		if (fi == null) {
 			if ( Report.should_report(Report.types, 2))
 				Report.report(2, "Type " + name + " has no properties.");
-			classInvariant = new Constraint_c();
+			classInvariant = new Constraint_c((X10TypeSystem) ts);
 			return classInvariant;
 		}
 		NullableType nullableT = (NullableType) fi.type();
@@ -936,13 +936,13 @@ implements X10ParsedClassType
 	}
 	
 	public boolean isRankOne() {
-		return C_Lit.ONE.equals(rank());
+		return ((X10TypeSystem) typeSystem()).ONE().equals(rank());
 	}
 	public boolean isRankTwo() {
-		return C_Lit.TWO.equals(rank());
+		return ((X10TypeSystem) typeSystem()).TWO().equals(rank());
 	}
 	public boolean isRankThree() {
-		return C_Lit.THREE.equals(rank());
+		return ((X10TypeSystem) typeSystem()).THREE().equals(rank());
 	}
 	boolean isDistSet;
 	C_Var dist;
@@ -991,7 +991,7 @@ implements X10ParsedClassType
 	 * 
 	 * */
 	protected void setProperty(String propName) {
-		setProperty(propName, C_Lit.TRUE);
+		setProperty(propName, ((X10TypeSystem) typeSystem()).TRUE());
 	}
 	
 	protected void setProperty(String propName, C_Var val)  {
@@ -1019,7 +1019,7 @@ implements X10ParsedClassType
 			X10FieldInstance fi = (X10FieldInstance) definedFieldNamed(propName);
 			if (fi != null &&  fi.isProperty()) {
 				C_Var term = new C_Field_c(fi, C_Special.Self);
-				Constraint c = new Constraint_c();
+				Constraint c = new Constraint_c((X10TypeSystem) ts);
 				c.addTerm(term);
 				return result = realClause().entails(c);
 			}

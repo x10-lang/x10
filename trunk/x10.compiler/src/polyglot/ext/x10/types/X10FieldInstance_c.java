@@ -114,7 +114,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 		if ( flags().isFinal()) {
 			X10Type t = (X10Type) type();
 			C_Field self = new C_Field_c(this, C_Special_c.This);
-			Constraint c = Constraint_c.addSelfBinding(self,t.depClause());
+			Constraint c = Constraint_c.addSelfBinding(self, t.depClause(), (X10TypeSystem) ts);
 			X10Type newType = t.makeVariant(c,t.typeParameters());
 			setType(newType);
 			changed = true;

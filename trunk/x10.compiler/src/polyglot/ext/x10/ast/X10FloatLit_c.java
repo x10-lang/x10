@@ -14,6 +14,7 @@ import polyglot.ast.Node;
 import polyglot.ast.FloatLit.Kind;
 import polyglot.ast.FloatLit_c;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
@@ -40,10 +41,10 @@ public class X10FloatLit_c extends FloatLit_c {
 		
 	}
 	  public Node typeCheck(TypeChecker tc) throws SemanticException {
-		  TypeSystem ts = tc.typeSystem();
-		  X10Type Type = (X10Type) (kind==FLOAT ? ts.Float() : ts.Double());
+		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		  X10Type Type = (X10Type) (kind==FLOAT ? xts.Float() : xts.Double());
 			C_Lit_c literal = new C_Lit_c(constantValue(), Type);
-			Constraint c = Constraint_c.addSelfBinding(literal,null);
+			Constraint c = Constraint_c.addSelfBinding(literal,null,xts);
 		  X10Type newType  = Type.makeVariant(c, null);
 	    return type(newType);
 	  }
