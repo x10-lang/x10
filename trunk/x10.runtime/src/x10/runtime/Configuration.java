@@ -24,8 +24,8 @@ import java.util.StringTokenizer;
  *
  * @author Christian Grothoff
  *
+ * Extensions for JUC implementation 
  * @author Raj Barik, Vivek Sarkar
- * 3/6/2006: replaced NUMBER_OF_ACTIVITIES_PER_PLACE by INIT_THREADS_PER_PLACE.
  */
 public final class Configuration extends x10.runtime.util.Configuration {
 
@@ -39,7 +39,7 @@ public final class Configuration extends x10.runtime.util.Configuration {
 	private static final String NUMBER_OF_LOCAL_PLACES_desc = "The number of places";
 
 	public static int INIT_THREADS_PER_PLACE = 3;
-	private static final String INIT_THREADS_PER_PLACE_desc = "FIXME: what is this?";
+	private static final String INIT_THREADS_PER_PLACE_desc = "Initial number of Java threads allocated to thread pool for a single place";
 
 	/**
 	 * Perform additional instrumentation in the X10 runtime to dump out
