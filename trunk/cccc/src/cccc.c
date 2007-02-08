@@ -95,23 +95,6 @@ void check_local_consistency(void)
 /*
  * Take the program and explicit dependencies on standard input,
  * analyze, and output analysis on standard output.
- *
- * Input lines, statements:
- *	1.2 w a 1 # task 1 statement 2 write variable "a" value 1.
- *	1.3 r a 1 # task 1 statement 3 read variable "a" value 1.
- *	2.0 r a   # task 1 statement 0 read variable "a" value unspecified.
- * Input lines, explicit dependencies:
- *	1.2 -> 2.0 # task 2 statement 0 depends on task 1 statement 2.
- *
- * Fixed format.  Tasks range from 0-9.  Statements within tasks also
- * range from 0-9.  Variables range from a-z.  Values range from 0-9.
- * Operations are "r" (read), "w" (write), and "a" (atomic, e.g., CAS).
- * Memory barriers TBD. @@@
- * Trailing blanks and empty lines are ignored, as are any characters
- * following a pound sign ("#").
- *
- * Statements must be defined before a dependency may reference them.
- * Statements within a given task must appear in numerical order.
  */
 int main(int argc, char *argv[])
 {

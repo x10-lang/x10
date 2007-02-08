@@ -1,6 +1,8 @@
 /*
- * CCCC analysis toy.  This version uses the December 2006 attempt to
- * define CCCC.
+ * CCCC analysis toy.  This does MBPC, "Memory-Barrier-Pair consistency",
+ * which is looser than CCCC.  MBPC is too weak to support locking, but
+ * is the documented behavior of Linux-kernel memory barriers as of
+ * the 2.6.19 kernel.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,10 +47,8 @@ void build_local_consistency_dep(int taskid, dependency_map_t dep)
 	int ts;
 
 	for_each_dependency(dep, ft, fs, tt, ts) {
-		if ((statement_does_write(ft, fs) ||
-		     (ft == taskid)) &&
-		    (statement_does_write(tt, ts) ||
-		     (tt == taskid))) {
+		if ((ft == taskid) ||
+		    (tt == taskid)) {
 			hb[ft][fs][tt][ts] = 1;
 		}
 	}
@@ -65,8 +65,6 @@ void build_local_consistency(int taskid)
 	build_local_consistency_dep(taskid, dep_map);
 	build_local_consistency_dep(taskid, read_map);
 	merge_dependency(po_map, hb);
-	/* build_local_consistency_dep(taskid, po_map); */
-	build_local_consistency_dep(taskid, prop_map);  /* @@@ needed??? */
 }
 
 /*
@@ -87,9 +85,9 @@ void check_local_consistency(void)
 		}
 	}
 	if (foundcycle) {
-		printf("Cycle found: illegal CCCC execution\n");
+		printf("Cycle found: illegal MBPC execution\n");
 	} else {
-		printf("No cycles found: plausible CCCC execution\n");
+		printf("No cycles found: plausible MBPC execution\n");
 	}
 }
 
