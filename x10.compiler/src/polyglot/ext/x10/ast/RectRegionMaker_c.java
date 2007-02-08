@@ -70,7 +70,7 @@ public class RectRegionMaker_c extends X10Call_c implements RectRegionMaker {
 			}
 			X10ParsedClassType tp = (X10ParsedClassType) t;
 			C_Term rank = tp.rank();
-			if (! C_Lit_c.ONE.equals(rank)) {
+			if (! xts.ONE().equals(rank)) {
 				throw new SemanticException("The argument, " + e + ", should be of type region(:rank==1) instead of " + t
 						+".", position());
 			}

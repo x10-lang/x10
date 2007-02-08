@@ -67,15 +67,19 @@ public class Constraint_c implements Constraint, Cloneable {
 	
 	boolean consistent = true;
 	boolean valid = true;
-	public Constraint_c() {
+
+	protected final X10TypeSystem typeSystem;
+
+	public Constraint_c(X10TypeSystem xts) {
 		super();
+		typeSystem= xts;
 	}
 	/** Copy this constraint logically -- that is create a new constraint which contains
 	 * the same equalities (as any) as the current one.
 	 * */
 	
 	public Constraint copy() {
-		return copyInto(new Constraint_c());
+		return copyInto(new Constraint_c(typeSystem));
 	}
 	/** 
 	 * Clone this constraint, physically. Note that this is the usual default shallow copy.
@@ -125,7 +129,7 @@ public class Constraint_c implements Constraint, Cloneable {
 				if (selfVar == null) {
 				selfVar = v;
 				} else {
-					addSelfBinding(v, this);
+					addSelfBinding(v, this, typeSystem);
 				}
 			}
 		}
@@ -142,8 +146,8 @@ public class Constraint_c implements Constraint, Cloneable {
 		}
 		return this;
 	}
-	public static Constraint makeBinding(C_Var var, C_Var val)  {
-		Constraint c = new Constraint_c();
+	public static Constraint makeBinding(C_Var var, C_Var val, X10TypeSystem xts)  {
+		Constraint c = new Constraint_c(xts);
 		return c.addBinding(var,val);
 	}
 	public C_Var selfVar() {
@@ -155,8 +159,8 @@ public class Constraint_c implements Constraint, Cloneable {
 	 * @param c
 	 * @return
 	 */
-	public static Constraint addSelfBinding(C_Var val, Constraint c)  {
-		c = (c==null) ? new Constraint_c() : c;
+	public static Constraint addSelfBinding(C_Var val, Constraint c, X10TypeSystem xts)  {
+		c = (c==null) ? new Constraint_c(xts) : c;
 		if (val instanceof C_Var && ! (val instanceof C_Lit)) {
 			c.setSelfVar((C_Var) val);
 			return c;
@@ -171,7 +175,8 @@ public class Constraint_c implements Constraint, Cloneable {
 	}
 	
 
-	public static final transient X10TypeSystem typeSystem = X10TypeSystem_c.getTypeSystem();
+//	public static final transient X10TypeSystem typeSystem = X10TypeSystem_c.getTypeSystem();
+
 	/**
 	 * Is the constraint consistent? i.e. X=s and X=t have not been added to it,
 	 * where s and t are not equal.
@@ -278,15 +283,15 @@ public class Constraint_c implements Constraint, Cloneable {
 	 */
 	public Constraint addBinding(C_Var t1, C_Var t2)  {
 		Constraint result = null;
-	String oldString = this.toString();
+		String oldString = this.toString();
 		try { 
 			
 			if (!consistent ) return result=this; 
 			if (roots == null) roots = new HashMap<C_Var, Promise>();
 			if (t1==null) 
-				t1 = C_Lit.NULL;
+				t1 = this.typeSystem.NULL();
 			if (t2==null) 
-				t2 = C_Lit.NULL;
+				t2 = this.typeSystem.NULL();
 			if (selfVar !=null) {
 				t1 = t1.substitute(C_Special_c.Self, selfVar);
 				t2 = t2.substitute(C_Special_c.Self, selfVar);
@@ -316,7 +321,7 @@ public class Constraint_c implements Constraint, Cloneable {
 			
 			if (!consistent ) return this; 
 			if (roots == null) roots = new HashMap<C_Var, Promise>();
-			if (t1==null) t1 = C_Lit.NULL;
+			if (t1==null) t1 = this.typeSystem.NULL();
 			if (selfVar !=null) {
 				t1 = t1.substitute(C_Special_c.Self, selfVar);
 			}
@@ -442,7 +447,7 @@ public class Constraint_c implements Constraint, Cloneable {
 	 * @param term
 	 */
 	public Constraint addTerm(C_Var term) throws Failure {
-		C_Lit val = C_Lit.TRUE;
+		C_Lit val = this.typeSystem.TRUE();
 		if (term instanceof C_UnaryTerm) {
 			C_UnaryTerm t = (C_UnaryTerm) term;
 			String op = t.op();
@@ -896,7 +901,7 @@ public class Constraint_c implements Constraint, Cloneable {
 	    	C_Var result = null;
 	    	if (rigid(arg)) {
 	    		try {
-	    		result = (C_Var) new TypeTranslator().trans(arg);
+	    		result = (C_Var) new TypeTranslator(typeSystem).trans(arg);
 	    		} catch (SemanticException z) {
 	    			throw new InternalCompilerError("Unexpected error " + z 
 	    					+ " while trying to convert the rigid term " + arg 

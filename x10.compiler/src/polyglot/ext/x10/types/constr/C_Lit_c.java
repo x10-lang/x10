@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import polyglot.ext.x10.ast.X10Special;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -20,14 +21,13 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 	
 	
 	Object val;
-	public C_Lit_c(boolean b) {
-		super(Constraint_c.typeSystem.Boolean());
+	public C_Lit_c(boolean b, TypeSystem ts) {
+		super(ts.Boolean());
 		val = new Boolean(b);
 		
 	}
 	public C_Lit_c(Object l, Type t) {
 		super(t);
-	
 		val = l;
 	}
 	private C_Lit type(X10Type t) {
@@ -47,9 +47,9 @@ public class C_Lit_c extends C_Term_c implements C_Lit {
 		return ((val == null) ? 0 : val.hashCode());
 	}
 	public C_Lit not() {
-		TypeSystem ts = type().typeSystem();
-		assert (type().equals(ts.Boolean()));
-		return equals(C_Lit.TRUE) ? C_Lit.FALSE : C_Lit.TRUE;
+		X10TypeSystem xts = (X10TypeSystem) type().typeSystem();
+		assert (type().equals(xts.Boolean()));
+		return equals(xts.TRUE()) ? xts.FALSE() : xts.TRUE();
 	}
 	public C_Lit neg() {
 		TypeSystem ts = type().typeSystem();

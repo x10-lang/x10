@@ -55,7 +55,7 @@ public class ConstantDistMaker_c extends X10Call_c implements ConstantDistMaker 
 		.makeVariant();
 		C_Var rank = ((X10ParsedClassType) lType).rank();
 		if (rank != null) type.setRank(rank);
-		type.setOnePlace(C_Here_c.here);
+		type.setOnePlace(xts.here());
 		boolean zeroB = lType.isZeroBased();
 		if (zeroB) type.setZeroBased();
 		

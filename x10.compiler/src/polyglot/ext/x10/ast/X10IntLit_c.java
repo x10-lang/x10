@@ -14,6 +14,7 @@ import polyglot.ast.Node;
 import polyglot.ast.IntLit.Kind;
 import polyglot.ast.IntLit_c;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -49,11 +50,11 @@ public class X10IntLit_c extends IntLit_c {
 				  value = - (int) value;
 			  }
 		  }
-		  TypeSystem ts = tc.typeSystem();
-		  X10Type Type = (X10Type) (kind==INT ? ts.Int() : ts.Long());
+		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		  X10Type Type = (X10Type) (kind==INT ? xts.Int() : xts.Long());
 		 
 			C_Lit_c literal = new C_Lit_c(constantValue(), Type);
-			Constraint c = Constraint_c.addSelfBinding(literal,null);
+			Constraint c = Constraint_c.addSelfBinding(literal,null,xts);
 		  X10Type newType  = Type.makeVariant(c, null);
 	    return type(newType);
 	  }

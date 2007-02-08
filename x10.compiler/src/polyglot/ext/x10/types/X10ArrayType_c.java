@@ -47,7 +47,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	}
 	public void addBinding(C_Var t1, C_Var t2) {
 		if (depClause == null)
-			depClause = new Constraint_c();
+			depClause = new Constraint_c((X10TypeSystem) ts);
 		depClause = depClause.addBinding(t1, t2);
 	}
 	public boolean consistent() {
@@ -58,7 +58,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	public void setSelfVar(C_Var v) {
 		Constraint c = depClause();
 		if (c==null) {
-			depClause=new Constraint_c();
+			depClause=new Constraint_c((X10TypeSystem) ts);
 		}
 		depClause.setSelfVar(v);
 	}
@@ -76,7 +76,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	    }
 	public X10Type makeNoClauseVariant() {
   		X10ArrayType_c n = (X10ArrayType_c) copy();
-  		n.depClause = new Constraint_c();
+  		n.depClause = new Constraint_c((X10TypeSystem) ts);
   		n.typeParameters = typeParameters;
   		return n;
   	}

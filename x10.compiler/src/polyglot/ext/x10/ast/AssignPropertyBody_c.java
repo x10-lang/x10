@@ -53,13 +53,13 @@ public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBod
 		Position pos = position();
 		Job job = tc.job();
 		AssignPropertyBody_c n = (AssignPropertyBody_c) super.typeCheck(tc);
-		n.checkReturnType();
+		n.checkReturnType(ts);
 		return n;
 	}
-	protected void checkReturnType() throws SemanticException {
+	protected void checkReturnType(X10TypeSystem ts) throws SemanticException {
 		Constraint result = ci.constraint();
 		Constraint known = ci.supClause();
-		known = (known==null ? new Constraint_c() : known.copy());
+		known = (known==null ? new Constraint_c(ts) : known.copy());
 		List<Stmt> s = statements();
 		int len = s.size();
 		for (int i=0; i < len; i++) {

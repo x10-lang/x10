@@ -13,10 +13,12 @@ package polyglot.ext.x10.ast;
 import polyglot.ast.Node;
 import polyglot.ast.StringLit_c;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 
@@ -34,10 +36,11 @@ public class X10StringLit_c extends StringLit_c {
 		super(pos, value);
 	}
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
-		  X10Type Type = (X10Type) tc.typeSystem().String();
+		X10TypeSystem xts= (X10TypeSystem) tc.typeSystem();
+		X10Type Type = (X10Type) xts.String();
 		 
 			C_Lit_c literal = new C_Lit_c(value, Type);
-			Constraint c = Constraint_c.addSelfBinding(literal,null);
+			Constraint c = Constraint_c.addSelfBinding(literal,null,xts);
 		  X10Type newType  = Type.makeVariant(c, null);
 	    return type(newType);
 	  }

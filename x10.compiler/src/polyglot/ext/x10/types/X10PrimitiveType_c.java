@@ -73,13 +73,13 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	public void setSelfVar(C_Var v) {
 		Constraint c = depClause();
 		if (c==null) {
-			depClause=new Constraint_c();
+			depClause=new Constraint_c((X10TypeSystem) ts);
 		}
 		depClause.setSelfVar(v);
 	}
 	public void addBinding(C_Var t1, C_Var t2) {
 		if (depClause == null)
-			depClause = new Constraint_c();
+			depClause = new Constraint_c((X10TypeSystem) ts);
 		depClause = depClause.addBinding(t1, t2);
 	}
 	public boolean consistent() {
@@ -100,7 +100,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	
 	public X10Type makeNoClauseVariant() {
 		X10PrimitiveType_c n = (X10PrimitiveType_c) copy();
-		n.depClause = new Constraint_c();
+		n.depClause = new Constraint_c((X10TypeSystem) ts);
 		n.typeParameters = typeParameters;
 		return n;
 	}
@@ -184,7 +184,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			toType = nullType.base();
 		boolean result = ts.equals(toType, xts.Object()) 
 		|| ts.equals(toType, xts.X10Object())
-		|| ts.equals(toType, xts.boxedType((X10PrimitiveType) this.makeVariant(new Constraint_c(), null)));
+		|| ts.equals(toType, xts.boxedType((X10PrimitiveType) this.makeVariant(new Constraint_c((X10TypeSystem) ts), null)));
 		if (result) return result;
 		if (isVoid() || toType.isVoid())
 			return result = false;
@@ -279,7 +279,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 			if (result==false) return result;
 			C_Special self = new C_Special_c(X10Special.SELF, tb);
 			C_Lit val = new C_Lit_c(value, tb);
-			Constraint c = Constraint_c.makeBinding(self,val);
+			Constraint c = Constraint_c.makeBinding(self, val, ts);
 			result = ts.entailsClause(xme.realClause(), c);
 			return result;
 		} finally {

@@ -18,31 +18,16 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Expr;
+import polyglot.ext.x10.types.constr.C_Here_c;
+import polyglot.ext.x10.types.constr.C_Lit;
+import polyglot.ext.x10.types.constr.C_Lit_c;
 import polyglot.ext.x10.types.constr.Constraint;
+import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.TypeTranslator;
+import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
-import polyglot.types.ArrayType;
-import polyglot.types.ClassType;
-import polyglot.types.CodeInstance;
-import polyglot.types.ConstructorInstance;
-import polyglot.types.Context;
-import polyglot.types.FieldInstance;
-import polyglot.types.Flags;
-import polyglot.types.LazyClassInitializer;
-import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
-import polyglot.types.MethodInstance_c;
-import polyglot.types.NoMemberException;
-import polyglot.types.NullType;
-import polyglot.types.ParsedClassType;
-import polyglot.types.PrimitiveType;
-import polyglot.types.ReferenceType;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem_c;
-import polyglot.types.UnknownType;
-import polyglot.types.VarInstance;
+import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
@@ -55,13 +40,9 @@ import polyglot.util.Position;
  */
 public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Serializable {
 	
-	private static X10TypeSystem x10TypeSystem = null;
-	public static X10TypeSystem getTypeSystem() { return x10TypeSystem;}
-	
 	public X10TypeSystem_c() {
 		super();
 		unknownType = new X10UnknownType_c(this);
-		x10TypeSystem = this;
 	}
 	
 	private final static Set<String> primitiveTypeNames= new HashSet<String>();
@@ -76,7 +57,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		primitiveTypeNames.add("float");
 		primitiveTypeNames.add("double");
 	}
-	
+
 	public boolean isPrimitiveTypeName(String name) {
 		return primitiveTypeNames.contains(name);
 	}
@@ -230,7 +211,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 			placeType_ = load("x10.lang.place"); // java file
 		return placeType_;
 	}
-	
+
 	protected ClassType regionType_;
 	public ClassType region() {
 		if (regionType_ == null)
@@ -1162,7 +1143,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		VarInstance v = new X10LocalInstance_c(this,Position.COMPILER_GENERATED, Flags.PUBLIC, t, "self");
 		return v;
 	}
-	protected TypeTranslator eval = new TypeTranslator();
+	protected TypeTranslator eval = new TypeTranslator(this);
 	public TypeTranslator typeTranslator() {
 		return eval;
 	}
@@ -1218,6 +1199,63 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		return entailsClause(c1,c2);
 		
 	}
+
+	protected C_Here_c hereConstraintLit; // Maybe this should be declared as C_Lit instead of a concrete impl class?
+	public C_Here_c here() {
+	    if (hereConstraintLit == null)
+		hereConstraintLit= new C_Here_c(this);
+	    return hereConstraintLit;
+	}
+
+	protected C_Lit FALSE;
+	public C_Lit FALSE() {
+	    if (FALSE == null)
+		FALSE= new C_Lit_c(false, this);
+	    return FALSE;
+	}
+	protected C_Lit TRUE;
+	public C_Lit TRUE() {
+	    if (TRUE == null)
+		TRUE= new C_Lit_c(true, this);
+	    return TRUE;
+	}
+	protected C_Lit NEG_ONE;
+	public C_Lit NEG_ONE() {
+	    if (NEG_ONE == null)
+		NEG_ONE= new C_Lit_c(new Integer(-1), this.Int());
+	    return NEG_ONE;
+	}
+	protected C_Lit ZERO;
+	public C_Lit ZERO() {
+	    if (ZERO == null)
+		ZERO= new C_Lit_c(new Integer(0), this.Int());
+	    return ZERO;
+	}
+	protected C_Lit ONE;
+	public C_Lit ONE() {
+	    if (ONE == null)
+		ONE= new C_Lit_c(new Integer(1), this.Int());
+	    return ONE;
+	}
+	protected C_Lit TWO;
+	public C_Lit TWO() {
+	    if (TWO == null)
+		TWO= new C_Lit_c(new Integer(2), this.Int());
+	    return TWO;
+	}
+	protected C_Lit THREE;
+	public C_Lit THREE() {
+	    if (THREE == null)
+		THREE= new C_Lit_c(new Integer(3), this.Int());
+	    return THREE;
+	}
+	protected C_Lit NULL;
+	public C_Lit NULL() {
+	    if (NULL == null)
+		NULL= new C_Lit_c(null, this.Null());
+	    return NULL;
+	}
+
 	public Flags createNewFlag(String name, Flags after) {
 		Flags f = X10Flags.createFlag(name, after);
 		flagsForName.put(name, f);

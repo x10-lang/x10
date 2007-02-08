@@ -58,7 +58,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
 		boolean changed = false;
 		if ( flags().isFinal()) {
 			X10Type t = (X10Type) type();
-			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(this),t.depClause());
+			Constraint c = Constraint_c.addSelfBinding(C_Local_c.makeSelfVar(this), t.depClause(), (X10TypeSystem) ts);
 			X10Type newType = t.makeVariant(c,t.typeParameters());
 			setType(newType);
 			changed = true;
