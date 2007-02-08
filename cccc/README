@@ -49,11 +49,11 @@ meaningful line is "0 0 w x 1", which indicates that task 0's 0-th
 statement is an ordered write to the value "1" to variable "x".  The second
 line indicates that task 0's first line is an ordered write to the value "1"
 to variable "l" (which represents the lock).  The statements for
-task 1 proceed similarly.  As you might guess, "R" stands for ordered read.
-And "A" stands for ordered atomic operations (e.g., CAS, atomic increment,
+task 1 proceed similarly.  As you might guess, "R" stands for ordered read,
+and "A" stands for ordered atomic operations (e.g., CAS, atomic increment,
 or whatever).  The lower-case counterparts are not ordered, in which
 case explicit memory barriers must be used, as will be demonstrated
-in a later example.
+in a later example.  Statements must appear in numerical order.
 
 The last two lines specify dependencies.  The "0.1 -> 1.0" indicates
 that task 1's 0-th statement depends on task 0's first statement.
@@ -102,12 +102,29 @@ instead must be attached to a pre-existing instruction as follows:
 	2.6 -> 1.1
 
 Note that the iacq instructions have the same statement number as
-the preceding stores, which creates the attachment.
+the preceding stores, which creates the attachment.  Attaching more
+than one memory barrier to a given statement is an error.  Attaching
+even one explicit memory barrier to an ordered statement ("A", "R",
+or "W") is an error.
 
 
-This tool supports other consistency models as well.  mlsc is a toy
-"minimal lock-supporting consistency" tool for expository purposes.
-cccc2006-12 implements the December 2006 formulation of CCCC.
+This tool supports other consistency models as well:
+
+o	cccc2006-12 implements the December 2006 formulation of CCCC.
+o	mlsc is a toy "minimal lock-supporting consistency" tool for
+	expository purposes.  This respects chains of writes only
+	through a single variable, as opposed to the more general
+	chaining permitted by CCCC.
+o	mbpc is "memory-barrier pairing consistency", which is similar
+	to mlsc, but does not respect chains of writes, with the effect
+	being to restrict cycle-checking to the accesses of pairs
+	of tasks.  This is the documented semantics of Linux-kernel
+	memory barriers as of the 2.6.19 kernel.
+o	mesi is "modified-exclusive-shared-invalid", which is like mbpc,
+	but does not respect dependencies on read statements, even if they
+	were specified by hand (warnings are issued when such dependencies
+	are specified).  The purpose of this model is to ensure that
+	people working with other models understand how lucky they are.
 
 
 =======  Legal Stuff ======

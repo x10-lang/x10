@@ -1,6 +1,10 @@
 /*
- * CCCC analysis toy.  This version uses the December 2006 attempt to
- * define CCCC.
+ * CCCC analysis toy.  This does naive MESI (modified, exclusive, shared,
+ * invalid), where the hardware does no ordering other than that
+ * specified.  This model is like MBPC, but does not respect any sort
+ * of load-to-store ordering.  Note however, that atomic operations
+ * are an exception, since the load and store are combined into a
+ * single operation.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +20,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- * Copyright (c) 2007 Paul E. McKenney and Vijay Saraswat, IBM Corporation.
+ * Copyright (c) 2007 Paul E. McKenney, IBM Corporation.
  */
 
 #include <stdio.h>
@@ -31,7 +35,7 @@
 #include "cccc-dependencies.h"
 
 /*
- * Build the CCCC local-consistency dependencies in array hb, based on the
+ * Build the MESI local-consistency dependencies in array hb, based on the
  * specified taskid and dependency map.  To combine the effects of multiple
  * dependency maps, invoke this function on each in sequence.  This function
  * currently assumes tasks are program-ordered, which will need to change
@@ -45,9 +49,8 @@ void build_local_consistency_dep(int taskid, dependency_map_t dep)
 	int ts;
 
 	for_each_dependency(dep, ft, fs, tt, ts) {
-		if ((statement_does_write(ft, fs) ||
-		     (ft == taskid)) &&
-		    (statement_does_write(tt, ts) ||
+		if (statement_does_write(ft, fs) &&
+		    ((ft == taskid) ||
 		     (tt == taskid))) {
 			hb[ft][fs][tt][ts] = 1;
 		}
@@ -60,13 +63,10 @@ void build_local_consistency_dep(int taskid, dependency_map_t dep)
  */
 void build_local_consistency(int taskid)
 {
-
 	clear_dependency_map(hb);
 	build_local_consistency_dep(taskid, dep_map);
 	build_local_consistency_dep(taskid, read_map);
 	merge_dependency(po_map, hb);
-	/* build_local_consistency_dep(taskid, po_map); */
-	build_local_consistency_dep(taskid, prop_map);  /* @@@ needed??? */
 }
 
 /*
@@ -74,9 +74,19 @@ void build_local_consistency(int taskid)
  */
 void check_local_consistency(void)
 {
+	int ft;
+	int fs;
+	int tt;
+	int ts;
 	int foundcycle = 0;
 	int taskid;
 
+	for_each_dependency(dep_map, ft, fs, tt, ts) {
+		if (!statement_does_write(ft, fs)) {
+			warn(dep_map_lineno[ft][fs][tt][ts],
+			     "Dependency on read ignored.");
+		}
+	}
 	for_each_task(taskid) {
 		build_local_consistency(taskid);
 		printf("Happens-before dependencies for task %d\n", taskid);
@@ -87,9 +97,9 @@ void check_local_consistency(void)
 		}
 	}
 	if (foundcycle) {
-		printf("Cycle found: illegal CCCC execution\n");
+		printf("Cycle found: illegal MESI execution\n");
 	} else {
-		printf("No cycles found: plausible CCCC execution\n");
+		printf("No cycles found: plausible MESI execution\n");
 	}
 }
 
