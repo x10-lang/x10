@@ -20,8 +20,8 @@ import x10.runtime.abstractmetrics.AbstractMetricsFactory;
  * @author Christian Grothoff
  * @author vj
  * 
+ * Extensions for JUC implementation
  * @author Raj Barik, Vivek Sarkar
- * 3/6/2006: add runBootAsync() method, which is like runAsync() except that it is only used for the boot activity
  */
 public class LocalPlace_c extends Place {
 
