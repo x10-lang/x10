@@ -49,6 +49,8 @@ import polyglot.ast.Field_c;
 import polyglot.ast.FloatLit_c;
 import polyglot.ast.For_c;
 import polyglot.ast.Formal_c;
+import polyglot.ast.Id;
+import polyglot.ast.Id_c;
 import polyglot.ast.If_c;
 import polyglot.ast.Import_c;
 import polyglot.ast.Initializer_c;
@@ -168,6 +170,7 @@ public class X10DelegatingVisitor {
 	 * Note that the order of invocation of the various visit() methods is significant!
 	 */
 	public void visitAppropriate(JL n) {
+		if (n instanceof Id) { visit((Id)n); return; }
 		if (n instanceof X10ArrayTypeNode_c) { visit((X10ArrayTypeNode_c)n); return; }
 		if (n instanceof NullableNode_c) { visit((NullableNode_c)n); return; }
 		if (n instanceof FutureNode_c) { visit((FutureNode_c)n); return; }
@@ -463,4 +466,5 @@ public class X10DelegatingVisitor {
 					public void visit(FutureNode_c n) { visit((X10TypeNode_c)n); }
 					public void visit(NullableNode_c n) { visit((X10TypeNode_c)n); }
 					public void visit(X10ArrayTypeNode_c n) { visit((X10TypeNode_c)n); }
+			public void visit(Id_c n) { visit((Node_c) n); }
 }
