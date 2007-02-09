@@ -17,28 +17,24 @@ import java.util.concurrent.atomic.*;
  * @author Raj Barik, Vivek Sarkar -- 3/6/2006
  */
 public class X10ThreadFactory implements ThreadFactory {
-	static final AtomicInteger poolNumber = new AtomicInteger(0);
-	final ThreadGroup group;
-	final AtomicInteger threadNumber = new AtomicInteger(0);
-	final String namePrefix;
+	static private final AtomicInteger poolNumber = new AtomicInteger(0);
+	private final ThreadGroup group;
+	private final AtomicInteger threadNumber = new AtomicInteger(0);
+	private final String namePrefix;
 
 	public X10ThreadFactory() {
 		SecurityManager s = System.getSecurityManager();
-		group = (s != null)? s.getThreadGroup() :
-							 Thread.currentThread().getThreadGroup();
-		namePrefix = "pool-" +
-					 poolNumber.getAndIncrement() +
-					 "-thread-";
+		group = (s != null)? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+		namePrefix = "pool-" + poolNumber.getAndIncrement() + "-thread-";
 	}
 
 	public Thread newThread(final Runnable workerRunnable) {
-                final int x = threadNumber.getAndIncrement();
-                Runnable r = VMInterface.mapPoolThreadToCPU(workerRunnable, this.poolNumber.get(), x);
-		Thread t = new PoolRunner(group, r, namePrefix + x);
-		if (t.isDaemon())
-			t.setDaemon(false);
-		if (t.getPriority() != Thread.NORM_PRIORITY)
-			t.setPriority(Thread.NORM_PRIORITY);
+		final int x = threadNumber.getAndIncrement();
+		String threadName = namePrefix + x;
+		Runnable r = VMInterface.mapPoolThreadToCPU(workerRunnable, this.poolNumber.get(), x, threadName);
+		Thread t = new PoolRunner(group, r, threadName);
+		if (t.isDaemon()) t.setDaemon(false);
+		if (t.getPriority() != Thread.NORM_PRIORITY) t.setPriority(Thread.NORM_PRIORITY);
 		return t;
 	}
 }
