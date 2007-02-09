@@ -128,13 +128,13 @@ public class X10Field_c extends Field_c {
                 throw e;
             if (xts.isX10Array(tType)) {
             	// Special fields on arrays
-            	if (name.equals("distribution") || name.equals("region")) {
+            	if (name().equals("distribution") || name().equals("region")) {
             		Type array = xts.array();
             		TypeNode typenode = xnf.CanonicalTypeNode(position(), array);
             		return this.target(xnf.Cast(position(), typenode, (Expr) target).type(array)).typeCheck(tc);
             	}
             } else if (xts.isValueType(tType)) {
-            	 if (name.equals("location")) {
+            	 if (name().equals("location")) {
             		 // TODO
 //            		 return xnf.Here(position()).typeCheck(tc);
             		 return xnf.Cast(position, xnf.CanonicalTypeNode(position(),
@@ -174,7 +174,7 @@ public class X10Field_c extends Field_c {
 	protected X10Field_c checkArrayFields(X10Field_c result) {
 		X10Type aType = (X10Type) result.target.type();
 		X10TypeSystem xts = (X10TypeSystem) aType.typeSystem();
-		if (result.name.equals("distribution") && xts.isX10Array(aType)) {
+		if (result.name().equals("distribution") && xts.isX10Array(aType)) {
 			X10ParsedClassType aType1 = (X10ParsedClassType) aType;
 			X10ParsedClassType type = ((X10ParsedClassType) result.type()).makeVariant();
 			//Report.report(1, "X10Field_c aType1=" + aType1 + " " + aType1.getClass());
@@ -200,7 +200,7 @@ public class X10Field_c extends Field_c {
 			result = (X10Field_c) result.fieldInstance(result.fieldInstance().type(type)).type(type);
 			return result;
 		}
-		if (name.equals("region") && (xts.isX10Array(aType) || xts.isDistribution(aType)) ) {
+		if (name().equals("region") && (xts.isX10Array(aType) || xts.isDistribution(aType)) ) {
 			X10ParsedClassType aType1 = (X10ParsedClassType) (aType instanceof NullableType ? 
 					((NullableType) aType).base() : aType);
 			X10ParsedClassType type = ((X10ParsedClassType) result.type()).makeVariant();
