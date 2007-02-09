@@ -170,7 +170,7 @@ public class X10DelegatingVisitor {
 	 * Note that the order of invocation of the various visit() methods is significant!
 	 */
 	public void visitAppropriate(JL n) {
-		if (n instanceof Id) { visit((Id)n); return; }
+		if (n instanceof Id_c) { visit((Id_c)n); return; }
 		if (n instanceof X10ArrayTypeNode_c) { visit((X10ArrayTypeNode_c)n); return; }
 		if (n instanceof NullableNode_c) { visit((NullableNode_c)n); return; }
 		if (n instanceof FutureNode_c) { visit((FutureNode_c)n); return; }
