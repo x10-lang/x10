@@ -9,6 +9,7 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
@@ -34,13 +35,13 @@ public class X10FieldDecl_c extends FieldDecl_c {
 	// TODO: Use this during type-checking.
 	DepParameterExpr thisClause;
 	public X10FieldDecl_c(Position pos, DepParameterExpr thisClause, Flags flags, TypeNode type,
-			String name, Expr init)
+			Id name, Expr init)
 	{
 		super(pos, flags, type, name, init);
 		this.thisClause = thisClause;
 	}
 	protected X10FieldDecl_c(Position pos,  Flags flags, TypeNode type,
-			String name, Expr init) {
+			Id name, Expr init) {
 		this(pos, null, flags, type, name, init);
 	}
 	public boolean isDisambiguated() {
@@ -95,7 +96,7 @@ public class X10FieldDecl_c extends FieldDecl_c {
 		
 		// XXX: MutableFieldInstance
 		FieldInstance fi = ts.fieldInstance(position(), ct, f,
-				ts.unknownType(position()), name);
+				ts.unknownType(position()), name.id());
 		
 		// vj - shortcut and initialize the field instance if the decl has an initializer
 		// This is the hack to permit reading the list of properties from the StringLit initializer
@@ -103,7 +104,7 @@ public class X10FieldDecl_c extends FieldDecl_c {
 		boolean isString =false;
 		if (type != null && type.type() != null && init instanceof StringLit) {
 			String val = ((StringLit) init).value();
-			fi = ts.fieldInstance(position(), ct, f, name, val);
+			fi = ts.fieldInstance(position(), ct, f, name.id(), val);
 			fi.constantValue(val);
 			fi = fi.type(ts.String());
 			//Report.report(1, "X10FieldDecl_c: ****GOLDEN initialized field instance |" + fi + "|");

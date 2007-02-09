@@ -174,7 +174,7 @@ $Rules
 
     TypeName ::= identifier
         /.$BeginJava
-                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
                | TypeName . identifier
@@ -183,7 +183,7 @@ $Rules
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       TypeName,
-                                      identifier.getIdentifier()));
+                                      nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
           $EndJava
         ./
 
@@ -240,7 +240,7 @@ $Rules
 
     PackageName ::= identifier
         /.$BeginJava
-                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
                   | PackageName . identifier
@@ -249,7 +249,7 @@ $Rules
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       PackageName,
-                                      identifier.getIdentifier()));
+                                      nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
           $EndJava
         ./
 
@@ -261,7 +261,7 @@ $Rules
     --
     ExpressionName ::=? identifier
         /.$BeginJava
-                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
                      | AmbiguousName . identifier
@@ -270,13 +270,13 @@ $Rules
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       AmbiguousName,
-                                      identifier.getIdentifier()));
+                                      nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
           $EndJava
         ./
 
     MethodName ::=? identifier
         /.$BeginJava
-                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
                  | AmbiguousName . identifier
@@ -285,13 +285,13 @@ $Rules
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       AmbiguousName,
-                                      identifier.getIdentifier()));
+                                      nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
           $EndJava
         ./
 
     PackageOrTypeName ::= identifier
         /.$BeginJava
-                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
                         | PackageOrTypeName . identifier
@@ -300,13 +300,13 @@ $Rules
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       PackageOrTypeName,
-                                      identifier.getIdentifier()));
+                                      nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
           $EndJava
         ./
 
     AmbiguousName ::=? identifier
         /.$BeginJava
-                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
                     | AmbiguousName . identifier
@@ -315,7 +315,7 @@ $Rules
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
                                       AmbiguousName,
-                                      identifier.getIdentifier()));
+                                      nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
          $EndJava
         ./
 
@@ -324,8 +324,6 @@ $Rules
     CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
         /.$BeginJava
                     // Add import x10.lang.* by default.
-                    Name x10 = new Name(nf, ts, pos(), "x10");
-                    Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
                     int token_pos = (ImportDeclarationsopt.size() == 0
                                          ? TypeDeclarationsopt.size() == 0
                                                ? super.getSize() - 1
@@ -333,7 +331,7 @@ $Rules
                                      : getRhsLastTokenIndex($ImportDeclarationsopt)
                                 );
                     Import x10LangImport = 
-                    nf.Import(pos(token_pos), Import.PACKAGE, x10Lang.toString());
+                    nf.Import(pos(token_pos), Import.PACKAGE, "x10.lang");
                     ImportDeclarationsopt.add(x10LangImport);
                     setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()), PackageDeclarationopt, ImportDeclarationsopt, TypeDeclarationsopt));
           $EndJava
@@ -593,7 +591,7 @@ $Rules
     
     TraditionalVariableDeclaratorId ::= identifier
         /.$BeginJava
-                    setResult(new X10VarDeclarator(pos(), identifier.getIdentifier()));
+                    setResult(new X10VarDeclarator(pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
                            | TraditionalVariableDeclaratorId [ ]
@@ -607,7 +605,7 @@ $Rules
     VariableDeclaratorId ::= TraditionalVariableDeclaratorId
                            | identifier [ IdentifierList ] 
         /.$BeginJava
-                    setResult(new X10VarDeclarator(pos(), identifier.getIdentifier(), IdentifierList));
+                    setResult(new X10VarDeclarator(pos(), nf.Id(pos(), identifier.getIdentifier()), IdentifierList));
           $EndJava
         ./
                            | [ IdentifierList ] 
@@ -679,7 +677,7 @@ $Rules
     -- MethodDeclarator ::= identifier ( FormalParameterListopt )
     --    /.$BeginJava
     --                 Object[] a = new Object[3];
-    --               a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
+    --               a[0] = new Name(nf, ts, pos(), nf.Id(pos(getLeftSpan()), identifier.getIdentifier()));
     --                 a[1] = FormalParameterListopt;
     --                a[2] = new Integer(0);
     --                 setResult(a);
@@ -725,7 +723,7 @@ $Rules
 	        if (VariableDeclaratorId != null)
                     setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
                 else
-                    setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), 1), "", new AmbExpr[0]));
+                    setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), 1), nf.Id(pos(), ""), new AmbExpr[0]));
           $EndJava
         ./
     
@@ -866,7 +864,7 @@ $Rules
     
     SimpleTypeName ::= identifier
         /.$BeginJava
-                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
 
@@ -1168,7 +1166,7 @@ $Rules
     
     SimpleName ::= identifier
         /.$BeginJava
-                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
 
@@ -1358,13 +1356,13 @@ $Rules
     
     LabeledStatement ::= identifier : Statement
         /.$BeginJava
-                    setResult(nf.Labeled(pos(), identifier.getIdentifier(), Statement));
+                    setResult(nf.Labeled(pos(), nf.Id(pos(getLeftSpan()), identifier.getIdentifier()), Statement));
           $EndJava
         ./
     
     LabeledStatementNoShortIf ::= identifier : StatementNoShortIf
         /.$BeginJava
-                    setResult(nf.Labeled(pos(), identifier.getIdentifier(), StatementNoShortIf));
+                    setResult(nf.Labeled(pos(), nf.Id(pos(getLeftSpan()), identifier.getIdentifier()), StatementNoShortIf));
           $EndJava
         ./
     ExpressionStatement ::= StatementExpression ;
@@ -1795,17 +1793,17 @@ $Rules
     
     FieldAccess ::= Primary . identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(), Primary, identifier.getIdentifier()));
+                    setResult(nf.Field(pos(), Primary, nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
           $EndJava
         ./
                   | super . identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), identifier.getIdentifier()));
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
           $EndJava
         ./
                   | ClassName . super$sup . identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), identifier.getIdentifier()));
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(pos(getRightSpan()), identifier.getIdentifier())));
           $EndJava
         ./
     
@@ -2137,7 +2135,7 @@ $Rules
         /.$NullAction./
                     | identifier
         /.$BeginJava
-                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
 
@@ -2334,7 +2332,7 @@ $Rules
 
     Superopt ::= $Empty
         /.$BeginJava
-                   setResult(new Name(nf, ts, pos(), "x10.lang.Object").toType());
+                   setResult(nf.TypeNodeFromQualifiedName(pos(), "x10.lang.Object"));
           $EndJava
         ./
                | Super

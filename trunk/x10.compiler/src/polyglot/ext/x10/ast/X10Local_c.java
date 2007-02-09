@@ -15,6 +15,7 @@ package polyglot.ext.x10.ast;
  * @author vj
  */
 import polyglot.ast.Node;
+import polyglot.ast.Id;
 import polyglot.ast.Local_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.visit.TypeElaborator;
@@ -28,7 +29,7 @@ import polyglot.visit.TypeChecker;
 
 public class X10Local_c extends Local_c {
 
-	public X10Local_c(Position pos, String name) {
+	public X10Local_c(Position pos, Id name) {
 		super(pos, name);
 		
 	}

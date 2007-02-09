@@ -13,6 +13,7 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
@@ -61,7 +62,7 @@ public class X10Field_c extends Field_c {
 	 * @param target
 	 * @param name
 	 */
-	public X10Field_c(Position pos, Receiver target, String name) {
+	public X10Field_c(Position pos, Receiver target, Id name) {
 		super(pos, target, name);
 	}
 
@@ -89,7 +90,7 @@ public class X10Field_c extends Field_c {
 						"Field \"" + name + "\" not found in type \"" +
 						tType + "\".");
 
-			FieldInstance fi = ts.findField(tType.toReference(), name, c.currentClass());
+			FieldInstance fi = ts.findField(tType.toReference(), name.id(), c.currentClass());
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field " + name +
 						" on node of type " + target.getClass().getName() + ".",

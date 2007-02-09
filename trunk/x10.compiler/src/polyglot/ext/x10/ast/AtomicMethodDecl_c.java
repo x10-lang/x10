@@ -14,6 +14,7 @@ import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.types.Flags;
@@ -39,7 +40,7 @@ public class AtomicMethodDecl_c extends X10MethodDecl_c {
 	 * @param body
 	 */
 	public AtomicMethodDecl_c(Position pos, DepParameterExpr thisClause,
-			Flags flags, TypeNode returnType, String name, List formals,
+			Flags flags, TypeNode returnType, Id name, List formals,
 			Expr e, List throwTypes, Block body) {
 		super(pos, thisClause, flags, returnType, name, formals, e, throwTypes,
 				body);

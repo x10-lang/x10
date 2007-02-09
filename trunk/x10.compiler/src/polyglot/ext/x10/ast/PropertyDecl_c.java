@@ -16,6 +16,7 @@ import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
@@ -37,11 +38,11 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
 	protected X10NodeFactory nf;
    
     public PropertyDecl_c(Position pos, Flags flags, TypeNode type,
-            String name, X10NodeFactory nf) {
+            Id name, X10NodeFactory nf) {
         this(pos, flags, type, name, null, nf);
     }
     public PropertyDecl_c(Position pos, Flags flags, TypeNode type,
-            String name, Expr init, X10NodeFactory nf) {
+            Id name, Expr init, X10NodeFactory nf) {
         super(pos, flags, type, name, init);
         this.nf = nf;
     }
@@ -114,7 +115,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
        
        FieldDecl f = new PropertyDecl_c(pos, 
     		   Flags.PUBLIC.Static().Final(), tn, 
-    		   X10FieldInstance.MAGIC_PROPERTY_NAME,
+    		   nf.Id(pos, X10FieldInstance.MAGIC_PROPERTY_NAME),
                nf.StringLit(pos, s.toString()).type(ts.String()), nf)
                .type(nf.CanonicalTypeNode(pos, ts.String()));
       
@@ -127,7 +128,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         Flags flags = Flags.PUBLIC.Final();
         List formals = Collections.EMPTY_LIST;
         List throwTypes = Collections.EMPTY_LIST;
-        Expr e = nf.ExprFromQualifiedName(pos, name);
+        Expr e = nf.AmbExpr(pos, name);
         //Report.report(1, "PropertyDecl_c: GOLDEN e=|" + e + " " + e.getClass());
         
         Stmt s = nf.Return(pos, e);

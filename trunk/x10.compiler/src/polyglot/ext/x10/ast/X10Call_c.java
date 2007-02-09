@@ -16,6 +16,7 @@ import java.util.Set;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
@@ -56,7 +57,7 @@ import polyglot.visit.TypeChecker;
  * @author Igor
  */
 public class X10Call_c extends Call_c {
-    public X10Call_c(Position pos, Receiver target, String name,
+    public X10Call_c(Position pos, Receiver target, Id name,
                      List arguments) {
         super(pos, target, name, arguments);
     }

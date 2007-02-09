@@ -833,7 +833,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			try {
 				MethodInstance mi = xts.findMethod(lType, name,
 						Collections.singletonList(rType), xts.Object());
-				tr.print(null, nf.Call(pos, left, name, right).methodInstance(mi).type(mi.returnType()), w);
+				tr.print(null, nf.Call(pos, left, nf.Id(pos, name), right).methodInstance(mi).type(mi.returnType()), w);
 //				printSubExpr(left, true, w, tr);
 //				w.write(".");
 //				w.write(name);
@@ -844,7 +844,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				MethodInstance mi = xts.findMethod(xts.ArrayOperations(), name,
 						Arrays.asList(new Type[] {lType, rType}), xts.Object());
 				tr.print(null, nf.Call(pos, nf.CanonicalTypeNode(pos, xts.ArrayOperations()),
-						name, left, right).methodInstance(mi), w);
+						nf.Id(pos, name), left, right).methodInstance(mi), w);
 //				w.write("x10.lang.ArrayOperations.");
 //				w.write(name);
 //				w.write("(");

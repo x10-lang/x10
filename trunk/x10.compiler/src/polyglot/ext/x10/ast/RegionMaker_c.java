@@ -13,6 +13,7 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -41,7 +42,7 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 	 * @param name
 	 * @param arguments
 	 */
-	public RegionMaker_c(Position pos, Receiver target, String name,
+	public RegionMaker_c(Position pos, Receiver target, Id name,
 			List arguments) {
 		super(pos, target, name, arguments);
 	

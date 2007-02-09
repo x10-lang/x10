@@ -87,11 +87,12 @@ public abstract class X10Loop_c extends Stmt_c implements X10Loop {
 
 	/** Type check the statement. */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
+                NodeFactory nf = tc.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Expr newDomain = domain;
 		X10Type domainType = (X10Type) domain.type();
 		if (ts.isX10Array(domainType))
-			newDomain = (Expr) tc.nodeFactory().Field(position(), domain, "distribution").typeCheck(tc);
+			newDomain = (Expr) nf.Field(position(), domain, nf.Id(position(), "distribution")).typeCheck(tc);
 		return domain(newDomain);
 	}
 

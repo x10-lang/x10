@@ -36,7 +36,7 @@ public class X10Disamb_c extends Disamb_c implements X10Disamb {
             // brought the field into scope.  This is different
             // from fi.container().  fi.container() returns a super
             // type of the class we want.
-            ClassType scope = c.findFieldScope(name);
+            ClassType scope = c.findFieldScope(name.id());
             X10Context xc = (X10Context) c;
            
             if (xc.isDepType()) {

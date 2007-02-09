@@ -9,7 +9,7 @@ $Rules
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           TypeName,
-                                          "*"));
+                                          nf.Id(pos(getRightSpan()), "*")));
               $EndJava
             ./
 
@@ -19,7 +19,7 @@ $Rules
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           PackageName,
-                                          "*"));
+                                          nf.Id(pos(getRightSpan()), "*")));
               $EndJava
             ./
     
@@ -29,7 +29,7 @@ $Rules
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           AmbiguousName,
-                                          "*"));
+                                          nf.Id(pos(getRightSpan()), "*")));
               $EndJava
             ./
 
@@ -39,7 +39,7 @@ $Rules
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           AmbiguousName,
-                                          "*"));
+                                          nf.Id(pos(getRightSpan()), "*")));
               $EndJava
             ./
 
@@ -49,7 +49,7 @@ $Rules
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           PackageOrTypeName,
-                                          "*"));
+                                          nf.Id(pos(getRightSpan()), "*")));
               $EndJava
             ./
 
@@ -59,23 +59,26 @@ $Rules
                                           ts,
                                           pos(getLeftSpan(), getRightSpan()),
                                           AmbiguousName,
-                                          "*"));
+                                          nf.Id(pos(getRightSpan()), "*")));
              $EndJava
             ./
 
     FieldAccess ::= Primary . ErrorId
         /.$BeginJava
-                    setResult(nf.Field(pos(), Primary, "*"));
+                    setResult(nf.Field(pos(), Primary,
+                                          nf.Id(pos(getRightSpan()), "*")));
           $EndJava
         ./
                   | super . ErrorId
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), "*"));
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())),
+                                          nf.Id(pos(getRightSpan()), "*")));
           $EndJava
         ./
                   | ClassName . super$sup . ErrorId
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), "*"));
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()),
+                                          nf.Id(pos(getRightSpan()), "*")));
           $EndJava
         ./
 
@@ -83,13 +86,13 @@ $Rules
         /.$BeginJava
                     Expr Primary = (Expr) ((Object[]) MethodPrimaryPrefix)[0];
                     polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodPrimaryPrefix)[1];
-                    setResult(nf.Call(pos(), Primary, identifier.getIdentifier(), ArgumentListopt));
+                    setResult(nf.Call(pos(), Primary, nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
           $EndJava
         ./
                        | MethodSuperPrefix ( ArgumentListopt )
         /.$BeginJava
                     polyglot.lex.Identifier identifier = MethodSuperPrefix;
-                    setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), identifier.getIdentifier(), ArgumentListopt));
+                    setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
           $EndJava
         ./
                        | MethodClassNameSuperPrefix ( ArgumentListopt )
@@ -97,7 +100,7 @@ $Rules
                     Name ClassName = (Name) ((Object[]) MethodClassNameSuperPrefix)[0];
                     JPGPosition super_pos = (JPGPosition) ((Object[]) MethodClassNameSuperPrefix)[1];
                     polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodClassNameSuperPrefix)[2];
-                    setResult(nf.Call(pos(), nf.Super(super_pos, ClassName.toType()), identifier.getIdentifier(), ArgumentListopt));
+                    setResult(nf.Call(pos(), nf.Super(super_pos, ClassName.toType()), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
           $EndJava
         ./
 

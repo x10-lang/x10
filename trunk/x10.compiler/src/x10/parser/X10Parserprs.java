@@ -1,5 +1,5 @@
 
-//#line 18 "c:/eclipse/workspace-3.1/x10.compiler/src/x10/parser/x10.g"
+//#line 18 "C:/DOCUME~1/ADMINI~1/MYDOCU~1/work/x10/cvs/X10~2.COM/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006

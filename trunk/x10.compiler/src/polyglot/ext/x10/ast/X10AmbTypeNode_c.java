@@ -7,6 +7,7 @@
  */
 package polyglot.ext.x10.ast;
 
+import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.TypeNode;
@@ -33,11 +34,11 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10TypeNode {
     protected GenParameterExpr gen;
     public GenParameterExpr gen() { return gen;}
     
-    public X10AmbTypeNode_c(Position pos, QualifierNode qual, String name) {
+    public X10AmbTypeNode_c(Position pos, QualifierNode qual, Id name) {
         super(pos,qual,name);
       
     }
-    public X10AmbTypeNode_c(Position pos, QualifierNode qual,String name, DepParameterExpr d) {
+    public X10AmbTypeNode_c(Position pos, QualifierNode qual,Id name, DepParameterExpr d) {
         super(pos,qual,name);
         dep = d;
     }

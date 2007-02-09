@@ -49,6 +49,7 @@ $Globals
     import polyglot.ast.ForInit;
     import polyglot.ast.ForUpdate;
     import polyglot.ast.Formal;
+    import polyglot.ast.Id;
     import polyglot.ast.Import;
     import polyglot.ast.IntLit;
     import polyglot.ast.LocalDecl;
@@ -57,6 +58,7 @@ $Globals
     import polyglot.ast.New;
     import polyglot.ast.NodeFactory;
     import polyglot.ast.PackageNode;
+    import polyglot.ast.Receiver;
     import polyglot.ast.SourceFile;
     import polyglot.ast.Stmt;
     import polyglot.ast.SwitchElement;
@@ -420,29 +422,22 @@ $Headers
           Flags flags = Flags.PUBLIC;
           TypeNode appResultType = resultType;
           if (!(resultType instanceof CanonicalTypeNode)) {
-            Name x10 = new Name(nf, ts, pos, "x10");
-            Name x10CG = new Name(nf, ts, pos, x10, "compilergenerated");
-            Name x10CGP1 = new Name(nf, ts, pos, x10CG, "Parameter1");
-            appResultType = x10CGP1.toType();
+            appResultType = nf.TypeNodeFromQualifiedName(pos, "x10.compilergenerated.Parameter1");
           }
           // resultType is a.
           List l1 = new TypedList(new LinkedList(), X10Formal.class, false);
           l1.add(f);
-          l1.add(nf.Formal(pos, Flags.FINAL, appResultType, "_"));
+          l1.add(nf.Formal(pos, Flags.FINAL, appResultType, nf.Id(pos, "_")));
           MethodDecl decl = nf.MethodDecl(pos, flags, appResultType,
-                                        "apply", l1,
+                                        nf.Id(pos, "apply"), l1,
                                           new LinkedList(), body);
           //  new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
-          Name x10 = new Name(nf, ts, pos, "x10");
-          Name x10Array = new Name(nf, ts, pos, x10, "array");
-          Name tOperator = new Name(nf, ts, pos, x10Array, "Operator");
-          Name tOperatorPointwise = new Name(nf, ts, pos, tOperator, "Pointwise");
+          TypeNode tOperatorPointwise = nf.TypeNodeFromQualifiedName(pos, "x10.array.Operator.Pointwise");
           List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
           classDecl.add( decl );
-          TypeNode t = (TypeNode) tOperatorPointwise.toType();
 
           New initializer = nf.New(pos,
-                                   t,
+                                   tOperatorPointwise,
                                    new LinkedList(),
                                    nf.ClassBody( pos, classDecl ) );
           return initializer;
@@ -461,16 +456,17 @@ $Headers
           List l1 = new TypedList(new LinkedList(), X10Formal.class, false);
           l1.add(f);
           MethodDecl decl = nf.MethodDecl(pos, flags, resultType,
-                                        "apply", l1,
+                                        nf.Id(pos, "apply"), l1,
                                           new LinkedList(), body);
           //  new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
           // [IP] FIXME: this will break if the result is not a canonical type
-          Name tArray = new Name(nf, ts, pos, resultType.toString() + "Array");
-          Name tArrayPointwiseOp = new Name(nf, ts, pos, tArray, "pointwiseOp");
+          Expr tArray = nf.ExprFromQualifiedName(pos, resultType.toString() + "Array");
+          TypeNode tArrayPointwiseOp = nf.TypeNodeFromQualifiedName(pos, resultType.toString() + "Array.pointwiseOp");
+
           List classDecl = new TypedList(new LinkedList(), MethodDecl.class, false);
           classDecl.add( decl );
-          New initializer = nf.New(pos, tArray.toExpr(),
-                                 tArrayPointwiseOp.toType(),
+          New initializer = nf.New(pos, tArray,
+                                 tArrayPointwiseOp,
                                  new LinkedList(),
                                  nf.ClassBody( pos, classDecl ) );
           return initializer;
@@ -754,9 +750,9 @@ $Rules -- Overridden rules from GJavaParser
           Expr ci = PropertyListopt == null ? null : (Expr) PropertyListopt[1];
           setResult(X10Flags.isValue(X10ClassModifiersopt)
              ? nf.ValueClassDecl(pos(),
-                  X10ClassModifiersopt, identifier.getIdentifier(), props, ci, Superopt, Interfacesopt, ClassBody)
+                  X10ClassModifiersopt, nf.Id(pos(), identifier.getIdentifier()), props, ci, Superopt, Interfacesopt, ClassBody)
              : nf.ClassDecl(pos(),
-                  X10ClassModifiersopt, identifier.getIdentifier(), props, ci, Superopt, Interfacesopt, ClassBody));
+                  X10ClassModifiersopt, nf.Id(pos(), identifier.getIdentifier()), props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
 
@@ -815,7 +811,7 @@ $Rules -- Overridden rules from GJavaParser
         /.$BeginJava
         
                     setResult(nf.PropertyDecl(pos(), Flags.PUBLIC.Final(), Type,
-                    identifier.getIdentifier()));
+                    nf.Id(pos(), identifier.getIdentifier())));
                   
           $EndJava
         ./
@@ -842,7 +838,7 @@ $Rules -- Overridden rules from GJavaParser
               ThisClauseopt,
               MethodModifiersopt,
               nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e != null ? e.intValue() : 1),
-              c != null ? c.toString() : "",
+              nf.Id(pos(), c != null ? c.toString() : ""),
               d,
               where,
               Throwsopt,
@@ -879,7 +875,7 @@ $Rules -- Overridden rules from GJavaParser
           Expr ci = PropertyListopt == null ? null : (Expr) PropertyListopt[1];
           setResult(nf.ClassDecl(pos(),
                        InterfaceModifiersopt.Interface(),
-                       identifier.getIdentifier(),
+                       nf.Id(pos(), identifier.getIdentifier()),
                        props,
                        ci,
                        null,
@@ -905,7 +901,7 @@ $Rules -- Overridden rules from GJavaParser
                     ThisClauseopt,
                     AbstractMethodModifiersopt ,
                     nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e.intValue()),
-                    c.toString(),
+                    nf.Id(pos(), c.toString()),
                     d,
                     where,
                     Throwsopt,
@@ -922,7 +918,7 @@ $Rules -- Overridden rules from GJavaParser
         ./
                                       | Primary . new identifier  ( ArgumentListopt ) ClassBodyopt
         /.$BeginJava
-                    Name b = new Name(nf, ts, pos(), identifier.getIdentifier());
+                    Name b = new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier()));
                     if (ClassBodyopt == null)
                          setResult(nf.New(pos(), Primary, b.toType(), ArgumentListopt));
                     else setResult(nf.New(pos(), Primary, b.toType(), ArgumentListopt, ClassBodyopt));
@@ -930,7 +926,7 @@ $Rules -- Overridden rules from GJavaParser
         ./
                                       | AmbiguousName . new identifier ( ArgumentListopt ) ClassBodyopt
         /.$BeginJava
-                    Name b = new Name(nf, ts, pos(), identifier.getIdentifier());
+                    Name b = new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier()));
                     if (ClassBodyopt == null)
                          setResult(nf.New(pos(), AmbiguousName.toExpr(), b.toType(), ArgumentListopt));
                     else setResult(nf.New(pos(), AmbiguousName.toExpr(), b.toType(), ArgumentListopt, ClassBodyopt));
@@ -939,17 +935,17 @@ $Rules -- Overridden rules from GJavaParser
 
     MethodInvocation ::= Primary .  identifier ( ArgumentListopt )
         /.$BeginJava
-                    setResult(nf.Call(pos(), Primary, identifier.getIdentifier(), ArgumentListopt));
+                    setResult(nf.Call(pos(), Primary, nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
           $EndJava
         ./
                        | super .  identifier ( ArgumentListopt )
         /.$BeginJava
-                    setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), identifier.getIdentifier(), ArgumentListopt));
+                    setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
           $EndJava
         ./
                        | ClassName . super$sup .  identifier ( ArgumentListopt )
         /.$BeginJava
-                    setResult(nf.Call(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), identifier.getIdentifier(), ArgumentListopt));
+                    setResult(nf.Call(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
           $EndJava
         ./
         
@@ -1017,11 +1013,11 @@ $Rules
         /.$BeginJava
                 X10TypeNode type;
                 
-                if (ts.isPrimitiveTypeName(TypeName.name)) {
+                if (ts.isPrimitiveTypeName(TypeName.name.id())) {
                     try {
-                        type= (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.primitiveForName(TypeName.name));
+                        type= (X10TypeNode) nf.CanonicalTypeNode(pos(), ts.primitiveForName(TypeName.name.id()));
                     } catch (SemanticException e) {
-                        throw new InternalCompilerError("Unable to create primitive type for '" + TypeName.name + "'!");
+                        throw new InternalCompilerError("Unable to create primitive type for '" + TypeName.name.id() + "'!");
                     }
                 } else
                     type= (X10TypeNode) TypeName.toType();
@@ -1273,23 +1269,23 @@ $Rules
 
     ConstFieldAccess ::= ConstPrimary . identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(), ConstPrimary, identifier.getIdentifier()));
+                    setResult(nf.Field(pos(), ConstPrimary, nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
                   | super . identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), identifier.getIdentifier()));
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
                   | ClassName . super$sup . identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), identifier.getIdentifier()));
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
 
 --    PropAccess ::= ConstTerm . identifier
 --        /.$BeginJava
---        setResult(nf.Call(pos(), ConstTerm, identifier.getIdentifier(), Collections.EMPTY_LIST));
+--        setResult(nf.Call(pos(), ConstTerm, nf.Id(pos(), identifier.getIdentifier()), Collections.EMPTY_LIST));
 --          $EndJava
 --        ./
 
@@ -1367,7 +1363,7 @@ $Rules
         List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
         Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
         setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-        X10ClassModifiersopt, identifier.getIdentifier(), 
+        X10ClassModifiersopt, nf.Id(pos(), identifier.getIdentifier()), 
         props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
@@ -1377,7 +1373,7 @@ $Rules
         List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
         Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
         setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-                                  X10ClassModifiersopt, identifier.getIdentifier(), 
+                                  X10ClassModifiersopt, nf.Id(pos(), identifier.getIdentifier()), 
                                   props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
@@ -1392,7 +1388,7 @@ $Rules
            X10TypeNode resultType = (X10TypeNode) a.toType();        
            if (c != null) 
          resultType = resultType.dep(c);
-         setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt,  a.toString(), resultType, b, e, Throwsopt, ConstructorBody));
+         setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt,  nf.Id(pos(), a.toString()), resultType, b, e, Throwsopt, ConstructorBody));
          $EndJava
        ./
        
@@ -1422,7 +1418,7 @@ $Rules
        /.$BeginJava
                 //   System.out.println("Parsing methoddeclarator...");
                     Object[] a = new Object[5];
-                   a[0] = new Name(nf, ts, pos(), identifier.getIdentifier());
+                   a[0] = new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier()));
                     a[1] = FormalParameterListopt;
                    a[2] = new Integer(0);
                    a[3] = WhereClauseopt;
@@ -1759,7 +1755,7 @@ $Rules
 --
 --      Clock ::= identifier
 --        /.$BeginJava
---                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()).toExpr());
+--                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())).toExpr());
 --          $EndJava
 --        ./
 
@@ -1788,7 +1784,7 @@ $Rules
 
 --    MethodInvocation ::= Primary '->' identifier ( ArgumentListopt )
 --        /.$BeginJava
---                     setResult(nf.RemoteCall(pos(), Primary, identifier.getIdentifier(), ArgumentListopt));
+--                     setResult(nf.RemoteCall(pos(), Primary, nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
 --          $EndJava
 --        ./
 
@@ -1803,13 +1799,13 @@ $Rules
      IdentifierList ::= identifier
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Name.class, false);
-                    l.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    l.add(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
                     setResult(l);
           $EndJava
         ./
                       | IdentifierList , identifier
         /.$BeginJava
-                    IdentifierList.add(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    IdentifierList.add(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
                     setResult(IdentifierList);
           $EndJava
         ./
@@ -1866,16 +1862,9 @@ $Rules
 
     Primary ::= [ RegionExpressionList ]
         /.$BeginJava
-                    Name x10 = new Name(nf, ts, pos(), "x10");
-                    Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
-                    Name x10LangRegion = new Name(nf, ts, pos(), x10Lang, "region");
-                    Name x10LangRegionFactory = new Name(nf, ts, pos(), x10LangRegion, "factory");
-                    Name x10LangRegionFactoryRegion = new Name(nf, ts, pos(), x10LangRegionFactory, "region");
-                    Name x10LangPoint = new Name(nf, ts, pos(), x10Lang, "point");
-                    Name x10LangPointFactory = new Name(nf, ts, pos(), x10LangPoint, "factory");
-                    Name x10LangPointFactoryPoint = new Name(nf, ts, pos(), x10LangPointFactory, "point");
-
-                    Tuple tuple  = nf.Tuple(pos(), x10LangPointFactoryPoint, x10LangRegionFactoryRegion, RegionExpressionList);
+                    Receiver x10LangPointFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.point.factory");
+                    Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.region.factory");
+                    Tuple tuple = nf.Tuple(pos(), x10LangPointFactory, x10LangRegionFactory, RegionExpressionList);
                     setResult(tuple);
           $EndJava
         ./
@@ -2018,7 +2007,7 @@ ThisClauseopt ::= $Empty
         /.$NullAction./
                  | identifier
         /.$BeginJava
-                    setResult(new Name(nf, ts, pos(), identifier.getIdentifier()));
+                    setResult(new Name(nf, ts, pos(), nf.Id(pos(), identifier.getIdentifier())));
           $EndJava
         ./
 

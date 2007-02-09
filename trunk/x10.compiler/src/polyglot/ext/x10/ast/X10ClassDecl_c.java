@@ -20,6 +20,7 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
@@ -68,7 +69,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl {
      * @param body
      * @return
      */
-    public static TypeDecl make(Position pos, Flags flags, String name, 
+    public static TypeDecl make(Position pos, Flags flags, Id name, 
             List<PropertyDecl> properties, TypeNode tci,
             TypeNode superClass, List interfaces, ClassBody body, X10NodeFactory nf, boolean valueClass) {
     	// Add the properties as fields in the class, together with a propertyName$ field
@@ -89,7 +90,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl {
         return result;
     }
     protected TypeNode classInvariant;
-    protected X10ClassDecl_c(Position pos, Flags flags, String name,
+    protected X10ClassDecl_c(Position pos, Flags flags, Id name,
             List<PropertyDecl> properties, TypeNode tci,
             TypeNode superClass, List interfaces, ClassBody body) {
         super(pos, flags, name, superClass, interfaces, body);
@@ -107,12 +108,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl {
   	  final Position pos = tn.position();
         FieldDecl f = new PropertyDecl_c(pos, 
       		  Flags.PUBLIC.Static().Final(), tn, 
-      		  X10FieldInstance.MAGIC_CI_PROPERTY_NAME, nf.NullLit(pos), nf);
+      		  nf.Id(pos, X10FieldInstance.MAGIC_CI_PROPERTY_NAME), nf.NullLit(pos), nf);
         body=body.addMember(f);
       return body;
   } 
     public NodeVisitor buildTypesEnter(TypeBuilder tb) throws SemanticException {
-    	tb = tb.pushClass(position(), flags, name);
+    	tb = tb.pushClass(position(), flags, name.id());
     	
     	ParsedClassType type = tb.currentClass();
     	// TODO: NEED TO ADD STUFF TO SUPPORT THE CLASSINVARIANT.

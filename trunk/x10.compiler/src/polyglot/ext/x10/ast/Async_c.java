@@ -140,11 +140,12 @@ public class Async_c extends Stmt_c implements Async, Clocked, CompoundStmt {
 
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		Type placeType = place.type();
 		Expr newPlace = place;
 		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
 		if (! placeIsPlace) {
-			newPlace = (Expr) new X10Field_c(position(), place, "location").typeCheck(tc);
+			newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).typeCheck(tc);
 		}
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())

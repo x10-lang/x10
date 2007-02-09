@@ -17,6 +17,7 @@ import java.util.List;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
@@ -58,7 +59,7 @@ public class ValueClassDecl_c extends ClassDecl_c implements ValueClassDecl {
 //     * @param body
 //     * @return
 //     */
-//    public static ValueClassDecl_c make(Position pos, Flags flags, String name, 
+//    public static ValueClassDecl_c make(Position pos, Flags flags, Id name, 
 //            List/*<PropertyDecl>*/ properties, Expr ci,
 //            TypeNode superClass, List interfaces, ClassBody body) {
 //        body = PropertyDecl_c.addProperties(properties, body);
@@ -79,7 +80,7 @@ public class ValueClassDecl_c extends ClassDecl_c implements ValueClassDecl {
 	 * @param interfaces
 	 * @param body
 	 */
-	public ValueClassDecl_c(Position pos, Flags flags, String name,
+	public ValueClassDecl_c(Position pos, Flags flags, Id name,
             List properties,  TypeNode ci, TypeNode superClass, List interfaces, ClassBody body,
             X10NodeFactory nf) {
             

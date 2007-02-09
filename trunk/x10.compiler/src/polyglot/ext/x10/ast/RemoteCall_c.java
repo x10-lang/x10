@@ -16,6 +16,7 @@ import java.util.List;
 
 import polyglot.ast.Receiver;
 import polyglot.ast.Call_c;
+import polyglot.ast.Id;
 import polyglot.util.Position;
 
 /** An immutable data structure representing a remote method invocation 
@@ -31,7 +32,7 @@ public class RemoteCall_c extends Call_c implements RemoteCall {
 	 * @param name
 	 * @param arguments
 	 */
-	public RemoteCall_c(Position pos, Receiver target, String name,
+	public RemoteCall_c(Position pos, Receiver target, Id name,
 			List arguments) {
 		super(pos, target, name, arguments);
 	}
