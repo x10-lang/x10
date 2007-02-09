@@ -205,7 +205,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 											 Id name, LocalInstance li,
 											 Expr init)
 	{
-		/* boolean allCapitals = name.equals(name.toUpperCase());
+		/* boolean allCapitals = name.equals(name.id().toUpperCase());
 		// vj: disable until we have more support for declarative programming in X10.
 		Flags f = (false || allCapitals ? flags.set(Flags.FINAL) : flags);
 		 */
