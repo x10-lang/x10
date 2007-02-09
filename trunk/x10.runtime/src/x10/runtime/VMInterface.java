@@ -81,48 +81,24 @@ public final class VMInterface {
 
     // Given a j.u.c Worker Runnable, construct a Runnable that will first
     // ensure that the Worker thread runs on "the right" CPU
-    static final Runnable mapPoolThreadToCPU(final Runnable workerRunnable, final int placeNumber, final int workerWithinPool) {
+    static final Runnable mapPoolThreadToCPU(final Runnable workerRunnable, final int placeNumber, final int workerWithinPool, String threadName) {
         if (BIND_THREADS && (numCPUs != 0)) {
-            final int CPUsPerPlace = numCPUs / Configuration.NUMBER_OF_LOCAL_PLACES;
-            if (CPUsPerPlace >= 2) {
-                final int firstCPUInThisPlace = (numCPUs / Configuration.NUMBER_OF_LOCAL_PLACES) * placeNumber;
-                final int numCPUsInThisPlace = (placeNumber == Configuration.NUMBER_OF_LOCAL_PLACES-1) ? (numCPUs - firstCPUInThisPlace) : CPUsPerPlace;
-                return new Runnable() {
-                        public void run() {
-                            putMeOnCPU(firstCPUInThisPlace + workerWithinPool % numCPUsInThisPlace);
-                            workerRunnable.run();
-                        }
-                    };
-            } else {
-                // Too many places ... assign Worker round robin.
-                final int y = globalThreadNumber.getAndIncrement();
-                return new Runnable() {
-                        public void run() {
-                            putMeOnCPU(y % numCPUs);
-                            workerRunnable.run();
-                        }
-                    };
-            }
-        } else {
+			final int CPUsPerPlace = numCPUs / Configuration.NUMBER_OF_LOCAL_PLACES;
+			final int firstCPUInThisPlace = CPUsPerPlace * placeNumber;
+			final int numCPUsInThisPlace = (placeNumber == Configuration.NUMBER_OF_LOCAL_PLACES - 1) ? (numCPUs - firstCPUInThisPlace) : CPUsPerPlace;
+			final int myCPU = (firstCPUInThisPlace + workerWithinPool % numCPUsInThisPlace) % numCPUs ;
+			System.err.println("BIND_THREADS: Mapping thread " + threadName + " to CPU " + myCPU);
+			return new Runnable() {
+				public void run() {
+					putMeOnCPU(myCPU);
+					workerRunnable.run();
+				}
+			};
+		} else {
             return workerRunnable;
         }
     }
-    
-    // Given a j.u.c Worker Runnable, construct a Runnable that will first
-    // ensure that the Worker thread runs on the specified CPU
-    static final Runnable mapRunnableToCPU(final Runnable workerRunnable, final int cpu) {
-        if (BIND_THREADS && (numCPUs != 0)) {
-            return new Runnable() {
-                    public void run() {
-                        putMeOnCPU(cpu);
-                        workerRunnable.run();
-                    }
-                };
-        } else {
-            return workerRunnable;
-        }
-    }
-    
+      
     private final static AtomicInteger globalThreadNumber = new AtomicInteger(0);
     private final native static int getNumCPUs();
     private final static int numCPUs;
