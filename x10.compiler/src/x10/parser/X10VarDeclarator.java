@@ -11,6 +11,7 @@ package x10.parser;
 import java.util.List;
 
 import polyglot.ast.AmbExpr;
+import polyglot.ast.Id;
 import polyglot.parse.Name;
 import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
@@ -26,7 +27,7 @@ public class X10VarDeclarator extends VarDeclarator {
     private JPGPosition position;
 	public Flags flags;
 
-	public X10VarDeclarator(JPGPosition pos, String name) {
+	public X10VarDeclarator(JPGPosition pos, Id name) {
 		this(pos, name, null);
 	}
 
@@ -36,7 +37,7 @@ public class X10VarDeclarator extends VarDeclarator {
 		this(pos, null, paramList);
 	}
 
-	public X10VarDeclarator(JPGPosition pos, String name, List/*<Name>*/ paramList) {
+	public X10VarDeclarator(JPGPosition pos, Id name, List/*<Name>*/ paramList) {
 		super(pos, name);
         this.position = pos;
 		if (paramList != null) {
@@ -48,7 +49,7 @@ public class X10VarDeclarator extends VarDeclarator {
 	}
 
 	public void setFlag(Flags flags) {
-		boolean allCapitals = name != null && name.equals(name.toUpperCase());
+		boolean allCapitals = name != null && name.equals(name.id().toUpperCase());
 		// vj: disable until we have more support for declarative programming in X10.
 		this.flags = (false && (allCapitals || hasExplodedVars())) ? flags.set(Flags.FINAL) : flags;
 	}

@@ -25,6 +25,7 @@ import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.For;
+import polyglot.ast.Id;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -191,8 +192,9 @@ public class ExprFlattener extends ContextVisitor  {
 					final String varName = xc.getNewVarName();
 					final TypeNode tn = nf.CanonicalTypeNode(pos,type);
 					final LocalInstance li = ts.localInstance(pos, flags, type, varName);
-					final LocalDecl ld = nf.LocalDecl(n.position(), flags, tn, varName, e).localInstance(li);
-					final Local ldRef = (Local) nf.Local(n.position(),varName).localInstance(li).type(type);
+					final Id varId = nf.Id(n.position(), varName);
+					final LocalDecl ld = nf.LocalDecl(n.position(), flags, tn, varId, e).localInstance(li);
+					final Local ldRef = (Local) nf.Local(n.position(), varId).localInstance(li).type(type);
 					stmtList.add(ld);
 					result=ldRef;
 				}

@@ -18,6 +18,7 @@ import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.Instanceof;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.NodeFactory;
@@ -25,7 +26,6 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.parse.Name;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Flags;
 import polyglot.util.Position;
@@ -64,11 +64,11 @@ public interface X10NodeFactory extends NodeFactory {
 	NullableNode Nullable(Position pos, TypeNode type);
 	FutureNode Future(Position pos, TypeNode type);
 
-    ClassDecl ClassDecl(Position pos, Flags flags, String name,
+    ClassDecl ClassDecl(Position pos, Flags flags, Id name,
               List<PropertyDecl> properties, Expr ci,
               TypeNode superClass, List interfaces,
               ClassBody body);
-	ValueClassDecl ValueClassDecl(Position pos, Flags flags, String name,
+	ValueClassDecl ValueClassDecl(Position pos, Flags flags, Id name,
             List<PropertyDecl> properties, Expr ci, 
             TypeNode superClass, List interfaces,
 			ClassBody body);
@@ -78,7 +78,7 @@ public interface X10NodeFactory extends NodeFactory {
 									  Expr distribution, Expr init);
 	Point Point(Position pos, List expr);
 
-	RemoteCall RemoteCall(Position pos, Receiver target, String name,
+	RemoteCall RemoteCall(Position pos, Receiver target, Id name,
 						  List arguments);
 	X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);
 	X10Loop ForEach(Position pos, Formal formal, Expr domain, List clocks,
@@ -94,36 +94,36 @@ public interface X10NodeFactory extends NodeFactory {
 	DepParameterExpr DepParameterExpr(Position pos, Expr cond);
 	GenParameterExpr GenParameterExpr(Position pos, List args);
     MethodDecl MethodDecl(Position pos, DepParameterExpr thisClause,
-            Flags flags, TypeNode returnType, String name,
+            Flags flags, TypeNode returnType, Id name,
             List formals, Expr where, List throwTypes, Block body);
-    FieldDecl FieldDecl(Position pos, DepParameterExpr thisClause, Flags flags, TypeNode type, String name, Expr init);
+    FieldDecl FieldDecl(Position pos, DepParameterExpr thisClause, Flags flags, TypeNode type, Id name, Expr init);
 	X10ArrayTypeNode X10ArrayTypeNode(Position pos, TypeNode base,
 									  boolean isValueType,
 									  DepParameterExpr indexedSet);
 	X10ArrayAccess X10ArrayAccess(Position pos, Expr a, List indices);
 	X10ArrayAccess1 X10ArrayAccess1(Position pos, Expr a, Expr index);
 
-	Tuple Tuple(Position pos, Name p, Name r, List args);
+	Tuple Tuple(Position pos, Receiver p, Receiver r, List args);
 	TypeNode array(TypeNode n, Position pos, int dims);
-	Formal Formal(Position pos, Flags flags, TypeNode type, String name);
-	Formal Formal(Position pos, Flags flags, TypeNode type, String name,
+	Formal Formal(Position pos, Flags flags, TypeNode type, Id name);
+	Formal Formal(Position pos, Flags flags, TypeNode type, Id name,
 				  AmbExpr[] vars);
 	ParExpr ParExpr(Position pos, Expr e);
 	PlaceCast PlaceCast(Position pos, Expr place, Expr target);
     
-    ConstructorDecl ConstructorDecl(Position pos, Flags flags, String name,
+    ConstructorDecl ConstructorDecl(Position pos, Flags flags, Id name,
             TypeNode returnType, List formals, Expr argWhereClause, List throwTypes, Block body);
-    ConstructorDecl ConstructorDecl(Position pos, Flags flags, String name,
+    ConstructorDecl ConstructorDecl(Position pos, Flags flags, Id name,
             TypeNode returnType, List formals,  List throwTypes, Block body);
-    PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, String name);
+    PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, Id name);
     Special Self(Position pos);
     
     StmtSeq StmtSeq(Position pos, List/*<Stmt>*/ l);
     ConstantDistMaker ConstantDistMaker(Position pos, Expr left, Expr right);
     RegionMaker RegionMaker(Position pos, Expr left, Expr right);
-    RectRegionMaker RectRegionMaker(Position pos, Receiver receiver, String name, List args);
+    RectRegionMaker RectRegionMaker(Position pos, Receiver receiver, Id name, List args);
     MethodDecl AtomicMethodDecl(Position pos, DepParameterExpr thisClause,
-            Flags flags, TypeNode returnType, String name,
+            Flags flags, TypeNode returnType, Id name,
             List formals, Expr where, List throwTypes, Block body);
     AssignPropertyCall AssignPropertyCall(Position pos, List/*<Expr>*/ argList);
 

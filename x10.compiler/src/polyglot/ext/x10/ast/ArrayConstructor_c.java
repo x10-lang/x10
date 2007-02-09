@@ -187,7 +187,7 @@ implements ArrayConstructor {
 					assert (!(initializer instanceof ArrayInit));
 					TypeNode arr_ops = nf.CanonicalTypeNode(position(), ts.ArrayOperations());
 					TypeNode arr_type = nf.array(newBase, position(), 1);
-					newArray = (Expr) nf.Call(position(), arr_ops, "arrayInit", newArray, initializer).typeCheck(tc);
+					newArray = (Expr) nf.Call(position(), arr_ops, nf.Id(position(), "arrayInit"), newArray, initializer).typeCheck(tc);
 					// [IP] Need the cast because arrayInit(java.lang.Object[]) returns java.lang.Object[]
 					newArray = (Expr) nf.Cast(position(), arr_type, newArray).typeCheck(tc);
 				}
@@ -196,7 +196,7 @@ implements ArrayConstructor {
 			boolean distributionIsRegion = ts.isImplicitCastValid(distType, ts.region());
 			if (distributionIsRegion) {
 				// convert this region to a distribution.
-				newDistribution = (Expr) nf.Call(position(), distribution, "toDistribution").typeCheck(tc);
+				newDistribution = (Expr) nf.Call(position(), distribution, nf.Id(position(), "toDistribution")).typeCheck(tc);
 			} else {
 				// it must be a distribution.
 				boolean distributionIsDist = ts.isImplicitCastValid(distType, ts.distribution());

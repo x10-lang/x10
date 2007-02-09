@@ -13,6 +13,7 @@ package polyglot.ext.x10.ast;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -40,7 +41,7 @@ public class ConstantDistMaker_c extends X10Call_c implements ConstantDistMaker 
 	 * @param name
 	 * @param arguments
 	 */
-	public ConstantDistMaker_c(Position pos, Receiver target, String name,
+	public ConstantDistMaker_c(Position pos, Receiver target, Id name,
 			List arguments) {
 		super(pos, target, name, arguments);
 	}
@@ -67,7 +68,7 @@ public class ConstantDistMaker_c extends X10Call_c implements ConstantDistMaker 
     
    /* public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
     	Report.report(1, "ConstantDistMaker outputting " + arguments.get(0)
-    			+ " " + name + " " + arguments.get(1));
+    			+ " " + name.id() + " " + arguments.get(1));
 		X10NodeFactory_c.getNodeFactory()
 		.Call(position(), (Expr) arguments.get(0), name, 
 				(Expr) arguments.get(1)).prettyPrint(w, tr);

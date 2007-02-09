@@ -16,6 +16,7 @@ import java.util.List;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
@@ -408,14 +409,14 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		X10Context xc = (X10Context) fc.context();
 		
 		
-		final String resultVarName = xc.getNewVarName();
 		final NodeFactory nf = fc.nodeFactory();
 		final TypeSystem ts = fc.typeSystem();
 		final Position pos = position();
+		final Id resultVarName = nf.Id(pos, xc.getNewVarName());
 		final TypeNode tn = nf.CanonicalTypeNode(pos,type);
 		Flags flags = Flags.NONE;
 		
-		final LocalInstance li = ts.localInstance(pos, flags, type, resultVarName);
+		final LocalInstance li = ts.localInstance(pos, flags, type, resultVarName.id());
 		// Evaluate the left.
 		Expr nLeft = (Expr) left.visit(fc);
 		final LocalDecl ld = nf.LocalDecl(pos, flags, tn, resultVarName, nLeft).localInstance(li);

@@ -14,6 +14,7 @@ import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
@@ -51,12 +52,12 @@ public class X10MethodDecl_c extends MethodDecl_c {
     Expr whereClause;
      /*   public X10MethodDecl_c(Position pos, 
                 Flags flags, TypeNode returnType,
-                String name, List formals, List throwTypes, Block body) {
+                Id name, List formals, List throwTypes, Block body) {
                 super(pos, flags, returnType, name, formals, throwTypes, body);
         }*/
         public X10MethodDecl_c(Position pos, DepParameterExpr thisClause, 
                 Flags flags, TypeNode returnType,
-                String name, List formals, Expr e, List throwTypes, Block body) {
+                Id name, List formals, Expr e, List throwTypes, Block body) {
         super(pos, flags, returnType, name, formals, throwTypes, body);
         whereClause = e;
    
@@ -112,7 +113,7 @@ public class X10MethodDecl_c extends MethodDecl_c {
 
             MethodInstance mi = xts.methodInstance(position(), ct, f,
                                                   xts.unknownType(position()),
-                                                  name, formalTypes,  throwTypes);
+                                                  name.id(), formalTypes,  throwTypes);
             ct.addMethod(mi);
             return flags(f).methodInstance(mi);
         }

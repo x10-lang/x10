@@ -111,8 +111,7 @@ implements AssignPropertyCall, Return {
 		List<Stmt> s = new ArrayList<Stmt>(pSize);
 		
 		for (int i=0; i < aSize; i++) {
-			Name THIS = new Name(nf, ts, pos, "this");
-			Expr l = nf.Field(pos,nf.This(pos), definedProperties.get(i).name());
+			Expr l = nf.Field(pos,nf.This(pos), nf.Id(pos, definedProperties.get(i).name()));
 			
 			AmbiguityRemover ar = new AmbiguityRemover(job, ts, nf);
 			ar = (AmbiguityRemover) ar.context(tc.context());

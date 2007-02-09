@@ -18,6 +18,7 @@ import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.Id;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.Local_c;
@@ -104,7 +105,7 @@ public class X10New_c extends New_c {
 				Position pos = firstArg.position();
 				LocalInstance li = firstArg.localInstance();
 				li = li.flags(Flags.FINAL).type(mi.returnType()).name("_");
-				l1.add(((X10Formal) xnf.Formal(pos, Flags.FINAL, appResultType, "_").localInstance(li)).localInstances(X10Formal_c.NO_LOCALS));
+				l1.add(((X10Formal) xnf.Formal(pos, Flags.FINAL, appResultType, xnf.Id(pos, "_")).localInstance(li)).localInstances(X10Formal_c.NO_LOCALS));
 				ReferenceType tOperatorPointwise = xts.OperatorPointwise();
 				List l2 = TypedList.copy(mi.formalTypes(), Type.class, false);
 				l2.add(mi.returnType());

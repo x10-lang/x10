@@ -22,6 +22,7 @@ import polyglot.ast.Field;
 import polyglot.ast.Field_c;
 import polyglot.ast.FloatLit;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.Instanceof;
 import polyglot.ast.IntLit;
 import polyglot.ast.Lit;
@@ -53,7 +54,6 @@ import polyglot.ext.x10.types.constr.C_Lit;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.frontend.Job;
-import polyglot.parse.Name;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -178,7 +178,7 @@ public class X10Caster extends AscriptionVisitor {
 		protected Checking checking;
 		
 		protected static final String CHECK_CAST_MTH_NAME = "checkCast";
-		protected static final String X10_RUNTIME_NESTED_CONSTRAINT = "x10.runtime.RuntimeCastChecker.DepTypeRuntimeChecking";
+		protected static final String X10_RUNTIME_NESTED_CONSTRAINT = "x10.runtime.NestedConstraint";
 
 		public AbstractRuntimeChecking(TypeBuilder tb,
 				AmbiguityRemover ar, TypeChecker tc, Position p, Checking checking) {
@@ -198,8 +198,8 @@ public class X10Caster extends AscriptionVisitor {
 			return n.visit(tb).visit(ar).visit(tc);
 		}
 
-		protected Name getRuntimeCheckingClassName() {
-			return new Name(nf, ts, p, RUNTIME_CAST_CHECKER_CLASSNAME);
+		protected TypeNode getRuntimeCheckingClassName() {
+			return nf.TypeNodeFromQualifiedName(p, RUNTIME_CAST_CHECKER_CLASSNAME);
 		}
 
 		/**
@@ -363,11 +363,11 @@ public class X10Caster extends AscriptionVisitor {
 			ClassBody classBody = nf.ClassBody(p,classBodyMembers);			
 
 			// Getting inner class interface name
-			Name anonClassName = new Name(nf,ts,p, X10_RUNTIME_NESTED_CONSTRAINT);		
+			TypeNode anonClassName = nf.TypeNodeFromQualifiedName(p, X10_RUNTIME_NESTED_CONSTRAINT);		
 			
 			// Which is instanciated using a given Constructor.
 			New newAnonClass = 
-				nf.New(p, anonClassName.toType(), Collections.EMPTY_LIST, classBody);
+				nf.New(p, anonClassName, Collections.EMPTY_LIST, classBody);
 			
 			// Now we only have to call perviously generated method on the newly created
 			// inner class
@@ -407,7 +407,7 @@ public class X10Caster extends AscriptionVisitor {
 
 		public abstract TypeNode getExprReturnType(X10CastInfo castOrInstanceof);
 
-		protected abstract Name runtimeCheckingToNonNullableMethodName() throws SemanticException;
+		protected abstract Id runtimeCheckingToNonNullableMethodName() throws SemanticException;
 		
 		public abstract TypeNode getToType(X10CastInfo castOrInstanceof);
 
@@ -446,8 +446,8 @@ public class X10Caster extends AscriptionVisitor {
 					.getTypeNode()));
 
 			Call checkNullableCall = nf.Call(p, this
-					.getRuntimeCheckingClassName().toReceiver(), 
-					this.runtimeCheckingToNonNullableMethodName().name, methodArgs);
+					.getRuntimeCheckingClassName(), 
+					this.runtimeCheckingToNonNullableMethodName(), methodArgs);
 
 			checkNullableCall = (Call) checkExpression(checkNullableCall);
 
@@ -455,8 +455,8 @@ public class X10Caster extends AscriptionVisitor {
 					checkNullableCall);
 		}
 
-		protected Name getRuntimeCheckingClassName() {
-			return new Name(nf, ts, p, RUNTIME_CAST_CHECKER_CLASSNAME);
+		protected TypeNode getRuntimeCheckingClassName() {
+			return nf.TypeNodeFromQualifiedName(p, RUNTIME_CAST_CHECKER_CLASSNAME);
 		}
 
 		public ConstraintBuilder getConstraintBuilder() {
@@ -486,7 +486,7 @@ public class X10Caster extends AscriptionVisitor {
 		}
 
 		@Override
-		protected Name runtimeCheckingToNonNullableMethodName() throws SemanticException {
+		protected Id runtimeCheckingToNonNullableMethodName() throws SemanticException {
 			throw new SemanticException("Compiler error: Runtime Checking to non nullable is " +
 					"not implemented, and should be the regular java instanceof code");
 		}
@@ -535,9 +535,8 @@ public class X10Caster extends AscriptionVisitor {
 		}
 
 		@Override
-		protected Name runtimeCheckingToNonNullableMethodName() throws SemanticException {
-			Name castChecker = new Name(nf, ts, p, "checkCastToNonNullable");
-			return castChecker;
+		protected Id runtimeCheckingToNonNullableMethodName() throws SemanticException {
+                        return nf.Id(p, "checkCastToNonNullable");
 		}
 
 		@Override
@@ -739,8 +738,8 @@ public class X10Caster extends AscriptionVisitor {
 		public abstract Expr buildNullableChecking(Expr exprToCheck, boolean mustBeNotNull, 
 				boolean toTypeIsNullable, Expr constraintExpr, TypeNode toType);
 		
-		protected Name getRuntimeCheckingClassName(Position p) {
-			return new Name(nf, ts, p, RUNTIME_CAST_CHECKER_CLASSNAME);
+		protected TypeNode getRuntimeCheckingClassName(Position p) {
+			return nf.TypeNodeFromQualifiedName(p, RUNTIME_CAST_CHECKER_CLASSNAME);
 		}
 	}
 	
@@ -806,7 +805,7 @@ public class X10Caster extends AscriptionVisitor {
 		}
 		
 		private Expr throwClassCastExceptionExpr(Position p, Expr exprToCast, String errorMsg) {
-			return nf.Call(p, this.getRuntimeCheckingClassName(p).toReceiver(), "throwClassCastException", exprToCast, nf.StringLit(p, errorMsg));
+			return nf.Call(p, this.getRuntimeCheckingClassName(p), "throwClassCastException", exprToCast, nf.StringLit(p, errorMsg));
 		}		
 	}
 	

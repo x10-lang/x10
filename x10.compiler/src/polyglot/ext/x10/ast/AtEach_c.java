@@ -14,6 +14,7 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ast.Id_c;
 import polyglot.ast.Stmt;
 import polyglot.ast.Field_c;
 import polyglot.util.CodeWriter;
@@ -46,7 +47,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	}
 
 	public Expr getDomain(Expr d) {
-		return new Field_c(position(), d, "distribution");
+		return new Field_c(position(), d, new Id_c(position(), "distribution"));
 	}
 
 	public String toString() {

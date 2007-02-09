@@ -8,6 +8,7 @@
 package polyglot.ext.x10.ast;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
@@ -39,7 +40,7 @@ import polyglot.visit.TypeChecker;
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	
 	public X10LocalDecl_c(Position pos, Flags flags, TypeNode type,
-			String name, Expr init) {
+			Id name, Expr init) {
 		super(pos, flags, type, name, init);
 	}
 	  

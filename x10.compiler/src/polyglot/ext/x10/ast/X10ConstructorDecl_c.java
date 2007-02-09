@@ -16,6 +16,7 @@ import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -26,7 +27,6 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.main.Report;
-import polyglot.parse.Name;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.Flags;
@@ -52,12 +52,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     protected TypeNode returnType;
     
     public X10ConstructorDecl_c(Position pos, Flags flags, 
-            String name, TypeNode returnType, List formals, List throwTypes, Block body) {
+            Id name, TypeNode returnType, List formals, List throwTypes, Block body) {
         super(pos, flags, name, formals, throwTypes, body);
         this.returnType = returnType;
     }
     public X10ConstructorDecl_c(Position pos, Flags flags, 
-            String name, TypeNode returnType, 
+            Id name, TypeNode returnType, 
             List formals, Expr argWhereClause, 
             List throwTypes, Block body) {
         super(pos, flags,  name, formals, throwTypes, body);

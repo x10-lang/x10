@@ -451,7 +451,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 		TypeNode receiver = nf.CanonicalTypeNode(pos, mi.container());
 
-		Call jniCall = nf.Call(pos, receiver, jniName, newArgs);
+		Call jniCall = nf.Call(pos, receiver, nf.Id(pos, jniName), newArgs);
 		jniCall = (Call_c)jniCall.targetImplicit(true);
 		jniCall = (Call_c)jniCall.methodInstance(mi);
 
@@ -462,7 +462,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			Formal_c parameter = (Formal_c) i.next();
 
 			if (parameter.declType().isPrimitive()) {
-				Local arg= nf.Local(pos, parameter.name());
+				Local arg= nf.Local(pos, nf.Id(pos, parameter.name()));
 				// RMF 11/2/2005 - Set the type of the Local. This would normally
 				// be handled by type-checking, but we're past that point now...
 				arg= (Local) arg.type(parameter.declType());
@@ -523,7 +523,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 					throw new Error("Could not find "+KgetBackingArrayMethod+" in class "+ ct.fullName());
 				
 
-				Local getAddrTarget= nf.Local(pos, parameter.name());
+				Local getAddrTarget= nf.Local(pos, nf.Id(pos, parameter.name()));
 			        // RMF 11/3/2005 - Set the type of getAddr call's target. This
 				// would normally be handled by type-checking, but we're past
 				// that point now...
@@ -534,7 +534,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                                                                                                             getAddrTarget.type(), 
                                                                                                             getAddrTarget.name()));
 				
-                                Call getAddr = nf.Call(pos, getAddrTarget, KgetBackingArrayMethod);
+                                Call getAddr = nf.Call(pos, getAddrTarget, nf.Id(pos, KgetBackingArrayMethod));
                                 getAddr = (Call_c)getAddr.methodInstance(backingArrayMI);
                                 // RMF 11/3/2005 - Set the type of getAddr call. This would
                                 // normally be handled by type-checking, but we're past that
@@ -543,7 +543,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                                 args.add(getAddr);
 
 
-				Call getDescriptor = nf.Call(pos, getAddrTarget, descriptorName);
+				Call getDescriptor = nf.Call(pos, getAddrTarget, nf.Id(pos, descriptorName));
 				getDescriptor = (Call_c)getDescriptor.methodInstance(arrayDescriptorMI);
 				// RMF 11/3/2005 - Set the type of getDescriptor call. This
 				// would normally be handled by type-checking, but we're past

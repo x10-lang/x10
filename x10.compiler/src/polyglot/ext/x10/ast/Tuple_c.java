@@ -53,17 +53,13 @@ public class Tuple_c extends Expr_c implements Tuple {
 	protected List args;
 	protected Receiver pointReceiver;
 	protected Receiver regionReceiver;
-	protected Name pointName;
-	protected Name regionName;
 	protected MethodInstance pointMI, regionMI;
 	
 	
-	public Tuple_c(Position pos, Name pointName, Name regionName, List args) {
+	public Tuple_c(Position pos, Receiver pointReceiver, Receiver regionReceiver, List args) {
 		super(pos);
-		this.pointReceiver = pointName.prefix.toReceiver();
-		this.regionReceiver = regionName.prefix.toReceiver();
-		this.pointName = pointName;
-		this.regionName = regionName;
+		this.pointReceiver = pointReceiver;
+		this.regionReceiver = regionReceiver;
 		this.args = args;
 		assert (args.size() > 0);
 		//Report.report(1, "Tuple_c created:" + pointName + "| " + regionName + "| " + args);
@@ -77,13 +73,14 @@ public class Tuple_c extends Expr_c implements Tuple {
 	 * */
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 		//Report.report(1, "Tuple_c.typeCheck:***" + args);
+                X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		Type argType = ((Expr) args.get(0)).type();
 		if (argType.isInt()) {
 			// This is a point construction.
-			return pointName.nf.Call(position(), pointReceiver, "point", args).del().typeCheck(tc);
+			return nf.Call(position(), pointReceiver, nf.Id(position(), "point"), args).del().typeCheck(tc);
 		}
 		RectRegionMaker result= 
-			(RectRegionMaker) ((X10NodeFactory) regionName.nf).RectRegionMaker(position(), regionReceiver, "region", args).del().typeCheck(tc);
+			(RectRegionMaker) nf.RectRegionMaker(position(), regionReceiver, nf.Id(position(), "region"), args).del().typeCheck(tc);
 		
 		return result;
 	}

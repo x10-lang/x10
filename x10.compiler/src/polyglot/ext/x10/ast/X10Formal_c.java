@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.AmbExpr;
+import polyglot.ast.Id;
 import polyglot.ast.Expr;
+import polyglot.ast.Id_c;
 import polyglot.ast.IntLit;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
@@ -62,10 +64,10 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	boolean unnamed;
 
 	public X10Formal_c(Position pos, Flags flags, TypeNode type,
-	                   String name, AmbExpr[] vars)
+	                   Id name, AmbExpr[] vars)
 	{
 		super(pos, flags, type,
-				name == null ? X10PrettyPrinterVisitor.getId() : name);
+				name == null ? new Id_c(pos, X10PrettyPrinterVisitor.getId()) : name);
 		this.vars = (vars == null) ? NO_VARS : vars;
 		this.unnamed = name == null;
 	}
@@ -200,7 +202,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 */
 	protected static LocalDecl makeLocalDecl(NodeFactory nf, Position pos,
 											 Flags flags, TypeNode type,
-											 String name, LocalInstance li,
+											 Id name, LocalInstance li,
 											 Expr init)
 	{
 		/* boolean allCapitals = name.equals(name.toUpperCase());
@@ -219,7 +221,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @return
 	 */
 	public List<Stmt> explode(NodeFactory nf, TypeSystem ts) {
-		return explode(nf, ts, name(), position(), flags(), vars, localInstance(), lis);
+		return explode(nf, ts, id(), position(), flags(), vars, localInstance(), lis);
 	}
 
 	/* (non-Javadoc)
@@ -255,7 +257,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @return
 	 */
 	private static List<Stmt> explode(NodeFactory nf, TypeSystem ts,
-										  String name, Position pos,
+										  Id name, Position pos,
 										  Flags flags, AmbExpr[] vars,
 										  LocalInstance bli,
 										  LocalInstance[] lis)
@@ -275,7 +277,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			LocalInstance li = lis != null
 				? lis[i]
 				: ts.localInstance(var.position(), flags, ts.Int(), var.name());
-			Stmt d = makeLocalDecl(nf, var.position(), flags, intType, var.name(), li, init);
+			Stmt d = makeLocalDecl(nf, var.position(), flags, intType, var.id(), li, init);
 			stmts.add(d);
 		}
 		return stmts;
@@ -312,7 +314,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @return
 	 */
 	public static List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts,
-										 String name, Position pos,
+										 Id name, Position pos,
 										 Flags flags, AmbExpr[] vars)
 	{
 		return explode(nf, ts, name, pos, flags, vars, null, null);

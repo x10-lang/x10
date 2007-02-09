@@ -75,7 +75,7 @@ public class X10CastExt_c extends X10Ext_c {
 			px = (ParExpr) px.type(x.type());
 			
 			// building unboxing method call
-			Call y = nf.Call(c.position(), px, mi.name(),
+			Call y = nf.Call(c.position(), px, nf.Id(c.position(), mi.name()),
 							 Collections.EMPTY_LIST);
 
 			y = (Call) y.type(mi.returnType());

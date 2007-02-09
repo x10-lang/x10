@@ -14,6 +14,7 @@ import java.util.List;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
@@ -47,7 +48,7 @@ public class RectRegionMaker_c extends X10Call_c implements RectRegionMaker {
 	 * @param name
 	 * @param arguments
 	 */
-	public RectRegionMaker_c(Position pos, Receiver target, String name,
+	public RectRegionMaker_c(Position pos, Receiver target, Id name,
 			List arguments) {
 		super(pos, target, name, arguments);
 		
