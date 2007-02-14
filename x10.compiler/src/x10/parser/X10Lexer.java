@@ -6,7 +6,7 @@
 
 package x10.parser;
 
-import lpg.lpgjavaruntime.*;
+import lpg.javaruntime.*;
 import java.util.*;
 
 import java.util.Map;
@@ -47,12 +47,12 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
     public String[] orderedExportedSymbols() { return X10Parsersym.orderedTerminalSymbols; }
     public LexStream getLexStream() { return (LexStream) this; }
 
-    public void lexer(PrsStream prsStream)
+    public void lexer(IPrsStream prsStream)
     {
         lexer(null, prsStream);
     }
     
-    public void lexer(Monitor monitor, PrsStream prsStream)
+    public void lexer(Monitor monitor, IPrsStream prsStream)
     {
         if (getInputChars() == null)
             throw new NullPointerException("LexStream was not initialized");
@@ -272,7 +272,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             
     public final int getKind(int i)  // Classify character at ith location
     {
-        char c = (i >= getStreamLength() ? '\uffff' : getCharValue(i));
+        int c = (i >= getStreamLength() ? '\uffff' : getCharValue(i));
         return (c < 128 // ASCII Character
                   ? tokenKind[c]
                   : c == '\uffff'

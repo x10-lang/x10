@@ -6,7 +6,7 @@
 
 package x10.parser;
 
-import lpg.lpgjavaruntime.*;
+import lpg.javaruntime.*;
 import java.util.*;
 import java.util.*;
 
