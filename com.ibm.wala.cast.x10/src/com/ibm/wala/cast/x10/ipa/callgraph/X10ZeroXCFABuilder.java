@@ -1,6 +1,5 @@
 package com.ibm.domo.ast.x10.ipa.callgraph;
 
-import com.ibm.wala.cast.java.ipa.callgraph.JavaScopeMappingInstanceKeys;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.callgraph.ContextSelector;
 import com.ibm.wala.ipa.callgraph.ReflectionSpecification;
@@ -42,7 +41,7 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
       setContextSelector(contextSelector);
 
       setInstanceKeys(
-        new JavaScopeMappingInstanceKeys(cha, this, 
+        new X10ScopeMappingInstanceKeys(cha, this, 
           new ZeroXInstanceKeys(options, cha, contextInterpreter, warnings, instancePolicy)));
     }
 
