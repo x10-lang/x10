@@ -11,7 +11,6 @@ import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.AbstractGoal;
 import polyglot.util.ErrorInfo;
 
-import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.types.ClassLoaderReference;
 
 public class X10CASTGoal extends AbstractGoal {
@@ -33,10 +32,8 @@ public class X10CASTGoal extends AbstractGoal {
 
     public Pass createPass(ExtensionInfo extInfo) {
 	return new X10CASTPass(this, job(),
-		new X10toCAstTranslator(
-			fSourceLoaderRef,
-			extInfo.nodeFactory()));
-	//,			extInfo.typeSystem()));
+		new X10toCAstTranslator(fSourceLoaderRef, extInfo.nodeFactory(),
+			(X10ExtensionInfo) extInfo));
     }
 
     public String name() {
