@@ -1,5 +1,5 @@
 # junit
-lpg
+lpg.javaruntime.v2
 # polyglot2
 x10.common
 x10.compiler
