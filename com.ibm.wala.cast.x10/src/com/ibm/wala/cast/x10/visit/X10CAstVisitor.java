@@ -1,8 +1,8 @@
 package com.ibm.domo.ast.x10.visit;
 
-import com.ibm.domo.ast.x10.translator.*;
 import com.ibm.wala.cast.tree.*;
 import com.ibm.wala.cast.tree.visit.*;
+import com.ibm.domo.ast.x10.translator.*;
 
 /**
  * @author Igor Peshansky
@@ -87,7 +87,10 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
 	    case X10CastNode.ASYNC_INVOKE: {
 		if (visitor.visitAsyncInvoke(n, context, visitor))
 		    break;
-		visitor.leaveAsyncInvoke(n, context, visitor);
+                // TODO visit place
+//              visitor.visit(n.getChild(0), context, visitor);
+                visitor.visit(n.getChild(1), context, visitor);
+                visitor.leaveAsyncInvoke(n, context, visitor);
 		break;
 	    }
 	    case X10CastNode.ATOMIC_ENTER: {
