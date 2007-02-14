@@ -12,14 +12,18 @@ import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.Goal;
 
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
+import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 import com.ibm.wala.types.ClassLoaderReference;
 
-public abstract class X10ExtensionInfo extends ExtensionInfo {
+public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTranslatorExtension {
     protected X10SourceLoaderImpl fSourceLoader;
+    protected PolyglotIdentityMapper fMapper;
 
     public void setSourceLoader(PolyglotSourceLoaderImpl sourceLoader) {
 	fSourceLoader = (X10SourceLoaderImpl) sourceLoader;
+	fMapper= new PolyglotIdentityMapper(fSourceLoader.getReference(), typeSystem());
     }
 
     public X10SourceLoaderImpl getSourceLoader() {
@@ -39,5 +43,8 @@ public abstract class X10ExtensionInfo extends ExtensionInfo {
     }
 
     public abstract Goal getCompileGoal(Job job);
-}
 
+    public PolyglotIdentityMapper getIdentityMapper() {
+        return fMapper;
+    }
+}
