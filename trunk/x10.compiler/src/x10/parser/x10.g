@@ -105,19 +105,19 @@ $Globals
     import polyglot.util.Position;
     import polyglot.util.TypedList;
 
-    import lpg.lpgjavaruntime.BacktrackingParser;
-    import lpg.lpgjavaruntime.BadParseException;
-    import lpg.lpgjavaruntime.BadParseSymFileException;
-    import lpg.lpgjavaruntime.DiagnoseParser;
-    import lpg.lpgjavaruntime.LexStream;
-    import lpg.lpgjavaruntime.NotBacktrackParseTableException;
-    import lpg.lpgjavaruntime.NullExportedSymbolsException;
-    import lpg.lpgjavaruntime.NullTerminalSymbolsException;
-    import lpg.lpgjavaruntime.ParseTable;
-    import lpg.lpgjavaruntime.PrsStream;
-    import lpg.lpgjavaruntime.RuleAction;
-    import lpg.lpgjavaruntime.UndefinedEofSymbolException;
-    import lpg.lpgjavaruntime.UnimplementedTerminalsException;
+    import lpg.javaruntime.BacktrackingParser;
+    import lpg.javaruntime.BadParseException;
+    import lpg.javaruntime.BadParseSymFileException;
+    import lpg.javaruntime.DiagnoseParser;
+    import lpg.javaruntime.LexStream;
+    import lpg.javaruntime.NotBacktrackParseTableException;
+    import lpg.javaruntime.NullExportedSymbolsException;
+    import lpg.javaruntime.NullTerminalSymbolsException;
+    import lpg.javaruntime.ParseTable;
+    import lpg.javaruntime.PrsStream;
+    import lpg.javaruntime.RuleAction;
+    import lpg.javaruntime.UndefinedEofSymbolException;
+    import lpg.javaruntime.UnimplementedTerminalsException;
     ./
 $End
 
@@ -314,7 +314,7 @@ $Headers
 
             public String toText()
             {
-                PrsStream prsStream = leftIToken.getPrsStream();
+                IPrsStream prsStream = leftIToken.getPrsStream();
                 return new String(prsStream.getInputChars(), offset(), endOffset() - offset() + 1);
             }
         }
@@ -456,7 +456,7 @@ $Headers
           List l1 = new TypedList(new LinkedList(), X10Formal.class, false);
           l1.add(f);
           MethodDecl decl = nf.MethodDecl(pos, flags, resultType,
-                                        nf.Id(pos, "apply"), l1,
+                                          nf.Id(pos, "apply"), l1,
                                           new LinkedList(), body);
           //  new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
           // [IP] FIXME: this will break if the result is not a canonical type
@@ -1373,8 +1373,8 @@ $Rules
         List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
         Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
         setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-                                  X10ClassModifiersopt, nf.Id(pos(), identifier.getIdentifier()), 
-                                  props, ci, Superopt, Interfacesopt, ClassBody));
+                                    X10ClassModifiersopt, nf.Id(pos(), identifier.getIdentifier()), 
+                                    props, ci, Superopt, Interfacesopt, ClassBody));
           $EndJava
         ./
 
@@ -1980,20 +1980,12 @@ ThisClauseopt ::= $Empty
         /.$NullAction./
                                    | PlaceExpressionSingleList
 
-    ArgumentListopt ::= $Empty
-        /.$NullAction./
-                      | ArgumentList
-
     X10ClassModifiersopt ::= $Empty
         /.$BeginJava
              setResult(X10Flags.toX10Flags(Flags.NONE));
           $EndJava ./
           | X10ClassModifiers
           
-    DepParametersopt ::= $Empty
-        /.$NullAction./
-                       | DepParameters
-
     Unsafeopt ::= $Empty
         /.$NullAction./
                 | unsafe
