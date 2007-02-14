@@ -15,36 +15,55 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
-import polyglot.ext.x10.ast.*;
+import polyglot.ext.x10.ast.ArrayConstructor;
+import polyglot.ext.x10.ast.Async;
+import polyglot.ext.x10.ast.AtEach;
+import polyglot.ext.x10.ast.Atomic;
+import polyglot.ext.x10.ast.Await;
+import polyglot.ext.x10.ast.Clocked;
+import polyglot.ext.x10.ast.Finish;
+import polyglot.ext.x10.ast.ForEach;
+import polyglot.ext.x10.ast.ForLoop_c;
+import polyglot.ext.x10.ast.Future;
+import polyglot.ext.x10.ast.GenParameterExpr;
+import polyglot.ext.x10.ast.Here;
+import polyglot.ext.x10.ast.Next;
+import polyglot.ext.x10.ast.PlaceCast;
+import polyglot.ext.x10.ast.Point;
+import polyglot.ext.x10.ast.Range;
+import polyglot.ext.x10.ast.Region;
+import polyglot.ext.x10.ast.When;
+import polyglot.ext.x10.ast.When_c;
+import polyglot.ext.x10.ast.X10ArrayAccess;
+import polyglot.ext.x10.ast.X10Formal;
+import polyglot.ext.x10.ast.X10Loop;
 import polyglot.ext.x10.types.FutureType;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 
-import com.ibm.wala.util.debug.Assertions;
-import com.ibm.domo.ast.x10.translator.X10CAstEntity;
-import com.ibm.domo.ast.x10.translator.X10CastNode;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
-import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
 import com.ibm.wala.cast.tree.CAstControlFlowMap;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstNodeTypeMap;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;
 import com.ibm.wala.cast.tree.CAstType;
-import com.ibm.wala.cast.tree.visit.CAstVisitor;
-import com.ibm.wala.cast.tree.visit.CAstVisitor.Context;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
+import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
+import com.ibm.domo.ast.x10.translator.X10CAstEntity;
+import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.IteratorPlusOne;
+import com.ibm.wala.util.debug.Assertions;
 
 public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
-    public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf) {
-	super(clr, nf, X10TypeSystem_c.getTypeSystem());
+    public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, X10ExtensionInfo extInfo) {
+	super(clr, nf, extInfo.typeSystem(), extInfo.getIdentityMapper());
     }
 
     protected TranslatingVisitor createTranslator() {
@@ -107,21 +126,24 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     }
 
     private final class AsyncEntity extends CodeBodyEntity {
-	private final Node fNode;
-
 	private final CodeBodyContext fContext;
 
 	private final CAstNode fBodyast;
 
+	private final CAstSourcePositionMap.Position fPosition;
+
+	private final AsyncBodyType fBodyType;
+
 	private AsyncEntity(Map/*<CAstNode,CAstEntity>*/ entities, Node node, CodeBodyContext context, CAstNode bodyast) {
 	    super(entities);
-	    fNode= node;
+	    fPosition= makePosition(node.position());
 	    fContext= context;
 	    fBodyast= bodyast;
+	    fBodyType= new AsyncBodyType(node, fContext.getEnclosingType());
 	}
 
 	public CAstSourcePositionMap.Position getPosition() {
-	  return makePosition( fNode.position() );
+	  return fPosition;
 	}
 
 	public int getKind() {
@@ -129,7 +151,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public String getName() {
-	    return "<activity " + fNode.position().file() + ":" + fNode.position().line() + ":" + fNode.position().column() + ">";
+	    return "<activity " + fPosition.getURL() + ":" + fPosition.getFirstLine() + ":" + fPosition.getFirstCol() + ">";
 	}
 
 	public String[] getArgumentNames() {
@@ -165,7 +187,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstType getType() {
-	    return new AsyncBodyType(fNode, fContext.getEnclosingType());
+	    return fBodyType;
 	}
 	public String toString() {
 	    return getName();
@@ -288,7 +310,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	    if (methodOwner instanceof FutureType) {
 		FutureType type= (FutureType) methodOwner;
-		TypeReference typeRef= TypeReference.findOrCreate(fClassLoaderRef, typeToTypeID(type.base()));
+		TypeReference typeRef= TypeReference.findOrCreate(fClassLoaderRef, fIdentityMapper.typeToTypeID(type.base()));
 
 		return fFactory.makeNode(X10CastNode.FORCE, walkNodes(c.target(), wc), fFactory.makeConstant(typeRef));
 	    } else
@@ -363,7 +385,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return fFactory.makeNode(CAstNode.BLOCK_STMT,
 		    fFactory.makeNode(CAstNode.LOOP,
 			    fFactory.makeConstant(true),
-			    wrapBodyInAtomic(fFactory.makeNode(CAstNode.BLOCK_STMT, whenClauses))),
+			    wrapBodyInAtomic(fFactory.makeNode(CAstNode.BLOCK_STMT, whenClauses), w, context)),
 	            whenExit);
 
 	    // Alternative, quasi-declarative representation:
@@ -398,20 +420,32 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	public CAstNode visit(Atomic a, WalkContext context) {
 	    final CAstNode bodyNode= walkNodes(a.body(), context);
-	    return wrapBodyInAtomic(bodyNode);
+	    return wrapBodyInAtomic(bodyNode, a, context);
 	}
 
-	private CAstNode wrapBodyInAtomic(final CAstNode bodyNode) {
-	    return fFactory.makeNode(CAstNode.UNWIND, 
-		    fFactory.makeNode(CAstNode.BLOCK_STMT, 
-			    fFactory.makeNode(X10CastNode.ATOMIC_ENTER),
+	private CAstNode wrapBodyInAtomic(final CAstNode bodyNode, Node n, WalkContext wc) {
+	    return makeNode(wc, n, CAstNode.UNWIND,
+		    makeNode(wc, n, CAstNode.BLOCK_STMT, 
+			    makeNode(wc, X10CastNode.ATOMIC_ENTER, n.position().startOf()),
 			    bodyNode),
-		    fFactory.makeNode(X10CastNode.ATOMIC_EXIT));
+		    makeNode(wc, X10CastNode.ATOMIC_EXIT, n.position().startOf()));
+	}
+
+	public CAstNode visit(X10ArrayAccess aa, WalkContext context) {
+	    // TODO Auto-generated method stub
+	    return null;
 	}
 
 	public CAstNode visit(ArrayConstructor ac, WalkContext context) {
-	    // TODO Auto-generated method stub
-	    return null;
+	    Expr dist= ac.distribution();
+	    Expr init= ac.initializer();
+
+	    // Turn this construct into an array allocation followed by a region
+	    // iteration whose body calls the initializer and assigns the result
+	    // to the corresponding array slot.
+	    fFactory.makeNode(CAstNode.BLOCK_EXPR,
+		    fFactory.makeNode(CAstNode.ASSIGN, fFactory.makeConstant(null)));
+	    return walkRegionIterator(null, walkNodes(init, context), walkNodes(dist, context), context);
 	}
 
 	public CAstNode visit(GenParameterExpr gpe, WalkContext context) {
