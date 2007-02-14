@@ -5,6 +5,7 @@ public class For1 {
         foo3();
     }
     public static void foo1() {
+        For1 f1 = new For1();
         for (point p: [0:9]) {
             System.out.println(p);
         }
