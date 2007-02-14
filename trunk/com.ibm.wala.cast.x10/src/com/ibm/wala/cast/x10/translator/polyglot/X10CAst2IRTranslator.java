@@ -3,10 +3,6 @@
  */
 package com.ibm.domo.ast.x10.translator.polyglot;
 
-import java.io.PrintWriter;
-
-import sun.security.action.GetLongAction;
-
 import com.ibm.domo.ast.x10.ssa.AsyncCallSiteReference;
 import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAFinishInstruction;
@@ -15,10 +11,18 @@ import com.ibm.domo.ast.x10.ssa.SSAHereInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
-import com.ibm.domo.ast.x10.translator.X10CAstEntity;
-import com.ibm.domo.ast.x10.translator.X10CAstPrinter;
-import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.domo.ast.x10.visit.X10CAstVisitor;
+import com.ibm.wala.cast.ir.translator.AstTranslator.DefaultContext;
+import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
+import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
+import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
+import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
+import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
+import com.ibm.wala.cast.tree.CAstEntity;
+import com.ibm.wala.cast.tree.CAstNode;
+import com.ibm.wala.cast.tree.CAstType;
+import com.ibm.wala.cast.tree.visit.CAstVisitor;
+import com.ibm.wala.classLoader.NewSiteReference;
 import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.types.Descriptor;
 import com.ibm.wala.types.MethodReference;
@@ -26,18 +30,6 @@ import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.Atom;
 import com.ibm.wala.util.debug.Trace;
-
-import com.ibm.wala.cast.ir.translator.AstTranslator.DefaultContext;
-import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
-import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
-import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
-import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
-import com.ibm.wala.cast.tree.CAstEntity;
-import com.ibm.wala.cast.tree.CAstNode;
-import com.ibm.wala.cast.tree.CAstType;
-import com.ibm.wala.cast.tree.visit.*;
-import com.ibm.wala.cast.tree.visit.CAstVisitor.Context;
-import com.ibm.wala.classLoader.NewSiteReference;
 
 public class X10CAst2IRTranslator extends X10CAstVisitor {
     public X10CAst2IRTranslator(CAstEntity sourceFileEntity, X10SourceLoaderImpl loader) {
@@ -107,6 +99,15 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
 	return MethodReference.findOrCreate(owningTypeRef, asyncName, asyncDesc);
     }
 
+    protected boolean visitAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
+	translator.initFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
+	((X10SourceLoaderImpl) translator.loader()).defineAsync(n, asyncTypeReference(n), n.getPosition());
+	return false;
+    }
+    protected void leaveAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
+	translator.closeFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
+    }
+
     protected boolean visitAsyncInvoke(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveAsyncInvoke(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
@@ -114,13 +115,14 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
 	// Figure out whether this is a future or an async
 	int exceptValue = context.currentScope().allocateTempValue();
 	AsyncCallSiteReference acsr = new AsyncCallSiteReference(asyncEntityToMethodReference(bodyEntity), context.cfg().getCurrentInstruction());
+        int rcvrValue = translator.getValue(n.getChild(1));
 
 	if (((CAstType.Function) bodyEntity.getType()).getReturnType() == JavaPrimitiveTypeMap.VoidType)
-	    context.cfg().addInstruction(SSAInstructionFactory.InvokeInstruction(new int[0], exceptValue, acsr));
+	    context.cfg().addInstruction(new AstJavaInvokeInstruction(new int[] { rcvrValue }, exceptValue, acsr));
 	else {
 	    int retValue = context.currentScope().allocateTempValue();
 
-	    context.cfg().addInstruction(SSAInstructionFactory.InvokeInstruction(retValue, new int[0], exceptValue, acsr));
+	    context.cfg().addInstruction(new AstJavaInvokeInstruction(retValue, new int[] { rcvrValue }, exceptValue, acsr));
 	    translator.setValue(n, retValue);
 	}
     }
@@ -182,15 +184,6 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
 	int retValue = context.currentScope().allocateTempValue();
 	context.cfg().addInstruction(new SSAHereInstruction(retValue));
 	translator.setValue(n, retValue);
-    }
-
-    protected boolean visitAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
-	translator.initFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
-	((X10SourceLoaderImpl) translator.loader()).defineAsync(n, asyncTypeReference(n), n.getPosition());
-	return false;
-    }
-    protected void leaveAsyncBodyEntity(CAstEntity n, Context context, Context codeContext, CAstVisitor visitor) {
-	translator.closeFunctionEntity(n, (WalkContext)context, (WalkContext)codeContext);
     }
 
     private void translate(final CAstEntity N, final String nm) {
