@@ -8,12 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ibm.domo.ast.x10.client.X10EclipseSourceAnalysisEngine;
-import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.client.EclipseProjectSourceAnalysisEngine;
+import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.test.IRTests;
-import com.ibm.wala.ipa.callgraph.*;
+import com.ibm.wala.ipa.callgraph.AnalysisScope;
+import com.ibm.wala.ipa.callgraph.Entrypoints;
 import com.ibm.wala.ipa.callgraph.impl.Util;
-import com.ibm.wala.ipa.cha.*;
+import com.ibm.wala.ipa.cha.ClassHierarchy;
 
 public class X10IRTests extends IRTests {
     protected static List/*<String>*/ x10RTJar;
@@ -31,14 +32,14 @@ public class X10IRTests extends IRTests {
     }
 
     protected EclipseProjectSourceAnalysisEngine getAnalysisEngine(final String[] mainClassDescriptors) {
-      return new X10EclipseSourceAnalysisEngine() {
-        protected Entrypoints
-          makeDefaultEntrypoints(AnalysisScope scope, ClassHierarchy cha)
-        {
-          return Util.makeMainEntrypoints(JavaSourceAnalysisScope.SOURCE_REF, cha, mainClassDescriptors);
-        }
-      };
-   }
+	return new X10EclipseSourceAnalysisEngine() {
+          protected Entrypoints 
+            makeDefaultEntrypoints(AnalysisScope scope, ClassHierarchy cha) 
+	  {
+	    return Util.makeMainEntrypoints(JavaSourceAnalysisScope.SOURCE_REF, cha, mainClassDescriptors);
+	  }
+	};
+    }
 
     protected String singleInputForTest() {
 	return getName().substring(4) + ".x10";
@@ -50,41 +51,41 @@ public class X10IRTests extends IRTests {
 
     public void testAsync1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null);
+		new GraphAssertions(), null, true);
     }
 
     public void testFuture1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null);
+		new GraphAssertions(), null, true);
     }
 
     public void testFinish1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null);
+		new GraphAssertions(), null, true);
     }
 
     public void testFor1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null);
+		new GraphAssertions(), null, true);
     }
 
     public void testForEach1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null);
+		new GraphAssertions(), null, true);
     }
 
 //    public void testAtEach1() {
 //	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-//		new GraphAssertions(), null);
+//		new GraphAssertions(), null, true);
 //    }
 
     public void testWhen1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null);
+		new GraphAssertions(), null, true);
     }
 
 //    public void testArrayCtor1() {
 //	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-//		new GraphAssertions(), null);
+//		new GraphAssertions(), null, true);
 //    }
 }
