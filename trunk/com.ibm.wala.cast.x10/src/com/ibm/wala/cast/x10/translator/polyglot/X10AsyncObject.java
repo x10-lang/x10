@@ -3,13 +3,14 @@
  */
 package com.ibm.domo.ast.x10.translator.polyglot;
 
-import com.ibm.wala.cast.loader.AstFunctionClass;
 import com.ibm.wala.cast.tree.*;
+import com.ibm.wala.cast.loader.AstFunctionClass;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.ipa.cha.*;
 import com.ibm.wala.types.Selector;
 import com.ibm.wala.types.TypeReference;
+import com.ibm.wala.util.debug.Assertions;
 
 /**
  * Represents the synthesized type that contains a single synthesized method that houses the async code body
@@ -40,6 +41,7 @@ public class X10AsyncObject extends AstFunctionClass {
     }
 
     public void setCodeBody(IMethod method) {
+        Assertions._assert(method.getReference().getDeclaringClass().equals(getReference()));
 	functionBody= method;
     }
 
