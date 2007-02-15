@@ -44,6 +44,9 @@
         <condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
             <isset property="env.LOCAL_POLYGLOT_JAR"/>
         </condition>
+        <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
+            <isset property="env.LOCAL_LPG_JAR"/>
+        </condition>
     </target>
     <target name="cleanall" depends="clean">
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
@@ -71,8 +74,19 @@
         <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="build" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
-    <target name="lpg-jar" depends="init">
-        <ant antfile="${lpg.location}/build.xml" target="dist" inheritAll="false" dir="${lpg.location}"/>
+    <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
+        <!-- TODO: move this into x10.common -->
+	<property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
+        <property name="lpg.jar.url" value="${lpg.url}/lpg2.jar"/>
+        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
+        <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+        <fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>
+    </target>
+    <target name="lpg-local-jar" depends="init" if="local.lpg.jar">
+        <!-- TODO: move this into x10.common -->
+        <copy file="${local.lpg.jar}" tofile="${lib}/${lpg.jar}"/>
+        <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+        <fail message="Unable to find ${lpg.jar}" unless="lpg.jar.present"/>
     </target>
     <target name="polyglot-jar" depends="init,polyglot-local-jar" unless="local.polyglot.jar">
         <!-- TODO: move this into x10.common -->
