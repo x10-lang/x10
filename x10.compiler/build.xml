@@ -159,7 +159,7 @@
         <zip destfile="${x10.home}/x10-${zip.version}-src.zip">
             <zipfileset prefix="" dir="${x10.common.location}" includes="epl-v10.html"/>
             <zipfileset prefix="lpg" dir="${lpg.location}" excludes="**/CVS/**,classes/**"/>
-            <zipfileset prefix="x10.common" dir="${x10.common.location}" excludes="**/CVS/**,lib/**,etc/**" includes="bin/*.in,bin/testScript*,bin/newpgrp,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
+            <zipfileset prefix="x10.common" dir="${x10.common.location}" excludes="**/CVS/**,lib/**,etc/**" includes="build*,bin/*.in,bin/testScript*,bin/newpgrp,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
             <zipfileset prefix="x10.compiler" dir="${basedir}" excludes="**/CVS/**,classes/**"/>
             <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="**/CVS/**,classes/**"/>
         </zip>
