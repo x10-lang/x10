@@ -6,7 +6,7 @@
 
 package x10.parser;
 
-public class X10KWLexerprs implements lpg.javaruntime.ParseTable, X10KWLexersym {
+public class X10KWLexerprs implements lpg.runtime.ParseTable, X10KWLexersym {
 
     public interface IsNullable {
         public final static byte isNullable[] = {0,

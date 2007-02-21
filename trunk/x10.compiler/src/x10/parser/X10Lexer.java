@@ -6,7 +6,7 @@
 
 package x10.parser;
 
-import lpg.javaruntime.*;
+import lpg.runtime.*;
 import java.util.*;
 
 import java.util.Map;

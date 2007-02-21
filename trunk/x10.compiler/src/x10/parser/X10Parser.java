@@ -17,7 +17,7 @@
 
 package x10.parser;
 
-import lpg.javaruntime.*;
+import lpg.runtime.*;
 
 //#line 28 "c:/eclipse/workspace-3.1/x10.compiler/src/x10/parser/x10.g"
 import java.util.Collections;
@@ -100,19 +100,19 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 
-import lpg.javaruntime.BacktrackingParser;
-import lpg.javaruntime.BadParseException;
-import lpg.javaruntime.BadParseSymFileException;
-import lpg.javaruntime.DiagnoseParser;
-import lpg.javaruntime.LexStream;
-import lpg.javaruntime.NotBacktrackParseTableException;
-import lpg.javaruntime.NullExportedSymbolsException;
-import lpg.javaruntime.NullTerminalSymbolsException;
-import lpg.javaruntime.ParseTable;
-import lpg.javaruntime.PrsStream;
-import lpg.javaruntime.RuleAction;
-import lpg.javaruntime.UndefinedEofSymbolException;
-import lpg.javaruntime.UnimplementedTerminalsException;
+import lpg.runtime.BacktrackingParser;
+import lpg.runtime.BadParseException;
+import lpg.runtime.BadParseSymFileException;
+import lpg.runtime.DiagnoseParser;
+import lpg.runtime.LexStream;
+import lpg.runtime.NotBacktrackParseTableException;
+import lpg.runtime.NullExportedSymbolsException;
+import lpg.runtime.NullTerminalSymbolsException;
+import lpg.runtime.ParseTable;
+import lpg.runtime.PrsStream;
+import lpg.runtime.RuleAction;
+import lpg.runtime.UndefinedEofSymbolException;
+import lpg.runtime.UnimplementedTerminalsException;
 
 public class X10Parser extends PrsStream implements RuleAction, Parser
 {
