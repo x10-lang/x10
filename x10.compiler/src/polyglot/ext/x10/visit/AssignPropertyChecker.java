@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import polyglot.ast.CodeDecl;
+import polyglot.ast.CodeNode;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.MethodDecl;
@@ -42,7 +42,7 @@ public class AssignPropertyChecker extends DataFlow {
 		super(job, ts, nf, false /* backward analysis */);
 	}
 	
-	protected FlowGraph initGraph(CodeDecl code, Term root) {
+	protected FlowGraph initGraph(CodeNode code, Term root) {
 		if (code instanceof ConstructorDecl) {
 			ConstructorDecl d = (ConstructorDecl) code;
 			this.cd = d;
