@@ -68,9 +68,9 @@ This example is due to Sebastian Burckhardt.
 We have:
 [1] --> [2] --> [3] --> [4] --> [5] --> [6] --> [7] --> [1]
 
-This example is *not* ruled out by CCCC. b(E(T3)) is the set
-{[4],[5],[6],[7],[1]}. (E | b(E(T3)))* does not contain any cycles
-since there is no edge from [1] --> [4]. 
+This example is ruled out by CCCC. E(T3) u W is {[1],[3],[5],[6],[7]}. 
+G | (E(T3) u W) contains the edges [1] -> [3], [3] -> [5], [5] -> [7]. Therefore
+the transitive closure must contain [1] -> [7], and hence r4 must contain 1.
 
 However, this execution is ruled out by CCCC with world maps. The world
 map at [2] must be above {x:1}. This is also true for all steps [i]
