@@ -39,7 +39,7 @@ An execution is a graph G=(S, -->) over a set of events S satisfying:
   e --> e'' if there is an e' in E(p(e)) u E(p(e'')) st e --> e' --> e'' .
 
 [Local Consistency]
-  For all processors i, (G | b(E(i))* is a partial order (i.e., is acyclic)
+  For all processors i, (G | (E(i) u W))* is a partial order (i.e., is acyclic)
   Additionally, volatiles obey local program order:
     For all processors p, G | E(p) is a total order.
 
