@@ -61,11 +61,14 @@ public final class Configuration extends x10.runtime.util.Configuration {
 	public static boolean ABSTRACT_EXECUTION_TIMES = false;
 	private static final String ABSTRACT_EXECUTION_TIMES_desc = "If dumping out statistics, also dump out unblocked execution times";
 
-        public static boolean BIND_THREADS = false;
-        public static final String BIND_THREADS_desc = "As threads are created to support activities, assign them to specific CPUs";
+    public static boolean BIND_THREADS = false;
+    private static final String BIND_THREADS_desc = "Use platform-specific calls to bind Java threads to CPUs";
+ 
+    public static boolean BIND_THREADS_DIAGNOSTICS = false;
+    private static final String BIND_THREADS_DIAGNOSTICS_desc = "Print diagnostics related to platform-specific calls to bind Java threads to CPUs";
     
 	// Set Bad_PLACE_RUNTIME_CHECK = false as the default value in support of implicit-place syntax
-        public static boolean BAD_PLACE_RUNTIME_CHECK = false;
+    public static boolean BAD_PLACE_RUNTIME_CHECK = false;
 	private static final String BAD_PLACE_RUNTIME_CHECK_desc = "Perform runtime place checks";
 
 	/**
