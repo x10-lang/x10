@@ -31,6 +31,7 @@ public final class VMInterface {
     // Set to true if individual PoolRunners should be pre-assigned to
     // CPUs on an SMP system.
     public static final boolean BIND_THREADS = Configuration.BIND_THREADS;
+    public static final boolean BIND_THREADS_DIAGNOSTICS = Configuration.BIND_THREADS_DIAGNOSTICS;
 
     // The following methods are all specially treated by the Testarossa
     // JIT and may be specially treated by any JIT.
@@ -87,7 +88,7 @@ public final class VMInterface {
 			final int firstCPUInThisPlace = CPUsPerPlace * placeNumber;
 			final int numCPUsInThisPlace = (placeNumber == Configuration.NUMBER_OF_LOCAL_PLACES - 1) ? (numCPUs - firstCPUInThisPlace) : CPUsPerPlace;
 			final int myCPU = (firstCPUInThisPlace + workerWithinPool % numCPUsInThisPlace) % numCPUs ;
-			System.err.println("BIND_THREADS: Mapping thread " + threadName + " to CPU " + myCPU);
+			if ( BIND_THREADS_DIAGNOSTICS ) System.err.println("BIND_THREADS: Mapping thread " + threadName + " to CPU " + myCPU);
 			return new Runnable() {
 				public void run() {
 					putMeOnCPU(myCPU);
@@ -110,6 +111,7 @@ public final class VMInterface {
             System.loadLibrary(thrdSuppLib);
             n = getNumCPUs();
         } catch (java.lang.UnsatisfiedLinkError ule) {
+        	if ( BIND_THREADS_DIAGNOSTICS ) System.err.println("BIND_THREADS: Library " + thrdSuppLib + " not found???");
         } finally {
             numCPUs = n;
         }
