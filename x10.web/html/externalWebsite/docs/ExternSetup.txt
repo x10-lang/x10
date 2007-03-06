@@ -24,7 +24,9 @@ The methods will then be invoked as
   
 in some X10 program.  At the call points, the user will expect that a C routine with the
 format <ContainingClass> "_" <methodName> will be called  ie for foo, a C routine
-C_foo(void) would be called.
+C_foo(void) would be called.  The "-libpath" x10 option should be used to point
+the X10 runtime at the libraries (e.g., "x10 -libpath . X10Prog" if the libraries
+are in the current working directory).
   
 The Java specification does not say what happens with overloaded methods, so we've taken the
 JNI approach of adding a suffix "__"+<signature> ie two '_' characters and a string
