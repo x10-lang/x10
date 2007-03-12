@@ -111,6 +111,7 @@ public class X10Call_c extends Call_c {
                     xts.isSubtype(type, ((Expr)arguments.get(0)).type())) ||
                 (name.equals("overlay") && arguments.size() == 1 &&
                     xts.isSubtype(type, ((Expr)arguments.get(0)).type())) ||
+                (name.equals("view")) || /* (VIVEK) Prototype extension to support array views in the future */
                 (name.equals("update") && arguments.size() == 1 &&
                     xts.isSubtype(type, ((Expr)arguments.get(0)).type())) ||
                 (name.equals("lift") &&
