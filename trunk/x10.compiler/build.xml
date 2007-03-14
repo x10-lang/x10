@@ -76,6 +76,7 @@
     </target>
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <!-- TODO: move this into x10.common -->
+        <mkdir dir="${lib}"/>
 	<property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
         <property name="lpg.jar.url" value="${lpg.url}/lpg2.jar"/>
         <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
@@ -84,12 +85,14 @@
     </target>
     <target name="lpg-local-jar" depends="init" if="local.lpg.jar">
         <!-- TODO: move this into x10.common -->
+        <mkdir dir="${lib}"/>
         <copy file="${local.lpg.jar}" tofile="${lib}/${lpg.jar}"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <fail message="Unable to find ${lpg.jar}" unless="lpg.jar.present"/>
     </target>
     <target name="polyglot-jar" depends="init,polyglot-local-jar" unless="local.polyglot.jar">
         <!-- TODO: move this into x10.common -->
+        <mkdir dir="${lib}"/>
         <property name="polyglot.url" value="http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates/plugins"/>
         <!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_2.0.1.jar"/>-->
         <!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_nightly.jar"/>-->
@@ -100,6 +103,7 @@
     </target>
     <target name="polyglot-local-jar" depends="init" if="local.polyglot.jar">
         <!-- TODO: move this into x10.common -->
+        <mkdir dir="${lib}"/>
         <copy file="${local.polyglot.jar}" tofile="${lib}/${polyglot.jar}"/>
         <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
         <fail message="Unable to find ${polyglot.jar}" unless="polyglot.jar.present"/>
@@ -198,6 +202,7 @@
         <arg value="-R"/>
         <arg value="--exclude=classes"/>
         <arg value="lpg"/>
+        <arg value="polyglot"/>
         <arg value="polyglot2"/>
         <arg value="x10.compiler"/>
         <arg value="x10.runtime"/>
