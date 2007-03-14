@@ -37,7 +37,7 @@ $(LIBPFX)%.$(LIBEXT):	checkjava
 	xlC $(CCFLAGS) $(CFLAGS) -c -o $@ $<
 else			# Must be Windows
 $(LIBPFX)%.$(LIBEXT):	checkjava
-	cl $(CFLAGS) -LD -Fe$@ $(filter %.o,$^)
+	cl $(CFLAGS) -LD -Fe$@ $(filter %.o,$^) $(LDLIBS)
 %.o:	%.c
 	cl $(CFLAGS) -c $<
 %.o:	%.cpp
@@ -49,7 +49,7 @@ CXX=g++ $(CCEXTRA)
 CXXFLAGS=$(CFLAGS)
 
 $(LIBPFX)%.$(LIBEXT):	checkjava
-	$(CXX) $(CFLAGS)  -shared $(LDFLAGS) -o $@ $(filter %.o,$^)
+	$(CXX) $(CFLAGS)  -shared $(LDFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
 
 ifneq ($(UNAME),AIX)
 ifneq ($(UNAME),Linux)
