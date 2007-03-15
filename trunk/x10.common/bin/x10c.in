@@ -36,7 +36,7 @@ while [ -n "$1" ]; do
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
         -ext) shift; ext=$1;;
-        -dev) shift; dev="true";;
+        -dev) dev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
         *) args="$args '$1'";;

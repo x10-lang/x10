@@ -45,7 +45,7 @@ while [ -n "$1" ]; do
         -classpath|-cp) shift; extra_cp="$1";;
         -libpath) shift; extra_lib="$1";;
         -config) shift; config="$1.cfg";;
-        -dev) shift; dev="true";;
+        -dev) dev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
         *) args="$args '$1'";;
