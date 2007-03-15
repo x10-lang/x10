@@ -77,7 +77,7 @@
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <!-- TODO: move this into x10.common -->
         <mkdir dir="${lib}"/>
-	<property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
+        <property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
         <property name="lpg.jar.url" value="${lpg.url}/lpg2.jar"/>
         <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
@@ -155,7 +155,7 @@
             <zipfileset prefix="bin" dir="${x10.common.location}/bin" includes="newpgrp,x10,x10c,testScript*"/>
             <zipfileset prefix="etc" dir="${etc}" includes="${config}"/>
             <zipfileset prefix="examples" dir="${x10.common.location}/examples" includes="README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
-            <zipfileset prefix="lib" dir="${lib}" includes="*.jar" excludes="polyglot2.jar"/>
+            <zipfileset prefix="lib" dir="${lib}" includes="*.jar" excludes="${polyglot.jar},${lpg.jar}"/>
         </zip>
     </target>
     <target name="src-zip" depends="srczip"/>
@@ -201,9 +201,8 @@
         <arg value="--languages=java"/>
         <arg value="-R"/>
         <arg value="--exclude=classes"/>
-        <arg value="lpg"/>
+        <arg value="lpg.runtime.java"/>
         <arg value="polyglot"/>
-        <arg value="polyglot2"/>
         <arg value="x10.compiler"/>
         <arg value="x10.runtime"/>
       </exec>
