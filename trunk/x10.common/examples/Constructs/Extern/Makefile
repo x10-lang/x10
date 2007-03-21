@@ -7,6 +7,11 @@
 # changed.
 
 UNAME:=$(shell uname -s)
+ifneq ($(UNAME),AIX)
+ifneq ($(UNAME),Linux)
+CYGWIN=yes
+endif
+endif
 LIBPFX=lib
 LIBEXT=so
 CFLAGS="-I${JAVA_HOME}/include" $(CFLAGSEXTRA)
@@ -48,12 +53,11 @@ CC=gcc $(CCEXTRA)
 CXX=g++ $(CCEXTRA)
 CXXFLAGS=$(CFLAGS)
 
+ifeq ($(CYGWIN),)
 $(LIBPFX)%.$(LIBEXT):	checkjava
-	$(CXX) $(CFLAGS)  -shared $(LDFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
+	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
 
-ifneq ($(UNAME),AIX)
-ifneq ($(UNAME),Linux)
-# Must be Cygwin
+else				# Must be Cygwin
 DLLWRAP=dllwrap $(CCEXTRA)
 CCEXTRA=-mno-cygwin
 
@@ -90,8 +94,6 @@ dll_entry.o:	Makefile
 	echo -e '$(DLLENTRY)' | $(CC) --language=c $(CFLAGS) -c -o $@ -
 .INTERMEDIATE: dll_entry.o
 endif
-endif
-
 endif
 
 #.PRECIOUS: %.def %.din
