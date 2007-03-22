@@ -68,7 +68,8 @@ $(LIBPFX)%.$(LIBEXT):	checkjava dll_entry.o
 
 ifneq ($(__DEPS__),)
 %.din:	dll_entry.o $(__DEPS__)
-	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o /dev/null -Wl,--output-def=$@ $(filter %.o,$^)
+	$(CXX) $(CFLAGS) -shared $(LDFLAGS) -o $*.tmp.dll -Wl,--output-def=$@ $(filter %.o,$^)
+	$(RM) $*.tmp.dll
 
 %.def:	%.din
 	@#sed -e '/Java_/ {; h; s/Java_/_Java_/; G; s/ @[0-9]\+\n */ = /; s/ @[0-9]\+$$//; H; s/00024//; x; G }' < $< > $@
