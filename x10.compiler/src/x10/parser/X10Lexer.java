@@ -24,7 +24,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
     public int getRhsFirstTokenIndex(int i) { return lexParser.getFirstToken(i); }
     public int getRhsLastTokenIndex(int i) { return lexParser.getLastToken(i); }
 
-    public int getLeftSpan() { return lexParser.getFirstToken(); }
+    public int getLeftSpan() { return lexParser.getToken(1); }
     public int getRightSpan() { return lexParser.getLastToken(); }
 
     public X10Lexer(String filename, int tab) throws java.io.IOException 
