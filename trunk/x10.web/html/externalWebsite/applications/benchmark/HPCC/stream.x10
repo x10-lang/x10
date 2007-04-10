@@ -7,7 +7,7 @@ HPCC source code can be downloaded at
 
 /*-----------------------------------------------------------------------*/
 /* Program: Stream                                                       */
-/* Revision: $Id: stream.x10,v 1.2 2006-12-11 19:55:51 tongwen Exp $ */
+/* Revision: $Id: stream.x10,v 1.3 2007-04-10 20:32:11 ipeshansky Exp $ */
 /* Original code developed by John D. McCalpin                           */
 /* Programmers: John D. McCalpin                                         */
 /*              Joe R. Zagar                                             */
@@ -56,7 +56,6 @@ HPCC source code can be downloaded at
  *          that should be good to about 5% precision.
  */
 
- /*
 class stream {
     
     //public final static int N = (1 << 26);
@@ -124,7 +123,7 @@ class stream {
         /* --- SETUP --- determine precision and check timing --- */
 
         System.out.println(HLINE);
-        System.out.println("STREAM version $Revision: 1.2 $");
+        System.out.println("STREAM version $Revision: 1.3 $");
         System.out.println(HLINE);
         BytesPerWord = sizeOfDouble;
         System.out.println("This system uses " + BytesPerWord + "bytes per DOUBLE PRECISION word.");
