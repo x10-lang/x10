@@ -3,7 +3,7 @@
 <project name="x10.runtime" default="dist" basedir=".">
     &buildfile;
     <property name="x10.home" value=".."/>
-    <property name="x10.common.location" value="../x10.common"/>
+    <property name="x10.common.location" value="${x10.home}/x10.common"/>
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${x10.common.location}/lib"/>
