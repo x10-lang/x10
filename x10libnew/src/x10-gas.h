@@ -2,10 +2,7 @@
 #define X10GAS_H_
 
 typedef uint32_t X10_place_t;
-typedef struct {
-	void* address;
-	X10_place_t node;
-} x10_gas_ref_t;
+typedef uint64 x10_gas_ref_t;
 
 /**
  * Does the ref point to a location homed on the current node?

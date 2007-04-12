@@ -6,13 +6,17 @@
 
 #include "x10-clock.h";
 #include "x10-switch.h";
-#include "x10-clock.h";
+#include "x10-gas.h";
 #include "x10-activity.h"
 
 
-extern int X10_init();
+extern int X10_init(X10_async_handler_t* handlers, int num);
 extern int X10_finalize();
 extern int X10_cleanup();
+
+/** The place where the current activity is executing.
+ */
+extern X10_place_t here();
 
 //*******************GET OPERATIONS**********************************
 
@@ -98,7 +102,6 @@ extern int X10_putValue_int(int value,       X10_gas_ref_t* dest, X10_switch_t* 
 extern int X10_putValue_long(long value,     X10_gas_ref_t* dest, X10_switch_t* handle);
 extern int X10_putValue_double(double value, X10_gas_ref_t* dest, X10_switch_t* handle);
 extern int X10_putValue_float(float value,   X10_gas_ref_t* dest, X10_switch_t* handle);
-
 
 
 // Way to organize processors into groups, e.g. using a clock.

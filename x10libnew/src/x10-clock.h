@@ -4,8 +4,9 @@
  */
 
 typedef struct {
-	// Add datastructures needed to implement clocks. 
-	X10_clock_t* next;
+	// opaque datastructures needed to implement clocks. 
+	//X10_clock_t* next;
+	double[5] dummy;
 } X10_clock_t;
 
 
@@ -25,7 +26,7 @@ extern X10_clock_t* X10_clock_make();
  * This function is internal to the implementation of clocks.
  */
 extern X10_clock_t* X10_clock_make_proxy(X10_gas_ref_t parent);
-extern int X10_
+
 
 /**
  * Send a message to the remote proxy to advance it. 
@@ -101,6 +102,19 @@ extern int X10_dropped(X10_clock_t* clock);
  * 
  */
 extern int X10_drop(X10_clock_t* clock);
+
+// collective operations
+/** This thread must be executing an activity that is registered on the 
+ * given clock, otherwise an X10_ILLEGAL_ARG value is returned. In this phase 
+ * of the given clock, all activities registered on the clock must either drop 
+ * the clock or execute a X10_next_broadcast with a buffer of the same size.
+ * Exactly one of the activities must make this call with sender==1. 
+ * The contents of the buffer of this activity are copied into the given
+ * buffers for all other activities.
+ */
+extern int X10_next_broadcast(X10_clock_t* clock, void* buffer, int len, byte sender);
+
+extern int X10_next_reduce(X10_clock_t* clock, void* buffer, int len, byte sender);
 
 
 #endif /*X10CLOCK_H_*/
