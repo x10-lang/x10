@@ -7,3 +7,10 @@ Notes.
    switch (if any) on which A was spawned. This convention is to be followed even if the activity is to
    be spawned remotely. Now a stop finish is implemented by simply waiting on the switch.
    
+ 
+ -- Need put's that perform atomic rmw operations on the remote side.
+ 
+ -- Are sticky switches needed?
+ 
+ -- 
+   
