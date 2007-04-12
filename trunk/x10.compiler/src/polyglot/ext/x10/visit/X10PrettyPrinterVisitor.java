@@ -435,7 +435,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		else { // this is a User-defined[?] ? array
 			kind = USER_DEFINED;
-            X10TypeSystem xt = (X10TypeSystem) base_type.typeSystem();
+			X10TypeSystem xt = (X10TypeSystem) base_type.typeSystem();
 			refs_to_values = (base_type instanceof X10Type &&
 								 (xt.isValueType(base_type)));
 		}
@@ -446,7 +446,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// vj: Code illustrating type-driven dispatch
 		X10ParsedClassType type = (X10ParsedClassType) a.type();
 		
-		if (runtimeName.equals("DoubleArray") && type.isRect() &&  type.isRankThree() && type.isZeroBased()) {
+		if (runtimeName.equals("DoubleArray") && type.isRect() && type.isRankThree() && type.isZeroBased()) {
 			runtimeName += "3d";
 		}
 		//Report.report(1, "GOLDEN: X10PrettyPrintVisitor type is " + type + "runtimeName is " + runtimeName);
@@ -707,7 +707,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	private void printType(Type type) {
 //		X10Type t = (X10Type) type;
-//        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+//		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 //		if (ts.isNullable(t)) {
 //			w.write("/"+"*"+"nullable"+"*"+"/");
 //			printType(X10Type_c.toNullable(t).base());
@@ -888,6 +888,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		int pos = 0;
 		int start = 0;
 		while (pos < len) {
+			if (regex.charAt(pos) == '\n') {
+				w.write(regex.substring(start, pos));
+				w.newline(0);
+				start = pos+1;
+			}
+			else
 			if (regex.charAt(pos) == '#') {
 				w.write(regex.substring(start, pos));
 				Integer idx = new Integer(regex.substring(pos+1,pos+2));
@@ -1073,7 +1079,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// Remove one trailing newline (if any)
 			if (trans.lastIndexOf('\n') == trans.length()-1)
 				trans = trans.substring(0, trans.length()-1);
+			boolean newline = trans.lastIndexOf('\n') == trans.length()-1;
 			trans = "/* template:"+id+" { */" + trans + "/* } */";
+			// If the template ends in a newline, add it after the footer
+			if (newline)
+				trans = trans + "\n";
 			translationCache_.put(id, trans);
 			is.close();
 			return trans;
