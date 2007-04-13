@@ -1,14 +1,13 @@
 #ifndef X10REGION_H_
 #define X10REGION_H_
 
+using namespace X10::lang;
 template<int RANK>
 class X10_region_t {
 	
-	// How is the rank of the region returned?
-	
-	/** Return 0 if the point lies in the given region, 1 otherwise.
+	/** Return true if the point lies in the given region, otherwise false.
   	*/ 
-	int contains(const X10_point_t<RANK>& x) const = 0;
+	bool contains(const X10_point_t<RANK>& x) const = 0;
 	
 	/** Returns the ordinal number for this point in the canonical 
 	 * (lexicographic) ordering of points in this region. Returns -1 if

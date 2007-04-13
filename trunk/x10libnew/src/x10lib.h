@@ -27,7 +27,7 @@ extern X10_place_t here();
  * by threads in the source process.
  * On return from this call, the bytes are available in dest.
  */
-extern int X10_get(X10_gas_ref_t* src,  void* dest, int nbytes);
+extern int X10_get(X10_gas_ref_t src,  void* dest, int nbytes);
 
 /** Initiation of a nonblocking remote get operation for contiguous bytes. 
  * Fetches nbytes bytes from address src on node to dest. 
@@ -39,8 +39,8 @@ extern int X10_get(X10_gas_ref_t* src,  void* dest, int nbytes);
  * Note: X10lib does not support "implicit" nonblocking calls. The programmer
  * should simply create a "default" switch and use that explicitly.
  */
-extern int X10_get_nb(X10_gas_ref_t* src, void* dest, int nbytes, 
-                      X10lib_switch_t* handle);
+extern int X10_get_nb(X10_gas_ref_t src, void* dest, int nbytes, 
+                      X10_switch_t handle);
                       
 /** A remote get operation for int/long/double/float. 
  * Fetches and returns the number of bytes indicated by the type
@@ -65,7 +65,7 @@ extern float X10_getValue_float(X10_gas_ref_t src);
  * On return from this call, the bytes are available to be read from
  * the remote node in dest.
  */
-extern int X10_put(void* src, X10_gas_ref_t* dest, int bytes);
+extern int X10_put(void* src, X10_gas_ref_t dest, int bytes);
 
 
 /** Initiation of a nonblocking remote put operation for contiguous bytes. 
@@ -78,8 +78,8 @@ extern int X10_put(void* src, X10_gas_ref_t* dest, int bytes);
  * Note: X10lib does not support "implicit" nonblocking calls. The programmer
  * should simply create a "default" switch and use that explicitly.
  */
-extern int X10_put_nb(void* src, X10_gas_ref_t* dest, int bytes, 
-                      X10_switch_t* handle);
+extern int X10_put_nb(void* src, X10_gas_ref_t dest, int bytes, 
+                      X10_switch_t handle);
 
 /** A remote immediate put operation for int/long/double/float. 
  * Places the given value at address dest on node.
@@ -87,10 +87,10 @@ extern int X10_put_nb(void* src, X10_gas_ref_t* dest, int bytes,
  * The operation should progress independently of calls made to X10lib 
  * by threads in the source process.
  */             
-extern int X10_putValue_int(int value,       X10_gas_ref_t* dest);
-extern int X10_putValue_long(long value,     X10_gas_ref_t* dest);
-extern int X10_putValue_double(double value, X10_gas_ref_t* dest);
-extern int X10_putValue_float(float value,   X10_gas_ref_t* dest);
+extern int X10_putValue_int(int value,       X10_gas_ref_t dest);
+extern int X10_putValue_long(long value,     X10_gas_ref_t dest);
+extern int X10_putValue_double(double value, X10_gas_ref_t dest);
+extern int X10_putValue_float(float value,   X10_gas_ref_t dest);
 
 /** A remote immediate nonblocking put operation for int/long/double/float. 
  * Places the given value at address dest on node.
@@ -98,10 +98,10 @@ extern int X10_putValue_float(float value,   X10_gas_ref_t* dest);
  * The operation should progress independently of calls made to X10lib 
  * by threads in the source process.
  */                   
-extern int X10_putValue_int(int value,       X10_gas_ref_t* dest, X10_switch_t* handle);
-extern int X10_putValue_long(long value,     X10_gas_ref_t* dest, X10_switch_t* handle);
-extern int X10_putValue_double(double value, X10_gas_ref_t* dest, X10_switch_t* handle);
-extern int X10_putValue_float(float value,   X10_gas_ref_t* dest, X10_switch_t* handle);
+extern int X10_putValue_int(int value,       X10_gas_ref_t dest, X10_switch_t handle);
+extern int X10_putValue_long(long value,     X10_gas_ref_t dest, X10_switch_t handle);
+extern int X10_putValue_double(double value, X10_gas_ref_t dest, X10_switch_t handle);
+extern int X10_putValue_float(float value,   X10_gas_ref_t dest, X10_switch_t handle);
 
 
 // Way to organize processors into groups, e.g. using a clock.
