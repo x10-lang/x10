@@ -4,6 +4,8 @@
 typedef int32_t x10_async_arg_t;
 typedef uint8_t x10_async_handler_t;
 
+namespace x10lib{
+
 /**
  * Spawn an async locally.
  */
@@ -33,6 +35,7 @@ extern int x10_async_spawn_clocked(x10_place_t place, x10_async_handler_t handle
  */
 extern int x10_async_spawn_switched(x10_place_t place, x10_async_handler_t handler, x10_switch_t* clocks, int numargs, ...);
 
+}
 
 
 #endif /*X10ACTIVITY_H_*/

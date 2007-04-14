@@ -1,6 +1,8 @@
 #ifndef X10REGION_H_
 #define X10REGION_H_
 
+namespace x10lib {
+
 using namespace X10::lang;
 template<int RANK>
 class X10_region_t {
@@ -70,14 +72,17 @@ class X10_tiled_region_t : private X10_region_t<RANK>
   /** Returns a tiled region obtained by block dividing the given region across
    * grid. The tiles are obtained by blocking in each dimension. Note the rank
    * of the grid has nothing to do with the rank of region.
-   * Q: Is the code below the right way to say this?
    */
-  static X10_tiled_region_t<RANK> makeBlock(const X10_region_t<RANK> region, const X10_region_t grid)
+
+  template <int RANK2>
+  static X10_tiled_region_t<RANK> makeBlock(const X10_region_t<RANK> region, const X10_region_t<RANK2> grid)
   
   /** As in makeBlock, except that the region is blocked in only one dimension, as specified by 
    * dim. 0 <= dim <= RANK-1.
    */
-  static X10_tiled_region_t<RANK> makeBlock1d(const X10_region_t<RANK> region, int dim, const X10_region_t grid)
+ 
+  template <int RANK2>
+  static X10_tiled_region_t<RANK> makeBlock1d(const X10_region_t<RANK> region, int dim, const X10_region_t<RANK2> grid)
 }
  
  /** A region transformation is a tiled region whose indexing region is identical to its base region.
@@ -85,5 +90,6 @@ class X10_tiled_region_t : private X10_region_t<RANK>
   * the tiled region with base region = index region = [0:1,0:1] that maps [i,j] to [j,i] is given by:
   * [0,0] -> [0:0,0:0], [0,1] -> [1:1,0:0], [1,0] -> [0:0,1:1], [1,1] -> [1:1,1:1].
   */
+}
 
 #endif /*X10REGION_H_*/

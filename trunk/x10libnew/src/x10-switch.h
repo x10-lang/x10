@@ -1,6 +1,8 @@
 #ifndef X10SWITCH_H_
 #define X10SWITCH_H_
 
+namespace x10lib {
+
 using namespace x10::lang;
 //*******************SWITCH OPERATIONS**********************************
 /** A switch is an asymmetric clock -- only the thread creating it
@@ -52,4 +54,5 @@ public class Switch : public Object {
 	int try_wait();   
 }
 
+}
 #endif /*X10SWITCH_H_*/

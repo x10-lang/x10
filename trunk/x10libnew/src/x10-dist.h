@@ -1,6 +1,8 @@
 #ifndef X10DIST_H_
 #define X10DIST_H_
 
+namespace x10lib{
+
 /**
  * Update dist to be the distribution obtained by pointing the i'th region to the i'th place.
  */
@@ -55,5 +57,5 @@ public:
   
   x10_place_t place (const x10_point_t<RANK>& p) const;
 };
-
+}
 #endif /*X10DIST_H_*/

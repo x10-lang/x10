@@ -9,13 +9,17 @@
 #include "x10-gas.h";
 #include "x10-activity.h"
 
-
 extern int X10_init(X10_async_handler_t* handlers, int num);
 extern int X10_finalize();
 extern int X10_cleanup();
 
-/** The place where the current activity is executing.
+namespace x10lib {
+
+
+/** 
+ * The place where the current activity is executing.
  */
+
 extern X10_place_t here();
 
 //*******************GET OPERATIONS**********************************
@@ -49,10 +53,14 @@ extern int X10_get_nb(X10_gas_ref_t src, void* dest, int nbytes,
  * The operation should progress independently of calls made to X10lib 
  * by threads in the source process.
  */             
-extern int X10_getValue_int(X10_gas_ref_t src);
+
+template <typename T>
+extern T X10_getValue_int (x10_gas_ref_t src);
+
+/* extern int X10_getValue_int(X10_gas_ref_t src);
 extern long X10_getValue_long(X10_gas_ref_t src);
 extern double X10_getValue_double(X10_gas_ref_t src);
-extern float X10_getValue_float(X10_gas_ref_t src);
+extern float X10_getValue_float(X10_gas_ref_t src); */
 
 // Also operations for strided copy, generalized i/o vector copy.
 
@@ -87,10 +95,14 @@ extern int X10_put_nb(void* src, X10_gas_ref_t dest, int bytes,
  * The operation should progress independently of calls made to X10lib 
  * by threads in the source process.
  */             
-extern int X10_putValue_int(int value,       X10_gas_ref_t dest);
+template <typename T>
+extern int X10_putValue_int(T value, X10_gas_ref_t dest);
+
+/* extern int X10_putValue_int(int value,       X10_gas_ref_t dest);
 extern int X10_putValue_long(long value,     X10_gas_ref_t dest);
 extern int X10_putValue_double(double value, X10_gas_ref_t dest);
 extern int X10_putValue_float(float value,   X10_gas_ref_t dest);
+*/
 
 /** A remote immediate nonblocking put operation for int/long/double/float. 
  * Places the given value at address dest on node.
@@ -109,6 +121,6 @@ extern int X10_putValue_float(float value,   X10_gas_ref_t dest, X10_switch_t ha
 // Perform collective operations, restricted to a group.
 
 // 
-                  
+}                  
 
 #endif /*X10LIB_H_*/
