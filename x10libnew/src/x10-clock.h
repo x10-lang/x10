@@ -3,6 +3,9 @@
 /** A clock permits phased sequence of operations.
  */
 
+
+namespace x10lib{
+
 typedef Clock& X10_clock_t; 
 
 public class Clock : public Object {
@@ -21,7 +24,6 @@ public class Clock : public Object {
 	 * be accessed locally. All operations on the original clock are 
 	 * performed with respect to this proxy clock. parent must be a
 	 * reference to a remote clock. 
-	 * 
 	 * This function is internal to the implementation of clocks.
 	 */
 	X10_clock_t* X10_clock_make_proxy(X10_gas_ref_t parent);
@@ -116,4 +118,5 @@ public class Clock : public Object {
 	int next_reduce(void* buffer, int len, byte sender);
 }
 
+}
 #endif /*X10CLOCK_H_*/

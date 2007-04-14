@@ -1,6 +1,8 @@
 #ifndef x10ARRAY_H_
 #define x10ARRAY_H_
 
+namespace x10lib{
+
 typedef Array& x10_array_t;
 /** 
   * x10_array_t Class
@@ -123,4 +125,5 @@ x10_array_t<T, RANK>& overlay (const x10_array_t<T, RANK>& a1, const x10_array_t
 
 x10_array_t<T, RANK>& update (const x10_array_t<T, RANK>& a1, const x10_array_t<T, RANK>& a2);	
 
+}
 #endif /*X10ARRAY_H*/
