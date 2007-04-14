@@ -41,27 +41,29 @@ public class Clock : public Object {
 	 * is returned. 
 	 * 
 	 */
-	int resume(); 
+
+	 error_code resume(); 
 
 	/** Resume all clocks this activity is registered with. The thread must be executing an activity, 
 	 * otherwise an x10_ILLEGAL_ARG value is returned. 
 	 * 
 	 */
-	static int x10_resume(); 
+	static error_code x10_resume(); 
 
 	/** Perform a next on the given clock. The thread must be executing an activity
 	 * that is registered on the clock, otherwise an x10_ILLEGAL_ARG value
 	 * is returned. 
 	 * 
 	 */
-	int next(); 
+
+	error_code next(); 
 
 	/** Perform a next on all clocks this activity is registered with. 
 	 * The thread must be executing an activity, 
 	 * otherwise an x10_ILLEGAL_ARG value is returned. 
 	 * 
 	 */
-	static int next(); 
+	static error_code next(); 
 
 	/** Try a next on the given clock. The thread must be executing an activity
 	 * that is registered on the clock, otherwise an x10_ILLEGAL_ARG value
@@ -69,7 +71,8 @@ public class Clock : public Object {
 	 * x10_NOT_OK if executing a next would have suspended this activity.
 	 * 
 	 */
-	int try_next(); 
+
+         error_code try_next(); 
 
 	/** Try next on all the clocks this activity is registered with. The thread must 
 	 * be executing an activity, otherwise an x10_ILLEGAL_ARG value
@@ -77,7 +80,8 @@ public class Clock : public Object {
 	 * x10_NOT_OK if executing next() would have suspended this activity.
 	 * 
 	 */
-	static int try_next(); 
+
+	error_code int try_next(); 
 
 
 	/** Returns true if the current activity is registered with the given clock.
@@ -102,7 +106,8 @@ public class Clock : public Object {
 	 * is returned. 
 	 * 
 	 */
-	int drop();
+
+	error_code drop();
 
 	// collective operations
 	/** This thread must be executing an activity that is registered on the 
@@ -113,9 +118,10 @@ public class Clock : public Object {
 	 * The contents of the buffer of this activity are copied into the given
 	 * buffers for all other activities.
 	 */
-	int next_broadcast(void* buffer, int len, byte sender);
 
-	int next_reduce(void* buffer, int len, byte sender);
+	error_code next_broadcast(void* buffer, int len, byte sender);
+
+	error_code next_reduce(void* buffer, int len, byte sender);
 }
 
 }

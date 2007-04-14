@@ -15,6 +15,7 @@ extern int X10_cleanup();
 
 namespace x10lib {
 
+enum error_code {X10_ILLEGAL_ARG, X10_OK, X10_NOT_OK};
 
 /** 
  * The place where the current activity is executing.
