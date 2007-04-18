@@ -3,23 +3,28 @@
 
 namespace x10lib{
 
-typedef Array& x10_array_t;
+  /** 
+   * Current C++ standard does not allow  typedef templates.
+   * It was under proposal. But, not sure if it is fixed
+   * in the language yet. There are some ugly work-arounds, though!
+   */
+// typedef Array& x10_array_t;
+
 /** 
   * x10_array_t Class
   */
 template <typename T, int RANK>
 class Array<T, RANK>
 {
-	x10_array_t (x10_dist_t<RANK> dist);
+	Array<T, RANK>& (x10_dist_t<RANK> dist);
 	
-	x10_array_t (x10_array_t<T, RANK>& A, x10_region_t<Rank>& R);
+	Array<T, RANK>& (Array<T, RANK>&<T, RANK>& A, x10_region_t<Rank>& R);
 
-	x10_array_t<T, RANK>* clone();
+	Array<T, RANK>* clone();
 
 	x10_dist_t<RANK> dist() const;
 		
     
-
     /** The number of elements in the array that are allocated in the current place.
      */
 	int localSize() const;
@@ -28,18 +33,18 @@ class Array<T, RANK>
 	 */
 	T* localChunk();
 	
-    void putScalarAt (const x10_point_t<RANK>& P, T val);
+        void putScalarAt (const x10_point_t<RANK>& P, const T& val);
 	
-	void putScalarAt (int n, T val);
+	void putScalarAt (const int n, const T& val);
 	
-	T getScalarAt (const x10_point_t<RANK>& P) const;
+	T& getScalarAt (const x10_point_t<RANK>& P) const;
 	
-	T getScalarAt (int n) const;
+	T& getScalarAt (const int n) const;
 	
 	/** Return the array obtained from this by restricting its region to
 	 * this.region intersected with subRegion.
 	 */
-	x10_array_t view(const x10_region_t<RANK>& subRegion) const;
+	Array<T, RANK>& view(const x10_region_t<RANK>& subRegion) const;
 	
 	/** regionMap must be a region transformation, i.e. a tiled region
 	 * whose base region and index region are identical. 
@@ -52,9 +57,9 @@ class Array<T, RANK>
 	 * B[0,0] maps to A[0,0], B[0,1] maps to A[1,0] and B[1,1] maps to A[1,1].
 	 * Any gets/puts on the view read/modify the underlying array.
 	 */
-	 x10_array_t view(const x10_tiled_region_t<RANK>& regionMap) const;
+	 Array<T, RANK>& view(const x10_tiled_region_t<RANK>& regionMap) const;
 	
-	~x10_array_t(); 
+	~Array<T, RANK>(); 
  				
 	private:
 
@@ -69,7 +74,7 @@ class Array<T, RANK>
 // (Immutable)
 
 template <typename T, int RANK>
-class x10_unit_array_t : public x10_array_t <T, RANK>
+class x10_unit_array_t : public ARRAY<T, RANK>
 {
    x10_unit_array_t (int value);
 	
@@ -112,13 +117,11 @@ void reduce (x10_array_t<T, RANK> &arg, int dim, x10_op_t op);
 template <typename T, int RANK-1>
 void scan (x10_array_t<T, RANK> &arg, int dim, x10_op_t op);
 
-
 //restriction
 x10_array_t<T, RANK>& restriction (const x10_dist_t<RANK>& R);	
 
 
 //assembling
-
 x10_array_t<T, RANK>& assemble (const x10_array_t<T, RANK>& a1, const x10_array_t<T, RANK>& a2);	
 
 x10_array_t<T, RANK>& overlay (const x10_array_t<T, RANK>& a1, const x10_array_t<T, RANK>& a2);	
