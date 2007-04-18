@@ -59,7 +59,8 @@ class X10_rectangular_region_t : private x10_region_t<RANK>
 template<int RANK>
 class X10_tiled_region_t : private X10_region_t<RANK> 
 {
-	public:
+
+public:
  
   /** A general constructor that permits the user to supply an array of regions.
    */
