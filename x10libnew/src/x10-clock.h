@@ -7,7 +7,7 @@
 
 namespace x10lib{
 
-namespace x10lang{
+namespace lang{
 
 class Clock {
 

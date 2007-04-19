@@ -6,7 +6,7 @@
 namespace x10lib{
 
 
-namespace x10acts{
+namespace acts{
 /**
  * Spawn an async locally.
  */
