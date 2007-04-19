@@ -3,7 +3,8 @@
 
 namespace x10lib {
 
-using namespace x10::lang;
+namespace xfer {
+
 //*******************SWITCH OPERATIONS**********************************
 /** A switch is an asymmetric clock -- only the thread creating it
  *  may perform a next operation on it. 
@@ -12,9 +13,8 @@ using namespace x10::lang;
  * to these operations.  The same switch may be used for nonblocking calls
  * issued to different destination nodes. 
  */
-typedef Switch& X10_switch_t;
 
-public class Switch : public Object {
+class Switch  {
 	public: 
 	/**
 	 * Create and return a switch. Nonblocking operations involving any remote
@@ -30,7 +30,7 @@ public class Switch : public Object {
 	 * been performed. After this call returns, the switch may be used again 
 	 * (the clock advances).
 	 * Note that the implementation need not start performing any remote nb operations
-	 * posted on a switch h until X10_wait(h) has been called. 
+	 * posted on a switch h until wait(h) has been called. 
 	 * At this point, all the remote operations to be performed
 	 * are known, and the implementation may aggregate remote put and get
 	 * requests for the same node separately.
@@ -39,10 +39,10 @@ public class Switch : public Object {
 	 */                    
 	int wait(); 
 	
-	/** Perform an X10_wait(h) on all switches h in the order in which they were created
+	/** Perform an wait(h) on all switches h in the order in which they were created
 	 * by this thread. 
 	 */     
-	static int wait();
+	static int wait_all();
 	
 	/** Check if the switch is closed. The switch must have been created by
 	 * the current thread, otherwise the result is undefined.
@@ -52,7 +52,9 @@ public class Switch : public Object {
 	 * Extension TBD: Consider returning (a lower bound on) the number of incomplete operations.
 	 */   
 	int try_wait();   
-}
+};
 
+
+}
 }
 #endif /*X10SWITCH_H_*/

@@ -3,10 +3,13 @@
 
 namespace x10lib{
 
+namespace x10lang{
+
 template<int RANK>
-class Point
+class Point {
+
  public:
-   Point (const int values {}
+   Point (const int values) {}
   
  private:
 
@@ -18,6 +21,7 @@ class Point<1>
 {
   public:
     Point (int i) : i_(i) {}
+
   private:
    const int i_;
 };
@@ -27,6 +31,7 @@ class Point<2>
 {
   public:
     Point (int i, int j) : i_(i), j_(j) {}
+
   private:
    const int i_;
    const int j_;
@@ -37,11 +42,12 @@ class Point<3>
 {
   public:
     Point (int i, int j, int k) : i_(i), j_(j), k_(k) {}
+
   private:
    const int i_;
    const int j_;
    const int k_;
 };
-
+}
 }
 #endif /*X10POINT_H_*/

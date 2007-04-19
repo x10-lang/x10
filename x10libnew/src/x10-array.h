@@ -1,28 +1,27 @@
 #ifndef x10ARRAY_H_
 #define x10ARRAY_H_
 
+#include "x10-dist.h"
+
 namespace x10lib{
 
-  /** 
-   * Current C++ standard does not allow  typedef templates.
-   * It was under proposal. But, not sure if it is fixed
-   * in the language yet. There are some ugly work-arounds, though!
-   */
-// typedef Array& x10_array_t;
+namespace x10lang{
+
+typedef enum {ROW_MAJOR, COLUMN_MAJOR, TILE_MAJOR} order_t; 
 
 /** 
-  * x10_array_t Class
+  * x10_Array Class
   */
 template <typename T, int RANK>
-class Array<T, RANK>
+class Array
 {
-	Array<T, RANK>& (x10_dist_t<RANK> dist);
+	Array (Dist<RANK>& dist);
 	
-	Array<T, RANK>& (Array<T, RANK>&<T, RANK>& A, x10_region_t<Rank>& R);
+	Array (Array<T, RANK>& A, Region<RANK>& R);
 
 	Array<T, RANK>* clone();
 
-	x10_dist_t<RANK> dist() const;
+	Dist<RANK> dist() const;
 		
     
     /** The number of elements in the array that are allocated in the current place.
@@ -33,18 +32,18 @@ class Array<T, RANK>
 	 */
 	T* localChunk();
 	
-        void putScalarAt (const x10_point_t<RANK>& P, const T& val);
+        void putScalarAt (const Point<RANK>& P, const T& val);
 	
 	void putScalarAt (const int n, const T& val);
 	
-	T& getScalarAt (const x10_point_t<RANK>& P) const;
+	T& getScalarAt (const Point<RANK>& P) const;
 	
 	T& getScalarAt (const int n) const;
 	
 	/** Return the array obtained from this by restricting its region to
 	 * this.region intersected with subRegion.
 	 */
-	Array<T, RANK>& view(const x10_region_t<RANK>& subRegion) const;
+	Array<T, RANK>& view(const Region<RANK>& subRegion) const;
 	
 	/** regionMap must be a region transformation, i.e. a tiled region
 	 * whose base region and index region are identical. 
@@ -57,9 +56,9 @@ class Array<T, RANK>
 	 * B[0,0] maps to A[0,0], B[0,1] maps to A[1,0] and B[1,1] maps to A[1,1].
 	 * Any gets/puts on the view read/modify the underlying array.
 	 */
-	 Array<T, RANK>& view(const x10_tiled_region_t<RANK>& regionMap) const;
+	 Array<T, RANK>& view(const Region<RANK>& regionMap) const;
 	
-	~Array<T, RANK>(); 
+	~Array (); 
  				
 	private:
 
@@ -67,66 +66,68 @@ class Array<T, RANK>
 
 	protected:
 	
-        x10_dist_t <RANK> dist_;	
+        Dist<RANK> dist_;	
 }; 
 
-// Useful for casting a scalar to x10_array_t 
+// Useful for casting a scalar to Array 
 // (Immutable)
 
 template <typename T, int RANK>
-class x10_unit_array_t : public ARRAY<T, RANK>
+class UnitArray : public Array<T, RANK>
 {
-   x10_unit_array_t (int value);
+   UnitArray (int value);
 	
    T& operator[] (const Point<RANK>& P);
    
-   x10_unit_array_t<T, RANK>& operator[] (const x10_region_t<RANK>& R);
+   UnitArray<T, RANK>& operator[] (const Region<RANK>& R);
 
-         //the same value is replicated in the x10_array_t
-	     //upon a write, create a new data_ for this x10_array_t
+         //the same value is replicated in the array_t
+	     //upon a write, create a new data_ for this array_t
 };
 
+
 // vjQ: Why are these methods outside a class?
+// Answer: There is no specific reason. Only that all the methods are like iterators and algorithms; writing it like this make them clear and seperate them from 
+//   the types. This is something along the lines of STL, but not quite close to it. I can put these in to Array class, if you want. 
 
 //initialization routines
 template <typename T, int RANK, typename CONST_INIT>
-void initialize (x10_array_t<T, RANK>& arr, CONST_INIT op);
+void initialize (Array<T, RANK>& arr, CONST_INIT op);
 
-template <typename T, int RANK, typename POINT_INIT> //(check if this is valid)
-void initialize (x10_array_t<T, RANK>& arr, POINT_INIT<RANK> op);
+template <typename T, int RANK, template <int RANK> class POINT_INIT> 
+void initialize (Array<T, RANK>& arr, POINT_INIT<RANK> op);
 
 //pointwise routines for standard operators
-template <typename T, int RANK>
-void iterate (x10_array_t<T, RANK>& arr, order_t order, x10_op_t op);
-
-template <typename T, int RANK, int N>
-void iterate (x10_array_t<T, RANK> (&args) [N], order_t order, x10_op_t (&op)[N]);
-
-//pointwise routines for "lift"ed operators
-template <typename T, int RANK, typename SCALAR_OP>
-void iterate (x10_array_t<T, RANK>& arr, order_t order, SCALAR_OP op);
+template <typename T, int RANK, int N, typename SCALAR_OP>
+void iterate (Array<T, RANK> (&args) [N], order_t order,  const SCALAR_OP& op);
 
 template <typename T, int RANK, int N, typename SCALAR_OP>
-void iterate (x10_array_t<T, RANK> (&args) [N], order_t order,  SCALAR_OP op);
+void iterate (Array<T, RANK> (&args) [N], order_t order,  const SCALAR_OP (&op)[N-1]);
 
 //reduce
-template <typename T, int RANK-1>
-void reduce (x10_array_t<T, RANK> &arg, int dim, x10_op_t op);
+template <typename T, int RANK, typename SCALAR_OP>
+T reduce (Array<T, RANK> &arg, int dim, const SCALAR_OP& op);
 
 //scan
-template <typename T, int RANK-1>
-void scan (x10_array_t<T, RANK> &arg, int dim, x10_op_t op);
+template <typename T, int RANK, typename SCALAR_OP>
+Array<T, RANK> scan (Array<T, RANK> &arg, int dim, const SCALAR_OP& op);
 
 //restriction
-x10_array_t<T, RANK>& restriction (const x10_dist_t<RANK>& R);	
+template <typename T, int RANK>
+Array<T, RANK>& restriction (const Dist<RANK>& R);	
 
 
 //assembling
-x10_array_t<T, RANK>& assemble (const x10_array_t<T, RANK>& a1, const x10_array_t<T, RANK>& a2);	
+template <typename T, int RANK>
+Array<T, RANK>& assemble (const Array<T, RANK>& a1, const Array<T, RANK>& a2);	
 
-x10_array_t<T, RANK>& overlay (const x10_array_t<T, RANK>& a1, const x10_array_t<T, RANK>& a2);	
+template <typename T, int RANK>
+Array<T, RANK>& overlay (const Array<T, RANK>& a1, const Array<T, RANK>& a2);	
 
-x10_array_t<T, RANK>& update (const x10_array_t<T, RANK>& a1, const x10_array_t<T, RANK>& a2);	
+template <typename T, int RANK>
+Array<T, RANK>& update (const Array<T, RANK>& a1, const Array<T, RANK>& a2);	
+
+}
 
 }
 #endif /*X10ARRAY_H*/
