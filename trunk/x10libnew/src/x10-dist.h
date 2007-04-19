@@ -6,7 +6,7 @@
 
 namespace x10lib{
 
-namespace x10lang{
+namespace lang{
 /**
   * Distribution class (ABSTRACT)
   *

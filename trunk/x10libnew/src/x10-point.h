@@ -3,7 +3,7 @@
 
 namespace x10lib{
 
-namespace x10lang{
+namespace lang{
 
 template<int RANK>
 class Point {

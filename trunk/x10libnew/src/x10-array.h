@@ -5,7 +5,7 @@
 
 namespace x10lib{
 
-namespace x10lang{
+namespace lang{
 
 typedef enum {ROW_MAJOR, COLUMN_MAJOR, TILE_MAJOR} order_t; 
 
