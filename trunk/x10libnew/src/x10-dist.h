@@ -1,61 +1,72 @@
 #ifndef X10DIST_H_
 #define X10DIST_H_
 
+#include "x10-common.h"
+#include "x10-region.h"
+
 namespace x10lib{
 
-/**
- * Update dist to be the distribution obtained by pointing the i'th region to the i'th place.
- */
-extern int X10_dist_make(X10_region_t* regions, X10_place_t* places, int num, X10_dist_t* dist);
-
+namespace x10lang{
 /**
   * Distribution class (ABSTRACT)
   *
   */
 template <int RANK>
-class X10_dist_t
+class Dist
 {
+
 public:
 
  /** The index region for places and region should be the same. For each point in this
   * region, region(p) is mapped to places(p). Note: An array of places corresponds to
   * ARMCI's notion of a domain.
   */
-  x10_dist_t (const x10_tiled_region_t<Rank>& region, x10_array_t<x10_place_t>& places);
+
+  Dist (const Region<RANK>& region, place_t* places);
   
-  virtual x10_place_t place (const x10_point_t<RANK>& p) const = 0;
+  virtual place_t place (const Point<RANK>& p) const = 0;
 
 protected:
 
-   x10_region_t<RANK> region_;
-   x10_place_t* places_;
+   Region<RANK> region_;
+   place_t* places_;
   
 };
 
 /** A constant distribution maps every point in its underlying region to the same place.
  */ 
 template <int RANK>
-class x10_const_dist_t : private x10_dist_t<RANK>
+class ConstDist : private Dist<RANK>
 {
 public:
  
-  x10_const_dist_t (const x10_region_t<Rank>& region, const x10_place_t& p);
+  ConstDist (const Region<RANK>& region, const place_t& p);
 
-   x10_place_t place (const x10_point_t<RANK>& p);
+   place_t place (const Point<RANK>& p);
 
 };
 
 
 
 template <int RANK>
-class x10_unique_dist_t : private x10_dist_t<RANK>
+class UniqueDist : private Dist<RANK>
 {
 
 public:
  
-  x10_unique_dist_t(const x10_region_t<Rank>& region, x10_place_t places);
+  UniqueDist(const Region<RANK>& region, place_t places);
   
-  x10_place_t place (const x10_point_t<RANK>& p) const;
+  place_t place (const Region<RANK>& p) const;
 };
+
+/**
+ * Update dist to be the distribution obtained by pointing the i'th region to the i'th place.
+ */
+template <int RANK>
+extern int make_dist(Region<RANK>* regions, place_t* places, int num, Dist<RANK>* dist);
+
+
+
+}
 }
 #endif /*X10DIST_H_*/

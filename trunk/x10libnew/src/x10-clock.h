@@ -3,12 +3,13 @@
 /** A clock permits phased sequence of operations.
  */
 
+#include "x10-common.h"
 
 namespace x10lib{
 
-typedef Clock& X10_clock_t; 
+namespace x10lang{
 
-public class Clock : public Object {
+class Clock {
 
 	public : 
 
@@ -27,7 +28,7 @@ public class Clock : public Object {
 	 * reference to a remote clock. 
 	 * This function is internal to the implementation of clocks.
 	 */
-	X10_clock_t* X10_clock_make_proxy(X10_gas_ref_t parent);
+	clock_t clock_make_proxy (gas_ref_t parent);
 	
 	
 	/**
@@ -35,22 +36,21 @@ public class Clock : public Object {
 	 * 
 	 * This function is internal to the implementation of clocks.
 	 */
-	int x10_clock_advance_proxy(x10_gas_ref_t remote);
+	int clock_advance_proxy(gas_ref_t remote);
 
 	/** Resume the clock. The thread must be executing an activity
 	 * that is registered on the clock, otherwise an x10_ILLEGAL_ARG value
 	 * is returned. 
 	 * 
 	 */
-	 int resume(); 
+	 error_t resume(); 
 
 	/** Resume all clocks this activity is registered with. The thread must be executing an activity, 
 	 * otherwise an x10_ILLEGAL_ARG value is returned. 
 	 * 
 	 */
 
-        //This should rather be part of Activity?? 
-	static int resume_all(); //the above resume and this one cannot be overloaded in C++
+	static error_t resume_all();
 
 	/** Perform a next on the given clock. The thread must be executing an activity
 	 * that is registered on the clock, otherwise an x10_ILLEGAL_ARG value
@@ -58,7 +58,7 @@ public class Clock : public Object {
 	 * 
 	 */
 
-	int next(); 
+	error_t next(); 
 
 	/** Perform a next on all clocks this activity is registered with. 
 	 * The thread must be executing an activity, 
@@ -66,8 +66,7 @@ public class Clock : public Object {
 	 * 
 	 */
 
-        //This should rather be part of Activity?? 
-	static int next_all();  //the above next and this one cannot be overloaded in C++
+	static error_t next_all();  
 
 	/** Try a next on the given clock. The thread must be executing an activity
 	 * that is registered on the clock, otherwise an x10_ILLEGAL_ARG value
@@ -76,7 +75,7 @@ public class Clock : public Object {
 	 * 
 	 */
 
-         int try_next(); 
+         error_t try_next(); 
 
 	/** Try next on all the clocks this activity is registered with. The thread must 
 	 * be executing an activity, otherwise an x10_ILLEGAL_ARG value
@@ -84,9 +83,8 @@ public class Clock : public Object {
 	 * x10_NOT_OK if executing next() would have suspended this activity.
 	 * 
 	 */
-
-        //This should rather be part of Activity?? 
-	static int try_next_all(); 
+      
+	static error_t try_next_all(); 
 
 
 	/** Returns true if the current activity is registered with the given clock.
@@ -112,7 +110,7 @@ public class Clock : public Object {
 	 * 
 	 */
 
-	int drop();
+	error_t drop();
 
 	// collective operations
 	/** This thread must be executing an activity that is registered on the 
@@ -124,10 +122,11 @@ public class Clock : public Object {
 	 * buffers for all other activities.
 	 */
 
-	int next_broadcast(void* buffer, int len, byte sender);
+	error_t next_broadcast(void* buffer, int len, char sender);
 
-	int next_reduce(void* buffer, int len, byte sender);
+	error_t next_reduce(void* buffer, int len, char sender);
+};
+
 }
-
 }
 #endif /*X10CLOCK_H_*/

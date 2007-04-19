@@ -1,16 +1,24 @@
 #ifndef X10GAS_H_
 #define X10GAS_H_
 
-typedef uint32 X10_place_t;
-typedef uint64 X10_gas_ref_t;
+#include "x10-common.h"
 
+namespace x10lib {
+
+namespace xfer {
 /**
  * Does the ref point to a location homed on the current node?
  */
-extern boolean X10_gas_islocal(X10_gas_ref_t* ref);
+
+extern bool gas_islocal(gas_ref_t* ref);
+
 /**
  * Return the node id for the current node.
  */
-extern X10_place_t X10_gas_here()
+extern place_t gas_here();
+
+}
+
+}
 
 #endif /*X10GAS_H_*/
