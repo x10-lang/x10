@@ -21,7 +21,7 @@ namespace acts{
  * Spawn a switched async locally. Note: switches must always propagated to spawned activities.
  * That is, if an activity A spawns another activity B, it must always pass on its switch (if any) to B.
  */
- error_t async_spawn_switched (async_handler_t handler, switch_t* clocks, int numargs, ...);
+ error_t async_spawn_switched (async_handler_t handler, switch_t clocks, int numargs, ...);
 
 /**
  * Spawn an async in the given place.
