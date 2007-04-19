@@ -7,8 +7,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ibm.domo.ast.x10.client.X10EclipseSourceAnalysisEngine;
-import com.ibm.wala.cast.java.client.EclipseProjectSourceAnalysisEngine;
+import com.ibm.domo.ast.x10.client.X10SourceAnalysisEngine;
+import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.test.IRTests;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
@@ -31,8 +31,8 @@ public class X10IRTests extends IRTests {
 	super(name);
     }
 
-    protected EclipseProjectSourceAnalysisEngine getAnalysisEngine(final String[] mainClassDescriptors) {
-	return new X10EclipseSourceAnalysisEngine() {
+    protected JavaSourceAnalysisEngine getAnalysisEngine(final String[] mainClassDescriptors) {
+	return new X10SourceAnalysisEngine() {
           protected Entrypoints 
             makeDefaultEntrypoints(AnalysisScope scope, ClassHierarchy cha) 
 	  {
@@ -51,7 +51,7 @@ public class X10IRTests extends IRTests {
 
     public void testAsync1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, true);
+		new GraphAssertions(), null, false);
     }
 
     public void testFuture1() {
@@ -61,17 +61,17 @@ public class X10IRTests extends IRTests {
 
     public void testFinish1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, true);
+		new GraphAssertions(), null, false);
     }
 
     public void testFor1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, true);
+		new GraphAssertions(), null, false);
     }
 
     public void testForEach1() {
 	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(),
-		new GraphAssertions(), null, true);
+		new GraphAssertions(), null, false);
     }
 
 //    public void testAtEach1() {
