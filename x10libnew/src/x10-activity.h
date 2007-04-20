@@ -7,6 +7,7 @@ namespace x10lib{
 
 
 namespace acts{
+
 /**
  * Spawn an async locally.
  */
@@ -23,6 +24,8 @@ namespace acts{
  */
  error_t async_spawn_switched (async_handler_t handler, switch_t clocks, int numargs, ...);
 
+
+
 /**
  * Spawn an async in the given place.
  */
@@ -35,9 +38,43 @@ namespace acts{
  * Spawn a clocked async in the given place.
  */
  error_t async_spawn_switched (place_t place, async_handler_t handler, switch_t clocks, int numargs, ...);
+ 
+ 
+/**
+ * Handling Futures
+ *
+ */
+ 
+template<result_t>
+class Future {
+	public:
+   		Future () {};
+   		result_t force ();
+  
+ 	private:
+ 		result_t getResult();
+ 		void setResult(const result_t& result);
+}
+ 
+ /**
+  * Create future locally using either clocks or switches
+  * (Future<result_t> is the return type) 
+  */ 
+Future<result_t> future_spawn (async_handler_t handler, int numargs, ...);
+Future<result_t> future_spawn_clocked (async_handler_t handler, clock_t clocks, int numargs, ...);
+Future<result_t> future_spawn_switched (async_handler_t handler, switch_t clocks, int numargs, ...);
+
+/**
+  * Create future remotely using either clocks or switches
+  * (Future<result_t> is the return type)
+  */ 
+Future<result_t> future_spawn (place_t place, async_handler_t handler, int numargs, ...);
+Future<result_t> future_spawn_clocked (place_t place, async_handler_t handler, clock_t clocks, int numargs, ...);
+Future<result_t> future_spawn_switched (place_t place, async_handler_t handler, switch_t clocks, int numargs, ...);
+
+
 
 }
-
 }
 
 #endif /*X10ACTIVITY_H_*/
