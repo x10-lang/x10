@@ -1,6 +1,8 @@
 #ifndef X10_COMMON_H
 #define X10_COMMON_H
 
+#include <iostream>
+//#include <assert>
 
 namespace x10lib 
 {

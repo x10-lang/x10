@@ -15,7 +15,7 @@ namespace xfer {
  * The place where the current activity is executing.
  */
 
-extern place_t here();
+ place_t here();
 
 //*******************GET OPERATIONS**********************************
 
@@ -26,7 +26,7 @@ extern place_t here();
  * by threads in the source process.
  * On return from this call, the bytes are available in dest.
  */
-extern int get(gas_ref_t src,  void* dest, int nbytes);
+ int get(gas_ref_t src,  void* dest, int nbytes);
 
 /** Initiation of a nonblocking remote get operation for contiguous bytes. 
  * Fetches nbytes bytes from address src on node to dest. 
@@ -38,7 +38,7 @@ extern int get(gas_ref_t src,  void* dest, int nbytes);
  * Note: X10lib does not support "implicit" nonblocking calls. The programmer
  * should simply create a "default" switch and use that explicitly.
  */
-extern int get_nb(gas_ref_t src, void* dest, int nbytes, 
+ int get_nb(gas_ref_t src, void* dest, int nbytes, 
                       switch_t handle);
                       
 /** A remote get operation for int/long/double/float. 
@@ -50,7 +50,7 @@ extern int get_nb(gas_ref_t src, void* dest, int nbytes,
  */             
 
 template <typename T>
-extern T getValue_int (gas_ref_t src);
+ T getValue_int (gas_ref_t src);
 
 // Also operations for strided copy, generalized i/o vector copy.
 
@@ -63,7 +63,7 @@ extern T getValue_int (gas_ref_t src);
  * On return from this call, the bytes are available to be read from
  * the remote node in dest.
  */
-extern int put(void* src, gas_ref_t dest, int bytes);
+ int put(void* src, gas_ref_t dest, int bytes);
 
 
 /** Initiation of a nonblocking remote put operation for contiguous bytes. 
@@ -76,7 +76,7 @@ extern int put(void* src, gas_ref_t dest, int bytes);
  * Note: X10lib does not support "implicit" nonblocking calls. The programmer
  * should simply create a "default" switch and use that explicitly.
  */
-extern int put_nb(void* src, gas_ref_t dest, int bytes, 
+ int put_nb(void* src, gas_ref_t dest, int bytes, 
                       switch_t handle);
 
 /** A remote immediate put operation for int/long/double/float. 
@@ -86,7 +86,7 @@ extern int put_nb(void* src, gas_ref_t dest, int bytes,
  * by threads in the source process.
  */             
 template <typename T>
-extern int putValue_int(T value, gas_ref_t dest);
+ int putValue_int(T value, gas_ref_t dest);
 
 // Way to organize processors into groups, e.g. using a clock.
 

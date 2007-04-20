@@ -2,6 +2,7 @@
 #define X10REGION_H_
 
 #include "x10-point.h"
+#include <assert.h>
 
 namespace x10lib {
 
@@ -9,6 +10,8 @@ namespace lang{
 
 template<int RANK>
 class Region {
+public:
+	Region (); 
 	
 	/** Return true if the point lies in the given region, otherwise false.
   	*/ 
@@ -31,9 +34,11 @@ class Region {
 };
 
 template<int RANK>
-class RectangularRegion : private Region<RANK>
+class RectangularRegion : public Region<RANK>
 {
   public:
+
+  RectangularRegion() {}; //useful for declaring array of regions.
  
  /** Return the rectangular region whose origin is [0,...,0] and with the given diagonal.
   */
@@ -49,6 +54,26 @@ class RectangularRegion : private Region<RANK>
    */
   void reshape (const Point<RANK>& newDiagonal);
 
+   /** Return true if the point lies in the given region, otherwise false.
+   */ 
+   bool contains(const Point<RANK>& x) const ;
+	
+   /** Returns the ordinal number for this point in the canonical 
+    * (lexicographic) ordering of points in this region. Returns -1 if
+    * the point does not lie in the region. 
+    */
+  
+    int ord(const Point<RANK>& x) const;
+	
+    /** Returns the point in the region whose ordinal is ord.
+     * What if ord is out of range?
+     */
+    Point<RANK> coord(int ord) const;
+	
+    bool isEqual(const Region<RANK>& x) const;
+    bool isConvex() const;
+    bool isDisjoint(const Region<RANK>& r) const;
+   
   // TBD: add various operations on regions, such as intersection, union, set difference.
   // TBD: Permit strided regions.
 
@@ -81,14 +106,19 @@ public:
    */
 
   template <int RANK2>
-  static TiledRegion<RANK> makeBlock(const Region<RANK> region, const Region<RANK2> grid);
-  
+  static TiledRegion<RANK> makeBlock(const Region<RANK> region, const Region<RANK2> grid)
+  {
+       assert (false);
+  }
   /** As in makeBlock, except that the region is blocked in only one dimension, as specified by 
    * dim. 0 <= dim <= RANK-1.
    */
  
   template <int RANK2>
-  static TiledRegion<RANK> makeBlock1d(const Region<RANK> region, int dim, const Region<RANK2> grid);
+  static TiledRegion<RANK> makeBlock1d(const Region<RANK> region, int dim, const Region<RANK2> grid)
+   {
+      assert (false);
+   }
  
  /** A region transformation is a tiled region whose indexing region is identical to its base region.
   * Thus it maps each point in its index region to a region containing a single point. For instance
