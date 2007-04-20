@@ -17,10 +17,6 @@ typedef char async_handler_t;
 
 typedef enum { X10_OK, X10_NOT_OK, X10_ILLEGAL_ARG} error_t;
 
-typedef class Clock* clock_t; 
-
-typedef class Switch* switch_t;
-
 extern int init (async_handler_t* handlers, int num);
 
 extern int finalize();

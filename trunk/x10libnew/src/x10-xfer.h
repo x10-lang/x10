@@ -9,7 +9,6 @@
 
 namespace x10lib {
 
-namespace xfer {
 
 /** 
  * The place where the current activity is executing.
@@ -93,6 +92,5 @@ template <typename T>
 // Perform collective operations, restricted to a group.
 
 // 
-}                  
 }
 #endif /*X10XFER_H_*/

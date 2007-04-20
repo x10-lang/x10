@@ -3,7 +3,6 @@
 
 namespace x10lib {
 
-namespace xfer {
 
 //*******************SWITCH OPERATIONS**********************************
 /** A switch is an asymmetric clock -- only the thread creating it
@@ -55,6 +54,6 @@ class Switch  {
 };
 
 
-}
+typedef class Switch* switch_t;
 }
 #endif /*X10SWITCH_H_*/

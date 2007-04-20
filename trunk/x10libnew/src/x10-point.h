@@ -3,8 +3,6 @@
 
 namespace x10lib{
 
-namespace lang{
-
 template<int RANK>
 class Point {
 
@@ -48,6 +46,6 @@ class Point<3>
    const int j_;
    const int k_;
 };
-}
+
 }
 #endif /*X10POINT_H_*/

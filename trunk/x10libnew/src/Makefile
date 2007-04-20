@@ -7,10 +7,14 @@ TAR_COMMAND = q
 	
 .SUFFIXES: *.o *.cpp *.h
 
-.cpp.o: *.h
+OBJS = 	x10-array.o\
+	x10-clock.o\
+	x10-region.o
+	
+.cpp.o: *.h *.cpp
 	$(CCC) $(CCFLAGS) $< 
 
-$(LIB):   *.o
+$(LIB):  $(OBJS) 
 	$(TAR) $(TAR_COMMAND) $(LIB) $<
 
 all:	$(LIB)

@@ -6,7 +6,6 @@
 
 namespace x10lib{
 
-namespace lang{
 /**
   * Distribution class (ABSTRACT)
   *
@@ -22,7 +21,7 @@ public:
   * ARMCI's notion of a domain.
   */
 
-  Dist (const Region<RANK>& region, place_t* places);
+  Dist (const Region<RANK>& region, place_t* places) {}
   
   virtual place_t place (const Point<RANK>& p) const = 0;
 
@@ -40,9 +39,9 @@ class ConstDist : private Dist<RANK>
 {
 public:
  
-  ConstDist (const Region<RANK>& region, const place_t& p);
+  ConstDist (const Region<RANK>& region, const place_t& p) {}
 
-   place_t place (const Point<RANK>& p);
+   place_t place (const Point<RANK>& p) { assert (false); }
 
 };
 
@@ -54,9 +53,9 @@ class UniqueDist : private Dist<RANK>
 
 public:
  
-  UniqueDist(const Region<RANK>& region, place_t places);
+  UniqueDist(const Region<RANK>& region, place_t places) {}
   
-  place_t place (const Region<RANK>& p) const;
+  place_t place (const Region<RANK>& p) const {assert(false);}
 };
 
 /**
@@ -67,6 +66,5 @@ extern int make_dist(Region<RANK>* regions, place_t* places, int num, Dist<RANK>
 
 
 
-}
 }
 #endif /*X10DIST_H_*/

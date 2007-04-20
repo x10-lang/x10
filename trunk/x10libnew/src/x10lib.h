@@ -12,6 +12,10 @@
 
 #include "x10-array.h"
 
+#ifndef __TEMP__INC__
+
 #include "x10-region.cpp"
+
+#endif
 
 #endif /*X10LIB_H_*/
