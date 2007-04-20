@@ -17,6 +17,6 @@ all:	$(LIB)
 	ranlib $(LIB)
 
 clean: *.o *.a
-	rm -f *.o *.a *~
+	rm -f *.o *.a *~ 
 			
 	
