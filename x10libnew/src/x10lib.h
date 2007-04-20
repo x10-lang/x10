@@ -12,4 +12,6 @@
 
 #include "x10-array.h"
 
+#include "x10-region.cpp"
+
 #endif /*X10LIB_H_*/
