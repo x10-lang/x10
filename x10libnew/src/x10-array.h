@@ -5,8 +5,6 @@
 
 namespace x10lib{
 
-namespace lang{
-
 typedef enum {ROW_MAJOR, COLUMN_MAJOR, TILE_MAJOR} order_t; 
 
 /** 
@@ -58,7 +56,7 @@ class Array
 	 */
 	 Array<T, RANK>& view(const Region<RANK>& regionMap) const;
 	
-	~Array (); 
+	~Array () { delete [] data_; }
  				
 	private:
 
@@ -94,6 +92,7 @@ class UnitArray : public Array<T, RANK>
 template <typename T, int RANK, typename CONST_INIT>
 void initialize (Array<T, RANK>& arr, CONST_INIT op);
 
+
 template <typename T, int RANK, template <int RANK> class POINT_INIT> 
 void initialize (Array<T, RANK>& arr, POINT_INIT<RANK> op);
 
@@ -126,8 +125,6 @@ Array<T, RANK>& overlay (const Array<T, RANK>& a1, const Array<T, RANK>& a2);
 
 template <typename T, int RANK>
 Array<T, RANK>& update (const Array<T, RANK>& a1, const Array<T, RANK>& a2);	
-
-}
 
 }
 #endif /*X10ARRAY_H*/

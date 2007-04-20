@@ -7,8 +7,6 @@
 
 namespace x10lib{
 
-namespace lang{
-
 class Clock {
 
 	public : 
@@ -127,6 +125,6 @@ class Clock {
 	error_t next_reduce(void* buffer, int len, char sender);
 };
 
-}
+typedef Clock* clock;
 }
 #endif /*X10CLOCK_H_*/

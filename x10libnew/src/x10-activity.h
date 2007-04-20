@@ -6,8 +6,6 @@
 namespace x10lib{
 
 
-namespace acts{
-
 /**
  * Spawn an async locally.
  */
@@ -78,7 +76,6 @@ Future<result_t> future_spawn_clocked (place_t place, async_handler_t handler, c
 template<typename result_t>
 Future<result_t> future_spawn_switched (place_t place, async_handler_t handler, switch_t clocks, int numargs, ...);
 
-}
 }
 
 #endif /*X10ACTIVITY_H_*/

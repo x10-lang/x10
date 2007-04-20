@@ -1,6 +1,6 @@
 #include "x10-region.h"
 
-using namespace x10lib::lang;
+using namespace x10lib;
 
 template <int RANK>
  RectangularRegion <RANK>  :: RectangularRegion (const Point<RANK>& diagonal)

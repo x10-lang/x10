@@ -6,8 +6,6 @@
 
 namespace x10lib {
 
-namespace lang{
-
 template<int RANK>
 class Region {
 
@@ -119,7 +117,6 @@ public:
   * [0,0] -> [0:0,0:0], [0,1] -> [1:1,0:0], [1,0] -> [0:0,1:1], [1,1] -> [1:1,1:1].
   */
 };
-}
 
 }
 #endif /*X10REGION_H_*/
