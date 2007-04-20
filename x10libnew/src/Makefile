@@ -2,8 +2,8 @@
 CCC = g++
 CCFLAGS = -c -O3 $(INCLUDE) 
 LIB = libx10.a
-TAR = tar
-TAR_COMMAND = cvf
+TAR = ar
+TAR_COMMAND = q
 	
 .SUFFIXES: *.o *.cpp *.h
 
