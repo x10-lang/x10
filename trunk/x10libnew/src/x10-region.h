@@ -10,8 +10,9 @@ namespace lang{
 
 template<int RANK>
 class Region {
+
 public:
-	Region (); 
+	Region () {} 
 	
 	/** Return true if the point lies in the given region, otherwise false.
   	*/ 
@@ -57,17 +58,9 @@ class RectangularRegion : public Region<RANK>
    /** Return true if the point lies in the given region, otherwise false.
    */ 
    bool contains(const Point<RANK>& x) const ;
-	
-   /** Returns the ordinal number for this point in the canonical 
-    * (lexicographic) ordering of points in this region. Returns -1 if
-    * the point does not lie in the region. 
-    */
-  
+	  
     int ord(const Point<RANK>& x) const;
 	
-    /** Returns the point in the region whose ordinal is ord.
-     * What if ord is out of range?
-     */
     Point<RANK> coord(int ord) const;
 	
     bool isEqual(const Region<RANK>& x) const;
