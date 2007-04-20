@@ -1,5 +1,5 @@
 #include <iostream>
-#include "x10-region.h"
+#include "x10lib.h"
 
 using namespace x10lib::lang;
 
