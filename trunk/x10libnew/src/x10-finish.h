@@ -15,3 +15,5 @@ void propagate_exception (async_handler_t handler, int numargs, ...);
 
 }
 }
+
+#endif
