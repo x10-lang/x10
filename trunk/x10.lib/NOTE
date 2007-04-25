@@ -44,3 +44,9 @@ specified while adding/modifying the code.
 
 * Sample source files are available under "src" subdirs for guiding the programmer
   to extend the respective functionality.
+
+* Suffix your template files with ".tcc".  For example, array template file
+  should be named "array.tcc".
+
+* Template files should not be exposed.  Include them in header files i.e.,
+  "array.tcc" should be part of "array.h".

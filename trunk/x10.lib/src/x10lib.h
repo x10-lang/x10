@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.1.1.1 2007-04-25 09:57:46 srkodali Exp $
+ * $Id: x10lib.h,v 1.2 2007-04-25 13:33:30 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -18,6 +18,8 @@
 #include <x10/gas.h>
 #include <x10/activity.h>
 */
+#include <x10/array.h> /* sample inclusion */
+#include <x10/sched.h> /* sample inclusion */
 
 namespace x10lib {
 	/* Initialization */
