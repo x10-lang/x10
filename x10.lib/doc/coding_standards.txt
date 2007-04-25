@@ -1,6 +1,8 @@
-Coding standards in the htalib project - in part adopted from 
+Coding standards in the x10lib project - in part adopted from 
 
 http://cvs.sourceforge.net/viewcvs.py/sesc/sesc/docs/README.codingStyle?view=markup
+
+Chapter 6, Chapter 10-13 added by ganesh and they are specific to x10lib.
 
 ----------------------------------------------------------------------
 Chapter 1: Indentation
@@ -132,7 +134,11 @@ Many times much better than adding a comment is to add an assertion
 ----------------------------------------------------------------------
 Chapter 6: Assertions
 
-Use them, include <cassert>.
+Use them, include <X10/assert.h>. X10/assert.h is a wrapper around assert.h
+It defines a new assert macro that only prints assertion failure message,
+but does not abort the program. Use -DWARN compiler flag to enable it. If -DWARN is 
+not specified, default assert defined in cassert is used with default
+behaviour (i.e. DNDEBUG => no assert, otherwise assert).
 
 
 ----------------------------------------------------------------------
@@ -186,13 +192,16 @@ Chapter 11 : File names and Conventions
 
 All the file names should be in
 lower case. The header files should have .h suffix, while the source
-files should have .cpp suffix. The class, template and function
+files (non-template) should have .cpp suffix.  The source files
+that implement templates should have .tcc suffix.
+
+The class, template and function
 declarations should be put in header files, while their definition
 and implementation go to source files. Implement small class methods
 (1-3 lines) in the class declaration itself (ie. in .h files). 
 
 For template classes and functions,
-include the .cpp files in the .h files. Exception to this rule is when
+include the .tcc files in the .h files. Exception to this rule is when
 xlC compiler is used (See xlC qtempinc compiler option for more details).
 
 Name all the test cases with "Test_" prefix. The file name should be
