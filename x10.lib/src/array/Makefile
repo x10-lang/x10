@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.1.1.1 2007-04-25 09:57:46 srkodali Exp $
+# $Id: Makefile,v 1.2 2007-04-25 13:33:30 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -25,7 +25,7 @@ ARRAY_A = array.a
 
 SRCS = array.cc
 OBJS = array.o
-HEADERS = array.h
+HEADERS = array.h array.tcc
 
 all: $(ARRAY_A)
 

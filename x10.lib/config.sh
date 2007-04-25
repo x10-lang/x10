@@ -3,7 +3,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: config.sh,v 1.1.1.1 2007-04-25 09:57:46 srkodali Exp $
+# $Id: config.sh,v 1.2 2007-04-25 13:33:30 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -44,6 +44,7 @@ cd ${X10IDIR}
 for i in ${SRCDIR} ${ARRAYDIR} ${SCHEDDIR}
 do
 	`${FIND} ${i} -name '*.h' -type f -exec ${LN} -s -f {} . ';'`
+	`${FIND} ${i} -name '*.tcc' -type f -exec ${LN} -s -f {} . ';'`
 done
 echo "cd ${TOPDIR}"
 cd ${TOPDIR}
