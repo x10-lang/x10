@@ -5,9 +5,9 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: assert.h,v 1.2 2007-04-26 05:27:35 ganeshvb Exp $ */
+/* $Id: assert.h,v 1.3 2007-04-26 05:34:14 ganeshvb Exp $ */
 
-#ifndef __X10_ASSERT__H__
+#ifndef __X10_ASSERT_H__
 #define __X10_ASSERT_H__
 
 #ifdef WARN
