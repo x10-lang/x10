@@ -22,15 +22,15 @@ This is the Readme file for X10 Runtime System Example Programs.
     Example that demonstrates how X10Lib can be linked against C code.
 
 
-* run_r36n11.sh, host_r36n11.list
+* run_r36n11.sh
 
-    Runtime script and hostfile for "r36n11.pbm.ihost.com" system.
+    Runtime script for "r36n11.pbm.ihost.com" system.
 
 
-* run_v80.sh, host_v80.list
+* run_v80.sh
 
-    Runtime script and hostfile for "v80n01.pbm.ihost.com" system.
+    Runtime script for "v80n01.pbm.ihost.com" system.
 
-* run_rlsecomp1.sh, host_rlsecomp1.list
+* run_rlsecomp1.sh
 
-	Runtime script and hostfile for "rlsecomp1.watson.ibm.com" system.
+	Runtime script for "rlsecomp1.watson.ibm.com" system.

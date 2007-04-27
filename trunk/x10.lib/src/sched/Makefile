@@ -1,19 +1,19 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.1.1.1 2007-04-25 09:57:46 srkodali Exp $
+# $Id: Makefile,v 1.2 2007-04-27 12:54:54 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
 ## Makefile for X10Lib src/sched subdir.
 
-.SUFFIXES: .cc .o .h
+.SUFFIXES: .cc .cxx .cpp .C .o .h
 
 MAKE = make
 CXX = mpCC_r -q64 -qarch=pwr5
 DEFS = -DDEBUG
 CXXFLAGS = -qtune=pwr5 -O3 -qhot
-INCLUDES = -I. -I.. -I../../include
+INCLUDES = -I../../include
 LINKFLAGS = -r -b64
 RM = rm -f
 LD = ld
@@ -40,5 +40,17 @@ install:
 	@echo "Nothing to install in \"sched\" subdir."
 	
 .cc.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.cxx.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.cpp.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.C.o:
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@

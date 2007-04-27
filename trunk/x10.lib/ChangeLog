@@ -11,4 +11,7 @@
 
 This is the ChangeLog file for X10 Runtime System.
 
-0.1: X10Lib Directory Structure Created.
+
+* (04/27/2007) RandomAccess (GUPS) C/C++ successfully linked against the library.
+
+* (04/25/2007) 0.1: X10Lib Directory Structure Created.

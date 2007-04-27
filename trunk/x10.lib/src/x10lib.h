@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.2 2007-04-25 13:33:30 srkodali Exp $
+ * $Id: x10lib.h,v 1.3 2007-04-27 12:54:54 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -20,6 +20,15 @@
 */
 #include <x10/array.h> /* sample inclusion */
 #include <x10/sched.h> /* sample inclusion */
+
+#define MakeGasRef(task, addr) \
+	(((unsigned)task & 0xffffU) << 48 + ((unsigned long long)addr & 0xffffffffffffULL))
+
+#define GetTaskId(gas_ref) \
+	(((unsigned long long)gas_ref >> 48) & 0xffffU)
+
+#define GetRemoteAddr(gas_ref) \
+	((unsigned long long)gas_ref & 0xffffffffffffULL)
 
 namespace x10lib {
 	/* Initialization */
@@ -113,7 +122,27 @@ namespace x10lib {
 	int NbPutLong(long val, x10_gas_ref_t dest, x10_switch_t hndl);
 	int NbPutDouble(double val, x10_gas_ref_t dest, x10_switch_t hndl);
 	int NbPutFloat(float val, x10_gas_ref_t dest, x10_switch_t hndl);
-	
+
+	/* Get LAPI handle */
+	lapi_handle_t GetHandle();
+	/* Get environment */
+	int Getenv(x10_query_t query, int *ret_val);
+	/* Set environment */
+	int Setenv(x10_query_t query, int set_val);
+	/* Establish shared lock */
+	int Lock(void);
+	/* Remove shared lock */
+	int Unlock(void);
+	/* Enforce global ordering */
+	int Gfence(void);
+	/* Enforce local ordering */
+	int Fence(void);
+	/* Register function address */
+	int Register(void *addr, int addr_hndl);
+	/* Send an active message */
+	int Xfer(void *src, x10_gas_ref_t dest, int n, void *hdr_hdl);
+	/* Create remote address table */
+	int AddrInit(void *my_addr, void *addr_tab[]);
 } /* closing brace for namespace x10lib */
 
 /* C Lang Interface */
@@ -179,6 +208,27 @@ extern "C" {
 	int x10_put_double_nb(double val, x10_gas_ref_t dest, x10_switch_t hndl);
 		
 	int x10_put_float_nb(float val, x10_gas_ref_t dest, x10_switch_t hndl);
+
+	/* Get LAPI handle */
+	lapi_handle_t x10_get_handle();
+	/* Get environment */
+	int x10_getenv(x10_query_t query, int *ret_val);
+	/* Set environment */
+	int x10_setenv(x10_query_t query, int set_val);
+	/* Establish shared lock */
+	int x10_lock(void);
+	/* Remove shared lock */
+	int x10_unlock(void);
+	/* Enforce global ordering */
+	int x10_gfence(void);
+	/* Enforce local ordering */
+	int x10_fence(void);
+	/* Register function address */
+	int x10_register(void *addr, int addr_hndl);
+	/* Send an active message */
+	int x10_xfer(void *src, x10_gas_ref_t dest, int n, void *hdr_hdl);
+	/* Create remote address table */
+	int x10_addr_init(void *my_addr, void *addr_tab[]);
 	
 } /* closing brance for extern "C" */
 

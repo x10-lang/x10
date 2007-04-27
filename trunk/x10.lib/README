@@ -41,3 +41,8 @@ Instructions for configuring, building, and installing the X10 Runtime System:
 
 * To erase the subdirs of build objects, use 'make clean'.  To restore the
   directory sturcture to the pre-configure state, do 'make realclean'.
+
+* Benchmarking executables can be built using 'make bench' at the toplevel.
+  Do this after 'make install' as linking should be done aganist the build
+  library.  To run the specificed benchmark, change to the respective subdir
+  and run the script appropriate to the system under consideration.
