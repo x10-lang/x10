@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.2 2007-04-27 12:54:54 srkodali Exp $
+# $Id: Makefile,v 1.3 2007-04-27 13:29:08 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -40,9 +40,9 @@ HEADERS = types.h x10lib.h
 
 all: $(LIBTARGET)
 
-$(LIBTARGET): $(OBJS) $(ARRAY_A) $(SCHED_A)
+$(LIBTARGET): $(OBJS) $(SCHED_A)
 	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(ARRAY_A) $(SCHED_A)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SCHED_A)
 	$(RANLIB) $@
 
 $(SCHED_A):
