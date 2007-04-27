@@ -1,22 +1,39 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.1.1.1 2007-04-25 09:57:46 srkodali Exp $
+ * $Id: x10lib.cc,v 1.2 2007-04-27 12:54:54 srkodali Exp $
  * This file is part of X10 Runtime System.
  */
  
 /** Implementation file for the messaging layer of X10Lib **/
 
 #include <x10/x10lib.h>
+#include <lapi.h>
 #include <iostream>
 
+#define LRC(statement) \
+do { \
+	int rc = statement; \
+	if (rc != LAPI_SUCCESS) { \
+		return X10_ERR_LAPI; \
+	} \
+} while (0)
+
 using namespace std;
+
+namespace x10lib {
+	lapi_handle_t hndl;
+	lapi_info_t info;
+	lapi_thread_func_t tf;
+	lapi_am_t am;
+}
 
 /* Initialization */
 int
 x10lib::Init(x10_async_handler_t *handlers, int n)
 {
-	/* Code for Initialization */
+	memset((void *)&info, 0, sizeof(lapi_info_t));
+	LRC(LAPI_Init(&hndl, &info));
 #ifdef DEBUG
 	cout << "x10lib::Init()" << endl;
 #endif /* DEBUG */
@@ -27,9 +44,120 @@ x10lib::Init(x10_async_handler_t *handlers, int n)
 int
 x10lib::Finalize()
 {
-	/* Code for Termination */
+	LRC(LAPI_Term(hndl));
 #ifdef DEBUG
 	cout << "x10lib::Finalize()" << endl;
+#endif /* DEBUG */
+	return X10_OK;
+}
+
+/* Get LAPI handle */
+lapi_handle_t
+x10lib::GetHandle()
+{
+	return x10lib::hndl;
+}
+
+/* Get environment */
+int
+x10lib::Getenv(x10_query_t query, int *ret_val)
+{
+	LRC(LAPI_Qenv(hndl, query, ret_val));
+#ifdef DEBUG
+	cout << "x10lib::Getenv()" << endl;
+#endif /* DEBUG */
+	return X10_OK;
+}
+
+/* Set environment */
+int
+x10lib::Setenv(x10_query_t query, int set_val)
+{
+	LRC(LAPI_Senv(hndl, query, set_val));
+#ifdef DEBUG
+	cout << "x10lib::Setenv()" << endl;
+#endif /* DEBUG */
+	return X10_OK;
+}
+
+/* Establish shared lock */
+int
+x10lib::Lock(void)
+{
+	tf.Util_type = LAPI_GET_THREAD_FUNC;
+	LRC(LAPI_Util(hndl, (lapi_util_t *)&tf));
+	tf.mutex_lock(hndl);
+#ifdef DEBUG
+	cout << "x10lib::Lock()" << endl;
+#endif /* DEBUG */
+	return X10_OK;
+}
+
+/* Remove shared lock */
+int
+x10lib::Unlock(void)
+{
+	tf.mutex_unlock(hndl);
+#ifdef DEBUG
+	cout << "x10lib::Unlock()" << endl;
+#endif /* DEBUG */
+	return X10_OK;
+}
+
+/* Enforce global ordering */
+int
+x10lib::Gfence(void)
+{
+	LRC(LAPI_Gfence(hndl));
+#ifdef DEBUG
+	cout << "x10lib::Gfence()" << endl;
+#endif /* DEBUG */
+	return X10_OK;
+}
+
+/* Enforce local ordering */
+int
+x10lib::Fence(void)
+{
+	LRC(LAPI_Fence(hndl));
+#ifdef DEBUG
+	cout << "x10lib::Fence()" << endl;
+#endif /* DEBUG */
+	return X10_OK;
+}
+
+/* Register function address */
+int
+x10lib::Register(void *addr, int addr_hndl)
+{
+	LRC(LAPI_Addr_set(hndl, addr, addr_hndl));
+#ifdef DEBUG
+	cout << "x10lib::Register()" << endl;
+#endif /* DEBUG */
+	return X10_OK;
+}
+
+/* Send an active message */
+int
+x10lib::Xfer(void *src, x10_gas_ref_t dest, int n, void *hdr_hdl)
+{
+	unsigned int tgt;
+
+	tgt = GetTaskId(dest);
+	LRC(LAPI_Amsend(hndl, tgt, hdr_hdl, NULL, 0, src, n, NULL, NULL, NULL));
+#ifdef DEBUG
+	cout << "x10lib::Xfer()" << endl;
+#endif /* DEBUG */
+	return X10_OK;
+}
+
+/* Create remote address table */
+int
+x10lib::AddrInit(void *my_addr, void *addr_tab[])
+{
+	LRC(LAPI_Address_init(hndl, my_addr, addr_tab));
+#ifdef DEBUG
+	cout << "x10lib::AddrInit()" << endl;
 #endif /* DEBUG */
 	return X10_OK;
 }
@@ -40,6 +168,12 @@ x10lib::Finalize()
 int 
 x10lib::Get(x10_gas_ref_t src, void *dest, int n)
 {
+	unsigned int tgt;
+	void *tgt_addr;
+
+	tgt = GetTaskId(src);
+	tgt_addr = (void *)GetRemoteAddr(src);
+	LRC(LAPI_Get(hndl, tgt, n, tgt_addr, dest, NULL, NULL));
 	/* Code for Get */
 #ifdef DEBUG
 	cout << "x10lib::Get()" << endl;
@@ -152,6 +286,12 @@ x10lib::NbGetV(x10_giov_ref_t *dsrc, int len, x10_switch_t hndl)
 int
 x10lib::Put(void *src, x10_gas_ref_t dest, int n)
 {
+	unsigned int tgt;
+	void *tgt_addr;
+
+	tgt = GetTaskId(dest);
+	tgt_addr = (void *)GetRemoteAddr(dest);
+	LRC(LAPI_Put(hndl, tgt, n, tgt_addr, src, NULL, NULL, NULL));
 	/* Code for Put */
 #ifdef DEBUG
 	cout << "x10lib::Put()" << endl;
@@ -272,9 +412,69 @@ extern "C" int x10_finalize()
    return x10lib::Finalize();
 }
 
+/* Get LAPI handle */
+extern "C" lapi_handle_t x10_get_handle()
+{
+	return x10lib::GetHandle();
+}
+
+/* Get environment */
+extern "C" int x10_getenv(x10_query_t query, int *ret_val)
+{
+	return x10lib::Getenv(query, ret_val);
+}
+
+/* Set environment */
+extern "C" int x10_setenv(x10_query_t query, int set_val)
+{
+	return x10lib::Setenv(query, set_val);
+}
+
+/* Establish shared lock */
+extern "C" int x10_lock(void)
+{
+	return x10lib::Lock();
+}
+
+/* Remove shared lock */
+extern "C" int x10_unlock(void)
+{
+	return x10lib::Unlock();
+}
+
+/* Enforce global ordering */
+extern "C" int x10_gfence(void)
+{
+	return x10lib::Gfence();
+}
+
+/* Enforce local ordering */
+extern "C" int x10_fence(void)
+{
+	return x10lib::Fence();
+}
+
+/* Register function address */
+extern "C" int x10_register(void *addr, int addr_hndl)
+{
+	return x10lib::Register(addr, addr_hndl);
+}
+
+/* Send an active message */
+extern "C" int x10_xfer(void *src, x10_gas_ref_t dest, int n, void *hdr_hdl)
+{
+	return x10lib::Xfer(src, dest, n, hdr_hdl);
+}
+
+/* Create remote address table */
+extern "C" int x10_addr_init(void *my_addr, void *addr_tab[])
+{
+	return x10lib::AddrInit(my_addr, addr_tab);
+}
+
 /* Fetch n contiguous bytes from src address on a remote node to the dest address
-* on the local node
-*/
+ * on the local node
+ */
 extern "C" int x10_get(x10_gas_ref_t src, void *dest, int n)
 {
    return x10lib::Get(src, dest, n);
@@ -387,4 +587,3 @@ extern "C" int x10_put_float_nb(float val, x10_gas_ref_t dest, x10_switch_t hndl
 {
    return x10lib::NbPutFloat(val, dest, hndl);
 }
-

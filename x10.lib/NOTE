@@ -29,6 +29,9 @@ specified while adding/modifying the code.
 
 * Regression testing code should go directly into test subdir.
 
+* Every benchmark will go into a separate directory under "benchmarks" subdir.
+  If possible, the benchmark code should be realized both in C and C++ languages.
+
 * Use either "r36n11.pbm.ihost.com" or "rlsecomp1.watson.ibm.com" for development.
   Both are POWER5 SMP systems running AIX 5.3 OS.
 
@@ -50,3 +53,5 @@ specified while adding/modifying the code.
 
 * Template files should not be exposed.  Include them in header files i.e.,
   "array.tcc" should be part of "array.h".
+
+* Makefiles recognize the following C++ suffixes: .cc .cxx .cpp .C

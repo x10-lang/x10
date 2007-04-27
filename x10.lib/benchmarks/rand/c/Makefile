@@ -1,62 +1,52 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.2 2007-04-27 12:54:53 srkodali Exp $
+# $Id: Makefile,v 1.1 2007-04-27 12:54:53 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
-# Makefile for sample programs.
+# Makefile for RandomAccess Benchmarks (C Version).
 #
 
-.SUFFIXES: .cc .cxx .cpp .C .h .c .o
+.SUFFIXES: .cc .cpp .cxx .C .c .h .o
 
 LIBNAME = x10
 LIBTARGET = lib$(LIBNAME).a
 CXX = mpCC_r -q64 -qarch=pwr5
 CC = mpcc_r -q64 -qarch=pwr5
-DEFS = -DDEBUG
+DEFS = #-DDEBUG
 CXXFLAGS = -qtune=pwr5 -O3 -qhot
 CCFLAGS = -qtune=pwr5 -O3 -qhot
-INCLUDES = -I. -I../include
-LIBDIRS = -L../lib
+INCLUDES = -I. -I../../../include
+LIBDIRS = -L../../../lib
 LIBS = -l$(LIBNAME)
 LINKFLAGS =
 RM = rm -f
 
-TARGET1 = hello_cc
-SRCS1 = $(TARGET1).cc
-OBJS1 = $(TARGET1).o
+TARGET = gups
+SRCS = utility.c buckets.c update.c comm.c gups.c
+OBJS = utility.o buckets.o update.o comm.o gups.o
 
-TARGET2 = hello_c
-SRCS2 = $(TARGET2).c
-OBJS2 = $(TARGET2).o
+all: $(TARGET)
 
-TARGETS = $(TARGET1) $(TARGET2)
-
-all: $(TARGETS)
-
-$(TARGET1): $(OBJS1)
+$(TARGET): $(OBJS)
 	$(RM) $@
-	$(CXX) $(LINKFLAGS) $(OBJS1) -o $@ $(LIBDIRS) $(LIBS)
-
-$(TARGET2): $(OBJS2)
-	$(RM) $@
-	$(CXX) $(LINKFLAGS) $(OBJS2)  -o $@ $(LIBDIRS) $(LIBS)
+	$(CXX) $(LINKFLAGS) $(OBJS) -o $@ $(LIBDIRS) $(LIBS)
 
 install:
-	@echo "Nothing to \"install\" in \"examples\" subdir."
+	@echo "Nothing to \"install\" in this subdir."
 
 clean:
-	$(RM) $(TARGETS) $(OBJS1) $(OBJS2)
+	$(RM) $(TARGET) $(OBJS) *.log *.out
 
 .cc.o:
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
 
-.cxx.o:
+.cpp.o:
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
 
-.cpp.o:
+.cxx.o:
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
 

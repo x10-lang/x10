@@ -1,14 +1,14 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.1.1.1 2007-04-25 09:57:46 srkodali Exp $
+# $Id: Makefile,v 1.2 2007-04-27 12:54:53 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
 ## Toplevel Makefile for X10Lib.
 
 MAKE = make
-SUBDIRS = src doc examples test
+SUBDIRS = src doc examples test benchmarks
 LIBDIR = lib
 INCDIR = include
 RM = rm -f
@@ -23,6 +23,9 @@ doc:
 samples:
 	(cd examples; $(MAKE) all)
 
+bench:
+	(cd benchmarks; $(MAKE) all)
+
 test:
 	(cd test; $(MAKE) all)
 
@@ -34,6 +37,7 @@ clean:
 	(cd src; $(MAKE) $@)
 	(cd doc; $(MAKE) $@)
 	(cd examples; $(MAKE) $@)
+	(cd benchmarks; $(MAKE) $@)
 	(cd test; $(MAKE) $@)
 
 realclean: clean

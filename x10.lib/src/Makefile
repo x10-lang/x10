@@ -1,13 +1,13 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.1.1.1 2007-04-25 09:57:46 srkodali Exp $
+# $Id: Makefile,v 1.2 2007-04-27 12:54:54 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
 ## Makefile for X10Lib src subdir.
 
-.SUFFIXES: .cc .o .h
+.SUFFIXES: .cc .cpp .cxx .C .o .h
 
 MAKE = make
 SUBDIR1 = array
@@ -15,7 +15,7 @@ SUBDIR2 = sched
 SUBDIRS = $(SUBDIR1) $(SUBDIR2)
 LIBDIR = ../lib
 CXX = mpCC_r -q64 -qarch=pwr5
-DEFS = -DDEBUG
+DEFS = #-DDEBUG
 CXXFLAGS = -qtune=pwr5 -O3 -qhot
 INCLUDES = -I. -I../include
 LINKFLAGS =
@@ -63,5 +63,17 @@ clean:
 	$(RM) $(LIBTARGET) $(OBJS) *.log
 	
 .cc.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.cxx.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.cpp.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.C.o:
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
