@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.2 2007-04-28 07:03:45 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.3 2007-04-28 09:28:45 ganeshvb Exp $ */
 
 #include "array.h"
 #include "x10/gas.h"
@@ -95,7 +95,7 @@ initialize (Array<T, RANK>& arr, CONST_INIT op)
   assert (false);
 }
 
-template <typename T, int RANK, template <int RANK> class POINT_INIT> 
+template <typename T, int RANK, template <int N> class POINT_INIT> 
 void initialize (Array<T, RANK>& arr, POINT_INIT<RANK> op);
 
 //pointwise routines for standard operators

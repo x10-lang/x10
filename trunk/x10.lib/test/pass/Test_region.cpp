@@ -1,10 +1,19 @@
+/*
+ * (c) Copyright IBM Corporation 2007
+ *
+ * This file is part of X10 Runtime System.
+ * Author : Ganesh Bikshandi
+ */
+
+/* $Id: Test_region.cpp,v 1.2 2007-04-28 09:28:45 ganeshvb Exp $ */
 #include <iostream>
 
-#include <x10/region.h>
 #include <x10/assert.h>
+#include <x10/region.h>
+#include <x10/x10lib.h>
 
 using namespace std;
-
+using namespace x10lib;
 
 void testDefaultOrigin ()
 {
@@ -29,13 +38,18 @@ void testDiffOrigin ()
   assert (r.card() == 12);
 }
 
-int main (int argc, char** argv)
-{
+int 
+main (int argc, char* argv[])
+{ 
+
+  Init(NULL, 0);
  
   testDefaultOrigin();
   
   testDiffOrigin();
 
   cout << "Test_region PASSED" << endl;  
+
+  Finalize();
   return 0;
 }

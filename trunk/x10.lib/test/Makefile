@@ -1,18 +1,22 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.1.1.1 2007-04-25 09:57:46 srkodali Exp $
+# $Id: Makefile,v 1.2 2007-04-28 09:28:45 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
 ## Makefile for X10Lib Testing.
 
+MAKE = make
+
 all:
-	@echo "Done \"all\" in \"test\" subdir."
+	(cd pass; $(MAKE) all)
+	(cd fail; $(MAKE) all)
 
 install:
 	@echo "Done \"install\" in \"test\" subdir."
 
 clean:
-	@echo "Done \"clean\" in \"test\" subdir."
+	(cd pass; $(MAKE) clean)
+	(cd fail; $(MAKE) clean)
 

@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: assert.h,v 1.3 2007-04-26 05:34:14 ganeshvb Exp $ */
+/* $Id: assert.h,v 1.4 2007-04-28 09:28:44 ganeshvb Exp $ */
 
 #ifndef __X10_ASSERT_H__
 #define __X10_ASSERT_H__
@@ -16,10 +16,10 @@ using namespace std;
 
 #define stringize(a) #a
 
-#define assert(cond) \
-
   //  This is a wrapper around default assert which only prints the message,
   // but not causes the program to abort.
+  // Use -DWARN compiler flag to enable this
+#define assert(cond) \
   do {									\
     if ((cond) == 0)							\
       cout << "assert " << stringize(cond) << " failed: " << __FILE__  << ", line " \

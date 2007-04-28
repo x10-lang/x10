@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.2 2007-04-27 12:54:54 srkodali Exp $
+ * $Id: types.h,v 1.3 2007-04-28 09:28:44 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -9,6 +9,9 @@
 #define __X10_TYPES_H
 
 #include <sys/types.h>
+
+typedef uint32_t place_t;
+typedef uint64_t gas_ref_t;
 
 typedef uint32_t x10_place_t;
 typedef uint64_t x10_gas_ref_t;

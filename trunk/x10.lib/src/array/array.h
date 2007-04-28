@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.h,v 1.4 2007-04-28 07:03:45 ganeshvb Exp $ */
+/* $Id: array.h,v 1.5 2007-04-28 09:28:44 ganeshvb Exp $ */
 
 #ifndef __X10_ARRAY_H__
 #define __X10_ARRAY_H__
@@ -125,7 +125,7 @@ namespace x10lib{
     void initialize (Array<T, RANK>& arr, CONST_INIT op);
 
 
-  template <typename T, int RANK, template <int RANK> class POINT_INIT> 
+  template <typename T, int RANK, template <int N> class POINT_INIT> 
     void initialize (Array<T, RANK>& arr, POINT_INIT<RANK> op);
 
   //pointwise routines for standard operators
