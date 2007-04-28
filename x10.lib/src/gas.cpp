@@ -5,14 +5,14 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: gas.cpp,v 1.1 2007-04-28 07:03:45 ganeshvb Exp $ */
+/* $Id: gas.cpp,v 1.2 2007-04-28 09:28:44 ganeshvb Exp $ */
 
 #include "gas.h"
 
 using namespace std;
 using namespace x10lib;
 
-#define SM_GLOBAL_SIZE 2^34
+#define SM_GLOBAL_SIZE 2^10
 
 char SM_GLOBAL[SM_GLOBAL_SIZE];
 

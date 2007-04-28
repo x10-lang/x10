@@ -1,10 +1,24 @@
+/*
+ * (c) Copyright IBM Corporation 2007
+ *
+ * This file is part of X10 Runtime System.
+ * Author : Ganesh Bikshandi
+ */
+
+/* $Id: Test_array.cpp,v 1.2 2007-04-28 09:28:45 ganeshvb Exp $ */
+
 #include <iostream>
 
+#include <x10/x10lib.h>
 #include <x10/array.h>
 
-int main (int argc, char** argv)
+using namespace std;
+
+int 
+main (int argc, char* argv[])
 {
-  //Init();
+  x10lib::Init(NULL, 0);
+
 
   Region<1>* r = new RectangularRegion<1>(Point<1>(99));
 
@@ -20,7 +34,8 @@ int main (int argc, char** argv)
 
   Array<int, 1>* a = Array<int, 1>::makeArray (t, u);
 
-  //Finalize();
+  cout << "Test_array PASSED" << endl;
+  x10lib::Finalize();
 
   return 0;
 }

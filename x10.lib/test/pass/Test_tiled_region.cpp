@@ -1,12 +1,24 @@
+/*
+ * (c) Copyright IBM Corporation 2007
+ *
+ * This file is part of X10 Runtime System.
+ * Author : Ganesh Bikshandi
+ */
+
+/* $Id: Test_tiled_region.cpp,v 1.2 2007-04-28 09:28:45 ganeshvb Exp $ */
+
 #include <iostream>
 
-#include <x10/region.h>
-#include <x10/assert.h>
+#include <x10/x10lib.h>
+#include <x10/array.h>
 
 using namespace std;
+using namespace x10lib;
 
-int main (int argc, char** argv)
+int 
+main (int argc, char* argv[])
 {
+  Init (NULL, 0);
  
   RectangularRegion<2>* r0 = new RectangularRegion<2>(Point<2>(3, 3));
   
@@ -35,5 +47,12 @@ int main (int argc, char** argv)
   cout << p.value(0) << " " << p.value(1) << endl;
   
   cout << "Test_tiled_region PASSED" << endl;  
+
+  delete r0;
+  delete r1;
+  delete r2;
+  delete r3;
+
+  Finalize();
   return 0;
 }
