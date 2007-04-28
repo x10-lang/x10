@@ -1,5 +1,14 @@
-#ifndef __x10ARRAY_H__
-#define __x10ARRAY_H__
+/*
+ * (c) Copyright IBM Corporation 2007
+ *
+ * This file is part of X10 Runtime System.
+ * Author : Ganesh Bikshandi
+ */
+
+/* $Id: array.h,v 1.4 2007-04-28 07:03:45 ganeshvb Exp $ */
+
+#ifndef __X10_ARRAY_H__
+#define __X10_ARRAY_H__
 
 #include "dist.h"
 
@@ -8,26 +17,40 @@ namespace x10lib{
   typedef enum {ROW_MAJOR, COLUMN_MAJOR, TILE_MAJOR} order_t; 
   
   /** 
-   * x10_Array Class
+   * Array Class
+   * TODO: Should be DistributedArray, not Array.
+   * Array should be its base class 
    */
+
   template <typename T, int RANK>
     class Array
-  {
-    Array (Dist<RANK>& dist);
-    
-    Array (Array<T, RANK>& A, Region<RANK>& R);
-    
+  {      
+    Array (const Region<RANK>* region, const Dist<RANK>* dist, T* data) :
+      region_ (region),
+      dist_ (dist),
+      data_ (data)
+    {
+      assert (data_);
+    }  
+  
     Array<T, RANK>* clone();
     
-    Dist<RANK> dist() const;
+    const Dist<RANK>* dist() const
+    {
+      return dist_;
+    }
     
-    /** The number of elements in the array that are allocated in the current place.
-     */
-    int localSize() const;
-    
+    const Region<RANK>* region() const
+    {
+      return region_; 
+    }
+
     /** A pointer to the local chunk of memory used to store the elements of the array.
      */
-    T* raw();
+    const T* raw() const
+    {
+      return data_;
+    }
     
     void putScalarAt (const Point<RANK>& P, const T& val);
     
@@ -53,18 +76,28 @@ namespace x10lib{
      * B[0,0] maps to A[0,0], B[0,1] maps to A[1,0] and B[1,1] maps to A[1,1].
      * Any gets/puts on the view read/modify the underlying array.
      */
-    Array<T, RANK>& view(const Region<RANK>& regionMap) const;
+    //    Array<T, RANK>& view(const Region<RANK>& regionMap) const;
   
     ~Array () { delete [] data_; }
   
-  private:
-  
-    T* data_;
-  
   protected:
   
-    Dist<RANK> dist_;	
+    const Region<RANK> * region_;
+  
+    const Dist<RANK>* dist_;	
+
+    T* data_;
+
+    //Add memMapping; 
+    //for now Region == memMapping;
+
+  public:
+    static Array<T, RANK>* makeArray (const Region<RANK>* region,
+			       const Dist<RANK>* dist);
+
   }; 
+  
+
  
   // Useful for casting a scalar to Array 
   // (Immutable)
@@ -126,4 +159,11 @@ namespace x10lib{
     Array<T, RANK>& update (const Array<T, RANK>& a1, const Array<T, RANK>& a2);	
 
 }
+
+#include "array.tcc"
+
 #endif /*X10ARRAY_H*/
+
+// Local Variables:
+// mode: C++
+// End:

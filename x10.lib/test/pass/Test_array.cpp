@@ -1,0 +1,26 @@
+#include <iostream>
+
+#include <x10/array.h>
+
+int main (int argc, char** argv)
+{
+  //Init();
+
+  Region<1>* r = new RectangularRegion<1>(Point<1>(99));
+
+  place_t p [4] = {0, 1, 2, 3};
+
+  RectangularRegion<1>* t0 = new RectangularRegion<1>(Point<1>(24));
+  RectangularRegion<1>* t1 = new RectangularRegion<1>(Point<1>(49));
+  RectangularRegion<1>* t2 = new RectangularRegion<1>(Point<1>(74));
+  RectangularRegion<1>* t3 = new RectangularRegion<1>(Point<1>(99));
+  const RectangularRegion<1>* bases[] = {t0, t1, t2, t3};
+  Region<1>* t = new TiledRegion<1> (Point<1>(3), bases);
+  Dist<1>* u = new UniqueDist<1>(t, p);
+
+  Array<int, 1>* a = Array<int, 1>::makeArray (t, u);
+
+  //Finalize();
+
+  return 0;
+}
