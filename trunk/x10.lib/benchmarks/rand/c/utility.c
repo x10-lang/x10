@@ -1,8 +1,11 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: utility.c,v 1.1 2007-04-27 12:54:53 srkodali Exp $
+ * $Id: utility.c,v 1.2 2007-05-03 11:40:35 srkodali Exp $
  * This file is part of X10 Runtime System.
+ *
+ * Original version of this code using LAPI C/C++ is due to
+ * Hanhong Xue <hanhong@us.ibm.com>
  */
 
 /** Utility routines **/
