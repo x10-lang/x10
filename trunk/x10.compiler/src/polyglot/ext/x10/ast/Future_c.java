@@ -158,7 +158,7 @@ public class Future_c extends Expr_c
     	Expr newPlace = place;
     	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
     	if ( ! placeIsPlace ) {
-    	    newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).typeCheck(tc);
+    	    newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).del().typeCheck(tc);
     	}
     	
     	return ((Future_c) place(newPlace)).type( ts.createFutureType(position(), 

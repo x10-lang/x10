@@ -131,7 +131,7 @@ public class X10Field_c extends Field_c {
             	if (name().equals("distribution") || name().equals("region")) {
             		Type array = xts.array();
             		TypeNode typenode = xnf.CanonicalTypeNode(position(), array);
-            		return this.target(xnf.Cast(position(), typenode, (Expr) target).type(array)).typeCheck(tc);
+            		return this.target(xnf.Cast(position(), typenode, (Expr) target).type(array)).del().typeCheck(tc);
             	}
             } else if (xts.isValueType(tType)) {
             	 if (name().equals("location")) {

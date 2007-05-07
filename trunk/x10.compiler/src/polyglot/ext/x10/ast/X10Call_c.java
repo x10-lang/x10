@@ -73,7 +73,7 @@ public class X10Call_c extends Call_c {
         if (this.target != null && this.target.type().isPrimitive() &&
                 name().equals("getLocation") && arguments().isEmpty())
         {
-            return xnf.Here(position()).typeCheck(tc);
+            return xnf.Here(position()).del().typeCheck(tc);
         }
      
         try {

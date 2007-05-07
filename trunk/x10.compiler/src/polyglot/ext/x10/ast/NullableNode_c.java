@@ -139,7 +139,7 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 		 return super.typeCheckBase(tc);
 	}
 	public Node typeCheck( TypeChecker tc) throws SemanticException {
-		X10TypeNode newType = (X10TypeNode) base.typeCheck(tc);
+		X10TypeNode newType = (X10TypeNode) base.del().typeCheck(tc);
 		NullableNode_c result = reconstruct(newType);
 		result = result.propagateTypeFromBase();
 		return X10TypeNode_c.typeCheckDepClause(result, tc);
@@ -150,7 +150,7 @@ public class NullableNode_c extends X10TypeNode_c implements NullableNode {
 			Report.report(5,"[NullableNode_c] Type checking |" + this +"|:");
 		}
 		
-		Node n = base.typeCheck(tc);
+		Node n = base.del().typeCheck(tc);
 		
 		if (Report.should_report("debug", 5)) {
 			Report.report(5,"[NullableNode_c] ... yields node |" + n +"|.");

@@ -68,7 +68,7 @@ public class ForLoop_c extends X10Loop_c implements Loop {
 		Expr newDomain = n.domain;
 		X10Type type = (X10Type) newDomain.type();
 		if (ts.isDistribution(type))
-			newDomain = (Expr) tc.nodeFactory().Field(n.position(), newDomain, tc.nodeFactory().Id(n.position(), "region")).typeCheck(tc);
+			newDomain = (Expr) tc.nodeFactory().Field(n.position(), newDomain, tc.nodeFactory().Id(n.position(), "region")).del().typeCheck(tc);
 		return n.domain(newDomain);
 	}
 
