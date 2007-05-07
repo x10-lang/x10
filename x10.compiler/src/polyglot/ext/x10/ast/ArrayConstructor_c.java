@@ -166,7 +166,7 @@ implements ArrayConstructor {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
-		Node n = this.base.typeCheck(tc);
+		Node n = this.base.del().typeCheck(tc);
 		
 		if (! (n instanceof TypeNode))
 			throw new SemanticException("Array constructor base type |" + n + "| is not a type." + position());

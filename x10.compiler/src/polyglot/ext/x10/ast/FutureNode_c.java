@@ -99,7 +99,7 @@ public class FutureNode_c extends X10TypeNode_c implements FutureNode {
 
 	public Node typeCheckBase( TypeChecker tc) throws SemanticException {
 		// Report.report(5,"[FutureNode_c] Type checking |" + this +"|:");
-		Node n = base.typeCheck( tc );
+		Node n = base.del().typeCheck( tc );
 		// Report.report(5,"[FutureNode_c] ... yields node |" + n +"|.");
 		if (! (n instanceof TypeNode))
 			throw new SemanticException("Argument to future type-constructor does not type-check" + position());

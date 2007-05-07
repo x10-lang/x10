@@ -142,7 +142,7 @@ public class X10ArrayAccess1_c extends Expr_c implements X10ArrayAccess1 {
 						"Subscript can only follow an array type, and not " + type+".", position());
 		}
 		if ( isArray)
-			return nf.ArrayAccess(position(), array, index).typeCheck(tc);
+			return nf.ArrayAccess(position(), array, index).del().typeCheck(tc);
 		
 		if (!ts.isImplicitCastValid(index.type(), ts.point()) &&
 			(!index.type().isInt()))

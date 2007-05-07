@@ -145,7 +145,7 @@ public class Async_c extends Stmt_c implements Async, Clocked, CompoundStmt {
 		Expr newPlace = place;
 		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.place());
 		if (! placeIsPlace) {
-			newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).typeCheck(tc);
+			newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).del().typeCheck(tc);
 		}
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())
