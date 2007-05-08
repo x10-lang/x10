@@ -197,7 +197,7 @@ $Rules
                     $setResult($_self);
           $EndAction
         ./
-                     | s e q u e n t i a l
+              | s e q u e n t i a l
         /.$BeginAction
                     $setResult($_sequential);
           $EndAction
