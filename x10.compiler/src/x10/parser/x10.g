@@ -230,20 +230,37 @@ $Keywords
     --
     -- All X10 keywords are soft
     --
+    activitylocal
+    async
+    ateach 
+    atomic 
     await
-    current
+    boxed
+    clocked
+    compilertest
+    current 
+    extern
+    finish
+    foreach 
+    fun
+    future 
+    here
     local
     method
+    mutable
     next
+    nonblocking
     now
-    nullable
+    nullable 
     or
+    placelocal
     reference
+    safe
+    self
+    sequential
+    unsafe
     value
     when
-    safe
-    unsafe
-    location
 
     --
     -- All Java Primitive types are soft
