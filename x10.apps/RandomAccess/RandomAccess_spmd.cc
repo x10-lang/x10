@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.1 2007-05-08 10:48:15 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.2 2007-05-08 10:49:31 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -189,7 +189,6 @@ public:
 
     Gfence();
     RandomAccessUpdate (logTableSize, embarrasing, Table);
-    cout << "End " << endl;
     verify (logTableSize); 
 
     //printing and reporting 
@@ -199,8 +198,6 @@ public:
   async0 (async_arg_t arg0)
   {
     uint64_t ran = arg0; 
-    
-    //cout << "Inside async0 " << here() << " " << Table << " " << ran <<endl;
     Table->update (ran);
   }
   
@@ -208,8 +205,6 @@ public:
   async1 (async_arg_t arg0)
   {
     uint64_t ran = arg0; 
-    
-    //cout << "Inside async1 " << here() << " " << Table << " " << ran <<endl;
     Table->verify (ran);
   }
   
