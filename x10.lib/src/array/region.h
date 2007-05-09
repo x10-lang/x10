@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: region.h,v 1.1 2007-04-28 07:03:45 ganeshvb Exp $ */
+/* $Id: region.h,v 1.2 2007-05-09 12:40:30 ganeshvb Exp $ */
 
 #ifndef __X10_REGION_H__
 #define __X10_REGION_H__
@@ -23,12 +23,15 @@ namespace x10lib {
     /** Return true if the point lies in the given region, otherwise false.
      */ 
     virtual bool contains(const Point<RANK>& x) const = 0;
+
+    virtual Region<RANK>* clone() const = 0;
+
   
     /** Returns the ordinal number for this point in the canonical 
      * (lexicographic) ordering of points in this region. Returns -1 if
      * the point does not lie in the region.
      */
-    virtual int ord(const Point<RANK>& x) const = 0;
+    virtual uint64_t ord(const Point<RANK>& x) const = 0;
   
     /** Returns the point in the region whose ordinal is ord.
      * What if ord is out of range?
@@ -37,6 +40,7 @@ namespace x10lib {
 
     virtual const int card() const = 0;
     virtual const int totalCard() const = 0;
+    virtual const int* size() const = 0; 
 
     virtual const Region<RANK>* regionAt (const Point<RANK>& p) const = 0;
     virtual const Point<RANK> indexOf (const Point<RANK>& p) const = 0;
@@ -53,7 +57,10 @@ namespace x10lib {
   {
   public:
     
-    RectangularRegion() {}; //useful for declaring array of regions.
+    RectangularRegion() :
+       origin_(0),
+       diagonal_(0),
+       stride_(0) {}; //useful for declaring array of regions.
     
     /** Return the rectangular region whose origin is [0,...,0] and with the given diagonal.
      */
@@ -77,20 +84,26 @@ namespace x10lib {
 #endif
       init_ ();
     }
+
+    RectangularRegion<RANK>* clone () const 
+    {
+      return new RectangularRegion<RANK> (*this);
+    }
     
     RectangularRegion (const Point<RANK>& origin, const Point<RANK>& diagonal, const Point<RANK>& stride) :
       origin_ (origin),
       diagonal_(diagonal),
       stride_ (stride)
     {
-      assert (false); //strided regoins not yet implemented
+      //assert (false); //strided regoins not yet implemented
       init_ ();
     }
     
     RectangularRegion (const RectangularRegion<RANK>& other):
       origin_ (other.origin_),
       diagonal_ (other.diagonal_),
-      stride_ (other.stride_)
+      stride_ (other.stride_),
+      card_ (other.card_)
     {
       for (int i = 0; i < RANK; i++) {
 	
@@ -111,14 +124,14 @@ namespace x10lib {
      */ 
     bool contains(const Point<RANK>& x) const ;
   
-    int ord(const Point<RANK>& x) const;
+    uint64_t ord(const Point<RANK>& x) const;
     
-    const RectangularRegion<RANK>* regionAt (const Point<RANK>& p) const 
+    virtual const RectangularRegion<RANK>* regionAt (const Point<RANK>& p) const 
     {
       return this;
     }
 
-    const Point<RANK> indexOf (const Point<RANK>& p) const
+    virtual const Point<RANK> indexOf (const Point<RANK>& p) const
     {
       return p;
     }
@@ -183,14 +196,32 @@ namespace x10lib {
      * EG: bases =  {[0:3, 0:3], [4:7, 0:3], [0:3, 4:7], [4:7, 4:7]} is INCORRECT
      */
 
+    TiledRegion () {} 
+
     TiledRegion (const Point<RANK>& diagonal, const RectangularRegion<RANK>** bases) : 
-      RectangularRegion<RANK> (diagonal),
-      bases_ (bases) 
+      RectangularRegion<RANK> (diagonal)
     {
+      bases_ = new const RectangularRegion<RANK>*[this->card()];
+      memcpy (bases_, bases, sizeof(RectangularRegion<RANK>*) * this->card());
       totalCard_ = 0;
       for (int i = 0; i < this->card(); i++)
 	totalCard_ += bases_[i]->totalCard();
     }
+
+    TiledRegion (const TiledRegion<RANK>& other) :
+      RectangularRegion<RANK> (other.origin_, other.diagonal_, other.stride_),
+      totalCard_ (other.totalCard_)
+    {
+      bases_ = new const RectangularRegion<RANK>*[this->card()];
+      memcpy (bases_, other.bases_, sizeof(RectangularRegion<RANK>*) * this->card());
+    } 
+
+    TiledRegion<RANK>* clone () const 
+    {
+       return new TiledRegion<RANK>(*this);
+    }
+
+    /** Return the underlying array of regions.
     
     /** Return the underlying array of regions.
      */
@@ -208,9 +239,24 @@ namespace x10lib {
      */
 
     template <int RANK2>
-    static TiledRegion<RANK> makeBlock(const Region<RANK> region, const Region<RANK2> grid)
-    {
-      assert (false);
+    static TiledRegion<RANK>* makeBlock(const Region<RANK>* base, const Region<RANK2>* grid)
+    {   
+        assert (RANK == 1);
+        const int* gridSize = grid->size();      
+        const int* baseSize = base->size();      
+        int newSize[RANK];
+        const RectangularRegion<RANK>* regions[grid->card()];
+        newSize[0] = baseSize[0] / gridSize[0]; 
+ 
+        int offset[1];
+        offset[0] = 0;
+        for (int i = 0; i < gridSize[0]; i++) {
+          regions[i] =  new RectangularRegion<RANK>(Point<RANK>(offset[0]),
+                               Point<RANK>(newSize[0] + offset[0]-1));
+          offset[0] += newSize[0];
+       }
+
+       return new TiledRegion<RANK> (Point<RANK>(gridSize[0]-1), regions);       
     }
 
     /** As in makeBlock, except that the region is blocked in only one dimension, as specified by 
@@ -227,7 +273,10 @@ namespace x10lib {
     {
       return totalCard_;
     }
-    
+   
+    ~TiledRegion () {
+      delete [] bases_;
+    }
   private:
     
     const RectangularRegion<RANK>** bases_;

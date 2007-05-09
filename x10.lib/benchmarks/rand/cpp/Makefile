@@ -1,19 +1,19 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.1 2007-04-27 12:54:53 srkodali Exp $
+# $Id: Makefile,v 1.2 2007-05-09 12:40:29 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 # Makefile for RandomAccess Benchmarks (C++ Version).
 #
 
-.SUFFIXES: .cc .cpp .cxx .C .c .h .o
+.SUFFIXES: .cc .cpp .cxx .C .c .h .o .exe
 
 LIBNAME = x10
 LIBTARGET = lib$(LIBNAME).a
-CXX = mpCC_r -q64 -qarch=pwr5
+CXX = mpCC_r -q64 -qarch=pwr5 -DVERIFY
 CC = mpcc_r -q64 -qarch=pwr5
-DEFS = #-DDEBUG
+DEFS = -DWARN #-DNDEBUG #-DWARN
 CXXFLAGS = -qtune=pwr5 -O3 -qhot
 CCFLAGS = -qtune=pwr5 -O3 -qhot
 INCLUDES = -I. -I../../../include
@@ -22,15 +22,15 @@ LIBS = -l$(LIBNAME)
 LINKFLAGS =
 RM = rm -f
 
-TARGET = gups
-SRCS = $(TARGET).cpp
-OBJS = $(TARGET).o
+TARGET = RandomAccess_spmd.exe \
+         RandomAccess.exe \
+         gups.exe
+
+SRCS = RandomAccess_spmd.cc \
+       RandomAccess.cc\
+       gups.cc
 
 all: $(TARGET)
-
-$(TARGET): $(OBJS)
-	$(RM) $@
-	$(CXX) $(LINKFLAGS) $(OBJS) -o $@ $(LIBDIRS) $(LIBS)
 
 install:
 	@echo "Nothing to \"install\" in this subdir."
@@ -38,22 +38,7 @@ install:
 clean:
 	$(RM) $(TARGET) $(OBJS) *.log *.out
 
-.cc.o:
+.cc.exe: $(SRCS) 
 	$(RM) $@
-	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES)  $< -o $@ $(LIBDIRS) $(LIBS)
 
-.cpp.o:
-	$(RM) $@
-	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
-
-.cxx.o:
-	$(RM) $@
-	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
-
-.C.o:
-	$(RM) $@
-	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
-
-.c.o:
-	$(RM) $@
-	$(CXX) $(CXXFLAGS) -qsourcetype=c++ $(DEFS) $(INCLUDES) -c $< -o $@
