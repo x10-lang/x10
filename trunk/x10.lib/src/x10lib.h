@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.5 2007-04-28 09:28:44 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.6 2007-05-09 07:04:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,11 +12,13 @@
 
 #include <x10/types.h>
 #include <x10/err.h>
+#include <x10/gas.h>
+#include <x10/alloc.h>
+#include <x10/async.h>
 
 /*
 #include <x10/clock.h>
 #include <x10/switch.h>
-#include <x10/gas.h>
 #include <x10/activity.h>
 */
 /* #include <x10/array.h> */ /* sample inclusion */
@@ -32,8 +34,10 @@
 	((unsigned long long)gas_ref & 0xffffffffffffULL)
 
 namespace x10lib {
+
+
 	/* Initialization */
-	int Init(x10_async_handler_t *handlers, int n);
+	int Init(func_t *handlers, int n);
 	
 	/* Termination */
 	int Finalize();
@@ -149,7 +153,7 @@ namespace x10lib {
 /* C Lang Interface */
 extern "C" {
 	/* Initialization */
-	int x10_init(x10_async_handler_t *handlers, int n);
+	int x10_init(func_t* handlers, int n);
 		
 	/* Termination */
 	int x10_finalize();

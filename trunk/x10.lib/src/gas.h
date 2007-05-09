@@ -5,13 +5,12 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: gas.h,v 1.1 2007-04-28 07:03:45 ganeshvb Exp $ */
+/* $Id: gas.h,v 1.2 2007-05-09 07:04:29 ganeshvb Exp $ */
 
 #ifndef __X10_GAS_H__
 #define __X10_GAS_H__
 
 #include "types.h"
-
 
 namespace x10lib {
   
@@ -26,6 +25,12 @@ namespace x10lib {
 
   int numPlaces();
 
+  extern lapi_handle_t GetHandle();
+
+  class Allocator;
+  Allocator* GlobalSMAlloc;
+
+  func_t* handlerTable;
 }
 
 #endif /*X10GAS_H_*/

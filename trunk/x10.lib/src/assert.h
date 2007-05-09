@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: assert.h,v 1.4 2007-04-28 09:28:44 ganeshvb Exp $ */
+/* $Id: assert.h,v 1.5 2007-05-09 07:04:29 ganeshvb Exp $ */
 
 #ifndef __X10_ASSERT_H__
 #define __X10_ASSERT_H__
@@ -18,11 +18,12 @@ using namespace std;
 
   //  This is a wrapper around default assert which only prints the message,
   // but not causes the program to abort.
+  // Additionally it also prints the process id.
   // Use -DWARN compiler flag to enable this
 #define assert(cond) \
   do {									\
     if ((cond) == 0)							\
-      cout << "assert " << stringize(cond) << " failed: " << __FILE__  << ", line " \
+      cout << "assert " << stringize(cond) << " failed: " << x10lib::here () << " " << __FILE__  << ", line " \
       << __LINE__ <<  endl;						\
   }while(0) 
 
