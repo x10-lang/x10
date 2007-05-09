@@ -5,11 +5,13 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: region.tcc,v 1.1 2007-04-28 07:03:45 ganeshvb Exp $ */
+/* $Id: region.tcc,v 1.2 2007-05-09 12:40:30 ganeshvb Exp $ */
 
 #include "region.h"
+#include <iostream>
 
 using namespace x10lib;
+using namespace std;
 
 template <int RANK>
 void RectangularRegion<RANK> :: init_ ()
@@ -54,7 +56,7 @@ bool RectangularRegion<RANK> :: contains (const Point<RANK>& p) const
 }
 
 template <int RANK>
-int RectangularRegion<RANK> :: ord(const Point<RANK>& p) const
+uint64_t RectangularRegion<RANK> :: ord(const Point<RANK>& p) const
 {
   assert (this->contains(p));
 
@@ -108,7 +110,6 @@ const RectangularRegion<RANK>* TiledRegion<RANK> :: regionAt (const Point<RANK>&
 template<int RANK>
 const Point<RANK> TiledRegion<RANK> :: indexOf (const Point<RANK>& p) const 
 {
-  
 #ifdef DEBUG
   int found = 0;
   for (int i = 0; i < this->card_; i++)
@@ -118,10 +119,14 @@ const Point<RANK> TiledRegion<RANK> :: indexOf (const Point<RANK>& p) const
     }
   assert (found == 1);
 #endif	
+
+  //cout << "Hello " << endl;
   
   int result[RANK];
+
+  assert (bases_[0]);
   const int* bsize = bases_[0]->size();
-  
+
   for (int i = 0; i < RANK; i++)
     result[i] = p.value (i) / bsize[i];
   

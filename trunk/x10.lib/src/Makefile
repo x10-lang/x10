@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.5 2007-05-09 07:04:29 ganeshvb Exp $
+# $Id: Makefile,v 1.6 2007-05-09 12:40:30 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -34,7 +34,7 @@ LIBTARGET = lib$(LIBNAME).a
 SCHED_A = $(SUBDIR2)/sched.a
 ARRAY_A = $(SUBDIR1)/array.a
 
-SRCS = x10lib.cc gas.cpp 
+SRCS = x10lib.cc gas.cc
 OBJS = x10lib.o  gas.o 
 HEADERS = types.h x10lib.h gas.h alloc.h 
 

@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.2 2007-05-09 06:39:27 ganeshvb Exp $
+# $Id: Makefile,v 1.3 2007-05-09 12:40:31 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -39,8 +39,8 @@ HEADERS =
 all: $(EXE)
 
 clean:
-	$(RM) $(EXE) *.log core*
 	$(RMDIR) core*
+	$(RM) $(EXE) *.log 
 	
 .cc.exe: $(SRCS)
 	$(RM) $@

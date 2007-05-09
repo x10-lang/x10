@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.h,v 1.5 2007-04-28 09:28:44 ganeshvb Exp $ */
+/* $Id: array.h,v 1.6 2007-05-09 12:40:30 ganeshvb Exp $ */
 
 #ifndef __X10_ARRAY_H__
 #define __X10_ARRAY_H__
@@ -15,31 +15,41 @@
 namespace x10lib{
 
   typedef enum {ROW_MAJOR, COLUMN_MAJOR, TILE_MAJOR} order_t; 
-  
+    
   /** 
    * Array Class
    * TODO: Should be DistributedArray, not Array.
    * Array should be its base class 
    */
-
+  
   template <typename T, int RANK>
-    class Array
-  {      
-    Array (const Region<RANK>* region, const Dist<RANK>* dist, T* data) :
-      region_ (region),
-      dist_ (dist),
+  class Array
+  {   
+  public:   
+    Array (const Region<RANK>* region, const Dist<RANK>* dist, int localSize, T* data, void** bases) :
+      region_ (region->clone()),
+      dist_ (dist->clone()),
+      localSize_ (localSize),
       data_ (data)
     {
       assert (data_);
+      bases_ = new void* [region_->card()];
+      for (int i = 0; i < region_->card(); i++)
+         bases_[i] = bases[i];
+      //memset (data_, 0, sizeof (T) * region_->card()); 
     }  
-  
+    
     Array<T, RANK>* clone();
     
     const Dist<RANK>* dist() const
     {
       return dist_;
     }
-    
+ 
+    const uint64_t localSize() const {
+      return localSize_;
+    }  
+ 
     const Region<RANK>* region() const
     {
       return region_; 
@@ -52,13 +62,14 @@ namespace x10lib{
       return data_;
     }
     
-    void putScalarAt (const Point<RANK>& P, const T& val);
+    void putElementAt (const Point<RANK>& P, const T& val);
+    void putElementAtRemote (const Point<RANK>& P, const T& val);
     
-    void putScalarAt (const int n, const T& val);
+    void putLocalElementAt (const uint64_t n, const T& val);
     
-    T& getScalarAt (const Point<RANK>& P) const;
+    T& getElementAt (const Point<RANK>& P) const;
     
-    T& getScalarAt (const int n) const;
+    T& getLocalElementAt (const uint64_t n) const;
   
     /** Return the array obtained from this by restricting its region to
      * this.region intersected with subRegion.
@@ -77,8 +88,24 @@ namespace x10lib{
      * Any gets/puts on the view read/modify the underlying array.
      */
     //    Array<T, RANK>& view(const Region<RANK>& regionMap) const;
+    
+    ~Array () 
+    {     
+      delete [] bases_;
+      delete region;
+      delete dist;
+    }
+
+    void* operator new (size_t size, void* space)
+    {
+      return space;
+    }
+
+    void* base (int i)
+    {
   
-    ~Array () { delete [] data_; }
+       return bases_[i];
+    }
   
   protected:
   
@@ -86,15 +113,16 @@ namespace x10lib{
   
     const Dist<RANK>* dist_;	
 
+    uint64_t localSize_;
+
     T* data_;
 
     //Add memMapping; 
     //for now Region == memMapping;
 
   public:
-    static Array<T, RANK>* makeArray (const Region<RANK>* region,
-			       const Dist<RANK>* dist);
 
+    void** bases_; 
   }; 
   
 

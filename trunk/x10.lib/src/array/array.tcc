@@ -5,79 +5,186 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.3 2007-04-28 09:28:45 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.4 2007-05-09 12:40:30 ganeshvb Exp $ */
 
 #include "array.h"
+#include "x10/handlers.h"
 #include "x10/gas.h"
+#include "x10/assert.h"
 
 using namespace x10lib;
 
-template<typename T, int RANK>
-Array<T, RANK>*
-Array<T, RANK> :: makeArray (const Region<RANK>* region, const Dist<RANK>* dist)
-{  
-  T* data = (T*) mallocSMGlobal (region->totalCard() * sizeof (T));
-  
-  Array<T, RANK>* ret = new Array<T, RANK> (region, dist, data);
 
+template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
+Array<T, RANK>*
+makeArrayLocal (const Region<RANK>* region, const Dist<RANK>* dist)
+{  
+  assert (GlobalSMAlloc);
+
+  uint64_t local_size = region->card() / numPlaces();
+
+  void * addrTable[numPlaces()];
+  for (place_t p = 0; p < numPlaces(); p++)
+      addrTable[p] = GlobalSMAlloc->addrTable (p);
+  void* arraySpace = x10lib::GlobalSMAlloc->chunk (sizeof(Array<T, RANK>));
+
+  T* data = (T*) x10lib::GlobalSMAlloc->chunk (local_size * sizeof(T));
+  Array<T, RANK>* ret = new(arraySpace) Array<T, RANK>(region, dist, local_size, data, addrTable);
+
+  return ret;
+}
+
+template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
+void
+makeArrayRemote (const Region<RANK>* region, const Dist<RANK>* dist)
+{
+
+ unsigned int buf_size = sizeof (metaDataDescr<RANK, REGION, DIST>); 
+ metaDataDescr<RANK, REGION, DIST>* buf = new metaDataDescr<RANK, REGION, DIST>;
+ memcpy (&(buf->region), region, sizeof(REGION<RANK>));
+ 
+ void_func_t construction_handler = (void_func_t) arrayConstructionGlobalSM <T, RANK, REGION, DIST>;
+
+ lapi_cntr_t completion_cntr;
+ int tmp;
+
+ LAPI_Setcntr (GetHandle(), &completion_cntr, 0);
+
+ for (place_t target = 0; target < numPlaces(); target++)
+   if (target != here())
+     LAPI_Amsend (GetHandle(), 
+               target,
+               construction_handler, 
+               NULL,
+               0,
+               buf, 
+               buf_size,
+               NULL,
+               NULL,
+               &completion_cntr);
+  LAPI_Waitcntr (GetHandle(), &completion_cntr, numPlaces() - 1, &tmp); 
+
+  delete buf;
+
+}
+
+template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
+Array<T, RANK>*
+makeArray (const Region<RANK>* region, const Dist<RANK>* dist)
+{
+  Array<T, RANK>* ret = makeArrayLocal<T, RANK, REGION, DIST> (region, dist);
+  makeArrayRemote<T, RANK, REGION, DIST> (region, dist); 
   return ret;
 }
 
 template <typename T, int RANK>
 void 
-Array <T, RANK> :: putScalarAt (const Point<RANK>& p, const T& val) 
+Array <T, RANK> :: putElementAt (const Point<RANK>& p, const T& val) 
 {
-  RectangularRegion<RANK>* r = region_->regionAt (p);
+
+  assert (false);
 
   const Point<RANK> index = region_->indexOf (p);
+
+  const Region<RANK>* r = region_->regionAt (index);
 
   assert (r->contains(p));
 
   assert (this->dist_->place(index) == here());
-  
+ 
   int n = r->ord(p);
   
-  putScalarAt (n, val);
+  putLocalElementAt (n, val);
 }
 
 template <typename T, int RANK>
 void 
-Array <T, RANK> :: putScalarAt (const int n, const T& val)
+Array <T, RANK> :: putLocalElementAt (const uint64_t n, const T& val)
 {
   assert (data_ != NULL);
 
-  assert (n >=0 && n < this->region_->totalCard());
-  
-  data_[n] = val;
+  assert (n >=0 && n < this->region_->regionAt(Point<RANK>(0))->card());
+
+    data_[n] = val;
 }
 
 template <typename T, int RANK>
-T& 
-Array <T, RANK> :: getScalarAt (const Point<RANK>& p) const
+void 
+Array<T, RANK> :: putElementAtRemote (const Point<RANK>& p, const T& val)
 {
-  RectangularRegion<RANK>* r = region_->regionAt (p);
+  const Point<RANK> index =  this->region_->indexOf (p);
+  int target = this->dist_->place(index);
 
+  const Region<RANK>* r = region_->regionAt (index);
+
+  uint64_t n = r->ord (p);
+
+  if (target == here()) {
+    putLocalElementAt (n, val);
+  } else {
+    assert (n >=0 && n < this->region_->totalCard());
+    assert (target >=0 && target < numPlaces());
+    assert (target != here());
+
+    uint64_t offset = (char*) this->raw() - GlobalSMAlloc->addr() + n; 
+    char* buf =  new char [sizeof(uint64_t) + sizeof(T)];
+    memcpy (buf, &offset, sizeof(uint64_t));
+    memcpy (buf+sizeof(uint64_t), &val, sizeof(T));
+
+    lapi_cntr_t origin_cntr;
+
+    int tmp;
+
+    LAPI_Setcntr (GetHandle(), &origin_cntr, 0);
+
+    LAPI_Amsend (GetHandle(), 
+               target,
+               arrayElementUpdate<T>,
+               buf,
+               sizeof (T) + sizeof(uint64_t), 
+               NULL,
+               0,
+               NULL,
+               &origin_cntr, 
+               NULL);
+
+    LAPI_Waitcntr (GetHandle(), &origin_cntr, 1, &tmp);
+
+    delete [] buf;
+
+  }
+}
+
+template<typename T, int RANK>
+T&
+Array <T, RANK> :: getElementAt (const Point<RANK>& p) const
+{
+  assert (false);
   const Point<RANK> index = region_->indexOf (p);
+
+  const Region<RANK>* r = region_->regionAt (index);
 
   assert (r->contains(p));
 
   assert (this->dist_->place(index) == here());
+
+  uint64_t n = r->ord(p);
   
-  int n = r->ord(p);
-  
-  return getScalarAt (n);
+  return getLocalElementAt (n);
 }
 
 template <typename T, int RANK>
 T& 
-Array <T, RANK> :: getScalarAt (const int n) const
+Array <T, RANK> :: getLocalElementAt (const uint64_t n) const
 {
   assert (data_ != NULL);
 
-  assert (n >=0 && n < this->region_->card());
-  
+  assert (n >=0 && n < this->region_->totalCard());
+ 
   return data_[n];
 }
+
+
 
 template <typename T, int RANK>
 Array<T, RANK>& 

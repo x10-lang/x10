@@ -5,13 +5,13 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: point.h,v 1.2 2007-04-28 09:28:45 ganeshvb Exp $ */
+/* $Id: point.h,v 1.3 2007-05-09 12:40:30 ganeshvb Exp $ */
 
 #ifndef __X10_POINT_H__
 #define __X10_POINT_H__
 
 #include <x10/assert.h>
-
+#include <x10/gas.h>
 namespace x10lib{
   
   template<int RANK>
