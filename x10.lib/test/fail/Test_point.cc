@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_point.cpp,v 1.2 2007-04-28 09:28:45 ganeshvb Exp $ */
+/* $Id: Test_point.cc,v 1.1 2007-05-09 06:39:27 ganeshvb Exp $ */
 
 #include <iostream>
 
