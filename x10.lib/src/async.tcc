@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.tcc,v 1.1 2007-05-09 07:04:29 ganeshvb Exp $ */
+/* $Id: async.tcc,v 1.2 2007-05-09 07:06:54 ganeshvb Exp $ */
 
 #include <iostream>
 #include <stdarg.h>
@@ -104,7 +104,7 @@ x10lib::asyncSpawn (place_t target, async_handler_t handler, ...)
   int buffer_size = sizeof (asyncDescr<N>); 
 
   //IS PowerPC word size 8 ?? 
-  buffer_size = bufferSize % 8 ? 8 - (bufferSize % 8) : bufferSize; 
+  buffer_size = buffer_size % 8 ? 8 - (buffer_size % 8) : buffer_size; 
 
   void* buffer = (void*) new char [buffer_size];
   asyncDescr<N>* a = new (buffer) asyncDescr<N>; 
