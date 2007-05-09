@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_tiled_region.cpp,v 1.2 2007-04-28 09:28:45 ganeshvb Exp $ */
+/* $Id: Test_tiled_region.cc,v 1.1 2007-05-09 06:36:32 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -44,8 +44,11 @@ main (int argc, char* argv[])
   assert (t.totalCard() == 64);
   
   const Point<2> p = t.indexOf (Point<2>(4,6));
-  cout << p.value(0) << " " << p.value(1) << endl;
-  
+ 
+  const Region<1>* base = new RectangularRegion<1>(Point<1>(64)); 
+  const Region<1>* grid = new RectangularRegion<1>(Point<1>(3)); 
+  TiledRegion<1>* t2 = TiledRegion<1>::makeBlock (base, grid);
+ 
   cout << "Test_tiled_region PASSED" << endl;  
 
   delete r0;
