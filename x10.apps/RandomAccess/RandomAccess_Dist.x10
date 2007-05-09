@@ -66,12 +66,12 @@ class RandomAccess_Dist {
 	 
     static class localTable{
     	final long[:self.rect && self.zeroBased && self.rank==1] array;
-    	final int tableSize;
-    	final int mask;
-    	localTable(int size){
+    	final long tableSize;
+    	final long mask;
+    	localTable(long size){
     		tableSize=size;
     		mask=tableSize-1;
-    		array=(long[:self.rect && self.zeroBased && self.rank==1]) new long[[0:mask]];
+    		array=(long[:self.rect && self.zeroBased && self.rank==1]) new long[[0:(int)mask]];
     	}
     	void update(long ran){
     		array[(int)(ran & mask)] ^= ran;
@@ -253,7 +253,7 @@ class RandomAccess_Dist {
 
         
         //long[:self.rect && self.zeroBased && self.rank==1] Table;
-        final int tableSize=(1<<logTableSize);
+        final long tableSize=(1<<logTableSize);
         final  localTable [:self.rect && self.zeroBased && self.rank==1] Table= 
         	(localTable [:self.rect && self.zeroBased && self.rank==1]) 
         	new localTable [UNIQUE] (point p) { return new localTable(tableSize); };
