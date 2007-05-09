@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.3 2007-04-28 09:28:44 ganeshvb Exp $
+ * $Id: types.h,v 1.4 2007-05-09 07:04:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -12,6 +12,13 @@
 
 typedef uint32_t place_t;
 typedef uint64_t gas_ref_t;
+typedef uint64_t async_arg_t;
+typedef uint8_t async_handler_t;
+typedef void (*void_func_t) ();
+typedef  struct
+{
+  void (* fptr)();
+} func_t; 
 
 typedef uint32_t x10_place_t;
 typedef uint64_t x10_gas_ref_t;

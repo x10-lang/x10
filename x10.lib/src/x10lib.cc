@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.2 2007-04-27 12:54:54 srkodali Exp $
+ * $Id: x10lib.cc,v 1.3 2007-05-09 07:04:29 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -22,22 +22,41 @@ do { \
 using namespace std;
 
 namespace x10lib {
-	lapi_handle_t hndl;
-	lapi_info_t info;
-	lapi_thread_func_t tf;
-	lapi_am_t am;
+  lapi_handle_t hndl;
+  lapi_info_t info;
+  lapi_thread_func_t tf;
+  lapi_am_t am;
 }
 
 /* Initialization */
 int
-x10lib::Init(x10_async_handler_t *handlers, int n)
+x10lib::Init(func_t *handlers, int n)
 {
-	memset((void *)&info, 0, sizeof(lapi_info_t));
-	LRC(LAPI_Init(&hndl, &info));
+  memset((void *)&info, 0, sizeof(lapi_info_t));
+  LRC(LAPI_Init(&hndl, &info));
 #ifdef DEBUG
-	cout << "x10lib::Init()" << endl;
+  cout << "x10lib::Init()" << endl;
 #endif /* DEBUG */
-	return X10_OK;
+
+ 
+  //Intialize various Allocators
+  
+  //(1) Global Shared Memory Allocator
+  x10lib::GlobalSMAlloc = new Allocator (1UL<<10);
+
+  //(2) Local Shared Memory Allocator
+
+
+  //Set the handlerTable to handlers 
+  handlerTable = handlers;
+
+  //Set the environment variables
+
+  //(1) switch to POLLING mode
+  Setenv (INTERRUPT_SET, 0);
+
+  LAPI_Gfence (hndl); 
+  return X10_OK;
 }
 
 /* Termination */
@@ -48,6 +67,9 @@ x10lib::Finalize()
 #ifdef DEBUG
 	cout << "x10lib::Finalize()" << endl;
 #endif /* DEBUG */
+
+        //delete the Global SM Allocator
+        delete GlobalSMAlloc;
 	return X10_OK;
 }
 
@@ -401,7 +423,7 @@ x10lib::NbPutFloat(float val, x10_gas_ref_t dest, x10_switch_t hndl)
 /** Wrappers for "C" language interface **/
 
 /* Initialization */
-extern "C" int x10_init(x10_async_handler_t *handlers, int n)
+extern "C" int x10_init(func_t *handlers, int n)
 {
 		return x10lib::Init(handlers, n);
 }
