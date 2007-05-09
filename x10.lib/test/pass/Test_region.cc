@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_region.cpp,v 1.2 2007-04-28 09:28:45 ganeshvb Exp $ */
+/* $Id: Test_region.cc,v 1.1 2007-05-09 06:36:32 ganeshvb Exp $ */
 #include <iostream>
 
 #include <x10/assert.h>
