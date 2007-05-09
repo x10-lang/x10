@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.2 2007-05-08 10:49:31 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.3 2007-05-09 14:36:07 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -53,8 +53,8 @@ class RandomAccess_Dist {
   }
   
 private :
-  static const uint64_t POLY = 0x0000000000000007; 
-  static const long PERIOD = 131762457669539401;
+  static const uint64_t POLY = 7ULL; 
+  static const uint64_t PERIOD = 131762457669539401ULL;
  
 public:
 
@@ -129,8 +129,10 @@ public:
 	  placeID = (int) ((ran>>LogTableSize) & PLACEIDMASK);
       
         uint64_t temp = ran;
-        ran = ((ran << 1) ^ ((long) ran < 0 ? POLY : 0));     
-        asyncSpawn<2, true> (UNIQUE->place(placeID), 1, temp);
+        ran = ((ran << 1) ^ ((signed long long) ran < 0 ? POLY : 0));     
+
+        assert (UNIQUE->place(placeID) == placeID);
+        asyncSpawn<1, true> (UNIQUE->place(placeID), 1, temp);
       } 
     } else {   
       uint64_t ran = HPCC_starts (here()*numUpdates);
@@ -143,7 +145,7 @@ public:
     
         uint64_t temp = ran;
         ran = ((ran << 1) ^ ((long) ran < 0 ? POLY : 0));     
-        asyncSpawn<2, true> (UNIQUE->place(placeID), 0, temp);
+        asyncSpawn<1, true> (UNIQUE->place(placeID), 0, temp);
       }   
     }
 
@@ -189,7 +191,7 @@ public:
 
     Gfence();
     RandomAccessUpdate (logTableSize, embarrasing, Table);
-    verify (logTableSize); 
+    if (VERIFY) verify (logTableSize); 
 
     //printing and reporting 
   }
@@ -223,7 +225,6 @@ int main (int argc, char* argv[])
   handlers[1].fptr = (void_func_t) RandomAccess_Dist::async1;
 
   Init (handlers, 2);
-  Setenv (INTERRUPT_SET, 0);
   
   RandomAccess_Dist::main (argc, argv);
 
