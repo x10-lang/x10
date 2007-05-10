@@ -1,14 +1,14 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: gups.cpp,v 1.2 2007-05-03 11:40:35 srkodali Exp $
+ * $Id: gups.cpp,v 1.3 2007-05-10 05:42:38 srkodali Exp $
  * This file is part of X10 Runtime System.
  *
  * Original version of this code using LAPI C/C++ is due to
  * Hanhong Xue <hanhong@us.ibm.com>
  */
 
-#include <assert.h>
+/* #include <assert.h> */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
