@@ -87,75 +87,7 @@ import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode_c;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
-import polyglot.ext.x10.ast.ArrayConstructor_c;
-import polyglot.ext.x10.ast.AssignPropertyCall_c;
-import polyglot.ext.x10.ast.Async_c;
-import polyglot.ext.x10.ast.AtEach_c;
-import polyglot.ext.x10.ast.AtomicMethodDecl_c;
-import polyglot.ext.x10.ast.Atomic_c;
-import polyglot.ext.x10.ast.Await_c;
-import polyglot.ext.x10.ast.ConstantDistMaker_c;
-import polyglot.ext.x10.ast.DepParameterExpr_c;
-import polyglot.ext.x10.ast.Finish_c;
-import polyglot.ext.x10.ast.ForEach_c;
-import polyglot.ext.x10.ast.ForLoop_c;
-import polyglot.ext.x10.ast.FutureNode_c;
-import polyglot.ext.x10.ast.Future_c;
-import polyglot.ext.x10.ast.GenParameterExpr_c;
-import polyglot.ext.x10.ast.Here_c;
-import polyglot.ext.x10.ast.Next_c;
-import polyglot.ext.x10.ast.Now_c;
-import polyglot.ext.x10.ast.NullableNode_c;
-import polyglot.ext.x10.ast.ParExpr_c;
-import polyglot.ext.x10.ast.PlaceCast_c;
-import polyglot.ext.x10.ast.Point_c;
-import polyglot.ext.x10.ast.PropertyDecl_c;
-import polyglot.ext.x10.ast.Range_c;
-import polyglot.ext.x10.ast.RectRegionMaker_c;
-import polyglot.ext.x10.ast.RegionMaker_c;
-import polyglot.ext.x10.ast.Region_c;
-import polyglot.ext.x10.ast.RemoteCall_c;
-import polyglot.ext.x10.ast.StmtSeq_c;
-import polyglot.ext.x10.ast.Tuple_c;
-import polyglot.ext.x10.ast.ValueClassDecl_c;
-import polyglot.ext.x10.ast.When_c;
-import polyglot.ext.x10.ast.X10AmbTypeNode_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1Assign_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1Unary_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1_c;
-import polyglot.ext.x10.ast.X10ArrayAccessAssign_c;
-import polyglot.ext.x10.ast.X10ArrayAccessUnary_c;
-import polyglot.ext.x10.ast.X10ArrayAccess_c;
-import polyglot.ext.x10.ast.X10ArrayTypeNode_c;
-import polyglot.ext.x10.ast.X10Binary_c;
-import polyglot.ext.x10.ast.X10BooleanLit_c;
-import polyglot.ext.x10.ast.X10Call_c;
-import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
-import polyglot.ext.x10.ast.X10Cast_c;
-import polyglot.ext.x10.ast.X10CharLit_c;
-import polyglot.ext.x10.ast.X10ClassBody_c;
-import polyglot.ext.x10.ast.X10ClassDecl_c;
-import polyglot.ext.x10.ast.X10ClockedLoop_c;
-import polyglot.ext.x10.ast.X10Conditional_c;
-import polyglot.ext.x10.ast.X10ConstructorDecl_c;
-import polyglot.ext.x10.ast.X10FieldDecl_c;
-import polyglot.ext.x10.ast.X10Field_c;
-import polyglot.ext.x10.ast.X10FloatLit_c;
-import polyglot.ext.x10.ast.X10Formal_c;
-import polyglot.ext.x10.ast.X10If_c;
-import polyglot.ext.x10.ast.X10Instanceof_c;
-import polyglot.ext.x10.ast.X10IntLit_c;
-import polyglot.ext.x10.ast.X10LocalDecl_c;
-import polyglot.ext.x10.ast.X10Local_c;
-import polyglot.ext.x10.ast.X10Loop_c;
-import polyglot.ext.x10.ast.X10MethodDecl_c;
-import polyglot.ext.x10.ast.X10New_c;
-import polyglot.ext.x10.ast.X10PropertyDecl_c;
-import polyglot.ext.x10.ast.X10Special_c;
-import polyglot.ext.x10.ast.X10StringLit_c;
-import polyglot.ext.x10.ast.X10TypeNode_c;
-import polyglot.ext.x10.ast.X10Unary_c;
-import polyglot.ext.x10.ast.X10While_c;
+import polyglot.ext.x10.ast.*;
 
 /**
  * Visitor on the AST nodes that dispatches to the appropriate
@@ -296,6 +228,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof ArrayConstructor_c) { visit((ArrayConstructor_c)n); return; }
 		if (n instanceof ArrayAccess_c) { visit((ArrayAccess_c)n); return; }
 		if (n instanceof AmbExpr_c) { visit((AmbExpr_c)n); return; }
+		if (n instanceof Closure_c) { visit((Closure_c)n); return; }
 		if (n instanceof Expr_c) { visit((Expr_c)n); return; }
 		if (n instanceof X10ConstructorDecl_c) { visit((X10ConstructorDecl_c)n); return; }
 		if (n instanceof ConstructorDecl_c) { visit((ConstructorDecl_c)n); return; }
@@ -406,6 +339,7 @@ public class X10DelegatingVisitor {
 					public void visit(X10Unary_c n) { visit((Unary_c)n); }
 				public void visit(X10ArrayAccess_c n) { visit((Expr_c)n); }
 				public void visit(X10ArrayAccess1_c n) { visit((Expr_c)n); }
+				public void visit(Closure_c n) { visit((Closure_c)n); }
 			public void visit(FieldDecl_c n) { visit((Term_c)n); }
 				public void visit(X10FieldDecl_c n) { visit((FieldDecl_c)n); }
 					public void visit(PropertyDecl_c n) { visit((X10FieldDecl_c)n); }
