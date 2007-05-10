@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.1 2007-05-08 10:48:14 ganeshvb Exp $
+# $Id: Makefile,v 1.2 2007-05-10 11:04:41 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 # Makefile for RandomAccess Benchmarks (C++ Version).
@@ -28,6 +28,8 @@ TARGET = RandomAccess_spmd.exe \
 SRCS = RandomAccess_spmd.cc \
        RandomAccess_forkjoin.cc
 
+INCLS = RandomAccess_spmd.h
+
 all: $(TARGET)
 
 install:
@@ -36,7 +38,7 @@ install:
 clean:
 	$(RM) $(TARGET) $(OBJS) *.log *.out
 
-.cc.exe: $(SRCS) 
+.cc.exe: $(INCLS) $(SRCS) 
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES)  $< -o $@ $(LIBDIRS) $(LIBS)
 
