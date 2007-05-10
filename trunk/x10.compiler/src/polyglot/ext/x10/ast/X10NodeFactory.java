@@ -28,7 +28,9 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Flags;
+import polyglot.types.Type;
 import polyglot.util.Position;
+import x10.parser.X10Parser.JPGPosition;
 
 /**
  * NodeFactory for x10 extension.
@@ -130,5 +132,8 @@ public interface X10NodeFactory extends NodeFactory {
 	Cast DepCast(Position position, TypeNode xn, DepParameterExpr e, Expr expr);
 
 	Instanceof DepInstanceof(Position position, TypeNode xn, DepParameterExpr e, Expr expr);
-}
 
+	Closure Closure(Position pos, List formals, TypeNode returnType, List throwTypes, Block body);
+
+	ClosureCall ClosureCall(JPGPosition position, Closure closure, List args);
+}

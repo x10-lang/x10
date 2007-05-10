@@ -66,6 +66,7 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.parser.X10Parser.JPGPosition;
 
 /**
  * NodeFactory for X10 extension.
@@ -899,5 +900,18 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         n = (ConstructorCall)n.del(delFactory().delConstructorCall());
         return n;
     }
-}
 
+    public Closure Closure(Position pos, List formals, TypeNode returnType, List throwTypes, Block body) {
+	Closure n = new Closure_c(pos, formals, returnType, throwTypes, body);
+        n = (Closure) n.ext(extFactory().extExpr());
+        n = (Closure) n.del(delFactory().delExpr());
+        return n;
+    }
+
+    public ClosureCall ClosureCall(JPGPosition pos, Closure closure, List args) {
+	ClosureCall n = new ClosureCall_c(pos, closure, args);
+        n = (ClosureCall) n.ext(extFactory().extExpr());
+        n = (ClosureCall) n.del(delFactory().delExpr());
+        return n;
+    }
+}
