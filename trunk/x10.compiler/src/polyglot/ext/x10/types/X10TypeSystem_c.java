@@ -178,7 +178,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 						Collections.EMPTY_LIST, Collections.EMPTY_LIST);
 		return asyncCodeInstance_;
 	}
-	
+
+	public ClosureType closure(Position p, Type returnType, List<Type> argTypes, List<Type> throwTypes) {
+	    return new ClosureType_c(this, p, returnType, argTypes, throwTypes);
+	}
+
+	public ClosureInstance closureInstance(Position p, ClassType typeContainer, MethodInstance methodContainer,
+		Type returnType, List argTypes, List excTypes) {
+	    return new ClosureInstance_c(this, p, typeContainer, methodContainer, returnType, argTypes, excTypes);
+	}
+
 	protected NullType createNull() {
 		return new X10NullType_c(this);
 	}
@@ -203,6 +212,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 		if (x10ObjectType_ == null)
 			x10ObjectType_ = load("x10.lang.Object"); // java file
 		return x10ObjectType_;
+	}
+	
+	protected ClassType parameter1Type_;
+	public ClassType parameter1() {
+		if (parameter1Type_ == null)
+			parameter1Type_ = load(WRAPPER_PACKAGE + ".Parameter1"); // java file
+		return parameter1Type_;
 	}
 	
 	protected ClassType placeType_;
@@ -278,21 +294,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem, Seri
 	protected ClassType operatorPointwiseType_;
 	public ClassType OperatorPointwise() {
 		if (operatorPointwiseType_ == null)
-			operatorPointwiseType_ = load("x10.array.Operator$Pointwise"); // java file
+			operatorPointwiseType_ = load("x10.array.Operator.Pointwise"); // java file
 		return operatorPointwiseType_;
 	}
 	
 	protected ClassType operatorBinaryType_;
 	public ClassType OperatorBinary() {
 		if (operatorBinaryType_ == null)
-			operatorBinaryType_ = load("x10.array.Operator$Binary"); // java file
+			operatorBinaryType_ = load("x10.array.Operator.Binary"); // java file
 		return operatorBinaryType_;
 	}
 	
 	protected ClassType operatorUnaryType_;
 	public ClassType OperatorUnary() {
 		if (operatorUnaryType_ == null)
-			operatorUnaryType_ = load("x10.array.Operator$Unary"); // java file
+			operatorUnaryType_ = load("x10.array.Operator.Unary"); // java file
 		return operatorUnaryType_;
 	}
 	
