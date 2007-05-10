@@ -24,6 +24,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.util.Position;
 import polyglot.util.InternalCompilerError;
+import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10Loop;
 import polyglot.ext.x10.ast.X10Formal;
@@ -42,25 +43,42 @@ public class X10ImplicitDeclarationExpander extends ContextVisitor
 	{
 		if (n instanceof MethodDecl)
 			return visitMethodDecl((MethodDecl) n);
+		if (n instanceof Closure)
+		    	return visitClosure((Closure) n);
 		if (n instanceof X10Loop)
 			return visitLoop((X10Loop) n);
 		return n;
 	}
 
-	private Node visitMethodDecl(MethodDecl n) {
-		List/*<Stmt>*/ stmts = Collections.EMPTY_LIST;
-		List/*<Formal>*/ fs = n.formals();
-		for (Iterator/*<Formal>*/ i = fs.iterator(); i.hasNext(); ) {
+	private Block explodeAllArgs(List<Formal> formals, Block body) {
+		List<Stmt> stmts = Collections.emptyList();
+		for (Iterator<Formal> i = formals.iterator(); i.hasNext(); ) {
 			X10Formal f = (X10Formal) i.next();
 			if (!f.hasExplodedVars())
 				continue;
 			stmts = f.explode(nf, ts, stmts, false);
 		}
 		if (stmts.isEmpty())
-			return n;
-		Block b = n.body();
-		stmts.addAll(b.statements());
-		return n.body(b.statements(stmts));
+			return body;
+		stmts.addAll(body.statements());
+		return body.statements(stmts);
+	    
+	}
+
+	private Node visitMethodDecl(MethodDecl n) {
+		List<Formal> fs = n.formals();
+		Block b = explodeAllArgs(fs, n.body());
+		if (n.body() != b)
+		    return n.body(b);
+		return n;
+	}
+
+	private Node visitClosure(Closure c) {
+		List<Formal> fs = c.formals();
+		Block b = explodeAllArgs(fs, c.body());
+		if (c.body() != b)
+		    return c.body(b);
+		return c;
 	}
 
 	private Node visitLoop(X10Loop n) {
