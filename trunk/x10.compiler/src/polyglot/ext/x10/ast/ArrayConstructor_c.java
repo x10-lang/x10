@@ -10,15 +10,12 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import polyglot.ast.ArrayInit;
-import polyglot.ast.Expr;
-import polyglot.ast.Node;
-import polyglot.ast.Term;
-import polyglot.ast.TypeNode;
-import polyglot.ast.Expr_c;
+import polyglot.ast.*;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10ReferenceType;
@@ -30,11 +27,16 @@ import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.main.Report;
 import polyglot.types.Context;
+import polyglot.types.Flags;
+import polyglot.types.LocalInstance;
+import polyglot.types.ParsedClassType;
+import polyglot.types.ParsedClassType_c;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -62,6 +64,7 @@ implements ArrayConstructor {
 	 * 
 	 */
 	// vj: init may be an ArrayInit or a fun expr, or could be null
+	// rmf 3/1/2007: init is now either a Closure or an ArrayInit, but still an Expr
 	protected /*nullable*/ Expr initializer;
 	
 	
@@ -73,7 +76,7 @@ implements ArrayConstructor {
 		// TODO Auto-generated constructor stub
 	}
 	public ArrayConstructor_c(Position pos, TypeNode base, boolean unsafe, 
-			boolean isValue, Expr distribution, Expr initializer ) {
+			boolean isValue, Expr distribution, Expr initializer) {
 		super(pos);
 		assert (distribution !=null) || (initializer instanceof ArrayInit);
 		this.base = base;
@@ -147,6 +150,7 @@ implements ArrayConstructor {
 		
 	}
     
+	// RMF 3/1/2007 - dead method?
 	public boolean hasInitializer() {
 		return initializer != null && initializer instanceof ArrayInit;
 	}
@@ -184,10 +188,58 @@ implements ArrayConstructor {
 				l.add(distribution);
 				Expr newArray = (Expr) nf.NewArray(position(), newBase, l, 0, null).typeCheck(tc);
 				if (initializer != null) {
+					// Before typechecking, rewrite this as the following call:
+					//     x10.lang.ArrayOperations.arrayInit(Object[], new Pointwise() {
+					//         public newBase apply(point p, newBase dummy) {
+					//             initializer.body()
+					//         }
+					//     })
 					assert (!(initializer instanceof ArrayInit));
 					TypeNode arr_ops = nf.CanonicalTypeNode(position(), ts.ArrayOperations());
 					TypeNode arr_type = nf.array(newBase, position(), 1);
-					newArray = (Expr) nf.Call(position(), arr_ops, nf.Id(position(), "arrayInit"), newArray, initializer).typeCheck(tc);
+					Closure init_closure = (Closure) ((ClosureCall) initializer).target();
+					List init_closure_formals = init_closure.formals();
+					X10Formal init_closure_formal = (X10Formal) init_closure_formals.get(0);
+					LocalInstance[] exploded_formals = ((X10Formal) init_closure_formal).localInstances();
+
+					List pointwise_members = new TypedList(new LinkedList(), ClassMember.class, false);
+
+					List apply_formals = new TypedList(new LinkedList(), Formal.class, false);
+					Formal formal = nf.Formal(position(), Flags.NONE, init_closure_formal.type(), init_closure_formal.id());
+					formal = formal.localInstance(ts.localInstance(position(), Flags.NONE, newBaseType, init_closure_formal.name()));
+					formal = ((X10Formal) formal).localInstances(X10Formal_c.NO_LOCALS); // RMF 5/10/2007 - Why isn't this the default?
+					
+					apply_formals.add(formal);
+
+					Formal dummy_formal = nf.Formal(position(), Flags.NONE, nf.CanonicalTypeNode(position(), newBaseType), nf.Id(position(), "__dummy__"));
+					dummy_formal = dummy_formal.localInstance(ts.localInstance(position(), Flags.NONE, newBaseType, "__dummy__"));
+					dummy_formal = ((X10Formal) dummy_formal).localInstances(X10Formal_c.NO_LOCALS); // RMF 5/10/2007 - Why isn't this the default?
+					apply_formals.add(dummy_formal);
+
+					Block closure_body = init_closure.body();
+					List<Stmt> index_inits = init_closure_formal.explode(nf, ts);
+					Block body_with_index_vars = nf.Block(position(), closure_body.statements());
+					for(Iterator iter= index_inits.iterator(); iter.hasNext();) {
+					    Stmt index_init= (Stmt) iter.next();
+
+					    body_with_index_vars = body_with_index_vars.prepend(index_init);
+					}
+
+					MethodDecl apply_method = nf.MethodDecl(position(), Flags.PUBLIC, newBase, nf.Id(position(), "apply"), apply_formals, new ArrayList(), body_with_index_vars);
+					List apply_arg_types = new TypedList(new LinkedList(), Type.class, false);
+					apply_arg_types.add(newBaseType);
+
+					ParsedClassType anon_type = ts.createClassType();
+					apply_method = apply_method.methodInstance(ts.methodInstance(position(), anon_type, apply_method.flags(), apply_method.returnType().type(), apply_method.name(), apply_arg_types, new ArrayList()));
+					pointwise_members.add(apply_method);
+					ClassBody pointwise_body = nf.ClassBody(position(), pointwise_members);
+					TypeNode pointwise_type = nf.CanonicalTypeNode(position(), ts.OperatorPointwise());
+					New new_pointwise = (New) nf.New(position(), pointwise_type, new ArrayList(), pointwise_body).type(ts.OperatorPointwise());
+
+					new_pointwise = new_pointwise.anonType(anon_type);
+					new_pointwise = new_pointwise.constructorInstance(ts.constructorInstance(position(), anon_type, Flags.PUBLIC, new ArrayList(), new ArrayList()));
+
+					newArray = (Expr) nf.Call(position(), arr_ops, nf.Id(position(), "arrayInit"), newArray, new_pointwise /*initializer*/).typeCheck(tc);
 					// [IP] Need the cast because arrayInit(java.lang.Object[]) returns java.lang.Object[]
 					newArray = (Expr) nf.Cast(position(), arr_type, newArray).typeCheck(tc);
 				}
@@ -207,18 +259,23 @@ implements ArrayConstructor {
 			}
 		}
 
+		Expr newInit= null;
+
 		if (initializer != null) {
 			if (initializer instanceof ArrayInit) {
+				// RMF 3/1/2007 - If this is so, why does ArrayConstructor permit an ArrayInit initializer???
 				throw new InternalError("ArrayConstructor_c should really have been NewArray_c" + this);
 				// This is the {...} case, and the parser should rule this out.
 				// ((ArrayInit) initializer).typeCheckElements(base.type());
 			}
 			
 			// TODO: igor: The following is hardwired.
+			// HACK RMF 3/1/2007
 			Type initType = initializer.type();
-			if (! ts.isImplicitCastValid(initType, ts.OperatorPointwise()))
-				throw new SemanticException("Array initializer must be of type x10.array.Operator.Pointwise" 
-							+ position());
+			newInit = (Expr) initializer.typeCheck(tc);
+//			if (! ts.isImplicitCastValid(initType, ts.OperatorPointwise()))
+//				throw new SemanticException("Array initializer must be of type x10.array.Operator.Pointwise" 
+//							+ position());
 		}
 		// Transfer the attributes from the dist to the array. This is in lieu of reading the
 		// dependent type for the constructor from an X10 source file.
@@ -228,7 +285,7 @@ implements ArrayConstructor {
 		// System.out.println("ArrayConstructor_c: t=" + t);
 		ArrayConstructor_c n1 = (ArrayConstructor_c) type(t);
 		
-		return n1.distribution( newDistribution ).arrayBaseType( newBase );
+		return n1.distribution(newDistribution).arrayBaseType(newBase).initializer(newInit);
 		
 	}
 	
@@ -316,8 +373,9 @@ implements ArrayConstructor {
 	public List acceptCFG(CFGBuilder v, List succs) {
 		if (distribution != null)
 			v.visitCFG(distribution, (initializer != null) ? initializer.entry() : this);
-		if (initializer != null)
+		if (initializer != null) {
 			v.visitCFG(initializer, this);
+		}
 		return succs;
 	}
 	
