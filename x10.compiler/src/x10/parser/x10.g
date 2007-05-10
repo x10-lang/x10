@@ -25,6 +25,7 @@ $End
 $Globals
     /.
     //#line $next_line "$input_file$"
+    import java.util.ArrayList;
     import java.util.Collections;
     import java.util.Iterator;
     import java.util.LinkedList;
@@ -66,6 +67,8 @@ $Globals
     import polyglot.ast.TypeNode;
     import polyglot.ast.Unary;
     import polyglot.parse.Name;
+    import polyglot.ext.x10.ast.Closure;
+    import polyglot.ext.x10.ast.ClosureCall;
     import polyglot.ext.x10.ast.Here;
     import polyglot.ext.x10.ast.DepParameterExpr;
     import polyglot.ext.x10.ast.Tuple;
@@ -851,7 +854,7 @@ $Rules -- Overridden rules from GJavaParser
                System.err.println("Fix me - encountered method returning void but with non-zero rank?");
              }
 
-           setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($MethodDeclarator)),
+           setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ThisClauseopt), getRhsLastTokenIndex($MethodDeclarator)),
               ThisClauseopt,
               MethodModifiersopt,
               nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e != null ? e.intValue() : 1),
@@ -1312,22 +1315,22 @@ $Rules
 
     ArrayType ::= X10ArrayType
 
-    X10ArrayType ::= Type [ . ] -- X10ArrayTypeNode
+    X10ArrayType ::= Type '[' . ']' -- X10ArrayTypeNode
         /.$BeginJava
                     setResult(nf.X10ArrayTypeNode(pos(), Type, false, null));
           $EndJava
         ./
-     | Type value  [ . ]
+     | Type value  '[' . ']'
         /.$BeginJava
                     setResult(nf.X10ArrayTypeNode(pos(), Type, true, null));
           $EndJava
         ./
-     | Type [ DepParameterExpr ]
+     | Type '[' DepParameterExpr ']'
         /.$BeginJava
                     setResult(nf.X10ArrayTypeNode(pos(), Type, false, DepParameterExpr));
           $EndJava
         ./
-     | Type value [ DepParameterExpr ]
+     | Type value '[' DepParameterExpr ']'
         /.$BeginJava
                     setResult(nf.X10ArrayTypeNode(pos(), Type, true, DepParameterExpr));
           $EndJava
@@ -1443,7 +1446,7 @@ $Rules
                     setResult(a);
           $EndJava
         ./
-                     | MethodDeclarator [ ]
+                     | MethodDeclarator '[' ']'
         /.$BeginJava
                     MethodDeclarator[2] = new Integer(((Integer) MethodDeclarator[2]).intValue() + 1);
                     // setResult(MethodDeclarator);
@@ -1455,14 +1458,17 @@ $Rules
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                     if (VariableDeclarators != null && VariableDeclarators.size() > 0) {
+                        boolean gt1 = (VariableDeclarators.size() > 1);
                         for (Iterator i = VariableDeclarators.iterator(); i.hasNext();)
                         {
                             X10VarDeclarator d = (X10VarDeclarator) i.next();
                             if (d.hasExplodedVars())
                               // TODO: Report this exception correctly.
                               throw new Error("Field Declarations may not have exploded variables." + pos());
+                            Position p = gt1 ? d.position() :
+                            		pos(getRhsFirstTokenIndex($ThisClauseopt), getRhsLastTokenIndex($VariableDeclarators));
                             d.setFlag(FieldModifiersopt);
-                            l.add(nf.FieldDecl(d.position(),
+                            l.add(nf.FieldDecl(p,
                                                ThisClauseopt,
                                                d.flags,
                                                nf.array(Type, Type.position(), d.dims),
@@ -1508,20 +1514,26 @@ $Rules
                     setResult(nf.NewArray(pos(), ArrayBaseType, l, Dimsopt.intValue()));
           $EndJava
         ./
-        |     new ArrayBaseType Valueopt Unsafeopt [  Expression  ] -- Expression may be a distribution or an int
+        |     new ArrayBaseType Valueopt Unsafeopt '['  Expression  ']' -- Expression may be a distribution or an int
         /.$BeginJava
                     setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, null));
           $EndJava
         ./
-        |     new ArrayBaseType Valueopt Unsafeopt [  Expression$distr  ] Expression$initializer
+        |     new ArrayBaseType Valueopt Unsafeopt '['  Expression$distr  ']' Expression$initializer
         /.$BeginJava
                     setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, distr, initializer));
           $EndJava
         ./
-        |     new ArrayBaseType Valueopt Unsafeopt [  Expression  ] ($lparen FormalParameter ) MethodBody
+        |     new ArrayBaseType Valueopt Unsafeopt '['  Expression  ']' ($lparen FormalParameter ) MethodBody
         /.$BeginJava
-                    Expr initializer = makeInitializer( pos(getRhsFirstTokenIndex($lparen), getRightSpan()), ArrayBaseType, FormalParameter, MethodBody );
-                    setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, initializer));
+                    // Expr initializer = makeInitializer( pos(getRhsFirstTokenIndex($lparen), getRightSpan()), ArrayBaseType, FormalParameter, MethodBody );
+                    List formals = new TypedList(new ArrayList(1), Formal.class, false);
+                    formals.add(FormalParameter);
+                    Closure closure = nf.Closure(MethodBody.position(), formals, ArrayBaseType, new TypedList(new ArrayList(), Type.class, true), MethodBody);
+                    List args= new TypedList(new ArrayList(), Expr.class, false);
+                    args.add(nf.Point(pos(), null)); // argument to this particular kind of closure is always an x10.lang.point
+                    ClosureCall call= nf.ClosureCall(pos(), closure, args);
+                    setResult(nf.ArrayConstructor(pos(), ArrayBaseType, Unsafeopt != null, Valueopt != null, Expression, call));
           $EndJava
         ./
 
@@ -1543,14 +1555,14 @@ $Rules
           $EndJava
         ./
 
-    ArrayAccess ::= ExpressionName [ ArgumentList ]
+    ArrayAccess ::= ExpressionName '[' ArgumentList ']'
         /.$BeginJava
                     if (ArgumentList.size() == 1)
                          setResult(nf.X10ArrayAccess1(pos(), ExpressionName.toExpr(), (Expr) ArgumentList.get(0)));
                     else setResult(nf.X10ArrayAccess(pos(), ExpressionName.toExpr(), ArgumentList));
           $EndJava
         ./
-                  | PrimaryNoNewArray [ ArgumentList ]
+                  | PrimaryNoNewArray '[' ArgumentList ']'
         /.$BeginJava
                     if (ArgumentList.size() == 1)
                          setResult(nf.X10ArrayAccess1(pos(), PrimaryNoNewArray, (Expr) ArgumentList.get(0)));
@@ -1877,7 +1889,7 @@ $Rules
           $EndJava
         ./
 
-    Primary ::= [ RegionExpressionList ]
+    Primary ::= '[' RegionExpressionList ']'
         /.$BeginJava
                     Receiver x10LangPointFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.point.factory");
                     Receiver x10LangRegionFactory = nf.ReceiverFromQualifiedName(pos(), "x10.lang.region.factory");
@@ -2190,12 +2202,12 @@ $Types
     Block ::= InstanceInitializer
     List ::= IdentifierList
     TypeNode ::= ResultType
-    Object[] ::= MethodDeclarator
+    'Object[]' ::= MethodDeclarator
     Formal ::= LastFormalParameter
     List ::= FormalParameters
     List ::= ExceptionTypeList
     TypeNode ::= ExceptionType
-    Object[] ::= ConstructorDeclarator
+    'Object[]' ::= ConstructorDeclarator
     Name ::= SimpleTypeName
     Stmt ::= ExplicitConstructorInvocationopt
     List ::= Argumentsopt
@@ -2247,7 +2259,7 @@ $Types
                        | DepParameters
                        | DepParameterExpr
     List ::= Properties 
-    Object[] ::=  PropertyList | PropertyListopt
+    'Object[]' ::=  PropertyList | PropertyListopt
     PropertyDecl ::= Property
     DepParameterExpr ::= ThisClause | ThisClauseopt
 $End
