@@ -1,11 +1,11 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * This file is part of X10 Runtime System.
+ * x10lib version of RandomAccess
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.5 2007-05-10 11:04:41 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.6 2007-05-10 11:54:42 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -208,7 +208,6 @@ RandomAccess_Dist::main (int argc, char* argv[])
 
   if (VERIFY) verify (logTableSize, embarrasing,GLOBAL_SPACE.Table);
 
-  //printing and reporting 
 }
 
 void 
