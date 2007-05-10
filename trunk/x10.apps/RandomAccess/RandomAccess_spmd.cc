@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.3 2007-05-09 14:36:07 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.4 2007-05-10 06:06:06 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -14,26 +14,32 @@
 
 using namespace std;
 
-func_t handlers[128];
+func_t handlers[] = {(void_func_t) async0, 
+		     (void_func_t) async1,
+		     (void_func_t) async2};
 
 class localTable;
+
+struct GLOBAL_SPACE
+{
+  localTable* Table; 
+};
 
 class RandomAccess_Dist {
   
   class localTable {
     
-  private:
+  public:
     const uint64_t tableSize;
     const uint64_t mask;
-  public:
     uint64_t *array;
     
   public:
     localTable (uint64_t size) :
       tableSize (size),
       mask (size-1),
-      array (new uint64_t [size]) 
-    { memset (array, 0, sizeof(uint64_t) * size);}
+      array (makeLocalArray<uint64_t, 1>(size)) 
+    { }
     
     void update (uint64_t ran) {
       uint64_t off = ran & mask;
@@ -49,16 +55,13 @@ class RandomAccess_Dist {
   };  
   
   static double mysecond () {
-    assert (false);
+    return (double) ((double) (nanoTime() / 1000) * 1.e-6);
   }
   
 private :
-  static const uint64_t POLY = 7ULL; 
-  static const uint64_t PERIOD = 131762457669539401ULL;
+  static const uint64_t POLY = 0x0000000000000007LL;  //use hex
+  static const uint64_t PERIOD = 131762457669539401LL;
  
-public:
-
-  static localTable* Table; 
   static Dist<1>*  UNIQUE;
   static int NUMPLACES;
   static int PLACEIDMASK;
@@ -82,7 +85,7 @@ public:
     }
     
     for (i=62; i>=0; i--)
-      if ((n >> i) & 1)
+      if (((n >> i) & 1) !=0 )
 	break;
     
     ran = 0x2;
@@ -100,7 +103,7 @@ public:
     return ran;
   }
 
-  static void verify (uint64_t LogTableSize)
+  static void verify (uint64_t LogTableSize) //send the same parameters
   {
     const uint64_t TableSize = (1UL<<LogTableSize);
     const uint64_t numUpdates = TableSize*4;
@@ -109,9 +112,15 @@ public:
     for (uint64_t i = 0; i < TableSize; i++) 
       sum += Table->array[i];
 
-    cout << "verify: " << sum << endl;
+    //asyncSpawn<1, true> (0, 2, sum, here());
+
+    if (here() == 0) {
+      unit64_t globalSum = 0;
+      for (int i = 0;i < NUMPLACES; i++) globalSum += SUM[i];
+    }
+    cout << "global sum is : " << globalSum << endl;
   }
- 
+  
   static void RandomAccessUpdate (const uint64_t LogTableSize, const bool Embarrasing, localTable* Table) {
 
     const uint64_t TableSize = (1UL<<LogTableSize);
@@ -185,13 +194,13 @@ public:
 
 
     const uint64_t tableSize = (1UL << logTableSize);
-    Table = new localTable (tableSize);
+    GLOBAL_SPACE.Table = new localTable (tableSize);
             
     //timing
 
     Gfence();
-    RandomAccessUpdate (logTableSize, embarrasing, Table);
-    if (VERIFY) verify (logTableSize); 
+    RandomAccessUpdate (logTableSize, embarrasing, GLOBAL_SPACE.Table);
+    if (VERIFY) verify (logTableSize, embarrassing,GLOBAL_SPACE.Table);
 
     //printing and reporting 
   }
@@ -200,14 +209,14 @@ public:
   async0 (async_arg_t arg0)
   {
     uint64_t ran = arg0; 
-    Table->update (ran);
+    GLOBAL_SPACE.Table->update (ran);
   }
   
   static void 
   async1 (async_arg_t arg0)
   {
     uint64_t ran = arg0; 
-    Table->verify (ran);
+    GLOBAL_SPACE.Table->verify (ran);
   }
   
 };
@@ -221,10 +230,7 @@ int RandomAccess_Dist::PLACEIDMASK = NUMPLACES-1;
 
 int main (int argc, char* argv[])
 {
-  handlers[0].fptr = (void_func_t) RandomAccess_Dist::async0;
-  handlers[1].fptr = (void_func_t) RandomAccess_Dist::async1;
-
-  Init (handlers, 2);
+  Init (handlers);
   
   RandomAccess_Dist::main (argc, argv);
 
