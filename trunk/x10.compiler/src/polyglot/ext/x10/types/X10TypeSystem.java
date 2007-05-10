@@ -70,7 +70,14 @@ public interface X10TypeSystem extends TypeSystem {
 										X10ReferenceType type,
 										List typeparameters,
 										DepParameterExpr expr);*/
+
+	/**
+	 * Create a <code>ClosureType</code> with the given signature.
+	 */
+	ClosureType closure(Position p, Type returnType, List<Type> argTypes, List<Type> throwTypes);
+
 	ClassType X10Object();
+	ClassType parameter1();
 	
 	ClassType place();
 	ClassType region();
@@ -98,6 +105,16 @@ public interface X10TypeSystem extends TypeSystem {
 	C_Lit NULL();
 	
 	CodeInstance asyncCodeInstance();
+
+	/** Create a closure instance.
+	 * @param pos Position of the closure.
+	 * @param container Containing type of the closure.
+	 * @param returnType The closure's return type.
+	 * @param argTypes The closure's formal parameter types.
+	 * @param excTypes The closure's exception throw types.
+	 */
+	ClosureInstance closureInstance(Position pos, ClassType typeContainer, MethodInstance methodContainer,
+		Type returnType, List argTypes, List excTypes);
 
 	/**
 	 * Provide a generic type constructor for arrays:
