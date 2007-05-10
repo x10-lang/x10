@@ -35,35 +35,7 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.Configuration;
-import polyglot.ext.x10.ast.ArrayConstructor_c;
-import polyglot.ext.x10.ast.Async_c;
-import polyglot.ext.x10.ast.AtEach_c;
-import polyglot.ext.x10.ast.Atomic_c;
-import polyglot.ext.x10.ast.Await_c;
-import polyglot.ext.x10.ast.Clocked;
-import polyglot.ext.x10.ast.Finish_c;
-import polyglot.ext.x10.ast.ForEach_c;
-import polyglot.ext.x10.ast.ForLoop_c;
-import polyglot.ext.x10.ast.FutureNode_c;
-import polyglot.ext.x10.ast.Future_c;
-import polyglot.ext.x10.ast.Here_c;
-import polyglot.ext.x10.ast.Next_c;
-import polyglot.ext.x10.ast.Now_c;
-import polyglot.ext.x10.ast.NullableNode_c;
-import polyglot.ext.x10.ast.RemoteCall_c;
-import polyglot.ext.x10.ast.When_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1Assign_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1Unary_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1_c;
-import polyglot.ext.x10.ast.X10ArrayAccessAssign_c;
-import polyglot.ext.x10.ast.X10ArrayAccessUnary_c;
-import polyglot.ext.x10.ast.X10ArrayAccess_c;
-import polyglot.ext.x10.ast.X10Binary_c;
-import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
-import polyglot.ext.x10.ast.X10Cast_c;
-import polyglot.ext.x10.ast.X10ClockedLoop;
-import polyglot.ext.x10.ast.X10Formal;
-import polyglot.ext.x10.ast.X10Instanceof_c;
+import polyglot.ext.x10.ast.*;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -180,6 +152,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		} else
 			// WARNING: it's important to delegate to the appropriate visit() here!
 			visit((Node)c);
+	}
+
+	/**
+	 * Like visit(Closure_c), but does special processing for closures that
+	 * perform array initialization, since the array runtime's Operator.Pointwise
+	 * interface adds a dummy argument to the various apply(...) methods.
+	 */
+	protected Object handleArrayInitClosure(ClosureCall_c n) {
+	    if (n == null)
+		return n;
+	    Closure c= (Closure) n.target();
+	    X10TypeSystem x10ts = (X10TypeSystem) this.tr.typeSystem();
+	    Type parmType = c.returnType().type().isPrimitive() ? c.returnType().type() : x10ts.parameter1();
+	    return new Template("array_init_closure", new Object[] {
+		    parmType.toString(), new Join("\n", c.formals()), c.body()
+	    })/*.expand()*/;
+	}
+
+	public void visit(Closure_c n) {
+	    new Template("closure", new Object[] {
+		    n.returnType(), new Join("\n", n.formals()), n.body()
+	    }).expand();
 	}
 
 	public void visit(Binary_c binary) {
@@ -451,7 +445,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		//Report.report(1, "GOLDEN: X10PrettyPrintVisitor type is " + type + "runtimeName is " + runtimeName);
 		// End typs-driven dispatch.s
-		Object init = a.initializer();
+		Object init = (a.initializer() instanceof ClosureCall) ? handleArrayInitClosure((ClosureCall_c) a.initializer()) : a.initializer();
 		String tmpl = Configuration.ARRAY_OPTIMIZATIONS ?
 				"array_specialized_init" : "array_new_init";
 		new Template(tmpl,
