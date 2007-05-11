@@ -5,15 +5,19 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.h,v 1.1 2007-05-10 11:04:41 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.h,v 1.2 2007-05-11 06:17:52 ganeshvb Exp $ */
 
 #include <iostream>
 
 #include <x10/x10lib.h>
 #include <x10/array.h>
 
+#include "x10lang.h"
+#include "x10lang.cc"
+
 using namespace std;
 using namespace x10lib;
+using namespace x10::lang;
 
 /* This gives the opportunity to use either int64_t or uint64_t */
 
@@ -59,7 +63,7 @@ private:
   static void RandomAccessUpdate (const glong_t LogTableSize, const bool Embarrasing, localTable* Table); 
   
   public:
-  static void main (int argc, char* argv[]);
+  static void main (x10::array<String>& args);
 
 };
 

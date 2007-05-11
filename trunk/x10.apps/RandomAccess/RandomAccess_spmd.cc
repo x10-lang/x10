@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.6 2007-05-10 11:54:42 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.7 2007-05-11 06:17:52 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -141,7 +141,7 @@ RandomAccess_Dist::RandomAccessUpdate (const glong_t LogTableSize, const bool Em
 }
   
 void  
-RandomAccess_Dist::main (int argc, char* argv[])
+RandomAccess_Dist::main (x10::array<String>& args)
 {
 
   RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
@@ -156,18 +156,18 @@ RandomAccess_Dist::main (int argc, char* argv[])
   bool doIO=false; 
   bool embarrasing = false;
   int logTableSize = 10;
-  for (int q = 0; q < argc; ++q) {
-    if (strcmp(argv[q], "-o") == NULL) {
+  for (int q = 0; q < args.length; ++q) {
+    if (strcmp(args[q].c_str(), "-o") == NULL) {
       doIO = true;
     }
 
-    if (strcmp (argv[q], "-e") == NULL) {
+    if (strcmp (args[q].c_str(), "-e") == NULL) {
       embarrasing = true;
     }
 
-    if (strcmp (argv[q], "-m") == NULL) {
+    if (strcmp (args[q].c_str(), "-m") == NULL) {
       ++q;
-      logTableSize = atoi (argv[q]);
+      logTableSize = atoi (args[q].c_str());
     }
   }
 
@@ -241,14 +241,18 @@ func_t handlers[] = {(void_func_t) async0,
 		     (void_func_t) async2};
 
 extern "C" {
-  int ::main (int argc, char* argv[])
+  int ::main (int ac, char* av[])
   {
     Init (handlers, 3); 
+
+    x10::array<String>* args = x10::convert_args (ac, av);
     
-    RandomAccess_Dist::main (argc, argv);
+    RandomAccess_Dist::main (*args);
+
+    x10::free_args (args);
     
     Finalize();
     
-    //return x10::exitCode;
+    return x10::exitCode;
   }
 }
