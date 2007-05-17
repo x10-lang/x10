@@ -73,15 +73,15 @@ class RandomAccess_Dist {
     		mask=tableSize-1;
     		array=(long[:self.rect && self.zeroBased && self.rank==1]) new long[[0:(int)mask]];
     	}
-    	/*
+
     	void update(long ran){
     		array[(int)(ran & mask)] ^= ran;
     	}
-    	*/
+    	
     	//for verification defined in Hanhong's C++ code
-    	/*void verify(long ran){
+    	void verify(long ran){
     		array[(int)(ran & mask)]++;
-    	}*/
+    	}
     }
 
     static double mysecond() {
@@ -171,7 +171,7 @@ class RandomAccess_Dist {
     }
     */
     //the verification method implemented in Hanhong's C++ code
-    static void verify(final long LogTableSize, final boolean Embarrassing, 
+    /*static void verify(final long LogTableSize, final boolean Embarrassing, 
     		final localTable [:self.rect && self.zeroBased && self.rank==1] Table) {
 
         final long TableSize=(1<<LogTableSize);
@@ -189,24 +189,16 @@ class RandomAccess_Dist {
 	for (int i=0; i<NUMPLACES; i++) globalSum+=SUM[i];
 	double missedUpdateRate = (globalSum-numUpdates)/numUpdates*100;
 	System.out.println("  the rate of missed updates  "+ missedUpdateRate+ "%");
-    }
-    
+    }*/
+    /*
     static void RandomAccessUpdate(final long LogTableSize, final boolean Embarrassing,
     		final localTable [:self.rect && self.zeroBased && self.rank==1] Table) {
                     
-        /* Initialize main table */
+        // Initialize main table 
         
         final long TableSize=(1<<LogTableSize);
         final long numUpdates=TableSize*4;
-        /* Perform updates to main table.  The scalar equivalent is:
-         *
-         *     long ran;
-         *     ran = 1;
-         *     for (i=0; i<(4 * TableSize); i++) {
-         *       ran = (ran << 1) ^ (((long) ran < 0) ? POLY : 0);
-         *       table[ran & (TableSize-1)] ^= ran;
-         *     }
-         */
+        
          System.out.println ("Is the mode of update verification? "+VERIFY);
         if (VERIFY)
           finish ateach(point [p] : UNIQUE) {
@@ -219,8 +211,8 @@ class RandomAccess_Dist {
 		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
 		    	    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 		    	    final long temp=ran; 
-	                    //async (UNIQUE[placeID]) Table[placeID].verify(temp);
-	                    Table[placeID].array[(int)(temp & Table[placeID].mask)]++;
+	                    async (UNIQUE[placeID]) Table[placeID].verify(temp);
+	                    //Table[placeID].array[(int)(temp & Table[placeID].mask)]++;
 		    }
 	 }
         else
@@ -234,13 +226,10 @@ class RandomAccess_Dist {
     		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
     		    	    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
     		    	    final long temp=ran; 
-    	                    //async (UNIQUE[placeID]) Table[placeID].update(temp);
-    	                    async (UNIQUE[placeID]){
-    	                    	Table[placeID].array[(int)(temp & Table[placeID].mask)] ^= temp;
-    	                    }
+    	                    async (UNIQUE[placeID]) Table[placeID].update(temp);
     		    }
     	 }	
-    }
+    }*/
 
     public static void  main(String[] args) {
     	if ((NUMPLACES & (NUMPLACES-1)) >0) {
@@ -265,6 +254,8 @@ class RandomAccess_Dist {
         
         //long[:self.rect && self.zeroBased && self.rank==1] Table;
         final long tableSize=(1<<logTableSize);
+        final long numUpdates=tableSize*4*NUMPLACES;
+        
         final  localTable [:self.rect && self.zeroBased && self.rank==1] Table= 
         	(localTable [:self.rect && self.zeroBased && self.rank==1]) 
         	new localTable [UNIQUE] (point p) { return new localTable(tableSize); };
@@ -284,8 +275,52 @@ class RandomAccess_Dist {
         /* Begin timing here */
         cputime = -mysecond();
 
-        RandomAccessUpdate(logTableSize, embarrassing, Table );
-
+        //RandomAccessUpdate(logTableSize, embarrassing, Table );
+        
+        /* Perform updates to main table.  The scalar equivalent is:
+         *
+         *     long ran;
+         *     ran = 1;
+         *     for (i=0; i<(4 * TableSize); i++) {
+         *       ran = (ran << 1) ^ (((long) ran < 0) ? POLY : 0);
+         *       table[ran & (TableSize-1)] ^= ran;
+         *     }
+         */
+         
+        System.out.println ("Is the mode of update verification? "+VERIFY);
+        final long LogTableSize = logTableSize;
+        final boolean Embarrassing = embarrassing;
+        final long NumUpdates=tableSize*4;
+        
+        if (VERIFY)
+          finish ateach(point [p] : UNIQUE) {
+		long ran=HPCC_starts (p*NumUpdates);
+		    for (long i=0; i<NumUpdates; i++) {
+		    	    final int placeID;
+		    	    if (Embarrassing)
+		    	    	placeID=p;
+		    	    else
+		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
+		    	    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
+		    	    final long temp=ran; 
+	                    async (UNIQUE[placeID]) Table[placeID].verify(temp);
+		    }
+	 }
+        else
+          finish ateach(point [p] : UNIQUE) {
+    		long ran=HPCC_starts (p*NumUpdates);
+    		    for (long i=0; i<NumUpdates; i++) {
+    		    	    final int placeID;
+    		    	    if (Embarrassing)
+    		    	    	placeID=p;
+    		    	    else
+    		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
+    		    	    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
+    		    	    final long temp=ran; 
+    	                    async (UNIQUE[placeID]) Table[placeID].update(temp);
+    		    }
+    	 }	
+        
         /* End timed section */
         cputime += mysecond();
     
@@ -298,6 +333,20 @@ class RandomAccess_Dist {
         }
         System.out.println(GUPs + " Billion(10^9) Updates    per second [GUP/s]");
 
-        if (VERIFY) verify(logTableSize, embarrassing, Table);
+        //if (VERIFY) verify(logTableSize, embarrassing, Table);
+        if (VERIFY){
+        	final long [] SUM = new long [NUMPLACES];
+        	finish ateach(point [p] : UNIQUE) {
+        		long sum=0;
+        		for (int i=0;i<Table[p].tableSize;i++) sum+=Table[p].array[i];
+        		//System.out.println("local sum at "+p+" is "+sum+" (correct=0)");
+        		final long temp = sum;
+        		async (UNIQUE[0]) SUM[p]=temp;
+        	}
+        	long globalSum=0;
+        	for (int i=0; i<NUMPLACES; i++) globalSum+=SUM[i];
+        	double missedUpdateRate = (globalSum-numUpdates)/numUpdates*100;
+        	System.out.println("  the rate of missed updates  "+ missedUpdateRate+ "%");
+        } 
     }
 }
