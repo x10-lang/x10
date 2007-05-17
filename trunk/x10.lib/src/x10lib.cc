@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.3 2007-05-09 07:04:29 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.4 2007-05-17 09:48:52 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -39,6 +39,17 @@ x10lib::Init(func_t *handlers, int n)
 #endif /* DEBUG */
 
  
+  //Set the environment variables
+  //(1) switch to POLLING mode
+  LAPI_Senv (hndl, INTERRUPT_SET, 0);
+
+  //Set some frequently used variables
+  //(1) NUMPLACES
+  LAPI_Qenv (hndl, NUM_TASKS, &x10lib::MAX_PLACES);
+  
+  //(2) ID
+  LAPI_Qenv (hndl, TASK_ID, (int*) &x10lib::ID);
+
   //Intialize various Allocators
   
   //(1) Global Shared Memory Allocator
@@ -50,10 +61,7 @@ x10lib::Init(func_t *handlers, int n)
   //Set the handlerTable to handlers 
   handlerTable = handlers;
 
-  //Set the environment variables
 
-  //(1) switch to POLLING mode
-  Setenv (INTERRUPT_SET, 0);
 
   LAPI_Gfence (hndl); 
   return X10_OK;

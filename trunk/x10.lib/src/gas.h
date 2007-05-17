@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: gas.h,v 1.2 2007-05-09 07:04:29 ganeshvb Exp $ */
+/* $Id: gas.h,v 1.3 2007-05-17 09:48:52 ganeshvb Exp $ */
 
 #ifndef __X10_GAS_H__
 #define __X10_GAS_H__
@@ -17,6 +17,10 @@ namespace x10lib {
   char* mallocSMGlobal (size_t nbytes);
   
   bool gas_islocal(gas_ref_t* ref);
+
+  place_t ID;
+  
+  int MAX_PLACES;
   
   /**
    * Return the node id for the current node.
