@@ -5,12 +5,15 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.h,v 1.2 2007-05-11 06:17:52 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.h,v 1.3 2007-05-17 09:38:35 ganeshvb Exp $ */
 
 #include <iostream>
 
 #include <x10/x10lib.h>
 #include <x10/array.h>
+#include <x10/aggregate.h>
+
+#include <x10/async.h>
 
 #include "x10lang.h"
 #include "x10lang.cc"
@@ -23,6 +26,12 @@ using namespace x10::lang;
 
 typedef int64_t glong_t;
 typedef int64_t sglong_t;
+
+#ifdef VERIFY
+bool doVerify = true;
+#else
+bool doVerify = false;
+#endif
 
 class RandomAccess_Dist {
 
@@ -41,9 +50,9 @@ public:
       array (makeLocalArray<glong_t, 1>(size)) 
     { }
         
-    void update (glong_t ran); 
+    inline void update (glong_t ran); 
 
-    void verify (glong_t ran);
+    inline void verify (glong_t ran);
   };  
  
 private:
@@ -66,12 +75,6 @@ private:
   static void main (x10::array<String>& args);
 
 };
-
-static void async0 (async_arg_t arg0);
-  
-static void async1 (async_arg_t arg0);
-
-static void async2 (async_arg_t arg0, async_arg_t arg1);
 
 struct 
 {
