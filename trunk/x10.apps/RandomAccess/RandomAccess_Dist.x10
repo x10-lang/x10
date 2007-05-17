@@ -73,13 +73,15 @@ class RandomAccess_Dist {
     		mask=tableSize-1;
     		array=(long[:self.rect && self.zeroBased && self.rank==1]) new long[[0:(int)mask]];
     	}
+    	/*
     	void update(long ran){
     		array[(int)(ran & mask)] ^= ran;
     	}
+    	*/
     	//for verification defined in Hanhong's C++ code
-    	void verify(long ran){
+    	/*void verify(long ran){
     		array[(int)(ran & mask)]++;
-    	}
+    	}*/
     }
 
     static double mysecond() {
@@ -131,6 +133,7 @@ class RandomAccess_Dist {
         return ran;
     }
     //Rigorous verification, but using for loop. Slow for large data set
+    /*
     static void Verify(final long LogTableSize, final boolean Embarrassing, 
     		final localTable [:self.rect && self.zeroBased && self.rank==1] Table) {
 
@@ -148,7 +151,10 @@ class RandomAccess_Dist {
 		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
 	                    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 	                    final long temp=ran; 
-	                    async (UNIQUE[placeID]) Table[placeID].update(temp);
+	                    //async (UNIQUE[placeID]) Table[placeID].update(temp);
+	                    async (UNIQUE[placeID]){
+	                    	Table[placeID].array[(int)(temp & Table[placeID].mask)] ^= temp;
+	                    }
 		    }
 	}
 	final long [] SUM = new long [NUMPLACES];
@@ -163,6 +169,7 @@ class RandomAccess_Dist {
 	for (int i=0; i<NUMPLACES; i++) globalSum+=SUM[i];
 	System.out.println("   global sum is "+globalSum+" (correct=0)");
     }
+    */
     //the verification method implemented in Hanhong's C++ code
     static void verify(final long LogTableSize, final boolean Embarrassing, 
     		final localTable [:self.rect && self.zeroBased && self.rank==1] Table) {
@@ -212,7 +219,8 @@ class RandomAccess_Dist {
 		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
 		    	    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
 		    	    final long temp=ran; 
-	                    async (UNIQUE[placeID]) Table[placeID].verify(temp);
+	                    //async (UNIQUE[placeID]) Table[placeID].verify(temp);
+	                    Table[placeID].array[(int)(temp & Table[placeID].mask)]++;
 		    }
 	 }
         else
@@ -226,7 +234,10 @@ class RandomAccess_Dist {
     		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
     		    	    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
     		    	    final long temp=ran; 
-    	                    async (UNIQUE[placeID]) Table[placeID].update(temp);
+    	                    //async (UNIQUE[placeID]) Table[placeID].update(temp);
+    	                    async (UNIQUE[placeID]){
+    	                    	Table[placeID].array[(int)(temp & Table[placeID].mask)] ^= temp;
+    	                    }
     		    }
     	 }	
     }
