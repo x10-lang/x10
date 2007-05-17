@@ -15,6 +15,7 @@ import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
+import com.ibm.wala.eclipse.util.*;
 import com.ibm.wala.types.ClassLoaderReference;
 
 public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTranslatorExtension {
@@ -31,7 +32,7 @@ public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTransl
     }
 
     public ClassLoaderReference getSourceLoaderReference() {
-	return JavaSourceAnalysisScope.SOURCE_REF;
+	return EclipseProjectPath.SOURCE_REF;
     }
 
     protected Scheduler createScheduler() {
