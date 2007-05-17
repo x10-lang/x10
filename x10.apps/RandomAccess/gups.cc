@@ -5,6 +5,10 @@
 #include <sys/time.h>
 #include <time.h>
 #include <lapi.h>
+#include "timers.h"
+#include <iostream>
+
+using namespace std;
 
 #define RC(statement) \
 { \
@@ -32,7 +36,7 @@ bool aggregate = false, embarassing = false;
 
 lapi_handle_t  hndl;
 int            num_tasks;
-int            my_id;
+unsigned int            my_id;
 lapi_am_t      am;
 lapi_thread_func_t  tf;
 
@@ -45,8 +49,8 @@ double microseconds()
 
 /* Utility routine to start random number generator at Nth step */
 
-const u64Int POLY    = 7ULL;
-const u64Int PERIOD  = 1317624576693539401ULL;
+const u64Int POLY    = 7LL;
+const u64Int PERIOD  = 1317624576693539401LL;
 
 u64Int HPCC_starts(s64Int n)
 {
@@ -137,7 +141,6 @@ void init_buckets()
 
 void add_to_bucket(int dest, u64Int ran)
 {
-
     element *e = &bucket[dest];
     deq(e);
     e->update[e->count] = ran;
@@ -153,7 +156,7 @@ void add_to_bucket(int dest, u64Int ran)
         //assert(e->count == maxBucketSize);
 
         nSends++;
-        RC( LAPI_Amsend(hndl, dest, (void *)1, NULL, 0,
+        RC( LAPI_Amsend(hndl, e->dest, (void *)1, NULL, 0,
                     e->update, e->count * sizeof(u64Int),
                     NULL, NULL, NULL) );
 
@@ -166,6 +169,14 @@ void add_to_bucket(int dest, u64Int ran)
             searchCount++;
             maxBucketSize--;
         }
+
+      /*
+       maxBucketSize = 0;
+       for (int i = 0; i < MAX_TASKS; i++) {
+            searchCount++;
+         if (bucket[i].count > maxBucketSize)
+             maxBucketSize = bucket[i].count;
+       }*/
     }
     //assert(nElements < AGG_LIMIT);
 }
@@ -307,12 +318,12 @@ void read_arguments(int argc, char *argv[])
     table_size = 1UL << log_table_size;
     table = new u64Int[table_size];
     assert(table);
-    memset(table, 0, table_size);
+    memset(table, 0, table_size * sizeof(uint64_t));
     if (log_num_updates == -1)
         log_num_updates = log_table_size + 2;
     num_updates = 1UL << log_num_updates;
-    if (num_updates < MIN_NUM_UPDATES)
-        num_updates = MIN_NUM_UPDATES;
+    //if (num_updates < MIN_NUM_UPDATES)
+      //  num_updates = MIN_NUM_UPDATES;
 }
 
 void lapi_initialize()
@@ -325,7 +336,7 @@ void lapi_initialize()
     // communication setup
     RC( LAPI_Addr_set(hndl, (void *)receive_update, 1) );
     RC( LAPI_Qenv(hndl, NUM_TASKS, &num_tasks) );
-    RC( LAPI_Qenv(hndl, TASK_ID, &my_id) );
+    RC( LAPI_Qenv(hndl, TASK_ID, (int*) &my_id) );
     RC( LAPI_Senv(hndl, INTERRUPT_SET, 0) );
     RC( LAPI_Senv(hndl, ERROR_CHK, 0) );
 
@@ -362,26 +373,32 @@ int main(int argc, char *argv[])
 
     u64Int ran = gups_initialize();
     RC( LAPI_Gfence(hndl) );
-    double t = microseconds();
+    //double t = microseconds();
+    s64Int mask = table_size - 1;
+    int placeidmask = num_tasks - 1;
+    double t = nanoTime();
     for (s64Int i = 0; i < num_updates; i++) {
+        unsigned int dest = ((int) (ran >> log_table_size)) & placeidmask;
+
+        u64Int temp = ran;
         ran = (ran << 1) ^ ((s64Int)ran < 0 ? POLY : 0);
-        int dest = (ran >> log_table_size) & (num_tasks - 1);
-        if (dest == my_id || embarassing) {
-            UPDATE((ran & (table_size-1)), ran);
+        if (dest == my_id) {
+            UPDATE((temp & mask), temp);
         } else {
             if (aggregate)
-                add_to_bucket(dest, ran);
+                add_to_bucket(dest, temp);
             else
-                send_update(dest, ran);
+                send_update(dest, temp);
         }
     }
     if (aggregate)
         flush_buckets();
     RC( LAPI_Gfence(hndl) );
-    t = microseconds() - t;
+    //t = microseconds() - t;
+    t = nanoTime() - t;
     if (my_id == 0) {
-        printf("%f GUPS  %.1f seconds\n", (double)num_updates * num_tasks/t/1000,
-                t*1e-6);
+        printf("%f GUPS  %.5f seconds\n", (double)num_updates * num_tasks/t,
+                t*1e-9);
         printf("nSends = %ld, searchCount = %ld\n", nSends, searchCount);
     }
 #ifdef VERIFY

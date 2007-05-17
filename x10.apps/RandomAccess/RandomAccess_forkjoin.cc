@@ -2,6 +2,7 @@
 
 #include <x10/x10lib.h>
 #include <x10/array.h>
+#include <x10/async.h>
 
 using namespace std;
 
