@@ -5,10 +5,10 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.h,v 1.1 2007-05-09 07:04:29 ganeshvb Exp $ */
+/* $Id: async.h,v 1.2 2007-05-17 09:48:52 ganeshvb Exp $ */
 
-#ifndef __ASYNC_H__
-#define __ASYNC_H__
+#ifndef __ASYNC_NEW_H__
+#define __ASYNC_NEW_H__
 
 #include <iostream>
 #include "x10/assert.h"
@@ -18,15 +18,10 @@
 using namespace x10lib;
 
 namespace x10lib{
-  typedef void (*async_func0_t)();  
-  typedef void (*async_func1_t)(async_arg_t);  
-  typedef void (*async_func2_t)(async_arg_t, async_arg_t);  
-  typedef void (*async_func3_t)(async_arg_t, async_arg_t, async_arg_t);  
-  typedef void (*async_func4_t)(async_arg_t, async_arg_t, async_arg_t, 
-                                async_arg_t);  
-
-  template<int N, bool INLINE>
-  error_t asyncSpawn (place_t target, async_handler_t handler,...);
+  
+  const int MAX_ARGS = 6;
+  template<int N, typename F>
+  error_t asyncSpawnInline (place_t target, ...);
 }
 
 #include "async.tcc"

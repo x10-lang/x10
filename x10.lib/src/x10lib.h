@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.6 2007-05-09 07:04:29 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.7 2007-05-17 09:48:52 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -34,7 +34,6 @@
 	((unsigned long long)gas_ref & 0xffffffffffffULL)
 
 namespace x10lib {
-
 
 	/* Initialization */
 	int Init(func_t *handlers, int n);

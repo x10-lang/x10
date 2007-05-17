@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.4 2007-05-09 12:40:30 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.5 2007-05-17 09:48:52 ganeshvb Exp $ */
 
 #include "array.h"
 #include "x10/handlers.h"
@@ -14,7 +14,17 @@
 
 using namespace x10lib;
 
+//================= Local Arrays ====================================
+template <typename T, int RANK>
+T*
+makeLocalArray (int size) 
+{
+   T* ret = new T [size];
+   memset (ret, 0, sizeof(T) * size);
+   return ret;  
+}
 
+//================ Distributed Arrays =============================
 template <typename T, int RANK, template <int N> class REGION, template <int N> class DIST>
 Array<T, RANK>*
 makeArrayLocal (const Region<RANK>* region, const Dist<RANK>* dist)
