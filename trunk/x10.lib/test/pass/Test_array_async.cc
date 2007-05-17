@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_array_async.cc,v 1.1 2007-05-09 06:36:32 ganeshvb Exp $ */
+/* $Id: Test_array_async.cc,v 1.2 2007-05-17 09:49:52 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -15,29 +15,34 @@
 using namespace std;
 
 func_t handlers[128];
-void
-async2 (async_arg_t arg0)
+
+
+struct async2 
 {
-    assert  (arg0 == (here() - 1) % numPlaces());
-}
+  inline void operator() (async_arg_t* arg0, int n)
+  {
+    assert (n==1);
+    assert  (*arg0 == (here() - 1) % numPlaces());
+  }
+};
 
-void
-async1 (async_arg_t arg0, async_arg_t arg1)
-{
-   Array<int, 1> * a = (Array<int, 1>*) arg0;
+struct async1{
+  inline void operator () (async_arg_t* args, int n) 
+  {
+    assert (n == 2);
 
-   assert (a->localSize() == arg1);
+    Array<int, 1> * a = (Array<int, 1>*) (*args);
 
-  asyncSpawn <1, true> ((here() + 1) % numPlaces(), 1, here());
-}
+    assert (a->localSize() == *(args+1));
+
+    asyncSpawnInline <1, async2> ((here() + 1) % numPlaces(), here());
+  }
+};
 
 int 
 main (int argc, char* argv[])
 {
-  handlers[0].fptr = (void_func_t) async1;
-  handlers[1].fptr = (void_func_t) async2;
-
-  x10lib::Init(handlers, 1);
+  x10lib::Init(handlers, 2);
 
   place_t p [4] = {0, 1, 2, 3};
 
@@ -47,7 +52,7 @@ main (int argc, char* argv[])
     Array<int, 1>* a = makeArray <int,1, RectangularRegion, UniqueDist>(grid, u);
     uint64_t tableSize = a->localSize();
    for (place_t target = 0; target < numPlaces(); target++)
-     asyncSpawn<2, false> (target, 0, (async_arg_t) (GlobalSMAlloc->addrTable(target)),
+     asyncSpawnInline<2, async1> (target, (async_arg_t) (GlobalSMAlloc->addrTable(target)),
                     tableSize);
 
   } 
