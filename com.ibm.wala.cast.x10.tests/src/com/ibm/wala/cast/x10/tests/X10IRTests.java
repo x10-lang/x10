@@ -11,8 +11,9 @@ import com.ibm.domo.ast.x10.client.X10SourceAnalysisEngine;
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.test.IRTests;
+import com.ibm.wala.eclipse.util.*;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
-import com.ibm.wala.ipa.callgraph.Entrypoints;
+import com.ibm.wala.ipa.callgraph.Entrypoint;
 import com.ibm.wala.ipa.callgraph.impl.Util;
 import com.ibm.wala.ipa.cha.ClassHierarchy;
 
@@ -33,10 +34,10 @@ public class X10IRTests extends IRTests {
 
     protected JavaSourceAnalysisEngine getAnalysisEngine(final String[] mainClassDescriptors) {
 	return new X10SourceAnalysisEngine() {
-          protected Entrypoints 
+          protected Iterable<Entrypoint>
             makeDefaultEntrypoints(AnalysisScope scope, ClassHierarchy cha) 
 	  {
-	    return Util.makeMainEntrypoints(JavaSourceAnalysisScope.SOURCE_REF, cha, mainClassDescriptors);
+	    return Util.makeMainEntrypoints(EclipseProjectPath.SOURCE_REF, cha, mainClassDescriptors);
 	  }
 	};
     }
