@@ -1,0 +1,63 @@
+Closure maps to ForkJoinTask.
+
+What is a frame? Why do we need frames? 
+
+Hmm. Maybe a closure does not map to a forkjoin task but is a container for a forkjoin task.
+And a frame corresponds to a task?
+
+Why are these not the same objects? Because Closure will need information about parent. 
+So Closure will always need some more extra information.
+
+Consider a thread executing in the body of a procedure. Whenever it descends into an async, it must set up
+a continuation (frame) to be used by any thief. Since the continuation is set up many more times than it is actually used 
+(i.e. stolen), it makes sense to set up a minimal amount of information which is then used on a theft (via the promotion
+process) to convert the frame into a full-fledged closure. 
+
+Let us work out the Fib example. 
+
+Before descending into Fib(n-1) (the first recursive call), a frame must be pushed onto the ready deque, informing it
+that 
+
+So let us arrange matters such. 
+
+A frame is a task. It always has a field, set to null, containing the pointer to the closure object. 
+The closure object is created on a theft. When computation is completed in the frame, it uses
+ information in the closure object to execute the onJoin method on the parent, i.e. the returning object.
+ 
+ So the picture is clear.
+ 
+ X10 code will be translated into code that lives on tasks. The code may be static or instance specific. 
+ 
+The first spawn in the body of a method is always descended into by the worker executing the body. 
+Before doing that it creates a new object for the current class (a frame object in Cilk terminology).
+This frame object contains the local variables in the body of the method that are live beyond the spawn
+point (i.e. will be used by the code in the rest of the method). The spawned code may change some variables
+whose value will be read by the subsequent code. Hence in case the frame object is stolen while the worker
+is executing the spawn call, there is a way for the thief to continue execution. Note that the thief cannot
+access the values of the variables modified by the spawn until after it has performed a sync. 
+
+So we need a way for the victim, when it returns from the spawn and realizes the parent frame has been stolen,
+to place the right result values in the frame. It will do this by performing an onJoin call. Note that many
+workers may simultaneously try to perform onJoin calls. So there has to be some mechanism to ensure that 
+when the worker joins the stolen parent, it places information in the right place. e.g. this can be done
+by associating an integer offset in an inlet table with each joiner. 
+
+===========
+When can a worker have more than one closure?
+
+When the topmost closure is stolen, it must be the case that the closure has an active
+Frame, i.e. the victim is working on a spawned async. There may be more than one
+frame. The topmost frame in the stolen closure is promoted to a closure which is left
+behind. 
+
+The inlets correspond to onJoin methods. There may be a need, in general, to have an array of these.
+
+Does the ready queue contain closures or frames?
+
+A stack (CilkStack) is an array of frame pointers (CilkStack=**CilkStackFrame). 
+A CilkStackFrame contains an int entry and an int index, and a CilkProcInfo.
+This is used to determine what method to invoke when a thief grabs a closure.
+
+===========
+Does a worker have a stack of frames and a linked list of closures?
+Or a linked list of closures, each of which contains a stack of frames?
