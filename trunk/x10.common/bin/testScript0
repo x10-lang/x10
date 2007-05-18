@@ -422,7 +422,7 @@ runWithTimeLimit() {
   # create a new process group so that the main job
   # and all of the its descendant processes can be terminated
   # as a whole
-  "$MYDIR"/newpgrp "$cmd" 2>&1 | uniq -c | awk -F'\t' '{t=index($0,"\t");n=substr($0,1,t);if(n>3){print substr($0,t+1)"\n...["(n-2)" identical lines]\n"substr($0,t+1)}else{for(i=0;i<n;i++)print substr($0,t+1)}}' >> $tmpFile &    #main job
+  "$MYDIR"/newpgrp "$cmd" >> $tmpFile 2>&1 &    #main job
   local pidMain=$!   #remember pid of main job
   "$MYDIR"/newpgrp "sleep $maxsec; /usr/bin/kill -9 -$pidMain" &> /dev/null & #timer job
   local pidTimer=$!  #remember pid of timer job
@@ -438,7 +438,7 @@ runWithTimeLimit() {
   /usr/bin/kill -9 -$pidTimer &> /dev/null #kill the timer job
   correctExitCode "$mustFindPat" "$mustNotFindPat" "$rcMain" "$tmpFile"
   local rcMain2=$?
-  cat $tmpFile >> logDetail.$tdir.$className
+  cat $tmpFile | uniq -c | awk -F'\t' '{t=index($0,"\t");n=substr($0,1,t);if(n>3){print substr($0,t+1)"\n...["(n-2)" identical lines]\n"substr($0,t+1)}else{for(i=0;i<n;i++)print substr($0,t+1)}}' >> logDetail.$tdir.$className
   rm -f $tmpFile
   return  $rcMain2    #return (possibly corrected) exit code of main job
 
