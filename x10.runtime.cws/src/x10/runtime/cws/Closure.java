@@ -1,3 +1,12 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2007
+ *
+ *  This file is part of X10 runtime. It is 
+ *  governed by the licence under which 
+ *  X10 is released.
+ *
+ */
 package x10.runtime.cws;
 
 
@@ -17,7 +26,7 @@ import java.util.ArrayList;
  * behind on the victim. The old closure is now a parent
  * and is moved to the thief, which starts executing it.
  * 
- * @author vj
+ * @author vj 04/18/07
  *
  */
 public abstract class Closure  {
