@@ -1,7 +1,14 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2007
+ *
+ *  This file is part of X10 runtime. It is 
+ *  governed by the licence under which 
+ *  X10 is released.
+ *
+ */
 package x10.runtime.cws;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -9,7 +16,7 @@ import static x10.runtime.cws.ClosureStatus.*;
 
 /**
  * The worker for Cilk-style work stealing.
- * @author vj
+ * @author vj 04/18/07
  *
  */
 public class Worker extends Thread {
