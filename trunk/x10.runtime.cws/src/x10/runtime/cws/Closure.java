@@ -30,99 +30,17 @@ import java.util.ArrayList;
  *
  */
 public abstract class Closure  {
-	public static final int MAXIMUM_CAPACITY = 1 << 30;
-	public static final int INITIAL_CAPACITY = 1 << 13; // too high??
-	public static final int EXCEPTION_INFINITY = Integer.MAX_VALUE;
-	public  class Cache {
-		// these are indices into a table of Frames.
-		volatile int head;
-		volatile int tail;
-		volatile int exception;
-		Frame[] stack;
-		 /**
-	     * Pushes a task. Called only by current thread.
-	     * @param x the task
-	     */
-	    final void pushFrame(Frame x) {
-	    	Frame[] array = stack;
-	    	if (array != null && tail < array.length - 1) {
-	    		array[tail]=x;
-	    		++tail;
-	    		return;
-	    	}
-	    	
-	    	growAndPushFrame(x);
-	    }
-		  /*
-	     * Handles resizing and reinitialization cases for pushFrame
-	     * @param x the task
-	     */
-	    private void growAndPushFrame(Frame x) {
-	        int oldSize = 0;
-	        int newSize = 0;
-	        Frame[] oldArray = stack;
-	        if (oldArray != null) {
-	            oldSize = oldArray.length;
-	            newSize = oldSize << 1;
-	        }
-	        if (newSize < INITIAL_CAPACITY)
-	            newSize = INITIAL_CAPACITY;
-	        if (newSize > MAXIMUM_CAPACITY)
-	            throw new Error("Frame stack size exceeded");
-	        Frame[] newArray = new Frame[newSize];
-	        
-	        newArray[tail] = x;
-	        stack = newArray;
-	        ++tail;
-	    }
-	    public void resetExceptionPointer() {
-	    	exception = head;
-	    }
-	    /**
-	     * TODO: Ensure that a fence is not needed after the write to exception.
-	     *
-	     */
-	    public void incrementExceptionPointer() {
-	    	Thread ws = Thread.currentThread();
-	    	assert lockOwner == ws;
-	    	assert status == RUNNING;
-	    	if (exception != EXCEPTION_INFINITY)
-	    		++exception;
-	    	
-	    }
-	    public void decrementExceptionPointer() {
-	    	Thread ws = Thread.currentThread();
-	    	assert lockOwner == ws;
-	    	assert status == RUNNING;
-	    	if (exception != EXCEPTION_INFINITY)
-	    		--exception;
-	    	
-	    }
-	    /**
-	     * TODO: Check that the write to the volatile variable
-	     * is visible to every other thread.
-	     *
-	     */
-	    public void signalImmediateException() {
-	    	assert lockOwner == Thread.currentThread();
-	    	assert status == RUNNING;
-	    	exception = EXCEPTION_INFINITY;
-	    }
-	    public boolean atTopOfStack() {
-	    	return head+1 == tail;
-	    }
-	    public Frame childFrame() {
-	    	return stack[head+1];
-	    }
-	}
-	Cache cache;
-	Frame frame;
-	Closure parent;
-	ClosureStatus status;
-	Lock lock;
-	Worker lockOwner;
-	int joinCount;
-	Object result;
+	
+	
+	protected Cache cache;
+	protected Frame frame;
+	protected Closure parent;
+	protected ClosureStatus status;
+	protected Lock lock;
+	protected Worker lockOwner;
+	protected int joinCount;
+	
+	
 	
 	/**
 	 * Inlets are not represented explicitly as separate pieces of code --
@@ -142,6 +60,7 @@ public abstract class Closure  {
 	
 	public Closure() {
 		super();
+		lock = new ReentrantLock();
 		initialize();
 	}
 	/**
@@ -202,18 +121,21 @@ public abstract class Closure  {
 		Worker ws = (Worker) Thread.currentThread();
 		Frame f = cache.childFrame();
 		Closure child = f.makeClosure();
+		
 		assert lockOwner == ws;
 		assert status == RUNNING;
 		assert ownerReadyQueue == victim;
 		assert ws.lockOwner == victim;
 		assert nextReady==null;
 		assert cache.head <= cache.exception;
+		
 		child.parent = this;
 		child.joinCount = 0;
 		child.cache = cache;
 		child.status = RUNNING;
 		++child.cache.head;
 		child.frame = cache.stack[cache.head];
+		
 		victim.addBottom(child);
 		return child;
 	}
@@ -246,13 +168,24 @@ public abstract class Closure  {
     	return this;
     }
     public void decrementExceptionPointer() {
+    	Thread ws = Thread.currentThread();
+    	assert lockOwner == ws;
+    	assert status == RUNNING;
     	cache.decrementExceptionPointer();
     }
     public void incrementExceptionPointer() {
+    	Thread ws = Thread.currentThread();
+    	assert lockOwner == ws;
+    	assert status == RUNNING;
     	cache.incrementExceptionPointer();
     }
     public void resetExceptionPointer() {
     	cache.resetExceptionPointer();
+    }
+    public void signalImmediateException() {
+    	assert lockOwner == Thread.currentThread();
+    	assert status == RUNNING;
+    	cache.signalImmediateException();
     }
     /**
      * This closure has completed its computation. Return its value
@@ -357,9 +290,10 @@ public abstract class Closure  {
 		assert lockOwner==ws;
 		if (status==RUNNING && ! cache.atTopOfStack())
 			assert ws.lockOwner == ws;
-		for (Closure i : completeInlets) {
-			i.executeAsInlet(this);
-		}
+		if (completeInlets != null)
+			for (Closure i : completeInlets) {
+				i.executeAsInlet();
+			}
 		completeInlets = null;
 	}
 	/**
@@ -367,7 +301,7 @@ public abstract class Closure  {
 	 * so it wont be stolen.
 	 * @param result
 	 */
-	public void setResult(Object result) {
+	public void setupReturn() {
 		Worker ws = (Worker) Thread.currentThread();
 		ws.lock(ws);
 		try {
@@ -379,7 +313,7 @@ public abstract class Closure  {
 				assert t.status==RUNNING;
 				t.status=RETURNING;
 				t.frame=null;
-				t.result=result;
+				
 			} finally {
 				t.unlock();
 			}
@@ -388,13 +322,14 @@ public abstract class Closure  {
 		}
 	}
 	
+	
 	/**
 	 * Execute this closure. Performed after the closure has been
 	 * stolen from a victim. Will eventually invoke compute(frame),
 	 * after setting things up.
 	 */
 	public Closure execute() {
-		Worker ws = (Worker) Thread.currentThread();
+		Worker ws =  (Worker) Thread.currentThread();
 		assert lockOwner != ws;
 		lock(ws);
 		 
@@ -414,7 +349,7 @@ public abstract class Closure  {
 			} finally {
 				ws.unlock();
 			}
-			compute(f);
+			compute(ws, f);
 			return null;
 		}
 		if (s == RETURNING) {
@@ -424,11 +359,14 @@ public abstract class Closure  {
 		throw new Error("Worker executes closure with ");
 	}
 	
+	public void pushFrame(Frame f) {
+		cache.pushFrame(f);
+	}
 	/**
 	 * Slow execution entry point.
 	 * @param frame
 	 */
-	abstract protected void compute(Frame frame);
+	abstract protected void compute(Worker w, Frame frame);
 	
 	/**
 	 * Return your value to the parent closure. Record in the child
@@ -437,6 +375,6 @@ public abstract class Closure  {
 	 * store the result in the parent frame.
 	 * @param parent -- the closure into which the child returns its value
 	 */
-	abstract protected void executeAsInlet(Closure parent);
+	abstract public void executeAsInlet();
 
 }
