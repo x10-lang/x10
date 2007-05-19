@@ -26,18 +26,30 @@ public class Worker extends Thread {
 	 * and check which calls are local to threads vs global to
 	 * pool.
 	 */
-	
 	final Pool pool;
-	
 	private Closure top, bottom;
-
+	Cache cache;
 	protected Lock lock; // dequeue_lock
-	protected Worker lockOwner; // the worker holding the lock.
+	protected Thread lockOwner; // the worker holding the lock.
 	protected int randNext;
 	protected int index;
+	volatile Closure currentTask = null, prevTask=null;
 	
-	public static Worker[] workers; // index is bounded above by this.
-	public void lock(Worker agent) {
+	public static Worker[] workers; 
+	/**
+	 * Creates new Worker.
+	 */
+	public Worker(Pool pool, int index) {
+		this.pool = pool;
+		this.index = index;
+		this.lock = new ReentrantLock();
+		this.cache = new Cache();
+		setDaemon(true);
+		// Further initialization postponed to init()
+	}
+	
+	
+	public void lock(Thread agent) {
 		lock.lock();
 		this.lockOwner=agent;
 	}
@@ -46,29 +58,15 @@ public class Worker extends Thread {
 		lock.unlock();
 	}
 	
-	
-	Closure.Cache cache;
-	// an array of frames.
-	Frame[] frames; 
-	
 	public void pushFrame(Frame frame) {
-		int t = cache.tail;
-		// may generate an  out of bounds exception.
-		frames[t] =frame;
-		cache.tail++;
+		cache.pushFrame(frame);
+	}
+	public Closure popFrameCheck() {
+		return cache.popCheck()? bottom : null;
 		
 	}
 	public void popFrame() {
-		--cache.tail;
-	}
-	public boolean popCheck() {
-		int t = cache.tail;
-		// need a store load fence.
-		return cache.exception >= t;
-	}
-	public Closure popFrameCheck() {
-		return popCheck()? bottom : null;
-		
+		cache.popFrame();
 	}
 	
 	private void setRandSeed(int seed) {
@@ -81,18 +79,6 @@ public class Worker extends Thread {
 		return result;
 	}
 	
-	/**
-	 * Creates new Worker.
-	 */
-	public Worker(Pool pool, int index) {
-		this.pool = pool;
-		this.index = index;
-		this.lock = new ReentrantLock();
-		setDaemon(true);
-		// Further initialization postponed to init()
-	}
-	
-	volatile Closure currentTask = null, prevTask=null;
 	
 	/**
 	 * Do the thief part of Dekker's protocol.  Return true upon success,
@@ -112,7 +98,8 @@ public class Worker extends Thread {
 	
 	public Closure steal() {
 		// Cilk_event(ws, EVENT_STEAL_ATTEMPT);
-		lock.lock();
+		Thread ws =  Thread.currentThread();
+		lock(ws);
 		Closure cl = peekTop();
 		if (cl == null) {
 			// Cilk_event(ws, EVENT_STEAL_EMPTY_DEQUE);
@@ -123,7 +110,7 @@ public class Worker extends Thread {
 		ClosureStatus status = cl.status();
 		assert (status == ABORTING || status == READY || status == RUNNING || status == RETURNING);
 		if (status == READY) {
-			Closure res = extractTop(this);
+			Closure res = extractTop(ws);
 			assert (res == cl);
 			cl.unlock();
 			lock.unlock();
@@ -157,7 +144,7 @@ public class Worker extends Thread {
 	 * Assumes that the executing thread already holds the lock on the deque
 	 * for this worker.
 	 */
-	public Closure extractTop(Worker agent) {
+	public Closure extractTop(Thread agent) {
 		assert lockOwner==agent;
 		Closure cl = top;
 		if (cl == null) {
@@ -179,7 +166,8 @@ public class Worker extends Thread {
 	 * @return top of the closure deque
 	 */
 	public Closure peekTop() {
-		assert lockOwner==this;
+		Worker ws = (Worker) Thread.currentThread();
+		assert lockOwner==ws;
 		Closure cl = top;
 		return cl;
 	}
@@ -308,10 +296,11 @@ public class Worker extends Thread {
 				int victim = rand() % workers.length;
 				if (victim != index) {
 					cl = workers[victim].steal();
-					// TOOD: Add support for lowering priority.
+					this.setPriority(Thread.MIN_PRIORITY);
 					
 				}
 			}
+			this.setPriority(Thread.MAX_PRIORITY);
 			if (! done) {
 				cl = cl.execute();
 			}
