@@ -1070,10 +1070,6 @@ Return values:
 09) Active messages
 -------------------
 
-
-Xfer
-----
-
 Purpose: Transfer user message to a remote task, obtaining the target address
 		 on the remote task from the user specified header handler.
 
@@ -1081,39 +1077,144 @@ Library: libx10.a
 
 C++ syntax:
 
-<x10/x10lib.h>
-int x10lib::Xfer(src, dest, n, hdr_hdl)
-	void *src;
-	x10_gas_ref_t dest;
-	int n;
-	void *hdr_hdl;
+error_t x10lib::asyncSpawnInline<N, T>(dest, ...)
+	place_t dest;
+        int N;
+        struct T; 
+
+T is a struct with operator () defined. The type of T should be:
+  struct T {
+   void operator() (async_arg_t*, int n);
+  }; 
 
 C syntax:
 
-int x10_xfer(src, dest, n, hdr_hdl)
-	void *src;
-	x10_gas_ref_t dest;
+error_t x10_asyncSpawnInline(dest, n, f, ...)
+	place_t dest;
 	int n;
-	void *hdr_hdl;
+	async_func_t* f;
 
 Parameters:
 
 	INPUT
-	hdr_hdl	Specifies the pointer to the remote header handler function to be
-			invoked at the target.
-	src		Specifies the pointer to the user data on the local node.
-	n		Specifies the length of the user data in bytes.
-	dest	Specifies the target addr on a remote node.
+	dest	Specifies the remote node id.
+	n	Specifies the number of arguments to the remote method routine (C only).
+        f       Specifies the pointer to the remote method (C only).
 
 Description:
 
-	Use this method/function to transfer data to a target task, where it is
-	desirable to run a handler on the target task.
+	Use this method/function to execute a method in remote node.
 
 Return values:
 
 	X10_OK		Indicates the method/function call completed successfully.
 	X10_ERR_LAPI	Error from the underlying communication system.
+
+Note:
+      The C++ interface will be changed soon to match the C interface.
+
+
+Aggregation:
+-----------
+
+Purpose:  Enqueue the active messages and execute them as an aggregate
+	  on the remote task. The size of the aggregate is fixed by the library.  
+          Once the aggregation limit is reached, the active messages are sent
+          to the destination and executed there.
+
+Library: libx10.a
+
+C++ syntax:
+
+error_t x10lib::asyncSpawnInlineAgg<N, T>(dest, int handle, ...)
+	place_t dest;
+        int handle;
+        int N;
+        struct T; 
+
+
+T is a struct with operator () defined. The type of T should be:
+  struct T {
+   void operator() (async_arg_t*, int n);
+  }; 
+
+C syntax:
+
+error_t x10_asyncSpawnInlineAgg(dest, n, f, int handle,...)
+	place_t dest;
+	int n;
+	async_func_t* f;
+        int handle;
+
+Parameters:
+
+	INPUT
+	dest	Specifies the remote node id.
+	n	Specifies the number of arguments to the remote method (C only).
+        f       Specifies the pointer to the remote method  (C only).
+        handle  Specifies an unique handle for the remote method.
+                The handle is required because the aggregation is performed
+                for a given remote method. It is the users responsibility to 
+                ensure that the handle is unique. If it is not, the result is un-predictable.
+Description:
+
+	Use this method/function to execute a method in remote node.
+
+Return values:
+
+	X10_OK		Indicates the method/function call completed successfully.
+	X10_ERR_LAPI	Error from the underlying communication system.
+
+Note:
+     The C++ interface will be changed soon to match the C interface.
+
+Flush
+-----
+Purpose : Flush all the oustanding aggreagted active messages. 
+
+C++ Syntax:
+
+error_t x10lib::flush<N, T>(handle)
+        int handle;
+        int N;
+        struct T; 
+
+C Syntax:
+
+error_t x10_flush(n, handle)
+        int n;
+        struct T f;
+        int handle;
+
+Parameters:
+  
+        INPUT
+
+	n	Specifies the number of arguments to the active message routine. (C only)
+        handle  Specifies the handle of the active message to be flushed.
+                It is solely the user's responsiblity to provide the same
+                handle as that used by asyncSpawnInlineAgg. Failure to do so
+                will lead to un-predictable results.
+
+Description:
+
+	Use this method/function to flush all the outstanding aggregated active messages.
+
+Return values:
+
+	X10_OK		Indicates the method/function call completed successfully.
+	X10_ERR_LAPI	Error from the underlying communication system.
+
+Note:
+     The C++ interface will be changed soon to match the C interface.
+
+10) Environment
+---------------
+
+Getenv
+------
+
+Purpose: Query the runtime environment.
 
 
 10) Environment
