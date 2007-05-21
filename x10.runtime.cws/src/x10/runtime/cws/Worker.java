@@ -15,7 +15,14 @@ import java.util.concurrent.locks.ReentrantLock;
 import static x10.runtime.cws.ClosureStatus.*;
 
 /**
- * The worker for Cilk-style work stealing.
+ * The worker for Cilk-style work stealing. Instances of this worker
+ * are created by Pool. 
+ * API note: Code written by users of the work-stealing API is not intended
+ * to subclass this class. Such code can invoke only the public methods of this
+ * class. Such code must live outside the x10.runtime.cws package.
+ * 
+ * Code written by library writers that wish to extend work-stealing may 
+ * subclass this class. 
  * @author vj 04/18/07
  *
  */
@@ -26,112 +33,152 @@ public class Worker extends Thread {
 	 * and check which calls are local to threads vs global to
 	 * pool.
 	 */
-	final Pool pool;
-	private Closure top, bottom;
-	Cache cache;
+	protected final Pool pool;
+	protected Closure top, bottom;
+	final protected Cache cache;
 	protected Lock lock; // dequeue_lock
-	protected Thread lockOwner; // the worker holding the lock.
+	protected Thread lockOwner; // the thread holding the lock.
 	protected int randNext;
 	protected int index;
-	volatile Closure currentTask = null, prevTask=null;
+	protected volatile boolean done;
+	protected Closure closure;
 	
-	public static Worker[] workers; 
+	protected static volatile Worker[] workers; 
+	public static long stealAttempts;
+	public static long steals;
+	public static boolean reporting = true;
 	/**
 	 * Creates new Worker.
 	 */
-	public Worker(Pool pool, int index) {
+	protected Worker(Pool pool, int index) {
 		this.pool = pool;
 		this.index = index;
 		this.lock = new ReentrantLock();
-		this.cache = new Cache();
+		this.cache = new Cache(this);
 		setDaemon(true);
 		// Further initialization postponed to init()
 	}
 	
 	
-	public void lock(Thread agent) {
+	protected void lock(Thread agent) {
 		lock.lock();
 		this.lockOwner=agent;
 	}
-	public void unlock() {
+	protected void unlock() {
 		this.lockOwner=null;
 		lock.unlock();
 	}
-	
-	public void pushFrame(Frame frame) {
-		cache.pushFrame(frame);
-	}
-	public Closure popFrameCheck() {
-		return cache.popCheck()? bottom : null;
-		
-	}
-	public void popFrame() {
-		cache.popFrame();
-	}
-	
-	private void setRandSeed(int seed) {
+
+	protected void setRandSeed(int seed) {
 		randNext = seed;
 	}
-	private int rand() {
+	protected int rand() {
 		randNext = randNext*1103515245  + 12345;
 		int result = randNext >> 16;
 		if (result < 0) result = -result;
 		return result;
 	}
-	
-	
 	/**
-	 * Do the thief part of Dekker's protocol.  Return true upon success,
-	 * false otherwise.  The protocol fails when the victim already popped
-	 * T so that E=T.
+	 * Called by thief on victim. In the body of this method
+	 * victim==this and thief==Thread.currentThread().
+	 * @param thief -- The thread making this invocation.
+	 * @return
 	 */
-	public boolean dekker(Closure cl) {
-		// Closure_assert_ownership(ws, cl);
-		cl.incrementExceptionPointer();
-		if ((cl.cache.head + 1) >= cl.cache.tail) {
-			cl.decrementExceptionPointer();
-			return false;
+	protected Closure steal(Worker thief) {
+		final Worker victim = this;
+		if (reporting) {
+			++stealAttempts;
+			//System.out.println(thief + " attempts to steal from " + thief.index);
 		}
-		return true;
-	}
-
-	
-	public Closure steal() {
-		// Cilk_event(ws, EVENT_STEAL_ATTEMPT);
-		Thread ws =  Thread.currentThread();
-		lock(ws);
-		Closure cl = peekTop();
+		
+		lock(thief);
+		Closure cl=null;
+		try {
+			cl = peekTop(thief, victim);
+			// vj: I believe the victim's ready deque should have only one
+			// closure in it.
+			Closure cl1 = peekBottom(thief);
+			assert cl1==cl;
+		} catch (Throwable z) {
+			unlock();
+			// wrap in an error.
+			throw new Error(z); 
+		}
 		if (cl == null) {
-			// Cilk_event(ws, EVENT_STEAL_EMPTY_DEQUE);
-			lock.unlock();
-			return null;
+			try {
+				if (reporting) {
+					// System.out.println(thief + " steal attempt: queue empty on  " + thief.index);
+				}
+				return null;
+			} finally {
+				lock.unlock();
+			}
 		}
-		cl.lock(this);
-		ClosureStatus status = cl.status();
+		try {
+			cl.lock(thief);
+		} catch (Throwable z) {
+			unlock();
+			throw new Error(z);
+		}
+		ClosureStatus status = null;
+		try {
+			status = cl.status();
+		} catch (Throwable z) {
+			cl.unlock();
+			unlock();
+			throw new Error(z);
+		}
 		assert (status == ABORTING || status == READY || status == RUNNING || status == RETURNING);
 		if (status == READY) {
-			Closure res = extractTop(ws);
-			assert (res == cl);
-			cl.unlock();
-			lock.unlock();
-			return res;
+			try {
+				Closure res = extractTop(thief);
+				assert (res == cl);
+				if (reporting) {
+					++ steals;
+					System.out.println(thief + " steals ready " + cl + " from "
+							+ victim);
+				}
+				return res;
+			} finally {
+				cl.unlock();
+				lock.unlock();
+			}
 		}
 		if (status == RUNNING) {
-			if (dekker(cl)) {
-				Worker thief = (Worker) Thread.currentThread();
-				Closure child = cl.promoteChild(thief);
-				Closure res = extractTop(this);
-				assert cl==res;
-				lock.unlock();
-				child.finishPromote(cl);
+			boolean b = false;
+			try {
+				b=cl.dekker(thief);
+			} catch (Throwable z) {
 				cl.unlock();
-				// Cilk_event(ws, EVENT_STEAL);
+				unlock();
+				throw new Error(z);
+			}
+			
+			if (b) {
+				Closure child = null;
+				Closure res = null;
+				try {
+					child = cl.promoteChild(thief, victim);
+					res = extractTop(thief);
+					assert cl==res;
+				} finally {
+					lock.unlock();
+				}
+				try {
+					cl.finishPromote(thief, child);
+				} finally {
+					cl.unlock();
+				}
+				if (reporting) {
+					++steals;
+					System.out.println(thief + " steals running " + cl + " from "
+							+ victim);
+				}
 				return res;
 			} 
 		}
-		if (status == RETURNING) {
-//			Cilk_event(ws, EVENT_STEAL_RETURNING);
-		}
+		// this path taken when status == RETURNING, 
+		// status==ABORTING, or status==RUNNING and dekker failed.
 		lock.unlock();
 		cl.unlock();
 		return null;
@@ -141,49 +188,55 @@ public class Worker extends Thread {
 	/* 
 	 * Extract the topmost closure in the ready deque of this
 	 * worker. May return null.
-	 * Assumes that the executing thread already holds the lock on the deque
-	 * for this worker.
+	 * @aparam ws -- the current thread, i.e. Thread.currentThread()=ws
 	 */
-	public Closure extractTop(Thread agent) {
-		assert lockOwner==agent;
+	protected Closure extractTop(Thread ws) {
+		assert lockOwner==ws;
 		Closure cl = top;
 		if (cl == null) {
-			bottom = null;
+			assert bottom == null;
 			return cl;
 		}
 		top = cl.nextReady;
 		if (cl == bottom) {
-			cl.nextReady = null;
+			assert cl.nextReady == null;
 			bottom = null;
 		} else {
 			assert cl.nextReady !=null;
 			cl.nextReady.prevReady = null;
 		}
+		cl.ownerReadyQueue = null;
 		return cl;
 	}
 	/**
 	 * Return the top of the closure deque, without removing it.
 	 * @return top of the closure deque
+	 * @param ws -- the current thread, i.e. Thread.currentThread()==ws
 	 */
-	public Closure peekTop() {
-		Worker ws = (Worker) Thread.currentThread();
-		assert lockOwner==ws;
+	protected Closure peekTop(Worker agent, Worker subject) {
+		assert lockOwner==agent;
 		Closure cl = top;
+		if (cl == null) {
+			assert bottom==null;
+			return null;
+		}
+		assert cl.ownerReadyQueue == subject;
 		return cl;
 	}
 	/**
 	 * Return the closure at the bottom fo the deque.
+	 * Required: ws = Thread.currentThread()
 	 * @return
 	 */
-	public Closure extractBottom() {
-		Thread agent = Thread.currentThread();
-		assert lockOwner==agent;
+	protected Closure extractBottom(Thread ws) {
+		
+		assert lockOwner==ws;
 		Closure cl=bottom;
 		if (cl == null) {
-			top=null;
+			assert top==null;
 			return null;
 		}
-		cl.ownerReadyQueue =this;
+		assert cl.ownerReadyQueue ==ws;
 		bottom = cl.prevReady;
 		if (cl == top) {
 			assert cl.prevReady==null;
@@ -192,28 +245,43 @@ public class Worker extends Thread {
 			assert cl.prevReady !=null;
 			cl.prevReady.nextReady = null;
 		}
+		cl.ownerReadyQueue=null;
 		return cl;
 	}
-	public Closure peekBottom() {
-		Thread agent = Thread.currentThread();
-		assert lockOwner==agent;
+	/**
+	 * Peek at the closure at the bottom of the ready deque.
+	 * @param ws -- The current thread, i.e. ws == Thread.currentThread().
+	 * @return
+	 */
+	protected Closure peekBottom(Worker ws) {
+		assert lockOwner==ws;
 		Closure cl = bottom;
 		if (cl==null) {
-			top=null;
+			assert top==null;
 			return cl;
 		}
 		cl.ownerReadyQueue = this;
 		return cl;
 	}
-	public void addBottom(Closure cl) {
-		Thread agent = Thread.currentThread();
-		assert lockOwner==agent;
+	/**
+	 * Add the given closure to the bottom of the
+	 * worker's ready deque.
+	 * @parame ws -- the current thread, i.e. ws==Thread.currentThread().
+	 *               Note: current thread may not always be a Worker.
+	 * @param cl -- the closure to be added.
+	 */
+	protected void addBottom(Thread ws, Closure cl) {
+		
+		assert lockOwner==ws;
 		assert cl !=null;
 		assert cl.ownerReadyQueue == null;
+		
+		if (reporting)
+			System.out.println(this + " adds " + cl + " to bottom.");
 		cl.prevReady = bottom;
 		cl.nextReady = null;
-		bottom = cl;
 		cl.ownerReadyQueue = this;
+		bottom = cl;
 		if (top == null) {
 			top = cl;
 		} else {
@@ -221,28 +289,17 @@ public class Worker extends Thread {
 		}
 		
 	}
-	public void assertIsBottom(Closure cl) {
-		assert cl == bottom;
-	}
 	
-	public void suspend(Closure cl) {
-		// worker has to have a lock on its deque
-		// worker has to own cl
-		// 
-		assert (cl.status == RUNNING);
-		cl.status = SUSPENDED;
-		Closure cl1 = extractBottom(); // throw away the bottom most guy
-		assert (cl==cl1);
-	}
+	
 	/**
-	 * A slow sync.
+	 * A slow sync. Must be invoked only by the this Worker, i.e.
+	 * Thread.currentThread() == this.
 	 * @return true if the closure has to be suspended, false o.w.
 	 */
-	public boolean sync() {
+	protected boolean sync() {
 		lock(this);
 		try { 
-			Closure t = peekBottom();
-			assert t.status==RUNNING;
+			Closure t = peekBottom(this);
 			t.lock(this);
 			try { 
 				assert t.status==RUNNING;
@@ -255,15 +312,20 @@ public class Worker extends Thread {
 				// Execute all completed inlets.
 				// Note these are being executed in a single-threaded
 				// context since the lock is held.
-				t.pollInlets();
+				t.pollInlets(this);
 				// pollInlets may change bottom of queue, due to abort processing.
-				assertIsBottom(t);
+				assert t == bottom;
+				
 				if (t.hasChildren()) {
 					// Suspend. Now any child that is joining
 					// will get to check inlets and if they 
 					// are all done, then execute this task
 					// in place.
-					suspend(t);
+					t.suspend(this);
+					//  Vj: Added this popFrame. Note sure that Cilk does this. Without this
+					// caches are left behind with unpopped frames. This interferes with
+					// subsequent execution of other closures.
+					popFrame();
 					return true;
 				}
 			} finally {
@@ -277,37 +339,117 @@ public class Worker extends Thread {
 		
 	}
 	
-	volatile boolean done;
-	Closure closure;
+	@Override
 	public void run() {
 		assert index >= 0;
 		setRandSeed(index*162347);
 		Closure cl = closure;
 		while (!done) {
+			
 			if (closure == null) {
+//				 Try geting work from the local queue.
 				lock(this);
 				try {
-					cl = extractBottom();
+					cl = extractBottom(this);
 				} finally {
 					unlock();
 				}
 			}
 			while (cl == null && !done) {
+				// Try stealing.
+				final Worker thief = this;
 				int victim = rand() % workers.length;
 				if (victim != index) {
-					cl = workers[victim].steal();
+					cl = workers[victim].steal(thief);
 					this.setPriority(Thread.MIN_PRIORITY);
-					
+					if (cl == null) 
+						Thread.yield();
 				}
 			}
 			this.setPriority(Thread.MAX_PRIORITY);
-			if (! done) {
-				cl = cl.execute();
+			if (cl !=null) {
+				// Found some work! Execute it.
+				assert cache == null || cache.empty();
+				cl = cl.execute(this);
+				
+				// vj: This avoids having to implement a wrap around.
+				// Otherwise, head might increase on a steal, but would
+				// never decrease.
+				cache.reset();
+				
 			}
 		}
 	}
+	/**
+	 * Push a frame onto the stack of the current
+	 * closure (the closure at the bottom of the deque).
+	 * Called by client code in the body of a procedure
+	 * which has a spawn async before the first spawn.
+	 * @param frame -- the frame to be pushed.
+	 */
+	public void pushFrame(Frame frame) {
+		cache.pushFrame(frame);
+	}
+	/**
+	 * 
+	 *
+	 */
+	public void popFrame() {
+		cache.popFrame();
+	}
+	/**
+	 * Called by client code on return from a spawn async
+	 * invocation. Performs the victim end of Dekker.
+	 * @return  -- the closure at the bottom of the worker's
+	 *             deque in case the closure controlling
+	 *             the async  has been stolen by a thief
+	 *             since async execution started. null otherwise.
+	 *            
+	 */
+	public Closure popFrameCheck() {
+		
+		if (! cache.popCheck()) 
+			// fast path
+			return null;
+		// slow path. A steal has happened.
+		// need to grab the lock on the deque
+		// to get the bottom closure.
+		popFrame();
+		return exceptionHandler();
+	}
+	public String toString() {
+		return "Worker("+index+")";
+	}
 	
-	
+	protected Closure exceptionHandler() {
+		lock(this);
+		try {
+			Closure b = bottom;
+			assert b !=null;
+			b.lock(this);
+			try { 
+				b.pollInlets(this);
+				Closure c = bottom;
+				assert (c!=null);
+				if (b != c) {
+					b.unlock();
+					b=c;
+					b.lock(this);
+				}
+				boolean result = b.handleException(this);
+				assert result==true;
+				return b;
+				
+			} finally {
+				b.unlock();
+			}
+		} finally {
+			unlock();
+		}
+	}
+	public boolean lastFrame() {
+		return cache.head==cache.tail;
+	}
 }
 
 

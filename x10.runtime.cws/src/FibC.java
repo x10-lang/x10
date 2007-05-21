@@ -1,6 +1,4 @@
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import x10.runtime.cws.Closure;
 import x10.runtime.cws.Frame;
 import x10.runtime.cws.Pool;
@@ -33,8 +31,7 @@ public class FibC  extends Closure {
 			? new FibC() {
 				@Override
 				public void executeAsInlet() {
-					FibC p = (FibC) parent;
-					((FibFrame) p.frame).y  = result;
+					((FibFrame) parent.frame).y  = result;
 				}
 				public String toString() {
 					return "Fib1(n=" + n + ")";
@@ -42,8 +39,7 @@ public class FibC  extends Closure {
 			}: new FibC() {
 				@Override
 				public void executeAsInlet() {
-					FibC p = (FibC) parent;
-					((FibFrame) p.frame).x  = result;
+					((FibFrame) parent.frame).x  = result;
 				}
 				public String toString() {
 					return "Fib2(n=" + n + ")";
@@ -78,10 +74,10 @@ public class FibC  extends Closure {
 		if (c != null) {
 			// so the frame has been stolen and c is now being executed by someone else.
 			// have to supply it the value of x.
-			((FibC) c).result = x;
+			if (w.lastFrame())
+				((FibC) c).result = x;
 			// now return a dummy value. The real value will be supplied
 			// by c.compute().
-			w.popFrame();
 			return 0; // 
 		}
 		// Now we are back in the current frame, it has not been stolen. 
@@ -94,8 +90,8 @@ public class FibC  extends Closure {
 		int y=fib(w, n-2);
 		c = w.popFrameCheck();
 		if (c != null) {
-			((FibC) c).result = y;
-			w.popFrame();
+			if (w.lastFrame())
+				((FibC) c).result = y;
 			return 0;
 		}
 		// Now there is nothing more to spawn -- so no need for the frame.
@@ -128,29 +124,36 @@ public class FibC  extends Closure {
 			}
 			f.PC=LABEL_1;
 			f.n=n;
+			// need a mem barrier here to ensure that everyone sees these writes.
 			int x = fib(w, n-1);
 			Closure c = w.popFrameCheck();
 			if (c != null) {
-				((FibC) c).result = x;
+				if (w.lastFrame())
+					((FibC) c).result = x;
 				return;
 			}
 			f.x=x;
+			
 		}
 		if (f.PC == LABEL_1) {
 			n=f.n;
 			f.PC=2;
+			// need a mem barrier here to ensure that everyone sees these writes.
 			int y=fib(w,n-2);
 			Closure c = w.popFrameCheck();
 			if (c != null) {
-				((FibC) c).result = y;
+				if (w.lastFrame())
+					((FibC) c).result = y;
 				return;
 			}
 			f.y=y;
 		}
 		if (f.PC <= LABEL_2) {
 			f.PC=LABEL_3;
-			if (w.sync()) 
+			if (sync()) {
+				
 				return;
+			}
 		}
 		result=f.x+f.y;
 		setupReturn();
@@ -168,23 +171,33 @@ public class FibC  extends Closure {
 			return;
 		}
 		final Pool g = new Pool(procs);
-		final int[] points = new int[] { 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50
+		final int[] points = new int[] { 10// 1,5, 10, 15, 20, 25, 30, 35, 40
 		};
 		final Object lock = new Object();
 		for (int i = 0; i < points.length; i++) {
 			final int n = points[i];
-			Main task = new Main(lock) {
+			class FibMain extends Main {
+				public FibMain(Object lock) {
+					super(lock);
+				}
 				@Override
 				public int spawnTask(Worker ws) {
 					return fib(ws, n);
 				}
 				public String toString() {
-					return "Main(n=" + n + ")";
+					return "FibMain(n=" + n + ")";
 				}
-			};
+			}
+			Main task = new FibMain(lock);
 			long s = System.nanoTime();
 			g.submit(task);
-			
+			try {
+				synchronized (lock) {
+					lock.wait();
+				}
+			} catch (InterruptedException z) {
+				System.out.println("Caught interrupted exception " + z);
+			}
 			long t = System.nanoTime();
 			System.out.println(points[i] + " " + (t-s)/1000000 
 					+ " " + task.result );

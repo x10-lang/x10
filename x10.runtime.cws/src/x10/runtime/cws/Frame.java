@@ -11,7 +11,9 @@ package x10.runtime.cws;
 
 /**
  * A Frame holds the PC and dirty live variables in a procedure call
- * that contains an async spawn.
+ * that contains an async spawn. 
+ * API note: Code written by users of the work-stealing API will typically
+ * extend this class for every procedure containing async spawns and finishes.
  * @author vj 04/18/07
  *
  */
@@ -23,8 +25,11 @@ public abstract class Frame {
 	
 	/**
 	 * Returns a closure that can contain a pointer to this frame.
-	 * e.g. a FibFrame will return a FibClosure.
-	 * @return
+	 * e.g. a FibFrame will return a FibClosure. The executeInlet
+	 * method of this closure must know where in the frame to 
+	 * place its result.
+	 * @return -- a closure for executing the code in this method
+	 * instance from the position specified by this frame.
 	 */
 	public abstract Closure makeClosure();
 
