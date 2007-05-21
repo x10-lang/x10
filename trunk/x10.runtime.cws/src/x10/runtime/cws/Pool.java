@@ -132,9 +132,13 @@ public class Pool {
                 Worker r = new Worker(this, i);
               
                 workers[i] = r;
-                r.start();
-                ++runningWorkers;
+               
             }
+            for (int i = 0; i < poolSize; ++i) {
+            	workers[i].start();
+            	++runningWorkers;
+            }
+            
         } finally {
             lock.unlock();
         }
@@ -302,7 +306,7 @@ public class Pool {
 	   Thread me = Thread.currentThread();
 	   ws.lock(me);
 	   try {
-		   ws.addBottom(c);
+		   ws.addBottom(me, c);
 	   } finally {
 		   ws.unlock();
 	   }

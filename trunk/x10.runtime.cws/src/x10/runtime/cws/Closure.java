@@ -19,8 +19,16 @@ import java.util.ArrayList;
 
 
 /**
- * A closure corresponds to a slow invocation of a task. Each
- * worker contains a closure at the top level. When the
+ * A closure corresponds to a slow invocation of a task. This 
+ * class is intended to be subclassed by client code. Subclasses
+ * may specify extra state (e.g. fields such as result),
+ * and will supply implementations of the abstract methods compute
+ * and executeAsInlet. The code for a slow invocation of a task
+ * should live in compute. The code for executeAsInlet should
+ * specify where the result of the closure is to be deposited
+ * in the parent closure.
+ * 
+ * Each worker contains a closure at the top level. When the
  * topmost closure of a victim is stolen, a new child closure is
  * created from the topmost frame in the closure  and left
  * behind on the victim. The old closure is now a parent
@@ -30,80 +38,79 @@ import java.util.ArrayList;
  *
  */
 public abstract class Closure  {
-	
-	
-	protected Cache cache;
-	protected Frame frame;
+
+	protected volatile Cache cache;
+	public Frame frame;
 	protected Closure parent;
-	protected ClosureStatus status;
+	protected volatile ClosureStatus status;
 	protected Lock lock;
 	protected Worker lockOwner;
 	protected int joinCount;
-	
-	
 	
 	/**
 	 * Inlets are not represented explicitly as separate pieces of code --
 	 * they will be once we figure out if we want to support them. (We 
 	 * probably do.) Rather we just use a child closure directly as an inlet.
 	 */
-	List<Closure> completeInlets;
-	List<Closure> incompleteInlets;
+	protected List<Closure> completeInlets;
+	protected List<Closure> incompleteInlets;
 	
-	Worker ownerReadyQueue;
+	protected Worker ownerReadyQueue;
 	/**
 	 * The ready deque is maintained through a pair of references.
 	 */
-	Closure nextReady, prevReady;
+	protected Closure nextReady, prevReady;
 	
-	public ClosureStatus status() { return status;}
+	protected ClosureStatus status() { return status;}
 	
-	public Closure() {
+	protected Closure() {
 		super();
 		lock = new ReentrantLock();
 		initialize();
 	}
+	
 	/**
-	 * Subclasses should override this as appropriate. 
-	 * But they should alwas first call super.initialize();
-	 *
+	 * Returns true if the closure has children
+	 * that have not yet joined.
+	 * @return
 	 */
-	public void initialize() {
-		// need to handle abort processing.
-	}
-
-	public boolean hasChildren() {
+	protected boolean hasChildren() {
 		return joinCount > 0;
 	}
 	
-	public void lock(Worker agent) { 
+	
+	void lock(Worker agent) { 
 		lock.lock();
 		lockOwner =agent;
 	}
-	public void unlock() { 
+	
+	void unlock() { 
 		
 		lockOwner=null;
 		lock.unlock();
 	}
-	public void addCompletedInlet(Closure child) {
+
+	void addCompletedInlet(Closure child) {
 		if (completeInlets == null)
 			completeInlets = new ArrayList<Closure>();
 		completeInlets.add(child);
 	}
 	
-	public void makeReady() {
+
+	void makeReady() {
 		status=READY;
 		cache=null;
 	}
 	
-	public void completeAndEnque(Closure child) {
-		Worker ws = (Worker) Thread.currentThread();
+	void completeAndEnque(Worker ws, Closure child) {
+		
 		assert (lockOwner == ws);
 		addCompletedInlet(child);
 		
 	}
-	public void removeChild(Closure child) {
-		assert this.ownerReadyQueue == Thread.currentThread();
+	
+	void removeChild(Closure child) {
+		
 		if (incompleteInlets != null) 
 		 incompleteInlets.remove(child);
 		// for (Inlet i : incompleteInlets) {
@@ -113,106 +120,136 @@ public abstract class Closure  {
 	}
 	
 	/**
-	 * This code is executed by the thief.
-	 * @param victim
-	 * @return
+	 * This code is executed by the thief on the parent while holding 
+	 * the lock on the parent and on the victim.
+	 * @param thief  -- The worker performing the steal.
+	 * @param victim -- The worker from who work has been stolen.
+	 * @return the child closure
 	 */
-	Closure promoteChild(Worker victim) {
-		Worker ws = (Worker) Thread.currentThread();
-		Frame f = cache.childFrame();
-		Closure child = f.makeClosure();
+	Closure promoteChild(Worker thief, Worker victim) {
 		
-		assert lockOwner == ws;
+		assert lockOwner == thief;
 		assert status == RUNNING;
 		assert ownerReadyQueue == victim;
-		assert ws.lockOwner == victim;
+		assert victim.lockOwner == thief;
 		assert nextReady==null;
 		assert cache.head <= cache.exception;
-		
+
+		Frame f = cache.childFrame();
+		Closure child = f.makeClosure();
 		child.parent = this;
 		child.joinCount = 0;
 		child.cache = cache;
 		child.status = RUNNING;
+		child.frame = f;
+		child.ownerReadyQueue=null;
 		++child.cache.head;
-		child.frame = cache.stack[cache.head];
-		
-		victim.addBottom(child);
+		// TODO: cache.head is never reduced. Hmm. We need to implement
+		// wrap around.
+		victim.addBottom(thief, child);
 		return child;
 	}
-	public void finishPromote(Closure child) {
-		Thread ws = Thread.currentThread();
-		assert lockOwner == ws;
-		assert child.lockOwner != ws;
-		++joinCount;
-		addChild(child);
-		makeReady();
+	/**
+	 * This code is executed by the thief on the parent while holding 
+	 * the lock on the parent. The lock on the victim has been given up.
+	 * Therefore other thiefs may be hitting upon the victim simultaneously.
+	 * 
+	 * @param thief  -- The worker performing the steal.
+	 * @param child -- The child closure being promoted.
+	 */
+	void finishPromote(Worker thief, Closure child) {
 		
-	}
-	public void addChild(Closure child) {
-		Thread ws = Thread.currentThread();
-		assert lockOwner==ws;
-		assert child.lockOwner != ws;
+		assert lockOwner == thief;
+		assert child.lockOwner != thief;
+		
+		/* Add the child to the parent. */
+		++joinCount;
 		if (incompleteInlets == null)
 			incompleteInlets = new ArrayList<Closure>();
 		incompleteInlets.add(child);
 		
+		/* Set the parent's cache to null and its status to READY */
+		makeReady();
+		
 	}
-
-    public Closure setupForExecution() {
-    	Worker ws = (Worker) Thread.currentThread();
-    	status = RUNNING;
-    	// load the cache from the worker's state.
-    	cache = ws.cache;
-    	cache.pushFrame(frame);
-    	cache.resetExceptionPointer();
-    	return this;
-    }
-    public void decrementExceptionPointer() {
-    	Thread ws = Thread.currentThread();
+	/**
+	 * Do the thief part of Dekker's protocol.  Return true upon success,
+	 * false otherwise.  The protocol fails when the victim already popped
+	 * T so that E=T.
+	 * Must be the case that Thread.currentThread()==thief.
+	 */
+	boolean dekker(Worker thief) {
+		assert lockOwner==thief;
+		
+		incrementExceptionPointer(thief);
+		Cache c = cache;
+		int tail = c.tail;
+		int head = c.head;
+		if ((head + 1) >= tail) {
+			decrementExceptionPointer(thief);
+			return false;
+		}
+		// so there must be at least two elements in the framestack for a theft.
+		return true;
+	}
+    
+    private void decrementExceptionPointer(Worker ws) {
     	assert lockOwner == ws;
     	assert status == RUNNING;
+    	
     	cache.decrementExceptionPointer();
     }
-    public void incrementExceptionPointer() {
-    	Thread ws = Thread.currentThread();
+    
+    private void incrementExceptionPointer(Worker ws) {
     	assert lockOwner == ws;
     	assert status == RUNNING;
+    	
     	cache.incrementExceptionPointer();
     }
-    public void resetExceptionPointer() {
-    	cache.resetExceptionPointer();
+    private void resetExceptionPointer(Worker ws) {
+    	 assert lockOwner==ws;
+    	 cache.resetExceptionPointer();
+     }
+    boolean handleException(Worker ws) {
+    	resetExceptionPointer(ws);
+    	ClosureStatus s = status;
+    	assert s == RUNNING || s == RETURNING;
+    	//assert (cache.head >= cache.tail);
+    	// Other kinds of exceptions are not being handled now.
+    	// a steal has happened.
+    	status = RETURNING;
+    	// The result is going to be moved to the desired location
+    	// by application code. 
+    	return true;
+    	
     }
-    public void signalImmediateException() {
-    	assert lockOwner == Thread.currentThread();
+  
+    private void signalImmediateException(Worker ws) {
+    	assert lockOwner == ws;
     	assert status == RUNNING;
     	cache.signalImmediateException();
     }
-    /**
-     * This closure has completed its computation. Return its value
-     * to the parent. If this is the last child joining the parent,
-     * and the parent is suspended, return the parent (this is a
-     * provably good steal).
-     * @return
-     */
    
-    public Closure returnValue() {
-    	assert status==RETURNING;
-    	return closureReturn();
-    }
     /**
      * Return protocol. The closure has completed its computation. Its return value
      * is now propagated to the parent. The closure to be executed next, possibly null,
      * is returned.  
      * This closure must not be locked (by this worker??) and must not be in any deque.
+     * Required that ws==Thread.currentThread().
      * @return the parent, if this is the last child joining.
      */
-    public Closure closureReturn() {
-    	Worker ws = (Worker) Thread.currentThread();
+     private Closure closureReturn(Worker ws) {
+    	
     	assert (joinCount==0);
     	assert (status == RETURNING);
     	assert (ownerReadyQueue==null);
     	assert (lockOwner != ws);
+    	
     	Closure parent = this.parent;
+    	if (parent == null) {
+    		// Must be a top level closure.
+    		return null;
+    	}
     	assert (parent != null);
     	
     	parent.lock(ws);
@@ -221,15 +258,15 @@ public abstract class Closure  {
     		assert parent.frame != null;
     		parent.removeChild(this);
     		lock(ws);
-    		parent.completeAndEnque( this);
+    		parent.completeAndEnque( ws, this);
     		try {
     			if (parent.status == RUNNING) {
-    				parent.cache.signalImmediateException();
+    				parent.signalImmediateException(ws);
     			} else
-    				parent.pollInlets();
+    				parent.pollInlets(ws);
     			// Is a fence() needed?
     			--parent.joinCount;
-    			return parent.provablyGoodStealMaybe();
+    			return parent.provablyGoodStealMaybe(ws);
     		} finally {
     			unlock();
     		}
@@ -239,22 +276,31 @@ public abstract class Closure  {
     	}
     	// The child should be garbage at this point.
     }
+    
     /**
      * Suspend this closure. Called during execution of slow sync
      * when there is at least one outstanding child.
-     *
+     * ws must be the worker executing suspend.
+     * Assume: ws=Thread.currentThread();
      */
-    public void suspend() {
-    	Worker ws = (Worker) Thread.currentThread();
+   void suspend(Worker ws) {
+    	
     	assert lockOwner == ws;
     	assert status == RUNNING;
+    	
     	status = SUSPENDED;
-    	Closure cl = ws.extractBottom();
+    	// throw away the bottommost closure on the worker.
+    	// the only references left to this closure are from
+    	// its children.
+    	Closure cl = ws.extractBottom(ws);
     	assert cl==this;
-    	//TODO: Shouldnt its ownedReadyQueue be set to null?
-    	//drop this closure. The only reference left to it is from the child
+    	
+//    	Setting ownedReadyQueue to null even though Cilk does not do it.
+    	cl.ownerReadyQueue=null;
+    	
     	
     }
+    
     /**
      * Return the parent provided that its joinCount is zero 
      * and it is suspended. The parent should now be considered
@@ -262,90 +308,90 @@ public abstract class Closure  {
      * value of a child
      * @return parent or null
      */
-    private Closure provablyGoodStealMaybe() {
-    	Thread ws = Thread.currentThread();
+    private Closure provablyGoodStealMaybe(Worker ws) {
+    	
     	assert lockOwner==ws;
     	assert parent != null;
+    	
     	Closure result = null;
     	if (parent.joinCount==0 &&parent.status == SUSPENDED) {
     		result = parent;
-    		parent.pollInlets();
+    		parent.pollInlets(ws);
     		parent.ownerReadyQueue =null;
     		parent.makeReady();
     	}
     	return result;
     }
 	
-	public boolean sync() {
-		return ((Worker) Thread.currentThread()).sync();
-	}
+   
 	/**
 	 * Run all completed inlets.
 	 * TODO: Figure out why pollInlets are being run incrementally
 	 * and not just once, after joinCount==0. Perhaps because
 	 * this method is supposed to perform abort processing.
 	 */
-	public void pollInlets() {
-		Worker ws = (Worker) Thread.currentThread();
+	void pollInlets(Worker ws) {
+		
 		assert lockOwner==ws;
-		if (status==RUNNING && ! cache.atTopOfStack())
+		
+		if (status==RUNNING && ! cache.atTopOfStack()) {
+			if (ws.lockOwner !=ws) {
+				System.out.println("Cache is " + cache.dump());
+			}
 			assert ws.lockOwner == ws;
+		}
 		if (completeInlets != null)
 			for (Closure i : completeInlets) {
 				i.executeAsInlet();
 			}
 		completeInlets = null;
 	}
-	/**
-	 * Before a slow code return. The closure is marked as RETURNING
-	 * so it wont be stolen.
-	 * @param result
-	 */
-	public void setupReturn() {
-		Worker ws = (Worker) Thread.currentThread();
-		ws.lock(ws);
-		try {
-			
-			Closure t = ws.peekBottom();
-		
-			lock(ws);
-			try {
-				assert t.status==RUNNING;
-				t.status=RETURNING;
-				t.frame=null;
-				
-			} finally {
-				t.unlock();
-			}
-		} finally {
-			ws.unlock();
-		}
-	}
 	
+	 /**
+     * Must be called by every slow procedure after it sets the 
+     * return value but before it returns.
+     * This method ensures that the closure's value is returned
+     * to the parent. If this is the last child joining the parent,
+     * and the parent is suspended, return the parent (this is a
+     * provably good steal).
+     * @return
+     */
+   
+    Closure returnValue(Worker ws) {
+    	
+    	assert status==RETURNING;
+    	
+    	return closureReturn(ws);
+    }
 	
 	/**
 	 * Execute this closure. Performed after the closure has been
 	 * stolen from a victim. Will eventually invoke compute(frame),
 	 * after setting things up.
+	 * @param ws -- the current thread, must be equal to Thread.currentThread()
 	 */
-	public Closure execute() {
-		Worker ws =  (Worker) Thread.currentThread();
+	Closure execute(Worker ws) {
+		
 		assert lockOwner != ws;
+		
 		lock(ws);
-		 
 		ClosureStatus s = status;
 		Frame f = frame;
 		if (s == READY) {
 			try {
-				setupForExecution();
+				status = RUNNING;
+		    	// load the cache from the worker's state.
+		    	cache = ws.cache;
+		    	cache.pushFrame(frame);
+		    	cache.resetExceptionPointer();
 				assert f != null;
-				pollInlets();
+				pollInlets(ws);
 			} finally {
 				unlock();
 			}
 			ws.lock(ws);
 			try { 
-				ws.addBottom(this);
+				ws.addBottom(ws, this);
 			} finally {
 				ws.unlock();
 			}
@@ -354,27 +400,77 @@ public abstract class Closure  {
 		}
 		if (s == RETURNING) {
 			unlock();
-			return returnValue();
+			return returnValue(ws);
 		}
-		throw new Error("Worker executes closure with ");
+		assert false;
+		throw new Error(ws + "executes " + status + " " + this + ": error!");
 	}
 	
-	public void pushFrame(Frame f) {
-		cache.pushFrame(f);
-	}
+//	=============== The methods intended to be called by client code =======
+//	=============== that subclasses Closure.========
+	
 	/**
-	 * Slow execution entry point.
-	 * @param frame
+	 * Slow execution entry point for the scheduler. Invoked by the thief
+	 * running in the scheduler after it has stolen the closure from a victim.
+	 * @param w -- The thread invoking the compute, i.e. w == Thread.currentThread()
+	 * @param frame -- frame within which to execute
 	 */
 	abstract protected void compute(Worker w, Frame frame);
+    
+	/**
+	 * Subclasses should override this as appropriate. 
+	 * But they should alwas first call super.initialize();
+	 *
+	 */
+	protected void initialize() {
+		// need to handle abort processing.
+	}
+
+    /* Public method intended to be invoked from within 
+     * slow methods of client code.
+     * @return true -- iff the closure must suspend because not 
+     *                 all children have returned
+     */
+	final protected boolean sync() {
+		Worker ws = ((Worker) Thread.currentThread());
+		return ws.sync();
+	}
+	/**
+	 * Invoked by client code before a return from slow code. It will
+	 * mark the current closure as RETURNING so it wont be stolen. It will
+	 * pop the current frame. 
+	 * Before invoking this call, client code is responsible for setting the appropriate state
+	 * on the closure so that the value to be returned is known.
+	 * 
+	 */
+	final protected void setupReturn() {
+		// Do not trust client code to pass this parameter in.
+		Worker ws = (Worker) Thread.currentThread();
+		ws.lock(ws);
+		try {
+			
+			Closure t = ws.peekBottom(ws);
+			assert t==this;
+			lock(ws);
+			try {
+				assert status==RUNNING;
+				status=RETURNING;
+				frame=null;
+				ws.popFrame();
+			} finally {
+				unlock();
+			}
+		} finally {
+			ws.unlock();
+		}
+	}
+
 	
 	/**
-	 * Return your value to the parent closure. Record in the child
-	 * some representation of where it was created in the body
-	 * of the parent, and use that to determine where to 
-	 * store the result in the parent frame.
-	 * @param parent -- the closure into which the child returns its value
+	 * Return your value to the parent closure. Typically the
+	 * closure will be created with information about where
+	 * to deposit its result.
 	 */
-	abstract public void executeAsInlet();
+	abstract protected void executeAsInlet();
 
 }

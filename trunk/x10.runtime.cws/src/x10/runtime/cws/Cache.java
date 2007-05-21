@@ -1,22 +1,33 @@
 package x10.runtime.cws;
 
-public  class Cache {
+/**
+ * Package-specific class, used by Worker and Closure to cache
+ * the frames for the bottom most closure in a worker's ready deque.
+ * 
+ * @author vj 05/18/2007
+ *
+ */
+ class Cache {
 	public static final int MAXIMUM_CAPACITY = 1 << 30;
 	public static final int INITIAL_CAPACITY = 1 << 13; // too high??
 	public static final int EXCEPTION_INFINITY = Integer.MAX_VALUE;
-	// these are indices into a table of Frames.
-	volatile int head;
-	volatile int tail;
-	volatile int exception;
-	Frame[] stack;
-	public Cache() {
-		
-	}
+	
+	protected Frame[] stack;
+	// these are indices into stack.
+	protected volatile int head, tail, exception;
+	
+	protected final Worker owner;
+	protected Cache(Worker w) {owner=w;}
+	public String toString() { return "Cache("+owner.index+")";}
 	 /**
      * Pushes a task. Called only by current thread.
+     * TODO: Need to make sure the increment to tail is seen
+     * by all processors after the assignment array[tail]=x.
+     * Does Java allow an array of volatiles?
      * @param x the task
      */
-    final void pushFrame(Frame x) {
+    final protected void pushFrame(Frame x) {
+    	assert x !=null;
     	Frame[] array = stack;
     	if (array != null && tail < array.length - 1) {
     		array[tail]=x;
@@ -47,19 +58,19 @@ public  class Cache {
         stack = newArray;
         ++tail;
     }
-    public void resetExceptionPointer() {
+    protected void resetExceptionPointer() {
     	exception = head;
     }
     /**
      * TODO: Ensure that a fence is not needed after the write to exception.
      *
      */
-    public void incrementExceptionPointer() {
+    protected void incrementExceptionPointer() {
     	if (exception != EXCEPTION_INFINITY)
     		++exception;
     	
     }
-    public void decrementExceptionPointer() {
+    protected void decrementExceptionPointer() {
     	if (exception != EXCEPTION_INFINITY)
     		--exception;
     	
@@ -69,22 +80,39 @@ public  class Cache {
      * is visible to every other thread.
      *
      */
-    public void signalImmediateException() {
+    protected void signalImmediateException() {
     	exception = EXCEPTION_INFINITY;
     }
-    public boolean atTopOfStack() {
+    protected boolean atTopOfStack() {
     	return head+1 == tail;
     }
-    public Frame childFrame() {
+   
+    protected Frame childFrame() {
     	return stack[head+1];
     }
-    public void popFrame() {
+    protected void popFrame() {
 		--tail;
 	}
-	public boolean popCheck() {
+    /**
+     * The victim's portion of Dekker.
+     * @return true iff an exception has been posted against
+     *              the current closure.
+     */
+    protected int lastException;
+	protected boolean popCheck() {
 		int t = tail;
-		// need a store load fence.
-		return exception >= t;
+		int e = exception;
+		lastException = e;
+		return e >= t;
+	}
+	protected String dump() {
+		return this.toString() + "(head=" + head + " tail=" + tail + " exception=" + exception + ")";
+	}
+	protected boolean empty() {
+		return head==tail;
+	}
+	protected void reset() {
+		head=tail=exception=0;
 	}
 	
 }
