@@ -45,7 +45,7 @@ import polyglot.visit.TypeChecker;
  * @author vj
  */
 
-public class Async_c extends Stmt_c implements Async, Clocked, CompoundStmt {
+public class Async_c extends Stmt_c implements Async, CompoundStmt {
 
 	public Expr place;
 	public Stmt body;
