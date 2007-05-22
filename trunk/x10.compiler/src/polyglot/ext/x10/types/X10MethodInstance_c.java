@@ -11,14 +11,18 @@
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
+import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.types.MethodInstance_c;
 import polyglot.types.TypeSystem_c;
+import polyglot.ext.x10.ast.PropertyDecl_c;
 import polyglot.ext.x10.types.constr.C_Local_c;
 import polyglot.ext.x10.types.constr.C_Root;
 import polyglot.ext.x10.types.constr.C_Special;
@@ -29,12 +33,14 @@ import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.Promise;
 import polyglot.main.Report;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
 /**
@@ -45,6 +51,31 @@ import polyglot.util.Position;
  */
 public class X10MethodInstance_c extends MethodInstance_c implements X10MethodInstance {
 
+	protected List<X10ClassType> annotations;
+	
+	public List<X10ClassType> annotations() {
+		if (annotations == null) return Collections.EMPTY_LIST;
+		return Collections.<X10ClassType>unmodifiableList(annotations);
+	}
+	
+	public void setAnnotations(List<X10ClassType> annotations) {
+		this.annotations = new ArrayList<X10ClassType>(annotations);
+	}
+	public X10TypeObject annotations(List<X10ClassType> annotations) {
+		X10ReferenceType_c n = (X10ReferenceType_c) copy();
+		n.setAnnotations(annotations);
+		return n;
+	}
+	public X10ClassType annotationNamed(String name) {
+		for (Iterator<X10ClassType> i = annotations.iterator(); i.hasNext(); ) {
+			X10ClassType ct = i.next();
+			if (ct.fullName().equals(name)) {
+				return ct;
+			}
+		}
+		return null;
+	}
+	
 	List<Formal> formals;
 	/**
 	 * 
@@ -68,7 +99,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 			ReferenceType container, Flags flags, Type returnType, String name,
 			List formalTypes,   List excTypes) {
 		super(ts, pos, container,flags, returnType, name, formalTypes,	excTypes);
-		
 	}
 	
 	public boolean canOverrideImpl(MethodInstance mj, boolean quiet) throws SemanticException {
@@ -93,6 +123,23 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 			}
 		}
 		return result;
+	}
+	public boolean isPropertyGetter() {
+		assert container instanceof X10ParsedClassType;
+		boolean isJavaType = ((X10ParsedClassType) container).isJavaType();
+		if (isJavaType) return false;
+		if (!formalTypes.isEmpty()) return false;
+		FieldInstance fi = container.fieldNamed(X10FieldInstance.MAGIC_PROPERTY_NAME);
+		if (fi == null) return false;
+		String propertyNames = (String) fi.constantValue();
+		Scanner s = new Scanner(propertyNames);
+		while (s.hasNext()) {
+			String propName = s.next();
+			if (propName.equals(name())) {
+				return true;
+			}
+		}
+		return false;
 	}
 	public boolean isJavaMethod() {
 		assert container instanceof X10ParsedClassType;

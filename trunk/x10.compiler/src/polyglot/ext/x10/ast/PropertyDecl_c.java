@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import polyglot.ast.ArrayInit;
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
@@ -27,12 +28,15 @@ import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.main.Report;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.InitializerInstance;
 import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeChecker;
 
 public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
 	protected X10NodeFactory nf;
@@ -85,6 +89,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     		for (int i=0; i < n; i++) {
                 PropertyDecl  p = properties.get(i);
                 body = body.addMember(p.abstractGetter());
+                body = body.addMember(p);
             }
             body = body.addMember(makePropertyNamesField(properties, nf));
         }
@@ -148,6 +153,19 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
                               Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
     }
     
-   
+    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    	PropertyDecl_c n = (PropertyDecl_c) super.buildTypes(tb);
+    	
+        // Property fields of interfaces are NOT static.
+        Flags f = n.flags;
+        f = f.clearStatic();
+        
+        if (n.ii != null) {
+        	n.ii.setFlags(Flags.NONE);
+        }
+        
+        n.fi.setFlags(f);
+        return n.flags(f);
+    }
    
 }

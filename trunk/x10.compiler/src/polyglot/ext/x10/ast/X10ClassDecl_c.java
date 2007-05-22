@@ -26,6 +26,7 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.FieldDecl_c;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -53,7 +54,7 @@ import polyglot.visit.TypeChecker;
  * @author vj
  *
  */
-public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl {
+public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl, X10ClassDecl {
    
     /**
      * If there are any properties, add the property instances to the body,
@@ -171,7 +172,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements TypeDecl {
     	if (this.type instanceof X10ParsedClassType) {
     		X10ParsedClassType xpType = (X10ParsedClassType) type;
     		xpType.checkRealClause();
+    		xpType.setAnnotations(((X10Ext) result.ext()).annotationTypes());
     	}
+        
     	return result;
     }
   /*  protected ClassDecl_c reconstruct(TypeNode ci) {

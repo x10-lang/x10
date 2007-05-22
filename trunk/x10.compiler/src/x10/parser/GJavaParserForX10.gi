@@ -191,12 +191,11 @@ $Rules
 
     TypeVariable ::= identifier
 
-    ArrayType ::= Type [ ]
+    ArrayType ::= Type [ Annotationsopt ]
         /.$BeginJava
                     setResult(nf.array(Type, pos(), 1));
           $EndJava
         ./
-
 
     TypeParameter ::= TypeVariable TypeBoundopt
         /.$BadAction./
@@ -409,47 +408,56 @@ $Rules
     NormalClassDeclaration ::= ClassModifiersopt class identifier TypeParametersopt Superopt Interfacesopt ClassBody
 
     ClassModifiers ::= ClassModifier
+        /.$BeginJava
+                    List l = new LinkedList();
+                    l.addAll(ClassModifier);
+                    setResult(l);
+          $EndJava
+        ./
                      | ClassModifiers ClassModifier
         /.$BeginJava
-                    setResult(ClassModifiers.set(ClassModifier));
+                    ClassModifiers.addAll(ClassModifier);
           $EndJava
         ./
 
     ClassModifier ::= Annotation
-        /.$BadAction./
+        /.$BeginJava
+                    setResult(Collections.singletonList(Annotation));
+          $EndJava
+        ./
                     | public
         /.$BeginJava
-                    setResult(Flags.PUBLIC);
+                    setResult(Collections.singletonList(Flags.PUBLIC));
           $EndJava
         ./
                     | protected
         /.$BeginJava
-                    setResult(Flags.PROTECTED);
+                    setResult(Collections.singletonList(Flags.PROTECTED));
           $EndJava
         ./
                     | private
         /.$BeginJava
-                    setResult(Flags.PRIVATE);
+                    setResult(Collections.singletonList(Flags.PRIVATE));
           $EndJava
         ./
                     | abstract
         /.$BeginJava
-                    setResult(Flags.ABSTRACT);
+                    setResult(Collections.singletonList(Flags.ABSTRACT));
           $EndJava
         ./
                     | static
         /.$BeginJava
-                    setResult(Flags.STATIC);
+                    setResult(Collections.singletonList(Flags.STATIC));
           $EndJava
         ./
                     | final
         /.$BeginJava
-                    setResult(Flags.FINAL);
+                    setResult(Collections.singletonList(Flags.FINAL));
           $EndJava
         ./
                     | strictfp
         /.$BeginJava
-                    setResult(Flags.STRICTFP);
+                    setResult(Collections.singletonList(Flags.STRICTFP));
           $EndJava
         ./
 
@@ -618,47 +626,56 @@ $Rules
                           | ArrayInitializer
     
     FieldModifiers ::= FieldModifier
+        /.$BeginJava
+                    List l = new LinkedList();
+                    l.addAll(FieldModifier);
+                    setResult(l);
+          $EndJava
+        ./
                      | FieldModifiers FieldModifier
         /.$BeginJava
-                    setResult(FieldModifiers.set(FieldModifier));
+                    FieldModifiers.addAll(FieldModifier);
           $EndJava
         ./
     
     FieldModifier ::= Annotation
-        /.$BadAction./
+        /.$BeginJava
+                    setResult(Collections.singletonList(Annotation));
+          $EndJava
+        ./
                     | public
         /.$BeginJava
-                    setResult(Flags.PUBLIC);
+                    setResult(Collections.singletonList(Flags.PUBLIC));
           $EndJava
         ./
                     | protected
         /.$BeginJava
-                    setResult(Flags.PROTECTED);
+                    setResult(Collections.singletonList(Flags.PROTECTED));
           $EndJava
         ./
                     | private
         /.$BeginJava
-                    setResult(Flags.PRIVATE);
+                    setResult(Collections.singletonList(Flags.PRIVATE));
           $EndJava
         ./
                     | static
         /.$BeginJava
-                    setResult(Flags.STATIC);
+                    setResult(Collections.singletonList(Flags.STATIC));
           $EndJava
         ./
                     | final
         /.$BeginJava
-                    setResult(Flags.FINAL);
+                    setResult(Collections.singletonList(Flags.FINAL));
           $EndJava
         ./
                     | transient
         /.$BeginJava
-                    setResult(Flags.TRANSIENT);
+                    setResult(Collections.singletonList(Flags.TRANSIENT));
           $EndJava
         ./
                     | volatile
         /.$BeginJava
-                    setResult(Flags.VOLATILE);
+                    setResult(Collections.singletonList(Flags.VOLATILE));
           $EndJava
         ./
     
@@ -720,32 +737,46 @@ $Rules
     
     FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
         /.$BeginJava
+                Formal f;
 	        if (VariableDeclaratorId != null)
-                    setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
+                    f = nf.X10Formal(pos(), extractFlags(VariableModifiersopt), nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names());
                 else
-                    setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), 1), nf.Id(pos(), ""), new AmbExpr[0]));
+                    f = nf.Formal(pos(), extractFlags(VariableModifiersopt), nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), 1), nf.Id(pos(), ""));
+                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                setResult(f);
           $EndJava
         ./
     
     VariableModifiers ::= VariableModifier
+        /.$BeginJava
+                    List l = new LinkedList();
+                    l.addAll(VariableModifier);
+                    setResult(l);
+          $EndJava
+        ./
                         | VariableModifiers VariableModifier
         /.$BeginJava
-                    setResult(VariableModifiers.set(VariableModifier));
+                    VariableModifiers.addAll(VariableModifier);
           $EndJava
         ./
     
     VariableModifier ::= final
         /.$BeginJava
-                    setResult(Flags.FINAL);
+                    setResult(Collections.singletonList(Flags.FINAL));
           $EndJava
         ./
-                       | Annotations
-        /.$BadAction./
+                       | Annotation
+        /.$BeginJava
+                    setResult(Collections.singletonList(Annotation));
+          $EndJava
+        ./
     
     LastFormalParameter ::= VariableModifiersopt Type ...opt$opt VariableDeclaratorId
         /.$BeginJava
                     assert(opt == null);
-                    setResult(nf.Formal(pos(), VariableModifiersopt, nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names()));
+                    Formal f = nf.X10Formal(pos(), extractFlags(VariableModifiersopt), nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), VariableDeclaratorId.dims), VariableDeclaratorId.name, VariableDeclaratorId.names());
+                    f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                    setResult(f);
           $EndJava
         ./
 
@@ -756,57 +787,66 @@ $Rules
     --                       | VariableDeclaratorId [ ]
     --    
     MethodModifiers ::= MethodModifier
+        /.$BeginJava
+                    List l = new LinkedList();
+                    l.addAll(MethodModifier);
+                    setResult(l);
+          $EndJava
+        ./
                       | MethodModifiers MethodModifier
         /.$BeginJava
-                    setResult(MethodModifiers.set(MethodModifier));
+                    MethodModifiers.addAll(MethodModifier);
           $EndJava
         ./
     
-    MethodModifier ::= Annotations
-        /.$BadAction./
+    MethodModifier ::= Annotation
+        /.$BeginJava
+                    setResult(Collections.singletonList(Annotation));
+          $EndJava
+        ./
                      | public
         /.$BeginJava
-                    setResult(Flags.PUBLIC);
+                    setResult(Collections.singletonList(Flags.PUBLIC));
           $EndJava
         ./
                      | protected
         /.$BeginJava
-                    setResult(Flags.PROTECTED);
+                    setResult(Collections.singletonList(Flags.PROTECTED));
           $EndJava
         ./
                      | private
         /.$BeginJava
-                    setResult(Flags.PRIVATE);
+                    setResult(Collections.singletonList(Flags.PRIVATE));
           $EndJava
         ./
                      | abstract
         /.$BeginJava
-                    setResult(Flags.ABSTRACT);
+                    setResult(Collections.singletonList(Flags.ABSTRACT));
           $EndJava
         ./
                      | static
         /.$BeginJava
-                    setResult(Flags.STATIC);
+                    setResult(Collections.singletonList(Flags.STATIC));
           $EndJava
         ./
                      | final
         /.$BeginJava
-                    setResult(Flags.FINAL);
+                    setResult(Collections.singletonList(Flags.FINAL));
           $EndJava
         ./
                      | synchronized
         /.$BeginJava
-                    setResult(Flags.SYNCHRONIZED);
+                    setResult(Collections.singletonList(Flags.SYNCHRONIZED));
           $EndJava
         ./
                      | native
         /.$BeginJava
-                    setResult(Flags.NATIVE);
+                    setResult(Collections.singletonList(Flags.NATIVE));
           $EndJava
         ./
                      | strictfp
         /.$BeginJava
-                    setResult(Flags.STRICTFP);
+                    setResult(Collections.singletonList(Flags.STRICTFP));
           $EndJava
         ./
     
@@ -856,7 +896,7 @@ $Rules
    --                 Name a = (Name) ConstructorDeclarator[1];
    --                 List b = (List) ConstructorDeclarator[2];
 --
-   --                setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt, a.toString(), b, Throwsopt, ConstructorBody));
+   --                setResult(nf.ConstructorDecl(pos(), extractFlags(ConstructorModifiersopt), a.toString(), b, Throwsopt, ConstructorBody));
     --     $EndJava
     --   ./
     
@@ -869,27 +909,36 @@ $Rules
         ./
 
     ConstructorModifiers ::= ConstructorModifier
+        /.$BeginJava
+                    List l = new LinkedList();
+                    l.addAll(ConstructorModifier);
+                    setResult(l);
+          $EndJava
+        ./
                            | ConstructorModifiers ConstructorModifier
         /.$BeginJava
-                    setResult(ConstructorModifiers.set(ConstructorModifier));
+                    ConstructorModifiers.addAll(ConstructorModifier);
           $EndJava
         ./
     
-    ConstructorModifier ::= Annotations
-        /.$BadAction./
+    ConstructorModifier ::= Annotation
+        /.$BeginJava
+                    setResult(Collections.singletonList(Annotation));
+          $EndJava
+        ./
                           | public
         /.$BeginJava
-                    setResult(Flags.PUBLIC);
+                    setResult(Collections.singletonList(Flags.PUBLIC));
           $EndJava
         ./
                           | protected
         /.$BeginJava
-                    setResult(Flags.PROTECTED);
+                    setResult(Collections.singletonList(Flags.PROTECTED));
           $EndJava
         ./
                           | private
         /.$BeginJava
-                    setResult(Flags.PRIVATE);
+                    setResult(Collections.singletonList(Flags.PRIVATE));
           $EndJava
         ./
     
@@ -946,42 +995,51 @@ $Rules
     NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier TypeParametersopt ExtendsInterfacesopt InterfaceBody
     
     InterfaceModifiers ::= InterfaceModifier
+        /.$BeginJava
+                    List l = new LinkedList();
+                    l.addAll(InterfaceModifier);
+                    setResult(l);
+          $EndJava
+        ./
                          | InterfaceModifiers InterfaceModifier
         /.$BeginJava
-                    setResult(InterfaceModifiers.set(InterfaceModifier));
+                    InterfaceModifiers.addAll(InterfaceModifier);
           $EndJava
         ./
     
     InterfaceModifier ::= Annotation
-        /.$BadAction./
+        /.$BeginJava
+                    setResult(Collections.singletonList(Annotation));
+          $EndJava
+        ./
                         | public
         /.$BeginJava
-                    setResult(Flags.PUBLIC);
+                    setResult(Collections.singletonList(Flags.PUBLIC));
           $EndJava
         ./
                         | protected
         /.$BeginJava
-                    setResult(Flags.PROTECTED);
+                    setResult(Collections.singletonList(Flags.PROTECTED));
           $EndJava
         ./
                         | private
         /.$BeginJava
-                    setResult(Flags.PRIVATE);
+                    setResult(Collections.singletonList(Flags.PRIVATE));
           $EndJava
         ./
                         | abstract
         /.$BeginJava
-                    setResult(Flags.ABSTRACT);
+                    setResult(Collections.singletonList(Flags.ABSTRACT));
           $EndJava
         ./
                         | static
         /.$BeginJava
-                    setResult(Flags.STATIC);
+                    setResult(Collections.singletonList(Flags.STATIC));
           $EndJava
         ./
                         | strictfp
         /.$BeginJava
-                    setResult(Flags.STRICTFP);
+                    setResult(Collections.singletonList(Flags.STRICTFP));
           $EndJava
         ./
     
@@ -1055,60 +1113,80 @@ $Rules
                         if (d.hasExplodedVars())
                           // TODO: Report this exception correctly.
                           throw new Error("Field Declarations may not have exploded variables." + pos());
-                        l.add(nf.FieldDecl(pos(getRhsFirstTokenIndex($Type), getRightSpan()),
-                                           ConstantModifiersopt,
+                        FieldDecl fd = nf.FieldDecl(pos(getRhsFirstTokenIndex($Type), getRightSpan()),
+                                           extractFlags(ConstantModifiersopt),
                                            nf.array(Type, pos(getRhsFirstTokenIndex($Type), getRhsLastTokenIndex($Type)), d.dims),
                                            d.name,
-                                           d.init));
+                                           d.init);
+                        fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(ConstantModifiersopt));
+                        l.add(fd);
                     }
                     setResult(l);
           $EndJava
         ./
     
     ConstantModifiers ::= ConstantModifier
+        /.$BeginJava
+                    List l = new LinkedList();
+                    l.addAll(ConstantModifier);
+                    setResult(l);
+          $EndJava
+        ./
                         | ConstantModifiers ConstantModifier
         /.$BeginJava
-                    setResult(ConstantModifiers.set(ConstantModifier));
+                    ConstantModifiers.addAll(ConstantModifier);
           $EndJava
         ./
     
     ConstantModifier ::= Annotation
-        /.$BadAction./
+        /.$BeginJava
+                    setResult(Collections.singletonList(Annotation));
+          $EndJava
+        ./
                        | public
         /.$BeginJava
-                    setResult(Flags.PUBLIC);
+                    setResult(Collections.singletonList(Flags.PUBLIC));
           $EndJava
         ./
                        | static
         /.$BeginJava
-                    setResult(Flags.STATIC);
+                    setResult(Collections.singletonList(Flags.STATIC));
           $EndJava
         ./
                        | final
         /.$BeginJava
-                    setResult(Flags.FINAL);
+                    setResult(Collections.singletonList(Flags.FINAL));
           $EndJava
         ./
     
     AbstractMethodDeclaration ::= AbstractMethodModifiersopt TypeParametersopt ResultType MethodDeclarator Throwsopt ;
     
     AbstractMethodModifiers ::= AbstractMethodModifier
+        /.$BeginJava
+                    List l = new LinkedList();
+                    l.addAll(AbstractMethodModifier);
+                    setResult(l);
+          $EndJava
+        ./
                               | AbstractMethodModifiers AbstractMethodModifier
         /.$BeginJava
-                    setResult(AbstractMethodModifiers.set(AbstractMethodModifier));
+                    AbstractMethodModifiers.addAll(AbstractMethodModifier);
           $EndJava
         ./
     
-    AbstractMethodModifier ::= Annotations
-        /.$BadAction./
-                             | public
+    AbstractMethodModifier ::= Annotation
         /.$BeginJava
-                    setResult(Flags.PUBLIC);
+                    setResult(Collections.singletonList(Annotation));
           $EndJava
         ./
-                             | abstract
+                       | public
         /.$BeginJava
-                    setResult(Flags.ABSTRACT);
+                    setResult(Collections.singletonList(Flags.PUBLIC));
+          $EndJava
+        ./
+                       | abstract
+        /.$BeginJava
+                    setResult(Collections.singletonList(Flags.ABSTRACT));
           $EndJava
         ./
     
@@ -1142,18 +1220,25 @@ $Rules
         /.$BadAction./
     
     Annotations ::= Annotation
-        /.$BadAction./
+        /.$BeginJava
+                    List l = new TypedList(new LinkedList(), AnnotationNode.class, false);
+                    l.add(Annotation);
+                    setResult(l);
+          $EndJava
+        ./
                   | Annotations Annotation
-        /.$BadAction./
+        /.$BeginJava
+                    Annotations.add(Annotation);
+          $EndJava
+        ./
     
-    Annotation ::= NormalAnnotation
-        /.$BadAction./
-                 | MarkerAnnotation
-        /.$BadAction./
-                 | SingleElementAnnotation
-        /.$BadAction./
+    Annotation ::= @ InterfaceType
+        /.$BeginJava
+                    setResult(nf.AnnotationNode(pos(), InterfaceType));
+          $EndJava
+        ./
     
-    NormalAnnotation ::= @ TypeName ( ElementValuePairsopt )
+    NormalAnnotation ::= @ InterfaceType
         /.$BadAction./
     
     ElementValuePairs ::= ElementValuePair
@@ -1229,7 +1314,7 @@ $Rules
     
     -- Chapter 14
     
-    Block ::= { BlockStatementsopt }
+    Block ::= Annotationsopt { BlockStatementsopt }
         /.$BeginJava
                     setResult(nf.Block(pos(), BlockStatementsopt));
           $EndJava
@@ -1275,10 +1360,12 @@ $Rules
                         for (Iterator i = VariableDeclarators.iterator(); i.hasNext(); )
                         {
                             X10VarDeclarator d = (X10VarDeclarator) i.next();
-                            d.setFlag(VariableModifiersopt); 
+                            d.setFlag(extractFlags(VariableModifiersopt)); 
                             // use d.flags below and not flags, setFlag may change it.
-                            l.add(nf.LocalDecl(d.pos, d.flags,
-                                               nf.array(Type, pos(d), d.dims), d.name, d.init));
+                            LocalDecl ld = nf.LocalDecl(d.pos, d.flags,
+                                               nf.array(Type, pos(d), d.dims), d.name, d.init);
+                            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                            l.add(ld);
                             // [IP] TODO: Add X10Local with exploded variables
                             if (d.hasExplodedVars())
                                s.addAll(X10Formal_c.explode(nf, ts, d.name, pos(d), d.flags, d.names()));
@@ -1310,6 +1397,7 @@ $Rules
                 | IfThenElseStatement
                 | WhileStatement
                 | ForStatement
+                | Annotation Statement
     
     StatementWithoutTrailingSubstatement ::= Block
                                            | EmptyStatement
@@ -2173,7 +2261,7 @@ $Rules
 
     VariableModifiersopt ::= $Empty
         /.$BeginJava
-                    setResult(Flags.NONE);
+                    setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                            | VariableModifiers
@@ -2203,14 +2291,14 @@ $Rules
 
     AbstractMethodModifiersopt ::= $Empty
         /.$BeginJava
-                    setResult(Flags.NONE);
+                    setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                                  | AbstractMethodModifiers
 
     ConstantModifiersopt ::= $Empty
         /.$BeginJava
-                    setResult(Flags.NONE);
+                    setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                            | ConstantModifiers
@@ -2231,7 +2319,7 @@ $Rules
 
     InterfaceModifiersopt ::= $Empty
         /.$BeginJava
-                    setResult(Flags.NONE);
+                    setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                             | InterfaceModifiers
@@ -2279,7 +2367,7 @@ $Rules
 
     ConstructorModifiersopt ::= $Empty
         /.$BeginJava
-                    setResult(Flags.NONE);
+                    setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                               | ConstructorModifiers
@@ -2304,14 +2392,14 @@ $Rules
 
     MethodModifiersopt ::= $Empty
         /.$BeginJava
-                    setResult(Flags.NONE);
+                    setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                          | MethodModifiers
 
     FieldModifiersopt ::= $Empty
         /.$BeginJava
-                    setResult(Flags.NONE);
+                    setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                         | FieldModifiers
@@ -2343,7 +2431,7 @@ $Rules
 
     ClassModifiersopt ::= $Empty
         /.$BeginJava
-                    setResult(Flags.NONE);
+                    setResult(Collections.EMPTY_LIST);
           $EndJava
         ./
                         | ClassModifiers

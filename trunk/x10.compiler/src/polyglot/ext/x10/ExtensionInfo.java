@@ -7,14 +7,21 @@
 
 package polyglot.ext.x10;
 
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
+import polyglot.ext.x10.plugin.CompilerPlugin;
+import polyglot.ext.x10.plugin.LoadPlugins;
+import polyglot.ext.x10.plugin.RegisterPlugins;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -58,6 +65,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         // force Topics to load
         Topics t = new Topics();
     }
+    
+    protected Map plugins;
+  
     
     public static String clock = "clock";
 
@@ -139,6 +149,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
    public static class X10Scheduler extends JLScheduler {
 	   X10Scheduler(ExtensionInfo extInfo) {
 		   super(extInfo);
+	   }
+	   public Goal LoadPlugins() {
+		   return LoadPlugins.create(this);
+	   }
+	   public Goal RegisterPlugins(final Job job) {
+		   return RegisterPlugins.create(this, job);
 	   }
 	   public Goal CodeGenerated(final Job job) {
 		   return X10CodeGenerated.create(this, job);
@@ -317,7 +333,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	    }
     	
     }
-    static class CastRewritten extends VisitorGoal {
+    public static class CastRewritten extends VisitorGoal {
     	public static Goal create(Scheduler scheduler, Job job, TypeSystem ts, NodeFactory nf) {
     		return scheduler.internGoal(new CastRewritten(job, ts, nf));
     	}
@@ -330,6 +346,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		l.add(scheduler.Disambiguated(job));
     		l.add(scheduler.SupertypesDisambiguated(job));
     		l.add(scheduler.SignaturesDisambiguated(job));
+    		l.add(((X10Scheduler) scheduler).RegisterPlugins(job));
     		l.addAll(super.prerequisiteGoals(scheduler));
     		return l;
     	}
@@ -436,4 +453,26 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     protected Options createOptions() {
     	return new X10CompilerOptions(this);
     }
+    
+    public Map plugins() {
+    	if (plugins == null) {
+    		return Collections.EMPTY_MAP;
+    	}
+    	return plugins;
+    }
+    
+	public void addPlugin(String pluginName, CompilerPlugin plugin) {
+		if (plugins == null) {
+			plugins = new HashMap();
+		}
+		plugins.put(pluginName, plugin);
+	}
+	
+	public CompilerPlugin getPlugin(String pluginName) {
+		if (plugins == null) {
+			return null;
+		}
+		
+		return (CompilerPlugin) plugins.get(pluginName);
+	}
 }

@@ -45,6 +45,9 @@ public final class Configuration extends x10.runtime.util.Configuration {
 	public static boolean ARRAY_OPTIMIZATIONS = true;
 	private static final String ARRAY_OPTIMIZATIONS_desc = "Generate allocation of specialized Java array classes";
 
+	public static String PLUGINS = "";
+	private static final String PLUGINS_desc = "Comma-separated list of compiler plugins to run.";
+	
 	/**
 	 * Parses one argument from the command line.  This allows the user
 	 * to specify options also on the command line (in addition to the

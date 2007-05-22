@@ -21,8 +21,10 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.constr.C_Special_c;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -78,13 +80,25 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	return this;
     }
     public Context enterChildScope(Node child, Context c) {
+    	// We should have entered the constructor scope already.
+    	assert c.currentCode() == this.constructorInstance();
+    	
+    	if (! formals.isEmpty()) {
+    		// Push formals so they're in scope in the types of the other formals.
+    		c = c.pushBlock();
+    		for (Iterator i = formals.iterator(); i.hasNext(); ) {
+    			Formal f = (Formal) i.next();
+    			f.addDecls(c);
+    		}
+    	}
+    	
     	X10Context cc = (X10Context) super.enterChildScope(child, c);
-		
-		if (child == this.returnType) {
-			
-			cc.setVarWhoseTypeIsBeingElaborated(null);
-		}
-		
+    	
+    	if (child == this.returnType) {
+    		
+    		cc.setVarWhoseTypeIsBeingElaborated(null);
+    	}
+    	
 		return cc;
 	}
     /** Visit the children of the method. */
@@ -175,6 +189,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         if (childtc2.hasErrors()) throw new SemanticException();
          nn = (X10ConstructorDecl) childtc2.leave(parent, old, nn, childtc2);
        
+        nnci.setAnnotations(((X10Ext) nn.ext()).annotationTypes());
+  		
         return nn;
     }
    

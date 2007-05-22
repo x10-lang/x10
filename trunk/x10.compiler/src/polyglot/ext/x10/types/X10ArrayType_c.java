@@ -10,11 +10,15 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.types.ArrayType_c;
+import polyglot.ast.Expr;
 import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
@@ -30,6 +34,31 @@ import polyglot.util.Position;
  * @author Christian Grothoff
  */
 public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
+	
+	protected List<X10ClassType> annotations;
+	
+	public List<X10ClassType> annotations() {
+		if (annotations == null) return Collections.EMPTY_LIST;
+		return Collections.<X10ClassType>unmodifiableList(annotations);
+	}
+	
+	public void setAnnotations(List<X10ClassType> annotations) {
+		this.annotations = new ArrayList<X10ClassType>(annotations);
+	}
+	public X10TypeObject annotations(List<X10ClassType> annotations) {
+		X10ReferenceType_c n = (X10ReferenceType_c) copy();
+		n.setAnnotations(annotations);
+		return n;
+	}
+	public X10ClassType annotationNamed(String name) {
+		for (Iterator<X10ClassType> i = annotations.iterator(); i.hasNext(); ) {
+			X10ClassType ct = i.next();
+			if (ct.fullName().equals(name)) {
+				return ct;
+			}
+		}
+		return null;
+	}
 	
 	protected Constraint depClause;
 	protected List/*<GenParameterExpr>*/ typeParameters;
@@ -65,6 +94,21 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	public X10Type makeDepVariant(Constraint d, List<Type> l) { 
 		return makeVariant(d, l);
 	}
+	
+	protected transient Expr dep;
+	
+	/** Build a variant of the root type, with the constraint expression. */
+	public X10Type dep(Expr dep) {
+		X10ArrayType_c n = (X10ArrayType_c) copy();
+		n.dep = dep;
+		return n;
+	}
+	
+	/** Get the type's constraint expression. */
+	public Expr dep() {
+		return dep;
+	}
+	    
 	 public X10Type makeVariant(Constraint d, List<Type> l) { 
 	    	// Need to pick up the typeparameters from this
 	    	// made, and the realClause from the root type.
@@ -78,6 +122,7 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
   		X10ArrayType_c n = (X10ArrayType_c) copy();
   		n.depClause = new Constraint_c((X10TypeSystem) ts);
   		n.typeParameters = typeParameters;
+  		n.dep = null;
   		return n;
   	}
 	

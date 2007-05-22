@@ -20,11 +20,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.omg.CORBA.Context;
+
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
 import polyglot.ast.Call_c;
 import polyglot.ast.Expr;
+import polyglot.ast.FieldDecl;
+import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl_c;
@@ -207,6 +211,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		} else
 			// WARNING: it's important to delegate to the appropriate visit() here!
 			visit((Node)dec);
+	}
+	
+	public void visit(PropertyDecl_c dec) {
+		polyglot.types.Context c = tr.context();
+		// Don't generate property declarations for fields.
+		if (c.currentClass().flags().isInterface()) {
+			return;
+		}
+		super.visit(dec);
 	}
 
 	private Template processClocks(Clocked c) {

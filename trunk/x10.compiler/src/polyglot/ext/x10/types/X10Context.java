@@ -69,5 +69,10 @@ public interface X10Context extends Context {
     
     void setVarWhoseTypeIsBeingElaborated(VarInstance var);
     VarInstance varWhoseTypeIsBeingElaborated();
+
+    /** Return true if within an annotation. */
+	boolean inAnnotation();
+	void setAnnotation();
+	void clearAnnotation();
    
 }

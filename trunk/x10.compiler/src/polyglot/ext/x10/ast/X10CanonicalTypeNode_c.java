@@ -7,9 +7,14 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.Iterator;
+import java.util.List;
+
+import polyglot.ast.Ambiguous;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode_c;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
@@ -17,14 +22,16 @@ import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 
 public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
-        X10TypeNode {
-
+        X10CanonicalTypeNode {
+	
     protected DepParameterExpr dep;
     public DepParameterExpr dep() { return dep;}
     
@@ -32,7 +39,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     public GenParameterExpr gen() { return gen;}
    
     public X10CanonicalTypeNode_c(Position pos, Type type) {
-        super(pos, type);
+        this(pos, type, null, null);
     }
     public X10CanonicalTypeNode_c(Position pos, Type type, GenParameterExpr gen, DepParameterExpr dep) {
         super(pos, type);
@@ -118,7 +125,25 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements
     	Node n=X10TypeNode_c.typeCheckDepClause(me, tc);
         return n;
     }
-   
+
+    public void prettyPrint(CodeWriter w, PrettyPrinter pp) {       
+    	type.print(w);
+	
+		List<AnnotationNode> annotations = ((X10Ext) this.ext()).annotations();
+		if (annotations.size() > 0) {
+			w.allowBreak(2, 2, "", 0); // miser mode
+			w.begin(0);
+			
+			for (Iterator<AnnotationNode> i = annotations.iterator(); i.hasNext(); ) {
+				AnnotationNode n = i.next();
+				print(n, w, pp);
+				w.allowBreak(0, "");
+			}
+			
+			w.end();
+		}
+	} 
+    
     public String toString() {
     	String typeString = type == null 
     	? "<unknown-type>" : ((X10Type) type).toStringForDisplay();

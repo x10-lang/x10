@@ -20,6 +20,7 @@ import polyglot.ast.Block;
 import polyglot.ast.BooleanLit;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Cast;
 import polyglot.ast.CharLit;
 import polyglot.ast.ClassBody;
@@ -66,7 +67,6 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.parser.X10Parser.JPGPosition;
 
 /**
  * NodeFactory for X10 extension.
@@ -620,18 +620,18 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public Formal Formal(Position pos, Flags flags, TypeNode type, Id name,
-						 AmbExpr[] vars)
+	public X10Formal X10Formal(Position pos, Flags flags, TypeNode type, Id name,
+						 List<Formal> vars)
 	{
-		Formal n = new X10Formal_c(pos, flags, type, name, vars);
-		n = (Formal) n.ext(extFactory().extFormal());
-		n = (Formal) n.del(delFactory().delFormal());
+		X10Formal n = new X10Formal_c(pos, flags, type, name, vars);
+		n = (X10Formal) n.ext(extFactory().extFormal());
+		n = (X10Formal) n.del(delFactory().delFormal());
 		return n;
 	}
 
 	public Formal Formal(Position pos, Flags flags, TypeNode type, Id name)
 	{
-		return Formal(pos, flags, type, name, null);
+		return X10Formal(pos, flags, type, name, null);
 	}
 
 	public ParExpr ParExpr(Position pos, Expr expr) {
@@ -761,16 +761,16 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
         return n;
     }
-    public CanonicalTypeNode CanonicalTypeNode(Position pos, Type type, GenParameterExpr gen, DepParameterExpr dep) {
+    public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type, GenParameterExpr gen, DepParameterExpr dep) {
         // Report.report(1,"X10NodeFactory_c: Golden:" + type + type.getClass());
          if (! type.isCanonical()) {
              throw new InternalCompilerError("Cannot construct a canonical " +
                  "type node for a non-canonical type.");
          }
 
-         CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type,gen,dep);
-         n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
-         n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
+         X10CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type,gen,dep);
+         n = (X10CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
+         n = (X10CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
          return n;
      }
     public PropertyDecl PropertyDecl(Position pos, Flags flags, TypeNode type, Id name) {
@@ -908,10 +908,17 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         return n;
     }
 
-    public ClosureCall ClosureCall(JPGPosition pos, Closure closure, List args) {
+    public ClosureCall ClosureCall(Position pos, Expr closure, List args) {
 	ClosureCall n = new ClosureCall_c(pos, closure, args);
         n = (ClosureCall) n.ext(extFactory().extExpr());
         n = (ClosureCall) n.del(delFactory().delExpr());
         return n;
     }
+
+     public AnnotationNode AnnotationNode(Position pos, TypeNode tn) {
+    	 AnnotationNode n = new AnnotationNode_c(pos, tn);
+    	 n = (AnnotationNode) n.ext(extFactory().extNode());
+    	 n = (AnnotationNode) n.del(delFactory().delNode());
+    	 return n;
+     }
 }

@@ -11,9 +11,12 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.AmbExpr;
+import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Expr;
 import polyglot.ast.Id_c;
@@ -31,11 +34,14 @@ import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10Type;
@@ -52,32 +58,37 @@ import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
  * @author igor Jan 13, 2006
  */
 public class X10Formal_c extends Formal_c implements X10Formal {
-	public static final AmbExpr[] NO_VARS = new AmbExpr[0];
-	public static final LocalInstance[] NO_LOCALS = new LocalInstance[0];
-
 	/* Invariant: vars != null */
-	protected AmbExpr[] vars;
-	/* Invariant after disambiguation:
-	     lis != null && lis.length == vars.length */
-    protected LocalInstance[] lis;
-
+	protected List<Formal> vars;
 	boolean unnamed;
 
 	public X10Formal_c(Position pos, Flags flags, TypeNode type,
-	                   Id name, AmbExpr[] vars)
+	                   Id name, List<Formal> vars)
 	{
 		super(pos, flags, type,
 				name == null ? new Id_c(pos, X10PrettyPrinterVisitor.getId()) : name);
-		this.vars = (vars == null) ? NO_VARS : vars;
+		if (vars == null) vars = Collections.EMPTY_LIST;
+		this.vars = TypedList.copyAndCheck(vars, Formal.class, true);
 		this.unnamed = name == null;
+		assert vars != null;
+	}
+	
+	public Node visitChildren(NodeVisitor v) {
+		X10Formal_c n = (X10Formal_c) super.visitChildren(v);
+		List l = visitList(vars, v);
+		if (! CollectionUtil.equals(l, this.vars)) {
+			if (n == this) n = (X10Formal_c) copy();
+			n.vars = TypedList.copyAndCheck(l, Formal.class, true);
+		}
+		return n;
+	}
+	
+	public List<Formal> vars() {
+		return vars;
 	}
 
 	public boolean isUnnamed() {
 		return unnamed;
-	}
-
-	public boolean isDisambiguated() {
-		return (type == null || type.isDisambiguated()) && lis != null && super.isDisambiguated();
 	}
 
 	int positionInArgList = -1;
@@ -89,15 +100,11 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	}
 	/** Get the local instances of the bound variables. */
 	public LocalInstance[] localInstances() {
+		LocalInstance[] lis = new LocalInstance[vars.size()];
+		for (int i = 0; i < vars.size(); i++) {
+			lis[i] = vars.get(i).localInstance();
+		}
 		return lis;
-	}
-
-	/** Set the local instances of the bound variables. */
-	public X10Formal localInstances(LocalInstance[] lis) {
-		if (this.lis == lis) return this;
-		X10Formal_c n = (X10Formal_c) copy();
-		n.lis = lis;
-		return n;
 	}
 
 	/* (non-Javadoc)
@@ -105,8 +112,10 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 */
 	public void addDecls(Context c) {
 		super.addDecls(c);
-		for (int i = 0; i < lis.length; i++)
-			c.addVariable(lis[i]);
+		for (Iterator j = this.vars().iterator(); j.hasNext(); ) {
+			Formal fj = (Formal) j.next();
+			fj.addDecls(c);
+		}
 	}
 
 	// TODO: vj -- implement exploded variables appearing in depclause of return
@@ -120,15 +129,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		// the actual return type of the method.
 		((X10LocalInstance)n.localInstance()).setPositionInArgList(positionInArgList());
 		
-		TypeSystem ts = tb.typeSystem();
-		if (vars == NO_VARS)
-			return n.localInstances(NO_LOCALS);
-		LocalInstance[] lis = new LocalInstance[vars.length];
-		for (int i = 0; i < lis.length; i++) {
-			AmbExpr v = vars[i];
-			lis[i] = ts.localInstance(v.position(), flags(), ts.Int(), v.name());
-		}
-		return n.localInstances(lis);
+		return n;
 	}
 
 	 public Node typeCheck(TypeChecker tc) throws SemanticException {
@@ -142,35 +143,17 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			if (changed) {
 				result = (X10Formal_c) result.type(result.type().type(li.type()));
 			}
+			li.setAnnotations(((X10Ext) result.ext()).annotationTypes());
 			return result;
 		
 	 }
-	public void dump(CodeWriter w) {
-		super.dump(w);
-		if (vars != NO_VARS) {
-			w.write("(vars [");
-			for (int i = 0; i < vars.length; i++) {
-				if (lis != null) {
-					w.allowBreak(4, " ");
-					w.begin(0);
-					w.write("(instance " + lis[i] + ")");
-					w.end();
-				}
-				w.allowBreak(4, " ");
-				w.begin(0);
-				w.write("(name " + vars[i] + ")");
-				w.end();
-			}
-			w.write("])");
-		}
-	}
 
-	private String translateVars() {
+	 private String translateVars() {
 		StringBuffer sb = new StringBuffer();
-		if (vars != NO_VARS) {
+		if (! vars.isEmpty()) {
 			sb.append("[");
-			for (int i = 0; i < vars.length; i++)
-				sb.append(i > 0 ? "," : "").append(vars[i].name());
+			for (int i = 0; i < vars.size(); i++)
+				sb.append(i > 0 ? "," : "").append(vars.get(i).name());
 			sb.append("]");
 		}
 		return sb.toString();
@@ -184,7 +167,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @see polyglot.ext.x10.ast.X10Formal#hasExplodedVars()
 	 */
 	public boolean hasExplodedVars() {
-		return vars != NO_VARS;
+		return ! vars.isEmpty();
 	}
 
 	/**
@@ -221,7 +204,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @return
 	 */
 	public List<Stmt> explode(NodeFactory nf, TypeSystem ts) {
-		return explode(nf, ts, id(), position(), flags(), vars, localInstance(), lis);
+		return explode(nf, ts, id(), position(), flags(), vars, localInstance());
 	}
 
 	/* (non-Javadoc)
@@ -258,25 +241,22 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 */
 	private static List<Stmt> explode(NodeFactory nf, TypeSystem ts,
 										  Id name, Position pos,
-										  Flags flags, AmbExpr[] vars,
-										  LocalInstance bli,
-										  LocalInstance[] lis)
+										  Flags flags, List<Formal> vars,
+										  LocalInstance bli)
 	{
-		if (vars == null || vars == NO_VARS) return null;
+		if (vars == null || vars.isEmpty()) return null;
 		X10NodeFactory x10nf = (X10NodeFactory) nf;
-		List<Stmt> stmts = new TypedList(new ArrayList(vars.length), Stmt.class, false);
+		List<Stmt> stmts = new TypedList(new ArrayList(vars.size()), Stmt.class, false);
 		Expr arrayBase =
 			(bli == null) ? nf.AmbExpr(pos, name)
 						  : (Expr) nf.Local(pos, name).localInstance(bli).type(bli.type());
 		TypeNode intType = x10nf.CanonicalTypeNode(pos, ts.Int());
-		for (int i = 0; i < vars.length; i++) {
+		for (int i = 0; i < vars.size(); i++) {
 			// int arglist(i) = name[i];
-			AmbExpr var = vars[i];
+			Formal var = vars.get(i);
 			Expr index = x10nf.IntLit(var.position(), IntLit.INT, i).type(ts.Int());
 			Expr init = x10nf.X10ArrayAccess1(var.position(), arrayBase, index).type(ts.Int());
-			LocalInstance li = lis != null
-				? lis[i]
-				: ts.localInstance(var.position(), flags, ts.Int(), var.name());
+			LocalInstance li = var.localInstance();
 			Stmt d = makeLocalDecl(nf, var.position(), flags, intType, var.id(), li, init);
 			stmts.add(d);
 		}
@@ -296,7 +276,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			TypeSystem ts = c.typeSystem();
 			LocalInstance li = localInstance();
 			cxt.addVariable(li);
-			cxt.setVarWhoseTypeIsBeingElaborated(localInstance());
+			cxt.setVarWhoseTypeIsBeingElaborated(li);
 		}
 		Context cc = super.enterChildScope(child, c);
 		return cc;
@@ -315,9 +295,9 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 */
 	public static List/*<Stmt>*/ explode(NodeFactory nf, TypeSystem ts,
 										 Id name, Position pos,
-										 Flags flags, AmbExpr[] vars)
+										 Flags flags, List<Formal> vars)
 	{
-		return explode(nf, ts, name, pos, flags, vars, null, null);
+		return explode(nf, ts, name, pos, flags, vars, null);
 	}
 }
 

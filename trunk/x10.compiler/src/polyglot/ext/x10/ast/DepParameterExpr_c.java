@@ -20,8 +20,10 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ast.Expr_c;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
+import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
@@ -55,7 +57,6 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
     /**
      * @param pos
      */
-    
     public DepParameterExpr_c(Position pos, List l) {
         this(pos, l, null);
     }
@@ -84,6 +85,15 @@ public class DepParameterExpr_c extends Expr_c implements DepParameterExpr {
         n.args = args;
         return n;
     }
+    public Context enterScope(Context c) {
+        X10Context xc = (X10Context) c;
+        if (xc.inAnnotation()) {
+       	 xc = (X10Context) xc.pushBlock();
+       	 xc.clearAnnotation();
+        }
+        return super.enterScope(xc);
+    }
+       
     public DepParameterExpr reconstruct( List args, Expr condition ) {
         if (args == this.args && condition == this.condition) return this;
         DepParameterExpr_c n = (DepParameterExpr_c) copy();

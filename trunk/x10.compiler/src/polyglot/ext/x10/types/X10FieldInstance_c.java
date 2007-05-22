@@ -7,6 +7,8 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,6 +43,31 @@ import polyglot.visit.TypeChecker;
  */
 public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInstance {
 
+	protected List<X10ClassType> annotations;
+	
+	public List<X10ClassType> annotations() {
+		if (annotations == null) return Collections.EMPTY_LIST;
+		return Collections.<X10ClassType>unmodifiableList(annotations);
+	}
+	
+	public void setAnnotations(List<X10ClassType> annotations) {
+		this.annotations = new ArrayList<X10ClassType>(annotations);
+	}
+	public X10TypeObject annotations(List<X10ClassType> annotations) {
+		X10ReferenceType_c n = (X10ReferenceType_c) copy();
+		n.setAnnotations(annotations);
+		return n;
+	}
+	public X10ClassType annotationNamed(String name) {
+		for (Iterator<X10ClassType> i = annotations.iterator(); i.hasNext(); ) {
+			X10ClassType ct = i.next();
+			if (ct.fullName().equals(name)) {
+				return ct;
+			}
+		}
+		return null;
+	}
+	
     public X10FieldInstance_c() {
         super();
     }

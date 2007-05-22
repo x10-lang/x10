@@ -15,6 +15,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.TypeNode_c;
 import polyglot.types.LocalInstance_c;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.ext.x10.types.X10NamedType;
@@ -60,6 +61,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	public Node typeCheck(TypeChecker tc) throws SemanticException {
 			X10LocalDecl_c result= (X10LocalDecl_c) super.typeCheck(tc);
 			((X10LocalInstance) result.li).setSelfClauseIfFinal();
+			((X10LocalInstance) result.li).setAnnotations(((X10Ext) result.ext()).annotationTypes());
 			return result.type(type().type(li.type()));
 		
 	}

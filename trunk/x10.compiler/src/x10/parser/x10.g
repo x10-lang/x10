@@ -56,6 +56,7 @@ $Globals
     import polyglot.ast.LocalDecl;
     import polyglot.ast.ConstructorDecl;
     import polyglot.ast.MethodDecl;
+    import polyglot.ast.FieldDecl;
     import polyglot.ast.New;
     import polyglot.ast.NodeFactory;
     import polyglot.ast.PackageNode;
@@ -67,6 +68,7 @@ $Globals
     import polyglot.ast.TypeNode;
     import polyglot.ast.Unary;
     import polyglot.parse.Name;
+    import polyglot.ext.x10.ast.AnnotationNode;
     import polyglot.ext.x10.ast.Closure;
     import polyglot.ext.x10.ast.ClosureCall;
     import polyglot.ext.x10.ast.Here;
@@ -82,6 +84,7 @@ $Globals
     import polyglot.ext.x10.types.X10TypeSystem_c;
     import polyglot.ext.x10.ast.PropertyDecl;
     import polyglot.ext.x10.ast.RegionMaker;
+    import polyglot.ext.x10.extension.X10Ext;
     import polyglot.frontend.FileSource;
     import polyglot.frontend.Parser;
     import polyglot.lex.BooleanLiteral;
@@ -133,9 +136,9 @@ $Import
         AdditionalBound
         AdditionalBoundList
         AdditionalBoundListopt
-        Annotation
-        Annotations
-        Annotationsopt
+        -- Annotation
+        -- Annotations
+        -- Annotationsopt
         AnnotationTypeBody
         AnnotationTypeDeclaration
         AnnotationTypeElementDeclaration
@@ -185,28 +188,30 @@ $Import
         PackageDeclaration ::= Annotationsopt package PackageName ;
         ClassDeclaration ::= EnumDeclaration
         NormalClassDeclaration ::= ClassModifiersopt class identifier TypeParametersopt Superopt Interfacesopt ClassBody
-        ClassModifier ::= Annotation
-        FieldModifier ::= Annotation
-                        | volatile
+        -- ClassModifier ::= Annotation
+        -- FieldModifier ::= Annotation
+        --                 | volatile
+        FieldModifier ::= volatile
         MethodHeader ::= MethodModifiersopt TypeParametersopt ResultType MethodDeclarator Throwsopt
         MethodDeclaration ::= MethodHeader MethodBody
-        VariableModifier ::= Annotations
-        MethodModifier ::= Annotations
-                         | synchronized
+        -- VariableModifier ::= Annotations
+        -- MethodModifier ::= Annotations
+        --                  | synchronized
+        MethodModifier ::= synchronized
         SynchronizedStatement ::= synchronized ( Expression ) Block
         ConstructorDeclarator ::= TypeParametersopt SimpleTypeName ( FormalParameterListopt )
         FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators ;
-        ConstructorModifier ::= Annotations
+        -- ConstructorModifier ::= Annotations
         ExplicitConstructorInvocation ::= TypeArgumentsopt this ( ArgumentListopt ) ;
                                         | TypeArgumentsopt super ( ArgumentListopt ) ;
                                         | Primary . TypeArgumentsopt this ( ArgumentListopt ) ;
                                         | Primary . TypeArgumentsopt super ( ArgumentListopt ) ;
         InterfaceDeclaration ::= AnnotationTypeDeclaration
         NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier TypeParametersopt ExtendsInterfacesopt InterfaceBody
-        InterfaceModifier ::= Annotation
-        ConstantModifier ::= Annotation
+        -- InterfaceModifier ::= Annotation
+        -- ConstantModifier ::= Annotation
         AbstractMethodDeclaration ::= AbstractMethodModifiersopt TypeParametersopt ResultType MethodDeclarator Throwsopt ;
-        AbstractMethodModifier ::= Annotations
+        // AbstractMethodModifier ::= Annotations
         ClassInstanceCreationExpression ::=  new TypeArgumentsopt ClassOrInterfaceType TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
                                           | Primary . new TypeArgumentsopt identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
                                           | AmbiguousName . new TypeArgumentsopt identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
@@ -428,6 +433,32 @@ $Headers
             }
             return null;
         }
+        
+        private List extractAnnotations(List l) {
+            List l2 = new LinkedList();
+            for (Iterator i = l.iterator(); i.hasNext(); ) {
+                Object o = i.next();
+                if (o instanceof AnnotationNode) {
+                    l2.add((AnnotationNode) o);
+                }
+            }
+            return l2;
+        }
+    
+        private X10Flags extractFlags(List l) {
+            X10Flags f = X10Flags.toX10Flags(Flags.NONE);
+            for (Iterator i = l.iterator(); i.hasNext(); ) {
+                Object o = i.next();
+                if (o instanceof X10Flags) {
+                    f = f.setX((X10Flags) o);
+                }
+                else if (o instanceof Flags) {
+                    f = X10Flags.toX10Flags(f.set((Flags) o));
+                }
+            }
+            return f;
+        }
+    
         /**
          * Pretend to have parsed
          * <code>
@@ -435,7 +466,7 @@ $Headers
          * </code>
          * instead of (Formal) MethodBody. Note that Formal may have
          * exploded vars.
-         * @author vj
+         * author vj
         */
         private Expr makeInitializer(Position pos, TypeNode resultType,
                                      X10Formal f, Block body) {
@@ -467,7 +498,7 @@ $Headers
          * { public <T> apply(Formal) MethodBody }
          * instead of (Formal) MethodBody. Note that Formal may have
          * exploded vars.
-         * @author vj
+         * author vj
         */
         private New XXmakeInitializer( Position pos, TypeNode resultType,
                                      X10Formal f, Block body ) {
@@ -768,31 +799,40 @@ $Rules -- Overridden rules from GJavaParser
           List/*<PropertyDecl>*/ props = PropertyListopt == null ? null
                       : (List) PropertyListopt[0];
           Expr ci = PropertyListopt == null ? null : (Expr) PropertyListopt[1];
-          setResult(X10Flags.isValue(X10ClassModifiersopt)
+          Flags f = extractFlags(X10ClassModifiersopt);
+          List annotations = extractAnnotations(X10ClassModifiersopt);
+          ClassDecl cd = X10Flags.isValue(f)
              ? nf.ValueClassDecl(pos(),
-                  X10ClassModifiersopt, nf.Id(identifier.getPosition(), identifier.getIdentifier()), props, ci, Superopt, Interfacesopt, ClassBody)
+                  f, nf.Id(identifier.getPosition(), identifier.getIdentifier()), props, ci, Superopt, Interfacesopt, ClassBody)
              : nf.ClassDecl(pos(),
-                  X10ClassModifiersopt, nf.Id(identifier.getPosition(), identifier.getIdentifier()), props, ci, Superopt, Interfacesopt, ClassBody));
+                  f, nf.Id(identifier.getPosition(), identifier.getIdentifier()), props, ci, Superopt, Interfacesopt, ClassBody);
+          cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(annotations);
+          setResult(cd);
           $EndJava
         ./
 
     X10ClassModifiers ::= X10ClassModifier
+        /.$BeginJava
+           List l = new LinkedList();
+           l.addAll(X10ClassModifier);
+           setResult(l);
+          $EndJava
+        ./
                      | X10ClassModifiers X10ClassModifier
         /.$BeginJava
-           X10Flags result = X10ClassModifiers.setX(X10ClassModifier);
-                    setResult(result);
-                   
+           X10ClassModifiers.addAll(X10ClassModifier);
           $EndJava
         ./
 
     X10ClassModifier ::= ClassModifier 
         /.$BeginJava
-                    setResult(X10Flags.toX10Flags(ClassModifier));
+                    // Done by extractFlags
+                    // X10Flags.toX10Flags(ClassModifier));
           $EndJava
         ./
                     | safe
         /.$BeginJava
-                    setResult(X10Flags.SAFE);
+                    setResult(Collections.singletonList(X10Flags.SAFE));
           $EndJava
         ./
 
@@ -854,15 +894,17 @@ $Rules -- Overridden rules from GJavaParser
                System.err.println("Fix me - encountered method returning void but with non-zero rank?");
              }
 
-           setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ThisClauseopt), getRhsLastTokenIndex($MethodDeclarator)),
+           MethodDecl md = nf.MethodDecl(pos(getRhsFirstTokenIndex($ThisClauseopt), getRhsLastTokenIndex($MethodDeclarator)),
               ThisClauseopt,
-              MethodModifiersopt,
+              extractFlags(MethodModifiersopt),
               nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e != null ? e.intValue() : 1),
               c != null ? c.name : nf.Id(pos(), ""),
               d,
               where,
               Throwsopt,
-              MethodBody));
+              MethodBody);
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
           $EndJava
         ./
 
@@ -893,14 +935,16 @@ $Rules -- Overridden rules from GJavaParser
           List/*<PropertyDecl>*/ props = PropertyListopt == null ? null 
                       : (List) PropertyListopt[0];
           Expr ci = PropertyListopt == null ? null : (Expr) PropertyListopt[1];
-          setResult(nf.ClassDecl(pos(),
-                       InterfaceModifiersopt.Interface(),
+          ClassDecl cd = nf.ClassDecl(pos(),
+                       extractFlags(InterfaceModifiersopt).Interface(),
                        nf.Id(identifier.getPosition(), identifier.getIdentifier()),
                        props,
                        ci,
                        null,
                        ExtendsInterfacesopt,
-                       InterfaceBody));
+                       InterfaceBody);
+          cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(InterfaceModifiersopt));
+          setResult(cd);
           $EndJava
         ./
 
@@ -917,15 +961,17 @@ $Rules -- Overridden rules from GJavaParser
               assert(false);
             }
 
-         setResult(nf.MethodDecl(pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($MethodDeclarator)),
+         MethodDecl md = nf.MethodDecl(pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($MethodDeclarator)),
                     ThisClauseopt,
-                    AbstractMethodModifiersopt ,
+                    extractFlags(AbstractMethodModifiersopt),
                     nf.array((TypeNode) ResultType, pos(getRhsFirstTokenIndex($ResultType), getRhsLastTokenIndex($ResultType)), e.intValue()),
                     nf.Id(c.pos, c.toString()),
                     d,
                     where,
                     Throwsopt,
-                    null));
+                    null);
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(AbstractMethodModifiersopt));
+          setResult(md);
           $EndJava
         ./
 
@@ -983,6 +1029,16 @@ $Rules
 
     Type ::= DataType 
            | SpecialType
+           | AnnotatedType
+           
+    AnnotatedType ::= Type Annotations
+        /.$BeginJava
+System.out.println("AnnotatedType " + Type + " " + Annotations);
+                    TypeNode tn = Type;
+                    tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
+                    setResult(tn);
+          $EndJava
+        ./
 
     SpecialType ::= nullable < Type > DepParametersopt
         /.$BeginJava
@@ -1023,7 +1079,7 @@ $Rules
                                : res.dep(null, DepParametersopt));
          $EndJava
         ./
-    PlaceTypeSpecifier ::= @ PlaceType
+    PlaceTypeSpecifier ::= ! PlaceType
 
     PlaceType ::= any
                 | current 
@@ -1289,17 +1345,17 @@ $Rules
 
     ConstFieldAccess ::= ConstPrimary . identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(), ConstPrimary, nf.Id(identifier.getPosition(), identifier.getIdentifier())));
+                    setResult(nf.Call(pos(), ConstPrimary, nf.Id(identifier.getPosition(), identifier.getIdentifier()), Collections.EMPTY_LIST));
           $EndJava
         ./
                   | super . identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
+                    setResult(nf.Call(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(identifier.getPosition(), identifier.getIdentifier()), Collections.EMPTY_LIST));
           $EndJava
         ./
                   | ClassName . super$sup . identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
+                    setResult(nf.Call(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(identifier.getPosition(), identifier.getIdentifier()), Collections.EMPTY_LIST));
           $EndJava
         ./
 
@@ -1346,32 +1402,32 @@ $Rules
     ------------------------------------- Section ::: Classes
     MethodModifier ::= atomic
         /.$BeginJava
-                    setResult(X10Flags.ATOMIC);
+                    setResult(Collections.singletonList(X10Flags.ATOMIC));
           $EndJava
         ./
                      | extern
         /.$BeginJava
-                    setResult(Flags.NATIVE);
+                    setResult(Collections.singletonList(Flags.NATIVE));
           $EndJava
         ./
                      | safe
         /.$BeginJava
-                    setResult(X10Flags.SAFE);
+                    setResult(Collections.singletonList(X10Flags.SAFE));
           $EndJava
         ./
                        | sequential
         /.$BeginJava
-                    setResult(X10Flags.SEQUENTIAL);
+                    setResult(Collections.singletonList(X10Flags.SEQUENTIAL));
           $EndJava
         ./
                        | local
         /.$BeginJava
-                    setResult(X10Flags.LOCAL);
+                    setResult(Collections.singletonList(X10Flags.LOCAL));
           $EndJava
         ./
                        | nonblocking
         /.$BeginJava
-                    setResult(X10Flags.NON_BLOCKING);
+                    setResult(Collections.singletonList(X10Flags.NON_BLOCKING));
           $EndJava
         ./
 
@@ -1382,9 +1438,11 @@ $Rules
         checkTypeName(identifier);
         List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
         Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
-        setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-        X10ClassModifiersopt, nf.Id(identifier.getPosition(), identifier.getIdentifier()), 
+        ClassDecl cd = (nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
+        extractFlags(X10ClassModifiersopt), nf.Id(identifier.getPosition(), identifier.getIdentifier()), 
         props, ci, Superopt, Interfacesopt, ClassBody));
+        cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(X10ClassModifiersopt));
+        setResult(cd);
           $EndJava
         ./
       | X10ClassModifiersopt value class identifier PropertyListopt Superopt Interfacesopt ClassBody
@@ -1392,9 +1450,11 @@ $Rules
                     checkTypeName(identifier);
         List/*<PropertyDecl>*/ props = PropertyListopt==null ? null : (List) PropertyListopt[0];
         Expr ci = PropertyListopt==null ? null : (Expr) PropertyListopt[1];
-        setResult(nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
-                                    X10ClassModifiersopt, nf.Id(identifier.getPosition(), identifier.getIdentifier()), 
+        ClassDecl cd = (nf.ValueClassDecl(pos(getLeftSpan(), getRightSpan()),
+                                    extractFlags(X10ClassModifiersopt), nf.Id(identifier.getPosition(), identifier.getIdentifier()), 
                                     props, ci, Superopt, Interfacesopt, ClassBody));
+        cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(X10ClassModifiersopt));
+        setResult(cd);
           $EndJava
         ./
 
@@ -1408,7 +1468,9 @@ $Rules
            X10TypeNode resultType = (X10TypeNode) a.toType();        
            if (c != null) 
          resultType = resultType.dep(c);
-         setResult(nf.ConstructorDecl(pos(), ConstructorModifiersopt,  nf.Id(a.pos, a.toString()), resultType, b, e, Throwsopt, ConstructorBody));
+         ConstructorDecl cd = (nf.ConstructorDecl(pos(), extractFlags(ConstructorModifiersopt), nf.Id(a.pos, a.toString()), resultType, b, e, Throwsopt, ConstructorBody));
+         cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ConstructorModifiersopt));
+         setResult(cd);
          $EndJava
        ./
        
@@ -1467,13 +1529,15 @@ $Rules
                               throw new Error("Field Declarations may not have exploded variables." + pos());
                             Position p = gt1 ? d.position() :
                             		pos(getRhsFirstTokenIndex($ThisClauseopt), getRhsLastTokenIndex($VariableDeclarators));
-                            d.setFlag(FieldModifiersopt);
-                            l.add(nf.FieldDecl(p,
+                            d.setFlag(extractFlags(FieldModifiersopt));
+                            FieldDecl fd = nf.FieldDecl(p,
                                                ThisClauseopt,
                                                d.flags,
                                                nf.array(Type, Type.position(), d.dims),
                                                d.name,
-                                               d.init));
+                                               d.init);
+                            fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(FieldModifiersopt));
+                            l.add(fd);
                         }
                     }
                     setResult(l);
@@ -1805,9 +1869,16 @@ $Rules
                     setResult(nf.Cast(pos(), ReferenceType, UnaryExpressionNotPlusMinus));
           $EndJava
         ./
-       | ( @ Expression ) UnaryExpressionNotPlusMinus
+       | ( ! Expression ) UnaryExpressionNotPlusMinus
         /.$BeginJava
                     setResult(nf.PlaceCast(pos(), Expression, UnaryExpressionNotPlusMinus));
+          $EndJava
+        ./
+       | ( Annotations ) UnaryExpressionNotPlusMinus
+        /.$BeginJava
+                    Expr e = UnaryExpressionNotPlusMinus;
+                    e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
+                    setResult(e);
           $EndJava
         ./
 
@@ -1915,12 +1986,12 @@ $Rules
 
     FieldModifier ::= mutable
         /.$BeginJava
-                    setResult(X10Flags.MUTABLE);
+                    setResult(Collections.singletonList(X10Flags.MUTABLE));
           $EndJava
         ./
                     | const
         /.$BeginJava
-                    setResult(Flags.PUBLIC.set(Flags.STATIC).set(Flags.FINAL));
+                    setResult(Collections.singletonList(Flags.PUBLIC.set(Flags.STATIC).set(Flags.FINAL)));
           $EndJava
         ./
 
@@ -1954,7 +2025,7 @@ $Rules
                     unrecoverableSyntaxError = true;
                     eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"synchronized\" is an invalid X10 Method Modifier",
                                getErrorPosition(getLeftSpan(), getRightSpan()));
-                    setResult(Flags.SYNCHRONIZED);
+                    setResult(Collections.singletonList(Flags.SYNCHRONIZED));
           $EndAction
         ./
 
@@ -1963,7 +2034,7 @@ $Rules
                     unrecoverableSyntaxError = true;
                     eq.enqueue(ErrorInfo.SYNTAX_ERROR, "\"volatile\" is an invalid X10 Field Modifier",
                                getErrorPosition(getLeftSpan(), getRightSpan()));
-                    setResult(Flags.VOLATILE);
+                    setResult(Collections.singletonList(Flags.VOLATILE));
           $EndAction
         ./
 
@@ -2011,7 +2082,7 @@ ThisClauseopt ::= $Empty
 
     X10ClassModifiersopt ::= $Empty
         /.$BeginJava
-             setResult(X10Flags.toX10Flags(Flags.NONE));
+             setResult(Collections.singletonList(X10Flags.toX10Flags(Flags.NONE)));
           $EndJava ./
           | X10ClassModifiers
           
@@ -2068,31 +2139,31 @@ $Types
     Import ::= SingleTypeImportDeclaration
     Import ::= TypeImportOnDemandDeclaration
     ClassDecl ::= TypeDeclaration
-    X10Flags ::= X10ClassModifier
+    List ::= X10ClassModifier
             | X10ClassModifiers
             | X10ClassModifiersopt
-    Flags ::= AbstractMethodModifier
+    List ::= AbstractMethodModifier
             | AbstractMethodModifiers
             | AbstractMethodModifiersopt
-    Flags ::= ClassModifier
+    List ::= ClassModifier
             | ClassModifiers
             | ClassModifiersopt
-    Flags ::= ConstantModifier
+    List ::= ConstantModifier
             | ConstantModifiers
             | ConstantModifiersopt
-    Flags ::= ConstructorModifier
+    List ::= ConstructorModifier
             | ConstructorModifiers
             | ConstructorModifiersopt
-    Flags ::= FieldModifier
+    List ::= FieldModifier
             | FieldModifiers
             | FieldModifiersopt
-    Flags ::= InterfaceModifier
+    List ::= InterfaceModifier
             | InterfaceModifiers
             | InterfaceModifiersopt
-    Flags ::= MethodModifier
+    List ::= MethodModifier
             | MethodModifiers
             | MethodModifiersopt
-    Flags ::= VariableModifier
+    List ::= VariableModifier
             | VariableModifiers
             | VariableModifiersopt
     ClassDecl ::= ClassDeclaration | NormalClassDeclaration
@@ -2167,7 +2238,8 @@ $Types
     List ::= DimExprs
     Expr ::= DimExpr
     Integer ::= Dimsopt | Dims
-    Field ::= FieldAccess | ConstFieldAccess
+    Field ::= FieldAccess 
+    Expr ::= ConstFieldAccess
     Call ::= MethodInvocation
     ArrayAccess ::= ArrayAccess
     Expr ::= PostfixExpression
@@ -2262,4 +2334,6 @@ $Types
     'Object[]' ::=  PropertyList | PropertyListopt
     PropertyDecl ::= Property
     DepParameterExpr ::= ThisClause | ThisClauseopt
+    List ::= Annotations
+    AnnotationNode ::= Annotation
 $End
