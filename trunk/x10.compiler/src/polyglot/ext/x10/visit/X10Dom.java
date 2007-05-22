@@ -1,26 +1,19 @@
 package polyglot.ext.x10.visit;
 
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 
 import polyglot.ast.*;
 import polyglot.ext.x10.ast.*;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.types.MemberClassResolver;
-import polyglot.types.Named;
-import polyglot.types.Package;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
@@ -28,6 +21,8 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.Named;
+import polyglot.types.Package;
 import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
 import polyglot.types.ReferenceType;
@@ -36,9 +31,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.StringUtil;
-import quicktime.util.IntEncodedImage;
-import x10.parser.X10Parser.JPGPosition;
 
 public class X10Dom {
 	public <T> T get(AbsLens<T> lens, Element e, String tag) {
@@ -1784,7 +1776,7 @@ public class X10Dom {
 			Position position = get(new PositionLens(), e, "position");
 			Expr target = (Expr) get(new NodeLens(), e, "target");
 			List arguments = get(new ListLens<Node>(new NodeLens()), e, "arguments");
-			return nf.ClosureCall((JPGPosition) position, (Closure) target, arguments);
+			return nf.ClosureCall(position, target, arguments);
 		}
 
 		public void toXML(DomGenerator v, ClosureCall n) {
