@@ -22,6 +22,9 @@ import polyglot.types.Named;
 import polyglot.types.Type;
 
 public class X10CanonicalTypeNodeExt_c extends X10Ext_c {
+	public X10CanonicalTypeNodeExt_c() {
+		super();
+	}
 	private X10NamedType boxType(X10NamedType t, X10TypeSystem ts) {
 		if (t.isArray()) {
 			X10ArrayType at = (X10ArrayType) t.toArray();
