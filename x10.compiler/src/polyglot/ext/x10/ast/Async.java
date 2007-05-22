@@ -10,6 +10,9 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.List;
+
+import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 
 /** The node constructed for the X10 construct async (P) {S}.
@@ -22,4 +25,10 @@ public interface Async extends Stmt, RemoteActivityInvocation {
 
     /** Get the body of the Async. */
     Stmt body();
+    
+    /** Expression */
+	public List clocks();
+
+	/** clock */
+	public Clocked clocks(List clocks);
 }
