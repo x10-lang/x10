@@ -160,7 +160,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof Initializer_c) { visit((Initializer_c)n); return; }
 		if (n instanceof X10Formal_c) { visit((X10Formal_c)n); return; }
 		if (n instanceof Formal_c) { visit((Formal_c)n); return; }
-		if (n instanceof X10PropertyDecl_c) { visit((X10PropertyDecl_c)n); return; }
 		if (n instanceof PropertyDecl_c) { visit((PropertyDecl_c)n); return; }
 		if (n instanceof X10FieldDecl_c) { visit((X10FieldDecl_c)n); return; }
 		if (n instanceof FieldDecl_c) { visit((FieldDecl_c)n); return; }
@@ -344,7 +343,6 @@ public class X10DelegatingVisitor {
 			public void visit(FieldDecl_c n) { visit((Term_c)n); }
 				public void visit(X10FieldDecl_c n) { visit((FieldDecl_c)n); }
 					public void visit(PropertyDecl_c n) { visit((X10FieldDecl_c)n); }
-					public void visit(X10PropertyDecl_c n) { visit((X10FieldDecl_c)n); }
 			public void visit(Formal_c n) { visit((Term_c)n); }
 				public void visit(X10Formal_c n) { visit((Formal_c)n); }
 			public void visit(Initializer_c n) { visit((Term_c)n); }
