@@ -101,7 +101,7 @@ public class SignatureElaborator extends TypeChecker {
     		return n;
     	}
         AmbChecker ac = new AmbChecker();
-        n.visitChildren(ac);
+        n.del().visitChildren(ac);
         Node m = n;
         boolean  disambiguated = ! ac.amb && m.isDisambiguated();
         if (disambiguated ) {
