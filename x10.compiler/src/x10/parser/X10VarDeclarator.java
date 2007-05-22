@@ -8,13 +8,19 @@
  */
 package x10.parser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.AmbExpr;
+import polyglot.ast.CanonicalTypeNode_c;
+import polyglot.ast.Formal;
+import polyglot.ast.Formal_c;
 import polyglot.ast.Id;
+import polyglot.ast.NodeFactory;
 import polyglot.parse.Name;
 import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import x10.parser.X10Parser.JPGPosition;
 
@@ -23,7 +29,7 @@ import x10.parser.X10Parser.JPGPosition;
  * @author igor Jan 13, 2006
  */
 public class X10VarDeclarator extends VarDeclarator {
-	private final AmbExpr[] vars;
+	private final List<Formal> vars;
     private JPGPosition position;
 	public Flags flags;
 
@@ -41,11 +47,17 @@ public class X10VarDeclarator extends VarDeclarator {
 		super(pos, name);
         this.position = pos;
 		if (paramList != null) {
-			this.vars = new AmbExpr[paramList.size()];
-			for (int i = 0; i < this.vars.length; i++)
-				this.vars[i] = (AmbExpr) ((Name) paramList.get(i)).toExpr();
-		} else
+			this.vars = new ArrayList<Formal>(paramList.size());
+			for (int i = 0; i < paramList.size(); i++) {
+				Name ni = (Name) paramList.get(i);
+				TypeSystem ts = ni.ts;
+				NodeFactory nf = ni.nf;
+				this.vars.add(nf.Formal(ni.pos, flags == null ? Flags.NONE : flags, nf.CanonicalTypeNode(ni.pos, ts.Int()), ni.name));
+			}
+	
+		} else {
 			vars = null;
+		}
 	}
 
 	public void setFlag(Flags flags) {
@@ -63,10 +75,10 @@ public class X10VarDeclarator extends VarDeclarator {
     }
     
 	public boolean hasExplodedVars() {
-		return vars != null;
+		return vars != null && ! vars.isEmpty();
 	}
 
-	public AmbExpr[] names() {
+	public List<Formal> names() {
 		return vars;
 	}
 }
