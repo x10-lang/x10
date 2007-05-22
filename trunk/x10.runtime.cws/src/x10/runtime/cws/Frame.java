@@ -17,7 +17,7 @@ package x10.runtime.cws;
  * @author vj 04/18/07
  *
  */
-public abstract class Frame {
+public class Frame {
 
 	public Frame() {
 		super();
@@ -30,7 +30,16 @@ public abstract class Frame {
 	 * place its result.
 	 * @return -- a closure for executing the code in this method
 	 * instance from the position specified by this frame.
+	 * Should be overridden by subclasses.
 	 */
-	public abstract Closure makeClosure();
+	public  Closure makeClosure() { return null;}
+	
+	 /**
+	  * Set the Outlet object on c so that it can supply
+	  * its result into the right field of the given frame.
+	  * Should be overridden by subclasses.
+	  * @param c -- The closure whose outlet must be set.
+	  */
+	public  void setOutletOn(Closure c) {}
 
 }
