@@ -65,7 +65,11 @@ public class Tuple_c extends Expr_c implements Tuple {
 		//Report.report(1, "Tuple_c created:" + pointName + "| " + regionName + "| " + args);
 	}
 	
-	
+	public List arguments() { return args; }
+	public Receiver pointReceiver() { return pointReceiver; }
+	public Receiver regionReceiver() { return regionReceiver; }
+	public MethodInstance pointMI() { return pointMI; }
+	public MethodInstance regionMI() { return regionMI; }
 	
 	/** Type check the expression. Fork into an ArrayAccess if the underlying
 	 * array is a Java array, or if the index is an int and not a distribution.
