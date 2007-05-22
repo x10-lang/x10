@@ -1,9 +1,10 @@
 
 import x10.runtime.cws.Closure;
 import x10.runtime.cws.Frame;
+import x10.runtime.cws.Job;
+import x10.runtime.cws.Outlet;
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.Worker;
-import x10.runtime.cws.Main;
 
 
 /**
@@ -21,35 +22,35 @@ import x10.runtime.cws.Main;
 public class FibC  extends Closure {
 	volatile int result;
 	static final int ENTRY=0, LABEL_1=1, LABEL_2=2,LABEL_3=3;
+	public int resultInt() { return result;}
+	public String toString() { return "FibC(" + (frame != null? ""+((FibFrame) frame).n : "")+")";}
 	static class FibFrame extends Frame {
 		int PC, n,x,y;
 		public FibFrame() {
 			super();
 		}
+		@Override
+		public void setOutletOn(final Closure c) {
+			c.setOutlet((PC==LABEL_1) ?
+					new Outlet() {
+						public void run() {
+							FibFrame.this.x = c.resultInt();
+						}
+						public String toString() { return "OutletInto x from " + c;}
+						} 
+			: new Outlet() {
+				public void run() {
+					FibFrame.this.y = c.resultInt();
+				}
+				public String toString() { return "OutletInto y from " + c;}
+				});
+		
+		}
 		public Closure makeClosure() {
-			return PC==LABEL_2 
-			? new FibC() {
-				@Override
-				public void executeAsInlet() {
-					((FibFrame) parent.frame).y  = result;
-				}
-				public String toString() {
-					return "Fib1(n=" + n + ")";
-				}
-			}: new FibC() {
-				@Override
-				public void executeAsInlet() {
-					((FibFrame) parent.frame).x  = result;
-				}
-				public String toString() {
-					return "Fib2(n=" + n + ")";
-				}
-			};
-				
+			return new FibC();
 		}
 	}
-	@Override
-	public void executeAsInlet() {}
+	
 	
 	static int fib(Worker w, int n) { // fast mode
 		
@@ -74,8 +75,11 @@ public class FibC  extends Closure {
 		if (c != null) {
 			// so the frame has been stolen and c is now being executed by someone else.
 			// have to supply it the value of x.
-			if (w.lastFrame())
-				((FibC) c).result = x;
+			if (w.lastFrame()) {
+				FibC t = (FibC) c;
+				t.result = x;
+				t.done = true;
+			}
 			// now return a dummy value. The real value will be supplied
 			// by c.compute().
 			return 0; // 
@@ -90,8 +94,11 @@ public class FibC  extends Closure {
 		int y=fib(w, n-2);
 		c = w.popFrameCheck();
 		if (c != null) {
-			if (w.lastFrame())
-				((FibC) c).result = y;
+			if (w.lastFrame()) {
+				FibC t = (FibC) c;
+				t.result = y;
+				t.done = true;
+			}
 			return 0;
 		}
 		// Now there is nothing more to spawn -- so no need for the frame.
@@ -128,8 +135,11 @@ public class FibC  extends Closure {
 			int x = fib(w, n-1);
 			Closure c = w.popFrameCheck();
 			if (c != null) {
-				if (w.lastFrame())
-					((FibC) c).result = x;
+				if (w.lastFrame()) {
+					FibC t = (FibC) c;
+					t.result = x;
+					t.done = true;
+				}
 				return;
 			}
 			f.x=x;
@@ -142,8 +152,11 @@ public class FibC  extends Closure {
 			int y=fib(w,n-2);
 			Closure c = w.popFrameCheck();
 			if (c != null) {
-				if (w.lastFrame())
-					((FibC) c).result = y;
+				if (w.lastFrame()) {
+					FibC t = (FibC) c;
+					t.result = y;
+					t.done = true;
+				}
 				return;
 			}
 			f.y=y;
@@ -151,7 +164,6 @@ public class FibC  extends Closure {
 		if (f.PC <= LABEL_2) {
 			f.PC=LABEL_3;
 			if (sync()) {
-				
 				return;
 			}
 		}
@@ -171,36 +183,23 @@ public class FibC  extends Closure {
 			return;
 		}
 		final Pool g = new Pool(procs);
-		final int[] points = new int[] { 10// 1,5, 10, 15, 20, 25, 30, 35, 40
+		final int[] points = new int[] {  1,5, 10, 15, 20, 25, 30, 35, 40
 		};
-		final Object lock = new Object();
+		
 		for (int i = 0; i < points.length; i++) {
 			final int n = points[i];
-			class FibMain extends Main {
-				public FibMain(Object lock) {
-					super(lock);
-				}
-				@Override
-				public int spawnTask(Worker ws) {
-					return fib(ws, n);
-				}
-				public String toString() {
-					return "FibMain(n=" + n + ")";
-				}
-			}
-			Main task = new FibMain(lock);
+			Job job = new Job(g) { 
+				public int spawnTask(Worker ws) { return fib(ws, n);}
+				public String toString() { return "Job(Fib(" + n+"))";}
+				};
+			
 			long s = System.nanoTime();
-			g.submit(task);
-			try {
-				synchronized (lock) {
-					lock.wait();
-				}
-			} catch (InterruptedException z) {
-				System.out.println("Caught interrupted exception " + z);
-			}
+			 g.submit(job);
+			int result = job.getInt();
+			
 			long t = System.nanoTime();
 			System.out.println(points[i] + " " + (t-s)/1000000 
-					+ " " + task.result );
+					+ " " + result );
 		}
 		g.shutdown();
 	}

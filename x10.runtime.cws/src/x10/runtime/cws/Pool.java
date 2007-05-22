@@ -9,6 +9,10 @@ package x10.runtime.cws;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 
+import static x10.runtime.cws.ClosureStatus.*;
+
+
+
 
 /**
  * The host and external interface for ForkJoinTasks. A ForkJoinPool
@@ -130,7 +134,6 @@ public class Pool {
         try {
             for (int i = 0; i < poolSize; ++i) {
                 Worker r = new Worker(this, i);
-              
                 workers[i] = r;
                
             }
@@ -266,27 +269,6 @@ public class Pool {
             lock.unlock();
         }
     }
-/*
-    private void tryTerminate() { // called only under lock
-    	//System.out.println("Trying to terminate...");
-        if (runState < STOP) {
-            runState = STOP;
-            ForkJoinTask<?> task;
-            while ((task = jobs.poll()) != null)
-                task.cancel();
-            for (int i = 0; i < workers.length; ++i) {
-                Worker t = workers[i];
-                if (t != null) {
-                    t.cancelTasks();
-                    t.interrupt();
-                }
-            }
-            work.signalAll();
-        }
-    }
-
-   */
-        
 
     // Internal methods that may be invoked by workers
 
@@ -300,17 +282,31 @@ public class Pool {
     final Worker[] getWorkers() {
         return workers;
     }
+    
+    public  void submit(Job job) {
+        addJob(job);
+       
+    }
 
-   public void submit(Closure c) {
-	   Worker ws = workers[0];
-	   Thread me = Thread.currentThread();
-	   ws.lock(me);
-	   try {
-		   ws.addBottom(me, c);
-	   } finally {
-		   ws.unlock();
-	   }
-   }
+    /**
+     * Enqueue an externally submitted task
+     */
+    private void addJob(Job job) {
+        final ReentrantLock lock = this.lock;
+        boolean ok;
+        lock.lock();
+        try {
+            if (ok = (runState == RUNNING)) {
+                jobs.add(job);
+                work.signalAll();
+            }
+        } finally {
+            lock.unlock();
+        }
+        if (!ok)
+            throw new RejectedExecutionException();
+    }
+
    
     /**
      * Termination callback from dying worker.
@@ -337,6 +333,104 @@ public class Pool {
             lock.unlock();
         }
     }
+    
+    final void jobCompleted() {
+        final ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
+            if (--activeJobs <= 0 && runState == SHUTDOWN && jobs.isEmpty())
+                tryTerminate();
+        } finally {
+            lock.unlock();
+        }
+    }
+    public void tryTerminate() {
+    	// do nothing.
+    }
+    
+    /**
+     * External submission queue.  "Jobs" are tasks submitted to the
+     * pool, not internally generated.
+     */
+    private final JobQueue jobs = new JobQueue();
+    /**
+     * Returns a job to run, or null if none available.
+     * @param yields number of times caller has repeatedly failed to
+     * find tasks. Upon threshold, sleeps a while unless woken by some
+     * other thread that finds work.
+     */
+    final Closure getJob(int yields) {
+        Closure task = null;
+        final ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
+            boolean timeout = false;
+            task = jobs.poll();
+            if (task == null) {
+                if (activeJobs == 0)
+                    work.await();
+                else if (yields >= YIELDS_BEFORE_SLEEP)
+                    timeout = work.awaitNanos(IDLE_SLEEP_NANOS) <= 0;
+                else
+                    timeout = true;
+                if (!timeout)
+                    task = jobs.poll();
+            }
+            if (task != null)
+                ++activeJobs;
+            if (task != null || (!timeout && activeJobs > 0))
+                work.signal();
+        } catch (InterruptedException ie) { 
+            // ignore/swallow 
+        } finally {
+            lock.unlock();
+        }
+        return task;
+    }
+    /**
+     * A JobQueue is a simple array-based circular queue.
+     * Basically a stripped-down variant of ArrayDeque
+     */
+    static final class JobQueue {
+        static final int INITIAL_JOBQUEUE_CAPACITY = 64;
+        Job[] elements = (Job[]) new Job[INITIAL_JOBQUEUE_CAPACITY];
+        int head;
+        int tail;
 
+        boolean isEmpty() {
+            return head == tail;
+        }
+
+        void add(Job e) {
+            elements[tail] = e;
+            if ( (tail = (tail + 1) & (elements.length - 1)) == head)
+                doubleCapacity();
+        }
+
+        Job poll() {
+            int h = head;
+            Job result = elements[h]; 
+            if (result != null) {
+                elements[h] = null;
+                head = (h + 1) & (elements.length - 1);
+            }
+            return result;
+        }
+        
+        void doubleCapacity() {
+            int p = head;
+            int n = elements.length;
+            int r = n - p; 
+            int newCapacity = n << 1;
+            if (newCapacity < 0)
+                throw new IllegalStateException("Job queue capacity exceeded");
+            Job[] a = (Job[]) new Job[newCapacity];
+            System.arraycopy(elements, p, a, 0, r);
+            System.arraycopy(elements, 0, a, r, p);
+            elements = a;
+            head = 0;
+            tail = n;
+        }
+    }
   
 }

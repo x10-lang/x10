@@ -12,6 +12,7 @@ package x10.runtime.cws;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+
 import static x10.runtime.cws.ClosureStatus.*;
 
 /**
@@ -84,7 +85,8 @@ public class Worker extends Thread {
 	 * @param thief -- The thread making this invocation.
 	 * @return
 	 */
-	protected Closure steal(Worker thief) {
+	protected Closure steal(Worker thief, boolean retry) {
+		
 		final Worker victim = this;
 		if (reporting) {
 			++stealAttempts;
@@ -107,7 +109,7 @@ public class Worker extends Thread {
 		if (cl == null) {
 			try {
 				if (reporting) {
-					// System.out.println(thief + " steal attempt: queue empty on  " + thief.index);
+				//	System.out.println(thief + " steal attempt: queue empty on  " + thief.index);
 				}
 				return null;
 			} finally {
@@ -277,7 +279,7 @@ public class Worker extends Thread {
 		assert cl.ownerReadyQueue == null;
 		
 		if (reporting)
-			System.out.println(this + " adds " + cl + " to bottom.");
+			System.out.println(ws + " adds " + cl + " to " + this + " bottom.");
 		cl.prevReady = bottom;
 		cl.nextReady = null;
 		cl.ownerReadyQueue = this;
@@ -339,14 +341,39 @@ public class Worker extends Thread {
 		
 	}
 	
+
+	public Closure scanTasks() {
+		Closure cl = null;
+		Worker[] workers = pool.getWorkers();
+		int n = workers.length;
+		int idx = rand() % n;
+		int origin = idx;
+		Worker thief = this;
+		boolean retry = false;
+		for (;;) {
+			
+			Worker victim = workers[idx];
+			if (victim != null && victim !=thief) {
+				cl = victim.steal(thief, retry);
+				if (cl != null)
+					return cl;
+			}
+			if (++idx >= n) idx = 0;
+			if (idx==origin) {
+				if (! retry) retry = true; else return null;
+			}
+		}
+		
+	}
 	@Override
 	public void run() {
 		assert index >= 0;
 		setRandSeed(index*162347);
 		Closure cl = closure;
+		int yields = 0;
 		while (!done) {
 			
-			if (closure == null) {
+			if (cl == null) {
 //				 Try geting work from the local queue.
 				lock(this);
 				try {
@@ -355,21 +382,20 @@ public class Worker extends Thread {
 					unlock();
 				}
 			}
-			while (cl == null && !done) {
-				// Try stealing.
-				final Worker thief = this;
-				int victim = rand() % workers.length;
-				if (victim != index) {
-					cl = workers[victim].steal(thief);
-					this.setPriority(Thread.MIN_PRIORITY);
-					if (cl == null) 
-						Thread.yield();
-				}
+			if (cl == null)
+				cl = scanTasks();
+			
+			if (cl == null) {
+				cl = pool.getJob(yields);
 			}
 			this.setPriority(Thread.MAX_PRIORITY);
 			if (cl !=null) {
 				// Found some work! Execute it.
+				yields = 0;
 				assert cache == null || cache.empty();
+				if (reporting) {
+					System.out.println(this + " executes " + cl);
+				}
 				cl = cl.execute(this);
 				
 				// vj: This avoids having to implement a wrap around.
@@ -377,6 +403,9 @@ public class Worker extends Thread {
 				// never decrease.
 				cache.reset();
 				
+			} else {
+				yields++;
+				Thread.yield();
 			}
 		}
 	}
@@ -414,6 +443,7 @@ public class Worker extends Thread {
 		// slow path. A steal has happened.
 		// need to grab the lock on the deque
 		// to get the bottom closure.
+		
 		popFrame();
 		return exceptionHandler();
 	}
@@ -438,6 +468,9 @@ public class Worker extends Thread {
 				}
 				boolean result = b.handleException(this);
 				assert result==true;
+				if (reporting) {
+					System.out.println(Thread.currentThread() + " mugged. Now executing " + b+".");
+				}
 				return b;
 				
 			} finally {
@@ -450,6 +483,7 @@ public class Worker extends Thread {
 	public boolean lastFrame() {
 		return cache.head==cache.tail;
 	}
+	
 }
 
 

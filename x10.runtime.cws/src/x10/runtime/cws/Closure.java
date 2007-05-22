@@ -43,7 +43,7 @@ public abstract class Closure  {
 	public Frame frame;
 	protected Closure parent;
 	protected volatile ClosureStatus status;
-	protected Lock lock;
+	protected ReentrantLock lock;
 	protected Worker lockOwner;
 	protected int joinCount;
 	
@@ -137,6 +137,9 @@ public abstract class Closure  {
 
 		Frame f = cache.childFrame();
 		Closure child = f.makeClosure();
+		Frame p = cache.topFrame();
+		p.setOutletOn(child);
+		
 		child.parent = this;
 		child.joinCount = 0;
 		child.cache = cache;
@@ -144,8 +147,7 @@ public abstract class Closure  {
 		child.frame = f;
 		child.ownerReadyQueue=null;
 		++child.cache.head;
-		// TODO: cache.head is never reduced. Hmm. We need to implement
-		// wrap around.
+		
 		victim.addBottom(thief, child);
 		return child;
 	}
@@ -248,6 +250,7 @@ public abstract class Closure  {
     	Closure parent = this.parent;
     	if (parent == null) {
     		// Must be a top level closure.
+    		completed();
     		return null;
     	}
     	assert (parent != null);
@@ -273,6 +276,7 @@ public abstract class Closure  {
     		
     	} finally {
     		parent.unlock();
+    		completed();
     	}
     	// The child should be garbage at this point.
     }
@@ -311,10 +315,10 @@ public abstract class Closure  {
     private Closure provablyGoodStealMaybe(Worker ws) {
     	
     	assert lockOwner==ws;
-    	assert parent != null;
+    	//assert parent != null;
     	
     	Closure result = null;
-    	if (parent.joinCount==0 &&parent.status == SUSPENDED) {
+    	if (parent != null && parent.joinCount==0 &&parent.status == SUSPENDED) {
     		result = parent;
     		parent.pollInlets(ws);
     		parent.ownerReadyQueue =null;
@@ -402,7 +406,7 @@ public abstract class Closure  {
 			unlock();
 			return returnValue(ws);
 		}
-		assert false;
+		
 		throw new Error(ws + "executes " + status + " " + this + ": error!");
 	}
 	
@@ -446,6 +450,7 @@ public abstract class Closure  {
 	final protected void setupReturn() {
 		// Do not trust client code to pass this parameter in.
 		Worker ws = (Worker) Thread.currentThread();
+		done = true;
 		ws.lock(ws);
 		try {
 			
@@ -464,13 +469,33 @@ public abstract class Closure  {
 			ws.unlock();
 		}
 	}
-
+	
+	public double resultDouble() { return 0.0D;}
+	public long resultLong() { return 0L;}
+	public int resultInt() { return 0;}
+	public float resultFloat() { return 0.0F;}
+	public Object resultObject() { return null;}
+	
+	protected Outlet outlet;
+	public void setOutlet(Outlet o) { outlet=o;}
 	
 	/**
 	 * Return your value to the parent closure. Typically the
 	 * closure will be created with information about where
 	 * to deposit its result.
 	 */
-	abstract protected void executeAsInlet();
+	public void executeAsInlet() {
+		if (outlet !=null) {
+			outlet.run();
+		}
+	}
+	// must be set to true by subclasses.
+	protected boolean done = false;
+	
+	public boolean isDone() { return done;}
+	
+	public RuntimeException getException() { return null;}
+	public void completed() {}
+	
 
 }
