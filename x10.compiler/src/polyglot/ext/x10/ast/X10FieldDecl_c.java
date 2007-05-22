@@ -7,6 +7,7 @@
  */
 package polyglot.ext.x10.ast;
 
+import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Id;
@@ -14,6 +15,7 @@ import polyglot.ast.Node;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.FieldDecl_c;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10ReferenceType;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -30,7 +32,7 @@ import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
-public class X10FieldDecl_c extends FieldDecl_c {
+public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	
 	// TODO: Use this during type-checking.
 	DepParameterExpr thisClause;
@@ -44,6 +46,9 @@ public class X10FieldDecl_c extends FieldDecl_c {
 			Id name, Expr init) {
 		this(pos, null, flags, type, name, init);
 	}
+	public DepParameterExpr thisClause() {
+		return thisClause;
+	}
 	public boolean isDisambiguated() {
 		return (type == null || type.isDisambiguated()) && super.isDisambiguated();
 	}
@@ -55,6 +60,9 @@ public class X10FieldDecl_c extends FieldDecl_c {
 		X10FieldInstance myFI = (X10FieldInstance) this.fi;
 		myFI.setDepType(declType());
 		myFI.setSelfClauseIfFinal();
+		if (result.ext() instanceof X10Ext) {
+			myFI.setAnnotations(((X10Ext) result.ext()).annotationTypes());
+		}
 		
 		//
 		// Any occurrence of a non-final static field in X10
@@ -113,7 +121,7 @@ public class X10FieldDecl_c extends FieldDecl_c {
 		
 		ct.addField(fi);
 		FieldDecl result = (FieldDecl) n.flags(f).fieldInstance(fi);
-		return isString? result.type(new X10CanonicalTypeNode_c(Position.COMPILER_GENERATED,ts.String())) : result;
+		return isString? result.type(new CanonicalTypeNode_c(Position.COMPILER_GENERATED,ts.String())) : result;
 	}
 	
 	public Node disambiguate(AmbiguityRemover ar) throws SemanticException {
