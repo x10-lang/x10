@@ -64,11 +64,11 @@ public class TypePropagator extends TypeChecker {
 		}
 		if (n instanceof NullableNode_c) {
 			NullableNode_c m = (NullableNode_c) n;
-			m.propagateTypeFromBase();
+			n =	m.propagateTypeFromBase();
 		}
 		if (n instanceof FutureNode_c) {
 			FutureNode_c m = (FutureNode_c) n;
-			m.propagateTypeFromBase();
+			n =	m.propagateTypeFromBase();
 		}
 		return n;
 	}   
