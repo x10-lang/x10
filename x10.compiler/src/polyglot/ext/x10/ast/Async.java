@@ -18,17 +18,11 @@ import polyglot.ast.Stmt;
 /** The node constructed for the X10 construct async (P) {S}.
  * @author Christian Grothoff
  */
-public interface Async extends Stmt, RemoteActivityInvocation {
+public interface Async extends Stmt, RemoteActivityInvocation, Clocked {
     
     /** Set the Async's body */
     Async body(Stmt body);
 
     /** Get the body of the Async. */
     Stmt body();
-    
-    /** Expression */
-	public List clocks();
-
-	/** clock */
-	public Clocked clocks(List clocks);
 }
