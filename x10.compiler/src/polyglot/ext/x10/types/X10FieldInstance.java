@@ -7,6 +7,7 @@
  */
 package polyglot.ext.x10.types;
 
+import polyglot.ast.Expr;
 import polyglot.ast.Receiver;
 import polyglot.types.FieldInstance;
 import polyglot.types.Type;
@@ -18,7 +19,7 @@ import polyglot.types.Type;
  * @author vj
  *
  */
-public interface X10FieldInstance extends FieldInstance {
+public interface X10FieldInstance extends FieldInstance, X10TypeObject {
 	
 	public static final String MAGIC_PROPERTY_NAME = "propertyNames$";
 	public static final String MAGIC_CI_PROPERTY_NAME = "classInvariant$";
@@ -36,6 +37,4 @@ public interface X10FieldInstance extends FieldInstance {
 	 * Return true iff the LI changed.
 	 */
 	boolean setSelfClauseIfFinal();
-
-
 }

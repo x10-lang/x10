@@ -12,6 +12,7 @@
  */
 package polyglot.ext.x10.types;
 
+import polyglot.ast.Expr;
 import polyglot.types.ClassType;
 
 /** The representative of ClassType in the X10 type hierarchy. A class is a

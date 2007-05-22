@@ -10,11 +10,15 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.types.UnknownType_c;
+import polyglot.ast.Expr;
 import polyglot.ext.x10.ast.GenParameterExpr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
@@ -31,6 +35,31 @@ import polyglot.types.TypeSystem;
  */
 public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 
+	protected List<X10ClassType> annotations;
+	
+	public List<X10ClassType> annotations() {
+		if (annotations == null) return Collections.EMPTY_LIST;
+		return Collections.<X10ClassType>unmodifiableList(annotations);
+	}
+	
+	public void setAnnotations(List<X10ClassType> annotations) {
+		this.annotations = new ArrayList<X10ClassType>(annotations);
+	}
+	public X10TypeObject annotations(List<X10ClassType> annotations) {
+		X10ReferenceType_c n = (X10ReferenceType_c) copy();
+		n.setAnnotations(annotations);
+		return n;
+	}
+	public X10ClassType annotationNamed(String name) {
+		for (Iterator<X10ClassType> i = annotations.iterator(); i.hasNext(); ) {
+			X10ClassType ct = i.next();
+			if (ct.fullName().equals(name)) {
+				return ct;
+			}
+		}
+		return null;
+	}
+	
 	 /** Used for deserializing types. */
     protected X10UnknownType_c() { }
     
@@ -38,7 +67,21 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
     public X10UnknownType_c( TypeSystem ts ) {
         super(ts);
     }
-
+	protected transient Expr dep;
+	
+	/** Build a variant of the root type, with the constraint expression. */
+	public X10Type dep(Expr dep) {
+		X10PrimitiveType_c n = (X10PrimitiveType_c) copy();
+		n.dep = dep;
+		return n;
+	}
+	
+	/** Get the type's constraint expression. */
+	public Expr dep() {
+		return dep;
+	}
+	
+    
     protected Constraint depClause;
     protected List/*<GenParameterExpr>*/ typeParameters;
     protected X10Type rootType = this;
@@ -96,6 +139,7 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
     	X10UnknownType_c n = (X10UnknownType_c) copy();
     	n.depClause = new Constraint_c((X10TypeSystem) ts);
     	n.typeParameters = typeParameters;
+    	n.dep = null;
     	return n;
     }
     public C_Term propVal(String name) {

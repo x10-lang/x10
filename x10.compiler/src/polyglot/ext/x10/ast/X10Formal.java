@@ -24,12 +24,11 @@ import polyglot.types.TypeSystem;
 public interface X10Formal extends Formal, X10VarDecl {
    boolean isUnnamed();
    boolean hasExplodedVars();
+   
+   List<Formal> vars();
 
    /** Get the local instances of the bound variables. */
    public LocalInstance[] localInstances();
-
-   /** Set the local instances of the bound variables. */
-   public X10Formal localInstances(LocalInstance[] lis);
 
    /**
     * Return a list of statements containing the initializations for the exploded vars,

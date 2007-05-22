@@ -70,6 +70,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		super(ts);
 	}
 	
+	
 	// Invariant: isDepType => outer != null.
 	
 	protected X10NamedType depType = null;
@@ -81,18 +82,21 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inSequentialCode;
 	protected boolean inLocalCode;
 	protected boolean inNonBlockingCode;
-	
+	protected boolean inAnnotation;
 	
 	public boolean inSafeCode() { return inSafeCode;}
 	public boolean inSequentialCode() { return inSequentialCode;}
 	public boolean inNonBlockingCode() { return inNonBlockingCode;}
 	public boolean inLocalCode() { return inLocalCode;}
+	public boolean inAnnotation() { return inAnnotation; }
 	
 	public void setSafeCode() { inSafeCode = true;}
-	public void  setSequentialCode() { inSequentialCode=true;}
+	public void setSequentialCode() { inSequentialCode=true;}
 	public void setNonBlockingCode() { inNonBlockingCode=true;}
 	public void setLocalCode() { inLocalCode=true;}
-	
+	public void setAnnotation() { inAnnotation=true;}
+	public void clearAnnotation() { inAnnotation=false;}
+
 	protected Context_c push() {
         X10Context_c v = (X10Context_c) super.push();
         v.depType = null;
@@ -157,7 +161,15 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * deptype is true.
 	 */
 	public ClassType findMethodScope(String name) throws SemanticException {
-		return depType==null ? super.findMethodScope(name) : pop().findMethodScope(name);
+		ClassType result = super.findMethodScope(name);
+		if (result == null) {
+			// hack. This is null when this context is in a deptype, and the deptype
+			// is not a classtype, and the field belongs to the outer type, e.g.
+			// class Foo { int(:v=0) v;}
+			ClassType r = type;
+			result = ((X10Context_c) pop()).type();
+		}
+		return result;
 	}
 	
 	/**

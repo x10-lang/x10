@@ -32,7 +32,6 @@ public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance 
 	 */
 	boolean isSafe();
 	
-
 	/**
 	 * Return an instance of this, specialized with (a) any references
 	 * to this in the dependent type of the result replaced by

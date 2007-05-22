@@ -10,17 +10,24 @@
  */
 package polyglot.ext.x10.types;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import polyglot.types.ParsedClassType_c;
+import polyglot.ast.Expr;
+import polyglot.ast.Node;
 import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.ast.GenParameterExpr;
+import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.constr.C_Field_c;
 import polyglot.ext.x10.types.constr.C_Here_c;
 import polyglot.ext.x10.types.constr.C_Lit;
@@ -32,6 +39,9 @@ import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
 import polyglot.ext.x10.types.constr.Constraint_c;
 import polyglot.ext.x10.types.constr.Failure;
+import polyglot.ext.x10.visit.DomGenerator;
+import polyglot.ext.x10.visit.X10Dom;
+import polyglot.ext.x10.visit.X10Dom.NodeLens;
 import polyglot.frontend.MissingDependencyException;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
@@ -40,6 +50,7 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.DeserializedClassInitializer;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyClassInitializer;
+import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
@@ -49,6 +60,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.TypeInputStream;
 
 /** 6/2006 Modified so that every type is now potentially generic and dependent.
  * @author vj
@@ -56,6 +68,69 @@ import polyglot.util.InternalCompilerError;
 public class X10ParsedClassType_c extends ParsedClassType_c
 implements X10ParsedClassType
 {
+	
+	protected transient Expr dep;
+	
+	/** Build a variant of the root type, with the constraint expression. */
+	public X10Type dep(Expr dep) {
+		X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
+		n.dep = dep;
+		return n;
+	}
+	
+	/** Get the type's constraint expression. */
+	public Expr dep() {
+		return dep;
+	}
+	
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		X10NodeFactory nf = (X10NodeFactory) ts.extensionInfo().nodeFactory();
+		out.defaultWriteObject();
+		DomGenerator v = new DomGenerator();
+		X10Dom dom = new X10Dom((X10TypeSystem) ts, nf);
+		dom.gen(v, "AST", dep);
+		out.writeObject(v.get());
+	}
+	
+	private void readObject(ObjectInputStream in) throws IOException,
+	ClassNotFoundException {
+		if (in instanceof TypeInputStream) {
+			ts = ((TypeInputStream) in).getTypeSystem();
+		}
+		X10NodeFactory nf = (X10NodeFactory) ts.extensionInfo().nodeFactory();
+		
+		in.defaultReadObject();
+		org.w3c.dom.Element e = (org.w3c.dom.Element) in.readObject();
+		X10Dom dom = new X10Dom((X10TypeSystem) ts, nf);
+		NodeLens lens = dom.new NodeLens();
+		Node node = dom.get(lens, e, "AST");
+		this.dep = (Expr) node;
+	}
+
+	protected List<X10ClassType> annotations;
+	
+	public List<X10ClassType> annotations() {
+		if (annotations == null) return Collections.EMPTY_LIST;
+		return Collections.<X10ClassType>unmodifiableList(annotations);
+	}
+	
+	public void setAnnotations(List<X10ClassType> annotations) {
+		this.annotations = new ArrayList<X10ClassType>(annotations);
+	}
+	public X10TypeObject annotations(List<X10ClassType> annotations) {
+		X10ReferenceType_c n = (X10ReferenceType_c) copy();
+		n.setAnnotations(annotations);
+		return n;
+	}
+	public X10ClassType annotationNamed(String name) {
+		for (Iterator<X10ClassType> i = annotations.iterator(); i.hasNext(); ) {
+			X10ClassType ct = i.next();
+			if (ct.fullName().equals(name)) {
+				return ct;
+			}
+		}
+		return null;
+	}
 	
 	public X10ParsedClassType_c() { super();}
 	
@@ -203,6 +278,20 @@ implements X10ParsedClassType
 			if (rs != null)
 				result = rs.constraints(result); 
 		}
+		
+		// Add in constraints from the interfaces.
+		for (Iterator i = interfaces().iterator(); i.hasNext(); ) {
+			Type it = (Type) i.next();
+			if (it instanceof X10Type && it != null) {
+				X10Type xType = (X10Type) it;
+				Constraint rs = xType.realClause();
+				// no need to change self, and no occurrence of this is possible in 
+				// a type's base constraint.
+				if (rs != null)
+					result = rs.constraints(result); 
+			} 
+		}
+		
 		C_Var newThis = C_Special.Self;
 		boolean aPropertyIsRecursive =  aPropertyIsRecursive();
 		
@@ -324,12 +413,13 @@ implements X10ParsedClassType
 		n.realClauseSet = true;
 		n.isDistSet = n.isRankSet = n.isOnePlaceSet = n.isRailSet = n.isSelfSet
 		= n.isX10ArraySet = n.isZeroBasedSet = false;
+		n.dep = null;
 		
 		return noClauseVariant = n;
 	}
 	
 	public C_Term propVal(String name) {
-		return (realClause==null) ? null : realClause.find(name);
+		return (realClause()==null) ? null : realClause().find(name);
 	}
 	
 	public boolean typeEqualsImpl(Type o) {
@@ -799,11 +889,14 @@ implements X10ParsedClassType
 				throw new InternalCompilerError("Type " 
 						+ name + " has no property named " + propName); 
 			properties.add(prop);
-			
 		}
 		if (superType != null) 
 			properties.addAll(((X10Type) superType).properties());
-		if (   Report.should_report(Report.types, 2))
+		for (Iterator i = interfaces().iterator(); i.hasNext(); ) {
+			X10Type t = (X10Type) i.next();
+			properties.addAll(t.properties());
+		}
+		if (Report.should_report(Report.types, 2))
 			Report.report(2, "Type " + name + " has properties " + properties +".");
 		return properties;
 	}

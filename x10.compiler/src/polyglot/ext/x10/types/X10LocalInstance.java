@@ -16,7 +16,7 @@ import polyglot.types.LocalInstance;
  * @author vj
  *
  */
-public interface X10LocalInstance extends LocalInstance {
+public interface X10LocalInstance extends LocalInstance, X10TypeObject {
 	void setPositionInArgList(int i);
 	int positionInArgList();
 	/**

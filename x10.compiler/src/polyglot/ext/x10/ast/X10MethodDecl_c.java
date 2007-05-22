@@ -20,8 +20,10 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.MethodDecl_c;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
 import polyglot.types.Context;
@@ -45,7 +47,7 @@ import polyglot.visit.TypeChecker;
  * @author vj
  *
  */
-public class X10MethodDecl_c extends MethodDecl_c {
+public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     // The representation of this( DepParameterExpr ) in the production.
     DepParameterExpr thisClause;
     // The reprsentation of the : Constraint in the parameter list.
@@ -62,6 +64,9 @@ public class X10MethodDecl_c extends MethodDecl_c {
         whereClause = e;
    
 }
+        
+        public DepParameterExpr thisClause() { return thisClause; }
+        public Expr whereClause() { return whereClause; }
         
         protected boolean listIsDisambiguated(List l) {
         	for (Iterator i = l.iterator(); i.hasNext(); ) {
@@ -85,6 +90,31 @@ public class X10MethodDecl_c extends MethodDecl_c {
             && (whereClause == null || whereClause.isDisambiguated())
             && super.isDisambiguated();
         }
+       
+        @Override
+        public Context enterChildScope(Node child, Context c) {
+        	// We should have entered the method scope already.
+        	assert c.currentCode() == this.methodInstance();
+        	
+        	if (! formals.isEmpty() && child != body()) {
+        		// Push formals so they're in scope in the types of the other formals.
+        		c = c.pushBlock();
+        		for (Iterator i = formals.iterator(); i.hasNext(); ) {
+        			Formal f = (Formal) i.next();
+        			f.addDecls(c);
+//        			if (f instanceof X10Formal) {
+//        				X10Formal xf = (X10Formal) f;
+//        				for (Iterator j = xf.vars().iterator(); j.hasNext(); ) {
+//        					Formal fj = (Formal) j.next();
+//        					fj.addDecls(c);
+//        				}
+//					}
+        		}
+        	}
+        	
+        	return super.enterChildScope(child, c);
+        }
+        
         public Node buildTypes(TypeBuilder tb) throws SemanticException {
             X10TypeSystem xts = (X10TypeSystem) tb.typeSystem();
 
@@ -195,8 +225,10 @@ public class X10MethodDecl_c extends MethodDecl_c {
            	// Now process the body.
             nn = (MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
             if (childtc2.hasErrors()) throw new SemanticException();
-             nn = (MethodDecl) childtc2.leave(parent, old, nn, childtc2);
+            nn = (MethodDecl) childtc2.leave(parent, old, nn, childtc2);
              
+            ((X10MethodInstance) nn.methodInstance()).setAnnotations(((X10Ext) nn.ext()).annotationTypes());
+ 			
             return nn;
         }
        

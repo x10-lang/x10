@@ -16,6 +16,7 @@ import polyglot.ast.JL;
 import polyglot.ast.Node;
 import polyglot.ast.AbstractDelFactory_c;
 import polyglot.ast.JL_c;
+import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10Type;
@@ -36,7 +37,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	/**
 	 * A delegate that redirects translate to the X10PrettyPrinterVisitor.
 	 */
-	public static class TD extends JL_c {
+	public static class TD extends X10Del_c {
 		public void translate(CodeWriter w, Translator tr) {
 			if (jl() instanceof Node) {
 				Node n = (Node) jl();
@@ -47,6 +48,10 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 			new X10PrettyPrinterVisitor(w,tr).visitAppropriate(jl());
 		}
 	};
+
+	public JL delNodeImpl() {
+		return new X10Del_c();
+	}
 
 	/**
 	 * For each term, add the delegate that redirects translate to the
@@ -61,6 +66,14 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	 * to the X10PrettyPrinterVisitor.
 	 */
 	public JL delMethodDeclImpl() {
+		return new TD();
+	}
+
+	/**
+	 * For each field declaration, add the delegate that redirects translate
+	 * to the X10PrettyPrinterVisitor.
+	 */
+	public JL delFieldDeclImpl() {
 		return new TD();
 	}
 

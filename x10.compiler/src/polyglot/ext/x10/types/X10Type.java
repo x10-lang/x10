@@ -14,7 +14,9 @@
 package polyglot.ext.x10.types;
 
 import java.util.List;
+import java.util.Map;
 
+import polyglot.ast.Expr;
 import polyglot.ext.x10.types.constr.C_Term;
 import polyglot.ext.x10.types.constr.C_Var;
 import polyglot.ext.x10.types.constr.Constraint;
@@ -26,7 +28,13 @@ import polyglot.types.Type;
  * @author vj
  *
  */
-public interface X10Type extends Type {
+public interface X10Type extends Type, X10TypeObject {
+
+	/** Build a variant of the root type, with the dependent expression. */
+    X10Type dep(Expr dep);
+    
+    /** Get the type's constraint expression, or null. */
+    Expr dep();
 
 	/**
 	 * An X10Type is said to be safe if all its methods are safe, i.e. sequential, local and nonblocking.
@@ -107,8 +115,8 @@ public interface X10Type extends Type {
      * @return null if there is no value associated with the property in the type.
      */
     C_Term propVal(String name);
-    /** The list of properties of the class.
-     
+    
+    /** The list of properties of the class. 
      * @return
      */
     List<FieldInstance> properties();

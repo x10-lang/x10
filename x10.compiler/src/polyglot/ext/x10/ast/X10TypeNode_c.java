@@ -22,6 +22,7 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.parse.Name;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.constr.C_Term;
@@ -79,7 +80,7 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
       * @throws SemanticException
       */
     public static Node disambiguateDepClause(X10TypeNode me, AmbiguityRemover sc) throws SemanticException {
-        Node newTypeNode1 =  me.disambiguateBase(sc);
+    	  Node newTypeNode1 =  me.disambiguateBase(sc);
         X10TypeNode newType = (X10TypeNode) newTypeNode1;
         X10Type baseType = (X10Type) newType.type();
         if ( !baseType.isCanonical()) {
@@ -87,25 +88,42 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         }
         assert me.dep() == null || me.dep().isDisambiguated();
         X10TypeSystem xt = (X10TypeSystem) me.type().typeSystem();
-        TypeTranslator eval = xt.typeTranslator();
-        DepParameterExpr dep = me.dep();
-        Constraint newParameter = dep == null ? null : eval.constraint(me.dep().condition());
-        // TODO: Fold in the args as well.
         
         GenParameterExpr newTParameter =  me.gen()==null ? null : (GenParameterExpr) me.gen().disambiguate( sc );
-        List<Type> typeParameters = new LinkedList<Type>(); 
-        if (newTParameter != null) {
-            List args = newTParameter.args();
-            if (args != null) {
-                Iterator it = args.iterator();
-                while (it.hasNext())
-                    typeParameters.add(((TypeNode)it.next()).type());
-            }
+    	List<Type> typeParameters = new LinkedList<Type>(); 
+    	if (newTParameter != null) {
+    		List args = newTParameter.args();
+    		if (args != null) {
+    			Iterator it = args.iterator();
+    			while (it.hasNext())
+    				typeParameters.add(((TypeNode)it.next()).type());
+    		}
+    	}
+    	
+        TypeTranslator eval = xt.typeTranslator();
+        DepParameterExpr dep = me.dep();
+        
+        boolean inAnnotation = ((X10Context) sc.context()).inAnnotation();
+    	
+        // XXX annotations: we don't allow arbitrary expressions yet 
+        if (false && inAnnotation) {
+        	// If in an annotation, we allow arbitrary expressions.
+        	baseType.setDepGen(null, null);
+        	X10Type newBaseType = baseType.dep(dep);
+        	Node result = ((X10TypeNode) newType.type(newBaseType)).dep(null,null);
+        	return result;
         }
-        baseType.setDepGen(newParameter, null);
-        X10Type newBaseType = baseType.makeVariant(null, typeParameters); // baseType.makeVariant(newParameter, typeParameters);
-        Node  result = ((X10TypeNode) newType.type(newBaseType)).dep(null,null);
-        return result; 
+        else {
+        	// If we're not in an annotation, the expression is sugar for a @where annotation.
+        	
+        	Constraint newParameter = dep == null ? null : eval.constraint(me.dep().condition());
+        	// TODO: Fold in the args as well.
+        	
+        	baseType.setDepGen(newParameter, null);
+        	X10Type newBaseType = baseType.makeVariant(null, typeParameters); // baseType.makeVariant(newParameter, typeParameters);
+        	Node result = ((X10TypeNode) newType.type(newBaseType)).dep(null,null);
+        	return result;
+        }
     }
     /**
      * A delegated call from the parent.
@@ -137,21 +155,46 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         }
         DepParameterExpr d = arg.dep();
         
-        // splice the information into the right places.
-       
-        TypeTranslator eval = ts.typeTranslator();
-        Constraint term = eval.constraint(d.condition());
-       //assert argType.isRootType();
-        X10Type newArgType = tc instanceof TypeElaborator  ? 
-        		argType.makeDepVariant(term, tParameters)
-        		: argType.makeVariant(term, tParameters);
-        
-        X10TypeNode result = (X10TypeNode) arg.type(newArgType);
-        result = result.dep(null,null);
-        if (  Report.should_report("debug", 5)) {
-            Report.report(1,"[X10TypeNode_c static] typeCheckDepClause... returning |" + result + "|.");
+        boolean inAnnotation = ((X10Context) tc.context()).inAnnotation();
+    	
+        if (inAnnotation) {
+        	// If in an annotation, we allow arbitrary expressions.
+
+           //assert argType.isRootType();
+            X10Type newArgType = argType;
+            if (! tParameters.isEmpty()) {
+            	newArgType = tc instanceof TypeElaborator  ?
+            			argType.makeDepVariant(null, tParameters)
+            			: argType.makeVariant(null, tParameters);
+            }
+            newArgType = newArgType.dep(d);
+            X10TypeNode result = (X10TypeNode) arg.type(newArgType);
+            result = result.dep(null,null);
+            if (  Report.should_report("debug", 5)) {
+                Report.report(1,"[X10TypeNode_c static] typeCheckDepClause... returning |" + result + "|.");
+            }
+            return result;
         }
-        return result;
+        else {
+        	// If we're not in an annotation, the expression is sugar for a @where annotation.
+
+            // splice the information into the right places.
+           
+            TypeTranslator eval = ts.typeTranslator();
+            Constraint term = eval.constraint(d.condition());
+           //assert argType.isRootType();
+            X10Type newArgType = tc instanceof TypeElaborator  ? 
+            		argType.makeDepVariant(term, tParameters)
+            		: argType.makeVariant(term, tParameters);
+            
+            X10TypeNode result = (X10TypeNode) arg.type(newArgType);
+            result = result.dep(null,null);
+            if (  Report.should_report("debug", 5)) {
+                Report.report(1,"[X10TypeNode_c static] typeCheckDepClause... returning |" + result + "|.");
+            }
+            return result;
+        }
+        
     }
   
     

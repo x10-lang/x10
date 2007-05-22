@@ -200,20 +200,17 @@ implements ArrayConstructor {
 					Closure init_closure = (Closure) ((ClosureCall) initializer).target();
 					List init_closure_formals = init_closure.formals();
 					X10Formal init_closure_formal = (X10Formal) init_closure_formals.get(0);
-					LocalInstance[] exploded_formals = ((X10Formal) init_closure_formal).localInstances();
 
 					List pointwise_members = new TypedList(new LinkedList(), ClassMember.class, false);
 
 					List apply_formals = new TypedList(new LinkedList(), Formal.class, false);
 					Formal formal = nf.Formal(position(), Flags.NONE, init_closure_formal.type(), init_closure_formal.id());
 					formal = formal.localInstance(ts.localInstance(position(), Flags.NONE, newBaseType, init_closure_formal.name()));
-					formal = ((X10Formal) formal).localInstances(X10Formal_c.NO_LOCALS); // RMF 5/10/2007 - Why isn't this the default?
 					
 					apply_formals.add(formal);
 
 					Formal dummy_formal = nf.Formal(position(), Flags.NONE, nf.CanonicalTypeNode(position(), newBaseType), nf.Id(position(), "__dummy__"));
 					dummy_formal = dummy_formal.localInstance(ts.localInstance(position(), Flags.NONE, newBaseType, "__dummy__"));
-					dummy_formal = ((X10Formal) dummy_formal).localInstances(X10Formal_c.NO_LOCALS); // RMF 5/10/2007 - Why isn't this the default?
 					apply_formals.add(dummy_formal);
 
 					Block closure_body = init_closure.body();
