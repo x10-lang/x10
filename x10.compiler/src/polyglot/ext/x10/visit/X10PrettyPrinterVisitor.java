@@ -20,8 +20,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.omg.CORBA.Context;
-
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
