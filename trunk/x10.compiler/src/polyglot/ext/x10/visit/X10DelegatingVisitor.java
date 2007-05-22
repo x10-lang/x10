@@ -103,6 +103,7 @@ public class X10DelegatingVisitor {
 	 */
 	public void visitAppropriate(JL n) {
 		if (n instanceof Id_c) { visit((Id_c)n); return; }
+		if (n instanceof AnnotationNode_c) { visit((AnnotationNode_c)n); return; }
 		if (n instanceof X10ArrayTypeNode_c) { visit((X10ArrayTypeNode_c)n); return; }
 		if (n instanceof NullableNode_c) { visit((NullableNode_c)n); return; }
 		if (n instanceof FutureNode_c) { visit((FutureNode_c)n); return; }
@@ -400,5 +401,6 @@ public class X10DelegatingVisitor {
 					public void visit(FutureNode_c n) { visit((X10TypeNode_c)n); }
 					public void visit(NullableNode_c n) { visit((X10TypeNode_c)n); }
 					public void visit(X10ArrayTypeNode_c n) { visit((X10TypeNode_c)n); }
+			public void visit(AnnotationNode_c n) { visit((Node_c) n); }
 			public void visit(Id_c n) { visit((Node_c) n); }
 }
