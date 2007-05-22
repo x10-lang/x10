@@ -12,13 +12,21 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.List;
+
 import polyglot.ast.Expr;
+import polyglot.ast.Receiver;
+import polyglot.types.MethodInstance;
 
 /**
  * @author vj Jan 19, 2005
  * 
  */
 public interface Tuple extends Expr {
-
+	List arguments();
+	Receiver pointReceiver();
+	Receiver regionReceiver();
+	MethodInstance pointMI();
+	MethodInstance regionMI();
 
 }
