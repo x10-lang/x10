@@ -62,6 +62,10 @@ X10ArrayTypeNode {
 		
 	}
 	
+	public DepParameterExpr indexedSet() {
+		return dep;
+	}
+	
 	/** Create an ArrayTypeNode for the X10 construct base[ depClause].
 	 * expr must be a region or a distribution.
 	 * 
