@@ -267,6 +267,15 @@ extractPackage() {
     RESULT="`sed -ne 's|\.|/|g' -e 's|^\s*package \([^;]*\);|\1|p' "$f"`"
 }
 
+extractPlugins() {
+# extract the plugins from a *.x10 file f
+
+    chkArgs 1 "$@"
+    local f="$1"
+    RESULT="`sed -ne 's|^\s*//\s*PLUGINS*\:\s*\([^\s]*\)|\1|p' -e 's|\s+|,|g' "$f"`"
+    echo $RESULT
+}
+
 removeDotSlash() {
 # convert ./a/b/./c to a/b/c
 
@@ -347,7 +356,10 @@ genTest() {
       pkg="$RESULT"
       path="${path%/$pkg}"
       [ -n "$pkg" ] || pkg='.'
-      doTest "$pkg" "$path" "${file%.x10}" # run an actual x10 test case
+      extractPlugins "$f"
+      plugins="$RESULT"
+      # run an actual x10 test case
+      doTest "$pkg" "$path" "${file%.x10}" "$plugins"
       #echo 2>&1 "Done with $path/$pkg/$file"
     fi
   done < <(findTests "$topDir")
@@ -651,10 +663,11 @@ doTest() {
 	# TODO: run test via TestHarness instead.
 # run the x10 test case $tstDir/$srcDir/test.x10
 
-  chkArgs 3 "$@"
+  chkArgs 4 "$@"
   local srcDir="$1"
   local testDir="$2"
   local test="$3"
+  local plugins="$4"
   local x10FileName="$testDir/$srcDir/$test.x10" #./Misc/./a/b/c.x10
   changeSlashToDot "$srcDir/$test"
   local className="$RESULT"             #a.b.c
@@ -667,7 +680,11 @@ doTest() {
 
   let "nTotal = (( $nTotal + 1 ))"
 
-  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -d $testDir $X10C_EXTRA_OPTS $x10FileName" "" ""
+  if [ -n "$plugins" ]; then
+    plugins="-PLUGINS=$plugins"
+  fi
+
+  runWithTimeLimit "$tdir" "$className" "\"$MYDIR\"/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -d $testDir $X10C_EXTRA_OPTS $plugins $x10FileName" "" ""
 
   if [[ $? != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
