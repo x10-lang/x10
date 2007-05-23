@@ -36,7 +36,7 @@ public class Worker extends Thread {
 	 */
 	protected final Pool pool;
 	protected Closure top, bottom;
-	final protected Cache cache;
+	final public Cache cache;
 	protected Lock lock; // dequeue_lock
 	protected Thread lockOwner; // the thread holding the lock.
 	protected int randNext;
@@ -47,7 +47,7 @@ public class Worker extends Thread {
 	protected static volatile Worker[] workers; 
 	public static long stealAttempts;
 	public static long steals;
-	public static boolean reporting = true;
+	public static boolean reporting = false;
 	/**
 	 * Creates new Worker.
 	 */
@@ -88,7 +88,7 @@ public class Worker extends Thread {
 	protected Closure steal(Worker thief, boolean retry) {
 		
 		final Worker victim = this;
-		if (reporting) {
+		if (false && reporting) {
 			++stealAttempts;
 			//System.out.println(thief + " attempts to steal from " + thief.index);
 		}
@@ -108,7 +108,7 @@ public class Worker extends Thread {
 		}
 		if (cl == null) {
 			try {
-				if (reporting) {
+				if (false && reporting) {
 				//	System.out.println(thief + " steal attempt: queue empty on  " + thief.index);
 				}
 				return null;
@@ -135,7 +135,7 @@ public class Worker extends Thread {
 			try {
 				Closure res = extractTop(thief);
 				assert (res == cl);
-				if (reporting) {
+				if (false && reporting) {
 					++ steals;
 					System.out.println(thief + " steals ready " + cl + " from "
 							+ victim);
@@ -171,7 +171,7 @@ public class Worker extends Thread {
 				} finally {
 					cl.unlock();
 				}
-				if (reporting) {
+				if (false && reporting) {
 					++steals;
 					System.out.println(thief + " steals running " + cl + " from "
 							+ victim);
@@ -278,7 +278,7 @@ public class Worker extends Thread {
 		assert cl !=null;
 		assert cl.ownerReadyQueue == null;
 		
-		if (reporting)
+		if (false && reporting)
 			System.out.println(ws + " adds " + cl + " to " + this + " bottom.");
 		cl.prevReady = bottom;
 		cl.nextReady = null;
@@ -323,6 +323,10 @@ public class Worker extends Thread {
 					// will get to check inlets and if they 
 					// are all done, then execute this task
 					// in place.
+					if (false && reporting) {
+						System.out.println(this + " suspends " + t + "(joincount=" + t.joinCount+")");
+					}
+					
 					t.suspend(this);
 					//  Vj: Added this popFrame. Note sure that Cilk does this. Without this
 					// caches are left behind with unpopped frames. This interferes with
@@ -360,7 +364,10 @@ public class Worker extends Thread {
 			}
 			if (++idx >= n) idx = 0;
 			if (idx==origin) {
-				if (! retry) retry = true; else return null;
+				if (! retry) 
+					retry = true; 
+				else 
+					return null;
 			}
 		}
 		
@@ -388,15 +395,19 @@ public class Worker extends Thread {
 			if (cl == null) {
 				cl = pool.getJob(yields);
 			}
-			this.setPriority(Thread.MAX_PRIORITY);
+			
 			if (cl !=null) {
 				// Found some work! Execute it.
 				yields = 0;
 				assert cache == null || cache.empty();
-				if (reporting) {
-					System.out.println(this + " executes " + cl);
+				if (false && reporting) {
+					System.out.println(this + " executes " + cl +".");
 				}
-				cl = cl.execute(this);
+				Closure cl1 = cl.execute(this);
+				if (false && reporting && bottom == cl) {
+					System.out.println(this + " completes " + cl + ".");
+				}
+				cl=cl1;
 				
 				// vj: This avoids having to implement a wrap around.
 				// Otherwise, head might increase on a steal, but would
@@ -420,7 +431,7 @@ public class Worker extends Thread {
 		cache.pushFrame(frame);
 	}
 	/**
-	 * 
+	 * Pop the last frame from the stack.
 	 *
 	 */
 	public void popFrame() {
@@ -435,23 +446,26 @@ public class Worker extends Thread {
 	 *             since async execution started. null otherwise.
 	 *            
 	 */
-	public Closure popFrameCheck() {
+	public boolean popFrameCheck(int y) {
 		
 		if (! cache.popCheck()) 
 			// fast path
-			return null;
+			return false;
 		// slow path. A steal has happened.
 		// need to grab the lock on the deque
 		// to get the bottom closure.
-		
-		popFrame();
-		return exceptionHandler();
+		boolean result = exceptionHandler(y);
+		if (result)
+			popFrame();
+		return result;
 	}
 	public String toString() {
 		return "Worker("+index+")";
 	}
-	
-	protected Closure exceptionHandler() {
+	public Closure bottom() {
+		return bottom;
+	}
+	protected boolean exceptionHandler(int y) {
 		lock(this);
 		try {
 			Closure b = bottom;
@@ -466,13 +480,8 @@ public class Worker extends Thread {
 					b=c;
 					b.lock(this);
 				}
-				boolean result = b.handleException(this);
-				assert result==true;
-				if (reporting) {
-					System.out.println(Thread.currentThread() + " mugged. Now executing " + b+".");
-				}
-				return b;
-				
+				boolean result = b.handleException(this, y);
+				return result;
 			} finally {
 				b.unlock();
 			}
@@ -480,9 +489,7 @@ public class Worker extends Thread {
 			unlock();
 		}
 	}
-	public boolean lastFrame() {
-		return cache.head==cache.tail;
-	}
+	
 	
 }
 

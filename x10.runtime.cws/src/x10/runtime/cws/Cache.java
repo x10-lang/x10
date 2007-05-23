@@ -7,14 +7,14 @@ package x10.runtime.cws;
  * @author vj 05/18/2007
  *
  */
- class Cache {
+ public class Cache {
 	public static final int MAXIMUM_CAPACITY = 1 << 30;
 	public static final int INITIAL_CAPACITY = 1 << 13; // too high??
 	public static final int EXCEPTION_INFINITY = Integer.MAX_VALUE;
 	
 	protected Frame[] stack;
 	// these are indices into stack.
-	protected volatile int head, tail, exception;
+	private volatile int head, tail, exception;
 	
 	protected final Worker owner;
 	protected Cache(Worker w) {owner=w;}
@@ -53,7 +53,11 @@ package x10.runtime.cws;
         if (newSize > MAXIMUM_CAPACITY)
             throw new Error("Frame stack size exceeded");
         Frame[] newArray = new Frame[newSize];
-        
+        if (oldArray != null) {
+            for (int i = head; i < tail; ++i) {
+                newArray[i] = oldArray[i];
+            }
+        }
         newArray[tail] = x;
         stack = newArray;
         ++tail;
@@ -108,14 +112,28 @@ package x10.runtime.cws;
 		lastException = e;
 		return e >= t;
 	}
-	protected String dump() {
+	public String dump() {
 		return this.toString() + "(head=" + head + " tail=" + tail + " exception=" + exception + ")";
 	}
 	protected boolean empty() {
 		return head==tail;
 	}
+	public boolean headAheadOfTail() {
+		return head==tail+1;
+	}
+	public boolean headGeqTail() {
+		return head >= tail;
+	}
 	protected void reset() {
 		head=tail=exception=0;
 	}
+	public void incHead() {
+		++head;
+	}
+	public boolean exceptionOutstanding() {
+		return head <= exception;
+	}
+	public int head() { return head;}
+	public int tail() { return tail;}
 	
 }
