@@ -87,8 +87,7 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
 	    case X10CastNode.ASYNC_INVOKE: {
 		if (visitor.visitAsyncInvoke(n, context, visitor))
 		    break;
-                // TODO visit place
-//              visitor.visit(n.getChild(0), context, visitor);
+		visitor.visit(n.getChild(0), context, visitor);
                 visitor.visit(n.getChild(1), context, visitor);
                 visitor.leaveAsyncInvoke(n, context, visitor);
 		break;
