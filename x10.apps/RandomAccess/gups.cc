@@ -1,4 +1,4 @@
-#include <assert.h>
+#include  <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,11 +18,11 @@ using namespace std;
     } \
 }
 
-#ifdef  VERIFY
-#define UPDATE(offset, ran) table[offset] ++;
-#else
+//#ifdef  VERIFY
+//#define UPDATE(offset, ran) table[offset] ++;
+//#else
 #define UPDATE(offset, ran) table[offset] ^= ran;
-#endif
+//#endif
 
 typedef unsigned long long u64Int;
 typedef signed long long s64Int;
@@ -143,6 +143,7 @@ void add_to_bucket(int dest, u64Int ran)
 {
     element *e = &bucket[dest];
     deq(e);
+    e->dest = dest;
     e->update[e->count] = ran;
     e->count++;
     push(e);
@@ -156,9 +157,14 @@ void add_to_bucket(int dest, u64Int ran)
         //assert(e->count == maxBucketSize);
 
         nSends++;
+
+        lapi_cntr_t cntr;
+        int tmp;
+        LAPI_Setcntr (hndl, &cntr, 0);
         RC( LAPI_Amsend(hndl, e->dest, (void *)1, NULL, 0,
                     e->update, e->count * sizeof(u64Int),
-                    NULL, NULL, NULL) );
+                    NULL, &cntr, NULL ));
+        LAPI_Waitcntr (hndl, &cntr, 1, &tmp);
 
         deq(e);
         e->count = 0;
@@ -264,10 +270,17 @@ void batch_update(u64Int *value, ulong msg_len)
         value++;
     }
 }
-
+struct comp
+{
+ ulong len;
+ void* buf;
+};
 void complete_update(lapi_handle_t *hndl, void *completion_param)
 {
-    batch_update(update_buffer, (ulong)completion_param);
+    comp* c = (comp*) completion_param;
+    batch_update((u64Int*) (c->buf), c->len); 
+    delete[] c->buf;
+    delete c;
 }
 
 void * receive_update(lapi_handle_t *hndl, void *uhdr, uint *uhdr_len,
@@ -282,8 +295,11 @@ void * receive_update(lapi_handle_t *hndl, void *uhdr, uint *uhdr_len,
     } else {
         ret_info->ret_flags = LAPI_LOCAL_STATE;
         *ucomp = complete_update;
-        *uinfo = (void *)*msg_len;
-        return update_buffer;
+        comp* c = new comp;
+        c->len = *msg_len;
+        c->buf = (void*) new char[*msg_len];
+        *uinfo = (void *) c;
+        return c->buf;
     }
 }
 
@@ -401,13 +417,33 @@ int main(int argc, char *argv[])
                 t*1e-9);
         printf("nSends = %ld, searchCount = %ld\n", nSends, searchCount);
     }
+
 #ifdef VERIFY
+    ran = gups_initialize();
+    for (s64Int i = 0; i < num_updates; i++) {
+        unsigned int dest = ((int) (ran >> log_table_size)) & placeidmask;
+
+        u64Int temp = ran;
+        ran = (ran << 1) ^ ((s64Int)ran < 0 ? POLY : 0);
+        if (dest == my_id) {
+            UPDATE((temp & mask), temp);
+        } else {
+            if (aggregate)
+                add_to_bucket(dest, temp);
+            else
+                send_update(dest, temp);
+        }
+    }
+    if (aggregate)
+        flush_buckets();
+    RC( LAPI_Gfence(hndl) );
     u64Int sum = 0;
     for (ran = 0; ran < table_size; ran++)
         sum += table[ran];
     printf("sum = %lld\n", sum);
+    assert (sum == 0);
 #endif
-
+   
     lapi_terminate();
     return 0;
 }

@@ -5,18 +5,20 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.9 2007-05-23 11:37:04 ganeshvb Exp $ */
+/* $Id: RandomAccess_func.cc,v 1.1 2007-05-23 11:37:04 ganeshvb Exp $ */
 
-#include "RandomAccess_spmd.h"
+#include "RandomAccess_func.h"
 #include "timers.h"
 
-
-void
-inline async0 (async_arg_t arg0)
+struct Async0 {
+inline void operator () (async_arg_t arg0)
 {
   glong_t ran = arg0;
   GLOBAL_SPACE.Table->update (ran);
 }
+};
+
+Async0 async0;
 
 void
 inline async1 (async_arg_t arg0)
@@ -123,10 +125,10 @@ RandomAccess_Dist::Verify (const glong_t LogTableSize, const bool Embarrassing,
        const glong_t temp = ran;
        ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
        if (placeID == here()) async0 (temp);
-       else asyncSpawnInlineAgg (placeID, 0, temp);
+       else asyncSpawnInlineAgg_t<Async0> (placeID, 0, temp);
    }
   
-   asyncFlush (0, 1);
+   asyncFlush_t<1> (0);
 
     Gfence();
 
@@ -222,7 +224,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
 
       assert (UNIQUE->place(placeID) == placeID);
-      asyncSpawnInlineAgg(placeID, 1, temp);
+      asyncSpawnInlineAgg(placeID, 1, 1, temp);
     } 
     asyncFlush(1, 1);
   } else {   
@@ -237,10 +239,9 @@ RandomAccess_Dist::main (x10::array<String>& args)
       glong_t temp = ran;
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
       if (placeID == here()) async0(temp);
-      else asyncSpawnInlineAgg (placeID, 0, temp);
+      else asyncSpawnInlineAgg_t<Async0> (placeID, 0, temp);
     }   
-
-    asyncFlush (0, 1);
+    asyncFlush_t<1> (0);
   }
 
   
@@ -297,15 +298,12 @@ Dist<1>* RandomAccess_Dist::UNIQUE = Dist<1>::makeUnique();
 int RandomAccess_Dist::NUMPLACES = numPlaces();
 int RandomAccess_Dist::PLACEIDMASK = RandomAccess_Dist::NUMPLACES-1;
 
-func_t handlers[] = {(void_func_t) async0,
-                     (void_func_t) async1,
-                     (void_func_t) async2};
-
 extern "C" {
   int ::main (int ac, char* av[])
   {
 
-    Init (handlers, 3); 
+    Init (NULL, 0); 
+    asyncRegister_t<1, Async0>(0);
 
     x10::array<String>* args = x10::convert_args (ac, av);
     

@@ -5,14 +5,14 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.h,v 1.4 2007-05-23 11:37:04 ganeshvb Exp $ */
+/* $Id: RandomAccess_func.h,v 1.1 2007-05-23 11:37:04 ganeshvb Exp $ */
 
 #include <iostream>
 
 #include <x10/x10lib.h>
 #include <x10/array.h>
+#include <x10/aggregate.tcc>
 
-#include <x10/async.h>
 
 #include "x10lang.h"
 #include "x10lang.cc"
