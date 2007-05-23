@@ -44,7 +44,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 		    // be pessimistic
 		    result= new DeclaredTypeOperator(BOTTOM);
 		} else {
-		    result= new DeclaredTypeOperator(new ConeType(klass, cha));
+		    result= new DeclaredTypeOperator(new ConeType(klass));
 		}
 	    } else {
 		result= null;
@@ -57,7 +57,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    TypeReference type= TypeReference.JavaLangObject;
 	    IClass klass= cha.lookupClass(type);
 
-	    result= new DeclaredTypeOperator(new ConeType(klass, cha));
+	    result= new DeclaredTypeOperator(new ConeType(klass));
 	}
 
 	public void visitRegionIterHasNext(SSARegionIterHasNextInstruction instruction) {
@@ -70,7 +70,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    TypeReference type= X10TypeReference.x10LangPoint;
 	    IClass klass= cha.lookupClass(type);
 
-	    result= new DeclaredTypeOperator(new PointType(klass, cha));
+	    result= new DeclaredTypeOperator(new PointType(klass));
 	}
 
 	public void visitHere(SSAHereInstruction instruction) {
@@ -78,7 +78,7 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	    TypeReference type= X10TypeReference.x10LangPlace;
 	    IClass klass= cha.lookupClass(type);
 
-	    result= new DeclaredTypeOperator(new ConeType(klass, cha));
+	    result= new DeclaredTypeOperator(new ConeType(klass));
 	}
     }
 
