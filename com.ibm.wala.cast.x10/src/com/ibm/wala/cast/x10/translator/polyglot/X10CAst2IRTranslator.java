@@ -4,6 +4,7 @@
 package com.ibm.domo.ast.x10.translator.polyglot;
 
 import com.ibm.domo.ast.x10.ssa.AsyncCallSiteReference;
+import com.ibm.domo.ast.x10.ssa.AsyncInvokeInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAFinishInstruction;
 import com.ibm.domo.ast.x10.ssa.SSAForceInstruction;
@@ -15,7 +16,6 @@ import com.ibm.domo.ast.x10.visit.X10CAstVisitor;
 import com.ibm.wala.cast.ir.translator.AstTranslator.DefaultContext;
 import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
-import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
 import com.ibm.wala.cast.tree.CAstEntity;
@@ -112,17 +112,19 @@ public class X10CAst2IRTranslator extends X10CAstVisitor {
     protected void leaveAsyncInvoke(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
 	CAstEntity bodyEntity = (CAstEntity) n.getChild(1).getChild(0).getValue();
+	CAstNode placeExpr = n.getChild(0);
 	// Figure out whether this is a future or an async
 	int exceptValue = context.currentScope().allocateTempValue();
 	AsyncCallSiteReference acsr = new AsyncCallSiteReference(asyncEntityToMethodReference(bodyEntity), context.cfg().getCurrentInstruction());
         int rcvrValue = translator.getValue(n.getChild(1));
+        int placeValue = translator.getValue(placeExpr);
 
 	if (((CAstType.Function) bodyEntity.getType()).getReturnType() == JavaPrimitiveTypeMap.VoidType)
-	    context.cfg().addInstruction(new AstJavaInvokeInstruction(new int[] { rcvrValue }, exceptValue, acsr));
+	    context.cfg().addInstruction(new AsyncInvokeInstruction(new int[] { rcvrValue }, exceptValue, acsr, placeValue));
 	else {
 	    int retValue = context.currentScope().allocateTempValue();
 
-	    context.cfg().addInstruction(new AstJavaInvokeInstruction(retValue, new int[] { rcvrValue }, exceptValue, acsr));
+	    context.cfg().addInstruction(new AsyncInvokeInstruction(retValue, new int[] { rcvrValue }, exceptValue, acsr, placeValue));
 	    translator.setValue(n, retValue);
 	}
     }
