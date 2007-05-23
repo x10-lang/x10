@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: aggregate.h,v 1.1 2007-05-17 09:48:52 ganeshvb Exp $ */
+/* $Id: aggregate.h,v 1.2 2007-05-23 11:35:56 ganeshvb Exp $ */
 
 #ifndef __AGGREGATE_H__
 #define __AGGREGATE_H__
@@ -13,7 +13,8 @@
 #include <iostream>
 #include "x10/assert.h"
 #include <x10/err.h>
-
+#include <x10/types.h>
+#include <x10/async.h>
 
 namespace x10lib{
  
@@ -21,24 +22,16 @@ namespace x10lib{
   const int MAX_TASKS = 64;
   const int AGG_LIMIT = 1024;
 
-  typedef void (*async_funcp_t)(async_arg_t*, int);
- 
-  template<int N, typename F>
-  error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, ...);
+  error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_t arg0);
 
-  template <int N, typename F>
-  error_t flush (async_handler_t handler);
+  error_t asyncFlush (async_handler_t handler, int N);
+
+  error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, int N,...);
+
+  error_t asyncRegisterAgg();
 }
 
-#if FUNCTOR==1
-#include "aggregate_func.tcc"
-#else 
-#include "aggregate_fptr.tcc"
 #endif
-
-#endif
-
-
 // Local Variables:
 // mode: C++
 // End:

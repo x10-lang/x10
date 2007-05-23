@@ -4,7 +4,7 @@
 make all;
 
 export MP_MSG_API=lapi
-export MP_EUILIB=ip
+export MP_EUILIB=us
 
 echo "Syntax: ./run.sh <numprocs> <hostfile>"
 
