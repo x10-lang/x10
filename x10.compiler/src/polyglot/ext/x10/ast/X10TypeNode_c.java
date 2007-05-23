@@ -115,7 +115,6 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         }
         else {
         	// If we're not in an annotation, the expression is sugar for a @where annotation.
-        	
         	Constraint newParameter = dep == null ? null : eval.constraint(me.dep().condition());
         	// TODO: Fold in the args as well.
         	
@@ -157,7 +156,8 @@ public class X10TypeNode_c extends TypeNode_c implements X10TypeNode {
         
         boolean inAnnotation = ((X10Context) tc.context()).inAnnotation();
     	
-        if (inAnnotation) {
+        // XXX annotations: we don't allow arbitrary expressions yet 
+        if (false && inAnnotation) {
         	// If in an annotation, we allow arbitrary expressions.
 
            //assert argType.isRootType();
