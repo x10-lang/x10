@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.4 2007-05-17 09:48:52 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.5 2007-05-23 11:35:56 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
@@ -61,7 +61,8 @@ x10lib::Init(func_t *handlers, int n)
   //Set the handlerTable to handlers 
   handlerTable = handlers;
 
-
+  asyncRegister();
+  asyncRegisterAgg();
 
   LAPI_Gfence (hndl); 
   return X10_OK;
