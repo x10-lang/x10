@@ -13,9 +13,10 @@ import java.util.concurrent.Future;
 public abstract class Job extends Closure implements Future {
 	public volatile int result;
 	public int resultInt() { return result;}
-	static class JobFrame extends Frame {
+	public static class JobFrame extends Frame {
 		
-		int PC,x;
+		volatile public int PC;
+		public int x;
 		public JobFrame() {
 			super();
 		}
@@ -24,61 +25,69 @@ public abstract class Job extends Closure implements Future {
 			return null;
 		}
 		public void setOutletOn(final Closure c) {
+			if (false && Worker.reporting) {
+				System.out.println(Thread.currentThread() + ": " + this + " sets outlet on " + c);
+			}
 			c.setOutlet(
 					new Outlet() {
+						
 						public void run() {
-							x = c.resultInt();
-						}});
+							JobFrame f = (JobFrame) c.parentFrame();
+							int v = c.resultInt();
+							if (false && Worker.reporting)
+								System.out.println(Thread.currentThread() + " " + this 
+										+ " sets x on " + f + " to " + v);
+							f.x = v;
+						}
+						public String toString() { return "OutletInto x from " + c;}
+						});
 		}
 		public String toString() {
-			return "MainFrame(" + PC + ", " + x+")";
+			return "JobFrame(#" + hashCode() + " " + x + ", PC=" + PC+")";
 		}
 	}
 	final Pool pool;
 	public Job(Pool pool) {
-		super();
+		super(new JobFrame());
 		this.pool=pool;
 		parent = null;
 		joinCount=0;
 		status = READY;
-		frame = new JobFrame();
+		
 	}
 	public static final int LABEL_1=1, LABEL_2=2, LABEL_3=3;
 	@Override
 	protected void compute(Worker w, Frame frame) {
 		JobFrame f = (JobFrame) frame;
-	
+		
 		if (f.PC!=LABEL_1 && f.PC!=LABEL_2) {
 			f.PC=LABEL_1;
 			// spawning
-			int x = spawnTask(w);
-			Closure c = w.popFrameCheck();
-			if (c !=null) {
-				if (w.lastFrame())
-				((Job) c).result = x;
+			try {
+				int x = spawnTask(w);
+				if (w.popFrameCheck(x)) return;
+				f.x=x;
+			} catch (StealAbort z) {
+				
 				return;
 			}
-			f.x=x;
 		}
-		
-		if (f.PC <= LABEL_2) {
-			f.PC=LABEL_3;
+		if (f.PC < LABEL_2) {
+			f.PC=LABEL_2;
 			if (sync()) {
 				return;
 			}
 		}
 		result=f.x;
-		synchronized (lock) {
-			lock.notifyAll();
-		}
 		setupReturn();
 		return;
 	}
 	
-	abstract public int spawnTask(Worker ws);
+	abstract public int spawnTask(Worker ws) throws StealAbort;
 	public void completed() {
+		super.completed();
+		//System.out.println("Completed " + this + " result=" + result);
         synchronized(this) {
-        	done= true;
             notifyAll();
         }
         pool.jobCompleted();

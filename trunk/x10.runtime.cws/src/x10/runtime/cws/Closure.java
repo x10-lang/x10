@@ -40,13 +40,15 @@ import java.util.ArrayList;
 public abstract class Closure  {
 
 	protected volatile Cache cache;
-	public Frame frame;
+	final public  Frame frame;
 	protected Closure parent;
 	protected volatile ClosureStatus status;
 	protected ReentrantLock lock;
 	protected Worker lockOwner;
-	protected int joinCount;
-	
+	protected volatile int joinCount;
+	protected volatile int result;
+	public Frame parentFrame() { return parent.frame;}
+	public Closure parent() { return parent;}
 	/**
 	 * Inlets are not represented explicitly as separate pieces of code --
 	 * they will be once we figure out if we want to support them. (We 
@@ -63,8 +65,9 @@ public abstract class Closure  {
 	
 	protected ClosureStatus status() { return status;}
 	
-	protected Closure() {
+	protected Closure(Frame frame) {
 		super();
+		this.frame = frame;
 		lock = new ReentrantLock();
 		initialize();
 	}
@@ -133,20 +136,20 @@ public abstract class Closure  {
 		assert ownerReadyQueue == victim;
 		assert victim.lockOwner == thief;
 		assert nextReady==null;
-		assert cache.head <= cache.exception;
+		assert cache.exceptionOutstanding();
 
-		Frame f = cache.childFrame();
-		Closure child = f.makeClosure();
-		Frame p = cache.topFrame();
-		p.setOutletOn(child);
+		Frame childFrame = cache.childFrame();
+		Closure child = childFrame.makeClosure();
+		Frame parentFrame = cache.topFrame();
+		parentFrame.setOutletOn(child);
 		
 		child.parent = this;
 		child.joinCount = 0;
 		child.cache = cache;
 		child.status = RUNNING;
-		child.frame = f;
 		child.ownerReadyQueue=null;
-		++child.cache.head;
+		cache.incHead();
+		
 		
 		victim.addBottom(thief, child);
 		return child;
@@ -185,13 +188,21 @@ public abstract class Closure  {
 		
 		incrementExceptionPointer(thief);
 		Cache c = cache;
-		int tail = c.tail;
-		int head = c.head;
+		int tail = c.tail();
+		int head = c.head();
 		if ((head + 1) >= tail) {
 			decrementExceptionPointer(thief);
 			return false;
 		}
 		// so there must be at least two elements in the framestack for a theft.
+		if ( Worker.reporting) {
+			//int temp = head;
+			//temp=tail;
+			//temp=c.exception;
+			System.out.println(thief + " has found a victim." );
+			//System.out.println(thief + " has found a victim (" 
+			//		+ cache.owner +") h=" + head + " t=" + tail + " e="+ c.exception);
+		}
 		return true;
 	}
     
@@ -212,17 +223,22 @@ public abstract class Closure  {
     	 assert lockOwner==ws;
     	 cache.resetExceptionPointer();
      }
-    boolean handleException(Worker ws) {
+    boolean handleException(Worker ws, int value) {
     	resetExceptionPointer(ws);
     	ClosureStatus s = status;
     	assert s == RUNNING || s == RETURNING;
-    	//assert (cache.head >= cache.tail);
-    	// Other kinds of exceptions are not being handled now.
-    	// a steal has happened.
-    	status = RETURNING;
-    	// The result is going to be moved to the desired location
-    	// by application code. 
-    	return true;
+    	if (cache.headGeqTail()) {
+    		if (joinCount != 0) {
+        		System.out.println(ws + "Errror!!!" + this + " has joinCount " + joinCount + " and is returning!");
+        		System.out.println(ws + "parent=" + this.parent);
+        		
+        	}
+    		assert joinCount==0;
+    		status = RETURNING;
+        	result = value;
+        	return true;
+    	}
+    	return false;
     	
     }
   
@@ -243,40 +259,49 @@ public abstract class Closure  {
      private Closure closureReturn(Worker ws) {
     	
     	assert (joinCount==0);
-    	assert (status == RETURNING);
     	assert (ownerReadyQueue==null);
     	assert (lockOwner != ws);
-    	
+    	completed();
     	Closure parent = this.parent;
     	if (parent == null) {
     		// Must be a top level closure.
-    		completed();
+    		if (false && Worker.reporting) {
+    			System.out.println(ws + " returning from orphan " + this + ".");
+    		}
     		return null;
     	}
-    	assert (parent != null);
-    	
-    	parent.lock(ws);
+    	return parent.acceptChild(ws, this);
+     }
+     
+     private Closure acceptChild(Worker ws, Closure child) {
+    	lock(ws);
     	try {
-    		assert parent.status != RETURNING;
-    		assert parent.frame != null;
-    		parent.removeChild(this);
-    		lock(ws);
-    		parent.completeAndEnque( ws, this);
+    		assert status != RETURNING;
+    		assert frame != null;
+    		removeChild(child);
+    		--joinCount;
+    		child.lock(ws);
+    		completeAndEnque( ws, child);
     		try {
-    			if (parent.status == RUNNING) {
-    				parent.signalImmediateException(ws);
+    			/*if (status == RUNNING) {
+    				signalImmediateException(ws);
+    				if (Worker.reporting) {
+    					System.out.println(ws + " signaling immediate exception to " + this);
+    				}
     			} else
-    				parent.pollInlets(ws);
+    				pollInlets(ws);
     			// Is a fence() needed?
-    			--parent.joinCount;
-    			return parent.provablyGoodStealMaybe(ws);
+    			*/
+    			if (false && Worker.reporting) {
+					System.out.println(ws + " decrements " + this + ".joincount to " + joinCount);
+				}
+    			return provablyGoodStealMaybe(ws, child);
     		} finally {
-    			unlock();
+    			child.unlock();
     		}
     		
     	} finally {
-    		parent.unlock();
-    		completed();
+    		unlock();
     	}
     	// The child should be garbage at this point.
     }
@@ -293,6 +318,7 @@ public abstract class Closure  {
     	assert status == RUNNING;
     	
     	status = SUSPENDED;
+    	
     	// throw away the bottommost closure on the worker.
     	// the only references left to this closure are from
     	// its children.
@@ -312,18 +338,23 @@ public abstract class Closure  {
      * value of a child
      * @return parent or null
      */
-    private Closure provablyGoodStealMaybe(Worker ws) {
+    private Closure provablyGoodStealMaybe(Worker ws, Closure child) {
     	
-    	assert lockOwner==ws;
+    	assert child.lockOwner==ws;
     	//assert parent != null;
     	
     	Closure result = null;
-    	if (parent != null && parent.joinCount==0 &&parent.status == SUSPENDED) {
-    		result = parent;
-    		parent.pollInlets(ws);
-    		parent.ownerReadyQueue =null;
-    		parent.makeReady();
-    	}
+    	
+    	if (joinCount==0 && status == SUSPENDED) {
+    		result = this;
+    		pollInlets(ws);
+    		ownerReadyQueue =null;
+    		makeReady();
+    		if (false && Worker.reporting) {
+    			System.out.println(ws + " awakens " + this);
+    		}
+    	} 
+    	
     	return result;
     }
 	
@@ -460,7 +491,7 @@ public abstract class Closure  {
 			try {
 				assert status==RUNNING;
 				status=RETURNING;
-				frame=null;
+				//frame=null;
 				ws.popFrame();
 			} finally {
 				unlock();
@@ -495,7 +526,12 @@ public abstract class Closure  {
 	public boolean isDone() { return done;}
 	
 	public RuntimeException getException() { return null;}
-	public void completed() {}
+	public void completed() {
+		done = true;
+		
+	}
+	public void setResultInt(int x) {}
+	
 	
 
 }
