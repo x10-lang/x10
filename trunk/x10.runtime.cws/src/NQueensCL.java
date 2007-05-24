@@ -1,15 +1,19 @@
 
-
+/**
+ * Uses a long to represent a chess board in order to see how the app performs
+ * if excessive garbage is not created. The leftmost nibble represents
+ * the queen in row 1. A zero in row i means the queen has not yet been placed.
+ */
 import x10.runtime.cws.*;
 
-public class NQueensC extends Closure {
+public class NQueensCL extends Closure {
 	
 	static int boardSize;
-	public static final StealAbort abort = new StealAbort();
 	
 	public static final int[] expectedSolutions = new int[] {
 		0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200,
 		73712, 365596, 2279184, 14772512};
+
 	
 	public static void main(String[] args) throws Exception {
 		int procs;
@@ -22,12 +26,12 @@ public class NQueensC extends Closure {
 			return;
 		}
 		Pool g = new Pool(procs);
-		for (int i = 25; i < 26; i++) {
+		for (int i = 1; i < 16; i++) {
 			boardSize = i;
 			Job job = new Job(g) {
 				@Override
 				public int spawnTask(Worker ws) throws StealAbort { 
-					return nQueens(ws, new int[]{});
+					return nQueens(ws, 0L,1);
 				}
 				public String toString() { return "Job(NQ,#" + hashCode()+")";}
 			};
@@ -37,7 +41,7 @@ public class NQueensC extends Closure {
 			int result = job.getInt();
 			long t = System.nanoTime();
 			System.out.println("Result:" + i + " " + (t-s)/1000000 
-					+ " " + result );//+ " " + (result==expectedSolutions[i]?"ok" : "fail") );
+					+ " " + result + " " + (result==expectedSolutions[i]?"ok" : "fail") );
 		}
 		g.shutdown();    
 	}
@@ -45,22 +49,22 @@ public class NQueensC extends Closure {
 	// Boards are represented as arrays where each cell 
 	// holds the column number of the queen in that row
 	
-	NQueensC(NFrame f) { 
+	NQueensCL(NFrame f) { 
 		super(f);
 	}
 	public static class NFrame extends Frame {
-		final int[] sofar;
+		final long sofar;
+		final int row;
 		volatile int q;
 		int sum;
-		@Override
-		public void setOutletOn(final Closure c) {
+		@Override public void setOutletOn(final Closure c) {
 			c.setOutlet(
 					new Outlet() {
 						public void run() {
 							NFrame f = (NFrame) c.parentFrame();
 							int value = c.resultInt();
 							f.sum += value;
-							if (Worker.reporting) {
+							if (true || Worker.reporting) {
 								System.out.println(Thread.currentThread() + " --> " + value
 										+ " into " + c.parent() + " from " + c);
 							}
@@ -69,53 +73,82 @@ public class NQueensC extends Closure {
 					});
 		}
 		public Closure makeClosure() {
-			Closure c = new NQueensC(this);
+			Closure c = new NQueensCL(this);
 			return c;
 		}
-		public NFrame(int[] a) { sofar=a;}
+		public NFrame(long a, int r) { sofar=a;row=r;}
 		public String toString() { 
 			String s="[";
-			for (int i=0; i < sofar.length; i++) s += sofar[i]+","; 
+			for (int i=0; i < 8; i++) s += (sofar & masks[i])  +","; 
 			return "NF(" + s + "],q="  + q + ",sum=" + sum+")";
 		}
 	}
 	public static final int LABEL_0=0, LABEL_1=1, LABEL_2=2, LABEL_3=3;
-
-	int result;
-	@Override
-	public void setResultInt(int x) { result=x;}
-	@Override
-	public int resultInt() { return result;}
+	public static final int[] shifts = {0/*dummy*/, 60,56,52,48,44,40,36,32,28,24,20,16,12,8,4,0};
 	
-	public static int nQueens(Worker w, int[] a) throws StealAbort {
-		final int row = a.length;
-		if (row >= boardSize) {
+	public static final long[] masks = { //1 indexed.
+		0x0,
+		((long) 0xF)<< shifts[1],
+		((long) 0xF)<< shifts[2],
+		((long) 0xF)<< shifts[3],
+		((long) 0xF)<< shifts[4],
+		((long) 0xF)<< shifts[5],
+		((long) 0xF)<< shifts[6],
+		((long) 0xF)<< shifts[7],
+		((long) 0xF)<< shifts[8],
+		((long) 0xF)<< shifts[9],
+		((long) 0xF)<< shifts[10],
+		((long) 0xF)<< shifts[11],
+		((long) 0xF)<< shifts[12],
+		((long) 0xF)<< shifts[13],
+		((long) 0xF)<< shifts[14],
+		((long) 0xF)<< shifts[15],
+		((long) 0xF)<< shifts[16]
+	};
+	int result;
+	@Override public void setResultInt(int x) { result=x;}
+	@Override public int resultInt() { return result;}
+	
+	static String board(long l) {
+		StringBuffer s = new StringBuffer("[");
+		for (int i=1; i <=boardSize-1; i++) s.append(Integer.toString(atRow(l,i))).append(",");
+		return s.append(Long.toString(l&masks[boardSize])).append("]").toString();
+	}
+ 
+	static int atRow(long board, int c) { 
+		assert 1<=c && c <= boardSize;
+		return (int) ((board & masks[c]) >>> shifts[c]);
+	}
+	public static int nQueens(Worker w, long a, int row) throws StealAbort {
+		//System.out.println(w + " nQueens board="+ board(a) + " row=" + row);
+		if (row > boardSize) {
+			//System.out.println("Success!");
 			return 1;
 		}
-		NFrame frame = new NFrame(a);
+		NFrame frame = new NFrame(a,row);
 		frame.q=1;
 		frame.sum=0;
 		frame.PC=LABEL_1;
 		w.pushFrame(frame);
 		int sum=0;
-		int q=0;
-		while (q < boardSize) {
+		int q=1;
+		while (q <= boardSize) {
 			boolean attacked = false;
-			for (int i = 0; i < row && ! attacked; i++) {
-				int p = a[i];
+			for (int i = 1; i < row && ! attacked; i++) {
+				int p = atRow(a,i);
 				attacked = (q == p || q == p - (row - i) || q == p + (row - i));
+				/*System.out.println(w + " Queen row=" + row + " col=" + q
+						+ " is" + (attacked? "" : " not") + " attacked"
+						+ " by queen row=" + i + "col= " + p+".");*/
 			}
 			if (!attacked) { 
-				int[] next = new int[row+1];
-				for (int k = 0; k < row; ++k) 
-					next[k] = a[k];
-				next[row] = q;
-				
-				final int y = nQueens(w, next);
+				long next = a | (((long) q) << shifts[row]);
+				//System.out.println(w + " Placing queen at " + q + " yields " + board(next));
+				final int y = nQueens(w, next,row+1);
 				Closure c = w.popFrameCheck();
 				if (c!=null) {
 					c.setResultInt(y);
-					throw abort;
+					throw StealAbort.abort;
 				}
 				sum +=y;
 				frame.sum +=y;
@@ -129,8 +162,8 @@ public class NQueensC extends Closure {
 	}
 	public void compute(Worker ws, Frame frame) {
 		NFrame f = (NFrame) frame;
-		final int[] a = f.sofar;
-		int row = a.length;
+		final long a = f.sofar;
+		int row = f.row;
 		
 		switch (f.PC) {
 		case LABEL_0:
@@ -142,28 +175,23 @@ public class NQueensC extends Closure {
 		case LABEL_1: 
 			int q=f.q;
 			int sum=0;
-			while (q < boardSize) {
+			while (q <= boardSize) {
 				f.q =q+1;
 				boolean attacked = false;
-				for (int i = 0; i < row && ! attacked; i++) {
-					int p = a[i];
+				for (int i = 1; i < row && ! attacked; i++) {
+					int p = atRow(a,i);
 					attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 				}
 				if (!attacked) { 
-					int[] next = new int[row+1];
-					for (int k = 0; k < row; ++k) 
-						next[k] = a[k];
-					next[row] = q;
+					long next = a | (((long) q) << shifts[row]);
 					try {
-						int y= nQueens(ws, next);
+						int y= nQueens(ws, next,row+1);
 						Closure c = ws.popFrameCheck();
 						if (c!=null) {
 							c.setResultInt(y);
 							return;
 						}
 						sum += y;
-						// this cannot be f.sum=y. f.sum may have been updated by other
-						// joiners in the meantime.
 						f.sum +=y;
 					} catch (StealAbort z) {
 						return;

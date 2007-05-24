@@ -2,7 +2,7 @@
 import x10.runtime.cws.Closure;
 import x10.runtime.cws.Frame;
 import x10.runtime.cws.Job;
-import x10.runtime.cws.Outlet;
+import x10.runtime.cws.Closure.Outlet;
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.Worker;
 import x10.runtime.cws.StealAbort;

@@ -1,9 +1,8 @@
 package x10.runtime.cws;
 
 
-import static x10.runtime.cws.ClosureStatus.*;
+import static x10.runtime.cws.Closure.Status.*;
 
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;

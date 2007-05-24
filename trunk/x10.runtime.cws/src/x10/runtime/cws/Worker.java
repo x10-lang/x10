@@ -12,8 +12,8 @@ package x10.runtime.cws;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-
-import static x10.runtime.cws.ClosureStatus.*;
+import static x10.runtime.cws.Closure.Status;
+import static x10.runtime.cws.Closure.Status.*;
 
 /**
  * The worker for Cilk-style work stealing. Instances of this worker
@@ -122,7 +122,7 @@ public class Worker extends Thread {
 			unlock();
 			throw new Error(z);
 		}
-		ClosureStatus status = null;
+		Status status = null;
 		try {
 			status = cl.status();
 		} catch (Throwable z) {

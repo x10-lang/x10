@@ -9,7 +9,7 @@ package x10.runtime.cws;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 
-import static x10.runtime.cws.ClosureStatus.*;
+import static x10.runtime.cws.Closure.Status.*;
 
 
 
