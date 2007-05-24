@@ -14,8 +14,6 @@ public abstract class Job extends Closure implements Future {
 	public volatile int result;
 	public int resultInt() { return result;}
 	public static class JobFrame extends Frame {
-		
-		volatile public int PC;
 		public int x;
 		public JobFrame() {
 			super();
@@ -25,19 +23,15 @@ public abstract class Job extends Closure implements Future {
 			return null;
 		}
 		public void setOutletOn(final Closure c) {
-			if (false && Worker.reporting) {
-				System.out.println(Thread.currentThread() + ": " + this + " sets outlet on " + c);
-			}
 			c.setOutlet(
 					new Outlet() {
-						
 						public void run() {
 							JobFrame f = (JobFrame) c.parentFrame();
 							int v = c.resultInt();
-							if (false && Worker.reporting)
-								System.out.println(Thread.currentThread() + " " + this 
-										+ " sets x on " + f + " to " + v);
 							f.x = v;
+							if (Worker.reporting)
+								System.out.println(Thread.currentThread() + " transfers "
+										+ v + " to " + f +".x from " + c);
 						}
 						public String toString() { return "OutletInto x from " + c;}
 						});
@@ -59,34 +53,39 @@ public abstract class Job extends Closure implements Future {
 	@Override
 	protected void compute(Worker w, Frame frame) {
 		JobFrame f = (JobFrame) frame;
-		
-		if (f.PC!=LABEL_1 && f.PC!=LABEL_2) {
+		switch (f.PC) {
+		case 0: 
 			f.PC=LABEL_1;
 			// spawning
 			try {
 				int x = spawnTask(w);
-				if (w.popFrameCheck(x)) return;
+				Closure c = w.popFrameCheck();
+				if (c !=null) {
+					c.setResultInt(x);
+					return;
+				}
 				f.x=x;
 			} catch (StealAbort z) {
-				
 				return;
 			}
-		}
-		if (f.PC < LABEL_2) {
+			
+		case 1: 
 			f.PC=LABEL_2;
-			if (sync()) {
+			if (sync(w)) {
 				return;
 			}
+		case 2: 
+			result=f.x;
+			setupReturn();
 		}
-		result=f.x;
-		setupReturn();
 		return;
 	}
 	
 	abstract public int spawnTask(Worker ws) throws StealAbort;
 	public void completed() {
 		super.completed();
-		//System.out.println("Completed " + this + " result=" + result);
+		if (Worker.reporting)
+			System.out.println(Thread.currentThread() + " completed. result=" + result);
         synchronized(this) {
             notifyAll();
         }
