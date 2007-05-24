@@ -146,7 +146,7 @@ Return values:
 NbGet
 -----
 
-Purpose: Non-blocing transfer of data from a remote node to the local node.
+Purpose: Non-blocking transfer of data from a remote node to the local node.
 
 Library: libx10.a
 
@@ -181,7 +181,7 @@ Parameters:
 
 Description:
 
-	Non-blocing fetch of n contiguous bytes from src address on a remote node
+	Non-blocking fetch of n contiguous bytes from src address on a remote node
 	to the dest address on the local node.
 	This method is internally implemented by an RDMA if possible.
 	The call progresses independently of any other calls made to the X10Lib by
@@ -245,7 +245,7 @@ Return values:
 NbPut
 -----
 
-Purpose: Non-blocing transfer of data from the local node to a remote node.
+Purpose: Non-blocking transfer of data from the local node to a remote node.
 
 Library: libx10.a
 
@@ -280,7 +280,7 @@ Parameters:
 
 Description:
 
-	Non-blocing write of n contiguous bytes from src address on the local node
+	Non-blocking write of n contiguous bytes from src address on the local node
 	to the dest address on a remote node.
 	This method is internally implemented by an RDMA if possible.
 	The call progresses independently of any other calls made to the X10Lib by
@@ -345,7 +345,7 @@ Return values:
 NbGetV
 ------
 
-Purpose: Non-blocing transfer of vector data from a remote node to the local node.
+Purpose: Non-blocking transfer of vector data from a remote node to the local node.
 
 Library: libx10.a
 
@@ -438,7 +438,7 @@ Return values:
 NbPutV
 ------
 
-Purpose: Non-blocing transfer of vector data from the local node to a remote node.
+Purpose: Non-blocking transfer of vector data from the local node to a remote node.
 
 Library: libx10.a
 
@@ -1070,40 +1070,65 @@ Return values:
 09) Active messages
 -------------------
 
-Purpose: Transfer user message to a remote task, obtaining the target address
-		 on the remote task from the user specified header handler.
+Purpose: Execute an user specified method on the remote task.
 
 Library: libx10.a
 
 C++ syntax:
 
-error_t x10lib::asyncSpawnInline<N, T>(dest, ...)
+error_t 
+x10lib::asyncSpawnInline (dest, handler, n, args);
+error_t
+x10lib::asyncSpawnInline (dest, handler, arg0);
+error_t
+x10lib::asyncSpawnInline (dest, handler, arg0, arg1);
 	place_t dest;
-        int N;
-        struct T; 
-
-T is a struct with operator () defined. The type of T should be:
-  struct T {
-   void operator() (async_arg_t*, int n);
-  }; 
-
-C syntax:
-
-error_t x10_asyncSpawnInline(dest, n, f, ...)
-	place_t dest;
-	int n;
-	async_func_t* f;
+        async_handler_t handler;
+        int n;
+        async_arg_t* args;
+        async_arg_t arg0;
+        async_arg_t arg1;
 
 Parameters:
 
 	INPUT
 	dest	Specifies the remote node id.
-	n	Specifies the number of arguments to the remote method routine (C only).
-        f       Specifies the pointer to the remote method (C only).
+	n	Specifies the number of arguments to the remote method routine.
+        handler Specifies the remote method by a unique constant number. It is
+                the users responsibility to create this unique number for every
+                remote method.
+        args    Specifies an array of arguments. For simplicity, different version
+                of asyncSpawnInline that take different number of remote method
+                arguments are defined.
 
 Description:
 
-	Use this method/function to execute a method in remote node.
+	Use this method/function to execute another method in remote node. The 
+        function just passes the handler to the remote node and invokes
+        the user defined function asyncSwitch, which has the following
+        prototype.
+     
+        error_t asyncSwitch (async_handler_t handler, async_arg_t* args, int niter);
+
+        The body of the asyncSwitch should invoke the remote method corresponding to
+        the handler and repeat it niter times. For non-aggregate asyncs, niter is 1.
+        asyncSwitch should be declared in the user program. Typically, the body of
+        asyncSwitch is of the following from:
+
+        error_t 
+        asyncSwitch (async_handler_t handler, async_arg_t* args, int niter) 
+        {
+          for (int i = 0; i < niter; i ++)
+            switch (handler) {
+              case 0 : 
+                async0 (*args++);
+                break;
+              case 1 :
+                async1 (*args++, *args++)
+                break;
+              ....
+            }
+        }
 
 Return values:
 
@@ -1111,9 +1136,7 @@ Return values:
 	X10_ERR_LAPI	Error from the underlying communication system.
 
 Note:
-      The C++ interface will be changed soon to match the C interface.
-
-
+    
 Aggregation:
 -----------
 
@@ -1124,81 +1147,67 @@ Purpose:  Enqueue the active messages and execute them as an aggregate
 
 Library: libx10.a
 
-C++ syntax:
+C++ Syntax:
 
-error_t x10lib::asyncSpawnInlineAgg<N, T>(dest, int handle, ...)
+error_t 
+x10lib::asyncSpawnInlineAgg (dest, handler, n, args);
+error_t
+x10lib::asyncSpawnInlineAgg (dest, handler, arg0);
+error_t
+x10lib::asyncSpawnInlineAgg (dest, handler, arg0, arg1);
 	place_t dest;
-        int handle;
-        int N;
-        struct T; 
-
-
-T is a struct with operator () defined. The type of T should be:
-  struct T {
-   void operator() (async_arg_t*, int n);
-  }; 
-
-C syntax:
-
-error_t x10_asyncSpawnInlineAgg(dest, n, f, int handle,...)
-	place_t dest;
-	int n;
-	async_func_t* f;
-        int handle;
+        async_handler_t handler;
+        int n;
+        async_arg_t* args;
+        async_arg_t arg0;
+        async_arg_t arg1;
 
 Parameters:
 
 	INPUT
 	dest	Specifies the remote node id.
-	n	Specifies the number of arguments to the remote method (C only).
-        f       Specifies the pointer to the remote method  (C only).
-        handle  Specifies an unique handle for the remote method.
-                The handle is required because the aggregation is performed
-                for a given remote method. It is the users responsibility to 
-                ensure that the handle is unique. If it is not, the result is un-predictable.
+	n	Specifies the number of arguments to the remote method routine.
+        handler Specifies the remote method by a unique constant number. It is
+                the users responsibility to create this unique number for every
+                remote method.
+        args    Specifies an array of arguments. For simplicity, different version
+                of asyncSpawnInlineAgg that take different number of remote method
+                arguments are defined.
+
 Description:
 
-	Use this method/function to execute a method in remote node.
+          The requirements are the same as asyncSpawnInline. Users should define asyncSwitch in his program.
 
 Return values:
 
 	X10_OK		Indicates the method/function call completed successfully.
 	X10_ERR_LAPI	Error from the underlying communication system.
 
-Note:
-     The C++ interface will be changed soon to match the C interface.
-
 Flush
 -----
-Purpose : Flush all the oustanding aggreagted active messages. 
+Purpose : Flush all the outstanding aggregated active messages. 
 
 C++ Syntax:
 
-error_t x10lib::flush<N, T>(handle)
-        int handle;
-        int N;
-        struct T; 
-
-C Syntax:
-
-error_t x10_flush(n, handle)
+error_t 
+x10lib::asyncflush (handle, n)
+        async_handler_t handle;
         int n;
-        struct T f;
-        int handle;
 
 Parameters:
   
         INPUT
 
-	n	Specifies the number of arguments to the active message routine. (C only)
         handle  Specifies the handle of the active message to be flushed.
-                It is solely the user's responsiblity to provide the same
+                It is solely the user's responsibility to provide the same
                 handle as that used by asyncSpawnInlineAgg. Failure to do so
                 will lead to un-predictable results.
+	n	Specifies the number of arguments to the  remote method.
 
 Description:
 
 	Use this method/function to flush all the outstanding aggregated active messages.
+        Typically, a call to a flush is performed before Gfence(). 
 
 Return values:
 
@@ -1206,7 +1215,6 @@ Return values:
 	X10_ERR_LAPI	Error from the underlying communication system.
 
 Note:
-     The C++ interface will be changed soon to match the C interface.
 
 10) Environment
 ---------------
