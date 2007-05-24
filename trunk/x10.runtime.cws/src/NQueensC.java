@@ -22,7 +22,7 @@ public class NQueensC extends Closure {
 			return;
 		}
 		Pool g = new Pool(procs);
-		for (int i = 25; i < 26; i++) {
+		for (int i = 1; i < 16; i++) {
 			boardSize = i;
 			Job job = new Job(g) {
 				@Override
@@ -37,7 +37,7 @@ public class NQueensC extends Closure {
 			int result = job.getInt();
 			long t = System.nanoTime();
 			System.out.println("Result:" + i + " " + (t-s)/1000000 
-					+ " " + result );//+ " " + (result==expectedSolutions[i]?"ok" : "fail") );
+					+ " " + result + " " + (result==expectedSolutions[i]?"ok" : "fail") );
 		}
 		g.shutdown();    
 	}
