@@ -37,13 +37,13 @@ import java.util.ArrayList;
  */
 public class Closure  {
 
-	protected volatile Cache cache;
+	protected Cache cache;
 	final public  Frame frame;
 	protected Closure parent;
-	protected volatile Status status;
+	protected  Status status;
 	protected ReentrantLock lock;
 	protected Worker lockOwner;
-	protected volatile int joinCount;
+	public  int joinCount;
 	protected volatile int result;
 	public Frame parentFrame() { return parent.frame;}
 	public Closure parent() { return parent;}

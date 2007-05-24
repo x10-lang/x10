@@ -41,10 +41,10 @@ public class Worker extends Thread {
 	protected Thread lockOwner; // the thread holding the lock.
 	protected int randNext;
 	protected int index;
-	protected volatile boolean done;
+	protected  boolean done;
 	protected Closure closure;
 	
-	protected static volatile Worker[] workers; 
+	protected static  Worker[] workers; 
 	public static long stealAttempts;
 	public static long steals;
 	public static boolean reporting = false;
@@ -470,7 +470,7 @@ public class Worker extends Thread {
 			assert b !=null;
 			b.lock(this);
 			try { 
-				b.pollInlets(this);
+			b.pollInlets(this);
 				Closure c = bottom;
 				assert (c!=null);
 				if (b != c) {

@@ -62,11 +62,14 @@ public class NQueensCL extends Closure {
 					new Outlet() {
 						public void run() {
 							NFrame f = (NFrame) c.parentFrame();
+							Closure p = c.parent();
 							int value = c.resultInt();
 							f.sum += value;
-							if (true || Worker.reporting) {
-								System.out.println(Thread.currentThread() + " --> " + value
-										+ " into " + c.parent() + " from " + c);
+							assert (c.joinCount==0);
+							
+							if ( Worker.reporting) {
+								System.out.println(Thread.currentThread() + " " + c + " --> " + value
+										+ " into " + c.parent());
 							}
 						}
 						public String toString() { return "OutletInto x from " + c;}
@@ -78,9 +81,7 @@ public class NQueensCL extends Closure {
 		}
 		public NFrame(long a, int r) { sofar=a;row=r;}
 		public String toString() { 
-			String s="[";
-			for (int i=0; i < 8; i++) s += (sofar & masks[i])  +","; 
-			return "NF(" + s + "],q="  + q + ",sum=" + sum+")";
+			return "NF(" + board(sofar) + ",q="  + q + ",sum=" + sum+")";
 		}
 	}
 	public static final int LABEL_0=0, LABEL_1=1, LABEL_2=2, LABEL_3=3;
@@ -117,7 +118,9 @@ public class NQueensCL extends Closure {
  
 	static int atRow(long board, int c) { 
 		assert 1<=c && c <= boardSize;
-		return (int) ((board & masks[c]) >>> shifts[c]);
+		int value = (int) ((board & masks[c]) >>> shifts[c]);
+		assert 0 <= value && value < 16;
+		return value;
 	}
 	public static int nQueens(Worker w, long a, int row) throws StealAbort {
 		//System.out.println(w + " nQueens board="+ board(a) + " row=" + row);
@@ -126,7 +129,7 @@ public class NQueensCL extends Closure {
 			return 1;
 		}
 		NFrame frame = new NFrame(a,row);
-		frame.q=1;
+		frame.q=2;
 		frame.sum=0;
 		frame.PC=LABEL_1;
 		w.pushFrame(frame);
@@ -142,8 +145,8 @@ public class NQueensCL extends Closure {
 						+ " by queen row=" + i + "col= " + p+".");*/
 			}
 			if (!attacked) { 
+				assert (a & shifts[row]) == 0;
 				long next = a | (((long) q) << shifts[row]);
-				//System.out.println(w + " Placing queen at " + q + " yields " + board(next));
 				final int y = nQueens(w, next,row+1);
 				Closure c = w.popFrameCheck();
 				if (c!=null) {
@@ -167,7 +170,7 @@ public class NQueensCL extends Closure {
 		
 		switch (f.PC) {
 		case LABEL_0:
-			if (row >= boardSize) {
+			if (row > boardSize) {
 				result =1;
 				setupReturn();
 				return;
@@ -183,6 +186,7 @@ public class NQueensCL extends Closure {
 					attacked = (q == p || q == p - (row - i) || q == p + (row - i));
 				}
 				if (!attacked) { 
+					assert (a & shifts[row]) == 0;
 					long next = a | (((long) q) << shifts[row]);
 					try {
 						int y= nQueens(ws, next,row+1);
