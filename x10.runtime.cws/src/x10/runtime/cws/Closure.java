@@ -10,10 +10,8 @@
 package x10.runtime.cws;
 
 
-import static x10.runtime.cws.ClosureStatus.*;
 
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.Lock;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -42,7 +40,7 @@ public class Closure  {
 	protected volatile Cache cache;
 	final public  Frame frame;
 	protected Closure parent;
-	protected volatile ClosureStatus status;
+	protected volatile Status status;
 	protected ReentrantLock lock;
 	protected Worker lockOwner;
 	protected volatile int joinCount;
@@ -62,8 +60,21 @@ public class Closure  {
 	 * The ready deque is maintained through a pair of references.
 	 */
 	protected Closure nextReady, prevReady;
-	
-	protected ClosureStatus status() { return status;}
+	public enum Status {
+
+		RUNNING,
+		SUSPENDED,
+		RETURNING,
+		READY,
+		ABORTING,
+		PASSTHROUGH
+	}
+
+	public interface Outlet {
+		void run();
+	}
+
+	protected Status status() { return status;}
 	
 	protected Closure(Frame frame) {
 		super();
@@ -101,7 +112,7 @@ public class Closure  {
 	
 
 	void makeReady() {
-		status=READY;
+		status=Status.READY;
 		cache=null;
 	}
 	
@@ -132,7 +143,7 @@ public class Closure  {
 	Closure promoteChild(Worker thief, Worker victim) {
 		
 		assert lockOwner == thief;
-		assert status == RUNNING;
+		assert status == Status.RUNNING;
 		assert ownerReadyQueue == victim;
 		assert victim.lockOwner == thief;
 		assert nextReady==null;
@@ -146,7 +157,7 @@ public class Closure  {
 		child.parent = this;
 		child.joinCount = 0;
 		child.cache = cache;
-		child.status = RUNNING;
+		child.status = Status.RUNNING;
 		child.ownerReadyQueue=null;
 		cache.incHead();
 		
@@ -203,14 +214,14 @@ public class Closure  {
     
     private void decrementExceptionPointer(Worker ws) {
     	assert lockOwner == ws;
-    	assert status == RUNNING;
+    	assert status == Status.RUNNING;
     	
     	cache.decrementExceptionPointer();
     }
     
     private void incrementExceptionPointer(Worker ws) {
     	assert lockOwner == ws;
-    	assert status == RUNNING;
+    	assert status == Status.RUNNING;
     	
     	cache.incrementExceptionPointer();
     }
@@ -220,11 +231,11 @@ public class Closure  {
      }
     boolean handleException(Worker ws, int value) {
     	resetExceptionPointer(ws);
-    	ClosureStatus s = status;
-    	assert s == RUNNING || s == RETURNING;
+    	Status s = status;
+    	assert s == Status.RUNNING || s == Status.RETURNING;
     	if (cache.headGeqTail()) {
     		assert joinCount==0;
-    		status = RETURNING;
+    		status = Status.RETURNING;
         	result = value;
         	return true;
     	}
@@ -233,11 +244,11 @@ public class Closure  {
     }
     boolean handleException(Worker ws) {
     	resetExceptionPointer(ws);
-    	ClosureStatus s = status;
-    	assert s == RUNNING || s == RETURNING;
+    	Status s = status;
+    	assert s == Status.RUNNING || s == Status.RETURNING;
     	if (cache.headGeqTail()) {
     		assert joinCount==0;
-    		status = RETURNING;
+    		status = Status.RETURNING;
         	return true;
     	}
     	return false;
@@ -246,7 +257,7 @@ public class Closure  {
   
     private void signalImmediateException(Worker ws) {
     	assert lockOwner == ws;
-    	assert status == RUNNING;
+    	assert status == Status.RUNNING;
     	cache.signalImmediateException();
     }
    
@@ -278,7 +289,7 @@ public class Closure  {
      private Closure acceptChild(Worker ws, Closure child) {
     	lock(ws);
     	try {
-    		assert status != RETURNING;
+    		assert status != Status.RETURNING;
     		assert frame != null;
     		removeChild(child);
     		--joinCount;
@@ -317,9 +328,9 @@ public class Closure  {
    void suspend(Worker ws) {
     	
     	assert lockOwner == ws;
-    	assert status == RUNNING;
+    	assert status == Status.RUNNING;
     	
-    	status = SUSPENDED;
+    	status = Status.SUSPENDED;
     	
     	// throw away the bottommost closure on the worker.
     	// the only references left to this closure are from
@@ -347,7 +358,7 @@ public class Closure  {
     	
     	Closure result = null;
     	
-    	if (joinCount==0 && status == SUSPENDED) {
+    	if (joinCount==0 && status == Status.SUSPENDED) {
     		result = this;
     		pollInlets(ws);
     		ownerReadyQueue =null;
@@ -371,7 +382,7 @@ public class Closure  {
 		
 		assert lockOwner==ws;
 		
-		if (status==RUNNING && ! cache.atTopOfStack()) {
+		if (status==Status.RUNNING && ! cache.atTopOfStack()) {
 			if (ws.lockOwner !=ws) {
 				System.out.println("Cache is " + cache.dump());
 			}
@@ -396,7 +407,7 @@ public class Closure  {
    
     Closure returnValue(Worker ws) {
     	
-    	assert status==RETURNING;
+    	assert status==Status.RETURNING;
     	
     	return closureReturn(ws);
     }
@@ -412,11 +423,11 @@ public class Closure  {
 		assert lockOwner != ws;
 		
 		lock(ws);
-		ClosureStatus s = status;
+		Status s = status;
 		Frame f = frame;
-		if (s == READY) {
+		if (s == Status.READY) {
 			try {
-				status = RUNNING;
+				status = Status.RUNNING;
 		    	// load the cache from the worker's state.
 		    	cache = ws.cache;
 		    	cache.pushFrame(frame);
@@ -435,7 +446,7 @@ public class Closure  {
 			compute(ws, f);
 			return null;
 		}
-		if (s == RETURNING) {
+		if (s == Status.RETURNING) {
 			unlock();
 			return returnValue(ws);
 		}
@@ -502,8 +513,8 @@ public class Closure  {
 			assert t==this;
 			lock(ws);
 			try {
-				assert status==RUNNING;
-				status=RETURNING;
+				assert status==Status.RUNNING;
+				status=Status.RETURNING;
 				//frame=null;
 				ws.popFrame();
 			} finally {
