@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_func.cc,v 1.1 2007-05-23 11:37:04 ganeshvb Exp $ */
+/* $Id: RandomAccess_func.cc,v 1.2 2007-05-24 09:27:38 ganeshvb Exp $ */
 
 #include "RandomAccess_func.h"
 #include "timers.h"
@@ -18,7 +18,14 @@ inline void operator () (async_arg_t arg0)
 }
 };
 
-Async0 async0;
+//Async0 async0;
+
+void
+inline async0 (async_arg_t arg0)
+{
+  glong_t ran = arg0;
+  GLOBAL_SPACE.Table->update (ran);
+}
 
 void
 inline async1 (async_arg_t arg0)
@@ -33,13 +40,10 @@ async2 (async_arg_t arg0, async_arg_t arg1)
   GLOBAL_SPACE.SUM[(int)arg1] = arg0;
 }
 int
-asyncSwitch (async_handler_t h, async_arg_t* args)
+asyncSwitch (async_handler_t h, async_arg_t* args, int niter)
 {
 
  switch (h) {
-  case 0: 
-    async0(*args);
-    break;
   case 1:
     async1(*args);
     break;
@@ -224,7 +228,7 @@ RandomAccess_Dist::main (x10::array<String>& args)
       ran = ((ran << 1) ^ ((sglong_t) ran < 0 ? POLY : 0));     
 
       assert (UNIQUE->place(placeID) == placeID);
-      asyncSpawnInlineAgg(placeID, 1, 1, temp);
+      asyncSpawnInlineAgg(placeID, 1, temp);
     } 
     asyncFlush(1, 1);
   } else {   

@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.9 2007-05-23 11:37:04 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.10 2007-05-24 09:27:38 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -31,18 +31,18 @@ async2 (async_arg_t arg0, async_arg_t arg1)
   GLOBAL_SPACE.SUM[(int)arg1] = arg0;
 }
 int
-asyncSwitch (async_handler_t h, async_arg_t* args)
+asyncSwitch (async_handler_t h, async_arg_t* args, int niter)
 {
-
+ for (int i = 0; i < niter; i++)
  switch (h) {
   case 0: 
-    async0(*args);
+    async0(*args++);
     break;
   case 1:
-    async1(*args);
+    async1(*args++);
     break;
   case 2:
-    async2(*args, *(args+1));
+    async2(*args++, *args++);
     break;
  } 
 }
@@ -135,12 +135,14 @@ RandomAccess_Dist::Verify (const glong_t LogTableSize, const bool Embarrassing,
     }
 
     glong_t sum =0;
+    int p = here();
     for (glong_t i = 0; i < tableSize; i++) 
       sum += GLOBAL_SPACE.Table->array[i];
 
-    if (here() == 0) async2 (sum, here());
-    else asyncSpawnInline (0, 2, 2, sum, here());
+    if (here() == 0) async2 (sum, p);
+    else asyncSpawnInlineAgg (0, 2, sum, (async_arg_t) p);
 
+    asyncFlush (2, 2);
     Gfence();
  
     cout << "sum: " << sum << endl;
