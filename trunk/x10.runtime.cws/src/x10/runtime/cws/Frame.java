@@ -18,7 +18,9 @@ package x10.runtime.cws;
  *
  */
 public class Frame {
-
+	// The label at which computation must be continued by the associated
+	// closure.
+	public volatile int PC;
 	public Frame() {
 		super();
 	}

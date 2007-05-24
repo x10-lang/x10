@@ -37,7 +37,7 @@ import java.util.ArrayList;
  * @author vj 04/18/07
  *
  */
-public abstract class Closure  {
+public class Closure  {
 
 	protected volatile Cache cache;
 	final public  Frame frame;
@@ -196,12 +196,7 @@ public abstract class Closure  {
 		}
 		// so there must be at least two elements in the framestack for a theft.
 		if ( Worker.reporting) {
-			//int temp = head;
-			//temp=tail;
-			//temp=c.exception;
-			System.out.println(thief + " has found a victim." );
-			//System.out.println(thief + " has found a victim (" 
-			//		+ cache.owner +") h=" + head + " t=" + tail + " e="+ c.exception);
+			System.out.println(thief + " has found victim " +this.ownerReadyQueue);
 		}
 		return true;
 	}
@@ -228,14 +223,21 @@ public abstract class Closure  {
     	ClosureStatus s = status;
     	assert s == RUNNING || s == RETURNING;
     	if (cache.headGeqTail()) {
-    		if (joinCount != 0) {
-        		System.out.println(ws + "Errror!!!" + this + " has joinCount " + joinCount + " and is returning!");
-        		System.out.println(ws + "parent=" + this.parent);
-        		
-        	}
     		assert joinCount==0;
     		status = RETURNING;
         	result = value;
+        	return true;
+    	}
+    	return false;
+    	
+    }
+    boolean handleException(Worker ws) {
+    	resetExceptionPointer(ws);
+    	ClosureStatus s = status;
+    	assert s == RUNNING || s == RETURNING;
+    	if (cache.headGeqTail()) {
+    		assert joinCount==0;
+    		status = RETURNING;
         	return true;
     	}
     	return false;
@@ -265,7 +267,7 @@ public abstract class Closure  {
     	Closure parent = this.parent;
     	if (parent == null) {
     		// Must be a top level closure.
-    		if (false && Worker.reporting) {
+    		if (Worker.reporting) {
     			System.out.println(ws + " returning from orphan " + this + ".");
     		}
     		return null;
@@ -350,7 +352,7 @@ public abstract class Closure  {
     		pollInlets(ws);
     		ownerReadyQueue =null;
     		makeReady();
-    		if (false && Worker.reporting) {
+    		if (Worker.reporting) {
     			System.out.println(ws + " awakens " + this);
     		}
     	} 
@@ -440,7 +442,17 @@ public abstract class Closure  {
 		
 		throw new Error(ws + "executes " + status + " " + this + ": error!");
 	}
-	
+
+	/**
+	 * Return your value to the parent closure. Typically the
+	 * closure will be created with information about where
+	 * to deposit its result.
+	 */
+	void executeAsInlet() {
+		if (outlet !=null) {
+			outlet.run();
+		}
+	}
 //	=============== The methods intended to be called by client code =======
 //	=============== that subclasses Closure.========
 	
@@ -450,7 +462,7 @@ public abstract class Closure  {
 	 * @param w -- The thread invoking the compute, i.e. w == Thread.currentThread()
 	 * @param frame -- frame within which to execute
 	 */
-	abstract protected void compute(Worker w, Frame frame);
+	protected void compute(Worker w, Frame frame) {}
     
 	/**
 	 * Subclasses should override this as appropriate. 
@@ -466,10 +478,11 @@ public abstract class Closure  {
      * @return true -- iff the closure must suspend because not 
      *                 all children have returned
      */
-	final protected boolean sync() {
-		Worker ws = ((Worker) Thread.currentThread());
+	final protected boolean sync(Worker ws) {
 		return ws.sync();
 	}
+	
+	
 	/**
 	 * Invoked by client code before a return from slow code. It will
 	 * mark the current closure as RETURNING so it wont be stolen. It will
@@ -501,26 +514,9 @@ public abstract class Closure  {
 		}
 	}
 	
-	public double resultDouble() { return 0.0D;}
-	public long resultLong() { return 0L;}
-	public int resultInt() { return 0;}
-	public float resultFloat() { return 0.0F;}
-	public Object resultObject() { return null;}
-	
 	protected Outlet outlet;
 	public void setOutlet(Outlet o) { outlet=o;}
 	
-	/**
-	 * Return your value to the parent closure. Typically the
-	 * closure will be created with information about where
-	 * to deposit its result.
-	 */
-	public void executeAsInlet() {
-		if (outlet !=null) {
-			outlet.run();
-		}
-	}
-	// must be set to true by subclasses.
 	protected boolean done = false;
 	
 	public boolean isDone() { return done;}
@@ -528,10 +524,26 @@ public abstract class Closure  {
 	public RuntimeException getException() { return null;}
 	public void completed() {
 		done = true;
-		
 	}
-	public void setResultInt(int x) {}
 	
+	// At most one of the following pairs of methods should be overridden by subclassing
+	// closures. No pair may be overridden if the closure does not have an associated
+	// return value. These methods are not abstract so that Closure can be used directly
+	// when there is no reason to subclass it.
+	public void setResultInt(int x) {}
+	public int resultInt() { return 0;}
+	
+	public void setResultFloat(float x) {}
+	public float resultFloat() { return 0.0F;}
+	
+	public void setResultLong(long x) {}
+	public long resultLong() { return 0L;}
+	
+	public void setResultDouble(double x) {}
+	public double resultDouble() { return 0.0D;}
+	
+	public void setResultObject(Object x) {}
+	public Object resultObject() { return null;}
 	
 
 }

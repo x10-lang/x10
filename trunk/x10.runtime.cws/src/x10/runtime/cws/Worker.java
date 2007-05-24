@@ -135,7 +135,7 @@ public class Worker extends Thread {
 			try {
 				Closure res = extractTop(thief);
 				assert (res == cl);
-				if (false && reporting) {
+				if (reporting) {
 					++ steals;
 					System.out.println(thief + " steals ready " + cl + " from "
 							+ victim);
@@ -171,7 +171,7 @@ public class Worker extends Thread {
 				} finally {
 					cl.unlock();
 				}
-				if (false && reporting) {
+				if (reporting) {
 					++steals;
 					System.out.println(thief + " steals running " + cl + " from "
 							+ victim);
@@ -278,7 +278,7 @@ public class Worker extends Thread {
 		assert cl !=null;
 		assert cl.ownerReadyQueue == null;
 		
-		if (false && reporting)
+		if (reporting)
 			System.out.println(ws + " adds " + cl + " to " + this + " bottom.");
 		cl.prevReady = bottom;
 		cl.nextReady = null;
@@ -298,7 +298,7 @@ public class Worker extends Thread {
 	 * Thread.currentThread() == this.
 	 * @return true if the closure has to be suspended, false o.w.
 	 */
-	protected boolean sync() {
+	public boolean sync() {
 		lock(this);
 		try { 
 			Closure t = peekBottom(this);
@@ -323,7 +323,7 @@ public class Worker extends Thread {
 					// will get to check inlets and if they 
 					// are all done, then execute this task
 					// in place.
-					if (false && reporting) {
+					if (reporting) {
 						System.out.println(this + " suspends " + t + "(joincount=" + t.joinCount+")");
 					}
 					
@@ -400,7 +400,7 @@ public class Worker extends Thread {
 				// Found some work! Execute it.
 				yields = 0;
 				assert cache == null || cache.empty();
-				if (false && reporting) {
+				if (reporting) {
 					System.out.println(this + " executes " + cl +".");
 				}
 				Closure cl1 = cl.execute(this);
@@ -437,6 +437,12 @@ public class Worker extends Thread {
 	public void popFrame() {
 		cache.popFrame();
 	}
+	public String toString() {
+		return "Worker("+index+")";
+	}
+	public Closure bottom() {
+		return bottom;
+	}
 	/**
 	 * Called by client code on return from a spawn async
 	 * invocation. Performs the victim end of Dekker.
@@ -446,26 +452,18 @@ public class Worker extends Thread {
 	 *             since async execution started. null otherwise.
 	 *            
 	 */
-	public boolean popFrameCheck(int y) {
-		
+	
+	
+	public Closure popFrameCheck() {
 		if (! cache.popCheck()) 
 			// fast path
-			return false;
-		// slow path. A steal has happened.
-		// need to grab the lock on the deque
-		// to get the bottom closure.
-		boolean result = exceptionHandler(y);
-		if (result)
+			return null;
+		Closure result = exceptionHandler();
+		if (result !=null)
 			popFrame();
 		return result;
 	}
-	public String toString() {
-		return "Worker("+index+")";
-	}
-	public Closure bottom() {
-		return bottom;
-	}
-	protected boolean exceptionHandler(int y) {
+	protected Closure exceptionHandler() {
 		lock(this);
 		try {
 			Closure b = bottom;
@@ -480,8 +478,8 @@ public class Worker extends Thread {
 					b=c;
 					b.lock(this);
 				}
-				boolean result = b.handleException(this, y);
-				return result;
+				boolean result = b.handleException(this);
+				return result?b:null;
 			} finally {
 				b.unlock();
 			}
