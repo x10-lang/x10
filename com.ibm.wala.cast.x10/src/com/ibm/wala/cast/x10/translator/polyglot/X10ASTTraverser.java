@@ -14,6 +14,7 @@ import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.When;
+import polyglot.ext.x10.ast.X10Formal;
 
 import com.ibm.wala.cast.java.translator.polyglot.ASTTraverser;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
@@ -43,6 +44,8 @@ public class X10ASTTraverser extends ASTTraverser {
 	    return xtv.visit((Next) n, wc);
 	else if (n instanceof ArrayConstructor)
 	    return xtv.visit((ArrayConstructor) n, wc);
+	else if (n instanceof X10Formal)
+	    return xtv.visit((X10Formal) n, wc);
 	else
 	    return ASTTraverser.visit(n, xtv, wc);
     }
