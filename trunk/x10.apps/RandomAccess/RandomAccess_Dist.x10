@@ -94,8 +94,16 @@ class RandomAccess_Dist {
     private final static dist UNIQUE=dist.factory.unique();
     private final static int NUMPLACES=place.MAX_PLACES;
     private final static int PLACEIDMASK=NUMPLACES-1;
+    /*
+     * VERIFY = 0 Update
+     *        = 1 Parallel verification using verify()
+     *        = 2 Udpate with sequential verification using Verify()
+    */
+    private final static int UPDATE = 0;
+    private final static int VERIFICATION_P = 1;
+    private final static int UPDATE_AND_VERIFICATION = 2;
     
-    private final static boolean VERIFY = false;
+    //private final  int VERIFY = UPDATE;
     
     /* Utility routine to start random number generator at Nth step */
     static long HPCC_starts(long n) {
@@ -170,6 +178,7 @@ class RandomAccess_Dist {
 	System.out.println("   global sum is "+globalSum+" (correct=0)");
     }
     */
+    
     //the verification method implemented in Hanhong's C++ code
     /*static void verify(final long LogTableSize, final boolean Embarrassing, 
     		final localTable [:self.rect && self.zeroBased && self.rank==1] Table) {
@@ -236,6 +245,7 @@ class RandomAccess_Dist {
     		System.out.println("the number of places must be a power of 2!");
     		System.exit(-1);
     	}
+    	int VERIFY = UPDATE;
         boolean doIO = false, embarrassing=false;
         int  logTableSize= 10; //20
         for (int q = 0; q < args.length; ++q) {
@@ -248,6 +258,10 @@ class RandomAccess_Dist {
             if (args[q].equals("-m")) {
                 ++q;
                 logTableSize = java.lang.Integer.parseInt(args[q]);
+            }
+            if (args[q].equals("-v")) {
+                ++q;
+                VERIFY = java.lang.Integer.parseInt(args[q])%3;
             }
         }
 
@@ -287,13 +301,14 @@ class RandomAccess_Dist {
          *     }
          */
          
-        System.out.println ("Is the mode of update verification? "+VERIFY);
+        System.out.println ("The mode of update (0 = update; 1 = parallel verification; 2 = update and sequential verification): "+VERIFY);
+         
         final long LogTableSize = logTableSize;
         final boolean Embarrassing = embarrassing;
         final long NumUpdates=tableSize*4;
         
-        if (VERIFY)
-          finish ateach(point [p] : UNIQUE) {
+        if (VERIFY == VERIFICATION_P )
+            finish ateach(point [p] : UNIQUE) {
 		long ran=HPCC_starts (p*NumUpdates);
 		    for (long i=0; i<NumUpdates; i++) {
 		    	    final int placeID;
@@ -305,8 +320,8 @@ class RandomAccess_Dist {
 		    	    final long temp=ran; 
 	                    async (UNIQUE[placeID]) Table[placeID].verify(temp);
 		    }
-	 }
-        else
+	  }
+        else{
           finish ateach(point [p] : UNIQUE) {
     		long ran=HPCC_starts (p*NumUpdates);
     		    for (long i=0; i<NumUpdates; i++) {
@@ -320,7 +335,29 @@ class RandomAccess_Dist {
     	                    async (UNIQUE[placeID]) Table[placeID].update(temp);
     		    }
     	 }	
-        
+         //repeat the above operation using a for loop
+         if (VERIFY == UPDATE_AND_VERIFICATION){
+        	 //Verify(logTableSize, embarrassing, Table); 
+        	 System.out.println("Verifying result by repeating the update sequentially...");
+        	 
+        	 finish for(point [p] : UNIQUE) {
+        		 long ran=HPCC_starts (p*NumUpdates);
+        		 for (long i=0; i<NumUpdates; i++) {
+		    	    final int placeID;
+		    	    if (Embarrassing)
+		    	    	placeID=p;
+		    	    else
+		    	    	placeID=(int)((ran>>LogTableSize) & PLACEIDMASK);
+	                    ran = (ran << 1) ^ ((long) ran < 0 ? POLY : 0);
+	                    final long temp=ran; 
+	                    //async (UNIQUE[placeID]) Table[placeID].update(temp);
+	                    async (UNIQUE[placeID]){
+	                    	Table[placeID].array[(int)(temp & Table[placeID].mask)] ^= temp;
+	                    }
+        		 }
+        	 }
+         }
+        }
         /* End timed section */
         cputime += mysecond();
     
@@ -329,12 +366,12 @@ class RandomAccess_Dist {
         GUPs *= 1e-9*(4 * tableSize*NUMPLACES);
         /* Print timing results */
         if (doIO) {
-            System.out.println("CPU time used  = "+cputime+" seconds");
+            System.out.println("    CPU time used  = "+cputime+" seconds");
         }
-        System.out.println(GUPs + " Billion(10^9) Updates    per second [GUP/s]");
+        if (VERIFY == UPDATE) System.out.println("    "+GUPs + " Billion(10^9) Updates    per second [GUP/s]");
 
         //if (VERIFY) verify(logTableSize, embarrassing, Table);
-        if (VERIFY){
+        if (VERIFY > 0){
         	final long [] SUM = new long [NUMPLACES];
         	finish ateach(point [p] : UNIQUE) {
         		long sum=0;
@@ -345,8 +382,13 @@ class RandomAccess_Dist {
         	}
         	long globalSum=0;
         	for (int i=0; i<NUMPLACES; i++) globalSum+=SUM[i];
-        	double missedUpdateRate = (globalSum-numUpdates)/numUpdates*100;
-        	System.out.println("  the rate of missed updates  "+ missedUpdateRate+ "%");
+        	if (VERIFY == VERIFICATION_P){
+        		double missedUpdateRate = (globalSum-numUpdates)/numUpdates*100;
+        		System.out.println("    The rate of missed updates  "+ missedUpdateRate+ "%");
+        	}
+        	else {
+        		System.out.println("    The global sum is "+globalSum+" (correct=0)");
+        	}
         } 
     }
 }
