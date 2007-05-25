@@ -47,45 +47,23 @@ public class FibC  extends Closure {
     }
     @Override
     public void setOutletOn(final Closure c) {
-      if (false && Worker.reporting) {
-        System.out.println(this + " sets outlet on " + c);
-      }
       assert PC==LABEL_1 || PC == LABEL_2;
       c.setOutlet((PC==LABEL_1) ?
           new Outlet() {
             public void run() {
-              FibFrame f = (FibFrame) c.parentFrame();
-              f.x = c.resultInt();
-              /*int correct = realfib(n-1);
-              if (f.x != correct)
-                if (false)
-                System.out.println(Thread.currentThread() + " Error in setting result for " +
-                    this + " should be " + correct + " and not "
-                    + f.x + " (y is " + f.y + ")");*/
+              x = c.resultInt();
             }
             public String toString() { return "OutletInto x from " + c;}
             } 
       : new Outlet() {
         public void run() {
-          FibFrame f = (FibFrame) c.parentFrame();
-          f.y = c.resultInt();
-          /*
-          int correct = realfib(n-2);
-          if (f.y != correct)
-            if (false)
-            System.out.println(Thread.currentThread() + " Error in setting result for " +
-                this + " should be " + correct + " and not "
-                + f.y + " (x is " + f.x + ")");*/
+          y = c.resultInt();
         }
         public String toString() { return "OutletInto y from " + c;}
         });
-    
     }
     public Closure makeClosure() {
       Closure c = new FibC(this);
-      if (false && Worker.reporting) {
-        System.out.println(Thread.currentThread() + " " + this + " creates new closure " + c);
-      }
       return c;
     }
     public String toString() { return "FibFrame(n="+n+",x="+x+",y="+y+",PC=" + PC + ")";}
@@ -97,17 +75,10 @@ public class FibC  extends Closure {
     FibFrame frame = new FibFrame(n);
     frame.PC=LABEL_1; // continuation pointer
     w.pushFrame(frame);
-    // Need a barrier?
     
     // this thread will definitely execute fib(n-1), and
     // hence set the value in the frame.
     final int x = fib(w, n-1);
-    /*int correct = realfib(n-1);
-    if (x != correct)  {
-      System.out.println( w + "Fast fib n-1(" + (n-1) + ") gives wrong result " + x 
-          + " instead of  " 
-          + correct+").");
-    }*/
     
     // Now need to figure out who is doing fib(n-2).
     // If frame has been stolen, then this thread wont do fib(n-2).
@@ -116,9 +87,8 @@ public class FibC  extends Closure {
     Closure c=w.popFrameCheck();
     if (c != null) {
       c.setResultInt(x);
-      throw new StealAbort();
+      throw StealAbort.abort;
     }
-    
     
     // Now we are back in the current frame, it has not been stolen. 
     // Execute the local code to the next spawn. 
@@ -129,20 +99,12 @@ public class FibC  extends Closure {
     frame.PC=LABEL_2;
   
     final int y=fib(w, n-2);
-    /*correct = realfib(n-2);
-    if (y != correct) {
-      System.out.println(w + "Fast fib n-2(" + (n-2) + ") gives wrong result " + y 
-          + " instead of  " 
-          + correct+").");
-    }*/
     c=w.popFrameCheck();
     if (c != null) {
       c.setResultInt(y);
-      throw new StealAbort();
+      throw StealAbort.abort;
     }
   
-    
-    //frame.y=y;
     // Now there is nothing more to spawn -- so no need for the frame.
     // i.e. since the worker has made it so far, it is going to complete 
     // execution of this procedure.
@@ -153,12 +115,6 @@ public class FibC  extends Closure {
     // the sync is a no-op.
     // return the computed value.
     int result = x+y;
-    /*correct = realfib(n);
-    if (result != correct) 
-      System.out.println(w + ": "  + "Fast fib n (" + n + ") gives wrong result " 
-          + (x) + " + "  + (y) + " = "
-          + result
-          + " instead of " + correct + ".");*/
     return result;
   }
   public FibC(Frame frame) { super(frame);}
@@ -166,10 +122,10 @@ public class FibC  extends Closure {
    * This contains the slow code. 
    */
   @Override
-  public void compute(Worker w, Frame frame) {
-    // get the frame and push it.
+  public void compute(final Worker w, final Frame frame) throws StealAbort {
+    // get the frame.
     // f must be a FibFrame.
-    FibFrame f = (FibFrame) frame;
+    final FibFrame f = (FibFrame) frame;
     final int n = f.n;
     switch (f.PC) {
     case ENTRY: 
@@ -179,44 +135,24 @@ public class FibC  extends Closure {
         return;
       }
       f.PC=LABEL_1;
-      // need a mem barrier here to ensure that everyone sees these writes.
-      try {
         final int x = fib(w, n-1);
-        /*final int correct = realfib(n-1);
-        if (x != correct) {
-          System.out.println(w + ": Slow fib n-1(" + (n-1) + ") gives wrong result " + x 
-              + " instead of  " 
-              + correct+").");
-        }*/
         Closure c=w.popFrameCheck();
         if (c != null) {
           c.setResultInt(x);
           return;
         }
         f.x=x;
-      } catch (StealAbort z) {
-        return;
-      }
+      
     case LABEL_1: 
         f.PC=LABEL_2;
-        // need a mem barrier here to ensure that everyone sees these writes.
-        try {
           final int y=fib(w,n-2);
-          /*final int correct = realfib(n-2);
-          if (y != correct) {
-            System.out.println(w+ ": Slow fib n-2(" + (n-2) + ") gives wrong result " + y 
-                + " instead of  " 
-                + correct+").");
-          }*/
-          Closure c=w.popFrameCheck();
-          if (c != null) {
-            c.setResultInt(y);
+          Closure c1=w.popFrameCheck();
+          if (c1 != null) {
+            c1.setResultInt(y);
             return;
           }
           f.y=y;
-        } catch (StealAbort z) {
-          return;
-        }
+        
     case LABEL_2: 
         f.PC=LABEL_3;
         if (sync(w)) {
@@ -224,12 +160,6 @@ public class FibC  extends Closure {
         }
     case LABEL_3:
         result=f.x+f.y;
-        /*int correct = realfib(n);
-        if (result != correct) 
-          System.out.println(w + ": " + this  + joinCount +  " Slow fib n (" + f.n + ") gives wrong result " 
-              + (f.x) + " + "  + (f.y) + " = "
-              + result
-              + " instead of " + correct + ".");*/
         setupReturn();
     }
     return;
@@ -247,7 +177,7 @@ public class FibC  extends Closure {
       return;
     }
     final Pool g = new Pool(procs);
-    final int[] points = new int[] {  1,5, 10, 15, 20, 25, 30, 35, 40
+    final int[] points = new int[] {  1,5, 10, 15, 20, 25, 30, 35, 40, 45
     };
     
     for (int i = 0; i < points.length; i++) {
@@ -272,6 +202,7 @@ public class FibC  extends Closure {
     }
     g.shutdown();
   }
+  protected int result;
   @Override
   public int resultInt() { return result;}
   @Override

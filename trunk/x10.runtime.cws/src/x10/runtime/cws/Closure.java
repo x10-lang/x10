@@ -43,8 +43,8 @@ public class Closure  {
 	protected  Status status;
 	protected ReentrantLock lock;
 	protected Worker lockOwner;
-	public  int joinCount;
-	protected volatile int result;
+	public int joinCount;
+	
 	public Frame parentFrame() { return parent.frame;}
 	public Closure parent() { return parent;}
 	/**
@@ -180,9 +180,9 @@ public class Closure  {
 		
 		/* Add the child to the parent. */
 		++joinCount;
-		if (incompleteInlets == null)
-			incompleteInlets = new ArrayList<Closure>();
-		incompleteInlets.add(child);
+		//if (incompleteInlets == null)
+		//	incompleteInlets = new ArrayList<Closure>();
+		//incompleteInlets.add(child);
 		
 		/* Set the parent's cache to null and its status to READY */
 		makeReady();
@@ -229,19 +229,7 @@ public class Closure  {
     	 assert lockOwner==ws;
     	 cache.resetExceptionPointer();
      }
-    boolean handleException(Worker ws, int value) {
-    	resetExceptionPointer(ws);
-    	Status s = status;
-    	assert s == Status.RUNNING || s == Status.RETURNING;
-    	if (cache.headGeqTail()) {
-    		assert joinCount==0;
-    		status = Status.RETURNING;
-        	result = value;
-        	return true;
-    	}
-    	return false;
-    	
-    }
+    
     boolean handleException(Worker ws) {
     	resetExceptionPointer(ws);
     	Status s = status;
@@ -291,7 +279,7 @@ public class Closure  {
     	try {
     		assert status != Status.RETURNING;
     		assert frame != null;
-    		removeChild(child);
+    		//removeChild(child);
     		--joinCount;
     		child.lock(ws);
     		completeAndEnque( ws, child);
@@ -443,7 +431,12 @@ public class Closure  {
 			} finally {
 				ws.unlock();
 			}
-			compute(ws, f);
+			try {
+				compute(ws, f);
+			} catch (StealAbort z) {
+				// do nothing. the exception has done its work
+				// unwinding the call stack.
+			}
 			return null;
 		}
 		if (s == Status.RETURNING) {
@@ -473,7 +466,7 @@ public class Closure  {
 	 * @param w -- The thread invoking the compute, i.e. w == Thread.currentThread()
 	 * @param frame -- frame within which to execute
 	 */
-	protected void compute(Worker w, Frame frame) {}
+	protected void compute(Worker w, Frame frame) throws StealAbort {}
     
 	/**
 	 * Subclasses should override this as appropriate. 
