@@ -11,13 +11,13 @@ public class For1 {
         }
     }
     public static void foo2() {
-        for (point p[i]: [0:9]) {
-            System.out.println(p + ": " + i);
+        for (point p1[i]: [0:9]) {
+            System.out.println(p1 + ": " + i);
         }
     }
     public static void foo3() {
-        for (point p[i,j]: [0:9,0:9]) {
-            System.out.println(p + ": " + i + ": " + j);
+        for (point p2[i,j]: [0:9,0:9]) {
+            System.out.println(p2 + ": " + i + ": " + j);
         }
     }
 }
