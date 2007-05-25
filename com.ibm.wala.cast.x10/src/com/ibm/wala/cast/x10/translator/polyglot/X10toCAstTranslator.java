@@ -38,24 +38,23 @@ import polyglot.ext.x10.ast.X10ArrayAccess;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Loop;
 import polyglot.ext.x10.types.FutureType;
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 
+import com.ibm.domo.ast.x10.translator.X10CAstEntity;
+import com.ibm.domo.ast.x10.translator.X10CastNode;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
+import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
 import com.ibm.wala.cast.tree.CAstControlFlowMap;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstNodeTypeMap;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;
 import com.ibm.wala.cast.tree.CAstType;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
-import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
-import com.ibm.domo.ast.x10.translator.X10CAstEntity;
-import com.ibm.domo.ast.x10.translator.X10CastNode;
+import com.ibm.wala.cast.tree.impl.CAstSymbolImpl;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.IteratorPlusOne;
@@ -239,27 +238,21 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    CAstNode[] varDecls = new CAstNode[vars.length + 1];
 	    for (int i = 0; i < vars.length; i++)
 		varDecls[i] = fFactory.makeNode(CAstNode.DECL_STMT,
-		  fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant(vars[i].name())),
-		  fFactory.makeConstant(false),
-		  fFactory.makeConstant(false),
-		  fFactory.makeNode(CAstNode.ARRAY_REF, walkNodes(formal, context),
+		  fFactory.makeConstant(new CAstSymbolImpl(vars[i].name(), vars[i].flags().isFinal())),
+		  fFactory.makeNode(CAstNode.ARRAY_REF, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant(formal.name())),
 		    fFactory.makeConstant(TypeReference.Int),
 		    fFactory.makeConstant(i)));
 	    varDecls[vars.length] = bodyNode;
 
 	    return fFactory.makeNode(CAstNode.LOCAL_SCOPE,
 		fFactory.makeNode(CAstNode.BLOCK_STMT,
-		    fFactory.makeNode(CAstNode.DECL_STMT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp")),
-		      fFactory.makeConstant(true),
-		      fFactory.makeConstant(false),
+		    fFactory.makeNode(CAstNode.DECL_STMT, fFactory.makeConstant(new CAstSymbolImpl("iter tmp", false)),
 		      fFactory.makeNode(X10CastNode.REGION_ITER_INIT, domainNode)),
 		    fFactory.makeNode(CAstNode.LOOP,
 			fFactory.makeNode(X10CastNode.REGION_ITER_HASNEXT,
 			    fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp"))),
 			fFactory.makeNode(CAstNode.BLOCK_STMT,
 			    fFactory.makeNode(CAstNode.DECL_STMT, walkNodes(formal, context),
-				fFactory.makeConstant(false),
-				fFactory.makeConstant(false),
 				fFactory.makeNode(X10CastNode.REGION_ITER_NEXT, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("iter tmp")))),
 			    varDecls))));
 	}
@@ -286,9 +279,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return fFactory.makeNode(CAstNode.LOCAL_SCOPE,
 		fFactory.makeNode(CAstNode.BLOCK_STMT,
 			fFactory.makeNode(CAstNode.DECL_STMT, 
-			  fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")),
-			  fFactory.makeConstant(true),
-			  fFactory.makeConstant(false),
+			  fFactory.makeConstant(new CAstSymbolImpl("dist temp", true)),
 			  dist),
 			walkRegionIterator(a, bodyNode, fFactory.makeNode(CAstNode.VAR, fFactory.makeConstant("dist temp")), context)));
 	}
@@ -402,10 +393,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstNode visit(X10Formal f, WalkContext context) {
-	    // Parser currently expands the various types of formal parameters in constructs
-	    // such as foreach, ateach, and "enhanced for".
-	    Assertions.UNREACHABLE("X10toCAstTranslator.visit(X10Formal) called?");
-	    return null;
+	    return fFactory.makeConstant(new CAstSymbolImpl(f.name(), true));
 	}
 
 	public CAstNode visit(Clocked c, WalkContext context) {
