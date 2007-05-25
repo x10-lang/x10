@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ibm.domo.ast.x10.client.X10SourceAnalysisEngine;
+import com.ibm.domo.ast.x10.translator.X10CAstPrinter;
+import com.ibm.domo.ast.x10.translator.X10CastNode;
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.test.IRTests;
@@ -26,6 +28,13 @@ public class X10IRTests extends IRTests {
 	x10RTJar= new ArrayList();
 	x10RTJar.addAll(rtJar);
 	x10RTJar.add(x10LibPath + File.separator + "x10-runtime.jar");
+
+	try {
+	    // Force X10 version of CAstPrinter to be used...
+	    Class.forName("com.ibm.domo.ast.x10.translator.X10CAstPrinter");
+	} catch (ClassNotFoundException e) {
+	    System.err.println(e.getMessage());
+	}
     }
 
     public X10IRTests(String name) {
