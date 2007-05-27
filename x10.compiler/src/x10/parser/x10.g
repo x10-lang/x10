@@ -1345,23 +1345,23 @@ System.out.println("AnnotatedType " + Type + " " + Annotations);
 
     ConstFieldAccess ::= ConstPrimary . identifier
         /.$BeginJava
-                    setResult(nf.Call(pos(), ConstPrimary, nf.Id(identifier.getPosition(), identifier.getIdentifier()), Collections.EMPTY_LIST));
+                    setResult(nf.Field(pos(), ConstPrimary, nf.Id(identifier.getPosition(), identifier.getIdentifier())));
           $EndJava
         ./
                   | super . identifier
         /.$BeginJava
-                    setResult(nf.Call(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(identifier.getPosition(), identifier.getIdentifier()), Collections.EMPTY_LIST));
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
           $EndJava
         ./
                   | ClassName . super$sup . identifier
         /.$BeginJava
-                    setResult(nf.Call(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(identifier.getPosition(), identifier.getIdentifier()), Collections.EMPTY_LIST));
+                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(identifier.getPosition(), identifier.getIdentifier())));
           $EndJava
         ./
 
 --    PropAccess ::= ConstTerm . identifier
 --        /.$BeginJava
---        setResult(nf.Call(pos(), ConstTerm, nf.Id(identifier.getPosition(), identifier.getIdentifier()), Collections.EMPTY_LIST));
+--        setResult(nf.Field(pos(), ConstTerm, nf.Id(identifier.getPosition(), identifier.getIdentifier())));
 --          $EndJava
 --        ./
 
