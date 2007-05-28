@@ -3,10 +3,10 @@
 
 using namespace x10lib;
 
-async_arg_t argbuf[MAX_HANDLERS][MAX_TASKS][MAX_ARGS*AGG_LIMIT];
-ulong counter[MAX_HANDLERS][MAX_TASKS];
-int maxCounter[MAX_HANDLERS];
-int total [MAX_HANDLERS];
+extern async_arg_t argbuf[MAX_HANDLERS][MAX_TASKS][MAX_ARGS*AGG_LIMIT];
+extern ulong counter[MAX_HANDLERS][MAX_TASKS];
+extern int maxCounter[MAX_HANDLERS];
+extern int total [MAX_HANDLERS];
 
 template <int N, typename F>
 inline void
