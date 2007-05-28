@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.cc,v 1.11 2007-05-28 12:46:21 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.cc,v 1.12 2007-05-28 12:48:13 ganeshvb Exp $ */
 
 #include "RandomAccess_spmd.h"
 #include "timers.h"
@@ -110,7 +110,6 @@ void
 RandomAccess_Dist::Verify (const glong_t LogTableSize, const bool Embarrassing,
                            localTable* Table)
 {
-  //cout << "Before "<< endl;
   const glong_t tableSize = (1UL << LogTableSize);
   const glong_t numUpdates = tableSize*4;
   
