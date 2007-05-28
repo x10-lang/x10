@@ -5,12 +5,12 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: point.h,v 1.3 2007-05-09 12:40:30 ganeshvb Exp $ */
+/* $Id: point.h,v 1.4 2007-05-28 06:38:20 ganeshvb Exp $ */
 
 #ifndef __X10_POINT_H__
 #define __X10_POINT_H__
 
-#include <x10/assert.h>
+#include <x10/xassert.h>
 #include <x10/gas.h>
 namespace x10lib{
   
