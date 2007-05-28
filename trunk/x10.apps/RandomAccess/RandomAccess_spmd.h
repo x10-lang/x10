@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_spmd.h,v 1.4 2007-05-23 11:37:04 ganeshvb Exp $ */
+/* $Id: RandomAccess_spmd.h,v 1.5 2007-05-28 12:46:21 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -15,22 +15,17 @@
 #include <x10/async.h>
 
 #include "x10lang.h"
-#include "x10lang.cc"
+//#include "x10lang.cc"
 
 using namespace std;
 using namespace x10lib;
 using namespace x10::lang;
+using namespace java::lang;
 
 /* This gives the opportunity to use either int64_t or uint64_t */
 
 typedef int64_t glong_t;
 typedef int64_t sglong_t;
-
-#ifdef VERIFY
-bool doVerify = true;
-#else
-bool doVerify = false;
-#endif
 
 class RandomAccess_Dist {
 
@@ -63,7 +58,11 @@ private:
   static Dist<1>*  UNIQUE;
   static int NUMPLACES;
   static int PLACEIDMASK;
-  
+
+  static const int UPDATE = 0;
+  static const int VERIFICATION_P = 1;  
+  static const int UPDATE_AND_VERIFICATION = 2;
+
   static glong_t HPCC_starts(sglong_t n);
 
   static void Verify (glong_t LogTableSize, bool embarrassing, localTable* Table);
