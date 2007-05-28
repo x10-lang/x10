@@ -5,12 +5,12 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_region.cc,v 1.1 2007-05-09 06:39:27 ganeshvb Exp $ */
+/* $Id: Test_region.cc,v 1.2 2007-05-28 06:38:20 ganeshvb Exp $ */
 
 #include <iostream>
 
-#include <x10/array.h>
 #include <x10/x10lib.h>
+#include <x10/array.h>
 
 using namespace std;
 using namespace x10lib;

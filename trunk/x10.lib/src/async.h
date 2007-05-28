@@ -5,13 +5,13 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.h,v 1.4 2007-05-28 06:03:53 ganeshvb Exp $ */
+/* $Id: async.h,v 1.5 2007-05-28 06:38:20 ganeshvb Exp $ */
 
 #ifndef __ASYNC_NEW_H__
 #define __ASYNC_NEW_H__
 
 #include <iostream>
-#include "x10/assert.h"
+#include "x10/xassert.h"
 #include <x10/err.h>
 #include <x10/types.h>
 #include <x10/gas.h>

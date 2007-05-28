@@ -5,12 +5,12 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: array.tcc,v 1.5 2007-05-17 09:48:52 ganeshvb Exp $ */
+/* $Id: array.tcc,v 1.6 2007-05-28 06:38:20 ganeshvb Exp $ */
 
 #include "array.h"
 #include "x10/handlers.h"
 #include "x10/gas.h"
-#include "x10/assert.h"
+#include "x10/xassert.h"
 
 using namespace x10lib;
 

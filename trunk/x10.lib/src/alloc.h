@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: alloc.h,v 1.1 2007-05-09 07:04:29 ganeshvb Exp $ */
+/* $Id: alloc.h,v 1.2 2007-05-28 06:38:20 ganeshvb Exp $ */
 
 #ifndef __ALLOC_H__
 #define __ALLOC_H__
@@ -13,7 +13,7 @@
 #include <iostream>
 #include <sys/types.h>
 
-#include  <x10/assert.h>
+#include  <x10/xassert.h>
 #include  <x10/gas.h> 
 
 using namespace std;

@@ -106,6 +106,8 @@ x10lib::asyncRegisterAgg()
 error_t
 asyncSpawnInlineAgg_i (place_t target, async_handler_t handler, int N)
 {
+
+ assert (N <= MAX_ARGS);
  counter[handler][target]++;
  total[handler]++;
 

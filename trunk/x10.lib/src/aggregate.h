@@ -5,13 +5,12 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: aggregate.h,v 1.3 2007-05-28 06:03:52 ganeshvb Exp $ */
+/* $Id: aggregate.h,v 1.4 2007-05-28 06:38:20 ganeshvb Exp $ */
 
 #ifndef __AGGREGATE_H__
 #define __AGGREGATE_H__
 
 #include <iostream>
-#include "x10/assert.h"
 #include <x10/err.h>
 #include <x10/types.h>
 #include <x10/async.h>
