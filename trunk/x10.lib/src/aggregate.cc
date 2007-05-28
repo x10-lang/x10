@@ -11,10 +11,8 @@ int total [MAX_HANDLERS];
 
 inline void
 batchAsyncDispatch (async_arg_t *a, ulong len, async_handler_t handle, int N) { 
- for (int i = 0; i < len; i += N * sizeof(async_arg_t)) {
-   asyncSwitch (handle, a);
-   a = a + N;
- }
+   int niter = len / (N * sizeof(async_arg_t));  
+   asyncSwitch (handle, a, niter);
 }
 
 struct comp 
@@ -171,6 +169,16 @@ x10lib::asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_
   argbuf[handler][target][count] =  arg0;
   return asyncSpawnInlineAgg_i (target, handler, 1);
 }
+
+error_t
+x10lib::asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_t arg0, async_arg_t arg1)
+{
+  ulong& count = counter [handler][target];
+  argbuf[handler][target][2*count] =  arg0;
+  argbuf[handler][target][2*count+1] =  arg1;
+  return asyncSpawnInlineAgg_i (target, handler,2);
+}
+
 
 // Local Variables:
 // mode: C++

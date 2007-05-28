@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: aggregate.h,v 1.2 2007-05-23 11:35:56 ganeshvb Exp $ */
+/* $Id: aggregate.h,v 1.3 2007-05-28 06:03:52 ganeshvb Exp $ */
 
 #ifndef __AGGREGATE_H__
 #define __AGGREGATE_H__
@@ -23,6 +23,8 @@ namespace x10lib{
   const int AGG_LIMIT = 1024;
 
   error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_t arg0);
+
+  error_t asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_t arg0, async_arg_t arg1);
 
   error_t asyncFlush (async_handler_t handler, int N);
 
