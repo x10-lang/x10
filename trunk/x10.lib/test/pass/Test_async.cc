@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async.cc,v 1.2 2007-05-17 09:49:52 ganeshvb Exp $ */
+/* $Id: Test_async.cc,v 1.3 2007-05-28 06:04:23 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -18,23 +18,28 @@ using namespace std;
 using namespace x10lib;
 
 
-struct helloWorld
+void async0 (async_arg_t arg)
 {
-void operator() (async_arg_t* arg0, int n)
-  {
-    assert (*arg0 = 333);
+  assert (arg == 333);
+}
+
+int asyncSwitch (async_handler_t h, async_arg_t* args, int n)
+{
+  switch (h) {
+   case 0:
+     async0 (*args);
   }
-};
+}
 
 int 
 main (int argc, char* argv[])
 {
 
-  x10lib::Init(handlers, 0);
+  x10lib::Init(NULL, 0);
 
   if (here() == 0)
     for (place_t target = 0; target < numPlaces(); target++)
-       asyncSpawnInline <1, helloWorld> (target, 333);
+       asyncSpawnInline (target, 0, 1, 333);
 
   x10lib::Gfence (); 
 

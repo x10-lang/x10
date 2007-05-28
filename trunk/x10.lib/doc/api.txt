@@ -1224,15 +1224,6 @@ Getenv
 
 Purpose: Query the runtime environment.
 
-
-10) Environment
----------------
-
-Getenv
-------
-
-Purpose: Query the runtime environment.
-
 Library: libx10.a
 
 C++ syntax:
