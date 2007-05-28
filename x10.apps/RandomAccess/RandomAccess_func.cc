@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: RandomAccess_func.cc,v 1.2 2007-05-24 09:27:38 ganeshvb Exp $ */
+/* $Id: RandomAccess_func.cc,v 1.3 2007-05-28 12:46:20 ganeshvb Exp $ */
 
 #include "RandomAccess_func.h"
 #include "timers.h"
@@ -178,17 +178,17 @@ RandomAccess_Dist::main (x10::array<String>& args)
   bool embarrasing = false;
   int logTableSize = 10;
   for (int q = 0; q < args.length; ++q) {
-    if (args[q].compare ("-o") == 0) {
+    if (args[q].equals ("-o")) {
       doIO = true;
     }
 
-    if (args[q].compare("-e") == 0) {
+    if (args[q].equals("-e")) {
       embarrasing = true;
     }
 
-    if (args[q].compare("-m") == 0) {
+    if (args[q].equals("-m")) {
       ++q;
-      logTableSize = args[q].intValue();
+      logTableSize = java::lang::Integer::parseInt(args[q]);
     }
   }
 
