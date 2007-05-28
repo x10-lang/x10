@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.2 2007-05-23 11:35:56 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.3 2007-05-28 06:04:23 ganeshvb Exp $ */
 
 #include <iostream>
 #include <x10/assert.h>
@@ -24,11 +24,13 @@ void async0 (async_arg_t arg0)
   I += arg0 *  m;
   K++;
 }
-int asyncSwitch (async_handler_t h, async_arg_t* args) 
+int asyncSwitch (async_handler_t h, async_arg_t* args, int niter) 
 {
+
+  for (int i = 0; i < niter ;i ++)
   switch (h) {
   case 0:
-    async0 (*args);
+    async0 (*args++);
   }
 }
 

@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_array_async.cc,v 1.2 2007-05-17 09:49:52 ganeshvb Exp $ */
+/* $Id: Test_array_async.cc,v 1.3 2007-05-28 06:04:23 ganeshvb Exp $ */
 
 #include <iostream>
 
@@ -14,35 +14,37 @@
 
 using namespace std;
 
-func_t handlers[128];
 
-
-struct async2 
+void async1 (async_arg_t arg0)
 {
-  inline void operator() (async_arg_t* arg0, int n)
-  {
-    assert (n==1);
-    assert  (*arg0 == (here() - 1) % numPlaces());
+    assert  (arg0 == (here() - 1) % numPlaces());
+}
+
+void async0 (async_arg_t arg0, async_arg_t arg1)
+{
+    Array<int, 1> * a = (Array<int, 1>*) (arg0);
+
+    assert (a->localSize() == arg1);
+
+    asyncSpawnInline ((here() + 1) % numPlaces(), 1, 1, here());
+}
+
+int asyncSwitch (async_handler_t h, async_arg_t* args, int n)
+{
+  switch (h) {
+   case 0:
+     async0(*args++, *args);
+     break;
+   case 1:
+     async1(*args);
+     break;
   }
-};
-
-struct async1{
-  inline void operator () (async_arg_t* args, int n) 
-  {
-    assert (n == 2);
-
-    Array<int, 1> * a = (Array<int, 1>*) (*args);
-
-    assert (a->localSize() == *(args+1));
-
-    asyncSpawnInline <1, async2> ((here() + 1) % numPlaces(), here());
-  }
-};
+}
 
 int 
 main (int argc, char* argv[])
 {
-  x10lib::Init(handlers, 2);
+  x10lib::Init(NULL, 0);
 
   place_t p [4] = {0, 1, 2, 3};
 
@@ -52,7 +54,7 @@ main (int argc, char* argv[])
     Array<int, 1>* a = makeArray <int,1, RectangularRegion, UniqueDist>(grid, u);
     uint64_t tableSize = a->localSize();
    for (place_t target = 0; target < numPlaces(); target++)
-     asyncSpawnInline<2, async1> (target, (async_arg_t) (GlobalSMAlloc->addrTable(target)),
+     asyncSpawnInline(target, 0, 2, (async_arg_t) (GlobalSMAlloc->addrTable(target)),
                     tableSize);
 
   } 
