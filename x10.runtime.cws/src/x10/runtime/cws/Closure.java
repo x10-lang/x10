@@ -149,7 +149,6 @@ public class Closure  {
 		child.ownerReadyQueue=null;
 		cache.incHead();
 		
-		
 		victim.addBottom(thief, child);
 		return child;
 	}
@@ -207,7 +206,6 @@ public class Closure  {
     private void decrementExceptionPointer(Worker ws) {
     	assert lockOwner == ws;
     	assert status == Status.RUNNING;
-    	
     	cache.decrementExceptionPointer();
     }
     
@@ -254,10 +252,11 @@ public class Closure  {
     	
     	// Short circuit for globally quiescent computations.
     	if (requiresGlobalQuiescence() && parent != null) {
-    		int value = resultInt();
-    		int oldValue = w.currentJob().resultInt();
-    		if (Worker.reporting)
+    		//int value = resultInt();
+    		//int oldValue = w.currentJob().resultInt();
+    		/*if (Worker.reporting)
     			System.out.println(w + " short circuiting return to current job: adding " + value + " into " + oldValue);
+    			*/
     		w.currentJob().accumulateResultInt(resultInt());
     		return null;
     	}
@@ -270,9 +269,9 @@ public class Closure  {
     	Closure parent = this.parent;
     	if (parent == null) {
     		// Must be a top level closure.
-    		if (Worker.reporting) {
+    		/*if (Worker.reporting) {
     			System.out.println(w + " returning from orphan " + this + ".");
-    		}
+    		}*/
     		return null;
     	}
     	return parent.acceptChild(w, this);
@@ -498,7 +497,13 @@ public class Closure  {
 		done = true;
 		w.lock(w);
 		try {
-			
+			if (requiresGlobalQuiescence()) {
+				w.extractBottom(w);
+				// speed the result on its way.
+				if (parent != null)
+					w.currentJob().accumulateResultInt(resultInt());
+				return;
+			}
 			Closure t = w.peekBottom(w);
 			assert t==this;
 			lock(w);
@@ -510,6 +515,18 @@ public class Closure  {
 			} finally {
 				unlock();
 			}
+		} finally {
+			w.unlock();
+		}
+	}
+	final protected void setupGQReturnNoArg() {
+		// Do not trust client code to pass this parameter in.
+		Worker w = (Worker) Thread.currentThread();
+		w.lock(w);
+		try {
+				w.extractBottom(w);
+				w.popFrame();
+				return;
 		} finally {
 			w.unlock();
 		}
