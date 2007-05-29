@@ -100,6 +100,9 @@ package x10.runtime.cws;
     protected Frame topFrame() {
     	return stack[head];
     }
+    public Frame currentFrame() {
+    	return stack[tail-1];
+    }
     protected void popFrame() {
 		--tail;
 	}

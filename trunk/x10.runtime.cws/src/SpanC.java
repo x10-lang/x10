@@ -8,6 +8,8 @@
  */
 import java.util.concurrent.atomic.AtomicInteger;
 import x10.runtime.cws.*;
+import x10.runtime.cws.Job.GFrame;
+import x10.runtime.cws.Job.GloballyQuiescentJob;
 
 
 
@@ -18,6 +20,10 @@ public class SpanC {
 		public int degree;
 		public int [] neighbors;
 		public V(){}
+		public String toString() { 
+			String s="[" + (neighbors.length==0? "]" : "" + neighbors[0]);
+			for (int i=1; i < neighbors.length; i++) s += ","+neighbors[i];
+			return "v(parent=" + parent + ",degree="+degree+ ",n=" + s+"])";}
 	}
 	
 	
@@ -34,8 +40,8 @@ public class SpanC {
 	AtomicInteger [] color;
 	int ncomps=0;
 	
-	static int[] Ns = new int[] {10*1000, 50*1000, 100*1000, 
-		500*1000, 1000*1000, 5*1000*1000,10*1000*1000};
+	static int[] Ns = new int[] {10*1000, 50*1000, 100*1000,
+	500*1000, 1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000};
 	
 	
 	public SpanC (){
@@ -107,24 +113,28 @@ public class SpanC {
 				int v = stack[top];
 				top--;
 				
-				for(int j=0;j<D[v];j++)
-					if(color[NB[v][j]].get()==0){
+				for(int j=0;j<D[v];j++) {
+					int m = NB[v][j];
+					if(color[m].get()==0){
 						top++;
-						stack[top]=NB[v][j];
-						color[NB[v][j]].set(1);
+						stack[top]=m;
+						color[m].set(1);
 					}
+				}
 			}
 		}
 		
-		//System.out.println("ncomps="+ncomps);
+		System.out.println("ncomps="+ncomps);
 		El1 = new E [m+ncomps-1]; 
+		
 		for(int i=0;i<N;i++) color[i].set(0);
+		
 		int j=0;
 		//    Remove duplicated edges
 		for(int i=0;i<M;i++) if(El[i].v1!=-1) El1[j++]=El[i]; 
 		
-		//if(j!=m) System.out.println("Remove duplicates failed");
-		//else System.out.println("Remove duplicates succeeded,j=m="+j);
+		if(j!=m) System.out.println("Remove duplicates failed");
+		else System.out.println("Remove duplicates succeeded,j=m="+j);
 		
 		/*add edges between neighboring connected comps*/
 		for(int i=0;i<ncomps-1;i++) {
@@ -137,45 +147,48 @@ public class SpanC {
 		for(int i=0;i<N;i++) {
 			G[i]=new V();
 			G[i].degree=D[i];
+			
 			G[i].neighbors=new int [D[i]];
 			for(j=0;j<D[i];j++)
 				G[i].neighbors[j]=NB[i][j];
+			//System.out.println("G["+i+"]=" + G[i]);
 		}     
+		
 	}
 	
-	public static Traverser makeTraverser(SpanC s, int u) {
-		return new Traverser(new TFrame(s,u));
-	}
 	public static class TFrame extends Frame {
-		final SpanC s;
 		final int u; // vertex
-		int k;
-		public TFrame(SpanC s, int u) {
-			this.s=s;
+		volatile int k;
+		public TFrame(int u) {
 			this.u=u;
 		}
 		public void setOutlet(final Closure c) {
-			c.setOutlet(null);
+			// nothing to do
 		}
+		public Closure makeClosure() {
+			return new Traverser(this);
+		}
+		public String toString() { return "SpanC " + "u=" + u + ",k=" + k;}
 	}
-	public static final int LABEL_0 = 0, LABEL_1 = 1, LABEL_2=2;
-	static void traverse(final Worker w, final SpanC s, final int u) throws StealAbort {
-		TFrame frame = new TFrame(s, u);
+	public static final int LABEL_0 = 0;
+	static void traverse(final Worker w, V[] G, AtomicInteger[] c, final int u) throws StealAbort {
+		TFrame frame = new TFrame(u);
 		frame.k=1;
-		frame.PC=LABEL_0;
+		//frame.PC=LABEL_0;
 		w.pushFrame(frame);
 		int k=0;
-		while (k < s.G[u].degree) {
-			int v=s.G[u].neighbors[k];
-			boolean result = s.color[v].compareAndSet(0,1);
+		while (k < G[u].degree) {
+			int v=G[u].neighbors[k];
+			boolean result = c[v].compareAndSet(0,1);
 			if (result) {
-				s.G[v].parent=u;
-				traverse(w,s,v);
+				//System.out.println(w + " sets " + v + ".parent to " + u + ".");
+				G[v].parent=u;
+				traverse(w,G,c,v);
 				w.abortOnSteal();
 			}
 			++k;
 			frame.k=k;
-			frame.PC=LABEL_0; // to publish the f.k assignment.
+			//frame.PC=LABEL_0; // to publish the f.k assignment.
 		}
 		w.popFrame();
 		return;
@@ -188,47 +201,43 @@ public class SpanC {
 		public void compute(Worker w, Frame frame) throws StealAbort {
 			TFrame f = (TFrame) frame;
 			final int u = f.u;
-			final SpanC s = f.s;
-			switch (f.PC) {
-			case LABEL_0: 
-				int k = f.k;
-				while (k < s.G[u].degree) {
-					int v=s.G[u].neighbors[k];
-					boolean result = s.color[v].compareAndSet(0,1);
-					if (result) {
-						s.G[v].parent=u;
-						try {
-							traverse(w,s,v);
-						} catch(StealAbort z) {
-							return;
-						}
-						w.abortOnSteal();
-					}
-					++k;
-					f.k=k;
-					f.PC=LABEL_0; // to publish the f.k assignment.
+			int k = f.k;
+			final SpanC g = graph;
+			final V[] G = graph.G;
+			final AtomicInteger[] c = graph.color;
+			while (k < G[u].degree) {
+				int v=G[u].neighbors[k];
+				boolean result = c[v].compareAndSet(0,1);
+				if (result) {
+					//System.out.println(w + "" + v + ".parent=" + u);
+					G[v].parent=u;
+					traverse(w,G,c,v);
+					w.abortOnSteal();
 				}
-				f.PC = LABEL_1;
-				if (sync(w)) 
-					return;
-				
-				// There should be a way of signaling returning with no value.
-			case LABEL_1: 
-				setupReturn();
+				++k;
+				f.k=k;
 			}
+			setupGQReturnNoArg();
+			
 			return;
 		}
 	}
 	boolean verifyTraverse(int root) {
-		int[] D = new int [N];
-		for(int i=0;i<N;i++) D[i]=G[i].parent;
-		for(int i=0;i<N;i++) while(D[i]!=D[D[i]]) D[i]=D[D[i]];
-		for(int i=0;i<N;i++)
-			if(D[i]!=root)  
+		int[] X = new int [N];
+		for(int i=0;i<N;i++) X[i]=G[i].parent;
+		//for(int i=0;i<10;i++) System.out.print("parent["+i+"]=" + X[i]+",");
+		//System.out.println();
+		for(int i=0;i<N;i++) while(X[i]!=X[X[i]]) X[i]=X[X[i]];
+		//for(int i=0;i<10;i++) System.out.print("root["+i+"]=" + X[i]+",");
+		//System.out.println();
+		for(int i=0;i<N;i++) {
+			
+			if(X[i]!=X[0])  
 				return false;
+		}
 		return true;
 	}
-	
+	static SpanC graph;
 	public static void main(String[] args) {
 		int procs;
 		try {
@@ -236,24 +245,51 @@ public class SpanC {
 			System.out.println("Number of procs=" + procs);
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java SpanT <threads> <N>");
+			System.out.println("Usage: java SpanT <threads>");
 			return;
 		}
 		Pool g = new Pool(procs);
 		for (int i=0; i < Ns.length; i++) {
 			
 			N = Ns[i]; M = 3*N/5;
-			final SpanC graph = new SpanC();
-			long s = System.nanoTime();
-			Job task = new Job(g) {
-				public int spawnTask(Worker ws) throws StealAbort { 
-					makeTraverser(graph,0);
-					return 0;
+			graph = new SpanC();
+			
+			
+			GloballyQuiescentJob job = new GloballyQuiescentJob(g) {
+				
+				@Override
+				protected void compute(Worker w, Frame frame) throws StealAbort {
+					GFrame f = (GFrame) frame;
+					int PC = f.PC;
+					f.PC=LABEL_1;
+					if (PC==0) {
+						// spawning
+						graph.color[0].set(1);
+						traverse(w,graph.G, graph.color, 0);
+						w.abortOnSteal();
+					}
+					setupGQReturnNoArg();
 				}
+				@Override
+				public int spawnTask(Worker ws) throws StealAbort { 
+					
+					return 0;
+					
+				}
+				public String toString() { 
+					return "GJob(SpanC,#" + hashCode() + ",status=" + status + ",frame=" + frame + ")";}
 			};
-			g.submit(task);
+			
+			
+			long s = System.nanoTime();
+			g.submit(job);
+			try {
+				job.waitForCompletion();
+			} catch (InterruptedException z) {}
 			long t = System.nanoTime();
-			System.out.println( "N=" + N + " " + graph.verifyTraverse(0) + " Time: "  + (t-s)/1000000 );
+			System.out.println( "N=" + N + " " + graph.verifyTraverse(0) 
+					+ " Time: "  + (t-s)/1000000  + " Steals=" + g.getStealCount());
+			//for ( i=0; i < graph.G.length; i++) System.out.println("G["+i+"]="+graph.G[i]);
 			System.gc();
 			System.out.println("Finished gc.");
 		}   

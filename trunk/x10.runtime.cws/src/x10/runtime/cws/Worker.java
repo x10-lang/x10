@@ -67,7 +67,7 @@ public class Worker extends Thread {
      * task. Set to start at 1 on startup to reflect initial
      * idleness.
      */
-    volatile int idleScanCount;
+    int idleScanCount;
 
     /**
      * Status tracking sleeps on idle scans. Normally zero,
@@ -151,9 +151,9 @@ public class Worker extends Thread {
 	protected Closure steal(Worker thief, boolean retry) {
 		final Worker victim = this;
 		++stealAttempts;
-		if (reporting) {
+		/*if (reporting) {
 			System.out.println(thief + " attempts to steal from " + victim.index);
-		}
+		}*/
 		
 		lock(thief);
 		Closure cl=null;
@@ -170,9 +170,9 @@ public class Worker extends Thread {
 		}
 		if (cl == null) {
 			try {
-				if (reporting) {
+				/*if (reporting) {
 					System.out.println(thief + " steal attempt: queue empty on  " + thief.index);
-				}
+				}*/
 				return null;
 			} finally {
 				lock.unlock();
@@ -198,10 +198,10 @@ public class Worker extends Thread {
 				Closure res = extractTop(thief);
 				assert (res == cl);
 				thief.checkOut(res);
-				if (reporting) {
+				/*if (reporting) {
 					System.out.println(thief + " steals ready " + cl + " from "
 							+ victim);
-				}
+				}*/
 				return res;
 			} finally {
 				cl.unlock();
@@ -225,8 +225,8 @@ public class Worker extends Thread {
 //					 I have work now, so checkout of the barrier.
 					child = cl.promoteChild(thief, victim);
 					res = extractTop(thief);
-					if (reporting)
-					System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);
+					/*if (reporting)
+					System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
 					thief.checkOut(res);
 					assert cl==res;
 				} finally {
@@ -237,11 +237,11 @@ public class Worker extends Thread {
 				} finally {
 					cl.unlock();
 				}
-				if (reporting) {
+				/*if (reporting) {
 					
 					System.out.println(thief + " steals running " + cl + " from "
 							+ victim);
-				}
+				}*/
 				
 				return res;
 			} 
@@ -344,8 +344,8 @@ public class Worker extends Thread {
 		assert cl !=null;
 		assert cl.ownerReadyQueue == null;
 		
-		if (reporting)
-			System.out.println(ws + " adds " + cl + " to " + this + " bottom.");
+		/*if (reporting)
+			System.out.println(ws + " adds " + cl + " to " + this + " bottom.");*/
 		cl.prevReady = bottom;
 		cl.nextReady = null;
 		cl.ownerReadyQueue = this;
@@ -417,11 +417,11 @@ public class Worker extends Thread {
 	 * @return -- a task, or null if none is available
 	 */
 	private Closure getTask(boolean mainLoop) {
-		if ( reporting) {
+		/*if ( reporting) {
 			System.out.println(this + " at  " + pool.time() + " looking for work idleScanCount= " + idleScanCount + 
 					" checkedIn=" + checkedIn + " job=" + currentJob() + ".");
 			System.out.println(this + " " + pool.barrier.numCheckedIn);
-		}
+		}*/
 		Closure cl = null;
 		checkIn();
 		if (++idleScanCount < 0)
@@ -496,12 +496,12 @@ public class Worker extends Thread {
         if (((idleScanCount + 1) & SCANS_PER_SLEEP) == 0) {
             if (sleepStatus == AWAKE &&
                 sleepStatusUpdater.compareAndSet(this, AWAKE, SLEEPING)){
-            	if (reporting)
+            	/*if (reporting)
             		System.out.println(this + " at " + pool.time() + " parking for " 
-            				+ (idleScanCount * SLEEP_NANOS_PER_SCAN) + " nanos.");
+            				+ (idleScanCount * SLEEP_NANOS_PER_SCAN) + " nanos.");*/
                 LockSupport.parkNanos(idleScanCount * SLEEP_NANOS_PER_SCAN);
-                if (reporting)
-                	System.out.println(this + " at " + pool.time() + " unparking.");
+               /* if (reporting)
+                	System.out.println(this + " at " + pool.time() + " unparking.");*/
                 if (sleepStatus == WOKEN) // reset count on wakeup
                     idleScanCount = 1;
             }
@@ -513,8 +513,8 @@ public class Worker extends Thread {
     boolean checkedIn = true;
     void checkIn() {
     	if (!checkedIn) {
-    		if (reporting)
-    		System.out.println(this + " at " + pool.time() + " checks in. Gotta find me some work!");
+    		/*if (reporting)
+    			System.out.println(this + " at " + pool.time() + " checks in. Gotta find me some work!");*/
     		checkedIn = true;
     		pool.barrier.checkIn();
     	}
@@ -522,14 +522,14 @@ public class Worker extends Thread {
     void checkOut(Closure cl) {
     	if (! checkedIn) {
     		Worker other = pool.getWorkers()[1-index];
-    		if (reporting)
-    		System.out.println(this + " at " + pool.time() + " tries to check out. checkedIn == false!! other.checkedIn=" 
-    				+ other.checkedIn);
+    		/*if (reporting)
+    			System.out.println(this + " at " + pool.time() + " tries to check out. checkedIn == false!! other.checkedIn=" 
+    					+ other.checkedIn);*/
     		assert false;
     	}
     	if (checkedIn) {
-    		if (reporting)
-    		System.out.println(this + " at " + pool.time() + " checks out. Work to do! " + cl);
+    		/*if (reporting)
+    			System.out.println(this + " at " + pool.time() + " checks out. Work to do! " + cl);*/
     		checkedIn = false;
     		pool.barrier.checkOut();
     	}
@@ -537,8 +537,8 @@ public class Worker extends Thread {
     private void wakeup() {
         if (sleepStatus == SLEEPING && 
             sleepStatusUpdater.compareAndSet(this, SLEEPING, WOKEN)) {
-        	if (reporting)
-        	System.out.println(this + " at " + pool.time() + " is being unparked.");
+        	/*if (reporting)
+        	System.out.println(this + " at " + pool.time() + " is being unparked.");*/
             LockSupport.unpark(this);
         }
     }
@@ -555,9 +555,9 @@ public class Worker extends Thread {
 				lock(this);
 				try {
 					cl = extractBottom(this);
-					if (((reporting )) && cl !=null) {
+					/*if (((reporting )) && cl !=null) {
 						System.out.println(this + " extracts " + cl + ".");
-					}
+					}*/
 				} finally {
 					unlock();
 				}
@@ -571,13 +571,13 @@ public class Worker extends Thread {
 				// Found some work! Execute it.
 				idleScanCount=-1;
 				assert cache == null || cache.empty();
-				if ( reporting) {
+				/*if ( reporting) {
 					System.out.println(this + " executes " + cl +".");
-				}
+				}*/
 				Closure cl1 = cl.execute(this);
-				if ((reporting && bottom == cl)) {
+				/*if ((reporting && bottom == cl)) {
 					System.out.println(this + " completes " + cl + " returns " + cl1 +".");
-				}
+				}*/
 				cl=cl1;
 				
 				
@@ -636,8 +636,9 @@ public class Worker extends Thread {
 			return null;
 		
 		Closure result = exceptionHandler();
-		if ( reporting)
-			System.out.println(this + " at " + pool.time() + " popFrameCheck: discovers a theft and returns " + result);
+		if (true && reporting)
+			System.out.println(this + " at " + pool.time() + " popFrameCheck: discovers a theft and returns " + result
+					+ " cache=" + cache.dump());
 		if (result !=null)
 			popFrame();
 		return result;
@@ -676,17 +677,7 @@ public class Worker extends Thread {
 			throw StealAbort.abort;
 		}
 	}
-	/*public void abortOnStealAccumulatingGlobally(int x) throws StealAbort {
-		Closure c = popFrameCheck();
-		if (c != null) {
-			GloballyQuiescentJob g = (GloballyQuiescentJob) c;
-			int old = g.resultInt();
-			g.accumulateResultInt(x);
-			System.out.println(this + " at " + pool.time() + " aborting on steal: currentJob()" + (currentJob() == g? "==g." : "!=g.") 
-					+ g + ".resultInt()" + old + " --> " +  g.resultInt());
-			throw StealAbort.abort;
-		}
-	}*/
+	
 	/**
 	 * @see abortOnSteal(int x)
 	 * @param x

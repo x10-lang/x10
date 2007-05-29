@@ -91,7 +91,7 @@ public class NQueensG extends Closure {
 		public String toString() { 
 			String s="[";
 			for (int i=0; i < sofar.length; i++) s += sofar[i]+","; 
-			return "NF(" + s + "],q="  + q + ",sum=" + sum+")";
+			return "GNF(" + s + "],q="  + q + ",sum=" + sum+")";
 		}
 	}
 	public static final int LABEL_0=0, LABEL_1=1, LABEL_2=2, LABEL_3=3;
@@ -101,10 +101,8 @@ public class NQueensG extends Closure {
 		w.currentJob().accumulateResultInt(x);
 	}
 	int result;
-	@Override
-	public void setResultInt(int x) { result=x;}
-	@Override
-	public int resultInt() { return result;}
+	@Override public void setResultInt(int x) { result=x;}
+	@Override public int resultInt() { return result;}
 	
 	public static int nQueens(Worker w, int[] a) throws StealAbort {
 		final int row = a.length;
@@ -139,8 +137,6 @@ public class NQueensG extends Closure {
 			frame.q=q+1;
 		}
 		w.popFrame();
-		//System.out.println(w + " returning " + sum + " from nqueens call.");
-		
 		return sum;
 		
 	}
@@ -182,10 +178,10 @@ public class NQueensG extends Closure {
 				}
 				q++;
 			}
-			f.PC=LABEL_2;
+			/*f.PC=LABEL_2;
 			if (w.sync())
 				return;
-		case LABEL_2:
+		case LABEL_2:*/
 			result=f.sum;
 			setupReturn();
 		}

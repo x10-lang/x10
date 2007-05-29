@@ -59,8 +59,8 @@ public abstract class Job extends Closure implements Future {
 				// Accumulate into result.
 				int old = resultInt();
 				accumulateResultInt(f.x);
-				if (Worker.reporting)
-				System.out.println( w + " " + this + " adds " + f.x + " to move " + old + " --> " + resultInt());
+				//if (Worker.reporting)
+				//System.out.println( w + " " + this + " adds " + f.x + " to move " + old + " --> " + resultInt());
 			}
 			setupGQReturn();
 		}
@@ -100,9 +100,9 @@ public abstract class Job extends Closure implements Future {
 						public void run() {
 							int v = c.resultInt();
 							x = v;
-							if (Worker.reporting)
+						/*	if (Worker.reporting)
 								System.out.println(Thread.currentThread() + " transfers "
-										+ v + " to " + this +".x from " + c);
+										+ v + " to " + this +".x from " + c);*/
 						}
 						public String toString() { return "OutletInto x from " + c;}
 						});
@@ -147,14 +147,16 @@ public abstract class Job extends Closure implements Future {
 	abstract public int spawnTask(Worker ws) throws StealAbort;
 	public void completed() {
 		super.completed();
-		if ( Worker.reporting)
-			System.out.println(Thread.currentThread() + " completed. result=" + resultInt());
+	/*	if ( Worker.reporting)
+			System.out.println(Thread.currentThread() + " completed. result=" + resultInt());*/
 		synchronized(this) {
 			notifyAll();
 		}
 		pool.jobCompleted();
 	}
-	
+	public synchronized void waitForCompletion() throws InterruptedException {
+		while (!isDone()) wait();
+	}
     
     public boolean isCancelled() { return false;}
     
