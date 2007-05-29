@@ -99,7 +99,6 @@ public class Closure  {
 	}
 	
 	void unlock() { 
-		
 		lockOwner=null;
 		lock.unlock();
 	}
@@ -110,21 +109,7 @@ public class Closure  {
 		completeInlets.add(child);
 	}
 	
-
-	void makeReady() {
-		status=Status.READY;
-		cache=null;
-	}
-	
-	void completeAndEnque(Worker ws, Closure child) {
-		
-		assert (lockOwner == ws);
-		addCompletedInlet(child);
-		
-	}
-	
 	void removeChild(Closure child) {
-		
 		if (incompleteInlets != null) 
 		 incompleteInlets.remove(child);
 		// for (Inlet i : incompleteInlets) {
@@ -151,9 +136,12 @@ public class Closure  {
 
 		Frame childFrame = cache.childFrame();
 		Closure child = childFrame.makeClosure();
+		
 		Frame parentFrame = cache.topFrame();
 		parentFrame.setOutletOn(child);
 		
+		// Leave the parent link in there.
+		// It will not be used by globally quiescent computations.
 		child.parent = this;
 		child.joinCount = 0;
 		child.cache = cache;
@@ -176,18 +164,22 @@ public class Closure  {
 	void finishPromote(Worker thief, Closure child) {
 		
 		assert lockOwner == thief;
-		assert child.lockOwner != thief;
+		assert child == null || child.lockOwner != thief;
 		
 		/* Add the child to the parent. */
-		++joinCount;
+		if (! child.requiresGlobalQuiescence())
+			++joinCount;
+		// No need to add child to parent's incomplete inlets
+		// unless aborts are being propagated.
 		//if (incompleteInlets == null)
 		//	incompleteInlets = new ArrayList<Closure>();
 		//incompleteInlets.add(child);
 		
 		/* Set the parent's cache to null and its status to READY */
-		makeReady();
-		
+		status=Status.READY;
+		cache=null;
 	}
+	
 	/**
 	 * Do the thief part of Dekker's protocol.  Return true upon success,
 	 * false otherwise.  The protocol fails when the victim already popped
@@ -227,6 +219,7 @@ public class Closure  {
     }
     private void resetExceptionPointer(Worker ws) {
     	 assert lockOwner==ws;
+    	 
     	 cache.resetExceptionPointer();
      }
     
@@ -234,7 +227,7 @@ public class Closure  {
     	resetExceptionPointer(ws);
     	Status s = status;
     	assert s == Status.RUNNING || s == Status.RETURNING;
-    	if (cache.headGeqTail()) {
+    	if (cache.empty()) {
     		assert joinCount==0;
     		status = Status.RETURNING;
         	return true;
@@ -257,21 +250,32 @@ public class Closure  {
      * Required that ws==Thread.currentThread().
      * @return the parent, if this is the last child joining.
      */
-     private Closure closureReturn(Worker ws) {
+     private Closure closureReturn(Worker w) {
     	
+    	// Short circuit for globally quiescent computations.
+    	if (requiresGlobalQuiescence() && parent != null) {
+    		int value = resultInt();
+    		int oldValue = w.currentJob().resultInt();
+    		if (Worker.reporting)
+    			System.out.println(w + " short circuiting return to current job: adding " + value + " into " + oldValue);
+    		w.currentJob().accumulateResultInt(resultInt());
+    		return null;
+    	}
     	assert (joinCount==0);
     	assert (ownerReadyQueue==null);
-    	assert (lockOwner != ws);
-    	completed();
+    	assert (lockOwner != w);
+    	
+    	if (! requiresGlobalQuiescence())
+    		completed();
     	Closure parent = this.parent;
     	if (parent == null) {
     		// Must be a top level closure.
     		if (Worker.reporting) {
-    			System.out.println(ws + " returning from orphan " + this + ".");
+    			System.out.println(w + " returning from orphan " + this + ".");
     		}
     		return null;
     	}
-    	return parent.acceptChild(ws, this);
+    	return parent.acceptChild(w, this);
      }
      
      private Closure acceptChild(Worker ws, Closure child) {
@@ -282,7 +286,8 @@ public class Closure  {
     		//removeChild(child);
     		--joinCount;
     		child.lock(ws);
-    		completeAndEnque( ws, child);
+    		assert (lockOwner == ws);
+    		addCompletedInlet(child);
     		try {
     			/*if (status == RUNNING) {
     				signalImmediateException(ws);
@@ -300,7 +305,6 @@ public class Closure  {
     		} finally {
     			child.unlock();
     		}
-    		
     	} finally {
     		unlock();
     	}
@@ -314,7 +318,6 @@ public class Closure  {
      * Assume: ws=Thread.currentThread();
      */
    void suspend(Worker ws) {
-    	
     	assert lockOwner == ws;
     	assert status == Status.RUNNING;
     	
@@ -328,8 +331,6 @@ public class Closure  {
     	
 //    	Setting ownedReadyQueue to null even though Cilk does not do it.
     	cl.ownerReadyQueue=null;
-    	
-    	
     }
     
     /**
@@ -340,22 +341,20 @@ public class Closure  {
      * @return parent or null
      */
     private Closure provablyGoodStealMaybe(Worker ws, Closure child) {
-    	
     	assert child.lockOwner==ws;
     	//assert parent != null;
-    	
     	Closure result = null;
     	
     	if (joinCount==0 && status == Status.SUSPENDED) {
     		result = this;
     		pollInlets(ws);
     		ownerReadyQueue =null;
-    		makeReady();
+    		status=Status.READY;
+    		cache=null;
     		if (Worker.reporting) {
     			System.out.println(ws + " awakens " + this);
     		}
     	} 
-    	
     	return result;
     }
 	
@@ -367,11 +366,11 @@ public class Closure  {
 	 * this method is supposed to perform abort processing.
 	 */
 	void pollInlets(Worker ws) {
-		
 		assert lockOwner==ws;
 		
 		if (status==Status.RUNNING && ! cache.atTopOfStack()) {
 			if (ws.lockOwner !=ws) {
+				if (Worker.reporting)
 				System.out.println("Cache is " + cache.dump());
 			}
 			assert ws.lockOwner == ws;
@@ -394,7 +393,6 @@ public class Closure  {
      */
    
     Closure returnValue(Worker ws) {
-    	
     	assert status==Status.RETURNING;
     	
     	return closureReturn(ws);
@@ -404,35 +402,35 @@ public class Closure  {
 	 * Execute this closure. Performed after the closure has been
 	 * stolen from a victim. Will eventually invoke compute(frame),
 	 * after setting things up.
-	 * @param ws -- the current thread, must be equal to Thread.currentThread()
+	 * @param w -- the current thread, must be equal to Thread.currentThread()
 	 */
-	Closure execute(Worker ws) {
+	Closure execute(Worker w) {
 		
-		assert lockOwner != ws;
+		assert lockOwner != w;
 		
-		lock(ws);
+		lock(w);
 		Status s = status;
 		Frame f = frame;
 		if (s == Status.READY) {
 			try {
 				status = Status.RUNNING;
 		    	// load the cache from the worker's state.
-		    	cache = ws.cache;
+		    	cache = w.cache;
 		    	cache.pushFrame(frame);
 		    	cache.resetExceptionPointer();
 				assert f != null;
-				pollInlets(ws);
+				pollInlets(w);
 			} finally {
 				unlock();
 			}
-			ws.lock(ws);
+			w.lock(w);
 			try { 
-				ws.addBottom(ws, this);
+				w.addBottom(w, this);
 			} finally {
-				ws.unlock();
+				w.unlock();
 			}
 			try {
-				compute(ws, f);
+				compute(w, f);
 			} catch (StealAbort z) {
 				// do nothing. the exception has done its work
 				// unwinding the call stack.
@@ -441,10 +439,9 @@ public class Closure  {
 		}
 		if (s == Status.RETURNING) {
 			unlock();
-			return returnValue(ws);
+			return returnValue(w);
 		}
-		
-		throw new Error(ws + "executes " + status + " " + this + ": error!");
+		throw new Error(w + "executes " + status + " " + this + ": error!");
 	}
 
 	/**
@@ -497,24 +494,47 @@ public class Closure  {
 	 */
 	final protected void setupReturn() {
 		// Do not trust client code to pass this parameter in.
-		Worker ws = (Worker) Thread.currentThread();
+		Worker w = (Worker) Thread.currentThread();
 		done = true;
-		ws.lock(ws);
+		w.lock(w);
 		try {
 			
-			Closure t = ws.peekBottom(ws);
+			Closure t = w.peekBottom(w);
 			assert t==this;
-			lock(ws);
+			lock(w);
 			try {
 				assert status==Status.RUNNING;
 				status=Status.RETURNING;
 				//frame=null;
-				ws.popFrame();
+				w.popFrame();
 			} finally {
 				unlock();
 			}
 		} finally {
-			ws.unlock();
+			w.unlock();
+		}
+	}
+	final protected void setupGQReturn() {
+		// Do not trust client code to pass this parameter in.
+		Worker w = (Worker) Thread.currentThread();
+		// do not set done to true. This will be 
+		// done when global quiescence is recognized.
+		w.lock(w);
+		try {
+			
+			Closure t = w.peekBottom(w);
+			assert t==this;
+			lock(w);
+			try {
+				assert status==Status.RUNNING;
+				status=Status.RETURNING;
+				//frame=null;
+				w.popFrame();
+			} finally {
+				unlock();
+			}
+		} finally {
+			w.unlock();
 		}
 	}
 	
@@ -526,6 +546,13 @@ public class Closure  {
 	public boolean isDone() { return done;}
 	
 	public RuntimeException getException() { return null;}
+	
+	/**
+	 * Invoked on completion of the computation associated with this closure. 
+	 * May be overridden by client code. Note: This method may be invoked more than once
+	 * by the scheduler.
+	 *
+	 */
 	public void completed() {
 		done = true;
 	}
@@ -534,20 +561,25 @@ public class Closure  {
 	// closures. No pair may be overridden if the closure does not have an associated
 	// return value. These methods are not abstract so that Closure can be used directly
 	// when there is no reason to subclass it.
-	public void setResultInt(int x) {}
-	public int resultInt() { return 0;}
+	public void setResultInt(int x) { throw new UnsupportedOperationException(); }
+	public void accumulateResultInt(int x) { throw new UnsupportedOperationException();}
+	public int resultInt() { throw new UnsupportedOperationException();}
 	
-	public void setResultFloat(float x) {}
-	public float resultFloat() { return 0.0F;}
+	public void setResultFloat(float x) {throw new UnsupportedOperationException();}
+	public void accumulateResultFloat(float x) { throw new UnsupportedOperationException();}
+	public float resultFloat() { throw new UnsupportedOperationException();}
 	
-	public void setResultLong(long x) {}
-	public long resultLong() { return 0L;}
+	public void setResultLong(long x) {throw new UnsupportedOperationException();}
+	public void accumulateResultLong(long x) { throw new UnsupportedOperationException();}
+	public long resultLong() { throw new UnsupportedOperationException();}
 	
-	public void setResultDouble(double x) {}
-	public double resultDouble() { return 0.0D;}
+	public void setResultDouble(double x) {throw new UnsupportedOperationException();}
+	public void accumulateResultDouble(double x) { throw new UnsupportedOperationException();}
+	public double resultDouble() { throw new UnsupportedOperationException();}
 	
-	public void setResultObject(Object x) {}
-	public Object resultObject() { return null;}
+	public void setResultObject(Object x) {throw new UnsupportedOperationException();}
+	public Object resultObject() { throw new UnsupportedOperationException();}
+	public boolean requiresGlobalQuiescence() { return false; }
 	
 
 }

@@ -14,6 +14,10 @@ package x10.runtime.cws;
  * that contains an async spawn. 
  * API note: Code written by users of the work-stealing API will typically
  * extend this class for every procedure containing async spawns and finishes.
+ * 
+ * The design of this library is based on the Cilk runtime, developed by the Cilk
+ * group at MIT.
+ * 
  * @author vj 04/18/07
  *
  */

@@ -4,6 +4,9 @@ package x10.runtime.cws;
  * Package-specific class, used by Worker and Closure to cache
  * the frames for the bottom most closure in a worker's ready deque.
  * 
+ * The design of this library is based on the Cilk runtime, developed by the Cilk
+ * group at MIT.
+ * 
  * @author vj 05/18/2007
  *
  */
@@ -116,14 +119,15 @@ package x10.runtime.cws;
 		return this.toString() + "(head=" + head + " tail=" + tail + " exception=" + exception + ")";
 	}
 	protected boolean empty() {
-		return head==tail;
+		return head >=tail;
 	}
 	public boolean headAheadOfTail() {
 		return head==tail+1;
 	}
-	public boolean headGeqTail() {
-		return head >= tail;
+	public boolean notEmpty() {
+		return head < tail;
 	}
+	
 	protected void reset() {
 		head=tail=exception=0;
 	}

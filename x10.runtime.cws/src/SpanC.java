@@ -159,26 +159,25 @@ public class SpanC {
 		}
 	}
 	public static final int LABEL_0 = 0, LABEL_1 = 1, LABEL_2=2;
-	static void traverse(final Worker ws, final SpanC s, final int u) throws StealAbort {
+	static void traverse(final Worker w, final SpanC s, final int u) throws StealAbort {
 		TFrame frame = new TFrame(s, u);
 		frame.k=1;
 		frame.PC=LABEL_0;
-		ws.pushFrame(frame);
+		w.pushFrame(frame);
 		int k=0;
 		while (k < s.G[u].degree) {
 			int v=s.G[u].neighbors[k];
 			boolean result = s.color[v].compareAndSet(0,1);
 			if (result) {
 				s.G[v].parent=u;
-				traverse(ws,s,v);
-				Closure c = ws.popFrameCheck();
-				if (c!=null) throw new StealAbort();
+				traverse(w,s,v);
+				w.abortOnSteal();
 			}
 			++k;
 			frame.k=k;
 			frame.PC=LABEL_0; // to publish the f.k assignment.
 		}
-		ws.popFrame();
+		w.popFrame();
 		return;
 	}
 	public static class Traverser extends Closure {
@@ -186,7 +185,7 @@ public class SpanC {
 			super(t);
 		}
 		
-		public void compute(Worker ws, Frame frame) {
+		public void compute(Worker w, Frame frame) throws StealAbort {
 			TFrame f = (TFrame) frame;
 			final int u = f.u;
 			final SpanC s = f.s;
@@ -199,20 +198,18 @@ public class SpanC {
 					if (result) {
 						s.G[v].parent=u;
 						try {
-							traverse(ws,s,v);
+							traverse(w,s,v);
 						} catch(StealAbort z) {
 							return;
 						}
-						Closure c = ws.popFrameCheck();
-						if (c!=null) 
-							return;
+						w.abortOnSteal();
 					}
 					++k;
 					f.k=k;
 					f.PC=LABEL_0; // to publish the f.k assignment.
 				}
 				f.PC = LABEL_1;
-				if (sync(ws)) 
+				if (sync(w)) 
 					return;
 				
 				// There should be a way of signaling returning with no value.
