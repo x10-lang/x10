@@ -93,11 +93,7 @@ public class FibCBound  extends Closure {
     // If frame has been stolen, then this thread wont do fib(n-2).
     // it should just return, and subsequent work will be done
     // by others. 
-    Closure c=w.popFrameCheck();
-    if (c != null) {
-      c.setResultInt(x);
-      throw new StealAbort();
-    }
+    w.abortOnSteal(x);
     
     
     // Now we are back in the current frame, it has not been stolen. 
@@ -109,12 +105,8 @@ public class FibCBound  extends Closure {
     frame.PC=LABEL_2;
   
     final int y=fib(w, n-2);
+    w.abortOnSteal(y);
     
-    c=w.popFrameCheck();
-    if (c != null) {
-      c.setResultInt(y);
-      throw StealAbort.abort;
-    }
     // Now there is nothing more to spawn -- so no need for the frame.
     // i.e. since the worker has made it so far, it is going to complete 
     // execution of this procedure.
@@ -147,22 +139,14 @@ public class FibCBound  extends Closure {
       f.PC=LABEL_1;
      
         final int x = fib(w, n-1);
-        final Closure c=w.popFrameCheck();
-        if (c != null) {
-          c.setResultInt(x);
-          return;
-        }
+        w.abortOnSteal(x);
         f.x=x;
       
     case LABEL_1: 
         f.PC=LABEL_2;
        
           final int y=fib(w,n-2);
-          final Closure c1=w.popFrameCheck();
-          if (c1 != null) {
-            c1.setResultInt(y);
-            return;
-          }
+          w.abortOnSteal(y);
           f.y=y;
        
     case LABEL_2: 
@@ -195,22 +179,25 @@ public class FibCBound  extends Closure {
     for (int i = 0; i < points.length; i++) {
       final int n = points[i];
       Job job = new Job(g) { 
-        public int spawnTask(Worker ws) throws StealAbort { return fib(ws, n);}
-        public String toString() {
-        if (frame !=null) {
-          return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ")"+ frame+")";
-        } else
-          return "Job(#" + hashCode() + ", fib(n=" + n +"," + status + ")";
-        }
-        };
+    	  int result;
+    	  public void setResultInt(int x) { result=x;}
+    	  public int resultInt() { return result;}
+    	  public int spawnTask(Worker ws) throws StealAbort { return fib(ws, n);}
+    	  public String toString() {
+    		  if (frame !=null) {
+    			  return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ")"+ frame+")";
+    		  } else
+    			  return "Job(#" + hashCode() + ", fib(n=" + n +"," + status + ")";
+    	  }
+      };
       
       long s = System.nanoTime();
-       g.submit(job);
+      g.submit(job);
       int result = job.getInt();
       
       long t = System.nanoTime();
       System.out.println(points[i] + " " + (t-s)/1000000 
-          + " " + result + " " + (result==realFib(n)?"ok" : "fail") );
+    		  + " " + result + " " + (result==realFib(n)?"ok" : "fail") );
     }
     g.shutdown();
   }

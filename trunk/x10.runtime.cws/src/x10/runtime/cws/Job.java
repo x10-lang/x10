@@ -1,17 +1,90 @@
 package x10.runtime.cws;
-
-
-import static x10.runtime.cws.Closure.Status.*;
+import static x10.runtime.cws.Closure.Status.READY;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
-
+/**
+ * A Job is used to submit work to a pool of workers. The programmer should subclass Job
+ * and specify the task to be executed in spawnTask. 
+ * 
+ * Large portions of code adapted from Doug Lea's jsr166y library,which code
+ * carries the header: 
+ * Written by Doug Lea with assistance from members of JCP JSR-166
+ * Expert Group and released to the public domain, as explained at
+ * http://creativecommons.org/licenses/publicdomain
+ * 
+ * The design of this library is based on the Cilk runtime, developed by the Cilk
+ * group at MIT.
+ * @author vj
+ *
+ */
 public abstract class Job extends Closure implements Future {
-	public volatile int result;
-	public int resultInt() { return result;}
+	
+	
+	/**
+	 * A globally quiescent job is one that detects termination through
+	 * global quiescence, i.e. when all workers have discovered this job
+	 * is to be worked on and have no more work to do. They discover they
+	 * have no more work to do when they have tried two rounds of thefts
+	 * and failed. (This is a heuristic and needs to be examined further.)
+	 * The last worker to stop working 
+	 * 
+	 * 
+	 * @author vj
+	 *
+	 */
+	public abstract static class GloballyQuiescentJob extends Job {
+		public boolean requiresGlobalQuiescence() { return true;}
+		
+		public GloballyQuiescentJob(Pool pool) {
+			super(new GFrame(), pool);
+			parent = null;
+			joinCount=0;
+			status = READY;
+		}
+		@Override
+		protected void compute(Worker w, Frame frame) throws StealAbort {
+			GFrame f = (GFrame) frame;
+			int PC = f.PC;
+			f.PC=LABEL_1;
+			if (PC==0) {
+				// spawning
+				int x = spawnTask(w);
+				w.abortOnSteal(x);
+				f.x=x;
+				// Accumulate into result.
+				int old = resultInt();
+				accumulateResultInt(f.x);
+				if (Worker.reporting)
+				System.out.println( w + " " + this + " adds " + f.x + " to move " + old + " --> " + resultInt());
+			}
+			setupGQReturn();
+		}
+	}
+	/**
+	 * GloallyQuiescentJob and the closures invoked by their computations use GFrames.
+	 * @author vj
+	 *
+	 */
+	public static class GFrame extends JobFrame {
+		
+		public void setOutletOn(final Closure c) {
+//			 nothing needs to be done since the abort mechanism
+			// will directly feed the answer into the global closure,
+			// bypassing the closure return chain.
+		}
+		public Closure makeClosure() {
+			return null;
+		}
+		public String toString() {
+			return "GFrame(#" + hashCode() +  " PC=" + PC+")";
+		}
+		public GFrame() { super();}
+	}
 	public static class JobFrame extends Frame {
 		public int x;
 		public JobFrame() {
@@ -25,12 +98,11 @@ public abstract class Job extends Closure implements Future {
 			c.setOutlet(
 					new Outlet() {
 						public void run() {
-							JobFrame f = (JobFrame) c.parentFrame();
 							int v = c.resultInt();
-							f.x = v;
+							x = v;
 							if (Worker.reporting)
 								System.out.println(Thread.currentThread() + " transfers "
-										+ v + " to " + f +".x from " + c);
+										+ v + " to " + this +".x from " + c);
 						}
 						public String toString() { return "OutletInto x from " + c;}
 						});
@@ -41,56 +113,48 @@ public abstract class Job extends Closure implements Future {
 	}
 	final Pool pool;
 	public Job(Pool pool) {
-		super(new JobFrame());
+		this(new JobFrame(), pool);
+	}
+	
+	Job(Frame f, Pool pool) {
+		super(f);
 		this.pool=pool;
 		parent = null;
 		joinCount=0;
 		status = READY;
 		
 	}
-	public static final int LABEL_1=1, LABEL_2=2, LABEL_3=3;
+	public static final int LABEL_0=0,LABEL_1=1, LABEL_2=2, LABEL_3=3;
 	@Override
-	protected void compute(Worker w, Frame frame) {
+	protected void compute(Worker w, Frame frame) throws StealAbort {
 		JobFrame f = (JobFrame) frame;
 		switch (f.PC) {
-		case 0: 
+		case LABEL_0: 
 			f.PC=LABEL_1;
 			// spawning
-			try {
-				int x = spawnTask(w);
-				Closure c = w.popFrameCheck();
-				if (c !=null) {
-					c.setResultInt(x);
-					return;
-				}
-				f.x=x;
-			} catch (StealAbort z) {
-				return;
-			}
-			
-		case 1: 
+			int x = spawnTask(w);
+			w.abortOnSteal(x);
+			f.x=x;
+		case LABEL_1: 
 			f.PC=LABEL_2;
-			if (sync(w)) {
-				return;
-			}
-		case 2: 
-			result=f.x;
+			if (sync(w)) return;
+		case LABEL_2: 
+			setResultInt(f.x);
 			setupReturn();
 		}
 		return;
 	}
-	
 	abstract public int spawnTask(Worker ws) throws StealAbort;
 	public void completed() {
 		super.completed();
-		if (Worker.reporting)
-			System.out.println(Thread.currentThread() + " completed. result=" + result);
-        synchronized(this) {
-            notifyAll();
-        }
-        pool.jobCompleted();
-    }
-    
+		if ( Worker.reporting)
+			System.out.println(Thread.currentThread() + " completed. result=" + resultInt());
+		synchronized(this) {
+			notifyAll();
+		}
+		pool.jobCompleted();
+	}
+	
     
     public boolean isCancelled() { return false;}
     
@@ -100,7 +164,6 @@ public abstract class Job extends Closure implements Future {
      * Return result or throw exception using Future conventions
      */
     Object futureResult() throws ExecutionException {
-        
         return resultObject();
     }
 

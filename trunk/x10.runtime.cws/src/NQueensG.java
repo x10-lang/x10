@@ -1,12 +1,15 @@
 
 
-import x10.runtime.cws.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class NQueensC extends Closure {
+import x10.runtime.cws.*;
+import x10.runtime.cws.Closure.Outlet;
+import static x10.runtime.cws.Job.*;
+
+public class NQueensG extends Closure {
 	
 	static int boardSize;
-	public static final StealAbort abort = new StealAbort();
-	
+	public boolean requiresGlobalQuiescence() { return true; }
 	public static final int[] expectedSolutions = new int[] {
 		0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200,
 		73712, 365596, 2279184, 14772512};
@@ -18,21 +21,26 @@ public class NQueensC extends Closure {
 			System.out.println("Number of procs=" + procs);
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java NQueensC <threads> ");
+			System.out.println("Usage: java NQueensG <threads> ");
 			return;
 		}
 		Pool g = new Pool(procs);
-		for (int i = 1; i < 16; i++) {
+		for (int i = 11; i < 16; i++) {
 			boardSize = i;
-			Job job = new Job(g) {
-				int result;
-				public void setResultInt(int x) { result=x;}
-				public int resultInt() { return result;}
+			GloballyQuiescentJob job = new GloballyQuiescentJob(g) {
+//				Result is accumulated here.
+				AtomicInteger result = new AtomicInteger();
+				
+				public void setResultInt(int x) { result.set(x);}
+				public int resultInt() { return result.get();}
+				public void accumulateResultInt(int x) { result.addAndGet(x);}
 				@Override
 				public int spawnTask(Worker ws) throws StealAbort { 
 					return nQueens(ws, new int[]{});
 				}
-				public String toString() { return "Job(NQ,#" + hashCode()+")";}
+				public String toString() { 
+					return "GJob(NQG,#" + hashCode()+",i="+ boardSize 
+					+ ",status=" + status + ",frame=" + frame + ")";}
 			};
 			System.gc();
 			long s = System.nanoTime();
@@ -40,10 +48,10 @@ public class NQueensC extends Closure {
 			int result = job.getInt();
 			long t = System.nanoTime();
 			System.out.println("Result:" + i + 
-					" " + result + (result==expectedSolutions[i]?" ok" : " fail") 
+					" " + result + (job.resultInt()==expectedSolutions[i]?" ok" : " fail") 
 					+ " Time=" +  (t-s)/1000000  + " ms"
 					+  " Steals=" + g.getStealCount() 
-					);
+			);
 		}
 		g.shutdown();    
 	}
@@ -51,34 +59,35 @@ public class NQueensC extends Closure {
 	// Boards are represented as arrays where each cell 
 	// holds the column number of the queen in that row
 	
-	NQueensC(NFrame f) { 
+	NQueensG(NFrame f) { 
 		super(f);
 	}
-	public static class NFrame extends Frame {
+	public static class NFrame extends GFrame {
 		final int[] sofar;
 		volatile int q;
 		int sum;
-		@Override
-		public void setOutletOn(final Closure c) {
+		public NFrame(int[] a) { sofar=a;}
+		@Override public void setOutletOn(final Closure c) {
 			c.setOutlet(
 					new Outlet() {
 						public void run() {
-							NFrame f = (NFrame) c.parentFrame();
 							int value = c.resultInt();
-							f.sum += value;
-							if (Worker.reporting) {
-								System.out.println(Thread.currentThread() + " --> " + value
-										+ " into " + c.parent() + " from " + c);
+							
+							sum += value;
+							
+							if ( Worker.reporting) {
+								Closure p = c.parent();
+								System.out.println(Thread.currentThread() + " " + c + " --> " + value
+										+ " into " + p);
 							}
 						}
 						public String toString() { return "OutletInto x from " + c;}
 					});
 		}
 		public Closure makeClosure() {
-			Closure c = new NQueensC(this);
+			Closure c = new NQueensG(this);
 			return c;
 		}
-		public NFrame(int[] a) { sofar=a;}
 		public String toString() { 
 			String s="[";
 			for (int i=0; i < sofar.length; i++) s += sofar[i]+","; 
@@ -87,6 +96,10 @@ public class NQueensC extends Closure {
 	}
 	public static final int LABEL_0=0, LABEL_1=1, LABEL_2=2, LABEL_3=3;
 
+	@Override public void accumulateResultInt(int x) { 
+		Worker w  = (Worker) Thread.currentThread();
+		w.currentJob().accumulateResultInt(x);
+	}
 	int result;
 	@Override
 	public void setResultInt(int x) { result=x;}
@@ -126,6 +139,8 @@ public class NQueensC extends Closure {
 			frame.q=q+1;
 		}
 		w.popFrame();
+		//System.out.println(w + " returning " + sum + " from nqueens call.");
+		
 		return sum;
 		
 	}
@@ -137,7 +152,7 @@ public class NQueensC extends Closure {
 		switch (f.PC) {
 		case LABEL_0:
 			if (row >= boardSize) {
-				result =1;
+				result=1;
 				setupReturn();
 				return;
 			}
@@ -176,7 +191,7 @@ public class NQueensC extends Closure {
 		}
 		return;
 	}
-	public String toString() { return "NQ(#" + hashCode()+" " + frame + ",result=" 
+	public String toString() { return "NQG(#" + hashCode()+" " + frame + ",result=" 
 		+ result+",jc=" + joinCount + ")";}
 	
 }

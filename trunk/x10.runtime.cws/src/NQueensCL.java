@@ -3,6 +3,7 @@
  * Uses a long to represent a chess board in order to see how the app performs
  * if excessive garbage is not created. The leftmost nibble represents
  * the queen in row 1. A zero in row i means the queen has not yet been placed.
+ * @author vj
  */
 import x10.runtime.cws.*;
 
@@ -22,13 +23,16 @@ public class NQueensCL extends Closure {
 			System.out.println("Number of procs=" + procs);
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java NQueensC <threads> ");
+			System.out.println("Usage: java NQueensCL <threads> ");
 			return;
 		}
 		Pool g = new Pool(procs);
 		for (int i = 1; i < 16; i++) {
 			boardSize = i;
 			Job job = new Job(g) {
+				int result;
+				public void setResultInt(int x) { result=x;}
+				public int resultInt() { return result;}
 				@Override
 				public int spawnTask(Worker ws) throws StealAbort { 
 					return nQueens(ws, 0L,1);
@@ -61,15 +65,13 @@ public class NQueensCL extends Closure {
 			c.setOutlet(
 					new Outlet() {
 						public void run() {
-							NFrame f = (NFrame) c.parentFrame();
-							Closure p = c.parent();
 							int value = c.resultInt();
-							f.sum += value;
-							assert (c.joinCount==0);
+							sum += value;
 							
 							if ( Worker.reporting) {
+								Closure p = c.parent();
 								System.out.println(Thread.currentThread() + " " + c + " --> " + value
-										+ " into " + c.parent());
+										+ " into " + p);
 							}
 						}
 						public String toString() { return "OutletInto x from " + c;}
@@ -123,11 +125,7 @@ public class NQueensCL extends Closure {
 		return value;
 	}
 	public static int nQueens(Worker w, long a, int row) throws StealAbort {
-		//System.out.println(w + " nQueens board="+ board(a) + " row=" + row);
-		if (row > boardSize) {
-			//System.out.println("Success!");
-			return 1;
-		}
+		if (row > boardSize) return 1;
 		NFrame frame = new NFrame(a,row);
 		frame.q=2;
 		frame.sum=0;
@@ -137,22 +135,17 @@ public class NQueensCL extends Closure {
 		int q=1;
 		while (q <= boardSize) {
 			boolean attacked = false;
-			for (int i = 1; i < row && ! attacked; i++) {
+			int deltaRow = row-1;
+			for (int i = 1; i < row && ! attacked; i++, deltaRow--) {
 				int p = atRow(a,i);
-				attacked = (q == p || q == p - (row - i) || q == p + (row - i));
-				/*System.out.println(w + " Queen row=" + row + " col=" + q
-						+ " is" + (attacked? "" : " not") + " attacked"
-						+ " by queen row=" + i + "col= " + p+".");*/
+				int delta = q-p;
+				attacked = (delta == 0 || delta ==  deltaRow || delta == -deltaRow);
 			}
 			if (!attacked) { 
 				assert (a & shifts[row]) == 0;
 				long next = a | (((long) q) << shifts[row]);
 				final int y = nQueens(w, next,row+1);
-				Closure c = w.popFrameCheck();
-				if (c!=null) {
-					c.setResultInt(y);
-					throw StealAbort.abort;
-				}
+				w.abortOnSteal(y);
 				sum +=y;
 				frame.sum +=y;
 			}
@@ -163,7 +156,7 @@ public class NQueensCL extends Closure {
 		return sum;
 		
 	}
-	public void compute(Worker ws, Frame frame) {
+	public void compute(Worker w, Frame frame) throws StealAbort {
 		NFrame f = (NFrame) frame;
 		final long a = f.sofar;
 		int row = f.row;
@@ -188,23 +181,15 @@ public class NQueensCL extends Closure {
 				if (!attacked) { 
 					assert (a & shifts[row]) == 0;
 					long next = a | (((long) q) << shifts[row]);
-					try {
-						int y= nQueens(ws, next,row+1);
-						Closure c = ws.popFrameCheck();
-						if (c!=null) {
-							c.setResultInt(y);
-							return;
-						}
-						sum += y;
-						f.sum +=y;
-					} catch (StealAbort z) {
-						return;
-					}	
+					int y= nQueens(w, next,row+1);
+					w.abortOnSteal(y);
+					sum += y;
+					f.sum +=y;
 				}
 				q++;
 			}
 			f.PC=LABEL_2;
-			if (ws.sync())
+			if (w.sync())
 				return;
 		case LABEL_2:
 			result=f.sum;

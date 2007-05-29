@@ -1,18 +1,25 @@
 
 /*
+ * A pool of workers for executing X10 programs.
+ * 
+ * Large portions of code adapted from Doug Lea's jsr166y library, which code
+ * carries the header: 
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/licenses/publicdomain
+ * 
+ * The design of this library is based on the Cilk runtime, developed by the Cilk
+ * group at MIT.
+ * 
  */
 package x10.runtime.cws;
 
-import java.util.concurrent.*;
-import java.util.concurrent.locks.*;
-
-import static x10.runtime.cws.Closure.Status.*;
-
-
-
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The host and external interface for ForkJoinTasks. A ForkJoinPool
@@ -54,25 +61,6 @@ public class Pool {
     private final Condition work = lock.newCondition();
 
     /**
-     * The amount of time to block on "work" condition when a thread
-     * repeatedly fails to be able to get or steal a task yet
-     * activeJobs is nonzero (thus indicating that there might
-     * again be work available in the future). As a rough guide,
-     * this should be around twice the time for a full park/unpark
-     * context switch.
-     */
-    private static final long IDLE_SLEEP_NANOS = 100L * 1000 * 1000;
-
-    /**
-     * The number of times a worker should call getJob, yielding on
-     * failure, before sleeping . This value is a compromise between
-     * responsiveness and good citizenship. Too small leads to
-     * needless sleeps while other threads are just momentarily
-     * delayed in GC etc.  Too big leads to CPU wastage
-     */
-    private static final int YIELDS_BEFORE_SLEEP = 64;
-
-    /**
      * Tracks whether pool is running, shutdown, etc. Modified
      * only under lock, but volatile to allow concurrent reads.
      */
@@ -83,6 +71,8 @@ public class Pool {
     static final int SHUTDOWN   = 1;
     static final int STOP       = 2;
     static final int TERMINATED = 3;
+  
+    AtomicInteger joinCount = new AtomicInteger();
 
     /**
      * The pool of threads. Currently, all threads are created
@@ -114,15 +104,29 @@ public class Pool {
      * abrupty terminates
      */
     private volatile Thread.UncaughtExceptionHandler ueh;
+    
+    /**
+     * The current job being executed by workers in the pool.
+     * Set by the worker that retrieves the job from the pool.
+     * Unset by the worker that detects quiescence.
+     */
+    volatile Closure currentJob;
 
+    ActiveCyclicBarrier barrier;
+    
+    long startTime;
     /**
      * Creates a ForkJoinPool with a pool size equal to the number of
      * processors available on the system.
      */
     public Pool() {
         this(Runtime.getRuntime().availableProcessors());
+        
     }
 
+    long time() {
+    	return ((System.nanoTime() - startTime)/1000000);
+    }
     /**
      * Creates a ForkJoinPool with the indicated number
      * of Worker threads.
@@ -130,6 +134,16 @@ public class Pool {
     public Pool(int poolSize) {
         if (poolSize <= 0) throw new IllegalArgumentException();
         Worker.workers = workers = new Worker[poolSize];
+        barrier = new ActiveCyclicBarrier(poolSize, new Runnable() { 
+        	public void run() {
+        		if (Worker.reporting)
+        			System.out.println(Thread.currentThread() + " running barrier activity.");
+        		if (currentJob != null && currentJob.requiresGlobalQuiescence()) {
+        			currentJob.completed();
+        		}
+        		currentJob = null;
+        	}
+        });
         lock.lock();
         try {
             for (int i = 0; i < poolSize; ++i) {
@@ -186,6 +200,10 @@ public class Pool {
     public int getPoolSize() {
         return workers.length;
     }
+    AtomicInteger activeOnJob = new AtomicInteger();
+    public int activeOnJob() {
+    	return activeOnJob.intValue();
+    }
 
     /**
      * Returns <tt>true</tt> if this pool has been shut down.
@@ -218,9 +236,7 @@ public class Pool {
         lock.lock();
         try {
             if (runState < SHUTDOWN) {
-                
                     runState = SHUTDOWN;
-                
             }
         } finally {
             lock.unlock();
@@ -284,6 +300,7 @@ public class Pool {
     }
     
     public  void submit(Job job) {
+    	startTime = System.nanoTime();
         addJob(job);
     }
 
@@ -306,7 +323,38 @@ public class Pool {
             throw new RejectedExecutionException();
     }
 
-   
+    /**
+     * Returns the total number of tasks stolen from one thread's work
+     * queue by another. This value is only an approximation,
+     * obtained by iterating across all threads in the pool, but may
+     * be useful for monitoring and tuning fork/join programs.
+     * @return the number of steals.
+     */
+    public long getStealCount() {
+        long sum = 0;
+        for (int i = 0; i < workers.length; ++i) {
+            Worker t = workers[i];
+            if (t != null) 
+                sum += t.stealCount;
+        }
+        return sum;
+    }
+    /**
+     * Returns the total number of steal attempts made by all workers.
+     * This value is only an approximation,
+     * obtained by iterating across all threads in the pool, but may
+     * be useful for monitoring and tuning fork/join programs.
+     * @return the number of steal attempts.
+     */
+    public long getStealAttempts() {
+    	long sum = 0;
+        for (int i = 0; i < workers.length; ++i) {
+            Worker t = workers[i];
+            if (t != null) 
+                sum += t.stealAttempts;
+        }
+        return sum;
+    }
     /**
      * Termination callback from dying worker.
      */
@@ -354,37 +402,27 @@ public class Pool {
     private final JobQueue jobs = new JobQueue();
     /**
      * Returns a job to run, or null if none available.
-     * @param yields number of times caller has repeatedly failed to
-     * find tasks. Upon threshold, sleeps a while unless woken by some
-     * other thread that finds work.
      */
-    final Closure getJob(int yields) {
-        Closure task = null;
+    final Closure getJob() {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            boolean timeout = false;
-            task = jobs.poll();
-            if (task == null) {
-                if (activeJobs == 0)
-                    work.await();
-                else if (yields >= YIELDS_BEFORE_SLEEP)
-                    timeout = work.awaitNanos(IDLE_SLEEP_NANOS) <= 0;
-                else
-                    timeout = true;
-                if (!timeout)
-                    task = jobs.poll();
-            }
-            if (task != null)
-                ++activeJobs;
-            if (task != null || (!timeout && activeJobs > 0))
-                work.signal();
-        } catch (InterruptedException ie) { 
-            // ignore/swallow 
+        	Closure task = jobs.poll();
+        	if (task == null && activeJobs ==0) {
+        		work.await();
+        		task=jobs.poll();
+        	}
+        	if (task !=null) {
+        		++ activeJobs;
+        		currentJob = task;
+        		work.signalAll();
+        	}
+        	return task;
+        } catch (InterruptedException e) {
+        		return null; // ignore interrupt.
         } finally {
-            lock.unlock();
+        	lock.unlock();
         }
-        return task;
     }
     /**
      * A JobQueue is a simple array-based circular queue.
@@ -431,5 +469,16 @@ public class Pool {
             tail = n;
         }
     }
-  
+    /**
+     * Returns true if all threads are currently idle.
+     * @return true is all threads are currently idle
+     */
+    public boolean isQuiescent() {
+        for (int i = 0; i < workers.length; ++i) {
+            Worker t = workers[i];
+            if (t != null && t.isActive())
+                return false;
+        }
+        return true;
+    }
 }

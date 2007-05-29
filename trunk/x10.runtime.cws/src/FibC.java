@@ -24,11 +24,7 @@ public class FibC  extends Closure {
   static final int ENTRY=0, LABEL_1=1, LABEL_2=2,LABEL_3=3;
 
   public String toString() { 
-    if (frame !=null) {
       return "FibC(#"+hashCode()  +",status="+status + "," + frame + "result=" + result + ")";
-    } else
-      return "FibC(#"+hashCode() + ",status=" +status+",result="+result+")";
-    
     }
   public static int realfib(int n) {
     if (n < 2) return n;
@@ -45,26 +41,26 @@ public class FibC  extends Closure {
       super();
       this.n=n;
     }
-    @Override
-    public void setOutletOn(final Closure c) {
-      assert PC==LABEL_1 || PC == LABEL_2;
-      c.setOutlet((PC==LABEL_1) ?
-          new Outlet() {
-            public void run() {
-              x = c.resultInt();
-            }
-            public String toString() { return "OutletInto x from " + c;}
-            } 
-      : new Outlet() {
-        public void run() {
-          y = c.resultInt();
-        }
-        public String toString() { return "OutletInto y from " + c;}
-        });
-    }
+    @Override public void setOutletOn(final Closure c) {
+        assert PC==LABEL_1 || PC == LABEL_2;
+        c.setOutlet((PC==LABEL_1) ?
+            new Outlet() {
+              public void run() {
+                x = c.resultInt();
+              }
+              public String toString() { return "OutletInto x from " + c;}
+              } 
+        : new Outlet() {
+          public void run() {
+            y = c.resultInt();
+          }
+          public String toString() { return "OutletInto y from " + c;}
+          });
+      
+      }
+    
     public Closure makeClosure() {
-      Closure c = new FibC(this);
-      return c;
+      return new FibC(this);
     }
     public String toString() { return "FibFrame(n="+n+",x="+x+",y="+y+",PC=" + PC + ")";}
   }
@@ -84,11 +80,8 @@ public class FibC  extends Closure {
     // If frame has been stolen, then this thread wont do fib(n-2).
     // it should just return, and subsequent work will be done
     // by others. 
-    Closure c=w.popFrameCheck();
-    if (c != null) {
-      c.setResultInt(x);
-      throw StealAbort.abort;
-    }
+    w.abortOnSteal(x);
+    
     
     // Now we are back in the current frame, it has not been stolen. 
     // Execute the local code to the next spawn. 
@@ -99,11 +92,7 @@ public class FibC  extends Closure {
     frame.PC=LABEL_2;
   
     final int y=fib(w, n-2);
-    c=w.popFrameCheck();
-    if (c != null) {
-      c.setResultInt(y);
-      throw StealAbort.abort;
-    }
+    w.abortOnSteal(y);
   
     // Now there is nothing more to spawn -- so no need for the frame.
     // i.e. since the worker has made it so far, it is going to complete 
@@ -118,9 +107,7 @@ public class FibC  extends Closure {
     return result;
   }
   public FibC(Frame frame) { super(frame);}
-  /**
-   * This contains the slow code. 
-   */
+  
   @Override
   public void compute(final Worker w, final Frame frame) throws StealAbort {
     // get the frame.
@@ -129,38 +116,30 @@ public class FibC  extends Closure {
     final int n = f.n;
     switch (f.PC) {
     case ENTRY: 
-      if (n < 2) {
-        result = n;
-        setupReturn();
-        return;
-      }
-      f.PC=LABEL_1;
-        final int x = fib(w, n-1);
-        Closure c=w.popFrameCheck();
-        if (c != null) {
-          c.setResultInt(x);
-          return;
-        }
-        f.x=x;
-      
+    	if (n < 2) {
+    		result = n;
+    		setupReturn();
+    		return;
+    	}
+    	f.PC=LABEL_1;
+    	final int x = fib(w, n-1);
+    	w.abortOnSteal(x);
+    	f.x=x;
+    	
     case LABEL_1: 
-        f.PC=LABEL_2;
-          final int y=fib(w,n-2);
-          Closure c1=w.popFrameCheck();
-          if (c1 != null) {
-            c1.setResultInt(y);
-            return;
-          }
-          f.y=y;
-        
+    	f.PC=LABEL_2;
+    	final int y=fib(w,n-2);
+    	w.abortOnSteal(y);
+    	f.y=y;
+    	
     case LABEL_2: 
-        f.PC=LABEL_3;
-        if (sync(w)) {
-          return;
-        }
+    	f.PC=LABEL_3;
+    	if (sync(w)) {
+    		return;
+    	}
     case LABEL_3:
-        result=f.x+f.y;
-        setupReturn();
+    	result=f.x+f.y;
+    	setupReturn();
     }
     return;
   }
@@ -183,22 +162,21 @@ public class FibC  extends Closure {
     for (int i = 0; i < points.length; i++) {
       final int n = points[i];
       Job job = new Job(g) { 
-        public int spawnTask(Worker ws) throws StealAbort { return fib(ws, n);}
-        public String toString() {
-        if (frame !=null) {
-          return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ")"+ frame+")";
-        } else
-          return "Job(#" + hashCode() + ", fib(n=" + n +"," + status + ")";
-        }
-        };
-      
-      long s = System.nanoTime();
-       g.submit(job);
-      int result = job.getInt();
-      
-      long t = System.nanoTime();
-      System.out.println(points[i] + " " + (t-s)/1000000 
-          + " " + result + " " + (result==realfib(n)?"ok" : "fail") );
+    	  int result;
+    	  public void setResultInt(int x) { result = x;}
+    	  public int resultInt() { return result;}
+    	  public int spawnTask(Worker ws) throws StealAbort { return fib(ws, n);}
+    	  public String toString() {
+    		  return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ")"+ frame+")";
+    	  }};
+    	  
+    	  long s = System.nanoTime();
+    	  g.submit(job);
+    	  int result = job.getInt();
+    	  
+    	  long t = System.nanoTime();
+    	  System.out.println(points[i] + " " + (t-s)/1000000 
+    			  + " " + result + " " + (result==realfib(n)?"ok" : "fail") );
     }
     g.shutdown();
   }
