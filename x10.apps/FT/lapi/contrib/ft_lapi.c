@@ -12,7 +12,6 @@
  */
 
 /* This define controls whether we perform checksums while benchmarking. */
-#define BENCHMARK 1
 
 #include <inttypes.h>
 #include<lapi.h>
@@ -102,7 +101,8 @@ void FFT2DComm (ComplexPtr_t, ComplexPtr_t, int);
 
 void parabolic2 (ComplexPtr_t, ComplexPtr_t, double*, int, double);
 void mult (ComplexPtr_t, int, double);
-void checksum (ComplexPtr_t, double*, double*);	
+void local_checksum (ComplexPtr_t, double*, double*, int);	
+void global_checksum_verify (ComplexPtr_t, double*, double*);
 
 /*
  * Random number generation, as provided by c_randdp.c
@@ -157,15 +157,18 @@ int getowner (int x, int y, int z)
   return -1;
 }
 
+
 void switch_view () 
 {
   current_orientation = NEXT_ORIENTATION;
 }
 
+
 void set_view (int new_orientation) 
 {
   current_orientation = new_orientation;
 }
+
 
 /**************************************************************************
  *
@@ -229,10 +232,8 @@ int main (int argc, char **argv)
   void *lp2o, *lp1o, *Vo, *exo; 
   double *ex;
 
-#ifndef BENCHMARK
   double checksum_real[MAX_ITER];
   double checksum_imag[MAX_ITER];
-#endif
 
   int iter;
   int saved_orientation;
@@ -344,25 +345,16 @@ int main (int argc, char **argv)
     FT_1DFFT (localPlanes1d, localPlanes2d, FFT_BWD, current_orientation);
     switch_view ();
 
-#ifndef BENCHMARK
-    /* Don't include the checksums in the TOTAL when benchmarking. */
-    checksum (localPlanes2d, &(checksum_real[iter-1]), &(checksum_imag[iter-1]));      
-    if (TID==0) 
-    {
-      fprintf (stdout, " 0> %30s %2d: %#17.14g %#17.14g\n",
-	       "Checksum", iter, checksum_real[iter-1], checksum_imag[iter-1]);
-      fflush (stdout);
-    }
-#endif
+    /* Do local checksums on each thread and store the results in the
+       checksum arrays. */
+    local_checksum (localPlanes2d, checksum_real, checksum_imag, iter);
   }
 
   timer_total (T_TOTAL, FT_TIME_END);
   LAPI_Gfence (handle);
 
-#ifndef BENCHMARK
-  if(TID==0) 
-    checksum_verify (NX, NY, NZ, MAX_ITER, checksum_real, checksum_imag);
-#endif
+  /* Do a global checksum using all the local checksums and verify results. */
+  global_checksum_verify (localPlanes2d, checksum_real, checksum_imag);
 
   print_timers_T0 ();
   MPI_Finalize ();
@@ -638,18 +630,23 @@ void parabolic2 (ComplexPtr_t out, ComplexPtr_t in,
   timer_profile (T_EVOLVE, FT_TIME_END);
 }
 
-/* will be used during the checksum */
 
-void checksum (ComplexPtr_t C, double *real, double *imag)
+/**************************************************************************
+ *
+ *  Do a local checksum on all the processes.
+ *
+ *************************************************************************/
+void local_checksum (ComplexPtr_t C, double *real, double *imag, int iter)
 {
   int j, q, r, s;
-  double c[2] = {0.0, 0.0}; 
-  double sum[2] = {0.0, 0.0}; 
   
   int proc;
   ComplexPtr_t tmp;
 
   timer_profile (T_CHECKSUM, FT_TIME_BEGIN);
+
+  real[iter-1] = 0.0;
+  imag[iter-1] = 0.0;
 
   for (j = 1; j <= 1024; ++j) {
     q = j % NX;
@@ -660,17 +657,54 @@ void checksum (ComplexPtr_t C, double *real, double *imag)
 
     if (MPI_TID==proc) 
     {
-      tmp = C + origindexmap (q,r,s);/*(q*NY+r+(s%planes_per_proc)*NX*NY);*/
+      tmp = C + origindexmap (q,r,s);
 	
-      c[0] += (tmp->real);
-      c[1] += (tmp->imag);
+      real[iter-1] += (tmp->real);
+      imag[iter-1] += (tmp->imag);
     } 
   }
 
-  MPI_Reduce (c, sum, 2, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-  
-  *real = ((sum[0]/NX)/NY)/NZ;
-  *imag = ((sum[1]/NX)/NY)/NZ;
+  timer_profile (T_CHECKSUM, FT_TIME_END);
+}
+
+
+
+/**************************************************************************
+ *
+ *  Do a global checksum using all of the historical local checksums,
+ *  and print out the results of the checksums (as the original benchmark
+ *  does.
+ *
+ *************************************************************************/
+void global_checksum_verify (ComplexPtr_t C, double *real, double *imag)
+{
+  double checksum_real[MAX_ITER];
+  double checksum_imag[MAX_ITER];
+  double c[2];
+  int iter;
+
+  timer_profile (T_CHECKSUM, FT_TIME_BEGIN);
+
+  for (iter = 1; iter <= MAX_ITER; iter++)
+  {
+    double sum[2] = {0.0, 0.0}; 
+
+    c[0] = real[iter-1];
+    c[1] = imag[iter-1];
+
+    MPI_Reduce (c, sum, 2, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    checksum_real[iter-1] = ((sum[0]/NX)/NY)/NZ;
+    checksum_imag[iter-1] = ((sum[1]/NX)/NY)/NZ;
+
+    if (MPI_TID==0) 
+    {
+      fprintf (stdout, " 0> %30s %2d: %#17.14g %#17.14g\n",
+	       "Checksum", iter, checksum_real[iter-1], checksum_imag[iter-1]);
+    }
+  }
+
+  if (MPI_TID == 0)
+    checksum_verify (NX, NY, NZ, MAX_ITER, checksum_real, checksum_imag);
 
   timer_profile (T_CHECKSUM, FT_TIME_END);
 }
