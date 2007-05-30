@@ -18,8 +18,6 @@ import x10.runtime.cws.StealAbort;
 import x10.runtime.cws.Worker;
 import x10.runtime.cws.Job.GloballyQuiescentJob;
 
-
-
 public class SpanCI {
 	
 	class V {
@@ -47,8 +45,7 @@ public class SpanCI {
 	AtomicIntegerArray color;
 	int ncomps=0;
 	
-	static int[] Ns = new int[] {10*1000,50*1000, 100*1000,
-		500*1000, 1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000};
+	static int[] Ns = new int[] {10};//1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000, 5*1000*1000};
 	int N, M;
 	
 	public SpanCI (int n, int m){
@@ -136,7 +133,7 @@ public class SpanCI {
 			}
 		}
 		
-		//System.out.println("ncomps="+ncomps);
+		System.out.println("ncomps="+ncomps);
 		El1 = new E [m+ncomps-1]; 
 		
 		for(int i=0;i<N;i++) color.set(i,0);
@@ -145,8 +142,8 @@ public class SpanCI {
 		//    Remove duplicated edges
 		for(int i=0;i<M;i++) if(El[i].v1!=-1) El1[j++]=El[i]; 
 		
-		//if(j!=m) System.out.println("Remove duplicates failed");
-		//else System.out.println("Remove duplicates succeeded,j=m="+j);
+		if(j!=m) System.out.println("Remove duplicates failed");
+		else System.out.println("Remove duplicates succeeded,j=m="+j);
 		
 		/*add edges between neighboring connected comps*/
 		for(int i=0;i<ncomps-1;i++) {
@@ -161,14 +158,14 @@ public class SpanCI {
 			G[i].degree=D[i];
 			
 			G[i].neighbors=new int [D[i]];
-			for(j=0;j<D[i];j++)
+			for(j=0;j<D[i];j++) {
 				G[i].neighbors[j]=NB[i][j];
-			//System.out.println("G["+i+"]=" + G[i]);
+				System.out.println("G[" + i + "]=" + G[i] + "-->"+ G[i].neighbors[j]);
+			}
 		}     
-		
 	}
 	
-	public static class TFrame extends Frame {
+	public  class TFrame extends Frame {
 		final int u; // vertex
 		volatile int k;
 		public TFrame(int u) {
@@ -178,90 +175,77 @@ public class SpanCI {
 			// nothing to do
 		}
 		public Closure makeClosure() {
-			return new Traverser(graph,this);
+			return new Traverser(this);
 		}
 		public String toString() { return "SpanC(" + "u=" + u + ",k=" + k+")";}
 	}
 	public static final int LABEL_0 = 0;
 	
-	static void traverse(final Worker w,  final int uu) throws StealAbort {
-		//System.out.println(w + " At start, curr=" + w.cache.currentFrame());
+	 void traverse(final Worker w,  final int uu) throws StealAbort {
 		TFrame frame = new TFrame(uu);
+		int depth=0;
 		frame.k=1;
-		int top = w.cache.tail();
-		//frame.PC=LABEL_0;
 		w.pushFrame(frame);
+		depth++;
 		final V[] G = graph.G;
 		final AtomicIntegerArray c = graph.color;
 		for (;;) {
 			final int u = frame.u;
 			final int k = frame.k-1;
-			/*System.out.println(w + "frame=" + frame 
-			 + " k=" + k + "G[u].degree=" + G[u].degree 
-			 + " cache=" + w.cache.dump()
-			 + " curr=" + w.cache.currentFrame());*/
-			if (k== G[u].degree) {
+			if (k==G[u].degree) {
 				w.popFrame();
-				//System.out.println(w + " pops frame, curr=" + w.cache.currentFrame());
+				depth--;
 				w.abortOnSteal();
-				
-				if (w.cache.tail()==top)
-					break;
-				assert w.cache.currentFrame() instanceof TFrame;
+				if (depth==0) break;
 				frame = (TFrame) w.cache.currentFrame();
 			} else {
 				final int v = G[u].neighbors[k];
 				boolean result = c.compareAndSet(v,0,1);
 				frame.k++;
 				if (result) {
-					//System.out.println(w + " setting " + v + ".parent to " + u);
 					G[v].parent=u;
+					System.out.println("G[" + v + "]=" + G[v] + ".parent=" + u);
 					TFrame f = new TFrame(v);
 					f.k=1;
-					//System.out.println(w + " pushing " + f);
 					w.pushFrame(f);
+					depth++;
 					frame=f;
 				}
-			}
-			
+			}	
 		}
 	}
-	public static class Traverser extends Closure {
-		final SpanCI graph;
-		final V[] G;
-		final AtomicIntegerArray c;
-		public Traverser(SpanCI g, TFrame t) { 
+	public class Traverser extends Closure {
+		public Traverser( TFrame t) { 
 			super(t);
-			graph=g;
-			G=graph.G;
-			c=graph.color;
 		}
 		public String toString() { return "T("+ frame + ")";}
 		public void compute(Worker w, Frame ff) throws StealAbort {
 			TFrame frame = (TFrame) ff;
-			int top = w.cache.tail();
+			int depth=0;
 			for (;;) {
 				final int u = frame.u;
 				final int k = frame.k-1;
 				if (k== G[u].degree) {
-					if (w.cache.tail() == top) break;
+					if (depth==0) break;
 					else {
 						w.popFrame();
+						depth--;
 						w.abortOnSteal();
 						frame = (TFrame) w.cache.currentFrame();
 					}
 				} else {
 					final int v = G[u].neighbors[k];
-					boolean result = c.compareAndSet(v,0,1);
+					boolean result = color.compareAndSet(v,0,1);
 					frame.k++;
 					if (result) {
 						G[v].parent=u;
+						System.out.println("G[" +  v + "]=" + G[v] + ".parent=" + u);
 						TFrame f = new TFrame(v);
 						f.k=1;
 						w.pushFrame(f);
+						depth++;
 						frame=f;
 					}
-					
 				}
 			}
 			setupGQReturnNoArg();
@@ -271,11 +255,7 @@ public class SpanCI {
 	boolean verifyTraverse(int root) {
 		int[] X = new int [N];
 		for(int i=0;i<N;i++) X[i]=G[i].parent;
-		//for(int i=0;i<10;i++) System.out.print("parent["+i+"]=" + X[i]+",");
-		//System.out.println();
 		for(int i=0;i<N;i++) while(X[i]!=X[X[i]]) X[i]=X[X[i]];
-		//for(int i=0;i<10;i++) System.out.print("root["+i+"]=" + X[i]+",");
-		//System.out.println();
 		for(int i=0;i<N;i++) {
 			
 			if(X[i]!=X[0])  
@@ -302,9 +282,8 @@ public class SpanCI {
 			graph = new SpanCI(N,M);
 			System.gc();
 			System.out.printf("N:%8d ", N);
-			for (int k=0; k < 9; ++k) {
+			for (int k=0; k < 1; ++k) {
 				GloballyQuiescentJob job = new GloballyQuiescentJob(g) {
-					
 					@Override
 					protected void compute(Worker w, Frame frame) throws StealAbort {
 						GFrame f = (GFrame) frame;
@@ -312,7 +291,7 @@ public class SpanCI {
 						f.PC=LABEL_1;
 						if (PC==0) {
 							graph.color.set(0,1);
-							traverse(w, 0);
+							graph.traverse(w, 0);
 							w.abortOnSteal();
 						}
 						setupGQReturnNoArg();
@@ -333,7 +312,7 @@ public class SpanCI {
 				} catch (InterruptedException z) {}
 				long t = System.nanoTime() - s;
 				double secs = ((double) t)/NPS;
-				System.out.printf("%7.3f",secs);
+				System.out.printf("%7.3f %4b",secs, graph.verifyTraverse(0));
 				graph.clearColor();
 				
 			}
