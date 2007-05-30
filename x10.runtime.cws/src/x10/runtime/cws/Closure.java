@@ -252,11 +252,6 @@ public class Closure  {
     	
     	// Short circuit for globally quiescent computations.
     	if (requiresGlobalQuiescence() && parent != null) {
-    		//int value = resultInt();
-    		//int oldValue = w.currentJob().resultInt();
-    		/*if (Worker.reporting)
-    			System.out.println(w + " short circuiting return to current job: adding " + value + " into " + oldValue);
-    			*/
     		w.currentJob().accumulateResultInt(resultInt());
     		return null;
     	}
@@ -269,9 +264,6 @@ public class Closure  {
     	Closure parent = this.parent;
     	if (parent == null) {
     		// Must be a top level closure.
-    		/*if (Worker.reporting) {
-    			System.out.println(w + " returning from orphan " + this + ".");
-    		}*/
     		return null;
     	}
     	return parent.acceptChild(w, this);
@@ -288,18 +280,6 @@ public class Closure  {
     		assert (lockOwner == ws);
     		addCompletedInlet(child);
     		try {
-    			/*if (status == RUNNING) {
-    				signalImmediateException(ws);
-    				if (Worker.reporting) {
-    					System.out.println(ws + " signaling immediate exception to " + this);
-    				}
-    			} else
-    				pollInlets(ws);
-    			// Is a fence() needed?
-    			*/
-    			if (false && Worker.reporting) {
-					System.out.println(ws + " decrements " + this + ".joincount to " + joinCount);
-				}
     			return provablyGoodStealMaybe(ws, child);
     		} finally {
     			child.unlock();
@@ -368,10 +348,6 @@ public class Closure  {
 		assert lockOwner==ws;
 		
 		if (status==Status.RUNNING && ! cache.atTopOfStack()) {
-			if (ws.lockOwner !=ws) {
-				if (Worker.reporting)
-				System.out.println("Cache is " + cache.dump());
-			}
 			assert ws.lockOwner == ws;
 		}
 		if (completeInlets != null)
@@ -524,9 +500,9 @@ public class Closure  {
 		Worker w = (Worker) Thread.currentThread();
 		w.lock(w);
 		try {
-				w.extractBottom(w);
-				w.popFrame();
-				return;
+			w.extractBottom(w);
+			w.popFrame();
+			return;
 		} finally {
 			w.unlock();
 		}

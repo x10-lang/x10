@@ -3,12 +3,17 @@ package x10.runtime.cws;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
- * An ActiveCyclicBarrier provides an active version of CyclicBarrier. Activities that 
+ * An ActiveCyclicBarrier provides an active version of CyclicBarrier. Workers that 
  * coordinate their actions through an ActiveCyclicBarrier are in one of two states:
  * <em>busy</em> or <em>activeWait</em>. Initially all activities start out busy. They may transition
  * to the activeWaiting state by invoking a checkIn() operation. Unlike the await() method
- * of CyclicBarrier, this method does not suspend. The last of N activities to check in triggers
- * the barrier, moving it to the next phase, and executes the barrierAction, if any, associated with the barrier. 
+ * of CyclicBarrier, this method does not suspend. Thus after checking in, a worker may continue to execute,
+ * e.g. searching for work. At any time after checking in, a worker may execute a checkOut(), signaling its
+ * transition to a busy state. The application writer must guarantee the invariant that a worker may
+ * execute a checkOut() only if some other worker has already checkedout. 
+ * 
+ * <p> The last of N activities to check in triggers the barrier, moving it to the next phase, 
+ * and executes the barrierAction, if any, associated with the barrier. 
  * Triggering the barrier causes all activities to transition into the busy state.
  * <p>
  * ActiveCyclicBarrier is distinguished from CyclicBarrier in that activities are permitted
