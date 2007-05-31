@@ -5,10 +5,10 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.3 2007-05-28 06:04:23 ganeshvb Exp $ */
+/* $Id: Test_async_agg.cc,v 1.4 2007-05-31 07:48:30 srkodali Exp $ */
 
 #include <iostream>
-#include <x10/assert.h>
+#include <x10/xassert.h>
 #include <x10/x10lib.h>
 
 using namespace std;

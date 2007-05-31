@@ -5,14 +5,14 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: xassert.h,v 1.1 2007-05-28 06:38:20 ganeshvb Exp $ */
+/* $Id: xassert.h,v 1.2 2007-05-31 07:48:30 srkodali Exp $ */
 
 #ifndef __X10_ASSERT_H__
 #define __X10_ASSERT_H__
 
 #ifdef WARN
-//#include <iostream>
-//using namespace std;
+#include <iostream>
+using namespace std;
 
 #define stringize(a) #a
 
