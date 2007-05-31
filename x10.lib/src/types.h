@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: types.h,v 1.5 2007-05-23 11:35:56 ganeshvb Exp $
+ * $Id: types.h,v 1.6 2007-05-31 11:25:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -19,7 +19,6 @@ typedef  struct
 {
   void (* fptr)();
 } func_t; 
-
 typedef uint32_t x10_place_t;
 typedef uint64_t x10_gas_ref_t;
 #include <lapi.h>

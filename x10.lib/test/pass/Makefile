@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.4 2007-05-23 11:35:56 ganeshvb Exp $
+# $Id: Makefile,v 1.5 2007-05-31 11:25:57 ganeshvb Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -10,9 +10,10 @@
 .SUFFIXES: .cc .cc .cxx .C .o .h .exe
 
 MAKE = make
-CXX = mpCC_r -q64 -qarch=pwr5 -DVARARGS=1 -DFUNCTOR=1
+CXX = mpCC_r -O3 -qhot -w 
+CC = mpcc_r 
 DEFS = -DDEBUG -DWARN
-CXXFLAGS = -qtune=pwr5 -O3 -qhot -w 
+CXXFLAGS = -q64 -qarch=pwr5 -qtune=pwr5 
 INCLUDES = -I. -I../../include
 LINKFLAGS = -L../../src -lx10
 RM = rm  -f
@@ -36,6 +37,9 @@ SRCS = Test_array.cc \
        Test_region.cc \
        Test_tiled_region.cc
 
+CSRCS = Test_async_c.c \
+        Test_async_agg_c.c \
+
 EXE = Test_array.exe\
       Test_array_async.exe\
       Test_async.exe\
@@ -43,7 +47,9 @@ EXE = Test_array.exe\
       Test_dist.exe\
       Test_point.exe\
       Test_region.exe\
-      Test_tiled_region.exe
+      Test_tiled_region.exe\
+      Test_async_c.exe\
+      Test_async_agg_c.exe
 OBJS = 
 HEADERS = 
 
@@ -57,4 +63,6 @@ clean:
 	$(RM) $@
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) $< -o $@ $(LINKFLAGS)
 
-
+.c.exe: $(CSRCS)
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) $< -o $@ $(LINKFLAGS)

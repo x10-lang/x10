@@ -1,15 +1,16 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.cc,v 1.5 2007-05-23 11:35:56 ganeshvb Exp $
+ * $Id: x10lib.cc,v 1.6 2007-05-31 11:25:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
  
 /** Implementation file for the messaging layer of X10Lib **/
 
-#include <x10/x10lib.h>
 #include <lapi.h>
 #include <iostream>
+#include <x10/x10lib.h>
+#include <x10/alloc.h>
 
 #define LRC(statement) \
 do { \
@@ -27,6 +28,9 @@ namespace x10lib {
   lapi_thread_func_t tf;
   lapi_am_t am;
 }
+
+extern error_t asyncRegister();
+extern error_t asyncRegisterAgg();
 
 /* Initialization */
 int

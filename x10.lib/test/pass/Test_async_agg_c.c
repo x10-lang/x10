@@ -5,14 +5,10 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: Test_async_agg.cc,v 1.5 2007-05-31 11:25:57 ganeshvb Exp $ */
+/* $Id: Test_async_agg_c.c,v 1.1 2007-05-31 11:25:57 ganeshvb Exp $ */
 
-#include <iostream>
-#include <x10/xassert.h>
+#include <stdio.h>
 #include <x10/x10lib.h>
-
-using namespace std;
-using namespace x10lib;
 
 int m = 5;
 
@@ -24,9 +20,9 @@ void async0 (async_arg_t arg0)
   I += arg0 *  m;
   K++;
 }
+
 int asyncSwitch (async_handler_t h, async_arg_t* args, int niter) 
 {
-
   for (int i = 0; i < niter ;i ++)
   switch (h) {
   case 0:
@@ -43,23 +39,23 @@ main (int argc, char* argv[])
 {
   int N = 2048;
 
-  x10lib::Init(NULL,0);
+  x10_init(NULL,0);
 
-   for (place_t target = 0; target < numPlaces(); target++)
+   for (place_t target = 0; target < x10_num_places(); target++)
      for (int64_t i = 0; i < N; i++)
-       asyncSpawnInlineAgg (target, 0,  i);
+       x10_async_spawn_inline_agg1 (target, 0,  i);
      
-   asyncFlush (0, 1);
+   x10_async_flush (0, 1);
 
      
-  x10lib::Gfence (); 
-  cout << here() << " I " << I << " " << K << endl;
-  assert (I == numPlaces() * N * (N-1) / 2 * m);
-  assert (K == numPlaces() * N) ;
+  x10_gfence (); 
+  printf ("%d I %d %d \n", x10_here(),  I,  K);
+  assert (I == x10_num_places() * N * (N-1) / 2 * m);
+  assert (K == x10_num_places() * N) ;
 
-  cout << "Test_async_agg PASSED" << endl;
+  printf("Test_async_agg PASSED\n");
 
-  x10lib::Finalize();
+  x10_finalize();
 
   return 0;
 }

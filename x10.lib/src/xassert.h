@@ -5,22 +5,19 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: xassert.h,v 1.2 2007-05-31 07:48:30 srkodali Exp $ */
+/* $Id: xassert.h,v 1.3 2007-05-31 11:25:57 ganeshvb Exp $ */
 
 #ifndef __X10_ASSERT_H__
 #define __X10_ASSERT_H__
 
-#ifdef WARN
-#include <iostream>
-using namespace std;
-
+  /*  This is a wrapper around default assert which only prints the message,
+      but not causes the program to abort.
+      Additionally it also prints the process id.
+      And it does beep :)
+      Use -DWARN compiler flag to enable this  */
 #define stringize(a) #a
-
-  //  This is a wrapper around default assert which only prints the message,
-  // but not causes the program to abort.
-  // Additionally it also prints the process id.
-  // And it does beep :)
-  // Use -DWARN compiler flag to enable this
+#ifdef __cplusplus
+#ifdef WARN
 #define assert(cond) \
   do {									\
     if ((cond) == 0)							\
@@ -29,8 +26,20 @@ using namespace std;
   }while(0) 
 
 #else
-
 #include <cassert>
+#endif
+
+#else
+
+#ifdef WARN
+#define assert(cond) \
+  do {									\
+    if ((cond) == 0)							\
+      printf ("assert %s failed %d %s line %d \a \n", stringize(cond), x10_here(), __FILE__, __LINE__); \
+  }while(0)                                         
+#else 
+#include <assert.h>
+#endif
 
 #endif
 

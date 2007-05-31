@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: gas.cc,v 1.2 2007-05-17 09:48:52 ganeshvb Exp $ */
+/* $Id: gas.cc,v 1.3 2007-05-31 11:25:57 ganeshvb Exp $ */
 
 #include <iostream> 
 #include "gas.h"
@@ -28,4 +28,18 @@ x10lib::numPlaces()
   //LAPI_Qenv (GetHandle(), NUM_TASKS, &numTasks); 
   //cout << x10lib::MAX_PLACES << " " << numTasks << endl;
   return  MAX_PLACES;
+}
+
+extern "C"
+place_t
+x10_here()
+{
+  return  x10lib::here();
+}
+
+extern "C"
+int
+x10_num_places()
+{
+  return x10lib::numPlaces();
 }

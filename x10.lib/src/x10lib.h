@@ -1,7 +1,7 @@
 /*
  * (c) Copyright IBM Corporation 2007
  *
- * $Id: x10lib.h,v 1.8 2007-05-23 11:35:56 ganeshvb Exp $
+ * $Id: x10lib.h,v 1.9 2007-05-31 11:25:57 ganeshvb Exp $
  * This file is part of X10 Runtime System.
  */
 
@@ -13,7 +13,6 @@
 #include <x10/types.h>
 #include <x10/err.h>
 #include <x10/gas.h>
-#include <x10/alloc.h>
 #include <x10/async.h>
 #include <x10/aggregate.h>
 
@@ -34,6 +33,7 @@
 #define GetRemoteAddr(gas_ref) \
 	((unsigned long long)gas_ref & 0xffffffffffffULL)
 
+#ifdef __cplusplus
 namespace x10lib {
 
 	/* Initialization */
@@ -149,9 +149,12 @@ namespace x10lib {
 	/* Create remote address table */
 	int AddrInit(void *my_addr, void *addr_tab[]);
 } /* closing brace for namespace x10lib */
+#endif
 
+#ifdef __cplusplus
 /* C Lang Interface */
 extern "C" {
+#endif
 	/* Initialization */
 	int x10_init(func_t* handlers, int n);
 		
@@ -235,6 +238,7 @@ extern "C" {
 	/* Create remote address table */
 	int x10_addr_init(void *my_addr, void *addr_tab[]);
 	
+#ifdef __cplusplus
 } /* closing brance for extern "C" */
-
+#endif
 #endif /* __X10_X10LIB_H */

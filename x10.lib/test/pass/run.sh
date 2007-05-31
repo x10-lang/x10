@@ -17,3 +17,6 @@ poe ./Test_dist.exe -procs $1 -hostfile $2
 poe ./Test_point.exe -procs $1 -hostfile $2
 poe ./Test_region.exe -procs $1 -hostfile $2
 poe ./Test_tiled_region.exe -procs $1 -hostfile $2
+
+poe ./Test_async_c.exe -procs $1 -hostfile $2
+poe ./Test_async_agg_c.exe -procs $1 -hostfile $2

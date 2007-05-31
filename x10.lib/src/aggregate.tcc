@@ -41,7 +41,7 @@ asyncSpawnCompHandlerAgg (lapi_handle_t *handle, void* a)
 }
 
 template<int N>
-inline error_t
+error_t
 asyncFlush_t (async_handler_t handler)
 {
     lapi_cntr_t origin_cntr;
@@ -94,7 +94,7 @@ asyncSpawnHandlerAgg (lapi_handle_t handle, void* uhdr,
 }
 
 template <int N, typename F>
-inline error_t
+error_t
 asyncRegister_t (async_handler_t handle)
 {
   LAPI_Addr_set (GetHandle(), (void*) asyncSpawnHandlerAgg<N, F>, 5+handle);
@@ -144,7 +144,7 @@ asyncSpawnInlineAgg_i (place_t target, async_handler_t handler)
   return X10_OK;
 }
 template <int N, typename F>
-inline error_t
+error_t
 asyncSpawnInlineAgg_t (place_t target, async_handler_t handler,...)
 {
  va_list  list;
@@ -163,7 +163,7 @@ asyncSpawnInlineAgg_t (place_t target, async_handler_t handler,...)
 
 
 template <typename F>
-inline error_t 
+error_t 
 asyncSpawnInlineAgg_t (place_t target, async_handler_t handler, async_arg_t arg0)
 {
  ulong& count = counter [handler][target];
