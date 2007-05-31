@@ -1,12 +1,13 @@
 #! /usr/bin/ksh
 
-
-make all;
-
 export MP_MSG_API=lapi
 export MP_EUILIB=us
 
-echo "Syntax: ./run.sh <numprocs> <hostfile>"
+if [ $# -ne 2 ]
+then
+	echo "Syntax: ./run.sh <numprocs> <hostfile>"
+	exit 1
+fi
 
 poe ./Test_array.exe -procs $1 -hostfile $2
 poe ./Test_array_async.exe -procs $1 -hostfile $2
