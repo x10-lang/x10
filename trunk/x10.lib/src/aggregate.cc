@@ -3,10 +3,10 @@
 
 using namespace x10lib;
 
-async_arg_t argbuf[MAX_HANDLERS][MAX_TASKS][MAX_ARGS*AGG_LIMIT];
-ulong counter[MAX_HANDLERS][MAX_TASKS];
-int maxCounter[MAX_HANDLERS];
-int total [MAX_HANDLERS];
+async_arg_t argbuf[MAX_AGG_HANDLERS][MAX_AGG_TASKS][MAX_ASYNC_ARGS*MAX_AGG_SIZE];
+ulong counter[MAX_AGG_HANDLERS][MAX_AGG_TASKS];
+int maxCounter[MAX_AGG_HANDLERS];
+int total [MAX_AGG_HANDLERS];
 
 
 inline void
@@ -48,8 +48,8 @@ x10lib::asyncFlush (async_handler_t handler, int N)
   buf.N = N;
   for (int j =0; j < MAX_PLACES; j++) {
     if ( j!= here() && counter[handler][j] != 0) {
-      LAPI_Setcntr (GetHandle(), &cntr, 0);
-      LAPI_Amsend (GetHandle(),
+      int rc0 = LAPI_Setcntr (GetHandle(), &cntr, 0);
+      int rc1 = LAPI_Amsend (GetHandle(),
 		   j,
                    (void*) 1,
 		   &buf,
@@ -59,7 +59,8 @@ x10lib::asyncFlush (async_handler_t handler, int N)
 		   NULL,
 		   &cntr, //NULL,
 		   NULL);
-    LAPI_Waitcntr (GetHandle(), &cntr, 1, &tmp);
+      int rc2 = LAPI_Waitcntr (GetHandle(), &cntr, 1, &tmp);
+      if (rc0 || rc1 || rc2)  return X10_ERR_LAPI;
     }
     total[handler] -= counter[handler][j];
     counter[handler][j] =0;
@@ -68,7 +69,6 @@ x10lib::asyncFlush (async_handler_t handler, int N)
   return X10_OK;
 }
 
- 
 void*
 asyncSpawnHandlerAgg (lapi_handle_t handle, void* uhdr,
 		   uint *uhdr_len, ulong* msg_len, 
@@ -96,7 +96,7 @@ asyncSpawnHandlerAgg (lapi_handle_t handle, void* uhdr,
 
 }
 error_t
-x10lib::asyncRegisterAgg()
+asyncRegisterAgg()
 {
   LAPI_Addr_set (GetHandle(), (void*) asyncSpawnHandlerAgg, 1);
   return X10_OK;
@@ -107,11 +107,11 @@ error_t
 asyncSpawnInlineAgg_i (place_t target, async_handler_t handler, int N)
 {
 
- assert (N <= MAX_ARGS);
+ assert (N <= MAX_ASYNC_ARGS);
  counter[handler][target]++;
  total[handler]++;
 
- if (total[handler] >= AGG_LIMIT)
+ if (total[handler] >= MAX_AGG_SIZE)
   {
     ulong max = 0;
     int task = 0;
@@ -181,6 +181,23 @@ x10lib::asyncSpawnInlineAgg (place_t target, async_handler_t handler, async_arg_
   return asyncSpawnInlineAgg_i (target, handler,2);
 }
 
+error_t
+x10_async_spawn_inline_agg1 (place_t target, async_handler_t handler, async_arg_t arg0)
+{
+  return x10lib::asyncSpawnInlineAgg (target, handler, arg0);
+}
+
+error_t
+x10_async_spawn_inline_agg2 (place_t target, async_handler_t handler, async_arg_t arg0, async_arg_t arg1)
+{
+  return x10lib::asyncSpawnInlineAgg (target, handler, arg0, arg1);
+}
+
+error_t
+x10_async_flush (async_handler_t handle, int n)
+{
+  return x10lib::asyncFlush (handle, n);
+}
 
 // Local Variables:
 // mode: C++

@@ -5,7 +5,7 @@
  * Author : Ganesh Bikshandi
  */
 
-/* $Id: async.cc,v 1.2 2007-05-28 06:03:53 ganeshvb Exp $ */
+/* $Id: async.cc,v 1.3 2007-05-31 11:25:57 ganeshvb Exp $ */
 
 #include <iostream>
 #include <stdarg.h>
@@ -15,7 +15,7 @@
 using namespace x10lib;
 using namespace std;
 
-async_arg_t args[MAX_ARGS];
+async_arg_t args[MAX_ASYNC_ARGS];
 
 void*
 asyncSpawnHandler (lapi_handle_t handle, void* uhdr,
@@ -30,7 +30,7 @@ asyncSpawnHandler (lapi_handle_t handle, void* uhdr,
   return NULL;
 }
 error_t
-x10lib::asyncRegister()
+asyncRegister()
 {
   LAPI_Addr_set (GetHandle(), (void*) asyncSpawnHandler, 2);
   return X10_OK;
@@ -71,11 +71,17 @@ x10lib::asyncSpawnInline (place_t target, async_handler_t handler, int N...)
 		 NULL,
 		 &origin_cntr, 
 		 NULL);
-    LAPI_Waitcntr (GetHandle(), &origin_cntr, 1, &tmp); //(???) 
+    LAPI_Waitcntr (GetHandle(), &origin_cntr, 1, &tmp); 
 
   return X10_OK;
 }
 
+extern "C" 
+error_t
+x10_async_spawn_inline (place_t target, async_handler_t handler, int N,...)
+{
+  return x10lib::asyncSpawnInline (target, handler, N);
+}
 
 // Local Variables:
 // mode: C++
