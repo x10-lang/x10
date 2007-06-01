@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.10 2007-05-31 07:48:30 srkodali Exp $
+# $Id: Makefile,v 1.11 2007-06-01 14:24:50 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -21,7 +21,7 @@ INCLUDES = -I. -I../include
 LINKFLAGS =
 RM = rm -f
 AR = ar
-ARFLAGS = -v -r -X64
+ARFLAGS = -r -X64
 RANLIB = ranlib -X64
 CP = cp
 MKDIR = mkdir

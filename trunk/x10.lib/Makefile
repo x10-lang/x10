@@ -1,7 +1,7 @@
 #
 # (c) Copyright IBM Corporation 2007
 #
-# $Id: Makefile,v 1.2 2007-04-27 12:54:53 srkodali Exp $
+# $Id: Makefile,v 1.3 2007-06-01 14:24:50 srkodali Exp $
 # This file is part of X10 Runtime System.
 #
 
@@ -26,7 +26,7 @@ samples:
 bench:
 	(cd benchmarks; $(MAKE) all)
 
-test:
+test::
 	(cd test; $(MAKE) all)
 
 install:
