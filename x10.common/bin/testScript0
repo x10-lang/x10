@@ -149,6 +149,7 @@ checkUsage() {
   checkGNU egrep
   checkGNU find
   checkGNU sed
+  checkGNU xargs
 
   timeLimit=60
   mailDest=""
