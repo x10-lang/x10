@@ -22,9 +22,7 @@ package x10.runtime.cws;
  *
  */
 public class Frame {
-	// The label at which computation must be continued by the associated
-	// closure.
-	public volatile int PC;
+	
 	public Frame() {
 		super();
 	}
@@ -47,5 +45,12 @@ public class Frame {
 	  * @param c -- The closure whose outlet must be set.
 	  */
 	public  void setOutletOn(Closure c) {}
+	
+	/**
+	 * To be implemented in subclasses to support in place update of frames
+	 * on the frame stack.
+	 * @param x -- the new value for the distinguished slot in the frame.
+	 */
+	public void setInt(int x) { throw new UnsupportedOperationException();}
 
 }

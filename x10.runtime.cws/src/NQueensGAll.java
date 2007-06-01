@@ -6,7 +6,7 @@ import x10.runtime.cws.*;
 import x10.runtime.cws.Closure.Outlet;
 import static x10.runtime.cws.Job.*;
 
-public class NQueensG extends Closure {
+public class NQueensGAll extends Closure {
 	
 	static int boardSize;
 	public boolean requiresGlobalQuiescence() { return true; }
@@ -21,7 +21,7 @@ public class NQueensG extends Closure {
 			System.out.println("Number of procs=" + procs);
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java NQueensG <threads> ");
+			System.out.println("Usage: java NQueensGAll <threads> ");
 			return;
 		}
 		Pool g = new Pool(procs);
@@ -59,7 +59,7 @@ public class NQueensG extends Closure {
 	// Boards are represented as arrays where each cell 
 	// holds the column number of the queen in that row
 	
-	NQueensG(NFrame f) { 
+	NQueensGAll(NFrame f) { 
 		super(f);
 	}
 	public static class NFrame extends GFrame {
@@ -88,7 +88,7 @@ public class NQueensG extends Closure {
 					});
 		}
 		public Closure makeClosure() {
-			Closure c = new NQueensG(this);
+			Closure c = new NQueensGAll(this);
 			return c;
 		}
 		public String toString() { 
@@ -135,6 +135,8 @@ public class NQueensG extends Closure {
 				w.abortOnSteal(y);
 				//sum +=y;
 				frame.sum +=y;
+			} else {
+				frame.sum++;
 			}
 			q++;
 			frame.q=q+1;

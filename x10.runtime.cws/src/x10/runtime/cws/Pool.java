@@ -112,7 +112,7 @@ public class Pool {
      */
     volatile Closure currentJob;
 
-    ActiveCyclicBarrier barrier;
+    ActiveWorkerCount barrier;
     
     long startTime;
     /**
@@ -134,10 +134,8 @@ public class Pool {
     public Pool(int poolSize) {
         if (poolSize <= 0) throw new IllegalArgumentException();
         Worker.workers = workers = new Worker[poolSize];
-        barrier = new ActiveCyclicBarrier(poolSize, new Runnable() { 
+        barrier = new ActiveWorkerCount(new Runnable() { 
         	public void run() {
-        		if (Worker.reporting)
-        			System.out.println(Thread.currentThread() + " running barrier activity.");
         		if (currentJob != null && currentJob.requiresGlobalQuiescence()) {
         			currentJob.completed();
         		}
@@ -354,6 +352,13 @@ public class Pool {
                 sum += t.stealAttempts;
         }
         return sum;
+    }
+    
+    public void initFrameGenerator(Worker.FrameGenerator fg) {
+        for (int i = 0; i < workers.length; ++i) {
+            Worker t = workers[i];
+            t.setFrameGenerator(fg);
+        }
     }
     /**
      * Termination callback from dying worker.

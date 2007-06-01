@@ -38,7 +38,7 @@ import java.util.ArrayList;
 public class Closure  {
 
 	protected Cache cache;
-	final public  Frame frame;
+	public  Frame frame;
 	protected Closure parent;
 	protected  Status status;
 	protected ReentrantLock lock;
@@ -507,6 +507,18 @@ public class Closure  {
 			w.unlock();
 		}
 	}
+	final protected void setupGQReturnNoArgNoPop() {
+		// Do not trust client code to pass this parameter in.
+		//System.out.println(Thread.currentThread() + " in setupGQReturnNoArgNoPop for " + this);
+		Worker w = (Worker) Thread.currentThread();
+		w.lock(w);
+		try {
+			w.extractBottom(w);
+			return;
+		} finally {
+			w.unlock();
+		}
+	}
 	final protected void setupGQReturn() {
 		// Do not trust client code to pass this parameter in.
 		Worker w = (Worker) Thread.currentThread();
@@ -556,7 +568,7 @@ public class Closure  {
 	// when there is no reason to subclass it.
 	public void setResultInt(int x) { throw new UnsupportedOperationException(); }
 	public void accumulateResultInt(int x) { throw new UnsupportedOperationException();}
-	public int resultInt() { throw new UnsupportedOperationException();}
+	public int resultInt() { assert false; throw new UnsupportedOperationException();}
 	
 	public void setResultFloat(float x) {throw new UnsupportedOperationException();}
 	public void accumulateResultFloat(float x) { throw new UnsupportedOperationException();}

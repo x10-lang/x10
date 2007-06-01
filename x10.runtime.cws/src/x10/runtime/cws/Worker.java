@@ -161,8 +161,8 @@ public class Worker extends Thread {
 			cl = peekTop(thief, victim);
 			// vj: I believe the victim's ready deque should have only one
 			// closure in it.
-			Closure cl1 = peekBottom(thief);
-			assert cl1==cl;
+			//Closure cl1 = peekBottom(thief);
+			//assert cl1==cl;
 		} catch (Throwable z) {
 			unlock();
 			// wrap in an error.
@@ -198,10 +198,10 @@ public class Worker extends Thread {
 				Closure res = extractTop(thief);
 				assert (res == cl);
 				thief.checkOut(res);
-				/*if (reporting) {
-					System.out.println(thief + " steals ready " + cl + " from "
-							+ victim);
-				}*/
+				if (reporting) {
+					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= ready " + cl + " from "
+							+ victim + " cache=" + victim.cache.dump());
+				}
 				return res;
 			} finally {
 				cl.unlock();
@@ -229,6 +229,11 @@ public class Worker extends Thread {
 					System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
 					thief.checkOut(res);
 					assert cl==res;
+					if ( reporting) {
+						
+						System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= running " + cl + " from "
+								+ victim + " cache=" + victim.cache.dump());
+					}
 				} finally {
 					lock.unlock();
 				}
@@ -237,11 +242,7 @@ public class Worker extends Thread {
 				} finally {
 					cl.unlock();
 				}
-				/*if (reporting) {
-					
-					System.out.println(thief + " steals running " + cl + " from "
-							+ victim);
-				}*/
+				
 				
 				return res;
 			} 
@@ -571,14 +572,19 @@ public class Worker extends Thread {
 				// Found some work! Execute it.
 				idleScanCount=-1;
 				assert cache == null || cache.empty();
-				/*if ( reporting) {
+				if ( reporting) {
 					System.out.println(this + " executes " + cl +".");
-				}*/
+				}
+				try {
 				Closure cl1 = cl.execute(this);
-				/*if ((reporting && bottom == cl)) {
+				if ((reporting && bottom == cl)) {
 					System.out.println(this + " completes " + cl + " returns " + cl1 +".");
-				}*/
+				}
 				cl=cl1;
+				} catch (AssertionError z) {
+					System.out.println(this + " asertion error when executing " + cl + " " + z);
+					throw z;
+				}
 				
 				
 				// vj: This avoids having to implement a wrap around.
@@ -630,17 +636,28 @@ public class Worker extends Thread {
 	 *   
 	 *            
 	 */
-	protected Closure popFrameCheck() {
+	public Closure popFrameCheck() {
 		if (! cache.popCheck()) 
 			// fast path
 			return null;
 		
 		Closure result = exceptionHandler();
-		if (true && reporting)
+		if (reporting)
 			System.out.println(this + " at " + pool.time() + " popFrameCheck: discovers a theft and returns " + result
 					+ " cache=" + cache.dump());
 		if (result !=null)
 			popFrame();
+		return result;
+	}
+	public Closure popFrameCheckNoPop() {
+		if (! cache.popCheck()) 
+			// fast path
+			return null;
+		
+		Closure result = exceptionHandler();
+		if (reporting)
+			System.out.println(this + " at " + pool.time() + " popFrameCheck: discovers a theft and returns " + result
+					+ " cache=" + cache.dump());
 		return result;
 	}
 	/**
@@ -762,13 +779,26 @@ public class Worker extends Thread {
 			unlock();
 		}
 	}
-	
-
+	public Frame popAndReturnFrame() {
+		return cache.popAndReturnFrame(this);
+	}
+		
+public void pushIntUpdatingInPlace( int x) {
+	cache.pushIntUpdatingInPlace(x);
+}
     boolean isActive() { 
         return  cache.notEmpty() || idleScanCount <= 0;
     }
     public Closure currentJob() {
     	return pool.currentJob;
+    }
+    
+    FrameGenerator fg;
+    public interface FrameGenerator {
+    	Frame make();
+    }
+    public void setFrameGenerator(FrameGenerator x) {
+    	fg=x;
     }
 }
 

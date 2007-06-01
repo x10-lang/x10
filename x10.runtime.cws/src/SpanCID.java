@@ -5,16 +5,23 @@
  * Author: Guojing Cong
  * Tong Wen
  * Vijay Saraswat
+ * 
+ * Iterative version of main loop.
  */
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-import x10.runtime.cws.*;
+import x10.runtime.cws.Cache;
+import x10.runtime.cws.Closure;
+import x10.runtime.cws.Frame;
+import x10.runtime.cws.Job;
+import x10.runtime.cws.Pool;
+import x10.runtime.cws.StealAbort;
+import x10.runtime.cws.Worker;
 import x10.runtime.cws.Job.GloballyQuiescentJob;
 
-
-
-public class SpanC {
+public class SpanCID {
 	
 	class V {
 		public int parent;
@@ -26,7 +33,6 @@ public class SpanC {
 			for (int i=1; i < neighbors.length; i++) s += ","+neighbors[i];
 			return "v(parent=" + parent + ",degree="+degree+ ",n=" + s+"])";}
 	}
-	
 	
 	class E{
 		public int v1,v2;
@@ -41,11 +47,10 @@ public class SpanC {
 	AtomicIntegerArray color;
 	int ncomps=0;
 	
-	static int[] Ns = new int[] {10*1000,50*1000, 100*1000,
-		500*1000, 1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000};
+	static int[] Ns = new int[] {1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000, 5*1000*1000};
 	int N, M;
 	
-	public SpanC (int n, int m){
+	public SpanCID (int n, int m){
 		N=n;
 		M=m;
 		
@@ -151,128 +156,152 @@ public class SpanC {
 		}
 		
 		G = new V[N];
+		//visited = new boolean[N];
 		for(int i=0;i<N;i++) {
 			G[i]=new V();
 			G[i].degree=D[i];
-			G[i].parent=i;
+			G[i].parent = i;
 			G[i].neighbors=new int [D[i]];
-			for(j=0;j<D[i];j++)
+			
+			for(j=0;j<D[i];j++) {
 				G[i].neighbors[j]=NB[i][j];
-			//System.out.println("G["+i+"]=" + G[i]);
+			}
+			if (SpanCID.reporting)
+				System.out.println(G[i]);
+			
 		}     
 		
 	}
 	
-	
-	public static class TFrame extends Frame {
-		final int u; // vertex
-		volatile int k;
+	public  static class TFrame extends Frame {
+		int u; // vertex
 		public TFrame(int u) {
 			this.u=u;
+		}
+		@Override
+		public void setInt(int x) {
+			u=x;
 		}
 		public void setOutlet(final Closure c) {
 			// nothing to do
 		}
 		public Closure makeClosure() {
-			return new Traverser(graph,this);
+			return new Traverser(this);
 		}
-		public String toString() { return "SpanC " + "u=" + u + ",k=" + k;}
+		public String toString() { return "n(" + u+ ")";}
 	}
-	public static final int LABEL_0 = 0;
-	static void traverse(final Worker w,  final int u) throws StealAbort {
-		TFrame frame = new TFrame(u);
-		frame.k=1;
-		final V[] G = graph.G;
-		final AtomicIntegerArray c = graph.color;
-		w.pushFrame(frame);
-		int k=0;
-		while (k < G[u].degree) {
-			int v=G[u].neighbors[k];
-			boolean result = c.compareAndSet(v,0,1);
-			if (result) {
-				G[v].parent=u;
-				traverse(w,v);
-				w.abortOnSteal();
+
+	void work(final Worker w, final int u) {
+		final V[] g = G;
+		final AtomicIntegerArray c = color;
+		int index = u;
+		for (;;) {
+			final int degree = g[index].degree;
+			int lastV = -1;
+			for (int k=0; k < degree; k++) {
+				final int v = g[index].neighbors[k];
+				if (c.get(v)==0 && c.compareAndSet(v,0,1)) {
+					g[v].parent=index;
+					if (lastV >= 0) {
+						w.pushIntUpdatingInPlace(lastV);
+					}
+					lastV =v;
+				}
 			}
-			++k;
-			frame.k=k;
+			if ((index=lastV) < 0) 
+				return;
 		}
-		w.popFrame();
-		return;
+	}
+	void traverseNode(final Worker w, final int u) throws StealAbort {
+		int index = u;	
+		for(;;) {
+			if (index >= 0) work(w, index);
+			Frame f = w.popAndReturnFrame();
+			if (f == null) return;
+			index = ((TFrame) f).u;
+		}
 	}
 	public static class Traverser extends Closure {
-		final SpanC graph;
-		final V[] G;
-		final AtomicIntegerArray c;
-		public Traverser(SpanC g, TFrame t) { 
+		public Traverser(  TFrame t) { 
 			super(t);
-			graph=g;
-			G=graph.G;
-			c=graph.color;
 		}
-		public void compute(Worker w, Frame frame) throws StealAbort {
-			TFrame f = (TFrame) frame;
-			final int u = f.u;
-			int k = f.k;
-			while (k < G[u].degree) {
-				int v=G[u].neighbors[k];
-				boolean result = c.compareAndSet(v,0,1);
-				if (result) {
-					G[v].parent=u;
-					traverse(w,v);
-					w.abortOnSteal();
-				}
-				++k;
-				f.k=k;
+		public boolean requiresGlobalQuiescence() { return true; }
+		public String toString() { return "T("+ frame + ",status=" + status + ")";}
+		public void compute(Worker w, Frame ff) throws StealAbort {
+			assert (w.cache.currentFrame()==ff);
+			assert(w.cache.tail()==1);
+			assert(w.cache.head()==0);
+			TFrame tf = (TFrame) ff;
+			int index = tf.u;
+			if (index >= 0) {
+				tf.u=-1; // in case this frame gets stolen. -1 indicates no more work to do.
+				graph.traverseNode(w, index);
 			}
-			setupGQReturnNoArg();
+			setupGQReturnNoArgNoPop();
 			return;
 		}
 	}
 	boolean verifyTraverse(int root) {
 		int[] X = new int [N];
+		for (int i=0;i<N;i++) 
+				if (G[i].parent==i && i!=1) 
+					System.out.println("Questionable guy " + i);
 		for(int i=0;i<N;i++) X[i]=G[i].parent;
 		for(int i=0;i<N;i++) while(X[i]!=X[X[i]]) X[i]=X[X[i]];
 		for(int i=0;i<N;i++) {
 			
-			if(X[i]!=X[0])  
+			if(X[i]!=root)  
 				return false;
 		}
 		return true;
 	}
-	static SpanC graph;
+	static SpanCID graph;
+	static boolean reporting = false;
 	static final long NPS = (1000L * 1000 * 1000);
 	public static void main(String[] args) {
 		int procs;
+		int num=-1;
 		try {
 			procs = Integer.parseInt(args[0]);
 			System.out.println("Number of procs=" + procs);
+			if (args.length > 1) {
+				num = Integer.parseInt(args[1]);
+				System.out.println("N=" + num);
+			}
+			if (args.length > 2) {
+				boolean b = Boolean.parseBoolean(args[2]);
+				reporting=b;
+			}
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java SpanT <threads>");
+			System.out.println("Usage: java SpanCID <threads> [<N>]");
 			return;
 		}
-		
 		Pool g = new Pool(procs);
+		g.initFrameGenerator(new Worker.FrameGenerator() {
+			public Frame make() {
+				return new TFrame(0);
+			}
+		});
+		if (num >= 0) {
+			Ns = new int[] {num};
+		}
 		for (int i=0; i < Ns.length; i++) {
 			
 			int N = Ns[i], M = 3*N/5;
-			graph = new SpanC(N,M);
+			graph = new SpanCID(N,M);
 			System.gc();
 			System.out.printf("N:%8d ", N);
 			for (int k=0; k < 9; ++k) {
-				GloballyQuiescentJob job = new GloballyQuiescentJob(g) {
-
-					public volatile int PC;
+				graph.color.set(1,1);
+				GloballyQuiescentJob job = new GloballyQuiescentJob(g, new TFrame(1)) {
 					@Override
 					protected void compute(Worker w, Frame frame) throws StealAbort {
-						GFrame f = (GFrame) frame;
-						int PC = f.PC;
-						f.PC=LABEL_1;
-						if (PC==0) {
-							graph.color.set(1,1);
-							traverse(w, 1);
-							w.abortOnSteal();
+						TFrame f = (TFrame) frame;
+						int u = f.u;
+						if (u >0) {
+							f.u=-1;
+							graph.traverseNode(w, u);
 						}
 						setupGQReturnNoArg();
 					}
@@ -292,19 +321,19 @@ public class SpanC {
 				} catch (InterruptedException z) {}
 				long t = System.nanoTime() - s;
 				double secs = ((double) t)/NPS;
-				System.out.printf("%7.3f %b",secs, graph.verifyTraverse(1));
+				System.out.printf("%7.3f %b ",secs, graph.verifyTraverse(1));//, graph.visitedCount.get());
 				graph.clearColor();
 				
 			}
 			System.out.println();
 		}   
-		
 		g.shutdown(); 
 	}
 	void clearColor() {
 		int n = color.length();
-		for (int i = 0; i < n; ++i) 
+		for (int i = 0; i < n; ++i) {
 			color.set(i, 0);
+		}
 	}
 }
 
