@@ -1,7 +1,7 @@
 #!/usr/bin/ksh
 
 #
-# $Id: mkdist.sh,v 1.1 2007-06-01 12:58:25 srkodali Exp $
+# $Id: mkdist.sh,v 1.2 2007-06-01 14:24:50 srkodali Exp $
 # Script for making distribution.
 #
 
@@ -50,7 +50,7 @@ DEST_DOC_DIR=${DEST_TOP}/doc
 X10LIB=libx10.a
 
 # start logging
-echo "Making ${DIST_NAME} on `date`...\n" >> ${LOGFILE}
+echo "Making ${DIST_NAME} on `date`...\n" > ${LOGFILE}
 
 # check for src dirs and files
 if [ ! -d ${SRC_INC_DIR} -o ! -d ${SRC_LIB_DIR} ]
