@@ -57,6 +57,9 @@ public class NQueensCL extends Closure {
 		super(f);
 	}
 	public static class NFrame extends Frame {
+//		 The label at which computation must be continued by the associated
+		// closure.
+		public volatile int PC;
 		final long sofar;
 		final int row;
 		volatile int q;

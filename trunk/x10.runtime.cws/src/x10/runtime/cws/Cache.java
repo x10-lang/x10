@@ -12,10 +12,10 @@ package x10.runtime.cws;
  */
  public class Cache {
 	public static final int MAXIMUM_CAPACITY = 1 << 30;
-	public static final int INITIAL_CAPACITY = 1 << 13; // too high??
+	public static final int INITIAL_CAPACITY = 1 << 20; // too high??
 	public static final int EXCEPTION_INFINITY = Integer.MAX_VALUE;
 	
-	protected Frame[] stack;
+	public Frame[] stack;
 	// these are indices into stack.
 	private volatile int head, tail, exception;
 	
@@ -38,6 +38,28 @@ package x10.runtime.cws;
     		return;
     	}
     	growAndPushFrame(x);
+    }
+    protected void pushIntUpdatingInPlace(int x) {
+    	
+    	Frame[] array = stack;
+    	if (array != null && tail < array.length - 1) {
+    		if (array[tail] != null) {
+    			array[tail].setInt(x);
+    		} else {
+    			Worker w = (Worker) Thread.currentThread();
+    			Frame f = w.fg.make();
+    			f.setInt(x);
+    			array[tail] = f;
+    			
+    		}
+    		++tail;
+    		return;
+    	}
+    	Worker w = (Worker) Thread.currentThread();
+		Frame f = w.fg.make();
+		f.setInt(x);
+    	growAndPushFrame(f);
+    	
     }
 	  /*
      * Handles resizing and reinitialization cases for pushFrame
@@ -103,6 +125,9 @@ package x10.runtime.cws;
     public Frame currentFrame() {
     	return stack[tail-1];
     }
+    public Frame poppedOne() {
+    	return stack[tail];
+    }
     protected void popFrame() {
 		--tail;
 	}
@@ -111,17 +136,15 @@ package x10.runtime.cws;
      * @return true iff an exception has been posted against
      *              the current closure.
      */
-    protected int lastException;
 	protected boolean popCheck() {
 		int t = tail;
 		int e = exception;
-		lastException = e;
 		return e >= t;
 	}
 	public String dump() {
 		return this.toString() + "(head=" + head + " tail=" + tail + " exception=" + exception + ")";
 	}
-	protected boolean empty() {
+	public boolean empty() {
 		return head >=tail;
 	}
 	public boolean headAheadOfTail() {
@@ -131,8 +154,11 @@ package x10.runtime.cws;
 		return head < tail;
 	}
 	
-	protected void reset() {
-		head=tail=exception=0;
+	public void reset() {
+		tail=0; // order is imp.
+		head=0;
+		exception=0;
+		
 	}
 	public void incHead() {
 		++head;
@@ -142,5 +168,26 @@ package x10.runtime.cws;
 	}
 	public int head() { return head;}
 	public int tail() { return tail;}
+	public int exception() { return exception;}
 	
+	public Frame popAndReturnFrame(Worker w) {
+		try {
+		if (head < tail) {
+			tail--;
+			if (exception >= tail) {
+				w.lock(w);
+				try {
+					exception = head;
+				} finally {
+					w.unlock();
+				}
+			} 
+			return stack[tail];
+		}
+		return null;
+		} finally {
+			assert (head >=0);
+			assert (tail >= 0);
+		}
+	}
 }

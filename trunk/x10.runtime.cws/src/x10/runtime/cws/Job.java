@@ -41,7 +41,10 @@ public abstract class Job extends Closure implements Future {
 		public boolean requiresGlobalQuiescence() { return true;}
 		
 		public GloballyQuiescentJob(Pool pool) {
-			super(new GFrame(), pool);
+			this(pool, new GFrame());
+		}
+		public GloballyQuiescentJob(Pool pool, Frame f) {
+			super(f, pool);
 			parent = null;
 			joinCount=0;
 			status = READY;
@@ -71,7 +74,9 @@ public abstract class Job extends Closure implements Future {
 	 *
 	 */
 	public static class GFrame extends JobFrame {
-		
+//		 The label at which computation must be continued by the associated
+		// closure.
+		public volatile int PC;
 		public void setOutletOn(final Closure c) {
 //			 nothing needs to be done since the abort mechanism
 			// will directly feed the answer into the global closure,
@@ -86,6 +91,9 @@ public abstract class Job extends Closure implements Future {
 		public GFrame() { super();}
 	}
 	public static class JobFrame extends Frame {
+//		 The label at which computation must be continued by the associated
+		// closure.
+		public volatile int PC;
 		public int x;
 		public JobFrame() {
 			super();

@@ -16,9 +16,10 @@ import x10.runtime.cws.Frame;
 import x10.runtime.cws.Pool;
 import x10.runtime.cws.StealAbort;
 import x10.runtime.cws.Worker;
+import x10.runtime.cws.Job.GFrame;
 import x10.runtime.cws.Job.GloballyQuiescentJob;
 
-public class SpanCI {
+public class CC {
 	
 	class V {
 		public int parent;
@@ -45,10 +46,10 @@ public class SpanCI {
 	AtomicIntegerArray color;
 	int ncomps=0;
 	
-	static int[] Ns = new int[] {1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000, 5*1000*1000};
+	static int[] Ns = new int[] {10}; //, 1000*1000, 2*1000*1000, 3*1000*1000, 4*1000*1000, 5*1000*1000};
 	int N, M;
 	
-	public SpanCI (int n, int m){
+	public CC(int n, int m){
 		N=n;
 		M=m;
 		
@@ -114,8 +115,8 @@ public class SpanCI {
 		int top=-1;
 		ncomps=0;
 		
-		for(int i=0;i<N ;i++) {
-			if (color.get(i) ==1) continue;
+		for(int i=0;i<N;i++) {
+			if (color.get(i)==1) continue;
 			connected_comps[ncomps++]=i;
 			stack[++top]=i;
 			color.set(i,1);
@@ -134,7 +135,7 @@ public class SpanCI {
 			}
 		}
 		
-		//System.out.println("ncomps="+ncomps);
+		System.out.println("ncomps="+ncomps);
 		El1 = new E [m+ncomps-1]; 
 		
 		for(int i=0;i<N;i++) color.set(i,0);
@@ -143,8 +144,8 @@ public class SpanCI {
 		//    Remove duplicated edges
 		for(int i=0;i<M;i++) if(El[i].v1!=-1) El1[j++]=El[i]; 
 		
-		//if(j!=m) System.out.println("Remove duplicates failed");
-		//else System.out.println("Remove duplicates succeeded,j=m="+j);
+		if(j!=m) System.out.println("Remove duplicates failed");
+		else System.out.println("Remove duplicates succeeded,j=m="+j);
 		
 		/*add edges between neighboring connected comps*/
 		for(int i=0;i<ncomps-1;i++) {
@@ -157,93 +158,14 @@ public class SpanCI {
 		for(int i=0;i<N;i++) {
 			G[i]=new V();
 			G[i].degree=D[i];
-			G[i].parent = i;
+			
 			G[i].neighbors=new int [D[i]];
 			for(j=0;j<D[i];j++) {
 				G[i].neighbors[j]=NB[i][j];
-				//System.out.println("G[" + i + "]=" + G[i] + "-->"+ G[i].neighbors[j]);
+				System.out.println("G[" + i + "]=" + G[i] + "-->"+ G[i].neighbors[j]);
 			}
 		}     
 	}
-	
-	public  class TFrame extends Frame {
-		int u; // vertex
-		volatile int k;
-		public TFrame(int u) {
-			this.u=u;
-		}
-		public void setOutlet(final Closure c) {
-			// nothing to do
-		}
-		public Closure makeClosure() {
-			return new Traverser(this);
-		}
-		public String toString() { return "SpanCI(" + "u=" + u + ",k=" + k+")";}
-	}
-
-	 void traverseBody(final Worker w,  TFrame frame) throws StealAbort {
-		final V[] g = G;
-		final AtomicIntegerArray c = color;
-		final int baseU = frame.u;
-		for (;;) {
-			final int u = frame.u;
-			final int k = frame.k-1;
-			final int deg = g[u].degree;
-			if (k==g[u].degree) {
-				w.popFrame();
-				w.abortOnSteal();
-				if (u==baseU) break;
-				frame = (TFrame) w.cache.currentFrame();
-			} else {
-				final int v = g[u].neighbors[k];
-				boolean result = c.get(v) == 0 && c.compareAndSet(v,0,1);
-				frame.k++;
-				if (result) {
-					g[v].parent=u;
-					if (k+1==deg) {
-						frame.u=v;
-						frame.k=1;
-					} else {
-						TFrame f = new TFrame(v);
-						f.k=1;
-						w.pushFrame(f);
-						frame=f;
-					}
-				}
-			}	
-		}
-	}
-	 void traverse(final Worker w, final int uu) throws StealAbort {
-		 TFrame frame = new TFrame(uu);
-			frame.k=1;
-			w.pushFrame(frame);
-			traverseBody(w, frame);
-	 }
-	public class Traverser extends Closure {
-		public Traverser( TFrame t) { 
-			super(t);
-		}
-		public boolean requiresGlobalQuiescence() { return true; }
-		public String toString() { return "T("+ frame + ")";}
-		public void compute(Worker w, Frame ff) throws StealAbort {
-			traverseBody(w, (TFrame) ff);
-			setupGQReturnNoArg();
-			return;
-		}
-	}
-	boolean verifyTraverse(int root) {
-		int[] X = new int [N];
-		for(int i=0;i<N;i++) X[i]=G[i].parent;
-		for(int i=0;i<N;i++) while(X[i]!=X[X[i]]) X[i]=X[X[i]];
-		for(int i=0;i<N;i++) {
-			
-			if(X[i]!=root)  
-				return false;
-		}
-		return true;
-	}
-	static SpanCI graph;
-	static final long NPS = (1000L * 1000 * 1000);
 	public static void main(String[] args) {
 		int procs;
 		try {
@@ -254,55 +176,9 @@ public class SpanCI {
 			System.out.println("Usage: java SpanT <threads>");
 			return;
 		}
-		Pool g = new Pool(procs);
-		for (int i=0; i < Ns.length; i++) {
-			
-			int N = Ns[i], M = 3*N/5;
-			graph = new SpanCI(N,M);
-			System.gc();
-			System.out.printf("N:%8d ", N);
-			for (int k=0; k < 9; ++k) {
-				GloballyQuiescentJob job = new GloballyQuiescentJob(g) {
-					@Override
-					protected void compute(Worker w, Frame frame) throws StealAbort {
-						GFrame f = (GFrame) frame;
-						int PC = f.PC;
-						f.PC=LABEL_1;
-						if (PC==0) {
-							graph.color.set(1,1);
-							graph.traverse(w, 1);
-							//w.abortOnSteal();
-						}
-						setupGQReturnNoArg();
-					}
-					@Override
-					public int spawnTask(Worker ws) throws StealAbort { 
-						return 0;
-					}
-					public String toString() { 
-						return "GJob(SpanC,#" + hashCode() + ",status=" + status + ",frame=" + frame + ")";}
-				};
-				
-				
-				long s = System.nanoTime();
-				g.submit(job);
-				try {
-					job.waitForCompletion();
-				} catch (InterruptedException z) {}
-				long t = System.nanoTime() - s;
-				double secs = ((double) t)/NPS;
-				System.out.printf("%7.3f %b",secs, graph.verifyTraverse(1));
-				graph.clearColor();
-				
-			}
-			System.out.println();
-		}   
-		g.shutdown(); 
+			int N = 10, M = 3*N/5;
+			CC graph = new CC(N,M);
 	}
-	void clearColor() {
-		int n = color.length();
-		for (int i = 0; i < n; ++i) 
-			color.set(i, 0);
-	}
+	
 }
 

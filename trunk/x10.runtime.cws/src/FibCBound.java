@@ -46,6 +46,9 @@ public class FibCBound  extends Closure {
           return seqFib(n-1) + seqFib(n-2);
   }
   static class FibFrame extends Frame {
+//	 The label at which computation must be continued by the associated
+		// closure.
+		public volatile int PC;
     final int n;
     int x,y;
     public FibFrame(int n) {
