@@ -14,7 +14,7 @@ import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.eclipse.util.*;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
-import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.util.warnings.WarningSet;
 
@@ -24,7 +24,7 @@ public class X10ClassLoaderFactory extends PolyglotClassLoaderFactory {
 	super(exclusions, warnings, extInfo);
     }
 
-    protected IClassLoader makeNewClassLoader(ClassLoaderReference classLoaderReference, ClassHierarchy cha, IClassLoader parent, AnalysisScope scope) throws IOException {
+    protected IClassLoader makeNewClassLoader(ClassLoaderReference classLoaderReference, IClassHierarchy cha, IClassLoader parent, AnalysisScope scope) throws IOException {
  	if (classLoaderReference.equals(EclipseProjectPath.SOURCE_REF)) {
 	    ClassLoaderImpl cl = new X10SourceLoaderImpl(classLoaderReference, parent, getExclusions(), cha, getWarnings(), fExtInfo);
 	    cl.init( scope.getModules( classLoaderReference ));

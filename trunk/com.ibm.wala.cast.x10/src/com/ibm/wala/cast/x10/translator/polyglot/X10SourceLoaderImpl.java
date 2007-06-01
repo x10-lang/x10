@@ -16,7 +16,7 @@ import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
-import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.TypeReference;
@@ -24,7 +24,7 @@ import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
     public X10SourceLoaderImpl(ClassLoaderReference loaderRef, IClassLoader parent, SetOfClasses exclusions,
-	    ClassHierarchy cha, WarningSet warnings, IRTranslatorExtension extInfo) throws IOException {
+	    IClassHierarchy cha, WarningSet warnings, IRTranslatorExtension extInfo) throws IOException {
 	super(loaderRef, parent, exclusions, cha, warnings, extInfo);
     }
 
