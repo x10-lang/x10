@@ -17,18 +17,18 @@ import com.ibm.wala.util.debug.Assertions;
  * @author rfuhrer
  */
 public class X10AsyncObject extends AstFunctionClass {
-    private final ClassHierarchy cha;
+    private final IClassHierarchy cha;
 
     // TODO RMF 1/12/2007 - Should probably take enough info to compute a proper method Selector
     // for the method that this async pseudo-type contains. The name seems to contain the filename,
     // and the descriptor/signature is for a no-arg method returning either void (if a syntactic
     // async) or, if a syntactic future, the type produced by the future.
-    public X10AsyncObject(TypeReference reference, TypeReference superReference, IClassLoader loader, CAstSourcePositionMap.Position fileName, ClassHierarchy cha) {
+    public X10AsyncObject(TypeReference reference, TypeReference superReference, IClassLoader loader, CAstSourcePositionMap.Position fileName, IClassHierarchy cha) {
 	super(reference, superReference, loader, fileName);
 	this.cha = cha;
     }
 
-    public X10AsyncObject(TypeReference reference, IClassLoader loader, CAstSourcePositionMap.Position fileName, ClassHierarchy cha) {
+    public X10AsyncObject(TypeReference reference, IClassLoader loader, CAstSourcePositionMap.Position fileName, IClassHierarchy cha) {
 	super(reference, loader, fileName);
 	this.cha = cha;
     }
@@ -49,7 +49,7 @@ public class X10AsyncObject extends AstFunctionClass {
       return "Async@" + getSourcePosition();
     }
 
-    public ClassHierarchy getClassHierarchy() {
+    public IClassHierarchy getClassHierarchy() {
       return cha;
     }
 }

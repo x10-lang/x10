@@ -14,13 +14,13 @@ import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
 import com.ibm.domo.ast.x10.types.X10TypeReference;
 import com.ibm.wala.cast.java.analysis.typeInference.AstJavaTypeInference;
 import com.ibm.wala.classLoader.IClass;
-import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.IR;
 import com.ibm.wala.types.TypeReference;
 
 public class AstX10TypeInference extends AstJavaTypeInference {
 
-    public AstX10TypeInference(IR ir, ClassHierarchy cha, boolean doPrimitives) {
+    public AstX10TypeInference(IR ir, IClassHierarchy cha, boolean doPrimitives) {
 	super(ir, cha, doPrimitives);
     }
 

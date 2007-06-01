@@ -7,12 +7,12 @@ import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.CallGraphBuilder;
 import com.ibm.wala.ipa.callgraph.impl.Util;
 import com.ibm.wala.ipa.callgraph.propagation.cfa.ZeroXInstanceKeys;
-import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10ZeroXCFACallGraphBuilderFactory implements CallGraphBuilderFactory {
 
-    public CallGraphBuilder make(AnalysisOptions options, ClassHierarchy cha, AnalysisScope scope, WarningSet warnings,
+    public CallGraphBuilder make(AnalysisOptions options, IClassHierarchy cha, AnalysisScope scope, WarningSet warnings,
 	    boolean keepPointsTo) {
         Util.addDefaultSelectors(options, cha, warnings);
         Util.addDefaultBypassLogic(options, scope, Util.class.getClassLoader(), cha);

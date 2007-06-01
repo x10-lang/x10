@@ -5,11 +5,11 @@ import com.ibm.wala.cast.java.ipa.callgraph.JavaScopeMappingInstanceKeys;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.ipa.callgraph.propagation.InstanceKeyFactory;
 import com.ibm.wala.ipa.callgraph.propagation.PropagationCallGraphBuilder;
-import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ipa.cha.IClassHierarchy;
 
 public class X10ScopeMappingInstanceKeys extends JavaScopeMappingInstanceKeys {
 
-  public X10ScopeMappingInstanceKeys(ClassHierarchy cha, PropagationCallGraphBuilder builder, InstanceKeyFactory basic) {
+  public X10ScopeMappingInstanceKeys(IClassHierarchy cha, PropagationCallGraphBuilder builder, InstanceKeyFactory basic) {
     super(cha, builder, basic);
   }
 

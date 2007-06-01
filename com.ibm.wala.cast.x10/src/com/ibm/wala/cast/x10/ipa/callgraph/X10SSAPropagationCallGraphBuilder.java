@@ -3,6 +3,7 @@ package com.ibm.domo.ast.x10.ipa.callgraph;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.util.debug.Trace;
 import com.ibm.wala.analysis.typeInference.TypeInference;
+import com.ibm.wala.cast.ipa.callgraph.AstSSAPropagationCallGraphBuilder;
 import com.ibm.wala.cast.java.ipa.callgraph.AstJavaSSAPropagationCallGraphBuilder;
 import com.ibm.domo.ast.x10.analysis.typeInference.AstX10TypeInference;
 import com.ibm.domo.ast.x10.ssa.AstX10InstructionVisitor;
@@ -16,18 +17,19 @@ import com.ibm.domo.ast.x10.ssa.SSARegionIterNextInstruction;
 import com.ibm.wala.ipa.callgraph.*;
 import com.ibm.wala.ipa.callgraph.impl.ExplicitCallGraph;
 import com.ibm.wala.ipa.callgraph.propagation.*;
-import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.ssa.SSACFG.BasicBlock;
+import com.ibm.wala.util.graph.*;
 import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCallGraphBuilder {
 
-    protected X10SSAPropagationCallGraphBuilder(ClassHierarchy cha, WarningSet warnings, AnalysisOptions options, PointerKeyFactory pointerKeyFactory) {
+    protected X10SSAPropagationCallGraphBuilder(IClassHierarchy cha, WarningSet warnings, AnalysisOptions options, PointerKeyFactory pointerKeyFactory) {
 	super(cha, warnings, options, pointerKeyFactory);
     }
 
-    protected TypeInference makeTypeInference(IR ir, ClassHierarchy cha) {
+    protected TypeInference makeTypeInference(IR ir, IClassHierarchy cha) {
 	TypeInference ti= new AstX10TypeInference(ir, cha, true);
 	ti.solve();
 
@@ -87,10 +89,13 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	return new AstX10InterestingVisitor(vn);
     }
 
-    protected class AstX10ConstraintVisitor extends AstJavaConstraintVisitor implements AstX10InstructionVisitor {
+    protected static class AstX10ConstraintVisitor extends AstJavaConstraintVisitor implements AstX10InstructionVisitor {
 
-	public AstX10ConstraintVisitor(ExplicitCallGraph.ExplicitNode node, IR ir, ExplicitCallGraph callGraph, DefUse du) {
-	    super(node, ir, callGraph, du);
+	public AstX10ConstraintVisitor(
+		       AstSSAPropagationCallGraphBuilder builder,
+		       ExplicitCallGraph.ExplicitNode node) 
+	{
+	   super(builder, node);
 	}
 
 	public void visitAtomic(SSAAtomicInstruction instruction) {
@@ -122,8 +127,8 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	}
     }
 
-    protected ConstraintVisitor makeVisitor(ExplicitCallGraph.ExplicitNode node, IR ir, DefUse du, ExplicitCallGraph callGraph) {
-	return new AstX10ConstraintVisitor(node, ir, callGraph, du);
+    protected ConstraintVisitor makeVisitor(ExplicitCallGraph.ExplicitNode node) {
+	return new AstX10ConstraintVisitor(this, node);
     }
 
 
@@ -139,8 +144,8 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
       extends AstJavaPointerFlowVisitor 
       implements AstX10InstructionVisitor
     {
-      protected AstX10PointerFlowVisitor(CGNode node, IR ir, BasicBlock bb) {
-	super(node, ir, bb);
+      protected AstX10PointerFlowVisitor(PointerAnalysis pa, CallGraph cg, Graph<PointerKey> delegate, CGNode node, IR ir, BasicBlock bb) {
+	super(pa, cg, delegate, node, ir, bb);
       }
 
       public void visitAtomic(SSAAtomicInstruction instruction) {
@@ -176,7 +181,7 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
     }
 
     protected InstructionVisitor makeInstructionVisitor(CGNode node, IR ir, BasicBlock bb) {
-      return new AstX10PointerFlowVisitor(node,ir, bb);
+      return new AstX10PointerFlowVisitor(pa, cg, delegate, node, ir, bb);
     }
   }
 

@@ -7,7 +7,7 @@ import com.ibm.wala.ipa.callgraph.impl.DefaultContextSelector;
 import com.ibm.wala.ipa.callgraph.impl.DelegatingContextSelector;
 import com.ibm.wala.ipa.callgraph.propagation.SSAContextInterpreter;
 import com.ibm.wala.ipa.callgraph.propagation.cfa.ZeroXInstanceKeys;
-import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.util.warnings.WarningSet;
 
 public class X10ZeroXCFABuilder extends X10CFABuilder {
@@ -19,7 +19,7 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
      * @param bypass
      * @param contextProvider
      */
-    public X10ZeroXCFABuilder(ClassHierarchy cha, 
+    public X10ZeroXCFABuilder(IClassHierarchy cha, 
   			   WarningSet warnings,
   			   AnalysisOptions options,
   			   ContextSelector appContextSelector,
