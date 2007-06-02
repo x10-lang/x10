@@ -187,42 +187,13 @@ public class Closure  {
 	 */
 	boolean dekker(Worker thief) {
 		assert lockOwner==thief;
-		
-		incrementExceptionPointer(thief);
-		Cache c = cache;
-		int tail = c.tail();
-		int head = c.head();
-		if ((head + 1) >= tail) {
-			decrementExceptionPointer(thief);
-			return false;
-		}
-		// so there must be at least two elements in the framestack for a theft.
-		if ( Worker.reporting) {
-			System.out.println(thief + " has found victim " +this.ownerReadyQueue);
-		}
-		return true;
+		assert status == Status.RUNNING;
+		return cache.dekker(thief);
 	}
     
-    private void decrementExceptionPointer(Worker ws) {
-    	assert lockOwner == ws;
-    	assert status == Status.RUNNING;
-    	cache.decrementExceptionPointer();
-    }
     
-    private void incrementExceptionPointer(Worker ws) {
-    	assert lockOwner == ws;
-    	assert status == Status.RUNNING;
-    	
-    	cache.incrementExceptionPointer();
-    }
-    private void resetExceptionPointer(Worker ws) {
-    	 assert lockOwner==ws;
-    	 
-    	 cache.resetExceptionPointer();
-     }
-    
-    boolean handleException(Worker ws) {
-    	resetExceptionPointer(ws);
+    boolean handleException(Worker w) {
+    	cache.resetExceptionPointer(w);
     	Status s = status;
     	assert s == Status.RUNNING || s == Status.RETURNING;
     	if (cache.empty()) {
@@ -319,19 +290,18 @@ public class Closure  {
      * value of a child
      * @return parent or null
      */
-    private Closure provablyGoodStealMaybe(Worker ws, Closure child) {
-    	assert child.lockOwner==ws;
-    	//assert parent != null;
+    private Closure provablyGoodStealMaybe(Worker w, Closure child) {
+    	assert child.lockOwner==w;
     	Closure result = null;
     	
     	if (joinCount==0 && status == Status.SUSPENDED) {
     		result = this;
-    		pollInlets(ws);
+    		pollInlets(w);
     		ownerReadyQueue =null;
     		status=Status.READY;
     		cache=null;
     		if (Worker.reporting) {
-    			System.out.println(ws + " awakens " + this);
+    			System.out.println(w + " awakens " + this);
     		}
     	} 
     	return result;
@@ -344,11 +314,11 @@ public class Closure  {
 	 * and not just once, after joinCount==0. Perhaps because
 	 * this method is supposed to perform abort processing.
 	 */
-	void pollInlets(Worker ws) {
-		assert lockOwner==ws;
+	void pollInlets(Worker w) {
+		assert lockOwner==w;
 		
 		if (status==Status.RUNNING && ! cache.atTopOfStack()) {
-			assert ws.lockOwner == ws;
+			assert w.lockOwner == w;
 		}
 		if (completeInlets != null)
 			for (Closure i : completeInlets) {
@@ -367,10 +337,9 @@ public class Closure  {
      * @return
      */
    
-    Closure returnValue(Worker ws) {
+    Closure returnValue(Worker w) {
     	assert status==Status.RETURNING;
-    	
-    	return closureReturn(ws);
+    	return closureReturn(w);
     }
 	
 	/**
@@ -380,7 +349,6 @@ public class Closure  {
 	 * @param w -- the current thread, must be equal to Thread.currentThread()
 	 */
 	Closure execute(Worker w) {
-		
 		assert lockOwner != w;
 		
 		lock(w);
@@ -392,7 +360,7 @@ public class Closure  {
 		    	// load the cache from the worker's state.
 		    	cache = w.cache;
 		    	cache.pushFrame(frame);
-		    	cache.resetExceptionPointer();
+		    	cache.resetExceptionPointer(w);
 				assert f != null;
 				pollInlets(w);
 			} finally {
@@ -480,8 +448,7 @@ public class Closure  {
 					w.currentJob().accumulateResultInt(resultInt());
 				return;
 			}
-			Closure t = w.peekBottom(w);
-			assert t==this;
+			assert w.peekBottom(w)==this;
 			lock(w);
 			try {
 				assert status==Status.RUNNING;
@@ -507,18 +474,7 @@ public class Closure  {
 			w.unlock();
 		}
 	}
-	final protected void setupGQReturnNoArgNoPop() {
-		// Do not trust client code to pass this parameter in.
-		//System.out.println(Thread.currentThread() + " in setupGQReturnNoArgNoPop for " + this);
-		Worker w = (Worker) Thread.currentThread();
-		w.lock(w);
-		try {
-			w.extractBottom(w);
-			return;
-		} finally {
-			w.unlock();
-		}
-	}
+	
 	final protected void setupGQReturn() {
 		// Do not trust client code to pass this parameter in.
 		Worker w = (Worker) Thread.currentThread();
@@ -526,9 +482,7 @@ public class Closure  {
 		// done when global quiescence is recognized.
 		w.lock(w);
 		try {
-			
-			Closure t = w.peekBottom(w);
-			assert t==this;
+			assert this==w.peekBottom(w);
 			lock(w);
 			try {
 				assert status==Status.RUNNING;
@@ -545,6 +499,29 @@ public class Closure  {
 	
 	protected Outlet outlet;
 	public void setOutlet(Outlet o) { outlet=o;}
+	
+	/** Replace the frame by a copy. 
+	 * 
+	 * <p> Called during
+	 * a steal to ensure that frames are not shared between the caches
+	 * of two different workers. Must be called with the current thread,
+	 * w, holding the lock on the victim. This ensures that the 
+	 * victim is not running freely, modifying the frame being
+	 * copied. Why? Because the Theft Protocol ensures that the
+	 * victim cannot return to processing the frame until it has checked
+	 * whether this frame has been stolen. If the frame has been stolen,
+	 * the victim must grab the lock on itself. So therefore we must
+	 * ensure that this method is called by the thief before it releases 
+	 * the lock on the victim. 
+	 * 
+	 * Note that the victim is by definition the owner of this closure.
+	 * ownerReadyQueue must not be null.
+	 *
+	 */
+	final void copyFrame(Worker w) {
+		assert ownerReadyQueue.lockOwner==w;
+		frame = frame.copy();
+	}
 	
 	protected boolean done = false;
 	

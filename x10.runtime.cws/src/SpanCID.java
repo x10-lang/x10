@@ -166,7 +166,7 @@ public class SpanCID {
 			for(j=0;j<D[i];j++) {
 				G[i].neighbors[j]=NB[i][j];
 			}
-			if (SpanCID.reporting)
+			if (graphOnly)
 				System.out.println(G[i]);
 			
 		}     
@@ -183,7 +183,7 @@ public class SpanCID {
 			u=x;
 		}
 		public void setOutlet(final Closure c) {
-			// nothing to do
+			assert false;
 		}
 		public Closure makeClosure() {
 			return new Traverser(this);
@@ -204,6 +204,9 @@ public class SpanCID {
 					g[v].parent=index;
 					if (lastV >= 0) {
 						w.pushIntUpdatingInPlace(lastV);
+						if (reporting)
+							System.out.println(w + " sets stack[" + (w.cache.tail()-1) +"]="+ lastV 
+									+ " yielding " + w.cache.dump());
 					}
 					lastV =v;
 				}
@@ -214,10 +217,14 @@ public class SpanCID {
 	}
 	void traverseNode(final Worker w, final int u) throws StealAbort {
 		int index = u;	
+		Cache cache = w.cache;
 		for(;;) {
-			if (index >= 0) work(w, index);
-			Frame f = w.popAndReturnFrame();
+			if (index >= 0) 
+				work(w, index);
+			Frame f = cache.popAndReturnFrame(w);
 			if (f == null) return;
+			if (reporting)
+				System.out.println(w + " pops stack[" + (w.cache.tail()) + "]=" + f + " yielding " + w.cache.dump());
 			index = ((TFrame) f).u;
 		}
 	}
@@ -237,7 +244,7 @@ public class SpanCID {
 				tf.u=-1; // in case this frame gets stolen. -1 indicates no more work to do.
 				graph.traverseNode(w, index);
 			}
-			setupGQReturnNoArgNoPop();
+			setupGQReturnNoArg();
 			return;
 		}
 	}
@@ -258,6 +265,7 @@ public class SpanCID {
 	static SpanCID graph;
 	static boolean reporting = false;
 	static final long NPS = (1000L * 1000 * 1000);
+	static boolean graphOnly =false;
 	public static void main(String[] args) {
 		int procs;
 		int num=-1;
@@ -272,9 +280,13 @@ public class SpanCID {
 				boolean b = Boolean.parseBoolean(args[2]);
 				reporting=b;
 			}
+			if (args.length > 3) {
+				boolean b = Boolean.parseBoolean(args[3]);
+				graphOnly=b;
+			}
 		}
 		catch (Exception e) {
-			System.out.println("Usage: java SpanCID <threads> [<N>]");
+			System.out.println("Usage: java SpanCID <threads> [<N>] [false|true] [false|true]");
 			return;
 		}
 		Pool g = new Pool(procs);
@@ -288,11 +300,12 @@ public class SpanCID {
 		}
 		for (int i=0; i < Ns.length; i++) {
 			
-			int N = Ns[i], M = 3*N/5;
+			int N = Ns[Ns.length-i-1], M = 3*N/5;
 			graph = new SpanCID(N,M);
+			if (graphOnly) return;
 			System.gc();
 			System.out.printf("N:%8d ", N);
-			for (int k=0; k < 9; ++k) {
+			for (int k=0; k < 20; ++k) {
 				graph.color.set(1,1);
 				GloballyQuiescentJob job = new GloballyQuiescentJob(g, new TFrame(1)) {
 					@Override
@@ -312,8 +325,6 @@ public class SpanCID {
 					public String toString() { 
 						return "GJob(SpanC,#" + hashCode() + ",status=" + status + ",frame=" + frame + ")";}
 				};
-				
-				
 				long s = System.nanoTime();
 				g.submit(job);
 				try {
@@ -321,7 +332,9 @@ public class SpanCID {
 				} catch (InterruptedException z) {}
 				long t = System.nanoTime() - s;
 				double secs = ((double) t)/NPS;
-				System.out.printf("%7.3f %b ",secs, graph.verifyTraverse(1));//, graph.visitedCount.get());
+				System.out.printf("%7.3f ",secs);
+				if (! graph.verifyTraverse(1))
+					System.out.printf("%b ", false);
 				graph.clearColor();
 				
 			}
