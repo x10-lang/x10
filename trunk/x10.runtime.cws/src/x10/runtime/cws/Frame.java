@@ -21,7 +21,7 @@ package x10.runtime.cws;
  * @author vj 04/18/07
  *
  */
-public class Frame {
+public class Frame implements Cloneable {
 	
 	public Frame() {
 		super();
@@ -52,5 +52,15 @@ public class Frame {
 	 * @param x -- the new value for the distinguished slot in the frame.
 	 */
 	public void setInt(int x) { throw new UnsupportedOperationException();}
+	
+	public Frame copy() {
+		try {
+		return (Frame) clone();
+		} catch (CloneNotSupportedException z) {
+			// but it is?
+			assert false;
+			return null;
+		}
+	}
 
 }

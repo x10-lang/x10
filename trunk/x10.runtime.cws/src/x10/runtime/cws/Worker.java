@@ -178,12 +178,9 @@ public class Worker extends Thread {
 				lock.unlock();
 			}
 		}
-		try {
-			cl.lock(thief);
-		} catch (Throwable z) {
-			unlock();
-			throw new Error(z);
-		}
+		
+		cl.lock(thief);
+		
 		Status status = null;
 		try {
 			status = cl.status();
@@ -202,6 +199,7 @@ public class Worker extends Thread {
 					System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= ready " + cl + " from "
 							+ victim + " cache=" + victim.cache.dump());
 				}
+				res.copyFrame(thief);
 				return res;
 			} finally {
 				cl.unlock();
@@ -222,13 +220,20 @@ public class Worker extends Thread {
 				Closure child = null;
 				Closure res = null;
 				try {
-//					 I have work now, so checkout of the barrier.
+				// This needs to happen here, before the victim -- after discovering the 
+					// theft -- has resumed processing. The protocol requires that the 
+					// victim first grab its own lock. So there is no race condition on 
+					// the frame.
+					cl.copyFrame(thief);
 					child = cl.promoteChild(thief, victim);
+					
 					res = extractTop(thief);
+					assert cl==res;
+					
 					/*if (reporting)
 					System.out.println(thief + " Stealing: victim top=" + res + "bottom=" + bottom);*/
+//					 I have work now, so checkout of the barrier.
 					thief.checkOut(res);
-					assert cl==res;
 					if ( reporting) {
 						
 						System.out.println(thief + " steals stack[" + (victim.cache.head()-1) + "]= running " + cl + " from "
@@ -239,6 +244,7 @@ public class Worker extends Thread {
 				}
 				try {
 					cl.finishPromote(thief, child);
+					
 				} finally {
 					cl.unlock();
 				}
@@ -590,6 +596,7 @@ public class Worker extends Thread {
 				// vj: This avoids having to implement a wrap around.
 				// Otherwise, head might increase on a steal, but would
 				// never decrease.
+				assert cache.empty();
 				cache.reset();
 			} else {
 				yields++;
@@ -636,8 +643,8 @@ public class Worker extends Thread {
 	 *   
 	 *            
 	 */
-	public Closure popFrameCheck() {
-		if (! cache.popCheck()) 
+	public Closure interruptCheck() {
+		if (! cache.interrupted()) 
 			// fast path
 			return null;
 		
@@ -649,17 +656,7 @@ public class Worker extends Thread {
 			popFrame();
 		return result;
 	}
-	public Closure popFrameCheckNoPop() {
-		if (! cache.popCheck()) 
-			// fast path
-			return null;
-		
-		Closure result = exceptionHandler();
-		if (reporting)
-			System.out.println(this + " at " + pool.time() + " popFrameCheck: discovers a theft and returns " + result
-					+ " cache=" + cache.dump());
-		return result;
-	}
+
 	/**
 	 * Method to be called by user code after every method invocation that may have
 	 * pushed a frame on the frame stack. Detects whether the worker has been mugged. 
@@ -670,7 +667,7 @@ public class Worker extends Thread {
 	 * @throws StealAbort
 	 */
 	public void abortOnSteal() throws StealAbort {
-		Closure c = popFrameCheck();
+		Closure c = interruptCheck();
 		if (c != null) {
 			throw StealAbort.abort;
 		}
@@ -688,7 +685,7 @@ public class Worker extends Thread {
 	 * @throws StealAbort
 	 */
 	public void abortOnSteal(int x) throws StealAbort {
-		Closure c = popFrameCheck();
+		Closure c = interruptCheck();
 		if (c != null) {
 			c.setResultInt(x);
 			throw StealAbort.abort;
@@ -701,7 +698,7 @@ public class Worker extends Thread {
 	 * @throws StealAbort
 	 */
 	public void abortOnSteal(double x) throws StealAbort {
-		Closure c = popFrameCheck();
+		Closure c = interruptCheck();
 		if (c != null) {
 			c.setResultDouble(x);
 			throw StealAbort.abort;
@@ -713,7 +710,7 @@ public class Worker extends Thread {
 	 * @throws StealAbort
 	 */
 	public void abortOnSteal(float x) throws StealAbort {
-		Closure c = popFrameCheck();
+		Closure c = interruptCheck();
 		if (c != null) {
 			c.setResultFloat(x);
 			throw StealAbort.abort;
@@ -725,7 +722,7 @@ public class Worker extends Thread {
 	 * @throws StealAbort
 	 */
 	public void abortOnSteal(long x) throws StealAbort {
-		Closure c = popFrameCheck();
+		Closure c = interruptCheck();
 		if (c != null) {
 			c.setResultLong(x);
 			throw StealAbort.abort;
@@ -737,7 +734,7 @@ public class Worker extends Thread {
 	 * @throws StealAbort
 	 */
 	public void abortOnSteal(Object x) throws StealAbort {
-		Closure c = popFrameCheck();
+		Closure c = interruptCheck();
 		if (c != null) {
 			c.setResultObject(x);
 			throw StealAbort.abort;
@@ -747,7 +744,7 @@ public class Worker extends Thread {
 		lock(this);
 		try {
 			Closure b = bottom;
-			if (b == null) {
+			/*if (b == null) {
 				cache.resetExceptionPointer();
 		    	if (cache.empty()) {
 		    		// promote child resulted in a null closure.
@@ -756,50 +753,48 @@ public class Worker extends Thread {
 		    		return currentJob();
 		    	}
 		    	return null;
-			} else {
+			} else {*/
 				assert b !=null;
 				b.lock(this);
 				try { 
-					b.pollInlets(this);
+					/*b.pollInlets(this);
 					Closure c = bottom;
 					assert (c!=null);
 					if (b != c) {
 						b.unlock();
 						b=c;
 						b.lock(this);
-					}
+					}*/
 					boolean result = b.handleException(this);
 					Closure answer = result?b:null;
 					return answer;
 				} finally {
 					b.unlock();
 				}
-			}
+			
 		} finally {
 			unlock();
 		}
 	}
-	public Frame popAndReturnFrame() {
-		return cache.popAndReturnFrame(this);
+	
+	
+	public void pushIntUpdatingInPlace( int x) {
+		cache.pushIntUpdatingInPlace(x);
 	}
-		
-public void pushIntUpdatingInPlace( int x) {
-	cache.pushIntUpdatingInPlace(x);
-}
-    boolean isActive() { 
-        return  cache.notEmpty() || idleScanCount <= 0;
-    }
-    public Closure currentJob() {
-    	return pool.currentJob;
-    }
-    
-    FrameGenerator fg;
-    public interface FrameGenerator {
-    	Frame make();
-    }
-    public void setFrameGenerator(FrameGenerator x) {
-    	fg=x;
-    }
+	boolean isActive() { 
+		return  (! cache.empty()) || idleScanCount <= 0;
+	}
+	public Closure currentJob() {
+		return pool.currentJob;
+	}
+	
+	FrameGenerator fg;
+	public interface FrameGenerator {
+		Frame make();
+	}
+	public void setFrameGenerator(FrameGenerator x) {
+		fg=x;
+	}
 }
 
 

@@ -87,23 +87,7 @@ package x10.runtime.cws;
         stack = newArray;
         ++tail;
     }
-    protected void resetExceptionPointer() {
-    	exception = head;
-    }
-    /**
-     * TODO: Ensure that a fence is not needed after the write to exception.
-     *
-     */
-    protected void incrementExceptionPointer() {
-    	if (exception != EXCEPTION_INFINITY)
-    		++exception;
-    	
-    }
-    protected void decrementExceptionPointer() {
-    	if (exception != EXCEPTION_INFINITY)
-    		--exception;
-    	
-    }
+    
     /**
      * TODO: Check that the write to the volatile variable
      * is visible to every other thread.
@@ -125,9 +109,7 @@ package x10.runtime.cws;
     public Frame currentFrame() {
     	return stack[tail-1];
     }
-    public Frame poppedOne() {
-    	return stack[tail];
-    }
+   
     protected void popFrame() {
 		--tail;
 	}
@@ -136,22 +118,14 @@ package x10.runtime.cws;
      * @return true iff an exception has been posted against
      *              the current closure.
      */
-	protected boolean popCheck() {
-		int t = tail;
-		int e = exception;
-		return e >= t;
+	protected boolean interrupted() {
+		return exception >= tail;
 	}
 	public String dump() {
 		return this.toString() + "(head=" + head + " tail=" + tail + " exception=" + exception + ")";
 	}
 	public boolean empty() {
 		return head >=tail;
-	}
-	public boolean headAheadOfTail() {
-		return head==tail+1;
-	}
-	public boolean notEmpty() {
-		return head < tail;
 	}
 	
 	public void reset() {
@@ -170,21 +144,48 @@ package x10.runtime.cws;
 	public int tail() { return tail;}
 	public int exception() { return exception;}
 	
+	boolean dekker(Worker thief) {
+		assert thief !=owner;
+		if (exception != EXCEPTION_INFINITY)
+    		++exception;
+		if ((head + 1) >= tail) {
+			if (exception != EXCEPTION_INFINITY)
+	    		--exception;
+			return false;
+		}
+		// so there must be at least two elements in the framestack for a theft.
+		if ( Worker.reporting) {
+			System.out.println(thief + " has found victim " + owner);
+		}
+		return true;
+	}
+    
+	public void resetExceptionPointer(Worker w) {
+		assert w==owner;
+		exception=head;
+	}
+	/**
+	 * A fast way of determining
+	 * @param w
+	 * @return
+	 */
 	public Frame popAndReturnFrame(Worker w) {
+		assert w==owner;
 		try {
-		if (head < tail) {
+			if (head >= tail) return null;
 			tail--;
-			if (exception >= tail) {
+			if (interrupted()) { // there has been a theft -- rare case.
 				w.lock(w);
+				// need to lock to ensure that we get the right value for head.
+				// have to set exception so that the interrupt is acknowledged.
 				try {
-					exception = head;
+					exception=head;
 				} finally {
 					w.unlock();
 				}
 			} 
 			return stack[tail];
-		}
-		return null;
+			
 		} finally {
 			assert (head >=0);
 			assert (tail >= 0);
